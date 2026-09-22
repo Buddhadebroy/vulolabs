@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  * hard-codes it: every rule in this namespace is free-tier by definition.
  * get_tags()/is_fixable()/requires_ai()/get_estimated_impact()/
  * get_estimated_time_minutes() get sensible defaults (no tags, not
- * fixable, no AI required, medium impact, 5 minutes) — most rules only
+ * fixable, no AI required, medium impact, 5 minutes) - most rules only
  * need to override a couple of these, not restate all six every time. The
  * methods that meaningfully differ per rule (id/label/type/priority/
  * categories/applies_to/get_recommendation) stay abstract.

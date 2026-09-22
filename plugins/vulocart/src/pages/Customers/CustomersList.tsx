@@ -8,11 +8,11 @@ import { TableCard, TableRow, QueryProps } from '@zyra/table';
 import './customers-page.scss';
 
 /**
- * Admin customer list — `GET /customers` (modules/Customer/Rest.php,
+ * Admin customer list - `GET /customers` (modules/Customer/Rest.php,
  * manage_options-gated), same `NavigatorHeaderComponent` + `TableCard`
  * pattern `OrdersList.tsx` already establishes. No category tabs (a
  * customer has no fulfillment/payment-status-like dimension to filter
- * by) — just search across email/name and sortable totals, both backed
+ * by) - just search across email/name and sortable totals, both backed
  * by real columns on the `Customer` entity (`total_orders`/
  * `total_spent`/`last_order_at`), not computed per-row on the client.
  */
@@ -60,7 +60,7 @@ export function CustomersList() {
 		},
 		email: {
 			label: __( 'Email', 'vulocart' ),
-			render: ( row?: TableRow ) => ( row?.email as string ) || '—',
+			render: ( row?: TableRow ) => ( row?.email as string ) || '-',
 		},
 		total_orders: {
 			label: __( 'Orders', 'vulocart' ),
@@ -77,7 +77,7 @@ export function CustomersList() {
 		last_order_at: {
 			label: __( 'Last order', 'vulocart' ),
 			isSortable: true,
-			render: ( row?: TableRow ) => ( row?.last_order_at as string ) || '—',
+			render: ( row?: TableRow ) => ( row?.last_order_at as string ) || '-',
 		},
 		actions: {
 			label: __( 'Actions', 'vulocart' ),
@@ -97,7 +97,7 @@ export function CustomersList() {
 					headerIcon="groups"
 					headerTitle={ __( 'Customers', 'vulocart' ) }
 					headerDescription={ __(
-						'Every shopper who has placed an order — profile, saved addresses, order history, and internal notes in one place.',
+						'Every shopper who has placed an order - profile, saved addresses, order history, and internal notes in one place.',
 						'vulocart'
 					) }
 					buttons={ [] }

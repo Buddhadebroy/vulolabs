@@ -14,19 +14,19 @@ use VuloPilot\Repositories\ScanRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /broken-links/stats` — backs BrokenLinksTab.tsx's own "Link
+ * `GET /broken-links/stats` - backs BrokenLinksTab.tsx's own "Link
  * health"/"Coverage" tiles (SEO & Visibility → Broken Links) with real
  * numbers: BrokenLinksScanner::STATS_OPTION/BrokenImagesScanner::STATS_OPTION,
  * each written fresh every time that scanner's `scan()` genuinely executes
- * a check (not on a rate-limit-skipped run — see each scanner's own
+ * a check (not on a rate-limit-skipped run - see each scanner's own
  * `due_to_run()`). "Broken links"/"Broken images"/"Ignored" counts
  * themselves already come from the existing `GET /findings` endpoint (this
  * tab's own real finding rows); this controller only covers the coverage
- * numbers that scanner never persisted anywhere before this pass — no
+ * numbers that scanner never persisted anywhere before this pass - no
  * separate table, no new fabricated aggregate.
  *
- * `POST /broken-links/replace-url` — BrokenLinksSection.tsx's own "Fix"
- * popup — used to live here as a real, free, Pro-free manual
+ * `POST /broken-links/replace-url` - BrokenLinksSection.tsx's own "Fix"
+ * popup - used to live here as a real, free, Pro-free manual
  * search-and-replace. Moved to vulopilot-pro's own OneClickFix module
  * (BrokenLinkFixRest.php) so Broken Links' "Fix" joins the same real
  * `vulopilot_finding_fix_handler`-style Pro gate every other finding's

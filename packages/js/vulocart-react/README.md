@@ -18,7 +18,7 @@ function App() {
 
 ## Next.js
 
-This package (like `@vulocart/sdk` underneath it) touches `window`/`document` and has no SSR-safe mode — it has to run in a Client Component:
+This package (like `@vulocart/sdk` underneath it) touches `window`/`document` and has no SSR-safe mode - it has to run in a Client Component:
 
 ```tsx
 // app/checkout/BuyButtonClient.tsx
@@ -35,7 +35,7 @@ export function BuyButtonClient() {
 }
 ```
 
-Then import `BuyButtonClient` from a Server Component as normal. If you'd rather keep `VuloCartProvider` mounted once near the root instead of per-page, that's also fine — it's a plain React context provider, same rules as any other.
+Then import `BuyButtonClient` from a Server Component as normal. If you'd rather keep `VuloCartProvider` mounted once near the root instead of per-page, that's also fine - it's a plain React context provider, same rules as any other.
 
 ## Vue
 

@@ -12,7 +12,7 @@ use VuloPilot\EntityExtraction\EntityExtractor;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /entities` backs src/pages/KnowledgeGraph/KnowledgeGraph.tsx —
+ * `GET /entities` backs src/pages/KnowledgeGraph/KnowledgeGraph.tsx -
  * Services\EntityExtractor's own docblock has the full extraction design.
  *
  * @class       EntityExtraction controller
@@ -55,7 +55,7 @@ class EntityExtraction extends \WP_REST_Controller {
         );
 
         // Backs BusinessProfileCard.tsx's own "Business Name Details" side
-        // panel — see EntityExtractor::get_business_name_sources()'s own
+        // panel - see EntityExtractor::get_business_name_sources()'s own
         // docblock for what this real 4-source cross-check actually is.
         register_rest_route(
             VuloPilot()->rest_namespace,
@@ -76,7 +76,7 @@ class EntityExtraction extends \WP_REST_Controller {
         );
 
         // Backs BusinessProfileCard.tsx's own "Product Details" side panel
-        // — see EntityExtractor::get_product_schema_details()'s own
+        // - see EntityExtractor::get_product_schema_details()'s own
         // docblock for what these real per-product completeness issues
         // actually are.
         register_rest_route(
@@ -106,7 +106,7 @@ class EntityExtraction extends \WP_REST_Controller {
         $data = $this->extractor->extract_all();
 
         // `edit_url` is a real, per-viewer capability check
-        // (`current_user_can( 'edit_user', ... )`) — computed fresh on
+        // (`current_user_can( 'edit_user', ... )`) - computed fresh on
         // every request rather than inside EntityExtractor::extract_all()
         // itself, since that method's own result is cached in one
         // site-wide transient shared by every admin who views this tab;
@@ -117,7 +117,7 @@ class EntityExtraction extends \WP_REST_Controller {
             function ( array $person ): array {
                 $user_id = (int) $person['source_object_ref'];
 
-                // Not `get_edit_user_link()` — core's own version routes to
+                // Not `get_edit_user_link()` - core's own version routes to
                 // `profile.php` instead of `user-edit.php` whenever
                 // `$user_id` happens to be the currently logged-in admin
                 // (e.g. viewing this list as "admin" and that same "admin"
@@ -134,7 +134,7 @@ class EntityExtraction extends \WP_REST_Controller {
             $data['people']
         );
 
-        // Same real, per-viewer `edit_url` reasoning as `people` above —
+        // Same real, per-viewer `edit_url` reasoning as `people` above -
         // `current_user_can( 'edit_term', ... )` respects each taxonomy's
         // own real capability mapping (e.g. WooCommerce's own
         // `manage_product_terms` for `product_cat`, not just the default
@@ -155,7 +155,7 @@ class EntityExtraction extends \WP_REST_Controller {
         );
 
         // "Contact details" row (BusinessProfileCard.tsx, "Key Information
-        // Found by AI") — deliberately checks the real site admin's account
+        // Found by AI") - deliberately checks the real site admin's account
         // email, not `has_contact_page`/`contact_page_url` above (those
         // stay as-is; still real signals used elsewhere on this same
         // response, per direct instruction only this row's own check

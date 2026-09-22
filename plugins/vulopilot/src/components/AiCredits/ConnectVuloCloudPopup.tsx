@@ -11,13 +11,13 @@ interface ConnectVuloCloudPopupProps {
 
 interface ConnectVuloCloudPromptContentProps {
 	/**
-	 * `'card'` (default) — a full `CardComponent` with its own title row,
+	 * `'card'` (default) - a full `CardComponent` with its own title row,
 	 * for a bare popup with no header chrome of its own (`ConnectVuloCloudPopup`
-	 * below). `'inline-notice'` — the same real title/desc/action, as a
+	 * below). `'inline-notice'` - the same real title/desc/action, as a
 	 * `NoticeComponent` instead, for a caller embedding this inside a popup
 	 * that already has its own header (ContentToolPopup.tsx's own
 	 * `PopupComponent` `header={{title, icon, description}}`,
-	 * AiCreditsIndicator.tsx's own credit-balance popup) — a second full
+	 * AiCreditsIndicator.tsx's own credit-balance popup) - a second full
 	 * card title there would duplicate that chrome rather than reading as
 	 * one real message.
 	 */
@@ -25,7 +25,7 @@ interface ConnectVuloCloudPromptContentProps {
 }
 
 /**
- * "Connect to VuloCloud / claim free AI credits" — the real content shown
+ * "Connect to VuloCloud / claim free AI credits" - the real content shown
  * for this popup, split out from the self-contained `ConnectVuloCloudPopup`
  * below so `useContentGate.tsx` can render it directly inside its own
  * existing `PopupComponent` (the same "bare content component" convention
@@ -36,7 +36,7 @@ interface ConnectVuloCloudPromptContentProps {
  * "Connect to VuloCloud" button already use. This replaces the former
  * `VuloCloudConnectPopup.tsx` (a real embedded email/password + 2FA login
  * form) everywhere that component used to render, per direct instruction
- * ("remove the image 2 popup ... replace all image 2 popup to image 1") —
+ * ("remove the image 2 popup ... replace all image 2 popup to image 1") -
  * one real "Connect to VuloCloud" flow/design now, not two different ones.
  * `useContentGate.tsx`'s own lock condition was switched to match (real AI
  * credits `connected` status, the same flag this broker redirect sets) so
@@ -56,7 +56,7 @@ export const ConnectVuloCloudPromptContent = ({
 				type="info"
 				title={__('Connect to VuloCloud', 'vulopilot')}
 				message={__(
-					'Claim 100 Free AI Credits — no credit card required — to use this feature.',
+					'Claim 100 Free AI Credits - no credit card required - to use this feature.',
 					'vulopilot'
 				)}
 				actionLabel={
@@ -74,7 +74,7 @@ export const ConnectVuloCloudPromptContent = ({
 			title={__('Connect to VuloCloud', 'vulopilot')}
 			titleIcon="lock"
 			desc={__(
-				'Claim 100 Free AI Credits — no credit card required — to use this feature.',
+				'Claim 100 Free AI Credits - no credit card required - to use this feature.',
 				'vulopilot'
 			)}
 		>
@@ -94,11 +94,11 @@ export const ConnectVuloCloudPromptContent = ({
 
 /**
  * Self-contained popup wrapper around `ConnectVuloCloudPromptContent` above
- * — the shape every other call site of this component already expects
+ * - the shape every other call site of this component already expects
  * (ChatTab.tsx, ContentToolsGrid.tsx, AiContentAssistantSidebar.tsx: a
  * plain `open`/`onClose`-controlled popup, no external `PopupComponent` of
- * their own to nest it in). Uses the default `'card'` variant — this popup
- * has no header chrome of its own for the content to duplicate — and no
+ * their own to nest it in). Uses the default `'card'` variant - this popup
+ * has no header chrome of its own for the content to duplicate - and no
  * separate `footer` of its own: the card variant already renders its own
  * "Connect to VuloCloud" button in its body, so a second one here would
  * just be a duplicate (and, since `isConnecting`/`handleConnect` live
@@ -106,7 +106,7 @@ export const ConnectVuloCloudPromptContent = ({
  * call, not this wrapper, weren't actually reachable from here anyway).
  */
 const ConnectVuloCloudPopup = ({ open, onClose }: ConnectVuloCloudPopupProps) => {
-	// Already connected (has credits) — this prompt has nothing to offer,
+	// Already connected (has credits) - this prompt has nothing to offer,
 	// so no caller can ever surface it in that state, whatever error it hit.
 	const { status } = useAiCredits();
 

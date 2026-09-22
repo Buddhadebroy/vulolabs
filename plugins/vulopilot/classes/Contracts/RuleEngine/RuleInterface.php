@@ -11,7 +11,7 @@ use VuloPilot\ValueObjects\Finding;
 use VuloPilot\ValueObjects\Recommendation;
 
 /**
- * A rule turns a Finding into a Recommendation — not a condition tree (see
+ * A rule turns a Finding into a Recommendation - not a condition tree (see
  * RULE-ENGINE.md for why that earlier sketch was superseded). Implemented
  * by RuleEngine\Rules\AbstractBasicRule (free) and any premium rule Pro
  * registers via `vulopilot_rule_sources`.

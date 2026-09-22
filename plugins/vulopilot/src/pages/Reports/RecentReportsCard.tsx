@@ -14,7 +14,7 @@ import { useFilterSlot } from '../../services/useFilterSlot';
 
 /**
  * The mockup's "Recent Reports" card. Per direct instruction ("the section
- * is in free and the functionality code is in pro" — no duplicate code),
+ * is in free and the functionality code is in pro" - no duplicate code),
  * this component owns only the "section": the `CardComponent` wrapper,
  * its title/description, and the "View All Reports" action. The real
  * data-fetching/table (scoped to `days`, capped to 6 rows) moved wholesale
@@ -24,14 +24,14 @@ import { useFilterSlot } from '../../services/useFilterSlot';
  * (`useFilterSlot`, same shape Commerce.tsx/KeywordsTab.tsx's own
  * whole-panel Pro gates already use).
  *
- * Free's own fallback below — `ReportsDummyRows` + `DummyDataNotice`
- * behind `BlurredProContent` — only renders when that slot resolves to
+ * Free's own fallback below - `ReportsDummyRows` + `DummyDataNotice`
+ * behind `BlurredProContent` - only renders when that slot resolves to
  * nothing, i.e. vulopilot-pro's AdvancedReports module isn't active; it
  * never fetches real report data itself.
  */
 interface RecentReportsCardProps {
 	days: number;
-	/** Bumped by OverviewTab.tsx once the real Pro actions generate a new report — passed straight through to RecentReportsPanel's own refetch. */
+	/** Bumped by OverviewTab.tsx once the real Pro actions generate a new report - passed straight through to RecentReportsPanel's own refetch. */
 	refreshSignal?: number;
 }
 

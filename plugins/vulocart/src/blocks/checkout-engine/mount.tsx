@@ -1,7 +1,7 @@
 import { render } from '@wordpress/element';
 import { CheckoutEngine } from './CheckoutEngine';
 import type { CartResponse } from '../shared/cart';
-import './steps'; // side-effect only — registers Free's 5 interactive steps, same as Checkout.tsx's own import.
+import './steps'; // side-effect only - registers Free's 5 interactive steps, same as Checkout.tsx's own import.
 
 export interface MountCheckoutEngineOptions {
 	cartToken: string;
@@ -11,7 +11,7 @@ export interface MountCheckoutEngineOptions {
 }
 
 /**
- * The imperative half of the Checkout Engine's page-independence — the
+ * The imperative half of the Checkout Engine's page-independence - the
  * declarative `<CheckoutEngine>` component (CheckoutEngine.tsx's own
  * docblock) already has no WordPress-page concept anywhere in it; this is
  * what lets something OTHER than the `vulocart/checkout` Gutenberg block
@@ -21,7 +21,7 @@ export interface MountCheckoutEngineOptions {
  * modes can render the exact same engine into a DOM node THEY create
  * (a modal overlay, a container on any page, a standalone route's own
  * shell) without needing to `import` this module directly (separate
- * webpack build — same reasoning every other cross-plugin JS boundary in
+ * webpack build - same reasoning every other cross-plugin JS boundary in
  * this codebase already has).
  *
  * @param container DOM node to render into.
@@ -40,7 +40,7 @@ export function mountCheckoutEngine( container: HTMLElement, options: MountCheck
 }
 
 /**
- * Unmounts whatever `mountCheckoutEngine()` rendered into `container` —
+ * Unmounts whatever `mountCheckoutEngine()` rendered into `container` -
  * `render( null, container )` is `@wordpress/element`'s own documented
  * way to unmount (it wraps React 18/19's `root.unmount()` either way,
  * same as every other call site in this codebase that mounts via

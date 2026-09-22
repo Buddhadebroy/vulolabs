@@ -10,7 +10,7 @@ namespace VuloCart\AI\Exceptions;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Thrown by an AIProviderInterface adapter when a call fails — no
+ * Thrown by an AIProviderInterface adapter when a call fails - no
  * provider-configured, an HTTP/network failure, or a provider that doesn't
  * support the requested capability (image generation/embeddings).
  *

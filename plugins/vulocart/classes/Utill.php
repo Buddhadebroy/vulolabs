@@ -23,10 +23,10 @@ class Utill {
 
     /**
      * Custom $wpdb table names, keyed by short entity id. Only 'offering'
-     * lives here — Offering is the plugin's always-on core entity. Cart and
+     * lives here - Offering is the plugin's always-on core entity. Cart and
      * Order own their own tables directly (`modules/Cart/Install.php`,
      * `modules/Order/Install.php`), not registered in this shared
-     * registry, since they're real toggleable modules now — same
+     * registry, since they're real toggleable modules now - same
      * "module owns its own table names" convention `vulocart-pro`'s
      * Passport module already establishes (`Passport\Util::get_table()`
      * hardcodes its own table name rather than adding to the free
@@ -49,7 +49,7 @@ class Utill {
     );
 
     /**
-     * Option name the active-modules list is stored under — mirrors
+     * Option name the active-modules list is stored under - mirrors
      * VuloPilot\Utill::ACTIVE_MODULES_DB_KEY's role
      * for this product line's own `modules/` addon system
      * (module-architecture.md's discovery/loading mechanism, added here
@@ -60,7 +60,7 @@ class Utill {
     const ACTIVE_MODULES_DB_KEY = 'vulocart_all_active_module_list';
 
     /**
-     * Option name VuloCart's settings screen reads/writes — a single flat
+     * Option name VuloCart's settings screen reads/writes - a single flat
      * `wp_options` row, mirroring VuloPilot\Utill::VULOPILOT_SETTINGS_KEY
      * (not a per-tab-namespaced `admin_settings` shape,
      * which doesn't apply here since VuloCart has exactly one settings
@@ -72,18 +72,18 @@ class Utill {
 
     /**
      * Every known setting key and its default, so a missing/never-saved
-     * key still has a sane value instead of null — same role as
+     * key still has a sane value instead of null - same role as
      * VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS. Grouped by the
      * Settings screen's 12 tabs (src/settings/*.ts), one section per tab.
      *
      * Boolean-style toggle fields (`type: 'checkbox', look: 'toggle'`)
-     * store an array, not a literal bool — zyra's InputRenderer/
+     * store an array, not a literal bool - zyra's InputRenderer/
      * MultiCheckboxInput persists a toggle as the array of its one
      * selected option's value when on, `array()` when off (verified
      * against @zyra/inputs' MultiCheckboxInput.tsx and
      * VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS's own
      * `enable_debug_logging => array()` default for the identical
-     * pattern) — every toggle default below follows that shape.
+     * pattern) - every toggle default below follows that shape.
      *
      * `enable_debug_logging` (Utill::log()), the three Email tab keys
      * (Notifications\OrderEmails), `cart_expiry_days`
@@ -99,24 +99,24 @@ class Utill {
      * PaymentService` (each its own toggleable module now) read these
      * directly, and `Order\Application\OrderService::create_from_cart()`
      * resolves whichever of those modules is active to compute
-     * `Order::$shipping_cost`/`$tax_amount`/initial payment status —
+     * `Order::$shipping_cost`/`$tax_amount`/initial payment status -
      * `total` is no longer always `=== subtotal` (that docblock line on
      * `Order\Domain\Order` is stale as of the Customer/Address/Shipping/
      * Taxes/Payment/Review/Confirmation modules). `require_phone_number`
      * (Checkout section) is enforced directly by `Order\Rest::
      * create_item()`, same "client hint, server re-check" pattern
      * `guest_checkout_enabled` already uses. API/MCP/AI still have no
-     * backing module in this plugin — the same "real setting, not yet
+     * backing module in this plugin - the same "real setting, not yet
      * consumed" gap this class already documented for
      * `default_offering_status` (Application\OfferingService::create_offering()
      * still hardcodes `'draft'`) and VuloPilot\Utill's own
-     * `scan_frequency` (inert without its Automation module) — so those
+     * `scan_frequency` (inert without its Automation module) - so those
      * three tabs' fields exist to give the Settings UI its full, promised
      * tab structure honestly rather than silently omitting tabs the
      * admin-UX brief asked for.
      *
      * Deliberately no `enable_mcp_server`/`enable_ai_recommendations` keys
-     * (removed after MCP/AI were built) — both were a Settings-tab
+     * (removed after MCP/AI were built) - both were a Settings-tab
      * toggle duplicating what module activation on the Modules page
      * already does once MCP/AI ship as their own modules
      * (module-architecture.md), two sources of truth for one on/off
@@ -149,7 +149,7 @@ class Utill {
         'require_terms_acceptance'      => array(),
         'checkout_terms_url'            => '',
         'require_phone_number'          => array(),
-        // Domain\Checkout\CheckoutMode::free() — which of the two free
+        // Domain\Checkout\CheckoutMode::free() - which of the two free
         // delivery modes Checkout.tsx mounts CheckoutEngine in.
         'checkout_mode'                 => \VuloCart\Domain\Checkout\CheckoutMode::MULTI_STEP,
 
@@ -191,11 +191,11 @@ class Utill {
     );
 
     /**
-     * Records an unexpected exception — Modules::load_active_modules()'s
+     * Records an unexpected exception - Modules::load_active_modules()'s
      * catch-and-skip path calls this so one broken module's constructor
      * (a third party's, or vulocart-pro's) doesn't take the whole site
      * down. Gated behind the Advanced tab's `enable_debug_logging` toggle
-     * now that a Settings screen exists to hold it — mirrors
+     * now that a Settings screen exists to hold it - mirrors
      * VuloPilot\Utill::log()'s identical pattern exactly.
      *
      * @param \Throwable $exception The exception to record.
@@ -213,7 +213,7 @@ class Utill {
     }
 
     /**
-     * Whether VuloCart Pro is installed, active, and license-active —
+     * Whether VuloCart Pro is installed, active, and license-active -
      * mirrors VuloPilot\Utill::is_khali_dabba()'s role
      * for this product line. VuloCartPro::check_pro_active() is the only
      * thing that ever hooks `kothay_dabba_vulocart` (default false when

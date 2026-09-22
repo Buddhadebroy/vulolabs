@@ -11,12 +11,12 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Handles the Connect broker's real redirect back to this site
- * (`admin-post.php?action=vulopilot_connect_broker_callback` —
+ * (`admin-post.php?action=vulopilot_connect_broker_callback` -
  * AiCreditsConnection::get_broker_redirect_uri()'s own exact URL). Kept as
  * its own tiny class for the same reason GoogleSearchConsoleOAuthCallbackHandler
  * is: this hook must be registered unconditionally at plugin boot
  * (VuloPilot.php's init_classes()), not lazily inside a REST controller
- * that's only ever instantiated on `rest_api_init` — a request to
+ * that's only ever instantiated on `rest_api_init` - a request to
  * `admin-post.php` never fires that hook at all, so a REST-controller-only
  * registration would silently 404 every real return redirect.
  *

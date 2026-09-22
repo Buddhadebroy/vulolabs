@@ -3,7 +3,7 @@ import { applyFilters } from '@wordpress/hooks';
 /**
  * Same `require.context`-based settings-tab discovery the free
  * vulolabs plugin's own templateService.ts uses (react-frontend.md's
- * "declarative settings-config pattern") — one context here
+ * "declarative settings-config pattern") - one context here
  * (`settings`), since VuloPilot only has one settings screen today, vs.
  * vulolabs's several (settings/tools/storeStatus/dashboardSettings).
  * `vulopilot_settings_context` is this plugin's own filter name (not
@@ -12,10 +12,16 @@ import { applyFilters } from '@wordpress/hooks';
  * scoped to this plugin family, following the same
  * discovery-by-filter extension pattern every other engine in this
  * codebase uses.
+ *
+ * The former `tools` context (`components/StatusAndTools/`) is gone -
+ * that whole page (System Status/Log/Migration/Developer Tools) was a
+ * real route kept reachable-but-unlinked after a past nav redesign
+ * (classes/Admin.php's own now-removed `'status-tools'` menu-catalog
+ * entry documented this), removed entirely per direct instruction rather
+ * than kept around unreachable.
  */
 const contexts: Record<string, any> = {
 	settings: require.context('../components/Settings', true, /\.ts$/),
-	tools: require.context('../components/StatusAndTools', true, /\.ts$/),
 };
 
 type SettingNode = {
@@ -86,7 +92,7 @@ const importAll = (
 			const content = inpContext(key)?.default;
 
 			// Not every `.ts` file under components/Settings/ is a
-			// settings-tab config with a real default export — e.g.
+			// settings-tab config with a real default export - e.g.
 			// CrawlerAlertRows.ts only has a named export
 			// (`CRAWLER_ALERT_ROWS`, consumed directly by
 			// Notifications/AiCrawlerAlerts.ts) since it's a helper
@@ -94,7 +100,7 @@ const importAll = (
 			// `content: undefined` reaches getAvailableSettings()/
 			// getSettingById() downstream, which read real fields (e.g.
 			// `pro_dependent`) off every node's `content` and crash the
-			// whole Settings page on `undefined` — skip it instead, same
+			// whole Settings page on `undefined` - skip it instead, same
 			// as searchIndex.ts's own `buildIndexFromContext()` now does
 			// for the same file.
 			if (content !== undefined) {
@@ -130,7 +136,7 @@ const importAll = (
 	return sortStructure(folderStructure);
 };
 
-const getTemplateData = (type: 'settings' | 'tools'): SettingNode[] => {
+const getTemplateData = (type: 'settings'): SettingNode[] => {
 	let ctx = contexts[type];
 
 	if (!ctx) {
@@ -145,7 +151,7 @@ const getTemplateData = (type: 'settings' | 'tools'): SettingNode[] => {
 };
 
 /**
- * The Modules page's metadata catalog — mirrors the free vulolabs
+ * The Modules page's metadata catalog - mirrors the free vulolabs
  * plugin's own `getModuleData()` exactly (a plain `require()`, not a
  * `require.context`, since there's exactly one file to load, not a
  * folder of them). Returns null (not an empty catalog) if the file is

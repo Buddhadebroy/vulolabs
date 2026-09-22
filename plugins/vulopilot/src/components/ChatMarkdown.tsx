@@ -3,14 +3,14 @@ import './ChatMarkdown.scss';
 
 /**
  * Renders a chat message's own bold/code/list Markdown as real elements
- * instead of literal asterisks and backticks — every AI chat surface in
+ * instead of literal asterisks and backticks - every AI chat surface in
  * this plugin (Copilot.php's/ContentAssistant.php's system prompts both
  * say "Reply in plain text or Markdown, never HTML") gets real Markdown
  * back, but ChatMessage (../components/ChatComposerCard) renders `children`
  * as an opaque node with no parsing of its own, so a plain string shows the
- * raw syntax. Deliberately narrow — bold text, inline code, bullet and
+ * raw syntax. Deliberately narrow - bold text, inline code, bullet and
  * numbered lists, paragraphs, and line breaks, the shapes these prompts
- * actually produce — not a full CommonMark implementation (no tables,
+ * actually produce - not a full CommonMark implementation (no tables,
  * links, headings, nested lists). Builds real React elements, never
  * dangerouslySetInnerHTML, so there's no HTML-injection surface even
  * though the source is an LLM's own output.

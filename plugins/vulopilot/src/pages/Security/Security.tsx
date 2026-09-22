@@ -4,7 +4,7 @@ import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import SecurityTab from './SecurityTab';
 
 /**
- * "Security" (WP menu slug `security`) — used to be a tab shell over
+ * "Security" (WP menu slug `security`) - used to be a tab shell over
  * Security/Site Health/Backups (this page's own former name, "Protect My
  * Site"). Site Health and Backups were promoted to their own standalone
  * top-level page (`pages/SiteHealth/SiteHealth.tsx`, WP menu slug
@@ -14,7 +14,7 @@ import SecurityTab from './SecurityTab';
  *
  * `BackupProtectionNotice` (the "Backup protection: Enabled/Not enabled"
  * status line that used to sit above this page's own 3-tab bar) moved with
- * Backups to the new Site Health page — see that page's own docblock.
+ * Backups to the new Site Health page - see that page's own docblock.
  *
  * See SecurityTab.tsx's own docblock for the full history of what used to
  * live on this page's other, now-removed tabs (Performance, Files &

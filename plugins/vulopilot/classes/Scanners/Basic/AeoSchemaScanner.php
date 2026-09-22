@@ -14,23 +14,23 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * AEO (Answer Engine Optimization) — the one GEO check this pass adds that
+ * AEO (Answer Engine Optimization) - the one GEO check this pass adds that
  * the existing 9 `geo`-category scanners don't already cover: whether a
  * post whose own content is *already shaped* like an answer-engine-ready
  * FAQ or HowTo (question-phrased headings, or a numbered step list) also
  * has the matching `FAQPage`/`HowTo` schema.org markup search/answer
  * engines actually read to lift it into a rich answer box. This is
  * deliberately narrower than GeoFaqOpportunityScanner (which flags content
- * with NO question headings at all) — this scanner only ever fires for
+ * with NO question headings at all) - this scanner only ever fires for
  * content that already looks FAQ/HowTo-shaped but is missing the schema
  * that would let an answer engine recognize it as such, a distinct,
  * currently-uncovered signal, not a restatement of that scanner's own
  * check.
  *
  * Reads `_vulopilot_schema_json` postmeta directly (Services\SchemaJsonLdRenderer's
- * own key — the same JSON-LD this codebase already renders on `wp_head` for
+ * own key - the same JSON-LD this codebase already renders on `wp_head` for
  * a post, see GenerateSchemaAction/SchemaJsonLdRenderer) rather than making
- * a real HTTP request per post — every signal this scanner needs already
+ * a real HTTP request per post - every signal this scanner needs already
  * exists locally, so there's no reason to fetch the page over the network
  * the way Pro's SitewideStructuredDataScanner does for its own, different
  * ("is there any JSON-LD present at all") check.
@@ -158,7 +158,7 @@ class AeoSchemaScanner extends AbstractBasicScanner implements TracksScannedObje
     /**
      * @param \WP_Post $post        The post missing schema.
      * @param string   $schema_type 'FAQPage' or 'HowTo'.
-     * @param string   $shape       'faq' or 'howto' — recorded in meta for AiCopilot\Actions\GenerateSchemaAction to read a hint from, same convention GeoTrustSignalsScanner's own meta already establishes.
+     * @param string   $shape       'faq' or 'howto' - recorded in meta for AiCopilot\Actions\GenerateSchemaAction to read a hint from, same convention GeoTrustSignalsScanner's own meta already establishes.
      * @return Finding
      */
     private function build_finding( \WP_Post $post, string $schema_type, string $shape ): Finding {

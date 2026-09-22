@@ -17,12 +17,12 @@ defined( 'ABSPATH' ) || exit;
  * VuloLabs\Admin's add_menu_page()/add_submenu_page() + hash-tab
  * pattern (`vulopilot#&tab=dashboard`) rather than WordPress's normal
  * per-page URLs, so the whole admin UI is one React app reading `tab`
- * from location.hash (see src/app.tsx) — same mechanism the free
+ * from location.hash (see src/app.tsx) - same mechanism the free
  * vulolabs plugin's admin screen already uses.
  *
  * Also grafts a grouped/collapsible look onto that same native
  * `#toplevel_page_vulopilot` menu itself (public/js, public/styles) rather
- * than a custom in-content React sidebar — see enqueue_menu_grouping_assets()'s
+ * than a custom in-content React sidebar - see enqueue_menu_grouping_assets()'s
  * own docblock for why, and for the constraints that choice comes with.
  *
  * @class       Admin class
@@ -33,7 +33,7 @@ class Admin {
 
     /**
      * Dashicon class per collapsible group id (matches each submenu
-     * entry's own 'group' value below). Just id → icon, not id → label —
+     * entry's own 'group' value below). Just id → icon, not id → label -
      * class constants can't run __() at declaration time, so the
      * translated label per group is built separately, from literal
      * __() calls, in enqueue_menu_grouping_assets().
@@ -60,12 +60,12 @@ class Admin {
     /**
      * Registers the VuloPilot top-level menu and its submenu tabs.
      *
-     * Each entry's optional 'group' key must match a GROUPS key —
+     * Each entry's optional 'group' key must match a GROUPS key -
      * public/js/admin-menu-groups.js reads it (via the
      * tabToGroup map enqueue_menu_grouping_assets() localizes) to decide
      * which already-rendered `<li>` belongs under which collapsible
      * group header. Priorities are deliberately assigned so every group's
-     * members sort contiguously — the grouping script only inserts a
+     * members sort contiguously - the grouping script only inserts a
      * header before a run's first member and shows/hides the run in
      * place, it never re-parents `<li>` elements (see that file's own
      * docblock for why), so non-contiguous members of the same group
@@ -88,14 +88,15 @@ class Admin {
             56
         );
 
-        // Flat top-level IA — each entry reuses an existing tab slug/route
+        // Flat top-level IA - each entry reuses an existing tab slug/route
         // (src/routes.ts) so no new pages were needed, just new labels,
-        // icons and a new order. Every slug this array does *not* mention
-        // (GEO's siblings, Accessibility, Health, etc.) keeps its working
-        // React route and stays reachable via a direct
-        // `admin.php?page=vulopilot#&tab=<slug>` link — see
-        // self::legacy_submenus() for that metadata, kept for a future
-        // pass rather than deleted.
+        // icons and a new order. This is the final menu (per direct
+        // instruction) - every tab/page that used to be reachable-but-
+        // unlinked outside this list (AEO, Crawler Traffic, Brand
+        // Visibility, Knowledge Graph, Schema, Redirects & 404s, Health,
+        // Activity, Modules) has been removed outright, both here and
+        // from their own React routes/pages, rather than kept around for
+        // a possible future re-surfacing.
         $submenus = apply_filters(
             'vulopilot_submenus',
             array(
@@ -126,7 +127,7 @@ class Admin {
                 ),
                 // Promoted out of "Protect My Site"'s own former 3-tab
                 // shell (Security.tsx) along with Backups, which is now
-                // merged into this page — see pages/SiteHealth/SiteHealth.tsx's
+                // merged into this page - see pages/SiteHealth/SiteHealth.tsx's
                 // own docblock.
                 'site-health'   => array(
                     'name'     => __( 'Site Health', 'vulopilot' ),
@@ -138,7 +139,7 @@ class Admin {
                     'priority' => 65,
                     'icon'     => 'dashicons-universal-access',
                 ),
-                // "Protect My Site"'s own remaining tab, now standalone —
+                // "Protect My Site"'s own remaining tab, now standalone -
                 // see pages/Security/Security.tsx's own docblock.
                 'security'      => array(
                     'name'     => __( 'Security', 'vulopilot' ),
@@ -156,7 +157,7 @@ class Admin {
                     'icon'     => 'dashicons-update',
                 ),
                 // 'divider' draws a thin rule before this item in the
-                // native submenu (admin-menu-groups.js's addDividers()) —
+                // native submenu (admin-menu-groups.js's addDividers()) -
                 // marks the split between the day-to-day work items above
                 // and the account-level pages below, same as the design.
                 'reports'       => array(
@@ -172,25 +173,23 @@ class Admin {
                 ),
                 // 'modules' used to sit here too (always last, pinned via
                 // PHP_INT_MAX so a filter adding a higher-priority item
-                // later couldn't push it out of the last slot) — removed
+                // later couldn't push it out of the last slot) - removed
                 // per direct instruction ("move the modules tab in
                 // settings after general tab"): its real content
                 // (ModuleGridComponent) now renders as Settings' own
                 // "Modules" tab instead (src/components/Settings/Modules.ts,
                 // priority 1.5, right after "General"). The old `tab=modules`
                 // React route (src/routes.ts) stayed registered for a
-                // while as a reachable-but-unlinked fallback, same "route
-                // stays real, just not in the native submenu list"
-                // treatment every entry in legacy_submenus() below still
-                // gets — but was later removed outright too, per direct
-                // instruction, once every real deep-link to it had been
-                // repointed at `admin.php?page=vulopilot#&tab=settings&subtab=modules`
+                // while as a reachable-but-unlinked fallback, but was
+                // later removed outright too, per direct instruction,
+                // once every real deep-link to it had been repointed at
+                // `admin.php?page=vulopilot#&tab=settings&subtab=modules`
                 // instead.
             )
         );
 
         // "Commerce" (StoreOverviewCards.tsx and friends) is entirely
-        // WooCommerce-scoped — same `class_exists( 'WooCommerce' )` check
+        // WooCommerce-scoped - same `class_exists( 'WooCommerce' )` check
         // every WooCommerce-dependent scanner/REST controller in this
         // plugin already uses (WooCommerceScanner.php, StoreReadiness.php,
         // etc.), just applied to the submenu's own visibility instead of a
@@ -198,7 +197,7 @@ class Admin {
         // empty when WooCommerce isn't installed/active; reappears the
         // moment it is, with no other change needed. Deliberately NOT also
         // gated on the `commerce` module's own active state (tried once,
-        // reverted per direct instruction) — the menu item stays reachable
+        // reverted per direct instruction) - the menu item stays reachable
         // regardless of Pro/module state, same as every other Pro-gated
         // tab in this plugin (Automations, etc.), so its own "Unlock with
         // Pro" screen (CommercePanel.tsx) stays discoverable from the menu.
@@ -225,7 +224,7 @@ class Admin {
         }
 
         // The top-level menu click target duplicates the "Dashboard" submenu
-        // it was auto-registered as by add_menu_page() — remove it so the
+        // it was auto-registered as by add_menu_page() - remove it so the
         // submenu list doesn't show "VuloPilot" twice.
         remove_submenu_page( 'vulopilot', 'vulopilot' );
 
@@ -233,99 +232,9 @@ class Admin {
         // enqueue_menu_grouping_assets() (a separate admin_enqueue_scripts
         // callback, running later in the same request) can derive the
         // tab→group map from it without re-declaring the list a second
-        // time — add_menus() itself runs on 'admin_menu', always earlier
+        // time - add_menus() itself runs on 'admin_menu', always earlier
         // than 'admin_enqueue_scripts' in WordPress's own load order.
         $this->registered_submenus = $submenus;
-    }
-
-    /**
-     * Metadata for tabs that used to be their own submenu row before the
-     * flat top-level redesign in add_menus() — intentionally unused by
-     * any hook. Each slug's React route (src/routes.ts) is still
-     * registered and fully working, reachable directly via
-     * `admin.php?page=vulopilot#&tab=<slug>`; only its row in the native
-     * WP submenu was removed. Kept here, not deleted, so a future pass
-     * (e.g. re-surfacing these as grouped children under the new
-     * top-level item they were folded into — see each entry's comment)
-     * can reuse this metadata instead of reconstructing it.
-     *
-     * @return array
-     */
-    private function legacy_submenus() {
-        return array(
-            // Folded into 'seo-visibility' ("SEO & Visibility").
-            'aeo'              => array(
-                'name'  => __( 'AEO', 'vulopilot' ),
-                'group' => 'ai-visibility',
-                'icon'  => 'dashicons-format-status',
-            ),
-            'crawler-traffic'  => array(
-                'name'  => __( 'Crawler Traffic', 'vulopilot' ),
-                'group' => 'ai-visibility',
-                'icon'  => 'dashicons-networking',
-            ),
-            'brand-visibility' => array(
-                'name' => __( 'Brand Visibility', 'vulopilot' ),
-                'icon' => 'dashicons-megaphone',
-            ),
-            'knowledge-graph'  => array(
-                'name' => __( 'Knowledge Graph', 'vulopilot' ),
-                'icon' => 'dashicons-share-alt2',
-            ),
-            'seo'              => array(
-                'name'  => __( 'SEO', 'vulopilot' ),
-                'group' => 'seo-content',
-                'icon'  => 'dashicons-search',
-            ),
-            // Folded into 'content' ("Content").
-            'ai-content'       => array(
-                'name'  => __( 'AI Content', 'vulopilot' ),
-                'group' => 'seo-content',
-                'icon'  => 'dashicons-edit',
-            ),
-            'schema'           => array(
-                'name'  => __( 'Schema', 'vulopilot' ),
-                'group' => 'seo-content',
-                'icon'  => 'dashicons-editor-code',
-            ),
-            // Folded into 'performance' ("Performance").
-            'redirects'        => array(
-                'name'  => __( 'Redirects & 404s', 'vulopilot' ),
-                'group' => 'site-health',
-                'icon'  => 'dashicons-randomize',
-            ),
-            // Folded into 'security' ("Security").
-            'accessibility'    => array(
-                'name'  => __( 'Accessibility', 'vulopilot' ),
-                'group' => 'site-health',
-                'icon'  => 'dashicons-universal-access',
-            ),
-            // Not part of any new top-level item's cluster — a real,
-            // working page (score-by-category summary + the unfiltered
-            // findings list), simply left off the redesigned nav.
-            'health'           => array(
-                'name' => __( 'Health', 'vulopilot' ),
-                'icon' => 'dashicons-heart',
-            ),
-            // Folded into 'reports' ("Reports").
-            'activity'         => array(
-                'name' => __( 'Activity', 'vulopilot' ),
-                'icon' => 'dashicons-clock',
-            ),
-            'status-tools'     => array(
-                'name'   => __( 'Status & Tools', 'vulopilot' ),
-                'subtab' => 'system-status',
-            ),
-            // Not folded into a grouped-cluster item like the others above
-            // — moved into "Settings" as that page's own "Modules" tab
-            // instead (src/components/Settings/Modules.ts) per direct
-            // instruction, same "route stays real, submenu row removed"
-            // treatment as every entry above.
-            'modules'          => array(
-                'name' => __( 'Modules', 'vulopilot' ),
-                'icon' => 'dashicons-admin-plugins',
-            ),
-        );
     }
 
     /**
@@ -368,12 +277,12 @@ class Admin {
     /**
      * Scrolls to and briefly highlights WP core's own "Email" field on its
      * native user-edit.php screen when linked here with `?highlight=email`
-     * — BusinessProfileCard.tsx's "Contact details" row (Key Information
+     * - BusinessProfileCard.tsx's "Contact details" row (Key Information
      * Found by AI) links an admin here this way, whether their account
      * email is present or missing, so they land straight on the one field
      * that matters instead of a bare user-edit.php with several unrelated
      * sections to hunt through. WP core has no built-in way to deep-link a
-     * single profile field, so this is a small first-party addition —
+     * single profile field, so this is a small first-party addition -
      * `id="email"` is WP core's own stable field id on this screen
      * (wp-admin/user-edit.php), not something this plugin controls.
      */
@@ -406,7 +315,7 @@ class Admin {
 
     /**
      * Grafts a grouped/collapsible look onto the native
-     * `#toplevel_page_vulopilot` admin menu — a deliberately different
+     * `#toplevel_page_vulopilot` admin menu - a deliberately different
      * approach from a custom in-content React sidebar: this menu is
      * WordPress core's own markup, rendered on *every* wp-admin screen
      * (not just VuloPilot's own page), so it has to be enqueued
@@ -415,19 +324,19 @@ class Admin {
      *
      * The public/js/admin-menu-groups.js file (and its
      * public/styles/admin-menu-groups.scss sibling) is hand-written
-     * vanilla JS/CSS rather than a webpack entry — it only ever touches
+     * vanilla JS/CSS rather than a webpack entry - it only ever touches
      * plain DOM (no JSX/TS, no React, no dependency on the admin bundle
      * even being loaded on the current screen), so routing it through
      * wp-scripts/webpack would add a bundling step for zero benefit. It's
      * still minified though (tools/scripts/minify.mjs's own `public/js`+
      * `public/styles` asset-folder handling, terser/sass, no webpack) into
-     * assets/js/public/ and assets/styles/public/ — the paths enqueued
-     * below — so the release zip ships the same minified shape as every
+     * assets/js/public/ and assets/styles/public/ - the paths enqueued
+     * below - so the release zip ships the same minified shape as every
      * wp-scripts-built asset, not raw source.
      *
      * The script only ever *shows/hides* and *inserts a header before*
      * the `<li>` elements WordPress itself already rendered from
-     * add_menus()'s $submenus list — it never re-parents them out of the
+     * add_menus()'s $submenus list - it never re-parents them out of the
      * submenu `<ul>`, specifically so this file's
      * `#toplevel_page_vulopilot > ul > li > a` selector in src/app.tsx
      * (used to toggle the 'current' class as the hash tab changes) keeps
@@ -460,7 +369,7 @@ class Admin {
 
         // Built from literal __() calls (never GROUPS's own label strings
         // fed through __() dynamically) so the i18n string-extraction
-        // tooling can actually find these — see i18n.md.
+        // tooling can actually find these - see i18n.md.
         $translated_labels = array(
             'ai-visibility' => __( 'AI Visibility', 'vulopilot' ),
             'seo-content'   => __( 'SEO & Content', 'vulopilot' ),
@@ -507,7 +416,7 @@ class Admin {
 
     /**
      * The $submenus list add_menus() built, stashed for
-     * enqueue_menu_grouping_assets() to read — see add_menus()'s own
+     * enqueue_menu_grouping_assets() to read - see add_menus()'s own
      * docblock for why this isn't just rebuilt a second time there.
      *
      * @var array

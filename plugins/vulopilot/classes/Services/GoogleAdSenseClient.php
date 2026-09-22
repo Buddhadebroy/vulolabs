@@ -10,13 +10,13 @@ namespace VuloPilot\Services;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real Google AdSense Management API (v2) client — backs the "Analytics"
+ * Real Google AdSense Management API (v2) client - backs the "Analytics"
  * settings panel's own AdSense account dropdown (GoogleServicesPanel.tsx),
  * reusing GoogleServicesConnection's shared OAuth token the same way
- * GoogleAnalyticsClient does. Read-only (`adsense.readonly` scope) — this
+ * GoogleAnalyticsClient does. Read-only (`adsense.readonly` scope) - this
  * only ever lists a site owner's real AdSense accounts; VuloPilot doesn't
  * read or display any real earnings/ad-unit data (that's a separate,
- * larger feature — same honest boundary GoogleServicesPanel.tsx's own
+ * larger feature - same honest boundary GoogleServicesPanel.tsx's own
  * closing note already draws for GA4/Search Console reporting).
  *
  * @class       GoogleAdSenseClient class
@@ -40,7 +40,7 @@ class GoogleAdSenseClient {
     }
 
     /**
-     * Real `GET https://adsense.googleapis.com/v2/accounts` — every
+     * Real `GET https://adsense.googleapis.com/v2/accounts` - every
      * AdSense account this Google user can access. Most site owners only
      * ever have exactly one; a site with no AdSense account at all gets a
      * real empty array back, not an error (AdSense connection is
@@ -70,7 +70,7 @@ class GoogleAdSenseClient {
         $status_code = (int) wp_remote_retrieve_response_code( $response );
 
         // A site owner with no AdSense account at all gets a real 403
-        // ("PERMISSION_DENIED"/no accounts) from this endpoint — treated
+        // ("PERMISSION_DENIED"/no accounts) from this endpoint - treated
         // as a real empty list, not surfaced as an error, since AdSense
         // is the one optional service in this connection (unlike Search
         // Console/Analytics, most WordPress sites never monetize with it).

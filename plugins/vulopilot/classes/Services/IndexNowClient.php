@@ -10,13 +10,13 @@ namespace VuloPilot\Services;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real HTTP client for the IndexNow protocol (indexnow.org) — a single
+ * Real HTTP client for the IndexNow protocol (indexnow.org) - a single
  * submission to this one neutral aggregator endpoint is picked up by every
  * participating search engine (Bing, Yandex, Seznam.cz, Naver, and others),
  * so this never needs a per-engine endpoint list. Uses
  * `wp_remote_post()` + explicit status-code branching (real pass/fail
  * responses worth surfacing to an admin), not SitemapManager's fire-and-
- * forget ping — IndexNow's response codes are meaningful and documented
+ * forget ping - IndexNow's response codes are meaningful and documented
  * (mockup's own "Response code help" card lists exactly these).
  *
  * Stateless: takes the site's own current key as a constructor argument
@@ -46,7 +46,7 @@ class IndexNowClient {
 
     /**
      * Submits one or more URLs in a single IndexNow request. Every URL must
-     * belong to this site's own host — IndexNow itself rejects (422)
+     * belong to this site's own host - IndexNow itself rejects (422)
      * cross-host submissions, so this is filtered client-side too rather
      * than relying solely on the API to reject them.
      *
@@ -124,7 +124,7 @@ class IndexNowClient {
 
     /**
      * Real, documented IndexNow response codes (mockup's own "Response code
-     * help" card — this is that same list, not paraphrased).
+     * help" card - this is that same list, not paraphrased).
      *
      * @param int $status_code Real HTTP status code IndexNow returned.
      * @return string

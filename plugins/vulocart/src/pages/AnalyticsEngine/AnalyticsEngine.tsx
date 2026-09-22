@@ -7,9 +7,9 @@ interface AnalyticsEngineProps {
 }
 
 /**
- * Free owns this top-level menu's chrome only — same "Pro fills it in
+ * Free owns this top-level menu's chrome only - same "Pro fills it in
  * via a filtered router" shape `WorkflowsEngine.tsx`'s own docblock
- * documents. Free has no view of its own here (same as Workflows) —
+ * documents. Free has no view of its own here (same as Workflows) -
  * every section is vulocart-pro's own Analytics module.
  */
 export function AnalyticsEngine( { view }: AnalyticsEngineProps ) {
@@ -24,7 +24,7 @@ export function AnalyticsEngine( { view }: AnalyticsEngineProps ) {
 			<h1>{ __( 'Analytics', 'vulocart' ) }</h1>
 			<p>
 				{ __(
-					'Sales, revenue, customers, offerings, funnels, abandonment, conversion, LTV, retention, inventory, AI insights, and forecasts — activate the Analytics module to use this page.',
+					'Sales, revenue, customers, offerings, funnels, abandonment, conversion, LTV, retention, inventory, AI insights, and forecasts - activate the Analytics module to use this page.',
 					'vulocart'
 				) }
 			</p>

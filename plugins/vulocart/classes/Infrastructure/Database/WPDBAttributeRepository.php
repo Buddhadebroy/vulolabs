@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart WPDBAttributeRepository.
  *
  * The only class that runs SQL against `vulocart_attributes`/
- * `vulocart_attribute_values` — implements
+ * `vulocart_attribute_values` - implements
  * Domain\Attribute\AttributeRepositoryInterface, bound in
  * VuloCart::init_classes().
  *

@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * Distinct from ManualGateway even though both are offline: a bank
  * transfer always starts `AUTHORIZED` (never immediately `CAPTURED`,
  * regardless of the Payments tab's `default_payment_status`) since real
- * money hasn't moved yet — a merchant has to actually see the transfer
+ * money hasn't moved yet - a merchant has to actually see the transfer
  * land before marking the order paid (Order\Rest's existing
  * payment-status route), so defaulting to "paid" here would be actively
  * misleading. `bank_transfer_instructions` is shown to the buyer on the

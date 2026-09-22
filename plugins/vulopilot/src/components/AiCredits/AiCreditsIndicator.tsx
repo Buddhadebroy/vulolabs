@@ -8,32 +8,32 @@ import { ConnectVuloCloudPromptContent } from './ConnectVuloCloudPopup';
 import './AiCreditsIndicator.scss';
 
 /**
- * The persistent "⚡ N AI Credits" indicator (architecture plan §21) —
+ * The persistent "⚡ N AI Credits" indicator (architecture plan §21) -
  * mounted once, via zyra's own `HeaderComponent`'s `beforeSearch` prop in
  * app.tsx, which renders it inline in the header's right-section row,
  * immediately before the "Modules & Settings" search box (not through
  * that component's own `utilityList` prop: that prop's `toggleIcon` only
- * ever renders a plain icon-font glyph — see PopupComponent's own real
- * toggle-icon behavior — so it has nowhere to put the live number itself;
+ * ever renders a plain icon-font glyph - see PopupComponent's own real
+ * toggle-icon behavior - so it has nowhere to put the live number itself;
  * this component drives its own `PopupComponent` in fully-controlled mode
  * instead, with the credit count as its own custom, always-visible
  * trigger).
  *
  * Three real states, all driven by useAiCredits()'s own live
- * `GET /ai-credits/status` read — never a fabricated number:
- * - Not connected: "Claim your 100 Free AI Credits" — opens the same
+ * `GET /ai-credits/status` read - never a fabricated number:
+ * - Not connected: "Claim your 100 Free AI Credits" - opens the same
  *   passwordless "Connect to VuloCloud" redirect Settings → Connections'
  *   own button uses (AiCreditsConnection::get_broker_authorize_url()'s own
  *   docblock for the full sequence) rather than a second, separate
- *   embedded login/signup form — one connect flow in the whole plugin, not
+ *   embedded login/signup form - one connect flow in the whole plugin, not
  *   two that could drift.
  * - Connected: the real credit count, click-through to balance/usage +
  *   "Buy More Credits"/"Explore VuloPilot Pro" (both external, same
  *   `appLocalizer.shop_url` link Popup.tsx's own generic Pro upsell
- *   already uses — this pass doesn't build a real purchase flow, see the
+ *   already uses - this pass doesn't build a real purchase flow, see the
  *   architecture plan's own "Explicitly out of scope").
- * - Loading: renders nothing rather than a placeholder number — there's
- *   no honest "0" or "—" to show before the real value is known.
+ * - Loading: renders nothing rather than a placeholder number - there's
+ *   no honest "0" or "-" to show before the real value is known.
  */
 const AiCreditsIndicator = () => {
 	const { status, isLoading, refresh } = useAiCredits();
@@ -74,12 +74,12 @@ const AiCreditsIndicator = () => {
 				) : (
 					// Same one real "Connect to VuloCloud" component every
 					// other real caller of this flow now shares
-					// (ConnectVuloCloudPopup.tsx's own docblock) — this
+					// (ConnectVuloCloudPopup.tsx's own docblock) - this
 					// already renders its own title/desc/button, so there's
 					// no separate footer button to duplicate here anymore
 					// (the previous footer button rendered unconditionally,
 					// even in the `status.connected` branch above, where a
-					// "Connect to VuloCloud" action made no sense — a real
+					// "Connect to VuloCloud" action made no sense - a real
 					// bug this consolidation also fixes).
 					<ConnectVuloCloudPromptContent variant="inline-notice" />
 				)}
@@ -96,7 +96,7 @@ const AiCreditsBalancePanel = ({
 	onRefresh: () => void;
 }) => {
 	const exhausted = 0 === status.credits;
-	// Depletion meter — how much of what's ever been earned is still
+	// Depletion meter - how much of what's ever been earned is still
 	// available, not how much has been used (an all-time-earned account
 	// with nothing spent yet reads as "full", same intuition as "remaining"
 	// being this panel's own headline number). Earned starts at 0 for a

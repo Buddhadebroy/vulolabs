@@ -2,7 +2,7 @@
 
 // .woocommerce-metrics-grid/.woocommerce-metric-tile (WooCommerceMetricsGrid.tsx)
 // and .sell-more-ai-insight/.sell-more-pro-tip (AiInsightBanner.tsx/
-// ProTipBanner.tsx) were removed here — those components only ever
+// ProTipBanner.tsx) were removed here - those components only ever
 // rendered on the Overview tab (OverviewTab.tsx), which no longer exists
 // (Commerce now goes straight to the real WooCommerce tab, see
 // Commerce.tsx).
@@ -29,10 +29,10 @@
 }
 
 // "Commerce" WooCommerce tab's real health-overview section
-// (CommerceTab.tsx) — banner, readiness checklist, category grid,
+// (CommerceTab.tsx) - banner, readiness checklist, category grid,
 // "what to work on first", and the issues table's own tab bar.
 // Layout/typography/background come from BannerCard (`.getting-started-banner`,
-// common.scss) — this only tunes it for StoreHealthBanner.tsx (Pro).
+// common.scss) - this only tunes it for StoreHealthBanner.tsx (Pro).
 .store-health-banner {
 	padding-block: 1.75rem;
 	margin-bottom: 0;
@@ -61,14 +61,14 @@
 }
 
 // "Store Readiness" used to be its own list-styled card here
-// (StoreReadinessCard.tsx, since removed) — it's now the first card
+// (StoreReadinessCard.tsx, since removed) - it's now the first card
 // inside .woocommerce-category-grid instead, reusing that grid's own
 // .woocommerce-category-row/.value-good/.value-warning styling below
 // rather than needing its own separate rule set.
 
 // `.woocommerce-category-grid`/`.woocommerce-category-card`'s own icon/
 // title/badge/footer-button shell now comes from the real
-// `<MetricTileComponent>` (@zyra/components, MetricTileComponent.scss —
+// `<MetricTileComponent>` (@zyra/components, MetricTileComponent.scss -
 // the now-deleted local `components/MetricTile/MetricTile.tsx` used to
 // wrap that same real component behind an extra layer); only this card's
 // own divergent row/highlight body content (passed through that
@@ -109,7 +109,7 @@
 
 // `.admin-badge`'s own base pill shape comes from zyra at runtime, but its
 // color modifiers don't (same gap CreateContent.scss's own comment
-// documents for `.badge-{severity}`) — every red/orange/green/blue/purple/
+// documents for `.badge-{severity}`) - every red/orange/green/blue/purple/
 // indigo `admin-badge` in this WooCommerce tab tree (CommerceCategoryGrid,
 // StoreHealthBanner, TopIssuesToWorkOn) was rendering untinted before this,
 // so this scopes and declares the color vocabulary once here rather than
@@ -152,14 +152,14 @@
 }
 
 // "VuloPilot noticed" row list (StoreIntelligenceSummaryCard.tsx's
-// active-data state) — a real Zyra `<ListComponent className="mini-card
+// active-data state) - a real Zyra `<ListComponent className="mini-card
 // report">` (row layout/divider all come from zyra itself; same
 // "mini-card report" shape TopIssuesToWorkOn.tsx's own issue list and
 // NeedsAttentionWidget.tsx's own Quick fixes/Open issues lists already
 // use). Each row's trailing action is a `ButtonInput` (`color:
 // 'text-purple'`) in the `tags` slot, not zyra's own `.read-more` span
 // style anymore. The one thing left to declare locally is each row's
-// own icon tint — `Item.className: 'is-{color}'` below, since ListComponent
+// own icon tint - `Item.className: 'is-{color}'` below, since ListComponent
 // has no built-in per-row icon color of its own.
 .store-intelligence-summary-card .item-list {
 	.item.is-orange .item-icon {
@@ -179,14 +179,14 @@
 	}
 }
 
-// "Products to look at" (ProductsToLookAtCard.tsx) — one real example
+// "Products to look at" (ProductsToLookAtCard.tsx) - one real example
 // product per risk category, now a real Zyra `<ListComponent
 // className="mini-card report">` (same shape the "VuloPilot noticed" list
 // above uses) rather than bespoke row markup; a colored status pill
 // (`.admin-badge`, color vocabulary declared above) and a per-row "View
 // product →" `<ButtonInput>` sit in each row's own `tags`. Only each row's
 // icon chip tone (light/grey/dark, matching this card's own mockup) is
-// still declared locally — same `Item.className: 'is-{tone}'` convention
+// still declared locally - same `Item.className: 'is-{tone}'` convention
 // the "VuloPilot noticed" list above uses for its own per-row icon color,
 // just with a background chip here instead of a plain tinted glyph.
 .products-to-look-at .item-list {
@@ -236,7 +236,7 @@
 	gap: 0.5rem;
 }
 
-// CommercePanel.tsx — the Pro-then-module-gated stand-in for
+// CommercePanel.tsx - the Pro-then-module-gated stand-in for
 // vulopilot-pro's own real Commerce module content (CommerceTab.tsx and
 // most of its children). Fabricated preview tiles, blurred and inert;
 // `.commerce-locked-overlay` is the real click target covering the whole
@@ -289,7 +289,7 @@
 	cursor: pointer;
 }
 
-// CommerceProDummies.tsx — inert form-field stand-ins in the fabricated
+// CommerceProDummies.tsx - inert form-field stand-ins in the fabricated
 // "Bulk AI optimization" preview.
 .commerce-dummy-field {
 	padding: 0.625rem 0.75rem;

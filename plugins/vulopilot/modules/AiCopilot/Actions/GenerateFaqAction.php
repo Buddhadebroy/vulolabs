@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
  * RuleEngine\Rules\FaqOpportunityRule's recommendations. A content-append
  * pattern like GenerateSchemaAction, but unlike that action's postmeta
  * write, the FAQ section has to actually be visible HTML inside
- * `post_content` — AI answer engines and question-phrased headings only
+ * `post_content` - AI answer engines and question-phrased headings only
  * help discoverability if a crawler renders the page and sees them, the
  * same reasoning GeoFaqOpportunityScanner's own docblock gives for why
  * this check exists. Appended via `wp_update_post()`, so it also gets a
@@ -84,7 +84,7 @@ class GenerateFaqAction extends AbstractBasicAction {
                     'You write frequently-asked-question sections for web content. Read the article and produce %d-%d '
                         . 'question/answer pairs a reader would plausibly ask about this specific content. Each answer must be '
                         . 'answerable in 1-3 sentences using only information already in the article. '
-                        . 'Respond with ONLY a raw JSON array like [{"question": "...", "answer": "..."}] — no markdown fences, no commentary.',
+                        . 'Respond with ONLY a raw JSON array like [{"question": "...", "answer": "..."}] - no markdown fences, no commentary.',
                     self::MIN_QUESTIONS,
                     self::MAX_QUESTIONS
                 ),

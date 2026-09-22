@@ -10,7 +10,7 @@ namespace VuloPilot\Exceptions;
 /**
  * Thrown by AiCopilot\ActionRunner::propose() when a credits-metered
  * action's VuloCloud AI Gateway call comes back with
- * `{success:false, error:'insufficient_credits'}` (VuloPilot brief §15) —
+ * `{success:false, error:'insufficient_credits'}` (VuloPilot brief §15) -
  * a real, structured, user-actionable outcome, not a generic provider
  * failure (AiRequestException), so it gets its own catch clause wherever
  * propose() is called (RestAPI\Controllers\AiActionRuns::create_item()) to

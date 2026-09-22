@@ -19,14 +19,14 @@ interface OfferingsProps {
  * Branches between the list, the dedicated add/edit page, and every other
  * Offerings-menu sub-page (Categories/Collections/Brands/Attributes/
  * Offering Types/Inventory/Reviews) based on the `action`/`id`/`view`
- * query params src/index.tsx parses from `location.search` on mount —
+ * query params src/index.tsx parses from `location.search` on mount -
  * see Menu.php's `add_offerings_menu()` docblock for why this is
  * query-string-driven rather than a client-side route: every transition
  * here is a real browser navigation to a distinct
  * `admin.php?page=vulocart-offerings...` URL, matching WooCommerce's own
  * Products/Orders admin screens. Any `view` this file doesn't recognize
  * falls through to `vulocart_offerings_extra_view` before finally
- * defaulting to `OfferingsList` — vulocart-pro's own Suppliers/Pricing
+ * defaulting to `OfferingsList` - vulocart-pro's own Suppliers/Pricing
  * Rules/Offering Templates/Bulk Editor/CSV Import admin pages register
  * their own `add_submenu_page()` entries under this same `vulocart-offerings`
  * parent slug (License\LicenseManager's own `register_menu()` already
@@ -106,14 +106,14 @@ export function Offerings( { action, id, view }: OfferingsProps ) {
 
 	if ( view ) {
 		/**
-		 * `vulocart_offerings_extra_view` — the same "Pro extends Free via
+		 * `vulocart_offerings_extra_view` - the same "Pro extends Free via
 		 * filters" pattern `vulocart_offering_row_actions`/
 		 * `vulocart_offering_edit_sections` already establish, extended to
 		 * this router itself: a Pro module (e.g. vulocart-pro's Suppliers/
 		 * Pricing Rules/Offering Templates/Bulk Editor/CSV Import admin
 		 * pages) can register its own `view` value here without this file
 		 * knowing anything about it. Only consulted when `view` is a
-		 * non-empty string this router didn't already recognize above —
+		 * non-empty string this router didn't already recognize above -
 		 * an unmatched/typo'd `view` still falls through to `OfferingsList`
 		 * exactly like it always has, so this is purely additive.
 		 */

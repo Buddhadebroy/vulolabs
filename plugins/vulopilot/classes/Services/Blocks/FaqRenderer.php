@@ -11,16 +11,16 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Real render logic for the `vulopilot/faq` block
- * (`src/blocks/faq/render.php` calls straight into this — see
+ * (`src/blocks/faq/render.php` calls straight into this - see
  * TableOfContentsRenderer's own docblock for why render.php itself must
  * stay declaration-free).
  *
  * Builds real FAQPage JSON-LD directly from this block instance's own
- * saved `questions` attribute — deliberately independent of
+ * saved `questions` attribute - deliberately independent of
  * Services\SchemaJsonLdRenderer's `_vulopilot_schema_json` postmeta (that
  * mechanism is one generic schema blob per POST; a post can have zero, one,
  * or several FAQ blocks, so a per-post postmeta key is the wrong shape
- * entirely — this schema is scoped to, and printed at, this one block
+ * entirely - this schema is scoped to, and printed at, this one block
  * instance).
  *
  * @class       FaqRenderer class
@@ -30,7 +30,7 @@ defined( 'ABSPATH' ) || exit;
 class FaqRenderer {
 
     /**
-     * @param array<string, mixed> $attributes Real block attributes — `questions: array<{question,answer}>`.
+     * @param array<string, mixed> $attributes Real block attributes - `questions: array<{question,answer}>`.
      * @return string Real HTML (visible <details> UI + a real <script type="application/ld+json"> FAQPage block), or '' if every row was blank.
      */
     public static function render( array $attributes ): string {
@@ -59,7 +59,7 @@ class FaqRenderer {
 
     /**
      * Never lets a blank question/answer row reach EITHER the visible
-     * markup or the JSON-LD — one guard, applied upstream of both, rather
+     * markup or the JSON-LD - one guard, applied upstream of both, rather
      * than two separate checks that could drift apart.
      *
      * @param mixed $raw The block's own `questions` attribute value.

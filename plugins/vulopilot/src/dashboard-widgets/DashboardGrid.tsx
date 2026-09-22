@@ -11,7 +11,7 @@ import './DashboardGrid.scss';
 interface DashboardGridProps {
 	summary: DashboardSummary;
 	isLoading: boolean;
-	/** Gates drag/hide affordances — see Dashboard.tsx's own state comment. */
+	/** Gates drag/hide affordances - see Dashboard.tsx's own state comment. */
 	isCustomizing: boolean;
 	/**
 	 * Incremented by Dashboard.tsx's "Restore default" header button.
@@ -21,11 +21,11 @@ interface DashboardGridProps {
 	 * between them).
 	 */
 	restoreDefaultSignal?: number;
-	/** Forwarded straight through to every widget's own `onRefreshSummary` (WidgetProps' own docblock) — Dashboard.tsx's own `loadDashboard`. */
+	/** Forwarded straight through to every widget's own `onRefreshSummary` (WidgetProps' own docblock) - Dashboard.tsx's own `loadDashboard`. */
 	onRefreshSummary: () => void;
 }
 
-/** What ReactSortable actually needs on every list item — see react-sortablejs's own usage in PanelEditor.tsx (Zyra's builders package) for this exact `list`/`setList` shape. */
+/** What ReactSortable actually needs on every list item - see react-sortablejs's own usage in PanelEditor.tsx (Zyra's builders package) for this exact `list`/`setList` shape. */
 interface SortableEntry extends WidgetLayoutEntry {
 	key: string;
 }
@@ -35,13 +35,13 @@ const WIDGETS_BY_ID = new Map(
 );
 
 /**
- * The drag-and-drop widget grid — fetches the current user's saved
+ * The drag-and-drop widget grid - fetches the current user's saved
  * layout (`/dashboard-layout`, per-user meta, see
  * Controllers/DashboardLayout.php's docblock for why it's user meta and
  * not a site-wide setting), renders each enabled widget in saved order,
  * and persists a new order back whenever the user drags a widget.
  *
- * Uses `react-sortablejs`'s `ReactSortable` — not a new drag-and-drop
+ * Uses `react-sortablejs`'s `ReactSortable` - not a new drag-and-drop
  * dependency: it's already a peer dependency of `@multivendorx/zyra` and
  * is the exact primitive Zyra's own builders package
  * (`PanelEditor.tsx`) uses for its drag-and-drop block canvas, so this
@@ -51,7 +51,7 @@ const WIDGETS_BY_ID = new Map(
  * `isCustomizing` (Dashboard.tsx's "Customize dashboard" header toggle)
  * gates whether any of this is reachable at all: when off, widgets render
  * in the same saved order as a plain (non-sortable) grid with no drag
- * handle/hide control and no hidden-widgets chip strip — a normal
+ * handle/hide control and no hidden-widgets chip strip - a normal
  * read-only dashboard. The saved layout itself and the REST calls that
  * read/write it are unaffected either way.
  */
@@ -73,7 +73,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 			.then((response) => {
 				// DashboardLayout.php's get_items() always reconciles
 				// against every registered widget id and returns a
-				// non-empty array on success — an empty/null response
+				// non-empty array on success - an empty/null response
 				// here only ever means the request itself failed
 				// (network error, or a non-admin hitting its
 				// manage_options gate), never "this user has zero
@@ -210,7 +210,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 				// ReactSortable needs to own the actual sortable DOM node
 				// itself (it takes a ref to it), so it can't render
 				// ContainerComponent as a child the way the read-only
-				// branch below does — `className` is set to the exact
+				// branch below does - `className` is set to the exact
 				// same `container-wrapper general-wrapper` markup
 				// ContainerComponent's own `general` variant renders
 				// (ContainerComponent.tsx), so the grid looks and behaves

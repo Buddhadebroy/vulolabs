@@ -11,11 +11,11 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Parses `/robots.txt` into per-user-agent Disallow groups, scoped to the
- * known AI bot tokens (CrawlerTrafficLogger::get_bot_signatures()) — the
+ * known AI bot tokens (CrawlerTrafficLogger::get_bot_signatures()) - the
  * one piece Seo\Scanners\RobotsTxtScanner deliberately doesn't cover
  * (its own docblock: a narrow, wildcard-only check, not a full parser).
  * Real RFC 9309 precedence (Allow overrides, longest-match) is out of
- * scope here too — same "narrow, deliberate check" restraint, just applied
+ * scope here too - same "narrow, deliberate check" restraint, just applied
  * to a second, AI-bot-specific question: does a given bot have its OWN
  * named group, or does it fall back to the wildcard (`*`) group's rules,
  * the one piece of real robots.txt semantics this feature needs to be
@@ -32,7 +32,7 @@ class RobotsTxtBotAccess {
     private const CACHE_TTL_SECONDS       = HOUR_IN_SECONDS;
 
     /**
-     * Settings → Developer Tools' "Clear cache" — same public
+     * Settings → Developer Tools' "Clear cache" - same public
      * `clear_cache()` shape `Services\EntityExtractor` already establishes.
      *
      * @return void
@@ -42,7 +42,7 @@ class RobotsTxtBotAccess {
     }
 
     /**
-     * Disallow paths for one bot token — its own named group if robots.txt
+     * Disallow paths for one bot token - its own named group if robots.txt
      * has one, otherwise the wildcard group's rules, otherwise empty (no
      * restriction found for that bot).
      *
@@ -54,7 +54,7 @@ class RobotsTxtBotAccess {
     }
 
     /**
-     * The actual "named group, or fall back to wildcard" resolution —
+     * The actual "named group, or fall back to wildcard" resolution -
      * split out from get_disallowed_paths_for_bot() so it's testable
      * against a fixture $groups array without mocking the network fetch
      * get_groups() itself needs.
@@ -118,7 +118,7 @@ class RobotsTxtBotAccess {
 
             if ( preg_match( '/^user-agent:\s*(.+)$/i', $line, $matches ) ) {
                 // A run of consecutive User-agent lines shares the rules
-                // that follow (standard robots.txt grouping) — reset the
+                // that follow (standard robots.txt grouping) - reset the
                 // list only when this line doesn't immediately follow
                 // another User-agent line.
                 if ( ! $last_line_was_agent ) {

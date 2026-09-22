@@ -2,7 +2,7 @@
 
 // useContentGate.tsx's own locked-state UI, shared across every
 // `useContentGate()` caller (imported once, from the hook itself, not
-// colocated per-page) — a real Settings-style Pro/module tag row on top, a
+// colocated per-page) - a real Settings-style Pro/module tag row on top, a
 // generic dummy content preview underneath it.
 .content-gate {
 	position: relative;
@@ -13,7 +13,7 @@
 
 .content-gate-tag {
 	// `.admin-tag.pro-tag` (zyra's own theme/src/common.scss) is written
-	// for Settings' own form-group rows — `position: absolute; right:
+	// for Settings' own form-group rows - `position: absolute; right:
 	// 1rem; top: 0.813rem` docked to that row's own relatively-positioned
 	// wrapper. Reset back to normal flow here so the same real tag (same
 	// colors/shape "like settings") lays out inside this card's own row
@@ -25,7 +25,7 @@
 }
 
 // Covers the whole `.content-gate` box (tag + dummy content) so a click
-// anywhere within it opens the popup — a real `<button disabled>` inside
+// anywhere within it opens the popup - a real `<button disabled>` inside
 // `dummyContent` never dispatches a click at all (native browser
 // behavior), so relying on bubbling from inside the section wouldn't
 // reliably catch a click landing exactly on one of those.
@@ -56,7 +56,7 @@
 	user-select: none;
 }
 
-// Check 3 (VuloCloud account) only — blurs the caller's own real content
+// Check 3 (VuloCloud account) only - blurs the caller's own real content
 // in place instead of substituting dummy content, so its real shape stays
 // visible underneath. Checks 1/2 (Pro/module) use `.content-gate-dummy-content`
 // above instead; see useContentGate.tsx's own docblock for why the two
@@ -68,7 +68,7 @@
 }
 
 // Sits under the same `.content-gate-click-overlay` every other tag does
-// — real now (ConnectVuloCloudPopup.tsx's own ConnectVuloCloudPromptContent),
+// - real now (ConnectVuloCloudPopup.tsx's own ConnectVuloCloudPromptContent),
 // not just a static label; kept its own class/shape (a pill, not
 // `.admin-tag`) since it reads as a sentence ("Connect to VuloCloud to use
 // this"), not a short tag like "Pro"/a module name.

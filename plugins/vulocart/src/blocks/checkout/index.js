@@ -16,7 +16,7 @@ registerBlockType( 'vulocart/checkout', {
 		return (
 			<div { ...blockProps }>
 				{ __(
-					'VuloCart Checkout — renders the real cart/order flow on the published page.',
+					'VuloCart Checkout - renders the real cart/order flow on the published page.',
 					'vulocart'
 				) }
 			</div>

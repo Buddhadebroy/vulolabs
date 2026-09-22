@@ -13,10 +13,10 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Real single-page JSON-LD inspection for the "Schema & Knowledge" tab's
- * own Inspector section — a real `wp_remote_get()` of the requested page
+ * own Inspector section - a real `wp_remote_get()` of the requested page
  * plus the exact same `StructuredDataValidationScanner::extract_json_ld_blocks()`
  * extraction SchemaCoverageAnalyzer already uses for its own multi-page
- * sample (public+static specifically so this class can reuse it too — see
+ * sample (public+static specifically so this class can reuse it too - see
  * that method's own docblock), decoded the same `@graph`/list/object way
  * SchemaCoverageAnalyzer::extract_types_from_url() already does. No AI, no
  * fabricated data: every type/problem/preview field below is either
@@ -31,7 +31,7 @@ class SchemaPageInspector {
     private const REQUEST_TIMEOUT_SECONDS = 8;
 
     /**
-     * Fields a real crawler/rich-results consumer expects for each @type —
+     * Fields a real crawler/rich-results consumer expects for each @type -
      * StructuredDataValidationScanner only ever checks JSON *validity*, not
      * field presence, so this is genuinely new, not a duplicate of
      * anything already computed elsewhere.
@@ -86,7 +86,7 @@ class SchemaPageInspector {
             }
 
             // Same 3 real shapes SchemaCoverageAnalyzer::extract_types_from_url()
-            // already handles — a single object, a @graph of several, or a
+            // already handles - a single object, a @graph of several, or a
             // JSON array of several top-level objects. array_keys() ===
             // range() is the min-PHP-8.0-compatible list check
             // (array_is_list() is 8.1+, this plugin's composer.json floor
@@ -164,7 +164,7 @@ class SchemaPageInspector {
 
     /**
      * @param string $field e.g. 'offers'.
-     * @return string e.g. 'Availability' — only the handful of fields this class actually checks need a mapping.
+     * @return string e.g. 'Availability' - only the handful of fields this class actually checks need a mapping.
      */
     private static function humanize_field( string $field ): string {
         $labels = array(
@@ -182,7 +182,7 @@ class SchemaPageInspector {
     }
 
     /**
-     * Every field individually optional — a missing one is reported as
+     * Every field individually optional - a missing one is reported as
      * genuinely absent on the frontend, never backfilled with a
      * placeholder.
      *

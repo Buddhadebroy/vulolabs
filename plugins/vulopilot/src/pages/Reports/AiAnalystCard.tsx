@@ -10,13 +10,13 @@ const ISSUES_TAB_URL =
 /**
  * The mockup's "AI Analyst" claims specific predicted future numbers ("23
  * new opportunities... increase traffic by 14%... improve revenue by
- * approximately $3,200") — no prediction/forecasting model exists anywhere
+ * approximately $3,200") - no prediction/forecasting model exists anywhere
  * in this codebase, same fabricated-claim treatment as `AiForemanCard.tsx`/
  * `AiSalesAssistantCard.tsx` this session. "Let AI Execute Recommendations"
  * is honestly disabled (no bulk-execute mechanism exists); "Review
  * Recommendations" is a real link to the AI Assistant's Issues tab, the
  * closest real "recommendations" surface in the app. Gated on the real AI
- * Copilot module (AiCopilotGuard) — previously this whole card ran
+ * Copilot module (AiCopilotGuard) - previously this whole card ran
  * unconditionally regardless of module state.
  */
 const AiAnalystCard = () => (
@@ -25,14 +25,14 @@ const AiAnalystCard = () => (
 		titleIcon="ai"
 		title={__('AI Analyst', 'vulopilot')}
 		desc={__(
-			'I keep an eye on your scans and reports. Open findings across your site are real opportunities to improve — review them and decide what to fix.',
+			'I keep an eye on your scans and reports. Open findings across your site are real opportunities to improve - review them and decide what to fix.',
 			'vulopilot'
 		)}
 	>
 		<AiCopilotGuard>
 			<TooltipComponent
 				text={__(
-					"Bulk-executing recommendations isn't available yet — review and apply fixes individually from the AI Assistant tab.",
+					"Bulk-executing recommendations isn't available yet - review and apply fixes individually from the AI Assistant tab.",
 					'vulopilot'
 				)}
 			>

@@ -6,7 +6,7 @@
  * zyra's token syntax by FrontendScripts::convert_date_format_to_js()).
  *
  * `@zyra/table`'s own TableCard renders `type: 'date'` columns with this
- * exact token-replace algorithm internally once given a `format` prop —
+ * exact token-replace algorithm internally once given a `format` prop -
  * this duplicates just that piece for the handful of places that show a
  * date outside a TableCard (a ListComponent `value`, a hand-built
  * `<table>`), since zyra doesn't export its cell renderer as a standalone
@@ -17,7 +17,7 @@
  */
 /**
  * A raw value with no explicit UTC/offset marker (a plain MySQL
- * `Y-m-d H:i:s`, or the same with a `T` separator) — every such value this
+ * `Y-m-d H:i:s`, or the same with a `T` separator) - every such value this
  * plugin's own REST layer ever returns is UTC (`current_time( 'mysql', true )`,
  * confirmed across ScanPersistenceListener.php/BackupManager.php/
  * AutomationScheduler.php), so it's parsed explicitly as UTC here rather
@@ -26,7 +26,7 @@
  * disagreeing with this site's own Settings → General → Timezone for any
  * admin not physically in that same zone). A value that already carries
  * its own explicit marker (`Z`, or a `+HH:MM`/`-HH:MM` offset) is trusted
- * as-is — already an unambiguous absolute instant.
+ * as-is - already an unambiguous absolute instant.
  */
 const UTC_MARKER = /(?:[Zz]|[+-]\d{2}:?\d{2})$/;
 
@@ -41,12 +41,12 @@ const parseAsUtc = (value: string): Date => {
 };
 
 /**
- * Shared by `formatWpDate`/`formatWpTime` below — same token-replace
+ * Shared by `formatWpDate`/`formatWpTime` below - same token-replace
  * algorithm either way, just a different real format string (Settings →
  * General → Date Format vs. Time Format) and fallback. Shifts the parsed
  * UTC instant by this site's own configured Settings → General → Timezone
  * offset (`appLocalizer.gmt_offset_minutes`) and reads every token off
- * that shifted instant's *UTC* fields — not its local ones — so the
+ * that shifted instant's *UTC* fields - not its local ones - so the
  * result reflects this site's configured timezone specifically, never the
  * viewing browser's own local zone (which is what plain `Date` getters/
  * `toLocaleString()` would otherwise silently substitute).
@@ -113,7 +113,7 @@ export const formatWpDay = (value?: string | null): string => {
 /**
  * Real Settings → General → Time Format (`appLocalizer.time_format_js`,
  * converted server-side by the same `FrontendScripts::convert_date_format_to_js()`
- * `date_format_js` already uses) — for anywhere a row needs just the real
+ * `date_format_js` already uses) - for anywhere a row needs just the real
  * configured time, not the full date (HistoryTimeline.tsx's own per-row
  * `rowTime()`, previously a hardcoded `toLocaleTimeString()` that ignored
  * this site's own Time Format setting entirely).
@@ -128,7 +128,7 @@ export const formatWpTime = (value?: string | null): string => {
 
 /**
  * This site's own current wall-clock date/time (Settings → General →
- * Timezone), for comparisons like "is this timestamp today" — plain
+ * Timezone), for comparisons like "is this timestamp today" - plain
  * `new Date()` reads the *browser's* local date, which can genuinely be a
  * different calendar day than this site's configured timezone right around
  * midnight in either zone.
@@ -137,7 +137,7 @@ export const wpNow = (): Date =>
 	new Date(Date.now() + (appLocalizer.gmt_offset_minutes ?? 0) * 60000);
 
 /**
- * Same-day comparison against `wpNow()` above, both read via UTC getters —
+ * Same-day comparison against `wpNow()` above, both read via UTC getters -
  * `toDateString()` (used by every "Today, …" call site before this) reads
  * the browser's own local calendar date instead, which can disagree with
  * this site's configured timezone the same way raw `Date` getters do

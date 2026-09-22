@@ -12,7 +12,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Scanning → Sitemap tab's "HTML Sitemap" card — a real, human-readable
+ * Scanning → Sitemap tab's "HTML Sitemap" card - a real, human-readable
  * `[vulopilot_html_sitemap]` shortcode (the mockup's own "Shortcode" settings
  * row), independent of the XML sitemap SitemapManager.php wraps WordPress
  * core's own native sitemap with. Queries live post/term data at render
@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * GeoAnalysis\LlmsTxtGenerator's own docblock documents for the same
  * reason), gated by the XML sitemap's own `sitemap_xml_post_types`/
  * `sitemap_xml_taxonomies` (formerly its own separate
- * `sitemap_html_post_types`/`sitemap_html_taxonomies` pair — merged into
+ * `sitemap_html_post_types`/`sitemap_html_taxonomies` pair - merged into
  * one real shared control each per direct instruction, Settings →
  * GetStarted\Sitemap.ts's own docblock has the reasoning) and
  * `sitemap_exclude_posts`/`sitemap_exclude_terms` (already shared with the
@@ -28,7 +28,7 @@ defined( 'ABSPATH' ) || exit;
  * here either).
  *
  * Self-registers its own hook in the constructor (php-wordpress.md) and is
- * constructed unconditionally in VuloPilot::init_classes() — the
+ * constructed unconditionally in VuloPilot::init_classes() - the
  * `html_sitemap_enabled` setting only gates output, not registration, same
  * shape as every other Services\* class in this plugin.
  *
@@ -40,7 +40,7 @@ class HtmlSitemapRenderer {
 
     /**
      * Real post_type slug => display label. No `knowledgebase`/`megamenu`
-     * entries — this codebase registers no custom post types of its own
+     * entries - this codebase registers no custom post types of its own
      * (confirmed via grep); `product` is only ever rendered when
      * `post_type_exists( 'product' )` is true (WooCommerce active), same
      * conditional-effectiveness pattern GeoAnalysis\LlmsTxtGenerator

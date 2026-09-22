@@ -10,7 +10,7 @@ export interface EmbeddedCartOptions {
 }
 
 /**
- * The ambient ("ongoing shopping session") cart — a standalone widget,
+ * The ambient ("ongoing shopping session") cart - a standalone widget,
  * unlike Buy Button's own always-fresh ephemeral cart (buy-button.ts's
  * own docblock on why those two are deliberately different tokens). Uses
  * `getOrCreateCartToken()` (the same localStorage-persisted token the

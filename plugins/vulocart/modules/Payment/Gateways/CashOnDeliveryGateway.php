@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Payment module CashOnDeliveryGateway.
  *
  * Same "no external call, merchant confirms by hand" shape as
- * BankTransferGateway — kept as its own gateway (rather than folding
+ * BankTransferGateway - kept as its own gateway (rather than folding
  * into ManualGateway) so it has its own settings toggle
  * (`enable_cash_on_delivery`) and label, letting a merchant offer "pay on
  * delivery" and "any other offline settlement" as two visibly distinct

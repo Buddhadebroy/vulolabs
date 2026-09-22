@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * `Application\PaymentService` up with that registry plus its own
  * transaction ledger. `vulocart-pro`'s Stripe/PayPal/Razorpay modules
  * hook the same filter with zero dependency on this class beyond the
- * filter name — same "module contributes to a filter this plugin's core
+ * filter name - same "module contributes to a filter this plugin's core
  * collects" shape `vulocart_checkout_steps` already establishes.
  *
  * @class       Module class
@@ -78,7 +78,7 @@ class Module {
     }
 
     /**
-     * Registers this module's own step — see Customer/Module.php's own
+     * Registers this module's own step - see Customer/Module.php's own
      * docblock on register_checkout_step() for what this mechanism is.
      *
      * @param array<int, array<string, mixed>> $steps Already-registered step descriptors.

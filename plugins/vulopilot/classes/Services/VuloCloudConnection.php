@@ -11,18 +11,18 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Generic "connect this plugin to a pre-known VuloCloud Organization +
- * Brand" connection — a plain sibling to AiCreditsConnection, not a
+ * Brand" connection - a plain sibling to AiCreditsConnection, not a
  * modification of it. That class's stored connection is unconditionally
  * AI-Credits-shaped (credit balance fields baked into its option schema
  * and `get_status()`); this one carries none of that, and everything it
  * reads comes from VULOPILOT_VULOCLOUD_CONFIG (config.php's own doc
- * comment) — nothing in this class is specific to VuloPilot itself, so
+ * comment) - nothing in this class is specific to VuloPilot itself, so
  * another plugin gets the same behavior by defining its own equivalent
  * config array and instantiating this same class.
  *
  * Same passwordless broker mechanism AiCreditsConnection's own
  * `get_broker_authorize_url()`/`exchange_broker_code()` already use
- * (ConnectBrokerClient) — this class is simply a second, parallel front
+ * (ConnectBrokerClient) - this class is simply a second, parallel front
  * door onto that mechanism, using the generic `pluginId`/`organizationId`/
  * `brandId` query shape instead of the legacy `soloOrganizationId` one.
  * The two connections are entirely independent: connecting through this
@@ -79,12 +79,12 @@ class VuloCloudConnection {
 	}
 
 	/**
-	 * Never the secret — see this class's own docblock. `organization_id`/
+	 * Never the secret - see this class's own docblock. `organization_id`/
 	 * `brand_id` here are the values ACTUALLY authorized at connect time
 	 * (echoed back by VuloCloud's own exchange response is not needed for
-	 * this — they're simply the config values this connection was made
+	 * this - they're simply the config values this connection was made
 	 * with), which any later brand-scoped API/data fetching should read
-	 * from here rather than straight off VULOPILOT_VULOCLOUD_CONFIG —
+	 * from here rather than straight off VULOPILOT_VULOCLOUD_CONFIG -
 	 * that config could change after connecting, this reflects what's
 	 * actually live.
 	 *
@@ -97,10 +97,10 @@ class VuloCloudConnection {
 			'connected'       => $this->is_connected(),
 			'organization_id' => $connection['organization_id'],
 			'brand_id'        => $connection['brand_id'],
-			// This Organization's own public storefront domain — reference/
+			// This Organization's own public storefront domain - reference/
 			// display only, never the URL any API call in this class
 			// actually hits (that's always VULOPILOT_VULOCLOUD_URL, the
-			// VuloCloud platform itself — see get_broker_authorize_url()'s
+			// VuloCloud platform itself - see get_broker_authorize_url()'s
 			// own doc comment for why the two must not be conflated).
 			'domain'          => $connection['domain'],
 			'connected_at'    => $connection['connected_at'],
@@ -132,7 +132,7 @@ class VuloCloudConnection {
 
 	/**
 	 * The redirect_uri VuloCloud's own `/plugin/connect/exchange` redirect
-	 * must land back on — a DIFFERENT admin-post.php action than
+	 * must land back on - a DIFFERENT admin-post.php action than
 	 * AiCreditsConnection::get_broker_redirect_uri()'s own, since these are
 	 * two entirely independent connections and each needs its own callback
 	 * so ConnectBrokerCallbackHandler/VuloCloudConnectCallbackHandler can
@@ -146,7 +146,7 @@ class VuloCloudConnection {
 
 	/**
 	 * The passwordless "Connect to VuloCloud" URL for this generic
-	 * connection — null (Connect button hidden/disabled) until a real
+	 * connection - null (Connect button hidden/disabled) until a real
 	 * deploy sets `organization_id` in VULOPILOT_VULOCLOUD_CONFIG, same
 	 * "honestly report unavailable" reasoning
 	 * AiCreditsConnection::get_broker_authorize_url() already follows for
@@ -158,7 +158,7 @@ class VuloCloudConnection {
 		$config = VULOPILOT_VULOCLOUD_CONFIG;
 
 		// VULOPILOT_VULOCLOUD_URL is the VuloCloud PLATFORM's own API base
-		// (same constant AiCreditsConnection already calls out to) — NOT
+		// (same constant AiCreditsConnection already calls out to) - NOT
 		// $config['domain'], which is this connection's own Organization's
 		// public storefront domain (e.g. store.vulolabs.com), an entirely
 		// different thing kept here only for reference/display (get_status()
@@ -172,7 +172,7 @@ class VuloCloudConnection {
 		$state = wp_create_nonce( 'vulopilot_vulocloud_connect' );
 
 		// Browser-facing: must be reachable from the site owner's own
-		// browser — same VULOPILOT_VULOCLOUD_PUBLIC_URL-over-
+		// browser - same VULOPILOT_VULOCLOUD_PUBLIC_URL-over-
 		// VULOPILOT_VULOCLOUD_URL precedence
 		// AiCreditsConnection::get_broker_authorize_url() already applies,
 		// for the identical local-Docker-dev reason (see that constant's
@@ -183,7 +183,7 @@ class VuloCloudConnection {
 			home_url(),
 			$this->get_broker_redirect_uri(),
 			$state,
-			'', // soloOrganizationId — the legacy shape, not used by this connection.
+			'', // soloOrganizationId - the legacy shape, not used by this connection.
 			(string) $config['plugin_id'],
 			(string) $config['organization_id'],
 			(string) ( $config['brand_id'] ?? '' )
@@ -203,7 +203,7 @@ class VuloCloudConnection {
 	/**
 	 * Redeems the broker's own single-use exchange `code`
 	 * (VuloCloudConnectCallbackHandler's own caller) and, on success,
-	 * stores the real ConnectedSite credential — organization_id/brand_id
+	 * stores the real ConnectedSite credential - organization_id/brand_id
 	 * stored are this build's own config values (the ones the just-
 	 * completed authorize call actually used), not anything echoed back
 	 * by VuloCloud's exchange response.
@@ -230,7 +230,7 @@ class VuloCloudConnection {
 			)
 		);
 
-		// Immediate first report — see SiteTelemetryReporter's own doc
+		// Immediate first report - see SiteTelemetryReporter's own doc
 		// comment and AiCreditsConnection::exchange_broker_code()'s
 		// identical call for why this can't just wait for the daily cron.
 		( new SiteTelemetryReporter() )->report( $result['siteId'], $result['siteSecret'] );
@@ -240,11 +240,11 @@ class VuloCloudConnection {
 
 	/**
 	 * Real self-service revoke on VuloCloud's own side
-	 * (`POST /plugin/connected-sites/disconnect`... — actually there is
+	 * (`POST /plugin/connected-sites/disconnect`... - actually there is
 	 * no generic disconnect endpoint on the vulocloud side yet, only the
 	 * AI-Credits-specific `/plugin/ai-credits/disconnect`
 	 * (ConnectedSiteService::revokeBySite() itself IS generic, just not
-	 * yet exposed under a non-AI-Credits route) — so this always clears
+	 * yet exposed under a non-AI-Credits route) - so this always clears
 	 * the local option (a site owner explicitly disconnecting shouldn't
 	 * stay stuck showing "Connected" either way), same
 	 * "best-effort remote, unconditional local clear" posture

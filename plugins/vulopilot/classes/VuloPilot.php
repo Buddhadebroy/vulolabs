@@ -12,11 +12,11 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloPilot Class.
  *
- * Plugin bootstrap singleton — same plain-array-container + magic
+ * Plugin bootstrap singleton - same plain-array-container + magic
  * __get/__set shape as VuloLabs\VuloLabs. VuloPilot is not
  * WooCommerce-bound (unlike the vulolabs family), so unlike
  * VuloLabs::init_plugin() this does not gate on 'woocommerce_loaded'
- * or declare HPOS compatibility — it boots on 'plugins_loaded' directly.
+ * or declare HPOS compatibility - it boots on 'plugins_loaded' directly.
  *
  * @class       VuloPilot class
  * @version     1.0.0
@@ -70,7 +70,7 @@ final class VuloPilot {
 
     /**
      * Runs on plugin activation. Sets a flag rather than creating tables
-     * directly — register_activation_hook() fires before 'plugins_loaded',
+     * directly - register_activation_hook() fires before 'plugins_loaded',
      * earlier than dbDelta()'s upgrade.php include and Utill's autoloaded
      * class are guaranteed available, so table creation is deferred to
      * init_plugin() where that's no longer a concern.
@@ -80,7 +80,7 @@ final class VuloPilot {
     public function activate() {
         add_option( Utill::VULOPILOT_OTHER_SETTINGS['run_installer'], true );
         // A no-op if this site already has an active-module list (e.g. a
-        // deactivate/reactivate cycle) — only seeds 'geo'/'seo'/
+        // deactivate/reactivate cycle) - only seeds 'geo'/'seo'/
         // 'content-intelligence'/'brand-intelligence'/'entity-extraction'/
         // 'ai-copilot' as active for a genuinely fresh install, matching
         // Install.php's own migration for sites upgrading in place instead.
@@ -101,14 +101,14 @@ final class VuloPilot {
      * Boots the plugin once every other active plugin has loaded.
      *
      * Previously only ran Install() on the one-time `run_installer` flag
-     * set at activation — meaning a table added in a later plugin version
+     * set at activation - meaning a table added in a later plugin version
      * (Install.php's own `create_database_tables()` gains one every so
      * often, most recently `vulopilot_brand_mentions`) would never
      * actually get created on a site that activated an older version and
      * simply auto-updated since, since that flag is deleted the moment it
      * fires once and nothing ever sets it again. Also re-running whenever
      * the stored `plugin_db_version` doesn't match this code's own
-     * VULOPILOT_PLUGIN_VERSION closes that gap — the standard "version-gate
+     * VULOPILOT_PLUGIN_VERSION closes that gap - the standard "version-gate
      * an idempotent migration" idiom, safe for the same reason Install's
      * own class docblock already gives for calling create_database_tables()
      * unconditionally (every table it creates is a plain `CREATE TABLE IF
@@ -130,7 +130,7 @@ final class VuloPilot {
 
     /**
      * Initializes VuloPilot classes and fires 'vulopilot_loaded', the hook
-     * VuloPilot Pro (and any third-party extension) gates its own boot on —
+     * VuloPilot Pro (and any third-party extension) gates its own boot on -
      * the same boot-order-gate pattern a shared-platform architecture would
      * use, just scoped to this product line.
      *
@@ -141,7 +141,7 @@ final class VuloPilot {
         $this->container['admin']           = new Admin();
         $this->container['frontendScripts'] = new FrontendScripts();
 
-        // Module loader (module-architecture.md) — loaded before every
+        // Module loader (module-architecture.md) - loaded before every
         // registry below so a module's own constructor (e.g. registering
         // itself via `vulopilot_scanner_sources`) runs before those
         // registries' own `init` priority 20 hooks read those filters.
@@ -156,7 +156,7 @@ final class VuloPilot {
 
         $this->container['scan_persistence'] = new Services\ScanPersistenceListener();
 
-        // "Manual Actions Only" (readme.txt) — Free's own small, engine-free
+        // "Manual Actions Only" (readme.txt) - Free's own small, engine-free
         // counterpart to vulopilot-pro's Automations module; see
         // Automations\ManualActionRunner's own docblock for why this doesn't
         // reuse rule_engine at all.
@@ -164,12 +164,12 @@ final class VuloPilot {
         $this->container['manual_action_runner']   = new Automations\ManualActionRunner( $this->container['manual_action_registry'] );
 
         // The full, Recommendation-driven AutomationEngine (conditional
-        // trigger→condition→action workflows) is still Pro business logic —
+        // trigger→condition→action workflows) is still Pro business logic -
         // "AI Automation Workflows" per the plugin's own readme. It lives in
         // vulopilot-pro's Automations module, constructed with this same
         // rule_engine/scan_runner instance via VuloPilot()->rule_engine /
         // VuloPilot()->scan_runner. Free's own two fixed, schedule-only
-        // automations ("Run Full Site Scan"/"Send Visibility Report" — see
+        // automations ("Run Full Site Scan"/"Send Visibility Report" - see
         // Automations\BuiltinAutomationSeeder's own docblock) are seeded and
         // run below, independent of that Pro engine.
 
@@ -180,7 +180,7 @@ final class VuloPilot {
             $this->container['report_exporter_registry']
         );
         // Reports\ScheduledReportRunner (recurring/emailed reports) is Pro
-        // business logic now — it lives in vulopilot-pro's AdvancedReports
+        // business logic now - it lives in vulopilot-pro's AdvancedReports
         // module, constructed with this same report_generator instance via
         // VuloPilot()->report_generator.
 
@@ -201,36 +201,36 @@ final class VuloPilot {
             $this->container['ai_request_sender']
         );
 
-        // GEO module (GEO-MODULE.md) — reuses the same ai_request_sender
+        // GEO module (GEO-MODULE.md) - reuses the same ai_request_sender
         // every AIAction goes through, not a second AI-calling path.
         $this->container['geo_analyzer'] = new Geo\GeoAnalyzer( $this->container['ai_request_sender'] );
 
         // Content Intelligence's "Topic Authority" (CONTENT-INTELLIGENCE-MODULE.md)
-        // — same shape as geo_analyzer above: reuses the same
+        // - same shape as geo_analyzer above: reuses the same
         // ai_request_sender, constructed unconditionally in Free even
         // though the REST route that actually calls analyze() (a real AI
         // cost) lives in vulopilot-pro's own ContentIntelligence module.
         $this->container['content_analyzer'] = new ContentIntelligence\ContentAnalyzer( $this->container['ai_request_sender'] );
 
-        // llms.txt Generation & Management (readme.txt) — self-registers
+        // llms.txt Generation & Management (readme.txt) - self-registers
         // its own rewrite-rule/template_redirect hooks; unconditional
         // construction, the enable_llms_txt setting only gates serving.
         $this->container['llms_txt_generator'] = new Geo\LlmsTxtGenerator();
 
-        // AI Crawler Traffic Monitoring (readme.txt) — self-registers its
+        // AI Crawler Traffic Monitoring (readme.txt) - self-registers its
         // own template_redirect/cron hooks; unconditional construction,
         // same shape as llms_txt_generator above.
         $this->container['crawler_traffic_logger'] = new Services\CrawlerTrafficLogger();
 
-        // Scanning → Sitemap/Robots.txt cards — all wrap WordPress core's
+        // Scanning → Sitemap/Robots.txt cards - all wrap WordPress core's
         // own native sitemap/robots.txt rather than building either from
         // scratch; self-register their own hooks, same unconditional-
         // construction shape as the two services above. SitemapStylesheet
         // restyles core's own real `/wp-sitemap.xml` browser view (brand
-        // colors + a real "Last Modified" column on the index page) —
+        // colors + a real "Last Modified" column on the index page) -
         // still real core data, just a real CSS/XSL restyle, not a second
         // renderer. HtmlSitemapRenderer is the one genuinely new
-        // (non-core-wrapping) piece — a real `[vulopilot_html_sitemap]`
+        // (non-core-wrapping) piece - a real `[vulopilot_html_sitemap]`
         // shortcode.
         $this->container['sitemap_manager']       = new Services\SitemapManager();
         $this->container['sitemap_stylesheet']    = new Services\SitemapStylesheet();
@@ -238,20 +238,20 @@ final class VuloPilot {
         $this->container['robots_txt_manager']    = new Services\RobotsTxtManager();
         $this->container['html_sitemap_renderer'] = new Services\HtmlSitemapRenderer();
 
-        // Scanning → SEO & Content → Tag Manager — real Google Tag Manager
+        // Scanning → SEO & Content → Tag Manager - real Google Tag Manager
         // `<script>`/`<noscript>` output (wp_head/wp_body_open), same
         // unconditional-construction/settings-gate-output shape as
         // WebmasterToolsManager immediately below.
         $this->container['tag_manager_service'] = new Services\TagManagerService();
 
-        // Scanning → Webmaster Tools — real `wp_head` verification `<meta>`
+        // Scanning → Webmaster Tools - real `wp_head` verification `<meta>`
         // tag output, same unconditional-construction/settings-gate-output
         // shape as CanonicalUrlManager/SocialMetaTagsManager below.
         $this->container['webmaster_tools_manager'] = new Services\WebmasterToolsManager();
 
-        // Connections → Google Services (Search Console/Analytics/AdSense) —
+        // Connections → Google Services (Search Console/Analytics/AdSense) -
         // real Google OAuth 2.0 redirect handler (self-registers its own
-        // `admin_post_*` hook; must be unconditional, not REST-lazy — see
+        // `admin_post_*` hook; must be unconditional, not REST-lazy - see
         // that class's own docblock) and real `gtag.js` output once a GA4
         // property is connected. GoogleServicesConnection/GoogleAnalyticsClient/
         // GoogleAdSenseClient are all stateless and instantiated fresh
@@ -261,21 +261,21 @@ final class VuloPilot {
         $this->container['google_analytics_tracker']   = new Services\GoogleAnalyticsTracker();
 
         // Connections → VuloCloud AI' own passwordless "Connect to
-        // VuloCloud" broker redirect handler — same unconditional-
+        // VuloCloud" broker redirect handler - same unconditional-
         // construction/self-registers-its-own-admin_post-hook reasoning as
         // gsc_oauth_callback_handler immediately above (a request to
         // admin-post.php never fires rest_api_init, so this can't be
         // lazily instantiated inside a REST controller).
         $this->container['connect_broker_callback_handler'] = new Services\ConnectBrokerCallbackHandler();
 
-        // Scanning → Instant Indexing (IndexNow) — real key-file serving
+        // Scanning → Instant Indexing (IndexNow) - real key-file serving
         // (self-registers its own rewrite-rule/template_redirect hooks,
         // same shape as llms_txt_generator above) and automatic submission
         // on publish/update/trash, gated by their own settings.
         $this->container['indexnow_key_file_server'] = new Services\IndexNowKeyFileServer();
         $this->container['indexnow_auto_submitter']  = new Services\IndexNowAutoSubmitter();
 
-        // Connections → VuloCloud AI' "Site tone" field — learned
+        // Connections → VuloCloud AI' "Site tone" field - learned
         // automatically from the site's own recent content on
         // publish/update (deferred via WP-Cron, never inline with the
         // save), reusing the same ai_request_sender every AIAction/
@@ -285,7 +285,7 @@ final class VuloPilot {
         $this->container['site_tone_learner'] = new Services\SiteToneLearner( $this->container['ai_request_sender'] );
 
         // One-Click Fix coverage pass for the SEO category (vulopilot-pro's
-        // OneClickFix\ScannerFixMap) — the mechanical (non-AI) fixes for
+        // OneClickFix\ScannerFixMap) - the mechanical (non-AI) fixes for
         // CanonicalUrlScanner/OpenGraphScanner/TwitterCardScanner just flip
         // one of these two managers' own settings on; SchemaJsonLdRenderer
         // is what makes AiCopilot\Actions\GenerateSchemaAction's saved
@@ -294,34 +294,34 @@ final class VuloPilot {
         // above.
         $this->container['canonical_url_manager']    = new Services\CanonicalUrlManager();
         $this->container['social_meta_tags_manager'] = new Services\SocialMetaTagsManager();
-        // Settings → Site Identity → Title Formats' real backing —
+        // Settings → Site Identity → Title Formats' real backing -
         // filters `pre_get_document_title`. Same unconditional-
         // construction, settings-gate-the-output shape as the two managers
         // above.
         $this->container['title_formatter']          = new Services\TitleFormatter();
         $this->container['schema_json_ld_renderer']  = new Services\SchemaJsonLdRenderer();
         // Sitewide counterpart to schema_json_ld_renderer, for
-        // SchemaScanner's homepage-level check — populated by
+        // SchemaScanner's homepage-level check - populated by
         // vulopilot-pro's OneClickFix `generate-homepage-schema` fix.
         $this->container['homepage_schema_renderer'] = new Services\HomepageSchemaRenderer();
 
         // Post-editor SEO metabox ("Meta Box Appearing in Single Posts &
-        // Pages" — readme's research into rankmath.com/kb/on-page-seo/):
+        // Pages" - readme's research into rankmath.com/kb/on-page-seo/):
         // Advanced tab's noindex/nofollow output (PostRobotsMetaManager)
         // and the Block Editor sidebar's asset loader (PostEditorAssets).
         // Both unconditional construction, same shape as every Services\*
-        // above — nothing to gate behind a setting, only per-post data.
+        // above - nothing to gate behind a setting, only per-post data.
         $this->container['post_seo_meta_fields']     = new Services\PostSeoMetaFields();
         $this->container['post_robots_meta_manager'] = new Services\PostRobotsMetaManager();
         $this->container['post_editor_assets']       = new Services\PostEditorAssets();
 
-        // Gutenberg blocks — `vulopilot/table-of-contents` and
+        // Gutenberg blocks - `vulopilot/table-of-contents` and
         // `vulopilot/faq` (src/blocks/), discovered and registered the
         // same glob-the-built-output way the sibling free plugin
         // vulocart's own VuloCart\Block class already does.
         // HeadingAnchorInjector is its own class (not folded into
         // BlockRegistrar) since it's a real, separate cross-cutting
-        // concern — rewriting core/heading output — not block
+        // concern - rewriting core/heading output - not block
         // registration itself. Both unconditional construction, same
         // shape as every Services\* above: a core authoring primitive
         // every install should have in the inserter, not a Modules-system
@@ -329,7 +329,7 @@ final class VuloPilot {
         $this->container['block_registrar']         = new Services\BlockRegistrar();
         $this->container['heading_anchor_injector'] = new Services\Blocks\HeadingAnchorInjector();
 
-        // Redirects & 404s (readme.txt) — real functionality behind the
+        // Redirects & 404s (readme.txt) - real functionality behind the
         // enable_redirect_manager/auto_redirect_on_slug_change/log_404s
         // settings, which previously only round-tripped through Settings
         // with nothing reading them. Same unconditional-construction,
@@ -338,7 +338,7 @@ final class VuloPilot {
         $this->container['redirect_manager'] = new Services\RedirectManager();
         $this->container['not_found_logger'] = new Services\NotFoundLogger();
 
-        // "Performance" Overview — Speed History's daily score snapshots
+        // "Performance" Overview - Speed History's daily score snapshots
         // (scan-completed + daily-cron triggered), Real-time Monitoring's
         // per-request timing sample (front-end `shutdown` hook), and the
         // two Quick Actions toggles (force-enable lazy loading, preload
@@ -355,7 +355,7 @@ final class VuloPilot {
         $this->container['performance_request_logger']          = new Services\PerformanceRequestLogger();
         $this->container['performance_optimizations']           = new Services\PerformanceOptimizations();
 
-        // "Performance" Overview's PerformanceScoreCard.tsx redesign —
+        // "Performance" Overview's PerformanceScoreCard.tsx redesign -
         // real Mobile/Desktop PageSpeed Insights scores (only when a
         // psi_api_key is configured) and real Core Web Vitals RUM (no key
         // needed, first-party). Same unconditional-construction,
@@ -364,7 +364,7 @@ final class VuloPilot {
         $this->container['psi_fetcher']            = new Services\PageSpeedInsightsFetcher();
         $this->container['core_web_vitals_beacon'] = new Services\CoreWebVitalsBeacon();
 
-        // "Performance" › Slow Pages — real per-page load-time checks
+        // "Performance" › Slow Pages - real per-page load-time checks
         // (plus real per-page PSI mobile/desktop scores when a psi_api_key
         // is configured), processed in the background via WP-Cron. Same
         // unconditional-construction, self-registers-its-own-hooks shape
@@ -372,7 +372,7 @@ final class VuloPilot {
         $this->container['page_speed_scanner'] = new Services\PageSpeedScanner();
 
         // Protect My Site's Malware/Firewall/Login Protection/Backups/
-        // Recovery tiles — real, always-on core features (not a Modules-page
+        // Recovery tiles - real, always-on core features (not a Modules-page
         // module: no `modules/` folder, no `Module.php` file, nothing added
         // to `vulopilot_module_sources`). Same unconditional-construction,
         // self-registers-its-own-hooks shape as every Services\* class
@@ -385,13 +385,13 @@ final class VuloPilot {
         $this->container['backup_manager']         = new Services\BackupManager();
         $this->container['backup_scheduler']       = new Services\BackupScheduler();
 
-        // Backups' own real local-disk feature — BackupStorageManager
+        // Backups' own real local-disk feature - BackupStorageManager
         // self-registers on 'vulopilot_backup_completed' (fired by
         // BackupManager above) and must be unconditional, same reasoning
         // every other self-registers-its-own-hooks Services\* class here
         // already has. The Amazon S3/Google Drive cloud-storage
         // destinations themselves (credentials, the actual HTTP upload,
-        // and the OAuth redirect handler) are Pro-gated — moved to
+        // and the OAuth redirect handler) are Pro-gated - moved to
         // vulopilot-pro's own BackupCloudStorage module, which self-registers
         // on `vulopilot_backup_upload_to_remote`/
         // `vulopilot_backup_delete_remote_copy` (see that module's own
@@ -400,7 +400,7 @@ final class VuloPilot {
         // referencing either moved class directly).
         $this->container['backup_storage_manager'] = new Services\BackupStorageManager();
 
-        // Extension SDK (ARCHITECTURE.md's Prompt 15) — vulopilot-pro and
+        // Extension SDK (ARCHITECTURE.md's Prompt 15) - vulopilot-pro and
         // any third-party plugin register here (`vulopilot_extension_sources`),
         // one tick before ScannerRegistry/RuleRegistry/etc. (all `init`
         // priority 20) read the per-concern filters an extension's own

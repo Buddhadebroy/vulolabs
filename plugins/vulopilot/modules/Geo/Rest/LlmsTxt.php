@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * GET /llms-txt/regenerate backs the "Regenerate" button on Crawl & URLs →
  * Robots & Sitemap (src/pages/GEO/CrawlRobotsSitemapSection.tsx; moved there
- * from Settings → AI Visibility) — returns a fresh
+ * from Settings → AI Visibility) - returns a fresh
  * GeoAnalysis\LlmsTxtGenerator::generate() output (live pages/posts, not
  * whatever's currently saved in llms_txt_content) so the button can
  * discard a customized version and start over from what the site

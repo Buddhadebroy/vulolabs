@@ -17,17 +17,17 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Pairs conceptually with Seo\Scanners\InternalLinkingScanner (flags a
- * post with zero internal links) — unlike every other action here, there
+ * post with zero internal links) - unlike every other action here, there
  * is no existing "find related posts" helper anywhere in the codebase to
  * build on, so validate_input() queries a bounded batch of candidate
  * posts itself (other published posts/pages sharing a category or tag
  * with the target, capped like OrphanPageScanner's bounded-sample
  * discipline) and hands that real, existing-URL candidate list to the
- * AI — the model picks from and writes anchor text for real posts, it
+ * AI - the model picks from and writes anchor text for real posts, it
  * never invents a URL. validate_output() enforces this by rejecting any
  * suggestion whose URL isn't in the candidate list it was given.
  *
- * execute() appends a "Related reading" list to post_content — the same
+ * execute() appends a "Related reading" list to post_content - the same
  * visible-HTML-append shape GenerateFaqAction/GenerateSummaryBlockAction
  * already use, not fragile inline mid-paragraph link splicing.
  *
@@ -83,7 +83,7 @@ class SuggestInternalLinksAction extends AbstractBasicAction {
 
     /**
      * Finds other published posts/pages sharing a category or tag with
-     * the target post — a bounded, real candidate list so the AI is
+     * the target post - a bounded, real candidate list so the AI is
      * picking from and writing anchor text for existing URLs, not
      * inventing them.
      *
@@ -91,8 +91,8 @@ class SuggestInternalLinksAction extends AbstractBasicAction {
      * @return array<int, array{url: string, title: string}>
      */
     private function find_candidate_posts( \WP_Post $post ): array {
-        // WP_Tax_Query requires one taxonomy per clause — it doesn't
-        // accept an array of taxonomies within a single clause — so
+        // WP_Tax_Query requires one taxonomy per clause - it doesn't
+        // accept an array of taxonomies within a single clause - so
         // category and post_tag term ids are queried and combined into
         // separate OR'd clauses, not merged into one.
         $tax_query = array( 'relation' => 'OR' );
@@ -157,9 +157,9 @@ class SuggestInternalLinksAction extends AbstractBasicAction {
                 'content' => sprintf(
                     'You suggest internal links for a piece of web content. You will be given the article and a list of '
                         . 'candidate pages already on the same site. Pick %1$d-%2$d candidates that are genuinely relevant to '
-                        . 'this article and write natural anchor text for each. Only use URLs from the candidate list — never '
+                        . 'this article and write natural anchor text for each. Only use URLs from the candidate list - never '
                         . 'invent a URL. Respond with ONLY a raw JSON array like '
-                        . '[{"url": "...", "anchor_text": "..."}] — no markdown fences, no commentary.',
+                        . '[{"url": "...", "anchor_text": "..."}] - no markdown fences, no commentary.',
                     self::MIN_SUGGESTIONS,
                     self::MAX_SUGGESTIONS
                 ),

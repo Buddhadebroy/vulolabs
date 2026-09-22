@@ -32,25 +32,25 @@ const EMPTY_ADDRESS: AddressFields = {
 };
 
 /**
- * A genuinely self-contained checkout flow — deliberately NOT the same
+ * A genuinely self-contained checkout flow - deliberately NOT the same
  * code as the WordPress-only `checkout-engine` (vulocart's own
  * `src/blocks/checkout-engine`), which depends on `@wordpress/element`
  * (the `wp.element` global) and only ever runs on a page this WordPress
- * site itself rendered. This one has no framework dependency at all —
- * plain DOM (`dom.ts`'s own `h()` helper) — because it has to run on a
+ * site itself rendered. This one has no framework dependency at all -
+ * plain DOM (`dom.ts`'s own `h()` helper) - because it has to run on a
  * page that might have nothing else loaded (plain HTML, a `<script>` tag
  * dropped into an arbitrary site). Both call the SAME REST endpoints
  * underneath (`/shipping/methods`, `/payment/methods`, `/review/summary`,
- * `/orders`) — this is a second, minimal presentation layer over
+ * `/orders`) - this is a second, minimal presentation layer over
  * identical server-side logic, not a second checkout implementation.
  *
- * One screen, not multi-step — address + shipping + payment all visible
+ * One screen, not multi-step - address + shipping + payment all visible
  * at once, "Place order" at the bottom. A merchant wanting the full
  * multi-step wizard experience embeds the `vulocart/checkout` Gutenberg
  * block instead; this widget's whole reason to exist is running
  * somewhere that block CAN'T (Module.php's own docblock on
  * EmbeddedCheckout's WP-only scope boundary, which THIS widget is what
- * finally closes — genuinely cross-domain, not same-site-only).
+ * finally closes - genuinely cross-domain, not same-site-only).
  */
 export function mountEmbeddedCheckout( container: HTMLElement, options: EmbeddedCheckoutOptions ): () => void {
 	const { cartToken, onOrderPlaced, onBack } = options;
@@ -143,7 +143,7 @@ export function mountEmbeddedCheckout( container: HTMLElement, options: Embedded
 		container.append(
 			h( 'div', { class: 'vulocart-sdk-confirmation' }, [
 				h( 'h3', {}, [ 'Order placed!' ] ),
-				h( 'p', {}, [ `Order ${ order.order_number } — ${ formatMoney( order.total, order.currency ) }` ] ),
+				h( 'p', {}, [ `Order ${ order.order_number } - ${ formatMoney( order.total, order.currency ) }` ] ),
 			] )
 		);
 	}
@@ -177,7 +177,7 @@ export function mountEmbeddedCheckout( container: HTMLElement, options: Embedded
 		const shippingSelect = h( 'select', {} );
 		shippingSelect.append( h( 'option', { value: '' }, [ 'Select shipping…' ] ) );
 		for ( const method of shippingMethods ) {
-			shippingSelect.append( h( 'option', { value: method.id }, [ `${ method.label } — ${ formatMoney( method.cost, cart.currency ) }` ] ) );
+			shippingSelect.append( h( 'option', { value: method.id }, [ `${ method.label } - ${ formatMoney( method.cost, cart.currency ) }` ] ) );
 		}
 		shippingSelect.addEventListener( 'change', () => {
 			selectedShipping = ( shippingSelect as HTMLSelectElement ).value;

@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Registers the post-editor metabox's own postmeta fields via
  * `register_post_meta( ..., 'show_in_rest' => true )` rather than a
- * bespoke REST controller for reading/writing them — this makes every
+ * bespoke REST controller for reading/writing them - this makes every
  * field here ride along with the Block Editor's own native Save/Update
  * button (`wp/v2/posts|pages/{id}`'s `meta` property, read/written from
  * the sidebar via `wp.data.select('core/editor').getEditedPostAttribute(
@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  * all already work without this plugin reimplementing any of them.
  *
  * `META_KEYS` is the single source of truth for the literal postmeta
- * strings — Services\CanonicalUrlManager/SocialMetaTagsManager/
+ * strings - Services\CanonicalUrlManager/SocialMetaTagsManager/
  * PostRobotsMetaManager (which read these same keys to actually affect
  * frontend output) and Services\PostEditorAssets (which localizes this
  * same map to the editor's JS bundle) all reference it rather than each
@@ -52,12 +52,12 @@ class PostSeoMetaFields {
     );
 
     /**
-     * Post types the metabox appears on — matches
+     * Post types the metabox appears on - matches
      * AiCopilot\Actions\WriteMetaTitleAction/WriteMetaDescriptionAction's
      * own post-type scope. `product` (WooCommerce) was added alongside the
      * metabox's move to a real below-content `add_meta_box()` panel
      * (Services\PostEditorAssets::register_metabox()), which references
-     * this same constant rather than holding its own separate copy — every
+     * this same constant rather than holding its own separate copy - every
      * other real SEO/GEO/AI-Action scanner and action in this codebase
      * still only scopes to `post`/`page` (a much larger, separate change,
      * not part of this pass), so a product's fields/AI-fix buttons work
@@ -104,7 +104,7 @@ class PostSeoMetaFields {
 
             // GenerateSchemaAction's own meta key, registered here too so
             // the Schema tab's manual JSON textarea rides the same native
-            // save button as every other field — the sanitize callback
+            // save button as every other field - the sanitize callback
             // re-encodes through json_decode/wp_json_encode so a stored
             // value is always either valid JSON or empty, never
             // arbitrary text mangled by sanitize_text_field's tag-stripping.
@@ -121,7 +121,7 @@ class PostSeoMetaFields {
             );
         }
 
-        // GenerateLandingPageAction's own meta key — 'page'-only (it
+        // GenerateLandingPageAction's own meta key - 'page'-only (it
         // always creates a `page`, never a `post`), unlike the loop
         // above's fields which apply to both.
         register_post_meta(
@@ -179,7 +179,7 @@ class PostSeoMetaFields {
     }
 
     /**
-     * The auth_callback every register_post_meta() call above passes —
+     * The auth_callback every register_post_meta() call above passes -
      * REST-exposed metadata defaults to requiring `edit_post`-equivalent
      * capability checks per field; this is that check, explicit rather
      * than relying on core's own default so every field here is

@@ -12,7 +12,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Scanning → Webmaster Tools tab's real backing — outputs one `<meta>`
+ * Scanning → Webmaster Tools tab's real backing - outputs one `<meta>`
  * verification tag per configured provider on `wp_head`, same
  * self-registers-own-hook/setting-gates-output shape as
  * CanonicalUrlManager/SocialMetaTagsManager. An empty code for a provider
@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  * `webmaster_custom_tags` is free-form admin input, so it's the one place
  * in this class that needs real sanitization before echoing: the mockup's
  * own copy promises "Only <meta> tags are allowed," enforced here with an
- * allowlist regex plus `wp_kses_post`-style attribute stripping — not
+ * allowlist regex plus `wp_kses_post`-style attribute stripping - not
  * trusted verbatim the way this codebase's other wp_head output already
  * is (which is always fully plugin-constructed, never raw admin text).
  *
@@ -91,7 +91,7 @@ class WebmasterToolsManager {
 
     /**
      * Rebuilds `webmaster_custom_tags` from scratch as safe `<meta ...>`
-     * tags only — never echoes the admin's raw input string. Any other
+     * tags only - never echoes the admin's raw input string. Any other
      * element (script, style, a stray </head>, etc.) is silently dropped
      * rather than passed through, matching the mockup's own "Only <meta>
      * tags are allowed" copy exactly (not just documented, actually
@@ -130,7 +130,7 @@ class WebmasterToolsManager {
      * Parses `name="x" content="y"`-style attribute pairs out of one
      * matched `<meta ...>` tag's inner attribute string. Deliberately
      * simple (double- or single-quoted values only, no bare/unquoted
-     * attribute support) — sufficient for the verification-tag snippets
+     * attribute support) - sufficient for the verification-tag snippets
      * every webmaster tool's own docs actually hand out, and any input
      * that doesn't parse cleanly just yields no usable attributes, which
      * sanitize_custom_meta_tags() above already drops.

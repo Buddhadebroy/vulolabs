@@ -14,8 +14,8 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags interactive-looking elements — a <div> or <span> with an onclick
- * handler — that carry no `role` attribute. Screen readers only announce
+ * Flags interactive-looking elements - a <div> or <span> with an onclick
+ * handler - that carry no `role` attribute. Screen readers only announce
  * these as interactive when a role (e.g. "button") is present; a bare
  * onclick on a non-interactive element is invisible to assistive tech. A
  * narrow, concrete check rather than attempting general ARIA validation,

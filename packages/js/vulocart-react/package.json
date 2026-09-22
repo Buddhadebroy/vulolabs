@@ -2,7 +2,7 @@
   "name": "@vulocart/react",
   "version": "1.0.0",
   "private": true,
-  "description": "React components for @vulocart/sdk — <BuyButton>, <EmbeddedCart>, <EmbeddedCheckout>, <VuloCartProvider>. Works in any React app, including Next.js Client Components.",
+  "description": "React components for @vulocart/sdk - <BuyButton>, <EmbeddedCart>, <EmbeddedCheckout>, <VuloCartProvider>. Works in any React app, including Next.js Client Components.",
   "license": "GPL-2.0-or-later",
   "author": "VuloLabs",
   "type": "module",

@@ -7,7 +7,7 @@
 }
 
 /**
- * "Preview"/"Focus Keyword" — the small uppercase section headings
+ * "Preview"/"Focus Keyword" - the small uppercase section headings
  * RankMath's own General tab uses above each block, per direct screenshot
  * comparison.
  */
@@ -42,7 +42,7 @@
 }
 
 /**
- * The focus-keyword "pill" — a single, removable tag rather than a plain
+ * The focus-keyword "pill" - a single, removable tag rather than a plain
  * text field, matching RankMath's own colored-pill focus keyword input.
  * Only ever holds the one real `_vulopilot_focus_keyword` value
  * (GeneralTab.tsx's own docblock explains why this isn't a genuine
@@ -230,10 +230,10 @@
 			color: #cc1818;
 		}
 
-		// A real "go fix this" click target — General/Advanced/Social/
+		// A real "go fix this" click target - General/Advanced/Social/
 		// Schema, whichever tab actually has the field this check reads
 		// (PageAnalysisTab.tsx's own `editorTargetForCheck()`). Not every
-		// row gets this — Featured Image/Broken Links/Orphan Page/
+		// row gets this - Featured Image/Broken Links/Orphan Page/
 		// Indexability have no real editor-sidebar field anywhere in this
 		// codebase, so those stay plain, unclickable rows.
 		&--clickable {
@@ -269,7 +269,7 @@
 }
 
 /**
- * "All SEO Issues" table's "Fix with AI" deep link — scroll target lands
+ * "All SEO Issues" table's "Fix with AI" deep link - scroll target lands
  * here (Checklist.tsx's `<li>` rows, AdvancedTab.tsx/SocialTab.tsx's field
  * wrappers), same "draw the eye to it, then let it fade" idiom zyra's own
  * ModuleGridComponent.tsx already established elsewhere in this codebase.

@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Brand Intelligence's own report (BRAND-INTELLIGENCE-MODULE.md). Extends
- * AbstractReportType directly rather than AbstractCategoryReportType —
+ * AbstractReportType directly rather than AbstractCategoryReportType -
  * same "spans a fixed scanner_id list across categories, not one category
  * string" reasoning Reports\Types\ContentIntelligenceReport's own docblock
  * gives, applied to Brand's own 7-scanner list (3 new `brand`-category
@@ -30,7 +30,7 @@ class BrandIntelligenceReport extends AbstractReportType {
 
     /**
      * Every scanner_id Controllers\BrandIntelligence's Trust/Authority/
-     * Entity sub-scores read, combined — a report period naturally covers
+     * Entity sub-scores read, combined - a report period naturally covers
      * every one of them, the same way AbstractCategoryReportType's own
      * category scope would.
      *

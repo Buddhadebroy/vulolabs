@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Inventory REST controller.
  *
  * Backs the Offerings menu's "Inventory" admin page
- * (`src/pages/Inventory/`) — a specialized, admin-only view over the
+ * (`src/pages/Inventory/`) - a specialized, admin-only view over the
  * existing `vulocart_offerings` table (Application\OfferingService), not a new
  * domain entity of its own: "inventory" is just "offerings of a
  * stock-trackable type, with their stock fields surfaced for quick bulk
@@ -37,7 +37,7 @@ class Inventory extends \WP_REST_Controller {
     protected $rest_base = 'inventory';
 
     /**
-     * Offering types stock tracking is meaningful for — same
+     * Offering types stock tracking is meaningful for - same
      * hand-maintained list `OfferingEdit.tsx`'s own `STOCK_TRACKED_TYPES`
      * duplicates independently (small, stable, per-type distinction
      * Domain\Offering\OfferingType's own docblock deliberately keeps out of
@@ -84,7 +84,7 @@ class Inventory extends \WP_REST_Controller {
     }
 
     /**
-     * Converts a domain Offering into the Inventory REST response shape —
+     * Converts a domain Offering into the Inventory REST response shape -
      * only the fields the Inventory list actually needs, not the full
      * shape `Offerings::prepare_offering_for_response()` returns.
      *
@@ -124,7 +124,7 @@ class Inventory extends \WP_REST_Controller {
         // OfferingService/WPDBOfferingRepository don't support filtering by a
         // set of types (only one), so this fetches a generously-sized
         // page of every offering and filters client-of-the-repository
-        // side — acceptable at this plugin's current catalog-size scale,
+        // side - acceptable at this plugin's current catalog-size scale,
         // same tradeoff Terms.php's own `count_offerings_for_term()` accepts
         // for a `LIKE`-based count rather than a maintained join table.
         $result = VuloCart()->offering_service->list_offerings(

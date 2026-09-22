@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Address module Rest class.
  *
- * Module-level REST controller, public — same reasoning as Cart\Rest's own
+ * Module-level REST controller, public - same reasoning as Cart\Rest's own
  * docblock (a guest checking out has no WordPress session). This route is
  * validate-only; the address that's actually persisted goes through
  * Order\Rest::create_item()'s own call to the same AddressService, at

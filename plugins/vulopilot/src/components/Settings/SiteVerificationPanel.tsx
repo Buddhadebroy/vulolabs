@@ -44,7 +44,7 @@ const PROVIDERS: ProviderRowConfig[] = [
 	},
 ];
 
-/** "Stop typing, then save" debounce — same shape TitleFormatsPanel.tsx's own `scheduleSave()` already uses for a hand-built (non-InputRenderer) panel's plain text fields, rather than saving every keystroke. */
+/** "Stop typing, then save" debounce - same shape TitleFormatsPanel.tsx's own `scheduleSave()` already uses for a hand-built (non-InputRenderer) panel's plain text fields, rather than saving every keystroke. */
 const AUTOSAVE_DEBOUNCE_MS = 1000;
 
 interface PlainCodeFieldConfig {
@@ -56,7 +56,7 @@ interface PlainCodeFieldConfig {
 }
 
 /**
- * Baidu/Yandex/Norton — real `<meta>`-tag verification codes
+ * Baidu/Yandex/Norton - real `<meta>`-tag verification codes
  * (Services\WebmasterToolsManager, same as the 3 `ProviderRow`s above),
  * merged in from Scanning → SEO & Content's own now-removed "Webmaster
  * Tools" section per direct instruction ("can i marge that 2 settings"),
@@ -65,7 +65,7 @@ interface PlainCodeFieldConfig {
  * to image 2"). Badge reads "Added"/"Not Added" rather than
  * `ProviderRow`'s "Verified"/"Not Verified", and the button is a real,
  * honest "Save" (an immediate save, not a debounce-only field) rather
- * than "Verify" — this plugin has no real self-check
+ * than "Verify" - this plugin has no real self-check
  * (`POST /settings/verify-webmaster`) for these 3 providers the way it
  * does for Google/Bing/Pinterest, so claiming a "Verify" action here
  * would either no-op or falsely claim a check that never ran.
@@ -103,7 +103,7 @@ const PLAIN_CODE_FIELDS: PlainCodeFieldConfig[] = [
 	},
 ];
 
-/** One `ProviderRow`-shaped row for a plain (no-Verify) code field — its own local `value`/debounce timer, same "type, then save 1s later" autosave every field in this panel shares. No explicit "Save" button — the debounce below is the only save path, per direct instruction. */
+/** One `ProviderRow`-shaped row for a plain (no-Verify) code field - its own local `value`/debounce timer, same "type, then save 1s later" autosave every field in this panel shares. No explicit "Save" button - the debounce below is the only save path, per direct instruction. */
 const PlainCodeField = ({ field }: { field: PlainCodeFieldConfig }) => {
 	const { setting, updateSetting } = useSetting();
 	const [value, setValue] = useState<string>(
@@ -168,7 +168,7 @@ const PlainCodeField = ({ field }: { field: PlainCodeFieldConfig }) => {
 };
 
 /**
- * "Custom webmaster tags" — the same real free-text `<meta>`-tag textarea
+ * "Custom webmaster tags" - the same real free-text `<meta>`-tag textarea
  * (Services\WebmasterToolsManager strips anything that isn't a `<meta>`
  * tag before output), merged in alongside the 3 `PlainCodeField`s above,
  * same restyle to `ProviderRow`'s own row shape.
@@ -210,7 +210,7 @@ const CustomTagsField = () => {
 			icon="shortcode"
 			title={__('Custom webmaster tags', 'vulopilot')}
 			desc={__(
-				'Enter your own custom webmaster tags. Only <meta> tags are allowed — anything else is stripped out before being added to the page.',
+				'Enter your own custom webmaster tags. Only <meta> tags are allowed - anything else is stripped out before being added to the page.',
 				'vulopilot'
 			)}
 			badge={
@@ -237,7 +237,7 @@ const CustomTagsField = () => {
 };
 
 /**
- * One Google/Bing/Pinterest row — code field, real "Verify" action, and an
+ * One Google/Bing/Pinterest row - code field, real "Verify" action, and an
  * honest status pill. See SiteVerification.ts's own docblock for why
  * "Verified" here means "the tag is live on your homepage" (a real,
  * self-checkable fact this plugin can confirm on its own) rather than
@@ -270,7 +270,7 @@ const ProviderRow = ({ provider, icon, title, desc }: ProviderRowConfig) => {
 					return;
 				}
 				// Floating notice (NoticeReceiverComponent position="float",
-				// already mounted app-wide by zyra's own HeaderComponent) —
+				// already mounted app-wide by zyra's own HeaderComponent) -
 				// same conversion PageSpeedStatusPanel.tsx's own Test
 				// Connection result already uses, not the inline <p> this
 				// used to render below the code field.
@@ -365,22 +365,22 @@ const ProviderRow = ({ provider, icon, title, desc }: ProviderRowConfig) => {
  *
  * Real backing: Services\WebmasterToolsManager already outputs one
  * `<meta>` tag per provider on `wp_head` from `webmaster_*_verification`
- * (Utill::VULOPILOT_SETTINGS_DEFAULTS) — Google/Bing/Pinterest get a real
- * "Verify" self-check (Controllers\Settings::verify_webmaster_tool()) —
+ * (Utill::VULOPILOT_SETTINGS_DEFAULTS) - Google/Bing/Pinterest get a real
+ * "Verify" self-check (Controllers\Settings::verify_webmaster_tool()) -
  * this plugin fetches its OWN homepage and confirms the tag actually
  * renders there; it never calls Google/Bing/Pinterest's own APIs, so
- * "Verified" means "the tag is live," not "your account is confirmed" —
+ * "Verified" means "the tag is live," not "your account is confirmed" -
  * see `webmaster_google_verified_at`'s own docblock (Utill.php).
  *
  * Baidu/Yandex/Norton/Custom Tags (`PlainCodeField`/`CustomTagsField`
  * above) used to live as plain text fields on Scanning → SEO & Content
  * (SeoContent.ts) instead of here, with this panel only deep-linking over
  * to them via an "Other verification" summary card. Merged into this one
- * panel per direct instruction ("can i marge that 2 settings") — SeoContent.ts's
+ * panel per direct instruction ("can i marge that 2 settings") - SeoContent.ts's
  * own "Webmaster Tools"/"Custom Webmaster Tags" sections were removed
  * entirely, so there's now exactly one editor for all 6 real verification
  * codes instead of two. These 3 stay plain autosaving fields, no "Verify"
- * button — this plugin has no real self-check for Baidu/Yandex/Norton the
+ * button - this plugin has no real self-check for Baidu/Yandex/Norton the
  * way it does for Google/Bing/Pinterest, and a Verify button with nothing
  * real behind it would either no-op or falsely claim a check that never
  * ran.

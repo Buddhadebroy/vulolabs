@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Taxes module Rest class.
  *
- * Module-level REST controller, public — same reasoning as Cart\Rest's own
+ * Module-level REST controller, public - same reasoning as Cart\Rest's own
  * docblock. Backs the checkout wizard's Review step, so a "Tax (10%)" line
  * can be labeled correctly before the order is actually placed (the real
  * tax amount charged always comes from `POST /orders`'/`POST /review/

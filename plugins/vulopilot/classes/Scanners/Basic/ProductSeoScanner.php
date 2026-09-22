@@ -13,10 +13,10 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * "Product SEO" (readme.txt Phase 9) — the product-specific counterpart to
+ * "Product SEO" (readme.txt Phase 9) - the product-specific counterpart to
  * SeoScanner, which only looks at `post`/`page` (its own docblock: a
  * dedicated meta-description field can't be checked generically, since its
- * meta key varies by whichever SEO plugin, if any, is active — the title
+ * meta key varies by whichever SEO plugin, if any, is active - the title
  * itself is the one thing every install has). Title length only, same
  * 10-60 character thresholds SeoScanner already uses: a product's short
  * description (`post_excerpt`) is already monitored by

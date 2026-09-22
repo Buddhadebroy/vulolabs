@@ -13,9 +13,9 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Payment module PaymentContext.
  *
  * What `PaymentService` hands a gateway's `authorize()`/`capture()`/
- * `refund()`/`cancel()` — everything a gateway needs to act, without the
+ * `refund()`/`cancel()` - everything a gateway needs to act, without the
  * gateway ever touching a Cart/Order object directly (Payment has no
- * dependency on either module's namespace, by design — see
+ * dependency on either module's namespace, by design - see
  * `PaymentGatewayInterface`'s own docblock). Built once per call by
  * `PaymentService`, from either a cart's current totals (payment-intent
  * step, before an order exists) or an already-placed order's own fields
@@ -28,7 +28,7 @@ defined( 'ABSPATH' ) || exit;
 class PaymentContext {
 
     /**
-     * The order this payment belongs to, once one exists — null while
+     * The order this payment belongs to, once one exists - null while
      * still cart-scoped (a payment intent created before checkout
      * finishes).
      *
@@ -37,7 +37,7 @@ class PaymentContext {
     public $order_id;
 
     /**
-     * The cart this payment was initiated from — always set (an intent
+     * The cart this payment was initiated from - always set (an intent
      * needs a cart to price against even once an order exists).
      *
      * @var string|null
@@ -46,7 +46,7 @@ class PaymentContext {
 
     /**
      * Amount to authorize/capture/refund, in the site's decimal currency
-     * unit (matching every other money field in this codebase — never
+     * unit (matching every other money field in this codebase - never
      * gateway "smallest unit"/cents; each gateway adapter converts at its
      * own boundary).
      *
@@ -62,7 +62,7 @@ class PaymentContext {
     public $currency;
 
     /**
-     * Buyer's email — passed to gateways that attach a receipt/customer
+     * Buyer's email - passed to gateways that attach a receipt/customer
      * record to the charge.
      *
      * @var string|null
@@ -86,7 +86,7 @@ class PaymentContext {
 
     /**
      * Whether the gateway should capture in the same call as authorizing
-     * (true — the common case) or leave funds merely authorized for a
+     * (true - the common case) or leave funds merely authorized for a
      * later, separate `capture()` call (manual-capture flows).
      *
      * @var bool
@@ -96,7 +96,7 @@ class PaymentContext {
     /**
      * Whether the gateway should retain a reusable reference to this
      * payment method (a Stripe Customer+PaymentMethod, a PayPal vaulted
-     * token) for later off-session charges — set true by the Subscriptions
+     * token) for later off-session charges - set true by the Subscriptions
      * module (`vulocart-pro`) when starting a recurring plan's first
      * charge.
      *
@@ -107,7 +107,7 @@ class PaymentContext {
     /**
      * A previously-saved payment method reference (from a prior result's
      * own `$raw['saved_payment_method_ref']`, vision: recurring/off-
-     * session charges) — when set, the gateway charges this reference
+     * session charges) - when set, the gateway charges this reference
      * directly instead of expecting fresh client-collected payment data
      * in `$payment_data`.
      *
@@ -118,7 +118,7 @@ class PaymentContext {
     /**
      * Gateway-specific data the storefront widget collected client-side
      * before calling the server (a Stripe PaymentMethod id, a confirmed
-     * PayPal order id, a Razorpay payment id + signature) — an opaque bag
+     * PayPal order id, a Razorpay payment id + signature) - an opaque bag
      * only the resolved gateway's own adapter reads keys out of.
      *
      * @var array<string, mixed>
@@ -127,7 +127,7 @@ class PaymentContext {
 
     /**
      * Free-form metadata attached to the gateway-side record (order
-     * number once known, etc.) — shown on the gateway's own dashboard
+     * number once known, etc.) - shown on the gateway's own dashboard
      * where supported, never interpreted by this codebase.
      *
      * @var array<string, mixed>

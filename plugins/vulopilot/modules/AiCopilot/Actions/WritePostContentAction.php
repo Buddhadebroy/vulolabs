@@ -17,7 +17,7 @@ use VuloPilot\ValueObjects\Impact;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Create Content's "AI Writer" tool (ContentToolsGrid.tsx) — given a short
+ * Create Content's "AI Writer" tool (ContentToolsGrid.tsx) - given a short
  * brief of what to write, creates a new draft post with AI-written body
  * copy. When an existing `post_id` is supplied instead (automations, which
  * act on a specific finding's post), it replaces that post's
@@ -26,7 +26,7 @@ defined( 'ABSPATH' ) || exit;
  * `post_content` instead of `post_title`, and with a user-supplied brief
  * as extra input (there's no existing "current content" to rewrite from
  * for a genuinely blank draft, so the brief is what the AI actually
- * writes from — GenerateBlogAction is the "no existing post at all" case;
+ * writes from - GenerateBlogAction is the "no existing post at all" case;
  * this is the "I already have a post, write its body" case).
  *
  * @class       WritePostContentAction class
@@ -50,7 +50,7 @@ class WritePostContentAction extends AbstractBasicAction {
     }
 
     /**
-     * Impact::HIGH — Replaces the post's entire `post_content` body wholesale — the widest single-post blast radius this plugin's AI actions have.
+     * Impact::HIGH - Replaces the post's entire `post_content` body wholesale - the widest single-post blast radius this plugin's AI actions have.
      *
      * @inheritDoc
      */
@@ -94,7 +94,7 @@ class WritePostContentAction extends AbstractBasicAction {
             array(
                 'role'    => 'system',
                 'content' => 'You write WordPress page/post body content as HTML paragraphs. '
-                    . 'Respond with ONLY the body HTML — no title, no preamble, no code fences.',
+                    . 'Respond with ONLY the body HTML - no title, no preamble, no code fences.',
             ),
             array(
                 'role'    => 'user',

@@ -19,16 +19,16 @@ defined( 'ABSPATH' ) || exit;
  * Runs every registered rule's applies_to() against a batch of Findings
  * and collects the Recommendation each match produces, sorted by
  * priority (highest first) so the dashboard/AI Assistant can just take
- * the top of the list. One rule throwing doesn't stop the batch — same
+ * the top of the list. One rule throwing doesn't stop the batch - same
  * defensive posture as Scanners\ScanRunner toward third-party code.
  *
  * Self-hooks `vulopilot_scan_completed` (fired by Scanners\ScanRunner) so
  * every scan automatically flows into recommendations without either
- * engine needing to know about the other directly — ScanRunner has no
+ * engine needing to know about the other directly - ScanRunner has no
  * idea RuleEngine exists; RuleEngine only knows about ScanResult, a
  * shared value object, not about ScanRunner itself.
  *
- * Deliberately does not persist recommendations — same reasoning as
+ * Deliberately does not persist recommendations - same reasoning as
  * ScanRunner not persisting ScanResults (see ScanRunner's docblock):
  * that's the Repositories/Services layer's job, a separate pass.
  * RuleEngine fires `vulopilot_recommendations_generated` so that layer

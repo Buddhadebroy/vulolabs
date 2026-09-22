@@ -8,14 +8,14 @@ const STATUS_LABELS = { active: __('Active', 'vulopilot'), inactive: __('Inactiv
  * Settings → Scanning → AI Visibility.
  *
  * Redesigned to match a mockup: a 5-row `type: 'expandable-panel'` field
- * (`ai_visibility_scans`) up top — same real zyra component
+ * (`ai_visibility_scans`) up top - same real zyra component
  * Notifications/VisibilityAlerts.ts's own `visibility_alerts` field
- * already uses for its 3 rows — each row a real, honest scan-category
+ * already uses for its 3 rows - each row a real, honest scan-category
  * toggle, followed by the tab's pre-existing fields appended below
- * (llms.txt, Crawler Traffic — "Competitor URLs" and "Business"/
+ * (llms.txt, Crawler Traffic - "Competitor URLs" and "Business"/
  * "Services"/"Locations" used to live here too, both moved out to
  * Settings → Get Started → Business Information per direct
- * instruction — "Competitor URLs" by way of the now-deleted Settings →
+ * instruction - "Competitor URLs" by way of the now-deleted Settings →
  * Scanning → Brand Intelligence tab, which it moved through before
  * landing there for good).
  *
@@ -24,9 +24,9 @@ const STATUS_LABELS = { active: __('Active', 'vulopilot'), inactive: __('Inactiv
  * `answer_first_words`, `min_data_points`, `stale_content_months`) were
  * migrated into this one nested `ai_visibility_scans` setting
  * (Utill::VULOPILOT_SETTINGS_DEFAULTS's own docblock has the full
- * migration list) — each row's `enable` is a REAL on/off switch its own
+ * migration list) - each row's `enable` is a REAL on/off switch its own
  * PHP scanner now checks:
- *   - 'structure'    → Scanners\Basic\GeoSemanticStructureScanner — row
+ *   - 'structure'    → Scanners\Basic\GeoSemanticStructureScanner - row
  *     removed from this panel per direct instruction ("remove this
  *     settings ... default active"); `ai_visibility_scans.structure.enable`
  *     itself is untouched in Utill::VULOPILOT_SETTINGS_DEFAULTS (still
@@ -34,20 +34,20 @@ const STATUS_LABELS = { active: __('Active', 'vulopilot'), inactive: __('Inactiv
  *     just always runs, in both Free and Pro.
  *   - 'entity'       → GeoAnalysis\GeoAnalyzer (entity_coverage AI dimension)
  *   - 'freshness'    → vulopilot-pro's GeoInsights\Scanners\StaleContentScanner
- *     (a genuinely NEW gate — this scanner always ran before)
+ *     (a genuinely NEW gate - this scanner always ran before)
  *   - 'answer_first' → Scanners\Basic\GeoSummaryBlockScanner
  *   - 'evidence'     → Scanners\Basic\GeoCitationOpportunityScanner
- *     (also a genuinely NEW gate — this scanner always ran before)
+ *     (also a genuinely NEW gate - this scanner always ran before)
  * Each row's own threshold (min_mentions/stale_months/min_words/
  * min_data_points) lives in that same panel item's `formFields`, not a
  * separate flat setting duplicating the same value.
  *
- * "Restore Defaults" is AiVisibilityScansHeader.tsx — a real, scoped
+ * "Restore Defaults" is AiVisibilityScansHeader.tsx - a real, scoped
  * reset (`POST /settings/reset-ai-visibility-scans`), not a UI-only
  * component field, since it needs to persist server-side and refresh
  * SettingContext in place. Set as this tab's own top-level `settingAction`
  * (per direct instruction, same as AiCrawlerAlerts.ts's own "Send Test
- * Alert" — see that file's own docblock), not Settings.tsx's GetForm() special-casing this
+ * Alert" - see that file's own docblock), not Settings.tsx's GetForm() special-casing this
  * tab id anymore: `settingAction` is NavigatorComponent.tsx's own per-tab
  * header action slot (`renderSettingHeaderInfo()`'s `<SectionComponent
  * rightContent={activeFile.settingAction} />`, rendered once above every
@@ -189,7 +189,7 @@ export default {
 		},
 		// "Competitor URLs" (`geo_competitor_urls`) moved out to Settings →
 		// Get Started → Business Information, right below "Tracked
-		// competitors" per direct instruction — see that file's own
+		// competitors" per direct instruction - see that file's own
 		// docblock (moved there from the now-deleted Settings → Scanning →
 		// Brand Intelligence tab, which it moved through first).
 		{
@@ -231,7 +231,7 @@ export default {
 		},
 		{
 			key: 'llms_include_types',
-			// `type: 'checkbox'` + `selectDeselect: true` — real
+			// `type: 'checkbox'` + `selectDeselect: true` - real
 			// InputRenderer-native multicheckbox rendering (a real checkbox
 			// per option, each independently on/off) instead of the former
 			// `choice-toggle` segmented-pill look, same conversion
@@ -252,7 +252,7 @@ export default {
 			dependent: { key: 'enable_llms_txt', value: 'enable_llms_txt', set: true },
 		},
 		{
-			// Not a real, independently-writable field here — the actual
+			// Not a real, independently-writable field here - the actual
 			// enable/threshold live in the real, single nested
 			// `visibility_alerts.geo` setting
 			// (Utill::VULOPILOT_SETTINGS_DEFAULTS), edited on its own
@@ -276,7 +276,7 @@ export default {
 		// entity_service_pages/entity_business_locations, plus the
 		// Knowledge Graph Health drop-threshold notice that followed them)
 		// moved out to Settings → Get Started → Business Information per
-		// direct instruction — see GetStarted/BusinessInformation.ts's
+		// direct instruction - see GetStarted/BusinessInformation.ts's
 		// own docblock.
 		{
 			key: 'crawler-traffic',

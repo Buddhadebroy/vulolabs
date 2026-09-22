@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Checks every administrator's password hash against a small, fixed
  * dictionary of the most commonly used passwords, using core's own
- * `wp_check_password()` — the same hashing/verification path core uses at
+ * `wp_check_password()` - the same hashing/verification path core uses at
  * login, so this never touches or logs a plaintext candidate anywhere
  * except transiently in memory for the comparison itself. Scoped to
  * administrators only (not every registered user): they're the accounts
@@ -24,7 +24,7 @@ defined( 'ABSPATH' ) || exit;
  * every user on a large membership site would be needless cost for no
  * proportional benefit.
  *
- * Deliberately a small, illustrative dictionary, not a large wordlist —
+ * Deliberately a small, illustrative dictionary, not a large wordlist -
  * this is a hardening check ("is the account guessable in the first ten
  * tries"), not a credential-stuffing tool.
  *

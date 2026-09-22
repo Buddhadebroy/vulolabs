@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * GET/POST /dashboard-layout backs the Dashboard page's drag-and-drop
  * widget grid (src/dashboard-widgets/DashboardGrid.tsx). Persists to user
- * meta rather than VULOPILOT_SETTINGS_KEY's shared wp_options row — see
+ * meta rather than VULOPILOT_SETTINGS_KEY's shared wp_options row - see
  * Utill::DASHBOARD_LAYOUT_META_KEY's docblock for why a widget
  * arrangement is per-user state, not site-wide settings.
  *
@@ -96,7 +96,7 @@ class DashboardLayout extends \WP_REST_Controller {
             $id = sanitize_key( (string) ( is_array( $entry ) ? ( $entry['id'] ?? '' ) : '' ) );
 
             if ( ! in_array( $id, Utill::DASHBOARD_WIDGET_IDS, true ) ) {
-                continue; // Unknown id — never persist a widget id the client invented.
+                continue; // Unknown id - never persist a widget id the client invented.
             }
 
             $layout[] = array(

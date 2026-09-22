@@ -12,10 +12,10 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Customer module WPDBAddressRepository.
  *
- * Owns `vulocart_customer_addresses` — the real address book
+ * Owns `vulocart_customer_addresses` - the real address book
  * `Address\Application\AddressService`'s own docblock (pre-dating this
  * pass) explicitly said this plugin didn't have yet. Kept plain-array-
- * in/out (no domain entity) — an address book entry is a flat record
+ * in/out (no domain entity) - an address book entry is a flat record
  * with no behavior of its own, same reasoning `Payment\Infrastructure\
  * WPDBTransactionLedger` gives for skipping a domain entity on its table.
  *
@@ -66,7 +66,7 @@ class WPDBAddressRepository {
 
     /**
      * Clears an existing default-billing/default-shipping flag across
-     * every one of a customer's own addresses — called before setting a
+     * every one of a customer's own addresses - called before setting a
      * new default, so "default" always means exactly one row, never zero
      * or several.
      *

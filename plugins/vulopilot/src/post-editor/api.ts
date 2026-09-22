@@ -1,11 +1,11 @@
 /**
- * Thin fetch wrapper for the post-editor metabox's own endpoints —
+ * Thin fetch wrapper for the post-editor metabox's own endpoints -
  * `vulopilotPostSeo` (Services\PostEditorAssets::enqueue_assets()) rather
  * than `appLocalizer`, since the Block Editor screen doesn't guarantee the
  * dashboard's own localized script has run. Native `fetch()` with a manual
  * `X-WP-Nonce` header, the same "raw call + manual nonce" pattern
  * react-frontend.md documents for direct WP/WC REST calls elsewhere in
- * this codebase — chosen over pulling zyra's axios-based helpers into this
+ * this codebase - chosen over pulling zyra's axios-based helpers into this
  * small, separate Block Editor bundle.
  */
 
@@ -18,7 +18,7 @@ export interface AnalysisResult {
 	action_id: string | null;
 }
 
-/** One row of `Controllers\Seo::get_page_analysis()`'s real `checks` array — the same saved-post-state SEO/GEO checklist `GEO/PageAnalysisPanel.tsx`'s own "Page Analysis" panel already renders, reused here verbatim so this tab's own "Page Analysis" list is never a second, possibly-drifting copy of that data. */
+/** One row of `Controllers\Seo::get_page_analysis()`'s real `checks` array - the same saved-post-state SEO/GEO checklist `GEO/PageAnalysisPanel.tsx`'s own "Page Analysis" panel already renders, reused here verbatim so this tab's own "Page Analysis" list is never a second, possibly-drifting copy of that data. */
 export interface PageAnalysisCheck {
 	key: string;
 	label: string;
@@ -46,7 +46,7 @@ export interface FixResponse {
 	};
 }
 
-/** Same real shape `seoIssuesShared.tsx`'s own `RawFinding` (dashboard bundle) already establishes — duplicated here per this file's own top docblock reasoning (a separate, small Block Editor bundle, not pulling in that bundle's zyra-based helpers). */
+/** Same real shape `seoIssuesShared.tsx`'s own `RawFinding` (dashboard bundle) already establishes - duplicated here per this file's own top docblock reasoning (a separate, small Block Editor bundle, not pulling in that bundle's zyra-based helpers). */
 export interface RawFinding {
 	id: number;
 	title: string;
@@ -68,12 +68,12 @@ const MAX_FINDINGS = 1000;
 
 /**
  * Same real `GET /findings` pagination loop `seoIssuesShared.tsx`'s own
- * `fetchOpenFindingsFor()` already establishes for the dashboard bundle —
+ * `fetchOpenFindingsFor()` already establishes for the dashboard bundle -
  * duplicated here (see this file's own top docblock) so `PageAnalysisTab.tsx`'s
  * own "GEO Issues"/"AEO Issues" sections can fetch real open findings for
  * this tab's own scanner ids without importing that dashboard-only helper.
  * There's no server-side "just this post" filter (`object_ref` isn't a
- * registered query arg — confirmed against `Controllers\Findings`), so
+ * registered query arg - confirmed against `Controllers\Findings`), so
  * callers filter the result to one post client-side, same as
  * `GeoAeoPageAnalysisPanel.tsx`'s own identical fetch-then-filter.
  */
@@ -140,7 +140,7 @@ export function analyzePost(
 	} );
 }
 
-/** Same real `GET vulopilot/v1/seo/analyze-page?post_id=` `GEO/PageAnalysisPanel.tsx` already calls — this bundle's own `apiUrl`/nonce just point at the same `vulopilot/v1` namespace under a different localized script (see this file's own top docblock). */
+/** Same real `GET vulopilot/v1/seo/analyze-page?post_id=` `GEO/PageAnalysisPanel.tsx` already calls - this bundle's own `apiUrl`/nonce just point at the same `vulopilot/v1` namespace under a different localized script (see this file's own top docblock). */
 export function analyzePage( postId: number ): Promise< PageAnalysisResponse > {
 	return request( `seo/analyze-page?post_id=${ postId }`, { method: 'GET' } );
 }

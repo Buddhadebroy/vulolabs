@@ -10,7 +10,7 @@ namespace VuloPilot\Services;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * HTTP client for VuloCloud's `/plugin/google/*` broker endpoints — the
+ * HTTP client for VuloCloud's `/plugin/google/*` broker endpoints - the
  * real fix for the "Redirect URI scaling" trade-off documented in
  * config.php: VuloCloud holds the ONE Google Cloud OAuth Client actually
  * registered with Google (its own fixed, permanently-registered redirect
@@ -19,14 +19,14 @@ defined( 'ABSPATH' ) || exit;
  * the full contract VuloCloud's server side must implement.
  *
  * Only the token exchange/refresh legs are real server-to-server calls
- * from here — the authorize leg (`get_authorize_url()`) is a plain URL
+ * from here - the authorize leg (`get_authorize_url()`) is a plain URL
  * build for the browser to navigate to; VuloCloud itself does the actual
  * 302 to accounts.google.com, same "browser does the 3-way dance, server
  * only handles the token leg" shape GoogleServicesConnection already
  * uses talking to Google directly.
  *
  * Mirrors vulopilot-pro's LicenseApiClient (wp_remote_post(), JSON
- * body/response, WP_Error only for a genuine transport failure) — kept
+ * body/response, WP_Error only for a genuine transport failure) - kept
  * as its own class for the same reason: GoogleServicesConnection stays
  * the one place that decides direct-vs-broker, this class only knows how
  * to talk to the broker once that decision is made.
@@ -45,24 +45,24 @@ class GoogleOAuthBrokerClient {
 	}
 
 	/**
-	 * Browser-facing URL only — VuloCloud itself 302s this straight to
+	 * Browser-facing URL only - VuloCloud itself 302s this straight to
 	 * accounts.google.com (using the Organization that owns
 	 * `$application_id`'s own Google Cloud OAuth Client) after recording
 	 * `$return_uri` (this site's own admin-post.php callback) against a
 	 * broker-generated correlation id, so it knows where to send the
 	 * browser back once Google redirects to VuloCloud's own fixed
 	 * callback. `$state` is this site's own opaque CSRF nonce
-	 * (GoogleServicesConnection::encode_state()) — VuloCloud never
+	 * (GoogleServicesConnection::encode_state()) - VuloCloud never
 	 * inspects it, only echoes it back verbatim on the return redirect,
 	 * exactly like Google's own `state` param already does for the
 	 * direct-connect flow.
 	 *
 	 * `$application_id` is this site's own registered VuloCloud
-	 * LicenseApplication id (VULOPILOT_GOOGLE_APPLICATION_ID) — how
+	 * LicenseApplication id (VULOPILOT_GOOGLE_APPLICATION_ID) - how
 	 * VuloCloud resolves WHICH Organization's Google Client to use, since
 	 * this request carries no session/auth of its own. Query param names
 	 * are camelCase, matching every other new VuloCloud request contract
-	 * (see GOOGLE_CONNECT_INTEGRATION.md §5) — only exchange()/refresh()'s
+	 * (see GOOGLE_CONNECT_INTEGRATION.md §5) - only exchange()/refresh()'s
 	 * *response* bodies stay snake_case, for the OAuth2-standard-field-
 	 * names reason documented on post() below.
 	 *
@@ -80,11 +80,11 @@ class GoogleOAuthBrokerClient {
 	}
 
 	/**
-	 * Real `POST {broker}/plugin/google/exchange` — redeems the
+	 * Real `POST {broker}/plugin/google/exchange` - redeems the
 	 * single-use, short-lived `code` VuloCloud's own redirect handed back
 	 * to this site's admin-post.php callback for the real Google tokens
 	 * VuloCloud obtained on this site's behalf. Google's `refresh_token`
-	 * is only ever present on a subject's very first consent — same
+	 * is only ever present on a subject's very first consent - same
 	 * caveat GoogleServicesConnection::exchange_code_for_tokens() already
 	 * documents for the direct flow, unchanged by going through a broker.
 	 *
@@ -103,7 +103,7 @@ class GoogleOAuthBrokerClient {
 	}
 
 	/**
-	 * Real `POST {broker}/plugin/google/refresh` — used instead of a
+	 * Real `POST {broker}/plugin/google/refresh` - used instead of a
 	 * direct `grant_type=refresh_token` call to Google whenever the
 	 * stored connection's tokens were originally issued via this broker
 	 * (GoogleServicesConnection::refresh_access_token()'s own `via`
@@ -112,7 +112,7 @@ class GoogleOAuthBrokerClient {
 	 * Google Client that `$application_id` resolves to, not this build's
 	 * embedded VULOPILOT_GOOGLE_CLIENT_ID/SECRET. `$application_id` is
 	 * required here for the same reason it's required by
-	 * get_authorize_url() — a bare refresh token doesn't say which
+	 * get_authorize_url() - a bare refresh token doesn't say which
 	 * Organization's Client it belongs to.
 	 *
 	 * @return array{access_token: string, expires_in: int}|\WP_Error
@@ -131,12 +131,12 @@ class GoogleOAuthBrokerClient {
 	}
 
 	/**
-	 * Shared POST/parse/error-shape plumbing for exchange()/refresh() —
+	 * Shared POST/parse/error-shape plumbing for exchange()/refresh() -
 	 * both endpoints return the same access_token/expires_in envelope
 	 * (refresh_token only present on exchange()'s response), so both can
 	 * share one request path. Response fields stay snake_case
 	 * (access_token/refresh_token/expires_in) even though every request
-	 * this class sends is now camelCase — deliberate, matches OAuth2's
+	 * this class sends is now camelCase - deliberate, matches OAuth2's
 	 * own RFC 6749 §5.1 field names, and VuloCloud's
 	 * GoogleBrokerController maps its responses to match this parsing
 	 * unchanged (see GOOGLE_CONNECT_INTEGRATION.md §5).
@@ -158,7 +158,7 @@ class GoogleOAuthBrokerClient {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			// DNS failure, connection refused, timeout, ... — the request
+			// DNS failure, connection refused, timeout, ... - the request
 			// never got a response at all.
 			return $response;
 		}

@@ -12,7 +12,7 @@ interface PopupProps {
 /**
  * Known acronym module ids get their real casing ("MCP", "AI") instead
  * of the generic capitalize-each-word fallback, which would otherwise
- * read "Mcp"/"Ai" — everything else falls back to that generic rule.
+ * read "Mcp"/"Ai" - everything else falls back to that generic rule.
  */
 const ACRONYM_LABELS: Record< string, string > = {
 	mcp: 'MCP',
@@ -20,10 +20,10 @@ const ACRONYM_LABELS: Record< string, string > = {
 };
 
 /**
- * The popup header icon is `adminfont-${moduleName}` — fine for module
+ * The popup header icon is `adminfont-${moduleName}` - fine for module
  * ids that happen to already be an icon name (e.g. vulopilot's
  * 'automation'), but 'mcp' has no matching glyph in zyra's icon set
- * (`ai` does — checked against `@zyra/theme`'s fonts.scss, same source
+ * (`ai` does - checked against `@zyra/theme`'s fonts.scss, same source
  * `src/settings/Mcp.ts`'s/`Ai.ts`'s own `headerIcon` values were verified
  * against). Overridden here rather than renaming the module id itself.
  */
@@ -44,13 +44,13 @@ const formatModuleName = ( name: string ): string => {
 
 /**
  * The popup zyra's InputRenderer opens when a field with `moduleEnabled`/
- * `dependentPlugin`/`proSetting` is locked — passed in as the `Popup`
+ * `dependentPlugin`/`proSetting` is locked - passed in as the `Popup`
  * prop on `<InputRenderer>` (pages/Settings/Settings.tsx). Mirrors
  * `vulopilot/src/components/Popup/Popup.tsx`'s structure, trimmed to
  * what VuloCart actually needs today: the `moduleName` branch is the one
  * real settings fields use (`src/settings/Mcp.ts`'s `mcp_api_key`,
- * `Ai.ts`'s `ai_provider`). The default (no moduleName/plugin) branch —
- * reachable if a future field sets `proSetting: true` — is a plain
+ * `Ai.ts`'s `ai_provider`). The default (no moduleName/plugin) branch -
+ * reachable if a future field sets `proSetting: true` - is a plain
  * upgrade CTA, not a fabricated feature list, since this plugin has no
  * central Pro-feature catalog to draw one from honestly.
  */

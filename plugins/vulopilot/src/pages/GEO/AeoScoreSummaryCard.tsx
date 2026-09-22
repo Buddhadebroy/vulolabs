@@ -7,7 +7,7 @@ import type { TrendChange } from './GeoTrendCompactCard';
 /**
  * Same real severity-weighted 0-100 formula `Controllers\Seo::calculate_score()`/
  * `Controllers\Geo::calculate_score()` use server-side for their own
- * per-category/per-signal scores — duplicated here client-side (this
+ * per-category/per-signal scores - duplicated here client-side (this
  * codebase's own "duplicate small per-file logic" convention) since AEO has
  * no dedicated `/aeo/score` endpoint of its own; `groups` (`GET
  * /findings/groups`, already fetched by AeoTab.tsx for `GeoByTopicGrid`)
@@ -42,7 +42,7 @@ const ratingColorFor = (score: number): string => {
 
 /**
  * Same real 3-tier text `AeoTab.tsx`'s own (now-removed) local `getRating()`
- * used for this same ring — kept local rather than a shared import per this
+ * used for this same ring - kept local rather than a shared import per this
  * codebase's own "duplicate small per-file logic" convention.
  */
 const overallRatingLabel = (score: number): string => {
@@ -57,7 +57,7 @@ const overallRatingLabel = (score: number): string => {
 
 /**
  * `.geo-overall-rating`'s own real `is-good`/`is-attention`/`is-poor`
- * classes (`SeoVisibility.scss`) — NOT `ratingColorFor()` above's
+ * classes (`SeoVisibility.scss`) - NOT `ratingColorFor()` above's
  * `green`/`yellow`/`red` (that one feeds `TypographyComponent`'s own
  * `color` prop for the per-topic row values instead, a different consumer
  * with a different real class contract).
@@ -80,7 +80,7 @@ interface AeoTopic {
 }
 
 /**
- * Score a site needs to reach for a real "Good" AEO rating — same `>= 70`
+ * Score a site needs to reach for a real "Good" AEO rating - same `>= 70`
  * cutoff AeoTab.tsx's own `getRating()`/`ratingClass()` already use for the
  * gauge itself, so this card's own "Goal: 70+" copy always agrees with
  * what actually turns that gauge green, rather than a second, invented
@@ -93,18 +93,18 @@ interface AeoScoreSummaryCardProps {
 	questionsAnswered: number;
 	totalPages: number;
 	pagesReady: number;
-	/** `null` when there isn't at least 2 real sampled days to compare yet (GeoTrendCompactCard.tsx's own `computeTrendChange()`) — the bottom "Content Change" tile shows an em dash rather than a fabricated number in that case. */
+	/** `null` when there isn't at least 2 real sampled days to compare yet (GeoTrendCompactCard.tsx's own `computeTrendChange()`) - the bottom "Content Change" tile shows an em dash rather than a fabricated number in that case. */
 	trend: TrendChange | null;
-	/** AeoTab.tsx's own real `AEO_SECTIONS` — this card's own row breakdown, same shape `GeoScoreSection.tsx`'s own `SIGNAL_META` feeds its 7 rows. */
+	/** AeoTab.tsx's own real `AEO_SECTIONS` - this card's own row breakdown, same shape `GeoScoreSection.tsx`'s own `SIGNAL_META` feeds its 7 rows. */
 	topics: AeoTopic[];
-	/** `GET /findings/groups`, already fetched by AeoTab.tsx for `GeoByTopicGrid` — reused here rather than a second fetch, same real per-scanner severity/count data this card's own rows compute their real score/issue-count from. */
+	/** `GET /findings/groups`, already fetched by AeoTab.tsx for `GeoByTopicGrid` - reused here rather than a second fetch, same real per-scanner severity/count data this card's own rows compute their real score/issue-count from. */
 	groups: FindingGroup[];
-	/** AeoTab.tsx's own real `goToIssuesTable` — same real click-through `GeoScoreSection.tsx`'s own `onSelectSignal` gives its rows, filtering + scrolling to the real "All AEO Issues" table below instead of doing nothing. */
+	/** AeoTab.tsx's own real `goToIssuesTable` - same real click-through `GeoScoreSection.tsx`'s own `onSelectSignal` gives its rows, filtering + scrolling to the real "All AEO Issues" table below instead of doing nothing. */
 	onSelectTopic?: (topicKey: string) => void;
 }
 
 /**
- * "AEO Score" — restructured to match `GeoScoreSection.tsx`'s own "GEO
+ * "AEO Score" - restructured to match `GeoScoreSection.tsx`'s own "GEO
  * Score" card exactly (direct instruction: "same to same" as that card's
  * real per-signal row breakdown), replacing the previous 4 generic stat
  * rows (Current Score/Questions Answered/Pages Ready/Content Change) with
@@ -116,7 +116,7 @@ interface AeoScoreSummaryCardProps {
  * `/aeo/score` REST endpoint the way SEO/GEO do (`Controllers\Seo`/
  * `Controllers\Geo`), so `calculateScore()` above duplicates their exact
  * same severity-weighted formula against `groups` (already real, already
- * fetched) filtered to that topic's own scanner ids — the same real
+ * fetched) filtered to that topic's own scanner ids - the same real
  * severity/count numbers `GeoByTopicGrid.tsx`'s own tiles already read,
  * just folded into one 0-100 number instead of shown as a raw count.
  *
@@ -124,10 +124,10 @@ interface AeoScoreSummaryCardProps {
  * `Geo.php` grew a real `signals[*].trend`): `groups` is a live snapshot
  * with no stored history to reconstruct a real "score 7 days ago" from,
  * and building that would mean a new backend endpoint (same lift
- * `Geo.php`'s own `get_signal_trend()` needed) — not fabricated here.
+ * `Geo.php`'s own `get_signal_trend()` needed) - not fabricated here.
  *
  * The original 4 real numbers (overall `aeoScore`, `questionsAnswered`,
- * `pagesReady`, `trend`) aren't discarded — they move to a real bottom
+ * `pagesReady`, `trend`) aren't discarded - they move to a real bottom
  * stat row (`AnalyticsComponent`), same "topic rows above, stat tiles
  * below" shape `GeoScoreSection.tsx`'s own card already established.
  */
@@ -149,7 +149,7 @@ const AeoScoreSummaryCard = ({
 				trend.change,
 				__('pts', 'vulopilot')
 			)
-		: '—';
+		: '-';
 
 	const topicScores = topics.map((topic) => {
 		const topicGroups = groups.filter((group) =>
@@ -167,13 +167,13 @@ const AeoScoreSummaryCard = ({
 	});
 
 	/**
-	 * Real overall AEO score — an unweighted mean of the same 6 real
+	 * Real overall AEO score - an unweighted mean of the same 6 real
 	 * per-topic scores the rows below show, same "unweighted mean of real
 	 * per-X scores" convention `Controllers\Geo::get_score()`'s own
 	 * `geo_score` already establishes. Replaces the ring's former
 	 * `aeoScore` prop (`AeoTab.tsx`'s own `average()` of 3 Pro-only
 	 * `useGeoVisibilitySnapshot()` fields, which silently read 0 with Pro
-	 * inactive — same free-tier gap that endpoint's own docblock already
+	 * inactive - same free-tier gap that endpoint's own docblock already
 	 * flags for `GeoVisibilitySummaryCard`) with a number that's real and
 	 * populated on every install, matching how `GeoScoreSection.tsx`'s own
 	 * ring already avoids that same trap.
@@ -235,9 +235,9 @@ const AeoScoreSummaryCard = ({
 						<ChartComponent
 							type="ring"
 							height={200}
-							// Top-level `color` — `type="ring"` only ever paints
+							// Top-level `color` - `type="ring"` only ever paints
 							// its stroke from this prop, never from `data[].color`
-							// below (see SeoTab.tsx's own identical fix) — without
+							// below (see SeoTab.tsx's own identical fix) - without
 							// it the ring stayed `ChartComponent`'s default brand
 							// purple regardless of score.
 							color={
@@ -265,7 +265,7 @@ const AeoScoreSummaryCard = ({
 									// Same real rating color the ring's own
 									// Needs Work/Good/Poor label above already
 									// uses (`overallRatingClass()`/
-									// `overallRatingLabel()`) — resolved
+									// `overallRatingLabel()`) - resolved
 									// through `COLOR_PALETTE` for the real hex
 									// `ratingColorFor()`'s own palette name
 									// stands for, same convention SeoTab.tsx's

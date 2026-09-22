@@ -13,10 +13,10 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /geo/score` — a real, deterministic GEO Score (no AI, no cost) for
+ * `GET /geo/score` - a real, deterministic GEO Score (no AI, no cost) for
  * the GEO tab's own "GEO Score" card (SEO & Visibility → GEO). Same
  * shape/weighting `Controllers\Seo::get_score()` already established for
- * the SEO tab's own "SEO Health Score" — this is that same pattern applied
+ * the SEO tab's own "SEO Health Score" - this is that same pattern applied
  * to GeoTab.tsx's own real free GEO scanner ids instead of SEO's 15.
  *
  * 6 of the 7 signals below are plain `get_severity_breakdown_for_scanner_ids()`
@@ -24,15 +24,15 @@ defined( 'ABSPATH' ) || exit;
  * own `GEO_TOPICS` already groups its findings table into, just regrouped
  * 1:1 to match this feature's own reference mockup, which names Question
  * Coverage/Entity Clarity/Content Freshness as their own rows rather than
- * folded into GEO_TOPICS' 5-tile "Other Signals" catch-all — see
+ * folded into GEO_TOPICS' 5-tile "Other Signals" catch-all - see
  * SIGNAL_SCANNER_IDS below for the exact regrouping and why).
  *
- * The 7th, "Content Freshness", is NOT finding-based — no free scanner
+ * The 7th, "Content Freshness", is NOT finding-based - no free scanner
  * checks it (`stale-content` exists but is Pro-only, registered by
  * vulopilot-pro's GeoInsights module; giving a dedicated headline row to a
  * scanner that never runs on a free site would silently read "100/100,
  * Good" for every free-tier visitor, which is indistinguishable from
- * "genuinely fresh" — the same failure mode this codebase's own
+ * "genuinely fresh" - the same failure mode this codebase's own
  * GEO_TOPICS docblock already flags for Pro-only scanners folded into a
  * mixed bucket, except there the mix dilutes it and here a dedicated row
  * wouldn't). Instead this computes a real, free, deterministic sitewide
@@ -40,12 +40,12 @@ defined( 'ABSPATH' ) || exit;
  * `post_modified_gmt`, using the exact same 4-tier recency bands (25%/50%/
  * 100% of the real "stale after" setting) `GeoAnalyzer::calculate_content_freshness()`
  * already applies per-post for the (AI-scored, Pro-only) per-post GEO
- * score — just averaged across every real published page instead of one.
+ * score - just averaged across every real published page instead of one.
  *
  * Overall `geo_score` is an unweighted mean of the 7 signal scores, same
  * "unweighted mean of real per-signal averages" shape
  * `VisibilitySnapshotBuilder::calculate_overall_score()` (Pro) already
- * established as this codebase's own real GEO-scoring convention — chosen
+ * established as this codebase's own real GEO-scoring convention - chosen
  * over re-deriving one merged severity breakdown across all 6 finding-based
  * signals (which `Content Freshness`, not being finding-based at all,
  * couldn't join anyway).
@@ -64,7 +64,7 @@ class Geo extends \WP_REST_Controller {
     /**
      * Real, always-free GEO scanner ids (`classes/Scanners/Basic/`),
      * regrouped 1:1 against this card's own reference mockup rows. Kept in
-     * sync manually with GeoTab.tsx's own `GEO_TOPICS` — same "kept in sync
+     * sync manually with GeoTab.tsx's own `GEO_TOPICS` - same "kept in sync
      * manually" posture `Controllers\Seo::CATEGORY_SCANNER_IDS`'s own
      * docblock already documents for SEO_SECTIONS, since these two groupings
      * serve different UI purposes (a 5-tile topic grid there vs. this card's
@@ -73,12 +73,12 @@ class Geo extends \WP_REST_Controller {
      *
      * - `ai-summary`: GEO_TOPICS' own "AI Summary" topic, unchanged.
      * - `question-coverage`: GEO_TOPICS' own "FAQ-style Questions" topic,
-     *   renamed here to match this card's own reference mockup wording —
+     *   renamed here to match this card's own reference mockup wording -
      *   same real scanner underneath.
      * - `evidence-citations`/`ai-readable-structure`: unchanged from
      *   GEO_TOPICS.
      * - `entity-clarity`: split out of GEO_TOPICS' "Other Signals" catch-all
-     *   into its own row, matching the mockup — real scanner
+     *   into its own row, matching the mockup - real scanner
      *   `geo-entity-naming-consistency` (label "Entity Naming Consistency"),
      *   named "Entity Clarity" here since that's what naming
      *   consistency/disambiguation genuinely buys an AI system.
@@ -90,7 +90,7 @@ class Geo extends \WP_REST_Controller {
      *   honestly for free-tier sites; keeping the Pro-only scanner's
      *   findings folded in here too would double-count the same idea under
      *   two different rows). `llms-txt-missing` is also Pro-only
-     *   (GeoInsights) — left in this mixed bucket rather than given its own
+     *   (GeoInsights) - left in this mixed bucket rather than given its own
      *   row, same reasoning GEO_TOPICS' own docblock already gives: it
      *   simply contributes nothing yet on a free site, same as any other
      *   not-yet-scanned signal, and this bucket has real free scanners
@@ -98,7 +98,7 @@ class Geo extends \WP_REST_Controller {
      *   solely because the check never ran.
      *
      * `content-freshness` (the 7th row) is deliberately NOT a key in this
-     * array — see this class's own docblock for why it's computed
+     * array - see this class's own docblock for why it's computed
      * separately in `get_content_freshness()` instead.
      *
      * @var array<string, string[]>
@@ -114,7 +114,7 @@ class Geo extends \WP_REST_Controller {
 
     /**
      * How far back "since last week" looks for `get_score()`'s own real
-     * delta — same real exact-reconstruction technique (no stored snapshot)
+     * delta - same real exact-reconstruction technique (no stored snapshot)
      * `Controllers\Seo::DELTA_LOOKBACK_DAYS` already uses.
      *
      * @var int
@@ -123,7 +123,7 @@ class Geo extends \WP_REST_Controller {
 
     /**
      * Real per-signal daily score trend length for `get_score()`'s own
-     * `signals[*].trend` — same `Controllers\Seo::PROGRESS_TREND_DAYS`
+     * `signals[*].trend` - same `Controllers\Seo::PROGRESS_TREND_DAYS`
      * value/purpose, feeding SeoTab.tsx's own `categoryScoreDelta()` (score
      * now minus the oldest point) for each row's real up/down delta arrow,
      * now real for this card's own rows too instead of only SEO's.
@@ -134,7 +134,7 @@ class Geo extends \WP_REST_Controller {
 
     /**
      * Real day-range options "Score Snapshot"'s own period dropdown offers
-     * — same trio Pro's `GeoInsights\Rest::get_history()` already accepts
+     * - same trio Pro's `GeoInsights\Rest::get_history()` already accepts
      * on `/geo-visibility-history?days=N` (min 7, max 365), narrowed to a
      * fixed real menu here since this card's own dropdown is a discrete
      * choice, not a free-typed number.
@@ -224,7 +224,7 @@ class Geo extends \WP_REST_Controller {
     }
 
     /**
-     * Real published post/page count — same real scope every GEO scanner
+     * Real published post/page count - same real scope every GEO scanner
      * itself scans, same reasoning `Controllers\Seo::get_pages_checked()`
      * already documents for SEO's own identical stat.
      *
@@ -256,13 +256,13 @@ class Geo extends \WP_REST_Controller {
 
     /**
      * Real `PROGRESS_TREND_DAYS`-point daily score trend for one of this
-     * card's own finding-based signals — same real `..._as_of()`
+     * card's own finding-based signals - same real `..._as_of()`
      * reconstruction technique `Controllers\Seo::get_category_trend()`
      * already established for SEO's own "SEO areas" rows, applied here so
      * `SeoTab.tsx`'s own `categoryScoreDelta()` (this endpoint's real
      * `signal.trend[0]` vs the current `signal.score`) has a real number to
      * diff for this card's rows too, not just SEO's. No new stored
-     * snapshot table — every point is a fresh reconstruction of real
+     * snapshot table - every point is a fresh reconstruction of real
      * `vulopilot_scan_findings` rows as of that day.
      *
      * @param FindingRepository $findings    Shared repository instance, reused across every signal's own call rather than re-instantiated per signal.
@@ -286,11 +286,11 @@ class Geo extends \WP_REST_Controller {
 
     /**
      * Real most-severe, most-recent still-open finding's own stored
-     * `title` across a set of scanner ids — the "Main Problem" column of
+     * `title` across a set of scanner ids - the "Main Problem" column of
      * this card's own GEO Score Breakdown table. `find_all()` has no
      * severity-rank ORDER BY of its own (only real column names), so this
      * fetches real open findings for these scanner ids and ranks them
-     * client-side by `Severity::all()`'s own real order — same technique
+     * client-side by `Severity::all()`'s own real order - same technique
      * `Controllers\Seo::get_pages_needing_attention()` already uses for its
      * own per-page "Main Problem", just site-wide instead of per-post.
      * `null` (never a fabricated "No issues" string standing in for a real
@@ -322,7 +322,7 @@ class Geo extends \WP_REST_Controller {
     }
 
     /**
-     * Real, free, deterministic sitewide "Content Freshness" — see this
+     * Real, free, deterministic sitewide "Content Freshness" - see this
      * class's own docblock for why this exists instead of a `stale-content`
      * finding lookup. Same 4-tier recency banding
      * `GeoAnalyzer::calculate_content_freshness()` already applies per-post
@@ -330,7 +330,7 @@ class Geo extends \WP_REST_Controller {
      * one SQL pass over every real published post/page's own real
      * `post_modified_gmt` rather than looping `WP_Post` objects in PHP.
      *
-     * `trend` is always `null` here (not just an empty array) — deliberately
+     * `trend` is always `null` here (not just an empty array) - deliberately
      * distinct from a finding-based signal's real `trend`, since (per this
      * method's own docblock) there's no historical reconstruction to offer
      * for this one, same reasoning `get_progress()`'s own docblock already
@@ -406,11 +406,11 @@ class Geo extends \WP_REST_Controller {
     }
 
     /**
-     * "Score Snapshot" — a real daily score trend over `days` (7/30/90),
+     * "Score Snapshot" - a real daily score trend over `days` (7/30/90),
      * one real reconstructed `geo_score` per day via the same
      * `..._as_of()` technique `Controllers\Seo::get_progress()` already
-     * uses — no new stored snapshot table. Scoped to the 6 finding-based
-     * signals only (`SIGNAL_SCANNER_IDS`) — `content-freshness` is excluded
+     * uses - no new stored snapshot table. Scoped to the 6 finding-based
+     * signals only (`SIGNAL_SCANNER_IDS`) - `content-freshness` is excluded
      * from this trend since it isn't finding-based (no
      * `vulopilot_scan_findings` history to reconstruct against; a post's
      * `post_modified_gmt` doesn't retroactively change), so folding a

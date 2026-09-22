@@ -18,7 +18,7 @@ interface CommerceProDummiesProps {
 
 /**
  * Fabricated preview of the real Commerce page vulopilot-pro's own Commerce
- * module renders (CommerceTab.tsx and children) — one card per real
+ * module renders (CommerceTab.tsx and children) - one card per real
  * section, each behind the shared blurred "Upgrade to Pro" overlay
  * (components/UpgradeToProOverlay.tsx) with the shared `DummyDataNotice`,
  * same treatment BrandVisibilityProDummies.tsx/AutomationsProDummies.tsx
@@ -77,7 +77,7 @@ const CommerceProDummies = ({ onClick }: CommerceProDummiesProps) => (
 			<DummyCard
 				title={__('Bulk AI optimization', 'vulopilot')}
 				titleIcon="ai"
-				desc={__('Select an AI action and a batch of products — each product gets its own proposal to review.', 'vulopilot')}
+				desc={__('Select an AI action and a batch of products - each product gets its own proposal to review.', 'vulopilot')}
 				contentClassName="commerce-dummy-bulk"
 				onClick={onClick}
 			>

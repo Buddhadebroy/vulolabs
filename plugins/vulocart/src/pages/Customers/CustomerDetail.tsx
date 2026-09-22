@@ -57,7 +57,7 @@ interface Order {
 const EMPTY_ADDRESS = { label: '', full_name: '', address_1: '', city: '', state: '', postcode: '', country: '' };
 
 /**
- * The full single-customer admin view — profile, lifetime analytics,
+ * The full single-customer admin view - profile, lifetime analytics,
  * address book, order history, and internal notes. `vulocart_customer_
  * detail_sections` is the "Pro extends Free via filters" extension point
  * `vulocart-pro`'s own CustomerGrowth module renders Wishlist/Saved

@@ -16,12 +16,12 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Turns Services\LoginProtectionGuard's own real login-attempt log
- * (`vulopilot_security_events` (type `login_attempt`)) into real Finding rows — one per IP that
+ * (`vulopilot_security_events` (type `login_attempt`)) into real Finding rows - one per IP that
  * actually tripped the real, currently-configured `login_max_attempts`
  * lockout threshold in the last 7 days. Deliberately re-derives "did this
  * IP trip the threshold" from the raw attempt rows against the *current*
  * setting value at scan time, rather than a separate persisted
- * lockout-event log — see LoginAttemptRepository::get_recent_lockouts()'s
+ * lockout-event log - see LoginAttemptRepository::get_recent_lockouts()'s
  * own docblock for why. Zero findings when nothing tripped it, or when
  * Login Protection is disabled entirely (no nagging about a disabled
  * feature).
@@ -88,7 +88,7 @@ class LoginProtectionScanner extends AbstractBasicScanner {
                 $this->get_category(),
                 sprintf(
                     /* translators: %d is how many days this report covers. */
-                    __( 'Real login attempts logged by Login Protection in the last %d days. If this wasn\'t you, no action is needed — the attempts were already blocked.', 'vulopilot' ),
+                    __( 'Real login attempts logged by Login Protection in the last %d days. If this wasn\'t you, no action is needed - the attempts were already blocked.', 'vulopilot' ),
                     self::LOOKBACK_DAYS
                 ),
                 'ip_address',

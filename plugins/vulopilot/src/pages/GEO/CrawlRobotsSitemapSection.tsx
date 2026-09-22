@@ -65,7 +65,7 @@ interface SitemapRow extends TableRow, SitemapChild {
 /**
  * "Blocked Pages" (AI-CRAWLER-ANALYTICS-MODULE.md), "Robots.txt Issues",
  * and "XML Sitemap Issues" are all registered by modules/Seo/Module.php,
- * same as every other robots.txt-adjacent check — their findings only
+ * same as every other robots.txt-adjacent check - their findings only
  * exist while the SEO module is active, same gate SeoTab.tsx's own
  * isSeoModuleActive() already checks for the identical reason.
  */
@@ -74,7 +74,7 @@ const isSeoModuleActive = () =>
 
 /**
  * Real sitemap `loc` URL, stripped down to just its own path/name for
- * display — no scheme/host (`http://localhost:8888/wp-sitemap-posts-post.xml`
+ * display - no scheme/host (`http://localhost:8888/wp-sitemap-posts-post.xml`
  * reads as `/wp-sitemap-posts-post`), and no real trailing page-number
  * suffix (`-1`/`-2`/…) or `.xml` extension either. Falls back to the raw
  * `loc` string on a malformed URL rather than throwing.
@@ -103,11 +103,11 @@ const escapeHtml = (text: string): string =>
 	text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 /**
- * Real, per-line syntax highlight for the robots.txt editor below — a
+ * Real, per-line syntax highlight for the robots.txt editor below - a
  * small regex tokenizer (directive name / value / `#` comment), not a
  * general syntax-highlighting library: robots.txt's own real grammar is
  * just those 2 line shapes, so a full editor dependency isn't warranted
- * for coloring them. Escapes its own output — this HTML only ever backs
+ * for coloring them. Escapes its own output - this HTML only ever backs
  * the read-only highlight layer, never what the user actually types (the
  * real `<textarea>` underneath stays plain text either way).
  */
@@ -133,24 +133,24 @@ const highlightRobotsLine = (line: string): string => {
 };
 
 /**
- * Line-numbered, syntax-highlighted robots.txt editor — matches the
+ * Line-numbered, syntax-highlighted robots.txt editor - matches the
  * reference mockup's code-editor look (directive names/values/comments
  * colored, a real line-number gutter) via the classic transparent-
  * `<textarea>`-over-a-highlighted-`<pre>` overlay technique (both share
  * the exact same font/line-height/padding, so they line up pixel for
- * pixel) rather than pulling in a code-editor dependency — see
+ * pixel) rather than pulling in a code-editor dependency - see
  * `highlightRobotsLine`'s own docblock above for why. The real edit
  * target is always the plain `<textarea>` on top; the `<pre>` underneath
  * is purely decorative (`aria-hidden`) and never receives focus/input.
  *
  * Exported (and `readOnly` added) so InspectorSection.tsx's own JSON-LD
  * blocks can reuse this exact same gutter/box look for real, live schema
- * content — not a new, second code-viewer component. `readOnly` just
+ * content - not a new, second code-viewer component. `readOnly` just
  * drops the `<textarea>` overlay entirely (nothing to type into, nothing
  * to overlay) and adds `.rt-editor-readonly` (common.scss) so the box
  * sizes to its own real content instead of the fixed 16rem editable
  * height. `highlightRobotsLine`'s own robots.txt-specific tokenizer still
- * runs either way — a JSON line doesn't match its `directive: value`
+ * runs either way - a JSON line doesn't match its `directive: value`
  * pattern (JSON keys start with `"`, not a bare letter), so it simply
  * renders unhighlighted rather than mis-colored.
  */
@@ -180,7 +180,7 @@ export const RobotsTxtEditor = ({ value, onChange, placeholder, readOnly = false
 					className="rt-highlight"
 					aria-hidden="true"
 					// Real highlight markup built entirely from `escapeHtml`'d
-					// content above — never raw user input.
+					// content above - never raw user input.
 					dangerouslySetInnerHTML={{ __html: highlighted || '&nbsp;' }}
 				/>
 				{!readOnly && (
@@ -201,7 +201,7 @@ export const RobotsTxtEditor = ({ value, onChange, placeholder, readOnly = false
 /**
  * Confirmed unreachable from the UI, same "real, working, just flagged
  * here rather than deleted" status BrokenLinksSection.tsx's own docblocks
- * document for their own unwired pieces (not touched in this pass — none
+ * document for their own unwired pieces (not touched in this pass - none
  * of it is dead in the sense of broken or unused-and-safe-to-delete, just
  * currently not rendered): the "4 real status tiles" bullet below
  * (`robotsStatus`/`sitemapStatus`/`lastScanAt`, all computed but never
@@ -210,26 +210,26 @@ export const RobotsTxtEditor = ({ value, onChange, placeholder, readOnly = false
  * `searchConsoleUrl`, both real and callable but with no button/link
  * anywhere that reaches them).
  *
- * "Robots & Sitemap" inner section of the "Crawl & URLs" tab — rebuilt to
+ * "Robots & Sitemap" inner section of the "Crawl & URLs" tab - rebuilt to
  * match the reference mockup wherever real data supports it:
  *   - 4 real status tiles: Robots.txt/Sitemap reachability (live
- *     `GET /robots-sitemap/robots`/`/sitemap`, new this pass — neither
+ *     `GET /robots-sitemap/robots`/`/sitemap`, new this pass - neither
  *     existing scanner returns file content or a structured breakdown,
  *     confirmed before writing Controllers\RobotsSitemap.php), a real
- *     connected Search Console property (useGoogleServicesConnection — no
+ *     connected Search Console property (useGoogleServicesConnection - no
  *     count next to it: this codebase's only real GSC integration is
  *     `searchAnalytics.query` for keyword rank tracking, never an
  *     index-coverage/"indexed pages" API, so that mockup number has zero
  *     real source and is deliberately omitted rather than faked), and a
  *     real "Last Checked" from the most recent completed
- *     robots-txt/sitemap scan run (useLastScanTime) — no "Next check"
+ *     robots-txt/sitemap scan run (useLastScanTime) - no "Next check"
  *     line, since neither scanner has any cadence/cron of its own.
  *   - "Robots.txt Analysis": the real live file content plus real
  *     Allow/Disallow/Sitemap line counts (a genuine full parse, not a
  *     summary standing in for the real thing), and a real violation
  *     badge from this scanner's own open findings.
  *   - "XML Sitemap Overview": real per-child-sitemap rows (URL/type/real
- *     `<lastmod>`/real `<url>` count) — WordPress core's own
+ *     `<lastmod>`/real `<url>` count) - WordPress core's own
  *     `/wp-sitemap.xml` index structurally has this, this plugin just
  *     never read it back before this pass.
  *   - "Blocked by Robots.txt": the real `ai-crawler-blocked-pages`
@@ -243,14 +243,14 @@ export const RobotsTxtEditor = ({ value, onChange, placeholder, readOnly = false
  *     the real, already-shipped `POST /indexnow/submit`).
  *   - "llms.txt content": moved here from Settings → AI Visibility, same
  *     real `llms_txt_content` auto-saving option and `GET /llms-txt/regenerate`
- *     action as before (see LlmsTxtGenerator) — just relocated to match the
+ *     action as before (see LlmsTxtGenerator) - just relocated to match the
  *     reference mockup, which places it on this tab. Gated on the real
  *     `enable_llms_txt` flag (still configured on Settings → AI Visibility,
- *     which didn't move) — editing content for a disabled feature would be
+ *     which didn't move) - editing content for a disabled feature would be
  *     dishonest, so this shows a plain link there instead when it's off.
  *
  * "Indexing Directives"/"Crawl Errors" (this file's own former "not
- * tracked yet" placeholder cards) are dropped here — the reference
+ * tracked yet" placeholder cards) are dropped here - the reference
  * mockup doesn't show them, and this pass already covers substantially
  * more real ground than before.
  */
@@ -265,7 +265,7 @@ const CrawlRobotsSitemapSection = () => {
 
 	/**
 	 * `useFindingsTable`'s own `tableCardProps.totalRows` counts every
-	 * status (open/resolved/ignored/snoozed) — fine for its own table's
+	 * status (open/resolved/ignored/snoozed) - fine for its own table's
 	 * "Showing X of Y" footer, wrong for a real "still-open right now"
 	 * count, so these two glance stats fetch that real number directly
 	 * rather than reusing (and overcounting from) the table's own total.
@@ -290,7 +290,7 @@ const CrawlRobotsSitemapSection = () => {
 	 * overwrite the editor's local `value` state. On initial mount and on
 	 * an explicit "Test robots.txt" click, it should (that's the whole
 	 * point of the fetch). On the background refetch `persistRobotsContent`
-	 * fires after every auto-save, it must NOT — otherwise the server's
+	 * fires after every auto-save, it must NOT - otherwise the server's
 	 * round-tripped content (possibly normalized differently, e.g. a
 	 * trailing newline WordPress added) replaces what the user is still
 	 * typing, and the cursor jumps to the end. That was the real bug: the
@@ -299,8 +299,8 @@ const CrawlRobotsSitemapSection = () => {
 	 *
 	 * `showLoadingState` is the companion fix for a second, related
 	 * symptom: this card's own `isLoading` prop (below) is driven by
-	 * `isLoadingRobots`, so toggling that on every call — including the
-	 * silent post-autosave refetch — flashed the whole card into its
+	 * `isLoadingRobots`, so toggling that on every call - including the
+	 * silent post-autosave refetch - flashed the whole card into its
 	 * loading/skeleton state 800ms after every keystroke pause. That
 	 * read as the page re-rendering/refreshing on every edit, when only
 	 * the small `robotsSaveState` indicator next to the editor should
@@ -336,7 +336,7 @@ const CrawlRobotsSitemapSection = () => {
 	};
 
 	/**
-	 * Inline, auto-saving robots.txt editor — same real shape "llms.txt
+	 * Inline, auto-saving robots.txt editor - same real shape "llms.txt
 	 * content" below already established (`llmsTxtContent`/
 	 * `llmsTxtSaveState`/`llmsTxtSaveTimer`), not a popup: edit the real
 	 * live file directly in the card, saved 800ms after the last
@@ -369,7 +369,7 @@ const CrawlRobotsSitemapSection = () => {
 
 				if (response) {
 					// Refresh the card's own read-only data (rules/directives
-					// counts, the "Custom" badge) — but explicitly NOT the
+					// counts, the "Custom" badge) - but explicitly NOT the
 					// editor's own `robotsEditContent`, so the user's cursor
 					// and in-progress text are left untouched mid-save. Also
 					// silent (no card-level loading state): only the small
@@ -400,14 +400,14 @@ const CrawlRobotsSitemapSection = () => {
 	};
 
 	/**
-	 * "llms.txt content" — moved here from Settings → AI Visibility (the
+	 * "llms.txt content" - moved here from Settings → AI Visibility (the
 	 * mockup places it on this tab instead), same real field/behavior as
 	 * before: `llms_txt_content` is a plain, auto-saving option
 	 * (Controllers\Settings::update_item() writes it straight to a real
 	 * `/llms.txt` on save, see GeoAnalysis\LlmsTxtGenerator::write_file()).
 	 * `enable_llms_txt` still lives on Settings → AI Visibility (its own
-	 * toggle, plus "Auto-regenerate on publish"/"Included content types" —
-	 * none of that moved) — this card just reads that same real flag to
+	 * toggle, plus "Auto-regenerate on publish"/"Included content types" -
+	 * none of that moved) - this card just reads that same real flag to
 	 * decide whether editing the content here makes sense right now, same
 	 * `dependent` gate the old textarea field used.
 	 */
@@ -503,7 +503,7 @@ const CrawlRobotsSitemapSection = () => {
 		closeProPopup,
 	} = useFindingsTable({
 		description: __(
-			'No AI-bot-specific blocks found — run a scan to check robots.txt against your published pages.',
+			'No AI-bot-specific blocks found - run a scan to check robots.txt against your published pages.',
 			'vulopilot'
 		),
 		scannerIds: ['ai-crawler-blocked-pages'],
@@ -517,7 +517,7 @@ const CrawlRobotsSitemapSection = () => {
 		closeProPopup: closeRobotsTxtProPopup,
 	} = useFindingsTable({
 		description: __(
-			'No robots.txt findings yet — run a scan to check crawler access.',
+			'No robots.txt findings yet - run a scan to check crawler access.',
 			'vulopilot'
 		),
 		scannerIds: ['robots-txt'],
@@ -531,7 +531,7 @@ const CrawlRobotsSitemapSection = () => {
 		closeProPopup: closeSitemapProPopup,
 	} = useFindingsTable({
 		description: __(
-			'No sitemap findings yet — run a scan to check your XML sitemap.',
+			'No sitemap findings yet - run a scan to check your XML sitemap.',
 			'vulopilot'
 		),
 		scannerIds: ['sitemap', 'sitemap-validation'],
@@ -554,7 +554,7 @@ const CrawlRobotsSitemapSection = () => {
 					(response?.success
 						? __('Sitemap submitted to IndexNow.', 'vulopilot')
 						: __(
-							'Could not submit the sitemap — check the IndexNow API key under Settings → Instant Indexing.',
+							'Could not submit the sitemap - check the IndexNow API key under Settings → Instant Indexing.',
 							'vulopilot'
 						)),
 			});
@@ -611,7 +611,7 @@ const CrawlRobotsSitemapSection = () => {
 						title={__('Robots.txt Analysis', 'vulopilot')}
 						titleIcon="link"
 						desc={__(
-							'Your live robots.txt, fetched right now (not a cached copy). Edit it below — saving takes effect immediately, and /robots.txt serves your version from the next request. Other active plugins (e.g. WooCommerce) may still add their own rules on top. If a physical robots.txt file exists in your site’s root folder, the web server serves that file instead and these edits won’t apply.',
+							'Your live robots.txt, fetched right now (not a cached copy). Edit it below - saving takes effect immediately, and /robots.txt serves your version from the next request. Other active plugins (e.g. WooCommerce) may still add their own rules on top. If a physical robots.txt file exists in your site’s root folder, the web server serves that file instead and these edits won’t apply.',
 							'vulopilot'
 						)}
 						isLoading={isLoadingRobots}
@@ -782,7 +782,7 @@ const CrawlRobotsSitemapSection = () => {
 						title={__('llms.txt content', 'vulopilot')}
 						titleIcon="menu"
 						desc={__(
-							'Pre-filled with an auto-generated index of your published pages and posts — edit and it saves automatically, just like every other setting here, and is written straight to the live /llms.txt file.',
+							'Pre-filled with an auto-generated index of your published pages and posts - edit and it saves automatically, just like every other setting here, and is written straight to the live /llms.txt file.',
 							'vulopilot'
 						)}
 						isLoading={isLoadingLlmsTxt}
@@ -897,7 +897,7 @@ const CrawlRobotsSitemapSection = () => {
 													color="indigo"
 													text={
 														null === row.url_count
-															? __('— URLs', 'vulopilot')
+															? __('- URLs', 'vulopilot')
 															: sprintf(
 																	/* translators: %d: real number of URLs this sitemap lists. */
 																	_n('%d URL', '%d URLs', row.url_count, 'vulopilot'),

@@ -8,7 +8,7 @@
 namespace VuloPilot\ValueObjects;
 
 /**
- * The outcome of running a single ScannerInterface — fired as
+ * The outcome of running a single ScannerInterface - fired as
  * `do_action('vulopilot_scan_completed', $result)` by Scanners\ScanRunner.
  *
  * @class       ScanResult class
@@ -47,7 +47,7 @@ final class ScanResult {
 
     /**
      * @var int[] Post/page IDs the scanner considered, whether or not each
-     *            one produced a Finding — empty for a scanner that doesn't
+     *            one produced a Finding - empty for a scanner that doesn't
      *            implement Contracts\Scanner\TracksScannedObjectsInterface
      *            (e.g. a site-wide, non-per-post check).
      */

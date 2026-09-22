@@ -10,7 +10,7 @@ namespace VuloPilot\Repositories;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for `vulopilot_security_events` (type `firewall_block`) (DATABASE.md) —
+ * Persistence for `vulopilot_security_events` (type `firewall_block`) (DATABASE.md) -
  * Services\FirewallGuard's own real request-block/log, backing
  * Scanners\Basic\FirewallScanner's Finding rows.
  *
@@ -47,7 +47,7 @@ class FirewallBlockRepository extends AbstractRepository {
     }
 
     /**
-     * Real block/log-row count in the last N days —
+     * Real block/log-row count in the last N days -
      * Scanners\Basic\FirewallScanner's own summary count.
      *
      * @param int $days Real lookback window.
@@ -66,7 +66,7 @@ class FirewallBlockRepository extends AbstractRepository {
     }
 
     /**
-     * The single IP with the most matched-rule rows in the last N days —
+     * The single IP with the most matched-rule rows in the last N days -
      * Scanners\Basic\FirewallScanner's own "one IP repeatedly hit real
      * exploit-signature rules" severity escalation. Null when there's
      * nothing in the window at all.

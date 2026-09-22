@@ -46,7 +46,7 @@ interface ProposeResponse {
 		after: string;
 		format: string;
 	};
-	/** Settings → Automation → Approval Settings — true when ActionRunner::propose() itself already approved and executed this run (risk-based/"Do not ask" mode), same as AIActions\ActionRunner::propose()'s own docblock. When true there's nothing left to review — see the propose `.then()` handler below. */
+	/** Settings → Automation → Approval Settings - true when ActionRunner::propose() itself already approved and executed this run (risk-based/"Do not ask" mode), same as AIActions\ActionRunner::propose()'s own docblock. When true there's nothing left to review - see the propose `.then()` handler below. */
 	auto_approved?: boolean;
 }
 
@@ -64,11 +64,11 @@ interface ContentToolPopupProps {
 
 /**
  * The real propose → preview → approve/reject flow for one Create Content
- * tool tile — collects the one real input its action needs (an existing
- * post, an image, a topic, a fixed template choice — see ContentToolsGrid.tsx's
+ * tool tile - collects the one real input its action needs (an existing
+ * post, an image, a topic, a fixed template choice - see ContentToolsGrid.tsx's
  * own `fields`). Shared verbatim by both ContentToolsGrid.tsx's own 12-tile
  * grid and QuickActionsCard.tsx's 3 shortcut tools (AI Content Audit,
- * Keyword Research, Content Templates) — same `ContentTool` shape, same
+ * Keyword Research, Content Templates) - same `ContentTool` shape, same
  * `tool.pro` free/Pro endpoint split, just a different `tool` prop value.
  * calls the real propose endpoint, shows the real AI-generated preview,
  * then really approves/rejects it. Which endpoint (`runsBase` below)
@@ -77,23 +77,23 @@ interface ContentToolPopupProps {
  * (AIActions\ActionRunner::propose(), the same real endpoint "Fix with
  * AI" buttons on individual findings and NeedsAttentionWidget.tsx's own
  * Pending Approval widget also use); a Pro tile calls vulopilot-pro's own
- * separate `/content-tools/runs` instead — see ContentToolsGrid.tsx's own
+ * separate `/content-tools/runs` instead - see ContentToolsGrid.tsx's own
  * top docblock for the full split and why.
  *
  * Uses a raw `fetch()` for the propose() call specifically rather than
- * zyra's `sendApiResponse()` — that helper always resolves to `null` on
+ * zyra's `sendApiResponse()` - that helper always resolves to `null` on
  * any failure (confirmed by reading its own implementation), discarding
- * the real WP_Error body — but this is the one call in the whole flow
+ * the real WP_Error body - but this is the one call in the whole flow
  * where the real per-field validation message ("Please provide a topic of
  * at least 5 characters") or a real provider error ("Invalid API Key") is
  * exactly what the user needs to see, not a generic failure notice.
  *
  * "Product Descriptions" gets one extra, tool-specific convenience: a real
  * WooCommerce product picker (`GET /wc/v3/products`, same graceful-404
- * handling every other WooCommerce probe in this codebase already uses —
+ * handling every other WooCommerce probe in this codebase already uses -
  * see RecentContentCard.tsx's own docblock) that prefills the real
  * product_name/key_features fields from an existing product rather than
- * requiring them typed from scratch. It only prefills — the actual
+ * requiring them typed from scratch. It only prefills - the actual
  * generation still runs from whatever's in those two (still-editable)
  * fields, matching GenerateProductDescriptionAction's real input contract
  * exactly (it has no `product_id` concept of its own).
@@ -103,7 +103,7 @@ interface ContentToolPopupProps {
  * key nor a connected VuloCloud account exists) shows the same real
  * "Connect to VuloCloud / Claim free AI Credits" action
  * AiCreditsIndicator.tsx's own dropdown already offers
- * (useConnectVuloCloud.ts), instead of a dead-end error notice — every
+ * (useConnectVuloCloud.ts), instead of a dead-end error notice - every
  * other real error (a per-field validation message, a provider's own
  * "Invalid API Key") still shows as plain text.
  */
@@ -131,9 +131,9 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 	const [isBusy, setIsBusy] = useState(false);
 
 	const hasProductPicker = 'generate-product-description' === tool?.actionId;
-	/** Same real "No AI connection is configured." condition AiContentAssistantSidebar.tsx's own sendToAi() checks for — ActionRunner::propose() throws this exact phrase (Rest.php's own docblock), so this offers the same real "Connect to VuloCloud" fix instead of a dead-end error notice. */
+	/** Same real "No AI connection is configured." condition AiContentAssistantSidebar.tsx's own sendToAi() checks for - ActionRunner::propose() throws this exact phrase (Rest.php's own docblock), so this offers the same real "Connect to VuloCloud" fix instead of a dead-end error notice. */
 	const { status: creditsStatus } = useAiCredits();
-	// Only offer "Connect" when not already connected — otherwise show the real server error.
+	// Only offer "Connect" when not already connected - otherwise show the real server error.
 	const isNoProviderError =
 		errorMessage.includes('No AI connection is configured') && !creditsStatus?.connected;
 
@@ -224,7 +224,7 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 		}
 
 		if ('generate-product-description' === tool.actionId) {
-			// No active-plugin check — same "just try the real endpoint,
+			// No active-plugin check - same "just try the real endpoint,
 			// degrade gracefully" pattern RecentContentCard.tsx's own
 			// wc/v3 probe already uses; getApiResponse resolves to null
 			// on a 404 (WooCommerce not installed/active) and the picker
@@ -275,11 +275,11 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 	};
 
 	// Free tiles (`tool.pro` falsy) still call Free's own shared
-	// `/ai-action-runs` directly — the same real endpoint "Fix with AI"
+	// `/ai-action-runs` directly - the same real endpoint "Fix with AI"
 	// buttons on individual findings elsewhere use, and several of these
 	// same action ids (e.g. `write-meta-title`) must keep working there.
 	// Pro tiles (`tool.pro === true`) call vulopilot-pro's own SEPARATE
-	// `/content-tools/runs` instead — same underlying engine, real
+	// `/content-tools/runs` instead - same underlying engine, real
 	// Pro-license enforcement server-side (ContentTools\Rest.php's own
 	// docblock). See ContentToolsGrid.tsx's own top docblock for the full
 	// split.
@@ -331,7 +331,7 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 			.then((body) => {
 				// Settings → Automation → Approval Settings' risk-based/
 				// "Do not ask" modes can make propose() itself apply this
-				// change immediately — there's no pending run left to show
+				// change immediately - there's no pending run left to show
 				// an Approve/Reject step for, so this is the same real
 				// success notice handleApprove() below shows after a human
 				// clicks Approve, just fired for a change that already
@@ -342,7 +342,7 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 						type: 'success',
 						position: 'float',
 						message: __(
-							'Applied automatically — the change is now live.',
+							'Applied automatically - the change is now live.',
 							'vulopilot'
 						),
 					});
@@ -377,7 +377,7 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 					type: response?.success ? 'success' : 'error',
 					position: 'float',
 					message: response?.success
-						? __('Applied — the change is now live.', 'vulopilot')
+						? __('Applied - the change is now live.', 'vulopilot')
 						: __(
 							'Could not apply this change. Please try again.',
 							'vulopilot'
@@ -407,7 +407,7 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 					uniqueKey: `content-tool-reject-${runId}`,
 					type: 'info',
 					position: 'float',
-					message: __('Discarded — nothing was changed.', 'vulopilot'),
+					message: __('Discarded - nothing was changed.', 'vulopilot'),
 				});
 				onClose();
 			})
@@ -470,7 +470,7 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 						label: finding.title,
 					}));
 
-		// An empty dropdown with no explanation reads as broken — real for
+		// An empty dropdown with no explanation reads as broken - real for
 		// 'duplicate-finding-picker' especially, since (unlike post/media
 		// pickers on any site with actual content) it's entirely normal for
 		// this to be genuinely empty: DuplicateContentScanner only ever
@@ -483,16 +483,16 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 				<p className="desc content-tool-empty-picker">
 					{'duplicate-finding-picker' === field.type
 						? __(
-							"No duplicate titles found. This only lists published posts/pages that currently share the exact same title — most sites never trigger it, and it's not a sign anything is broken. If you expect one here, run a scan under SEO & Visibility → SEO first (DuplicateContentScanner needs a completed scan to have flagged it).",
+							"No duplicate titles found. This only lists published posts/pages that currently share the exact same title - most sites never trigger it, and it's not a sign anything is broken. If you expect one here, run a scan under SEO & Visibility → SEO first (DuplicateContentScanner needs a completed scan to have flagged it).",
 							'vulopilot'
 						)
 						: 'media-picker' === field.type
 							? __(
-								'No images found in the Media Library yet — upload one first.',
+								'No images found in the Media Library yet - upload one first.',
 								'vulopilot'
 							)
 							: __(
-								'No posts or pages found yet — create one first.',
+								'No posts or pages found yet - create one first.',
 								'vulopilot'
 							)}
 				</p>
@@ -542,7 +542,7 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 						/>
 					)}
 
-					{/* No footer button for the no-provider-error case — the
+					{/* No footer button for the no-provider-error case - the
 					real `ConnectVuloCloudPromptContent` shown in the body
 					below already carries its own "Connect to VuloCloud"
 					button (ConnectVuloCloudPopup.tsx's own docblock),

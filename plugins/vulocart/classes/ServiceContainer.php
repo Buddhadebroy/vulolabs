@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart ServiceContainer class.
  *
- * A minimal bind/make dependency-injection container — deliberately
+ * A minimal bind/make dependency-injection container - deliberately
  * distinct from VuloCart::$container (the plain array every plugin
  * bootstrap in this codebase already uses for config values and eagerly-
  * constructed service instances, see php-wordpress.md). That array is a
@@ -20,12 +20,12 @@ defined( 'ABSPATH' ) || exit;
  * engine is replaceable" principle needs: VuloCart::init_classes() binds
  * `Domain\Offering\OfferingRepositoryInterface` to a closure building
  * `Infrastructure\Database\WPDBOfferingRepository`, and `Application\OfferingService`
- * only ever asks this container for that interface — never `new`s the
+ * only ever asks this container for that interface - never `new`s the
  * concrete repository itself. Swapping the storage engine later (e.g. a
  * future non-`$wpdb` implementation) is a one-line change to that single
  * binding, not a search-and-replace across every consumer.
  *
- * Kept intentionally small — no autowiring/reflection, no tagging. The
+ * Kept intentionally small - no autowiring/reflection, no tagging. The
  * rest of this codebase's services (module registries, REST dispatchers)
  * still use plain constructor injection wired by hand in init_classes(),
  * matching every sibling plugin; this container exists for the one seam
@@ -74,7 +74,7 @@ class ServiceContainer {
 
     /**
      * Registers a factory whose result is built once and reused for every
-     * subsequent make() call — what VuloCart::init_classes() uses for
+     * subsequent make() call - what VuloCart::init_classes() uses for
      * OfferingRepositoryInterface, since a repository is safe (and cheap) to
      * share for the lifetime of one request.
      *

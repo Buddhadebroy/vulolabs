@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Flags published products with an empty short description
- * (`post_excerpt`) — the summary WooCommerce renders directly beside the
+ * (`post_excerpt`) - the summary WooCommerce renders directly beside the
  * add-to-cart button on the single product page, distinct from
  * ProductMissingDescriptionScanner's long-description check.
  *

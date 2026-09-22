@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Base for every report type that's just "one scanner category's findings,
- * for one period" — SeoReport/WooCommerceReport/SecurityReport/
+ * for one period" - SeoReport/WooCommerceReport/SecurityReport/
  * AccessibilityReport are identical in shape and differ only in which
  * category string they read (SCANNERS.md's category list), so the actual
  * generate() logic belongs here once rather than copy-pasted four times.

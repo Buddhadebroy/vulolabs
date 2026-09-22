@@ -20,10 +20,10 @@ interface Attribute {
 }
 
 /**
- * The Offerings menu's "Attributes" admin page — manages attribute
+ * The Offerings menu's "Attributes" admin page - manages attribute
  * *definitions* (name + values, e.g. "Color": Red/Blue/Green), not a
  * variant/SKU matrix (OfferingEdit.tsx's own "Attributes & Variations"
- * section stays an inert placeholder — Attribute.php's own docblock
+ * section stays an inert placeholder - Attribute.php's own docblock
  * explains why building that on top of this is a separate, later step).
  */
 export function AttributesPage() {
@@ -107,7 +107,7 @@ export function AttributesPage() {
 					headerIcon="product-options"
 					headerTitle={ __( 'Attributes', 'vulocart' ) }
 					headerDescription={ __(
-						'Named properties offerings can be described by — e.g. "Color" with values Red/Blue/Green.',
+						'Named properties offerings can be described by - e.g. "Color" with values Red/Blue/Green.',
 						'vulocart'
 					) }
 				/>

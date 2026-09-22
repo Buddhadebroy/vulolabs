@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Taxes Module.
  *
  * Same toggleable-addon pattern as VuloCart\Cart\Module. No own table, no
- * cross-module dependency — reads the Taxes tab's own settings
+ * cross-module dependency - reads the Taxes tab's own settings
  * (`enable_tax_calculation`/`default_tax_rate_percent`/
  * `prices_include_tax`, `src/settings/Commerce/Taxes.ts`) and turns them
  * into a real, calculable tax amount: `Order\Application\OrderService::
@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
  * compute `Order::$tax_amount` server-side.
  *
  * Deliberately does NOT register a `vulocart_checkout_steps` entry (unlike
- * Customer/Address/Shipping/Payment/Review/Confirmation) — tax has no
+ * Customer/Address/Shipping/Payment/Review/Confirmation) - tax has no
  * shopper-facing input to collect; its result is a computed line item the
  * Review step's own summary already shows. A "step" with nothing to
  * interact with isn't a step in the Checkout Engine's own sense.

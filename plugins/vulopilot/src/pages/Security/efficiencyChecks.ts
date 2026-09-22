@@ -41,13 +41,13 @@ export interface EfficiencyChecksResponse {
 }
 
 /**
- * `GET /efficiency-checks` (Controllers\EfficiencyChecks.php) — every
+ * `GET /efficiency-checks` (Controllers\EfficiencyChecks.php) - every
  * check computed live on the server on each call, not read back from
  * stored findings (that controller's own docblock explains why). Shared
  * by every component on this tab that needs the same payload
  * (PerformanceTab.tsx's own header count, EfficiencyHeroCard,
  * EfficiencySectionsList, EfficiencyThingsToReview,
- * EfficiencyOverviewChart) rather than each one fetching independently —
+ * EfficiencyOverviewChart) rather than each one fetching independently -
  * the "Run Efficiency Test" button re-runs all of them at once via one
  * `refetch()`.
  */
@@ -85,12 +85,12 @@ export const useEfficiencyChecks = () => {
 	return { data, isLoading, refetch };
 };
 
-/** DOM id the "Things to review" section is scrolled to from the hero's own aggregate "Review N Improvements" button (a real "jump to the whole list" action — there's no single check it's about). */
+/** DOM id the "Things to review" section is scrolled to from the hero's own aggregate "Review N Improvements" button (a real "jump to the whole list" action - there's no single check it's about). */
 export const THINGS_TO_REVIEW_ID = 'protect-my-site-efficiency-review';
 
 /**
  * Real DOM id for one check's own row inside EfficiencySectionsList.tsx
- * (Page Delivery/WordPress Data Efficiency/Server Processing) — what
+ * (Page Delivery/WordPress Data Efficiency/Server Processing) - what
  * "Things to review"'s own per-row "Open" badge scrolls back to.
  *
  * @param {string} checkId Real `EfficiencyCheck.id`, e.g. 'page-caching'.
@@ -100,7 +100,7 @@ export const efficiencyCheckRowId = (checkId: string): string =>
 
 /**
  * Real, per-check className on that check's own row inside
- * EfficiencyThingsToReview.tsx's `ListComponent` — a real querySelector
+ * EfficiencyThingsToReview.tsx's `ListComponent` - a real querySelector
  * target, not a DOM id, since `ListComponent` doesn't forward `item.id`
  * onto the row element it renders (confirmed reading its source). What a
  * section's own inline "Review →" button scrolls to instead of every

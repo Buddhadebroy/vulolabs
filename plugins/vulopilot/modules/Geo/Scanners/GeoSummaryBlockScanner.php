@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Flags long-form published posts/pages with no upfront summary. AI
  * answer engines favor content they can extract a direct answer from
- * quickly — a well-known GEO practice is a short summary or "key
+ * quickly - a well-known GEO practice is a short summary or "key
  * takeaways" list near the top, rather than making a reader (or crawler)
  * work through the full article first. Checked as a real, bounded text
  * search within the first SUMMARY_WINDOW_CHARS characters for either a
@@ -41,7 +41,7 @@ class GeoSummaryBlockScanner extends AbstractBasicScanner implements TracksScann
      * Rough average English word length (letters + trailing space) used
      * to convert `ai_visibility_scans.answer_first.min_words` (a word
      * count, matching how the field is actually labeled/described to an
-     * admin) into the character-based window has_early_summary() scans —
+     * admin) into the character-based window has_early_summary() scans -
      * a real character count is needed since summary markers/list tags
      * are found via substring/regex, not word-by-word parsing.
      */
@@ -77,10 +77,10 @@ class GeoSummaryBlockScanner extends AbstractBasicScanner implements TracksScann
         $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
         // GEO has no whole-category kill switch (unlike SEO/Accessibility/
-        // WooCommerce) — this is this one scanner's own on/off switch,
+        // WooCommerce) - this is this one scanner's own on/off switch,
         // letting an admin turn off just this check while every other GEO
         // check keeps running. Settings → Scanning → AI Visibility's
-        // "Answer-first content" row — moved from the old flat
+        // "Answer-first content" row - moved from the old flat
         // `flag_missing_ai_summary`/`answer_first_words` pair into the
         // nested `ai_visibility_scans.answer_first` shape (same migration
         // GeoSemanticStructureScanner's own "structure" row already went

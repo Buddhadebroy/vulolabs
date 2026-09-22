@@ -19,11 +19,11 @@ defined( 'ABSPATH' ) || exit;
  * generates its ReportResult, hands it to the requested exporter, writes
  * the file under wp-content/uploads/vulopilot-reports/, and updates the
  * `vulopilot_reports` row's status/file_path/meta. What Controllers\Reports's
- * create_item() and Reports\ScheduledReportRunner both call into — kept out
+ * create_item() and Reports\ScheduledReportRunner both call into - kept out
  * of the controller so it stays thin (ARCHITECTURE.md's Services/ layer
  * convention: "Orchestration layer REST controllers call into").
  *
- * Runs synchronously (no queue — root CLAUDE.md's "Out of scope"): every
+ * Runs synchronously (no queue - root CLAUDE.md's "Out of scope"): every
  * report type here reads bounded, already-aggregated SQL (COUNT/GROUP BY,
  * capped top-N lists), not a per-row export of an unbounded table, so a
  * request-cycle generation stays fast (performance.md).
@@ -52,7 +52,7 @@ class ReportGenerator {
     /**
      * @param ReportTypeRegistry     $report_types Registry to resolve a report_type id against.
      * @param ReportExporterRegistry $exporters    Registry to resolve a format against.
-     * @param ReportRepository|null  $reports      Defaults to a new instance — injectable for tests.
+     * @param ReportRepository|null  $reports      Defaults to a new instance - injectable for tests.
      */
     public function __construct( ReportTypeRegistry $report_types, ReportExporterRegistry $exporters, ?ReportRepository $reports = null ) {
         $this->report_types = $report_types;
@@ -63,13 +63,13 @@ class ReportGenerator {
     /**
      * Inserts a `generating`-status row, runs the generation, and updates
      * the row to `ready` (with file_path/meta) or `failed` (with the error
-     * in meta) — never leaves a row permanently stuck at `generating`.
+     * in meta) - never leaves a row permanently stuck at `generating`.
      *
      * @param string $report_type_id One of ReportTypeRegistry's ids, or 'custom'.
      * @param string $format         One of ReportExporterRegistry's ids, e.g. 'pdf'.
      * @param string $period_start   Y-m-d, inclusive.
      * @param string $period_end     Y-m-d, inclusive.
-     * @param array  $params         Extra params — currently only 'included_types' (string[]), used when $report_type_id is 'custom'.
+     * @param array  $params         Extra params - currently only 'included_types' (string[]), used when $report_type_id is 'custom'.
      * @param int    $generated_by   User id, or 0 for system-generated (scheduled reports).
      * @return int The `vulopilot_reports` row id.
      */
@@ -139,7 +139,7 @@ class ReportGenerator {
             array(
                 'status'    => 'ready',
                 // Deliberately just the basename, never the full filesystem path
-                // (DATABASE.md: "never a web-reachable URL returned directly") —
+                // (DATABASE.md: "never a web-reachable URL returned directly") -
                 // Controllers\Reports's download route resolves the directory
                 // itself rather than trusting a client-visible path.
                 'file_path' => $file_name,
@@ -165,10 +165,10 @@ class ReportGenerator {
 
             /**
              * The "custom report builder" (Types\CustomReport) is Pro
-             * business logic — it moved to vulopilot-pro's AdvancedReports
+             * business logic - it moved to vulopilot-pro's AdvancedReports
              * module, which hooks this filter to build and return one.
              * Free has nothing to fall back to, so 'custom' simply isn't a
-             * usable report_type_id without that module active — the
+             * usable report_type_id without that module active - the
              * caller sees "Unknown report type: custom", the same failure
              * shape as requesting any other unregistered type id.
              *
@@ -184,7 +184,7 @@ class ReportGenerator {
 
     /**
      * @param string $file_name The basename stored in a `vulopilot_reports.file_path` column.
-     * @return string Absolute filesystem path — only ever used server-side (e.g. the download route), never returned to a client.
+     * @return string Absolute filesystem path - only ever used server-side (e.g. the download route), never returned to a client.
      */
     public function resolve_file_path( string $file_name ): string {
         return trailingslashit( $this->get_reports_directory() ) . $file_name;
@@ -201,7 +201,7 @@ class ReportGenerator {
 
     /**
      * Settings screen's Advanced tab (`enable_debug_logging`, default off)
-     * — a generation failure always gets recorded in the report row's own
+     * - a generation failure always gets recorded in the report row's own
      * `meta.error` regardless of this setting, but that's only visible if
      * an admin opens the Reports page; this additionally writes to the
      * server's own error log for anyone debugging via server logs/WP_DEBUG_LOG.

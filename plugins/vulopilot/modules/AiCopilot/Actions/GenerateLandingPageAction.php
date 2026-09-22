@@ -17,7 +17,7 @@ use VuloPilot\ValueObjects\Impact;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Create Content's "Landing Pages" tool — same new-content-creation shape
+ * Create Content's "Landing Pages" tool - same new-content-creation shape
  * as GenerateBlogAction (a topic the site owner types, not an existing
  * post/attachment; see that class's own docblock for why), but creates a
  * `page` rather than a `post`, and asks the AI for a real landing-page
@@ -33,7 +33,7 @@ defined( 'ABSPATH' ) || exit;
 class GenerateLandingPageAction extends AbstractBasicAction {
 
     /**
-     * Marks a `page` as one this action created — the only real signal
+     * Marks a `page` as one this action created - the only real signal
      * distinguishing an AI-generated landing page from any other page
      * (an "About Us"/"Contact" page has the identical `post_type`, so
      * Create Content's own Recent Content list (RecentContentCard.tsx)
@@ -42,7 +42,7 @@ class GenerateLandingPageAction extends AbstractBasicAction {
      * Services\PostSeoMetaFields (same "an action's own META_KEY
      * registered there" pattern GenerateSchemaAction::META_KEY already
      * uses), so it rides along in `GET /wp/v2/pages`'s own `meta` field
-     * for free — no bespoke endpoint needed to read it back.
+     * for free - no bespoke endpoint needed to read it back.
      */
     public const META_KEY = '_vulopilot_landing_page';
 
@@ -61,7 +61,7 @@ class GenerateLandingPageAction extends AbstractBasicAction {
     }
 
     /**
-     * Impact::HIGH — `wp_insert_post()`s a brand-new page with AI-generated `post_content` — creates new, potentially publicly-visible content outright.
+     * Impact::HIGH - `wp_insert_post()`s a brand-new page with AI-generated `post_content` - creates new, potentially publicly-visible content outright.
      *
      * @inheritDoc
      */
@@ -79,7 +79,7 @@ class GenerateLandingPageAction extends AbstractBasicAction {
             throw new InvalidActionInputException( __( 'Please describe what the landing page is for (at least 5 characters).', 'vulopilot' ) );
         }
 
-        // Optional — a bare topic is still a complete, valid input, same
+        // Optional - a bare topic is still a complete, valid input, same
         // as ContentToolsGrid.tsx's own "Landing Pages" tile, which never
         // supplies it.
         $tone = mb_substr( sanitize_text_field( (string) ( $input['tone'] ?? '' ) ), 0, 60 );
@@ -104,7 +104,7 @@ class GenerateLandingPageAction extends AbstractBasicAction {
             array(
                 'role'    => 'system',
                 'content' => 'You write high-converting WordPress landing pages. Respond in exactly this format, nothing else:'
-                    . "\nTITLE: <the headline>\n\nBODY:\n<the full page body as HTML — a hero intro, 2-3 benefit sections with subheadings, and a closing call-to-action paragraph>",
+                    . "\nTITLE: <the headline>\n\nBODY:\n<the full page body as HTML - a hero intro, 2-3 benefit sections with subheadings, and a closing call-to-action paragraph>",
             ),
             array(
                 'role'    => 'user',

@@ -7,13 +7,13 @@ import { ButtonInput, MultiCheckboxInput, SelectInput } from '@zyra/inputs';
 import { formatWpDate, formatWpTime, isWpToday } from '../../services/formatWpDate';
 import type { AutomationRow } from './automationsTypes';
 
-/** Automations\BuiltinAutomationSeeder's own two TRIGGER_* constants — the only trigger_type values this component ever renders a card for. */
+/** Automations\BuiltinAutomationSeeder's own two TRIGGER_* constants - the only trigger_type values this component ever renders a card for. */
 const FULL_SITE_SCAN_TRIGGER = 'free_full_site_scan';
 const VISIBILITY_REPORT_TRIGGER = 'free_visibility_report';
 
 /**
  * Same ids `automationsTypes.ts`'s own `FREE_TEMPLATES` uses
- * ('run-full-site-scan'/'send-visibility-report') — kept as a local
+ * ('run-full-site-scan'/'send-visibility-report') - kept as a local
  * trigger_type → template id map rather than importing that file's own
  * `AutomationTemplate` list, since this component only ever needs the 2 id
  * strings themselves (to match `highlightTemplateId` below against a real
@@ -52,11 +52,11 @@ const parseTriggerConfig = (row: BuiltinRow): BuiltinTriggerConfig => {
 	}
 };
 
-/** Same day list `DAY_OPTIONS` above uses, keyed by number — for the "Every Monday" wording on the report card's frequency tile. */
+/** Same day list `DAY_OPTIONS` above uses, keyed by number - for the "Every Monday" wording on the report card's frequency tile. */
 const dayLabel = (day: number): string =>
 	DAY_OPTIONS.find((option) => option.value === String(day))?.label ?? '';
 
-/** Human wording for a row's real `trigger_config.frequency` (+ `day_of_week`) — the mockup's own "Every day"/"Every Monday". */
+/** Human wording for a row's real `trigger_config.frequency` (+ `day_of_week`) - the mockup's own "Every day"/"Every Monday". */
 const frequencyLabel = (config: BuiltinTriggerConfig): string => {
 	switch (config.frequency) {
 		case 'daily':
@@ -76,7 +76,7 @@ const frequencyLabel = (config: BuiltinTriggerConfig): string => {
 	}
 };
 
-/** "Today, 9:00 AM" / "September 17, 2026" + time — same real site-timezone formatting helpers the rest of this page already uses. */
+/** "Today, 9:00 AM" / "September 17, 2026" + time - same real site-timezone formatting helpers the rest of this page already uses. */
 const formatRunTime = (isoDate: string): { primary: string; secondary: string } => {
 	const time = formatWpTime(isoDate);
 
@@ -114,9 +114,9 @@ interface BuiltinAutomationCardProps {
 	description: string;
 	frequencyOptions: { label: string; value: string }[];
 	onChanged: () => void;
-	/** Real DOM id `Automations.tsx`'s own deep-link scroll target looks up (`builtin-automation-${templateId}`) — set directly on this card's own `CardComponent` instead of a wrapping `<div>`. */
+	/** Real DOM id `Automations.tsx`'s own deep-link scroll target looks up (`builtin-automation-${templateId}`) - set directly on this card's own `CardComponent` instead of a wrapping `<div>`. */
 	id: string;
-	/** Briefly true while this card is the deep-linked/highlighted one — added onto `CardComponent`'s own `className` instead of a wrapping `<div>`. */
+	/** Briefly true while this card is the deep-linked/highlighted one - added onto `CardComponent`'s own `className` instead of a wrapping `<div>`. */
 	isHighlighted: boolean;
 }
 
@@ -232,7 +232,7 @@ const BuiltinAutomationCard = ({
 						<InfoTile
 							icon="clock"
 							label={__('Last scan', 'vulopilot')}
-							value={lastRun ? lastRun.primary : '—'}
+							value={lastRun ? lastRun.primary : '-'}
 							sub={lastRun ? lastRun.secondary : __('Not run yet', 'vulopilot')}
 						/>
 					)
@@ -247,7 +247,7 @@ const BuiltinAutomationCard = ({
 						<InfoTile
 							icon="document"
 							label={__('Last sent', 'vulopilot')}
-							value={lastRun ? lastRun.primary : '—'}
+							value={lastRun ? lastRun.primary : '-'}
 							sub={lastRun ? lastRun.secondary : __('Not sent yet', 'vulopilot')}
 						/>
 					</>
@@ -298,14 +298,14 @@ const BuiltinAutomationCard = ({
 };
 
 interface BuiltinAutomationCardsProps {
-	/** Bumped by the host after something changes elsewhere on the page — refetches this component's own copy of the two rows. */
+	/** Bumped by the host after something changes elsewhere on the page - refetches this component's own copy of the two rows. */
 	refetchSignal: number;
 	/** Called after this component's own mutations (toggle/frequency/run now) so sibling cards (stats, attention, activity) refetch too. */
 	onChanged: () => void;
 	/**
 	 * Automations.tsx's own `automation_template=<id>` deep-link param
 	 * (AI Copilot's "Create new automation" card, AutomationsTemplatesCard.tsx's
-	 * own `handleItemClick` — see that file's own docblock), resolved to a
+	 * own `handleItemClick` - see that file's own docblock), resolved to a
 	 * real template id ('run-full-site-scan'/'send-visibility-report') only
 	 * when it's one of these 2 free built-ins, `null` otherwise (a Pro
 	 * template id, or no deep link at all). Scrolls to and briefly
@@ -315,27 +315,27 @@ interface BuiltinAutomationCardsProps {
 	highlightTemplateId?: string | null;
 }
 
-/** How long the matched card's own highlight flash stays visible before fading back to normal — long enough to register as "this is the one you clicked", short enough not to linger as visual noise on a page the user keeps working on. */
+/** How long the matched card's own highlight flash stays visible before fading back to normal - long enough to register as "this is the one you clicked", short enough not to linger as visual noise on a page the user keeps working on. */
 const HIGHLIGHT_DURATION_MS = 2500;
 
 /**
- * The real UX the spec calls for — "Automation → Choose frequency → Save"
- * — for Free's exactly-2 built-in automations (Automations\
+ * The real UX the spec calls for - "Automation → Choose frequency → Save"
+ * - for Free's exactly-2 built-in automations (Automations\
  * BuiltinAutomationSeeder). No template picker, no wizard: each row's own
  * `status`/`trigger_config` (JSON: `{frequency, day_of_week?}`) is the
  * entire editable surface, autosaved via the same `PATCH /automations/{id}`
  * route every other automation status-toggle already uses (now also
- * accepting `trigger_config` for these two rows specifically — see
+ * accepting `trigger_config` for these two rows specifically - see
  * Controllers\Automations::validate_builtin_trigger_config()'s own
  * docblock).
  */
 const BuiltinAutomationCards = ({ refetchSignal, onChanged, highlightTemplateId }: BuiltinAutomationCardsProps) => {
 	const [rows, setRows] = useState<BuiltinRow[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
-	/** Which card (by real template id) is currently showing the highlight flash — `null` once `HIGHLIGHT_DURATION_MS` has elapsed, or if nothing was ever deep-linked. */
+	/** Which card (by real template id) is currently showing the highlight flash - `null` once `HIGHLIGHT_DURATION_MS` has elapsed, or if nothing was ever deep-linked. */
 	const [flashedTemplateId, setFlashedTemplateId] = useState<string | null>(null);
 
-	// `isLoading` only starts true for the first load — refetches after a
+	// `isLoading` only starts true for the first load - refetches after a
 	// toggle/frequency change/run must NOT flip it back on, since the
 	// `if ( isLoading ) return null` below would unmount both cards and
 	// remount them a moment later (reads as a page reload/flash).
@@ -359,7 +359,7 @@ const BuiltinAutomationCards = ({ refetchSignal, onChanged, highlightTemplateId 
 	useEffect(fetchRows, [refetchSignal]);
 
 	// Scrolls to and flashes the deep-linked card once these 2 rows have
-	// really loaded (their own real DOM ids below only exist post-render) —
+	// really loaded (their own real DOM ids below only exist post-render) -
 	// `hasHighlighted` guards this to the first successful match only, so a
 	// later refetch (e.g. toggling the row itself, which bumps
 	// `refetchSignal`) never re-triggers the
@@ -393,7 +393,7 @@ const BuiltinAutomationCards = ({ refetchSignal, onChanged, highlightTemplateId 
 	const reportRow = rows.find((row) => VISIBILITY_REPORT_TRIGGER === row.trigger_type) ?? null;
 
 	// `onChanged` bumps the host's `refetchSignal`, which already re-runs
-	// `fetchRows` through the effect above — calling it here too fetched twice.
+	// `fetchRows` through the effect above - calling it here too fetched twice.
 	const handleChanged = () => {
 		onChanged();
 	};

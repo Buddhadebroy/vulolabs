@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Shared $wpdb CRUD implementation for every VuloPilot custom table.
  * Concrete repositories only declare which Utill::TABLES key they own and
- * which columns find_all() may filter on by exact match — the actual
+ * which columns find_all() may filter on by exact match - the actual
  * prepare()/query boilerplate lives here once instead of being repeated
  * per entity (database.md's "always $wpdb->prepare() for any query with a
  * variable", applied uniformly).
@@ -83,7 +83,7 @@ abstract class AbstractRepository implements RepositoryInterface {
      * value(s) to $where_values by reference. A plain scalar becomes an
      * exact-match `= %s` (the original, only behavior this had); an array
      * (e.g. a findings table section grouping several scanner_id values
-     * together, SEO.tsx) becomes `IN (%s, %s, ...)` instead — additive, so
+     * together, SEO.tsx) becomes `IN (%s, %s, ...)` instead - additive, so
      * every existing scalar caller's query is unchanged.
      *
      * @param string                  $column       Column name (already restricted to $filterable_columns entries).
@@ -178,7 +178,7 @@ abstract class AbstractRepository implements RepositoryInterface {
     /**
      * Row counts grouped by one column, scoped by any other already-declared
      * filterable_columns present in $args (e.g. scoping a findings status
-     * breakdown to one category) — never scoped by $column itself (that's
+     * breakdown to one category) - never scoped by $column itself (that's
      * what's being counted) or by 'search' (count badges reflect the fixed
      * dataset, not the search box, matching the sibling vulolabs plugin's
      * StoreTable.tsx/Stores.php, which also computes its status counts
@@ -255,7 +255,7 @@ abstract class AbstractRepository implements RepositoryInterface {
 
     /**
      * Applies the same update to a bounded set of rows (e.g. rows checked
-     * via a table's bulk-action UI) — loops the existing single-row
+     * via a table's bulk-action UI) - loops the existing single-row
      * update() rather than building a fresh bulk SQL statement, since the
      * id list is always small (whatever fits on one page) and this reuses
      * update()'s own cache-invalidation for free.

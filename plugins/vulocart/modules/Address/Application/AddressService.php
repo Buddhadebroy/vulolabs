@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Address module AddressService.
  *
- * Where Address business logic lives — Rest calls only this class, same
+ * Where Address business logic lives - Rest calls only this class, same
  * as every other module's own Application service. An address here is a
  * plain, open-shape bag (full_name/phone/address_1/address_2/city/state/
  * postcode/country) snapshotted directly onto an Order, not a separate
@@ -25,7 +25,7 @@ defined( 'ABSPATH' ) || exit;
 class AddressService {
 
     /**
-     * Every field an address bag may carry, in a stable order — sanitize()
+     * Every field an address bag may carry, in a stable order - sanitize()
      * always returns exactly this key set (missing input becomes '') so a
      * caller never has to guess which keys are present.
      *
@@ -34,7 +34,7 @@ class AddressService {
     const FIELDS = array( 'full_name', 'phone', 'address_1', 'address_2', 'city', 'state', 'postcode', 'country' );
 
     /**
-     * Fields validate() treats as required — `address_2` (apartment/suite,
+     * Fields validate() treats as required - `address_2` (apartment/suite,
      * genuinely optional) and `phone` (Customer's own field, already
      * captured at the wizard's Customer step) are deliberately excluded.
      *
@@ -75,7 +75,7 @@ class AddressService {
     }
 
     /**
-     * Whether every field in a sanitize()d address bag is blank — used by
+     * Whether every field in a sanitize()d address bag is blank - used by
      * callers deciding whether "no address given" and "an address with
      * every field empty" should be treated the same way.
      *

@@ -18,12 +18,12 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * The existing-content-rewrite pattern: unlike GenerateAltAction's single
- * postmeta value, this replaces a post's entire `post_content` — a much
+ * postmeta value, this replaces a post's entire `post_content` - a much
  * larger snapshot, and a real risk (an AI rewrite could gut the content)
  * that validate_output() specifically guards against with a length-ratio
  * check. Uses `wp_update_post()` rather than a raw `$wpdb` write, which
  * has the bonus of creating a normal WordPress revision alongside our own
- * snapshot-based rollback — two independent safety nets, not a
+ * snapshot-based rollback - two independent safety nets, not a
  * replacement for either.
  *
  * @class       ImproveReadabilityAction class
@@ -83,7 +83,7 @@ class ImproveReadabilityAction extends AbstractBasicAction {
                 'role'    => 'system',
                 'content' => 'You improve the readability of WordPress post content: shorter sentences, active voice, '
                     . 'clearer paragraph breaks. Preserve every HTML tag, the overall structure, and all factual claims exactly. '
-                    . 'Do not add or remove information. Respond with ONLY the rewritten HTML content — no commentary.',
+                    . 'Do not add or remove information. Respond with ONLY the rewritten HTML content - no commentary.',
             ),
             array(
                 'role'    => 'user',
@@ -114,7 +114,7 @@ class ImproveReadabilityAction extends AbstractBasicAction {
 
         if ( $original_length > 0 && ( $rewritten_length / $original_length ) < self::MIN_LENGTH_RATIO ) {
             throw new InvalidActionOutputException(
-                __( 'The AI returned content that looks truncated rather than rewritten — rejected for safety.', 'vulopilot' )
+                __( 'The AI returned content that looks truncated rather than rewritten - rejected for safety.', 'vulopilot' )
             );
         }
     }

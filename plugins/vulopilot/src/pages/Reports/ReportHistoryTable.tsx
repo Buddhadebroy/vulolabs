@@ -12,9 +12,9 @@ import { useFilterSlot } from '../../services/useFilterSlot';
 
 /**
  * The mockup's "Report History" table. Per direct instruction ("the
- * section is in free and the functionality code is in pro" — no duplicate
+ * section is in free and the functionality code is in pro" - no duplicate
  * code), this component owns only the "section": the `CardComponent`
- * wrapper (`id="reports-history"`, title/description) — the real,
+ * wrapper (`id="reports-history"`, title/description) - the real,
  * complete, paginated `GET /reports` list moved wholesale to
  * vulopilot-pro's own `AdvancedReports/src/ReportHistoryPanel.tsx` (that
  * logic no longer exists here at all, not duplicated), registered back in
@@ -22,13 +22,13 @@ import { useFilterSlot } from '../../services/useFilterSlot';
  * same shape Commerce.tsx/KeywordsTab.tsx's own whole-panel Pro gates
  * already use).
  *
- * Free's own fallback below — `ReportsDummyRows` + `DummyDataNotice`
- * behind `BlurredProContent` — only renders when that slot resolves to
+ * Free's own fallback below - `ReportsDummyRows` + `DummyDataNotice`
+ * behind `BlurredProContent` - only renders when that slot resolves to
  * nothing, i.e. vulopilot-pro's AdvancedReports module isn't active; it
  * never fetches real report data itself.
  */
 interface ReportHistoryTableProps {
-	/** Bumped by OverviewTab.tsx once the real Pro actions generate a new report — passed straight through to ReportHistoryPanel's own refetch. */
+	/** Bumped by OverviewTab.tsx once the real Pro actions generate a new report - passed straight through to ReportHistoryPanel's own refetch. */
 	refreshSignal?: number;
 }
 

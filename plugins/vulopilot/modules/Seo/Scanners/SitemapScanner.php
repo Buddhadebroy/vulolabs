@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
  * the `wp_sitemaps_enabled` filter in favor of a dedicated SEO plugin's
  * own sitemap), it falls back to the conventional `/sitemap.xml` path
  * before concluding no sitemap is reachable. Checked via a real HTTP
- * request — the only way to know what's actually served, not just
+ * request - the only way to know what's actually served, not just
  * whether core's sitemap feature is enabled in code.
  *
  * @class       SitemapScanner class

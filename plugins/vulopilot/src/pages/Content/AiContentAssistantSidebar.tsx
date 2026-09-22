@@ -27,7 +27,7 @@ interface ChatResponse {
 }
 
 /**
- * The shape WP_REST_Server::error_to_response() gives a WP_Error — what
+ * The shape WP_REST_Server::error_to_response() gives a WP_Error - what
  * actually arrives in `error.response.data` when ContentAssistant.php
  * returns one (e.g. "No AI connection is configured…", a safety-validator
  * rejection). Same reasoning as vulopilot-pro's OneClickFix module: raw
@@ -109,20 +109,20 @@ const PROMPT_CHIPS: PromptChip[] = [
 ];
 
 /**
- * "AI Content Assistant" — a real chat, `POST /content-assistant/chat`
+ * "AI Content Assistant" - a real chat, `POST /content-assistant/chat`
  * (classes/RestAPI/Controllers/ContentAssistant.php), which sends the
  * conversation through the same real AI request sender
  * (AI\AiRequestSender) AI Actions/GEO scoring already use. VuloCloud answers
  * for real once this site is connected (`AiCreditsConnection::is_connected()`,
  * Settings → Connections); when it isn't, `sendToAi()` below recognizes that exact
  * real "No AI connection is configured." condition and opens
- * ConnectVuloCloudPopup — the same real free "Connect to VuloCloud/Claim
+ * ConnectVuloCloudPopup - the same real free "Connect to VuloCloud/Claim
  * free AI Credits" flow AiCreditsIndicator.tsx's own dropdown already
- * offers — instead of a dead-end NoticeManager error toast. Every other
+ * offers - instead of a dead-end NoticeManager error toast. Every other
  * real error (a safety-validator rejection, a provider's own failure)
  * still shows as that toast. The running conversation (`turns`) is kept
  * client-side and
- * sent back as `history` on every call — there's no conversation entity
+ * sent back as `history` on every call - there's no conversation entity
  * in this codebase to persist it against; every real call is still
  * recorded to `vulopilot_ai_history` server-side regardless (Reports'
  * own AI Usage report already reads that table). Prompt chips prefill
@@ -131,10 +131,10 @@ const PROMPT_CHIPS: PromptChip[] = [
  * A "write a blog"/"create a landing page"/"create a product description"
  * style message doesn't come back as raw generated text: the controller
  * runs the real AIAction (generate-blog/generate-landing-page/
- * generate-product-description — the same ones ContentToolsGrid.tsx's own
+ * generate-product-description - the same ones ContentToolsGrid.tsx's own
  * tiles run), actually creates and saves the WordPress draft, and this
  * response's `link` carries the real edit URL, rendered below as a real
- * clickable `<a>` — never markdown-in-text, since ChatMessage
+ * clickable `<a>` - never markdown-in-text, since ChatMessage
  * renders `content` as plain text.
  */
 const AiContentAssistantSidebar = () => {
@@ -144,7 +144,7 @@ const AiContentAssistantSidebar = () => {
 	// Set the moment a chip is picked; cleared once the user's next message
 	// has been folded into that chip's own build() and sent for real.
 	const [pendingChip, setPendingChip] = useState<PromptChip | null>(null);
-	/** True right after a real send failed specifically because no AI service (BYOK or VuloCloud) is configured, OR a chip/send was blocked up front because `creditsStatus` already showed nobody's connected (see `handleChipClick()`/`handleSend()` below) — shows ConnectVuloCloudPopup, the same real free "Connect to VuloCloud"/"Claim free AI Credits" flow AiCreditsIndicator.tsx's own dropdown already offers, instead of a dead-end error notice. */
+	/** True right after a real send failed specifically because no AI service (BYOK or VuloCloud) is configured, OR a chip/send was blocked up front because `creditsStatus` already showed nobody's connected (see `handleChipClick()`/`handleSend()` below) - shows ConnectVuloCloudPopup, the same real free "Connect to VuloCloud"/"Claim free AI Credits" flow AiCreditsIndicator.tsx's own dropdown already offers, instead of a dead-end error notice. */
 	const [isCloudConnectPromptOpen, setIsCloudConnectPromptOpen] = useState(false);
 	const { status: creditsStatus } = useAiCredits();
 
@@ -172,7 +172,7 @@ const AiContentAssistantSidebar = () => {
 
 				// AiRequestSender's own real "No AI service is
 				// configured." (see ContentAssistant.php's own docblock)
-				// — this exact condition has a real, free fix (connect
+				// - this exact condition has a real, free fix (connect
 				// VuloCloud), so it gets its own popup instead of just
 				// another error toast.
 				if (message?.includes('No AI connection is configured') && !creditsStatus?.connected) {
@@ -196,25 +196,25 @@ const AiContentAssistantSidebar = () => {
 	};
 
 	/**
-	 * Picking a chip doesn't send anything to the AI yet — it asks the real
+	 * Picking a chip doesn't send anything to the AI yet - it asks the real
 	 * follow-up question first (a local, scripted chat turn, not an AI
 	 * response) and waits for the user's next message to answer it. That
 	 * reply gets folded into the chip's own build() into one real, useful
-	 * instruction (e.g. "Write a blog about eco-friendly packaging") —
+	 * instruction (e.g. "Write a blog about eco-friendly packaging") -
 	 * what's actually shown as the user's turn and sent to the AI, not the
 	 * bare reply on its own.
 	 *
 	 * Guarded on `pendingChip` the same way `handleSend()` already guards
-	 * on `isSending` — the chip grid stays clickable the whole time (it's
+	 * on `isSending` - the chip grid stays clickable the whole time (it's
 	 * not disabled/hidden once a question is asked), so without this a
 	 * user clicking the same chip again while its question is still
 	 * unanswered re-ran this and appended a 2nd, identical "assistant"
-	 * turn — confirmed live: 4 clicks on "Write a blog" stacked 4 copies
+	 * turn - confirmed live: 4 clicks on "Write a blog" stacked 4 copies
 	 * of "What should the blog be about?" in the chat. One open question
 	 * at a time is the real, correct behavior; the user must answer (or
 	 * the request must finish) before another chip can ask a new one.
 	 *
-	 * Checked up front, before even asking the clarifying question — per
+	 * Checked up front, before even asking the clarifying question - per
 	 * direct instruction ("when click work on description then the
 	 * connect popup show, not functionality work until the account is
 	 * connected"): picking a chip with no AI service connected opens
@@ -246,7 +246,7 @@ const AiContentAssistantSidebar = () => {
 			return;
 		}
 
-		// Same up-front check `handleChipClick()` already makes — this is
+		// Same up-front check `handleChipClick()` already makes - this is
 		// the one still needed for a message typed directly into "Ask
 		// Anything…" without going through a chip first.
 		if (creditsStatus && !creditsStatus.connected) {
@@ -264,7 +264,7 @@ const AiContentAssistantSidebar = () => {
 	};
 
 	// AiChatCard's own onSelectPrompt only hands back a prompt's title (the
-	// shape every real composer's prompt grid shares) — looked back up
+	// shape every real composer's prompt grid shares) - looked back up
 	// against PROMPT_CHIPS here since handleChipClick needs the chip's own
 	// `ask`/`build`, not just its title.
 	const handleSelectPrompt = (title: string) => {
@@ -276,7 +276,7 @@ const AiContentAssistantSidebar = () => {
 	};
 
 	/**
-	 * "New Chat" — this composer has no server-side conversation entity to
+	 * "New Chat" - this composer has no server-side conversation entity to
 	 * reset (see this file's own docblock: `turns` is client-side-only,
 	 * sent back as plain `history` on every call), so starting fresh is
 	 * just clearing everything local: the running turns, whatever's typed,
@@ -289,16 +289,16 @@ const AiContentAssistantSidebar = () => {
 	};
 
 	/**
-	 * "Chat History" — unlike AI Copilot's own per-conversation popup, this
+	 * "Chat History" - unlike AI Copilot's own per-conversation popup, this
 	 * composer has no `vulopilot_ai_conversations` row to reopen a past
 	 * thread from (this file's own docblock). What IS real: every message
 	 * that actually creates content runs through the same
 	 * `ContentCreationOrchestrator` AI Copilot's own content-creation turns
 	 * do (ContentAssistant.php), which logs a real `vulopilot_ai_action_runs`
-	 * row/activity-log "change" event — exactly what Reports → History's
+	 * row/activity-log "change" event - exactly what Reports → History's
 	 * own "Change" filter (HistoryTab.tsx, moved there from AI Copilot)
 	 * already lists. So "Chat History" here is a real navigation to that
-	 * existing report rather than a reopen-this-thread popup — there's
+	 * existing report rather than a reopen-this-thread popup - there's
 	 * nothing to reopen, but there's real history to see.
 	 */
 	const handleOpenHistory = () => {

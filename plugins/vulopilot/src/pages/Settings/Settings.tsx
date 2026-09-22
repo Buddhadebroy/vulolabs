@@ -32,29 +32,29 @@ import type { ComponentType } from 'react';
 /**
  * Built on zyra's real settings framework (`InputRenderer`/
  * `NavigatorComponent`, `getAvailableSettings`/`getSettingById` from
- * @zyra/core) — the same one the free vulolabs plugin's own
+ * @zyra/core) - the same one the free vulolabs plugin's own
  * components/Settings/Settings.tsx uses, replacing this page's previous
  * hand-built form. Tab configs live under ../../components/Settings/*.ts
  * as plain declarative objects (react-frontend.md's business-hours.ts
  * pattern), auto-discovered by templateService.ts's `require.context`.
  *
  * VuloPilot's settings are one flat wp_options row, not per-tab
- * namespaced data — unlike vulolabs's `appLocalizer.admin_settings`,
+ * namespaced data - unlike vulolabs's `appLocalizer.admin_settings`,
  * so this page fetches the full flat object once and, per tab, seeds
  * `SettingContext` with just that tab's own field keys (looked up from
  * the tab's own `modal[].key` list) and merges live edits back into a
  * ref so switching tabs and back doesn't lose unsaved-but-in-flight
  * edits. Each field then auto-saves itself via InputRenderer's own
- * built-in debounce, POSTing `{ setting, settingName }` — Controllers\Settings's
+ * built-in debounce, POSTing `{ setting, settingName }` - Controllers\Settings's
  * `update_item()` merges that subset into the stored option rather than
  * replacing it wholesale.
  *
  * The 'import-export' tab is a "special component" escape hatch (same
- * one vulolabs's Settings.tsx uses for StoreStatus/Invoice/etc.) —
+ * one vulolabs's Settings.tsx uses for StoreStatus/Invoice/etc.) -
  * file download/upload and a destructive reset don't fit the per-field
  * auto-save model, so that one tab id renders ImportExportPanel instead
  * of InputRenderer. 'modules' is the same escape hatch, added per direct
- * instruction ("move the modules tab in settings after general tab") —
+ * instruction ("move the modules tab in settings after general tab") -
  * real enable/disable toggles, not persisted fields, so it renders
  * ModulesPanel.tsx instead; see Modules.ts's own docblock for where its
  * content used to live.
@@ -91,7 +91,7 @@ const Settings = () => {
 
 	const GetForm = (currentTab: string | null): JSX.Element | null => {
 		// Every hook this function uses must run on every call regardless
-		// of $currentTab — an early `return null` before useEffect() (the
+		// of $currentTab - an early `return null` before useEffect() (the
 		// original shape this was ported from also has this same latent
 		// issue) makes the number of hooks React sees differ between the
 		// render where NavigatorComponent hasn't picked a subtab yet
@@ -100,14 +100,14 @@ const Settings = () => {
 		const { setting, settingName, setSetting, updateSetting } = useSetting();
 
 		// Settings → Backups' own "Cloud Storage" section
-		// (BackupStoragePanel.tsx) is now Pro-gated — moved to
+		// (BackupStoragePanel.tsx) is now Pro-gated - moved to
 		// vulopilot-pro's own BackupCloudStorage module, which registers
 		// its real UI into this slot (see that module's own src/index.tsx).
-		// That module is cardless (VuloPilotPro::CARDLESS_MODULE_IDS) — an
+		// That module is cardless (VuloPilotPro::CARDLESS_MODULE_IDS) - an
 		// active Pro license alone activates it, no separate Settings →
-		// Modules toggle — so this slot resolves purely on "is Pro
+		// Modules toggle - so this slot resolves purely on "is Pro
 		// licensed", not a second module-enable step. Falls back to the
-		// real layout + a "Pro" tag below whenever it hasn't resolved —
+		// real layout + a "Pro" tag below whenever it hasn't resolved -
 		// row config (`CLOUD_STORAGE_LOCKED_METHODS`) lives in Backups.ts
 		// itself (that tab's own config file), imported here rather than
 		// hand-typed in this shared function, per direct instruction; not
@@ -125,12 +125,12 @@ const Settings = () => {
 		);
 
 		// Was a synchronous `setSetting()` call made straight in the render
-		// body — React flags that as "Cannot update a component while
+		// body - React flags that as "Cannot update a component while
 		// rendering a different component" (confirmed live, every tab
 		// switch) since it's a real setState-during-render of a DIFFERENT
 		// component's context (SettingProvider) triggered from inside
 		// NavigatorComponent's (zyra) own render. Usually tolerated by
-		// React's batching, but not guaranteed — real, unhurried click
+		// React's batching, but not guaranteed - real, unhurried click
 		// timing (unlike a fast synthetic click) can let a stale render
 		// win, which is the likely cause of a reported bug where a module
 		// card's settings-gear link stopped navigating after an earlier
@@ -160,32 +160,32 @@ const Settings = () => {
 			return null;
 		}
 
-		// Modules tab — real enable/disable toggles (ModuleGridComponent's
+		// Modules tab - real enable/disable toggles (ModuleGridComponent's
 		// own `apiLink="modules"` round-trip), not persisted-field settings
-		// — same escape hatch as the generic `PanelComponent` case below
+		// - same escape hatch as the generic `PanelComponent` case below
 		// (AI Providers/Licensing use that one instead since their config
 		// lives outside this plugin's own hardcoded tab ids). Moved here
 		// from a standalone top-level page per direct instruction ("move
-		// the modules tab in settings after general tab") — see Modules.ts's
+		// the modules tab in settings after general tab") - see Modules.ts's
 		// own docblock.
 		if (currentTab === 'modules') {
 			return <ModulesPanel />;
 		}
 
 		// Instant Indexing tab's "Submit URLs"/"History" cards are real
-		// actions/logs, not persisted-field settings — same escape hatch as
+		// actions/logs, not persisted-field settings - same escape hatch as
 		// 'modules' above (see InstantIndexing.ts's own docblock).
 		if (currentTab === 'indexnow') {
 			return <IndexNowPanel />;
 		}
 
 		// Developer Tools' "Clear cache" is a real action, not a
-		// persisted field — same escape hatch as 'indexnow' above.
+		// persisted field - same escape hatch as 'indexnow' above.
 		if (currentTab === 'developer-tools') {
 			return <DeveloperToolsPanel />;
 		}
 
-		// Generic version of the three escape hatches above — Settings/
+		// Generic version of the three escape hatches above - Settings/
 		// Integrations.ts (real OAuth/credential flows, same reasoning as
 		// 'indexnow' above) carries its own `PanelComponent` this way
 		// instead of a hardcoded
@@ -193,7 +193,7 @@ const Settings = () => {
 		// Licensing tab already relies on since it's registered into
 		// settingsArray via the `vulopilot_settings_context` filter
 		// (templateService.ts) rather than a file under this plugin's own
-		// components/Settings/ — Free can't hardcode a
+		// components/Settings/ - Free can't hardcode a
 		// `currentTab === 'licensing'` case without importing something
 		// Pro-specific, so any tab config may carry its own
 		// `PanelComponent` and have it rendered here in place of
@@ -209,7 +209,7 @@ const Settings = () => {
 				{settingName === currentTab ? (
 					<>
 						{/* `settingModal` is `getSettingById(settingsArray, currentTab)`
-						 * (line ~93) — real `null` for a `currentTab` that doesn't
+						 * (line ~93) - real `null` for a `currentTab` that doesn't
 						 * match any entry in `settingsArray` (a stale/unknown
 						 * `subtab=` URL param, or a tab gated behind a module
 						 * that's since been deactivated). `InputRenderer` itself
@@ -219,7 +219,7 @@ const Settings = () => {
 						 * here rather than just passing `settingModal` through. */}
 						{settingModal ? (
 							// Sitemap tab's own right-side "How it works" card
-							// (SitemapHowItWorksCard.tsx) — per direct instruction, a
+							// (SitemapHowItWorksCard.tsx) - per direct instruction, a
 							// real 2-column layout only for this one tab id rather than
 							// a new generic per-tab "sidebar" config field every other
 							// declarative tab would need to opt out of.
@@ -245,7 +245,7 @@ const Settings = () => {
 									updateSetting={updateSetting}
 									Popup={ShowProPopup}
 									// Per-tab opt-in (General.ts's own `groupBySections: true`
-									// is the first) into InputRenderer's card-grouped layout —
+									// is the first) into InputRenderer's card-grouped layout -
 									// same `.settings-section-group` real CSS
 									// NavigatorComponent.scss already ships, matching
 									// NavigatorComponent's own "Default" Storybook story.
@@ -265,14 +265,14 @@ const Settings = () => {
 								)}
 							/>
 						)}
-						{/* Cloud Storage section — appended AFTER this
+						{/* Cloud Storage section - appended AFTER this
 						 * tab's own fields, since S3/Google Drive credentials
 						 * only make sense once `backup_storage_destination`
 						 * itself has already been picked, the last
 						 * field this tab's own `modal` renders. See
 						 * Backups.ts's own docblock for why the
 						 * credentials themselves can't just be more
-						 * fields in that same array. Now Pro-gated — see
+						 * fields in that same array. Now Pro-gated - see
 						 * this function's own `CloudStoragePanel` slot
 						 * resolution above. */}
 						{'backups' === currentTab &&
@@ -282,7 +282,7 @@ const Settings = () => {
 								<div className="settings-section-group cloud-storage-section-group">
 									{/* `.admin-tag.pro-tag` is an absolute-positioned
 									 * corner ribbon (zyra's own theme/src/common.scss
-									 * — see Accessibility.tsx's own docblock), so it
+									 * - see Accessibility.tsx's own docblock), so it
 									 * needs a `position: relative` ancestor rather
 									 * than being passed into SectionComponent's own
 									 * `title` (a plain string everywhere else this
@@ -305,13 +305,13 @@ const Settings = () => {
 										<FormGroupWrapperComponent>
 											<FormGroupComponent>
 												{/* Real layout, real row config (see
-												 * `CLOUD_STORAGE_LOCKED_METHODS` above) —
+												 * `CLOUD_STORAGE_LOCKED_METHODS` above) -
 												 * gate the interaction, not the content:
 												 * `onClickCapture` intercepts every click
 												 * before `ExpandablePanelInput`'s own
 												 * internal row-toggle handler ever sees it
 												 * (that component has no `canAccess`-gated
-												 * header click of its own to hook into —
+												 * header click of its own to hook into -
 												 * its header always dispatches its own
 												 * "expand" action directly), redirecting to
 												 * the Pro popup below instead. */}
@@ -347,7 +347,7 @@ const Settings = () => {
 								<ShowProPopup />
 							</PopupComponent>
 						)}
-						{/* SitemapPingWatcher.tsx — same unconditional-append
+						{/* SitemapPingWatcher.tsx - same unconditional-append
 						 * escape hatch as BackupStoragePanel above, needed for
 						 * the same reason: Sitemap.ts's own `settingAction`
 						 * would never actually render (NavigatorComponent's
@@ -358,7 +358,7 @@ const Settings = () => {
 						{'sitemap' === currentTab && <SitemapPingWatcher />}
 						{/* AI Crawler Alerts' own "Send Test Alert" button
 						 * (CrawlerAlertTestPanel.tsx) is NOT appended here
-						 * — unlike Backups above, it's wired straight into
+						 * - unlike Backups above, it's wired straight into
 						 * AiCrawlerAlerts.ts's own "Notification channels"
 						 * `type: 'section'` field via SectionComponent's
 						 * `rightContent` slot, so InputRenderer renders it

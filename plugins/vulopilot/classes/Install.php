@@ -13,12 +13,12 @@ defined( 'ABSPATH' ) || exit;
  * VuloPilot Install class.
  *
  * Creates every VuloPilot custom table, dbDelta()-based like
- * VuloLabs\Install. VuloPilot resets its baseline to 1.0.0 here — this
+ * VuloLabs\Install. VuloPilot resets its baseline to 1.0.0 here - this
  * plugin has never actually shipped to a real site under any earlier
  * version, so there is no live "upgrade from an older release" case to
  * support. The incremental, version-gated do_migration() this class used
  * to carry (real ADD COLUMN/CREATE TABLE steps layered on top of an
- * already-installed 1.0.0/1.1.0 site) has been removed for that reason —
+ * already-installed 1.0.0/1.1.0 site) has been removed for that reason -
  * every table and column it used to add on top now ships directly in
  * create_database_tables() below instead, and every module it used to
  * seed active on top now ships directly in VuloPilot::activate()'s own
@@ -35,7 +35,7 @@ defined( 'ABSPATH' ) || exit;
 class Install {
 
     /**
-     * Class constructor — runs migration immediately.
+     * Class constructor - runs migration immediately.
      *
      * Unlike VuloLabs\Install (which defers to the 'init' hook because
      * it can be constructed as early as register_activation_hook), this is
@@ -50,7 +50,7 @@ class Install {
 
     /**
      * Runs the database install process. No more branching on a stored
-     * previous version — see this class's own docblock for why: every
+     * previous version - see this class's own docblock for why: every
      * table create_database_tables() creates is guarded by dbDelta()'s
      * own `CREATE TABLE IF NOT EXISTS`, so calling it unconditionally is
      * exactly as safe on a site that already has every table as it is on
@@ -80,7 +80,7 @@ class Install {
             require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         }
 
-        // No "IF NOT EXISTS" here (unlike the table below) — dbDelta()
+        // No "IF NOT EXISTS" here (unlike the table below) - dbDelta()
         // misparses the table name off of "IF" when that clause is present
         // on an already-existing table, silently skipping the ALTER path
         // that would otherwise add `scanned_objects` for existing installs.
@@ -106,7 +106,7 @@ class Install {
             KEY `idx_created` (`created_at`)
         ) $collate;";
 
-        // No "IF NOT EXISTS" here — same dbDelta table-name-parsing bug
+        // No "IF NOT EXISTS" here - same dbDelta table-name-parsing bug
         // $sql_redirects/$sql_not_found_logs's own docblock documents
         // (`preg_match( '|CREATE TABLE ([^ ]*)|', ... )` captures "IF" as
         // the table name, so dbDelta never diffs against the real table
@@ -115,7 +115,7 @@ class Install {
         // docblock did: `array( 'IF' => 'Created table IF' )` against a
         // database that already had this exact table, while adding
         // `last_seen_at` below. Every OTHER `CREATE TABLE IF NOT EXISTS`
-        // in this class still has this same latent bug — not fixed here,
+        // in this class still has this same latent bug - not fixed here,
         // since none of them are adding a new column in this pass; see
         // that docblock for the full explanation if one of them ever needs
         // a schema change on top of an already-installed site.
@@ -184,18 +184,18 @@ class Install {
         ) $collate;";
 
         // No "IF NOT EXISTS" here (unlike every other CREATE TABLE in this
-        // file) — dbDelta() itself already only ever issues a CREATE for a
+        // file) - dbDelta() itself already only ever issues a CREATE for a
         // table that doesn't exist yet, and its own column-diff/ALTER path
         // for a table that DOES already exist misparses the table name
         // when "IF NOT EXISTS" is present, silently failing to detect (and
         // add) new columns like `prompt_excerpt` below on any site that
-        // already has this table — confirmed via a direct dbDelta() call:
+        // already has this table - confirmed via a direct dbDelta() call:
         // with "IF NOT EXISTS" it reports "Created table IF" (parsed "IF"
         // as the table name) and adds nothing; without it, it correctly
         // reports "Added column ...prompt_excerpt". This is a real,
         // wider-reaching dbDelta limitation (WordPress core's own docs warn
         // against combining dbDelta with "IF NOT EXISTS") that likely
-        // affects every other table below too — out of scope to fix
+        // affects every other table below too - out of scope to fix
         // wholesale here, but this table needed it for this change to
         // actually apply on an upgrade, not just a fresh install.
         $sql_ai_history = "CREATE TABLE `{$wpdb->prefix}" . Utill::TABLES['ai_history'] . "` (
@@ -254,8 +254,8 @@ class Install {
             KEY `idx_created` (`created_at`)
         ) $collate;";
 
-        // No "IF NOT EXISTS" here — same dbDelta()/"IF NOT EXISTS" ALTER-path
-        // bug documented above ai_history's own CREATE — needed so
+        // No "IF NOT EXISTS" here - same dbDelta()/"IF NOT EXISTS" ALTER-path
+        // bug documented above ai_history's own CREATE - needed so
         // `approval_method`/`risk_level` actually get added on an upgrade,
         // not just a fresh install.
         $sql_ai_action_runs = "CREATE TABLE `{$wpdb->prefix}" . Utill::TABLES['ai_action_run'] . "` (
@@ -304,26 +304,26 @@ class Install {
 
 
     /**
-     * Creates `vulopilot_ai_conversations` — AI Copilot's own persisted chat
+     * Creates `vulopilot_ai_conversations` - AI Copilot's own persisted chat
      * threads (Controllers\Copilot.php, RecentConversationsCard.tsx's
      * "click to load full history" feature). Deliberately a separate table
      * from `vulopilot_ai_history` (that one stays a permanent, excerpt-only
-     * audit trail by design, never full text, never grouped into threads —
+     * audit trail by design, never full text, never grouped into threads -
      * see its own DATABASE.md entry): this table exists specifically to
      * hold the full, untruncated `turns` array a real conversation needs to
      * be reloaded and continued.
      *
      * `title` is set once, from the conversation's first user message
-     * (truncated) — cheap to read for the "Recent conversations" list
+     * (truncated) - cheap to read for the "Recent conversations" list
      * without decoding the full `turns` blob for every row.
      *
      * `turns` is `longtext`, `wp_json_encode()`d/`json_decode()`d in
-     * Repositories\AiConversationRepository — same convention
+     * Repositories\AiConversationRepository - same convention
      * `vulopilot_ai_action_runs`' own `input`/`output`/`preview` columns
      * already use for structured data (no native MySQL JSON column type is
      * used anywhere in this codebase).
      *
-     * `user_id` scopes each conversation to the admin who had it — every
+     * `user_id` scopes each conversation to the admin who had it - every
      * read/append is ownership-checked against it (AiConversationRepository's
      * own find_full()/append_turns()), since `manage_options` alone doesn't
      * imply one admin should silently read or append to another's thread.
@@ -355,34 +355,34 @@ class Install {
     }
 
     /**
-     * Creates `vulopilot_redirects` and `vulopilot_not_found_logs` — own
+     * Creates `vulopilot_redirects` and `vulopilot_not_found_logs` - own
      * method, same shape as create_crawler_visits_table() below.
      *
-     * `vulopilot_redirects.source_path` is UNIQUE — Services\RedirectManager
+     * `vulopilot_redirects.source_path` is UNIQUE - Services\RedirectManager
      * looks a request path up by exact match, and only one active target
      * makes sense per source path (a second row for the same path would be
      * ambiguous, not a legitimate A/B case this feature is for).
-     * `vulopilot_not_found_logs.requested_path` is likewise UNIQUE —
+     * `vulopilot_not_found_logs.requested_path` is likewise UNIQUE -
      * Services\NotFoundLogger upserts (increment `hit_count`, bump
      * `last_seen_at`) rather than inserting one row per visit, so repeat
      * 404s to the same missing URL don't grow this table unboundedly the
      * way a per-visit log would.
      *
      * `vulopilot_redirects.last_accessed_at` is deliberately its own
-     * column, not a reuse of `updated_at` — `updated_at` bumps on ANY row
+     * column, not a reuse of `updated_at` - `updated_at` bumps on ANY row
      * change (editing the target URL, toggling active/inactive from
      * RedirectsTab.tsx), which would make "Last accessed" lie about a row
      * a visitor never actually hit. Only
-     * RedirectRepository::increment_hit_count() — called from
+     * RedirectRepository::increment_hit_count() - called from
      * Services\RedirectManager::maybe_apply_redirect(), the one place a
-     * real visitor request actually matched this row — ever writes it, so
+     * real visitor request actually matched this row - ever writes it, so
      * it stays null until a real hit happens instead of defaulting to the
      * row's creation time.
      *
      * `vulopilot_not_found_logs.is_system` (Services\NotFoundLogger's own
      * `is_noise_path()`) distinguishes a real missing CONTENT page from a
      * request under `/wp-content/themes/`, `/wp-content/plugins/`,
-     * `/wp-includes/`, `/wp-admin/`, or a static asset extension — a stale
+     * `/wp-includes/`, `/wp-admin/`, or a static asset extension - a stale
      * theme/plugin asset URL, or a browser/tooling auto-probe. These used
      * to be dropped outright (never logged at all); now they're logged
      * with `is_system = 1` instead, so RedirectsTab.tsx's own "System
@@ -391,15 +391,15 @@ class Install {
      *
      * $sql_redirects and $sql_not_found_logs both deliberately do NOT use
      * `CREATE TABLE IF NOT EXISTS` (every other statement in this class
-     * still does, unchanged) — dbDelta() finds the table name via
+     * still does, unchanged) - dbDelta() finds the table name via
      * `preg_match( '|CREATE TABLE ([^ ]*)|', ... )`, so with "IF NOT
      * EXISTS" present it captures the literal word "IF" as the table name
      * instead. On a fresh install that's harmless (dbDelta just runs the
      * CREATE verbatim, and MySQL's own IF NOT EXISTS makes it a no-op if
      * something with that name already raced it into existence), but on
-     * any site that already has the table, dbDelta's real job — diffing
+     * any site that already has the table, dbDelta's real job - diffing
      * the live column set against this SQL and emitting `ALTER TABLE ADD
-     * COLUMN` for whatever's missing — never runs, because it's diffing
+     * COLUMN` for whatever's missing - never runs, because it's diffing
      * against nonexistent table "IF" instead of the real one.
      * `last_accessed_at`/`is_system` above would silently never reach an
      * already-installed site's tables without this fix. Confirmed live:
@@ -434,7 +434,7 @@ class Install {
             KEY `idx_active` (`is_active`)
         ) $collate;";
 
-        // No "IF NOT EXISTS" here either — see $sql_redirects's own comment
+        // No "IF NOT EXISTS" here either - see $sql_redirects's own comment
         // above for why: dbDelta() would misparse the table name off of
         // "IF" and silently skip adding `is_system` for a site that
         // already has this table.
@@ -457,13 +457,13 @@ class Install {
     }
 
     /**
-     * Creates `vulopilot_snapshots` — every feature's daily score history in
+     * Creates `vulopilot_snapshots` - every feature's daily score history in
      * one table: one row per (`snapshot_type`, `snapshot_date`), the day's
      * values together as JSON in `data` (Repositories\SnapshotRepository).
      * Types: `performance`, `security` (free trend cards), `site_health`,
      * `accessibility`, `store_trends`, `brand_score`, `geo_visibility`,
      * `kg_health` (Pro modules). Each was a date plus a few numbers, only
-     * ever read back as a time series — no reason for eight tables.
+     * ever read back as a time series - no reason for eight tables.
      *
      * @return void
      */
@@ -490,13 +490,13 @@ class Install {
     }
 
     /**
-     * Creates `vulopilot_performance_samples` — "Performance" Overview's
+     * Creates `vulopilot_performance_samples` - "Performance" Overview's
      * real-time data, one row per sample, `sample_type` saying which kind:
      *
-     * - `request` — a response-time sample per real front-end request
+     * - `request` - a response-time sample per real front-end request
      *   (Services\PerformanceRequestLogger; Real-time Monitoring card).
      *   Deliberately no visitor-identifying column at all.
-     * - `vital` — a real-visitor Core Web Vitals report
+     * - `vital` - a real-visitor Core Web Vitals report
      *   (Services\CoreWebVitalsBeacon's public beacon). A metric the browser
      *   couldn't measure (e.g. no interaction yet for INP) is NULL, never a
      *   fabricated zero. `cls` is stored ×1000 as a smallint
@@ -537,14 +537,14 @@ class Install {
     }
 
     /**
-     * Creates `vulopilot_page_speed` — "Performance" › Slow Pages'
+     * Creates `vulopilot_page_speed` - "Performance" › Slow Pages'
      * per-page speed table (Services\PageSpeedScanner writes here, one row
      * per real page it has checked, replaced on every rescan). `url`/
      * `title`/`page_type` describe a real WP page, post, or WooCommerce
      * page/product/category (never a fabricated entry). `load_time_ms` is
      * a real measured `wp_remote_get()` response time, same idiom as
      * SlowPageScanner's own homepage timing. `score` is derived from
-     * `load_time_ms` via a documented formula (see PageSpeedScanner) — not
+     * `load_time_ms` via a documented formula (see PageSpeedScanner) - not
      * a Lighthouse score. `status` ('slow'/'needs_improvement'/'good') is
      * the same score banded into the real thresholds Slow Pages' own "What's
      * considered slow?" legend states, stored as its own column purely so
@@ -553,7 +553,7 @@ class Install {
      * `mobile_score`/`desktop_score` stay NULL unless a
      * real Google PageSpeed Insights API key is configured and that page
      * has actually been checked against it, matching Part A's own
-     * PSI-key-gated fallback posture — never a fabricated device split.
+     * PSI-key-gated fallback posture - never a fabricated device split.
      * `main_issue` is either a real Google Lighthouse opportunity-audit
      * title (from a real PSI response) or a plain load-time-based label;
      * NULL when neither is available, never invented text.
@@ -561,7 +561,7 @@ class Install {
      * `network-requests` Lighthouse audits from that same real PSI
      * response; `lcp_ms`/`inp_ms`/`cls_thousandths` + their `_rating`
      * ('FAST'/'AVERAGE'/'SLOW') are real Chrome UX Report field data from
-     * PSI's own `loadingExperience` block — Google's real measured
+     * PSI's own `loadingExperience` block - Google's real measured
      * visitor experience for that URL, not Lighthouse's simulated lab
      * run, and NULL whenever CrUX has no real field data for a
      * low-traffic page (a real "not enough data" case, not fabricated).
@@ -611,13 +611,13 @@ class Install {
     }
 
     /**
-     * Creates `vulopilot_security_events` — Protect My Site's IP-based event
+     * Creates `vulopilot_security_events` - Protect My Site's IP-based event
      * log, one row per event, `event_type` saying which kind:
      *
-     * - `login_attempt` — a real login attempt (Services\LoginProtectionGuard):
+     * - `login_attempt` - a real login attempt (Services\LoginProtectionGuard):
      *   `username_attempted` + `success`. Backs the rolling lockout check
      *   and the Login Protection scanner.
-     * - `firewall_block` — a request the firewall rules matched
+     * - `firewall_block` - a request the firewall rules matched
      *   (Services\FirewallGuard): `request_uri`, `rule_matched`, `action`
      *   (`blocked` or `logged`). Backs the Firewall scanner.
      *
@@ -656,17 +656,17 @@ class Install {
     }
 
     /**
-     * Creates `vulopilot_backups` — Protect My Site's "Backups"/"Recovery"
+     * Creates `vulopilot_backups` - Protect My Site's "Backups"/"Recovery"
      * tiles (Services\BackupManager/BackupScheduler). One row per backup
      * run (manual, scheduled, or the automatic pre-restore safety snapshot
      * a real Restore always takes first); `file_path` stores only the
      * archive's basename, never a full or web-reachable path, same
      * DATABASE.md convention Reports.php's own `vulopilot_reports.file_path`
-     * already established — the real path is always re-derived server-side
+     * already established - the real path is always re-derived server-side
      * from `wp_upload_dir()`, never trusted from the client.
      *
      * `destination`/`destination_status`/`destination_error`/`remote_path`
-     * (Services\BackupStorageManager) — real remote-upload tracking on top
+     * (Services\BackupStorageManager) - real remote-upload tracking on top
      * of the local file above, added alongside the storage-destination
      * settings/credentials feature. `destination` defaults to `'local'`
      * (every backup already saves locally regardless of any remote
@@ -675,16 +675,16 @@ class Install {
      * `destination_status` stays NULL for a `'local'`-only row (nothing
      * else to track) and is one of `'uploading'`/`'uploaded'`/`'failed'`/
      * `'skipped_not_configured'` (the destination was selected but no
-     * valid credentials were on file when this backup finished — a real,
+     * valid credentials were on file when this backup finished - a real,
      * honest state, not the same as a real upload attempt failing) once a
      * remote destination is involved. `remote_path` is that provider's own
      * real object key (S3) or file id (Google Drive), never a client-
-     * trusted path — same `resolve_file_path()`-style re-derivation
+     * trusted path - same `resolve_file_path()`-style re-derivation
      * posture `file_path` above already established, just there is no
      * local re-derivation needed since it's never used to open a local
      * file.
      *
-     * No `IF NOT EXISTS` here (unlike this table's own original CREATE) —
+     * No `IF NOT EXISTS` here (unlike this table's own original CREATE) -
      * same dbDelta()/"IF NOT EXISTS" parsing bug `create_redirect_tables()`'s
      * own docblock documents in detail: with that clause present, dbDelta()
      * misparses the table name off the literal word "IF" on a site that
@@ -729,9 +729,9 @@ class Install {
     }
 
     /**
-     * Creates `vulopilot_crawler_visits` — its own method, same shape as
+     * Creates `vulopilot_crawler_visits` - its own method, same shape as
      * every other create_*_table() method below create_database_tables().
-     * No IP address or user column, ever — readme.txt's own FAQ promises
+     * No IP address or user column, ever - readme.txt's own FAQ promises
      * AI Crawler Traffic Monitoring "does not track human visitors, IP
      * addresses, or personal data," enforced by the schema itself, not
      * just application code.
@@ -747,7 +747,7 @@ class Install {
 
         $collate = $wpdb->get_charset_collate();
 
-        // No "IF NOT EXISTS" — same dbDelta()-misparses-the-table-name
+        // No "IF NOT EXISTS" - same dbDelta()-misparses-the-table-name
         // limitation documented at length on create_backups_table() below;
         // `is_404` needed the ALTER-diff path to actually reach sites that
         // already had this table before AI Crawler Alerts' "access

@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart TermService.
  *
- * Where Category/Brand/Collection business logic lives — backs
+ * Where Category/Brand/Collection business logic lives - backs
  * `classes/RestAPI/Controllers/Terms.php`'s three taxonomy-scoped route
  * sets. Same "controller never touches a repository directly" convention
  * Application\OfferingService/OrderService already establish.
@@ -83,7 +83,7 @@ class TermService {
      * Creates a new term and broadcasts `term_created`. Slug is derived
      * from name (`sanitize_title()`, same as OfferingService::create_offering()
      * does for Offering::$slug) unless one was explicitly given, and
-     * de-duplicated within the taxonomy by appending `-2`/`-3`/etc — same
+     * de-duplicated within the taxonomy by appending `-2`/`-3`/etc - same
      * "never silently overwrite an existing record by slug collision"
      * rule Offerings' own slug handling follows.
      *
@@ -152,7 +152,7 @@ class TermService {
     /**
      * Deletes a term and broadcasts `term_deleted`. Does not touch any
      * offering that currently references this term's slug in its own
-     * `meta` bag — same "additive, never silently rewrite other records"
+     * `meta` bag - same "additive, never silently rewrite other records"
      * posture the rest of this codebase takes; an offering keeps
      * whatever slug it had, which simply stops resolving to a real term
      * (same class of harmless dangling reference `Modules::

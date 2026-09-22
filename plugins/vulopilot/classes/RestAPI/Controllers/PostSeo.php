@@ -13,22 +13,22 @@ use VuloPilot\Services\PostSeoMetaFields;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `POST /post-seo/{id}/analyze` — the one part of the post-editor metabox
+ * `POST /post-seo/{id}/analyze` - the one part of the post-editor metabox
  * ("Meta Box Appearing in Single Posts & Pages", readme's research into
  * rankmath.com/kb/on-page-seo/) that genuinely needs a custom endpoint.
  * Every other field the metabox edits (focus keyword, canonical/social
  * overrides, schema JSON-LD) is a postmeta key registered via
  * Services\PostSeoMetaFields's `show_in_rest`, so it already rides
  * WordPress's own `wp/v2/posts|pages/{id}` REST fields and the Block
- * Editor's native Save/Update button — no bespoke get/update route needed
+ * Editor's native Save/Update button - no bespoke get/update route needed
  * for those. Analysis is different: Services\OnPageAnalyzer::analyze()
  * runs against whatever the editor currently holds, unsaved edits
  * included, which core's own REST post object can't reflect until an
- * actual save happens — hence a POST-with-body rather than a GET against
+ * actual save happens - hence a POST-with-body rather than a GET against
  * the stored post.
  *
  * Permission is `edit_post` on the specific post, not this codebase's
- * usual blanket `manage_options` — this is the one VuloPilot screen any
+ * usual blanket `manage_options` - this is the one VuloPilot screen any
  * Author/Editor with rights to their own post uses, not an admin-only
  * dashboard page.
  *

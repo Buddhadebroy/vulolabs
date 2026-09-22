@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Generates a GeoScore for one post (GEO-MODULE.md's "Generate GEO Score"
  * / "Generate AI suggestions" capability). Deliberately a plain,
- * concrete orchestrator with no interface — like Scanners\ScanRunner and
+ * concrete orchestrator with no interface - like Scanners\ScanRunner and
  * RuleEngine\RuleEngine, there is exactly one way "analyze this post for
  * GEO" happens in this codebase, so an interface here would have one
  * implementer and add nothing (the same reasoning already applied
@@ -32,7 +32,7 @@ defined( 'ABSPATH' ) || exit;
  * (AI\AiRequestSender, extracted from
  * AiCopilot\ActionRunner precisely so this class didn't have to
  * duplicate that sequence) and the exact same FindingRepository every
- * other engine already persists through — no parallel infrastructure.
+ * other engine already persists through - no parallel infrastructure.
  *
  * @class       GeoAnalyzer class
  * @version     1.0.0
@@ -43,7 +43,7 @@ class GeoAnalyzer {
     /**
      * The 8 GEO-MODULE.md scanners scoped to a single post, plus the one
      * sitewide check (Trust Signals) that applies identically to every
-     * post — 9 total, matching GeoScore's docblock.
+     * post - 9 total, matching GeoScore's docblock.
      */
     private const TOTAL_DETERMINISTIC_CHECKS = 9;
 
@@ -54,7 +54,7 @@ class GeoAnalyzer {
     private ActivityLogRepository $activity_logs;
 
     /**
-     * $request_sender is deliberately required, not defaulted — VuloPilot.php's
+     * $request_sender is deliberately required, not defaulted - VuloPilot.php's
      * init_classes() builds the one real AiRequestSender during bootstrap and
      * this class must be given that same instance, the same reason
      * AiCopilot\ActionRunner requires it too.
@@ -93,7 +93,7 @@ class GeoAnalyzer {
         $response                  = $this->request_sender->send( $messages, null, 'geo_analysis' );
         $ai_scores_and_suggestions = $this->parse_response( $response );
 
-        // Scanning → GEO's "Flag weak entity coverage" — entity_coverage
+        // Scanning → GEO's "Flag weak entity coverage" - entity_coverage
         // needs AI judgment (GEO-MODULE.md's "Splitting 12 checks into two
         // honest categories"), so unlike a deterministic scanner's flag_*
         // kill switch this can't skip the AI call itself; instead it drops
@@ -127,7 +127,7 @@ class GeoAnalyzer {
     /**
      * Compares this analysis's overall_score against the previously stored
      * one (if any) and emails/logs when it fell by at least
-     * `visibility_alerts['geo']['threshold']` — gated behind both
+     * `visibility_alerts['geo']['threshold']` - gated behind both
      * `email_on_visibility_alerts` and `visibility_alerts['geo']['enable']`
      * (Settings → Notifications → Visibility Alerts, default off). Runs
      * before the new score overwrites the old one in postmeta, since it
@@ -202,7 +202,7 @@ class GeoAnalyzer {
 
     /**
      * Reads back a previously generated score without spending another
-     * AI call — what the REST controller's GET route returns.
+     * AI call - what the REST controller's GET route returns.
      *
      * @param int $post_id Post to read a score for.
      * @return array<string, mixed>|null
@@ -222,7 +222,7 @@ class GeoAnalyzer {
     /**
      * Percentage of GEO-MODULE.md's 9 deterministic checks that have no
      * open finding for this post (8 per-post scanners) or sitewide (Trust
-     * Signals) — null if this site has no GEO scan history at all yet,
+     * Signals) - null if this site has no GEO scan history at all yet,
      * so an absence of problems is never confused with "never checked."
      *
      * @param int $post_id Post to score.
@@ -268,12 +268,12 @@ class GeoAnalyzer {
      * `FindingRepository::count_by_column()` query for every post's own
      * open-finding count, one shared lookup for the sitewide Trust Signals
      * failure) instead of calculate_deterministic_score()'s own two
-     * queries *per post* — the same score, computed the cheap way for a
+     * queries *per post* - the same score, computed the cheap way for a
      * whole-site listing rather than a single post's own card.
      *
-     * @param int      $per_post_failures             Open findings against this specific post (uncapped — capped below).
+     * @param int      $per_post_failures             Open findings against this specific post (uncapped - capped below).
      * @param bool     $sitewide_trust_signal_failure  Whether the sitewide Trust Signals check is currently open.
-     * @param int|null $total_checks                   Denominator — defaults to GEO's own 9-check total. Controllers\GeoAnalysis::get_pages()/get_top_pages() pass a smaller real count when scoped to a caller-supplied `scanner_ids` subset (e.g. AeoTab.tsx's 5 real AEO scanners), so a page's "% ready" reflects failures against the checks that subset actually runs, not GEO's full 9.
+     * @param int|null $total_checks                   Denominator - defaults to GEO's own 9-check total. Controllers\GeoAnalysis::get_pages()/get_top_pages() pass a smaller real count when scoped to a caller-supplied `scanner_ids` subset (e.g. AeoTab.tsx's 5 real AEO scanners), so a page's "% ready" reflects failures against the checks that subset actually runs, not GEO's full 9.
      * @return int 0-100.
      */
     public static function score_from_failures( int $per_post_failures, bool $sitewide_trust_signal_failure, ?int $total_checks = null ): int {
@@ -289,12 +289,12 @@ class GeoAnalyzer {
 
     /**
      * The 6 readme.txt AI-Visibility sub-metrics that don't need an AI
-     * judgment call — either a direct or composite read of specific
+     * judgment call - either a direct or composite read of specific
      * scanner-id findings (made queryable by FindingRepository's
      * `scanner_id` filter), or a value computed straight from the post
      * object already in hand. Each is 0-100, same coarse-tiering posture
      * calculate_overall_score() already documents for the site as a
-     * whole — not a claim of scientific precision.
+     * whole - not a claim of scientific precision.
      *
      * @param int      $post_id Post to score.
      * @param \WP_Post $post    Same post, already loaded by analyze().
@@ -331,7 +331,7 @@ class GeoAnalyzer {
 
     /**
      * Whether one specific scanner has an open finding against one
-     * specific object — the per-check building block calculate_sub_scores()
+     * specific object - the per-check building block calculate_sub_scores()
      * composes into named sub-metrics, made possible by FindingRepository
      * exposing `scanner_id` as a filterable column.
      *
@@ -352,7 +352,7 @@ class GeoAnalyzer {
     }
 
     /**
-     * Coarse recency tiering off `post_modified` — a genuinely different
+     * Coarse recency tiering off `post_modified` - a genuinely different
      * signal from GeoEeatSignalsScanner's binary "never edited" check,
      * since this scores *how* stale, not just whether. Tier boundaries
      * scale off Settings → Scanning → AI Visibility's "Content freshness"
@@ -360,7 +360,7 @@ class GeoAnalyzer {
      * "flag as stale" point becomes the bottom tier) rather than the
      * fixed 90/180/365-day boundaries this originally shipped with. This
      * deterministic sub-score always runs regardless of that row's own
-     * `enable` toggle — unlike StaleContentScanner's own findings-list
+     * `enable` toggle - unlike StaleContentScanner's own findings-list
      * check, it's one of 6 fixed inputs to the overall per-post GEO score,
      * not a standalone, independently-disable-able check.
      *
@@ -387,7 +387,7 @@ class GeoAnalyzer {
     /**
      * Reuses GeoCitationOpportunityScanner's own regex (one source of
      * truth for "what a data point/citable claim looks like") but counts
-     * matches instead of just checking presence — "Data Point & Evidence
+     * matches instead of just checking presence - "Data Point & Evidence
      * Density" is about how much supporting evidence a piece has, not
      * only whether it has any. The top-tier threshold is Settings →
      * Scanning → AI Visibility's "Evidence checks" row's own
@@ -420,13 +420,13 @@ class GeoAnalyzer {
 
     /**
      * @param \WP_Post             $post                Post being analyzed.
-     * @param int|null             $deterministic_score Already-known deterministic score, if any — given to the AI as context.
-     * @param array<string, mixed> $settings            Stored plugin settings — only `ai_visibility_scans.entity` is read here.
+     * @param int|null             $deterministic_score Already-known deterministic score, if any - given to the AI as context.
+     * @param array<string, mixed> $settings            Stored plugin settings - only `ai_visibility_scans.entity` is read here.
      * @return array<int, array{role: string, content: string}>
      */
     private function build_prompt( \WP_Post $post, ?int $deterministic_score, array $settings ): array {
         // Settings → Scanning → AI Visibility's "Entity clarity" row's own
-        // `min_mentions` — entity_coverage is still an AI judgment call
+        // `min_mentions` - entity_coverage is still an AI judgment call
         // (see analyze()'s own comment on `ai_visibility_scans.entity.enable`),
         // but this gives the AI a concrete, user-configurable anchor point
         // instead of an unparameterized "judge this holistically," the
@@ -435,7 +435,7 @@ class GeoAnalyzer {
         $entity_guidance = '';
         if ( ! empty( $settings['ai_visibility_scans']['entity']['enable'] ) ) {
             $entity_guidance = sprintf(
-                "\n\n(Score \"entity_coverage\" low if this content mentions its primary subject/entity — the main product, service, or organization it's about — fewer than %d times.)",
+                "\n\n(Score \"entity_coverage\" low if this content mentions its primary subject/entity - the main product, service, or organization it's about - fewer than %d times.)",
                 max( 1, absint( $settings['ai_visibility_scans']['entity']['min_mentions'] ?? 2 ) )
             );
         }
@@ -456,7 +456,7 @@ class GeoAnalyzer {
                     . 'Also give 3-5 concrete, specific suggestions to improve this content for AI answer engines. '
                     . 'Respond with ONLY raw JSON like {"entity_coverage": 70, "question_coverage": 60, "answer_completeness": 65, '
                     . '"llm_readability": 80, "purpose_clarity": 75, "conversation_readiness": 55, "knowledge_graph_coverage": 60, '
-                    . '"answer_first_structure": 65, "suggestions": ["...", "..."]} — no markdown fences, no commentary.',
+                    . '"answer_first_structure": 65, "suggestions": ["...", "..."]} - no markdown fences, no commentary.',
             ),
             array(
                 'role'    => 'user',
@@ -465,7 +465,7 @@ class GeoAnalyzer {
                     $post->post_title,
                     wp_trim_words( wp_strip_all_tags( $post->post_content ), 500 ),
                     null !== $deterministic_score
-                        ? sprintf( "\n\n(This content already scores %d/100 on separate structural checks — factor that in.)", $deterministic_score )
+                        ? sprintf( "\n\n(This content already scores %d/100 on separate structural checks - factor that in.)", $deterministic_score )
                         : '',
                     $entity_guidance
                 ),
@@ -523,13 +523,13 @@ class GeoAnalyzer {
     }
 
     /**
-     * Simple, documented average — not a claim of scientific precision,
+     * Simple, documented average - not a claim of scientific precision,
      * the same posture Controllers/Dashboard.php's calculate_overall_score()
      * already takes for the sitewide health score. Blends up to 3
      * components: the 9-check deterministic score (structural, may be
      * null if this site has no GEO scan history yet), the average of the
      * 8 AI-judged dimensions, and the average of the 6 computed sub-scores
-     * (calculate_sub_scores()) — whichever of the 3 are actually known are
+     * (calculate_sub_scores()) - whichever of the 3 are actually known are
      * averaged together unweighted, same "coarse, not scientific" posture
      * as before this method grew a third component.
      *

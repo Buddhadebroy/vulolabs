@@ -14,13 +14,13 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloPilot RuleRegistry class.
  *
- * Collects every registered rule and instantiates it — the RuleEngine
+ * Collects every registered rule and instantiates it - the RuleEngine
  * equivalent of Scanners\ScannerRegistry, same filter-based discovery
  * mechanism and same reasoning for why it isn't Modules.php's folder-scan
  * approach (see ScannerRegistry's docblock; a rule is one class
  * implementing one small interface, not a multi-file package). Free's own
  * 5 Basic rules always run; Pro's premium rules and any third-party rule
- * register on top via the `vulopilot_rule_sources` filter — see
+ * register on top via the `vulopilot_rule_sources` filter - see
  * RULE-ENGINE.md's "Extension strategy".
  *
  * @class       RuleRegistry class

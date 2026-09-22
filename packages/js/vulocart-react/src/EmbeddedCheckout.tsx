@@ -32,7 +32,7 @@ export interface EmbeddedCheckoutProps {
 
 /**
  * The React-idiomatic equivalent of `@vulocart/sdk`'s own vanilla-DOM
- * `mountEmbeddedCheckout()` (`widgets/embedded-checkout.ts`) — same REST
+ * `mountEmbeddedCheckout()` (`widgets/embedded-checkout.ts`) - same REST
  * calls, same one-screen (not multi-step) shape, but implemented as a
  * real React component with its own state/render cycle instead of
  * imperative DOM manipulation, since that's what a React consumer
@@ -126,7 +126,7 @@ export function EmbeddedCheckout( { cartToken, onOrderPlaced, onBack }: Embedded
 			<div className="vulocart-react-confirmation">
 				<h3>Order placed!</h3>
 				<p>
-					Order { order.order_number } — { order.total } { order.currency }
+					Order { order.order_number } - { order.total } { order.currency }
 				</p>
 			</div>
 		);
@@ -166,7 +166,7 @@ export function EmbeddedCheckout( { cartToken, onOrderPlaced, onBack }: Embedded
 				<option value="">Select shipping…</option>
 				{ shippingMethods.map( ( method ) => (
 					<option key={ method.id } value={ method.id }>
-						{ method.label } — { method.cost } { cart.currency }
+						{ method.label } - { method.cost } { cart.currency }
 					</option>
 				) ) }
 			</select>

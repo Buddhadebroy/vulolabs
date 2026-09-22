@@ -8,19 +8,19 @@ import type { AutomationRow } from './automationsTypes';
 
 interface AutomationsAttentionCardProps {
 	onViewAll: () => void;
-	/** Bumped by the host after something changes elsewhere on the page (a new automation created, a status toggled) — this card fetches its own copy of the list (small, per-file fetch, same convention `AutomationSuggestions.tsx` already established), so it needs to know when to refetch. */
+	/** Bumped by the host after something changes elsewhere on the page (a new automation created, a status toggled) - this card fetches its own copy of the list (small, per-file fetch, same convention `AutomationSuggestions.tsx` already established), so it needs to know when to refetch. */
 	refetchSignal: number;
 }
 
 /**
- * "Needs your attention" — real currently-enabled automations whose most
+ * "Needs your attention" - real currently-enabled automations whose most
  * recent run actually failed (`last_run_status === 'failed'`, already
- * returned by `GET /automations` — no new endpoint). Deliberately doesn't
+ * returned by `GET /automations` - no new endpoint). Deliberately doesn't
  * include the mockup's own second example, "Monthly report has no
  * recipient": confirmed against `SendEmailAction.php` that a `send-email`
  * action always resolves a real recipient (`config.recipient` → the
  * `notification_email` setting → WordPress's own `admin_email`, which
- * every site has) — there is no real "nothing configured anywhere"
+ * every site has) - there is no real "nothing configured anywhere"
  * condition to detect, so surfacing that example here would be a fabricated
  * alert with nothing behind it. "Try Again" re-runs the real automation
  * (`POST /automations/{id}/run`, the same action vulopilot-pro's own
@@ -31,7 +31,7 @@ const AutomationsAttentionCard = ({ onViewAll, refetchSignal }: AutomationsAtten
 	const [isLoading, setIsLoading] = useState(true);
 	const [retryingId, setRetryingId] = useState<number | null>(null);
 
-	// `isLoading` is only true for the first load — a refetch (after a toggle
+	// `isLoading` is only true for the first load - a refetch (after a toggle
 	// elsewhere on the page) shouldn't flash this card back into its skeleton.
 	useEffect(() => {
 		getApiResponse<{ data: AutomationRow[] } | AutomationRow[]>(
@@ -90,7 +90,7 @@ const AutomationsAttentionCard = ({ onViewAll, refetchSignal }: AutomationsAtten
 				<div className="automation-attention-empty">
 					<div className="automation-attention-empty-pill">
 						<i className="adminfont-check" />
-						<p>{__("You're all caught up — nothing needs attention right now.", 'vulopilot')}</p>
+						<p>{__("You're all caught up - nothing needs attention right now.", 'vulopilot')}</p>
 					</div>
 					<strong>{__('Great job!', 'vulopilot')}</strong>
 					<small>{__('Your automations are running smoothly.', 'vulopilot')}</small>

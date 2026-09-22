@@ -3,11 +3,11 @@ import { CardComponent, ListComponent } from '@zyra/components';
 import './Accessibility.scss';
 
 /**
- * Static, evergreen explainer copy — same "real content, no data source
+ * Static, evergreen explainer copy - same "real content, no data source
  * needed" posture BrandVisibilityTab.tsx's own "Why this matters more than
  * backlinks" notice already takes, just as its own paired card (mockup:
  * sits beside AccessibilityHistoryChart.tsx, Pro) rather than a footer
- * notice. Not license-gated — unlike the history chart it sits next to,
+ * notice. Not license-gated - unlike the history chart it sits next to,
  * there's no real data behind these 4 points to withhold.
  */
 const WHY_IT_MATTERS_POINTS = [
@@ -23,7 +23,7 @@ const WhyAccessibilityMattersCard = () => (
 		className="why-accessibility-matters-card"
 		title={__('Why accessibility matters', 'vulopilot')}
 		titleIcon="question"
-		desc={__('More than a checkbox — it\'s good for everyone.', 'vulopilot')}
+		desc={__('More than a checkbox - it\'s good for everyone.', 'vulopilot')}
 	>
 		<ListComponent
 			className="checklist"

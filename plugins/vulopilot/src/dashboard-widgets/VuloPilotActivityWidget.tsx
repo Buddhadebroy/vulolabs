@@ -30,7 +30,7 @@ interface HealthSnapshot {
 
 type PeriodDays = '7' | '30' | '90';
 
-/** Same real `key` field convention `OverviewTab.tsx`'s own identical `ToggleInput` usage already establishes — required so React's list key and each radio's real `id`/`htmlFor` pair are unique. */
+/** Same real `key` field convention `OverviewTab.tsx`'s own identical `ToggleInput` usage already establishes - required so React's list key and each radio's real `id`/`htmlFor` pair are unique. */
 const PERIOD_OPTIONS = [
 	{ key: '7', value: '7', label: __('7D', 'vulopilot') },
 	{ key: '30', value: '30', label: __('30D', 'vulopilot') },
@@ -40,10 +40,10 @@ const PERIOD_OPTIONS = [
 /** Same real day-range options the old `BadgeComponent` toggle used, now expressed as the real `PeriodDays` string values `ToggleInput` needs. */
 const HEALTH_TIMELINE_DAY_OPTIONS: PeriodDays[] = ['7', '30', '90'];
 
-/** Real backend module id (Settings → Modules) — `vulopilot-pro`'s `modules/AdvancedReports` own directory, which registers the real `GET /site-health-snapshots` endpoint this widget reads once active. */
+/** Real backend module id (Settings → Modules) - `vulopilot-pro`'s `modules/AdvancedReports` own directory, which registers the real `GET /site-health-snapshots` endpoint this widget reads once active. */
 const HEALTH_TIMELINE_MODULE_ID = 'advanced-reports';
 
-/** Fabricated 7-day score trend — same "obviously fake, never mistaken for a real scan result" reasoning Accessibility.tsx's own `DUMMY_ACCESSIBILITY_HISTORY` documents; no real fetch behind this, ever. */
+/** Fabricated 7-day score trend - same "obviously fake, never mistaken for a real scan result" reasoning Accessibility.tsx's own `DUMMY_ACCESSIBILITY_HISTORY` documents; no real fetch behind this, ever. */
 const DUMMY_HEALTH_TIMELINE = [
 	{ day: __('Day 1', 'vulopilot'), score: 58 },
 	{ day: __('Day 2', 'vulopilot'), score: 63 },
@@ -55,22 +55,22 @@ const DUMMY_HEALTH_TIMELINE = [
 ];
 
 /**
- * "VuloPilot activity" — a real 5-tile activity strip. Every tile reads
+ * "VuloPilot activity" - a real 5-tile activity strip. Every tile reads
  * data that already exists elsewhere on this Dashboard/plugin; this widget
  * only re-presents it compactly rather than introducing a new data source
  * per tile:
  *
  * - AI crawler visits: `GET /crawler-traffic/analytics?days=7` (same
- *   endpoint CrawlerAnalyticsSection.tsx uses) — `current_total`/
+ *   endpoint CrawlerAnalyticsSection.tsx uses) - `current_total`/
  *   `previous_total` are a real, already-computed 7-day-vs-previous-7-day
  *   comparison (CrawlerVisitRepository::get_period_comparison()), and
  *   `daily_volume` backs a real sparkline of the last 7 real days.
- * - Automations: `summary.automation_status.enabled` — already on the
+ * - Automations: `summary.automation_status.enabled` - already on the
  *   shared `/dashboard` payload (Controllers\Dashboard::get_items()).
  * - Last audit: `useLastScanTime()` (sitewide, no scanner/category
- *   filter) — the same real `vulopilot_scans.finished_at` used by every
+ *   filter) - the same real `vulopilot_scans.finished_at` used by every
  *   category page's own header.
- * - Pending approvals: `summary.pending_approvals` — the same real count
+ * - Pending approvals: `summary.pending_approvals` - the same real count
  *   NeedsAttentionWidget's "Pending approval" tab already lists.
  * - Latest report: `GET /reports?per_page=1` (same endpoint
  *   LatestReportsWidget already reads), most recent row's `created_at`.
@@ -79,16 +79,16 @@ const DUMMY_HEALTH_TIMELINE = [
  * e.g. "Daily at 9:00 AM"), is deliberately NOT included: `automatic_site_scan`/
  * `scan_frequency` (Settings → General) are real, stored settings, but
  * nothing in this Free plugin actually reads them to schedule a recurring
- * full scan (confirmed — no `wp_schedule_event()` call anywhere references
+ * full scan (confirmed - no `wp_schedule_event()` call anywhere references
  * either setting, unlike BackupScheduler's own real `backup_frequency`
  * wiring). The only real recurring-schedule mechanism in this codebase
  * (`vulopilot_automations_tick_{type}`, `Controllers\Automations::with_next_run()`)
  * lives entirely in vulopilot-pro's Automations module, drives
  * notification/AI-action automations rather than scans, and would show
- * `null` on any site without that Pro module active — showing a specific
+ * `null` on any site without that Pro module active - showing a specific
  * "Next audit" date here would be fabricated on every Free-tier site.
  * Also, "Last audit" is labeled generically ("Last scan completed") rather
- * than the mockup's "Full audit completed" — `vulopilot_scans` has one row
+ * than the mockup's "Full audit completed" - `vulopilot_scans` has one row
  * per scanner (Scanners\ScanRunner::run_all() loops per-scanner), so the
  * single most-recently-finished row doesn't by itself distinguish a full
  * "Run Complete Audit" from one category's scan finishing.
@@ -121,7 +121,7 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 	const { lastScanAt, isLoading: isLastScanLoading } = useLastScanTime();
 
 	// Same real `/site-health-snapshots` endpoint
-	// HealthTimelineWidget.tsx's own trend chart already uses — only
+	// HealthTimelineWidget.tsx's own trend chart already uses - only
 	// registered once vulopilot-pro's AdvancedReports module is active
 	// (real, permanent 404 on a Free-only install otherwise, same reason
 	// that widget checks `active_modules` directly rather than treating
@@ -129,7 +129,7 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 	//
 	// Real "Last 7/30/90 days" toggle, now the same real `ToggleInput`
 	// shape `OverviewTab.tsx`'s own "Visibility Trend" card already uses
-	// for its identical day-range control — replacing the previous
+	// for its identical day-range control - replacing the previous
 	// `BadgeComponent`-based toggle per direct instruction.
 	const [healthTimelineDays, setHealthTimelineDays] = useState<PeriodDays>('30');
 	const { data: healthSnapshots } = useApiList<HealthSnapshot>(
@@ -208,7 +208,7 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 						icon="analytics"
 						title={__('No trend data yet', 'vulopilot')}
 						desc={__(
-							'Health timeline builds up once daily snapshots start recording — check back after today.',
+							'Health timeline builds up once daily snapshots start recording - check back after today.',
 							'vulopilot'
 						)}
 					/>

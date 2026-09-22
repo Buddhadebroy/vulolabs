@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  * React admin console there. Tab structure mirrors
  * `VuloPilot\Admin` exactly: real `add_submenu_page()`
  * sidebar entries, each pointing to `vulocart#&tab={tab}` with a
- * `'__return_null'` callback — the hash fragment never reaches the
+ * `'__return_null'` callback - the hash fragment never reaches the
  * server, so every one of these entries actually loads the same
  * `render_admin_page()` output; the client-side route registry
  * (src/routeRegistry.ts/routes.ts, App.tsx) is what makes the tab differ,
@@ -27,7 +27,7 @@ defined( 'ABSPATH' ) || exit;
  * react-frontend.md), VuloCart has no separate Free/Pro dashboard split
  * yet, so this plugin owns its own single mount point directly.
  *
- * Orders and Offerings are deliberately NOT among these tabs — see
+ * Orders and Offerings are deliberately NOT among these tabs - see
  * add_orders_menu()'s/add_offerings_menu()'s docblocks for why both get
  * their own top-level WP admin menu instead, matching how WooCommerce
  * gives "Products"/"Orders" their own top-level menus rather than burying
@@ -101,19 +101,19 @@ class Menu {
      * separate from the "VuloCart" menu above. Order management is
      * explicitly called out (per this plugin's admin-UX brief) as
      * deserving its own first-class space rather than being one more tab
-     * next to Dashboard/Modules/Settings — the same treatment WooCommerce
+     * next to Dashboard/Modules/Settings - the same treatment WooCommerce
      * gives "WooCommerce" (settings) vs. "Products"/"Orders" as separate
      * top-level menus, and a marketplace platform gives its own marketplace
      * admin.
      *
      * "All Orders"/"Draft Orders"/"Refunds"/"Add New" are real submenus now
-     * — Order\Domain\FulfillmentStatus::DRAFT and Order\Domain\
+     * - Order\Domain\FulfillmentStatus::DRAFT and Order\Domain\
      * PaymentStatus::REFUNDED gave Draft Orders/Refunds a real backing
      * value to filter on (same `&filter=`/`&action=add` query-string-on-
      * one-slug technique add_offerings_menu() already uses, not three more
      * registered WP pages). Returns/Invoices/Shipments still have no
      * backing domain model (no returns/invoicing/shipping module exists),
-     * so they're still not scaffolded here — same reasoning as before,
+     * so they're still not scaffolded here - same reasoning as before,
      * just a shorter list now that two of the five have real support.
      *
      * @return void
@@ -168,14 +168,14 @@ class Menu {
 
     /**
      * Registers Offerings as its own dedicated top-level WP admin menu,
-     * separate from the "VuloCart" menu — same treatment as
+     * separate from the "VuloCart" menu - same treatment as
      * add_orders_menu(), and for the same reason (this plugin's admin-UX
      * brief calls for WooCommerce/Shopify-style dedicated top-level spaces,
      * not one more settings-style tab).
      *
      * "All Offerings" and "Add New" both point at the same
      * `vulocart-offerings` slug (the `&action=add` suffix on the second is
-     * a query-string addition, not a distinct WP page — same technique
+     * a query-string addition, not a distinct WP page - same technique
      * WooCommerce itself uses so `admin.php?page=wc-orders`,
      * `...&action=new`, and `...&action=edit&id=123` are all one
      * registered admin page differentiated by query args the client reads,
@@ -185,10 +185,10 @@ class Menu {
      * `&view=`, now that each has a real backing REST controller
      * (classes/RestAPI/Controllers/Terms.php/Attributes.php/Reviews.php/
      * Inventory.php/OfferingTypes.php) and admin page (`src/pages/Terms/`,
-     * `src/pages/Attributes/`, etc.) — `src/pages/Offerings/Offerings.tsx`
+     * `src/pages/Attributes/`, etc.) - `src/pages/Offerings/Offerings.tsx`
      * is what actually branches on `action`/`id`/`view` to decide which
      * one renders. Returns is the one item from this plugin's admin-UX
-     * brief still not scaffolded — a genuine RMA workflow (request →
+     * brief still not scaffolded - a genuine RMA workflow (request →
      * approve/reject → item returned → refund issued) is a distinct,
      * larger domain model from a review or a term, not built in this pass.
      *
@@ -247,7 +247,7 @@ class Menu {
     }
 
     /**
-     * Registers Customers as its own dedicated top-level WP admin menu —
+     * Registers Customers as its own dedicated top-level WP admin menu -
      * same "deserves first-class space, not a settings-style tab"
      * treatment `add_orders_menu()`/`add_offerings_menu()`'s own
      * docblocks establish, now that `Customer\Domain\Customer` is a real
@@ -256,7 +256,7 @@ class Menu {
      * extend this screen's own detail view the same "compose via filter"
      * way they extend the Offerings edit page
      * (`vulocart_customer_detail_sections`, `src/pages/Customers/
-     * CustomerDetail.tsx`) — Wishlist/Saved Carts/Groups/Segments/
+     * CustomerDetail.tsx`) - Wishlist/Saved Carts/Groups/Segments/
      * Loyalty-Credits-Wallet/Communication History all live in
      * `vulocart-pro`'s own CustomerGrowth module, not here.
      *
@@ -284,11 +284,11 @@ class Menu {
     }
 
     /**
-     * Registers Inventory as its own dedicated top-level WP admin menu —
+     * Registers Inventory as its own dedicated top-level WP admin menu -
      * same "deserves first-class space, not a settings-style tab"
      * treatment `add_orders_menu()`/`add_offerings_menu()`/
      * `add_customers_menu()`'s own docblocks establish. Unlike Customers,
-     * this plugin owns no Inventory-engine entity of its own — Warehouses/
+     * this plugin owns no Inventory-engine entity of its own - Warehouses/
      * Purchase Orders/Transfers/Reservations/Batch & Serial Tracking/
      * Forecasting all live in `vulocart-pro`'s own Inventory module, same
      * "Free owns top-level chrome, Pro fills it in via a filtered router"
@@ -296,7 +296,7 @@ class Menu {
      * CustomerGrowth. This is distinct from the existing
      * `vulocart-offerings&view=inventory` sub-page (a simple bulk stock-
      * quantity/status editor scoped to one offering at a time,
-     * RestAPI\Controllers\Inventory.php) — that page is left untouched;
+     * RestAPI\Controllers\Inventory.php) - that page is left untouched;
      * this top-level menu is for the warehouse-aware engine sitting above
      * it, not a replacement.
      *
@@ -315,11 +315,11 @@ class Menu {
     }
 
     /**
-     * Registers Shipping as its own dedicated top-level WP admin menu —
+     * Registers Shipping as its own dedicated top-level WP admin menu -
      * same "Free owns top-level chrome, Pro fills it in" split
      * `add_inventory_menu()`'s own docblock documents. Distinct from the
      * free Shipping module's own checkout-step settings (Settings tab,
-     * `enable_shipping`/`flat_rate_shipping_cost`) — this menu is for
+     * `enable_shipping`/`flat_rate_shipping_cost`) - this menu is for
      * `vulocart-pro`'s own ShippingEngine module (Zones/Rates/Packaging/
      * Shipments/Labels/Returns/Pickup), which extends
      * `ShippingService::get_available_methods()` via the
@@ -340,7 +340,7 @@ class Menu {
     }
 
     /**
-     * Registers AI as its own dedicated top-level WP admin menu — same
+     * Registers AI as its own dedicated top-level WP admin menu - same
      * "Free owns top-level chrome, Pro fills it in" split
      * `add_inventory_menu()`'s own docblock documents. Free's own `Ai`
      * module owns the "Settings" sub-page (BYOK provider key
@@ -364,12 +364,12 @@ class Menu {
     }
 
     /**
-     * Registers Workflows as its own dedicated top-level WP admin menu —
+     * Registers Workflows as its own dedicated top-level WP admin menu -
      * same "Free owns top-level chrome, Pro fills it in" split
      * `add_ai_menu()`'s own docblock documents. `vulocart-pro`'s own
      * WorkflowBuilder module registers "Workflows"/"Runs" submenus here;
      * unlike AI's own Settings sub-page, Free owns no real view of its
-     * own on this menu — every trigger/action this feature reacts to or
+     * own on this menu - every trigger/action this feature reacts to or
      * performs is Pro (WorkflowBuilder\Module's own docblock).
      *
      * @return void
@@ -387,10 +387,10 @@ class Menu {
     }
 
     /**
-     * Registers Analytics as its own dedicated top-level WP admin menu —
+     * Registers Analytics as its own dedicated top-level WP admin menu -
      * same "Free owns top-level chrome, Pro fills it in" split
      * `add_ai_menu()`/`add_workflows_menu()`'s own docblocks document.
-     * Free owns no view of its own here at all (same as Workflows) —
+     * Free owns no view of its own here at all (same as Workflows) -
      * every real section (Sales/Revenue/Customers/Offerings/Funnels/
      * Abandonment/Conversion/LTV/Retention/Inventory/AI Insights/
      * Forecasts) is `vulocart-pro`'s own Analytics module.
@@ -419,7 +419,7 @@ class Menu {
     }
 
     /**
-     * Renders the mount point for the standalone Orders admin app — a
+     * Renders the mount point for the standalone Orders admin app - a
      * different root element id than render_admin_page()'s, so
      * src/index.tsx can tell which top-level page it's mounting into and
      * render the right, self-contained app (see index.tsx's docblock).
@@ -431,7 +431,7 @@ class Menu {
     }
 
     /**
-     * Renders the mount point for the standalone Offerings admin app — see
+     * Renders the mount point for the standalone Offerings admin app - see
      * render_orders_admin_page()'s docblock for why this is a separate
      * root element id rather than reusing render_admin_page()'s.
      *
@@ -442,7 +442,7 @@ class Menu {
     }
 
     /**
-     * Renders the mount point for the standalone Customers admin app —
+     * Renders the mount point for the standalone Customers admin app -
      * see render_orders_admin_page()'s docblock for why this is a
      * separate root element id rather than reusing render_admin_page()'s.
      *
@@ -453,7 +453,7 @@ class Menu {
     }
 
     /**
-     * Renders the mount point for the standalone Inventory admin app — see
+     * Renders the mount point for the standalone Inventory admin app - see
      * render_orders_admin_page()'s docblock for why this is a separate
      * root element id rather than reusing render_admin_page()'s.
      *
@@ -464,7 +464,7 @@ class Menu {
     }
 
     /**
-     * Renders the mount point for the standalone Shipping admin app — see
+     * Renders the mount point for the standalone Shipping admin app - see
      * render_orders_admin_page()'s docblock for why this is a separate
      * root element id rather than reusing render_admin_page()'s.
      *
@@ -475,7 +475,7 @@ class Menu {
     }
 
     /**
-     * Renders the mount point for the standalone AI admin app — see
+     * Renders the mount point for the standalone AI admin app - see
      * render_orders_admin_page()'s docblock for why this is a separate
      * root element id.
      *
@@ -486,7 +486,7 @@ class Menu {
     }
 
     /**
-     * Renders the mount point for the standalone Analytics admin app —
+     * Renders the mount point for the standalone Analytics admin app -
      * see render_orders_admin_page()'s docblock for why this is a
      * separate root element id.
      *
@@ -497,7 +497,7 @@ class Menu {
     }
 
     /**
-     * Renders the mount point for the standalone Workflows admin app —
+     * Renders the mount point for the standalone Workflows admin app -
      * see render_orders_admin_page()'s docblock for why this is a
      * separate root element id.
      *
@@ -509,7 +509,7 @@ class Menu {
 
     /**
      * Enqueues the React admin bundle on VuloCart's own screen only, and
-     * localizes `vulocartLocalizer` — a plugin-own global, deliberately
+     * localizes `vulocartLocalizer` - a plugin-own global, deliberately
      * not reusing `appLocalizer` (a different plugin's shape). Shape is
      * also what zyra's `configureZyra()` expects: `apiUrl` is the bare
      * REST root and `restUrl` is the namespace, since zyra's own
@@ -518,7 +518,7 @@ class Menu {
      * real build output, not assumed).
      *
      * Runs on VuloCart's own screen and both standalone Orders/Offerings
-     * screens (render_orders_admin_page()/render_offerings_admin_page()) —
+     * screens (render_orders_admin_page()/render_offerings_admin_page()) -
      * all three mount the exact same built bundle; src/index.tsx itself
      * decides which app to render based on which root element id is
      * present in the page (`#vulocart-admin-root` vs
@@ -526,20 +526,20 @@ class Menu {
      * so there's no need for a second/third webpack entry/bundle just to
      * give Orders/Offerings their own top-level menus.
      *
-     * Gated on `$_GET['page']`, NOT `$hook_suffix` — a query string like
+     * Gated on `$_GET['page']`, NOT `$hook_suffix` - a query string like
      * `&action=add` on the Offerings top-level page itself doesn't change
      * either one (same page, same hook), but a Pro module's own
      * `add_submenu_page( 'vulocart-offerings', ..., 'vulocart-offerings&view=xyz',
-     * ... )` (Suppliers/CheckoutLinks/Subscriptions/Passport/etc. — every
+     * ... )` (Suppliers/CheckoutLinks/Subscriptions/Passport/etc. - every
      * "Pro extends the Offerings menu" registration in this codebase) is a
      * genuinely SEPARATE submenu-page registration, and WordPress's own
      * `get_plugin_page_hookname()` hashes that entire literal
      * `'vulocart-offerings&view=xyz'` string into a hook suffix like
-     * `admin_page_vulocart-offerings&view=xyz` — never
+     * `admin_page_vulocart-offerings&view=xyz` - never
      * `toplevel_page_vulocart-offerings`. An `in_array( $hook_suffix, ... )`
      * check here silently never matches any of those pages, so this
      * bundle (and therefore the entire React app, `#vulocart-offerings-admin-root`
-     * included) never loads on them — a real bug that shipped invisibly
+     * included) never loads on them - a real bug that shipped invisibly
      * because nothing in this codebase's own test coverage ever loaded
      * these admin screens in an actual browser, only their REST endpoints
      * directly. `$_GET['page']` has no such problem: WordPress always
@@ -548,7 +548,7 @@ class Menu {
      * strings are parsed independently of how the menu system computed
      * its internal hook name.
      *
-     * @param string $hook_suffix Current admin page hook suffix — unused, see above.
+     * @param string $hook_suffix Current admin page hook suffix - unused, see above.
      * @return void
      */
     public function enqueue_admin_script( $hook_suffix ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
@@ -560,7 +560,7 @@ class Menu {
         }
 
         // Registers `wp.media()` (media-views/media-editor + the attachment
-        // browser markup) — the Offering edit page's Featured Image/Gallery
+        // browser markup) - the Offering edit page's Featured Image/Gallery
         // fields (zyra's `FileInput`, OfferingEdit.tsx) call `wp.media()`
         // directly, same real WordPress media-library integration every
         // other admin screen with an image picker uses; without this call
@@ -578,7 +578,7 @@ class Menu {
         // webpack's splitChunks (tools/webpack/create-config.js) pulls every
         // node_modules dependency this entry uses (react-router-dom, zyra,
         // @tanstack/react-query, axios, clsx) into a separate vendors.js
-        // file — index.js's own webpack runtime expects that chunk's
+        // file - index.js's own webpack runtime expects that chunk's
         // modules to already be registered on the page before it runs.
         // Confirmed the hard way: without enqueuing this, index.js loads
         // and executes with no thrown error, but never renders anything

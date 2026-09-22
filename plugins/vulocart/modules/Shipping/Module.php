@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Shipping Module.
  *
  * Same toggleable-addon pattern as VuloCart\Cart\Module. No own table, no
- * cross-module dependency — reads the Shipping tab's own settings
+ * cross-module dependency - reads the Shipping tab's own settings
  * (`enable_shipping`/`flat_rate_shipping_cost`, `src/settings/Commerce/
  * Shipping.ts`) and turns them into a real, calculable shipping cost:
  * `Order\Application\OrderService::create_from_cart()` resolves this
@@ -57,7 +57,7 @@ class Module {
     }
 
     /**
-     * Registers this module's own step — see Customer/Module.php's own
+     * Registers this module's own step - see Customer/Module.php's own
      * docblock on register_checkout_step() for what this mechanism is.
      *
      * @param array<int, array<string, mixed>> $steps Already-registered step descriptors.

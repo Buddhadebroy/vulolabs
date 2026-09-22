@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * `GET /backups` lists real backup runs; `POST /backups` starts a real
- * manual backup (never runs synchronously — `VuloPilot()->backup_manager`
+ * manual backup (never runs synchronously - `VuloPilot()->backup_manager`
  * processes it via WP-Cron in small batches, same "GET lists, POST
  * triggers, persistence happens elsewhere" shape `Scans.php`/`PageSpeed.php`
  * already use); `GET /backups/{id}/download` streams the real archive
@@ -21,10 +21,10 @@ defined( 'ABSPATH' ) || exit;
  * `file_path` to the client, same posture `Reports.php::download_item()`
  * already established; `DELETE /backups/{id}` removes the real row + real
  * file; `POST /backups/{id}/restore` is Recovery's real, destructive
- * restore — always preceded here by a real, synchronously-completed
+ * restore - always preceded here by a real, synchronously-completed
  * pre-restore safety snapshot before `BackupManager::restore()` is ever
- * called (Recovery's first of three safety nets; the second — a typed
- * confirmation gate — lives in the frontend; the third is
+ * called (Recovery's first of three safety nets; the second - a typed
+ * confirmation gate - lives in the frontend; the third is
  * `BackupManager::restore()`'s own real activity-log audit entry).
  *
  * @class       Backups controller
@@ -127,7 +127,7 @@ class Backups extends \WP_REST_Controller {
             )
         );
 
-        // file_path is deliberately never exposed to the client — same
+        // file_path is deliberately never exposed to the client - same
         // DATABASE.md posture Reports.php::get_items() already established.
         $result['data'] = array_map(
             static function ( array $row ): array {
@@ -142,7 +142,7 @@ class Backups extends \WP_REST_Controller {
     }
 
     /**
-     * Starts a real manual backup — never runs synchronously.
+     * Starts a real manual backup - never runs synchronously.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response
@@ -182,7 +182,7 @@ class Backups extends \WP_REST_Controller {
             }
         }
 
-        // Real remote-copy cleanup (S3/Google Drive) — a no-op for a
+        // Real remote-copy cleanup (S3/Google Drive) - a no-op for a
         // 'local'-only backup or one whose upload never finished. See
         // Services\BackupStorageManager::delete_remote_copy()'s own
         // docblock.
@@ -195,7 +195,7 @@ class Backups extends \WP_REST_Controller {
 
     /**
      * Streams a real backup archive rather than ever returning its
-     * filesystem path to the client — same posture
+     * filesystem path to the client - same posture
      * `Reports.php::download_item()` already established.
      *
      * @param \WP_REST_Request $request Full request object.
@@ -231,7 +231,7 @@ class Backups extends \WP_REST_Controller {
 
     /**
      * Real, destructive Recovery restore. Always takes a real,
-     * synchronously-completed pre-restore safety snapshot first — see this
+     * synchronously-completed pre-restore safety snapshot first - see this
      * class's own docblock for the full 3-safety-net posture.
      *
      * @param \WP_REST_Request $request Full request object.

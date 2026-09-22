@@ -1,25 +1,25 @@
 import { __ } from '@wordpress/i18n';
-import { CardComponent, ListComponent, BadgeComponent } from '@zyra/components';
+import { ListComponent, BadgeComponent } from '@zyra/components';
 import { useSectionStatus } from '../../services/useSectionStatus';
 
 /**
- * "Site Health Status" — same real per-section status-badge list shape
+ * "Site Health Status" - same real per-section status-badge list shape
  * used elsewhere on this page. Every row here is genuinely real (this tab
  * has no scanner areas with zero backing), so there's no "Not tracked
  * yet" row to show.
  *
  * `server-health`/`php-warnings` are scoped with an *empty* category
- * (`useSectionStatus('', […])`) rather than `'server'` — the two scanners
+ * (`useSectionStatus('', […])`) rather than `'server'` - the two scanners
  * that make up SiteHealthTab.tsx's own "Server" section have different
  * real `get_category()` values (`server`/`php-warnings`), so a single
  * fixed category here would silently exclude one of them from the count,
  * the same category/scanner_id mismatch bug already found and fixed
  * elsewhere this session. `useApiList`'s own `mergedParams` already drops
  * an empty-string param, so this falls back to scanner_id-only filtering
- * — a real, existing escape hatch, not a new mechanism.
+ * - a real, existing escape hatch, not a new mechanism.
  *
  * Row `id`s (`wordpress`/`updates`/`background-tasks`/`database`/`server`)
- * are the same keys as SiteHealthTab.tsx's own `SECTIONS[].key` — clicking
+ * are the same keys as SiteHealthTab.tsx's own `SECTIONS[].key` - clicking
  * a row, when `onSectionClick` is passed, jumps straight to that section's
  * tab in the sectioned issues table below (SiteHealthTab.tsx's own
  * `goToIssuesTable()`), same `action` wiring OpenIssuesGlimpse.tsx's own
@@ -98,7 +98,7 @@ const SiteHealthStatusCard = ({ onSectionClick }: SiteHealthStatusCardProps) => 
 					action: onSectionClick ? () => onSectionClick(row.id) : undefined,
 					// 2 real separate badges (total open + top-severity
 					// breakdown), not 1 merged "N Open · N {Severity}
-					// Severity" pill — `useSectionStatus()`'s own `badges`
+					// Severity" pill - `useSectionStatus()`'s own `badges`
 					// array, added alongside its existing single `badge` for
 					// exactly this real "show these split" case.
 					tags: row.status.badges ? (

@@ -1,10 +1,10 @@
 /**
- * Shared between `src/blocks/offerings/`'s listing and detail views —
+ * Shared between `src/blocks/offerings/`'s listing and detail views -
  * the public-storefront-facing shape of `GET /offerings`/`GET /offerings/{id}`
  * (classes/RestAPI/Controllers/Offerings.php's `prepare_offering_for_response()`).
  * `meta` is typed loosely (`Record<string, unknown>`) rather than
  * exhaustively, same tradeoff `OfferingEdit.tsx` (the admin equivalent)
- * already accepts — the meta bag's real shape varies per offering type
+ * already accepts - the meta bag's real shape varies per offering type
  * (`TYPE_FIELD_CONFIG`), and this file only needs a handful of common
  * keys out of it, not the full per-type field list.
  */
@@ -40,7 +40,7 @@ export interface OfferingSummary {
 }
 
 /**
- * Whether an offering should appear in the public listing grid —
+ * Whether an offering should appear in the public listing grid -
  * `hidden`/`search_only` are excluded (this codebase has no search
  * feature yet for `search_only` to have anywhere else to surface), same
  * as WooCommerce's own catalog-visibility semantics: still directly
@@ -63,7 +63,7 @@ export function formatPrice( offering: OfferingSummary ): string | null {
 }
 
 /**
- * `booking_slot` -> `Booking slot` — used to render `meta.type_details`
+ * `booking_slot` -> `Booking slot` - used to render `meta.type_details`
  * entries on the detail page without needing to duplicate
  * OfferingEdit.tsx's full `TYPE_FIELD_CONFIG` label list on the public
  * side too.

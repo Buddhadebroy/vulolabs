@@ -10,7 +10,7 @@ namespace VuloPilot\Repositories;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for vulopilot_ai_action_runs (see AI-ACTIONS.md) — the
+ * Persistence for vulopilot_ai_action_runs (see AI-ACTIONS.md) - the
  * record of one AIAction going through propose → approve/reject →
  * execute → rollback. `input`/`output`/`preview`/`snapshot` are stored as
  * JSON; AiCopilot\ActionRunner is the only code that encodes/decodes
@@ -35,14 +35,14 @@ class ActionRunRepository extends AbstractRepository {
     }
 
     /**
-     * Real content-creation stats for one date range — how many of the
+     * Real content-creation stats for one date range - how many of the
      * given actions actually ran to completion (`status = 'executed'`),
      * and how many real words their own output contained in total.
      *
      * Every content-creation action's real `output` column is
      * `{title, body}` JSON (confirmed against GenerateBlogAction/
      * GenerateLandingPageAction/GenerateProductDescriptionAction's own
-     * parse_response()/execute()) — written once at propose() time and
+     * parse_response()/execute()) - written once at propose() time and
      * never touched again by approve(), so it's the real, final generated
      * text, not a stale draft. Word count uses the exact same
      * wp_strip_all_tags()+str_word_count() pair

@@ -19,12 +19,12 @@ defined( 'ABSPATH' ) || exit;
  *
  * The original (pre-Payment-Framework) `manual` method, now expressed as
  * a real `PaymentGatewayInterface` implementation instead of a hardcoded
- * array entry — same settings key (`enable_manual_payment`), same
+ * array entry - same settings key (`enable_manual_payment`), same
  * behavior (`authorize()` never calls out anywhere; the resulting status
  * is whatever the Payments tab's `default_payment_status` says, exactly
  * `PaymentService::get_initial_payment_status()`'s old return value).
  * `capture()`/`refund()`/`cancel()` are all no-ops that just acknowledge
- * — the actual money movement (pay on delivery, a bank transfer the
+ * - the actual money movement (pay on delivery, a bank transfer the
  * merchant reconciles by hand) happens outside this software; this
  * gateway's job is only to let the admin's own manual
  * fulfillment/payment-status change on the order (Order\Rest's existing

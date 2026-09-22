@@ -11,19 +11,19 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Handles Google's real OAuth redirect back to this site
- * (`admin-post.php?action=vulopilot_gsc_oauth_callback` —
+ * (`admin-post.php?action=vulopilot_gsc_oauth_callback` -
  * GoogleServicesConnection::get_redirect_uri()'s own exact URL). Kept as
  * its own tiny class (rather than folding this into
  * Controllers\GoogleServices) for the same reason
  * IndexNowKeyFileServer/LlmsTxtGenerator are their own classes: this hook
  * must be registered unconditionally at plugin boot (VuloPilot.php's
  * init_classes()), not lazily inside a REST controller that's only ever
- * instantiated on `rest_api_init` — a request to `admin-post.php` never
+ * instantiated on `rest_api_init` - a request to `admin-post.php` never
  * fires that hook at all, so a REST-controller-only registration would
  * silently 404 every real Google redirect.
  *
  * Class/action name kept as "gsc" (Search Console) even though the real
- * connection now also covers Analytics/AdSense — renaming would mean
+ * connection now also covers Analytics/AdSense - renaming would mean
  * every already-registered Google Cloud OAuth Client's "Authorized
  * redirect URI" (a site owner's own real, external Google Cloud config)
  * would silently stop matching. One connection, one redirect URI, for
@@ -43,15 +43,15 @@ class GoogleSearchConsoleOAuthCallbackHandler {
      * Verifies the real `state` nonce, exchanges the real `code` for
      * tokens (GoogleServicesConnection::exchange_code_for_tokens(), an
      * actual `POST` to Google's token endpoint), then redirects back to
-     * whichever real SPA tab actually started the connection — Settings'
+     * whichever real SPA tab actually started the connection - Settings'
      * own Google Services panel, or SEO & Visibility's Keywords tab
      * (GoogleServicesConnection::get_return_to_from_state(), read from
      * `state` regardless of whether the nonce inside it still checks out,
      * so even an error redirect lands back where the site owner was
-     * rather than always defaulting to Settings) — with a real
+     * rather than always defaulting to Settings) - with a real
      * success/error query flag. Never renders its own page, same
      * "redirect back into the SPA" shape every other admin-post-style
-     * handler in this codebase (IndexNowKeyFileServer excluded — that one
+     * handler in this codebase (IndexNowKeyFileServer excluded - that one
      * serves a file, not a redirect) would use if one existed yet.
      *
      * @return void
@@ -82,7 +82,7 @@ class GoogleSearchConsoleOAuthCallbackHandler {
             exit;
         }
 
-        // Same `code`+`state` shape either way — a broker-configured
+        // Same `code`+`state` shape either way - a broker-configured
         // build only ever sent the browser to the broker's own authorize
         // URL (GoogleServicesConnection::get_authorization_url()), so a
         // `code` landing back here while the broker is still configured

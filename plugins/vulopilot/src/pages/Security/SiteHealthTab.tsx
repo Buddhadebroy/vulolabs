@@ -7,22 +7,21 @@ import SectionedFindingsTab, {
 } from './SectionedFindingsTab';
 import { SectionedIssuesTab } from './SectionedIssuesTable';
 import FindingsHeroCard from './FindingsHeroCard';
-import SiteHealthStatusCard from './SiteHealthStatusCard';
 import BackupProtectionNotice from './BackupProtectionNotice';
 
 /**
- * "Site Health" tab of "Protect My Site" (PROTECT-MY-SITE.md's IA) — 5
+ * "Site Health" tab of "Protect My Site" (PROTECT-MY-SITE.md's IA) - 5
  * sections. "WordPress" and "Server" are both thin wrappers around
  * WordPress core's own `WP_Site_Health` tests (WordPressHealthScanner/
- * ServerHealthScanner — see their own docblocks for why wrapping core's
+ * ServerHealthScanner - see their own docblocks for why wrapping core's
  * existing test suite beat writing new checks from scratch), same
  * "genuinely new backend work, not a UI-only reshuffle" case
- * "Background Tasks"/"Updates"/"Database" aren't — those three already
+ * "Background Tasks"/"Updates"/"Database" aren't - those three already
  * existed as CronScanner/UpdatesScanner/DatabaseScanner before this pass.
  *
- * Starts with FindingsHeroCard — same "hero summary + chart before the
+ * Starts with FindingsHeroCard - same "hero summary + chart before the
  * detail sections" shape the Security/Performance tabs already use,
- * which this tab (and Files & Plugins) previously didn't have at all —
+ * which this tab (and Files & Plugins) previously didn't have at all -
  * side by side (grid={6}/grid={6}, same row pattern WooCommerceTab.tsx's
  * own AiSalesOptimizerCard/StoreIntelligenceSummaryCard pairing already
  * uses) with SiteHealthStatusCard, a real per-section status row matching
@@ -38,7 +37,7 @@ const SECTIONS: FindingsSection[] = [
 			'vulopilot'
 		),
 		emptyMessage: __(
-			'No WordPress health findings yet — run a scan to check.',
+			'No WordPress health findings yet - run a scan to check.',
 			'vulopilot'
 		),
 		scannerIds: ['wordpress-health'],
@@ -51,7 +50,7 @@ const SECTIONS: FindingsSection[] = [
 			'vulopilot'
 		),
 		emptyMessage: __(
-			'No pending updates found yet — run a scan to check.',
+			'No pending updates found yet - run a scan to check.',
 			'vulopilot'
 		),
 		scannerIds: ['updates'],
@@ -60,11 +59,11 @@ const SECTIONS: FindingsSection[] = [
 		key: 'background-tasks',
 		title: __('Background Tasks', 'vulopilot'),
 		description: __(
-			'Overdue scheduled events — a sign WP-Cron isn’t actually firing.',
+			'Overdue scheduled events - a sign WP-Cron isn’t actually firing.',
 			'vulopilot'
 		),
 		emptyMessage: __(
-			'No overdue background tasks yet — run a scan to check.',
+			'No overdue background tasks yet - run a scan to check.',
 			'vulopilot'
 		),
 		scannerIds: ['cron'],
@@ -74,7 +73,7 @@ const SECTIONS: FindingsSection[] = [
 		title: __('Database', 'vulopilot'),
 		description: __('Excessive post-revision buildup.', 'vulopilot'),
 		emptyMessage: __(
-			'No database findings yet — run a scan to check.',
+			'No database findings yet - run a scan to check.',
 			'vulopilot'
 		),
 		scannerIds: ['database'],
@@ -87,7 +86,7 @@ const SECTIONS: FindingsSection[] = [
 			'vulopilot'
 		),
 		emptyMessage: __(
-			'No server findings yet — run a scan to check.',
+			'No server findings yet - run a scan to check.',
 			'vulopilot'
 		),
 		scannerIds: ['server-health', 'php-warnings'],
@@ -99,7 +98,7 @@ const ALL_SCANNER_IDS = Array.from(
 );
 
 interface SiteHealthTabProps {
-	/** Switches SiteHealth.tsx's own `backups` tab in place — see BackupProtectionNotice.tsx's own docblock. */
+	/** Switches SiteHealth.tsx's own `backups` tab in place - see BackupProtectionNotice.tsx's own docblock. */
 	onNavigateToBackups: () => void;
 }
 

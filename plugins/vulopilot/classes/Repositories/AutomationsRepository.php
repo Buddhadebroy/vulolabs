@@ -36,7 +36,7 @@ class AutomationsRepository extends AbstractRepository {
     }
 
     /**
-     * @return int Count of currently enabled automations — what the
+     * @return int Count of currently enabled automations - what the
      *             dashboard's "active automations" stat card reads.
      */
     public function count_enabled(): int {
@@ -48,9 +48,9 @@ class AutomationsRepository extends AbstractRepository {
     }
 
     /**
-     * Enabled/disabled/draft counts, zero-filled — backs both the
+     * Enabled/disabled/draft counts, zero-filled - backs both the
      * "Automation Status" dashboard widget and the Automations table's
-     * status-count pill bar ("Active"/"Paused"/"Drafts" — Automations'
+     * status-count pill bar ("Active"/"Paused"/"Drafts" - Automations'
      * own filter chips read 'enabled'/'disabled'/'draft' by these exact
      * keys). Delegates the actual grouped query to
      * AbstractRepository::count_by_column() rather than running its own
@@ -73,9 +73,9 @@ class AutomationsRepository extends AbstractRepository {
     /**
      * Looks up a system-seeded automation by a stable marker embedded in
      * its own `trigger_config` JSON (`{"system_default": "<marker>"}`)
-     * rather than by `name` — added specifically for
+     * rather than by `name` - added specifically for
      * vulopilot-pro's WebsiteHealthScanScheduler, whose seeding logic must
-     * stay idempotent (never insert a second "Website Health — Daily
+     * stay idempotent (never insert a second "Website Health - Daily
      * Scan" row) even after an administrator has renamed the automation,
      * which a name-based lookup would miss. A plain LIKE match on the raw
      * JSON column, same pragmatic shape FindingRepository::

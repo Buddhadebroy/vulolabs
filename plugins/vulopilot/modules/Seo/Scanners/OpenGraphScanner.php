@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  * Fetches the homepage and flags any of the three Open Graph tags that
  * make a shared link look correct on Facebook/LinkedIn/etc.
  * (`og:title`, `og:description`, `og:image`) that aren't present. Like
- * SchemaScanner, this is a presence check, not a correctness check — a
+ * SchemaScanner, this is a presence check, not a correctness check - a
  * tag that exists but has a bad value can't be judged without knowing
  * what a "good" value looks like for this specific site.
  *

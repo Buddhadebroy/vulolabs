@@ -26,7 +26,7 @@ interface SeoProgressResponse {
 	pages_improved: WeekStat;
 }
 
-/** Same real 7/30/90-day trio `GeoScoreSection.tsx`'s own identical "Score Snapshot" period toggle already established (`Controllers\Geo::ALLOWED_PROGRESS_DAYS`) — now real for `Seo.php`'s own `get_progress()` too (`ALLOWED_PROGRESS_DAYS`, added alongside this). */
+/** Same real 7/30/90-day trio `GeoScoreSection.tsx`'s own identical "Score Snapshot" period toggle already established (`Controllers\Geo::ALLOWED_PROGRESS_DAYS`) - now real for `Seo.php`'s own `get_progress()` too (`ALLOWED_PROGRESS_DAYS`, added alongside this). */
 type PeriodDays = '7' | '30' | '90';
 const PERIOD_OPTIONS = [
 	{ key: '7', value: '7', label: __('7D', 'vulopilot') },
@@ -35,12 +35,12 @@ const PERIOD_OPTIONS = [
 ];
 
 /**
- * "SEO progress" — a new, additive card (direct instruction: sits above the
+ * "SEO progress" - a new, additive card (direct instruction: sits above the
  * existing filter-tabs/severity cards/Site-wide Issues/Pages & Posts
  * section, which this doesn't touch). `GET /seo/progress` (Seo.php): a real
  * 7-day score trend (one real reconstructed score per day, same
  * `..._as_of()` technique the "SEO Health Score" card's own single 7-day
- * delta already uses — no new stored snapshot table) plus 3 real
+ * delta already uses - no new stored snapshot table) plus 3 real
  * week-over-week counters (`count_resolved_between()`/`get_stats_for_period()`,
  * both already existing repository methods; "Pages Improved" reuses "Pages
  * that need attention"'s own new `get_open_findings_for_scanner_ids_by_post()`

@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Customer Module.
  *
  * Now owns a real persistent Customer entity (`Install.php`,
- * `Domain\Customer`'s own docblock) — every order dispatches
+ * `Domain\Customer`'s own docblock) - every order dispatches
  * `vulocart_order_created`, this module listens and finds-or-creates the
  * customer, advancing their running totals
  * (`Application\CustomerService::record_order()`). Still no hard

@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Readme.txt's "Reports" → "Updates" pillar. Category `updates` findings
- * for one period — the same category Scanners\Basic\UpdatesScanner raises
+ * for one period - the same category Scanners\Basic\UpdatesScanner raises
  * into for pending WordPress core/plugin/theme updates (via
  * get_core_updates()/get_plugin_updates()/get_theme_updates()).
  *

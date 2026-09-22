@@ -12,12 +12,12 @@ import { formatWpDate } from '../services/formatWpDate';
 import type { EntitiesResponse, Entity } from '../pages/GEO/SchemaKnowledge/KnowledgeGraphSection';
 import { WidgetProps } from './types';
 
-/** Same real gate BusinessProfileCard.tsx's own identical check already uses — EntityExtractor returns empty groups when this module is inactive, so a real `''`/`[]` here is a genuine "not set" state, not a broken fetch. */
+/** Same real gate BusinessProfileCard.tsx's own identical check already uses - EntityExtractor returns empty groups when this module is inactive, so a real `''`/`[]` here is a genuine "not set" state, not a broken fetch. */
 const isEntityExtractionModuleActive = () =>
 	appLocalizer.active_modules?.includes('entity-extraction') ?? false;
 
-const NOT_SET = '—';
-/** `score`/`open_count` are `null` for a signal with no real data to compute from yet (GeoSignalScore's own docblock) — shown honestly as "—", never a fabricated 0. */
+const NOT_SET = '-';
+/** `score`/`open_count` are `null` for a signal with no real data to compute from yet (GeoSignalScore's own docblock) - shown honestly as "-", never a fabricated 0. */
 const formatScore = (score: number | null): string =>
 	null === score
 		? NOT_SET
@@ -50,7 +50,7 @@ const getHomeScreenshotUrl = (siteUrl: string): string => {
 };
 
 /**
- * "Site snapshot" — real WordPress core counts (`summary.site_snapshot`,
+ * "Site snapshot" - real WordPress core counts (`summary.site_snapshot`,
  * Dashboard controller's own `build_site_snapshot()`), the one section of
  * this payload that isn't derived from scan findings at all: posts, pages,
  * comments, and users are real `wp_count_posts()`/`wp_count_comments()`/
@@ -59,29 +59,29 @@ const getHomeScreenshotUrl = (siteUrl: string): string => {
  * `PHP_VERSION`. `summary` already carries all of that.
  *
  * The Brand/Entity/GEO rows below it are this widget's own real fetches
- * (`GET /entities` — same real EntityExtractor endpoint BusinessProfileCard.tsx
+ * (`GET /entities` - same real EntityExtractor endpoint BusinessProfileCard.tsx
  * uses, gated on the same `entity-extraction` module; `GET /geo/score` via
  * the shared `useGeoScore()` hook GeoScoreSection.tsx already uses, which
- * works regardless of module state) rather than `summary` — the shared
+ * works regardless of module state) rather than `summary` - the shared
  * `/dashboard` payload has no brand/entity/GEO-signal fields of its own.
  * "Expertise signals" reads the real `other-geo-signals` bucket (E-E-A-T/
- * author-info/trust-signals — Geo.php's own `SIGNAL_SCANNER_IDS`),
+ * author-info/trust-signals - Geo.php's own `SIGNAL_SCANNER_IDS`),
  * "Entity confidence" the real `entity-clarity` signal, "Citation
  * opportunities" the real open-finding count for the `evidence-citations`
  * signal (`geo-citation-opportunities` scanner), and "Content gaps" the
- * same real count for `question-coverage` (`geo-faq-opportunity`) — every
+ * same real count for `question-coverage` (`geo-faq-opportunity`) - every
  * value here is a genuine existing scanner/setting, not a second,
  * invented metric.
  *
  * Renders `AutomationStatusWidget` as a sibling card right after its own
  * `<CardComponent>`, both inside the same `<>...</>` this component
- * returns — registry.ts's own `site-snapshot` entry is the only one
+ * returns - registry.ts's own `site-snapshot` entry is the only one
  * DashboardGrid.tsx wraps in a `ColumnComponent` for either, per direct
  * instruction to put them in the same column instead of two
  * separately-registered, independently-draggable cells
  * (`automation-status` removed from registry.ts's own `MOCKUP_WIDGETS`
  * accordingly). Same pairing pattern OverallScoreWidget.tsx already
- * established for Vital Pulse/Health timeline — see that file's own
+ * established for Vital Pulse/Health timeline - see that file's own
  * docblock.
  */
 const SiteSnapshotWidget: React.FC<WidgetProps> = ({
@@ -112,7 +112,7 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 	const { score: geoScore } = useGeoScore();
 
 	// Real most recent completed scan, site-wide (same source
-	// RunScanHeaderExtra's own "Last scan" caption already reads) — the
+	// RunScanHeaderExtra's own "Last scan" caption already reads) - the
 	// "Last updated" badge in the mockup header, not a fabricated
 	// page-generation timestamp this payload has no field for.
 	const { lastScanAt } = useLastScanTime();
@@ -128,7 +128,7 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 	 * Same rows the widget always had, just reorganized into the mockup's
 	 * six real groupings (Company Details/Content/SEO & Visibility/Users &
 	 * Audience/Technology/Products & Services/Additional) instead of two
-	 * arbitrary halves — no group here introduces a value that wasn't
+	 * arbitrary halves - no group here introduces a value that wasn't
 	 * already one of this widget's own real fields.
 	 */
 	const groups: {
@@ -265,13 +265,13 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 						key: 'wp-version',
 						icon: 'wordpress blue',
 						label: __('WordPress', 'vulopilot'),
-						value: snapshot.wp_version || '—',
+						value: snapshot.wp_version || '-',
 					},
 					{
 						key: 'php-version',
 						icon: 'coding purple',
 						label: __('PHP', 'vulopilot'),
-						value: snapshot.php_version || '—',
+						value: snapshot.php_version || '-',
 					},
 				],
 			},
@@ -319,7 +319,7 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 		[...groups, ...groups2].map((group) => [group.id, group])
 	);
 
-	/** Mockup order, two per row — each header's arrow jumps to that area's real page. */
+	/** Mockup order, two per row - each header's arrow jumps to that area's real page. */
 	const sections = [
 		{ ...byId.content, link: '?page=vulopilot#&tab=content' },
 

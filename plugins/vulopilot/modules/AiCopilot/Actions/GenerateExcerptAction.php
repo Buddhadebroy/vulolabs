@@ -17,15 +17,15 @@ use VuloPilot\ValueObjects\Impact;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Readme.txt's "AI Content Assistant" → "Excerpts" — writes to the native
+ * Readme.txt's "AI Content Assistant" → "Excerpts" - writes to the native
  * `post_excerpt` field via `wp_update_post()`, the field WordPress itself
  * uses for archive/listing-page teasers. This targets the same field as
  * WriteMetaDescriptionAction (SEO-MODULE.md's fix for
- * MissingMetaDescriptionRule) — WordPress core has exactly one native
+ * MissingMetaDescriptionRule) - WordPress core has exactly one native
  * "excerpt" concept, so both actions necessarily write to it; running one
  * after the other will overwrite the other's result. That's an inherent
  * property of `post_excerpt` being a single field, not a bug introduced
- * here — the two actions differ in *what* they generate (a 1-2 sentence
+ * here - the two actions differ in *what* they generate (a 1-2 sentence
  * reader-facing teaser here, versus a strict sub-160-character search
  * snippet there), and a site owner picking "Generate excerpt" is
  * consciously choosing this action's framing over the other's.
@@ -56,7 +56,7 @@ class GenerateExcerptAction extends AbstractBasicAction {
     }
 
     /**
-     * Impact::LOW — Rewrites `post_excerpt` only — one narrow, easily-reverted field, never `post_content`.
+     * Impact::LOW - Rewrites `post_excerpt` only - one narrow, easily-reverted field, never `post_content`.
      *
      * @inheritDoc
      */
@@ -95,10 +95,10 @@ class GenerateExcerptAction extends AbstractBasicAction {
             array(
                 'role'    => 'system',
                 'content' => sprintf(
-                    'You write inviting teaser excerpts for blog/archive listing pages — the kind a reader sees before '
+                    'You write inviting teaser excerpts for blog/archive listing pages - the kind a reader sees before '
                         . 'clicking through to the full article. Write 1-2 natural sentences, under %d characters, that make '
-                        . 'someone want to read more. This is not a search-engine snippet — do not just summarize, hook the reader. '
-                        . 'Respond with ONLY the excerpt itself — no quotes, no preamble.',
+                        . 'someone want to read more. This is not a search-engine snippet - do not just summarize, hook the reader. '
+                        . 'Respond with ONLY the excerpt itself - no quotes, no preamble.',
                     self::MAX_LENGTH
                 ),
             ),

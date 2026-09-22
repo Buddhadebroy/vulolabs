@@ -19,13 +19,13 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Flags pages whose rendered HTML has no `<link rel="canonical">` tag.
  * WordPress core itself outputs one by default (`rel_canonical()` on
- * `wp_head`) — its absence almost always means a theme has removed
+ * `wp_head`) - its absence almost always means a theme has removed
  * `wp_head()` entirely or a caching/optimization plugin is stripping
  * head tags, either of which is worth surfacing since it silently
  * affects every page on the site, not just the ones sampled here.
  *
  * Checked via real HTTP requests (same approach as SchemaScanner/
- * RestApiScanner — this is the only way to know what actually reaches a
+ * RestApiScanner - this is the only way to know what actually reaches a
  * visitor's browser, not just what a template function would output in
  * isolation), bounded to the homepage plus a handful of recent posts
  * rather than crawling the whole site (performance.md).

@@ -5,13 +5,13 @@ const SCHEDULED_REPORTS_URL =
 	'?page=vulopilot#&tab=reports&subtab=scheduled-reports';
 
 /**
- * The mockup's closing "Keep everyone updated automatically" banner — a
+ * The mockup's closing "Keep everyone updated automatically" banner - a
  * real link to the new "Scheduled Reports" tab (Reports.tsx), where
  * ReportSchedulesSummary.tsx's own real weekly/monthly status cards (and,
  * with Pro's Advanced Reports module, the real create/edit schedule UI)
  * already live.
  *
- * `type="banner"` + `displayPosition="inline"` — zyra's own
+ * `type="banner"` + `displayPosition="inline"` - zyra's own
  * NoticeComponent.tsx docblock cites this exact banner as the reference its
  * trailing `actionLabel`/`onAction` slot was built to match. Two visual
  * trade-offs accepted going through the shared component instead of custom

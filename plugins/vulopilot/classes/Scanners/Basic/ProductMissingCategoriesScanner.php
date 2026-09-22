@@ -14,7 +14,7 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags published products with no `product_cat` term assigned — an
+ * Flags published products with no `product_cat` term assigned - an
  * uncategorized product doesn't appear in any shop-page category browse
  * or category-scoped widget, so it's effectively unreachable except via
  * direct link or search.

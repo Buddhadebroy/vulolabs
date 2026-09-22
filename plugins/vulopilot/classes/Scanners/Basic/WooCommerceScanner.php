@@ -14,16 +14,16 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * "Store Health" (readme.txt Phase 9) — four checks over whether the
+ * "Store Health" (readme.txt Phase 9) - four checks over whether the
  * store is even minimally able to sell, bundled into one scanner rather
  * than four (same "several related hardening checks, one scanner"
  * pattern BasicVulnerabilitiesScanner's own docblock already establishes
  * for a different category): a missing/unpublished checkout page (the
- * original, pre-Phase-9 check — customers can't complete an order at
+ * original, pre-Phase-9 check - customers can't complete an order at
  * all), a missing/unpublished cart page, a missing/unpublished My Account
  * page, no store base location configured, and no enabled payment
  * gateway. VuloPilot itself has no hard dependency on WooCommerce (unlike
- * vulolabs-pro — see plugin-families.md) — this is the one scanner that's
+ * vulolabs-pro - see plugin-families.md) - this is the one scanner that's
  * inherently WooCommerce-specific, so it guards on WooCommerce actually
  * being active and simply returns no findings otherwise, rather than the
  * whole plugin requiring WooCommerce to load.
@@ -110,7 +110,7 @@ class WooCommerceScanner extends AbstractBasicScanner {
     /**
      * `woocommerce_default_country` is a real WooCommerce core setting,
      * never empty on a normally-configured store (its own onboarding wizard
-     * requires it) — an empty value here means the store setup wizard was
+     * requires it) - an empty value here means the store setup wizard was
      * skipped or the option was cleared, and every location-dependent
      * feature (tax rates, shipping zones, currency defaults) has nothing to
      * key off.
@@ -126,7 +126,7 @@ class WooCommerceScanner extends AbstractBasicScanner {
             __( 'No store base location configured', 'vulopilot' ),
             Severity::HIGH,
             $this->get_category(),
-            __( 'WooCommerce > Settings > General\'s "Store address" country/state must be set — tax rates, shipping zones, and currency defaults all key off this.', 'vulopilot' ),
+            __( 'WooCommerce > Settings > General\'s "Store address" country/state must be set - tax rates, shipping zones, and currency defaults all key off this.', 'vulopilot' ),
             'setting',
             'woocommerce_default_country'
         );
@@ -148,7 +148,7 @@ class WooCommerceScanner extends AbstractBasicScanner {
             __( 'No payment gateway is enabled', 'vulopilot' ),
             Severity::CRITICAL,
             $this->get_category(),
-            __( 'WooCommerce > Settings > Payments has no enabled gateway — customers can reach checkout but cannot actually pay.', 'vulopilot' ),
+            __( 'WooCommerce > Settings > Payments has no enabled gateway - customers can reach checkout but cannot actually pay.', 'vulopilot' ),
             'setting',
             'woocommerce_payment_gateways'
         );

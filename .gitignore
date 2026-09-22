@@ -25,7 +25,7 @@ log/
 # Docker
 docker-compose.yml
 
-# wp-env local secret overrides — per @wordpress/env's own
+# wp-env local secret overrides - per @wordpress/env's own
 # .wp-env.override.json mechanism, loaded into the container's own
 # wp-config.php and deliberately never committed (see
 # plugins/vulopilot/config.php's VULOPILOT_GOOGLE_CLIENT_ID/SECRET

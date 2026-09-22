@@ -16,7 +16,7 @@ registerBlockType( 'vulocart/offerings', {
 		return (
 			<div { ...blockProps }>
 				{ __(
-					'VuloCart Offerings — renders the catalog listing (or a single offering\'s detail page, via ?offering=) on the published page.',
+					'VuloCart Offerings - renders the catalog listing (or a single offering\'s detail page, via ?offering=) on the published page.',
 					'vulocart'
 				) }
 			</div>

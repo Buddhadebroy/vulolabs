@@ -15,23 +15,23 @@ interface ChatInputProps {
 		label: React.ReactNode;
 	};
 	disabled?: boolean;
-	/** When set, the send button renders visibly but inert with this explanation in a tooltip — e.g. no chat backend wired up yet — instead of a button that silently does nothing. */
+	/** When set, the send button renders visibly but inert with this explanation in a tooltip - e.g. no chat backend wired up yet - instead of a button that silently does nothing. */
 	sendDisabledReason?: string;
 }
 
 /**
- * The chat composer bar — free-text input plus an Attach pill button on one
+ * The chat composer bar - free-text input plus an Attach pill button on one
  * row and a send button, with an optional auto-apply switch on the trailing
  * edge. Every AI-assistant-style surface in this plugin (AI Copilot's Chat
  * tab, Grow My Traffic's composer, Create Content's AI Content Assistant)
  * uses the same bar.
  *
- * Ported from zyra's own ChatInputComponent (@zyra/components) — every real
+ * Ported from zyra's own ChatInputComponent (@zyra/components) - every real
  * consumer lived in this plugin alone, so it's kept here with the rest of
  * ChatComposerCard instead of in the shared design system.
  *
  * `onAddContext`/`addContextLabel` (an "Add site context" pill next to
- * Attach) were removed per direct instruction — AI Copilot's Chat tab was
+ * Attach) were removed per direct instruction - AI Copilot's Chat tab was
  * the only real caller (AIAssistant.tsx's own "Add context" picker over
  * open finding groups/automations); Copilot.php's own server-side
  * `context_refs` handling stays as-is, unrelated to this UI removal.

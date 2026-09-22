@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Flags a site where WordPress core's own native lazy-loading
  * (`loading="lazy"`, on by default since WP 5.5) has been disabled by a
- * theme or plugin — a zero-cost check via the exact filter WordPress core
+ * theme or plugin - a zero-cost check via the exact filter WordPress core
  * itself calls, no HTTP request needed unlike this file's sibling scanners.
  *
  * @class       LazyLoadingScanner class

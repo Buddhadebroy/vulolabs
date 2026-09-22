@@ -16,7 +16,7 @@ use VuloPilot\ValueObjects\AIResponse;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GEO-MODULE.md's fix for GeoEntityNamingConsistencyScanner's finding —
+ * GEO-MODULE.md's fix for GeoEntityNamingConsistencyScanner's finding -
  * the same existing-content-rewrite pattern as ImproveReadabilityAction,
  * scoped to normalizing every spelling/casing/spacing variant of the
  * site's own name down to one exact string. `validate_output()` re-runs
@@ -85,8 +85,8 @@ class NormalizeEntityNamingAction extends AbstractBasicAction {
                 'content' => sprintf(
                     'This content refers to the site "%1$s" using more than one different spelling/casing/spacing '
                         . 'variant. Find every mention of this brand name, regardless of how it\'s written, and rewrite '
-                        . 'it to exactly "%1$s" every time. Change nothing else — no other wording, no other tags. '
-                        . 'Respond with ONLY the full rewritten HTML content — no commentary.',
+                        . 'it to exactly "%1$s" every time. Change nothing else - no other wording, no other tags. '
+                        . 'Respond with ONLY the full rewritten HTML content - no commentary.',
                     $input['site_name']
                 ),
             ),
@@ -119,12 +119,12 @@ class NormalizeEntityNamingAction extends AbstractBasicAction {
 
         if ( $original_length > 0 && ( $rewritten_length / $original_length ) < self::MIN_LENGTH_RATIO ) {
             throw new InvalidActionOutputException(
-                __( 'The AI returned content that looks truncated rather than a targeted rewrite — rejected for safety.', 'vulopilot' )
+                __( 'The AI returned content that looks truncated rather than a targeted rewrite - rejected for safety.', 'vulopilot' )
             );
         }
 
         if ( $this->count_naming_variants( wp_strip_all_tags( $rewritten ), $input['site_name'] ) > 1 ) {
-            throw new InvalidActionOutputException( __( 'The AI did not normalize every spelling variant — rejected.', 'vulopilot' ) );
+            throw new InvalidActionOutputException( __( 'The AI did not normalize every spelling variant - rejected.', 'vulopilot' ) );
         }
     }
 
@@ -181,7 +181,7 @@ class NormalizeEntityNamingAction extends AbstractBasicAction {
 
     /**
      * Same exact-casing/spacing variant-counting logic as
-     * GeoEntityNamingConsistencyScanner::find_naming_variants() — used
+     * GeoEntityNamingConsistencyScanner::find_naming_variants() - used
      * here to confirm the AI actually normalized every variant down to
      * one, not to detect the issue in the first place.
      *

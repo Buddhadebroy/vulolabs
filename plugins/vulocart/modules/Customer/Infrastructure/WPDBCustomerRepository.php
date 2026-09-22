@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Customer module WPDBCustomerRepository.
  *
  * The only class in this codebase that runs SQL against
- * `vulocart_customers` — same "one repository owns the raw SQL for its
+ * `vulocart_customers` - same "one repository owns the raw SQL for its
  * own table" convention `Order\Infrastructure\WPDBOrderRepository`
  * already establishes.
  *
@@ -71,7 +71,7 @@ class WPDBCustomerRepository {
     }
 
     /**
-     * Finds one customer by their email — the durable identity key
+     * Finds one customer by their email - the durable identity key
      * (Domain\Customer's own docblock).
      *
      * @param string $email A candidate email.
@@ -100,7 +100,7 @@ class WPDBCustomerRepository {
     }
 
     /**
-     * A page of customers, optionally searched — backs the admin
+     * A page of customers, optionally searched - backs the admin
      * Customers list screen.
      *
      * @param array{page?: int, per_page?: int, search?: string} $args Pagination/filter args.
@@ -138,7 +138,7 @@ class WPDBCustomerRepository {
     }
 
     /**
-     * Every column a `$criteria` entry (below) is allowed to filter on —
+     * Every column a `$criteria` entry (below) is allowed to filter on -
      * a deliberate allowlist, not "whatever field name a caller passes,"
      * since `find_matching()`'s own `$field` ultimately becomes a raw SQL
      * identifier (can't be parameterized the way a value can).
@@ -156,17 +156,17 @@ class WPDBCustomerRepository {
 
     /**
      * Counts (or, when `$args['data'] = true`, fetches) every customer
-     * matching a small set of AND-combined criteria — the query engine
+     * matching a small set of AND-combined criteria - the query engine
      * behind `vulocart-pro`'s own Segments feature ("spent over $500",
      * "3+ orders", "hasn't ordered since a date"). Deliberately generic
      * (lives here, on Free's own repository, rather than Pro reaching
      * into this table with raw SQL of its own) since computing "which of
      * my own customers match a simple rule" is squarely this repository's
      * own job, not a cross-plugin boundary violation for Pro to work
-     * around — Pro's `SegmentUtil` calls `CustomerService::find_matching()`,
+     * around - Pro's `SegmentUtil` calls `CustomerService::find_matching()`,
      * never this table directly.
      *
-     * @param array<int, array{field: string, operator: string, value: mixed}> $criteria Each entry AND-combined; unknown fields/operators are silently skipped, not errors — a merchant-typo'd segment definition should degrade to "matches everyone," not 500.
+     * @param array<int, array{field: string, operator: string, value: mixed}> $criteria Each entry AND-combined; unknown fields/operators are silently skipped, not errors - a merchant-typo'd segment definition should degrade to "matches everyone," not 500.
      * @param bool $only_count Whether to return just the count (segment "member count" display) or the full row set (segment "view members" list).
      * @return array{data: Customer[], total: int}
      */

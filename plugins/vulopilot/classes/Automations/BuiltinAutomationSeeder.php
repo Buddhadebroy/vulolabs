@@ -12,17 +12,17 @@ use VuloPilot\Repositories\AutomationsRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Seeds Free's own two fixed, schedule-only automations — "Run Full Site
+ * Seeds Free's own two fixed, schedule-only automations - "Run Full Site
  * Scan" and "Send Visibility Report" (VuloPilot Free vs Pro Automation
  * Builder Prompt.md: "Free will get only 2 predefined automations"). Real
  * `vulopilot_automations` rows, same table every automation (Free or Pro)
  * lives in, so they show up in the existing Automations table/dashboard
- * widget for free — but their own `trigger_type` (`TRIGGER_FULL_SITE_SCAN`/
+ * widget for free - but their own `trigger_type` (`TRIGGER_FULL_SITE_SCAN`/
  * `TRIGGER_VISIBILITY_REPORT`) is deliberately outside vulopilot-pro's
  * TriggerRegistry vocabulary (hourly/daily/weekly/monthly/...), so Pro's
- * AutomationsEngine — which is Recommendation-driven, see
+ * AutomationsEngine - which is Recommendation-driven, see
  * WebsiteHealthScanScheduler's own docblock for why that engine can't run a
- * bare site-level action like these two — never selects or fires these
+ * bare site-level action like these two - never selects or fires these
  * rows even when Pro is active. Services\AutomationScheduler is the only
  * thing that ever reads/runs them.
  *
@@ -49,7 +49,7 @@ class BuiltinAutomationSeeder {
     public const TRIGGER_VISIBILITY_REPORT = 'free_visibility_report';
 
     /**
-     * @var string Public — Services\AutomationScheduler looks its two rows up by these same markers.
+     * @var string Public - Services\AutomationScheduler looks its two rows up by these same markers.
      */
     public const MARKER_FULL_SITE_SCAN = 'free-full-site-scan';
 
@@ -69,7 +69,7 @@ class BuiltinAutomationSeeder {
     private AutomationsRepository $automations;
 
     /**
-     * @param AutomationsRepository|null $automations Defaults to a new instance — injectable for tests.
+     * @param AutomationsRepository|null $automations Defaults to a new instance - injectable for tests.
      */
     public function __construct( ?AutomationsRepository $automations = null ) {
         $this->automations = $automations ?? new AutomationsRepository();
@@ -79,7 +79,7 @@ class BuiltinAutomationSeeder {
 
     /**
      * Runs on every request (cheap no-op after the first, via
-     * SEEDED_OPTION) rather than only on activation — same posture
+     * SEEDED_OPTION) rather than only on activation - same posture
      * WebsiteHealthScanScheduler::ensure_seeded() already documents.
      *
      * @return void
@@ -119,7 +119,7 @@ class BuiltinAutomationSeeder {
                     'config' => array(),
                 ),
             ),
-            'disabled' // Opt-in — unlike a schedule scan, an unsolicited recurring email shouldn't start firing without the site owner choosing it.
+            'disabled' // Opt-in - unlike a schedule scan, an unsolicited recurring email shouldn't start firing without the site owner choosing it.
         );
 
         if ( $scan_ok && $report_ok ) {

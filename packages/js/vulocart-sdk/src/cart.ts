@@ -5,12 +5,12 @@ const CART_TOKEN_STORAGE_KEY = 'vulocart_cart_token';
 
 /**
  * KNOWN LIMITATION: `localStorage` is scoped to the EMBEDDING page's own
- * origin, not the store's — on a true cross-domain embed (SDK loaded on
+ * origin, not the store's - on a true cross-domain embed (SDK loaded on
  * `merchant-landing-page.com`, store is `mystore.com`), the cart token
  * lives in `merchant-landing-page.com`'s own storage. That's fine for the
  * common case (one storefront embedded on one external domain), but the
  * SAME store embedded on two different third-party domains won't share a
- * cart between them — there's no cross-origin storage bridge (a hidden
+ * cart between them - there's no cross-origin storage bridge (a hidden
  * first-party iframe + postMessage relay) built here. Documented rather
  * than silently assumed, same posture as every other scoped-out gap this
  * codebase has flagged (Address Autocomplete's NullProvider, Embedded
@@ -34,7 +34,7 @@ export function getOrCreateCartToken(): string {
 }
 
 /**
- * Starts a brand-new, throwaway cart token — used by Buy Button, which is
+ * Starts a brand-new, throwaway cart token - used by Buy Button, which is
  * always "buy just this one thing right now," not an addition to whatever
  * the visitor's ambient cart already holds.
  */

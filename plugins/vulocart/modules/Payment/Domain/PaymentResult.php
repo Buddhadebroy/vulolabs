@@ -12,14 +12,14 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Payment module PaymentResult.
  *
- * What every `PaymentGatewayInterface` method returns — a plain value
+ * What every `PaymentGatewayInterface` method returns - a plain value
  * object, never a raw gateway SDK response, so `PaymentService` and its
  * callers never branch on a gateway-specific shape. `$status` is one of
  * this class's own constants, deliberately richer than
  * `Order\Domain\PaymentStatus`'s four values (an authorized-but-not-
  * captured payment and a captured one are different gateway states, even
  * though this app's simpler Order-level status only distinguishes
- * pending/paid/failed/refunded) — `to_order_payment_status()` is where
+ * pending/paid/failed/refunded) - `to_order_payment_status()` is where
  * that collapse happens, kept here (not in Order\Domain\PaymentStatus)
  * so the Payment module never needs a `use VuloCart\Order\...` import for
  * something that's really "how does a payment-level state read as an
@@ -47,7 +47,7 @@ class PaymentResult {
     const AUTHORIZED = 'authorized';
 
     /**
-     * Funds have been captured/settled (in full or in part — see
+     * Funds have been captured/settled (in full or in part - see
      * `$captured_amount`).
      *
      * @var string
@@ -62,7 +62,7 @@ class PaymentResult {
     const FAILED = 'failed';
 
     /**
-     * Previously captured funds have been returned (in full or in part —
+     * Previously captured funds have been returned (in full or in part -
      * see `$captured_amount`, which a refund also reduces).
      *
      * @var string
@@ -78,7 +78,7 @@ class PaymentResult {
 
     /**
      * Whether the gateway call itself succeeded (a `REQUIRES_ACTION`
-     * result is still `$success = true` — the call worked, it just isn't
+     * result is still `$success = true` - the call worked, it just isn't
      * finished yet).
      *
      * @var bool
@@ -94,7 +94,7 @@ class PaymentResult {
 
     /**
      * The gateway's own reference for this payment (PaymentIntent id,
-     * order id, charge id) — null for a failed attempt that never reached
+     * order id, charge id) - null for a failed attempt that never reached
      * the gateway.
      *
      * @var string|null
@@ -124,7 +124,7 @@ class PaymentResult {
 
     /**
      * An opaque client-side handle a storefront widget needs to finish a
-     * `REQUIRES_ACTION` result — a Stripe `client_secret`, a PayPal/
+     * `REQUIRES_ACTION` result - a Stripe `client_secret`, a PayPal/
      * Razorpay order id to hand to that gateway's own JS SDK. Null once
      * a payment is past that stage.
      *
@@ -141,7 +141,7 @@ class PaymentResult {
 
     /**
      * The gateway's raw response, kept for the transaction ledger's own
-     * audit trail — never returned to the storefront, admin-only.
+     * audit trail - never returned to the storefront, admin-only.
      *
      * @var array<string, mixed>
      */
@@ -184,7 +184,7 @@ class PaymentResult {
 
     /**
      * Collapses this gateway-level status onto one of
-     * `Order\Domain\PaymentStatus`'s four values — see class docblock for
+     * `Order\Domain\PaymentStatus`'s four values - see class docblock for
      * why this lives here rather than on that class.
      *
      * @return string One of 'pending', 'paid', 'failed', 'refunded'.
@@ -206,7 +206,7 @@ class PaymentResult {
     }
 
     /**
-     * A failed result — the shape most gateway adapters return from a
+     * A failed result - the shape most gateway adapters return from a
      * caught exception/non-2xx response.
      *
      * @param string               $message Human-readable failure reason.

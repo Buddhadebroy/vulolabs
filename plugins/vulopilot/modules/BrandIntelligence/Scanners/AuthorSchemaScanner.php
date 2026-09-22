@@ -16,14 +16,14 @@ use VuloPilot\Scanners\Basic\ScannedPostsTrait;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Brand Intelligence's own new check (BRAND-INTELLIGENCE-MODULE.md) —
+ * Brand Intelligence's own new check (BRAND-INTELLIGENCE-MODULE.md) -
  * distinct from GeoAuthorInfoScanner's own check (does the author have a
  * bio *at all*, on their WordPress user profile) and from
  * GeoEeatSignalsScanner (bio OR freshness). This checks whether a
  * published post's own structured data
- * (`_vulopilot_schema_json` — Services\SchemaJsonLdRenderer's key, same
+ * (`_vulopilot_schema_json` - Services\SchemaJsonLdRenderer's key, same
  * one AeoSchemaScanner already reads) actually includes a `Person`
- * reference identifying its author — the machine-readable signal AI
+ * reference identifying its author - the machine-readable signal AI
  * answer engines and Google Knowledge Panels read, which a human-visible
  * bio field alone doesn't provide.
  *
@@ -97,7 +97,7 @@ class AuthorSchemaScanner extends AbstractBasicScanner implements TracksScannedO
                 ),
                 Severity::LOW,
                 $this->get_category(),
-                __( 'A Person reference in this content\'s structured data is what AI answer engines and Knowledge Panels read to resolve who wrote it — separate from a human-visible author bio, which alone isn\'t machine-readable.', 'vulopilot' ),
+                __( 'A Person reference in this content\'s structured data is what AI answer engines and Knowledge Panels read to resolve who wrote it - separate from a human-visible author bio, which alone isn\'t machine-readable.', 'vulopilot' ),
                 'post',
                 (string) $post->ID
             );
@@ -107,7 +107,7 @@ class AuthorSchemaScanner extends AbstractBasicScanner implements TracksScannedO
     }
 
     /**
-     * Simple raw-string presence check (nested-safe — a Person reference
+     * Simple raw-string presence check (nested-safe - a Person reference
      * commonly lives as an "author" sub-object of an Article block rather
      * than a standalone top-level type), same posture
      * OrganizationSchemaScanner's own check takes.

@@ -8,17 +8,17 @@ const NOT_TRACKED_BADGE = {
 };
 
 /**
- * "Live Threat Monitor" — of the mockup's 5 rows, only File Integrity has
+ * "Live Threat Monitor" - of the mockup's 5 rows, only File Integrity has
  * a real scanner behind it (`core-file-integrity`/`integrity-monitoring`,
  * category 'security', same `useSectionStatus` badge the metrics grid
  * uses). Malware Scanning/Firewall/Login Protection/Spam Protection have
- * zero backing anywhere in either plugin — honest "Not tracked yet" for
+ * zero backing anywhere in either plugin - honest "Not tracked yet" for
  * each, a mixed real+honest list rather than nuking the whole section
  * (one of five rows is genuinely real, same approach the metrics grid
  * takes with its own 6-of-11 honestly-untracked tiles). "View full logs"
- * links to the real Activity page — the closest existing destination
+ * links to the real Activity page - the closest existing destination
  * (Activity logs generic 'system'/'automation' events, including this
- * plugin's own `security.alert` event type — see RecentActivityCard.tsx).
+ * plugin's own `security.alert` event type - see RecentActivityCard.tsx).
  */
 const LiveThreatMonitorCard = () => {
 	const fileIntegrity = useSectionStatus('security', [

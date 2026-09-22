@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Turns Seo\Scanners\MetaDescriptionScanner's "no excerpt set" Finding
- * into a recommendation to draft one with AI — same reasoning as
+ * into a recommendation to draft one with AI - same reasoning as
  * SeoTitleRewriteRule: a good description has to actually summarize the
  * page's content, which needs the content itself, not a fixed template.
  * Pairs with AiCopilot\Actions\Seo\WriteMetaDescriptionAction
@@ -105,7 +105,7 @@ class MissingMetaDescriptionRule extends AbstractBasicRule {
      */
     public function applies_to( Finding $finding ): bool {
         // Matched on the `missing_description` meta key MetaDescriptionScanner
-        // attaches — not the Finding's title text, which is already
+        // attaches - not the Finding's title text, which is already
         // translated by the time a rule sees it and so isn't a reliable
         // matcher under any locale but English (the same reason
         // SeoTitleRewriteRule matches on a meta key, not title text).

@@ -15,21 +15,21 @@ defined( 'ABSPATH' ) || exit;
  * VuloPilot Geo module.
  *
  * The GEO scanners themselves (Scanners\Basic\Geo*) always run (no
- * whole-category kill switch — see ScannerRegistry::get_disabled_categories())
+ * whole-category kill switch - see ScannerRegistry::get_disabled_categories())
  * and the llms.txt virtual route/physical file (GeoAnalysis\LlmsTxtGenerator)
  * stays core, gated only by 'enable_llms_txt' (Settings → GEO), the same
- * way it worked before this module existed — so toggling this module off
+ * way it worked before this module existed - so toggling this module off
  * can never take down a live `/llms.txt` URL an AI crawler may already be
  * relying on.
  *
  * This module's own, narrower job: auto-regenerating llms.txt on
- * publish/update, per Settings → GEO's `llms_auto_regen` field — the one
+ * publish/update, per Settings → GEO's `llms_auto_regen` field - the one
  * piece of GEO behavior that's genuinely optional convenience layered on
  * top of the core feature, rather than the feature itself. Same
  * Module.php shape module-architecture.md documents for vulolabs-pro/
  * catalogx-pro, discovered by VuloPilot's own free-plugin `modules/`
  * source (Modules::get_all_modules()'s default, self-registered
- * `VuloPilot` namespace — no filter registration needed since this
+ * `VuloPilot` namespace - no filter registration needed since this
  * module ships in Free itself).
  *
  * @class       Module class
@@ -71,7 +71,7 @@ class Module {
 
         // Keeps Settings → GEO's textarea showing the same content the
         // live file now has, not the pre-publish version, next time an
-        // admin opens it — same "virtual route/file/setting should never
+        // admin opens it - same "virtual route/file/setting should never
         // disagree" posture LlmsTxtGenerator::maybe_serve() already keeps.
         $settings['llms_txt_content'] = $content;
         update_option( Utill::VULOPILOT_SETTINGS_KEY, $settings );

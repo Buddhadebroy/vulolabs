@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart OfferingRepositoryInterface.
  *
- * The contract Application\OfferingService depends on — bound to a concrete
+ * The contract Application\OfferingService depends on - bound to a concrete
  * implementation only in VuloCart::init_classes() (via ServiceContainer),
  * never referenced by class name anywhere else. This is what makes the
  * storage engine replaceable in practice, not just in principle.
@@ -64,7 +64,7 @@ interface OfferingRepositoryInterface {
     public function delete( int $id ): bool;
 
     /**
-     * Counts offerings in each OfferingType bucket — backs the Offerings menu's
+     * Counts offerings in each OfferingType bucket - backs the Offerings menu's
      * "Offering Types" reference page (`src/pages/OfferingTypes/`), same
      * pattern Order's own `count_by_fulfillment_status()` establishes.
      *

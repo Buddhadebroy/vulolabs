@@ -15,14 +15,14 @@ interface ProductSchemaDetail {
 }
 
 /**
- * "Product Details" — `BusinessProfileCard.tsx`'s "Products" row, same
+ * "Product Details" - `BusinessProfileCard.tsx`'s "Products" row, same
  * real slide-in-panel shape `BusinessNameDetailsPanel.tsx` already
  * established, backed by `GET /entities/product-details`
  * (`EntityExtractor::get_product_schema_details()`'s own docblock has the
- * full "what counts as a real issue" design — real WooCommerce
+ * full "what counts as a real issue" design - real WooCommerce
  * completeness gaps, not a fabricated/guessed count). Each real product
  * gets a real "View" (its own live permalink) and "Edit" (its own
- * wp-admin editor) action — `edit_url` is null only when the current user
+ * wp-admin editor) action - `edit_url` is null only when the current user
  * genuinely can't edit that product, in which case "Edit" isn't shown
  * rather than linking somewhere that would just 403.
  */

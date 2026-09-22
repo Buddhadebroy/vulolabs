@@ -10,15 +10,15 @@ namespace VuloPilot\Repositories;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for `vulopilot_performance_samples` (type `vital`) — one row per real front-end
+ * Persistence for `vulopilot_performance_samples` (type `vital`) - one row per real front-end
  * pageview that reported at least one metric, written by
  * Services\CoreWebVitalsBeacon's public REST endpoint. `get_p75_summary()`
  * computes the 75th percentile in PHP (over a bounded recent sample)
  * rather than relying on MySQL/MariaDB window-function `PERCENTILE_CONT`,
  * which isn't reliably available across this codebase's supported DB
- * range — the same real percentile CrUX/Google's own Core Web Vitals
+ * range - the same real percentile CrUX/Google's own Core Web Vitals
  * methodology uses. `page_load_ms`/`transfer_bytes` use this exact same
- * p75 method, not a separate average — one consistent "typical real
+ * p75 method, not a separate average - one consistent "typical real
  * visitor" statistic across every metric this table stores.
  *
  * @class       CoreWebVitalsRepository class
@@ -34,7 +34,7 @@ class CoreWebVitalsRepository extends AbstractRepository {
 
     /**
      * How many of the most recent (within the retention window) samples
-     * to pull for the p75 computation — bounded so a high-traffic site's
+     * to pull for the p75 computation - bounded so a high-traffic site's
      * PHP-side sort() stays cheap.
      */
     private const MAX_SAMPLES = 1000;

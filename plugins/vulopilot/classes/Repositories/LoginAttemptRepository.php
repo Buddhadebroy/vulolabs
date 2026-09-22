@@ -10,7 +10,7 @@ namespace VuloPilot\Repositories;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for `vulopilot_security_events` (type `login_attempt`) (DATABASE.md) —
+ * Persistence for `vulopilot_security_events` (type `login_attempt`) (DATABASE.md) -
  * Services\LoginProtectionGuard's own real failed/successful login log,
  * backing both the live brute-force lockout check and
  * Scanners\Basic\LoginProtectionScanner's Finding rows.
@@ -48,7 +48,7 @@ class LoginAttemptRepository extends AbstractRepository {
     }
 
     /**
-     * Real failed-attempt count for one IP within a rolling time window —
+     * Real failed-attempt count for one IP within a rolling time window -
      * LoginProtectionGuard::block_if_locked_out()'s only query.
      *
      * @param string $ip_address   Real client IP.
@@ -71,9 +71,9 @@ class LoginAttemptRepository extends AbstractRepository {
     /**
      * Every distinct IP that actually tripped the lockout threshold at some
      * point in the last N days, with its own real failure count in that
-     * window — Scanners\Basic\LoginProtectionScanner's own data source.
+     * window - Scanners\Basic\LoginProtectionScanner's own data source.
      * Deliberately re-derives "did this IP ever exceed the threshold" from
-     * raw attempt rows rather than a separate "lockouts" table — the
+     * raw attempt rows rather than a separate "lockouts" table - the
      * threshold itself is a live setting (`login_max_attempts`), so a fixed
      * lockout-event table would drift out of sync with it the moment an
      * admin changes the setting.

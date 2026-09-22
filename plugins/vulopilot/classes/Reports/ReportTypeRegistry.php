@@ -14,14 +14,14 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Collects every registered report type and instantiates it. Free's own
  * report types always exist; a premium/third-party report type is added on
- * top via the `vulopilot_report_type_sources` filter — same
+ * top via the `vulopilot_report_type_sources` filter - same
  * discovery-by-filter shape as Scanners\ScannerRegistry/
  * AutomationEngine\TriggerRegistry (a plain class-name filter, not
- * Modules.php's folder-scan/reflection discovery — module-architecture.md's
+ * Modules.php's folder-scan/reflection discovery - module-architecture.md's
  * reasoning for why scanners/report-types don't need their own folder
  * applies here too).
  *
- * Types\CustomReport is deliberately NOT in the default list — it's the
+ * Types\CustomReport is deliberately NOT in the default list - it's the
  * "report builder" and is parameterized per generation request, so
  * Reports\ReportGenerator constructs it directly rather than resolving it
  * from here (see its own docblock).
@@ -49,7 +49,7 @@ class ReportTypeRegistry {
     /**
      * Instantiates every registered report type class and indexes it by id.
      * A class that doesn't exist, or doesn't implement ReportTypeInterface,
-     * is silently skipped rather than fataling the whole registry — same
+     * is silently skipped rather than fataling the whole registry - same
      * defensive posture as ScannerRegistry::register_scanners().
      *
      * @return void
@@ -76,7 +76,7 @@ class ReportTypeRegistry {
      * Free's own always-available report types. Types\HealthReport moved
      * to vulopilot-pro's AdvancedReports module (historical trend data is
      * Pro business logic, see SiteHealthSnapshotRepository's own docblock)
-     * — it registers itself back in via `vulopilot_report_type_sources`.
+     * - it registers itself back in via `vulopilot_report_type_sources`.
      * AiVisibilityReport/PerformanceReport/UpdatesReport close 3 of
      * readme.txt's 8 named "Reports" pillars that had no report type yet
      * (the 4th, Brand Visibility, needs a real Ahrefs API integration and

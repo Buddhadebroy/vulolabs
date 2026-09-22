@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Anthropic's Messages API (api.anthropic.com). Anthropic has no public
- * image-generation or embeddings endpoint — generate_image()/embed() throw,
+ * image-generation or embeddings endpoint - generate_image()/embed() throw,
  * same "unsupported capability" contract AIProviderInterface's own
  * docblock documents; ProviderRegistry::build_provider() for a capability
  * this provider lacks is a caller error, not something to silently no-op.

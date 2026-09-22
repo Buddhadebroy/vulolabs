@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
  * Backed by `Utill::SETTINGS_DEFAULTS`'s API section. Every real REST
  * route in this plugin (Offerings/Cart/Order/Modules/Settings) already has
  * its own `permission_callback` regardless of this tab (rest-api.md's
- * mandatory-permission-callback rule) — these two fields aren't wired
+ * mandatory-permission-callback rule) - these two fields aren't wired
  * into any of those controllers yet, so treat them the same
  * "saved, not yet consumed" way as the rest of this tab set.
  */

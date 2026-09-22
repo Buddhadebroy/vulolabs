@@ -18,10 +18,10 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Flags published posts/pages with no excerpt set. A dedicated
- * meta-description field can't be checked generically — its meta key
+ * meta-description field can't be checked generically - its meta key
  * varies by whichever SEO plugin, if any, is active (SeoScanner's
  * docblock notes the same constraint for why it checks title length
- * instead) — but `post_excerpt` is a native WordPress field every
+ * instead) - but `post_excerpt` is a native WordPress field every
  * install has, and it's what most themes and SEO plugins fall back to
  * for the meta description when no dedicated field is filled in. An
  * empty excerpt is therefore a real, always-checkable proxy for "no
@@ -64,7 +64,7 @@ class MetaDescriptionScanner extends AbstractBasicScanner implements TracksScann
     public function scan(): array {
         $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
-        // Flat, standalone key — Settings → Scanning → SEO & Content →
+        // Flat, standalone key - Settings → Scanning → SEO & Content →
         // "Titles & meta" (SeoContent.ts). See Utill::VULOPILOT_SETTINGS_DEFAULTS's
         // own docblock on this key for why it's no longer nested under
         // content_search_scans.seo.

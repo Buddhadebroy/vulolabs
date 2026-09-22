@@ -3,7 +3,7 @@ import { OfferingDetail } from './OfferingDetail';
 
 /**
  * Dual-mode, same URL: listing by default, one offering's detail view
- * when `?offering={id}` is present — the same query-string-driven
+ * when `?offering={id}` is present - the same query-string-driven
  * mode-switch convention this plugin's own wp-admin pages already use
  * (Menu.php's `add_orders_menu()`/`add_offerings_menu()` docblocks), just
  * applied to a public storefront page instead of wp-admin. Avoids needing

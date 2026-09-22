@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Flags image attachments with no alt text set. Bounded to the most
- * recent batch of attachments (per performance.md — an unbounded
+ * recent batch of attachments (per performance.md - an unbounded
  * media-library scan on every run doesn't scale on large sites) rather
  * than the whole media library every time.
  *
@@ -58,7 +58,7 @@ class ImagesScanner extends AbstractBasicScanner {
     public function scan(): array {
         $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
-        // Flat, standalone key — Settings → Scanning → SEO & Content →
+        // Flat, standalone key - Settings → Scanning → SEO & Content →
         // "Images" (SeoContent.ts). See Utill::VULOPILOT_SETTINGS_DEFAULTS's
         // own docblock on this key for why it's no longer nested under
         // content_search_scans.images.

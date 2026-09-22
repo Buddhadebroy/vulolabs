@@ -16,7 +16,7 @@ use VuloPilot\ValueObjects\RuleType;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Not fixable/AI-assisted — which product's SKU is the "correct" one and
+ * Not fixable/AI-assisted - which product's SKU is the "correct" one and
  * what the duplicate should be renamed to is a store-owner decision this
  * codebase has no basis to guess at. Surfaced anyway because a duplicate
  * SKU silently breaks inventory tracking and any integration keyed off it.

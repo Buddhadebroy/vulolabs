@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart ReviewStatus class.
  *
- * Every moderation state a Review can be in — same small,
+ * Every moderation state a Review can be in - same small,
  * hand-maintained constant list convention Order\Domain\PaymentStatus/
  * FulfillmentStatus already establish.
  *
@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
 class ReviewStatus {
 
     /**
-     * Submitted, awaiting moderation — never shown on the storefront.
+     * Submitted, awaiting moderation - never shown on the storefront.
      *
      * @var string
      */
@@ -37,7 +37,7 @@ class ReviewStatus {
     const APPROVED = 'approved';
 
     /**
-     * Moderated out — never shown.
+     * Moderated out - never shown.
      *
      * @var string
      */

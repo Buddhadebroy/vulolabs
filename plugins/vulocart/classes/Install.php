@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * plus the catalog-taxonomy tables the Offerings menu's Categories/
  * Brands/Collections/Attributes/Reviews pages need
  * (`vulocart_terms`, `vulocart_attributes`, `vulocart_attribute_values`,
- * `vulocart_reviews`) — all core, always-loaded infrastructure the same
+ * `vulocart_reviews`) - all core, always-loaded infrastructure the same
  * way Offering is, not a toggleable module. Cart and Order's own tables are
  * created on their own module activation hooks instead
  * (`modules/Cart/Install.php`, `modules/Order/Install.php`), same
@@ -34,7 +34,7 @@ defined( 'ABSPATH' ) || exit;
 class Install {
 
     /**
-     * Class constructor — runs migration immediately.
+     * Class constructor - runs migration immediately.
      *
      * Only ever constructed from VuloCart::init_classes() and
      * VuloCart::init_plugin() (both at/after 'init'), so, like
@@ -64,7 +64,7 @@ class Install {
 
     /**
      * Creates every VuloCart custom table for a fresh install. Additive-only
-     * from here on — later schema changes belong in do_migration(), never
+     * from here on - later schema changes belong in do_migration(), never
      * here.
      *
      * @return void
@@ -84,14 +84,14 @@ class Install {
     /**
      * Creates `vulocart_offerings`.
      *
-     * No `IF NOT EXISTS` in the CREATE TABLE statement — `dbDelta()`
+     * No `IF NOT EXISTS` in the CREATE TABLE statement - `dbDelta()`
      * extracts the table name via a regex that stops at the first space
      * after `CREATE TABLE`, so `CREATE TABLE IF NOT EXISTS ...` reads as
      * table name `IF` and silently does nothing to the real table. A
      * real, previously-undetected instance of this exact bug (found while
-     * building modules/Order/Install.php's own 1.1.0 migration —
+     * building modules/Order/Install.php's own 1.1.0 migration -
      * `dbDelta()` there returned `['IF' => 'Created table IF']` and
-     * touched nothing) — harmless until now only because this table
+     * touched nothing) - harmless until now only because this table
      * never needed a post-install schema change before.
      *
      * @return void
@@ -101,7 +101,7 @@ class Install {
 
         $collate = $wpdb->get_charset_collate();
 
-        // Vision: "Never use Product internally, instead use Offering" —
+        // Vision: "Never use Product internally, instead use Offering" -
         // one table covers every offering type in Domain\Offering\OfferingType;
         // `type` distinguishes physical/digital/subscription/etc rather
         // than a table-per-type, and `meta`/`passport` are extensible JSON
@@ -130,7 +130,7 @@ class Install {
     }
 
     /**
-     * Creates `vulocart_terms` (Categories/Brands/Collections —
+     * Creates `vulocart_terms` (Categories/Brands/Collections -
      * Domain\Term\Taxonomy's own docblock explains the shared-table
      * design), `vulocart_attributes`/`vulocart_attribute_values`, and
      * `vulocart_reviews`.
@@ -206,7 +206,7 @@ class Install {
     }
 
     /**
-     * Creates `vulocart_checkout_sessions` — the Checkout Engine's own
+     * Creates `vulocart_checkout_sessions` - the Checkout Engine's own
      * session-tracking table (Domain\Checkout\CheckoutSession's own
      * docblock). `UNIQUE KEY idx_cart_token` since a session is always
      * one-per-cart (Application\CheckoutService::start_session()'s own
@@ -244,11 +244,11 @@ class Install {
     /**
      * Runs incremental, version-gated schema changes for upgrades from an
      * already-installed copy of VuloCart. Additive only, per
-     * .claude/rules/backward-compatibility.md — ADD COLUMN / ADD INDEX /
+     * .claude/rules/backward-compatibility.md - ADD COLUMN / ADD INDEX /
      * a whole new CREATE TABLE, never DROP.
      *
      * First real step: 1.1.0 adds `vulocart_checkout_sessions` for the
-     * Checkout Engine — dbDelta() is safe to call unconditionally for a
+     * Checkout Engine - dbDelta() is safe to call unconditionally for a
      * brand-new table (creates it if missing, no-ops if a later request
      * finds it already there), so this isn't further version-gated
      * beyond the `do_migration()` vs. `create_database_tables()` branch

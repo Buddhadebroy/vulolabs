@@ -10,13 +10,13 @@ import PageAnalysisTab from './tabs/PageAnalysisTab';
 import type { SeoIssueEditorTab } from '../services/seoIssueEditorTarget';
 
 /**
- * `icon` (a Dashicon slug — always available in wp-admin, no extra
+ * `icon` (a Dashicon slug - always available in wp-admin, no extra
  * dependency needed) is what actually gives these RankMath-style
  * icon-only tabs: TabPanel's own rendering is `children: !tab.icon &&
- * tab.title` — supplying `icon` here suppresses the visible text label
+ * tab.title` - supplying `icon` here suppresses the visible text label
  * entirely and shows the icon instead, with `title` surviving only as the
  * button's accessible name/tooltip (`label: tab.icon && tab.title`,
- * `showTooltip: !!tab.icon` — both confirmed straight from the installed
+ * `showTooltip: !!tab.icon` - both confirmed straight from the installed
  * `@wordpress/components` build, not undocumented behavior this relies on
  * by accident).
  */
@@ -29,28 +29,28 @@ const TABS = [
 ];
 
 interface PostSeoPanelProps {
-	/** "All SEO Issues" table's "Fix with AI" deep link (post-editor/index.tsx) — which tab to land on. TabPanel reads this once at mount (it's uncontrolled), which matches this prop's own once-per-page-load nature. */
+	/** "All SEO Issues" table's "Fix with AI" deep link (post-editor/index.tsx) - which tab to land on. TabPanel reads this once at mount (it's uncontrolled), which matches this prop's own once-per-page-load nature. */
 	initialTabName?: SeoIssueEditorTab;
 	/** Same deep link's specific field/checklist-item id to scroll to and highlight, within whichever tab it names. */
 	highlightTarget?: string;
 }
 
 /**
- * The metabox's own tab shell — General/Advanced/Social/Schema mirror
+ * The metabox's own tab shell - General/Advanced/Social/Schema mirror
  * RankMath's own meta box structure (rankmath.com/kb/on-page-seo/) as
  * researched for the readme rewrite pass; "Page Analysis" is VuloPilot's
  * own addition, mirroring `GEO/PageAnalysisPanel.tsx`'s real checklist
  * inside the editor itself (see PageAnalysisTab.tsx's own docblock).
  * Rendered inside the PluginSidebar registered by src/post-editor/index.tsx.
  *
- * `navTarget` is this panel's own in-sidebar navigation state — lets
+ * `navTarget` is this panel's own in-sidebar navigation state - lets
  * `PageAnalysisTab.tsx`'s own checklist rows jump straight to the real
  * field that fixes them (General/Advanced/Social/Schema, whichever one
  * `SEO_ISSUE_EDITOR_TARGETS` names for that check), the same real
  * tab+highlight pair the "All SEO Issues" table's own "Fix with AI" deep
- * link already lands on from outside the editor — just switched without a
+ * link already lands on from outside the editor - just switched without a
  * page navigation, since this is already the editor. `@wordpress/components`'
- * own `TabPanel` only reads `initialTabName` once at mount (confirmed —
+ * own `TabPanel` only reads `initialTabName` once at mount (confirmed -
  * it's uncontrolled), so `navigateTo()` forces a fresh mount via `key`
  * rather than trying to imperatively select a tab on an already-mounted
  * instance.

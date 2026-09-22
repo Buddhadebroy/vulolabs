@@ -31,7 +31,7 @@ class ReportRepository extends AbstractRepository {
     }
 
     /**
-     * Generating/ready/failed counts, zero-filled — backs the Reports
+     * Generating/ready/failed counts, zero-filled - backs the Reports
      * table's status-count pill bar (same reasoning as
      * AutomationsRepository::get_status_counts()).
      *

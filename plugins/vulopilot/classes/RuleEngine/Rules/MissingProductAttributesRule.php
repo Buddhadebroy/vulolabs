@@ -16,7 +16,7 @@ use VuloPilot\ValueObjects\RuleType;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Not fixable/AI-assisted — deciding what attributes a variable product
+ * Not fixable/AI-assisted - deciding what attributes a variable product
  * should have (size, color, material, …) and what variations to generate
  * from them is a business decision, not something an AI action can safely
  * apply automatically. Still worth surfacing as a recommendation: this

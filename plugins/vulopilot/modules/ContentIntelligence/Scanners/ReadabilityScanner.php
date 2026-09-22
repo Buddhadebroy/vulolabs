@@ -16,19 +16,19 @@ use VuloPilot\Scanners\Basic\ScannedPostsTrait;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Content Intelligence's own deterministic readability check — the one
+ * Content Intelligence's own deterministic readability check - the one
  * genuinely new scanner this module adds (Thin Content/Duplicate Content/
  * Heading Structure/Internal Linking already exist as `seo`-category
  * scanners and aren't duplicated here; see CONTENT-INTELLIGENCE-MODULE.md's
- * audit). Category `content` — a new category, not `seo`, the same
+ * audit). Category `content` - a new category, not `seo`, the same
  * "related but distinct pillar gets its own category" precedent GEO
  * already set alongside SEO.
  *
  * Real Flesch Reading Ease score (a standard, decades-old, publicly
- * documented formula — not an invented metric): `206.835 - 1.015 *
+ * documented formula - not an invented metric): `206.835 - 1.015 *
  * (words/sentences) - 84.6 * (syllables/words)`. Syllable counting is a
  * standard vowel-group heuristic (count vowel-group transitions, drop a
- * trailing silent "e"), not a claim of dictionary-perfect accuracy — the
+ * trailing silent "e"), not a claim of dictionary-perfect accuracy - the
  * same "real, bounded, deterministic proxy, not scientific precision"
  * posture ThinContentScanner's own docblock already takes for word count.
  *
@@ -44,7 +44,7 @@ class ReadabilityScanner extends AbstractBasicScanner implements TracksScannedOb
 
     /**
      * A post under this many words is already flagged by ThinContentScanner
-     * for a different reason (not enough substance) — a short excerpt's
+     * for a different reason (not enough substance) - a short excerpt's
      * Flesch score is statistically unstable (one long sentence can swing
      * it wildly), so this scanner skips it rather than double-flagging
      * with a noisy number.
@@ -52,7 +52,7 @@ class ReadabilityScanner extends AbstractBasicScanner implements TracksScannedOb
     private const MIN_WORDS_TO_SCORE = 100;
 
     /**
-     * Fallback only — the real threshold is Scanning → SEO & Content's
+     * Fallback only - the real threshold is Scanning → SEO & Content's
      * flat `content_readability_min_score` setting (see that key's own
      * docblock in Utill::VULOPILOT_SETTINGS_DEFAULTS).
      */
@@ -143,7 +143,7 @@ class ReadabilityScanner extends AbstractBasicScanner implements TracksScannedOb
     /**
      * Standard Flesch Reading Ease formula. 0-100, higher is easier to
      * read (90-100 "Very Easy" through 0-30 "Very Confusing", per the
-     * formula's own original published scale) — clamped to that range
+     * formula's own original published scale) - clamped to that range
      * since the raw formula can mathematically exceed it on extreme input.
      *
      * @param string $plain_text Already-stripped-of-HTML content.
@@ -169,7 +169,7 @@ class ReadabilityScanner extends AbstractBasicScanner implements TracksScannedOb
     /**
      * Standard vowel-group heuristic: count transitions into a vowel
      * group (a run of a/e/i/o/u/y not preceded by another vowel), drop a
-     * trailing silent "e", and floor every word at 1 syllable — the same
+     * trailing silent "e", and floor every word at 1 syllable - the same
      * approximation most plain-text readability tools use when a real
      * pronunciation dictionary isn't available.
      *
@@ -188,7 +188,7 @@ class ReadabilityScanner extends AbstractBasicScanner implements TracksScannedOb
             }
 
             // Drop a trailing silent "e" (e.g. "make" -> "mak") since it
-            // doesn't form its own syllable — except a "-le" ending (e.g.
+            // doesn't form its own syllable - except a "-le" ending (e.g.
             // "apple", "table"), where the e-sound genuinely is one.
             if ( strlen( $word ) > 1 && 'e' === substr( $word, -1 ) && 'le' !== substr( $word, -2 ) ) {
                 $word = substr( $word, 0, -1 );

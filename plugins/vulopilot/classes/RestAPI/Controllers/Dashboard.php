@@ -16,16 +16,16 @@ use VuloPilot\Repositories\FindingRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /dashboard — the summary object the Dashboard page's widgets read
+ * GET /dashboard - the summary object the Dashboard page's widgets read
  * (src/dashboard-widgets/registry.ts's DashboardSummary interface). This
  * is one aggregate payload rather than one REST call per widget
  * (performance.md's "prefer a single query" guidance, applied to the
- * frontend's fetch pattern too) — every number here is a cheap,
+ * frontend's fetch pattern too) - every number here is a cheap,
  * index-backed COUNT/GROUP BY, not a computed-per-request table scan.
  *
  * List-shaped widgets (Recent Activity, Latest Reports, Pending Approval,
  * Automation Status's row list, Health Timeline) deliberately do NOT live
- * in this payload — they call the existing dedicated list endpoints
+ * in this payload - they call the existing dedicated list endpoints
  * (`/activity-logs`, `/reports`, `/ai-action-runs`, `/automations`,
  * `/site-health-snapshots`) directly, the same endpoints their full list
  * pages already use, rather than duplicating that data here.
@@ -87,7 +87,7 @@ class Dashboard extends \WP_REST_Controller {
                 'category_scores'          => $category_scores,
                 'psi_speed_scores'         => $this->build_psi_speed_scores(),
                 'category_scores_7d_ago'   => $this->build_category_scores_as_of( $findings, gmdate( 'Y-m-d H:i:s', strtotime( '-7 days' ) ) ),
-                // Dashboard's "Good / N open findings" hero badges — real
+                // Dashboard's "Good / N open findings" hero badges - real
                 // counts from findings' own created_at/resolved_at, same
                 // 7-day window category_scores_7d_ago already reconstructs
                 // against.
@@ -107,11 +107,11 @@ class Dashboard extends \WP_REST_Controller {
     }
 
     /**
-     * "Site snapshot" — real WordPress core counts, every one a plain core
+     * "Site snapshot" - real WordPress core counts, every one a plain core
      * function call (`wp_count_posts()`/`wp_count_comments()`/`count_users()`/
      * `get_plugins()`/`phpversion()`/`get_bloginfo('version')`), not derived
      * from scan findings the way every other field on this payload is.
-     * Nothing in this codebase exposed these before this method — added
+     * Nothing in this codebase exposed these before this method - added
      * specifically to back the Dashboard's own "Site snapshot" widget
      * rather than leave that section fabricated or omitted, since every
      * number here is genuinely free to compute (no query, no scan, just
@@ -144,14 +144,14 @@ class Dashboard extends \WP_REST_Controller {
 
     /**
      * Real AI usage for the current calendar month, read from
-     * `vulopilot_ai_history` — the ledger `AI\AiRequestSender` writes a
+     * `vulopilot_ai_history` - the ledger `AI\AiRequestSender` writes a
      * row to on every real AI call, already
      * consumed by the AI Usage Report and Recent Conversations. `ai_jobs_used`
      * is real; `ai_jobs_quota` stays honestly 0 (meaning "no cap configured"),
-     * since no quota cap exists anywhere yet (AI-ARCHITECTURE.md's "What's not here yet" —
+     * since no quota cap exists anywhere yet (AI-ARCHITECTURE.md's "What's not here yet" -
      * quota enforcement). No widget on the Dashboard/AI Copilot pages reads
      * these two fields today (the AI Copilot page's own usage widget was
-     * replaced by RecommendedActionsCard — a real-findings summary, not a
+     * replaced by RecommendedActionsCard - a real-findings summary, not a
      * usage count), but they stay real rather than a hardcoded stub since
      * DashboardSummary's own contract (this class's docblock) is "one
      * aggregate payload, widgets pick the fields they need."
@@ -173,13 +173,13 @@ class Dashboard extends \WP_REST_Controller {
      * `seo_score`/`performance_score`/`security_score` columns, but
      * nothing in this codebase computes or writes them yet
      * (ScanPersistenceListener::refresh_todays_snapshot() only ever
-     * upserts overall_score) — reading those columns here would silently
+     * upserts overall_score) - reading those columns here would silently
      * always return null, which is indistinguishable from "not
      * implemented" and would be exactly the kind of fabricated-looking
      * number this controller's docblock already warns against for AI
      * usage. Instead each score is computed live, using the identical
      * weighting calculate_overall_score() uses, just scoped to one
-     * category's open findings — a real, honest derived score computable
+     * category's open findings - a real, honest derived score computable
      * from data that already exists.
      *
      * @param FindingRepository $findings Repository to read category breakdowns from.
@@ -197,7 +197,7 @@ class Dashboard extends \WP_REST_Controller {
             ? $this->calculate_category_score( $findings, 'woocommerce' )
             : null;
 
-        // Content Intelligence's "Content Score" — deliberately NOT one of
+        // Content Intelligence's "Content Score" - deliberately NOT one of
         // the single-category loop above: it spans a fixed scanner_id list
         // across two categories (content's own readability scanner plus 4
         // reused seo-category scanners), not one category string
@@ -205,7 +205,7 @@ class Dashboard extends \WP_REST_Controller {
         // scanners aren't recategorized). Same weighting, different scope.
         $scores['content'] = $this->calculate_content_score( $findings );
 
-        // Brand Intelligence's overall "Brand Score" — same
+        // Brand Intelligence's overall "Brand Score" - same
         // cross-scanner-id-list scope as 'content' above, spanning 3 new
         // brand-category scanners plus 4 reused geo-category ones
         // (Controllers\BrandIntelligence's own docblock explains the
@@ -219,7 +219,7 @@ class Dashboard extends \WP_REST_Controller {
      * Same 8 keys/same weighting as build_category_scores(), but each
      * score is reconstructed as of a past moment via
      * get_severity_breakdown_for_category_as_of() instead of counting
-     * today's open findings — what the Dashboard's score-card trend
+     * today's open findings - what the Dashboard's score-card trend
      * arrows diff against (this call's result vs. build_category_scores()'s),
      * since no per-category score snapshot history exists to read a real
      * delta from directly.
@@ -272,7 +272,7 @@ class Dashboard extends \WP_REST_Controller {
      * calculate_brand_score() each already apply to a current-open-findings
      * breakdown, factored out so build_category_scores_as_of() can apply
      * the identical formula to a reconstructed-as-of-a-past-date breakdown
-     * instead — the trend is only meaningful if both ends use the same
+     * instead - the trend is only meaningful if both ends use the same
      * scoring math.
      *
      * @param array{critical: int, high: int, medium: int, low: int} $breakdown Severity counts to score.
@@ -290,7 +290,7 @@ class Dashboard extends \WP_REST_Controller {
 
     /**
      * Same weighting as calculate_category_score()/calculate_content_score(),
-     * scoped to Brand Intelligence's own combined scanner_id list — see
+     * scoped to Brand Intelligence's own combined scanner_id list - see
      * Controllers\BrandIntelligence::get_score() for the same 7 ids split
      * into its own named Trust/Authority/Entity sub-scores.
      *
@@ -321,7 +321,7 @@ class Dashboard extends \WP_REST_Controller {
 
     /**
      * Same weighting as calculate_category_score()/calculate_overall_score(),
-     * scoped to Content Intelligence's own fixed scanner_id list — see
+     * scoped to Content Intelligence's own fixed scanner_id list - see
      * FindingRepository::get_severity_breakdown_for_scanner_ids()'s own
      * docblock for why a scanner-id list, not a category string, is what
      * this composite score needs.
@@ -389,7 +389,7 @@ class Dashboard extends \WP_REST_Controller {
      * one-click AIAction already registered, by the same by-convention id
      * match AI-ACTIONS.md's "Recommendations as an input source" section
      * documents (`images` findings ↔ the `generate-alt` action). This
-     * isn't a general "all auto-fixable findings" count — there's no
+     * isn't a general "all auto-fixable findings" count - there's no
      * formal Recommendation → Action mapping yet (AI-ACTIONS.md's "What's
      * not here yet"), so counting anything beyond the one real pairing
      * that exists today would overstate what VuloPilot can actually do.
@@ -420,7 +420,7 @@ class Dashboard extends \WP_REST_Controller {
     }
 
     /**
-     * Open finding count per severity — backs the Dashboard's issue
+     * Open finding count per severity - backs the Dashboard's issue
      * distribution chart. `info` is excluded: it's a real severity value
      * the `vulopilot_scan_findings` column accepts, but nothing in
      * calculate_overall_score()'s own weighting treats it as an issue
@@ -440,7 +440,7 @@ class Dashboard extends \WP_REST_Controller {
     }
 
     /**
-     * "Overall Health" — the average of every applicable category's own
+     * "Overall Health" - the average of every applicable category's own
      * already-computed, already-displayed 0-100 score (build_category_scores()'s
      * return value), not an independent raw severity-count formula run
      * across every open finding sitewide in one combined total.
@@ -448,11 +448,11 @@ class Dashboard extends \WP_REST_Controller {
      * That combined-total formula is what this method used to do, and on
      * any real, actively-scanned site it saturates almost immediately:
      * confirmed live on this site's own 507 open findings (238 of them
-     * `high`, weighted 8 points each — 1904 points of "damage" alone) blew
+     * `high`, weighted 8 points each - 1904 points of "damage" alone) blew
      * straight through the same 100-point budget calculate_category_score()
      * applies per category, clamping this one stat to 0 while every
      * category tile right below it (SEO 35, Performance 96, Security 0,
-     * Content 68) still showed real gradation — reading as "this number
+     * Content 68) still showed real gradation - reading as "this number
      * isn't syncing" rather than "this site has a lot of open issues," and
      * guaranteed to keep reading that way on this site (or any similarly
      * sized one) regardless of how much real progress is made. Averaging
@@ -461,7 +461,7 @@ class Dashboard extends \WP_REST_Controller {
      * to 0-100 before this average runs, one saturated category (Security,
      * here) can no longer single-handedly floor the whole site's score.
      *
-     * @param array<string, int|null> $category_scores build_category_scores()'s own return value — null entries (e.g. `woocommerce` on a non-WooCommerce site) are excluded from the average rather than counted as 0.
+     * @param array<string, int|null> $category_scores build_category_scores()'s own return value - null entries (e.g. `woocommerce` on a non-WooCommerce site) are excluded from the average rather than counted as 0.
      * @return int 0-100.
      */
     private function calculate_overall_score( array $category_scores ): int {

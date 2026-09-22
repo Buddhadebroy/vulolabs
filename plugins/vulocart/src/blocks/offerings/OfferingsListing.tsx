@@ -6,15 +6,15 @@ import { formatPrice, isVisibleInListing } from '../shared/offering';
 import type { OfferingSummary } from '../shared/offering';
 
 /**
- * The public catalog grid — `GET /offerings` (public, published-only for a
+ * The public catalog grid - `GET /offerings` (public, published-only for a
  * logged-out visitor, classes/RestAPI/Controllers/Offerings.php's own
  * docblock), filtered client-side to hide `catalog_visibility: 'hidden'/
  * 'search_only'` offerings (`isVisibleInListing()`). Each card links to
- * `?offering={id}` on this same page — `Offerings.tsx`'s own docblock
+ * `?offering={id}` on this same page - `Offerings.tsx`'s own docblock
  * explains why that's the whole routing scheme, no page-picker needed.
  *
  * Gated on the Frontend tab's `enable_offerings_listing`
- * (`vulocartFrontendData.offeringsListingEnabled`) — the same flag
+ * (`vulocartFrontendData.offeringsListingEnabled`) - the same flag
  * `src/blocks/checkout/Checkout.tsx`'s own "Available Offerings" section
  * already respects, so both surfaces turn off together.
  */

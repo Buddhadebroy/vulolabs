@@ -1,10 +1,10 @@
 @use './config' as *;
 
-// CardHeader.tsx — the common left-icon/center-details/right-action card
+// CardHeader.tsx - the common left-icon/center-details/right-action card
 // header shared across Settings → Connections (GoogleServicesPanel.tsx,
 // SiteVerificationPanel.tsx, VuloCloudAiConnectionPanel.tsx, PageSpeedStatusPanel.tsx
-// — same minimal-supporting-CSS posture as the `.gsc-*`/`.backup-storage-*`
-// rules elsewhere). Not feature-scoped on purpose — `.common-card*`, not
+// - same minimal-supporting-CSS posture as the `.gsc-*`/`.backup-storage-*`
+// rules elsewhere). Not feature-scoped on purpose - `.common-card*`, not
 // `.ai-provider-card*`, since the component itself isn't AI-provider-specific.
 .common-card {
 	border-bottom: $border-light-small;
@@ -92,7 +92,7 @@
 }
 
 // A bare header used as a section's left column (Settings → Connections'
-// SectionRow, ConnectionsPanel.tsx) — full width of that column, no row
+// SectionRow, ConnectionsPanel.tsx) - full width of that column, no row
 // divider/padding of its own (the section group already draws those).
 .settings-left-section .common-card.compact {
 	border-bottom: 0;

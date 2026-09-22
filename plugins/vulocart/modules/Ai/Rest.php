@@ -15,7 +15,7 @@ use VuloCart\AI\Services\CredentialEncryption;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Ai module Rest class — BYOK provider settings (list adapters,
+ * VuloCart Ai module Rest class - BYOK provider settings (list adapters,
  * save/encrypt a key, delete) and the usage log, both `manage_options`-
  * gated. This is the "Frontend/Rest/`src/` pieces slot into this same
  * Module.php" real implementation the module's own original docblock
@@ -103,7 +103,7 @@ class Rest {
 
 	/**
 	 * Lists every registered adapter (available_models, whether it's
-	 * configured/active) — credentials never leave the server.
+	 * configured/active) - credentials never leave the server.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response

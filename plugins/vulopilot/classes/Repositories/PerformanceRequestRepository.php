@@ -10,10 +10,10 @@ namespace VuloPilot\Repositories;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for `vulopilot_performance_samples` (type `request`) — one row per sampled
+ * Persistence for `vulopilot_performance_samples` (type `request`) - one row per sampled
  * real front-end request, written by Services\PerformanceRequestLogger.
  * Read-only from this repository's own perspective (no insert helper here
- * — the logger writes directly via the inherited insert()); the one real
+ * - the logger writes directly via the inherited insert()); the one real
  * method is the aggregate "Real-time Monitoring" card needs.
  *
  * @class       PerformanceRequestRepository class
@@ -85,7 +85,7 @@ class PerformanceRequestRepository extends AbstractRepository {
     }
 
     /**
-     * Deletes rows older than the given retention window — called by
+     * Deletes rows older than the given retention window - called by
      * Services\PerformanceRequestLogger's own daily cleanup cron.
      *
      * @param int $days Retention window, in days.

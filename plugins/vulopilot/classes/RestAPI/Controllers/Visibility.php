@@ -17,7 +17,7 @@ use VuloPilot\BrandIntelligence\Rest\BrandIntelligence;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /visibility/score` / `GET /visibility/progress` — back the "SEO &
+ * `GET /visibility/score` / `GET /visibility/progress` - back the "SEO &
  * Visibility → Overview" tab's own real dashboard (OverviewTab.tsx):
  * one combined score across the 4 real free-tier areas already scored
  * elsewhere on this plugin's own dedicated tabs (Brand, SEO, GEO, Crawl &
@@ -25,13 +25,13 @@ defined( 'ABSPATH' ) || exit;
  *
  * Deliberately calls each area's own existing controller method directly
  * (`( new Seo() )->get_score()`, etc.) rather than re-deriving each area's
- * own scanner-id list/formula a 6th time — this guarantees the number shown
+ * own scanner-id list/formula a 6th time - this guarantees the number shown
  * here for "SEO" (for example) can never disagree with the number SEO's
  * own tab shows, since both come from the exact same call. Only the 7-day-
  * ago *delta* per area is computed locally here (via the same
  * `..._as_of()` reconstruction technique every other score endpoint in
  * this codebase already uses), since none of the 4 source endpoints expose
- * a "score as of N days ago" of their own — `AREA_SCANNER_IDS` below is
+ * a "score as of N days ago" of their own - `AREA_SCANNER_IDS` below is
  * kept in sync manually with each source controller's own scanner-id
  * list, same "kept in sync manually" convention `Controllers\Seo`'s own
  * docblock already documents for a similar cross-file duplication.
@@ -42,7 +42,7 @@ defined( 'ABSPATH' ) || exit;
  * vulopilot-pro's GeoInsights module active); Keywords has no score at
  * all, only Search-Console-gated position/click stats. Averaging in a
  * fabricated or always-zero number for either would drag the combined
- * score down dishonestly rather than reflect real site health — better to
+ * score down dishonestly rather than reflect real site health - better to
  * average 4 genuinely real areas than 6 where 2 are placeholders.
  *
  * @class       Visibility controller
@@ -59,14 +59,14 @@ class Visibility extends \WP_REST_Controller {
     /**
      * Real scanner ids behind each area's own score, kept in sync manually
      * with `Controllers\Seo::CATEGORY_SCANNER_IDS` (merged), `Controllers\Geo::SIGNAL_SCANNER_IDS`
-     * (merged, minus `content-freshness` — that signal is a real sitewide
+     * (merged, minus `content-freshness` - that signal is a real sitewide
      * computation from `post_modified_gmt`, not a finding count, so it has
      * no "as of N days ago" reconstruction the way a finding does; GEO's
      * own real `/geo/progress` excludes it from its trend for the identical
      * reason, see that class's own docblock), `Controllers\BrandIntelligence::TRUST_SCANNER_IDS`/
      * `AUTHORITY_SCANNER_IDS` (merged), and `Controllers\CrawlerTraffic::get_analytics()`'s
      * own inline 4-id array. Used ONLY for the 7-day-ago delta reconstruction
-     * and the combined trend below — the *current* score for each area
+     * and the combined trend below - the *current* score for each area
      * always comes from that area's own real endpoint (see this class's own
      * docblock), so a delta computed from a slightly different or stale
      * copy of this list would still never make the *headline* number
@@ -109,7 +109,7 @@ class Visibility extends \WP_REST_Controller {
     );
 
     /**
-     * Real, human-facing label per area — same 4 areas the "Visibility
+     * Real, human-facing label per area - same 4 areas the "Visibility
      * Breakdown" table's own rows show.
      *
      * @var array<string, string>
@@ -139,7 +139,7 @@ class Visibility extends \WP_REST_Controller {
     private const ALLOWED_PROGRESS_DAYS = array( 7, 30, 90 );
 
     /**
-     * Real GA4 traffic-source lookback window for "Visibility by Source" —
+     * Real GA4 traffic-source lookback window for "Visibility by Source" -
      * fixed rather than user-selectable (unlike "Visibility Trend"'s own
      * 7/30/90 dropdown above) since this card has no period control of its
      * own in the reference layout it matches.
@@ -255,11 +255,11 @@ class Visibility extends \WP_REST_Controller {
     }
 
     /**
-     * "Visibility Trend" — a real daily combined-score trend over `days`
+     * "Visibility Trend" - a real daily combined-score trend over `days`
      * (7/30/90), one real reconstructed score per day
      * (`FindingRepository::get_severity_breakdown_for_scanner_ids_as_of()`,
      * same technique every other real score trend in this codebase already
-     * uses) across ALL 4 areas' scanner ids merged into one breakdown —
+     * uses) across ALL 4 areas' scanner ids merged into one breakdown -
      * genuinely cheap (one query per day, same cost as `Controllers\Geo::get_progress()`),
      * not 4 separate per-area reconstructions per day. No new stored
      * snapshot table.
@@ -298,19 +298,19 @@ class Visibility extends \WP_REST_Controller {
     }
 
     /**
-     * "Visibility by Source" — real GA4 sessions grouped by
+     * "Visibility by Source" - real GA4 sessions grouped by
      * `sessionDefaultChannelGroup` (GoogleAnalyticsClient::run_channel_group_report()),
      * a genuine Google Analytics dimension, over the last
      * `TRAFFIC_SOURCE_WINDOW_DAYS` real days. This plugin tracks zero
      * human-visitor traffic-source data of its own anywhere
-     * (`vulopilot_crawler_visits` is AI bots only, by explicit design — see
+     * (`vulopilot_crawler_visits` is AI bots only, by explicit design - see
      * `CrawlerTraffic.php`'s own docblock; Search Console is organic-
-     * search-only by definition) — so unlike "Visibility by Area" (this
+     * search-only by definition) - so unlike "Visibility by Area" (this
      * same tab's own real category-score donut, a separate concept), this
      * card only ever has real data to show once a site owner has actually
      * connected a real GA4 property (Settings → Connections → Google
      * Services). `connected: false` (empty `sources`) covers both "never
-     * connected" and "connected, but the live GA4 call itself failed" —
+     * connected" and "connected, but the live GA4 call itself failed" -
      * the frontend renders the identical honest "connect" prompt either
      * way rather than a fabricated number or a confusing distinct error
      * state for a case a site owner can't act on differently anyway.

@@ -10,12 +10,12 @@ namespace VuloPilot\RestAPI\Controllers;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /plugin-overlap — backs "Protect My Site" → Files & Plugins' own
+ * GET /plugin-overlap - backs "Protect My Site" → Files & Plugins' own
  * "VuloPilot already covers this" card.
  *
  * Deliberately NOT tied to any vulnerability finding: AdvancedVulnerabilitiesScanner's
  * own feed (LocalSeedVulnerabilityFeed) is illustrative-only sample data
- * matching two fictional plugin slugs — this repo's own documented policy
+ * matching two fictional plugin slugs - this repo's own documented policy
  * is to never name a real, currently-maintained third-party plugin in
  * relation to a vulnerability claim (see that class's own docblock). This
  * controller makes no such claim either way; it only checks whether a
@@ -43,7 +43,7 @@ class PluginOverlap extends \WP_REST_Controller {
      * feature that covers the same ground. `module_id` is a real id from
      * src/components/Modules/index.ts's own catalog when the overlap is a
      * togglable Pro module; `null` for the caching/performance category,
-     * which isn't gated behind a module toggle — its destination is the
+     * which isn't gated behind a module toggle - its destination is the
      * "Improve My Speed" tab instead (`link_tab`).
      *
      * @var array<string, array{plugin_name: string, category: string, vulopilot_feature: string, module_id: string|null, link_tab: string}>
@@ -182,7 +182,7 @@ class PluginOverlap extends \WP_REST_Controller {
             }
         }
 
-        // `data`/`total`, not a bespoke `matches` key — same response
+        // `data`/`total`, not a bespoke `matches` key - same response
         // shape every other real list endpoint in this codebase uses
         // (useApiList.ts's own `ListResponse<T>` contract), so the
         // frontend can read this the same way as any other list.

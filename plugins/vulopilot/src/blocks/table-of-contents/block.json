@@ -4,7 +4,7 @@
 	"title": "Table of Contents",
 	"category": "widgets",
 	"icon": "editor-ul",
-	"description": "Automatically lists this post's headings and links to each one. Always reflects the post's current heading structure — nothing to keep in sync by hand.",
+	"description": "Automatically lists this post's headings and links to each one. Always reflects the post's current heading structure - nothing to keep in sync by hand.",
 	"textdomain": "vulopilot",
 	"editorScript": "file:./index.js",
 	"render": "file:./render.php",

@@ -84,11 +84,11 @@ interface GoogleServiceCardProps {
 }
 
 /**
- * One Search Console/Analytics/AdSense summary card — the mockup's own
+ * One Search Console/Analytics/AdSense summary card - the mockup's own
  * per-service layout (status badge, Property/account summary line,
  * "Manage Connection"/"Connect AdSense" button, ⋮ menu). All 3 services
  * share ONE real Google OAuth connection (GoogleServicesConnection's own
- * docblock — a single consent screen covering all three read scopes at
+ * docblock - a single consent screen covering all three read scopes at
  * once), so "Test Connection"/"Reconnect"/"Disconnect" in this card's own
  * ⋮ menu are real, but honestly scoped: disconnecting from any one card
  * disconnects the whole Google account, same as the confirm dialog says.
@@ -169,26 +169,26 @@ const GoogleServiceCard = ( {
  * Settings → Connections → Google Services.
  *
  * Moved from the old Settings → Scanning → Google Services tab per direct
- * instruction, alongside AI Providers/Webhooks/External Services — same
+ * instruction, alongside AI Providers/Webhooks/External Services - same
  * "folder of sub-tab files" shape Settings/GetStarted/'s own AiProviders.ts
  * establishes. Redesigned to match a mockup: one summary card per service
  * (Search Console/Analytics/AdSense) instead of the previous always-open
- * stacked cards — "Manage Connection" expands the exact same real
+ * stacked cards - "Manage Connection" expands the exact same real
  * pickers/toggles that used to always be visible, just collapsed by
  * default now. All real state/handlers below are unchanged from the
  * original panel (same `useGoogleServicesConnection('settings')` hook,
- * same REST calls) — only the layout wrapping them changed.
+ * same REST calls) - only the layout wrapping them changed.
  *
  * One click, nothing to configure: VuloPilot ships with its own shared
  * Google Cloud OAuth Client (VULOPILOT_GOOGLE_CLIENT_ID/SECRET, see
- * config.php's own docblock) — a site owner never sees or enters a
+ * config.php's own docblock) - a site owner never sees or enters a
  * Client ID/Secret. `GoogleServicesConnection::get_authorization_url()`
  * (PHP) actually has 2 real ways to complete this: the embedded shared
  * Client above, OR routing through VuloLabs' own VuloCloud OAuth broker
- * (`status.has_broker` — needs no embedded Client ID/Secret at all, tried
+ * (`status.has_broker` - needs no embedded Client ID/Secret at all, tried
  * FIRST server-side). The button below is only replaced with the honest
  * "not available yet" state when NEITHER is configured for this build
- * (`!status.has_client_credentials && !status.has_broker`) — checking
+ * (`!status.has_client_credentials && !status.has_broker`) - checking
  * `has_client_credentials` alone was a real bug (fixed per direct report):
  * it showed "not available yet" even on a working broker-only build,
  * since `has_broker` was never read here at all.
@@ -285,7 +285,7 @@ const GoogleServicesPanel = () => {
 		).then( ( response ) => setGa4Streams( response ?? [] ) );
 	}, [ selectedPropertyId ] );
 
-	/** Opens the `confirmMode` popup — the actual disconnect runs from `confirmDisconnect` once the user confirms there. */
+	/** Opens the `confirmMode` popup - the actual disconnect runs from `confirmDisconnect` once the user confirms there. */
 	const disconnectAndResetPickers = () => {
 		setConfirmDisconnectOpen( true );
 	};
@@ -323,7 +323,7 @@ const GoogleServicesPanel = () => {
 					position: 'float',
 					message: response[ onlyService ]
 						? __( 'Connection OK.', 'vulopilot' )
-						: __( 'This service isn’t responding — try reconnecting.', 'vulopilot' ),
+						: __( 'This service isn’t responding - try reconnecting.', 'vulopilot' ),
 				} );
 			}
 		} );
@@ -388,7 +388,7 @@ const GoogleServicesPanel = () => {
 						icon="error red"
 						title={ __( 'Google Connect isn’t available yet', 'vulopilot' ) }
 						desc={ __(
-							'This build doesn’t have a Google Cloud OAuth Client configured yet — that’s a one-time setup VuloLabs does, not something you configure. Flag if you’re seeing this on a real release.',
+							'This build doesn’t have a Google Cloud OAuth Client configured yet - that’s a one-time setup VuloLabs does, not something you configure. Flag if you’re seeing this on a real release.',
 							'vulopilot'
 						) }
 						action={
@@ -407,7 +407,7 @@ const GoogleServicesPanel = () => {
 						icon="check green"
 						title={ __( 'Benefits of connecting your Google account', 'vulopilot' ) }
 						desc={ __(
-							'We don’t store any of your Google account’s data on our servers — everything is processed and stored on your own site. Tokens are encrypted at rest the same way every other API key in VuloPilot is.',
+							'We don’t store any of your Google account’s data on our servers - everything is processed and stored on your own site. Tokens are encrypted at rest the same way every other API key in VuloPilot is.',
 							'vulopilot'
 						) }
 						action={
@@ -623,7 +623,7 @@ const GoogleServicesPanel = () => {
 					) : (
 						<div className="desc">
 							{ __(
-								// Deliberately doesn't promise "ad performance and earnings" —
+								// Deliberately doesn't promise "ad performance and earnings" -
 								// GoogleAdSenseClient only ever lists real account names,
 								// no real earnings/ad-unit data (that class's own docblock).
 								'Connect AdSense to link your account. Ad performance and earnings reporting aren’t built yet.',
@@ -654,7 +654,7 @@ const GoogleServicesPanel = () => {
 						{ adsenseAccounts && 0 === adsenseAccounts.length && (
 							<div className="desc">
 								{ __(
-									'No AdSense account found on this Google account — that’s fine, AdSense is optional.',
+									'No AdSense account found on this Google account - that’s fine, AdSense is optional.',
 									'vulopilot'
 								) }
 							</div>
@@ -691,7 +691,7 @@ const GoogleServicesPanel = () => {
 			<NoticeComponent
 				displayPosition="inline"
 				message={ __(
-					'VuloPilot only reads data from your Google services. We never make changes to your account. We don’t store any of your Google account’s data on our servers — everything is processed and stored on your own site.',
+					'VuloPilot only reads data from your Google services. We never make changes to your account. We don’t store any of your Google account’s data on our servers - everything is processed and stored on your own site.',
 					'vulopilot'
 				) }
 			/>
@@ -701,7 +701,7 @@ const GoogleServicesPanel = () => {
 				<div className="notice-details">
 					<div className="notice-desc">
 						{ __(
-							'Connecting and selecting a property only proves this site can read your real Google data. Storing/reporting on that data over time — the Analytics Database, Frontend Stats Bar, Email Reports, and pulling real ranking keywords onto the Keywords tab — is the next step, not built yet. Flag if you want any of it scoped next.',
+							'Connecting and selecting a property only proves this site can read your real Google data. Storing/reporting on that data over time - the Analytics Database, Frontend Stats Bar, Email Reports, and pulling real ranking keywords onto the Keywords tab - is the next step, not built yet. Flag if you want any of it scoped next.',
 							'vulopilot'
 						) }
 					</div>
@@ -719,7 +719,7 @@ const GoogleServicesPanel = () => {
 					confirmMode
 					title={ __( 'Disconnect Google Account', 'vulopilot' ) }
 					confirmMessage={ __(
-						'Disconnect your Google account? This affects Search Console, Analytics, and AdSense all at once — they share one connection.',
+						'Disconnect your Google account? This affects Search Console, Analytics, and AdSense all at once - they share one connection.',
 						'vulopilot'
 					) }
 					confirmYesText={ __( 'Disconnect', 'vulopilot' ) }

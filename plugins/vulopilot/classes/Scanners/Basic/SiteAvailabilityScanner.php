@@ -13,21 +13,21 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Checks whether the site's own front end is actually reachable — a real
+ * Checks whether the site's own front end is actually reachable - a real
  * `wp_remote_get( home_url() )` from the server's own perspective, not a
  * third-party/external uptime probe (this plugin runs ON the site being
  * checked, so it can only ever observe "can THIS server reach its own
  * front door right now," the same self-check shape RobotsTxtScanner/
- * SitemapScanner already use for their own HTTP requests — see
+ * SitemapScanner already use for their own HTTP requests - see
  * SslMonitoringScanner's docblock for the same category of caveat about
  * what a WordPress-plugin-run scanner can and can't observe).
  *
- * No existing scanner covers "is the homepage reachable at all" —
+ * No existing scanner covers "is the homepage reachable at all" -
  * NotFoundScanner tracks individual 404s, SslMonitoringScanner checks
  * certificate validity, neither checks whether a request to the site
  * itself completes and returns successfully. Genuinely new ground,
  * closing that specific gap. Deliberately has no self-throttle
- * (SupportsForceRunInterface) — unlike BrokenLinksScanner's own bounded
+ * (SupportsForceRunInterface) - unlike BrokenLinksScanner's own bounded
  * multi-URL crawl, this is a single lightweight request, cheap enough to
  * run every time scan() is called, same as the vast majority of scanners
  * in this namespace.
@@ -40,7 +40,7 @@ class SiteAvailabilityScanner extends AbstractBasicScanner {
 
     /**
      * How long to wait for the homepage to respond before treating it as
-     * unreachable — long enough to tolerate a normal slow page load, short
+     * unreachable - long enough to tolerate a normal slow page load, short
      * enough that this scanner's own run doesn't hang indefinitely on a
      * genuinely down server.
      */
@@ -78,7 +78,7 @@ class SiteAvailabilityScanner extends AbstractBasicScanner {
             array(
                 'timeout'     => self::REQUEST_TIMEOUT_SECONDS,
                 'redirection' => 5,
-                'sslverify'   => false, // A cert problem is SslMonitoringScanner's own finding, not "site unreachable" — don't fail this check on that basis.
+                'sslverify'   => false, // A cert problem is SslMonitoringScanner's own finding, not "site unreachable" - don't fail this check on that basis.
             )
         );
 
@@ -112,7 +112,7 @@ class SiteAvailabilityScanner extends AbstractBasicScanner {
                     ),
                     Severity::CRITICAL,
                     $this->get_category(),
-                    __( 'The homepage responded with a server error instead of loading successfully — visitors are likely seeing this too.', 'vulopilot' ),
+                    __( 'The homepage responded with a server error instead of loading successfully - visitors are likely seeing this too.', 'vulopilot' ),
                     'url',
                     $url,
                     array(
@@ -133,7 +133,7 @@ class SiteAvailabilityScanner extends AbstractBasicScanner {
                     ),
                     Severity::HIGH,
                     $this->get_category(),
-                    __( 'The homepage did not return a normal success response — worth checking manually.', 'vulopilot' ),
+                    __( 'The homepage did not return a normal success response - worth checking manually.', 'vulopilot' ),
                     'url',
                     $url,
                     array(

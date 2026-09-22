@@ -12,13 +12,13 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Offering entity.
  *
- * Plain domain object — no `$wpdb`, no WordPress function calls, no REST
+ * Plain domain object - no `$wpdb`, no WordPress function calls, no REST
  * request handling. `Infrastructure\Database\WPDBOfferingRepository` is the
  * only class that knows how an Offering is actually stored; everything above
  * it (Application\OfferingService, RestAPI\Controllers\Offerings) works with
  * this object, never a raw row array.
  *
- * No constructor property promotion / named arguments (both PHP 8.0+) —
+ * No constructor property promotion / named arguments (both PHP 8.0+) -
  * this repo's phpcs.xml.dist targets PHP 7.4 (testVersion, coding-standards.md),
  * so plain property declarations + constructor assignment is used
  * throughout, matching every other class in this codebase despite

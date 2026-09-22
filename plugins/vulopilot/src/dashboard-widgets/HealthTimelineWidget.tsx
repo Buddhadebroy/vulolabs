@@ -15,7 +15,7 @@ interface HealthSnapshot {
 
 /**
  * The health-score trend chart, unchanged in content from what
- * Dashboard.tsx originally rendered inline — moved here so it's a widget
+ * Dashboard.tsx originally rendered inline - moved here so it's a widget
  * like the other twelve (reorderable, hideable) instead of a fixed
  * element outside the grid. Fetches its own data (`/site-health-snapshots`)
  * rather than reading it off the shared summary payload, since it's a
@@ -35,7 +35,7 @@ const HealthTimelineWidget: React.FC<WidgetProps> = ({
 	/**
 	 * `/site-health-snapshots` only exists at all once vulopilot-pro's
 	 * AdvancedReports module registers it (via the vulopilot_rest_controllers
-	 * filter) — on a Free-only install this request 404s every time, which
+	 * filter) - on a Free-only install this request 404s every time, which
 	 * is the expected, permanent state, not a transient failure. Checking
 	 * `active_modules` directly (rather than treating "zero rows" and
 	 * "404'd" as the same friendly empty state, as this widget used to)

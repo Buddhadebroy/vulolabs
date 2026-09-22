@@ -17,13 +17,13 @@ const formatDelta = (pct: number | null): string => {
 };
 
 /**
- * The mockup's "Your website is improving 🎉" hero — real
+ * The mockup's "Your website is improving 🎉" hero - real
  * fixed/new/still-open counts and their real period-over-period percent
  * change (`GET /reports-overview`, Controllers\ReportsOverview.php's own
  * docblock explains how each is computed from real created_at/resolved_at
  * timestamps, no stored snapshot needed). The headline/description and
  * each highlight row's direction word are derived honestly from those
- * same real deltas — no narrative/prose-generation capability exists
+ * same real deltas - no narrative/prose-generation capability exists
  * anywhere in this codebase to write the mockup's own free-form sentence
  * ("Search visibility and website health improved..."), so this composes
  * one from the real per-category direction instead (same reasoning the

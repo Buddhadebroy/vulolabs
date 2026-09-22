@@ -17,17 +17,17 @@ use VuloPilot\Scanners\Basic\ScannedPostsTrait;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * BrokenLinksScanner's own sibling for `<img src>` instead of `<a href>` —
+ * BrokenLinksScanner's own sibling for `<img src>` instead of `<a href>` -
  * extracts image sources from the most recently published posts/pages and
  * checks each one for a non-2xx/3xx HTTP response, flagging ones that
  * appear broken. Added alongside that class's own real `reason`/coverage
  * additions so BrokenLinksTab.tsx's "Broken images" tile is a real,
  * second scanner's real count, not a number this codebase never actually
- * computed. Neither ImagesScanner nor SeoImagesScanner cover this — both
+ * computed. Neither ImagesScanner nor SeoImagesScanner cover this - both
  * only flag images missing alt text, never a broken `src`.
  *
  * Same two deliberate bounds (posts scanned, total images checked) as
- * BrokenLinksScanner, for the identical reason (performance.md — no
+ * BrokenLinksScanner, for the identical reason (performance.md - no
  * unbounded per-run crawl).
  *
  * @class       BrokenImagesScanner class
@@ -43,20 +43,20 @@ class BrokenImagesScanner extends AbstractBasicScanner implements TracksScannedO
     private const REQUEST_TIMEOUT_SECONDS = 5;
 
     /**
-     * Stores when this scanner last genuinely ran — see due_to_run()'s
+     * Stores when this scanner last genuinely ran - see due_to_run()'s
      * own docblock (BrokenLinksScanner.php) for why this scanner
      * self-rate-limits instead of the cadence being scheduled externally.
      */
     private const LAST_RUN_OPTION = 'vulopilot_broken_images_last_checked';
 
     /**
-     * Set via set_force_run() (SupportsForceRunInterface) — see
+     * Set via set_force_run() (SupportsForceRunInterface) - see
      * BrokenLinksScanner::$force_run's own comment.
      */
     private bool $force_run = false;
 
     /**
-     * Real per-run coverage stats — same shape/purpose as
+     * Real per-run coverage stats - same shape/purpose as
      * BrokenLinksScanner::STATS_OPTION, read by Controllers\BrokenLinksStats
      * for BrokenLinksTab.tsx's own "Coverage"/"Link health" tiles.
      */
@@ -96,7 +96,7 @@ class BrokenImagesScanner extends AbstractBasicScanner implements TracksScannedO
     public function scan(): array {
         $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
-        // Flat, standalone key — Settings → Scanning → SEO & Content →
+        // Flat, standalone key - Settings → Scanning → SEO & Content →
         // "Images" (SeoContent.ts). See Utill::VULOPILOT_SETTINGS_DEFAULTS's
         // own docblock on this key for why it's no longer nested under
         // content_search_scans.images.
@@ -138,7 +138,7 @@ class BrokenImagesScanner extends AbstractBasicScanner implements TracksScannedO
                 array(
                     'url'    => $url,
                     // Same 'unverified' vs 'broken' distinction
-                    // BrokenLinksScanner's own Finding::meta carries — see
+                    // BrokenLinksScanner's own Finding::meta carries - see
                     // that class's check_link()/check_image() docblocks.
                     'reason' => $result['reason'],
                 )
@@ -161,7 +161,7 @@ class BrokenImagesScanner extends AbstractBasicScanner implements TracksScannedO
 
     /**
      * Pulls every http(s) `<img src>` out of the most recently published
-     * content, deduped, capped at MAX_IMAGES_PER_RUN — same shape as
+     * content, deduped, capped at MAX_IMAGES_PER_RUN - same shape as
      * BrokenLinksScanner::extract_links_from_recent_content(), matched on
      * `<img src="...">` instead of `<a href="...">`.
      *
@@ -210,7 +210,7 @@ class BrokenImagesScanner extends AbstractBasicScanner implements TracksScannedO
     }
 
     /**
-     * Same real rate-limit shape as BrokenLinksScanner::due_to_run() —
+     * Same real rate-limit shape as BrokenLinksScanner::due_to_run() -
      * see that method's own docblock, including what `$force` does.
      *
      * @param string $frequency 'daily' or 'weekly'.
@@ -232,7 +232,7 @@ class BrokenImagesScanner extends AbstractBasicScanner implements TracksScannedO
 
     /**
      * @param string $url Image URL to check.
-     * @return array{reason: string, detail: string}|null 'reason' is 'unverified' (network/timeout/DNS failure — is_wp_error()) or 'broken' (a real non-2xx/3xx HTTP response); null if the image looks fine.
+     * @return array{reason: string, detail: string}|null 'reason' is 'unverified' (network/timeout/DNS failure - is_wp_error()) or 'broken' (a real non-2xx/3xx HTTP response); null if the image looks fine.
      */
     private function check_image( string $url ): ?array {
         $response = wp_remote_head(

@@ -18,15 +18,15 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Flags a published post/page that no other post among the same sampled
- * batch links to — an "orphan" page reachable only through search,
+ * batch links to - an "orphan" page reachable only through search,
  * direct URL, or navigation menus outside the content itself, which
  * search engines discover far less reliably than pages reached through
  * in-content links (InternalLinkingScanner's complementary, opposite
  * check: does *this* page link out to others).
  *
  * Bounded to a fixed batch checked against itself (an O(n²) comparison,
- * capped at BATCH_SIZE² operations, small enough to stay fast — per
- * performance.md, an unbounded sitewide cross-reference would not be) —
+ * capped at BATCH_SIZE² operations, small enough to stay fast - per
+ * performance.md, an unbounded sitewide cross-reference would not be) -
  * a genuine, documented simplification: a page could still have an
  * inbound link from an older post outside this batch and be reported as
  * an orphan here. That trade-off is what keeps this scanner's runtime
@@ -122,7 +122,7 @@ class OrphanPageScanner extends AbstractBasicScanner implements TracksScannedObj
      */
     private function has_inbound_link( \WP_Post $target, array $all_posts, $permalink ): bool {
         if ( ! $permalink ) {
-            return true; // Can't check without a real permalink — don't false-flag.
+            return true; // Can't check without a real permalink - don't false-flag.
         }
 
         foreach ( $all_posts as $candidate ) {

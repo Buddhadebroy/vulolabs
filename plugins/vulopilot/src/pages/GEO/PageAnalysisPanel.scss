@@ -111,7 +111,7 @@
 }
 
 /* `.blur-wrapper`/`.pro-section-wrapper`/`.pro-section`/`.blur-wrapper-content`
- * moved to ../../components/UpgradeToProOverlay.scss — that's the shared
+ * moved to ../../components/UpgradeToProOverlay.scss - that's the shared
  * component's own stylesheet now, imported wherever
  * `<BlurredProContent>`/`<UpgradeToProOverlay>` is used (not just this
  * page), rather than duplicated per page that happens to use them. */

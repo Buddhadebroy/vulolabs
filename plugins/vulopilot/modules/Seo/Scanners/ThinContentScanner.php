@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * Flags published posts/pages under a minimum word count. "Thin content"
  * (too little substance for a search engine to meaningfully rank) is a
  * well-established SEO concept; a plain word count is a real, cheap,
- * always-computable proxy for it — not a claim about content quality,
+ * always-computable proxy for it - not a claim about content quality,
  * which no scanner here can judge (scanners never use AI, SCANNERS.md).
  *
  * @class       ThinContentScanner class
@@ -34,7 +34,7 @@ class ThinContentScanner extends AbstractBasicScanner implements TracksScannedOb
     private const BATCH_SIZE = 50;
 
     /**
-     * Fallback only — the real threshold is Scanning → SEO's
+     * Fallback only - the real threshold is Scanning → SEO's
      * `thin_content_word_threshold` setting (Utill::VULOPILOT_SETTINGS_DEFAULTS
      * defaults it to this same value), read fresh in scan() so a site
      * owner's saved threshold takes effect without a code change.

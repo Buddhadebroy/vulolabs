@@ -1,7 +1,7 @@
 /*
  * Frontend + editor styling for the `vulopilot/table-of-contents` and
  * `vulopilot/faq` blocks (src/blocks/table-of-contents/, src/blocks/faq/).
- * Enqueued explicitly by Services\BlockRegistrar — see that class's own
+ * Enqueued explicitly by Services\BlockRegistrar - see that class's own
  * docblock for why this goes through the plain public/*.scss pipeline
  * rather than a webpack-bundled block.json style/editorStyle field.
  */
@@ -85,7 +85,7 @@
 		color: #3c434a;
 	}
 
-	/* Editor-only repeater rows — harmless if this stylesheet is also
+	/* Editor-only repeater rows - harmless if this stylesheet is also
 	 * enqueued in the editor context (BlockRegistrar::enqueue_editor_styles()). */
 	&__editor-row {
 		display: flex;

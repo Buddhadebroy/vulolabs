@@ -8,7 +8,7 @@ interface SecurityPerformancePanelProps {
 }
 
 /**
- * The mockup's "Security" mini-panel — real security-category fixed/new/
+ * The mockup's "Security" mini-panel - real security-category fixed/new/
  * still-open counts plus the real highest-severity still-open findings,
  * same shape SearchPerformancePanel (ReportsInsightPanels.tsx) uses for
  * SEO.
@@ -75,9 +75,9 @@ interface ContentProgressPanelProps {
 }
 
 /**
- * The mockup's "Content progress" panel — "Pages improved"/"Older pages
+ * The mockup's "Content progress" panel - "Pages improved"/"Older pages
  * to review" are real content-category Findings data; "New pieces
- * published"/"Drafts in progress" are real WordPress post-status counts —
+ * published"/"Drafts in progress" are real WordPress post-status counts -
  * two genuinely different, both-real, data sources (see
  * Controllers\ReportsOverview::build_content_summary()'s own docblock).
  */
@@ -131,7 +131,7 @@ interface StorePerformancePanelProps {
 /**
  * `currency` is WooCommerce's own real store currency code
  * (`get_woocommerce_currency()`, Controllers\ReportsOverview::build_store_summary())
- * — `Intl.NumberFormat` renders the correct symbol/placement for it
+ * - `Intl.NumberFormat` renders the correct symbol/placement for it
  * without this codebase needing to maintain its own currency-symbol map.
  */
 const formatMoney = (amount: number, currency: string | null): string => {
@@ -150,13 +150,13 @@ const formatMoney = (amount: number, currency: string | null): string => {
 };
 
 /**
- * The mockup's "Store performance" panel — `store.available === false`
+ * The mockup's "Store performance" panel - `store.available === false`
  * (WooCommerce inactive) shows the same honest "Not applicable" state
  * ReportsCategoryStatusGrid.tsx's own Store tile already uses. When
  * available, `blockers_fixed`/`new_issues`/`products_to_review` are real
  * woocommerce-category Findings counts and `sales`/`orders`/`avg_order`
  * are real `wc_get_orders()` totals for the period (see
- * Controllers\ReportsOverview::build_store_summary()'s own docblock) —
+ * Controllers\ReportsOverview::build_store_summary()'s own docblock) -
  * not the mockup's own fabricated-looking "$6,420 · 48 Orders · +8%"
  * figures, whatever this specific real store's own numbers are.
  */

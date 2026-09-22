@@ -19,14 +19,14 @@ interface AeoPageAnalysisResponse {
 /**
  * One real, unpaginated `GET /geo-analysis/pages?scanner_ids=<5 AEO scanner
  * ids>&per_page=1000` fetch (Controllers\GeoAnalysis::get_pages(), scoped
- * by its own `scanner_ids` param — see that controller's own docblock;
+ * by its own `scanner_ids` param - see that controller's own docblock;
  * 1000 is that same endpoint's own `MAX_PAGES_QUERY` bound, comfortably
- * above a single site's real published-content count) — AeoTab.tsx's own
+ * above a single site's real published-content count) - AeoTab.tsx's own
  * "Pages Ready"/"Questions Answered" stat tiles derive real counts from
  * this full real dataset instead of guessing from whatever page
  * GeoPageAnalysisTable.tsx's own independent, paginated copy of the same
  * endpoint happens to be showing. Deliberately a second real request
- * rather than lifting state out of that table — the two components render
+ * rather than lifting state out of that table - the two components render
  * in different parts of the tab and don't otherwise share a parent that
  * would make prop-drilling this cleaner than one more real GET.
  */

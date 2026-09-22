@@ -14,16 +14,16 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * "WCAG Scanner" (readme.txt Phase 8) — flags links whose entire visible
+ * "WCAG Scanner" (readme.txt Phase 8) - flags links whose entire visible
  * text is a generic, out-of-context phrase ("click here", "read more",
  * "learn more", etc, self::AMBIGUOUS_PHRASES). WCAG 2.4.4 (Link Purpose,
- * In Context) requires link text to make sense on its own — a screen
+ * In Context) requires link text to make sense on its own - a screen
  * reader user who pulls up a page's list of links (a common navigation
  * shortcut) hears nothing but "click here, click here, click here" with
  * no way to tell them apart. This is the single most common rule
  * automated accessibility auditors (axe-core's `link-name`, WAVE's
  * "Suspicious Link Text") flag, and this codebase had no check for it
- * yet — distinct from AriaAttributesScanner (missing role on a clickable
+ * yet - distinct from AriaAttributesScanner (missing role on a clickable
  * non-link element) and FormLabelsScanner (unlabeled form fields). One
  * concrete, well-defined rule per scanner, same convention those two
  * already establish.
@@ -43,7 +43,7 @@ class WcagScanner extends AbstractBasicScanner implements TracksScannedObjectsIn
 
     /**
      * A link's entire visible text (trimmed, lowercased) matching one of
-     * these exactly — not merely containing it — is what makes it
+     * these exactly - not merely containing it - is what makes it
      * ambiguous; a link reading "click here to read our shipping policy"
      * has real context and isn't flagged.
      *
@@ -119,7 +119,7 @@ class WcagScanner extends AbstractBasicScanner implements TracksScannedObjectsIn
                 ),
                 Severity::LOW,
                 $this->get_category(),
-                __( 'A link reading only "click here" or "read more" makes no sense out of context — screen reader users who navigate by a page\'s link list can\'t tell them apart. Link text should describe its own destination (WCAG 2.4.4).', 'vulopilot' ),
+                __( 'A link reading only "click here" or "read more" makes no sense out of context - screen reader users who navigate by a page\'s link list can\'t tell them apart. Link text should describe its own destination (WCAG 2.4.4).', 'vulopilot' ),
                 'post',
                 (string) $post->ID,
                 array( 'ambiguous_link_count' => $count ),

@@ -13,7 +13,7 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags externally-hosted Google Fonts on the homepage — same
+ * Flags externally-hosted Google Fonts on the homepage - same
  * `wp_remote_get(home_url())` homepage-inspection approach
  * CacheDetectionScanner already uses, just checking for
  * fonts.googleapis.com/fonts.gstatic.com references instead of caching

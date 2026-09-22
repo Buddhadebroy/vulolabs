@@ -15,15 +15,15 @@ use VuloPilot\ValueObjects\RuleType;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * "Manual Actions Only" (readme.txt) — Free's entire automation capability,
+ * "Manual Actions Only" (readme.txt) - Free's entire automation capability,
  * on purpose much smaller than vulopilot-pro's Automations module: run one
  * registered ActionInterface against one specific, already-known Finding,
  * right now, by hand. No trigger, no bound rule, no cooldown, no
- * `vulopilot_automations` row, no run history — those are exactly the
+ * `vulopilot_automations` row, no run history - those are exactly the
  * axes vulopilot-pro's own Automations module (Triggers/Conditions/
  * Schedules/Workflow Builder/Logs/Retries) adds on top of this.
  *
- * ActionInterface::execute() takes a Recommendation, not a Finding — this
+ * ActionInterface::execute() takes a Recommendation, not a Finding - this
  * class is the one place that builds a synthetic one directly off a real
  * Finding row (`rule_id` = self::MANUAL_RULE_ID) rather than getting it
  * from RuleEngine::generate_recommendations(), since a manual run has no
@@ -38,7 +38,7 @@ class ManualActionRunner {
 
     /**
      * Synthetic rule_id stamped on every Recommendation this class builds
-     * — no RuleInterface produced it, so 'manual' is a stable, honest
+     * - no RuleInterface produced it, so 'manual' is a stable, honest
      * marker rather than an empty string or a name borrowed from an
      * unrelated real rule.
      */

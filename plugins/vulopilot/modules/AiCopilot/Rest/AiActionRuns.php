@@ -18,14 +18,14 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * GET /ai-action-runs backs the Dashboard's "Pending Approval" widget.
- * POST /ai-action-runs (create_item) starts the lifecycle — Create
+ * POST /ai-action-runs (create_item) starts the lifecycle - Create
  * Content's own tool cards (ContentToolsGrid.tsx/QuickStartCard.tsx) call
  * this via ContentToolRunner.tsx. POST /ai-action-runs/{id}/approve|reject|rollback
- * complete the write side — AiCopilot\ActionRunner::propose()/approve()/
+ * complete the write side - AiCopilot\ActionRunner::propose()/approve()/
  * reject()/rollback() have all been fully implemented since AI-ACTIONS.md's
  * own pass, but this controller used to only expose get_items() plus the
- * approve/reject/rollback trio, leaving propose() — the only way a new run
- * ever gets created in the first place — with no route at all, so every
+ * approve/reject/rollback trio, leaving propose() - the only way a new run
+ * ever gets created in the first place - with no route at all, so every
  * "AI action" trigger in the UI was permanently unreachable. Each has real
  * side effects (a site mutation, for approve/rollback, or a real AI
  * provider call + cost, for create), so each is its own route with its
@@ -118,7 +118,7 @@ class AiActionRuns extends \WP_REST_Controller {
      * @inheritDoc
      *
      * Also requires the real AI Copilot module (see
-     * modules/AiCopilot/Module.php's own docblock) — shared by propose/
+     * modules/AiCopilot/Module.php's own docblock) - shared by propose/
      * approve/reject/rollback, since every one of those is "AI
      * functionality" requirement #4 says must not execute while that
      * module is off, not just the generation step.
@@ -141,11 +141,11 @@ class AiActionRuns extends \WP_REST_Controller {
 
     /**
      * Stages 1-4 of the AI action lifecycle: proposes a new run for a
-     * registered action — validates the real input, sends a real prompt
+     * registered action - validates the real input, sends a real prompt
      * through the AI request sender, and persists a `pending_approval`
      * row with a real preview. The response's own `auto_approved`/
      * `approval_method` (ActionRunner::propose()'s own docblock) say
-     * whether that's still true for this particular run — Settings →
+     * whether that's still true for this particular run - Settings →
      * Automation → Approval Settings can make propose() itself apply the
      * change immediately for a low-enough-risk (or, Pro-gated, any)
      * proposal, in which case there's nothing left to approve via
@@ -173,7 +173,7 @@ class AiActionRuns extends \WP_REST_Controller {
         } catch ( InvalidActionOutputException $exception ) {
             return new \WP_Error( 'vulopilot_ai_action_invalid_output', $exception->getMessage(), array( 'status' => 502 ) );
         } catch ( InsufficientCreditsException $exception ) {
-            // VuloPilot brief §15 — a real, structured outcome the React
+            // VuloPilot brief §15 - a real, structured outcome the React
             // side renders as the two-button exhausted-credits state, not
             // a generic error toast. HTTP 200 (not 402): "do not treat
             // exhausted credits as a generic API failure."

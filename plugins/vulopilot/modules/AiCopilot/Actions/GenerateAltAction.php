@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  * execute() touches exactly one postmeta value, so its snapshot/rollback
  * shape is the simplest of the four built-in actions. Naturally pairs
  * with RuleEngine\Rules\MissingAltTextRule's recommendations (same
- * underlying concept — see AI-ACTIONS.md's "Recommendations as an input
+ * underlying concept - see AI-ACTIONS.md's "Recommendations as an input
  * source" for how the two connect without a hard-coded cross-reference).
  *
  * @class       GenerateAltAction class
@@ -48,7 +48,7 @@ class GenerateAltAction extends AbstractBasicAction {
     }
 
     /**
-     * Impact::LOW — Touches exactly one postmeta value (`_wp_attachment_image_alt`) — the narrowest possible blast radius, and its own docblock already calls it "the metadata-only-write pattern".
+     * Impact::LOW - Touches exactly one postmeta value (`_wp_attachment_image_alt`) - the narrowest possible blast radius, and its own docblock already calls it "the metadata-only-write pattern".
      *
      * @inheritDoc
      */
@@ -85,7 +85,7 @@ class GenerateAltAction extends AbstractBasicAction {
             array(
                 'role'    => 'system',
                 'content' => 'You write concise, descriptive image alt text for website accessibility and SEO. '
-                    . 'Respond with ONLY the alt text itself — no quotes, no preamble, no explanation. Keep it under 125 characters.',
+                    . 'Respond with ONLY the alt text itself - no quotes, no preamble, no explanation. Keep it under 125 characters.',
             ),
             array(
                 'role'    => 'user',

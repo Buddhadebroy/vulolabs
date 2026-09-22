@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Turns Geo\Scanners\GeoSummaryBlockScanner's "no upfront summary"
- * Finding into a recommendation to draft one with AI — a good summary
+ * Finding into a recommendation to draft one with AI - a good summary
  * has to actually distill this specific content's key points, which
  * needs the content itself. Pairs with
  * AiCopilot\Actions\GenerateSummaryBlockAction (GEO-MODULE.md).
@@ -103,7 +103,7 @@ class MissingSummaryBlockRule extends AbstractBasicRule {
      */
     public function applies_to( Finding $finding ): bool {
         // Matched on the `missing_summary_block` meta key
-        // GeoSummaryBlockScanner attaches specifically for this — see
+        // GeoSummaryBlockScanner attaches specifically for this - see
         // FaqOpportunityRule's docblock for why category/word_count alone
         // aren't specific enough among 9 scanners sharing category 'geo'.
         return 'geo' === $finding->get_category() && array_key_exists( 'missing_summary_block', $finding->get_meta() );

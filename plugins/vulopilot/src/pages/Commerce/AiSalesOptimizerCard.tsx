@@ -9,15 +9,15 @@ interface AiSalesOptimizerCardProps {
 }
 
 /**
- * "AI Sales Optimizer" — real cross-sell/upsell/bundle-opportunity counts
+ * "AI Sales Optimizer" - real cross-sell/upsell/bundle-opportunity counts
  * (`GET /sales-insights`, Pro's WooCommerceIntelligence module). "Find
  * Sales Opportunities →" scrolls down to the existing, unchanged "Bulk AI
- * optimization" panel further down this page — that panel already has
+ * optimization" panel further down this page - that panel already has
  * the real action picker/product search/approve flow; this card is a
  * real-data summary and entry point, not a second implementation of it.
  * AiCopilotGuard is the outer gate (the free master AI toggle); the
  * ModuleGuardComponent below it is a second, more specific gate for
- * WooCommerce Intelligence (Pro) — both must be satisfied to see real data.
+ * WooCommerce Intelligence (Pro) - both must be satisfied to see real data.
  */
 const AiSalesOptimizerCard = ({
 	onFindOpportunities,
@@ -28,7 +28,7 @@ const AiSalesOptimizerCard = ({
 		<>
 			{/* Docks against `.card-wrapper` (ColumnComponent's own root div,
 			 * always `position: relative` in zyra) rather than a wrapper div
-			 * of its own — CardComponent's `badges` prop can't be used here
+			 * of its own - CardComponent's `badges` prop can't be used here
 			 * since it only forwards `color`/`text` into its own internal
 			 * `BadgeComponent` call, dropping any custom class, so the real
 			 * "admin-tag pro-tag" markup has to render as a sibling instead. */}

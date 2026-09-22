@@ -1,11 +1,11 @@
-# VuloPilot — AI request architecture
+# VuloPilot - AI request architecture
 
 Companion to [`RULE-ENGINE.md`](RULE-ENGINE.md), [`SCANNERS.md`](SCANNERS.md), and
 [`DATABASE.md`](DATABASE.md). Covers how an AI call gets from a feature to VuloCloud and back:
 `AiRequestSender`, the exceptions it throws, safety validation, and where AI actions live.
 
 There is **no provider concept** in this plugin. VuloCloud is the only place an AI answer comes
-from — it holds every key and decides which vendor serves a call — so there is nothing to register,
+from - it holds every key and decides which vendor serves a call - so there is nothing to register,
 select, decorate or fall back between. Earlier versions had a `ProviderRegistry`,
 `AIProviderInterface`, a `VuloCloudProxyProvider` adapter, three decorators and a fallback chain
 around that single gateway call; all of it was removed, and the decorators' real work (budget,
@@ -24,7 +24,7 @@ feature  →  VuloPilot()->ai_request_sender->send( $messages, $image, $surface 
               6. AISafetyValidator::sanitize_response()
 ```
 
-`AiRequestSender` is built once in `VuloPilot::init_classes()` and shared — every caller
+`AiRequestSender` is built once in `VuloPilot::init_classes()` and shared - every caller
 (`AiCopilot\ActionRunner`, `Geo\GeoAnalyzer`, `ContentIntelligence\ContentAnalyzer`,
 `Services\SiteToneLearner`, and vulopilot-pro's analyzers/REST controllers) is handed that same
 instance (`VuloPilot()->ai_request_sender`) rather than constructing its own.
@@ -35,7 +35,7 @@ instance (`VuloPilot()->ai_request_sender`) rather than constructing its own.
 - **History.** Recorded around the retries, so one call is one row regardless of how many attempts
   it took. Failures are recorded too (`status = 'failure'`, zero tokens) so the audit trail covers
   what was tried, not only what worked. The `provider` column and `AIResponse::get_provider()` are
-  kept as a source label (always `'vulocloud'` today) — it is stored data, not a provider concept.
+  kept as a source label (always `'vulocloud'` today) - it is stored data, not a provider concept.
 - **Images.** `AIRequest::get_image()` exists, but the VuloCloud wire contract carries text only,
   so nothing sends one. Image attachments in Copilot chat get the same honest "can't be read" note
   any other unsupported file does.
@@ -50,7 +50,7 @@ classes/
 │   ├── AIRequest.php                 model, messages, temperature, max_tokens, image, surface
 │   └── AIResponse.php                content, provider, model, prompt/completion tokens, finish_reason
 ├── Exceptions/
-│   ├── AiRequestException.php          base — catch this for "the AI request failed"
+│   ├── AiRequestException.php          base - catch this for "the AI request failed"
 │   ├── TransientGatewayException.php   retry-eligible (network error, 5xx, 429)
 │   ├── GatewayRequestException.php     not retry-eligible (malformed request, rejected)
 │   ├── RateLimitExceededException.php  thrown before the request is sent
@@ -72,10 +72,10 @@ VuloCloud (the passwordless broker flow behind Settings → Connections → Vulo
 `Controllers\VuloCloudAiConnection`), and `Services\AiByokGatewayClient` is the call itself.
 
 AI Credits are a separate, metered path, not a layer on top: `Services\AiCreditGatewayClient` calls
-VuloCloud's credit-metered `POST /plugin/ai/execute` (a different wire contract —
+VuloCloud's credit-metered `POST /plugin/ai/execute` (a different wire contract -
 `{featureId, action, context}`). `AiCopilot\ActionRunner::send_prompt_or_credits()` is where the two
-meet: it always sends through `AiRequestSender` first, and only falls through to credits — for the
-action ids in `CREDIT_FEATURE_MAP` — when that throws `AiByokNotConfiguredException`. Every other
+meet: it always sends through `AiRequestSender` first, and only falls through to credits - for the
+action ids in `CREDIT_FEATURE_MAP` - when that throws `AiByokNotConfiguredException`. Every other
 action id's "not configured" is a final `\RuntimeException`.
 
 ## AI actions (`modules/AiCopilot/`)
@@ -95,14 +95,14 @@ not the module is active; the REST surface itself gates on the module being acti
 
 Two gates, called from `AiRequestSender` for every caller:
 
-- **`validate_prompt()`** — runs *before* a request is ever sent. Rejects prompts over 32,000
+- **`validate_prompt()`** - runs *before* a request is ever sent. Rejects prompts over 32,000
   characters (`MAX_PROMPT_LENGTH`), and rejects (rather than silently stripping) any prompt whose
   text matches a known API-key shape (OpenAI-style `sk-[a-zA-Z0-9]{20,}`, Google
-  `AIza[0-9A-Za-z\-_]{35}`, a PEM `-----BEGIN (RSA |EC )?PRIVATE KEY-----` header) — a
+  `AIza[0-9A-Za-z\-_]{35}`, a PEM `-----BEGIN (RSA |EC )?PRIVATE KEY-----` header) - a
   self-consistency check against a prompt-builder interpolating a credential, not a general PII
   scanner.
-- **`sanitize_response()`** — runs on every response before anything sees it. Strips all
-  HTML/script content via `wp_kses( $content, array() )` — an AI response is never trusted as
+- **`sanitize_response()`** - runs on every response before anything sees it. Strips all
+  HTML/script content via `wp_kses( $content, array() )` - an AI response is never trusted as
   safe-to-render markup just because the HTTP call succeeded.
 
 ## Extension strategy
@@ -115,8 +115,8 @@ Two gates, called from `AiRequestSender` for every caller:
 
 ## What's not here yet
 
-- **Multimodal (vision) messages** — see "Images" above; needs a VuloCloud-side wire contract
+- **Multimodal (vision) messages** - see "Images" above; needs a VuloCloud-side wire contract
   change. `AI-ACTIONS.md`'s `GenerateAltAction` is context-based, not vision-based, as an honest
   answer to that gap.
-- **Quota enforcement** — nothing reads or increments a spend/token budget. The per-minute budget
+- **Quota enforcement** - nothing reads or increments a spend/token budget. The per-minute budget
   in `AiRequestSender` limits *rate*, not total spend, a related but different mechanism.

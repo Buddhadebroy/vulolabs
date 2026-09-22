@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Checks whether a bounded batch of recently-modified published posts'
- * OWN permalinks resolve — distinct from BrokenLinksScanner, which only
+ * OWN permalinks resolve - distinct from BrokenLinksScanner, which only
  * checks outbound/internal links found INSIDE content, never whether the
  * post's own URL actually loads (a rewrite-rule/permalink-structure
  * change is a common, otherwise-invisible way for this to silently break).
@@ -102,7 +102,7 @@ class NotFoundScanner extends AbstractBasicScanner implements TracksScannedObjec
                 ),
                 Severity::HIGH,
                 $this->get_category(),
-                __( 'This page is published but its own URL does not resolve — often caused by a permalink structure or rewrite rule change.', 'vulopilot' ),
+                __( 'This page is published but its own URL does not resolve - often caused by a permalink structure or rewrite rule change.', 'vulopilot' ),
                 'post',
                 (string) $post->ID,
                 array( 'url' => $permalink )

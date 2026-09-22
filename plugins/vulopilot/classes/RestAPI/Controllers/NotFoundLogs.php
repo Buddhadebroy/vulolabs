@@ -15,10 +15,10 @@ defined( 'ABSPATH' ) || exit;
 /**
  * GET /not-found-logs, POST /not-found-logs/{id}/delete (dismiss a log
  * entry), POST /not-found-logs/{id}/convert (turn it into a real redirect)
- * — backs the Redirects page's own "404 Log" table. convert_item() does
+ * - backs the Redirects page's own "404 Log" table. convert_item() does
  * both steps atomically (create the redirect, then remove the now-handled
  * log row) rather than leaving the frontend to call Redirects' own
- * create_item() and this controller's delete_item() separately — a failed
+ * create_item() and this controller's delete_item() separately - a failed
  * second call would otherwise leave a log entry that's already been
  * redirected still showing up as unhandled.
  *
@@ -104,7 +104,7 @@ class NotFoundLogs extends \WP_REST_Controller {
      * (same `count_by_column()` pattern Redirects.php's own
      * `is_active_counts` uses). `is_system` ('0'/'1') scopes this to real
      * missing content pages or the "system" bucket (theme/plugin/core-file/
-     * asset 404s — Services\NotFoundLogger::is_system_path()) when the
+     * asset 404s - Services\NotFoundLogger::is_system_path()) when the
      * frontend's own "All/Content/System" filter pills narrow it down;
      * omitting the param (the default "All" pill) returns both mixed
      * together, same as any other AbstractRepository filterable column.
@@ -157,7 +157,7 @@ class NotFoundLogs extends \WP_REST_Controller {
 
     /**
      * Creates a real redirect from this 404 log entry, then removes the
-     * log row — see this class's own docblock for why both steps happen
+     * log row - see this class's own docblock for why both steps happen
      * here rather than as two separate frontend calls.
      *
      * @param \WP_REST_Request $request Full request object.
@@ -184,7 +184,7 @@ class NotFoundLogs extends \WP_REST_Controller {
         if ( $existing_target ) {
             return new \WP_Error(
                 'vulopilot_redirect_already_exists',
-                __( 'A redirect for this path already exists — manage it from the Redirects table above.', 'vulopilot' ),
+                __( 'A redirect for this path already exists - manage it from the Redirects table above.', 'vulopilot' ),
                 array( 'status' => 400 )
             );
         }

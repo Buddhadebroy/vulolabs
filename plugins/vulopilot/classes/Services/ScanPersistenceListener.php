@@ -21,14 +21,14 @@ defined( 'ABSPATH' ) || exit;
  * VuloPilot ScanPersistenceListener class.
  *
  * The first real occupant of the "Services" layer ARCHITECTURE.md
- * describes — self-hooks `vulopilot_scan_completed` (fired by
+ * describes - self-hooks `vulopilot_scan_completed` (fired by
  * Scanners\ScanRunner, which deliberately never persists anything itself;
  * see its own docblock) and is the thing that turns a ScanResult into
  * real vulopilot_scans/vulopilot_scan_findings rows. Neither ScanRunner
- * nor RuleEngine has any idea this class exists — the hook is the only
+ * nor RuleEngine has any idea this class exists - the hook is the only
  * coupling, same one-way-dependency shape used throughout.
  *
- * Fires `vulopilot_scan_persisted` after its own persistence work — the
+ * Fires `vulopilot_scan_persisted` after its own persistence work - the
  * seam vulopilot-pro's AdvancedReports module hooks to recalculate and
  * upsert today's site-health snapshot (historical trend data is Pro
  * business logic; this class only owns "did the scan's own rows get
@@ -41,11 +41,11 @@ defined( 'ABSPATH' ) || exit;
 class ScanPersistenceListener {
 
     /**
-     * Scanner ids that never dedupe on rescan — always inserted fresh,
+     * Scanner ids that never dedupe on rescan - always inserted fresh,
      * every run, even if the exact same object_type/object_ref/title
      * combination is already open. This used to be an ALLOWLIST (only
      * `broken-links`/`broken-images`, later also `core-file-integrity`,
-     * deduped; every other scanner always inserted fresh) — flipped to a
+     * deduped; every other scanner always inserted fresh) - flipped to a
      * denylist after a real environment showed the allowlist approach
      * doesn't scale: virtually every scanner that re-checks a bounded,
      * identifiable set of objects (posts, plugins, themes, URLs, ...) hits
@@ -53,15 +53,15 @@ class ScanPersistenceListener {
      * under a different scanner_id each time (basic-vulnerabilities,
      * canonical-url, thin-content, meta-description, seo, geo-author-info,
      * geo-trust-signals, internal-linking, seo-images, images, plugins,
-     * themes, cdn, and more — confirmed live, up to 24 duplicate open rows
+     * themes, cdn, and more - confirmed live, up to 24 duplicate open rows
      * for one object). Deduping is now the default for every scanner,
      * regardless of whether a finding carries a real `object_type`/
-     * `object_ref` — find_open_duplicate() matches those two columns
+     * `object_ref` - find_open_duplicate() matches those two columns
      * NULL-safely, so a purely sitewide check with nothing to match on
      * (e.g. `php-warnings`) dedupes on `scanner_id`+`title` alone the same
      * way an object-scoped finding dedupes on the full four-column key.
      * This list only exists for a scanner that genuinely wants more than
-     * one simultaneously-open row for the same object+title — none do
+     * one simultaneously-open row for the same object+title - none do
      * today, but the mechanism stays available rather than assuming
      * that'll never be true.
      *
@@ -74,7 +74,7 @@ class ScanPersistenceListener {
      * Website Alerts, 'critical_alert_types') to the real finding
      * categories that back it. A category not listed here (e.g.
      * 'woocommerce', 'database', 'links') falls under the 'other' catch-all
-     * instead of its own checkbox — see that setting's own Utill.php
+     * instead of its own checkbox - see that setting's own Utill.php
      * docblock.
      *
      * @var array<string, string[]>
@@ -88,7 +88,7 @@ class ScanPersistenceListener {
 
     /**
      * Real scanner categories `maybe_log_security_scan_activity()` scopes
-     * to — same 'security'/'ssl' pairing CRITICAL_ALERT_CATEGORIES['security']
+     * to - same 'security'/'ssl' pairing CRITICAL_ALERT_CATEGORIES['security']
      * already uses (SslMonitoringScanner's own real category is 'ssl', not
      * 'security').
      *
@@ -141,7 +141,7 @@ class ScanPersistenceListener {
         );
 
         // Real auto-resolve step (see this method's own end, after the
-        // loop, for why) — every id this scanner currently has open,
+        // loop, for why) - every id this scanner currently has open,
         // captured BEFORE this run touches anything, so it's a clean
         // "what was open coming in" snapshot to diff against once the
         // loop below finishes. A row this loop refreshes (still a real,
@@ -164,13 +164,13 @@ class ScanPersistenceListener {
                 : null;
 
             if ( null !== $duplicate ) {
-                // Same problem is still present as of this run — refresh
+                // Same problem is still present as of this run - refresh
                 // the existing open row's own scan-run-specific fields
                 // rather than inserting a second identical one (see
                 // FindingRepository::find_open_duplicate()'s own
                 // docblock). `created_at`/`id` deliberately untouched, so
                 // this stays "first detected" for the finding, not
-                // "detected again" — real historical queries
+                // "detected again" - real historical queries
                 // (get_severity_breakdown_for_category_as_of() and
                 // friends) depend on `created_at` meaning that. `last_seen_at`
                 // DOES move to this run's timestamp, though: it's what the
@@ -181,7 +181,7 @@ class ScanPersistenceListener {
                 // DOES move too (unlike everything above, this wasn't true
                 // before `dedupe_key` existed): a finding matched via a
                 // stable `dedupe_key` can have a `title` that legitimately
-                // drifts every run (a word count, a score) — refreshing it
+                // drifts every run (a word count, a score) - refreshing it
                 // here is what keeps the number a site owner sees current
                 // instead of frozen at whatever it was on first detection.
                 $this->findings->update(
@@ -216,11 +216,11 @@ class ScanPersistenceListener {
             );
 
             /**
-             * Fires only for a genuinely NEW finding — the branch above
+             * Fires only for a genuinely NEW finding - the branch above
              * (an existing open duplicate refreshed instead) never reaches
              * here, so a still-recurring problem doesn't re-fire this on
              * every scan. vulopilot-pro's Automations\Triggers\
-             * NewFindingTrigger's own extension point — "trigger decides
+             * NewFindingTrigger's own extension point - "trigger decides
              * WHEN, conditions decide whether to continue" (same posture
              * every other trigger in that registry already follows): this
              * fires for every new finding regardless of severity/category,
@@ -248,18 +248,18 @@ class ScanPersistenceListener {
         }
 
         // Auto-resolve every finding this scanner previously had open that
-        // this run didn't reproduce — real, confirmed live: a stale
+        // this run didn't reproduce - real, confirmed live: a stale
         // "WordPress core update available" row (and, separately, a stale
         // malware-scanner false positive) kept showing as open in Issues
         // days after the real underlying problem was gone, because nothing
         // anywhere in this codebase ever marked a finding resolved just
-        // because a later scan stopped finding it — `find_open_duplicate()`
+        // because a later scan stopped finding it - `find_open_duplicate()`
         // above only ever refreshes or inserts, never closes. Every real
         // scan run here checks its whole relevant scope fresh each time
         // (ScanRunner::run() takes no partial/subset argument), so
         // "previously open, not reproduced this run" reliably means fixed,
         // not "wasn't checked this time." Only runs for a genuinely
-        // completed scan — a failed run (`STATUS_FAILED`, e.g. a fatal
+        // completed scan - a failed run (`STATUS_FAILED`, e.g. a fatal
         // mid-scan) didn't actually finish verifying anything, so it
         // must never be read as "nothing's wrong anymore."
         if ( ScanResult::STATUS_COMPLETED === $scan_result->get_status() ) {
@@ -292,7 +292,7 @@ class ScanPersistenceListener {
         $this->maybe_notify_critical_findings( $scan_result );
 
         /**
-         * Fires after a scan's own rows are persisted — vulopilot-pro's
+         * Fires after a scan's own rows are persisted - vulopilot-pro's
          * AdvancedReports module hooks this to recalculate and upsert
          * today's site-health snapshot (historical trend data). Free
          * itself doesn't do anything with $scan_id beyond handing it out;
@@ -308,21 +308,21 @@ class ScanPersistenceListener {
     /**
      * A second, additional real activity-log row for the exact same
      * completion this method's caller just logged as the generic
-     * 'scan.completed' event — under a distinct, always-on event type
+     * 'scan.completed' event - under a distinct, always-on event type
      * ('scan.completed.security') whenever the just-completed scanner's
      * own real category is security-relevant (SECURITY_SCOPED_CATEGORIES
      * above). What "Security" tab's own RecentActivityCard.tsx needs to
      * filter on: the Pro-only 'security.alert' event type
      * (vulopilot-pro\SecurityMonitoring\AlertDispatcher) only exists with
      * an active Pro license AND the site's own `security_alerts_enabled`
-     * setting turned on (default off) — meaning on Free-only installs,
+     * setting turned on (default off) - meaning on Free-only installs,
      * unlicensed Pro installs, and licensed-but-unconfigured Pro installs
      * (the large majority of real sites), that card would stay
      * permanently empty no matter how many open security findings exist.
      * This fires every real security-category scan completion, findings
-     * or not, zero configuration required — resolved via the real
+     * or not, zero configuration required - resolved via the real
      * ScannerRegistry singleton (`VuloPilot()->scanner_registry`, already
-     * populated by the time any real scan can complete — scans only ever
+     * populated by the time any real scan can complete - scans only ever
      * run well after `init` priority 20) rather than the completed scan's
      * own findings, so a clean scan (0 findings) still logs real activity
      * instead of this card only ever showing up when something's wrong.
@@ -356,7 +356,7 @@ class ScanPersistenceListener {
     /**
      * Emails the site's notification address when this scan raised any
      * critical-severity finding, gated behind the Settings screen's
-     * Notifications tab (`notify_on_critical_findings`, default off — this
+     * Notifications tab (`notify_on_critical_findings`, default off - this
      * is opt-in, not a change to a previously-silent default).
      *
      * @param ScanResult $scan_result The completed scan.

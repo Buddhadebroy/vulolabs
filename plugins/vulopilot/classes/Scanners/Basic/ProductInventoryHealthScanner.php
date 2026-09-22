@@ -101,7 +101,7 @@ class ProductInventoryHealthScanner extends AbstractBasicScanner {
                     ),
                     Severity::HIGH,
                     $this->get_category(),
-                    __( 'This product is purchasable and shown as in-stock, but its tracked quantity is zero — customers can order something that is not actually available.', 'vulopilot' ),
+                    __( 'This product is purchasable and shown as in-stock, but its tracked quantity is zero - customers can order something that is not actually available.', 'vulopilot' ),
                     'product',
                     (string) $product->get_id(),
                     array( 'check' => 'instock_zero_quantity' )

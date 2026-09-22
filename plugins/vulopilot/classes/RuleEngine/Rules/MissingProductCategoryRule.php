@@ -16,7 +16,7 @@ use VuloPilot\ValueObjects\RuleType;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Not fixable/AI-assisted — which category (or categories) a product
+ * Not fixable/AI-assisted - which category (or categories) a product
  * belongs to is a store-taxonomy decision, not something to guess and
  * apply automatically. Still worth its own recommendation: an
  * uncategorized product is effectively unreachable through normal shop

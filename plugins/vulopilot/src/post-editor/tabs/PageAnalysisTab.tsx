@@ -5,15 +5,15 @@ import { analyzePage, fetchOpenFindings, PageAnalysisCheck, PageAnalysisResponse
 import { SEO_ISSUE_EDITOR_TARGETS, SeoIssueEditorTab, SeoIssueEditorTarget } from '../../services/seoIssueEditorTarget';
 
 interface PageAnalysisTabProps {
-	/** Either of 2 real deep-link vocabularies this tab now understands: `GEO/PageAnalysisPanel.tsx`'s own SEO check `key` (e.g. 'broken_links', `PAGE_ANALYSIS_CHECK_QUERY_PARAM`), or a GEO/AEO finding's own real numeric id as a string (`GeoAeoPageAnalysisPanel.tsx`/`SeoIssuesByPageTable.tsx`, `FINDING_ID_QUERY_PARAM`) — resolved against whichever of `data.checks`/`geoFindings`/`aeoFindings` actually contains a match, then scrolled to and pulse-highlighted once that section's own fetch has loaded. */
+	/** Either of 2 real deep-link vocabularies this tab now understands: `GEO/PageAnalysisPanel.tsx`'s own SEO check `key` (e.g. 'broken_links', `PAGE_ANALYSIS_CHECK_QUERY_PARAM`), or a GEO/AEO finding's own real numeric id as a string (`GeoAeoPageAnalysisPanel.tsx`/`SeoIssuesByPageTable.tsx`, `FINDING_ID_QUERY_PARAM`) - resolved against whichever of `data.checks`/`geoFindings`/`aeoFindings` actually contains a match, then scrolled to and pulse-highlighted once that section's own fetch has loaded. */
 	highlightTarget?: string;
-	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch — lets a row here jump straight to the real General/Advanced/Social/Schema field that fixes it, instead of only scrolling within this same tab. */
+	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch - lets a row here jump straight to the real General/Advanced/Social/Schema field that fixes it, instead of only scrolling within this same tab. */
 	onNavigate?: ( tab: SeoIssueEditorTab, target?: string ) => void;
 }
 
 /**
  * This tab's own check `key`s (`Controllers\Seo::get_page_analysis()`) →
- * the scanner id `SEO_ISSUE_EDITOR_TARGETS` already understands — the same
+ * the scanner id `SEO_ISSUE_EDITOR_TARGETS` already understands - the same
  * translation `GEO/PageAnalysisPanel.tsx`'s own `CHECK_KEY_TO_SCANNER_ID`
  * already establishes for its "Edit"/"Fix with AI" row actions, duplicated
  * here per this codebase's own "duplicate small per-file logic" convention
@@ -21,8 +21,8 @@ interface PageAnalysisTabProps {
  * `headings` have no dedicated scanner of their own but map onto the
  * closest real equivalent scanner's own editor target. `featured_image`/
  * `broken_links`/`orphan_page`/`indexability` have no real editor-sidebar
- * field anywhere in this codebase (confirmed — same gap
- * `SEO_ISSUE_EDITOR_TARGETS`'s own docblock lists) — omitted on purpose,
+ * field anywhere in this codebase (confirmed - same gap
+ * `SEO_ISSUE_EDITOR_TARGETS`'s own docblock lists) - omitted on purpose,
  * so those rows simply aren't clickable rather than pretending to jump
  * somewhere that doesn't exist.
  */
@@ -46,7 +46,7 @@ const editorTargetForCheck = ( checkKey: string ): SeoIssueEditorTarget | null =
 
 /**
  * This tab's own local copy of GeoTab.tsx's/AeoTab.tsx's real scanner-id
- * unions (`GEO_SECTIONS`/`AEO_SECTIONS`) — duplicated rather than imported
+ * unions (`GEO_SECTIONS`/`AEO_SECTIONS`) - duplicated rather than imported
  * for the same reason `CHECK_KEY_TO_SCANNER_ID` above is local: those are
  * big dashboard-page files with their own heavy zyra-based imports, and
  * this tab lives in the separate, small post-editor webpack entry (see
@@ -73,7 +73,7 @@ const AEO_SCANNER_IDS = [
 	'aeo-schema',
 ];
 
-/** A finding's own `scanner_id` already IS the id `SEO_ISSUE_EDITOR_TARGETS` is keyed by — no `key`-to-scanner-id translation needed here the way `editorTargetForCheck()` above needs one for Page Analysis's own different check-key vocabulary. */
+/** A finding's own `scanner_id` already IS the id `SEO_ISSUE_EDITOR_TARGETS` is keyed by - no `key`-to-scanner-id translation needed here the way `editorTargetForCheck()` above needs one for Page Analysis's own different check-key vocabulary. */
 const editorTargetForFinding = ( finding: RawFinding ): SeoIssueEditorTarget | null =>
 	SEO_ISSUE_EDITOR_TARGETS[ finding.scanner_id ] ?? null;
 
@@ -83,14 +83,14 @@ const STATUS_ICON: Record< PageAnalysisCheck[ 'status' ], string > = {
 	fail: 'dismiss',
 };
 
-/** `PageAnalysisCheck['status']` → this bundle's own `vulopilot-seo-checklist__item--{modifier}` CSS already ships for Checklist.tsx (`--pass`/`--warning`/`--fail`) — 'warn' (this endpoint's own naming) reuses the existing '--warning' rule rather than adding a near-duplicate one. */
+/** `PageAnalysisCheck['status']` → this bundle's own `vulopilot-seo-checklist__item--{modifier}` CSS already ships for Checklist.tsx (`--pass`/`--warning`/`--fail`) - 'warn' (this endpoint's own naming) reuses the existing '--warning' rule rather than adding a near-duplicate one. */
 const STATUS_MODIFIER: Record< PageAnalysisCheck[ 'status' ], string > = {
 	pass: 'pass',
 	warn: 'warning',
 	fail: 'fail',
 };
 
-/** GEO/AEO findings have no "pass" state (a finding only ever exists for a real open problem — same real gap `GeoAeoPageAnalysisPanel.tsx`'s own docblock documents) — folded onto the same 3-icon/3-color scheme SEO's own checks already use, critical/high reading as the same real "fail" a SEO check would, medium/low/info as "warn". */
+/** GEO/AEO findings have no "pass" state (a finding only ever exists for a real open problem - same real gap `GeoAeoPageAnalysisPanel.tsx`'s own docblock documents) - folded onto the same 3-icon/3-color scheme SEO's own checks already use, critical/high reading as the same real "fail" a SEO check would, medium/low/info as "warn". */
 const SEVERITY_TO_STATUS: Record< RawFinding[ 'severity' ], PageAnalysisCheck[ 'status' ] > = {
 	critical: 'fail',
 	high: 'fail',
@@ -131,12 +131,12 @@ interface IssueListProps {
 	onNavigate?: ( tab: SeoIssueEditorTab, target?: string ) => void;
 }
 
-/** Renders one section's own real row list — the exact same clickable-row markup/behavior this tab's SEO section already had, now shared by GEO's/AEO's own sections below it too. */
+/** Renders one section's own real row list - the exact same clickable-row markup/behavior this tab's SEO section already had, now shared by GEO's/AEO's own sections below it too. */
 function IssueList( { idPrefix, rows, pulsingId, onNavigate }: IssueListProps ) {
 	return (
 		<ul className="vulopilot-seo-checklist__list">
 			{ rows.map( ( row ) => {
-				// Real "go fix this" destination — resolves to null (row stays
+				// Real "go fix this" destination - resolves to null (row stays
 				// inert) whenever this row's own scanner/check has no real
 				// editor-sidebar field anywhere in this codebase.
 				const isClickable = Boolean( row.target && onNavigate );
@@ -167,7 +167,7 @@ function IssueList( { idPrefix, rows, pulsingId, onNavigate }: IssueListProps ) 
 						<i className={ `dashicons dashicons-${ STATUS_ICON[ row.status ] } vulopilot-seo-checklist__icon` } />
 						<span className="vulopilot-seo-checklist__message">
 							<strong>{ row.label }</strong>
-							{ row.message && <>{ ' — ' }{ row.message }</> }
+							{ row.message && <>{ ' - ' }{ row.message }</> }
 						</span>
 						{ isClickable && (
 							<i className="dashicons dashicons-arrow-right-alt2 vulopilot-seo-checklist__arrow" />
@@ -190,7 +190,7 @@ interface IssueSectionProps {
 	onNavigate?: ( tab: SeoIssueEditorTab, target?: string ) => void;
 }
 
-/** One headed section (SEO Issues / GEO Issues / AEO Issues) — a real heading using this bundle's own existing `vulopilot-seo-checklist__header`/`__title` look (Checklist.tsx's General-tab groups already ship this CSS), then that section's own real row list, loading state, error, or "nothing open" message. */
+/** One headed section (SEO Issues / GEO Issues / AEO Issues) - a real heading using this bundle's own existing `vulopilot-seo-checklist__header`/`__title` look (Checklist.tsx's General-tab groups already ship this CSS), then that section's own real row list, loading state, error, or "nothing open" message. */
 function IssueSection( { heading, idPrefix, rows, isLoading, error, emptyMessage, pulsingId, onNavigate }: IssueSectionProps ) {
 	return (
 		<div className="vulopilot-seo-checklist">
@@ -211,7 +211,7 @@ function IssueSection( { heading, idPrefix, rows, isLoading, error, emptyMessage
 }
 
 /**
- * The metabox's "Page Analysis" tab — 3 headed sections (SEO Issues / GEO
+ * The metabox's "Page Analysis" tab - 3 headed sections (SEO Issues / GEO
  * Issues / AEO Issues), all sharing the exact same real click → navigate →
  * highlight experience.
  *
@@ -229,16 +229,16 @@ function IssueSection( { heading, idPrefix, rows, isLoading, error, emptyMessage
  * Deliberately its own tab rather than folded into General's own
  * OnPageAnalyzer-driven checklist: that one re-analyzes LIVE, unsaved
  * editor state on every keystroke (Services\OnPageAnalyzer's own docblock)
- * and only ever covers title/description/content/headings/links/images —
+ * and only ever covers title/description/content/headings/links/images -
  * this one reflects the last-scanned, saved-post-state truth for the full
  * 13-check set, including checks (Featured Image, Broken Links, Orphan
  * Page, Indexability) OnPageAnalyzer has no way to compute at all (no
  * unsaved-field equivalent for a post thumbnail, a site-wide link graph, or
  * published/noindex state). Fetched once per postId rather than on every
- * keystroke — it isn't live the way General's checklist is.
+ * keystroke - it isn't live the way General's checklist is.
  *
  * "GEO Issues"/"AEO Issues" are new: unlike SEO, GEO/AEO have no on-demand
- * per-post checklist endpoint anywhere in this codebase (confirmed —
+ * per-post checklist endpoint anywhere in this codebase (confirmed -
  * `GeoAeoPageAnalysisPanel.tsx`'s own docblock explicitly refuses to
  * fabricate one), so these 2 sections instead show this exact page's own
  * real *open findings* for GEO's/AEO's own scanner ids (`GET /findings`,
@@ -246,16 +246,16 @@ function IssueSection( { heading, idPrefix, rows, isLoading, error, emptyMessage
  * Posts" tables and `GeoAeoPageAnalysisPanel.tsx`'s own per-page side panel
  * already use), fetched once per postId and filtered to this post
  * client-side (`object_ref === postId`) the same way that panel already
- * does — there's no server-side per-post filter for this endpoint. A
+ * does - there's no server-side per-post filter for this endpoint. A
  * finding has no "pass" state, so a page with none currently open for that
  * tab shows a real "nothing open" message rather than an empty list.
  *
- * GEO/AEO rows are also now externally deep-linkable, same as SEO's own —
+ * GEO/AEO rows are also now externally deep-linkable, same as SEO's own -
  * `GeoAeoPageAnalysisPanel.tsx`/`SeoIssuesByPageTable.tsx` link here with
  * `?vulopilot_finding_id={id}` (the finding's own real numeric id) for any
  * row whose `scanner_id` has no `SEO_ISSUE_EDITOR_TARGETS` entry (most real
  * GEO/AEO scanner ids), resolved by the deep-link effect further down
- * against `geoFindings`/`aeoFindings` once loaded — see
+ * against `geoFindings`/`aeoFindings` once loaded - see
  * `FINDING_ID_QUERY_PARAM`'s own docblock.
  */
 export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAnalysisTabProps ) {
@@ -304,7 +304,7 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 	}, [ postId ] );
 
 	// 2 more real, independent requests rather than gating the whole tab
-	// (including the unchanged SEO section above) behind them — same "don't
+	// (including the unchanged SEO section above) behind them - same "don't
 	// change existing SEO behavior" posture the top docblock documents.
 	useEffect( () => {
 		let cancelled = false;
@@ -360,14 +360,14 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 		};
 	}, [ postId ] );
 
-	// Deep-link highlighting — SEO's own `data.checks` (matched by real
+	// Deep-link highlighting - SEO's own `data.checks` (matched by real
 	// `key`, `PAGE_ANALYSIS_CHECK_QUERY_PARAM`) is tried first, same real
 	// behavior this tab had before GEO/AEO Issues existed; GEO's/AEO's own
-	// findings (matched by real numeric id, `FINDING_ID_QUERY_PARAM` — see
+	// findings (matched by real numeric id, `FINDING_ID_QUERY_PARAM` - see
 	// that constant's own docblock) are tried next, once each section's
 	// own independent fetch has actually resolved. A target that's really
 	// a GEO/AEO finding simply doesn't match on an earlier render where
-	// `isLoadingGeo`/`isLoadingAeo` is still true — this effect re-runs as
+	// `isLoadingGeo`/`isLoadingAeo` is still true - this effect re-runs as
 	// those settle (see the dependency array) rather than giving up.
 	useEffect( () => {
 		if ( ! highlightTarget || hasScrolledRef.current ) {

@@ -23,18 +23,18 @@ defined( 'ABSPATH' ) || exit;
  * broken.
  *
  * Bounded on two axes deliberately (posts scanned, and total links
- * checked) — an unbounded crawl of the entire site's content on every
+ * checked) - an unbounded crawl of the entire site's content on every
  * scan run is exactly the kind of unbounded operation performance.md
  * warns against, and would make a single scan run take arbitrarily long
  * on a large site. A HEAD request that returns a non-2xx/3xx status is
  * treated as broken; a small number of servers reject HEAD requests
- * outright (405) even though the URL is fine — that's a known,
+ * outright (405) even though the URL is fine - that's a known,
  * accepted false-positive source for this first-pass check, not
  * something this pass tries to fully eliminate.
  *
- * Every Finding carries a real `meta.reason` ('broken' vs 'unverified' —
+ * Every Finding carries a real `meta.reason` ('broken' vs 'unverified' -
  * see check_link()'s own docblock) and every genuine run persists real
- * per-run coverage stats to STATS_OPTION — both added so
+ * per-run coverage stats to STATS_OPTION - both added so
  * BrokenLinksTab.tsx's own "Broken links"/"Couldn't verify"/"Coverage"/
  * "Link health" tiles could be built from real numbers instead of either
  * fabricating them or leaving them out, per direct instruction.
@@ -52,14 +52,14 @@ class BrokenLinksScanner extends AbstractBasicScanner implements TracksScannedOb
     private const REQUEST_TIMEOUT_SECONDS = 5;
 
     /**
-     * Stores when this scanner last genuinely ran — see due_to_run()'s
+     * Stores when this scanner last genuinely ran - see due_to_run()'s
      * own docblock for why this scanner self-rate-limits instead of the
      * cadence being scheduled externally.
      */
     private const LAST_RUN_OPTION = 'vulopilot_broken_links_last_checked';
 
     /**
-     * Set via set_force_run() (SupportsForceRunInterface) — true for the
+     * Set via set_force_run() (SupportsForceRunInterface) - true for the
      * scan() call this triggers, bypassing due_to_run()'s own cadence
      * check. Never persisted; a fresh scanner instance is built per
      * ScanRunner::run() call, so there's no cross-request state to reset.
@@ -68,7 +68,7 @@ class BrokenLinksScanner extends AbstractBasicScanner implements TracksScannedOb
 
     /**
      * Real per-run coverage stats (pages scanned/links checked/healthy
-     * count this run) — Controllers\BrokenLinksStats reads this directly
+     * count this run) - Controllers\BrokenLinksStats reads this directly
      * for BrokenLinksTab.tsx's own real "Coverage"/"Link health" tiles.
      * Nothing here is derived/estimated: every field is a plain count of
      * what this exact run actually did, overwritten (not accumulated)
@@ -110,7 +110,7 @@ class BrokenLinksScanner extends AbstractBasicScanner implements TracksScannedOb
     public function scan(): array {
         $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
-        // Flat, standalone key — Settings → Scanning → SEO & Content →
+        // Flat, standalone key - Settings → Scanning → SEO & Content →
         // "Links & schema" (SeoContent.ts). See Utill::VULOPILOT_SETTINGS_DEFAULTS's
         // own docblock on this key for why it's no longer nested under
         // content_search_scans.links.
@@ -151,17 +151,17 @@ class BrokenLinksScanner extends AbstractBasicScanner implements TracksScannedOb
                 (string) $link['post_id'],
                 array(
                     'url'    => $url,
-                    // 'unverified' — a network/timeout/DNS failure
+                    // 'unverified' - a network/timeout/DNS failure
                     // (is_wp_error()); could genuinely be a fine link on a
                     // slow/unreachable-from-this-server host, not
-                    // necessarily broken. 'broken' — a real HTTP response
+                    // necessarily broken. 'broken' - a real HTTP response
                     // that just wasn't 2xx/3xx. BrokenLinksTab.tsx's own
                     // "Broken links" vs "Couldn't verify" tiles are this
                     // field, not a guess.
                     'reason' => $result['reason'],
                     // Real visible anchor text for this real `<a>` tag
                     // (stripped of any nested markup, e.g. a wrapped
-                    // `<strong>`/`<span>`) — empty string when the link
+                    // `<strong>`/`<span>`) - empty string when the link
                     // wraps only an image or other non-text content (an
                     // honest "no text", not a fabricated placeholder; the
                     // frontend shows its own real fallback copy for that
@@ -190,7 +190,7 @@ class BrokenLinksScanner extends AbstractBasicScanner implements TracksScannedOb
      * Pulls every http(s) link out of the most recently published
      * content, deduped, capped at MAX_LINKS_PER_RUN. Each real `<a>` tag's
      * own real visible text is captured alongside its `href` (stripped of
-     * any nested markup via `wp_strip_all_tags()`) — real, not derived —
+     * any nested markup via `wp_strip_all_tags()`) - real, not derived -
      * so "which text is broken" is a genuine answer rather than left for
      * the frontend to guess from the URL alone.
      *
@@ -245,7 +245,7 @@ class BrokenLinksScanner extends AbstractBasicScanner implements TracksScannedOb
 
     /**
      * Self-rate-limits against Scanning → SEO's own "Broken link check
-     * frequency" setting — this codebase's scan scheduling is one shared
+     * frequency" setting - this codebase's scan scheduling is one shared
      * cadence (`scan_frequency`, Utill.php), not a per-scanner cron, so a
      * scanner that wants a slower cadence than the shared one has to skip
      * its own check on the runs it isn't due, rather than the scan
@@ -254,11 +254,11 @@ class BrokenLinksScanner extends AbstractBasicScanner implements TracksScannedOb
      * hosts) records the last time this scanner genuinely ran.
      *
      * `$force` (set via set_force_run() ahead of this call) bypasses the
-     * interval check — a real, user-initiated "Run scan" click always
+     * interval check - a real, user-initiated "Run scan" click always
      * gets a real check, never a silent no-op just because this specific
      * scanner already ran earlier today. The timestamp still advances on
      * a forced run (below), so it counts as this scanner's own "last
-     * genuine run" the same as a due, unforced one would — otherwise a
+     * genuine run" the same as a due, unforced one would - otherwise a
      * cron run moments later would immediately re-check everything again.
      *
      * @param string $frequency 'daily' or 'weekly'.
@@ -280,7 +280,7 @@ class BrokenLinksScanner extends AbstractBasicScanner implements TracksScannedOb
 
     /**
      * @param string $url URL to check.
-     * @return array{reason: string, detail: string}|null 'reason' is 'unverified' (network/timeout/DNS failure — is_wp_error()) or 'broken' (a real non-2xx/3xx HTTP response); null if the link looks fine.
+     * @return array{reason: string, detail: string}|null 'reason' is 'unverified' (network/timeout/DNS failure - is_wp_error()) or 'broken' (a real non-2xx/3xx HTTP response); null if the link looks fine.
      */
     private function check_link( string $url ): ?array {
         $response = wp_remote_head(

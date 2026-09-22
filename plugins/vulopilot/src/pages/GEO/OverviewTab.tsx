@@ -49,7 +49,7 @@ const ratingClass = (score: number): string => {
 	return 'red';
 };
 
-/** Dynamic caption under the ring's own "Overall Score" label — same real per-tier wording shape OverallScoreWidget.tsx's own `getRatingSummary()` uses on the Dashboard, ported here rather than shared since the two use different score thresholds (this tab's own `getRating()` 70/40 split, not the Dashboard's 90/70/50). Replaces what used to be a plain repeat of this card's own header `desc` text right below it. */
+/** Dynamic caption under the ring's own "Overall Score" label - same real per-tier wording shape OverallScoreWidget.tsx's own `getRatingSummary()` uses on the Dashboard, ported here rather than shared since the two use different score thresholds (this tab's own `getRating()` 70/40 split, not the Dashboard's 90/70/50). Replaces what used to be a plain repeat of this card's own header `desc` text right below it. */
 const getRatingSummary = (score: number): string => {
 	if (score >= 70) {
 		return __('Your visibility is in good shape across the board.', 'vulopilot');
@@ -60,14 +60,14 @@ const getRatingSummary = (score: number): string => {
 	return __('Your visibility needs attention in several areas.', 'vulopilot');
 };
 
-/** Real CSS hex per `ratingClass()` tier — `ChartComponent`'s own ring `data[].color` takes a real CSS color, not a palette name the way `TypographyComponent`'s own `color` prop does, so this small map exists just for the ring fill (same "duplicate per file" convention `SeoTab.tsx`'s own `COLOR_PALETTE` lookup covers there with a shared constant this file doesn't import). */
+/** Real CSS hex per `ratingClass()` tier - `ChartComponent`'s own ring `data[].color` takes a real CSS color, not a palette name the way `TypographyComponent`'s own `color` prop does, so this small map exists just for the ring fill (same "duplicate per file" convention `SeoTab.tsx`'s own `COLOR_PALETTE` lookup covers there with a shared constant this file doesn't import). */
 const RATING_RING_COLOR: Record<string, string> = {
 	green: '#16a34a',
 	blue: '#2563eb',
 	red: '#dc2626',
 };
 
-/** Real per-area tab id `QUICK_LINKS` below already uses for the same 4 areas — reused here so clicking an area row in the new score list navigates to the exact same real tab its own Quick Links card links to. */
+/** Real per-area tab id `QUICK_LINKS` below already uses for the same 4 areas - reused here so clicking an area row in the new score list navigates to the exact same real tab its own Quick Links card links to. */
 const AREA_TABS: Record<keyof VisibilityScoreResponse['areas'], string> = {
 	brand: 'brand-visibility',
 	seo: 'seo',
@@ -87,7 +87,7 @@ const AREA_TILES: Record<
 
 type PeriodDays = '7' | '30' | '90';
 // Same real `key` field `GeoScoreSection.tsx`'s own identical
-// `ToggleInput` usage already includes — `ToggleInput`'s own options
+// `ToggleInput` usage already includes - `ToggleInput`'s own options
 // use `option.key` for both React's own list `key` and each real radio's
 // `id`/`htmlFor` pair (`SelectInput`, this used to feed, never needed one).
 // Without it every option here shared the same `undefined` key/id, so only
@@ -103,7 +103,7 @@ interface ProgressResponse {
 	trend: { date: string; score: number }[];
 }
 
-/** Real `FindingGroup.category` values → the real SEO & Visibility subtab that owns that category's findings — kept in sync manually with each area's own scanner-id list, same posture Visibility.php's own `AREA_SCANNER_IDS` already documents. Defaults to 'seo', this plugin's own largest real issues surface. */
+/** Real `FindingGroup.category` values → the real SEO & Visibility subtab that owns that category's findings - kept in sync manually with each area's own scanner-id list, same posture Visibility.php's own `AREA_SCANNER_IDS` already documents. Defaults to 'seo', this plugin's own largest real issues surface. */
 const CATEGORY_TO_TAB: Record<string, string> = {
 	geo: 'geo',
 	brand: 'brand-visibility',
@@ -161,7 +161,7 @@ const groupToTab = (group: FindingGroup): string =>
 	SCANNER_TAB_OVERRIDES[group.scanner_id] ?? categoryToTab(group.category);
 
 // Same real "icon name" + trailing color modifier convention `SeoTab.tsx`'s
-// own `CATEGORY_CARDS` already establishes (e.g. `'search blue'`) — a
+// own `CATEGORY_CARDS` already establishes (e.g. `'search blue'`) - a
 // distinct identity color per real destination tab, independent of any
 // score/status this card doesn't have one of.
 const QUICK_LINKS: { tab: string; icon: string; title: string; desc: string }[] = [
@@ -212,47 +212,47 @@ const QUICK_LINKS: { tab: string; icon: string; title: string; desc: string }[] 
 /**
  * "SEO & Visibility"'s top-level Overview tab, rebuilt to match a reference
  * mockup's own dashboard layout (score cards / trend / breakdown /
- * opportunities / activity / quick links) — replacing the former AI-chat-
+ * opportunities / activity / quick links) - replacing the former AI-chat-
  * centric layout (AiChatCard + VisibilityScoreCard/AiOpportunitiesCard/
  * DiscoverCard/AuthorityCard/TechnicalVisibilityCard/CompetitorRadarCard/
  * VisibilityTrendCard/AiRecommendationsSidebar), none of which the new
  * mockup shows. All 8 of those components are left in place, still real,
- * valid code — just no longer rendered here, same "supersede, don't
+ * valid code - just no longer rendered here, same "supersede, don't
  * delete" precedent `GeoScoreSection.tsx`'s own docblock already
  * documents for `GeoVisibilitySummaryCard.tsx`.
  *
  * Every real number here:
  * - 4 score cards + "Visibility Breakdown" table: `GET /visibility/score`
  *   (new `Visibility.php`), which reads Brand/SEO/GEO/Crawl & URLs each
- *   straight from that area's own existing endpoint — see that class's own
+ *   straight from that area's own existing endpoint - see that class's own
  *   docblock for why this can never disagree with each area's own tab.
  *   AEO and Keywords are deliberately NOT included (no free-tier score
- *   exists for either anywhere in this codebase — see Visibility.php).
+ *   exists for either anywhere in this codebase - see Visibility.php).
  * - "Visibility Trend": `GET /visibility/progress?days=N`, a real daily
  *   reconstructed combined score, same technique `Controllers\Geo`'s own
  *   `/geo/progress` already uses.
  * - "Visibility by Source" (VisibilityBySourceCard.tsx, matching the
- *   mockup's own donut+legend layout AND content this time — an earlier
+ *   mockup's own donut+legend layout AND content this time - an earlier
  *   version of this card substituted the 4 real area scores here instead,
  *   reasoning that this plugin tracks no traffic-source data of its own
  *   anywhere; that's still true of `vulopilot_crawler_visits` (AI bots
  *   only) and Search Console (organic-search-only by definition), but GA4's
  *   own Data API genuinely exposes a real `sessionDefaultChannelGroup`
- *   dimension — the exact Organic Search/Direct/Referral/Social split the
- *   mockup shows — for any already-connected GA4 property
+ *   dimension - the exact Organic Search/Direct/Referral/Social split the
+ *   mockup shows - for any already-connected GA4 property
  *   (`GoogleAnalyticsClient::run_channel_group_report()`, `GET
  *   /visibility/traffic-sources`). So this card now shows genuinely real
  *   GA4 session data when a property is connected, and an honest "Connect
- *   Google Analytics" prompt otherwise — never a fabricated split. See
+ *   Google Analytics" prompt otherwise - never a fabricated split. See
  *   that component's own docblock for why its center number is real total
  *   sessions rather than a 0-100 "score."
  * - "Top Opportunities": real sitewide `GET /findings/groups?per_page=5`
- *   (no category scope — unlike GeoTab.tsx's own "Fix These First" copy of
+ *   (no category scope - unlike GeoTab.tsx's own "Fix These First" copy of
  *   this same component, this one intentionally spans every real scanner
  *   category), reusing `GeoFixTheseFirstCard.tsx` (confirmed unused
  *   elsewhere) with its title overridden.
  * - "Quick Links": real in-SPA tab navigation (`onNavigateTab`, the same
- *   `goToTab` `SeoVisibility.tsx` already passes down) — no full page
+ *   `goToTab` `SeoVisibility.tsx` already passes down) - no full page
  *   reload.
  */
 const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
@@ -280,7 +280,7 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 				appLocalizer,
 				// Same real category grouping issuesTypes.ts's own CATEGORY_TABS
 				// already establishes for "SEO & Visibility" ('seo','images','schema','links')
-				// + "AI Visibility" ('geo','brand') — this page covers both, so
+				// + "AI Visibility" ('geo','brand') - this page covers both, so
 				// "Top Opportunities" is scoped to exactly these 6, not every
 				// real finding sitewide (which would also surface Security/
 				// Performance/Accessibility findings that have nothing to do
@@ -311,19 +311,19 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 				{/*
 				 * Same real ring + `ListComponent` "mini-card report" row
 				 * shape `SeoTab.tsx`'s own "SEO Health" card already uses,
-				 * per direct instruction ("convert this... like this") —
+				 * per direct instruction ("convert this... like this") -
 				 * replaces the old 5-tile `MetricTileComponent` grid. The
 				 * ring plots the real combined `visibility_score`
 				 * (`GET /visibility/score`); each row below is one of its 4
 				 * real areas (Brand/SEO/GEO/Crawl & URLs), same real score +
 				 * week-over-week change those tiles already showed, just as
-				 * a row's own trailing value/delta instead of a tile —
+				 * a row's own trailing value/delta instead of a tile -
 				 * clicking a row still navigates to that area's own real
 				 * tab (`onNavigateTab`), same as the old tile's implicit
 				 * click target never actually was (tiles here had no
 				 * `onClick` before; this is a real new capability, not a
 				 * behavior change to anything that already worked). No
-				 * sparkline survives the move — `ListComponent`'s own
+				 * sparkline survives the move - `ListComponent`'s own
 				 * `progress-list`/`report` variants don't render one the
 				 * way `MetricTileComponent`'s `chart` prop did; the real
 				 * score/change numbers themselves are unchanged.
@@ -340,14 +340,14 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 									<ChartComponent
 										type="ring"
 										height={200}
-										// Top-level `color` — same prop `OverallScoreWidget.tsx`'s
+										// Top-level `color` - same prop `OverallScoreWidget.tsx`'s
 										// own identical ring reads for its actual stroke
 										// (`type="ring"` never reads a per-row `data[].color`
-										// the way `type="pie"` does — see BusinessProfileCard.tsx's
+										// the way `type="pie"` does - see BusinessProfileCard.tsx's
 										// own docblock on this same point). Without it the ring
 										// always rendered in `ChartComponent`'s own default brand
 										// color regardless of score, while the center number above
-										// already colored itself correctly via `ratingClass()` — so
+										// already colored itself correctly via `ratingClass()` - so
 										// the two visibly disagreed (a purple ring around a green
 										// "88"). `data[].color` below is now purely the pie/legend
 										// fallback shape `ChartComponent` still expects, not what
@@ -380,7 +380,7 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 										]}
 									/>
 									{/*
-									 * "Overall Score" — was a verbatim repeat of this card's
+									 * "Overall Score" - was a verbatim repeat of this card's
 									 * own header title ("Visibility Score") right above it, with
 									 * the caption below it repeating the header's own `desc` too
 									 * (same real duplication OverallScoreWidget.tsx's own
@@ -495,7 +495,7 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 				<VisibilityBySourceCard />
 				<GeoFixTheseFirstCard
 					title={__('Top Opportunities', 'vulopilot')}
-					emptyMessage={__('No open findings right now — nothing to fix.', 'vulopilot')}
+					emptyMessage={__('No open findings right now - nothing to fix.', 'vulopilot')}
 					groups={opportunityGroups}
 					total={opportunityTotal}
 					isLoading={isLoadingOpportunities}
@@ -520,7 +520,7 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 					titleIcon="link"
 					desc={__('Jump straight to any SEO & Visibility section.', 'vulopilot')}
 				>
-					{/* Same real `mini-card report hover` row shape the "SEO Health"/"Visibility Score" cards above already use — icon + title + desc per item, real navigation via `action`. Trailing `tags` arrow is the same real "there's more, go here" affordance those other `mini-card report` rows (`PageAnalysisPanel.tsx`/`GeoAeoPageAnalysisPanel.tsx`) already render on every row. */}
+					{/* Same real `mini-card report hover` row shape the "SEO Health"/"Visibility Score" cards above already use - icon + title + desc per item, real navigation via `action`. Trailing `tags` arrow is the same real "there's more, go here" affordance those other `mini-card report` rows (`PageAnalysisPanel.tsx`/`GeoAeoPageAnalysisPanel.tsx`) already render on every row. */}
 					<ListComponent
 						className="mini-card report hover"
 						items={QUICK_LINKS.map((link) => ({

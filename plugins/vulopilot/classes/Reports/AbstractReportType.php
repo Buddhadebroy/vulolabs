@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * Base class for every report type under Reports/Types/. Every report
  * needs the same "compare this period against the immediately preceding
  * period of equal length" trend math (Prompt 13's "trend analysis"
- * requirement) — that's genuinely shared behavior, unlike
+ * requirement) - that's genuinely shared behavior, unlike
  * get_id()/get_label()/generate() which differ per report and stay
  * abstract.
  *
@@ -42,7 +42,7 @@ abstract class AbstractReportType implements ReportTypeInterface {
 
     /**
      * The date range immediately preceding [$period_start, $period_end],
-     * of the same inclusive day length — what every report's trend
+     * of the same inclusive day length - what every report's trend
      * comparison is measured against.
      *
      * @param string $period_start Y-m-d, inclusive.
@@ -75,7 +75,7 @@ abstract class AbstractReportType implements ReportTypeInterface {
 
     /**
      * Builds a trend array from two same-shape metric maps (current period
-     * vs. previous period) — the shape Reports\ReportResult::get_trend()
+     * vs. previous period) - the shape Reports\ReportResult::get_trend()
      * documents.
      *
      * @param array<string, int|float> $current_metrics  This period's metrics.

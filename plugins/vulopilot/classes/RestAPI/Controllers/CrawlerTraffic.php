@@ -59,12 +59,12 @@ class CrawlerTraffic extends \WP_REST_Controller {
             )
         );
 
-        // GET-only, real current-vs-previous-period comparison — backs the
+        // GET-only, real current-vs-previous-period comparison - backs the
         // restyled Crawler Traffic tab's stat row + Top Crawlers/Most
         // Crawled Pages tables (CrawlerVisitRepository::get_period_comparison()'s
         // own docblock). Composed here rather than in the repository
         // because it needs FindingRepository's own real blocked-pages count
-        // too — a repository shouldn't reach into a sibling table.
+        // too - a repository shouldn't reach into a sibling table.
         register_rest_route(
             VuloPilot()->rest_namespace,
             '/' . $this->rest_base . '/analytics',
@@ -107,17 +107,17 @@ class CrawlerTraffic extends \WP_REST_Controller {
     }
 
     /**
-     * `GET /crawler-traffic/analytics` — real current-vs-previous-period
+     * `GET /crawler-traffic/analytics` - real current-vs-previous-period
      * comparison (CrawlerVisitRepository::get_period_comparison()) plus a
      * real "by AI lab" breakdown and the real open blocked-pages count.
      * There's deliberately no "search engines vs AI engines" split here the
-     * way the reference mockup's own "Crawler Types" donut shows — this
+     * way the reference mockup's own "Crawler Types" donut shows - this
      * plugin's own BOT_SIGNATURES list (CrawlerTrafficLogger's own
      * docblock) only ever detects AI/answer-engine crawlers, never classic
      * search engines, so every real row would land in one bucket and the
      * other two would always read zero. Grouped by AI lab instead (the
      * vendor name each bot's own display string already carries in
-     * parentheses, e.g. "GPTBot (OpenAI)" → "OpenAI") — a real, meaningful
+     * parentheses, e.g. "GPTBot (OpenAI)" → "OpenAI") - a real, meaningful
      * split of the traffic this plugin actually tracks.
      *
      * @param \WP_REST_Request $request Full request object.
@@ -152,11 +152,11 @@ class CrawlerTraffic extends \WP_REST_Controller {
         // same 4 real scanner ids CrawlerAnalyticsSection.tsx's own
         // CHECKLIST_ITEMS already groups its "Crawl Health Checklist" into
         // (robots.txt reachable, sitemap reachable, no critical AI-bot
-        // blocks) — one real number standing in for what that checklist
+        // blocks) - one real number standing in for what that checklist
         // already shows as 3 separate pass/fail rows, for the mockup's own
         // "Overall Crawl Health" ring. Frontend only renders this ring while
         // the SEO module is active (same `isSeoModuleActive()` gate the
-        // checklist itself already requires) — these scanners simply never
+        // checklist itself already requires) - these scanners simply never
         // run otherwise, so 0 open findings there would be a false "100",
         // not a real one.
         $crawl_scanner_ids   = array( 'robots-txt', 'sitemap', 'sitemap-validation', 'ai-crawler-blocked-pages' );
@@ -177,7 +177,7 @@ class CrawlerTraffic extends \WP_REST_Controller {
 
     /**
      * Same weighting `Controllers\Seo::calculate_score()`/
-     * `Controllers\Geo::calculate_score()` already use — kept as its own
+     * `Controllers\Geo::calculate_score()` already use - kept as its own
      * private copy here rather than a shared trait, same "each controller
      * keeps its own copy" convention those two (plus BrandIntelligence)
      * already established.

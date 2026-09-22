@@ -12,16 +12,16 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart CheckoutSession entity.
  *
- * The Checkout Engine's own tracking record — one per cart that has
+ * The Checkout Engine's own tracking record - one per cart that has
  * actually entered checkout (not one per cart; browsing and adding to
  * cart alone never creates one). Exists so "did this shopper ever start
  * checking out, and did they finish" is a real, queryable fact
  * (Application\CheckoutService::mark_completed()/find_abandoned()) rather
- * than inferred after the fact from whether an Order happens to exist —
+ * than inferred after the fact from whether an Order happens to exist -
  * that inference alone can't distinguish "never reached checkout" from
  * "reached checkout and gave up", which is exactly what an abandoned-
  * checkout feature needs to tell apart. Keyed by `$cart_token`, the same
- * opaque client-held identity Cart/Domain/Cart already uses — never a WP
+ * opaque client-held identity Cart/Domain/Cart already uses - never a WP
  * post id, session, or cookie, so this stays meaningful for a delivery
  * mode with no WordPress page at all (Embedded/Hosted/Popup Checkout).
  *
@@ -39,7 +39,7 @@ class CheckoutSession {
     public $id;
 
     /**
-     * The Cart this session belongs to — Domain\Cart\Cart::$token.
+     * The Cart this session belongs to - Domain\Cart\Cart::$token.
      *
      * @var string
      */
@@ -53,7 +53,7 @@ class CheckoutSession {
     public $status;
 
     /**
-     * One of CheckoutMode's constants — which rendering mode the client
+     * One of CheckoutMode's constants - which rendering mode the client
      * that created this session is using. Informational (drives admin
      * display/abandoned-checkout listing), never enforced server-side.
      *
@@ -63,7 +63,7 @@ class CheckoutSession {
 
     /**
      * The last step id (Application\CheckoutStepRegistry) the client
-     * reported reaching — null until the first progress update.
+     * reported reaching - null until the first progress update.
      *
      * @var string|null
      */
@@ -80,7 +80,7 @@ class CheckoutSession {
 
     /**
      * Open bag for anything else worth remembering about this session's
-     * progress (e.g. which optional steps were skipped) — same
+     * progress (e.g. which optional steps were skipped) - same
      * extensible-JSON pattern `Offering::$meta` already establishes,
      * rather than a new column per future need.
      *

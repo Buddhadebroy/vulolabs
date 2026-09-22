@@ -12,15 +12,15 @@ use VuloPilot\Services\VuloCloudAccountConnection;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Backs useContentGate.tsx's own "log in" tier — the real
+ * Backs useContentGate.tsx's own "log in" tier - the real
  * "Connect to VuloCloud" popup (components/Popup/VuloCloudConnectPopup.tsx)
  * calls `connect()` below; `disconnect()` isn't wired to any UI yet (no
  * "manage your VuloCloud connection" settings surface exists), but is
- * still real and callable — same shape GoogleServices' own
+ * still real and callable - same shape GoogleServices' own
  * `disconnect()` has.
  *
  * Same "never let a raw token reach the client" boundary
- * GoogleServices.php's own docblock documents for its OAuth tokens —
+ * GoogleServices.php's own docblock documents for its OAuth tokens -
  * `get_status()`/`connect()` both return
  * VuloCloudAccountConnection::get_status()'s shape only.
  *

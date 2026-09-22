@@ -17,13 +17,13 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Real, independent cron tick for Free's two built-in automations (see
- * Automations\BuiltinAutomationSeeder) — same "own small scheduler, not
+ * Automations\BuiltinAutomationSeeder) - same "own small scheduler, not
  * entangled with any other feature's cadence" posture Services\
  * BackupScheduler already documents, and the free-tier counterpart to
  * vulopilot-pro's Automations\Scheduler: this deliberately does NOT go
  * through vulopilot-pro's AutomationsEngine (Recommendation-driven; see
  * WebsiteHealthScanScheduler's own docblock for why a bare site-level
- * action can't run through that engine) — it invokes each row's one real
+ * action can't run through that engine) - it invokes each row's one real
  * action directly.
  *
  * @class       AutomationScheduler class
@@ -58,8 +58,8 @@ class AutomationScheduler {
     /**
      * @param ScanRunner                    $scan_runner      Runs row 1's real action.
      * @param ReportGenerator                $report_generator Builds VisibilityReportMailer's own dependency.
-     * @param AutomationsRepository|null     $automations      Defaults to a new instance — injectable for tests.
-     * @param AutomationsRunRepository|null  $runs             Defaults to a new instance — injectable for tests.
+     * @param AutomationsRepository|null     $automations      Defaults to a new instance - injectable for tests.
+     * @param AutomationsRunRepository|null  $runs             Defaults to a new instance - injectable for tests.
      */
     public function __construct( ScanRunner $scan_runner, ReportGenerator $report_generator, ?AutomationsRepository $automations = null, ?AutomationsRunRepository $runs = null ) {
         $this->scan_runner      = $scan_runner;
@@ -166,7 +166,7 @@ class AutomationScheduler {
     }
 
     /**
-     * Row 1's real cron tick — runs every scanner and records a run row.
+     * Row 1's real cron tick - runs every scanner and records a run row.
      *
      * @return void
      */
@@ -188,7 +188,7 @@ class AutomationScheduler {
     }
 
     /**
-     * Row 2's real cron tick — generates and emails the visibility report.
+     * Row 2's real cron tick - generates and emails the visibility report.
      *
      * @return void
      */

@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart CheckoutSessionRepositoryInterface.
  *
  * Same dependency-injection seam every other Domain repository interface
- * in this codebase already establishes — VuloCart::init_classes() binds
+ * in this codebase already establishes - VuloCart::init_classes() binds
  * this to Infrastructure\Database\WPDBCheckoutSessionRepository, and only
  * there.
  *
@@ -48,7 +48,7 @@ interface CheckoutSessionRepositoryInterface {
     public function update( CheckoutSession $session ): CheckoutSession;
 
     /**
-     * Lists active sessions last touched before $before — vulocart-pro's
+     * Lists active sessions last touched before $before - vulocart-pro's
      * Abandoned Checkout feature's own query, exposed here since only
      * this repository talks SQL directly.
      *

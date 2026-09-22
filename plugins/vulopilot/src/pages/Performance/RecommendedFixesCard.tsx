@@ -22,10 +22,10 @@ interface ActionResult {
 
 /**
  * Real `POST /performance-actions/{id}` one-click fixes (same 7 actions,
- * same endpoint, `classes/RestAPI/Controllers/PerformanceActions.php` —
+ * same endpoint, `classes/RestAPI/Controllers/PerformanceActions.php` -
  * as QuickActionsCard.tsx on the Overview tab), matched here by keyword
  * against each real `top_issues[].issue` string (a real Google Lighthouse
- * opportunity-audit title, or a plain load-time label —
+ * opportunity-audit title, or a plain load-time label -
  * PageSpeedRepository::get_top_issues()'s own docblock) so only fixes
  * relevant to what was actually detected on THIS site's slow pages show
  * up, not the full fixed 7-item list Overview's own card always shows.
@@ -41,9 +41,9 @@ const FIX_BY_KEYWORD: { keyword: string; actionId: string; icon: string; label: 
 ];
 
 /**
- * "Recommended Fixes" — real, one-click actions tied to what this site's
+ * "Recommended Fixes" - real, one-click actions tied to what this site's
  * own Slow Pages scan actually found, per direct instruction: replaces
- * "Why these pages matter" (SlowPagesTab.tsx, now removed) — a static,
+ * "Why these pages matter" (SlowPagesTab.tsx, now removed) - a static,
  * always-identical educational bullet list ("Poor user experience"/"Lower
  * conversions"/"Search ranking impact") that never changed no matter what
  * the real data showed. This card only appears at all when at least one
@@ -95,7 +95,7 @@ const RecommendedFixesCard = ({ topIssues }: { topIssues: PageSpeedIssue[] }) =>
 					position: 'float',
 					message: response
 						? response.message
-						: __('Could not run this fix — please try again.', 'vulopilot'),
+						: __('Could not run this fix - please try again.', 'vulopilot'),
 				});
 			})
 			.finally(() => setRunningActionId(null));

@@ -18,9 +18,9 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Flags substantial published content (over MIN_WORD_COUNT_TO_CHECK
- * words — a short post genuinely may not need subheadings) with no
+ * words - a short post genuinely may not need subheadings) with no
  * `<h2>`-`<h6>` tags anywhere in it. A wall of unstructured text is
- * harder for both search engines and readers to parse into topics —
+ * harder for both search engines and readers to parse into topics -
  * distinct from AccessibilityScanner's separate check (a *second*
  * `<h1>` competing with the theme's own title heading).
  *

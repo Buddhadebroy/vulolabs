@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Times a real request to the site's own homepage and flags a slow
- * response — no existing scanner measures request timing (ScanRunner
+ * response - no existing scanner measures request timing (ScanRunner
  * times a whole scanner's execution, not one HTTP response), so this
  * brackets its own wp_remote_get() call with microtime(true), the same
  * way ScanRunner itself times a scanner run.
@@ -91,7 +91,7 @@ class SlowPageScanner extends AbstractBasicScanner {
                     'response_time_seconds' => round( $elapsed, 2 ),
                     'recommended_fix'       => array(
                         __( 'Enable a page caching plugin (e.g. WP Super Cache, WP Rocket) if none is active.', 'vulopilot' ),
-                        __( 'Check your hosting plan\'s server resources — shared hosting is a common bottleneck.', 'vulopilot' ),
+                        __( 'Check your hosting plan\'s server resources - shared hosting is a common bottleneck.', 'vulopilot' ),
                         __( 'Reduce the number of active plugins that run on the homepage.', 'vulopilot' ),
                         __( 'Consider a persistent object cache (Redis/Memcached) for database-heavy pages.', 'vulopilot' ),
                     ),

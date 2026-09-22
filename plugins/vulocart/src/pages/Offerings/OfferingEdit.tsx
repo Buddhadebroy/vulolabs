@@ -11,14 +11,14 @@ import './offerings-page.scss';
 
 /**
  * The 12 types Domain\Offering\OfferingType declares (classes/Domain/Offering/OfferingType.php)
- * — duplicated here rather than fetched, same tradeoff this file's
+ * - duplicated here rather than fetched, same tradeoff this file's
  * predecessor (OfferingsPage.tsx) already accepted. Powers "What kind of
- * offering is this?", and — via TYPE_FIELD_CONFIG/STOCK_TRACKED_TYPES/
- * SHIPPABLE_TYPES below — which fields/sections the rest of the form
+ * offering is this?", and - via TYPE_FIELD_CONFIG/STOCK_TRACKED_TYPES/
+ * SHIPPABLE_TYPES below - which fields/sections the rest of the form
  * shows. 11 of these 12 (all but `license`) are this plugin's admin-UX
  * brief's explicit offering-type list; `license` predates that brief and
  * is kept only for backward compatibility with any offering already using
- * it (naming-quality.md/backward-compatibility.md — not something to
+ * it (naming-quality.md/backward-compatibility.md - not something to
  * silently drop), with no type-specific fields of its own.
  */
 const OFFERING_TYPE_OPTIONS = [
@@ -71,11 +71,11 @@ interface CategoryTerm {
 
 /**
  * Real, DB-backed categories now (`GET /categories`,
- * classes/RestAPI/Controllers/Terms.php) — managed from the Offerings
+ * classes/RestAPI/Controllers/Terms.php) - managed from the Offerings
  * menu's own "Categories" page (`src/pages/Terms/TermsPage.tsx`), no
  * longer a hardcoded list. Selections persist in `meta.categories` by
  * slug (Controllers/Offerings.php's `sanitize_offering_meta()`), unchanged;
- * `formatCategoryOptions()` re-derives the "— " child-indentation
+ * `formatCategoryOptions()` re-derives the "- " child-indentation
  * presentation from each term's real `parent_id` instead of that being
  * hand-typed per option.
  *
@@ -98,7 +98,7 @@ function formatCategoryOptions( terms: CategoryTerm[] ) {
 			options.push( {
 				key: term.slug,
 				value: term.slug,
-				label: depth > 0 ? `${ '— '.repeat( depth ) }${ term.name }` : term.name,
+				label: depth > 0 ? `${ '- '.repeat( depth ) }${ term.name }` : term.name,
 			} );
 			appendChildren( term.id, depth + 1 );
 		} );
@@ -112,7 +112,7 @@ function formatCategoryOptions( terms: CategoryTerm[] ) {
 /**
  * Every type's delivery nature is now derived from `type` itself rather
  * than a separate manual picker (the old "How will this be delivered?"
- * 4-card section) — `type` already encodes physical vs. digital vs.
+ * 4-card section) - `type` already encodes physical vs. digital vs.
  * service, so asking the merchant to pick delivery *again* would just be
  * redundant. Still persisted to `meta.delivery_method`
  * (Controllers/Offerings.php's `sanitize_offering_meta()`) for any future
@@ -135,7 +135,7 @@ const TYPE_TO_DELIVERY_METHOD: Record< string, string > = {
 };
 
 /**
- * Types that get the "Stock & inventory"/"Shipping" cards at all — a
+ * Types that get the "Stock & inventory"/"Shipping" cards at all - a
  * Course or Subscription has no physical stock or package to ship, so
  * showing those sections for them would be noise, not "dynamic" in any
  * useful sense.
@@ -152,14 +152,14 @@ interface TypeDetailField {
 }
 
 /**
- * The real, per-type functionality this offering-type list needs — each
+ * The real, per-type functionality this offering-type list needs - each
  * type gets its own small set of fields in a dynamically-shown "Type
  * Details" card, matching how WooCommerce's simple/variable/grouped/
  * external product types each expose different meta-box fields. Physical
- * has no entry here — its "type-specific" behavior is the always-present
+ * has no entry here - its "type-specific" behavior is the always-present
  * Stock & Inventory/Shipping cards, gated by STOCK_TRACKED_TYPES/
  * SHIPPABLE_TYPES above instead of this map. `license` (the 12th
- * OfferingType constant, kept for backward compatibility — see
+ * OfferingType constant, kept for backward compatibility - see
  * OFFERING_TYPE_OPTIONS' docblock) has no entry either, since this plugin's
  * admin-UX brief's 11-type list doesn't include it.
  */
@@ -402,7 +402,7 @@ interface OfferingEditProps {
 /**
  * A dedicated full page for creating/editing one offering. Real,
  * bookmarkable URL (`admin.php?page=vulocart-offerings&action=edit&id=123`),
- * not a modal — same navigation model as this session's earlier Offerings/
+ * not a modal - same navigation model as this session's earlier Offerings/
  * Orders split (see Offerings.tsx's docblock).
  *
  * Deliberately kept to as few cards as the content allows, rather than one
@@ -411,23 +411,23 @@ interface OfferingEditProps {
  * description/pricing/attributes), an optional per-type "Type Details"
  * card, an optional combined "Inventory & Shipping" card, and "Policies &
  * Related Offerings"; right is "Publishing", a combined "Organization"
- * card (category, tags, brand, collections — all real DB-backed taxonomy
+ * card (category, tags, brand, collections - all real DB-backed taxonomy
  * terms, see Domain\Term\Taxonomy), and "Upload image". Subsections within a card
  * use a plain `<h4>` (`.vulocart-subsection-title`) rather than a new
  * `CardComponent`, so grouping related fields doesn't cost another box.
  *
  * Fields beyond title/type/sku/price/currency/status (Domain\Offering\Offering's
  * real columns) are stored in the Offering's existing generic `meta` JSON
- * column — no schema migration needed, same "extensible, type-specific
+ * column - no schema migration needed, same "extensible, type-specific
  * attributes" role `meta` already has for Cart/Order.
  *
  * The form is genuinely dynamic per offering type (this plugin's admin-UX
- * brief's 11-type list — Physical/Digital/Subscription/Course/Service/
+ * brief's 11-type list - Physical/Digital/Subscription/Course/Service/
  * Membership/Booking/Rental/Bundle/Donation/Gift Card): "Inventory &
  * Shipping" only renders for types that actually track stock or ship a
  * package (STOCK_TRACKED_TYPES/SHIPPABLE_TYPES below, each gating its own
  * subsection independently), and every non-physical type gets its own
- * "Type Details" card driven by TYPE_FIELD_CONFIG — e.g. a Subscription
+ * "Type Details" card driven by TYPE_FIELD_CONFIG - e.g. a Subscription
  * shows billing interval/trial period, a Course shows lesson count/skill
  * level, a Gift Card shows denominations/expiry. Delivery nature (physical/
  * downloadable/digital_service/other) is derived straight from `type`
@@ -435,8 +435,8 @@ interface OfferingEditProps {
  *
  * One thing is deliberately NOT built as a fully real feature here:
  * "Related offerings"/"Offer as an add-on" (stored as simple comma-separated id
- * lists in meta, since there's no offering-picker/search component yet —
- * real storage, simplified input). "Attributes & Variations" *is* real —
+ * lists in meta, since there's no offering-picker/search component yet -
+ * real storage, simplified input). "Attributes & Variations" *is* real -
  * `vulocart_offering_variants_section` (a narrower cousin of
  * `vulocart_offering_edit_sections`, replacing this specific subsection's
  * content in place rather than appending elsewhere) lets vulocart-pro's
@@ -444,14 +444,14 @@ interface OfferingEditProps {
  * "not supported yet" button/notice below is only what free-tier users
  * without that module active still see.
  *
- * `vulocart_offering_edit_sections` — a `@wordpress/hooks` filter applied
+ * `vulocart_offering_edit_sections` - a `@wordpress/hooks` filter applied
  * at the end of the center column, alongside this page's own cards
- * ("Offering Details", "Policies & Related Offerings", ...) — so a Pro
+ * ("Offering Details", "Policies & Related Offerings", ...) - so a Pro
  * module's card renders as one more meta box in the same grid, not a
  * separate block bolted on elsewhere. Same "Pro extends Free via filters"
  * pattern `vulocart_offering_row_actions` already establishes on
  * OfferingsList.tsx, just for the edit page instead of the list. Only
- * fires once the offering has a real id (`isEditMode`) — there's nothing
+ * fires once the offering has a real id (`isEditMode`) - there's nothing
  * for a Pro section to attach to before the offering itself has been
  * saved once.
  * `vulocart-pro`'s Passport module is the first (only) registrant today.
@@ -481,7 +481,7 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 			} )
 			.then( ( response ) => setCategoryOptions( formatCategoryOptions( response.data ) ) );
 
-		// Tags/Collections are flat (Domain\Term\Taxonomy's own docblock —
+		// Tags/Collections are flat (Domain\Term\Taxonomy's own docblock -
 		// hierarchy only applies to Category), so formatCategoryOptions()
 		// degenerates correctly here too: every term has parent_id null,
 		// so it's just a flat, unindented option list.
@@ -579,7 +579,7 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 		];
 
 		// Stock only makes sense for types STOCK_TRACKED_TYPES actually
-		// tracks — the checklist (and its X/N denominator) reflects that,
+		// tracks - the checklist (and its X/N denominator) reflects that,
 		// same "dynamic per type" principle the form fields themselves follow.
 		if ( STOCK_TRACKED_TYPES.has( formData.type ) ) {
 			items.push( {
@@ -617,14 +617,14 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 	const doneCount = recommendedChecklist.filter( ( item ) => item.done ).length;
 
 	/**
-	 * `vulocart_offering_variants_section` — a narrower filter than
+	 * `vulocart_offering_variants_section` - a narrower filter than
 	 * `vulocart_offering_edit_sections` (which only ever appends at the
 	 * end of the center column): this one replaces the "Attributes &
 	 * Variations" subsection's own inert button/notice in place, so a Pro
 	 * module like vulocart-pro's Variants can render a real matrix editor
 	 * exactly where that notice used to live rather than as a
 	 * disconnected extra card. Null (no registrant, or add-mode with no
-	 * id yet) falls back to the existing inert notice — same
+	 * id yet) falls back to the existing inert notice - same
 	 * "no Pro module means render nothing" default every filter in this
 	 * file already has.
 	 */
@@ -704,7 +704,7 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 
 	/**
 	 * Renders one TYPE_FIELD_CONFIG entry as the right zyra input for its
-	 * `kind` — a single small switch rather than one-off JSX per type, so
+	 * `kind` - a single small switch rather than one-off JSX per type, so
 	 * adding a 12th type's fields later is a config entry, not new markup.
 	 */
 	const renderTypeDetailField = ( field: TypeDetailField ) => {
@@ -792,7 +792,7 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 
 			{
 				/**
-				 * `vulocart_offering_add_prefill` — only in add mode
+				 * `vulocart_offering_add_prefill` - only in add mode
 				 * (`!isEditMode`): there's no offering id yet for
 				 * `vulocart_offering_edit_sections` to attach to (that
 				 * filter's own docblock explains why it's edit-mode-only),
@@ -800,8 +800,8 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 				 * still needs a hook to prefill `formData` before the
 				 * first save. Hands the registrant `type` (so it can only
 				 * offer templates matching the chosen offering type) and
-				 * `applyPrefill` — a direct pass-through to this
-				 * component's own `update()` — rather than a `data`/`onPick`
+				 * `applyPrefill` - a direct pass-through to this
+				 * component's own `update()` - rather than a `data`/`onPick`
 				 * pair, so a template only ever changes fields it actually
 				 * has a value for.
 				 */
@@ -919,7 +919,7 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 								{ showVariantsNotice && (
 									<p className="vulocart-field-hint vulocart-variants-notice">
 										{ __(
-											'Offering variants are not supported yet — this is planned for a future update.',
+											'Offering variants are not supported yet - this is planned for a future update.',
 											'vulocart'
 										) }
 									</p>
@@ -1167,7 +1167,7 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 						<h4 className="vulocart-subsection-title">{ __( 'Category', 'vulocart' ) }</h4>
 						{ categoryOptions.length === 0 ? (
 							<p className="vulocart-empty-categories-notice">
-								{ __( 'No categories yet — add some from Offerings → Categories.', 'vulocart' ) }
+								{ __( 'No categories yet - add some from Offerings → Categories.', 'vulocart' ) }
 							</p>
 						) : (
 							<MultiCheckboxInput
@@ -1182,7 +1182,7 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 						<h4 className="vulocart-subsection-title">{ __( 'Tags', 'vulocart' ) }</h4>
 						{ tagOptions.length === 0 ? (
 							<p className="vulocart-empty-categories-notice">
-								{ __( 'No tags yet — add some from Offerings → Tags.', 'vulocart' ) }
+								{ __( 'No tags yet - add some from Offerings → Tags.', 'vulocart' ) }
 							</p>
 						) : (
 							<MultiCheckboxInput
@@ -1206,7 +1206,7 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 						<h4 className="vulocart-subsection-title">{ __( 'Collections', 'vulocart' ) }</h4>
 						{ collectionOptions.length === 0 ? (
 							<p className="vulocart-empty-categories-notice">
-								{ __( 'No collections yet — add some from Offerings → Collections.', 'vulocart' ) }
+								{ __( 'No collections yet - add some from Offerings → Collections.', 'vulocart' ) }
 							</p>
 						) : (
 							<MultiCheckboxInput

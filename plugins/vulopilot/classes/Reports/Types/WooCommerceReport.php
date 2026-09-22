@@ -10,7 +10,7 @@ namespace VuloPilot\Reports\Types;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Category `woocommerce` findings for one period — covers both the
+ * Category `woocommerce` findings for one period - covers both the
  * original WooCommerceScanner (checkout page) and the 11 Product*
  * scanners from the WooCommerce AI pass (ARCHITECTURE.md's Prompt 11),
  * since both share the `woocommerce` category string.

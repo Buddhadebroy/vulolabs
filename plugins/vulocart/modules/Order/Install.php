@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Order module Install class.
  *
- * Owns `vulocart_orders`/`vulocart_order_items` — same module-owned-table,
+ * Owns `vulocart_orders`/`vulocart_order_items` - same module-owned-table,
  * version-gated activation-hook pattern VuloCart\Cart\Install and
  * `vulocart-pro`'s `Passport\Util` already establish.
  *
@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
 class Install {
 
     /**
-     * Version-gate option — see VuloCart\Cart\Install's own docblock for
+     * Version-gate option - see VuloCart\Cart\Install's own docblock for
      * why this is necessary (`vulocart_activated_module_order` fires on
      * every active-module pass, not only the first).
      *
@@ -32,10 +32,10 @@ class Install {
     const TABLE_SCHEMA_VERSION_OPTION = 'vulocart_order_table_version';
 
     /**
-     * Current schema version — bump this alongside a new dbDelta() call in
+     * Current schema version - bump this alongside a new dbDelta() call in
      * maybe_create_tables() when the tables need an additive change.
      *
-     * No `IF NOT EXISTS` in either CREATE TABLE statement below —
+     * No `IF NOT EXISTS` in either CREATE TABLE statement below -
      * `dbDelta()` extracts the table name via a regex that stops at the
      * first space after `CREATE TABLE`, so `CREATE TABLE IF NOT EXISTS
      * \`wp_x\`` reads as table name `IF` and silently does nothing to the
@@ -44,12 +44,12 @@ class Install {
      * 1.1.0 (Customer/Address/Shipping/Taxes/Payment modules): adds
      * `customer_phone`, `customer_user_id`, `billing_address`,
      * `shipping_address`, `shipping_method`, `shipping_cost`,
-     * `tax_amount`, `payment_method` to `vulocart_orders` — additive only,
+     * `tax_amount`, `payment_method` to `vulocart_orders` - additive only,
      * `dbDelta()` adds the missing columns to the existing table rather
      * than recreating it.
      *
      * 1.2.0 (Payment Framework, Phase 5): adds `gateway_transaction_id`,
-     * `authorized_amount`, `captured_amount` to `vulocart_orders` —
+     * `authorized_amount`, `captured_amount` to `vulocart_orders` -
      * additive only, same reasoning as 1.1.0.
      *
      * @var string
@@ -64,7 +64,7 @@ class Install {
     }
 
     /**
-     * Creates `vulocart_orders`/`vulocart_order_items` — only when
+     * Creates `vulocart_orders`/`vulocart_order_items` - only when
      * TABLE_SCHEMA_VERSION_OPTION is behind TABLE_SCHEMA_VERSION.
      *
      * @return void
@@ -86,7 +86,7 @@ class Install {
         // stamped after insert (Infrastructure\WPDBOrderRepository::insert()
         // explains why); `access_token` is the guest order-tracking
         // credential, this module's equivalent of Cart's own `token`.
-        // `order_items` has no `updated_at` — unlike cart items, an
+        // `order_items` has no `updated_at` - unlike cart items, an
         // order's line items are an immutable historical record once
         // placed.
         //

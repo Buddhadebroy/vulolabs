@@ -9,7 +9,7 @@ namespace VuloPilot\Exceptions;
 
 /**
  * Thrown by AI\AiRequestSender when VuloCloud reports
- * `AI_BYOK_NOT_CONFIGURED` — neither this site's Organization nor an allowed
+ * `AI_BYOK_NOT_CONFIGURED` - neither this site's Organization nor an allowed
  * Customer backup has a usable AI key. A real AiRequestException subclass, but
  * also its own distinct type so AiCopilot\ActionRunner::send_prompt_or_credits()
  * can specifically recognize "no key at all" and decide whether to fall through

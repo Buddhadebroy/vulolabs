@@ -27,7 +27,7 @@ registerCheckoutStep( {
 type Props = CheckoutStepContext;
 
 /**
- * The Review step — always the checkout run's final interactive step
+ * The Review step - always the checkout run's final interactive step
  * (`vulocart_checkout_steps`' own `order: 50`, just under Confirmation's
  * `100`), in both single-page and multi-step mode: "Place Order" only
  * ever fires once, from here, regardless of layout.
@@ -108,7 +108,7 @@ function ReviewStepView( props: Props ) {
 				</>
 			) }
 
-			{ /* Order Notes/Coupons/Gift Cards (vulocart-pro) inject here — registerCheckoutStepExtension()'s own docblock in registry.ts. */ }
+			{ /* Order Notes/Coupons/Gift Cards (vulocart-pro) inject here - registerCheckoutStepExtension()'s own docblock in registry.ts. */ }
 			{ getCheckoutStepExtensions( 'review' ).map( ( extension, index ) => (
 				<div key={ index } className="vulocart-checkout-step-extension">
 					{ extension( props ) }

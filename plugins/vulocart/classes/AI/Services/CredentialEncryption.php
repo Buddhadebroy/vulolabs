@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Encrypts/decrypts third-party AI provider API keys before they touch
- * `vulocart_ai_provider_configs.credentials` — same construction as
+ * `vulocart_ai_provider_configs.credentials` - same construction as
  * vulopilot's own `Services\CredentialEncryption`: the key is derived from
  * `wp_salt('auth')` rather than stored anywhere in the database, so it
  * moves (or is lost) exactly when the rest of the site's own secrets

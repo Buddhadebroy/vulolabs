@@ -13,15 +13,15 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * "Checkout & Payments" — two real risks the original WooCommerceScanner
+ * "Checkout & Payments" - two real risks the original WooCommerceScanner
  * doesn't cover (that one only checks whether a gateway is enabled at
  * all, not its configuration): checkout served over plain HTTP, and a
  * payment gateway still left in test/sandbox mode. Test-mode detection is
- * necessarily a best-effort, documented list — WooCommerce core has no
+ * necessarily a best-effort, documented list - WooCommerce core has no
  * single "is this gateway in test mode" API; each gateway extension
  * defines its own settings option and key. Covers the 4 most common
  * WooCommerce payment extensions (Stripe, PayPal Payments, Square,
- * Braintree — real settings-option/key names, confirmed against each
+ * Braintree - real settings-option/key names, confirmed against each
  * plugin's own source). A gateway outside this list is silently skipped
  * rather than guessed at.
  *
@@ -33,7 +33,7 @@ class WooCommerceCheckoutScanner extends AbstractBasicScanner {
 
 	/**
 	 * gateway_id => { option: settings option name, key: the field to
-	 * read, value: (optional) the exact string that means "test mode" —
+	 * read, value: (optional) the exact string that means "test mode" -
 	 * omitted for plain WC-style yes/no checkboxes, where any of
 	 * 'yes'/'1'/true means enabled.
 	 *
@@ -108,7 +108,7 @@ class WooCommerceCheckoutScanner extends AbstractBasicScanner {
 			__( 'Checkout is not served over HTTPS', 'vulopilot' ),
 			Severity::HIGH,
 			$this->get_category(),
-			__( 'Customers are asked for payment details on an insecure connection — enable SSL and force HTTPS on the checkout page.', 'vulopilot' ),
+			__( 'Customers are asked for payment details on an insecure connection - enable SSL and force HTTPS on the checkout page.', 'vulopilot' ),
 			'setting',
 			'woocommerce_checkout_ssl'
 		);
@@ -154,7 +154,7 @@ class WooCommerceCheckoutScanner extends AbstractBasicScanner {
 				),
 				Severity::HIGH,
 				$this->get_category(),
-				__( 'This payment gateway is live on the store but still set to test/sandbox mode — real customers cannot complete a real payment through it.', 'vulopilot' ),
+				__( 'This payment gateway is live on the store but still set to test/sandbox mode - real customers cannot complete a real payment through it.', 'vulopilot' ),
 				'setting',
 				'woocommerce_payment_gateway_test_mode_' . $gateway_id
 			);

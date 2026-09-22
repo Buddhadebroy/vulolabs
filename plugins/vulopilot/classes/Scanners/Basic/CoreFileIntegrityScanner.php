@@ -14,7 +14,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * "File Changes" (readme's Free feature list) for WordPress core files —
+ * "File Changes" (readme's Free feature list) for WordPress core files -
  * uses core's own `get_core_checksums()` (the same official,
  * api.wordpress.org-published md5 list `wp core verify-checksums`/Site
  * Health's own core-file check use), so this never invents its own
@@ -25,7 +25,7 @@ defined( 'ABSPATH' ) || exit;
  * "Integrity Monitoring" (IntegrityMonitoringScanner, a locally-maintained
  * baseline/diff instead of an external published one) closes.
  *
- * Only flags modified/missing files — the same two states core's own
+ * Only flags modified/missing files - the same two states core's own
  * checksum verification reports; it does not detect unexpected *added*
  * files, since the checksums list only enumerates files that are supposed
  * to exist, not every file that shouldn't.
@@ -78,7 +78,7 @@ class CoreFileIntegrityScanner extends AbstractBasicScanner {
         $checksums = get_core_checksums( $wp_version, get_locale() );
 
         // api.wordpress.org unreachable, or this version/locale combination
-        // isn't published (e.g. a nightly/custom build) — nothing reliable
+        // isn't published (e.g. a nightly/custom build) - nothing reliable
         // to diff against, so report no findings rather than false positives.
         if ( ! is_array( $checksums ) ) {
             return $findings;
@@ -96,7 +96,7 @@ class CoreFileIntegrityScanner extends AbstractBasicScanner {
                     ),
                     Severity::HIGH,
                     $this->get_category(),
-                    __( 'This file ships with WordPress core and normally exists on every install. A missing core file can break functionality or indicate tampering — reinstall core from the official source.', 'vulopilot' ),
+                    __( 'This file ships with WordPress core and normally exists on every install. A missing core file can break functionality or indicate tampering - reinstall core from the official source.', 'vulopilot' ),
                     'core',
                     $relative_path
                 );
@@ -113,7 +113,7 @@ class CoreFileIntegrityScanner extends AbstractBasicScanner {
                     ),
                     Severity::HIGH,
                     $this->get_category(),
-                    __( 'This file\'s contents no longer match the official WordPress release for this version — either a manual edit or a sign of compromise. Compare it against a fresh core download.', 'vulopilot' ),
+                    __( 'This file\'s contents no longer match the official WordPress release for this version - either a manual edit or a sign of compromise. Compare it against a fresh core download.', 'vulopilot' ),
                     'core',
                     $relative_path
                 );

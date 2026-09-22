@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Renders a ReportResult as CSV: a summary block, then one labeled block
- * per section — either a header row + data rows (a section that's a list
+ * per section - either a header row + data rows (a section that's a list
  * of same-shaped rows, e.g. "top findings") or a two-column key/value block
  * (a section that's a flat map, e.g. "findings by severity").
  *
@@ -66,7 +66,7 @@ class CsvExporter implements ReportExporterInterface {
 
     /**
      * Thin fputcsv() wrapper that always passes the delimiter/enclosure/escape
-     * arguments explicitly — PHP's fputcsv() default escape character is
+     * arguments explicitly - PHP's fputcsv() default escape character is
      * deprecated as of PHP 8.1 (PHPCompatibility.ParameterValues.RemovedProprietaryCSVEscaping),
      * so every call site in this class routes through here instead of
      * repeating the same three literal arguments everywhere.

@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Flags any pending WordPress core, plugin, or theme update, using core's
- * own update-check APIs rather than re-implementing version comparison —
+ * own update-check APIs rather than re-implementing version comparison -
  * `get_core_updates()`, `get_plugin_updates()`, and `get_theme_updates()`
  * already do exactly this and are what the native Updates admin screen
  * itself calls.
@@ -75,13 +75,13 @@ class UpdatesScanner extends AbstractBasicScanner {
 
         $plugin_updates = get_plugin_updates();
         foreach ( $plugin_updates as $plugin_file => $plugin_data ) {
-            // `$description` was `null` here — Finding::__construct()'s
+            // `$description` was `null` here - Finding::__construct()'s
             // own `$description` parameter is a non-nullable `string`, so
             // this threw a real `TypeError` the moment there was ever a
             // real plugin update pending, crashing this whole scanner
             // (confirmed live: 0 findings, status 'failed', every other
-            // real update — including a genuinely stale, no-longer-true
-            // "core update available" finding — silently stuck open
+            // real update - including a genuinely stale, no-longer-true
+            // "core update available" finding - silently stuck open
             // forever because the scan never got far enough to say
             // otherwise).
             $findings[] = new Finding(

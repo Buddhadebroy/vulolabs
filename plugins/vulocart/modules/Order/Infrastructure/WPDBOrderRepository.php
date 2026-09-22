@@ -17,9 +17,9 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Order module WPDBOrderRepository.
  *
  * The only class in this codebase that runs SQL against `vulocart_orders`/
- * `vulocart_order_items` — implements Domain\OrderRepositoryInterface,
+ * `vulocart_order_items` - implements Domain\OrderRepositoryInterface,
  * bound in Module::wire_services(). Table names are hardcoded here rather
- * than added to the free plugin's `Utill::TABLES` — same "module owns its
+ * than added to the free plugin's `Utill::TABLES` - same "module owns its
  * own table names" convention `vulocart-pro`'s Passport module already
  * establishes.
  *
@@ -30,7 +30,7 @@ defined( 'ABSPATH' ) || exit;
 class WPDBOrderRepository implements OrderRepositoryInterface {
 
     /**
-     * In-request cache of resolved orders, keyed by id — same pattern
+     * In-request cache of resolved orders, keyed by id - same pattern
      * VuloCart\Infrastructure\Database\WPDBOfferingRepository already uses.
      *
      * @var array<int, Order|null>
@@ -239,7 +239,7 @@ class WPDBOrderRepository implements OrderRepositoryInterface {
             $where_values[]  = gmdate( 'Y-m-d 23:59:59', strtotime( (string) $args['date_to'] ) );
         }
 
-        // Matches order number, customer email, and customer name — the
+        // Matches order number, customer email, and customer name - the
         // three fields the admin grid's search box is realistically used
         // to look someone/something up by (Orders.tsx's search prop).
         if ( ! empty( $args['search'] ) ) {
@@ -284,7 +284,7 @@ class WPDBOrderRepository implements OrderRepositoryInterface {
     }
 
     /**
-     * Counts orders in each FulfillmentStatus bucket, in one query —
+     * Counts orders in each FulfillmentStatus bucket, in one query -
      * backs the admin grid's "saved view" tabs (TableCard's
      * `categoryCounts`, OrdersList.tsx), which need real per-status
      * counts rather than assuming every status is present.
@@ -310,7 +310,7 @@ class WPDBOrderRepository implements OrderRepositoryInterface {
 
     /**
      * Persists a new order, then stamps its `order_number` from the
-     * resulting auto-increment id (e.g. 'VC-000042') — a second update in
+     * resulting auto-increment id (e.g. 'VC-000042') - a second update in
      * the same spirit as WPDBOfferingRepository::insert()'s find-after-insert,
      * since the number can't be known before the row exists.
      *

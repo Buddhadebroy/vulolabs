@@ -15,15 +15,15 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart OfferingTypes REST controller.
  *
  * Backs the Offerings menu's "Offering Types" admin page
- * (`src/pages/OfferingTypes/`) — deliberately read-only. Unlike
+ * (`src/pages/OfferingTypes/`) - deliberately read-only. Unlike
  * Categories/Brands/Collections/Attributes, an offering *type* isn't a
  * merchant-managed record: it's a closed, PHP-registered set
- * (Domain\Offering\OfferingType's own docblock — "this class is only the closed
+ * (Domain\Offering\OfferingType's own docblock - "this class is only the closed
  * set of known `type` values") that drives real per-type behavior
  * elsewhere (OfferingEdit.tsx's `TYPE_FIELD_CONFIG`,
  * classes/RestAPI/Controllers/Offerings.php's `TYPE_DETAIL_FIELDS`).
  * WooCommerce doesn't let you create a custom product type from wp-admin
- * either, for the identical reason — this page is a reference/dashboard
+ * either, for the identical reason - this page is a reference/dashboard
  * view (real per-type offering counts), not a type builder.
  *
  * @class       OfferingTypes class
@@ -40,7 +40,7 @@ class OfferingTypes extends \WP_REST_Controller {
     protected $rest_base = 'offering-types';
 
     /**
-     * One short, merchant-facing description per OfferingType constant —
+     * One short, merchant-facing description per OfferingType constant -
      * same hand-maintained-list convention every other small, stable
      * lookup table in this codebase already uses (e.g.
      * src/modules-config.ts's module descriptions).
@@ -48,8 +48,8 @@ class OfferingTypes extends \WP_REST_Controller {
      * @var array<string, string>
      */
     const DESCRIPTIONS = array(
-        'physical'     => 'A tangible item that ships to the buyer — has weight, dimensions, and stock.',
-        'digital'      => 'A downloadable file or licensed digital good — no shipping.',
+        'physical'     => 'A tangible item that ships to the buyer - has weight, dimensions, and stock.',
+        'digital'      => 'A downloadable file or licensed digital good - no shipping.',
         'subscription' => 'A recurring charge on a billing interval (e.g. monthly, yearly).',
         'course'       => 'Structured lessons a buyer enrolls in.',
         'service'      => 'A time-based service booked or scheduled with the buyer.',

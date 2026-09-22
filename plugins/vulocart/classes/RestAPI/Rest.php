@@ -12,16 +12,16 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Rest class.
  *
- * Plugin-level REST dispatcher — mirrors rest-api.md's documented two-tier
+ * Plugin-level REST dispatcher - mirrors rest-api.md's documented two-tier
  * pattern: this builds a container of controllers and loops
  * `register_routes()` on `rest_api_init`. Module-scoped controllers (e.g.
  * `modules/Cart/Rest.php`, `modules/Order/Rest.php`, and vulocart-pro's
  * Passport module) self-hook `rest_api_init` independently instead of
- * registering here — see rest-api.md's "module-level controllers" tier.
+ * registering here - see rest-api.md's "module-level controllers" tier.
  *
  * `vulocart_rest_controllers` is the extension point for anything that'd
  * rather add itself to this central dispatcher than self-hook
- * independently — same posture VuloPilot\RestAPI\Rest already uses.
+ * independently - same posture VuloPilot\RestAPI\Rest already uses.
  *
  * @class       Rest class
  * @version     1.0.0

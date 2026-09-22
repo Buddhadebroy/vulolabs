@@ -2,15 +2,15 @@ import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 
 interface WorkflowsEngineProps {
-	/** `list`|`edit`|`runs` (vulocart-pro's own WorkflowBuilder module) — anything else falls back to the empty state below. */
+	/** `list`|`edit`|`runs` (vulocart-pro's own WorkflowBuilder module) - anything else falls back to the empty state below. */
 	view: string | null;
 }
 
 /**
- * Free owns this top-level menu's chrome only — same "Pro fills it in via
+ * Free owns this top-level menu's chrome only - same "Pro fills it in via
  * a filtered router" shape `ShippingEngine.tsx`/`AiEngine.tsx` already
  * establish. Unlike AI's own menu, Free has no view of its own here at
- * all (no BYOK-style config Free itself owns) — every real view is
+ * all (no BYOK-style config Free itself owns) - every real view is
  * registered by vulocart-pro's WorkflowBuilder module.
  */
 export function WorkflowsEngine( { view }: WorkflowsEngineProps ) {
@@ -27,7 +27,7 @@ export function WorkflowsEngine( { view }: WorkflowsEngineProps ) {
 			<h1>{ __( 'Workflows', 'vulocart' ) }</h1>
 			<p>
 				{ __(
-					'Automate what happens after an order, payment, refund, low-stock alert, new customer, delivered shipment, or AI event — activate the Workflow Builder module to use this page.',
+					'Automate what happens after an order, payment, refund, low-stock alert, new customer, delivered shipment, or AI event - activate the Workflow Builder module to use this page.',
 					'vulocart'
 				) }
 			</p>

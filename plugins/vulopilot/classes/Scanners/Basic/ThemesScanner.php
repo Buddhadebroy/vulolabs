@@ -14,7 +14,7 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags installed-but-inactive themes — the same dormant-code concern
+ * Flags installed-but-inactive themes - the same dormant-code concern
  * PluginsScanner checks for plugins, applied to themes. The active theme
  * and, when present, its parent theme are excluded.
  *

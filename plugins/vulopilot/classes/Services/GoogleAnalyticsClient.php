@@ -10,7 +10,7 @@ namespace VuloPilot\Services;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real Google Analytics Admin API (GA4) client — backs the "Analytics"
+ * Real Google Analytics Admin API (GA4) client - backs the "Analytics"
  * settings panel's own Account/Property/Data Stream dropdowns
  * (GoogleServicesPanel.tsx), reusing GoogleServicesConnection's shared
  * OAuth token rather than its own separate connection. Two real calls,
@@ -18,11 +18,11 @@ defined( 'ABSPATH' ) || exit;
  * its properties, but a property's web Measurement ID is only returned by
  * its own `dataStreams.list` call): `list_account_summaries()` populates
  * the Account/Property dropdowns, `list_data_streams()` populates the
- * Data Stream dropdown once a property is chosen — same two-step
+ * Data Stream dropdown once a property is chosen - same two-step
  * selection the reference screenshots show.
  *
  * Read-only (`analytics.readonly` scope, see GoogleServicesConnection's
- * own `SCOPES`) — this only ever lists real account/property/stream
+ * own `SCOPES`) - this only ever lists real account/property/stream
  * metadata, never writes anything to a site owner's GA4 account.
  *
  * @class       GoogleAnalyticsClient class
@@ -37,7 +37,7 @@ class GoogleAnalyticsClient {
 
     /**
      * A different real Google API entirely from the two above (GA4 Data
-     * API, not Admin API) — `%s` is a real `properties/{id}` resource name,
+     * API, not Admin API) - `%s` is a real `properties/{id}` resource name,
      * same shape `list_data_streams()`'s own `sprintf()` already uses.
      */
     private const RUN_REPORT_URL = 'https://analyticsdata.googleapis.com/v1beta/%s:runReport';
@@ -55,7 +55,7 @@ class GoogleAnalyticsClient {
     }
 
     /**
-     * Real `GET .../v1beta/accountSummaries` — every GA4 account this
+     * Real `GET .../v1beta/accountSummaries` - every GA4 account this
      * Google user can access, each with its own real properties.
      * `pageSize=200` is comfortably above what a single Google account
      * realistically has; pagination isn't implemented for the same
@@ -107,7 +107,7 @@ class GoogleAnalyticsClient {
     }
 
     /**
-     * Real `GET .../v1beta/properties/{id}/dataStreams` — a property's
+     * Real `GET .../v1beta/properties/{id}/dataStreams` - a property's
      * real web data streams (app streams are skipped; VuloPilot only ever
      * injects a browser `gtag.js` snippet, so an iOS/Android stream's
      * `measurementId`-less shape wouldn't be usable here anyway).
@@ -158,12 +158,12 @@ class GoogleAnalyticsClient {
     }
 
     /**
-     * Real `POST .../v1beta/{property}:runReport` — real daily GA4
+     * Real `POST .../v1beta/{property}:runReport` - real daily GA4
      * `sessions` counts for a real, already-connected property, one row
      * per real calendar day GA4 has data for. Backs Keywords' own
      * "Estimated Traffic" card (vulopilot-pro's own Keywords module,
      * Rest::get_summary()) when a GA4 property has actually been selected
-     * (GoogleServicesConnection's own `ga4_property_id`) — that card falls
+     * (GoogleServicesConnection's own `ga4_property_id`) - that card falls
      * back to real Search Console click totals otherwise, never a
      * fabricated number either way. A single `date`-dimensioned call
      * covering the whole requested range (rather than two separate
@@ -239,13 +239,13 @@ class GoogleAnalyticsClient {
     }
 
     /**
-     * Real `POST .../v1beta/{property}:runReport` — real GA4 sessions
+     * Real `POST .../v1beta/{property}:runReport` - real GA4 sessions
      * grouped by `sessionDefaultChannelGroup`, GA4's own built-in traffic-
      * source classification ("Organic Search", "Direct", "Referral",
-     * "Organic Social", "Paid Search", "Email", etc. — the exact same
+     * "Organic Social", "Paid Search", "Email", etc. - the exact same
      * grouping GA4's own "Traffic acquisition" report uses). Backs "SEO &
      * Visibility → Overview"'s "Visibility by Source" card
-     * (Controllers\Visibility::get_traffic_sources()) — this plugin has no
+     * (Controllers\Visibility::get_traffic_sources()) - this plugin has no
      * traffic-source data of its own to fabricate (see that method's own
      * docblock), so this card only ever renders when a real GA4 property
      * is connected and genuinely has session data to report.

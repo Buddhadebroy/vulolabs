@@ -14,7 +14,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real WP-CLI commands — `wp vulopilot scan run|list`,
+ * Real WP-CLI commands - `wp vulopilot scan run|list`,
  * `wp vulopilot report generate`, `wp vulopilot extensions list`,
  * `wp vulopilot settings get|set|reset`. The CLI extension point Prompt 15
  * asks for; there were zero WP-CLI commands anywhere in this codebase
@@ -25,7 +25,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Every method here reaches the same services a REST controller would
  * (ScanRunner, ReportGenerator, ExtensionManager) rather than
- * re-implementing scan/report/extension logic for the command line —
+ * re-implementing scan/report/extension logic for the command line -
  * this is a second way to *reach* those services, not a second
  * implementation of them.
  *
@@ -36,7 +36,7 @@ defined( 'ABSPATH' ) || exit;
 class VuloPilotCommand {
 
     /**
-     * Registers every subcommand — one `WP_CLI::add_command()` call per
+     * Registers every subcommand - one `WP_CLI::add_command()` call per
      * command path, so `wp vulopilot scan run` and `wp vulopilot scan
      * list` are distinct, discoverable commands rather than one command
      * with a mode flag.
@@ -68,7 +68,7 @@ class VuloPilotCommand {
      *
      * [--force]
      * : Bypass a scanner's own self-rate-limit (e.g. BrokenLinksScanner/
-     * BrokenImagesScanner's "daily"/"weekly" cadence — see
+     * BrokenImagesScanner's "daily"/"weekly" cadence - see
      * SupportsForceRunInterface's own docblock) and check again even if
      * it already ran within its configured window. Off by default so an
      * unattended/cron `wp vulopilot scan run` keeps respecting the
@@ -215,13 +215,13 @@ class VuloPilotCommand {
         $manager = VuloPilot()->extension_manager;
 
         foreach ( $manager->get_all_extensions() as $extension ) {
-            \WP_CLI::log( sprintf( '%s (v%s) — active', $extension->get_name(), $extension->get_version() ) );
+            \WP_CLI::log( sprintf( '%s (v%s) - active', $extension->get_name(), $extension->get_version() ) );
         }
 
         foreach ( $manager->get_incompatible_extensions() as $extension ) {
             \WP_CLI::log(
                 sprintf(
-                    '%s (v%s) — SKIPPED, requires VuloPilot %s or newer',
+                    '%s (v%s) - SKIPPED, requires VuloPilot %s or newer',
                     $extension['name'],
                     $extension['version'],
                     $extension['required']

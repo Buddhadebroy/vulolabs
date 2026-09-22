@@ -12,10 +12,10 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Cart module CartItem entity.
  *
- * Plain domain object, same shape/rules as VuloCart\Domain\Offering\Offering —
+ * Plain domain object, same shape/rules as VuloCart\Domain\Offering\Offering -
  * no `$wpdb`, no WordPress function calls. `unit_price`/`currency` are a
  * snapshot taken from the Offering at the moment it was added
- * (Application\CartService), not a live join — so a later price change on
+ * (Application\CartService), not a live join - so a later price change on
  * the Offering doesn't silently reprice items already sitting in someone's
  * cart.
  *

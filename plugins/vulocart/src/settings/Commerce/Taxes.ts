@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
  * Backed by `Utill::SETTINGS_DEFAULTS`'s Taxes section. Read by the Taxes
  * module's own `Taxes\Application\TaxService`, and added into an order's
  * total server-side by `Order\Application\OrderService::create_from_cart()`
- * whenever that module is active — a single flat rate, not per-region tax
+ * whenever that module is active - a single flat rate, not per-region tax
  * rules (vision's lightweight-first scope).
  */
 export default {

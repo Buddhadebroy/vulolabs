@@ -12,7 +12,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Settings → Site Identity → Title Formats' real backing — resolves
+ * Settings → Site Identity → Title Formats' real backing - resolves
  * per-context `title_format_*`/`description_format_*` templates
  * (Utill::VULOPILOT_SETTINGS_DEFAULTS) against `%variable%` tokens and
  * outputs both the document `<title>` and a `<meta name="description">`
@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * posture as CanonicalUrlManager/SocialMetaTagsManager.
  *
  * `pre_get_document_title` (not the older `wp_title` filter/action) is
- * core's own modern hook for the title — every theme built against
+ * core's own modern hook for the title - every theme built against
  * `wp_head()`/`_wp_render_title_tag()` since WP 4.4 already calls
  * `wp_get_document_title()`, which checks this filter first and, if a
  * non-empty string comes back, uses it verbatim instead of building its
@@ -31,7 +31,7 @@ defined( 'ABSPATH' ) || exit;
  * directly on `wp_head`, same shape `SocialMetaTagsManager`'s own
  * `wp_head` output already uses.
  *
- * For `post`/`page`, `description_format_*` is only ever a FALLBACK — a
+ * For `post`/`page`, `description_format_*` is only ever a FALLBACK - a
  * real, non-empty `post_excerpt` (this codebase's already-established
  * "meta description" field; see Seo\Scanners\MetaDescriptionScanner's
  * own docblock and `WriteMetaDescriptionAction`, which both treat
@@ -49,7 +49,7 @@ class TitleFormatter {
 
     /**
      * `%variable%` token => resolver. Each resolver only ever runs for the
-     * context it's actually relevant to (see `resolve_for_context()`) — a
+     * context it's actually relevant to (see `resolve_for_context()`) - a
      * template that references a variable outside its own context (e.g.
      * `%post_title%` inside `title_format_archive`) simply resolves that
      * token to an empty string, same "unknown/inapplicable token drops
@@ -78,7 +78,7 @@ class TitleFormatter {
     }
 
     /**
-     * @param string $title Core's own already-resolved title (unused — this
+     * @param string $title Core's own already-resolved title (unused - this
      *                       either replaces it wholesale or returns it untouched).
      * @return string
      */
@@ -92,7 +92,7 @@ class TitleFormatter {
         $context_key = $this->current_context_key();
 
         if ( ! $context_key ) {
-            return $title; // 404s and any other context this feature doesn't cover — leave core's own title alone.
+            return $title; // 404s and any other context this feature doesn't cover - leave core's own title alone.
         }
 
         $template = trim( (string) ( $settings[ "title_format_{$context_key}" ] ?? '' ) );
@@ -109,7 +109,7 @@ class TitleFormatter {
     /**
      * Outputs `<meta name="description">` on `wp_head`, same
      * setting-gated/context-scoped posture as `maybe_filter_title()`
-     * above — see this class's own top docblock for why `post`/`page`
+     * above - see this class's own top docblock for why `post`/`page`
      * defer to a real `post_excerpt` first.
      *
      * @return void
@@ -153,7 +153,7 @@ class TitleFormatter {
     }
 
     /**
-     * Resolves a template string against one context's own variable set —
+     * Resolves a template string against one context's own variable set -
      * also used by the Settings screen's live preview to stay a single
      * source of truth (Controllers\Settings::preview_title_formats()).
      *
@@ -173,7 +173,7 @@ class TitleFormatter {
 
         // Collapse the empty-separator runs a template produces when one
         // of its own tokens resolves empty in this context (e.g.
-        // `%site_description%` when the site tagline is blank) — same
+        // `%site_description%` when the site tagline is blank) - same
         // "don't show a dangling separator" concern SnippetPreview.tsx's
         // own truncation already cares about for readability, just for
         // the opposite (too-short, not too-long) failure shape.
@@ -234,7 +234,7 @@ class TitleFormatter {
 
     /**
      * `%post_title%`/`%page_title%`/`%category_title%`/`%tag_title%`/
-     * `%archive_title%` all resolve the same way — core's own
+     * `%archive_title%` all resolve the same way - core's own
      * `single_term_title()`/`get_the_title()`/`get_the_archive_title()`
      * already return the right string for whichever of those 5 contexts
      * is actually active, so one resolver covers all 5 rather than 5

@@ -16,21 +16,21 @@ import './PageAnalysisPanel.scss';
 
 interface GeoAeoPageAnalysisPanelProps {
 	postId: number;
-	/** This tab's own real scanner id set (`ALL_GEO_SCANNER_IDS`/`ALL_AEO_SCANNER_IDS`) — same set the "Pages & Posts" table below already scopes its own fetch to, so this panel's own real findings match exactly what that row's own "N issues" count is counting. */
+	/** This tab's own real scanner id set (`ALL_GEO_SCANNER_IDS`/`ALL_AEO_SCANNER_IDS`) - same set the "Pages & Posts" table below already scopes its own fetch to, so this panel's own real findings match exactly what that row's own "N issues" count is counting. */
 	scannerIds: string[];
-	/** "GEO Analysis"/"AEO Analysis" — GeoTab.tsx's/AeoTab.tsx's own real tab identity, since one real panel component serves both (same real data shape either way — see this file's own top docblock). */
+	/** "GEO Analysis"/"AEO Analysis" - GeoTab.tsx's/AeoTab.tsx's own real tab identity, since one real panel component serves both (same real data shape either way - see this file's own top docblock). */
 	title: string;
 	desc: string;
 	onClose: () => void;
 }
 
-/** Same real severity→badge class convention `SeoSiteWideIssuesTable.tsx`'s/`IssuesList.tsx`'s own `titleBadges` already use (`badge-critical`/`badge-high`/…, real CSS classes already shipped for that exact convention) — reused here directly rather than a third copy of a severity→color map. */
+/** Same real severity→badge class convention `SeoSiteWideIssuesTable.tsx`'s/`IssuesList.tsx`'s own `titleBadges` already use (`badge-critical`/`badge-high`/…, real CSS classes already shipped for that exact convention) - reused here directly rather than a third copy of a severity→color map. */
 const severityBadgeColor = (severity: FindingSeverity): string => `badge-${severity}`;
 
 /**
  * Same real "zyra's icon font only ever ships `check`/`error`/`close`/
  * `close-delete` glyphs" constraint `PageAnalysisPanel.tsx`'s own
- * `STATUS_ICON` docblock already established — `close`/`error` (not a
+ * `STATUS_ICON` docblock already established - `close`/`error` (not a
  * made-up `info` glyph that would silently render nothing) for every real
  * severity here, since every row in this panel is already an open finding
  * (no "passed" state exists to reuse `check` for).
@@ -45,20 +45,20 @@ const SEVERITY_ICON: Record<FindingSeverity, string> = {
 
 /**
  * Same real navigate-and-highlight deep link `SeoIssuesByPageTable.tsx`'s
- * own `buildFixWithAiLink()` already establishes — duplicated locally per
+ * own `buildFixWithAiLink()` already establishes - duplicated locally per
  * this codebase's own "duplicate small per-file logic" convention rather
  * than exporting that file's own local helper.
  *
  * Most real GEO/AEO scanner ids have no `SEO_ISSUE_EDITOR_TARGETS` entry
- * (they're content-body concerns with no dedicated editor-sidebar field —
- * that map's own docblock lists why) — `?vulopilot_seo_issue={scannerId}`
+ * (they're content-body concerns with no dedicated editor-sidebar field -
+ * that map's own docblock lists why) - `?vulopilot_seo_issue={scannerId}`
  * would resolve to nothing there and land the user in the editor with
  * nothing highlighted, the real bug this fixes. `?vulopilot_finding_id={id}`
  * instead carries the finding's own real numeric id straight through,
  * matched by `PageAnalysisTab.tsx`'s own "GEO Issues"/"AEO Issues" sections
- * against their own real findings — see `FINDING_ID_QUERY_PARAM`'s own
+ * against their own real findings - see `FINDING_ID_QUERY_PARAM`'s own
  * docblock. Scanner ids that DO have a real mapped target (currently just
- * `aeo-schema` → Schema tab) keep using the scanner-id param, unchanged —
+ * `aeo-schema` → Schema tab) keep using the scanner-id param, unchanged -
  * that one already works and gets to jump straight to the real field
  * instead of just Page Analysis.
  */
@@ -68,13 +68,13 @@ const buildFixWithAiLink = (editLink: string, finding: RawFinding): string =>
 		: `${editLink}&${FINDING_ID_QUERY_PARAM}=${finding.id}`;
 
 /**
- * "Page Analysis" for GEO's/AEO's own "Pages & Posts" table — the same real
+ * "Page Analysis" for GEO's/AEO's own "Pages & Posts" table - the same real
  * "Analyze"/"Viewing" toggle + right-side panel SEO's own `PageAnalysisPanel.tsx`
  * already has, requested to match it 1:1. Deliberately NOT a copy of that
  * component: SEO's panel is backed by a real per-page, per-check endpoint
  * (`GET /seo/analyze-page`, `Seo.php::get_page_analysis()`) that runs a
  * fixed checklist (title tag/H1/images/…) fresh for one page and returns
- * both passes and fails. GEO/AEO have no such endpoint — nothing in this
+ * both passes and fails. GEO/AEO have no such endpoint - nothing in this
  * codebase computes a full pass/fail checklist for one page on demand for
  * either tab. Building a fake one (inventing "passed" rows with no real
  * check behind them) would be fabricated data, which this codebase's own
@@ -82,7 +82,7 @@ const buildFixWithAiLink = (editLink: string, finding: RawFinding): string =>
  * own docblock on capabilities it deliberately doesn't rebuild).
  *
  * What IS real and shown here instead: this exact page's own real open
- * findings, scoped to this tab's own scanner ids — the same real findings
+ * findings, scoped to this tab's own scanner ids - the same real findings
  * `SeoIssuesByPageTable.tsx`'s own expandable row already lists for this
  * page, just surfaced as a side panel instead of an inline expansion, to
  * match SEO's own panel *shape* (title/permalink header, a real row list,
@@ -95,7 +95,7 @@ const buildFixWithAiLink = (editLink: string, finding: RawFinding): string =>
  * caller (GeoTab.tsx/AeoTab.tsx only get `onAnalyze(postId)`), and both of
  * these are the same real, already-established fetches `IssuesSection.tsx`
  * itself uses for `pageAnalysis` mode (`fetchAllPagesWithScores`) and every
- * mode (`fetchOpenFindingsFor`) — same "one more real GET rather than prop-
+ * mode (`fetchOpenFindingsFor`) - same "one more real GET rather than prop-
  * drill through an unrelated component" call `useAeoPageAnalysis.ts`'s own
  * docblock already makes.
  */
@@ -159,7 +159,7 @@ const GeoAeoPageAnalysisPanel = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [postId, scannerIdsKey]);
 
-	/** Same real "pick the worst one" posture `SeoIssuesByPageTable.tsx`'s own row-level "Fix with AI" already uses (`worstFinding()`) — `null` (button disabled) when this page has no real open finding to fix. */
+	/** Same real "pick the worst one" posture `SeoIssuesByPageTable.tsx`'s own row-level "Fix with AI" already uses (`worstFinding()`) - `null` (button disabled) when this page has no real open finding to fix. */
 	const primaryFinding = findings.length > 0 ? worstFinding(findings) : null;
 
 	return (

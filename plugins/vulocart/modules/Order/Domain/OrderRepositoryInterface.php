@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Order module OrderRepositoryInterface.
  *
- * The contract Application\OrderService depends on — bound to a concrete
+ * The contract Application\OrderService depends on - bound to a concrete
  * implementation only in Module::wire_services() (via VuloCart's own
  * ServiceContainer), same seam every other *RepositoryInterface in this
  * codebase already establishes.
@@ -32,7 +32,7 @@ interface OrderRepositoryInterface {
     public function find( int $id ): ?Order;
 
     /**
-     * Finds one order by its human-facing order number and access token —
+     * Finds one order by its human-facing order number and access token -
      * the guest order-tracking lookup.
      *
      * @param string $order_number Human-facing order identifier.
@@ -42,7 +42,7 @@ interface OrderRepositoryInterface {
     public function find_by_number_and_token( string $order_number, string $access_token ): ?Order;
 
     /**
-     * Finds the most recent order placed with a given customer email —
+     * Finds the most recent order placed with a given customer email -
      * vulocart-pro's One-Click Checkout uses this to source a returning
      * (or repeat-guest) buyer's last-used address/payment as their
      * one-click default.
@@ -68,7 +68,7 @@ interface OrderRepositoryInterface {
     public function count_by_fulfillment_status(): array;
 
     /**
-     * Persists a new order (without items — see insert_item()).
+     * Persists a new order (without items - see insert_item()).
      *
      * @param Order $order An order with $id === null.
      * @return Order The same order, with $id (and timestamps) populated.

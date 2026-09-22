@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Customer module WPDBNoteRepository.
  *
- * Owns `vulocart_customer_notes` — admin-only internal notes about a
+ * Owns `vulocart_customer_notes` - admin-only internal notes about a
  * customer (never shown to the customer themselves), same role
  * `vulocart-pro`'s own OrderNotes module plays for an Order.
  *

@@ -11,23 +11,23 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * The real "log in to your VuloCloud account" connection
- * useContentGate.tsx's own docblock used to say didn't exist yet — a
+ * useContentGate.tsx's own docblock used to say didn't exist yet - a
  * *person* signing into the VuloCloud platform from this WP admin (via
  * VuloCloudAccountApiClient's `POST /auth/login`), a different concept
  * from `appLocalizer.khali_dabba` (vulopilot-pro's own site-wide Product
- * ID/License Key, a different bounded context entirely — see this
+ * ID/License Key, a different bounded context entirely - see this
  * plugin's own config.php docblock on VULOPILOT_VULOCLOUD_URL).
  *
  * Storage is one dedicated `vulopilot_vulocloud_account` option, same
  * "never round-trips to the browser, secrets encrypted at rest" posture
  * GoogleServicesConnection.php already established for its own OAuth
- * tokens (CredentialEncryption, same as that class) — `get_status()`
+ * tokens (CredentialEncryption, same as that class) - `get_status()`
  * below never returns a raw token, only `connected`/`email`/`connected_at`.
  *
  * `is_connected()` treats a stored refresh token as "connected" rather
  * than tracking real access-token expiry. A refresh token revoked
  * server-side (e.g. the person changed their VuloCloud password) would
- * still read `connected: true` here until they explicitly disconnect —
+ * still read `connected: true` here until they explicitly disconnect -
  * the same honest limitation GoogleServicesConnection.php's own
  * `get_status()` docblock flags for its own stored refresh token, not a
  * new gap this class introduces.
@@ -37,7 +37,7 @@ defined( 'ABSPATH' ) || exit;
  * call on this site owner's behalf) tracks real access-token expiry via
  * `token_expires_at`, same `EXPIRY_SAFETY_MARGIN`-before-refresh shape
  * GoogleServicesConnection::get_valid_access_token() already established
- * for Google's own tokens — read straight out of the JWT's own `exp`
+ * for Google's own tokens - read straight out of the JWT's own `exp`
  * claim (decode_jwt_expiry() below) rather than trusting an `expiresIn`
  * field, since VuloCloud's `/auth/login`/`/auth/refresh` responses don't
  * actually return one (confirmed live against the real dev API).
@@ -51,7 +51,7 @@ class VuloCloudAccountConnection {
     private const OPTION_KEY = 'vulopilot_vulocloud_account';
 
     /**
-     * Same reasoning as GoogleServicesConnection::EXPIRY_SAFETY_MARGIN —
+     * Same reasoning as GoogleServicesConnection::EXPIRY_SAFETY_MARGIN -
      * refresh a minute early so a request never races an in-flight expiry.
      */
     private const EXPIRY_SAFETY_MARGIN = 60;
@@ -88,7 +88,7 @@ class VuloCloudAccountConnection {
     }
 
     /**
-     * Never a token — see this class's own docblock.
+     * Never a token - see this class's own docblock.
      *
      * @return array{connected: bool, email: string, connected_at: string}
      */
@@ -110,7 +110,7 @@ class VuloCloudAccountConnection {
      *   A WP_Error's own `error_code` is `vulopilot_vulocloud_` followed
      *   by VuloCloud's own lowercased `error` code (e.g.
      *   `vulopilot_vulocloud_invalid_credentials`,
-     *   `vulopilot_vulocloud_two_factor_required`) — Rest.php's own
+     *   `vulopilot_vulocloud_two_factor_required`) - Rest.php's own
      *   `connect()` passes this straight through as the REST error code,
      *   so the React side can special-case
      *   `vulopilot_vulocloud_two_factor_required` (prompt for a code and
@@ -170,7 +170,7 @@ class VuloCloudAccountConnection {
     }
 
     /**
-     * `POST /auth/register` then `login()` — VuloCloud's own register
+     * `POST /auth/register` then `login()` - VuloCloud's own register
      * endpoint returns no tokens (confirmed live: a bare safe-user view),
      * so creating a brand-new account still needs an immediate follow-up
      * login to actually establish a connection. Reuses connect()'s own
@@ -223,7 +223,7 @@ class VuloCloudAccountConnection {
 
     /**
      * A real, currently-valid access token for this site owner's VuloCloud
-     * account, refreshing first if it's expired (or about to be) —
+     * account, refreshing first if it's expired (or about to be) -
      * Services\AiCreditsConnection's own connect-site call is the first
      * real caller. Same shape as
      * GoogleServicesConnection::get_valid_access_token().
@@ -249,7 +249,7 @@ class VuloCloudAccountConnection {
     }
 
     /**
-     * Real `POST /auth/refresh` — VuloCloud rotates the refresh token on
+     * Real `POST /auth/refresh` - VuloCloud rotates the refresh token on
      * every call (confirmed by that route's own docblock), so both the new
      * access AND refresh token must be persisted, not just the access
      * token.
@@ -290,11 +290,11 @@ class VuloCloudAccountConnection {
     }
 
     /**
-     * Reads the `exp` claim straight out of the JWT's own (unverified —
+     * Reads the `exp` claim straight out of the JWT's own (unverified -
      * this site never needs to verify VuloCloud's own signature, only read
      * a timestamp it already trusts because the token came from a direct
      * HTTPS response to a request this site itself made) payload segment,
-     * rather than trusting a response `expiresIn` field — VuloCloud's
+     * rather than trusting a response `expiresIn` field - VuloCloud's
      * `/auth/login`/`/auth/refresh` responses don't actually return one
      * (confirmed live against the real dev API).
      *
@@ -315,7 +315,7 @@ class VuloCloudAccountConnection {
 
     /**
      * Always clears the local connection, even when the best-effort
-     * remote `/auth/logout` call fails or VuloCloud isn't reachable — a
+     * remote `/auth/logout` call fails or VuloCloud isn't reachable - a
      * site owner disconnecting is a local decision this site can always
      * honor on its own side, same reasoning
      * GoogleServicesConnection::disconnect() already documents for its

@@ -16,11 +16,11 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart WPDBTermRepository.
  *
- * The only class that runs SQL against `vulocart_terms` — implements
+ * The only class that runs SQL against `vulocart_terms` - implements
  * Domain\Term\TermRepositoryInterface, bound in VuloCart::init_classes().
  * `count_offerings_for_term()` counts live against `vulocart_offerings.meta`
  * (a quoted-substring `LIKE` on the term's own slug) rather than a
- * maintained `term_relationships` join table — Offering.meta already stores
+ * maintained `term_relationships` join table - Offering.meta already stores
  * `categories`/`brand`/`collections` as plain slug arrays/strings
  * (RestAPI\Controllers\Offerings.php's existing `sanitize_offering_meta()`),
  * so a term's assignment to offerings is derived from that existing data
@@ -43,7 +43,7 @@ class WPDBTermRepository implements TermRepositoryInterface {
     }
 
     /**
-     * Resolves the fully-prefixed `vulocart_offerings` table name — used by
+     * Resolves the fully-prefixed `vulocart_offerings` table name - used by
      * count_offerings_for_term() only.
      *
      * @return string
@@ -209,11 +209,11 @@ class WPDBTermRepository implements TermRepositoryInterface {
     }
 
     /**
-     * Counts offerings whose `meta` bag references this term's slug — see
+     * Counts offerings whose `meta` bag references this term's slug - see
      * class docblock for why this is a live `LIKE` count rather than a
      * maintained join table. Matches the slug as a quoted JSON string
      * (`"slug"`) so e.g. a "shoe" term never matches an unrelated
-     * "shoes" value — safe because two JSON-encoded string values can
+     * "shoes" value - safe because two JSON-encoded string values can
      * only share this exact quoted substring if they're equal.
      *
      * @param Term $term The term to count offerings for.

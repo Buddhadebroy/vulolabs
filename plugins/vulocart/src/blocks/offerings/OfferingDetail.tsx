@@ -10,19 +10,19 @@ interface OfferingDetailProps {
 }
 
 /**
- * The single-offering "product page" — `GET /offerings/{id}` (public,
+ * The single-offering "product page" - `GET /offerings/{id}` (public,
  * published-only for a logged-out visitor). Reachable regardless of
  * `catalog_visibility` (including `hidden`/`search_only`, which only
- * `OfferingsListing.tsx`'s grid excludes) — same WooCommerce-style
+ * `OfferingsListing.tsx`'s grid excludes) - same WooCommerce-style
  * "unlisted but directly linkable" semantics `../shared/offering.ts`'s
  * `isVisibleInListing()` docblock explains.
  *
  * "Add to cart" posts to the same `/cart/items` endpoint and shares the
  * same client-held cart token (`../shared/cart.ts`) as
- * `src/blocks/checkout/Checkout.tsx` — an item added here shows up in
+ * `src/blocks/checkout/Checkout.tsx` - an item added here shows up in
  * that block's cart review, and vice versa. Gated on
  * `vulocartFrontendData.cartCheckoutEnabled` (the Frontend tab's "Enable
- * cart & checkout" toggle) the same way Checkout.tsx's whole flow is —
+ * cart & checkout" toggle) the same way Checkout.tsx's whole flow is -
  * off means "Add to cart" is replaced with a plain notice rather than a
  * button nobody can complete a purchase from anyway.
  */

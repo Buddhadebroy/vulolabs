@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  * without a bespoke query. object_type was added alongside it so
  * AutomationEngine\Actions\ResolveFindingAction can look up the one open
  * finding a Recommendation actually came from (object_ref alone isn't
- * unique across object types — e.g. post id 12 and attachment id 12).
+ * unique across object types - e.g. post id 12 and attachment id 12).
  *
  * @class       FindingRepository class
  * @version     1.0.0
@@ -45,7 +45,7 @@ class FindingRepository extends AbstractRepository {
 
     /**
      * The already-open finding a fresh re-detection of the exact same
-     * problem should refresh instead of duplicating — originally added
+     * problem should refresh instead of duplicating - originally added
      * specifically for BrokenLinksScanner/BrokenImagesScanner, now called
      * for every scanner by default (ScanPersistenceListener::NEVER_DEDUPE_ON_RESCAN's
      * own docblock explains why the allowlist approach was abandoned): a
@@ -54,32 +54,32 @@ class FindingRepository extends AbstractRepository {
      * `scanner_id`/`object_type`/`object_ref`/`title` every time
      * (ScanPersistenceListener's own insert loop had no existence check
      * at all), and any page grouping findings by object then shows one
-     * duplicate child row per rescan for the one still-open problem — up
+     * duplicate child row per rescan for the one still-open problem - up
      * to 24 duplicate rows for a single object, confirmed live, before
      * this was generalized. Matches on `title` rather than digging into
-     * the JSON `meta` column — every scanner already bakes whatever
+     * the JSON `meta` column - every scanner already bakes whatever
      * distinguishes this specific finding into its own title (a URL, a
      * file path, ...), so it's already the natural per-object key without
-     * a JSON comparison in SQL. Scoped to `status = 'open'` only — a
+     * a JSON comparison in SQL. Scoped to `status = 'open'` only - a
      * finding a site owner already resolved/ignored should get a
      * brand-new row if the same problem recurs later, not silently flip a
      * closed one back open.
      *
      * `$object_type`/`$object_ref` are nullable for the purely-sitewide
      * scanners that have no specific object to key on (e.g. `php-warnings`
-     * — a PHP notice isn't "about" any one post) — those store SQL `NULL`
+     * - a PHP notice isn't "about" any one post) - those store SQL `NULL`
      * in both columns (AbstractRepository::insert() passes `null` straight
      * through to `$wpdb->insert()`, which stores a real `NULL`, not the
      * string `''`). A plain `column = %s` comparison is never true against
      * a `NULL` column regardless of what's bound, so matching on `NULL`
      * needs its own `IS NULL` branch rather than reusing the `%s`
-     * comparison — confirmed live: without this, `php-warnings` piled up
+     * comparison - confirmed live: without this, `php-warnings` piled up
      * 10 duplicate open rows for the identical warning message before
      * this was added, since every rescan's lookup silently matched
      * nothing and fell through to a fresh insert. `title` alone is still
      * enough of a natural key for most scanners (see this method's own
      * docblock above on why `title` already carries whatever distinguishes
-     * one finding from another) — but not all of them: a scanner whose
+     * one finding from another) - but not all of them: a scanner whose
      * title bakes in a live, scan-to-scan-fluctuating number (a word
      * count, a readability score, a byte size) breaks a plain `title`
      * match the moment that number ticks even slightly, same underlying
@@ -94,7 +94,7 @@ class FindingRepository extends AbstractRepository {
      * supply one (the default, `null`, for every scanner not rewritten to
      * need this), matching falls back to the exact legacy `title = %s`
      * behavior, scoped to rows that themselves have no `dedupe_key` either
-     * — so a pre-existing title-matched row and a future dedupe_key-keyed
+     * - so a pre-existing title-matched row and a future dedupe_key-keyed
      * row for the same scanner can never cross-match each other by
      * accident.
      *
@@ -140,7 +140,7 @@ class FindingRepository extends AbstractRepository {
     }
 
     /**
-     * Every currently-open row id for one scanner — unpaginated (unlike
+     * Every currently-open row id for one scanner - unpaginated (unlike
      * `find_all()`, which caps at 100 rows), since
      * `ScanPersistenceListener::handle_scan_completed()`'s own real
      * auto-resolve step (see that method's own docblock) needs the
@@ -166,7 +166,7 @@ class FindingRepository extends AbstractRepository {
 
     /**
      * Open/resolved/ignored/snoozed counts, zero-filled and optionally
-     * scoped to one category and/or one section's scanner_id list — backs
+     * scoped to one category and/or one section's scanner_id list - backs
      * the Health/SEO/GEO/WooCommerce findings tables' status-count pill
      * bar, including SEO.tsx's per-section tables (e.g. "Titles & meta"
      * grouping several scanner_id values together, scoped independently of
@@ -205,7 +205,7 @@ class FindingRepository extends AbstractRepository {
      * Open findings bucketed into the 3-tier "priority" AI Copilot's
      * "Needs your attention" card shows (mockup: High/Medium/Low pills),
      * collapsed from the real 5-level severity scale rather than a 1:1
-     * mapping — critical folds into "high" (nothing is more urgent),
+     * mapping - critical folds into "high" (nothing is more urgent),
      * info folds into "low" (nothing is less), so no open finding is
      * silently dropped from the total.
      *
@@ -232,12 +232,12 @@ class FindingRepository extends AbstractRepository {
 
     /**
      * Same 3-tier Critical+High/Medium/Low collapse as get_priority_counts(),
-     * scoped to one scanner_id set instead of the whole site — what a
+     * scoped to one scanner_id set instead of the whole site - what a
      * scanner_id-scoped Issues table (the "Schema & Knowledge" tab's own
      * grouped Issues section) needs for its own stat tiles, since
      * get_priority_counts() itself has no scoping parameter (every other
      * caller genuinely wants the sitewide picture regardless of whatever
-     * category tab is active — see its own docblock via
+     * category tab is active - see its own docblock via
      * Controllers/Findings.php's get_finding_groups()).
      *
      * @param string[] $scanner_ids Scanner ids to scope to.
@@ -255,19 +255,19 @@ class FindingRepository extends AbstractRepository {
 
     /**
      * Groups every currently open finding by its scanner_id and returns
-     * the top $limit groups, most-severe-first (ties broken by count) —
+     * the top $limit groups, most-severe-first (ties broken by count) -
      * "Needs your attention"'s list rows read as real per-issue-type
      * counts (e.g. "8 findings: Meta Descriptions") instead of one row
      * per individual per-object finding the way FindingsTable/
      * IssuesList already show elsewhere.
      *
      * Each group's severity/category/object_type come from a sample of
-     * open findings (the most recent 100 — find_all()'s own per_page
+     * open findings (the most recent 100 - find_all()'s own per_page
      * ceiling), not every row: a scanner_id absent from that sample even
      * though count_by_column() knows it has open findings is skipped
      * rather than guessing its severity from nothing, so this can
      * under-report on a site with 100+ distinct open-finding scanner
-     * types on the same page — a genuinely rare shape (SCANNERS.md's
+     * types on the same page - a genuinely rare shape (SCANNERS.md's
      * full catalog is ~65 scanners total, all categories combined).
      *
      * @param int      $limit      Max groups to return.
@@ -275,7 +275,7 @@ class FindingRepository extends AbstractRepository {
      *                             per-scanner counts and the representative sample to
      *                             (get_top_finding_group_for_categories() passes this so
      *                             "top 3 sitewide" and "top 1 within this category bucket"
-     *                             share one implementation) — empty means sitewide, same as before.
+     *                             share one implementation) - empty means sitewide, same as before.
      * @return array<int, array{scanner_id: string, count: int, severity: string, category: string, object_type: ?string}>
      */
     public function get_top_finding_groups( int $limit = 3, array $categories = array() ): array {
@@ -310,7 +310,7 @@ class FindingRepository extends AbstractRepository {
             'info'     => 4,
         );
 
-        // Worst (most urgent) severity seen per scanner_id in the sample —
+        // Worst (most urgent) severity seen per scanner_id in the sample -
         // some scanners (e.g. ProductCompletenessScanner) assign different
         // severities to different findings, so the first row seen isn't
         // reliably representative; the worst one is.
@@ -369,7 +369,7 @@ class FindingRepository extends AbstractRepository {
 
     /**
      * The single top open finding-type group within a fixed set of real
-     * `category` values — AI Copilot's "Recommended by VuloPilot" card
+     * `category` values - AI Copilot's "Recommended by VuloPilot" card
      * uses this once per bucket (security/performance/ai-visibility) so
      * each bucket gets its own real top issue instead of `get_top_finding_groups()`'s
      * sitewide top 3, which could land two or three cards in the same
@@ -386,7 +386,7 @@ class FindingRepository extends AbstractRepository {
 
     /**
      * Same worst-severity grouping get_finding_groups() computes, scoped to
-     * exactly one scanner_id — what AI Copilot chat's "Add context" picker
+     * exactly one scanner_id - what AI Copilot chat's "Add context" picker
      * (Controllers\Copilot.php) resolves a user-picked `finding_group`
      * context ref against, so the AI is always grounded with this group's
      * real, current count/severity rather than whatever stale numbers the
@@ -428,13 +428,13 @@ class FindingRepository extends AbstractRepository {
     }
 
     /**
-     * Open **group** counts per category — i.e. how many distinct
+     * Open **group** counts per category - i.e. how many distinct
      * (scanner_id, category) rows get_finding_groups() would return for
      * each category, not how many raw findings exist in it. The Issues
      * table renders one row per group, and its `total`/pagination footer
      * are group counts too (get_finding_groups()'s own $total_groups), so
      * the category tab bar must count the same unit its own badge promises
-     * — otherwise a tab reading "88" (88 raw findings, e.g. many pages
+     * - otherwise a tab reading "88" (88 raw findings, e.g. many pages
      * missing the same alt text) can click through to a handful of grouped
      * rows with no pagination, looking broken even though nothing's wrong.
      *
@@ -456,8 +456,8 @@ class FindingRepository extends AbstractRepository {
     }
 
     /**
-     * Same grouping as get_top_finding_groups() — every open finding
-     * bucketed by scanner_id, worst-severity-first — but paginated and
+     * Same grouping as get_top_finding_groups() - every open finding
+     * bucketed by scanner_id, worst-severity-first - but paginated and
      * optionally scoped to one category, instead of a fixed top-3 preview.
      * Backs the AI Copilot Issues table (Controllers/Findings.php's
      * `GET /findings/groups`), which needs every group across every page,
@@ -465,13 +465,13 @@ class FindingRepository extends AbstractRepository {
      *
      * Expressed as one grouped query (MIN() over a severity->rank CASE
      * picks each group's worst severity) rather than get_top_finding_groups()'s
-     * own "sample the 100 most recent rows client-side" approach — that
+     * own "sample the 100 most recent rows client-side" approach - that
      * approach is fine for a 3-row preview but would under-report on a
      * paginated full list, since a scanner_id's open findings could easily
      * fall entirely outside the most recent 100 rows once pagination goes
      * past the first page.
      *
-     * @param array{status?: string, category?: string|string[], scanner_ids?: string[], priority_ranks?: int[], page?: int, per_page?: int} $args Grouping/pagination args — `category` accepts several real category values at once (IN-matched), same reasoning as get_status_counts()'s own `$scanner_ids` param: the Issues table's "SEO & Visibility" tab, for example, folds 4 real category values ('seo'/'images'/'schema'/'links') into one tab. `scanner_ids` (IN-matched, ANDed with `category` when both are given) scopes to an explicit scanner_id set instead — what the "Schema & Knowledge" tab's own grouped Issues section needs, since its 5 real scanners span 3 different categories mixed with many unrelated scanners in those same categories, so `category` alone can't express it. `priority_ranks` filters to groups whose own worst-severity rank (this method's own severity->rank scale, 0=critical..4=info) is one of the given ranks — how the Issues table's High/Medium/Low stat tiles filter the table to match the same priority bucket Controllers/Findings.php maps their click to (same 3-tier collapse get_priority_counts() already uses for the tiles' own counts).
+     * @param array{status?: string, category?: string|string[], scanner_ids?: string[], priority_ranks?: int[], page?: int, per_page?: int} $args Grouping/pagination args - `category` accepts several real category values at once (IN-matched), same reasoning as get_status_counts()'s own `$scanner_ids` param: the Issues table's "SEO & Visibility" tab, for example, folds 4 real category values ('seo'/'images'/'schema'/'links') into one tab. `scanner_ids` (IN-matched, ANDed with `category` when both are given) scopes to an explicit scanner_id set instead - what the "Schema & Knowledge" tab's own grouped Issues section needs, since its 5 real scanners span 3 different categories mixed with many unrelated scanners in those same categories, so `category` alone can't express it. `priority_ranks` filters to groups whose own worst-severity rank (this method's own severity->rank scale, 0=critical..4=info) is one of the given ranks - how the Issues table's High/Medium/Low stat tiles filter the table to match the same priority bucket Controllers/Findings.php maps their click to (same 3-tier collapse get_priority_counts() already uses for the tiles' own counts).
      * @return array{data: array<int, array{scanner_id: string, category: string, count: int, severity: string, object_type: ?string}>, total: int}
      */
     public function get_finding_groups( array $args = array() ): array {
@@ -486,8 +486,8 @@ class FindingRepository extends AbstractRepository {
         $per_page       = max( 1, min( 100, (int) ( $args['per_page'] ?? 20 ) ) );
         $offset         = ( $page - 1 ) * $per_page;
 
-        // 'all' is a real, deliberate escape hatch — not a real status
-        // value any row ever has — for a caller that wants every real row
+        // 'all' is a real, deliberate escape hatch - not a real status
+        // value any row ever has - for a caller that wants every real row
         // regardless of status (e.g. a "Show ignored" toggle: real open
         // findings AND real ignored ones together, not one or the other).
         if ( 'all' === $status ) {
@@ -515,7 +515,7 @@ class FindingRepository extends AbstractRepository {
 
         // Grouped once, filtered by the group's own worst-severity rank in
         // an outer WHERE against this subquery rather than filtering raw
-        // rows by severity before grouping — a scanner_id's `count` must
+        // rows by severity before grouping - a scanner_id's `count` must
         // stay every open finding in that group regardless of which
         // priority tile is active, since the mockup's own "22 pages
         // affected" reads as the group's real total, not a subset matching
@@ -533,10 +533,10 @@ class FindingRepository extends AbstractRepository {
         $count_sql    = "SELECT COUNT(*) FROM ( {$group_sql} ) grouped{$having}";
         // `$count_values` is genuinely empty only when `$status` is the
         // real 'all' escape hatch above with no category/priority filter
-        // either — `$wpdb->prepare()` itself requires at least one real
+        // either - `$wpdb->prepare()` itself requires at least one real
         // value to bind, so this real no-placeholders-left case runs the
         // query directly instead (every piece of `$count_sql` at that
-        // point is code-controlled — `$table`/`$where`/`$having` — not
+        // point is code-controlled - `$table`/`$where`/`$having` - not
         // user input, same real precedent this file's own
         // `get_category_group_counts()` already established for a
         // likewise placeholder-free query).
@@ -583,7 +583,7 @@ class FindingRepository extends AbstractRepository {
     }
 
     /**
-     * Counts findings by severity across every scan — what the dashboard's
+     * Counts findings by severity across every scan - what the dashboard's
      * summary cards and site-health scoring read, without pulling every
      * row into PHP to count them (performance.md).
      *
@@ -602,7 +602,7 @@ class FindingRepository extends AbstractRepository {
     }
 
     /**
-     * Counts open findings in one category — what each domain dashboard
+     * Counts open findings in one category - what each domain dashboard
      * widget (SEO/Performance/Security/Accessibility/WooCommerce) reads,
      * same shape as count_by_severity() above.
      *
@@ -621,7 +621,7 @@ class FindingRepository extends AbstractRepository {
     }
 
     /**
-     * Findings first detected on or after $since — the Dashboard's "N new
+     * Findings first detected on or after $since - the Dashboard's "N new
      * issues this week" badge reads this, counting every finding created
      * in the window regardless of its current status (a finding opened
      * and then immediately resolved this week is still a real "new issue"
@@ -642,7 +642,7 @@ class FindingRepository extends AbstractRepository {
     }
 
     /**
-     * Findings resolved on or after $since — the Dashboard's "N fixed"
+     * Findings resolved on or after $since - the Dashboard's "N fixed"
      * badge reads this. `resolved_at` is only ever set when a finding's
      * status transitions to 'resolved' (Controllers\Findings::update_item()),
      * so this naturally excludes ignored/snoozed findings.
@@ -663,7 +663,7 @@ class FindingRepository extends AbstractRepository {
 
     /**
      * Findings resolved within a bounded window, optionally scoped to one
-     * category and/or scanner_id list — same "fixed" concept
+     * category and/or scanner_id list - same "fixed" concept
      * count_resolved_since() already reads for the Dashboard's own badge,
      * but with an upper bound and the same category/scanner_ids scoping
      * get_stats_for_period()/get_top_findings_for_period() already
@@ -699,7 +699,7 @@ class FindingRepository extends AbstractRepository {
 
     /**
      * Open-finding counts by severity within a single category, in one
-     * grouped query rather than four count_by_severity()-style calls —
+     * grouped query rather than four count_by_severity()-style calls -
      * this is what Dashboard controller's per-category widget score
      * (SEO/Performance/Security/Accessibility/WooCommerce) is computed
      * from, using the same weighting Overall Health already uses, just
@@ -732,12 +732,12 @@ class FindingRepository extends AbstractRepository {
 
     /**
      * Same shape as get_severity_breakdown_for_category(), scoped to an
-     * explicit scanner_id list instead of one category string — what
+     * explicit scanner_id list instead of one category string - what
      * Content Intelligence's own composite Content Score reads
      * (CONTENT-INTELLIGENCE-MODULE.md), since it spans scanners across two
      * categories (`content`'s own readability scanner plus a subset of
      * `seo`'s existing thin-content/duplicate-content/heading-structure/
-     * internal-linking/orphan-pages scanners) — a single category string
+     * internal-linking/orphan-pages scanners) - a single category string
      * can't express that, and recategorizing those existing `seo`
      * scanners into `content` would be exactly the kind of breaking
      * redesign this pass avoids (SEO.tsx's own SEO_SECTIONS groups them
@@ -749,7 +749,7 @@ class FindingRepository extends AbstractRepository {
     public function get_severity_breakdown_for_scanner_ids( array $scanner_ids ): array {
         global $wpdb;
 
-        // Every real Severity value (Severity::all()) — 'info' was missing
+        // Every real Severity value (Severity::all()) - 'info' was missing
         // here until this fix, which silently dropped any info-severity
         // finding among $scanner_ids from every caller's total (this
         // method's own sum, get_priority_counts_for_scanner_ids()'s 'low'
@@ -784,21 +784,21 @@ class FindingRepository extends AbstractRepository {
     /**
      * Same shape as get_severity_breakdown_for_category(), but reconstructed
      * as of a past moment instead of counting today's `status = 'open'`
-     * rows — what a category score trend needs, since no daily per-category
+     * rows - what a category score trend needs, since no daily per-category
      * score snapshot exists (only `vulopilot_site_health_snapshots.overall_score`
      * is ever written; see SiteHealthSnapshotRepository in vulopilot-pro).
      * A finding counts as "open as of $as_of" when it already existed
      * (`created_at <= $as_of`) and either is still `status = 'open'` right
-     * now, or has a real `resolved_at` timestamp after `$as_of` — NOT a bare
+     * now, or has a real `resolved_at` timestamp after `$as_of` - NOT a bare
      * `resolved_at IS NULL` check (this method's own original condition,
      * confirmed live to silently over-count: 120 of this table's 192
-     * `status = 'resolved'` rows have a `NULL resolved_at` — resolved
+     * `status = 'resolved'` rows have a `NULL resolved_at` - resolved
      * before `resolved_at` tracking existed/was backfilled, not "still
-     * open" — so treating a null timestamp as "not yet resolved" was
+     * open" - so treating a null timestamp as "not yet resolved" was
      * counting a majority of already-resolved findings as still open in
      * every historical reconstruction). A currently-resolved finding with
      * no real resolved timestamp is instead treated as already resolved by
-     * `$as_of` — the honest assumption when the exact moment isn't known,
+     * `$as_of` - the honest assumption when the exact moment isn't known,
      * rather than the previous assumption that silently inflated every
      * "as of" score below its real historical value. Currently
      * ignored/snoozed findings stay excluded from both ends (same exclusion
@@ -839,10 +839,10 @@ class FindingRepository extends AbstractRepository {
 
     /**
      * Same "as of a past moment" reconstruction as
-     * get_severity_breakdown_for_category_as_of() — including that same
+     * get_severity_breakdown_for_category_as_of() - including that same
      * method's own fix for `status = 'resolved'` rows with a `NULL
-     * resolved_at` (see its docblock) — scoped to an explicit scanner_id
-     * list instead — what Content/Brand's composite scores' trend needs,
+     * resolved_at` (see its docblock) - scoped to an explicit scanner_id
+     * list instead - what Content/Brand's composite scores' trend needs,
      * same reasoning as get_severity_breakdown_for_scanner_ids() own
      * docblock for why those two scores can't use a category string.
      *
@@ -882,15 +882,15 @@ class FindingRepository extends AbstractRepository {
     }
 
     /**
-     * Every currently-open — or, with `$as_of` set, real
+     * Every currently-open - or, with `$as_of` set, real
      * historically-reconstructed open-as-of-that-moment (same exact
      * reconstruction `get_severity_breakdown_for_scanner_ids_as_of()`
-     * already uses) — finding among `$scanner_ids` that's tied to a real
+     * already uses) - finding among `$scanner_ids` that's tied to a real
      * page/post, bucketed by post id. Seo.php's own "Pages that need
      * attention" table needs this to compute a real per-page score/Main
      * Problem/Change without an N+1 query per page.
      * `DuplicateContentScanner`'s own `object_ref` is a comma-joined list of
-     * post ids (one finding genuinely spans multiple posts) — split and
+     * post ids (one finding genuinely spans multiple posts) - split and
      * attached to EACH matching post here, same real handling
      * `seoIssuesShared.tsx`'s own `bucketFindingsByPage()` already does
      * client-side for the current (non-as-of) case.
@@ -952,11 +952,11 @@ class FindingRepository extends AbstractRepository {
 
     /**
      * Distinct real pages/posts/URLs with at least one currently-open
-     * finding among $scanner_ids — the real "N pages affected" count
+     * finding among $scanner_ids - the real "N pages affected" count
      * Seo.php's own category cards need alongside
      * get_severity_breakdown_for_scanner_ids()'s own per-severity counts.
      * `object_ref` is that finding's own real target (a `WP_Post::ID` for
-     * most scanners, a URL string for the few that are — `canonical-url`'s
+     * most scanners, a URL string for the few that are - `canonical-url`'s
      * own object_type is `url`, not `post`); counted together rather than
      * scoped to `object_type = 'post'`, since a category can legitimately
      * mix both and every value is still a real distinct affected target
@@ -983,13 +983,13 @@ class FindingRepository extends AbstractRepository {
     }
 
     /**
-     * Aggregate counts for one date range — what every Reports\Types\*
+     * Aggregate counts for one date range - what every Reports\Types\*
      * report reads instead of pulling every row in the period into PHP to
      * count them (performance.md). $category narrows to one scanner
      * category (e.g. 'seo', 'security'); null means every category, used
      * by Reports\Types\ScanSummaryReport/HealthReport. $scanner_ids
      * additionally narrows to an explicit scanner id list (Content
-     * Intelligence's own report, which spans two categories — see
+     * Intelligence's own report, which spans two categories - see
      * get_severity_breakdown_for_scanner_ids()'s own docblock for why);
      * combinable with $category, though no current caller needs both at
      * once.
@@ -1062,14 +1062,14 @@ class FindingRepository extends AbstractRepository {
     }
 
     /**
-     * Every object_type/object_ref pair from one scan run — used only to
+     * Every object_type/object_ref pair from one scan run - used only to
      * build History's "Pages & posts" list (Controllers/History.php's own
      * build_affected_pages()), which needs every finding a scan produced to
      * count accurately per page, not find_all()'s own 100-row page cap. A
      * real, exact, indexed FK lookup (`idx_scan` on
      * vulopilot_scan_findings.scan_id, set once at insert time by
      * Services\ScanPersistenceListener::handle_scan_completed() in the same
-     * request that creates the scan row itself) — not an approximation.
+     * request that creates the scan row itself) - not an approximation.
      *
      * @param int $scan_id vulopilot_scans.id.
      * @return array<int, array{object_type: string|null, object_ref: string|null}>
@@ -1089,11 +1089,11 @@ class FindingRepository extends AbstractRepository {
     }
 
     /**
-     * The highest-severity currently-open findings, worst-first — what
+     * The highest-severity currently-open findings, worst-first - what
      * Controllers\ReportsOverview's own "Your next priorities" list reads.
      * Unlike get_top_findings_for_period() (scoped to a created_at window,
      * any status), this is unbounded by date and scoped to `status = 'open'`
-     * only — the point is "what's still outstanding right now", not "what
+     * only - the point is "what's still outstanding right now", not "what
      * appeared recently".
      *
      * @param int $limit Max rows to return.
@@ -1115,7 +1115,7 @@ class FindingRepository extends AbstractRepository {
     }
 
     /**
-     * The highest-severity findings opened in one date range — what a
+     * The highest-severity findings opened in one date range - what a
      * report's "top issues" section reads, ordered worst-first rather than
      * newest-first.
      *
@@ -1123,7 +1123,7 @@ class FindingRepository extends AbstractRepository {
      * @param string        $period_end   Y-m-d, inclusive.
      * @param string|null   $category     One of the scanner category strings, or null for all.
      * @param int           $limit        Max rows to return.
-     * @param string[]|null $scanner_ids  Scanner ids to additionally scope to — same reasoning as get_stats_for_period()'s own docblock.
+     * @param string[]|null $scanner_ids  Scanner ids to additionally scope to - same reasoning as get_stats_for_period()'s own docblock.
      * @return array<int, array<string, mixed>>
      */
     public function get_top_findings_for_period( string $period_start, string $period_end, ?string $category = null, int $limit = 10, ?array $scanner_ids = null ): array {

@@ -2,7 +2,7 @@ import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { AnalyticsComponent } from '@zyra/components';
 
-// `'all'` no longer has its own tile (removed) — it's kept as a real
+// `'all'` no longer has its own tile (removed) - it's kept as a real
 // state value only, meaning "no priority filter selected" (the initial
 // state before High/Medium/Low is clicked, and what deselecting the
 // active one falls back to).
@@ -32,7 +32,7 @@ const IssuesSummaryCards: React.FC<IssuesSummaryCardsProps> = ({
 }) => {
 	// Reads the real `priority` field carried on each tile rather than
 	// reverse-parsing it from the tile's own translated display text
-	// (`item.text`) — text-matching would break for High/Medium/Low the
+	// (`item.text`) - text-matching would break for High/Medium/Low the
 	// moment their labels are translated to any other language.
 	const handleClick = (item: SummaryTile) => {
 		onSelectPriority(item.priority);
@@ -68,12 +68,12 @@ const IssuesSummaryCards: React.FC<IssuesSummaryCardsProps> = ({
 		},
 	];
 
-	// Real controlled active tile — this component's own `activePriority`
+	// Real controlled active tile - this component's own `activePriority`
 	// prop, translated to `data`'s own matching index (`-1` for 'all', no
 	// tile active). Without this, AnalyticsComponent's own uncontrolled
 	// active-tile state resets back to the first clickable tile (High)
 	// every render, since `data` above is a fresh array literal each
-	// time — see that component's own `activeIndex` prop docblock.
+	// time - see that component's own `activeIndex` prop docblock.
 	const activeIndex = data.findIndex((tile) => tile.priority === activePriority);
 
 	return (

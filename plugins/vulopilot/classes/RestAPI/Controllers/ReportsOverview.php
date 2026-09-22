@@ -13,15 +13,15 @@ use VuloPilot\Repositories\PageSpeedRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /reports-overview?days=30 — backs Reports' redesigned Overview tab
+ * GET /reports-overview?days=30 - backs Reports' redesigned Overview tab
  * (OverviewTab.tsx). Every number here is real, computed for a bounded
  * "current period" vs an equal-length "previous period" immediately
  * before it, using FindingRepository's own period-scoped queries
  * (get_stats_for_period()/count_resolved_between()/
- * get_severity_breakdown_for_category_as_of() — all pre-existing, this
+ * get_severity_breakdown_for_category_as_of() - all pre-existing, this
  * controller is the first caller to combine them into one payload) rather
  * than a stored per-day snapshot history (that only exists for
- * `overall_score`, and only when Pro's AdvancedReports module is active —
+ * `overall_score`, and only when Pro's AdvancedReports module is active -
  * see WebsiteProgressChart.tsx's own docblock). No arbitrary calendar
  * date-range picker: `days` is one of DAY_OPTIONS, same "few fixed
  * presets, not a full calendar" posture WebsiteProgressChart.tsx already
@@ -29,7 +29,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * The reference mockup's own "Search performance" panel (Google
  * impressions/clicks/CTR/average position, top pages gaining/losing
- * visibility) has no real backing anywhere in this codebase — no Search
+ * visibility) has no real backing anywhere in this codebase - no Search
  * Console (or any search-analytics) integration exists (confirmed via a
  * full-codebase search for "search console"/"impressions"/"gsc"). Rather
  * than fabricate those numbers, `seo_summary` below is a real substitute
@@ -39,7 +39,7 @@ defined( 'ABSPATH' ) || exit;
  * The mockup's "AI Visibility" panel's 5 named checks (AI-friendly
  * answers/Evidence & citations/AI-readable structure/Brand
  * understanding/AI crawler access) map cleanly onto 5 real GEO/AEO
- * scanners (AI_VISIBILITY_CHECKS below) — genuinely real, not a
+ * scanners (AI_VISIBILITY_CHECKS below) - genuinely real, not a
  * substitute.
  *
  * @class       ReportsOverview controller
@@ -56,7 +56,7 @@ class ReportsOverview extends \WP_REST_Controller {
     /**
      * Same 7 keys Dashboard::calculate_brand_score() already scores under
      * "brand", reused here for the "AI Visibility" category tile's own
-     * geo+brand average — kept in sync with that method by hand, same as
+     * geo+brand average - kept in sync with that method by hand, same as
      * every other duplicate copy of this exact list already in this
      * codebase (Dashboard.php's own class docblock explains why: small
      * literal list, several call sites, no shared constant anywhere they
@@ -76,7 +76,7 @@ class ReportsOverview extends \WP_REST_Controller {
 
     /**
      * Same list Dashboard::calculate_content_score() already scores under
-     * "content" — a mix of category 'content' (readability) and category
+     * "content" - a mix of category 'content' (readability) and category
      * 'seo' (the other 5) scanners, per that method's own docblock.
      *
      * @var string[]
@@ -104,7 +104,7 @@ class ReportsOverview extends \WP_REST_Controller {
     );
 
     /**
-     * Allowed `days` values — same 3-preset shape WebsiteProgressChart.tsx
+     * Allowed `days` values - same 3-preset shape WebsiteProgressChart.tsx
      * already uses for this same page.
      *
      * @var int[]
@@ -174,7 +174,7 @@ class ReportsOverview extends \WP_REST_Controller {
     }
 
     /**
-     * Site-wide "Fixed / New / Still need attention" — the hero card's own
+     * Site-wide "Fixed / New / Still need attention" - the hero card's own
      * 3 stats, plus each one's real percent change vs the equal-length
      * period immediately before.
      *
@@ -195,7 +195,7 @@ class ReportsOverview extends \WP_REST_Controller {
         $new          = $period_stats['total'];
         $new_previous = $compare_stats['total'];
 
-        // "Still need attention" — open findings that were already open
+        // "Still need attention" - open findings that were already open
         // before this period started (i.e. every currently-open finding,
         // minus the ones that are both open AND newly created this
         // period, which are already counted under "New" above).
@@ -205,7 +205,7 @@ class ReportsOverview extends \WP_REST_Controller {
         $compare_new_still_open = $compare_stats['by_status']['open'] ?? 0;
         // The previous period's own "carried over" figure isn't
         // reconstructable without a second open-count "as of" the
-        // compare period's end — approximated the same way
+        // compare period's end - approximated the same way
         // Dashboard::build_category_scores_as_of() already reconstructs
         // a past state: current open count, plus what's been resolved
         // since, minus what's been newly opened since (a finding open
@@ -229,8 +229,8 @@ class ReportsOverview extends \WP_REST_Controller {
      * The "How is each part of my website doing?" 7-tile grid.
      *
      * @param FindingRepository $findings     Repository to read from.
-     * @param string            $period_start MySQL datetime (UTC) — the "as of" boundary each score's delta is measured against.
-     * @param string            $compare_start MySQL datetime (UTC) — unused directly, kept for signature symmetry with build_highlights().
+     * @param string            $period_start MySQL datetime (UTC) - the "as of" boundary each score's delta is measured against.
+     * @param string            $compare_start MySQL datetime (UTC) - unused directly, kept for signature symmetry with build_highlights().
      * @return array
      */
     private function build_categories( FindingRepository $findings, string $period_start, string $compare_start ): array {
@@ -343,13 +343,13 @@ class ReportsOverview extends \WP_REST_Controller {
     }
 
     /**
-     * The hero card's own "up to 4" highlight rows — each a real category
+     * The hero card's own "up to 4" highlight rows - each a real category
      * score delta over the period, worded honestly (no claim beyond "up"/
      * "down"/"stable" plus the real point delta).
      *
      * @param FindingRepository $findings     Repository to read from.
      * @param string            $period_start MySQL datetime (UTC).
-     * @param string            $compare_start MySQL datetime (UTC) — unused, kept for a future "vs previous period" wording pass.
+     * @param string            $compare_start MySQL datetime (UTC) - unused, kept for a future "vs previous period" wording pass.
      * @return array
      */
     private function build_highlights( FindingRepository $findings, string $period_start, string $compare_start ): array {
@@ -419,7 +419,7 @@ class ReportsOverview extends \WP_REST_Controller {
     }
 
     /**
-     * The 5 real GEO/AEO checks AI_VISIBILITY_CHECKS maps out — each
+     * The 5 real GEO/AEO checks AI_VISIBILITY_CHECKS maps out - each
      * check's status is "Improved" when more of its own findings were
      * fixed than newly opened this period, "Needs work" when the reverse,
      * "Stable" (or "Good" with zero open findings) otherwise.
@@ -458,9 +458,9 @@ class ReportsOverview extends \WP_REST_Controller {
     }
 
     /**
-     * The mockup's "Website Speed" panel — real page-speed score-band
+     * The mockup's "Website Speed" panel - real page-speed score-band
      * counts + real average desktop/mobile scores
-     * (PageSpeedRepository::get_summary(), extended for this — see that
+     * (PageSpeedRepository::get_summary(), extended for this - see that
      * method's own docblock).
      *
      * @return array
@@ -482,7 +482,7 @@ class ReportsOverview extends \WP_REST_Controller {
      * The mockup's "Content Progress" panel. "Pages improved"/"Older
      * pages to review" are real Findings data (CONTENT_SCANNER_IDS,
      * same shape build_category_panel() uses); "New pieces published"/
-     * "Drafts in progress" are real WordPress post-status counts — a
+     * "Drafts in progress" are real WordPress post-status counts - a
      * genuinely different, equally real, data source, not fabricated.
      *
      * @param FindingRepository $findings     Repository to read from.
@@ -531,11 +531,11 @@ class ReportsOverview extends \WP_REST_Controller {
     }
 
     /**
-     * The mockup's "Store Performance" panel — `available: false` (with
+     * The mockup's "Store Performance" panel - `available: false` (with
      * every other field null) when WooCommerce isn't active, same
      * "Not applicable" honesty CategoryScoresGrid.tsx already established
      * for this exact case. `sales`/`orders`/`avg_order` come from real
-     * `wc_get_orders()` order totals for the period — the same function
+     * `wc_get_orders()` order totals for the period - the same function
      * Basic\WooCommerceFailedOrdersScanner/WooCommerceStalePendingOrdersScanner
      * already use for their own real order queries.
      *
@@ -590,7 +590,7 @@ class ReportsOverview extends \WP_REST_Controller {
     }
 
     /**
-     * The mockup's "Your next priorities" — the 3 highest-severity
+     * The mockup's "Your next priorities" - the 3 highest-severity
      * currently-open findings, site-wide.
      *
      * @param FindingRepository $findings Repository to read from.
@@ -626,7 +626,7 @@ class ReportsOverview extends \WP_REST_Controller {
 
     /**
      * Same weighting formula Dashboard::calculate_category_score() uses,
-     * applied to a *current* severity breakdown — duplicated here rather
+     * applied to a *current* severity breakdown - duplicated here rather
      * than shared, same posture Dashboard.php's own class docblock
      * documents for this exact formula's other 3 internal copies.
      *
@@ -640,7 +640,7 @@ class ReportsOverview extends \WP_REST_Controller {
 
     /**
      * Same formula as category_score(), reconstructed as of a past moment
-     * via get_severity_breakdown_for_category_as_of() — what every score
+     * via get_severity_breakdown_for_category_as_of() - what every score
      * delta in this controller is measured against.
      *
      * @param FindingRepository $findings Repository to read from.

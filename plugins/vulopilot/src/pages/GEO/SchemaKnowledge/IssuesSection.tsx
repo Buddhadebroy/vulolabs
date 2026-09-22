@@ -11,7 +11,7 @@ import IssueDetailPanel from '../../../components/Issues/IssueDetailPanel';
 
 /**
  * Real scanner ids behind every schema/entity-adjacent finding this
- * codebase already produces — `schema` (category `schema`),
+ * codebase already produces - `schema` (category `schema`),
  * `structured-data`/`sitewide-structured-data` (category `seo`),
  * `organization-schema`/`author-schema` (category `brand`). Sent as
  * `GET /findings/groups`' own `scanner_id` param (comma-separated, same
@@ -36,21 +36,21 @@ interface GroupsResponse {
 }
 
 /**
- * "Issues" section of the merged "Schema & Knowledge" tab — "Schema
+ * "Issues" section of the merged "Schema & Knowledge" tab - "Schema
  * Problems", real open findings from the 5 schema-related scanners above,
  * grouped by issue type (`GET /findings/groups?scanner_id=…`,
  * FindingRepository::get_finding_groups()'s now scanner_id-scoped grouping)
  * rather than one row per individual finding. Rebuilt to match AI Copilot's
- * own Issues table (IssuesList.tsx) exactly — the same real
+ * own Issues table (IssuesList.tsx) exactly - the same real
  * IssuesSummaryCards stat tiles (Total/High/Medium/Low, each a real filter),
  * the same Issue/Affected/Action columns (InformationItemComponent +
  * badges, "View" opening a detail panel instead of inline per-row Fix/
  * Resolve/Ignore), and the same real side IssueDetailPanel (fully generic,
- * reused as-is — its own "Fix with AI"/"Resolve all"/"Ignore all" already
+ * reused as-is - its own "Fix with AI"/"Resolve all"/"Ignore all" already
  * act on every open finding in whichever group is selected, and it already
  * owns its own Pro popup for "Fix with AI" when OneClickFix isn't active).
  * No category tab bar here (unlike IssuesList.tsx's All/SEO/AI Visibility/…
- * tabs) — this section is already fully scoped to the 5 scanner ids above,
+ * tabs) - this section is already fully scoped to the 5 scanner ids above,
  * so there is no wider "category" dimension left to filter by.
  */
 const IssuesSection = () => {
@@ -153,7 +153,7 @@ const IssuesSection = () => {
 		setPaged(1);
 	};
 
-	/** Shared by the row click and the action cell's own "More Details"/"Showing" button below — same real toggle IssuesList.tsx's own identical `selectGroup` already establishes, now also scrolling the detail panel into view (`scrollToId`, not `window.scrollTo` — WP admin's own scrollable wrapper isn't the document) on a real select, never on deselect. */
+	/** Shared by the row click and the action cell's own "More Details"/"Showing" button below - same real toggle IssuesList.tsx's own identical `selectGroup` already establishes, now also scrolling the detail panel into view (`scrollToId`, not `window.scrollTo` - WP admin's own scrollable wrapper isn't the document) on a real select, never on deselect. */
 	const handleSelectGroup = (group: FindingGroup) => {
 		const isDeselecting = group.scanner_id === selectedGroup?.scanner_id;
 
@@ -179,14 +179,14 @@ const IssuesSection = () => {
 	return (
 		<>
 			{/* Real scroll target for "View all issues"/"Review" elsewhere
-			on this page (`scrollToId('schema-knowledge-issues')`) — kept
+			on this page (`scrollToId('schema-knowledge-issues')`) - kept
 			INSIDE this grid={8} column rather than as a wrapping element
 			around both of this component's own columns, since a wrapping
 			`<div>` there would put the grid={8}/grid={4} pair inside ITS
 			OWN box instead of the page's shared `.container-wrapper` flex
 			row they're meant to sit side by side in (SchemaKnowledgeTab.tsx
 			used to wrap this whole component in exactly such a div, which
-			broke that side-by-side layout — fixed by moving the id here
+			broke that side-by-side layout - fixed by moving the id here
 			instead). */}
 			<ColumnComponent grid={8}>
 				<div id="schema-knowledge-issues">
@@ -203,7 +203,7 @@ const IssuesSection = () => {
 							icon="check"
 							title={__('No schema issues right now', 'vulopilot')}
 							desc={__(
-								'No schema/structured-data findings yet — run a scan to check.',
+								'No schema/structured-data findings yet - run a scan to check.',
 								'vulopilot'
 							)}
 						/>
@@ -213,12 +213,12 @@ const IssuesSection = () => {
 							hideHeader={true}
 							variant="transparent"
 							// Highlights the row whose details are showing in
-							// the side panel — same real `activeRowId`/action-
+							// the side panel - same real `activeRowId`/action-
 							// toggle pairing IssuesList.tsx's own Issue/Affected/
 							// Action table already uses.
 							activeRowId={selectedGroup?.scanner_id}
 							// Same toggle the action cell's own "More
-							// Details"/"Showing" button already does — a
+							// Details"/"Showing" button already does - a
 							// click anywhere on the row now opens/closes the
 							// details panel too, not just that one small
 							// button.
@@ -229,7 +229,7 @@ const IssuesSection = () => {
 								issue: {
 									// `type: 'info'`'s own `key` is the row field
 									// that becomes the title (@zyra/table's
-									// TableUtils.tsx) — `descriptionKey`/`badgesKey`
+									// TableUtils.tsx) - `descriptionKey`/`badgesKey`
 									// name the row fields that feed the rest, so
 									// `tableRows` below precomputes both onto each
 									// row rather than this column needing its own
@@ -251,11 +251,11 @@ const IssuesSection = () => {
 								action: {
 									label: __('Action', 'vulopilot'),
 									// `type: 'more-action'` no longer exists in
-									// @zyra/table — `type: 'action'` now covers
+									// @zyra/table - `type: 'action'` now covers
 									// that same single-toggle-button case via a
 									// `type: 'button'` action whose label/icon
 									// are functions of `row` (see that type's
-									// own docblock, TableRowActions.tsx) — same
+									// own docblock, TableRowActions.tsx) - same
 									// real "Showing"/"More Details" toggle
 									// IssuesList.tsx's own Issues table already
 									// uses.
@@ -313,7 +313,7 @@ const IssuesSection = () => {
 								setPerPage(Number(query.per_page) || 10);
 							}}
 							emptyMessage={__(
-								'No schema/structured-data findings yet — run a scan to check.',
+								'No schema/structured-data findings yet - run a scan to check.',
 								'vulopilot'
 							)}
 						/>

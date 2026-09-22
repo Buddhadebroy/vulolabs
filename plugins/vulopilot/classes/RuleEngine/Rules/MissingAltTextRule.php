@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
  * concrete "generate an ALT text suggestion" recommendation. Writing good
  * alt text requires actually understanding what the image shows, which is
  * why this is the one rule where requires_ai() is true and is_fixable()
- * is also true — an AI call generates the suggestion, an
+ * is also true - an AI call generates the suggestion, an
  * automation action (once built) could apply it.
  *
  * @class       MissingAltTextRule class

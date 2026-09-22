@@ -13,14 +13,14 @@ defined( 'ABSPATH' ) || exit;
  * VuloPilot Modules class.
  *
  * The folder-scan/reflection module loader module-architecture.md
- * documents — mirrors VuloLabs\Modules exactly (same discovery
+ * documents - mirrors VuloLabs\Modules exactly (same discovery
  * mechanism, same activate/deactivate/is_available/is_active API), so
  * vulopilot-pro and any third-party plugin extend VuloPilot the same way
  * a Pro/catalogx-pro module extends vulolabs: a folder under
  * `modules/` containing `Module.php`, registered via the
  * `vulopilot_module_sources` filter, never instantiated directly.
  *
- * Distinct from Scanners\ScannerRegistry/RuleEngine\RuleRegistry/etc. —
+ * Distinct from Scanners\ScannerRegistry/RuleEngine\RuleRegistry/etc. -
  * those are a single class implementing one small interface (a plain
  * class-name filter is enough); a module is a whole package (potentially
  * `Module.php` + `Frontend.php`/`Rest.php`/`Admin.php`/`src/`), which is
@@ -83,7 +83,7 @@ class Modules {
 
     /**
      * Scans every registered module source directory for a `{Folder}/Module.php`
-     * and indexes what it finds — this never instantiates anything, see
+     * and indexes what it finds - this never instantiates anything, see
      * load_active_modules() for that.
      *
      * @return array
@@ -142,7 +142,7 @@ class Modules {
     }
 
     /**
-     * @return array Active module ids — from the in-request cache once
+     * @return array Active module ids - from the in-request cache once
      *               load_active_modules() has run, otherwise straight from
      *               the stored option.
      */
@@ -155,7 +155,7 @@ class Modules {
     }
 
     /**
-     * Instantiates every currently-active, available module — the actual
+     * Instantiates every currently-active, available module - the actual
      * "boot" step. Silently drops (and persists the drop of) any stored
      * active-module id that no longer resolves to a real, available
      * module, e.g. after a folder rename or a Pro deactivation

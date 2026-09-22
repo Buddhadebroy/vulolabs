@@ -13,10 +13,10 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Payment module Rest class.
  *
  * Module-level REST controller. `GET /payment/methods` and
- * `POST /payment/intent` are public — same "cart token is the access
+ * `POST /payment/intent` are public - same "cart token is the access
  * control" reasoning `Cart\Rest`/`Order\Rest`'s own docblocks explain, a
  * guest at checkout has no WordPress session. `POST /payments/webhook/
- * {gateway}` is also public (`__return_true`) by necessity — the caller
+ * {gateway}` is also public (`__return_true`) by necessity - the caller
  * is the payment gateway's own server, which never holds a WordPress
  * nonce or cart token; `PaymentGatewayInterface::handle_webhook()`'s own
  * signature verification is the real access control there, not this
@@ -123,7 +123,7 @@ class Rest {
     }
 
     /**
-     * Creates a payment intent against a cart — the step a real gateway's
+     * Creates a payment intent against a cart - the step a real gateway's
      * own storefront widget (`vulocart-pro`'s Stripe/PayPal/Razorpay
      * modules) calls before the buyer finishes checkout, to get a
      * `client_secret`/equivalent handle to confirm directly with that
@@ -201,7 +201,7 @@ class Rest {
     }
 
     /**
-     * Dispatches an inbound gateway webhook — public, see class docblock
+     * Dispatches an inbound gateway webhook - public, see class docblock
      * for why. Always replies 200 on a recognized-but-unlinked event
      * (nothing this codebase needs to do yet) so the gateway doesn't
      * retry a call it already delivered successfully; a genuinely
@@ -223,7 +223,7 @@ class Rest {
     }
 
     /**
-     * Captures an order's authorized payment — admin only.
+     * Captures an order's authorized payment - admin only.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response|\WP_Error
@@ -263,7 +263,7 @@ class Rest {
     }
 
     /**
-     * Voids an order's authorized (not yet captured) payment — admin
+     * Voids an order's authorized (not yet captured) payment - admin
      * only.
      *
      * @param \WP_REST_Request $request Full request object.
@@ -295,7 +295,7 @@ class Rest {
     }
 
     /**
-     * Returns an order's own payment transaction history — admin only.
+     * Returns an order's own payment transaction history - admin only.
      * Backs the admin order detail screen's "payment history" panel.
      *
      * @param \WP_REST_Request $request Full request object.

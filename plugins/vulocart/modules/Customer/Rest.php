@@ -12,12 +12,12 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Customer module Rest class.
  *
- * `GET /customer/me` stays public (unchanged — checkout prefill, class
+ * `GET /customer/me` stays public (unchanged - checkout prefill, class
  * docblock predating this pass still holds). Admin CRUD/list/notes routes
  * are `manage_options`-gated, same as every other admin-listing
  * controller. The `/customer/me/*` self-service routes are the one
  * genuinely new access-control shape in this codebase: gated on
- * `is_user_logged_in()` rather than an opaque per-resource token — the
+ * `is_user_logged_in()` rather than an opaque per-resource token - the
  * established "token is the access control" pattern (`Order::
  * $access_token`, `Passport`'s own) doesn't fit an address BOOK a buyer
  * manages over many separate visits; a real login is what "my account"
@@ -196,7 +196,7 @@ class Rest {
     }
 
     /**
-     * Checks whether the current request has a real WordPress session —
+     * Checks whether the current request has a real WordPress session -
      * see class docblock for why the self-service routes lean on this
      * instead of an opaque token.
      *
@@ -217,7 +217,7 @@ class Rest {
     }
 
     /**
-     * Finds-or-creates the logged-in requester's own customer record —
+     * Finds-or-creates the logged-in requester's own customer record -
      * every `/customer/me/*` self-service route resolves through this.
      *
      * @return \VuloCart\Customer\Domain\Customer
@@ -239,7 +239,7 @@ class Rest {
     }
 
     /**
-     * Sanitizes a raw posted address bag — shared by every address write
+     * Sanitizes a raw posted address bag - shared by every address write
      * route, admin and self-service alike.
      *
      * @param \WP_REST_Request $request Full request object.
@@ -335,7 +335,7 @@ class Rest {
     }
 
     /**
-     * Lists customers, searchable — admin only.
+     * Lists customers, searchable - admin only.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response
@@ -355,7 +355,7 @@ class Rest {
     }
 
     /**
-     * Fetches one customer — admin only.
+     * Fetches one customer - admin only.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response|\WP_Error
@@ -371,7 +371,7 @@ class Rest {
     }
 
     /**
-     * Updates a customer's own profile fields — admin only.
+     * Updates a customer's own profile fields - admin only.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response|\WP_Error
@@ -397,7 +397,7 @@ class Rest {
     }
 
     /**
-     * A customer's own order history — admin only.
+     * A customer's own order history - admin only.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response|\WP_Error
@@ -418,7 +418,7 @@ class Rest {
     }
 
     /**
-     * Lists a customer's own addresses — admin only.
+     * Lists a customer's own addresses - admin only.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response
@@ -428,7 +428,7 @@ class Rest {
     }
 
     /**
-     * Adds an address to a customer's own address book — admin only.
+     * Adds an address to a customer's own address book - admin only.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response
@@ -443,7 +443,7 @@ class Rest {
     }
 
     /**
-     * Updates an address in a customer's own address book — admin only.
+     * Updates an address in a customer's own address book - admin only.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response|\WP_Error
@@ -463,7 +463,7 @@ class Rest {
     }
 
     /**
-     * Deletes an address from a customer's own address book — admin only.
+     * Deletes an address from a customer's own address book - admin only.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response
@@ -475,7 +475,7 @@ class Rest {
     }
 
     /**
-     * Lists a customer's own internal notes — admin only.
+     * Lists a customer's own internal notes - admin only.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response
@@ -485,7 +485,7 @@ class Rest {
     }
 
     /**
-     * Adds an internal note about a customer — admin only.
+     * Adds an internal note about a customer - admin only.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response|\WP_Error
@@ -506,7 +506,7 @@ class Rest {
     }
 
     /**
-     * Deletes a note — admin only.
+     * Deletes a note - admin only.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response

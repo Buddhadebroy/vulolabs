@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Flags long-form published posts/pages with no question-phrased heading
  * anywhere in the content (a real, bounded proxy for "no FAQ-style
- * section") — AI answer engines frequently lift direct question/answer
+ * section") - AI answer engines frequently lift direct question/answer
  * pairs verbatim into their responses, so content structured as explicit
  * questions is disproportionately more likely to be cited than the same
  * information written as plain prose. Pairs with

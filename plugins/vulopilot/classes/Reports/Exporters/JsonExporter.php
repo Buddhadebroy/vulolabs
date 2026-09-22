@@ -13,7 +13,7 @@ use VuloPilot\ValueObjects\ReportResult;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Renders a ReportResult as pretty-printed JSON — a straight dump of
+ * Renders a ReportResult as pretty-printed JSON - a straight dump of
  * ReportResult::to_array(), the full-fidelity export format (unlike csv/pdf,
  * nothing is flattened or reshaped).
  *

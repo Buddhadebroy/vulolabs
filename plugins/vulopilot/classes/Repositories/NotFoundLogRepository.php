@@ -10,7 +10,7 @@ namespace VuloPilot\Repositories;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for vulopilot_not_found_logs — one row per unique missing
+ * Persistence for vulopilot_not_found_logs - one row per unique missing
  * URL visitors actually hit, not one row per visit (Install.php's own
  * schema: `requested_path` is UNIQUE). log_or_increment() is the only way
  * rows are ever written to this table (Services\NotFoundLogger), keeping
@@ -24,7 +24,7 @@ defined( 'ABSPATH' ) || exit;
 class NotFoundLogRepository extends AbstractRepository {
 
     /**
-     * Columns find_all() may filter on — `is_system` is what lets
+     * Columns find_all() may filter on - `is_system` is what lets
      * RedirectsTab.tsx's main 404 log fetch real content pages only
      * (`is_system=0`) while its own "System 404s" popup fetches the rest
      * (`is_system=1`), both from this one table.
@@ -67,9 +67,9 @@ class NotFoundLogRepository extends AbstractRepository {
     }
 
     /**
-     * Records one 404 visit — inserts a new row for a path seen for the
+     * Records one 404 visit - inserts a new row for a path seen for the
      * first time, or bumps `hit_count`/`last_seen_at` on an existing one.
-     * Deliberately not a raw `INSERT ... ON DUPLICATE KEY UPDATE` — this
+     * Deliberately not a raw `INSERT ... ON DUPLICATE KEY UPDATE` - this
      * only ever runs once per real 404 page load (Services\NotFoundLogger's
      * own template_redirect hook), nowhere near the request volume that
      * would make the extra find-then-write round trip a real concern, and
@@ -79,7 +79,7 @@ class NotFoundLogRepository extends AbstractRepository {
      *
      * @param string      $requested_path Already-normalized path.
      * @param string|null $referrer       The visit's HTTP referrer, if any.
-     * @param bool        $is_system      True for a theme/plugin/core-file or static-asset path (Services\NotFoundLogger::is_noise_path()) — a real 404, just not a missing CONTENT page.
+     * @param bool        $is_system      True for a theme/plugin/core-file or static-asset path (Services\NotFoundLogger::is_noise_path()) - a real 404, just not a missing CONTENT page.
      * @return void
      */
     public function log_or_increment( string $requested_path, ?string $referrer, bool $is_system = false ): void {

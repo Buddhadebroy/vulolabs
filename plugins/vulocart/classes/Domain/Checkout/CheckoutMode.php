@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart CheckoutMode class.
  *
  * How the same pluggable step sequence (Application\CheckoutStepRegistry)
- * gets rendered/delivered — deliberately a separate axis from the steps
+ * gets rendered/delivered - deliberately a separate axis from the steps
  * themselves: every mode here renders whatever steps the registry reports
  * for the active checkout template, just arranged/mounted differently.
  * SINGLE_PAGE/MULTI_STEP are free; the rest are vulocart-pro delivery
@@ -30,7 +30,7 @@ class CheckoutMode {
     /** Every step rendered on one scrollable page. */
     const SINGLE_PAGE = 'single_page';
 
-    /** One step at a time, wizard-style — Checkout.tsx's existing behavior. */
+    /** One step at a time, wizard-style - Checkout.tsx's existing behavior. */
     const MULTI_STEP = 'multi_step';
 
     /** vulocart-pro: the same engine mounted in a modal/overlay rather than inline in page content. */

@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  * on whatever comes back before it's used anywhere a site owner would
  * see it (a Recommendation's description, a future auto-applied fix).
  *
- * Deliberately conservative, not exhaustive — the secret-pattern check
+ * Deliberately conservative, not exhaustive - the secret-pattern check
  * catches the shapes of common API keys (an ounce of self-consistency:
  * don't let a prompt-builder accidentally interpolate a credential into a
  * prompt), not a general-purpose PII/secrets scanner.
@@ -70,7 +70,7 @@ class AISafetyValidator {
 
     /**
      * Strips any HTML/script content out of an AI response before it's
-     * used anywhere — a plain-text/markdown answer is what every job
+     * used anywhere - a plain-text/markdown answer is what every job
      * handler here expects, and an AI response should never be trusted
      * as safe-to-render HTML just because it came back successfully.
      *

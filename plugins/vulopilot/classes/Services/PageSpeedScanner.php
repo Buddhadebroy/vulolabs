@@ -14,16 +14,16 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Real per-page speed checks for "Performance" › Slow Pages. Enumerates
- * real WP content — the front page, published pages, recent posts, and (if
+ * real WP content - the front page, published pages, recent posts, and (if
  * WooCommerce is active) the real shop/cart/checkout pages plus recent
- * products and product categories — then times each one for real via
+ * products and product categories - then times each one for real via
  * `wp_remote_get()`, the same idiom SlowPageScanner already uses for the
  * homepage alone, just generalized to many real URLs.
  *
  * Never runs inline on a single HTTP request: with dozens of real pages to
  * time (and, when a `psi_api_key` is configured, two more real PageSpeed
- * Insights calls per page), doing this synchronously — the way
- * Controllers\Scans::create_item() runs the normal scanner registry —
+ * Insights calls per page), doing this synchronously - the way
+ * Controllers\Scans::create_item() runs the normal scanner registry -
  * would blow past PHP's max_execution_time. Instead this seeds a queue
  * (one `vulopilot_page_speed_queue` option) and processes it in small
  * batches via a self-rescheduling `wp_schedule_single_event()`, the same
@@ -32,13 +32,13 @@ defined( 'ABSPATH' ) || exit;
  *
  * `score` is derived from the real measured `load_time_ms` via a documented
  * linear formula anchored on SlowPageScanner's own real 2-second "slow"
- * threshold (score 50 at exactly 2000ms) — not a fabricated number.
+ * threshold (score 50 at exactly 2000ms) - not a fabricated number.
  * `mobile_score`/`desktop_score` stay null unless a real PSI key is
  * configured and that page's real PSI response actually returned a score
  * (same PSI-key-gated fallback Part A's PageSpeedInsightsFetcher uses for
  * the Overview page's own Overall Speed Score card). `main_issue` is
  * either a real Google Lighthouse opportunity-audit title (from that same
- * real PSI response) or a plain load-time-based label — never invented
+ * real PSI response) or a plain load-time-based label - never invented
  * text.
  *
  * @class       PageSpeedScanner class
@@ -52,14 +52,14 @@ class PageSpeedScanner {
     private const BATCH_HOOK = 'vulopilot_page_speed_process_batch';
 
     /**
-     * Real pages processed per batch tick — small enough that even the
+     * Real pages processed per batch tick - small enough that even the
      * PSI-enabled path (2 extra HTTP calls per page) comfortably finishes
      * within one WP-Cron request.
      */
     private const BATCH_SIZE = 3;
 
     /**
-     * Real pages/posts/products enumerated per content type — bounds the
+     * Real pages/posts/products enumerated per content type - bounds the
      * whole scan to a reasonable size on a large site.
      */
     private const MAX_PER_TYPE = 20;
@@ -67,7 +67,7 @@ class PageSpeedScanner {
     private const REQUEST_TIMEOUT_SECONDS = 10;
 
     /**
-     * Response time, in seconds, above which a page is considered slow —
+     * Response time, in seconds, above which a page is considered slow -
      * same real threshold SlowPageScanner already uses for the homepage.
      */
     private const SLOW_THRESHOLD_SECONDS = 2.0;
@@ -81,7 +81,7 @@ class PageSpeedScanner {
 
     /**
      * Enumerates real pages and seeds the queue for a fresh scan. Safe to
-     * call again mid-scan — replaces whatever queue existed.
+     * call again mid-scan - replaces whatever queue existed.
      *
      * @return array{queued: int}
      */
@@ -103,7 +103,7 @@ class PageSpeedScanner {
 
     /**
      * Processes one batch of the queue, then reschedules itself if pages
-     * remain. Registered on self::BATCH_HOOK, run via WP-Cron only — never
+     * remain. Registered on self::BATCH_HOOK, run via WP-Cron only - never
      * called synchronously from a REST request.
      *
      * @return void
@@ -162,7 +162,7 @@ class PageSpeedScanner {
         $desktop_score = null;
 
         // Field-data (real Chrome UX Report percentiles/ratings) and the
-        // real Lighthouse page-weight/request-count audits — both come
+        // real Lighthouse page-weight/request-count audits - both come
         // from mobile's own PSI response when it has one, since the
         // mockup's own "Mobile ▾" toggle treats mobile as the default real
         // device to show; desktop's response is only consulted for
@@ -242,7 +242,7 @@ class PageSpeedScanner {
     /**
      * Linear score derived from a real measured load time, anchored so
      * SlowPageScanner's own real 2-second "slow" threshold lands at
-     * exactly 50 — the Needs-Improvement/Poor boundary.
+     * exactly 50 - the Needs-Improvement/Poor boundary.
      *
      * @param int $load_time_ms Real measured response time, in milliseconds.
      * @return int 0-100.
@@ -254,7 +254,7 @@ class PageSpeedScanner {
     /**
      * Calls the real PageSpeed Insights API for one page/strategy.
      * `loadingExperience` (real CrUX field data) comes back automatically
-     * whenever Google has it for this URL+strategy — no extra `category`
+     * whenever Google has it for this URL+strategy - no extra `category`
      * param needed to request it, unlike `lighthouseResult` which is
      * scoped to whichever `category` values are passed (just `performance`
      * here; accessibility/best-practices/seo audits aren't used by this
@@ -305,7 +305,7 @@ class PageSpeedScanner {
 
     /**
      * A real Lighthouse audit's own `numericValue` (e.g. `total-byte-weight`,
-     * in bytes) — null when that audit isn't present in this response.
+     * in bytes) - null when that audit isn't present in this response.
      *
      * @param array<string, mixed> $audits Real `lighthouseResult.audits` from a PSI response.
      * @param string               $audit_id Audit id, e.g. 'total-byte-weight'.
@@ -319,7 +319,7 @@ class PageSpeedScanner {
 
     /**
      * Real request count from the `network-requests` Lighthouse audit's
-     * own `details.items` array — one real entry per network request
+     * own `details.items` array - one real entry per network request
      * Lighthouse observed, not an estimate.
      *
      * @param array<string, mixed> $audits Real `lighthouseResult.audits` from a PSI response.
@@ -333,8 +333,8 @@ class PageSpeedScanner {
 
     /**
      * A real CrUX field-data metric's own percentile value (ms for LCP/INP,
-     * thousandths-of-a-unit for CLS per Google's own convention — a raw
-     * CLS of 0.10 reports as percentile 10) — Google's own real measured
+     * thousandths-of-a-unit for CLS per Google's own convention - a raw
+     * CLS of 0.10 reports as percentile 10) - Google's own real measured
      * visitor experience for this URL, null when CrUX has no real field
      * data for it (a real "not enough traffic" case, not fabricated).
      *
@@ -349,7 +349,7 @@ class PageSpeedScanner {
     }
 
     /**
-     * That same real metric's own Google-assigned rating —
+     * That same real metric's own Google-assigned rating -
      * 'FAST'/'AVERAGE'/'SLOW', passed through verbatim rather than
      * re-derived from the percentile via this codebase's own thresholds,
      * since Google's own CrUX category boundaries differ per metric.
@@ -367,7 +367,7 @@ class PageSpeedScanner {
     /**
      * Picks the real Lighthouse audit with the greatest potential savings
      * (`numericValue` on an opportunity-type audit that scored below 0.9)
-     * — a real signal from Google's own response, never invented.
+     * - a real signal from Google's own response, never invented.
      *
      * @param array<string, mixed> $audits Real `lighthouseResult.audits` from a PSI response.
      * @return string|null
@@ -409,7 +409,7 @@ class PageSpeedScanner {
 
     /**
      * Enumerates real pages to check: the front page, every published
-     * `page`, recent published `post`s, and — if WooCommerce is active —
+     * `page`, recent published `post`s, and - if WooCommerce is active -
      * the real shop/cart/checkout pages plus recent products and product
      * categories. Never fabricated URLs; every entry is a real permalink
      * for content that actually exists on this site.

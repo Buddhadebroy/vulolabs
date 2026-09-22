@@ -11,12 +11,12 @@ interface InfoBannerProps {
 	desc: React.ReactNode;
 	actionLabel?: string;
 	onAction?: () => void;
-	/** Omit for a non-dismissible banner — no close control rendered at all. */
+	/** Omit for a non-dismissible banner - no close control rendered at all. */
 	onDismiss?: () => void;
 }
 
 /**
- * Shared full-width illustrated banner — real `info-banner-bg.png` (the
+ * Shared full-width illustrated banner - real `info-banner-bg.png` (the
  * gradient/dot-pattern background) + `info-banner.png` (the right-side
  * server/shield illustration), same asset pair the mockup this replaces
  * `BackupProtectionNotice.tsx`'s own plain `NoticeComponent` with. Kept

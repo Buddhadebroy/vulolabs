@@ -14,7 +14,7 @@ export interface StatWidgetConfig {
 	getExtra?: (summary: DashboardSummary) => React.ReactNode;
 	/**
 	 * When present and returns a value, the widget shows this empty state
-	 * instead of a number — used by the WooCommerce widget when
+	 * instead of a number - used by the WooCommerce widget when
 	 * WooCommerce isn't active (category_scores.woocommerce is null),
 	 * rather than showing a misleading "0" score for a category that
 	 * doesn't apply to this site.
@@ -35,7 +35,7 @@ interface StatWidgetProps {
 
 /**
  * Binds a StatWidgetConfig into a component matching WidgetDefinition's
- * `React.ComponentType<WidgetProps>` shape — what registry.ts registers
+ * `React.ComponentType<WidgetProps>` shape - what registry.ts registers
  * each of the seven stat widgets as, so DashboardGrid never needs to know
  * a widget is config-driven versus its own standalone component (a
  * HealthTimelineWidget or PendingApprovalWidget looks identical to the
@@ -63,7 +63,7 @@ export const createStatWidgetComponent = (
 };
 
 /**
- * Config-driven stat tile — the same declarative-config-over-hand-built-JSX
+ * Config-driven stat tile - the same declarative-config-over-hand-built-JSX
  * approach react-frontend.md documents for Settings screens, applied here
  * to the seven dashboard widgets that are all "one number + one label"
  * (Overall Health, SEO, Performance, Security, Accessibility, WooCommerce,

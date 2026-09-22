@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Modules REST controller.
  *
- * `GET`/`POST /vulocart/v1/modules` — this exact shape (not a richer
+ * `GET`/`POST /vulocart/v1/modules` - this exact shape (not a richer
  * per-module object, not separate `/activate`/`/deactivate` sub-routes)
  * is what @multivendorx/zyra's `ModuleGridComponent`/`initializeModules()`
  * actually call, verified against zyra's real build output and against
@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
  * flat array of active module ids, `POST` takes `{ id, action }`
  * (`action` is `'activate'`|`'deactivate'`). The *available* module list
  * with names/descriptions/categories is static frontend config
- * (src/modules-config.ts) zyra's component takes as a prop — this
+ * (src/modules-config.ts) zyra's component takes as a prop - this
  * controller only ever reports/changes which ids are active.
  *
  * @class       Modules class
@@ -72,7 +72,7 @@ class Modules extends \WP_REST_Controller {
     }
 
     /**
-     * Every currently active module's id — zyra's `initializeModules()`/
+     * Every currently active module's id - zyra's `initializeModules()`/
      * `useModules()` expect this exact flat-array shape.
      *
      * @param \WP_REST_Request $request Full request object.
@@ -83,7 +83,7 @@ class Modules extends \WP_REST_Controller {
     }
 
     /**
-     * Activates or deactivates one module — the request shape zyra's
+     * Activates or deactivates one module - the request shape zyra's
      * `ModuleGridComponent` actually sends (`{ id, action }`).
      *
      * @param \WP_REST_Request $request Full request object.

@@ -22,11 +22,11 @@ const EVENT_ICONS: Record<string, string> = {
 };
 
 /**
- * "Recent Changes" — the mockup's 4-column grid of AI-attributed site
+ * "Recent Changes" - the mockup's 4-column grid of AI-attributed site
  * changes with an "Undo" link per row. Reads the same `/activity-logs`
  * endpoint RecentActivityWidget/TodaysTasksWidget use, filtered to
  * `actor_type=automation` (the closest existing field to "AI-attributed"
- * — there's no separate 'ai' actor type) so this widget shows a distinct
+ * - there's no separate 'ai' actor type) so this widget shows a distinct
  * subset rather than duplicating RecentActivityWidget's unfiltered list.
  *
  * Undo is rendered but disabled: there's no revert capability for

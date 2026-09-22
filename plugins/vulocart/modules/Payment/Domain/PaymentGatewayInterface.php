@@ -12,13 +12,13 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Payment module PaymentGatewayInterface.
  *
- * The Payment Framework's one contract — every payment method this app
+ * The Payment Framework's one contract - every payment method this app
  * ever offers (the three offline ones this plugin ships, plus Stripe/
  * PayPal/Razorpay in `vulocart-pro`) is a class implementing this
  * interface and nothing more; `PaymentService`/`GatewayRegistry` never
  * know which concrete class they're holding. Deliberately has no
  * `use VuloCart\Order\...`/`use VuloCart\Cart\...` anywhere in this
- * file or any of its implementations — a gateway only ever sees a
+ * file or any of its implementations - a gateway only ever sees a
  * `PaymentContext`/gateway_transaction_id/`\WP_REST_Request`, never a
  * Cart or Order object directly, so the payment layer stays reusable
  * outside this app's own checkout flow (a Subscriptions billing cycle
@@ -26,7 +26,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * `authorize()` also serves as this framework's "create/confirm a
  * payment intent" step (Phase 5's "Support payment intents" requirement)
- * — a gateway that needs client-side confirmation (Stripe/PayPal/
+ * - a gateway that needs client-side confirmation (Stripe/PayPal/
  * Razorpay) returns `PaymentResult::REQUIRES_ACTION` with a
  * `client_secret` the storefront's own JS SDK widget uses to finish the
  * job directly with the gateway; `handle_webhook()` is how this codebase
@@ -40,7 +40,7 @@ defined( 'ABSPATH' ) || exit;
 interface PaymentGatewayInterface {
 
     /**
-     * This gateway's stable id — becomes `Order::$payment_method`'s
+     * This gateway's stable id - becomes `Order::$payment_method`'s
      * value, the `/payments/webhook/{gateway}` route segment, and the
      * settings-field-key prefix (`vulocart_pro_{id}_...`).
      *
@@ -59,7 +59,7 @@ interface PaymentGatewayInterface {
     /**
      * Whether this gateway has everything it needs to run right now
      * (required settings saved, feature toggle on). `GatewayRegistry`
-     * only ever offers configured gateways to the storefront —
+     * only ever offers configured gateways to the storefront -
      * unconfigured ones stay invisible rather than erroring at checkout.
      *
      * @return bool
@@ -68,7 +68,7 @@ interface PaymentGatewayInterface {
 
     /**
      * Whether this gateway can charge a previously-saved payment method
-     * off-session — gates whether the Subscriptions module (`vulocart-
+     * off-session - gates whether the Subscriptions module (`vulocart-
      * pro`) offers this gateway on a recurring plan.
      *
      * @return bool
@@ -92,7 +92,7 @@ interface PaymentGatewayInterface {
     public function supports_partial_refund(): bool;
 
     /**
-     * Authorizes a payment — and, when `$context->capture_immediately`
+     * Authorizes a payment - and, when `$context->capture_immediately`
      * is true (the common case), captures it in the same call. See class
      * docblock for how this also stands in as "create/confirm a payment
      * intent."
@@ -132,7 +132,7 @@ interface PaymentGatewayInterface {
     public function cancel( string $gateway_transaction_id, PaymentContext $context ): PaymentResult;
 
     /**
-     * Handles an inbound webhook call from this gateway — verifies the
+     * Handles an inbound webhook call from this gateway - verifies the
      * request's own signature (never trusts an unsigned payload) and
      * returns the resulting `PaymentResult` so `PaymentService` can
      * reconcile its transaction ledger and, when the transaction is

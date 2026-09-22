@@ -4,7 +4,7 @@ import './UpgradeToProOverlay.scss';
 
 /**
  * The "Upgrade to Pro" card floating over a dummy card's own blurred
- * content — originally one-off markup `BrandVisibilityProDummies.tsx`'s
+ * content - originally one-off markup `BrandVisibilityProDummies.tsx`'s
  * `KnowledgePanelDummy` alone carried, then reused by its 3 siblings.
  * Pulled out here so every Pro-gated "still show the section, fabricated
  * content behind a click-through popup" card across the plugin (dashboard
@@ -14,7 +14,7 @@ import './UpgradeToProOverlay.scss';
  */
 export const UpgradeToProOverlay = ({ onClick }: { onClick?: () => void }) => (
 	// The overlay sits on top of (z-index above) the blurred content, so a
-	// click on it never reaches that content's own onClick — it has to
+	// click on it never reaches that content's own onClick - it has to
 	// carry the same handler itself, or the "Upgrade to Pro" card is inert.
 	<div
 		className="pro-section-wrapper"
@@ -57,12 +57,12 @@ export const UpgradeToProOverlay = ({ onClick }: { onClick?: () => void }) => (
 
 /**
  * The full "blurred dummy content behind an Upgrade-to-Pro overlay" shell
- * — `.blur-wrapper` (positioned ancestor) + `<UpgradeToProOverlay />` +
+ * - `.blur-wrapper` (positioned ancestor) + `<UpgradeToProOverlay />` +
  * the dummy's own click-through content, blurred via `.blur-wrapper-content`
  * (UpgradeToProOverlay.scss). Replaces every call site's own hand-assembled
  * `<div className="blur-wrapper"><div className="pro-section-wrapper">…</div><div className="…" onClick={…}>…</div></div>`
  * copy, and the separate floating `.admin-tag.pro-tag` badge some of those
- * call sites used to carry alongside it — redundant once this overlay
+ * call sites used to carry alongside it - redundant once this overlay
  * itself already says "Upgrade to Pro" the moment the blurred content
  * renders.
  */
@@ -71,7 +71,7 @@ export const BlurredProContent = ({
 	onClick,
 	children,
 }: {
-	/** This dummy's own content class (e.g. `health-timeline-dummy`) — `blur-wrapper-content` is appended automatically. */
+	/** This dummy's own content class (e.g. `health-timeline-dummy`) - `blur-wrapper-content` is appended automatically. */
 	contentClassName: string;
 	onClick: () => void;
 	children: ReactNode;

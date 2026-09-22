@@ -19,25 +19,25 @@ defined( 'ABSPATH' ) || exit;
  *
  * Same toggleable-addon shape as VuloCart\Cart\Module/VuloCart\Order\Module
  * (module-architecture.md). The real AI provider engine
- * (classes/AI/ — adapters, encrypted BYOK storage, ProviderRegistry,
+ * (classes/AI/ - adapters, encrypted BYOK storage, ProviderRegistry,
  * AiClient) has now landed, exactly where this module's own original
  * docblock said it would: "its Frontend/Rest/`src/` pieces slot into this
  * same Module.php". This module's real effect:
  *
- * 1. Making "AI" a real, toggleable entry on the Modules page — activating
+ * 1. Making "AI" a real, toggleable entry on the Modules page - activating
  *    it is what makes `AiClient` resolvable at all (same
  *    `VuloCart()->ai_client` magic-property pattern
  *    `Shipping\Module`/`Taxes\Module` already use for their own services),
  *    so `Order\Application\OrderService::resolve_optional_service()`'s
  *    "gracefully absent" pattern is exactly how a Pro AI feature module
  *    should reach for it too.
- * 2. Registering `/ai/providers`/`/ai/usage` (Rest.php) — BYOK key
+ * 2. Registering `/ai/providers`/`/ai/usage` (Rest.php) - BYOK key
  *    management and the usage log.
  * 3. Owning `vulocart_ai_provider_configs`/`vulocart_ai_usage_log`
  *    (Install.php).
  *
  * The engine deliberately lives in this FREE module rather than
- * `vulocart-pro` — same "the engine is free infrastructure, Pro modules
+ * `vulocart-pro` - same "the engine is free infrastructure, Pro modules
  * are what's built on it" split vulopilot's own AI-ARCHITECTURE.md
  * documents for `classes/AIProviders/` there. `vulocart-pro`'s own
  * CatalogAi/CheckoutAi/SupportAi/VectorSearch modules are the Pro-gated
@@ -76,7 +76,7 @@ class Module {
         $this->container['rest']       = new Rest( $this->container['registry'], $this->container['configs'], $this->container['usage_log'] );
 
         // Same `VuloCart()->shipping_service = ...` pattern Shipping\Module
-        // uses — makes the client reachable from any Pro module without a
+        // uses - makes the client reachable from any Pro module without a
         // hard dependency, via the same graceful
         // `try { VuloCart()->ai_client } catch (\Exception $e) { null }`
         // shape OrderService::resolve_optional_service() already
@@ -89,7 +89,7 @@ class Module {
 
     /**
      * Registers the "Settings" submenu under the top-level AI menu
-     * (Menu.php::add_ai_menu()) — the BYOK provider configuration screen.
+     * (Menu.php::add_ai_menu()) - the BYOK provider configuration screen.
      * Every other submenu under `vulocart-ai` (Catalog/Checkout/Support/
      * Search) is registered by vulocart-pro's own AI feature modules,
      * same "Free owns top-level chrome, Pro fills it in" split

@@ -14,13 +14,13 @@ interface AiSpeedAssistantCardProps {
 }
 
 /**
- * "AI Speed Assistant" — this page's one real "N optimizations available"
+ * "AI Speed Assistant" - this page's one real "N optimizations available"
  * card, per direct instruction: used to have a separate "Speed Boost
  * Available" card (SpeedBoostCard.tsx, now deleted) right above it, with
  * its own "Fix All Issues with AI"/"View Details" pair reading the exact
  * same `category: 'performance'` open-finding count this card already
  * showed via its own honestly-disabled "Let AI Optimize Speed"/"Review
- * Speed Issues" pair — two CTAs for the same action. Merged into this one
+ * Speed Issues" pair - two CTAs for the same action. Merged into this one
  * card; the plain count line below replaces the old chat-bubble framing,
  * matching the simpler "N optimizations available" shape the removed
  * card used, and the two buttons ("Optimize with AI"/"Review First") stay
@@ -28,7 +28,7 @@ interface AiSpeedAssistantCardProps {
  *
  * No *bulk* AI action-trigger engine exists for performance findings
  * anywhere in this codebase (WooCommerceAi's own `BulkOptimizePanel.tsx`
- * is real, but scoped to WooCommerce products — there's no equivalent for
+ * is real, but scoped to WooCommerce products - there's no equivalent for
  * performance), so "Optimize with AI" stays honestly disabled with a
  * tooltip rather than silently doing nothing, same as before. Real
  * open-finding count for category 'performance' (same `useApiList('findings',
@@ -36,10 +36,10 @@ interface AiSpeedAssistantCardProps {
  *
  * Real content is gated behind useContentGate.tsx's own 3 real checks
  * (Pro license → this card's own 'ai-copilot' module → a VuloCloud account
- * login — see that hook's own docblock) instead of the plain module-only
+ * login - see that hook's own docblock) instead of the plain module-only
  * AiCopilotGuard every other AI-branded card still uses. Note this makes
  * the card Pro-gated too, even though 'ai-copilot' is a free module
- * (`proModule: false` in its own Modules/index.ts catalog entry) — a real,
+ * (`proModule: false` in its own Modules/index.ts catalog entry) - a real,
  * direct behavior change from before, done because it was explicitly
  * asked for on this card specifically, not applied to
  * AiSalesAssistantCard.tsx/other AiCopilotGuard call sites.
@@ -53,8 +53,8 @@ const AiSpeedAssistantCard = ({ onReviewIssues }: AiSpeedAssistantCardProps) => 
 	const { wrap } = useContentGate('ai-copilot');
 
 	// This card's own mock preview for useContentGate.tsx's own locked
-	// state — same shape as the real content below (a count line + the
-	// same two buttons), fake numbers, both buttons disabled — rather than
+	// state - same shape as the real content below (a count line + the
+	// same two buttons), fake numbers, both buttons disabled - rather than
 	// falling back to that hook's generic default.
 	const dummyContent = (
 		<>
@@ -99,14 +99,14 @@ const AiSpeedAssistantCard = ({ onReviewIssues }: AiSpeedAssistantCardProps) => 
 										total
 									)
 								: __(
-										"You're all caught up — no open speed issues right now.",
+										"You're all caught up - no open speed issues right now.",
 										'vulopilot'
 									)}
 						</div>
 					)}
 					<TooltipComponent
 						text={__(
-							"Bulk auto-fix isn't available yet — there's no AI action-trigger engine wired up for performance findings.",
+							"Bulk auto-fix isn't available yet - there's no AI action-trigger engine wired up for performance findings.",
 							'vulopilot'
 						)}
 					>

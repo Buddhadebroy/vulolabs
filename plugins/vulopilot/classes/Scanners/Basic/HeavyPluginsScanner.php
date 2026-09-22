@@ -13,7 +13,7 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags a high total active-plugin count — a simple, defensible, O(1)
+ * Flags a high total active-plugin count - a simple, defensible, O(1)
  * heuristic (get_option('active_plugins') is already loaded on every
  * request) rather than measuring each active plugin's on-disk size or
  * asset count, which would mean walking every plugin's directory on

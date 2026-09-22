@@ -75,7 +75,7 @@ class ActivityLogs extends \WP_REST_Controller {
      * Same shape as Findings.php's/Scans.php's own `parse_comma_separated_list()`
      * (a caller like RecentActivityCard.tsx can pass several real event
      * types at once, e.g. `scan.completed.security,security.alert`), but
-     * `sanitize_text_field()` per item rather than `sanitize_key()` —
+     * `sanitize_text_field()` per item rather than `sanitize_key()` -
      * this table's real `event_type` values contain dots
      * (`scan.completed`, `security.alert`, `ai_action.executed`, …) that
      * `sanitize_key()` silently strips, which would corrupt every

@@ -18,7 +18,7 @@ const MAX_ROWS = 4;
 /**
  * Same real "zyra's icon font only ever ships `check`/`error`/`close`/
  * `close-delete` glyphs" constraint `GeoAeoPageAnalysisPanel.tsx`'s own
- * identical `SEVERITY_ICON` already established — `close red`/`close red`
+ * identical `SEVERITY_ICON` already established - `close red`/`close red`
  * for critical/high, `error orange` for medium/low, since every row here is
  * already a real open finding (no "passed" state to reuse `check` for).
  */
@@ -36,20 +36,20 @@ interface GeoFixTheseFirstCardProps {
 	total: number;
 	onViewAll: () => void;
 	onSelectScanner: (scannerId: string) => void;
-	/** Defaults to "Fix These First" (GEO tab) — AeoTab.tsx passes "What Needs Your Attention" instead, reusing this same real ranking rather than a second copy of it. */
+	/** Defaults to "Fix These First" (GEO tab) - AeoTab.tsx passes "What Needs Your Attention" instead, reusing this same real ranking rather than a second copy of it. */
 	title?: string;
 	emptyMessage?: string;
 }
 
 /**
- * "Fix These First" — the real, worst-severity-first (ties broken by real
+ * "Fix These First" - the real, worst-severity-first (ties broken by real
  * affected count) findings, same ranking SectionedIssuesTable.tsx's own
  * `sortedGroups` already uses for its own unified table. Reuses whatever
  * `groups` the caller already fetched (GeoTab.tsx's own useGeoFindingGroups hook, useGeoTabData.ts,
  * shared with GeoByTopicGrid.tsx; AeoTab.tsx's own AEO-scanner-scoped groups)
  * rather than fetching its own copy. "View pages" switches the unified
  * table's own active tab to that scanner's section (`onSelectScanner`,
- * owned by the caller) instead of a same-page scroll-and-highlight — the
+ * owned by the caller) instead of a same-page scroll-and-highlight - the
  * unified table doesn't have a dedicated DOM anchor per scanner anymore
  * (see GeoTab.tsx's own docblock on why the old `#geo-section-*` anchors
  * are gone).
@@ -91,7 +91,7 @@ const GeoFixTheseFirstCard = ({
 				<div className="desc">
 					{emptyMessage ||
 						__(
-							'No open GEO findings right now — nothing to fix.',
+							'No open GEO findings right now - nothing to fix.',
 							'vulopilot'
 						)}
 				</div>

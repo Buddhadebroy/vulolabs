@@ -28,7 +28,7 @@ interface ReportExporterInterface {
 
     /**
      * Renders $result and writes it to $file_path. The caller (Reports\ReportGenerator)
-     * owns deciding the destination path and its permission-checked download —
+     * owns deciding the destination path and its permission-checked download -
      * this only ever writes to the exact path it's given.
      *
      * @param ReportResult $result    The generated report data.

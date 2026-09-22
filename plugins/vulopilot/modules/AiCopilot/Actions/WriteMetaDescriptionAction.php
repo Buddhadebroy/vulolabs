@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * SEO-MODULE.md's one-click fix for
- * RuleEngine\Rules\MissingMetaDescriptionRule's recommendations — writes
+ * RuleEngine\Rules\MissingMetaDescriptionRule's recommendations - writes
  * to `post_excerpt` via `wp_update_post()`, the same native WordPress
  * field Seo\Scanners\MetaDescriptionScanner checks for absence of, so
  * this closes that check's fix loop the same way GenerateAltAction closes
@@ -55,7 +55,7 @@ class WriteMetaDescriptionAction extends AbstractBasicAction {
     }
 
     /**
-     * Impact::LOW — Rewrites `post_excerpt` only (this codebase's meta-description field) — one narrow, easily-reverted field, never `post_content`.
+     * Impact::LOW - Rewrites `post_excerpt` only (this codebase's meta-description field) - one narrow, easily-reverted field, never `post_content`.
      *
      * @inheritDoc
      */
@@ -70,7 +70,7 @@ class WriteMetaDescriptionAction extends AbstractBasicAction {
         $post_id = absint( $input['post_id'] ?? 0 );
         $post    = $post_id ? get_post( $post_id ) : null;
 
-        // Matches Services\PostSeoMetaFields::POST_TYPES — the metabox's
+        // Matches Services\PostSeoMetaFields::POST_TYPES - the metabox's
         // own "Fix with AI" description button (Checklist.tsx) is the one
         // real caller that can hand this a product id.
         if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true ) ) {
@@ -99,7 +99,7 @@ class WriteMetaDescriptionAction extends AbstractBasicAction {
                 'content' => sprintf(
                     'You write concise, compelling meta descriptions for search engine results. '
                         . 'Summarize the page in one sentence, under %d characters. '
-                        . 'Respond with ONLY the description itself — no quotes, no preamble.',
+                        . 'Respond with ONLY the description itself - no quotes, no preamble.',
                     self::MAX_LENGTH
                 ),
             ),

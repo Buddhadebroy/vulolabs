@@ -54,7 +54,7 @@ interface OfferingMeta {
 }
 
 /**
- * Deliberately not `extends TableRow` — `TableRow`'s index signature is
+ * Deliberately not `extends TableRow` - `TableRow`'s index signature is
  * `string | number | boolean | React.ReactNode`, which `meta` (a nested
  * object) doesn't satisfy. Every row this app hands to `OfferingQuickEdit`
  * is cast `as unknown as QuickEditRow` (same pattern TermsPage.tsx already
@@ -77,7 +77,7 @@ interface SavedView {
 const SAVED_VIEWS_STORAGE_KEY = 'vulocart_offerings_saved_views';
 
 /**
- * Reads/writes named filter presets to `localStorage` — deliberately not a
+ * Reads/writes named filter presets to `localStorage` - deliberately not a
  * new DB table/REST endpoint: a "saved view" here is just a bookmark of
  * this admin's own status/type/category/search combo, scoped to their own
  * browser, the same low-stakes tradeoff a browser bookmark already is. If
@@ -98,7 +98,7 @@ function persistSavedViews( views: SavedView[] ) {
 	try {
 		window.localStorage.setItem( SAVED_VIEWS_STORAGE_KEY, JSON.stringify( views ) );
 	} catch {
-		// localStorage unavailable (private browsing, quota) — saved views
+		// localStorage unavailable (private browsing, quota) - saved views
 		// just don't persist across reloads; not worth surfacing an error
 		// for a convenience feature.
 	}
@@ -106,16 +106,16 @@ function persistSavedViews( views: SavedView[] ) {
 
 /**
  * A small centered modal for editing an offering's price/sale price/
- * status/stock without leaving the list — "Quick Edit". Deliberately not
+ * status/stock without leaving the list - "Quick Edit". Deliberately not
  * built on zyra `TableCard`'s own `isEditable`/`onCellEdit` inline-cell-edit
  * mechanism: the installed `@multivendorx/zyra` build hardcodes
  * `isEditing: false` in its `TableEditable` renderer (packages/table/src/
- * Table.tsx), so that mechanism never actually enters edit mode — a real
+ * Table.tsx), so that mechanism never actually enters edit mode - a real
  * upstream gap, not something to work around by forking zyra (external
  * dependency, "maintained elsewhere" per CLAUDE.md).
  *
  * Sends the full existing `meta` bag back on save, not just the fields this
- * modal edits — `update_item()`'s own `$data['meta']` handling replaces
+ * modal edits - `update_item()`'s own `$data['meta']` handling replaces
  * `Offering::$meta` wholesale rather than merging (Controllers/Offerings.php),
  * the same contract OfferingEdit.tsx's full save already relies on. A
  * partial-meta PATCH here would silently wipe every other field (categories,
@@ -227,11 +227,11 @@ function OfferingQuickEdit( { row, onClose, onSaved }: { row: QuickEditRow; onCl
 }
 
 /**
- * The listing half of Offerings — DB (vulocart_offerings) → WPDBOfferingRepository
+ * The listing half of Offerings - DB (vulocart_offerings) → WPDBOfferingRepository
  * → OfferingService → REST (`GET /offerings`) → this zyra `TableCard`. "Add
  * Offering" and per-row "Edit" are real navigations to
  * `admin.php?page=vulocart-offerings&action=add`/`...&action=edit&id={id}`
- * (plain `<a href>`, full page load) rather than a popup — matching
+ * (plain `<a href>`, full page load) rather than a popup - matching
  * WooCommerce's real Products/Orders admin screens, per this plugin's
  * admin-UX brief ("when edit click this open to another page like
  * woocommerce orders edit page"). Offerings.tsx is what routes between
@@ -242,7 +242,7 @@ function OfferingQuickEdit( { row, onClose, onSaved }: { row: QuickEditRow; onCl
  * pattern OrdersList.tsx already establishes for fulfillment status; Type
  * and Category are `TableCard`'s own `filters`. Bulk actions cover status,
  * price/sale price (prompted, since a bulk-actions dropdown's value is a
- * fixed string, not a free-form input — `window.prompt()` for the same
+ * fixed string, not a free-form input - `window.prompt()` for the same
  * reason TermsPage.tsx already uses `window.confirm()` for delete: a real,
  * unobtrusive native browser primitive rather than a bespoke modal for
  * something this occasional), stock status/quantity, and delete.
@@ -271,7 +271,7 @@ export function OfferingsList() {
 
 	/**
 	 * `override` lets a saved view force its own status/type/category/
-	 * search regardless of what TableCard's own controls currently show —
+	 * search regardless of what TableCard's own controls currently show -
 	 * see the "Saved views" section render below for why those two can
 	 * legitimately disagree (TableCard has no prop to push filter values
 	 * back into its own internal query state).
@@ -316,7 +316,7 @@ export function OfferingsList() {
 				setIsLoading( false );
 			} );
 
-		// Status tab counts — one lightweight extra request per status,
+		// Status tab counts - one lightweight extra request per status,
 		// mirroring OrdersList.tsx's own `X-WP-Count-{status}` header
 		// approach conceptually, except Offerings' `get_items()` doesn't
 		// emit per-status count headers (it wasn't built to), so this
@@ -441,7 +441,7 @@ export function OfferingsList() {
 		},
 		sku: {
 			label: __( 'SKU', 'vulocart' ),
-			render: ( row?: TableRow ) => ( row?.sku as string ) || '—',
+			render: ( row?: TableRow ) => ( row?.sku as string ) || '-',
 		},
 		status: {
 			label: __( 'Status', 'vulocart' ),
@@ -454,7 +454,7 @@ export function OfferingsList() {
 			render: ( row?: TableRow ) =>
 				row?.price !== null && row?.price !== undefined
 					? `${ row.price } ${ row.currency ?? '' }`
-					: '—',
+					: '-',
 		},
 		actions: {
 			label: __( 'Actions', 'vulocart' ),
@@ -500,7 +500,7 @@ export function OfferingsList() {
 						</a>
 						{
 							/**
-							 * `vulocart_offering_row_actions` — the extension point
+							 * `vulocart_offering_row_actions` - the extension point
 							 * vulocart-pro's Passport module registers into
 							 * (modules/Passport/src/index.tsx), same "Pro extends Free
 							 * via @wordpress/hooks filters" pattern react-frontend.md
@@ -564,7 +564,7 @@ export function OfferingsList() {
 					headerIcon="product"
 					headerTitle={ __( 'Offerings', 'vulocart' ) }
 					headerDescription={ __(
-						'Manage every offering — physical, digital, or service-based — from one place.',
+						'Manage every offering - physical, digital, or service-based - from one place.',
 						'vulocart'
 					) }
 					buttons={ [
@@ -581,7 +581,7 @@ export function OfferingsList() {
 
 				{
 					/**
-					 * Saved views — bookmarked status/type/category/search
+					 * Saved views - bookmarked status/type/category/search
 					 * combos, `localStorage`-backed (loadSavedViews()' own
 					 * docblock explains why). Deliberately rendered as its
 					 * own strip rather than synced into TableCard's built-in
@@ -589,7 +589,7 @@ export function OfferingsList() {
 					 * filter values back into its own internal query state
 					 * once mounted, so applying a saved view can change what
 					 * the table shows but can't also make the filter
-					 * dropdowns visually reflect it — showing the active
+					 * dropdowns visually reflect it - showing the active
 					 * view's name here, plainly, is honest about that rather
 					 * than leaving the controls looking stale/wrong.
 					 */

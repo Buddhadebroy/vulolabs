@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from '@wordpress/element';
  * (e.g. 'canonical_url', 'social_title').
  *
  * @param highlightTarget The deep link's resolved target for THIS tab, if any.
- * @param fieldKey         This field's own key — only pulses when the two match.
+ * @param fieldKey         This field's own key - only pulses when the two match.
  * @return Whether this field should currently render its pulse class.
  */
 export function useFieldHighlight( highlightTarget: string | undefined, fieldKey: string ): boolean {

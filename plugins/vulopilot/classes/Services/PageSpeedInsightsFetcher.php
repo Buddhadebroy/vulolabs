@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Real Mobile/Desktop performance scores for "Performance" Overview's
- * PerformanceScoreCard.tsx, via Google's real PageSpeed Insights API —
+ * PerformanceScoreCard.tsx, via Google's real PageSpeed Insights API -
  * only when the site owner has supplied their own `psi_api_key` (Settings
  * → Scanning → Performance); does nothing at all otherwise, so the card
  * honestly falls back to the single real unified
@@ -21,11 +21,11 @@ defined( 'ABSPATH' ) || exit;
  *
  * Combines two existing precedents rather than inventing new architecture:
  * RobotsTxtBotAccess.php's real `wp_remote_get()`-then-cache shape (here,
- * `update_option()` instead of a transient — the site's own two scores
+ * `update_option()` instead of a transient - the site's own two scores
  * "as of last check," not a short-lived cache) and CrawlerTrafficLogger.php's
  * `wp_next_scheduled()`/`wp_schedule_event('daily', ...)` cron-registration
  * idiom. The PSI API is slow (10-30s) and rate-limited, so it's never
- * called synchronously from a page request — only from the daily cron, or
+ * called synchronously from a page request - only from the daily cron, or
  * a one-off `wp_schedule_single_event()` fired the moment the key is first
  * set/changed (so a site owner sees real data soon after configuring it,
  * without blocking their Settings save).
@@ -66,7 +66,7 @@ class PageSpeedInsightsFetcher {
 
     /**
      * Schedules an immediate one-off fetch when `psi_api_key` was just set
-     * or changed — never calls the slow API synchronously from the
+     * or changed - never calls the slow API synchronously from the
      * Settings save request itself.
      *
      * @param mixed $old_value Previous `vulopilot_settings` option value.
@@ -115,11 +115,11 @@ class PageSpeedInsightsFetcher {
 
     /**
      * Settings → Connections → PageSpeed Insights' own "Test Connection"
-     * button — the one place besides the daily cron that ever calls
+     * button - the one place besides the daily cron that ever calls
      * Google's real API, so it goes through the same `fetch_score()` (and
      * therefore the same quota guard) rather than a separate ad hoc
      * request. Runs synchronously (unlike the cron path) since it's a
-     * direct, deliberate user click, not a background job — same
+     * direct, deliberate user click, not a background job - same
      * "slow but the user is already waiting" posture
      * Controllers\Settings::send_test_report() already takes for its own
      * real generation call.
@@ -154,7 +154,7 @@ class PageSpeedInsightsFetcher {
         if ( null === $mobile_score && null === $desktop_score ) {
             return array(
                 'success' => false,
-                'message' => __( 'Could not reach Google PageSpeed Insights — check your API key and try again.', 'vulopilot' ),
+                'message' => __( 'Could not reach Google PageSpeed Insights - check your API key and try again.', 'vulopilot' ),
                 'mobile'  => null,
                 'desktop' => null,
             );
@@ -172,14 +172,14 @@ class PageSpeedInsightsFetcher {
 
         return array(
             'success' => true,
-            'message' => __( 'Connected — Google PageSpeed Insights responded successfully.', 'vulopilot' ),
+            'message' => __( 'Connected - Google PageSpeed Insights responded successfully.', 'vulopilot' ),
             'mobile'  => $mobile_score,
             'desktop' => $desktop_score,
         );
     }
 
     /**
-     * Settings → Connections → PageSpeed Insights' own on-load state — the
+     * Settings → Connections → PageSpeed Insights' own on-load state - the
      * real "Connected"/"Not Connected" pill and "Daily API Usage" bar, read
      * without making a live API call (unlike `test_connection()`). Same
      * real options `psi_speed_scores` (Controllers\Dashboard) reads for the
@@ -204,7 +204,7 @@ class PageSpeedInsightsFetcher {
     }
 
     /**
-     * Real daily request counter behind "Daily API Usage" — rolls over the
+     * Real daily request counter behind "Daily API Usage" - rolls over the
      * moment the stored date no longer matches today's, same "one stored
      * date string decides whether to reset" idiom as any other daily
      * counter in this codebase.
@@ -240,7 +240,7 @@ class PageSpeedInsightsFetcher {
      * @param string $api_key  Real PSI API key.
      * @param string $strategy 'mobile' or 'desktop'.
      * @return int|null 0-100, or null if the request failed (including
-     *                  because today's `psi_daily_limit` was already hit —
+     *                  because today's `psi_daily_limit` was already hit -
      *                  the daily cron respects the same real quota Test
      *                  Connection does, checked here rather than only in
      *                  `test_connection()` so cron calls are covered too).

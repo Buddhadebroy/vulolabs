@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Order Module.
  *
- * Same toggleable-addon pattern as VuloCart\Cart\Module — but Order has a
+ * Same toggleable-addon pattern as VuloCart\Cart\Module - but Order has a
  * real, hard dependency Cart doesn't: an order is built from a cart, so it
  * needs `VuloCart()->cart_service` to already exist. Two things make that
  * safe without assuming any particular module discovery/activation order:
@@ -20,13 +20,13 @@ defined( 'ABSPATH' ) || exit;
  * 1. is_compatible() vetoes this module's own availability
  *    (module-architecture.md's optional gate, checked by
  *    Modules::is_module_available()) whenever the 'cart' module isn't
- *    active — so Order is simply never instantiated at all if Cart isn't,
+ *    active - so Order is simply never instantiated at all if Cart isn't,
  *    rather than failing at the point it tries to use a service that was
  *    never wired.
  * 2. Even when 'cart' *is* active, this module's own constructor only
  *    registers Install() (see its own docblock for why that part must
  *    stay eager) and defers the actual service-wiring
- *    (wire_services()) to the `vulocart_loaded` action — which
+ *    (wire_services()) to the `vulocart_loaded` action - which
  *    `VuloCart::init_classes()` only fires *after*
  *    `Modules::load_active_modules()`'s entire loop has finished
  *    constructing every active module for this request, Cart included.
@@ -54,7 +54,7 @@ class Module {
         // Eager: registers the `vulocart_activated_module_order` listener
         // this same request's `do_action()` call (fired by
         // Modules::load_active_modules() right after this constructor
-        // returns) needs to already be listening for — see Install's own
+        // returns) needs to already be listening for - see Install's own
         // docblock. Nothing here touches cart_service.
         $this->container['install'] = new Install();
 
@@ -62,7 +62,7 @@ class Module {
     }
 
     /**
-     * Whether the Order module can be active at all — vetoed unless the
+     * Whether the Order module can be active at all - vetoed unless the
      * Cart module also is, since an order is built from a cart.
      *
      * @return bool
@@ -73,7 +73,7 @@ class Module {
 
     /**
      * Builds this module's Application/Rest layer. Deferred to
-     * `vulocart_loaded` — see class docblock for why.
+     * `vulocart_loaded` - see class docblock for why.
      *
      * @return void
      */

@@ -5,9 +5,9 @@ import { getApiLink, getApiResponse } from '@zyra/core';
 
 /**
  * `GET /ai-credits/status` (AiCredits::get_status(), this plugin's own
- * `classes/RestAPI/Controllers/`) — the real, live AI Credits balance
+ * `classes/RestAPI/Controllers/`) - the real, live AI Credits balance
  * (architecture plan: "WordPress may cache/display the balance, but it
- * must never be considered the source of truth" — this hook always
+ * must never be considered the source of truth" - this hook always
  * reflects what THIS site's own local cache last synced from VuloCloud,
  * itself synced from VuloCloud's own authoritative wallet).
  */
@@ -23,7 +23,7 @@ export interface AiCreditsStatus {
 }
 
 /**
- * The shape WP_REST_Server::error_to_response() gives a WP_Error —
+ * The shape WP_REST_Server::error_to_response() gives a WP_Error -
  * AiCredits::connect()'s own error codes (`vulopilot_ai_credits_*`, see
  * AiCreditsConnection.php's own docblocks) arrive here as `code`. Raw
  * axios rather than @zyra/core's sendApiResponse(), since that helper
@@ -37,9 +37,9 @@ export interface AiCreditsErrorBody {
 }
 
 /**
- * Fetches and refreshes AiCreditsStatus — a real, independent hook
+ * Fetches and refreshes AiCreditsStatus - a real, independent hook
  * instance per consumer (this codebase has no shared client-state library
- * to reach for here, e.g. Redux/TanStack Query — see the Pro plugin's own
+ * to reach for here, e.g. Redux/TanStack Query - see the Pro plugin's own
  * CLAUDE.md on why those specifically aren't introduced), so a component
  * that just changed the balance (e.g. right after a credits-metered AI
  * action) should call `refresh()` itself rather than expect another
@@ -67,21 +67,21 @@ export const useAiCredits = () => {
 };
 
 /**
- * `POST /ai-credits/connect` — the whole install→claim→connect
+ * `POST /ai-credits/connect` - the whole install→claim→connect
  * orchestration in one call (AiCreditsConnection::connect_and_claim()'s
  * own docblock). Unlike connectVuloCloudAccount() (which reloads the
  * page), this resolves with the fresh AiCreditsStatus so the calling
- * popup can show the real new balance immediately without a full reload —
+ * popup can show the real new balance immediately without a full reload -
  * there's exactly one consumer of this result (the credits popup itself),
  * so there's no multi-instance-sync problem reload was solving there.
  *
  * @param email
  * @param password
- * @param twoFactorCode Only sent when non-empty. Agency path only — the Customer Portal has no 2FA.
+ * @param twoFactorCode Only sent when non-empty. Agency path only - the Customer Portal has no 2FA.
  * @param createAccount Registers a brand-new VuloCloud account instead of logging into an existing one.
- * @param asCustomer    "I'm a solo site owner" (architecture plan §F) — registers/logs into the Customer Portal under
+ * @param asCustomer    "I'm a solo site owner" (architecture plan §F) - registers/logs into the Customer Portal under
  *                      VULOPILOT_VULOCLOUD_HOST_ORGANIZATION_ID instead of creating a personal Organization.
- * @param firstName     Solo + createAccount only — the Customer Portal's own registration requires a name.
+ * @param firstName     Solo + createAccount only - the Customer Portal's own registration requires a name.
  * @param lastName      Solo + createAccount only.
  */
 export const connectAiCredits = (

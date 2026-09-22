@@ -15,10 +15,10 @@ defined( 'ABSPATH' ) || exit;
 /**
  * GET /automation-dashboard-stats backs src/pages/Automations/AutomationsPeriodStatsCard.tsx's
  * "This month" card and AutomationsStatsRow.tsx's own "last check" stat.
- * This route was missing entirely on a Free-only or unlicensed-Pro site —
+ * This route was missing entirely on a Free-only or unlicensed-Pro site -
  * vulopilot-pro's own AutomationsDashboardRest.php (`automation_dashboard`
  * key) already computes this exact same response entirely off Free's own
- * AutomationsRepository/AutomationsRunRepository — there was never any real
+ * AutomationsRepository/AutomationsRunRepository - there was never any real
  * Pro-only aggregation here, just a missing Free-side registration, so both
  * cards silently rendered blank stat tiles on every site without a licensed
  * Pro Automations module, even though every number they need already comes
@@ -27,7 +27,7 @@ defined( 'ABSPATH' ) || exit;
  * Registered under the same `automation_dashboard` key vulopilot-pro's own
  * Module.php uses, so Pro's own controller (registered later, when that
  * module is active) cleanly overrides this one at the same route rather
- * than colliding with it — identical relationship to `automations` above.
+ * than colliding with it - identical relationship to `automations` above.
  *
  * @class       AutomationDashboardStats controller
  * @version     1.0.0

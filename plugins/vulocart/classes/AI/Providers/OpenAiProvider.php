@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * OpenAI's Chat Completions/Images/Embeddings APIs (api.openai.com), via
- * `wp_remote_post` — no HTTP SDK dependency, same posture as every other
+ * `wp_remote_post` - no HTTP SDK dependency, same posture as every other
  * outbound integration in this codebase (Shipping's carrier clients, the
  * license client).
  *

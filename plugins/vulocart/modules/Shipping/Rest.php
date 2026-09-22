@@ -12,14 +12,14 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Shipping module Rest class.
  *
- * Module-level REST controller, public — same reasoning as Cart\Rest's own
+ * Module-level REST controller, public - same reasoning as Cart\Rest's own
  * docblock. Backs the checkout wizard's Shipping step (which method is
  * available, and what it costs, before the buyer commits to placing the
  * order). Optional `cart_token`/`country`/`state` query params resolve a
  * `$context` (cart weight, summed from each line item's own Offering
  * `meta.weight`, plus the shipping address) purely so
  * `vulocart_shipping_methods` (ShippingService's own docblock) has
- * something to match a zone/weight rate against — this controller has no
+ * something to match a zone/weight rate against - this controller has no
  * opinion on what that filter does with it.
  *
  * @class       Rest class
@@ -63,11 +63,11 @@ class Rest {
     }
 
     /**
-     * Resolves `get_methods()`'s own optional `$context` — see this
+     * Resolves `get_methods()`'s own optional `$context` - see this
      * class's own docblock. Silently omits `shipping_address`/
      * `cart_weight` when the caller doesn't supply enough to resolve
      * them (an early checkout step, before a cart token or address is
-     * known yet) rather than erroring — `get_available_methods()` and
+     * known yet) rather than erroring - `get_available_methods()` and
      * everything hooked into `vulocart_shipping_methods` already treat a
      * missing context key as "can't match a zone/weight rate, fall back
      * to flat rate."

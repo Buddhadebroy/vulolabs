@@ -17,7 +17,7 @@ use VuloPilot\ValueObjects\Impact;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Readme.txt's "AI Content Assistant" → "Comparison Pages" — the only
+ * Readme.txt's "AI Content Assistant" → "Comparison Pages" - the only
  * action in this codebase whose input is two existing objects rather than
  * one (every other action here, e.g. SuggestInternalLinksAction, anchors
  * on a single post_id and lets the AI pick *from* a candidate list; none
@@ -26,7 +26,7 @@ defined( 'ABSPATH' ) || exit;
  * the two ids are the same post.
  *
  * The generated comparison is new content (a fresh draft, GenerateBlogAction's
- * shape), not a rewrite of either source post — so unlike a two-object
+ * shape), not a rewrite of either source post - so unlike a two-object
  * *rewrite* action, there's no ambiguity about which existing object_ref
  * ActionExecutionResult should carry: the newly created draft is the one
  * object this action actually mutates. Both source post ids are kept in
@@ -57,7 +57,7 @@ class GenerateComparisonPageAction extends AbstractBasicAction {
     }
 
     /**
-     * Impact::HIGH — `wp_insert_post()`s a brand-new page with AI-generated `post_content` — creates new, potentially publicly-visible content outright.
+     * Impact::HIGH - `wp_insert_post()`s a brand-new page with AI-generated `post_content` - creates new, potentially publicly-visible content outright.
      *
      * @inheritDoc
      */
@@ -105,7 +105,7 @@ class GenerateComparisonPageAction extends AbstractBasicAction {
             array(
                 'role'    => 'system',
                 'content' => 'You write balanced, informative comparison pages for two products/items. '
-                    . 'Cover key similarities and differences and help the reader decide which fits their needs — do not '
+                    . 'Cover key similarities and differences and help the reader decide which fits their needs - do not '
                     . 'simply declare one item better without reasoning. Respond in exactly this format, nothing else:'
                     . "\nTITLE: <e.g. 'A vs B: Which Should You Choose?'>\n\nBODY:\n<the full comparison as HTML, using headings and a summary paragraph>",
             ),

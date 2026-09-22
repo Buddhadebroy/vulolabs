@@ -10,7 +10,7 @@ namespace VuloPilot\Repositories;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for vulopilot_redirects — the "Redirects & 404s" feature's
+ * Persistence for vulopilot_redirects - the "Redirects & 404s" feature's
  * user-managed 301/302 redirect table. `source_path` is unique (Install.php's
  * own schema), so find_by_source_path() below is the one real hot-path
  * lookup: Services\RedirectManager calls it on every single front-end
@@ -65,7 +65,7 @@ class RedirectRepository extends AbstractRepository {
     }
 
     /**
-     * Bumps a redirect's own hit counter and records the moment — called by
+     * Bumps a redirect's own hit counter and records the moment - called by
      * Services\RedirectManager every time it actually redirects a real
      * visitor through this row, so the Redirects page can show both which
      * rules are actually being hit and when one was last used.
@@ -90,7 +90,7 @@ class RedirectRepository extends AbstractRepository {
     /**
      * Normalizes a raw request path into the exact comparable form both
      * `source_path` (this table) and `requested_path`
-     * (NotFoundLogRepository) are stored/matched in — a single shared
+     * (NotFoundLogRepository) are stored/matched in - a single shared
      * definition of "what counts as the same path" is what makes "convert
      * this 404 log entry into a redirect" (the Redirects page's own
      * feature) actually produce a redirect that will match the same

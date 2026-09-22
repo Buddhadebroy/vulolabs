@@ -7,16 +7,16 @@ import { ButtonInput } from '@zyra/inputs';
 import { useSetting } from '../../../contexts/SettingContext';
 
 /**
- * Settings → Scanning → Security's own "Restore Defaults" button — moved
+ * Settings → Scanning → Security's own "Restore Defaults" button - moved
  * out of SecurityPanel.tsx (per direct instruction, same extraction
  * AiVisibilityScansHeader.tsx already got) into Security.ts's own
  * top-level `settingAction` instead of being
  * rendered inline at the top of that panel's own body. `DEFAULTS` moved
- * here with it — it was only ever read by this button's own reset call,
+ * here with it - it was only ever read by this button's own reset call,
  * nowhere else in SecurityPanel.tsx.
  *
  * Real, scoped reset (`POST /settings`, `settingName: 'security-scanning'`,
- * the full flat `DEFAULTS` object as the patch) — not a UI-only component
+ * the full flat `DEFAULTS` object as the patch) - not a UI-only component
  * field, since it needs to persist server-side and refresh SettingContext
  * in place. Same shape every other Restore Defaults header here uses.
  */

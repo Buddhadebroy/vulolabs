@@ -9,24 +9,24 @@ import { __ } from '@wordpress/i18n';
  * sections, all 3 removed there) into its own sub-tab, then moved again
  * from the old "Get Started"/Business Visibility folder into the new
  * top-level "SEO" group folder alongside SEO Titles and Instant Indexing
- * — same real `sitemap_*`/`html_sitemap_*` keys and same `id: 'sitemap'`
+ * - same real `sitemap_*`/`html_sitemap_*` keys and same `id: 'sitemap'`
  * throughout, unchanged backend (Controllers\RobotsSitemap/
  * Services\SitemapGenerator/Services\HtmlSitemapRenderer), only where the
  * UI for it lives moved.
  *
  * A plain declarative `modal` (InputRenderer), same shape
- * `BusinessInformation.ts` uses now — no hand-built `PanelComponent`
+ * `BusinessInformation.ts` uses now - no hand-built `PanelComponent`
  * needed, every field here is a real `type: 'section'`/`'checkbox'`/
  * `'text'`/`'number'`/`'select'`/`'notice'` InputRenderer already supports
  * natively, same as it did on the old tab.
  *
- * "Post types in sitemap"/"Taxonomies in sitemap" — one real control each,
+ * "Post types in sitemap"/"Taxonomies in sitemap" - one real control each,
  * not the former separate XML/HTML pair (`sitemap_html_post_types`/
  * `sitemap_html_taxonomies`, both removed) per direct instruction: the two
  * controls always had to be set to look the same to avoid a confusing
  * "included in one but not the other" state, so `sitemap_xml_post_types`/
- * `sitemap_xml_taxonomies` (kept, same real stored option keys — no
- * migration needed) now drive the HTML sitemap shortcode too —
+ * `sitemap_xml_taxonomies` (kept, same real stored option keys - no
+ * migration needed) now drive the HTML sitemap shortcode too -
  * HtmlSitemapRenderer.php reads them directly instead of its own former
  * separate keys.
  */
@@ -85,8 +85,8 @@ export default {
 			type: 'checkbox',
 			selectDeselect:true,
 			label: __('Post types in sitemap', 'vulopilot'),
-			// The 4 real post types every site has, plus — per direct
-			// instruction — any real custom post type this site actually
+			// The 4 real post types every site has, plus - per direct
+			// instruction - any real custom post type this site actually
 			// has registered (`appLocalizer.sitemap_custom_post_types`,
 			// FrontendScripts::get_sitemap_custom_post_types()), so a site
 			// running a theme/plugin that registers its own post type
@@ -162,7 +162,7 @@ export default {
 
 			label: __('Images in sitemaps', 'vulopilot'),
 			settingDescription: __(
-				"Include references to images from the post content in sitemaps — this helps search engines index the important images on your pages.",
+				"Include references to images from the post content in sitemaps - this helps search engines index the important images on your pages.",
 				'vulopilot'
 			),
 			options: [

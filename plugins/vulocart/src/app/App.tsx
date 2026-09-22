@@ -13,7 +13,7 @@ import './app.scss';
  * admin sidebar submenu entries (classes/Admin/Menu.php's
  * `add_submenu_page()` calls, each pointing to `vulocart#&tab={tab}`),
  * and this `Route` sub-component reads `tab` from `location.hash` (via
- * `BrowserRouter`'s `useLocation()`, still needed just for that — src/
+ * `BrowserRouter`'s `useLocation()`, still needed just for that - src/
  * index.tsx) to render whichever component registered itself for that
  * tab in routes.ts. Clicking a submenu entry only changes the hash (same
  * pathname+query as the currently-loaded page), so it's a same-document

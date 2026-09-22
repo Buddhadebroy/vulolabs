@@ -3,7 +3,7 @@ import axios from 'axios';
 /* global vulocartLocalizer */
 
 /**
- * Thin axios wrapper for VuloCart's own `vulocart/v1` REST namespace —
+ * Thin axios wrapper for VuloCart's own `vulocart/v1` REST namespace -
  * same X-WP-Nonce convention every other plugin's frontend uses
  * (react-frontend.md / security.md), just against vulocartLocalizer
  * instead of appLocalizer. `apiUrl` (REST root) + `restUrl` (namespace)

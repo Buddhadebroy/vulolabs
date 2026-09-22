@@ -14,22 +14,22 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Writes today's real performance-category score into
- * `vulopilot_score_snapshots` (category `performance`) — the data SpeedHistoryCard.tsx's
+ * `vulopilot_score_snapshots` (category `performance`) - the data SpeedHistoryCard.tsx's
  * chart reads. Hooked on `vulopilot_scan_completed` at priority 20 (after
  * Services\ScanPersistenceListener's own default-priority-10 handler has
  * already written that scanner's findings to the database) so the score
  * this recomputes reflects the findings that scan just produced; a
  * `run_all()` scan fires this once per scanner, which means it recomputes
- * and upserts several times in a row during a full scan — harmless
+ * and upserts several times in a row during a full scan - harmless
  * (idempotent, cheap single-row upsert) and simpler than inspecting each
  * ScanResult's own category to skip non-'performance' runs, since the
  * final call in the sequence always leaves the correct value either way.
  * A daily cron is a second write path, so the trend stays continuous even
- * on days nobody manually triggers a scan — the score itself is always
+ * on days nobody manually triggers a scan - the score itself is always
  * computed live from current open findings, the same way GET /dashboard's
  * `category_scores.performance` already is (Dashboard.php's own
  * calculate_category_score(), whose weighting is duplicated here rather
- * than made reusable there — same "duplicate small shared logic across
+ * than made reusable there - same "duplicate small shared logic across
  * scopes" precedent this session's ContentIntelligence.php work already
  * used).
  *
@@ -69,7 +69,7 @@ class PerformanceScoreSnapshotRecorder {
     }
 
     /**
-     * Standard wp_next_scheduled()-guarded wp_schedule_event() pattern —
+     * Standard wp_next_scheduled()-guarded wp_schedule_event() pattern -
      * same shape Services\CrawlerTrafficLogger already uses.
      *
      * @return void

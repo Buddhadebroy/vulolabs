@@ -24,19 +24,19 @@ interface GroupsResponse {
 }
 
 interface IssuesListProps {
-	/** A real scanner_id/category from NeedsAttentionCard.tsx's own group rows — presets the matching tab and auto-selects that group once loaded. */
+	/** A real scanner_id/category from NeedsAttentionCard.tsx's own group rows - presets the matching tab and auto-selects that group once loaded. */
 	initialScannerId?: string;
 	initialCategory?: string;
 }
 
 /**
- * AI Copilot's Issues table — every open finding grouped by issue type
+ * AI Copilot's Issues table - every open finding grouped by issue type
  * (`GET /findings/groups`, FindingRepository::get_finding_groups()), not
  * one row per individual finding: "8 images are missing alt text" is one
  * row for 8 real findings sharing the same scanner_id, matching the
  * mockup's own row shape. Stat cards + category tabs above the table and
  * a real detail panel to the side (IssuesSummaryCards.tsx/
- * IssueDetailPanel.tsx) are real, all backed by this same endpoint — the
+ * IssueDetailPanel.tsx) are real, all backed by this same endpoint - the
  * stat tiles double as a real High/Medium/Low filter (same 3-tier bucket
  * FindingRepository::get_priority_counts() already uses for their own
  * counts), alongside the category tabs, both scoped server-side so the
@@ -51,7 +51,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 	);
 	const [activePriority, setActivePriority] = useState<Priority>('all');
 	// Matches TableCard's own initial `{ paged: 1, per_page: 10 }` state
-	// (same reasoning useApiList.ts's own comment gives) — its first
+	// (same reasoning useApiList.ts's own comment gives) - its first
 	// mount-time onQueryUpdate call corrects this to whatever its page-size
 	// selector actually shows, so the fetched row count and the "Showing X
 	// to Y of Z" footer it renders always agree.
@@ -169,12 +169,12 @@ const IssuesList: React.FC<IssuesListProps> = ({
 
 	/**
 	 * Same toggle both "More Details" triggers below already did (row click,
-	 * action-cell button) — now also scrolls to the detail panel itself
+	 * action-cell button) - now also scrolls to the detail panel itself
 	 * (`scrollToId`, the same real scroll-into-view helper
 	 * NeedsAttentionCard.tsx's own `scrollToId('ai-copilot-issues-section')`
 	 * already uses) when a group is actually selected, so the panel opens
 	 * fully visible regardless of which ancestor is actually the scrollable
-	 * one — a plain `window.scrollTo()` only moves the document, not WP
+	 * one - a plain `window.scrollTo()` only moves the document, not WP
 	 * admin's own scrollable wrapper. No scroll on deselect (closing the
 	 * panel shouldn't jump the page).
 	 */
@@ -229,13 +229,13 @@ const IssuesList: React.FC<IssuesListProps> = ({
 		<>
 			{/* Real scroll target for AIAssistant.tsx's own "View all issues"/
 			group-row clicks (NeedsAttentionCard.tsx →
-			`scrollToId('ai-copilot-issues-section')`) — kept INSIDE this
+			`scrollToId('ai-copilot-issues-section')`) - kept INSIDE this
 			grid={8} column rather than as a wrapping element around both of
 			this component's own columns, since a wrapping `<div>` there
 			would put the grid={8}/grid={4} pair inside ITS OWN box instead
 			of the page's shared flex row they're meant to sit side by side
 			in (same real layout bug already fixed once for
-			SchemaKnowledge/IssuesSection.tsx — see that file's own
+			SchemaKnowledge/IssuesSection.tsx - see that file's own
 			docblock). */}
 			<ColumnComponent grid={8}>
 				<div id="ai-copilot-issues-section">
@@ -263,13 +263,13 @@ const IssuesList: React.FC<IssuesListProps> = ({
 							activeCategory={activeTabId}
 							// Highlights the row whose details are showing in
 							// the side panel (zyra's own `is-selected` row
-							// style, see @zyra/table's TableCard/Table) —
+							// style, see @zyra/table's TableCard/Table) -
 							// kept in sync with the action cell's own
 							// row-is-active check below rather than a
 							// separate piece of state.
 							activeRowId={selectedGroup?.scanner_id}
 							// Same toggle the action cell's own "More
-							// Details"/"Showing" button already does — a
+							// Details"/"Showing" button already does - a
 							// click anywhere on the row now opens/closes the
 							// details panel too, not just that one small
 							// button (zyra's own `onRowClick`, which already
@@ -336,7 +336,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 								// `category: 'performance'`) each get their
 								// own real distinct icon instead of every
 								// row in that category sharing one identical
-								// glyph — `CATEGORY_ICONS[category]` stays
+								// glyph - `CATEGORY_ICONS[category]` stays
 								// the fallback for any scanner_id not
 								// explicitly listed (issuesTypes.ts's own
 								// `issueIconFor()` docblock).

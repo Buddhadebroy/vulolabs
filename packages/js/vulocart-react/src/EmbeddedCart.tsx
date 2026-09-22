@@ -10,10 +10,10 @@ export interface EmbeddedCartProps {
 /**
  * React equivalent of `@vulocart/sdk`'s vanilla `mountEmbeddedCart()`
  * widget (`widgets/embedded-cart.ts`'s own docblock covers the shared
- * cart-token/cross-origin-storage reasoning — identical here). Clicking
+ * cart-token/cross-origin-storage reasoning - identical here). Clicking
  * "Checkout" swaps this component's own render for `<EmbeddedCheckout>`
  * in place, rather than mounting into a separate DOM node the way the
- * vanilla widget does — the natural React way to do it.
+ * vanilla widget does - the natural React way to do it.
  */
 export function EmbeddedCart( { onOrderPlaced }: EmbeddedCartProps ) {
 	const [ cartToken ] = useState( () => getOrCreateCartToken() );

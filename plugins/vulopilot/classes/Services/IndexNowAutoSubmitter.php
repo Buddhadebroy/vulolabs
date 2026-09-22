@@ -13,10 +13,10 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Scanning → Instant Indexing tab's "Auto-submit post types" setting — real
+ * Scanning → Instant Indexing tab's "Auto-submit post types" setting - real
  * automatic IndexNow submission on publish/update (`save_post`) and on
  * trash (`wp_trash_post`, hooked before the post's slug/status actually
- * changes, so the real, still-live permalink is what gets submitted — a
+ * changes, so the real, still-live permalink is what gets submitted - a
  * removed/trashed URL is itself a legitimate, real IndexNow use case: it
  * prompts participating engines to re-crawl and discover the 404/410,
  * rather than continuing to serve a stale cached result).
@@ -24,11 +24,11 @@ defined( 'ABSPATH' ) || exit;
  * Every submission (success or failure) is logged to
  * the shared activity log (`indexnow.submitted`) via IndexNowLogRepository with
  * `trigger_type = 'auto'`, same table the manual "Submit URLs" button's
- * own submissions land in — the mockup's own History card is described as
+ * own submissions land in - the mockup's own History card is described as
  * "the last 100 IndexNow API requests," not "manual requests only."
  *
  * Self-registers its own hooks in the constructor (php-wordpress.md) and
- * is constructed unconditionally in VuloPilot::init_classes() — both hooks
+ * is constructed unconditionally in VuloPilot::init_classes() - both hooks
  * read `indexnow_post_types`/`indexnow_api_key` before doing anything, same
  * "settings gate the callback's own behavior, not construction" shape
  * every other Services\* class in this plugin already uses.

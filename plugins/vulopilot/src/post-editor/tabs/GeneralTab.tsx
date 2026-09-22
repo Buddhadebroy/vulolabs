@@ -13,18 +13,18 @@ const GROUP_LABELS: Record< AnalysisResult[ 'group' ], string > = {
 };
 
 interface GeneralTabProps {
-	/** "All SEO Issues" table's "Fix with AI" deep link — an OnPageAnalyzer check id (e.g. 'description_length') to scroll to and highlight once the checklist below has (re-)computed it. */
+	/** "All SEO Issues" table's "Fix with AI" deep link - an OnPageAnalyzer check id (e.g. 'description_length') to scroll to and highlight once the checklist below has (re-)computed it. */
 	highlightTarget?: string;
-	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch — accepted for prop-shape parity with every other tab (`PostSeoPanel.tsx` passes it uniformly to whichever tab is active), unused here since this tab is never itself the target of `PageAnalysisTab.tsx`'s own row clicks. */
+	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch - accepted for prop-shape parity with every other tab (`PostSeoPanel.tsx` passes it uniformly to whichever tab is active), unused here since this tab is never itself the target of `PageAnalysisTab.tsx`'s own row clicks. */
 	onNavigate?: ( tab: string, target?: string ) => void;
 }
 
 /**
- * The metabox's General tab — focus keyword, SEO title (native
+ * The metabox's General tab - focus keyword, SEO title (native
  * `post_title`), meta description (native `post_excerpt`), a live snippet
  * preview, and Services\OnPageAnalyzer's checklist. Analysis re-runs on a
  * short debounce as the editor's title/excerpt/content/focus keyword
- * change — it has to run against LIVE, possibly-unsaved editor state
+ * change - it has to run against LIVE, possibly-unsaved editor state
  * (this class's own PHP counterpart's docblock explains why that's a
  * POST-with-body rather than reading the stored post).
  *
@@ -32,14 +32,14 @@ interface GeneralTabProps {
  * screenshot comparison): Preview first with the title/description fields
  * tucked behind an "Edit Snippet" toggle rather than always visible, then
  * Focus Keyword as a removable pill rather than a plain text field, then
- * the grouped checklist. Deliberately NOT cloned 1:1 though — RankMath's
+ * the grouped checklist. Deliberately NOT cloned 1:1 though - RankMath's
  * own focus keyword is a genuine multi-keyword field (several independent
  * pills, each separately graded) and has a "This post is Pillar Content"
  * checkbox; VuloPilot's Services\OnPageAnalyzer only ever grades ONE
  * `_vulopilot_focus_keyword` string end to end (title/description/content
  * checks below all read a single value), and there's no pillar-content
  * concept anywhere in this codebase (RankMath's own version feeds its
- * internal-linking suggestions, which VuloPilot has no equivalent of) — so
+ * internal-linking suggestions, which VuloPilot has no equivalent of) - so
  * this keeps the single-keyword pill honestly wired to that one real
  * field instead of building a multi-pill input with no backing analysis,
  * and leaves the checkbox out rather than adding a control that would do
@@ -68,7 +68,7 @@ export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
 				} )
 				.catch( () => {
 					// A failed analysis call just leaves the previous
-					// checklist showing — not worth surfacing as an error,
+					// checklist showing - not worth surfacing as an error,
 					// it re-runs automatically on the next edit.
 				} )
 				.finally( () => {
@@ -98,7 +98,7 @@ export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
 		}
 
 		// improve-readability/add-subheadings rewrite post_content on the
-		// server — deliberately NOT live-synced into the open editor's
+		// server - deliberately NOT live-synced into the open editor's
 		// block canvas (that would mean re-parsing HTML into blocks under
 		// an actively-edited post, risking clobbering an in-progress edit
 		// or the undo stack). The write already happened and is real;
@@ -152,7 +152,7 @@ export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
 				<div className="vulopilot-seo-snippet-editor">
 					<TextControl
 						label={ __( 'SEO Title', 'vulopilot' ) }
-						help={ __( 'This is the page title — shown in search results and used as the page heading.', 'vulopilot' ) + ` (${ title.length }/60)` }
+						help={ __( 'This is the page title - shown in search results and used as the page heading.', 'vulopilot' ) + ` (${ title.length }/60)` }
 						value={ title }
 						onChange={ setTitle }
 					/>
@@ -169,7 +169,7 @@ export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
 
 			<div className="vulopilot-seo-section-label">{ __( 'Focus Keyword', 'vulopilot' ) }</div>
 			<p className="small desc vulopilot-seo-focus-keyword-help">
-				{ __( 'The main term you want this page to rank for — drives the checks below.', 'vulopilot' ) }
+				{ __( 'The main term you want this page to rank for - drives the checks below.', 'vulopilot' ) }
 			</p>
 
 			<div className="vulopilot-seo-focus-keyword">

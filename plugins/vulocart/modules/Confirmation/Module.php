@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Confirmation Module.
  *
  * The checkout wizard's final "Thank you" step. Thin by design: no own
- * table, no own Application service — `Rest.php` delegates straight to
+ * table, no own Application service - `Rest.php` delegates straight to
  * `VuloCart()->order_service->track_order()`, the same lookup
  * `Order\Rest::track_item()` already exposes at `GET /orders/track`. This
  * module exists as its own route/namespace anyway (`GET /confirmation/
@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
  * checkout wizard's own confirmation step and the separate, longer-lived
  * "track my order" feature (`src/blocks/order-tracking/`) stay two
  * decoupled call sites even though they resolve the same underlying data
- * today — a future confirmation-specific addition (e.g. "what's next"
+ * today - a future confirmation-specific addition (e.g. "what's next"
  * copy, estimated next steps) has its own route to grow into without
  * changing order-tracking's.
  *
@@ -46,7 +46,7 @@ class Module {
     }
 
     /**
-     * Whether the Confirmation module can be active — vetoed unless the
+     * Whether the Confirmation module can be active - vetoed unless the
      * Order module also is, since there's nothing to confirm without it.
      *
      * @return bool
@@ -67,9 +67,9 @@ class Module {
     }
 
     /**
-     * Registers this module's own step — see Customer/Module.php's own
+     * Registers this module's own step - see Customer/Module.php's own
      * docblock on register_checkout_step() for what this mechanism is.
-     * `order = 100` deliberately leaves a wide gap after Review's `50` —
+     * `order = 100` deliberately leaves a wide gap after Review's `50` -
      * confirmation is the terminal state after an order is placed, not
      * something a step-reordering Checkout Builder (vulocart-pro) should
      * ever let a merchant slot in the middle of the sequence.

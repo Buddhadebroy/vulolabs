@@ -12,13 +12,13 @@ interface AiCopilotGuardProps {
 
 /**
  * Shared "AI Copilot is off" fallback for every AI-branded card in this
- * plugin — same real module-inactive shape KnowledgeGraphSection.tsx's own
+ * plugin - same real module-inactive shape KnowledgeGraphSection.tsx's own
  * `<ModuleGuardComponent icon="error" title="Entity Extraction module is
  * turned off" .../>` already uses for a different free module, just with a
  * button (same "Enable Now" deep-link-to-Modules pattern Popup.tsx's
- * ShowProPopup already uses for Pro modules — this is the free-module
+ * ShowProPopup already uses for Pro modules - this is the free-module
  * equivalent, so it navigates to Modules instead of pitching an upgrade).
- * Renders `children` unchanged once `ai-copilot` is active — see
+ * Renders `children` unchanged once `ai-copilot` is active - see
  * useAiCopilotEnabled()'s own docblock for the real gate this reads.
  */
 const AiCopilotGuard = ({ title, desc, children }: AiCopilotGuardProps) => {
@@ -43,7 +43,7 @@ const AiCopilotGuard = ({ title, desc, children }: AiCopilotGuardProps) => {
 			onButtonClick={() => {
 				// Same admin_url-hash + '_self' navigation Popup.tsx's own
 				// "Enable Now" button already uses for a Pro module's
-				// locked-state popup — see that component's own comment for
+				// locked-state popup - see that component's own comment for
 				// why '_self' (not the omitted-target default) is required,
 				// and why `tab=settings&subtab=modules` (matching this
 				// component's own `desc` copy above, "Settings → Modules"),

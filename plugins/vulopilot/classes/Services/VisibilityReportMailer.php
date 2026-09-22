@@ -15,14 +15,14 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Free's "Send Visibility Report" automation's real action — generates a
+ * Free's "Send Visibility Report" automation's real action - generates a
  * `scan_summary` report (Reports\Types\ScanSummaryReport already has
  * exactly the headline numbers/trend the spec's own bullet list wants: open/
  * resolved/critical finding counts, week-over-week trend) and emails a
  * plain-language summary of it. No new report type needed.
  *
  * Deliberately its own small class rather than reusing
- * vulopilot-pro's AdvancedReports\ScheduledReportRunner — that class is Pro
+ * vulopilot-pro's AdvancedReports\ScheduledReportRunner - that class is Pro
  * business logic keyed to `vulopilot_scheduled_jobs`/multi-format/multi-
  * recipient job configs; this is Free's own fixed, single-recipient,
  * single-report-type case, following the same "own small class per
@@ -54,8 +54,8 @@ class VisibilityReportMailer {
 
     /**
      * @param ReportGenerator         $generator Generates the underlying scan_summary report.
-     * @param ReportRepository|null   $reports   Defaults to a new instance — injectable for tests.
-     * @param FindingRepository|null  $findings  Defaults to a new instance — injectable for tests.
+     * @param ReportRepository|null   $reports   Defaults to a new instance - injectable for tests.
+     * @param FindingRepository|null  $findings  Defaults to a new instance - injectable for tests.
      */
     public function __construct( ReportGenerator $generator, ?ReportRepository $reports = null, ?FindingRepository $findings = null ) {
         $this->generator = $generator;
@@ -64,7 +64,7 @@ class VisibilityReportMailer {
     }
 
     /**
-     * @param string $frequency 'weekly'|'monthly' — the automation row's own `trigger_config.frequency`.
+     * @param string $frequency 'weekly'|'monthly' - the automation row's own `trigger_config.frequency`.
      * @return bool True if a report was generated and an email was sent (or there was nothing to email to).
      */
     public function send( string $frequency ): bool {

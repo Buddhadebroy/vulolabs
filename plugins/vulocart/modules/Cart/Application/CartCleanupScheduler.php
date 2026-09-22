@@ -15,10 +15,10 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Cart module CartCleanupScheduler.
  *
  * Wires the Settings screen's Cart tab `cart_expiry_days` (previously a
- * "saved, not yet consumed" value — src/settings/Cart.ts's own docblock
+ * "saved, not yet consumed" value - src/settings/Cart.ts's own docblock
  * used to say so) to real behavior: a daily `wp_cron` event that deletes
  * carts nobody has touched in that many days. Hooks self-register in this
- * class's constructor, matching php-wordpress.md's convention — Module.php
+ * class's constructor, matching php-wordpress.md's convention - Module.php
  * constructs this once, in the same pass that wires every other Cart
  * service.
  *
@@ -56,7 +56,7 @@ class CartCleanupScheduler {
     }
 
     /**
-     * Clears the scheduled event when the Cart module is deactivated — a
+     * Clears the scheduled event when the Cart module is deactivated - a
      * daily cron for a module that's off is just dead weight, and Order
      * (which depends on Cart) is force-inactive alongside it anyway
      * (Order\Module::is_compatible()).
@@ -72,7 +72,7 @@ class CartCleanupScheduler {
     }
 
     /**
-     * Schedules the daily cleanup event if it isn't already — `init`
+     * Schedules the daily cleanup event if it isn't already - `init`
      * fires on every request while the Cart module is active, but
      * `wp_next_scheduled()` makes this a cheap no-op after the first
      * successful schedule (WordPress's own recommended cron pattern).

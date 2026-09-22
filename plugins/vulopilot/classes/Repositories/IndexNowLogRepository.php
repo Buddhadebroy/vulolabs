@@ -11,13 +11,13 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Persistence for the shared activity log (`indexnow.submitted`) (Scanning → Instant Indexing's
- * "History" card — the mockup's own "The last 100 IndexNow API requests"
+ * "History" card - the mockup's own "The last 100 IndexNow API requests"
  * copy). `find_all()`/pagination is entirely inherited from
  * AbstractRepository, same "repository adds its own query methods beyond
  * the generic CRUD base" pattern CrawlerVisitRepository already uses.
  *
  * One row per real submission attempt (manual or auto-submitted), never
- * upserted/deduped — unlike NotFoundLogRepository's own path-keyed upsert,
+ * upserted/deduped - unlike NotFoundLogRepository's own path-keyed upsert,
  * a repeat IndexNow submission of the same URL weeks apart is each a
  * distinct, meaningful API call worth its own row in the history.
  *
@@ -33,7 +33,7 @@ class IndexNowLogRepository {
 
     /**
      * Records one submission in the shared activity log
-     * (`vulopilot_activity_logs`) — the URL as the message, the rest as
+     * (`vulopilot_activity_logs`) - the URL as the message, the rest as
      * JSON in `meta`. No table of its own: this is a short, capped,
      * read-newest-first log, which is exactly what the activity log is.
      *

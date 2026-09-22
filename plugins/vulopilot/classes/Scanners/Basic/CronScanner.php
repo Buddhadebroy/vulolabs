@@ -14,7 +14,7 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags scheduled cron events that are overdue — a hook scheduled for the
+ * Flags scheduled cron events that are overdue - a hook scheduled for the
  * past that still hasn't run means WP-Cron isn't actually firing (no
  * traffic hitting the site, DISABLE_WP_CRON without a real system cron
  * replacing it, a fatal error in another hook blocking the request). This
@@ -83,7 +83,7 @@ class CronScanner extends AbstractBasicScanner {
                     $this->get_category(),
                     sprintf(
                         /* translators: %s is a human-readable time difference, e.g. "2 hours". */
-                        __( 'This event was due %s ago and has not run — WP-Cron may not be firing.', 'vulopilot' ),
+                        __( 'This event was due %s ago and has not run - WP-Cron may not be firing.', 'vulopilot' ),
                         human_time_diff( $timestamp, $now )
                     ),
                     'cron_hook',

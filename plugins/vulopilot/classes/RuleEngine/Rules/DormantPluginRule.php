@@ -18,8 +18,8 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Turns Scanners\Basic\PluginsScanner's "inactive plugin installed"
  * Finding into a recommendation to remove or reactivate it. A warning
- * rather than an error or critical — a dormant plugin is a smaller,
- * lower-urgency risk than an active vulnerability or a broken checkout —
+ * rather than an error or critical - a dormant plugin is a smaller,
+ * lower-urgency risk than an active vulnerability or a broken checkout -
  * and low-impact/quick to resolve, since deleting an unused plugin from
  * Plugins > Installed Plugins takes moments.
  *

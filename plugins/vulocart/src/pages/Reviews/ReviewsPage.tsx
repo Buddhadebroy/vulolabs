@@ -26,9 +26,9 @@ const STATUS_OPTIONS = [
 ];
 
 /**
- * The Offerings menu's "Reviews" admin page — moderation queue for
+ * The Offerings menu's "Reviews" admin page - moderation queue for
  * customer reviews (`GET/PATCH/DELETE /reviews`, admin-only;
- * `POST /reviews` — submission — is public, not used from this page).
+ * `POST /reviews` - submission - is public, not used from this page).
  * Same `TableCard` + real per-status `categoryCounts` pattern
  * `src/pages/Orders/OrdersList.tsx` already establishes.
  */
@@ -131,7 +131,7 @@ export function ReviewsPage() {
 		},
 		created_at: {
 			label: __( 'Submitted', 'vulocart' ),
-			render: ( row?: TableRow ) => ( row?.created_at as string ) || '—',
+			render: ( row?: TableRow ) => ( row?.created_at as string ) || '-',
 		},
 		actions: {
 			label: __( 'Actions', 'vulocart' ),
@@ -180,7 +180,7 @@ export function ReviewsPage() {
 				<NavigatorHeaderComponent
 					headerIcon="review"
 					headerTitle={ __( 'Reviews', 'vulocart' ) }
-					headerDescription={ __( 'Customer ratings and comments on your offerings — approve or reject before they show on the storefront.', 'vulocart' ) }
+					headerDescription={ __( 'Customer ratings and comments on your offerings - approve or reject before they show on the storefront.', 'vulocart' ) }
 				/>
 
 				<TableCard

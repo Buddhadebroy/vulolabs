@@ -10,11 +10,11 @@ interface SearchPerformancePanelProps {
 /**
  * The mockup's "Search performance" panel shows Google Search Console
  * metrics (impressions/clicks/CTR/average position, top pages gaining/
- * losing visibility) — no Search Console (or any search-analytics)
+ * losing visibility) - no Search Console (or any search-analytics)
  * integration exists anywhere in this codebase. Real substitute, same
  * shape as SecurityPerformancePanel below: real SEO-category fixed/new/
  * still-open findings counts, plus the real pages those open findings
- * reference — "what's affecting search visibility right now", not
+ * reference - "what's affecting search visibility right now", not
  * fabricated traffic numbers.
  */
 export const SearchPerformancePanel = ({
@@ -79,7 +79,7 @@ interface AiVisibilityPanelProps {
 }
 
 /**
- * The mockup's "AI visibility" panel — its 5 named rows (AI-friendly
+ * The mockup's "AI visibility" panel - its 5 named rows (AI-friendly
  * answers/Evidence & citations/AI-readable structure/Brand understanding/
  * AI crawler access) map to 5 real GEO/AEO scanners
  * (Controllers\ReportsOverview::AI_VISIBILITY_CHECKS), genuinely real,
@@ -140,10 +140,10 @@ interface SpeedPerformancePanelProps {
 }
 
 /**
- * The mockup's "Website speed" panel — real page-speed data
+ * The mockup's "Website speed" panel - real page-speed data
  * (PageSpeedRepository::get_summary(), extended with a real average
- * desktop score for the device comparison — see that method's own
- * docblock). No fabricated "78/100 Mobile · +10" trend claim — the delta
+ * desktop score for the device comparison - see that method's own
+ * docblock). No fabricated "78/100 Mobile · +10" trend claim - the delta
  * shown is nothing, just the two real current averages side by side.
  */
 export const SpeedPerformancePanel = ({
@@ -189,7 +189,7 @@ export const SpeedPerformancePanel = ({
 										style={{ width: `${speed.avg_score ?? 0}%` }}
 									/>
 								</div>
-								<span>{speed.avg_score ?? '—'}/100</span>
+								<span>{speed.avg_score ?? '-'}/100</span>
 							</div>
 							<div className="reports-speed-device-row">
 								<span>{__('Mobile', 'vulopilot')}</span>
@@ -201,7 +201,7 @@ export const SpeedPerformancePanel = ({
 										}}
 									/>
 								</div>
-								<span>{speed.avg_mobile_score ?? '—'}/100</span>
+								<span>{speed.avg_mobile_score ?? '-'}/100</span>
 							</div>
 						</div>
 					</>

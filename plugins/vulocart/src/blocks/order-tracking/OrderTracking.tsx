@@ -25,9 +25,9 @@ const client = axios.create( { baseURL: `${ vulocartFrontendData.apiUrl }/${ vul
 
 /**
  * The frontend half of `GET /orders/track` (modules/Order/Rest.php,
- * public — an order number alone is guessable/sequential, the
+ * public - an order number alone is guessable/sequential, the
  * access_token is the real authorization check). Same "deliberately plain
- * axios/useState, no zyra" tradeoff as src/blocks/checkout/Checkout.tsx —
+ * axios/useState, no zyra" tradeoff as src/blocks/checkout/Checkout.tsx -
  * this is a public storefront block with no wp-admin context.
  */
 export function OrderTracking() {
@@ -104,7 +104,7 @@ export function OrderTracking() {
 					<ul>
 						{ order.items.map( ( item ) => (
 							<li key={ item.id }>
-								{ item.title } x{ item.quantity } — { item.subtotal } { item.currency }
+								{ item.title } x{ item.quantity } - { item.subtotal } { item.currency }
 							</li>
 						) ) }
 					</ul>

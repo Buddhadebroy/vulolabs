@@ -13,10 +13,10 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * "Orders" — one real finding per order still stuck in `wc-pending`
+ * "Orders" - one real finding per order still stuck in `wc-pending`
  * (payment initiated but never confirmed) after STALE_AFTER_HOURS. A
  * pending order this old almost always means the customer abandoned
- * checkout mid-payment or a payment webhook never arrived — distinct
+ * checkout mid-payment or a payment webhook never arrived - distinct
  * from WooCommerceFailedOrdersScanner's own `wc-failed` orders (WooCommerce
  * only marks an order failed when a gateway explicitly reports failure;
  * plenty of abandoned payments just sit in `pending` forever instead).
@@ -86,7 +86,7 @@ class WooCommerceStalePendingOrdersScanner extends AbstractBasicScanner {
 				),
 				Severity::MEDIUM,
 				$this->get_category(),
-				__( 'This order was created but payment was never confirmed — the customer likely abandoned checkout or a payment webhook never arrived.', 'vulopilot' ),
+				__( 'This order was created but payment was never confirmed - the customer likely abandoned checkout or a payment webhook never arrived.', 'vulopilot' ),
 				'order',
 				(string) $order_id
 			);

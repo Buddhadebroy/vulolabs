@@ -14,23 +14,23 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Readme.txt's "Redirects & 404s" — the `log_404s` setting's own
+ * Readme.txt's "Redirects & 404s" - the `log_404s` setting's own
  * implementation, distinct from Scanners\Basic\NotFoundScanner (which only
  * checks this site's OWN published permalinks for internal links pointing
  * at a 404, a content-integrity check with no visitor traffic involved).
  * This logs real visitor requests that actually 404, so a site owner can
  * see which missing URLs are still being hit and turn the worthwhile ones
- * into a redirect from the Redirects page — readme.txt's own description:
+ * into a redirect from the Redirects page - readme.txt's own description:
  * "Track visits to missing pages so you can turn them into redirect
  * suggestions."
  *
- * Self-registers on `template_redirect` at priority 20 — after
+ * Self-registers on `template_redirect` at priority 20 - after
  * Services\RedirectManager's own priority-1 hook has had a chance to
  * redirect the request away first, so a path that already HAS a configured
  * redirect is never also logged as a 404 (by the time this runs, a
  * matched redirect has already `exit`ed the request).
  *
- * No IP address or other visitor-identifying data, ever — same posture
+ * No IP address or other visitor-identifying data, ever - same posture
  * CrawlerTrafficLogger's own docblock documents for the same reason (this
  * plugin's general privacy stance on visit logging, not a promise specific
  * to crawler traffic).
@@ -43,17 +43,17 @@ class NotFoundLogger {
 
     /**
      * Path prefixes that mark a 404 as "system" rather than a missing
-     * CONTENT page — core/theme/plugin asset directories and browser/
+     * CONTENT page - core/theme/plugin asset directories and browser/
      * tooling auto-probe paths (Chrome DevTools' own
      * `/.well-known/appspecific/com.chrome.devtools.json`, Apple's
      * `/.well-known/apple-app-site-association`, etc.). On a site where
      * every unmatched request routes through `index.php` (any normal
      * pretty-permalink rewrite setup), a stale/renamed theme or plugin
-     * asset URL — or a browser silently probing a well-known path — is a
+     * asset URL - or a browser silently probing a well-known path - is a
      * genuine WordPress 404 exactly like a real missing content page is,
      * but nobody ever wants to "create a redirect" for
      * `/wp-content/themes/x/assets/old.css`. These are still logged (real
-     * 404s, real data) — `is_system_path()` below is what lets
+     * 404s, real data) - `is_system_path()` below is what lets
      * `log_or_increment()` route them to `is_system = 1` instead of
      * dropping them, so RedirectsTab.tsx's main missing-page list can stay
      * scoped to `is_system = 0` while its own "System 404s" link still
@@ -64,7 +64,7 @@ class NotFoundLogger {
     private const SYSTEM_PATH_PREFIXES = array( '/wp-content/', '/wp-includes/', '/wp-admin/', '/.well-known/' );
 
     /**
-     * File extensions treated the same way as SYSTEM_PATH_PREFIXES above —
+     * File extensions treated the same way as SYSTEM_PATH_PREFIXES above -
      * a static asset request that 404s (an old cached bundle hash, a
      * favicon, a source map) is the same kind of "system, not content" 404
      * even when it isn't under one of those directories (a root-level
@@ -111,7 +111,7 @@ class NotFoundLogger {
     }
 
     /**
-     * Logs the current request as a 404 visit, if it is one — classified
+     * Logs the current request as a 404 visit, if it is one - classified
      * as `is_system` (see is_system_path()) or a real content-page miss.
      *
      * @return void

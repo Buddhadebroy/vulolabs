@@ -51,7 +51,7 @@ const scrollToGenerate = () => {
 
 /**
  * The mockup's 4 per-category report mini-cards (Traffic/Visibility/
- * Commerce/Content) — Traffic dropped (no real report type maps to it;
+ * Commerce/Content) - Traffic dropped (no real report type maps to it;
  * GEO's crawler traffic is a fundamentally different metric). The other 3
  * map to real report types. One GET /reports fetch; the list response's
  * own `meta` field already contains the most recent generation's real
@@ -127,7 +127,7 @@ const ReportTypeCards = () => {
 								<p className="report-type-card-value">
 									{typeof totalFindings === 'number'
 										? totalFindings
-										: '—'}
+										: '-'}
 									{trend?.change_percent !== null &&
 										trend?.change_percent !== undefined && (
 											<BadgeComponent

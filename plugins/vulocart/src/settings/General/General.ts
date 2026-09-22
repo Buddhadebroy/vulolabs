@@ -1,15 +1,15 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Declarative settings-tab config — same shape
+ * Declarative settings-tab config - same shape
  * `vulopilot/src/components/Settings/General.ts` uses, consumed by zyra's
  * `InputRenderer` (react-frontend.md's "declarative settings-config
  * pattern"). Backed by `Utill::SETTINGS_KEY`/`SETTINGS_DEFAULTS`
  * (classes/Utill.php) via `classes/RestAPI/Controllers/Settings.php`.
  *
- * Lives under `src/settings/General/` alongside `Frontend.ts` — grouped
+ * Lives under `src/settings/General/` alongside `Frontend.ts` - grouped
  * into folders (General/Commerce/Integrations, `Advanced.ts` standalone)
- * rather than one flat tab row — `services/templateService.ts`'s
+ * rather than one flat tab row - `services/templateService.ts`'s
  * `require.context` scan already supports nested folders, this just
  * started using that instead of one flat 12-tab row.
  */

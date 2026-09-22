@@ -8,14 +8,14 @@ import DashboardWidget from './DashboardWidget';
 import { WidgetProps } from './types';
 
 /**
- * "Run Complete Audit" — triggers the same `POST /scans` action
+ * "Run Complete Audit" - triggers the same `POST /scans` action
  * Dashboard.tsx's own header "Run scan" button calls (scanner_id: 'all',
  * trigger_type: 'manual'); called directly here rather than threading a
  * shared handler through WidgetProps, matching how every other widget
  * (e.g. NeedsAttentionWidget) already calls sendApiResponse/getApiLink
  * itself instead of reaching up into Dashboard.tsx.
  *
- * "Schedule Audit" navigates to the Automation tab — the real place a
+ * "Schedule Audit" navigates to the Automation tab - the real place a
  * recurring scan gets configured today; there's no separate "schedule a
  * one-off audit" capability to wire this to instead.
  */
@@ -40,7 +40,7 @@ const RunAuditWidget: React.FC<WidgetProps> = ({
 					position: 'float',
 					message: response
 						? __(
-								'Scan started — results will appear here shortly.',
+								'Scan started - results will appear here shortly.',
 								'vulopilot'
 							)
 						: __(

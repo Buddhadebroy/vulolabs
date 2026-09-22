@@ -12,7 +12,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Scanning → SEO's "Add Open Graph & Twitter Card tags" toggle — the
+ * Scanning → SEO's "Add Open Graph & Twitter Card tags" toggle - the
  * mechanical fix behind Seo\Scanners\OpenGraphScanner's and
  * TwitterCardScanner's findings, both of which only check the homepage
  * for og:title/og:description/og:image and twitter:card respectively.
@@ -21,18 +21,18 @@ defined( 'ABSPATH' ) || exit;
  * affects every page a site owner might share, not only the front page.
  *
  * Defaults OFF (Utill::VULOPILOT_SETTINGS_DEFAULTS) since many sites
- * already have a theme or another plugin outputting these tags — this
+ * already have a theme or another plugin outputting these tags - this
  * exists specifically for the site that doesn't, discoverable either from
  * Settings → SEO directly or via vulopilot-pro's OneClickFix "Fix" action
  * on either scanner's finding. Doesn't attempt to detect an existing
  * og:/twitter: tag before adding its own (unlike RobotsTxtManager's
  * `Sitemap:` dedupe, checking rendered HTML from inside a `wp_head`
- * callback isn't practical without output buffering) — a site owner
+ * callback isn't practical without output buffering) - a site owner
  * turning this on is expected to have confirmed via the scanner that
  * nothing is outputting these today.
  *
  * Self-registers its own hook in the constructor (php-wordpress.md) and
- * is constructed unconditionally in VuloPilot::init_classes() — the
+ * is constructed unconditionally in VuloPilot::init_classes() - the
  * `social_meta_tags_enabled` setting gates OUTPUT, not construction, same
  * as SitemapManager/RobotsTxtManager/CanonicalUrlManager.
  *
@@ -59,7 +59,7 @@ class SocialMetaTagsManager {
         $post_id  = is_singular() ? get_queried_object_id() : 0;
 
         // A per-post override from the post-editor metabox's Social tab
-        // is a deliberate, explicit action for THAT post — it takes effect
+        // is a deliberate, explicit action for THAT post - it takes effect
         // even when the sitewide toggle is off, same posture
         // CanonicalUrlManager::maybe_override_canonical() already takes
         // for its own per-post override.
@@ -116,7 +116,7 @@ class SocialMetaTagsManager {
             $excerpt = get_bloginfo( 'description' );
             $image   = get_site_icon_url( 512 );
         } else {
-            return null; // Archives/search/404 — same scope CanonicalUrlManager limits itself to.
+            return null; // Archives/search/404 - same scope CanonicalUrlManager limits itself to.
         }
 
         $tags = array(

@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart WPDBReviewRepository.
  *
- * The only class that runs SQL against `vulocart_reviews` — implements
+ * The only class that runs SQL against `vulocart_reviews` - implements
  * Domain\Review\ReviewRepositoryInterface, bound in
  * VuloCart::init_classes().
  *

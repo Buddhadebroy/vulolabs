@@ -10,10 +10,10 @@ namespace VuloPilot\Contracts\Report;
 use VuloPilot\ValueObjects\ReportResult;
 
 /**
- * Every report type — Free's own (scan summary, SEO, WooCommerce, security,
+ * Every report type - Free's own (scan summary, SEO, WooCommerce, security,
  * accessibility, health, automation, AI usage, custom/report-builder) or a
  * premium/third-party one registered via the `vulopilot_report_type_sources`
- * filter — implements this so Reports\ReportTypeRegistry/ReportGenerator can
+ * filter - implements this so Reports\ReportTypeRegistry/ReportGenerator can
  * generate either kind without knowing which side authored it. Mirrors
  * Contracts\Scanner\ScannerInterface's extension shape (module-architecture.md's
  * "discovery-by-filter" pattern, applied here instead of a folder-scan).
@@ -36,7 +36,7 @@ interface ReportTypeInterface {
 
     /**
      * Collects and aggregates this report's data for one period. Reads
-     * whatever repositories/tables the concrete report type needs — the
+     * whatever repositories/tables the concrete report type needs - the
      * contract itself stays storage-agnostic, same posture as
      * ScannerInterface::scan() returning Finding value objects rather than
      * exposing $wpdb.

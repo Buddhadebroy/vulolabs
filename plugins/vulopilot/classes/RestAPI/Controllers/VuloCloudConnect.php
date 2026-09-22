@@ -13,15 +13,15 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Backs the generic "Connect to VuloCloud" button (VULOPILOT_VULOCLOUD_CONFIG)
- * — completely independent from Controllers\AiCredits/VuloCloudAiConnection's own
+ * - completely independent from Controllers\AiCredits/VuloCloudAiConnection's own
  * VuloCloud connection: a real `GET .../status`, a real
  * `GET .../broker-authorize-url` (the URL the Connect button itself
- * navigates the browser to — same shape VuloCloudAiConnection::get_broker_authorize_url()
+ * navigates the browser to - same shape VuloCloudAiConnection::get_broker_authorize_url()
  * already establishes for its own, unrelated connection), and a real
  * `POST .../disconnect`.
  *
  * Same "never let a raw secret reach the client" boundary every other
- * connection controller in this plugin documents — every method here
+ * connection controller in this plugin documents - every method here
  * only ever returns VuloCloudConnection::get_status()'s shape.
  *
  * @class       VuloCloudConnect controller
@@ -101,7 +101,7 @@ class VuloCloudConnect extends \WP_REST_Controller {
 
     /**
      * The URL the "Connect to VuloCloud" button itself 302s the browser
-     * to — VuloCloudConnection::get_broker_authorize_url()'s own docblock
+     * to - VuloCloudConnection::get_broker_authorize_url()'s own docblock
      * for the full passwordless sequence this kicks off.
      *
      * @return \WP_REST_Response|\WP_Error

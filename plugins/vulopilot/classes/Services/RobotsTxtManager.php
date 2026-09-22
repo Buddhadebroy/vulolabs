@@ -14,18 +14,18 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Scanning → SEO's "Auto-generate robots.txt" toggle, plus Crawl & URLs →
  * Robots & Sitemap's own "Edit" action (Controllers\RobotsSitemap). Not a
- * from-scratch robots.txt file generator — WordPress core already serves
+ * from-scratch robots.txt file generator - WordPress core already serves
  * a virtual robots.txt (`do_robots()`, filterable via `robots_txt`) at
  * every install's /robots.txt, which is exactly the URL
  * Seo\Scanners\RobotsTxtScanner already checks. Two real, independent
  * things layer onto that same real filter:
  *   - When "Auto-generate robots.txt" is on, appends a `Sitemap:` line
  *     pointing at core's own sitemap (see SitemapManager) so crawlers
- *     that read robots.txt for a sitemap reference find one — the one
+ *     that read robots.txt for a sitemap reference find one - the one
  *     thing WordPress core's own virtual robots.txt never adds by itself.
  *   - When a real custom override has been saved (the "Edit" action's own
  *     real `POST /robots-sitemap/robots`), that content REPLACES core's
- *     own virtual output outright — a real, persisted admin-authored
+ *     own virtual output outright - a real, persisted admin-authored
  *     robots.txt, not a preview: the very next live fetch of
  *     `/robots.txt` returns exactly this. Runs at an earlier priority
  *     than the sitemap-line logic so a custom file that doesn't already
@@ -42,7 +42,7 @@ defined( 'ABSPATH' ) || exit;
 class RobotsTxtManager {
 
     /**
-     * Real, persisted admin-authored robots.txt override — empty/absent
+     * Real, persisted admin-authored robots.txt override - empty/absent
      * means "use WordPress core's own virtual output," same as before
      * this option existed.
      */
@@ -79,7 +79,7 @@ class RobotsTxtManager {
         }
 
         if ( false !== strpos( $output, 'Sitemap:' ) ) {
-            return $output; // Another plugin/theme (or the real custom override above) already added one — don't duplicate.
+            return $output; // Another plugin/theme (or the real custom override above) already added one - don't duplicate.
         }
 
         return rtrim( $output ) . "\nSitemap: " . home_url( '/wp-sitemap.xml' ) . "\n";
@@ -93,7 +93,7 @@ class RobotsTxtManager {
     }
 
     /**
-     * @param string $content Real new override content — '' clears it, reverting to WordPress core's own virtual robots.txt.
+     * @param string $content Real new override content - '' clears it, reverting to WordPress core's own virtual robots.txt.
      * @return void
      */
     public function save_custom_content( string $content ): void {

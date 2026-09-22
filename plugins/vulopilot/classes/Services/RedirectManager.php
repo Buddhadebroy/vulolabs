@@ -13,23 +13,23 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Readme.txt's "Redirects & 404s" — a real 301/302 redirect manager over
+ * Readme.txt's "Redirects & 404s" - a real 301/302 redirect manager over
  * the `vulopilot_redirects` table, the feature Utill.php's own
  * `enable_redirect_manager`/`auto_redirect_on_slug_change` settings were
  * persisted for but had nothing behind them until now. Self-registers its
  * own hooks (php-wordpress.md) and is constructed unconditionally in
  * VuloPilot::init_classes(), the same shape CrawlerTrafficLogger/
- * LlmsTxtGenerator already use — both settings gate behavior inside the
+ * LlmsTxtGenerator already use - both settings gate behavior inside the
  * hook callbacks, not whether the class is built at all.
  *
- * `maybe_apply_redirect()` runs on `template_redirect` at priority 1 —
+ * `maybe_apply_redirect()` runs on `template_redirect` at priority 1 -
  * deliberately earlier than Services\NotFoundLogger's own `template_redirect`
  * hook (priority 20) and CrawlerTrafficLogger's (default priority 10), so a
  * configured redirect always wins and a request it resolves is never also
  * counted as a 404 by the logger running later in the same request.
  *
  * `maybe_auto_create_redirect()` is the "Auto-create redirect on slug
- * change" setting's own implementation — hooked to core's `post_updated`
+ * change" setting's own implementation - hooked to core's `post_updated`
  * (fires with both the before/after WP_Post objects already loaded, no
  * extra query needed to know the previous slug). Passing $post_before
  * directly to get_permalink() is what makes computing the OLD permalink
@@ -77,7 +77,7 @@ class RedirectManager {
 
         $repository->increment_hit_count( (int) $redirect['id'] );
 
-        // wp_safe_redirect() deliberately can't be used here — it silently
+        // wp_safe_redirect() deliberately can't be used here - it silently
         // substitutes any target outside wp_validate_redirect()'s allowed-
         // hosts list with admin_url(), which would send every visitor to
         // /wp-admin/ instead for the common, expected case of redirecting
@@ -94,7 +94,7 @@ class RedirectManager {
     /**
      * Creates or updates a redirect from a post's old permalink when its slug changes.
      *
-     * @param int      $post_id    Post id (unused — $post_before/$post_after already carry everything needed).
+     * @param int      $post_id    Post id (unused - $post_before/$post_after already carry everything needed).
      * @param \WP_Post $post_after Post object after the save.
      * @param \WP_Post $post_before Post object as it was before the save.
      * @return void
@@ -108,7 +108,7 @@ class RedirectManager {
 
         // Only a slug change on a post that was ALREADY publicly published
         // has a real, previously-indexable URL worth protecting with a
-        // redirect — every draft/autosave save also fires post_updated,
+        // redirect - every draft/autosave save also fires post_updated,
         // and this guard is what keeps those from creating junk rows.
         if ( 'publish' !== $post_before->post_status || $post_before->post_name === $post_after->post_name ) {
             return;

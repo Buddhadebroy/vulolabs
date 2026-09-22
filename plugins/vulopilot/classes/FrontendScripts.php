@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * VuloPilot FrontendScripts class.
  *
  * Registers and localizes the admin React bundle. Deliberately much
- * smaller than VuloLabs\FrontendScripts — that class's size comes from
+ * smaller than VuloLabs\FrontendScripts - that class's size comes from
  * WooCommerce-specific localized data (store owners, payment gateways, WC
  * countries) VuloPilot has no equivalent of; this only carries what the
  * React app actually needs to boot and call the REST API (see
@@ -55,16 +55,16 @@ class FrontendScripts {
     }
 
     /**
-     * Registers every admin script handle — both the app entry
+     * Registers every admin script handle - both the app entry
      * ('vulopilot-admin-script', from index.js) and the shared-dependency
      * chunk webpack's splitChunks config emits alongside it
-     * ('vulopilot-vendor-script', from vendors.js — see
+     * ('vulopilot-vendor-script', from vendors.js - see
      * tools/webpack/create-config.js's `optimization.splitChunks.cacheGroups.vendors`).
      * index.js's own webpack runtime expects vendors.js's module registry
      * to already be on the page; registering only the admin script and
      * never the vendor one (a bug this method used to have) means
      * index.js loads with nothing to resolve its own chunk references
-     * against and the React app silently never mounts — a blank content
+     * against and the React app silently never mounts - a blank content
      * area with working WP-admin chrome around it, not a fatal error.
      *
      * @return void
@@ -166,10 +166,10 @@ class FrontendScripts {
                 'site_title'                => get_bloginfo( 'name' ),
                 'site_description'          => get_bloginfo( 'description' ),
                 // Dashboard → Site overview's homepage thumbnail: the static front
-                // page's featured image, else the site logo, else the site icon —
+                // page's featured image, else the site logo, else the site icon -
                 // a real image this site already has, not a rendered screenshot.
                 'home_preview_image'        => self::get_home_preview_image(),
-                // The real logged-in user's own display name — e.g. the
+                // The real logged-in user's own display name - e.g. the
                 // AI Content Assistant's greeting (AiContentAssistantSidebar.tsx)
                 // reads this to say "Hi {name}!" instead of a generic
                 // "Hi!". `localize_scripts()` only ever runs in an
@@ -181,7 +181,7 @@ class FrontendScripts {
                 'text_domain'               => VULOPILOT_PLUGIN_TEXTDOMAIN,
                 'date_format'               => get_option( 'date_format' ) . ' ' . get_option( 'time_format' ),
                 // Settings → General → Date Format, translated into zyra's
-                // own token syntax (YYYY/MM/DD/…) — TableCard's `date`
+                // own token syntax (YYYY/MM/DD/…) - TableCard's `date`
                 // column type and any other date display in the React app
                 // pass this through as the `format` it renders with, so
                 // dates show the way this site is actually configured
@@ -189,12 +189,12 @@ class FrontendScripts {
                 'date_format_js'            => self::convert_date_format_to_js( get_option( 'date_format' ) ),
                 // Settings → General → Time Format, same real token
                 // conversion as 'date_format_js' above (same static
-                // helper — its own docblock's "date_format never contains
+                // helper - its own docblock's "date_format never contains
                 // time tokens" caveat is exactly why this needed its own
                 // separate call, real `time_format` was never actually
                 // converted before). zyra's own token syntax has no am/pm
                 // token, so a 12-hour 'g:i a'-style format still renders
-                // without the AM/PM suffix — the same already-accepted
+                // without the AM/PM suffix - the same already-accepted
                 // limitation 'date_format_js' itself already carries for
                 // any date format containing 'a'/'A'.
                 'time_format_js'            => self::convert_date_format_to_js( get_option( 'time_format' ) ),
@@ -202,13 +202,13 @@ class FrontendScripts {
                 // from UTC (`wp_timezone()` already resolves both a real
                 // `timezone_string` like 'Asia/Kolkata' and a plain
                 // `gmt_offset` fallback into one DateTimeZone, DST included
-                // for the former) — every raw timestamp this plugin's own
+                // for the former) - every raw timestamp this plugin's own
                 // REST layer returns is UTC (`current_time( 'mysql', true )`,
                 // confirmed across ScanPersistenceListener.php/
                 // BackupManager.php/AutomationScheduler.php), so formatWpDate.ts/
                 // formatWpTime() need this to shift a raw UTC value to this
                 // site's own configured local time before reading its
-                // date/time parts — without it, a JS `new Date()` on that
+                // date/time parts - without it, a JS `new Date()` on that
                 // same naive "Y-m-d H:i:s" string (no 'Z'/offset) gets
                 // parsed as the *visiting browser's* local time instead,
                 // which silently disagrees with this site's own Settings →
@@ -220,21 +220,21 @@ class FrontendScripts {
                 // Feeds zyra's configureZyra()/ZyraVariable.khali_dabba (a
                 // proSetting field's Pro-tag/lock in InputRenderer) and
                 // vulopilot-pro's src/index.tsx (which module JS entries
-                // actually load) — both were reading these two keys off
+                // actually load) - both were reading these two keys off
                 // appLocalizer already, but nothing populated them yet.
                 'khali_dabba'               => VuloPilot()->util->is_khali_dabba(),
                 'active_modules'            => VuloPilot()->modules->get_active_modules(),
-                // useVuloCloudAccountLogin.ts's own real, synchronous read —
+                // useVuloCloudAccountLogin.ts's own real, synchronous read -
                 // same "localized once at page load, no fetch/loading state
                 // needed" shape 'khali_dabba' above already has. A *person*
                 // logged into VuloCloud (VuloCloudAccountConnection), not
-                // this site's own Pro license — see that class's own
+                // this site's own Pro license - see that class's own
                 // docblock.
                 'vulocloud_connected'       => $vulocloud_status['connected'],
                 'vulocloud_account_email'   => $vulocloud_status['email'],
                 'shop_url'                  => VULOPILOT_PRO_SHOP_URL,
                 // 'version' defaults to false (Pro not installed) unless
-                // vulopilot-pro's own bootstrap overrides it — same
+                // vulopilot-pro's own bootstrap overrides it - same
                 // shape/default as vulocart's 'pro_data'/
                 // `vulocart_update_pro_data` filter. Feeds the header's
                 // "Pro: …" version tag (app.tsx).
@@ -246,14 +246,14 @@ class FrontendScripts {
                     )
                 ),
                 // Settings → Sitemap's own "Post types in sitemap"
-                // checkbox list (BusinessVisibility/Sitemap.ts) — its 4
+                // checkbox list (SEO/Sitemap.ts) - its 4
                 // real options (post/page/attachment/product) are
                 // hardcoded there since every site has them; this is
                 // every *other* real public post type this site actually
                 // has registered (a custom post type from a theme/another
                 // plugin), so a site with one still sees it as a real,
                 // checkable option instead of it being silently
-                // impossible to ever include in the sitemap from the UI —
+                // impossible to ever include in the sitemap from the UI -
                 // `SitemapManager::filter_post_types()` already narrows
                 // WP core's own real sitemap post-type list down to
                 // whatever's checked here, custom post types included; the
@@ -266,7 +266,7 @@ class FrontendScripts {
     /**
      * Real, currently-registered public post types beyond the 4 this
      * plugin's own Sitemap settings tab already hardcodes as fixed
-     * checkboxes — same `'public' => true` real-post-type read
+     * checkboxes - same `'public' => true` real-post-type read
      * `EntityExtractor.php`'s own `get_page_by_path()` call already uses
      * elsewhere in this plugin, just listed rather than searched. Each
      * post type's own real, translated label (`labels->name`, e.g.
@@ -297,12 +297,12 @@ class FrontendScripts {
     /**
      * Translates a PHP `date()` format string (Settings → General → Date
      * Format only ever produces one of a handful of single-character
-     * tokens — Y/y/F/M/m/n/j/d, plus whatever literal punctuation sits
+     * tokens - Y/y/F/M/m/n/j/d, plus whatever literal punctuation sits
      * between them) into the token syntax zyra's own TableCard `date`
      * column type understands (YYYY/YY/MMMM/MMM/MM/DD/D). zyra has no
      * unpadded-numeric-month or 12-hour/am-pm tokens, so `n`/`h`/`g` fall
      * back to their nearest zyra equivalent and `a`/`A` are dropped rather
-     * than leaking the literal letter into the rendered date — a
+     * than leaking the literal letter into the rendered date - a
      * non-issue in practice since `date_format` (unlike `time_format`)
      * never contains time tokens on a default WordPress install.
      *
@@ -385,7 +385,7 @@ class FrontendScripts {
         }
 
         // Sites that show their latest posts (no static front page) have
-        // none of the above by default — fall back to the newest published
+        // none of the above by default - fall back to the newest published
         // post that has a featured image, then the newest image in the
         // media library.
         $posts_with_image = get_posts(

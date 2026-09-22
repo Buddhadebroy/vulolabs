@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Review entity.
  *
  * A customer's rating/comment on one Offering. Submitted publicly (no
- * account required — same "guest-first" posture Cart/Order already take,
+ * account required - same "guest-first" posture Cart/Order already take,
  * `customer_email` is informational only, not an authentication check),
  * always created as `ReviewStatus::PENDING` and never shown on the
  * storefront until an admin approves it (`Rest::update_item()`).
@@ -46,7 +46,7 @@ class Review {
     public $customer_name;
 
     /**
-     * Reviewer's email — informational only, not an authentication check.
+     * Reviewer's email - informational only, not an authentication check.
      *
      * @var string|null
      */

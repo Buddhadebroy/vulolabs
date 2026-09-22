@@ -14,7 +14,7 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags excessive post-revision buildup — a classic, well-understood
+ * Flags excessive post-revision buildup - a classic, well-understood
  * WordPress database bloat source (every edit of every post/page keeps a
  * full revision row by default) that slows down post-list queries and
  * backups as it grows unbounded.

@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Flags published posts/pages whose content contains zero links back to
  * the site's own domain. Internal links are how link equity and crawl
- * paths flow between pages — content with none is a dead end for both
+ * paths flow between pages - content with none is a dead end for both
  * search engine crawlers and readers, independent of BrokenLinksScanner's
  * separate concern (whether existing links, internal or external, still
  * resolve).

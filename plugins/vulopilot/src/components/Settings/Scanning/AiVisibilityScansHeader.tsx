@@ -11,13 +11,13 @@ interface ResetResult {
 }
 
 /**
- * Settings → Scanning → AI Visibility's own "Restore Defaults" button —
+ * Settings → Scanning → AI Visibility's own "Restore Defaults" button -
  * scoped to just the `ai_visibility_scans` field (the 5-row scan-category
  * panel this tab's `modal` renders directly below), not the sitewide
  * `POST /settings/reset` General.ts's own "Reset all settings" button
  * already uses. Real, new REST route
  * (Controllers\Settings::reset_ai_visibility_scans()) that only touches
- * this one nested setting, leaving every other tab's settings untouched —
+ * this one nested setting, leaving every other tab's settings untouched -
  * a full-site reset would be a much bigger, unrelated blast radius for a
  * button that visually sits on top of one 5-row list.
  *
@@ -26,7 +26,7 @@ interface ResetResult {
  * sits above the scan-category rows, matching the mockup. Calls
  * `updateSetting('ai_visibility_scans', ...)` on success so the panel
  * below reflects the restored defaults immediately, without a page
- * reload — the plain `type: 'button'` field shape (ButtonInputFieldComponent)
+ * reload - the plain `type: 'button'` field shape (ButtonInputFieldComponent)
  * doesn't do this on its own, since it never touches SettingContext.
  */
 const AiVisibilityScansHeader = () => {

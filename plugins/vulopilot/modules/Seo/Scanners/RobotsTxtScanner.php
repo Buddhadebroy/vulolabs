@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Fetches `/robots.txt` and flags two real, high-impact problems: the
  * file isn't reachable at all, or it contains a sitewide
- * `Disallow: /` for the wildcard user-agent — which tells every
+ * `Disallow: /` for the wildcard user-agent - which tells every
  * well-behaved crawler not to index anything on the site. The second
  * case is a common, easy-to-make mistake (e.g. a "Discourage search
  * engines" setting left on, or a staging-site robots.txt copied to
@@ -97,7 +97,7 @@ class RobotsTxtScanner extends AbstractBasicScanner {
 
     /**
      * Parses for a wildcard user-agent block whose only Disallow rule is
-     * the site root — a narrow, deliberate check (not a full robots.txt
+     * the site root - a narrow, deliberate check (not a full robots.txt
      * parser) matching exactly the one high-impact mistake this scanner
      * exists to catch.
      *

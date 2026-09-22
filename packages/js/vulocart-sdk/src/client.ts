@@ -1,11 +1,11 @@
 import type { SdkConfig } from './types';
 
 /**
- * The SDK's own runtime state — set once by `init()` (index.ts), read by
+ * The SDK's own runtime state - set once by `init()` (index.ts), read by
  * every widget/client call after that. A module-level singleton rather
  * than a class instance: this package is meant to back a single
  * `window.VuloCart` per page (or a single `import`ed instance per app),
- * never multiple stores on one page — a real limitation, not an
+ * never multiple stores on one page - a real limitation, not an
  * oversight, flagged in the package README rather than silently assumed.
  */
 interface SdkState {
@@ -34,7 +34,7 @@ export class VuloCartSdkError extends Error {
 
 /**
  * Strips trailing `/` characters from `url`. A plain index scan rather
- * than a `/\/+$/` regex — that pattern's own repeated `+` quantifier
+ * than a `/\/+$/` regex - that pattern's own repeated `+` quantifier
  * flagged as a polynomial-ReDoS risk (CodeQL js/polynomial-redos) since
  * `storeUrl` is caller-supplied input; a manual scan has no backtracking
  * to exploit and is O(n) regardless of how many trailing slashes it's
@@ -68,7 +68,7 @@ export function getStoreUrl(): string {
 }
 
 /**
- * Fetches (and caches for the lifetime of this page load) `/sdk/config` —
+ * Fetches (and caches for the lifetime of this page load) `/sdk/config` -
  * every widget calls this before its first real request, since it's what
  * tells them whether a given delivery mode is even available on this
  * store (Sdk.php's own docblock on why per-feature flags exist).
@@ -90,11 +90,11 @@ export function getConfig(): Promise< SdkConfig > {
 
 /**
  * The one HTTP call primitive every widget/client function in this
- * package goes through — plain `fetch`, no dependency, since this code
+ * package goes through - plain `fetch`, no dependency, since this code
  * has to run on a page that may not have ANY other library loaded
  * (plain-HTML's own requirement in the SDK's own scope). Cross-origin by
  * design (Cors.php's own docblock on why VuloCart's REST API allows any
- * origin) — this is the whole reason Phase 4 exists.
+ * origin) - this is the whole reason Phase 4 exists.
  *
  * @param method  HTTP method.
  * @param path    Path under `vulocart/v1`, e.g. `/cart/items`.
@@ -109,7 +109,7 @@ export async function request< T >(
 ): Promise< T > {
 	if ( ! state.storeUrl ) {
 		throw new VuloCartSdkError(
-			'VuloCart SDK not initialized — call VuloCart.init({ storeUrl }) first.',
+			'VuloCart SDK not initialized - call VuloCart.init({ storeUrl }) first.',
 			0,
 			'vulocart_sdk_not_initialized'
 		);

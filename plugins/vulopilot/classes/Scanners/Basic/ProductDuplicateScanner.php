@@ -16,9 +16,9 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Flags published products that share the exact same title
  * (case-insensitive, whitespace-trimmed) with at least one other
- * published product — a common symptom of an accidental duplicate import
+ * published product - a common symptom of an accidental duplicate import
  * or a copy-paste-new-product workflow that never got renamed. Deliberately
- * an exact-title match, not fuzzy/AI similarity — a cheap, deterministic
+ * an exact-title match, not fuzzy/AI similarity - a cheap, deterministic
  * first pass; AI Product Review (a separate, richer per-product analysis)
  * is where a fuzzier "these two products look similar" judgment belongs.
  *

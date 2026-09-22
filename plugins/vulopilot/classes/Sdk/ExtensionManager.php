@@ -14,21 +14,21 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Collects every registered extension (`vulopilot_extension_sources`
- * filter) and calls its register() — the SDK's discovery layer, same
+ * filter) and calls its register() - the SDK's discovery layer, same
  * discovery-by-filter shape as Scanners\ScannerRegistry/RuleEngine\RuleRegistry/
  * AutomationEngine\TriggerRegistry, but one level up: an extension doesn't
  * scan or rule anything itself, it's a bundle whose own register() method
  * calls those *existing* filters (ARCHITECTURE.md's "Extension system =
- * the discovery-by-filter mechanism itself" — this doesn't replace that,
+ * the discovery-by-filter mechanism itself" - this doesn't replace that,
  * it adds the one thing raw filter registration can't: a real version
  * compatibility gate).
  *
- * Unlike every other registry here, there are no Free-authored defaults —
+ * Unlike every other registry here, there are no Free-authored defaults -
  * Free doesn't extend itself, so the filter's base list is empty; every
  * registered extension is either vulopilot-pro or genuine third-party code.
  *
  * Hooked at `init` priority 15, one tick before the per-concern registries
- * (ScannerRegistry et al., all priority 20) read their own filters — so an
+ * (ScannerRegistry et al., all priority 20) read their own filters - so an
  * extension's register() call has already added its own scanner/rule/
  * automation/report classes to those filters by the time the
  * registries that consume them run.
@@ -48,7 +48,7 @@ class ExtensionManager {
 
     /**
      * Extensions found but skipped for failing the version check, keyed
-     * by their own get_id() — what the admin notice and
+     * by their own get_id() - what the admin notice and
      * `wp vulopilot extensions list` both read.
      *
      * @var array<string, array{name: string, version: string, required: string}>
@@ -69,7 +69,7 @@ class ExtensionManager {
      * pass. A class that doesn't exist, doesn't implement
      * ExtensionInterface, or fails its own register() call is silently
      * skipped (the latter logged, not thrown) rather than fataling every
-     * other extension — same defensive posture as every sibling registry.
+     * other extension - same defensive posture as every sibling registry.
      *
      * @return void
      */
@@ -127,7 +127,7 @@ class ExtensionManager {
 
     /**
      * Admin-facing warning for any extension skipped over a version
-     * mismatch — the same "don't fail silently on a real problem" posture
+     * mismatch - the same "don't fail silently on a real problem" posture
      * VuloPilotPro's own is_vulopilot_loaded() notice already uses for a
      * missing Free plugin.
      *
@@ -144,7 +144,7 @@ class ExtensionManager {
                 esc_html(
                     sprintf(
                         /* translators: 1: extension name, 2: extension version, 3: minimum required VuloPilot version, 4: installed VuloPilot version. */
-                        __( 'VuloPilot: "%1$s" (v%2$s) requires VuloPilot %3$s or newer — you have %4$s. This extension was not loaded.', 'vulopilot' ),
+                        __( 'VuloPilot: "%1$s" (v%2$s) requires VuloPilot %3$s or newer - you have %4$s. This extension was not loaded.', 'vulopilot' ),
                         $extension['name'],
                         $extension['version'],
                         $extension['required'],
@@ -170,7 +170,7 @@ class ExtensionManager {
             'extension.incompatible',
             sprintf(
                 /* translators: 1: extension name, 2: minimum required VuloPilot version. */
-                __( 'Extension "%1$s" was not loaded — it requires VuloPilot %2$s or newer.', 'vulopilot' ),
+                __( 'Extension "%1$s" was not loaded - it requires VuloPilot %2$s or newer.', 'vulopilot' ),
                 $extension->get_name(),
                 $extension->get_minimum_vulopilot_version()
             ),

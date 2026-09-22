@@ -18,7 +18,7 @@ use VuloPilot\ValueObjects\Impact;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The new-content-creation pattern — the odd one out among the four
+ * The new-content-creation pattern - the odd one out among the four
  * built-in actions: its input is a topic the site owner types, not a
  * Recommendation's object_type/object_ref (there's no existing post or
  * attachment this operates on; see AI-ACTIONS.md's "Why this supersedes
@@ -26,13 +26,13 @@ defined( 'ABSPATH' ) || exit;
  * AIActionInterface's input to be a plain array rather than tied to a
  * Recommendation).
  *
- * execute() always creates a `draft`, never `publish` — approving this
+ * execute() always creates a `draft`, never `publish` - approving this
  * action only approves *generating* a draft for a human to review, not
  * putting AI-written content live unsupervised. rollback() trashes the
  * created post rather than force-deleting it, so WordPress's own
  * trash/restore safety net still applies on top of ours.
  *
- * `word_count`/`tone` are optional — added for AI Content Assistant's
+ * `word_count`/`tone` are optional - added for AI Content Assistant's
  * conversational intake (ContentAssistant.php's orchestrator prompt asks
  * for these when they'd meaningfully change the result), but a bare
  * `topic` is still a fully valid input, same as ContentToolsGrid.tsx's
@@ -59,7 +59,7 @@ class GenerateBlogAction extends AbstractBasicAction {
     }
 
     /**
-     * Impact::HIGH — `wp_insert_post()`s a brand-new post with AI-generated `post_content` — creates new, potentially publicly-visible content outright.
+     * Impact::HIGH - `wp_insert_post()`s a brand-new post with AI-generated `post_content` - creates new, potentially publicly-visible content outright.
      *
      * @inheritDoc
      */
@@ -77,7 +77,7 @@ class GenerateBlogAction extends AbstractBasicAction {
             throw new InvalidActionInputException( __( 'Please provide a topic of at least 5 characters.', 'vulopilot' ) );
         }
 
-        // Both optional — a bare topic is still a complete, valid input,
+        // Both optional - a bare topic is still a complete, valid input,
         // same as before either field existed. word_count is clamped to a
         // sane blog-length range rather than trusted verbatim (this is
         // AI-Content-Assistant-supplied input, not just a human-typed

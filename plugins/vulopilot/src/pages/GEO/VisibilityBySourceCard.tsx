@@ -23,7 +23,7 @@ interface TrafficSourcesResponse {
 }
 
 /**
- * Real colors assigned by rank, not by a fixed channel name — GA4's own
+ * Real colors assigned by rank, not by a fixed channel name - GA4's own
  * `sessionDefaultChannelGroup` values vary per property (which channels
  * exist depends entirely on that site's real traffic), so there's no fixed
  * "Organic Search is always purple" mapping to hardcode.
@@ -38,24 +38,24 @@ const SOURCE_COLORS = [
 ];
 
 /**
- * "Visibility by Source" — real Google Analytics sessions grouped by GA4's
+ * "Visibility by Source" - real Google Analytics sessions grouped by GA4's
  * own `sessionDefaultChannelGroup` dimension (`GET /visibility/traffic-sources`,
  * Controllers\Visibility::get_traffic_sources() →
  * GoogleAnalyticsClient::run_channel_group_report()), over a fixed real
  * 30-day window. This plugin has no traffic-source data of its own to
- * fabricate — `vulopilot_crawler_visits` is AI-bot traffic only, Search
- * Console is organic-search-only by definition — so this card only ever
+ * fabricate - `vulopilot_crawler_visits` is AI-bot traffic only, Search
+ * Console is organic-search-only by definition - so this card only ever
  * renders real data once a site owner has actually connected a real GA4
  * property (Settings → Connections → Google Services); otherwise it shows
  * an honest connect prompt rather than inventing an Organic/Direct/
  * Referral/Social split.
  *
- * The donut's center number is real total sessions, not a 0-100 "score" —
+ * The donut's center number is real total sessions, not a 0-100 "score" -
  * a session count has no natural 100-point ceiling, so labeling it that
  * way (as a purely visual reference this card's layout is otherwise
  * modeled on does) would misrepresent what the number means. Reuses the
  * same donut+legend layout OverviewTab.tsx's own score-area cards already
- * establish (`.visibility-source-*`, SeoVisibility.scss) — dot, label,
+ * establish (`.visibility-source-*`, SeoVisibility.scss) - dot, label,
  * real count, and each channel's real share of this window's real total
  * sessions.
  */

@@ -19,12 +19,12 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
 /**
  * Settings → Notifications → AI Crawler Alerts' own "Send Test Alert" row
- * — real `POST /settings/test-crawler-alert` (Controllers\Settings::send_test_crawler_alert(),
+ * - real `POST /settings/test-crawler-alert` (Controllers\Settings::send_test_crawler_alert(),
  * which itself only fires a filter vulopilot-pro's CrawlerAlertMonitor
- * listens on — see that method's own docblock for why Free's controller
+ * listens on - see that method's own docblock for why Free's controller
  * can't call Pro's class directly), plus the persisted "Last test alert
  * sent successfully on ..." line. A hand-built component rather than
- * another declarative field type — needed here for the same reason
+ * another declarative field type - needed here for the same reason
  * BackupStoragePanel.tsx exists for Backups: a real API call and a value
  * that must still be visible after a page refresh, neither of which a
  * static `type: 'notice'` field's `message` string (evaluated once, at
@@ -33,12 +33,12 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
  * Unlike BackupStoragePanel.tsx (which Settings.tsx's own GetForm()
  * appends after ALL of its tab's fields), this one is wired straight into
  * AiCrawlerAlerts.ts's own "Notification channels" `type: 'section'`
- * field, via `SectionComponent`'s real `rightContent` slot — see that
+ * field, via `SectionComponent`'s real `rightContent` slot - see that
  * file's own docblock for why this belongs next to the channels it tests
  * rather than at the bottom of the tab.
  *
  * Reads its own `crawler_alert_last_test_sent` value directly from
- * `GET /settings` on mount rather than through SettingContext — that
+ * `GET /settings` on mount rather than through SettingContext - that
  * context only ever seeds the ACTIVE tab's own `modal[].key` list
  * (Settings.tsx's own GetForm()), and this key deliberately isn't one of
  * AiCrawlerAlerts.ts's fields (it's system-set, never user-edited), so it

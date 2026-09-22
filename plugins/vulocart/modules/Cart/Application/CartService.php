@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Cart module CartService.
  *
- * Where Cart business logic actually lives — Rest calls only this class,
+ * Where Cart business logic actually lives - Rest calls only this class,
  * mirroring VuloCart\Application\OfferingService's role for Offerings. Depends
  * on the core plugin's OfferingService (not the offering repository directly)
  * so an added line item's price/currency is snapshotted through the same
@@ -66,7 +66,7 @@ class CartService {
     }
 
     /**
-     * Finds a cart by token without creating one — used for read-only
+     * Finds a cart by token without creating one - used for read-only
      * lookups (e.g. GET /cart for a token that was never actually used to
      * add anything) so an anonymous page view doesn't write a row.
      *
@@ -97,7 +97,7 @@ class CartService {
 
     /**
      * Adds a quantity of an offering to a cart, or increments an existing
-     * line item for the same offering. Throws if the offering doesn't exist —
+     * line item for the same offering. Throws if the offering doesn't exist -
      * the caller (Rest) turns that into a 400 WP_Error rather than
      * silently adding a bogus line item.
      *
@@ -124,14 +124,14 @@ class CartService {
             $base_price = null === $offering->price ? 0.0 : $offering->price;
 
             /**
-             * `vulocart_offering_effective_price` — the one place a line
+             * `vulocart_offering_effective_price` - the one place a line
              * item's unit price gets decided before it's snapshotted onto
              * the cart (this same value then rides with the item through
-             * checkout/order creation unchanged — this Domain\Cart\CartItem's
+             * checkout/order creation unchanged - this Domain\Cart\CartItem's
              * own docblock's "snapshotted through the same pattern"
              * reasoning). vulocart-pro's Pricing Rules module hooks this to
              * apply a percentage/fixed discount without CartService knowing
-             * Pro exists — same "Pro extends Free via filters" pattern
+             * Pro exists - same "Pro extends Free via filters" pattern
              * `vulocart_offering_edit_sections` already establishes on the
              * admin side, just a plain WordPress filter here since this
              * runs in PHP, not React.
@@ -223,7 +223,7 @@ class CartService {
     }
 
     /**
-     * Deletes carts that haven't been touched in over $days days — see
+     * Deletes carts that haven't been touched in over $days days - see
      * CartRepositoryInterface::delete_expired()'s own docblock for the
      * batching rationale. Called by Application\CartCleanupScheduler's
      * daily cron, using the Settings screen's `cart_expiry_days`.
@@ -238,7 +238,7 @@ class CartService {
     /**
      * Computes a cart's totals.
      *
-     * `total` === `subtotal` today — there is no tax or shipping engine
+     * `total` === `subtotal` today - there is no tax or shipping engine
      * yet (both are separate, not-yet-built modules per the vision), so
      * this deliberately doesn't fake a tax/shipping figure; once those
      * exist, this method is where they'd be added in.

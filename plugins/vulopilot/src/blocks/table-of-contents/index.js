@@ -11,7 +11,7 @@ import {
 import metadata from './block.json';
 
 /**
- * Live editor-side mirror of PHP's HeadingAnchorResolver::collect() — text
+ * Live editor-side mirror of PHP's HeadingAnchorResolver::collect() - text
  * and level only (no anchor/slug logic needed here, real anchors only
  * matter on the published page, computed server-side by render.php so the
  * TOC's own links and the real heading ids can never drift apart).
@@ -23,7 +23,7 @@ function collectHeadings( blocks, minLevel, maxLevel ) {
 		if ( block.name === 'core/heading' ) {
 			const level = block.attributes.level || 2;
 			// core/heading's `content` attribute is a rich-text-sourced
-			// value — WordPress hands it back as a RichTextData object
+			// value - WordPress hands it back as a RichTextData object
 			// (not a plain string) when read this way via getBlocks(),
 			// not through <RichText>'s own value/onChange plumbing.
 			// String() calls its real toString() (plain text, formatting
@@ -118,7 +118,7 @@ registerBlockType( metadata.name, {
 					{ headings.length === 0 ? (
 						<p className="vulopilot-toc__empty">
 							{ __(
-								'No headings found yet — add some Heading blocks to this post.',
+								'No headings found yet - add some Heading blocks to this post.',
 								'vulopilot'
 							) }
 						</p>
@@ -139,7 +139,7 @@ registerBlockType( metadata.name, {
 		);
 	},
 
-	// Dynamic block — render.php builds all real frontend markup (and the
+	// Dynamic block - render.php builds all real frontend markup (and the
 	// real per-page anchor ids), so save() persists nothing.
 	save: () => null,
 } );
