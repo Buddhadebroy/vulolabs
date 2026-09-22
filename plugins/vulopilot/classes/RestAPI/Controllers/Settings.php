@@ -518,6 +518,16 @@ class Settings extends \WP_REST_Controller {
             $headers
         );
 
+        if ( $sent ) {
+            // Same real "Last test … sent on …" persistence
+            // send_test_report() already keeps (own key, unrelated to
+            // that one) — SendTestEmailButton.tsx reads this back on
+            // mount so the line survives a page refresh instead of only
+            // showing right after a click.
+            $updated = array_merge( $this->get_stored_settings(), array( 'email_last_test_sent' => current_time( 'mysql', true ) ) );
+            update_option( Utill::VULOPILOT_SETTINGS_KEY, $updated );
+        }
+
         return rest_ensure_response(
             array(
                 'success' => $sent,
