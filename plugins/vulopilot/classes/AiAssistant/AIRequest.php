@@ -10,7 +10,11 @@ namespace VuloPilot\AiAssistant;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * A chat-style request sent to VuloCloud through AI\AiRequestSender.
+ * A request sent from VuloPilot to the VuloCloud AI API - a chat-style
+ * prompt plus a couple of optional real hints, and nothing else. VuloCloud
+ * alone decides which vendor/model answers a call and how; this site never
+ * picks or configures that, so there is no `model`/`temperature`/
+ * `max_tokens` here to pick or configure.
  *
  * @class       AIRequest class
  * @version     1.0.0
@@ -19,24 +23,9 @@ defined( 'ABSPATH' ) || exit;
 final class AIRequest {
 
     /**
-     * @var string
-     */
-    private string $model;
-
-    /**
      * @var array<int, array{role: string, content: string}>
      */
     private array $messages;
-
-    /**
-     * @var float|null
-     */
-    private ?float $temperature;
-
-    /**
-     * @var int|null
-     */
-    private ?int $max_tokens;
 
     /**
      * A single inline image for the current turn, `{mime_type, data}`
@@ -64,34 +53,18 @@ final class AIRequest {
     private ?string $surface;
 
     /**
-     * @param string                                      $model       Model id to use.
-     * @param array                                       $messages    array<int, array{role: string, content: string}>.
-     * @param float|null                                  $temperature Optional; the gateway applies its own default when null.
-     * @param int|null                                    $max_tokens  Optional; the gateway applies its own default when null.
+     * @param array                                        $messages array<int, array{role: string, content: string}>.
      * @param array{mime_type: string, data: string}|null $image   Optional inline image for the current turn.
      * @param string|null                                 $surface Optional real feature label - see get_surface()'s own docblock.
      */
     public function __construct(
-        string $model,
         array $messages,
-        ?float $temperature = null,
-        ?int $max_tokens = null,
         ?array $image = null,
         ?string $surface = null
     ) {
-        $this->model       = $model;
-        $this->messages    = $messages;
-        $this->temperature = $temperature;
-        $this->max_tokens  = $max_tokens;
-        $this->image       = $image;
-        $this->surface     = $surface;
-    }
-
-    /**
-     * @return string
-     */
-    public function get_model(): string {
-        return $this->model;
+        $this->messages = $messages;
+        $this->image    = $image;
+        $this->surface  = $surface;
     }
 
     /**
@@ -99,20 +72,6 @@ final class AIRequest {
      */
     public function get_messages(): array {
         return $this->messages;
-    }
-
-    /**
-     * @return float|null
-     */
-    public function get_temperature(): ?float {
-        return $this->temperature;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function get_max_tokens(): ?int {
-        return $this->max_tokens;
     }
 
     /**

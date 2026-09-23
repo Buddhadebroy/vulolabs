@@ -58,19 +58,17 @@ class AiHistory extends \WP_REST_Controller {
     public function get_items( $request ) {
         $repository = new AiHistoryRepository();
 
-        $result                  = $repository->find_all(
+        $result                 = $repository->find_all(
             array(
                 'page'     => absint( $request->get_param( 'page' ) ) ?: 1,
                 'per_page' => absint( $request->get_param( 'per_page' ) ) ?: 20,
-                'provider' => sanitize_key( (string) $request->get_param( 'provider' ) ),
                 'status'   => sanitize_key( (string) $request->get_param( 'status' ) ),
                 'search'   => sanitize_text_field( (string) $request->get_param( 'search' ) ),
                 'orderby'  => sanitize_key( (string) $request->get_param( 'orderby' ) ),
                 'order'    => sanitize_key( (string) $request->get_param( 'order' ) ),
             )
         );
-        $result['status_counts']   = $repository->get_status_counts();
-        $result['provider_counts'] = $repository->get_provider_counts();
+        $result['status_counts'] = $repository->get_status_counts();
 
         return rest_ensure_response( $result );
     }

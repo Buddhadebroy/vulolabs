@@ -1,6 +1,6 @@
 /* global appLocalizer */
 import { useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import { CardComponent, ModuleGuardComponent } from '@zyra/components';
 import { ButtonInput, SelectInput } from '@zyra/inputs';
@@ -183,12 +183,7 @@ const AeoEngineTestingCard = ({ isActive, pages }: AeoEngineTestingCardProps) =>
 							re-asks the model live and this answer changes accordingly,
 							even when the cited/not-cited outcome itself doesn't. */}
 							<p className="desc aeo-engine-testing-answer-label">
-								{sprintf(
-									/* translators: 1: AI service id (e.g. "gemini"), 2: model id. */
-									__('What %1$s (%2$s) actually said, live:', 'vulopilot'),
-									result.provider,
-									result.model
-								)}
+								{__('What your configured AI service actually said, live:', 'vulopilot')}
 							</p>
 							<blockquote className="aeo-engine-testing-answer">
 								{result.answer}

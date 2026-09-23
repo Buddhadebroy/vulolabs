@@ -172,21 +172,25 @@ final class VuloPilot {
         // Automations\BuiltinAutomationSeeder's own docblock) are seeded and
         // run below, independent of that Pro engine.
 
-        $this->container['report_type_registry']     = new Reports\ReportTypeRegistry();
-        $this->container['report_exporter_registry'] = new Reports\ReportExporterRegistry();
-        $this->container['report_generator']         = new Reports\ReportGenerator(
-            $this->container['report_type_registry'],
-            $this->container['report_exporter_registry']
-        );
-        // Reports\ScheduledReportRunner (recurring/emailed reports) is Pro
-        // business logic now - it lives in vulopilot-pro's AdvancedReports
-        // module, constructed with this same report_generator instance via
-        // VuloPilot()->report_generator.
+        // report_type_registry/report_exporter_registry/report_generator are
+        // no longer built here - one-off report generation moved wholesale
+        // to vulopilot-pro's AdvancedReports module (Reports is now a fully
+        // Pro-gated feature). Pre-seeded to null (not simply left unset) so
+        // every read site can safely null-check VuloPilot()->report_generator
+        // - __get() throws for a container key that was never set at all.
+        // That module builds the real values onto this same container on
+        // 'init' priority 5 - after this method (which runs on 'init'
+        // priority 0) has already finished, so nothing below can depend on
+        // them existing yet; AutomationScheduler::run_scheduled_report()
+        // reads VuloPilot()->report_generator lazily, at cron-tick time,
+        // instead.
+        $this->container['report_type_registry']     = null;
+        $this->container['report_exporter_registry'] = null;
+        $this->container['report_generator']          = null;
 
         $this->container['builtin_automation_seeder'] = new Automations\BuiltinAutomationSeeder();
         $this->container['automation_scheduler']       = new \VuloPilot\Automations\AutomationScheduler(
-            $this->container['scan_runner'],
-            $this->container['report_generator']
+            $this->container['scan_runner']
         );
 
         $this->container['rest'] = new Rest();

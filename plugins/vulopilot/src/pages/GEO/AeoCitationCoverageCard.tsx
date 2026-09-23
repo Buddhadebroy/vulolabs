@@ -13,8 +13,6 @@ export interface CitationCheckResult {
 	/** Whether `question` was extracted verbatim from a real question-phrased heading on this post, or built from the post's own title (CitationCoverageChecker.php's own `build_question()`) - shown so the two are never blurred together as if both were "real content questions." */
 	from_content: boolean;
 	cited: boolean;
-	provider: string;
-	model: string;
 	answer: string;
 }
 

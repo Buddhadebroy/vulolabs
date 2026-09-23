@@ -16,7 +16,6 @@ use VuloPilot\TechnicalSeo\Rest as SeoRest;
 use VuloPilot\Dashboard\Rest as DashboardRest;
 use VuloPilot\Utill\Scans as UtillRestScans;
 use VuloPilot\Utill\Findings as UtillRestFindings;
-use VuloPilot\Reports\Rest as ReportsRest;
 use VuloPilot\AiAssistant\Rest as AiAssistantRest;
 use VuloPilot\Automations\Rest as AutomationsRest;
 use VuloPilot\Settings\Rest as SettingsRest;
@@ -79,12 +78,18 @@ class Rest {
             'dashboard_layout'            => new DashboardRest\DashboardLayout(),
             'scans'                       => new UtillRestScans(),
             'findings'                    => new UtillRestFindings(),
-            'reports'                     => new ReportsRest\Reports(),
+            // Deliberately NOT keyed 'reports'/'history'/'reports_overview' -
+            // one-off report generation moved to vulopilot-pro's
+            // AdvancedReports module wholesale (Reports is now a fully
+            // Pro-gated feature); its own Core\Rest\{Reports,History,
+            // ReportsOverview} controllers add themselves into
+            // $extra_controllers below under these exact keys, same
+            // "Free deliberately doesn't keep a fallback" posture
+            // 'automation_dashboard' below already established.
             'ai_history'                  => new AiAssistantRest\AiHistory(),
             'vulocloud_ai_connection'     => new AiAssistantRest\VuloCloudAiConnection(),
             'ai_action_runs'              => new AiCopilotRest\AiActionRuns(),
             'activity_logs'               => new DashboardRest\ActivityLogs(),
-            'history'                     => new ReportsRest\History(),
             'automations'                 => new AutomationsRest\Automations(),
             // Deliberately NOT keyed 'automation_runs' - that data only ever
             // backed AutomationsActivityCard.tsx's own "Recent automation
@@ -127,7 +132,6 @@ class Rest {
             'store_readiness'             => new StoreReadiness(),
             'efficiency_checks'           => new PerformanceRest\EfficiencyChecks(),
             'plugin_overlap'              => new SiteHealthRest\PluginOverlap(),
-            'reports_overview'            => new ReportsRest\ReportsOverview(),
             // Deliberately NOT keyed 'geo_analysis' - vulopilot-pro's
             // GeoInsights module adds its own controller into
             // $extra_controllers below under that exact key (its `Rest.php`
