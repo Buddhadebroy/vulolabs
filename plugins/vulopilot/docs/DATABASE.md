@@ -114,7 +114,7 @@ custom table (`vulopilot_crawler_visits`, `vulopilot_redirects`, `vulopilot_not_
 `vulopilot_indexnow_log`), a daily rollup computed live from `vulopilot_scan_findings` the same way
 `vulopilot_site_health_snapshots` already is (`vulopilot_geo_visibility_history`,
 `vulopilot_brand_score_history`, `vulopilot_kg_health_history`, `vulopilot_accessibility_snapshots`),
-a rollup of real WooCommerce order data rather than findings (`vulopilot_store_trends_snapshots`),
+a rollup of real store order data rather than findings (`vulopilot_store_trends_snapshots`),
 or a self-contained edge list keyed to synthetic entity ids that aren't rows in any other custom
 table (`vulopilot_entity_relationships`, `vulopilot_file_baselines`).
 
@@ -883,7 +883,7 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_accessibility_snapshots` (
 
 ## 24. `vulopilot_store_trends_snapshots` - Store Trends' daily revenue rollup
 
-Added in the WooCommerce Intelligence pass - see
+Added in the store-intelligence pass - see
 [`WOOCOMMERCE-INTELLIGENCE-MODULE.md`](WOOCOMMERCE-INTELLIGENCE-MODULE.md)
 for the full design. Same "Free owns the schema, Pro owns the population
 logic" split as `vulopilot_accessibility_snapshots` above - this table
@@ -907,7 +907,7 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_store_trends_snapshots` (
   yesterday's totals, not today's still-accumulating ones, unlike every other
   `*_snapshots`/`*_history` table above (whose point-in-time gauges genuinely can snapshot "right
   now"). See `StoreTrendsSnapshotBuilder`'s own docblock for why revenue can't work that way.
-- `revenue`/`avg_order_value` are `decimal(10,2)`, matching WooCommerce core's own `_order_total`
+- `revenue`/`avg_order_value` are `decimal(10,2)`, matching the store platform's own `_order_total`
   meta precision - a currency amount is never stored as a binary float in this codebase.
 - Written by `WooCommerceIntelligence\StoreTrendsSnapshotBuilder` (Pro), its own daily wp-cron tick
   - not scan-driven, since a store's revenue isn't scanner-derived the way a finding count is.

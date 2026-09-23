@@ -86,12 +86,12 @@ class RuleRegistry {
 			// GEO module (GEO-MODULE.md).
 			\VuloPilot\Content\FaqOpportunityRule::class,
 			\VuloPilot\Content\MissingSummaryBlockRule::class,
-			// WooCommerce Optimization's 9 rules used to be hardcoded here
-			// unconditionally. Per direct architecture decision, WooCommerce
+			// Commerce Optimization's 9 rules used to be hardcoded here
+			// unconditionally. Per direct architecture decision, store-platform
 			// detection is a Pro module like every other Pro module's
 			// scanners/rules, so they've all moved to vulopilot-pro's
-			// WooCommerceIntelligence module (`Rules/`), registered via
-			// `vulopilot_rule_sources` and gated on WooCommerce actually
+			// store-intelligence module (`Rules/`), registered via
+			// `vulopilot_rule_sources` and gated on the store platform actually
 			// being active - see that module's own Module.php docblock.
 		);
 	}

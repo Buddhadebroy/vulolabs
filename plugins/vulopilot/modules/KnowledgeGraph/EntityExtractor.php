@@ -25,8 +25,8 @@ defined( 'ABSPATH' ) || exit;
  *   `vulopilot_homepage_schema_json` option's `publisher` sub-object when a
  *   site owner has run that Pro mechanical fix, falling back to the site's
  *   own title/URL (always real, never fabricated) when it hasn't.
- * - Products: real WooCommerce products, same `class_exists('WooCommerce')`
- *   + `wc_get_products()` guard every other Free WooCommerce scanner uses.
+ * - Products: real store-platform products, same `class_exists('WooCommerce')`
+ *   + `wc_get_products()` guard every other Free store-platform scanner uses.
  * - Services/Locations: real data the site owner explicitly provides via
  *   two new settings (Settings → Site Identity → Business Information,
  *   moved there from Scanning → AI Visibility per direct instruction) -
@@ -329,7 +329,7 @@ class EntityExtractor {
      *
      * @param string  $business_name Real organization name (extract_organizations()'s own first entry).
      * @param array   $services      extract_services()'s own real rows.
-     * @param array|null $products   extract_products()'s own real rows (null when WooCommerce isn't active).
+     * @param array|null $products   extract_products()'s own real rows (null when the store platform isn't active).
      * @param array   $categories    extract_categories()'s own real rows.
      * @return array<int, string>
      */
@@ -515,7 +515,7 @@ class EntityExtractor {
     }
 
     /**
-     * @return array<int, array{id: string, type: string, name: string, url: string|null, source_object_type: string, source_object_ref: string, meta: array}>|null Null when WooCommerce isn't active - same "not applicable to this site" signal Dashboard's own category_scores.woocommerce already uses.
+     * @return array<int, array{id: string, type: string, name: string, url: string|null, source_object_type: string, source_object_ref: string, meta: array}>|null Null when the store platform isn't active - same "not applicable to this site" signal Dashboard's own category_scores.woocommerce already uses.
      */
     private function extract_products(): ?array {
         if ( ! class_exists( 'WooCommerce' ) || ! function_exists( 'wc_get_products' ) ) {
@@ -556,9 +556,9 @@ class EntityExtractor {
     }
 
     /**
-     * "Product Details" panel data - real published WooCommerce products,
+     * "Product Details" panel data - real published store-platform products,
      * each with a real, deterministic set of completeness issues computed
-     * from the exact same fields WooCommerce core's own Product schema
+     * from the exact same fields the store platform's own Product schema
      * output (`WC_Structured_Data::generate_product_data()`) actually
      * reads: no featured image, no SKU, no description (short or long), no
      * price set. Not a second, independent schema validator running
@@ -673,7 +673,7 @@ class EntityExtractor {
      * this fix) silently fails for a real, live, published page whenever
      * some other rewrite rule shadows its slug before WordPress's own
      * page-rewrite fallback gets a chance to match it - confirmed live: a
-     * genuinely published WooCommerce "Shop" page's own real permalink
+     * genuinely published store-platform "Shop" page's own real permalink
      * (`get_permalink()`'s own output for it) round-tripped through
      * `url_to_postid()` came back `0`, because the `product` CPT's own
      * archive rewrite rule matches that same path first. The site owner

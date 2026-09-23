@@ -98,6 +98,7 @@ export default {
             key: 'geo_competitor_urls',
             type: 'dynamic-row',
             moduleEnabled: 'geo-analysis',
+            proSetting: true,
             addLabel: __('Add competitor', 'vulopilot'),
             emptyText: __('No competitors added yet.', 'vulopilot'),
             template: {

@@ -267,7 +267,7 @@ class Utill {
         'target_wcag_level'                     => '2.1_aa',
         // WOOCOMMERCE-INTELLIGENCE-MODULE.md's "Inventory Intelligence" -
         // same "setting lives here, only meaningfully acted on by
-        // vulopilot-pro's WooCommerceIntelligence module" split as
+        // vulopilot-pro's store-intelligence module" split as
         // integrity_monitoring_max_files above. Read by
         // InventoryIntelligenceScanner as the "projected to run out within
         // this many days" threshold.
@@ -342,9 +342,9 @@ class Utill {
         // Scanner-category kill switches - each gates every scanner
         // registered under that category string (SCANNERS.md), not just
         // one check, since that's what these settings-page groupings
-        // actually correspond to (e.g. disabling "WooCommerce" turns off
-        // both the original WooCommerceScanner and the 11 Product*
-        // scanners from the WooCommerce AI pass - all category `woocommerce`).
+        // actually correspond to (e.g. disabling the e-commerce category turns off
+        // both the original store scanner and the 11 Product*
+        // scanners from the store-intelligence pass - all category `woocommerce`).
         // SEO no longer has one of these - see the granular
         // flag_*/Scanning/Seo.ts entries below, same "no whole-category
         // switch, only granular ones" posture GEO already uses.
@@ -499,11 +499,11 @@ class Utill {
         // "knowledgebase"/"megamenu" entries (this codebase registers no
         // custom post types of its own - confirmed via grep).
         // `product`/`product_cat`/`product_tag` are only ever effective
-        // when WooCommerce is active (`post_type_exists( 'product' )`),
+        // when the store platform is active (`post_type_exists( 'product' )`),
         // same conditional-effectiveness pattern
         // GeoAnalysis\LlmsTxtGenerator::generate() already uses for its own
         // `products` entry - harmless to list here unconditionally since
-        // the PHP consumer is what actually gates on WooCommerce, not this
+        // the PHP consumer is what actually gates on the store platform, not this
         // default.
         'sitemap_xml_post_types'                => array( 'post', 'page', 'attachment', 'product' ),
         'sitemap_xml_taxonomies'                => array( 'category', 'post_tag', 'product_cat', 'product_tag' ),
@@ -731,7 +731,7 @@ class Utill {
             ),
             // Read by Geo\Scanners\GeoSummaryBlockScanner - GEO scanning
             // has no whole-category kill switch (unlike SEO/Accessibility/
-            // WooCommerce above), so `enable` is that scanner's only
+            // e-commerce above), so `enable` is that scanner's only
             // on/off switch. `min_words` is how many words from the top of
             // a page/post its summary marker must appear within.
             'answer_first' => array(
@@ -861,7 +861,7 @@ class Utill {
         'crawler_alert_last_test_sent'           => '',
         // Scanning > Entity Extraction (KNOWLEDGE-GRAPH-MODULE.md). Read by
         // Services\EntityExtractor. Free text - no schema.org @type or
-        // WooCommerce/existing setting anywhere in this codebase implies a
+        // store-platform/existing setting anywhere in this codebase implies a
         // business type, so the site owner provides it directly. Shown
         // as-is on the Business Profile card; never written into any real
         // Organization/LocalBusiness JSON-LD.

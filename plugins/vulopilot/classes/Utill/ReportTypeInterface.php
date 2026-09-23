@@ -12,7 +12,7 @@ use VuloPilot\Reports\ReportResult;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Every report type - Free's own (scan summary, SEO, WooCommerce, security,
+ * Every report type - Free's own (scan summary, SEO, Commerce, security,
  * accessibility, health, automation, AI usage, custom/report-builder) or a
  * premium/third-party one registered via the `vulopilot_report_type_sources`
  * filter - implements this so Reports\ReportTypeRegistry/ReportGenerator can

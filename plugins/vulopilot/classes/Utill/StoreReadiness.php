@@ -17,9 +17,9 @@ defined( 'ABSPATH' ) || exit;
  * lifecycle - recomputed fresh on every request rather than only as-of
  * the last scan run. Real order/checkout *problems* (failed orders,
  * stale orders, gateway test-mode, outdated templates) are genuine
- * scanner findings instead (WooCommerceFailedOrdersScanner and its
+ * scanner findings instead (the store failed-orders scanner and its
  * siblings, now Pro-owned under vulopilot-pro's
- * modules/WooCommerceIntelligence/Scanners/) so they get the real
+ * store-intelligence module's Scanners/) so they get the real
  * open/resolve/ignore workflow and show up in the same findings table
  * everything else does.
  *
@@ -99,7 +99,7 @@ class StoreReadiness extends \WP_REST_Controller {
 	}
 
 	/**
-	 * @param string $page_id_key WooCommerce's own `wc_get_page_id()` key.
+	 * @param string $page_id_key The store platform's own `wc_get_page_id()` key.
 	 * @return bool
 	 */
 	private function is_page_ready( string $page_id_key ): bool {

@@ -47,7 +47,7 @@ export default {
 		'vulopilot'
 	),
 	headerIcon: 'person',
-	settingAction: createElement(AccessibilityRestoreDefaultsHeader),
+	// settingAction: createElement(AccessibilityRestoreDefaultsHeader),
 	submitUrl: 'settings',
 	modal: [
 		{
@@ -62,6 +62,7 @@ export default {
 			options: [
 				{ key: 'enable_accessibility_scanning', label: '', value: 'enable_accessibility_scanning' },
 			],
+			moduleEnabled: 'accessibility-checks',
 		},
 		{
 			key: 'accessibility_audit_frequency',
@@ -94,6 +95,7 @@ export default {
 				{ key: '2.1_aa', value: '2.1_aa', label: __('AA', 'vulopilot'), width: '100%' },
 				{ key: '2.1_aaa', value: '2.1_aaa', label: __('AAA', 'vulopilot'), width: '100%' },
 			],
+			moduleEnabled: 'accessibility-checks',
 		},
 		{
 			key: 'enable_wcag_scanner',
@@ -107,6 +109,7 @@ export default {
 			options: [
 				{ key: 'enable_wcag_scanner', label: '', value: 'enable_wcag_scanner' },
 			],
+			moduleEnabled: 'accessibility-checks',
 		},
 		{
 			key: 'accessibility-why-notice',

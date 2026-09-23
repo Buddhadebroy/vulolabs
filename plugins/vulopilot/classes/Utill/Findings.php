@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * GET /findings backs the shared FindingsTable component (Health/SEO/GEO/
- * WooCommerce/Dashboard pages - src/components/FindingsTable.tsx).
+ * Commerce/Dashboard pages - src/components/FindingsTable.tsx).
  * POST /findings/{id} backs its "Mark resolved" row action.
  *
  * Zyra's sendApiResponse() (src/services/useApiList.ts and

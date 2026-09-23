@@ -38,7 +38,7 @@ class HtmlSitemapRenderer {
      * Real post_type slug => display label. No `knowledgebase`/`megamenu`
      * entries - this codebase registers no custom post types of its own
      * (confirmed via grep); `product` is only ever rendered when
-     * `post_type_exists( 'product' )` is true (WooCommerce active), same
+     * `post_type_exists( 'product' )` is true (the store platform is active), same
      * conditional-effectiveness pattern GeoAnalysis\LlmsTxtGenerator
      * already uses for its own `products` entry.
      *

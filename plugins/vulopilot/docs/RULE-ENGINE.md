@@ -10,9 +10,9 @@ see that doc's "Fixing a category collision this pass introduced".
 [`GEO-MODULE.md`](GEO-MODULE.md) added 2 more (`FaqOpportunityRule`,
 `MissingSummaryBlockRule`), following the same scanner-specific-meta-key
 matching discipline from the start. A further **9 rules** were added for
-"WooCommerce Optimization" (per `RuleRegistry`'s own source comment - the
-readme's feature list, not a numbered `docs/*.md` pass; no sibling doc
-claims them, so this file is their accurate record) -
+the readme's own e-commerce optimization feature set (per `RuleRegistry`'s
+own source comment - the readme's feature list, not a numbered `docs/*.md`
+pass; no sibling doc claims them, so this file is their accurate record) -
 `MissingProductDescriptionRule`, `MissingProductShortDescriptionRule`,
 `MissingProductAttributesRule`, `DuplicateProductSkuRule`,
 `MissingProductPriceRule`, `ProductInventoryIssueRule`,
@@ -141,7 +141,7 @@ the 66 concrete scanners are (`SCANNERS.md`'s Engine section).
   no category kill-switch logic and no module-gated subset - all 19 rules sat
   in one flat `get_default_rule_classes()` array, always registered.
   **Update, later pass:** 9 of those 19 - the `woocommerce`-category rules
-  paired with the WooCommerce scanners covered in
+  paired with the store-platform scanners covered in
   [`WOOCOMMERCE-INTELLIGENCE-MODULE.md`](WOOCOMMERCE-INTELLIGENCE-MODULE.md)'s
   own update note - have since moved to `vulopilot-pro`'s
   `modules/WooCommerceIntelligence/Rules/`, registered via the
@@ -198,7 +198,7 @@ The original 5:
 | `FaqOpportunityRule` | `faq-opportunity` | suggestion | 30 | `geo` | yes | **yes** | medium | 3 min |
 | `MissingSummaryBlockRule` | `missing-summary-block` | suggestion | 30 | `geo` | yes | **yes** | medium | 3 min |
 
-"WooCommerce Optimization" (readme, undocumented elsewhere)'s 9 - every
+The readme's e-commerce optimization feature set (undocumented elsewhere)'s 9 - every
 one of these is deliberately `is_fixable() === false`/`requires_ai() === false`
 by default (inherited from `AbstractBasicRule`) unless its own docblock
 argues a specific field is safe to automate; most explicitly say why

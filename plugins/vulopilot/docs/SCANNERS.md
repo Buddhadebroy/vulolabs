@@ -222,7 +222,7 @@ several fake ones, and each is independently extendable later (see
 | `PerformanceScanner` | `performance` | `performance` | `SUM(LENGTH(option_value))` for autoloaded `wp_options` rows, flagged over 1MB |
 | `DatabaseScanner` | `database` | `database` | `COUNT(*)` of `post_type = 'revision'` rows, flagged over 500 |
 | `SecurityScanner` | `security` | `security` | Whether a user named `admin` exists (`username_exists()`) |
-| `WooCommerceScanner` | `woocommerce` | `woocommerce` | Whether a published WooCommerce checkout page is configured (no-op if WooCommerce isn't active) |
+| `WooCommerceScanner` | `woocommerce` | `woocommerce` | Whether a published checkout page is configured for the store platform (no-op if the store platform isn't active) |
 | `AccessibilityScanner` | `accessibility` | `accessibility` | The 50 most recently modified published posts/pages whose content contains its own `<h1>` |
 | `PluginsScanner` | `plugins` | `plugins` | Installed plugins not in `active_plugins` |
 | `ThemesScanner` | `themes` | `themes` | Installed themes that aren't the active theme or its parent |
@@ -231,7 +231,7 @@ several fake ones, and each is independently extendable later (see
 | `RestApiScanner` | `rest-api` | `rest-api` | An unauthenticated `GET /wp/v2/users` request - flags if it returns user data |
 
 Categories are chosen to line up with the admin UI already built: the
-`FindingsTable`-based Health/SEO/GEO/WooCommerce pages filter
+`FindingsTable`-based Health/SEO/GEO/Commerce pages filter
 `vulopilot_scan_findings` by exactly these category strings (`seo`,
 `woocommerce`; Health shows every category unfiltered). There was no
 `geo` scanner in this original list - [`GEO-MODULE.md`](GEO-MODULE.md)
@@ -255,7 +255,7 @@ claimed). Free's own `security`-category scanners today are the 3
 
 **`AccessibilityScanner`'s row above is still accurate, but no longer the
 whole `accessibility`-category picture.** `FormLabelsScanner`/
-`AriaAttributesScanner` (added alongside a prior WooCommerce AI pass,
+`AriaAttributesScanner` (added alongside a prior store AI pass,
 undocumented by any sibling doc - see the intro above) and `WcagScanner`
 ([`ACCESSIBILITY-MODULE.md`](ACCESSIBILITY-MODULE.md)) all share the same
 category string (4 scanners total). See that doc's own audit table for

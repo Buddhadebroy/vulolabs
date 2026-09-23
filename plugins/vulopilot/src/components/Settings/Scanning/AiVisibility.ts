@@ -214,6 +214,7 @@ export default {
 			options: [
 				{ key: 'enable_llms_txt', label: '', value: 'enable_llms_txt' },
 			],
+			moduleEnabled: 'answer-engine-optimization',
 		},
 		{
 			key: 'llms_auto_regen',
@@ -228,6 +229,7 @@ export default {
 				{ key: 'llms_auto_regen', label: '', value: 'llms_auto_regen' },
 			],
 			dependent: { key: 'enable_llms_txt', value: 'enable_llms_txt', set: true },
+			moduleEnabled: 'answer-engine-optimization',
 		},
 		{
 			key: 'llms_include_types',
@@ -249,6 +251,7 @@ export default {
 				{ key: 'posts', label: __('Posts', 'vulopilot'), value: 'posts' },
 				{ key: 'products', label: __('Products', 'vulopilot'), value: 'products' },
 			],
+			moduleEnabled: 'answer-engine-optimization',
 			dependent: { key: 'enable_llms_txt', value: 'enable_llms_txt', set: true },
 		},
 		{
@@ -300,6 +303,7 @@ export default {
 					value: 'enable_crawler_tracking',
 				},
 			],
+			moduleEnabled: 'ai-crawler-tracking',
 		},
 		{
 			key: 'log_retention',
@@ -316,6 +320,7 @@ export default {
 				{ label: __('90 days', 'vulopilot'), value: '90' },
 				{ label: __('1 year', 'vulopilot'), value: '365' },
 			],
+			moduleEnabled: 'ai-crawler-tracking',
 		},
 		{
 			key: 'crawler_volume_drop_threshold_percent',
@@ -329,6 +334,7 @@ export default {
 				'Used by the "Email me on AI crawler alerts" notification in the Notifications tab, when today\'s AI crawler visit volume falls this much below the trailing 7-day average.',
 				'vulopilot'
 			),
+			moduleEnabled: 'ai-crawler-tracking',
 		},
 	],
 };

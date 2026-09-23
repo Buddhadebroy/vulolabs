@@ -52,7 +52,7 @@ class PostSeoMetaFields {
     /**
      * Post types the metabox appears on - matches
      * AiCopilot\Actions\WriteMetaTitleAction/WriteMetaDescriptionAction's
-     * own post-type scope. `product` (WooCommerce) was added alongside the
+     * own post-type scope. `product` (the store platform's product type) was added alongside the
      * metabox's move to a real below-content `add_meta_box()` panel
      * (Services\PostEditorAssets::register_metabox()), which references
      * this same constant rather than holding its own separate copy - every

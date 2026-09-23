@@ -19,16 +19,16 @@ defined( 'ABSPATH' ) || exit;
  * Readme.txt's "AI Content Assistant" → "Product Descriptions" - the
  * new-content-creation pattern (GenerateBlogAction's shape: a name/topic
  * the site owner types, not an existing post's object_ref), not a rewrite
- * of an existing product. Deliberately distinct from Pro's WooCommerceAi
- * module (`WriteProductLongDescriptionAction`), which rewrites the
+ * of an existing product. Deliberately distinct from Pro's store-intelligence
+ * AI module (`WriteProductLongDescriptionAction`), which rewrites the
  * `post_content` of an *existing* `WC_Product` the site owner already
  * created - this action instead drafts a brand-new product/page from
  * scratch given just a name and optional key features, the same
  * "propose new content for a human to review" job GenerateBlogAction
  * does for blog posts. Creates a `product` post type draft when
- * WooCommerce is active (so it lands directly in Products → All Products
+ * the store platform is active (so it lands directly in Products → All Products
  * as a draft), otherwise falls back to a plain `post` draft - this action
- * doesn't require WooCommerce to exist, unlike the Pro module.
+ * doesn't require the store platform to exist, unlike the Pro module.
  *
  * execute() always creates a `draft`, never `publish` - same safety
  * rationale as GenerateBlogAction. rollback() trashes the created post.

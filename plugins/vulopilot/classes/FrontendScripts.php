@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Registers and localizes the admin React bundle. Deliberately much
  * smaller than VuloLabs\FrontendScripts - that class's size comes from
- * WooCommerce-specific localized data (store owners, payment gateways, WC
+ * store-platform-specific localized data (store owners, payment gateways, WC
  * countries) VuloPilot has no equivalent of; this only carries what the
  * React app actually needs to boot and call the REST API (see
  * src/global.d.ts's AppLocalizer interface).
@@ -422,7 +422,7 @@ class FrontendScripts {
 
         $image_url = $images ? (string) wp_get_attachment_image_url( (int) $images[0], 'large' ) : '';
 
-        // WooCommerce's stock placeholder image isn't this site's own picture.
+        // The store platform's stock placeholder image isn't this site's own picture.
         return ( '' !== $image_url && false === strpos( $image_url, 'placeholder' ) ) ? esc_url_raw( $image_url ) : '';
     }
 }

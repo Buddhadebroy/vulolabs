@@ -87,10 +87,10 @@ class ScannerRegistry {
     }
 
     /**
-     * Settings screen's Accessibility/WooCommerce tabs are category-level
+     * Settings screen's Accessibility/Commerce tabs are category-level
      * kill switches (SCANNERS.md's category list) rather than per-scanner
      * toggles. The `woocommerce` category itself is now entirely Pro-owned
-     * (WooCommerceIntelligence's own `Scanners/` - see
+     * (the store-intelligence module's own `Scanners/` - see
      * `vulopilot_scanner_sources`'s Pro-side registration), so this toggle
      * only takes effect when that Pro module has registered its scanners
      * under this same category string; Free carries no scanner of its own
@@ -127,11 +127,11 @@ class ScannerRegistry {
     /**
      * Free's own always-available scanners - matches the readme's free
      * feature list (Website Health Monitoring, SEO Optimization,
-     * Performance, Accessibility Scanner). "WooCommerce Optimization" is no
+     * Performance, Accessibility Scanner). "Commerce Optimization" is no
      * longer part of this list - per direct architecture decision,
-     * WooCommerce detection is a Pro module like every other Pro module's
-     * scanners, so all 18 WooCommerce/Product* scanners that used to be
-     * hardcoded here moved to vulopilot-pro's WooCommerceIntelligence
+     * store-platform detection is a Pro module like every other Pro module's
+     * scanners, so all 18 store-platform/Product* scanners that used to be
+     * hardcoded here moved to vulopilot-pro's store-intelligence
      * module (`Scanners/`), registered via `vulopilot_scanner_sources`
      * just like every other Pro scanner.
      * SecurityScanner/RestApiScanner are the one exception ("Security
@@ -195,13 +195,13 @@ class ScannerRegistry {
             // its matching schema.org markup. Same 'geo' category, no
             // separate category/kill switch, same as the 9 above.
             \VuloPilot\SeoVisibility\AeoSchemaScanner::class,
-            // WooCommerce/Product* scanners (WooCommerceScanner, the 11
+            // Store-platform/Product* scanners (the store scanner, the 11
             // Product* scanners, ProductSeoScanner, and the 5 order/
             // checkout/compatibility scanners - category 'woocommerce')
             // used to be hardcoded here unconditionally. They've all moved
-            // to vulopilot-pro's WooCommerceIntelligence module
+            // to vulopilot-pro's store-intelligence module
             // (`Scanners/`), registered via `vulopilot_scanner_sources`
-            // and gated on WooCommerce actually being active - see that
+            // and gated on the store platform actually being active - see that
             // module's own Module.php docblock.
             // Website Health Monitoring (readme) - closes the PHP Warning
             // Detection/SSL Monitoring/Redirect Analysis/404 Detection gaps.

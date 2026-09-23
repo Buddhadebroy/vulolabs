@@ -60,10 +60,10 @@ class ActionRegistry {
     /**
      * Free's own always-available actions - the readme's "AI SEO
      * Assistant"/"AI Content Assistant" (BYOK) feature set. The
-     * product-specific AI actions (rewrite/generate for WooCommerce
-     * products) are Pro business logic ("WooCommerce AI"/"AI Product
-     * Optimization" per the readme) - they moved to vulopilot-pro's
-     * WooCommerceAi module and register through this same filter.
+     * product-specific AI actions (rewrite/generate for store-platform
+     * products) are Pro business logic (the readme's e-commerce AI/"AI
+     * Product Optimization" feature bullet) - they moved to vulopilot-pro's
+     * store-intelligence AI module and register through this same filter.
      *
      * @return string[]
      */

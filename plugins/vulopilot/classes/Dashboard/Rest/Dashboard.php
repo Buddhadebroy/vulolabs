@@ -170,7 +170,7 @@ class Dashboard extends \WP_REST_Controller {
 
     /**
      * Per-domain widget scores (SEO/Performance/Security/Accessibility/
-     * WooCommerce). `vulopilot_site_health_snapshots` already has
+     * Commerce). `vulopilot_site_health_snapshots` already has
      * `seo_score`/`performance_score`/`security_score` columns, but
      * nothing in this codebase computes or writes them yet
      * (ScanPersistenceListener::refresh_todays_snapshot() only ever
@@ -184,7 +184,7 @@ class Dashboard extends \WP_REST_Controller {
      * from data that already exists.
      *
      * @param FindingRepository $findings Repository to read category breakdowns from.
-     * @return array<string, int|null> Category id => 0-100 score, or null where the category doesn't apply to this site (WooCommerce inactive).
+     * @return array<string, int|null> Category id => 0-100 score, or null where the category doesn't apply to this site (the store platform is inactive).
      */
     private function build_category_scores( FindingRepository $findings ): array {
         $categories = array( 'seo', 'performance', 'security', 'accessibility', 'geo' );
@@ -227,7 +227,7 @@ class Dashboard extends \WP_REST_Controller {
      *
      * @param FindingRepository $findings Repository to read category breakdowns from.
      * @param string            $as_of    MySQL datetime (UTC) to reconstruct every category's open set as of.
-     * @return array<string, int|null> Category id => 0-100 score, or null where the category doesn't apply to this site (WooCommerce inactive).
+     * @return array<string, int|null> Category id => 0-100 score, or null where the category doesn't apply to this site (the store platform is inactive).
      */
     private function build_category_scores_as_of( FindingRepository $findings, string $as_of ): array {
         $categories = array( 'seo', 'performance', 'security', 'accessibility', 'geo' );
@@ -462,7 +462,7 @@ class Dashboard extends \WP_REST_Controller {
      * to 0-100 before this average runs, one saturated category (Security,
      * here) can no longer single-handedly floor the whole site's score.
      *
-     * @param array<string, int|null> $category_scores build_category_scores()'s own return value - null entries (e.g. `woocommerce` on a non-WooCommerce site) are excluded from the average rather than counted as 0.
+     * @param array<string, int|null> $category_scores build_category_scores()'s own return value - null entries (e.g. `woocommerce` on a site without the store platform) are excluded from the average rather than counted as 0.
      * @return int 0-100.
      */
     private function calculate_overall_score( array $category_scores ): int {

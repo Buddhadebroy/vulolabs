@@ -9,7 +9,7 @@ Companion to [`DATABASE.md`](DATABASE.md), [`SCANNERS.md`](SCANNERS.md),
 REST endpoints that back the grid, and the extension strategy.
 
 **This widget set has been redesigned once since it was first built** - the original 13 widgets
-were 7 "one number" stat cards (Overall Health, SEO, Performance, Security, WooCommerce,
+were 7 "one number" stat cards (Overall Health, SEO, Performance, Security, Commerce,
 Accessibility, AI Usage) plus Recent Activity, Quick Fixes, Health Timeline, Latest Reports,
 Pending Approval, and Automation Status. Today's 13 Free widgets are a different set: `registry.ts`'s
 own comment explains why - the individual score tiles duplicated the exact same
@@ -65,7 +65,7 @@ approach `.claude/rules/react-frontend.md`
 documents for Settings screens, applied here. `createStatWidgetComponent()`
 binds one config into a component matching `WidgetProps`, so the grid
 never has to know a widget is config-driven. Overall Health, SEO, Performance, Security,
-WooCommerce, Accessibility, and GEO used to be `StatWidgetConfig` entries too - see the redesign
+Commerce, Accessibility, and GEO used to be `StatWidgetConfig` entries too - see the redesign
 note above for why they were removed rather than kept alongside `HealthPillarsWidget`.
 
 **Standalone widgets** - the other ten (Health by Pillar, Recent Activity, Health Timeline, Needs
@@ -159,7 +159,7 @@ actually do today.
 
 Replaces the old fixed row of separate score stat cards. One `ScoreRingComponent` for
 `overall_score`, plus a row of clickable tiles - one per pillar with a non-null score
-(SEO, Performance, Accessibility, GEO, Security, WooCommerce) - each linking to that pillar's own
+(SEO, Performance, Accessibility, GEO, Security, Commerce) - each linking to that pillar's own
 page (`?page=vulopilot#&tab=X`). Reuses the exact same `AnalyticsComponent` `progress`-variant tiles
 the Health page's own `HealthScoreSummary.tsx` already renders (non-clickable there); this widget is
 the same tiles with each item's `link` set, making the score also a launcher. Security has no
@@ -355,7 +355,7 @@ to the one React-side registry:
 - **A per-widget settings/configuration UI** (e.g. choosing how many rows
   Recent Activity or a `NeedsAttentionWidget` tab shows) - every widget's row count is a fixed
   constant today (`per_page: 5`).
-- **Real WooCommerce/accessibility score columns** -
+- **Real Commerce/accessibility score columns** -
   `category_scores.woocommerce`/`.accessibility` are computed live from
   findings (see above) rather than from a `vulopilot_site_health_snapshots`
   column, because no column for either exists in that table's schema
