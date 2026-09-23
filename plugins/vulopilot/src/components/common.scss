@@ -743,3 +743,8 @@
         margin-bottom: 0.25rem;
     }
 }
+
+
+.settings-input-content:has(.repeater-field-wrapper){
+    width: 100% !important;
+}

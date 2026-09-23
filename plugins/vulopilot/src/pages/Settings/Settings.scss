@@ -303,6 +303,16 @@
 	margin-bottom: 0;
 }
 
+// The code `TextInput` + its "Verify" `ButtonInput`, side by side right
+// after the field - moved out of CardHeader's own `action` slot (which
+// rendered it pinned to the far right of the whole row, away from the
+// field it actually acts on) per direct instruction.
+.site-verification-code-row {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
 // Settings/SendTestReportButton.tsx - Settings → Reports' header "Send Test
 // Report" button. Without Pro it carries an inline "Pro" tag (a plain
 // `.admin-tag.pro-tag` is an absolute-positioned corner ribbon; `.pro-tag-inline`

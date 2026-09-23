@@ -298,35 +298,6 @@ const ProviderRow = ({ provider, icon, title, desc }: ProviderRowConfig) => {
 					{isVerified ? __('Verified', 'vulopilot') : __('Not Verified', 'vulopilot')}
 				</span>
 			}
-			action={
-				<>
-					<ButtonInput
-						buttons={{
-							text: isVerifying
-								? __('Verifying…', 'vulopilot')
-								: isVerified
-									? __('Manage Verification', 'vulopilot')
-									: sprintf(
-										/* translators: %s is the provider name (Bing, Pinterest). */
-										__('Verify', 'vulopilot'),
-										title
-									),
-							color: isVerifying
-								? 'text-purple'
-								: isVerified
-									? 'text-purple'
-									: 'text-purple',
-							rightIcon: isVerifying
-								? 'setting'
-								: isVerified
-									? 'spmv'
-									: 'setting',
-							disabled: isVerifying,
-							onClick: verify,
-						}}
-					/>
-				</>
-			}
 		>
 			<div className="ai-provider-card-body gsc-service-body">
 				<div className="ai-provider-field site-verification-code-field">
@@ -336,13 +307,35 @@ const ProviderRow = ({ provider, icon, title, desc }: ProviderRowConfig) => {
 							title
 						)}
 					</label> */}
-					<TextInput
-						id={`${codeKey}-input`}
-						type="text"
-						value={code}
-						onChange={(value) => setCode(String(value))}
-						placeholder={__('Paste the verification code from your provider', 'vulopilot')}
-					/>
+					<div className="site-verification-code-row">
+						<TextInput
+							id={`${codeKey}-input`}
+							type="text"
+							value={code}
+							onChange={(value) => setCode(String(value))}
+							placeholder={__('Paste the verification code from your provider', 'vulopilot')}
+						/>
+						<ButtonInput
+							buttons={{
+								text: isVerifying
+									? __('Verifying…', 'vulopilot')
+									: isVerified
+										? __('Manage Verification', 'vulopilot')
+										: sprintf(
+											/* translators: %s is the provider name (Bing, Pinterest). */
+											__('Verify', 'vulopilot'),
+											title
+										),
+								color: isVerifying
+									? 'text-purple'
+									: isVerified
+										? 'text-purple'
+										: 'text-purple',
+								disabled: isVerifying,
+								onClick: verify,
+							}}
+						/>
+					</div>
 					{isVerified && (
 						<NoticeComponent
 							displayPosition="inline"
