@@ -17,11 +17,8 @@
         display: flex;
         align-items: flex-start;
         border-radius: 0.5rem;
-        // cursor: pointer;
+        cursor: pointer;
 
-        &:hover {
-            background: $theme-background-color;
-        }
 
         // The real, currently-selected row (HistoryTimeline.tsx's own
         // `selectedRow?.id === row.id` check) - previously computed but
@@ -33,7 +30,7 @@
         // visible sign of *which* row in this list that was.
         &.selected {
             .history-details {
-                background: rgba(124, 58, 237, 0.08);
+                background: $theme-background-color
             }
         }
 
@@ -105,6 +102,9 @@
             align-items: center;
             cursor: pointer;
 
+            &:hover{
+                background: $theme-background-color;
+            }
             &::after {
                 position: absolute;
                 content: '';
@@ -656,10 +656,6 @@
 
 // settings start
 .api-key-form {
-    background: $theme-background-color !important;
-    margin-top: 1.5rem;
-    border-radius: $border-light-small;
-
     .settings-input-content {
         display: flex;
         flex-direction: column;
@@ -679,6 +675,10 @@
     .form-group-wrapper,
     .form-group {
         background: transparent !important;
+    }
+    .notice-action{
+        background: transparent !important;
+        color: $theme-color !important;
     }
 }
 

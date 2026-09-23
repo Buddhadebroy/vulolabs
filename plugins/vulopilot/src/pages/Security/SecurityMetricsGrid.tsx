@@ -179,7 +179,7 @@ const SecurityMetricsGrid = ({
 	return (
 		<>
 		<ListComponent
-			className="mini-card report list"
+			className="mini-card report list hover"
 			items={METRIC_TILES.map((tile) => {
 				const isTracked = Boolean(VIEW_TARGET_BY_TILE_ID[tile.id]);
 				const badges = badgesFor(tile.id);

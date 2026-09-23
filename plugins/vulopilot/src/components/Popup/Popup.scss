@@ -7,6 +7,7 @@
 }
 
 .popup-wrapper {
+
 	// module popup
 	.popup-header {
 		height: 12rem;
@@ -95,15 +96,17 @@
 		}
 	}
 
-	.admin-btn {
-		font-size: 1.063rem;
-		font-weight: 500;
-		background: $color-white;
-		margin-top: 1rem;
-		color: $color-black;
+	.top-section {
+		.admin-btn {
+			font-size: 1.063rem;
+			font-weight: 500;
+			background: $color-white;
+			margin-top: 1rem;
+			color: $color-black;
 
-		.arrow-icon {
-			transform: rotate(-45deg);
+			.arrow-icon {
+				transform: rotate(-45deg);
+			}
 		}
 	}
 }

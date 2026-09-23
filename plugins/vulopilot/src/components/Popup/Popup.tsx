@@ -230,8 +230,8 @@ const ShowProPopup: React.FC<PopupProps> = (props) => {
 	if (props.vulocloud) {
 		return (
 			<div className="popup-wrapper">
-				<div className="popup-header">
-					<i className="adminfont-lock" />
+				<div className="popup-header orange-bg">
+					<i className="adminfont-lock orange-bg" />
 				</div>
 				<div className="popup-body">
 					<div className="module-name">
@@ -251,6 +251,7 @@ const ShowProPopup: React.FC<PopupProps> = (props) => {
 								text: isConnecting
 									? __('Connecting…', 'vulopilot')
 									: __('Connect to VuloCloud', 'vulopilot'),
+								color: 'orange-bg',
 								disabled: isConnecting,
 								onClick: handleConnect,
 							},

@@ -50,6 +50,8 @@ declare global {
 		};
 		/** Every real public post type this site has registered beyond the 4 Settings → Sitemap's own "Post types in sitemap" checkbox list already hardcodes (post/page/attachment/product) - a theme/plugin-registered custom post type, so it shows up there as a real, checkable option (`FrontendScripts::get_sitemap_custom_post_types()`). Empty array on a site with no custom post types. */
 		sitemap_custom_post_types: { value: string; label: string }[];
+		/** Whether WooCommerce is active on this site (`class_exists('WooCommerce')`) - Settings → Instant Indexing's own "Products" post-type option (IndexNowPanel.tsx) hides itself when this is false, same real gate Settings → Sitemap's own "Products"/"Product Categories"/"Product Tags" options already document (just not yet enforced there client-side). */
+		has_woocommerce: boolean;
 	}
 
 
