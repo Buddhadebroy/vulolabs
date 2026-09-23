@@ -1,11 +1,6 @@
 <?php
 namespace VuloPilot\AiAssistant;
 
-use VuloPilot\AiAssistant\AiRequestSender;
-use VuloPilot\Dashboard\ActivityLogRepository;
-use VuloPilot\Utill;
-use VuloPilot\Utill\Severity;
-
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -14,7 +9,7 @@ defined( 'ABSPATH' ) || exit;
  * `contexts/vulopilot/ai-credits` bounded context. `get_broker_authorize_url()`/
  * `exchange_broker_code()` are the one real "Connect to VuloCloud" flow
  * (ConnectVuloCloudPopup.tsx's own docblock) - the site owner authenticates
- * on a VuloCloud-hosted page (ConnectBrokerClient/ConnectBrokerCallbackHandler)
+ * on a VuloCloud-hosted page (VuloCloudApiClient/ConnectBrokerCallbackHandler)
  * rather than typing a password into this plugin at all, landing on
  * `save_connection()` below with a durable, site-scoped credential the
  * plugin can use on every subsequent AI Gateway call. `get_status()`
@@ -147,7 +142,7 @@ class AiCreditsConnection {
             return new \WP_Error( 'vulopilot_ai_credits_not_connected', __( 'This site is not connected to VuloCloud AI Credits.', 'vulopilot' ), array( 'status' => 400 ) );
         }
 
-        $result = ( new AiCreditsApiClient( VULOPILOT_VULOCLOUD_URL ) )->get_balance( $credential['site_id'], $credential['secret'] );
+        $result = ( new VuloCloudApiClient( VULOPILOT_VULOCLOUD_URL ) )->get_balance( $credential['site_id'], $credential['secret'] );
 
         if ( is_wp_error( $result ) ) {
             // Offline/unreachable - VuloPilot brief §27: never destroy the
@@ -203,7 +198,7 @@ class AiCreditsConnection {
      * The passwordless "Connect to VuloCloud" URL - Settings →
      * Connections' own Connect button 302s the browser here instead of
      * rendering a login/signup form itself (see this repo's
-     * ConnectBrokerClient/ConnectBrokerCallbackHandler for the rest of the
+     * VuloCloudApiClient/ConnectBrokerCallbackHandler for the rest of the
      * sequence). `state` is a real WP nonce (verified in
      * `verify_broker_state()` on the way back, guarding the callback
      * against CSRF the same way every other WordPress admin-post handler's
@@ -225,7 +220,7 @@ class AiCreditsConnection {
         // VULOPILOT_VULOCLOUD_PUBLIC_URL's own docblock in config.php.
         $browser_url = '' !== trim( VULOPILOT_VULOCLOUD_PUBLIC_URL ) ? VULOPILOT_VULOCLOUD_PUBLIC_URL : VULOPILOT_VULOCLOUD_URL;
 
-        return ( new ConnectBrokerClient( $browser_url ) )->get_authorize_url(
+        return ( new VuloCloudApiClient( $browser_url ) )->get_authorize_url(
             home_url(),
             $this->get_broker_redirect_uri(),
             $state,
@@ -251,7 +246,7 @@ class AiCreditsConnection {
      * @return array<string, mixed>|\WP_Error Same shape as get_status().
      */
     public function exchange_broker_code( string $code ) {
-        $result = ( new ConnectBrokerClient( VULOPILOT_VULOCLOUD_URL ) )->exchange( home_url(), $code );
+        $result = ( new VuloCloudApiClient( VULOPILOT_VULOCLOUD_URL ) )->exchange( home_url(), $code );
 
         if ( is_wp_error( $result ) ) {
             return $result;
@@ -321,7 +316,7 @@ class AiCreditsConnection {
         $credential = $this->get_site_credential();
 
         if ( $credential ) {
-            $result = ( new AiCreditsApiClient( VULOPILOT_VULOCLOUD_URL ) )->disconnect_site( $credential['site_id'], $credential['secret'] );
+            $result = ( new VuloCloudApiClient( VULOPILOT_VULOCLOUD_URL ) )->disconnect_site( $credential['site_id'], $credential['secret'] );
 
             if ( is_wp_error( $result ) ) {
                 error_log( sprintf( '[VuloPilot] Could not revoke ConnectedSite %s on disconnect: %s', $credential['site_id'], $result->get_error_message() ) );

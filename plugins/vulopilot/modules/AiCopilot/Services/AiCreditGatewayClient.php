@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  * prompt - VuloCloud's own feature catalog owns the actual system
  * prompt/model/provider choice, this site never sees or influences it.
  *
- * Deliberately its own class, separate from AiCreditsApiClient (which
+ * Deliberately its own class, separate from VuloCloudApiClient (which
  * only talks to the `ai-credits` context's connect/balance endpoints) -
  * this is a different bounded context on the vulocloud side and a
  * different real caller here (AiCopilot\ActionRunner, its only real

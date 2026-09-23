@@ -1,14 +1,7 @@
 <?php
 namespace VuloPilot\AiAssistant\Rest;
 
-use VuloPilot\AiAssistant\ActionRunRepository;
-use VuloPilot\Dashboard\ActivityLogRepository;
 use VuloPilot\AiAssistant\AiHistoryRepository;
-use VuloPilot\Utill\FindingRepository;
-use VuloPilot\Performance\PageSpeedRepository;
-use VuloPilot\Reports\ReportRepository;
-use VuloPilot\Utill\ScanRepository;
-use VuloPilot\Utill;
 
 defined( 'ABSPATH' ) || exit;
 

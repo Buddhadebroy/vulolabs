@@ -125,7 +125,7 @@ if ( ! defined( 'VULOPILOT_VULOCLOUD_URL' ) ) {
  * Browser-facing override of VULOPILOT_VULOCLOUD_URL above, used only when
  * the two differ - a real deployment serves both the API this site's own
  * PHP calls server-to-server AND the hosted pages a human's browser is
- * ever redirected to (ConnectBrokerClient::get_authorize_url()) from the
+ * ever redirected to (VuloCloudApiClient::get_authorize_url()) from the
  * one public domain, so VULOPILOT_VULOCLOUD_URL alone is already correct
  * and this constant stays empty/unused there. Local Docker dev is the one
  * place they legitimately differ: WordPress's own container resolves

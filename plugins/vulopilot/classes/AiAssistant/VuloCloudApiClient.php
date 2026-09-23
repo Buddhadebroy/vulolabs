@@ -1,33 +1,42 @@
 <?php
 namespace VuloPilot\AiAssistant;
 
-use VuloPilot\AiAssistant\AiRequestSender;
-use VuloPilot\Dashboard\ActivityLogRepository;
-use VuloPilot\Utill;
-use VuloPilot\Utill\Severity;
-
 defined( 'ABSPATH' ) || exit;
 
 /**
- * HTTP client for VuloCloud's `/plugin/connect/*` broker endpoints - the
- * passwordless "Connect to VuloCloud" flow: this site's browser is
- * redirected to a real VuloCloud-hosted login/signup page instead of ever
- * typing a VuloCloud password into a form this plugin itself renders.
- * Mirrors GoogleOAuthBrokerClient exactly (same "authorize is a plain URL
- * build, only exchange is a real server-to-server call" shape) - see that
- * class's own docblock.
+ * HTTP client for VuloCloud's `/plugin/connect/*` broker endpoints (the
+ * passwordless "Connect to VuloCloud" flow) and its `ai-credits` bounded
+ * context (`contexts/vulopilot/ai-credits` in the vulocloud repo). Merged
+ * from this plugin's former ConnectBrokerClient.php and
+ * AiCreditsApiClient.php - both were thin HTTP clients hit only by
+ * AiCreditsConnection.php, for two stages of the same VuloCloud connection
+ * (connect, then read/manage the resulting credential), so one client class
+ * for both.
  *
- * @class       ConnectBrokerClient class
+ * `get_authorize_url()`/`exchange()` mirror GoogleOAuthBrokerClient exactly
+ * (same "authorize is a plain URL build, only exchange is a real
+ * server-to-server call" shape). `get_balance()`/`disconnect_site()` are
+ * site-secret authenticated (no human token involved) - the real
+ * ConnectedSite credential itself comes from exchange(), not from a
+ * connect-site call on this client.
+ *
+ * AiCreditsConnection constructs this with different base URLs for
+ * different calls: a browser-facing URL for get_authorize_url() (must be
+ * reachable from the site owner's own browser, e.g. VULOPILOT_VULOCLOUD_PUBLIC_URL
+ * in local Docker dev), and VULOPILOT_VULOCLOUD_URL (server-to-server) for
+ * everything else.
+ *
+ * @class       VuloCloudApiClient class
  * @version     1.0.0
  * @author      VuloLabs
  */
-class ConnectBrokerClient {
+class VuloCloudApiClient {
 
 	/** @var string e.g. https://cloud.vulolabs.com (no trailing slash) */
-	private $broker_url;
+	private $base_url;
 
-	public function __construct( string $broker_url ) {
-		$this->broker_url = untrailingslashit( $broker_url );
+	public function __construct( string $base_url ) {
+		$this->base_url = untrailingslashit( $base_url );
 	}
 
 	/**
@@ -90,7 +99,7 @@ class ConnectBrokerClient {
 			$params['brandId'] = $brand_id;
 		}
 
-		return $this->broker_url . '/plugin/connect/authorize?' . http_build_query( $params );
+		return $this->base_url . '/plugin/connect/authorize?' . http_build_query( $params );
 	}
 
 	/**
@@ -104,7 +113,7 @@ class ConnectBrokerClient {
 	 */
 	public function exchange( string $domain, string $code ) {
 		$response = wp_remote_post(
-			$this->broker_url . '/plugin/connect/exchange',
+			$this->base_url . '/plugin/connect/exchange',
 			array(
 				'timeout' => 15,
 				'headers' => array( 'Content-Type' => 'application/json' ),
@@ -147,6 +156,94 @@ class ConnectBrokerClient {
 			'siteId'     => (string) $body['siteId'],
 			'siteSecret' => (string) $body['siteSecret'],
 			'credits'    => (int) ( $body['credits'] ?? 0 ),
+		);
+	}
+
+	/**
+	 * `POST /plugin/ai-credits/balance` - site-secret authenticated
+	 * (no human token involved). Response, on success:
+	 * `{ credits, lifetimeEarned, lifetimeUsed }`.
+	 *
+	 * @param string $site_id The ConnectedSite id from AiCreditsConnection::exchange_broker_code()'s own stored connection.
+	 * @param string $secret  The plaintext site secret from that same stored connection.
+	 * @return array|\WP_Error
+	 */
+	public function get_balance( $site_id, $secret ) {
+		return $this->request(
+			'/plugin/ai-credits/balance',
+			array(
+				'siteId' => $site_id,
+				'secret' => $secret,
+			)
+		);
+	}
+
+	/**
+	 * `POST /plugin/ai-credits/disconnect` - site-secret authenticated,
+	 * same shape as get_balance() above (no human token). Real
+	 * self-service revoke on VuloCloud's own side (ConnectedSiteService::revokeBySite()),
+	 * not just a local option clear.
+	 *
+	 * @param string $site_id The ConnectedSite id from AiCreditsConnection::exchange_broker_code()'s own stored connection.
+	 * @param string $secret  The plaintext site secret from that same stored connection.
+	 * @return array|\WP_Error
+	 */
+	public function disconnect_site( $site_id, $secret ) {
+		return $this->request(
+			'/plugin/ai-credits/disconnect',
+			array(
+				'siteId' => $site_id,
+				'secret' => $secret,
+			)
+		);
+	}
+
+	/**
+	 * Shared POST + "completed round trip vs genuine network failure" split.
+	 *
+	 * @param string $path         e.g. '/plugin/ai-credits/balance'.
+	 * @param array  $body         Request body, JSON-encoded.
+	 * @param string $access_token Sent as a Bearer token when non-empty.
+	 * @return array|\WP_Error
+	 */
+	private function request( $path, array $body, $access_token = '' ) {
+		$headers = array( 'Content-Type' => 'application/json' );
+
+		if ( '' !== $access_token ) {
+			$headers['Authorization'] = 'Bearer ' . $access_token;
+		}
+
+		$response = wp_remote_post(
+			$this->base_url . $path,
+			array(
+				'timeout' => 15,
+				'headers' => $headers,
+				'body'    => wp_json_encode( $body ),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$status   = (int) wp_remote_retrieve_response_code( $response );
+		$raw_body = wp_remote_retrieve_body( $response );
+		$decoded  = json_decode( $raw_body, true );
+
+		if ( ! is_array( $decoded ) ) {
+			return new \WP_Error(
+				'vulopilot_ai_credits_unparseable_response',
+				sprintf(
+					/* translators: %d: HTTP status code. */
+					__( 'VuloCloud returned a non-JSON response (HTTP %d).', 'vulopilot' ),
+					$status
+				)
+			);
+		}
+
+		return array(
+			'http_status' => $status,
+			'body'        => $decoded,
 		);
 	}
 }

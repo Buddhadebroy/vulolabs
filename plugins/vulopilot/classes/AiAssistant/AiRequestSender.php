@@ -2,18 +2,260 @@
 /**
  * AiRequestSender class file.
  *
+ * Merges this plugin's former AIRequest.php, AIResponse.php and
+ * AISafetyValidator.php into one file alongside AiRequestSender itself -
+ * a request value object, a response value object, a two-gate validator,
+ * and the one sender that ties all three together, none of them meaningful
+ * on their own outside this pipeline.
+ *
  * @package VuloPilot
  */
 
 namespace VuloPilot\AiAssistant;
 
 use VuloPilot\Utill\VuloPilotException;
-use VuloPilot\AiAssistant\AiHistoryRepository;
 use VuloPilot\Utill as UtillHelper;
-use VuloPilot\AiAssistant\AIRequest;
-use VuloPilot\AiAssistant\AIResponse;
 
 defined( 'ABSPATH' ) || exit;
+
+/**
+ * A request sent from VuloPilot to the VuloCloud AI API - a chat-style
+ * prompt plus a couple of optional real hints, and nothing else. VuloCloud
+ * alone decides which vendor/model answers a call and how; this site never
+ * picks or configures that, so there is no `model`/`temperature`/
+ * `max_tokens` here to pick or configure.
+ *
+ * @class       AIRequest class
+ * @version     1.0.0
+ * @author      VuloLabs
+ */
+final class AIRequest {
+
+    /**
+     * @var array<int, array{role: string, content: string}>
+     */
+    private array $messages;
+
+    /**
+     * A single inline image for the current turn, `{mime_type, data}`
+     * (`data` base64-encoded) - additive and optional so every existing
+     * caller building a text-only request is unaffected. The VuloCloud
+     * gateway's wire contract carries text only, so nothing reads this today;
+     * it stays on the request for when that changes.
+     *
+     * @var array{mime_type: string, data: string}|null
+     */
+    private ?array $image;
+
+    /**
+     * Which real feature/endpoint triggered this call - e.g. 'copilot_chat',
+     * 'content_assistant_chat', 'ai_action', 'geo_analysis',
+     * 'content_intelligence'. Purely an audit-trail tag: read only by
+     * AiRequestSender, written to `vulopilot_ai_history.surface`, so
+     * AI Copilot History's "Conversations" filter (and any future
+     * per-feature usage breakdown) can tell a real chat turn apart from
+     * every other feature that shares the same sender.
+     * Null for any caller that doesn't pass one - no behavior change.
+     *
+     * @var string|null
+     */
+    private ?string $surface;
+
+    /**
+     * @param array                                        $messages array<int, array{role: string, content: string}>.
+     * @param array{mime_type: string, data: string}|null $image   Optional inline image for the current turn.
+     * @param string|null                                 $surface Optional real feature label - see get_surface()'s own docblock.
+     */
+    public function __construct(
+        array $messages,
+        ?array $image = null,
+        ?string $surface = null
+    ) {
+        $this->messages = $messages;
+        $this->image    = $image;
+        $this->surface  = $surface;
+    }
+
+    /**
+     * @return array<int, array{role: string, content: string}>
+     */
+    public function get_messages(): array {
+        return $this->messages;
+    }
+
+    /**
+     * @return array{mime_type: string, data: string}|null
+     */
+    public function get_image(): ?array {
+        return $this->image;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function get_surface(): ?string {
+        return $this->surface;
+    }
+}
+
+/**
+ * The response returned by the VuloCloud AI API, including the credits
+ * consumed by the request. Immutable - sanitizing the content
+ * (AISafetyValidator::sanitize_response()) produces a new instance via
+ * with_content() rather than mutating this one.
+ *
+ * @class       AIResponse class
+ * @version     1.0.0
+ * @author      VuloLabs
+ */
+final class AIResponse {
+
+    /**
+     * @var string
+     */
+    private string $content;
+
+    /**
+     * Real AI credits this call spent, as reported by VuloCloud. `0` is a
+     * genuine, honest value here, not a placeholder: it means the specific
+     * gateway path that produced this response is uncredited (e.g.
+     * AiByokGatewayClient's `/plugin/ai/byok-execute`, which has no
+     * credits field in its response at all), not that credit accounting is
+     * unfinished. A credits-metered path (e.g. AiCreditGatewayClient's
+     * `/plugin/ai/execute`) reports the real spent amount here instead.
+     *
+     * @var int
+     */
+    private int $credits_used;
+
+    /**
+     * VuloCloud's own request id for this call, when the gateway that
+     * produced this response returns one - null when it doesn't (never
+     * fabricated).
+     *
+     * @var string|null
+     */
+    private ?string $request_id;
+
+    /**
+     * @param string      $content      Generated content.
+     * @param int         $credits_used Real AI credits this call spent - see get_credits_used()'s own docblock for why `0` is a real, honest value from some gateways.
+     * @param string|null $request_id   VuloCloud's own request id for this call, if the gateway returned one.
+     */
+    public function __construct(
+        string $content,
+        int $credits_used,
+        ?string $request_id = null
+    ) {
+        $this->content      = $content;
+        $this->credits_used = $credits_used;
+        $this->request_id   = $request_id;
+    }
+
+    /**
+     * @return string
+     */
+    public function get_content(): string {
+        return $this->content;
+    }
+
+    /**
+     * @return int
+     */
+    public function get_credits_used(): int {
+        return $this->credits_used;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function get_request_id(): ?string {
+        return $this->request_id;
+    }
+
+    /**
+     * Returns a copy of this response with different content - used to
+     * apply sanitization without mutating the original.
+     *
+     * @param string $new_content Replacement content.
+     * @return self
+     */
+    public function with_content( string $new_content ): self {
+        return new self(
+            $new_content,
+            $this->credits_used,
+            $this->request_id
+        );
+    }
+}
+
+/**
+ * Two gates every AI call goes through: validate_prompt() before a
+ * request is ever sent (called by AiRequestSender), and sanitize_response()
+ * on whatever comes back before it's used anywhere a site owner would
+ * see it (a Recommendation's description, a future auto-applied fix).
+ *
+ * Deliberately conservative, not exhaustive - the secret-pattern check
+ * catches the shapes of common API keys (an ounce of self-consistency:
+ * don't let a prompt-builder accidentally interpolate a credential into a
+ * prompt), not a general-purpose PII/secrets scanner.
+ *
+ * @class       AISafetyValidator class
+ * @version     1.0.0
+ * @author      VuloLabs
+ */
+class AISafetyValidator {
+
+    private const MAX_PROMPT_LENGTH = 32000;
+
+    /**
+     * @var string[] Regex patterns matching common API-key shapes.
+     */
+    private const SECRET_PATTERNS = array(
+        '/sk-[a-zA-Z0-9]{20,}/',            // OpenAI-style secret key.
+        '/AIza[0-9A-Za-z\-_]{35}/',          // Google API key.
+        '/-----BEGIN (RSA |EC )?PRIVATE KEY-----/',
+    );
+
+    /**
+     * @param array<int, array{role: string, content: string}> $messages The prompt about to be sent.
+     * @return void
+     *
+     * @throws VuloPilotException If the prompt is too long or appears to contain a secret.
+     */
+    public function validate_prompt( array $messages ): void {
+        $combined = implode( "\n", array_column( $messages, 'content' ) );
+
+        if ( mb_strlen( $combined ) > self::MAX_PROMPT_LENGTH ) {
+            throw new VuloPilotException(
+                sprintf(
+                    /* translators: %d is the maximum allowed prompt length in characters. */
+                    esc_html__( 'This request is too long to send to the AI service (limit: %d characters).', 'vulopilot' ),
+                    absint( self::MAX_PROMPT_LENGTH )
+                ), VuloPilotException::TYPE_UNSAFE_PROMPT );
+        }
+
+        foreach ( self::SECRET_PATTERNS as $pattern ) {
+            if ( preg_match( $pattern, $combined ) ) {
+                throw new VuloPilotException(
+                    esc_html__( 'This request appears to contain a credential and was blocked before sending.', 'vulopilot' ), VuloPilotException::TYPE_UNSAFE_PROMPT );
+            }
+        }
+    }
+
+    /**
+     * Strips any HTML/script content out of an AI response before it's
+     * used anywhere - a plain-text/markdown answer is what every job
+     * handler here expects, and an AI response should never be trusted
+     * as safe-to-render HTML just because it came back successfully.
+     *
+     * @param AIResponse $response Response to sanitize.
+     * @return AIResponse A copy with sanitized content.
+     */
+    public function sanitize_response( AIResponse $response ): AIResponse {
+        return $response->with_content( wp_kses( $response->get_content(), array() ) );
+    }
+}
 
 /**
  * The one path every real AI call in this plugin goes through: safety-validate
