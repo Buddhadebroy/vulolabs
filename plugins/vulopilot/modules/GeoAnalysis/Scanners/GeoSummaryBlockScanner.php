@@ -77,7 +77,7 @@ class GeoSummaryBlockScanner extends ScannerUtil implements TracksScannedObjects
         $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
         // GEO has no whole-category kill switch (unlike SEO/Accessibility/
-        // WooCommerce) - this is this one scanner's own on/off switch,
+        // Commerce) - this is this one scanner's own on/off switch,
         // letting an admin turn off just this check while every other GEO
         // check keeps running. Settings → Scanning → AI Visibility's
         // "Answer-first content" row - moved from the old flat

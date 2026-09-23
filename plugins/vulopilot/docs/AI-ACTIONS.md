@@ -151,7 +151,7 @@ persisted Finding row to resolve a fix from at all), `ContentOptimization\Conten
 and `WooCommerceAi\BulkOptimizeRest` (bulk "optimize all" flows, proposing one object at a time),
 `Automation\Actions\RunAiActionAction` (an automation's own configured action), and
 `McpServer\Tools\AbstractActionProposalTool` - a shared base class
-[`MCP-SERVER-MODULE.md`](MCP-SERVER-MODULE.md)'s Content/SEO/Visibility/WooCommerce Tools all
+[`MCP-SERVER-MODULE.md`](MCP-SERVER-MODULE.md)'s Content/SEO/Visibility/Commerce Tools all
 extend, each concrete tool only declaring which existing action id it wraps. All of these exist
 specifically so the approval pause this section describes can never be skipped, regardless of what
 triggered the proposal.
@@ -206,7 +206,7 @@ registered in `ActionRegistry::get_default_action_classes()`:
 | `WriteMetaTitleAction` | Existing-field rewrite | `post_title` via `wp_update_post()` | Restore previous `post_title` |
 | `SuggestInternalLinksAction` | Content-append (visible HTML) | `post_content` (appends a links block) via `wp_update_post()` | Restore previous `post_content` |
 | `GenerateSocialContentAction` | Metadata-only write, no matching scanner/rule | A dedicated social-captions postmeta key | Restore previous meta value, or delete if there wasn't one |
-| `GenerateProductDescriptionAction` | New-content creation | `wp_insert_post()`, `post_type` = `product` if WooCommerce is active else `post`, always `post_status = 'draft'` | `wp_trash_post()` |
+| `GenerateProductDescriptionAction` | New-content creation | `wp_insert_post()`, `post_type` = `product` if the store platform is active else `post`, always `post_status = 'draft'` | `wp_trash_post()` |
 | `GenerateExcerptAction` | Existing-field rewrite | `post_excerpt` via `wp_update_post()` | Restore previous `post_excerpt` |
 | `GenerateComparisonPageAction` | New-content creation from two source posts | `wp_insert_post()`, `post_type = 'post'`, always `post_status = 'draft'` | `wp_trash_post()` |
 

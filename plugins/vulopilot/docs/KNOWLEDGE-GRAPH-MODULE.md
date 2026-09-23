@@ -32,7 +32,7 @@ graph/adjacency data structure has ever been built or persisted -
 they parse per-post, never accumulating it.
 
 **Conclusion**: "Entity Extraction" (Free) is built entirely from real,
-already-existing WordPress/WooCommerce data - never NLP/NER-style text
+already-existing WordPress/e-commerce data - never NLP/NER-style text
 mining, which this codebase has no capability for and none is introduced.
 "Entity Relationships" (Pro) is the first genuinely graph-shaped persisted
 data this codebase has ever had.
@@ -45,7 +45,7 @@ Six entity types, each backed by a real, deterministic data source:
 |---|---|
 | People | WP users who authored at least one published post/page (`get_userdata()` per distinct `post_author`) |
 | Organizations | `vulopilot_homepage_schema_json`'s own `publisher` sub-object when a site owner has run that Pro fix, falling back to the site's own title/URL (always real) otherwise |
-| Products | Real WooCommerce products (`wc_get_products()`, `class_exists('WooCommerce')` guard - same pattern `ProductMissingCategoriesScanner` already uses), `null` when WooCommerce isn't active |
+| Products | Real store products (`wc_get_products()`, `class_exists('WooCommerce')` guard - same pattern `ProductMissingCategoriesScanner` already uses), `null` when the store platform isn't active |
 | Services | Owner-curated: newline-separated page URLs/ids (new `entity_service_pages` setting), each resolved to a real published page |
 | Locations | Owner-curated: newline-separated `Name \| Address` lines (new `entity_business_locations` setting) |
 | Categories | Real taxonomy terms currently attached to at least one published post/product (`get_terms(['taxonomy' => [...], 'hide_empty' => true])`) |
@@ -55,7 +55,7 @@ there is no existing Service/LocalBusiness concept anywhere in this
 codebase to read them from automatically - same "Free owns the setting,
 deterministic once provided" posture `geo_competitor_urls` already
 established. Nothing is fabricated: both are empty arrays until
-configured, and `products` is `null` (not `0`) when WooCommerce isn't
+configured, and `products` is `null` (not `0`) when the store platform isn't
 active, matching `Dashboard`'s own `category_scores.woocommerce`
 convention.
 
@@ -94,7 +94,7 @@ doesn't reliably mean a real relationship). Two kinds of real edges:
 - `categorized_as` (Product → Category) - a product's own real
   `category_ids` (already in `EntityExtractor`'s own Product meta) cross-
   referenced against extracted Category entities by term id. No new
-  WooCommerce query needed.
+  store-platform query needed.
 
 Stored in a new table, `vulopilot_entity_relationships`
 (`EntityRelationshipRepository`, extends Free's `Utill\RepositoryUtil` -
@@ -121,7 +121,7 @@ inactive convention practices):
 - % of People with a real author bio.
 - % of Locations with a real address.
 - % of Products with a real `categorized_as` relationship (skipped
-  entirely when WooCommerce is inactive).
+  entirely when the store platform is inactive).
 - Whether the Organization entity has a real logo (always evaluated -
   `extract_organizations()` always returns at least the site-title
   fallback, so this dimension is never skipped).
@@ -210,8 +210,8 @@ are.
 methods (invoked via Reflection, same posture
 `test-about-page-analysis-scanner.php` already documents), stubbing only
 the plain WordPress functions each one touches. `extract_products()`'s
-"WooCommerce active" branch isn't covered (would need a real/mocked
-`WC_Product` graph this test suite has no precedent for); its "WooCommerce
+"store platform active" branch isn't covered (would need a real/mocked
+`WC_Product` graph this test suite has no precedent for); its "store platform
 inactive" branch is covered for free since the `WooCommerce` class
 genuinely doesn't exist in this Brain\Monkey-only bootstrap.
 

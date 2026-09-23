@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Persistence for `vulopilot_page_speed` - "Performance" › Slow Pages'
  * per-page table, written by Services\PageSpeedScanner. One row per real
- * WP page/post/WooCommerce page it has checked; `replace_for_url()` deletes
+ * WP page/post/store-platform page it has checked; `replace_for_url()` deletes
  * any prior row for that URL before inserting the fresh one, so a page not
  * yet rescanned keeps showing its last real result instead of disappearing
  * mid-scan.

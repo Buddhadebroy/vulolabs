@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * A trigger decides *when* AutomationEngine re-checks automations bound to
- * it - a cron tick (hourly/daily/weekly/monthly), a WordPress/WooCommerce
+ * it - a cron tick (hourly/daily/weekly/monthly), a WordPress/store-platform
  * event (product created, order completed, …), or nothing at all for
  * triggers invoked directly (manual "Run now", REST/webhook call).
  * Implemented by AutomationEngine\Triggers\* (free) and any premium

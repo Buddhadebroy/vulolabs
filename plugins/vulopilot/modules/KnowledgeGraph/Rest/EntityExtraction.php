@@ -136,7 +136,7 @@ class EntityExtraction extends \WP_REST_Controller {
 
         // Same real, per-viewer `edit_url` reasoning as `people` above -
         // `current_user_can( 'edit_term', ... )` respects each taxonomy's
-        // own real capability mapping (e.g. WooCommerce's own
+        // own real capability mapping (e.g. the store platform's own
         // `manage_product_terms` for `product_cat`, not just the default
         // `category` taxonomy's `manage_categories`), so this can't be
         // baked into EntityExtractor::extract_all()'s own shared cache

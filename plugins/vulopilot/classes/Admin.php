@@ -189,12 +189,12 @@ class Admin {
         );
 
         // "Commerce" (StoreOverviewCards.tsx and friends) is entirely
-        // WooCommerce-scoped - same `class_exists( 'WooCommerce' )` check
-        // every WooCommerce-dependent scanner/REST controller in this
-        // plugin already uses (WooCommerceScanner.php, StoreReadiness.php,
+        // store-platform-scoped - same `class_exists( 'WooCommerce' )` check
+        // every store-platform-dependent scanner/REST controller in this
+        // plugin already uses (the store scanner, StoreReadiness.php,
         // etc.), just applied to the submenu's own visibility instead of a
         // per-request data check. Hidden entirely rather than shown-but-
-        // empty when WooCommerce isn't installed/active; reappears the
+        // empty when the store platform isn't installed/active; reappears the
         // moment it is, with no other change needed. Deliberately NOT also
         // gated on the `commerce` module's own active state (tried once,
         // reverted per direct instruction) - the menu item stays reachable

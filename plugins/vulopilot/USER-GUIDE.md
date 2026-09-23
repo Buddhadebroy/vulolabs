@@ -1,8 +1,8 @@
 # VuloPilot (Free) - User Guide
 
-This is a store-owner/site-admin guide to what VuloPilot's free tier actually does today. It's distinct from `readme.txt` (marketing copy) and from `.claude/`-style developer documentation (hooks/filters reference for third-party extenders) - this describes the real, current behavior of the plugin, verified against the code and a live install (`vulopilot` + WooCommerce active, `vulopilot-pro` inactive).
+This is a store-owner/site-admin guide to what VuloPilot's free tier actually does today. It's distinct from `readme.txt` (marketing copy) and from `.claude/`-style developer documentation (hooks/filters reference for third-party extenders) - this describes the real, current behavior of the plugin, verified against the code and a live install (`vulopilot` + the store platform active, `vulopilot-pro` inactive).
 
-The admin menu was substantially restructured recently. If you used VuloPilot before and are looking for "Health," "GEO," "WooCommerce," "Activity," or a standalone "AI Assistant"/"Automation"/"Modules" page by that exact name, they're gone as separate pages - their content moved into the pages below (see each section for where).
+The admin menu was substantially restructured recently. If you used VuloPilot before and are looking for "Health," "GEO," "Commerce," "Activity," or a standalone "AI Assistant"/"Automation"/"Modules" page by that exact name, they're gone as separate pages - their content moved into the pages below (see each section for where).
 
 ## What VuloPilot does
 
@@ -10,13 +10,13 @@ VuloPilot scans your WordPress site for issues across several categories, lists 
 
 ## The admin menu (current, real)
 
-In order: **Dashboard, AI Copilot, SEO & Visibility, Content, Performance, Site Health, Accessibility, Security, Commerce** (only shown if WooCommerce is active), **Automations, Reports, Settings**. This is the complete, final top-level list (`classes/Admin.php`'s `add_menus()`) - there is no longer a separate "Health," "GEO," "WooCommerce," "Activity," "AI Assistant," or "Modules" entry; each was folded into one of the pages below (see that method's own comment: "every tab/page that used to be reachable-but-unlinked ... has been removed outright").
+In order: **Dashboard, AI Copilot, SEO & Visibility, Content, Performance, Site Health, Accessibility, Security, Commerce** (only shown if the store platform is active), **Automations, Reports, Settings**. This is the complete, final top-level list (`classes/Admin.php`'s `add_menus()`) - there is no longer a separate "Health," "GEO," "Commerce," "Activity," "AI Assistant," or "Modules" entry; each was folded into one of the pages below (see that method's own comment: "every tab/page that used to be reachable-but-unlinked ... has been removed outright").
 
 ## Dashboard
 
 The landing screen. Shows, top to bottom:
 - A "Getting started" card (setup checklist for a new install).
-- **Vital Pulse**: your real sitewide health score (0-100), critical-issue count, and last-scan time, plus a category score breakdown (SEO/Performance/Security/Accessibility/GEO/Content/Brand/WooCommerce) and a "Health timeline" trend card right beneath it.
+- **Vital Pulse**: your real sitewide health score (0-100), critical-issue count, and last-scan time, plus a category score breakdown (SEO/Performance/Security/Accessibility/GEO/Content/Brand/Commerce) and a "Health timeline" trend card right beneath it.
 - **Site snapshot**: real WordPress core counts (posts, pages, comments, users, active plugins), with an automation-status card alongside it.
 - **Needs your attention**: real open issues, quick fixes, and pending AI-action approvals.
 - **AI crawler traffic**: a quick look at real AI-bot visits to your site, with a link to the full report.
@@ -68,7 +68,7 @@ A single findings view (no tab bar). Checks admin-username detection, REST API u
 
 ## Commerce
 
-Only visible if WooCommerce is active. **This entire tab's real content is now Pro-only.** The free plugin has zero WooCommerce product/store scanning logic of its own any more - all of it (18 product/store scanners, 9 rules) moved to VuloPilot Pro's WooCommerce Intelligence module. On a Free-only install (as tested live), this page shows a locked/blurred preview of the real Commerce dashboard plus an "Upgrade to Pro" popup - not real data, and not hidden entirely (the menu item itself stays visible whenever WooCommerce is active, regardless of Pro status). The one narrow exception: **Settings → Scanning → WooCommerce** still has one real, free toggle, "Flag products missing schema" (see Settings below) - everything else WooCommerce-related is Pro.
+Only visible if the store platform is active. **This entire tab's real content is now Pro-only.** The free plugin has zero store-platform product/store scanning logic of its own any more - all of it (18 product/store scanners, 9 rules) moved to VuloPilot Pro's Commerce Intelligence module. On a Free-only install (as tested live), this page shows a locked/blurred preview of the real Commerce dashboard plus an "Upgrade to Pro" popup - not real data, and not hidden entirely (the menu item itself stays visible whenever the store platform is active, regardless of Pro status). The one narrow exception: **Settings → Scanning → Commerce** still has one real, free toggle, "Flag products missing schema" (see Settings below) - everything else store-related is Pro.
 
 ## Automations
 
@@ -82,7 +82,7 @@ The page header always shows "Build with AI," "Create Automation," and "Browse T
 
 Two tabs: **Overview** and **History**.
 
-- **Overview**: generate a one-off report and download it. Real report types available today: overall scan summary, SEO, GEO/AI visibility, brand intelligence, content intelligence, performance, security, accessibility, updates, automations, AI usage, and WooCommerce. Export formats are **CSV and JSON** - there is no PDF exporter in this codebase today (only `CsvExporter.php`/`JsonExporter.php` exist under `classes/Reports/Exporters/`). Also on this tab: a real "Report History" table of past generated reports, and a "Scheduled Reports" table that's Pro-gated - Free shows fabricated preview rows behind a blurred "Upgrade to Pro" overlay, not real schedules.
+- **Overview**: generate a one-off report and download it. Real report types available today: overall scan summary, SEO, GEO/AI visibility, brand intelligence, content intelligence, performance, security, accessibility, updates, automations, AI usage, and Commerce. Export formats are **CSV and JSON** - there is no PDF exporter in this codebase today (only `CsvExporter.php`/`JsonExporter.php` exist under `classes/Reports/Exporters/`). Also on this tab: a real "Report History" table of past generated reports, and a "Scheduled Reports" table that's Pro-gated - Free shows fabricated preview rows behind a blurred "Upgrade to Pro" overlay, not real schedules.
 - **History**: a real, day-grouped timeline of scans, content changes, and AI Copilot conversations (moved here from the AI Copilot page).
 
 **Not in free**: scheduled/recurring report delivery and a custom report builder combining multiple types - both Pro (Advanced Reports module).
@@ -93,7 +93,7 @@ Real current tab order: **Business Information, SEO, Scanning, Automation, Repor
 
 - **Business Information**: your site's name/description/contact info used to inform AI-generated content and schema.
 - **SEO**: sub-tabs for SEO Titles, Sitemap, and Instant Indexing (IndexNow).
-- **Scanning**: sub-tabs to toggle scan categories - SEO/Content, AI Visibility (GEO), Accessibility, Security, and WooCommerce. The WooCommerce sub-tab now has exactly one real free toggle ("Flag products missing schema") - it is not the old full WooCommerce-scanning toggle set (that logic moved to Pro entirely, see Commerce above).
+- **Scanning**: sub-tabs to toggle scan categories - SEO/Content, AI Visibility (GEO), Accessibility, Security, and Commerce. The Commerce sub-tab now has exactly one real free toggle ("Flag products missing schema") - it is not the old full store-scanning toggle set (that logic moved to Pro entirely, see Commerce above).
 - **Automation**: settings for the 2 built-in automations' behavior (cooldown/scheduling defaults).
 - **Reports**: report-related preferences.
 - **Notifications**: where critical-finding alerts email to, from-name/from-address, and per-category "Notify me about" checklists (Website Alerts, Visibility Alerts for GEO/brand/knowledge-graph score drops).
@@ -111,13 +111,13 @@ VuloPilot's free tier ships 24 distinct AI action classes (`modules/AiCopilot/Ac
 
 ## What's Pro-only (for context)
 
-The real trigger→action Automation Builder (wizard, AI-generated automations, template library, "Your automations" list, activity feed), the entire Commerce/WooCommerce scanning and AI-sales feature set (18 scanners, 9 rules, AI sales assistant/optimizer), Security Monitoring depth beyond the free checks, scheduled/recurring Reports and the custom report builder, historical health-score trend charts (Advanced Reports), the health-score trend widget's real data, cloud backup storage, and most of the Content Tools grid's 12 tiles (9 of 12). Everything else described above is free, unrestricted, with no time limit.
+The real trigger→action Automation Builder (wizard, AI-generated automations, template library, "Your automations" list, activity feed), the entire Commerce scanning and AI-sales feature set (18 scanners, 9 rules, AI sales assistant/optimizer), Security Monitoring depth beyond the free checks, scheduled/recurring Reports and the custom report builder, historical health-score trend charts (Advanced Reports), the health-score trend widget's real data, cloud backup storage, and most of the Content Tools grid's 12 tiles (9 of 12). Everything else described above is free, unrestricted, with no time limit.
 
 ## Known issues / limitations (current, honest state)
 
 - Automations' manual "Run now" still isn't supported - only the 2 built-ins' own configured schedule actually fires them (this now genuinely works, unlike before).
 - A general, arbitrary trigger→action automation engine doesn't exist in Free - only 2 fixed, schedule-only automations.
-- Commerce is Pro-only in its entirety now, including the menu tab's real content; the menu item itself still shows (gated only on WooCommerce being active, not on Pro), so it's discoverable but shows a locked preview without Pro.
+- Commerce is Pro-only in its entirety now, including the menu tab's real content; the menu item itself still shows (gated only on the store platform being active, not on Pro), so it's discoverable but shows a locked preview without Pro.
 - Reports export as CSV/JSON only - no PDF.
 - Scheduled reports and the health-score historical trend chart are Pro-only and show fabricated/locked preview content in Free, not real data - by design, not a bug.
 - Keywords (SEO & Visibility → Keywords) is honestly "not connected yet" - it doesn't fabricate rank data.
@@ -125,14 +125,14 @@ The real trigger→action Automation Builder (wizard, AI-generated automations, 
 
 ## Manual testing checklist (for a human, in a browser)
 
-This guide's functional review combined static code reading with a live install (`wp plugin list` confirms `vulopilot` + `woocommerce` active, `vulopilot-pro` inactive) but did not click through every screen. Before relying on this as "fully verified," a human should check, in an actual browser:
+This guide's functional review combined static code reading with a live install (`wp plugin list` confirms `vulopilot` + the store-platform plugin active, `vulopilot-pro` inactive) but did not click through every screen. Before relying on this as "fully verified," a human should check, in an actual browser:
 
 - [ ] Each top-level page (Dashboard, AI Copilot, SEO & Visibility, Content, Performance, Site Health, Accessibility, Security, Commerce, Automations, Reports, Settings) loads with exactly one page header, no duplicates.
 - [ ] Findings tables across SEO & Visibility / Content / Performance / Site Health / Accessibility / Security / Commerce (they share a common table component) support search, filtering, pagination, and bulk Resolve/Ignore actions as expected.
 - [ ] Running a scan from the Dashboard or a page's own "Run scan" button actually populates new findings and updates the dashboard's score/widgets afterward.
 - [ ] The Content page's 3 free AI Content Tools tiles (AI Writer, Blog Generator, Duplicate Content) produce a real AI result when a provider is connected, and a clear "connect an AI provider" prompt when none is configured; the 9 Pro tiles correctly show the upgrade popup on a Free-only install.
 - [ ] SEO & Visibility → GEO's GEO Score card loads a real number and trend chart on page load, with no post-ID entry required.
-- [ ] Commerce, with WooCommerce active and Pro inactive, shows the locked/blurred preview and upgrade popup rather than any real store data.
+- [ ] Commerce, with the store platform active and Pro inactive, shows the locked/blurred preview and upgrade popup rather than any real store data.
 - [ ] Automations' 2 built-in cards can be enabled/disabled and their schedule changed, and the header's "Build with AI"/"Create Automation"/"Browse Templates" buttons open the upgrade popup rather than doing nothing.
 - [ ] Reports → Overview generates a real CSV/JSON report file; the Scheduled Reports table shows the blurred dummy rows, not a real schedule form.
 - [ ] Settings → Modules shows all 6 modules (GEO Analysis, Technical SEO, Content Optimization, Knowledge Graph, Brand Visibility, AI Copilot) active by default, and toggling one off actually disables its dependent UI elsewhere.

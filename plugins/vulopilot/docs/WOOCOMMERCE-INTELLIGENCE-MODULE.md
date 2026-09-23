@@ -8,7 +8,7 @@ and
 Same "audit what
 already exists first" shape as that file: Free already had a
 `WooCommerceScanner` (one check, checkout page) plus 11 `Product*`
-scanners (WooCommerce Optimization) before this pass, and `vulopilot-pro`'s
+scanners (Commerce Optimization) before this pass, and `vulopilot-pro`'s
 `WooCommerceAi` module already had 9 AI product-content actions plus a
 bulk-optimize endpoint - 2 of this pass's 6 Pro bullets were therefore
 already fully built, not missing.
@@ -42,7 +42,7 @@ in a later pass: all 18 scanners now live under `vulopilot-pro`'s
 `vulopilot_scanner_sources`/`vulopilot_rule_sources` filter pattern every
 other Pro-added scanner/rule uses, gated on `class_exists('WooCommerce')`.
 They are **not** in `ScannerRegistry::get_default_scanner_classes()`
-any more, and nothing WooCommerce-scanner-shaped ships in Free's own
+any more, and nothing store-platform-scanner-shaped ships in Free's own
 `classes/` tree. The one piece that stayed Free-owned is the live,
 non-Findings `GET /store-readiness` checklist (`classes/Utill/StoreReadiness.php`)
 - see that class's own docblock, and `SCANNERS.md`'s "Extension strategy" for
@@ -123,7 +123,7 @@ out," safe or otherwise.
 `StoreTrendsSnapshotBuilder` self-registers its own daily wp-cron tick
 (own hook, always `'daily'` - no configurable frequency setting the way
 `SecurityScanScheduler`/`AccessibilityAuditScheduler` have, since this
-isn't re-running a scanner) that sums real WooCommerce order totals for
+isn't re-running a scanner) that sums real store order totals for
 **yesterday** - a complete day whose totals never change again - and
 upserts via `StoreTrendsSnapshotRepository::upsert_for_date()`. Exposed
 via `StoreTrendsRest` (`GET /store-trends-history`), same "plain array,
@@ -140,13 +140,13 @@ history-chart pair already establishes. Orders are fetched once for the
 widest (30-day) window and bucketed by date in PHP, not queried three
 times.
 
-### Automation - a new WooCommerce-specific trigger
+### Automation - a new store-specific trigger
 
 `LowStockTrigger` (`low_stock`), added to the existing Automation
 module's own `TriggerRegistry` (not a new module - it belongs there
 structurally), fires on core's own `woocommerce_low_stock` action -
-reusing WooCommerce's own configured low-stock threshold logic rather
-than reinventing a second one. Distinct from the pre-existing
+reusing the store platform's own configured low-stock threshold logic
+rather than reinventing a second one. Distinct from the pre-existing
 `ProductUpdatedTrigger` (fires on any product save): this only fires on
 the specific "just crossed into low stock" moment.
 

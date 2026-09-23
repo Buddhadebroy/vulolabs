@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Real per-page speed checks for "Performance" › Slow Pages. Enumerates
  * real WP content - the front page, published pages, recent posts, and (if
- * WooCommerce is active) the real shop/cart/checkout pages plus recent
+ * the store platform is active) the real shop/cart/checkout pages plus recent
  * products and product categories - then times each one for real via
  * `wp_remote_get()`, the same idiom SlowPageScanner already uses for the
  * homepage alone, just generalized to many real URLs.
@@ -412,7 +412,7 @@ class PageSpeedScanner {
 
     /**
      * Enumerates real pages to check: the front page, every published
-     * `page`, recent published `post`s, and - if WooCommerce is active -
+     * `page`, recent published `post`s, and - if the store platform is active -
      * the real shop/cart/checkout pages plus recent products and product
      * categories. Never fabricated URLs; every entry is a real permalink
      * for content that actually exists on this site.
@@ -470,7 +470,7 @@ class PageSpeedScanner {
     }
 
     /**
-     * Adds real WooCommerce shop/cart/checkout pages, recent products, and
+     * Adds real store-platform shop/cart/checkout pages, recent products, and
      * product categories to the enumeration.
      *
      * @param callable $add Closure that records one real (url, title, page_type) entry.

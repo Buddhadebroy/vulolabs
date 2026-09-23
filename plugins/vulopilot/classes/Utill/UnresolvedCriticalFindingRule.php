@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * empty array - see RuleInterface's docblock for what that means), and
  * always produces the engine's highest-priority recommendation. Not
  * marked fixable - a critical finding could come from any scanner
- * (WooCommerceScanner's missing checkout page, RestApiScanner's exposed
+ * (the store scanner's missing checkout page, RestApiScanner's exposed
  * user data, …) and there's no single generic fix to offer; a
  * category-specific rule with a real fix (like CoreUpdateAvailableRule)
  * can still also match the same Finding and offer one.

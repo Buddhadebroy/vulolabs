@@ -24,6 +24,7 @@ export default {
 			options: [
 				{ key: 'flag_products_missing_schema', label: '', value: 'flag_products_missing_schema' },
 			],
+			moduleEnabled: 'woocommerce',
 		},
 	],
 };

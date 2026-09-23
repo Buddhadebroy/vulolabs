@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Persistence for vulopilot_scan_findings (DATABASE.md). category/severity/
  * status are exactly the filters the admin UI's FindingsTable component
- * (Health/SEO/GEO/WooCommerce/Dashboard pages) already sends. object_ref
+ * (Health/SEO/GEO/Commerce/Dashboard pages) already sends. object_ref
  * was added in GEO-MODULE.md's pass so GeoAnalysis\GeoAnalyzer can read
  * every 'geo'-category finding already known about one specific post
  * without a bespoke query. object_type was added alongside it so
@@ -169,7 +169,7 @@ class FindingRepository extends RepositoryUtil {
     /**
      * Open/resolved/ignored/snoozed counts, zero-filled and optionally
      * scoped to one category and/or one section's scanner_id list - backs
-     * the Health/SEO/GEO/WooCommerce findings tables' status-count pill
+     * the Health/SEO/GEO/Commerce findings tables' status-count pill
      * bar, including SEO.tsx's per-section tables (e.g. "Titles & meta"
      * grouping several scanner_id values together, scoped independently of
      * every other SEO section's own pill bar). Delegates to
@@ -605,7 +605,7 @@ class FindingRepository extends RepositoryUtil {
 
     /**
      * Counts open findings in one category - what each domain dashboard
-     * widget (SEO/Performance/Security/Accessibility/WooCommerce) reads,
+     * widget (SEO/Performance/Security/Accessibility/Commerce) reads,
      * same shape as count_by_severity() above.
      *
      * @param string $category One of the scanner category strings (SCANNERS.md).
@@ -703,7 +703,7 @@ class FindingRepository extends RepositoryUtil {
      * Open-finding counts by severity within a single category, in one
      * grouped query rather than four count_by_severity()-style calls -
      * this is what Dashboard controller's per-category widget score
-     * (SEO/Performance/Security/Accessibility/WooCommerce) is computed
+     * (SEO/Performance/Security/Accessibility/Commerce) is computed
      * from, using the same weighting Overall Health already uses, just
      * scoped down (performance.md: prefer one query over several).
      *

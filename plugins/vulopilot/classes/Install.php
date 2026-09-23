@@ -540,7 +540,7 @@ class Install {
      * Creates `vulopilot_page_speed` - "Performance" › Slow Pages'
      * per-page speed table (Services\PageSpeedScanner writes here, one row
      * per real page it has checked, replaced on every rescan). `url`/
-     * `title`/`page_type` describe a real WP page, post, or WooCommerce
+     * `title`/`page_type` describe a real WP page, post, or store
      * page/product/category (never a fabricated entry). `load_time_ms` is
      * a real measured `wp_remote_get()` response time, same idiom as
      * SlowPageScanner's own homepage timing. `score` is derived from

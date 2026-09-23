@@ -45,6 +45,7 @@ const SCAN_ROWS: Row[] = [
 			'Find users with weak passwords and get suggestions to make them stronger.',
 			'vulopilot'
 		),
+		pro: true,
 	},
 	{
 		id: 'wordpress-exposure',
@@ -54,6 +55,7 @@ const SCAN_ROWS: Row[] = [
 		desc: __('Flags details that help attackers target your site — like a visible WordPress version number, or leaving the database table prefix at its default (wp_) instead of something unique.',
 			'vulopilot'
 		),
+		pro: true,
 	},
 	{
 		id: 'core-files',
@@ -64,6 +66,7 @@ const SCAN_ROWS: Row[] = [
 			'Detect unauthorized changes in WordPress core files.',
 			'vulopilot'
 		),
+		pro: true,
 	},
 	{
 		id: 'malware',
@@ -74,6 +77,7 @@ const SCAN_ROWS: Row[] = [
 			'Scan your website for malware, suspicious code, and harmful scripts.',
 			'vulopilot'
 		),
+		pro: true,
 	},
 	{
 		id: 'user-exposure',
@@ -104,6 +108,7 @@ const PROTECTION_ROWS: Row[] = [
 			'Real brute-force protection - an IP that fails to log in too many times within the window below is blocked from trying again until it passes.',
 			'vulopilot'
 		),
+		pro: true,
 		fields: [
 			{
 				key: 'login_max_attempts',
@@ -138,6 +143,7 @@ const PROTECTION_ROWS: Row[] = [
 			'Checks every request\'s URL against known SQL-injection, path-traversal, and direct-PHP-execution patterns and logs any match - always safe, never blocks anyone on its own.',
 			'vulopilot'
 		),
+		pro: true,
 		fields: [
 			{
 				key: 'enable_firewall_blocking',
@@ -223,6 +229,38 @@ const ALL_ROWS = [...SCAN_ROWS, ...PROTECTION_ROWS, ...MONITORING_ROWS];
 
 const isChecked = (value: unknown): boolean => Array.isArray(value) && value.length > 0;
 
+/**
+ * The "Website Security" lock tag - same real click-through-to-Modules
+ * pattern this file already used for the one row/card that used to be Pro
+ * (now every row/card is, since this whole tab gates on the
+ * `website-security` module rather than a handful of individual rows -
+ * per direct instruction, "make the whole settings moduleEnabled:
+ * 'security-scans'", resolved to the real existing module id since no
+ * 'security-scans' module exists - see that instruction's own thread).
+ * Shared by `buildScanRows()` (checkbox rows) and `buildMethods()`
+ * (`ExpandablePanelInput` card labels) so every locked control shows the
+ * identical tag rather than two slightly different ones.
+ */
+const LockTag = () => (
+	<span
+		className="admin-tag module-tag"
+		role="button"
+		tabIndex={0}
+		onClick={() => {
+			window.location.href = `${appLocalizer.admin_url}#&tab=settings&subtab=modules&module=website-security`;
+		}}
+		onKeyDown={(event) => {
+			if ('Enter' === event.key || ' ' === event.key) {
+				event.preventDefault();
+				window.location.href = `${appLocalizer.admin_url}#&tab=settings&subtab=modules&module=website-security`;
+			}
+		}}
+	>
+		<i className="adminfont-lock" />
+		{__('Website Security', 'vulopilot')}
+	</span>
+);
+
 
 /**
  * Settings → Scanning → Security.
@@ -259,13 +297,21 @@ const isChecked = (value: unknown): boolean => Array.isArray(value) && value.len
  * settings, not one nested object or array - see Security.ts's own
  * docblock for why they aren't migrated into a nested shape.
  *
- * Every Pro row (`pro: true`, currently just "User exposure") is locked
- * by hand when vulopilot-pro's Security Monitoring module isn't active -
- * its checkbox renders `disabled` (`buildScanRows()`) and `handleChange`
- * silently ignores a toggle/edit on that row in that case rather than
- * writing a setting nothing will ever read - neither `ExpandablePanelInput`
- * nor `SettingRowComponent` has a per-row Pro gate of its own the way
- * InputRenderer's top-level fields do.
+ * Every row on this tab is now `pro: true` - this whole tab gates on
+ * vulopilot-pro's Security Monitoring module (`website-security`), not a
+ * handful of individual rows, per direct instruction ("make the whole
+ * settings ... security-scans" - resolved to the real module id, since no
+ * 'security-scans' module exists). Real UI stays visible either way (this
+ * plugin's own "no dummy content on Settings" convention - a locked
+ * checkbox/card, not a blurred fake one), locked by hand when
+ * `hasSecurityMonitoring` is false: `LockTag` renders the same
+ * click-through-to-Modules tag everywhere (checkbox row titles via
+ * `buildScanRows()`, card labels via `buildMethods()`, and the frequency
+ * select's own row label), `buildScanRows()`'s checkbox gets a real
+ * `disabled`, and `handleChange` silently ignores a toggle/edit on any
+ * locked row rather than writing a setting nothing will ever read -
+ * neither `ExpandablePanelInput` nor `SettingRowComponent` has a per-row
+ * Pro gate of its own the way InputRenderer's top-level fields do.
  */
 const SecurityPanel = () => {
 	const { setting, updateSetting } = useSetting();
@@ -276,8 +322,16 @@ const SecurityPanel = () => {
 		rows.map((row) => ({
 			id: row.id,
 			icon: row.icon,
-			label: row.label,
-			desc: row.pro && !hasSecurityMonitoring ? `${row.desc}` : row.desc,
+			label:
+				row.pro && !hasSecurityMonitoring ? (
+					<>
+						{row.label}
+						<LockTag />
+					</>
+				) : (
+					row.label
+				),
+			desc: row.desc,
 			settingDescription: '',
 			disableBtn: true,
 			statusLabels: STATUS_LABELS,
@@ -323,23 +377,7 @@ const SecurityPanel = () => {
 				title: locked ? (
 					<>
 						{row.label}
-						<span
-							className="admin-tag module-tag"
-							role="button"
-							tabIndex={0}
-							onClick={() => {
-								window.location.href = `${appLocalizer.admin_url}#&tab=settings&subtab=modules&module=website-security`;
-							}}
-							onKeyDown={(event) => {
-								if ('Enter' === event.key || ' ' === event.key) {
-									event.preventDefault();
-									window.location.href = `${appLocalizer.admin_url}#&tab=settings&subtab=modules&module=website-security`;
-								}
-							}}
-						>
-							<i className="adminfont-lock" />
-							{__('Website Security', 'vulopilot')}
-						</span>
+						<LockTag />
 					</>
 				) : (
 					row.label
@@ -493,25 +531,7 @@ const SecurityPanel = () => {
 							label={
 								<>
 									{__('Scheduled security monitoring', 'vulopilot')}
-									{!hasSecurityMonitoring && (
-										<span
-											className="admin-tag module-tag"
-											role="button"
-											tabIndex={0}
-											onClick={() => {
-												window.location.href = `${appLocalizer.admin_url}#&tab=settings&subtab=modules&module=website-security`;
-											}}
-											onKeyDown={(event) => {
-												if ('Enter' === event.key || ' ' === event.key) {
-													event.preventDefault();
-													window.location.href = `${appLocalizer.admin_url}#&tab=settings&subtab=modules&module=website-security`;
-												}
-											}}
-										>
-											<i className="adminfont-lock" />
-											{__('Website Security', 'vulopilot')}
-										</span>
-									)}
+									{!hasSecurityMonitoring && <LockTag />}
 								</>
 							}
 							desc={__(

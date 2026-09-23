@@ -126,7 +126,7 @@ export default {
 			key: 'flag_orphan_pages',
 			type: 'checkbox',
 			look: 'toggle',
-			
+			moduleEnabled: 'technical-seo',
 			label: __('Flag orphan pages', 'vulopilot'),
 			settingDescription: __('Pages with no incoming internal links, making them harder for visitors and search engines to discover.', 'vulopilot'),
 			options: [
@@ -142,6 +142,7 @@ export default {
 				'Set the minimum word count for a page. Pages below this limit will be flagged for review.',
 				'vulopilot'
 			),
+			moduleEnabled: 'technical-seo',
 		},
 		{
 			key: 'flag_missing_meta_description',
@@ -153,6 +154,7 @@ export default {
 			options: [
 				{ key: 'flag_missing_meta_description', label: '', value: 'flag_missing_meta_description' },
 			],
+			moduleEnabled: 'technical-seo',
 		},
 		{
 			key: 'flag_duplicate_titles',
@@ -167,6 +169,7 @@ export default {
 			options: [
 				{ key: 'flag_duplicate_titles', label: '', value: 'flag_duplicate_titles' },
 			],
+			moduleEnabled: 'technical-seo',
 		},
 		{
 			key: 'seo-section-images',
@@ -182,7 +185,7 @@ export default {
 			key: 'flag_missing_alt_text',
 			type: 'checkbox',
 			look: 'toggle',
-
+			moduleEnabled: 'technical-seo',
 			label: __('Flag missing alt text', 'vulopilot'),
 			settingDescription: __('Images without alternative text that describes their content for screen readers and search engines.', 'vulopilot'),
 			options: [
@@ -202,6 +205,7 @@ export default {
 			options: [
 				{ key: 'flag_broken_images', label: '', value: 'flag_broken_images' },
 			],
+			moduleEnabled: 'technical-seo',
 		},
 		{
 			key: 'flag_missing_featured_image',
@@ -220,6 +224,7 @@ export default {
 					value: 'flag_missing_featured_image',
 				},
 			],
+			moduleEnabled: 'technical-seo',
 		},
 		{
 			key: 'seo-section-links-schema',
@@ -235,7 +240,6 @@ export default {
 			key: 'flag_broken_links',
 			type: 'checkbox',
 			look: 'toggle',
-
 			label: __('Flag broken internal links', 'vulopilot'),
 			settingDescription: __(
 				'Find links pointing to missing or unavailable pages on your website.',
@@ -244,12 +248,13 @@ export default {
 			options: [
 				{ key: 'flag_broken_links', label: '', value: 'flag_broken_links' },
 			],
+			moduleEnabled: 'technical-seo',
 		},
 		{
 			key: 'canonical_url_enabled',
 			type: 'checkbox',
 			look: 'toggle',
-			
+			moduleEnabled: 'technical-seo',
 			label: __('Add canonical URL tags', 'vulopilot'),
 			settingDescription: __(
 				'canonical tags to indicate the preferred URL for pages with duplicate or similar content. WordPress already adds these by default - only turn this on if the "Canonical URLs" finding shows them missing.',
@@ -267,7 +272,7 @@ export default {
 			key: 'social_meta_tags_enabled',
 			type: 'checkbox',
 			look: 'toggle',
-			
+			moduleEnabled: 'technical-seo',
 			label: __('Add Open Graph & Twitter Card tags', 'vulopilot'),
 			settingDescription: __(
 				'Social sharing metadata so supported platforms can display page titles, descriptions, and images.',
@@ -295,7 +300,7 @@ export default {
 			key: 'robots_auto_generate',
 			type: 'checkbox',
 			look: 'toggle',
-			
+			moduleEnabled: 'technical-seo',
 			label: __('Auto-generate robots.txt', 'vulopilot'),
 			settingDescription: __(
 				'Add a sitemap reference to your robots.txt file to help search engines discover your sitemap.',
@@ -309,7 +314,6 @@ export default {
 			key: 'flag_ai_crawler_blocked_pages',
 			type: 'checkbox',
 			look: 'toggle',
-			
 			label: __('Flag pages blocked for specific AI crawlers', 'vulopilot'),
 			settingDescription: __(
 				'Find published pages affected by robots.txt rules for selected AI crawlers, such as GPTBot and ClaudeBot.',
@@ -338,7 +342,7 @@ export default {
 			key: 'enable_redirect_manager',
 			type: 'checkbox',
 			look: 'toggle',
-			
+			moduleEnabled: 'redirect-manager',
 			label: __('Enable redirect manager', 'vulopilot'),
 			settingDescription: __(
 				'Create and manage 301 redirects to send visitors from old URLs to new pages.',
@@ -356,7 +360,7 @@ export default {
 			key: 'auto_redirect_on_slug_change',
 			type: 'checkbox',
 			look: 'toggle',
-			
+			moduleEnabled: 'redirect-manager',
 			label: __('Auto-create redirect on slug change', 'vulopilot'),
 			settingDescription: __(
 				'Automatically redirect the previous URL when you change a published post or page slug.',
@@ -379,7 +383,7 @@ export default {
 			key: 'log_404s',
 			type: 'checkbox',
 			look: 'toggle',
-			
+			moduleEnabled: 'redirect-manager',
 			label: __('Log 404s', 'vulopilot'),
 			settingDescription: __(
 				'Record visits to missing pages so you can identify broken URLs and create redirects where needed.',

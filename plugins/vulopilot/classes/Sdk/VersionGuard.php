@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Compatibility-check helpers an extension's register() (or anything
  * else - a module, a Pro feature check) can call before doing something
- * that depends on a specific core/PHP/WordPress/WooCommerce version being
+ * that depends on a specific core/PHP/WordPress/store-platform version being
  * available, rather than each call site hand-rolling its own
  * version_compare() call with its own bug potential (a very easy place to
  * get the comparison operator direction backwards).
@@ -49,7 +49,7 @@ class VersionGuard {
 	}
 
 	/**
-	 * @param string|null $required The lowest WooCommerce version an extension needs, or null to only check WooCommerce is active at all.
+	 * @param string|null $required The lowest store-platform version an extension needs, or null to only check the store platform is active at all.
 	 * @return bool
 	 */
 	public static function is_woocommerce_compatible( ?string $required = null ): bool {

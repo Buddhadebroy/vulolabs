@@ -14,8 +14,8 @@ defined( 'ABSPATH' ) || exit;
  *
  * Plugin bootstrap singleton - same plain-array-container + magic
  * __get/__set shape as VuloLabs\VuloLabs. VuloPilot is not
- * WooCommerce-bound (unlike the vulolabs family), so unlike
- * VuloLabs::init_plugin() this does not gate on 'woocommerce_loaded'
+ * store-platform-bound (unlike the vulolabs family), so unlike
+ * VuloLabs::init_plugin() this does not gate on the store platform's own load hook
  * or declare HPOS compatibility - it boots on 'plugins_loaded' directly.
  *
  * @class       VuloPilot class
