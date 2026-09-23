@@ -11,8 +11,8 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Single exception class for every VuloPilot-specific failure that used to
- * be its own subclass (AiRequestException, AiByokNotConfiguredException,
- * GatewayRequestException, RateLimitExceededException,
+ * be its own subclass (AiRequestException, GatewayRequestException,
+ * a "VuloCloud has no usable key" subclass, RateLimitExceededException,
  * TransientGatewayException, UnsafePromptException,
  * InvalidActionInputException, InvalidActionOutputException,
  * InsufficientCreditsException) - one class, a `type` constant instead of a
@@ -43,8 +43,8 @@ class VuloPilotException extends \Exception {
 	const TYPE_AI_REQUEST = 'ai_request';
 
 	/**
-	 * Thrown by AiAssistant\AiRequestSender when VuloCloud reports
-	 * `AI_BYOK_NOT_CONFIGURED` - neither this site's Organization nor an
+	 * Thrown by AiAssistant\AiRequestSender when VuloCloud reports that no
+	 * key resolves for this site - neither this site's Organization nor an
 	 * allowed Customer backup has a usable AI key.
 	 */
 	const TYPE_VULOCLOUD_AI_NOT_CONFIGURED = 'vulocloud_ai_not_configured';

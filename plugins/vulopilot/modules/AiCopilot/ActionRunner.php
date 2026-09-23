@@ -177,10 +177,8 @@ class ActionRunner {
      * AI completion for a proposed action: this site's own configured
      * direct VuloCloud AI path - an Organization's own key, or (if allowed)
      * a Customer backup key, resolved entirely server-side and proxied
-     * through VuloCloud (AiAssistant\AiRequestSender, contexts/vulopilot/ai-byok
-     * on the VuloCloud side - that context name is VuloCloud's own, not
-     * renamed here) - or VuloCloud's hosted AI Gateway spending real AI
-     * Credits (architecture plan §C).
+     * through VuloCloud (AiAssistant\AiRequestSender) - or VuloCloud's
+     * hosted AI Gateway spending real AI Credits (architecture plan §C).
      *
      * Unlike the earlier, pre-VuloCloud-proxy version of this method, "is
      * the direct path configured" can no longer be answered locally before

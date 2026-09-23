@@ -99,8 +99,8 @@ interface ContentToolPopupProps {
  * exactly (it has no `product_id` concept of its own).
  *
  * The one error this popup treats specially: `ActionRunner::propose()`'s
- * own real "No AI connection is configured." (thrown when neither a BYOK
- * key nor a connected VuloCloud account exists) shows the same real
+ * own real "No AI connection is configured." (thrown when no direct
+ * VuloCloud AI key nor a connected VuloCloud account exists) shows the same real
  * "Connect to VuloCloud / Claim free AI Credits" action
  * AiCreditsIndicator.tsx's own dropdown already offers
  * (useConnectVuloCloud.ts), instead of a dead-end error notice - every
