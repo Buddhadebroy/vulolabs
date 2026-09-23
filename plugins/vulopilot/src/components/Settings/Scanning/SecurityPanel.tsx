@@ -50,9 +50,8 @@ const SCAN_ROWS: Row[] = [
 		id: 'wordpress-exposure',
 		flatKey: 'enable_basic_vulnerabilities_scanner',
 		icon: 'wordpress gray',
-		label: __('WordPress exposure', 'vulopilot'),
-		desc: __(
-			'Check common WordPress exposure issues that can be exploited by attackers, like an exposed version number or a default database table prefix.',
+		label: __('Exposed WordPress details', 'vulopilot'),
+		desc: __('Flags details that help attackers target your site — like a visible WordPress version number, or leaving the database table prefix at its default (wp_) instead of something unique.',
 			'vulopilot'
 		),
 	},
@@ -80,7 +79,7 @@ const SCAN_ROWS: Row[] = [
 		id: 'user-exposure',
 		flatKey: 'enable_rest_api_scanner',
 		icon: 'person pink',
-		label: __('User exposure', 'vulopilot'),
+		label: __('Exposed usernames', 'vulopilot'),
 		// The mockup's own copy here ("risky roles or unnecessary access")
 		// doesn't describe any real scanner this codebase has - the closest
 		// real check is RestApiScanner's anonymous `GET /wp/v2/users`
@@ -88,7 +87,7 @@ const SCAN_ROWS: Row[] = [
 		// auditing. Worded to what it actually does rather than the
 		// mockup's literal text.
 		desc: __(
-			'Check whether your REST API publicly exposes usernames to unauthenticated visitors - a common first step in brute-force login attacks.',
+			'Checks whether a part of WordPress that other plugins and apps talk to automatically (the REST API) is publicly revealing usernames — often the first step in a brute-force login attack.',
 			'vulopilot'
 		),
 		pro: true,
@@ -418,7 +417,7 @@ const SecurityPanel = () => {
 					<SectionComponent
 						icon="security"
 						title={__('Security scans', 'vulopilot')}
-						desc={__('Block brute-force logins and log known attack patterns.', 'vulopilot')}
+						desc={__('Block repeated failed login attempts (brute-force attacks) and keep a record of suspicious activity for you to review.', 'vulopilot')}
 					/>
 				</div>
 				<div className="settings-right-section">

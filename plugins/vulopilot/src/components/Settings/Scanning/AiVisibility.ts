@@ -73,8 +73,8 @@ export default {
 			key: 'general_settings',
 			type: 'section',
 			icon: 'setting',
-			title: __('AI Visibility', 'vulopilot'),
-			desc: __('Configure how vuloPilot monitors your site for issues.', 'vulopilot'),
+			title: __('AI Visibility scan', 'vulopilot'),
+			desc: __('Controls how VuloPilot monitors your site for issues that affect whether AI assistants reference or recommend it.', 'vulopilot'),
 		},
 		{
 			key: 'ai_visibility_scans',
@@ -266,8 +266,7 @@ export default {
 			type: 'notice',
 			noticeType: 'info',
 			label: '',
-			message: __(
-				'GEO/AEO score drop alerts (and their threshold) are configured under <a href="?page=vulopilot#&tab=settings&subtab=notifications">Notifications → Visibility Alerts</a>.',
+			message: __('Content-freshness thresholds feed your GEO/AEO score . Get alerted when it drops under <a href="?page=vulopilot#&tab=settings&subtab=notifications">Notifications → Visibility Alerts</a>.',
 				'vulopilot'
 			),
 			moduleEnabled: 'geo',

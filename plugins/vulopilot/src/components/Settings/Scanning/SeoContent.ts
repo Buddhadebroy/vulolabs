@@ -85,8 +85,7 @@ export default {
             type: 'section',
             title: __('About Page', 'vulopilot'),
             icon: 'web-page-website',
-            desc: __(
-                'Controls the Brand page\'s About Page Analysis finding - evaluated only for sites that already have an About-shaped page.',
+            desc: __('Checks whether your sites About or Company page gives visitors (and search engines) enough real information to trust it. Only runs if your site has a page that looks like an About page.',
                 'vulopilot'
             ),
         },
