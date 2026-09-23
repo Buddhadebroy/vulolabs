@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Collects every registered scanner and instantiates it. Most of Free's own
  * Basic scanners always run; the 17 SEO ones are the one exception -
- * they're registered by modules/Seo/Module.php instead of the hardcoded
+ * they're registered by modules/TechnicalSeo/Module.php instead of the hardcoded
  * list below, so SEO scanning is genuinely module-dependent (Settings →
  * Modules). Pro's premium scanners (and any third-party scanner) are added
  * on top the same way, via the `vulopilot_scanner_sources` filter - see
@@ -151,7 +151,7 @@ class ScannerRegistry {
         return array(
             // SEO (Titles, Schema, images/alt text, broken links, plus the
             // 13 SEO-MODULE.md checks) moved out of this hardcoded list and
-            // into modules/Seo/Module.php's own `vulopilot_scanner_sources`
+            // into modules/TechnicalSeo/Module.php's own `vulopilot_scanner_sources`
             // registration - see that class's docblock for why: this is
             // what makes SEO scanning genuinely module-dependent, the same
             // way vulopilot-pro's AdvancedSeo module already adds its own 2

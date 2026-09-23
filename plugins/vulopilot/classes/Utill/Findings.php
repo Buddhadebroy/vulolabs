@@ -51,7 +51,7 @@ class Findings extends \WP_REST_Controller {
      * PRIORITY_SEVERITY_RANKS above already applies for `get_finding_groups()`,
      * expressed here as real severity values (not ranks) since get_items()
      * filters through FindingRepository::find_all()'s own `severity`
-     * filterable column, which AbstractRepository::build_column_where_clause()
+     * filterable column, which RepositoryUtil::build_column_where_clause()
      * already turns into a real `IN (...)` clause when given an array.
      *
      * @var array<string, string[]>
@@ -449,7 +449,7 @@ class Findings extends \WP_REST_Controller {
      * comma-separated `scanner_id` param covering every scanner id that
      * section groups together, since FindingRepository::find_all()'s
      * filterable_columns only exact-matches a single scalar per column
-     * value unless given an array (AbstractRepository::build_column_where_clause()).
+     * value unless given an array (RepositoryUtil::build_column_where_clause()).
      * A single value (no comma) still round-trips correctly as a
      * one-element array. Also backs `get_finding_groups()`'s own `category`
      * param - the Issues table's "SEO & Visibility" tab, for example, folds
@@ -511,7 +511,7 @@ class Findings extends \WP_REST_Controller {
     /**
      * Backs FindingsTable.tsx's bulk Resolve/Ignore action - applies the
      * same status update update_item() does, to every id in one request,
-     * via AbstractRepository::bulk_update()'s single-row-update loop.
+     * via RepositoryUtil::bulk_update()'s single-row-update loop.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response|\WP_Error

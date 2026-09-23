@@ -23,9 +23,9 @@ defined( 'ABSPATH' ) || exit;
  * only talks to the `ai-credits` context's connect/balance endpoints) -
  * this is a different bounded context on the vulocloud side and a
  * different real caller here (AiCopilot\ActionRunner, its only real
- * caller - hence living here rather than classes/Services/ alongside
+ * caller - hence living here rather than classes/AiAssistant/ alongside
  * AiCreditsConnection, which stays there as genuinely shared core, read
- * by AiByokGatewayClient/RestAPI\Controllers\AiCredits.php/FrontendScripts.php
+ * by AiByokGatewayClient/AiAssistant\Rest\AiCredits.php/FrontendScripts.php
  * too, not just this module).
  *
  * @class       AiCreditGatewayClient class

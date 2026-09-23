@@ -25,8 +25,8 @@ feature  →  VuloPilot()->ai_request_sender->send( $messages, $image, $surface 
 ```
 
 `AiRequestSender` is built once in `VuloPilot::init_classes()` and shared - every caller
-(`AiCopilot\ActionRunner`, `Geo\GeoAnalyzer`, `ContentIntelligence\ContentAnalyzer`,
-`Services\SiteToneLearner`, and vulopilot-pro's analyzers/REST controllers) is handed that same
+(`AiCopilot\ActionRunner`, `GeoAnalysis\GeoAnalyzer`, `ContentOptimization\ContentAnalyzer`,
+`AiAssistant\SiteToneLearner`, and vulopilot-pro's analyzers/REST controllers) is handed that same
 instance (`VuloPilot()->ai_request_sender`) rather than constructing its own.
 
 - **Budget.** `MAX_REQUESTS_PER_MINUTE` (20), a WP transient counter keyed by minute
@@ -67,11 +67,11 @@ isn't connected to VuloCloud).
 
 ## VuloCloud connection and credits
 
-This site holds no AI credential. `Services\AiCreditsConnection` is the site-scoped connection to
+This site holds no AI credential. `AiAssistant\AiCreditsConnection` is the site-scoped connection to
 VuloCloud (the passwordless broker flow behind Settings → Connections → VuloCloud AI, served by
-`Controllers\VuloCloudAiConnection`), and `Services\AiByokGatewayClient` is the call itself.
+`AiAssistant\Rest\VuloCloudAiConnection`), and `AiAssistant\AiByokGatewayClient` is the call itself.
 
-AI Credits are a separate, metered path, not a layer on top: `Services\AiCreditGatewayClient` calls
+AI Credits are a separate, metered path, not a layer on top: `AiCopilot\Services\AiCreditGatewayClient` calls
 VuloCloud's credit-metered `POST /plugin/ai/execute` (a different wire contract -
 `{featureId, action, context}`). `AiCopilot\ActionRunner::send_prompt_or_credits()` is where the two
 meet: it always sends through `AiRequestSender` first, and only falls through to credits - for the

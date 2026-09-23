@@ -549,7 +549,7 @@ class Install {
      * the same score banded into the real thresholds Slow Pages' own "What's
      * considered slow?" legend states, stored as its own column purely so
      * PageSpeedRepository can filter/count by it the same way every other
-     * AbstractRepository-backed list does for its own status-count pill bar.
+     * RepositoryUtil-backed list does for its own status-count pill bar.
      * `mobile_score`/`desktop_score` stay NULL unless a
      * real Google PageSpeed Insights API key is configured and that page
      * has actually been checked against it, matching Part A's own

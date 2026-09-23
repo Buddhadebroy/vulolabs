@@ -9,8 +9,8 @@ namespace VuloPilot\GeoAnalysis\ValueObjects;
 
 /**
  * A single post's GEO (Generative Engine Optimization) score, produced by
- * Geo\GeoAnalyzer::analyze() (its only real caller, hence living here
- * rather than classes/ValueObjects/) - combines deterministic Scanner
+ * GeoAnalysis\GeoAnalyzer::analyze() (its only real caller, hence living here
+ * rather than classes/Utill/) - combines deterministic Scanner
  * findings with AI-judged dimensions into one overall score.
  *
  * @class       GeoScore class

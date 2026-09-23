@@ -515,7 +515,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
             settingsLink: '?page=vulopilot#&tab=automations',
             name: __('Workflow Automation', 'vulopilot'),
             desc: __('Triggers, conditions, schedules, and workflows that react to scan findings automatically.', 'vulopilot'),
-            proModule: true,
+            proModule: false,
             category: 'automation-ai',
             miniModule: true,
             freeFeatures: [],

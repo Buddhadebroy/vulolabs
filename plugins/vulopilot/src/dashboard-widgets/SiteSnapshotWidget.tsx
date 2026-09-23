@@ -60,7 +60,7 @@ const getHomeScreenshotUrl = (siteUrl: string): string => {
  *
  * The Brand/Entity/GEO rows below it are this widget's own real fetches
  * (`GET /entities` - same real EntityExtractor endpoint BusinessProfileCard.tsx
- * uses, gated on the same `entity-extraction` module; `GET /geo/score` via
+ * uses, gated on the same `knowledge-graph` module; `GET /geo/score` via
  * the shared `useGeoScore()` hook GeoScoreSection.tsx already uses, which
  * works regardless of module state) rather than `summary` - the shared
  * `/dashboard` payload has no brand/entity/GEO-signal fields of its own.

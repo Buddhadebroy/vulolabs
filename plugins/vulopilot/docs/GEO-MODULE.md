@@ -63,7 +63,7 @@ scanners are what `GeoAnalyzer::calculate_deterministic_score()` below actually
 counts against (`TOTAL_DETERMINISTIC_CHECKS = 9`), not just the original 8.
 
 All 9 share `get_category() === 'geo'`, `get_tier() === 'free'`, extend
-`AbstractBasicScanner`, and live flat in `classes/Scanners/Basic/` - identical
+`Utill\ScannerUtil`, and live in `modules/GeoAnalysis/Scanners/` - identical
 convention to `SEO-MODULE.md`'s scanners. `GeoTrustSignalsScanner` is the one
 sitewide check among them (like `RobotsTxtScanner`'s "blocks all crawlers"
 finding) - it applies identically to every post rather than being about one
@@ -75,7 +75,7 @@ duplicated here.
 
 ## `GeoAnalysis\GeoAnalyzer` - "Generate GEO Score" / "Generate AI suggestions"
 
-A plain, concrete orchestrator (`modules/Geo/GeoAnalyzer.php`) - no
+A plain, concrete orchestrator (`modules/GeoAnalysis/GeoAnalyzer.php`) - no
 interface, same reasoning `Scanners\ScanRunner`/`RuleEngine\RuleEngine` already
 establish: there's exactly one way "analyze this post for GEO" happens, so an
 interface would have one implementer.
@@ -154,7 +154,7 @@ of a provider registry + `AISafetyValidator` separately - that registry has sinc
 `GeoAnalyzer` now go through the identical safety-validated call path - no parallel
 "send an AI request" logic exists anywhere in this codebase.
 
-### `GeoScore` (`classes/ValueObjects/GeoScore.php`)
+### `GeoScore` (`modules/GeoAnalysis/ValueObjects/GeoScore.php`)
 
 Immutable, same shape as `Finding`/`Recommendation`/`ScanResult` - a plain Free
 plugin value object (`VuloPilot\ValueObjects\GeoScore`), not a member of some
@@ -188,7 +188,7 @@ engine underneath it is shared Free infrastructure, the same way Automation's
 module reaches into Free's `RuleEngine`/`FindingRepository` without those being
 Pro-only.
 
-Free's own `modules/Geo/Rest/GeoAnalysis.php` still exists at the same
+Free's own `modules/GeoAnalysis/Rest/GeoAnalysis.php` still exists at the same
 filename, but now hosts a different, unrelated route - `GET
 /geo-analysis/top-pages`, the GEO page's deterministic "Top Pages" ranking (no
 AI cost). See that controller's own docblock and `AI-VISIBILITY-MODULE.md` for

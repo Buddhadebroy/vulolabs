@@ -29,7 +29,7 @@ re-deriving the same design from scratch.
 
 ## Free - one new scanner, category `accessibility`
 
-`WcagScanner` (`wcag-scanner`) lives in `classes/Scanners/Basic/`,
+`WcagScanner` (`wcag-scanner`) lives in `classes/Accessibility/`,
 registered in `ScannerRegistry::get_default_scanner_classes()` alongside
 `AccessibilityScanner`/`FormLabelsScanner`/`AriaAttributesScanner` under the
 same `accessibility` category string, gated by its own settings toggle

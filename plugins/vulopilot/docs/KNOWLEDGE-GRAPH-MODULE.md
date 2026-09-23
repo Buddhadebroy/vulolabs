@@ -37,7 +37,7 @@ mining, which this codebase has no capability for and none is introduced.
 "Entity Relationships" (Pro) is the first genuinely graph-shaped persisted
 data this codebase has ever had.
 
-## Free - `Services\EntityExtractor`
+## Free - `KnowledgeGraph\EntityExtractor`
 
 Six entity types, each backed by a real, deterministic data source:
 
@@ -59,16 +59,16 @@ configured, and `products` is `null` (not `0`) when WooCommerce isn't
 active, matching `Dashboard`'s own `category_scores.woocommerce`
 convention.
 
-Gated on the `entity-extraction` module being active
+Gated on the `knowledge-graph` module being active
 (`VuloPilot()->modules->get_active_modules()`) - this service has no
 scanner/finding of its own to gate through `ScannerRegistry`'s usual
 category mechanism, so it checks module state directly.
-`modules/EntityExtraction/Module.php`'s own job is narrow but real: bust
+`modules/KnowledgeGraph/Module.php`'s own job is narrow but real: bust
 `EntityExtractor`'s 1-hour transient cache on the WordPress hooks that
 would actually change its output (`save_post`/`deleted_post`/
 `created_term`/`edited_term`/`delete_term`).
 
-`GET /entities` (`Controllers\EntityExtraction`) exposes
+`GET /entities` (`KnowledgeGraph\Rest\EntityExtraction`) exposes
 `extract_all()`'s own grouped shape. The Knowledge Graph page
 (`src/pages/KnowledgeGraph/KnowledgeGraph.tsx`) lists all 6 groups with
 real counts, and hosts Pro's own 3 card slots
@@ -97,7 +97,7 @@ doesn't reliably mean a real relationship). Two kinds of real edges:
   WooCommerce query needed.
 
 Stored in a new table, `vulopilot_entity_relationships`
-(`EntityRelationshipRepository`, extends Free's `AbstractRepository` -
+(`EntityRelationshipRepository`, extends Free's `Utill\RepositoryUtil` -
 Free owns the table schema/migration in `Install.php`, same
 `BrandScoreHistoryRepository` split). Rebuilds are idempotent
 (`upsert_relationship()` dedupes on an md5 hash of from/to/type) and
@@ -108,7 +108,7 @@ that no longer exist). `EntityGraphScheduler` rebuilds daily and fires
 ### Knowledge Graph Health - a genuinely new scoring shape
 
 Every other composite score in this codebase
-(`Controllers\BrandIntelligence`'s scanner-severity-breakdown deduction,
+(`BrandVisibility\Rest`'s scanner-severity-breakdown deduction,
 `CrawlReport`'s totals) is either a severity-weighted deduction or a raw
 count. Knowledge Graph Health is neither - it's an **entity/relationship
 completeness ratio**, confirmed to have no prior precedent anywhere in
@@ -144,7 +144,7 @@ same pattern `BrandMonitor` already uses.
 `EntityRecommendationAnalyzer` is the one class in this phase that spends
 real AI money - same "safety-validate → fallback chain → send → sanitize"
 sequence `GeoAnalysis\GeoAnalyzer` already goes through via
-`AiRequestSender`. Unlike GeoAnalyzer/`ContentIntelligence\ContentAnalyzer`
+`AiRequestSender`. Unlike GeoAnalyzer/`ContentOptimization\ContentAnalyzer`
 (both Free classes, since per-post AI scoring started as a Free feature
 before its own route/UI moved to Pro), Entity Recommendations never
 existed in Free at all - it's genuinely new to Pro, so this class lives

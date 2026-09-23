@@ -13,9 +13,9 @@ use VuloPilot\Utill\Impact;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Base class for every free-tier action under AIActions/Actions/. get_tier()
+ * Base class for every free-tier action under AiCopilot/Actions/. get_tier()
  * and get_risk_level() are the only methods with a sensible shared default
- * - unlike AbstractBasicScanner/AbstractBasicRule, there's no natural
+ * - unlike Utill\ScannerUtil/Utill\AbstractBasicRule, there's no natural
  * default for validate_input()/build_prompt()/parse_response()/
  * validate_output()/build_preview()/execute()/rollback(): every one of
  * those is genuinely different per action, so none are given a default

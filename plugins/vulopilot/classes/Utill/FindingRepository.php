@@ -70,7 +70,7 @@ class FindingRepository extends RepositoryUtil {
      * `$object_type`/`$object_ref` are nullable for the purely-sitewide
      * scanners that have no specific object to key on (e.g. `php-warnings`
      * - a PHP notice isn't "about" any one post) - those store SQL `NULL`
-     * in both columns (AbstractRepository::insert() passes `null` straight
+     * in both columns (RepositoryUtil::insert() passes `null` straight
      * through to `$wpdb->insert()`, which stores a real `NULL`, not the
      * string `''`). A plain `column = %s` comparison is never true against
      * a `NULL` column regardless of what's bound, so matching on `NULL`
@@ -173,7 +173,7 @@ class FindingRepository extends RepositoryUtil {
      * bar, including SEO.tsx's per-section tables (e.g. "Titles & meta"
      * grouping several scanner_id values together, scoped independently of
      * every other SEO section's own pill bar). Delegates to
-     * AbstractRepository::count_by_column() rather than hand-rolling
+     * RepositoryUtil::count_by_column() rather than hand-rolling
      * another grouped query (same reasoning as AutomationsRepository's
      * get_status_counts()).
      *

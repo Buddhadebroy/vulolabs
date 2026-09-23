@@ -137,7 +137,7 @@ class Utill {
         'notify_on_critical_findings'           => array(),
         // Settings → Notifications → Website Alerts' own "Notify me about"
         // checklist - which category of critical finding
-        // Services\ScanPersistenceListener::maybe_notify_critical_findings()
+        // Utill\ScanPersistenceListener::maybe_notify_critical_findings()
         // should actually alert on (gated behind `notify_on_critical_findings`
         // above either way). Maps to real finding categories; 'other' is
         // the honest catch-all for every category not called out by its
@@ -677,9 +677,9 @@ class Utill {
         // fills this with GeoAnalysis\LlmsTxtGenerator::generate()'s live
         // output for display until an admin edits and saves their own.
         'llms_txt_content'                      => '',
-        // Read by modules/Geo/Module.php's save_post hook - regenerates
+        // Read by modules/GeoAnalysis/Module.php's save_post hook - regenerates
         // and re-writes llms.txt automatically on publish/update, only
-        // while the Geo module (Modules page) is active.
+        // while the GeoAnalysis module (Modules page, id 'geo-analysis') is active.
         'llms_auto_regen'                       => array( 'llms_auto_regen' ),
         // Read by GeoAnalysis\LlmsTxtGenerator::generate() to decide which
         // sections to build at all.

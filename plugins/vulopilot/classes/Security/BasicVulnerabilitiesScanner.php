@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  * exposed files) - none of those three checks below overlap with any of
  * this scanner's checks. "Basic" (readme's Free feature name) because each
  * check is a single anonymous HTTP request or a local option read, same
- * scope as this module's own AbstractBasicScanner siblings; Pro's "Advanced
+ * scope as this tab's own Utill\ScannerUtil siblings; Pro's "Advanced
  * Vulnerabilities" (AdvancedVulnerabilitiesScanner, vulopilot-pro) is what
  * matches installed plugin *versions* against known CVEs - a different,
  * deeper kind of check this one doesn't attempt.

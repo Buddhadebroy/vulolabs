@@ -25,14 +25,14 @@ This is not a module system. `module-architecture.md`'s folder-scan/reflection d
 | Filter | Registry | Registers |
 |---|---|---|
 | `vulopilot_extension_sources` | `Sdk\ExtensionManager` | `ExtensionInterface` implementations - the entry point everything below is normally reached through |
-| `vulopilot_scanner_sources` | `Scanners\ScannerRegistry` | `ScannerInterface` implementations (`SCANNERS.md`) |
-| `vulopilot_rule_sources` | `RuleEngine\RuleRegistry` | `RuleInterface` implementations (`RULE-ENGINE.md`) |
+| `vulopilot_scanner_sources` | `Utill\ScannerRegistry` | `ScannerInterface` implementations (`SCANNERS.md`) |
+| `vulopilot_rule_sources` | `Utill\RuleRegistry` | `RuleInterface` implementations (`RULE-ENGINE.md`) |
 | `vulopilot_trigger_sources` | `VuloPilotPro\Automation\TriggerRegistry` | `TriggerInterface` implementations |
 | `vulopilot_automation_action_sources` | `VuloPilotPro\Automation\ActionRegistry` | Automation `ActionInterface` implementations |
 | `vulopilot_report_type_sources` | `Reports\ReportTypeRegistry` | `ReportTypeInterface` implementations |
 | `vulopilot_report_exporter_sources` | `Reports\ReportExporterRegistry` | `ReportExporterInterface` implementations |
 | `vulopilot_ai_action_sources` | `AiCopilot\ActionRegistry` | `AIActionInterface` implementations (`AI-ACTIONS.md`) |
-| `vulopilot_rest_controllers` | `RestAPI\Rest` | Extra `\WP_REST_Controller` instances, keyed by an id, added to the central dispatcher |
+| `vulopilot_rest_controllers` | `VuloPilot\Rest` | Extra `\WP_REST_Controller` instances, keyed by an id, added to the central dispatcher |
 
 All ten follow the same shape: a class-string (or, for `vulopilot_rest_controllers`, an instance)
 added to the filtered array, checked against the right interface, silently skipped if it doesn't

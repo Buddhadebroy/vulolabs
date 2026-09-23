@@ -116,7 +116,7 @@ class NotFoundLogs extends \WP_REST_Controller {
      * asset 404s - Services\NotFoundLogger::is_system_path()) when the
      * frontend's own "All/Content/System" filter pills narrow it down;
      * omitting the param (the default "All" pill) returns both mixed
-     * together, same as any other AbstractRepository filterable column.
+     * together, same as any other RepositoryUtil filterable column.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response

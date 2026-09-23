@@ -1,6 +1,6 @@
 <?php
 /**
- * AbstractRepository class file.
+ * RepositoryUtil class file.
  *
  * @package VuloPilot
  */
@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  * (Store.php's static-cache-by-id) rather than introducing a new caching
  * layer.
  *
- * @class       AbstractRepository class
+ * @class       RepositoryUtil class
  * @version     1.0.0
  * @author      VuloLabs
  */

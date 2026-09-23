@@ -269,7 +269,7 @@ export default {
 			message: __('Content-freshness thresholds feed your GEO/AEO score . Get alerted when it drops under <a href="?page=vulopilot#&tab=settings&subtab=notifications">Notifications → Visibility Alerts</a>.',
 				'vulopilot'
 			),
-			moduleEnabled: 'geo',
+			moduleEnabled: 'geo-analysis',
 		},
 		// "Business"/"Services"/"Locations" (entity_business_type/
 		// entity_service_pages/entity_business_locations, plus the

@@ -38,7 +38,7 @@ from GEO's own author-bio-text and generic schema-presence checks).
 - `HomepageSchemaRenderer`/`SchemaJsonLdRenderer` (Free, `wp_head` output) - both new mechanical fixes write INTO the same `vulopilot_homepage_schema_json` option / `_vulopilot_schema_json` postmeta these already render, as a nested `publisher`/`author` sub-object, rather than needing a second storage key or a second renderer.
 - `GeoInsights\CompetitorVisibilityAnalyzer`'s fetch mechanics (`wp_remote_get()` per `geo_competitor_urls` entry) - reused conceptually (same setting, same timeout/sslverify shape) by `BrandCompetitorAnalyzer`, but not the class itself, since it checks a different signal pair (Organization/Person schema, not GEO's own 4 structural signals) - same "different need, not a duplicate" reasoning `ContentGapAnalyzer`'s own docblock gives for the identical choice.
 - `GeoInsights\VisibilitySnapshotBuilder`/`VisibilityMonitor`/`VisibilitySnapshotScheduler`'s shape - mirrored, not shared code, for `BrandScoreSnapshotBuilder`/`BrandMonitor`/`BrandScoreSnapshotScheduler` (simpler here: Brand Score is a deterministic composite computed live, never an AI-sampled average, so there's no bounded-sample-batch/nullable-score complexity to carry over).
-- `OneClickFix\BulkFixRest`'s "loop the existing single-item call" shape - reused directly by `BrandIntelligence\Rest::create_knowledge_panel_optimization()`, which calls `FindingFixRest::resolve_fix()` per auto-discovered finding rather than reimplementing fix resolution.
+- `OneClickFix\BulkFixRest`'s "loop the existing single-item call" shape - reused directly by `BrandVisibility\Rest::create_knowledge_panel_optimization()`, which calls `FindingFixRest::resolve_fix()` per auto-discovered finding rather than reimplementing fix resolution.
 - `src/pages/BrandVisibility/BrandVisibility.tsx`'s existing page/route/menu entry - extended in place (see below), not superseded by a new page.
 
 ## What's genuinely new in this pass
@@ -70,7 +70,7 @@ at all): this is the machine-readable signal, which a bio field alone
 doesn't provide.
 
 **Brand/Trust/Authority/Entity Scores** - `GET /brand-intelligence/score`
-(`Controllers\BrandIntelligence`), 4 composite deterministic scores (no AI,
+(`BrandVisibility\Rest`), 4 composite deterministic scores (no AI,
 no cost) via `FindingRepository::get_severity_breakdown_for_scanner_ids()`
 and the same weighting every other composite score in this codebase uses:
 
@@ -82,7 +82,7 @@ and the same weighting every other composite score in this codebase uses:
 | Brand (overall) | union of the 7 above |
 
 Also wired into the Dashboard's `category_scores.brand`
-(`Controllers\Dashboard::calculate_brand_score()`) and a new `brand` stat
+(`Dashboard\Rest\Dashboard::calculate_brand_score()`) and a new `brand` stat
 widget (`dashboard-widgets/registry.ts`).
 
 **Brand Intelligence Report** - `Reports\Types\BrandIntelligenceReport`,
@@ -140,7 +140,7 @@ already exists:
 
 Both mapped in `ScannerFixMap::SCANNER_TO_MECHANICAL_FIX`. `POST
 /brand-intelligence/optimize-knowledge-panel`
-(`BrandIntelligence\Rest::create_knowledge_panel_optimization()`)
+(`BrandVisibility\Rest::create_knowledge_panel_optimization()`)
 auto-discovers every open finding across both scanner ids and resolves
 each through `FindingFixRest::resolve_fix()` - one click for everything
 schema-related at once, rendered as `KnowledgePanelCard.tsx`.

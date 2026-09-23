@@ -9,9 +9,9 @@ namespace VuloPilot\ContentOptimization\ValueObjects;
 
 /**
  * A single post's Content Intelligence score, produced by
- * ContentIntelligence\ContentAnalyzer::analyze() (its only real caller,
- * hence living here rather than classes/ValueObjects/) - same shape as
- * Geo\ValueObjects\GeoScore (combines deterministic Scanner findings with
+ * ContentOptimization\ContentAnalyzer::analyze() (its only real caller,
+ * hence living here rather than classes/Utill/) - same shape as
+ * GeoAnalysis\ValueObjects\GeoScore (combines deterministic Scanner findings with
  * an AI-judged dimension into one overall score), scoped to "Topic
  * Authority" instead of GEO's 8 answer-engine dimensions - the one AI
  * dimension this module was actually asked for, not an invented larger

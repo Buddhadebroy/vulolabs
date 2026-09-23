@@ -25,7 +25,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Constructed unconditionally in Free (VuloPilot::init_classes()) exactly
  * like geo_analyzer; only the REST route that spends real AI money calling
- * analyze() lives in Pro (modules/ContentIntelligence/Rest.php) - same
+ * analyze() lives in Pro (modules/ContentOptimization/Rest.php) - same
  * Free-owns-the-engine/Pro-owns-the-costed-route split GeoInsights\Rest.php's
  * own docblock documents for the identical reason.
  *

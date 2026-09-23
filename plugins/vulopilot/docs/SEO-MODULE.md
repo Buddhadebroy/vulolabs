@@ -12,7 +12,7 @@ pairing (now closed for both `MissingMetaDescriptionRule` and the pre-existing
 `SeoTitleRewriteRule`), and how these checks are now organized as a real,
 independently-toggleable Free module.
 
-## SEO scanning is now a real `modules/Seo/` package
+## SEO scanning is now a real `modules/TechnicalSeo/` package
 
 This section used to explain why 13 new scanner classes weren't worth forcing
 into a `modules/SEO/` folder, because VuloPilot's own module loader
@@ -20,27 +20,27 @@ into a `modules/SEO/` folder, because VuloPilot's own module loader
 has since grown the same folder-scan/reflection module system `vulolabs`'s own
 `Modules` class and every Pro plugin already use (`Modules::get_all_modules()`,
 `vulopilot_module_sources`, per-module activate/deactivate), and SEO scanning
-was moved behind it: `modules/Seo/Module.php` registers all 18 SEO-adjacent
+was moved behind it: `modules/TechnicalSeo/Module.php` registers all 18 SEO-adjacent
 scanner classes via `vulopilot_scanner_sources` (the *same* extension point,
 just called from a real module instead of `ScannerRegistry`'s own hardcoded
 default list) instead of `ScannerRegistry::get_default_scanner_classes()`.
 
-This is a genuine behavior change, not just a reorganization: **`Seo\Module`
+This is a genuine behavior change, not just a reorganization: **`TechnicalSeo\Module`
 actually gates scanning.** If an admin turns the `seo` module off from
 Settings → Modules, `Modules::load_active_modules()` never `new`s
-`Seo\Module`, its `register_scanners()` filter callback is never registered,
+`TechnicalSeo\Module`, its `register_scanners()` filter callback is never registered,
 and none of its 18 scanner classes get instantiated by future scans - no new
 SEO findings, sitewide, until it's turned back on. Already-stored findings
 from before deactivation aren't deleted; they still show up on the Health page,
 which lists every category regardless of which modules are active. This is
-deliberately unlike `modules/Geo/Module.php`, VuloPilot's other module: GEO's
+deliberately unlike `modules/GeoAnalysis/Module.php`, VuloPilot's other module: GEO's
 own scanners (`GEO-MODULE.md`) always run with no whole-category kill switch -
-`Geo\Module`'s own job is narrower (auto-regenerating `llms.txt` on
+`GeoAnalysis\Module`'s own job is narrower (auto-regenerating `llms.txt` on
 publish/update) and doesn't gate anything. Both modules auto-activate on a
 fresh install, the same way `vulocart`'s `Cart`/`Order` modules do in the
 sibling free plugin.
 
-`Seo\Module`'s scanner list isn't limited to this doc's own 15 checks: it also
+`TechnicalSeo\Module`'s scanner list isn't limited to this doc's own 15 checks: it also
 carries `ImagesScanner`/`BrokenLinksScanner` (older, pre-existing scanners,
 categories `images`/`links`) and `AiCrawlerBlockedPagesScanner`
 (`AI-CRAWLER-ANALYTICS-MODULE.md`'s "Blocked Pages" check, category `seo`) -
@@ -65,13 +65,13 @@ SEO page if the module itself is off.
 category `redirects` - a homepage redirect-chain check that predates this page
 and had nowhere in the UI to surface until now) plus a "Manage redirects →"
 button linking to the redirect manager/404 log's own dedicated admin page.
-`RedirectAnalysisScanner` itself isn't part of `Seo\Module`'s gated list - it's
+`RedirectAnalysisScanner` itself isn't part of `TechnicalSeo\Module`'s gated list - it's
 registered in `ScannerRegistry`'s own core default list alongside
 `SslMonitoringScanner`/`NotFoundScanner`/`PhpWarningScanner` (Website Health
 Monitoring), so it keeps running even if the `seo` module is turned off.
 
 **A new SEO scanner's findings are still stored and counted normally, but won't
-appear on this page until it's added to *both* `modules/Seo/Module.php`'s
+appear on this page until it's added to *both* `modules/TechnicalSeo/Module.php`'s
 registration list *and* the matching section's `scannerIds` array in
 `SEO.tsx`** - category membership alone was never sufficient for a new scanner
 to show up here, and now module registration is a second, separate requirement
@@ -104,8 +104,8 @@ joined, not one it wrote). `SEO.tsx` accounts for this directly - it filters its
 "Links & schema" section by `scannerIds` rather than a `category="seo"` prop,
 since a category filter would silently exclude both `schema` and `links`
 (`BrokenLinksScanner`) findings from a page that otherwise reads as "the SEO
-page." Every new scanner extends `AbstractBasicScanner` and lives flat in
-`classes/Scanners/Basic/` alongside the original 14 - no subfolder, per
+page." Every new scanner extends `Utill\ScannerUtil` and lives in
+`modules/TechnicalSeo/Scanners/` alongside the original 14, per
 `SCANNERS.md`'s "no folder-per-scanner" reasoning.
 
 ### What "Schema" vs. "Structured Data" actually means here
@@ -176,7 +176,7 @@ matches on a scanner-specific meta key (`missing_description`,
 `missing_featured_image`, `blocks_all_crawlers`), never on category alone or on the
 Finding's (already-translated, locale-unsafe to string-match) title text.
 
-## The 3 new rules (`classes/RuleEngine/Rules/`)
+## The 3 new rules (`classes/Utill/`)
 
 | Rule | `id` | type | fixable | AI required | Pairs with scanner |
 |---|---|---|---|---|---|
@@ -228,10 +228,10 @@ recommendations).
 
 Identical shape to every other engine in this codebase:
 
-1. **A new Free SEO check**: add a scanner class under `classes/Scanners/Basic/`
-   with `get_category() === 'seo'`, register it in `modules/Seo/Module.php`'s
+1. **A new Free SEO check**: add a scanner class under `modules/TechnicalSeo/Scanners/`
+   with `get_category() === 'seo'`, register it in `modules/TechnicalSeo/Module.php`'s
    `register_scanners()` (not `ScannerRegistry::get_default_scanner_classes()` -
-   see "SEO scanning is now a real `modules/Seo/` package" above). If it's
+   see "SEO scanning is now a real `modules/TechnicalSeo/` package" above). If it's
    fixable, add a matching `Rule` (and an `AIAction` if AI is genuinely needed)
    the same way. Also add it to the right `SEO_SECTIONS` entry in `SEO.tsx`, or
    it won't be visible on the SEO page even though it's scanning and storing

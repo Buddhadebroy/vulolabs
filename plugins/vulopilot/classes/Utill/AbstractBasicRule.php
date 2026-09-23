@@ -10,10 +10,10 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Base class for every free-tier rule under RuleEngine/Rules/.
+ * Base class for every free-tier rule across every tab folder.
  *
- * get_tier() is shared for the same reason Scanners\Basic\AbstractBasicScanner
- * hard-codes it: every rule in this namespace is free-tier by definition.
+ * get_tier() is shared for the same reason Utill\ScannerUtil
+ * hard-codes it: every rule extending this class is free-tier by definition.
  * get_tags()/is_fixable()/requires_ai()/get_estimated_impact()/
  * get_estimated_time_minutes() get sensible defaults (no tags, not
  * fixable, no AI required, medium impact, 5 minutes) - most rules only

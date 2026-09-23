@@ -29,17 +29,34 @@ already fully built, not missing.
 | Bulk AI (Pro) | Already fully built - `WooCommerceAi\BulkOptimizeRest` (`POST /woocommerce-ai/bulk-optimize`), generic across all 9 actions. |
 | Revenue Insights (Pro) | **Did not exist at all** - no live revenue computation anywhere. |
 
-## Free - one new scanner, one extended scanner
+## Free - one new scanner, one extended scanner (historical; since moved to Pro)
+
+**Update:** the section below describes this pass as originally shipped, when
+`ProductSeoScanner`, `WooCommerceScanner`, and the other 16 `Product*`/
+`WooCommerce*` scanners (18 total) plus their 9 paired rules were still
+registered Free-default, unconditionally, in `ScannerRegistry`/`RuleRegistry`
+- despite Commerce being a fully Pro-tier pillar. That was a real bug, fixed
+in a later pass: all 18 scanners now live under `vulopilot-pro`'s
+`modules/WooCommerceIntelligence/Scanners/` (9 rules under
+`modules/WooCommerceIntelligence/Rules/`), registered via the same
+`vulopilot_scanner_sources`/`vulopilot_rule_sources` filter pattern every
+other Pro-added scanner/rule uses, gated on `class_exists('WooCommerce')`.
+They are **not** in `ScannerRegistry::get_default_scanner_classes()`
+any more, and nothing WooCommerce-scanner-shaped ships in Free's own
+`classes/` tree. The one piece that stayed Free-owned is the live,
+non-Findings `GET /store-readiness` checklist (`classes/Utill/StoreReadiness.php`)
+- see that class's own docblock, and `SCANNERS.md`'s "Extension strategy" for
+the current registration split.
 
 ### `ProductSeoScanner` - "Product SEO"
 
-Lives in `classes/Scanners/Basic/`, registered in
-`ScannerRegistry::get_default_scanner_classes()` alongside the 11
-pre-existing `Product*` scanners under the same `woocommerce` category
-string, gated only by the existing whole-category
-`enable_woocommerce_scanning` kill switch (no new per-scanner toggle -
-none of the other 11 `Product*` scanners has one either, per
-`Settings/Scanning/WooCommerce.ts`'s own single-toggle shape).
+Lives in `vulopilot-pro`'s `modules/WooCommerceIntelligence/Scanners/`
+(moved there from Free - see the note above), registered via
+`vulopilot_scanner_sources` alongside the 17 other `Product*`/`WooCommerce*`
+scanners under the same `woocommerce` category string, gated only by the
+existing whole-category `enable_woocommerce_scanning` kill switch (no new
+per-scanner toggle - none of the other `Product*` scanners has one either,
+per `Settings/Scanning/WooCommerce.ts`'s own single-toggle shape).
 
 Checks product title length only (the same 10-60 character thresholds
 `SeoScanner` already uses for posts/pages), **not** a missing-meta-
