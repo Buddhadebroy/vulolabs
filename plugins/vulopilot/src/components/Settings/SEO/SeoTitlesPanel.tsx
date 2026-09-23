@@ -494,7 +494,7 @@ const SeoTitlesPanel = () => {
 	return (
 		<div className="site-identity-title-formats">
 			<SectionComponent
-				title={__('Enable Site Identity', 'vulopilot')}
+				title={__('Custom title formats', 'vulopilot')}
 				desc={__('Use the configured title and description formats across your site.', 'vulopilot')}
 				rightContent={
 					<MultiCheckboxInput
