@@ -1,17 +1,7 @@
 <?php
 namespace VuloPilot\Performance;
 
-use VuloPilot\Dashboard\ActivityLogRepository;
-use VuloPilot\Performance\CoreWebVitalsRepository;
-use VuloPilot\Utill\FindingRepository;
-use VuloPilot\Performance\PageSpeedRepository;
-use VuloPilot\Performance\PerformanceRequestRepository;
-use VuloPilot\Utill\ScanRepository;
-use VuloPilot\Utill\ScoreSnapshotRepository;
 use VuloPilot\Utill;
-use VuloPilot\Utill\Finding;
-use VuloPilot\Utill\ScanResult;
-use VuloPilot\Utill\Severity;
 
 defined( 'ABSPATH' ) || exit;
 

@@ -9,7 +9,6 @@ namespace VuloPilot\Security;
 use VuloPilot\Utill\Finding;
 use VuloPilot\Utill\RepositoryUtil;
 
-use VuloPilot\Utill as CoreUtill;
 
 defined( 'ABSPATH' ) || exit;
 

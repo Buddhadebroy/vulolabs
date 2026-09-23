@@ -1,15 +1,7 @@
 <?php
 namespace VuloPilot\SeoVisibility\Rest;
 
-use VuloPilot\SiteHealth\BackupRepository;
-use VuloPilot\SeoVisibility\CrawlerVisitRepository;
-use VuloPilot\Utill\FindingRepository;
 use VuloPilot\SeoVisibility\IndexNowLogRepository;
-use VuloPilot\AiAssistant\AiByokGatewayClient;
-use VuloPilot\AiAssistant\AiCreditsConnection;
-use VuloPilot\Settings\GoogleAdSenseClient;
-use VuloPilot\Settings\GoogleAnalyticsClient;
-use VuloPilot\Settings\GoogleServicesConnection;
 use VuloPilot\SeoVisibility\IndexNowClient;
 use VuloPilot\Utill;
 

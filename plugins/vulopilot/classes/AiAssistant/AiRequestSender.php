@@ -2,12 +2,6 @@
 /**
  * AiRequestSender class file.
  *
- * Merges this plugin's former AIRequest.php, AIResponse.php and
- * AISafetyValidator.php into one file alongside AiRequestSender itself -
- * a request value object, a response value object, a two-gate validator,
- * and the one sender that ties all three together, none of them meaningful
- * on their own outside this pipeline.
- *
  * @package VuloPilot
  */
 
@@ -19,197 +13,66 @@ use VuloPilot\Utill as UtillHelper;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * A request sent from VuloPilot to the VuloCloud AI API - a chat-style
- * prompt plus a couple of optional real hints, and nothing else. VuloCloud
- * alone decides which vendor/model answers a call and how; this site never
- * picks or configures that, so there is no `model`/`temperature`/
- * `max_tokens` here to pick or configure.
+ * The one path every real AI call in this plugin goes through: safety-validate
+ * the prompt, make sure this site is connected to VuloCloud, spend one request
+ * from the per-minute budget, send `{feature, prompt, site_tone}` to the
+ * VuloCloud gateway (retrying transient failures), record the attempt in
+ * `vulopilot_ai_history`, then sanitize the response.
  *
- * @class       AIRequest class
+ * VuloCloud is the only place an AI answer comes from - it holds every key and
+ * decides which vendor serves a call - so there is nothing to pick between and
+ * no registry/adapter/fallback layer. The budget, retry, safety-validation
+ * and history steps that used to live in decorators/a separate AIRequest
+ * value object and AISafetyValidator class around an adapter are plain
+ * private steps/methods here instead (folded in - this plugin's former
+ * AIRequest.php and AISafetyValidator.php, whose only real caller was this
+ * class), in the same order: safety-validate, budget check on every
+ * attempt, retries inside that budget, and one history row per call
+ * (failures included, so the audit trail covers what was tried, not only
+ * what worked).
+ *
+ * AIResponse stays its own class, not folded in here - it's the shared
+ * value object AIActionInterface::parse_response() takes as its parameter
+ * type, read by every one of this plugin's ~50 AI Action classes (both
+ * plugins), and also constructed independently by
+ * AiCopilot\ActionRunner's credits-metered gateway call - a real,
+ * cross-cutting contract type, not something private to this one sender.
+ *
+ * The BYOK gateway call itself (AiByokGatewayClient::execute()) folded
+ * into AiCreditsConnection instead of here - it only ever read that
+ * class's own stored credential, so credits_connection now doubles as
+ * both "is this site connected" and "make the one real gateway call".
+ *
+ * @class       AiRequestSender class
  * @version     1.0.0
  * @author      VuloLabs
  */
-final class AIRequest {
+class AiRequestSender {
 
     /**
-     * @var array<int, array{role: string, content: string}>
+     * Requests this site may send per minute (a local, pre-emptive guard
+     * against burning through AI credits too fast).
      */
-    private array $messages;
+    private const MAX_REQUESTS_PER_MINUTE = 20;
 
     /**
-     * A single inline image for the current turn, `{mime_type, data}`
-     * (`data` base64-encoded) - additive and optional so every existing
-     * caller building a text-only request is unaffected. The VuloCloud
-     * gateway's wire contract carries text only, so nothing reads this today;
-     * it stays on the request for when that changes.
+     * Total attempts including the first; the delay doubles after each failure.
+     */
+    private const MAX_ATTEMPTS = 3;
+
+    private const BASE_RETRY_DELAY_MS = 500;
+
+    /**
+     * `response_excerpt`/`prompt_excerpt` are an audit trail, not a cache -
+     * bounds how much of a real prompt or reply gets persisted per call.
+     */
+    private const EXCERPT_MAX_LENGTH = 300;
+
+    /**
+     * Regex patterns matching common API-key shapes - see validate_prompt()'s
+     * own docblock for why this is deliberately conservative, not exhaustive.
      *
-     * @var array{mime_type: string, data: string}|null
-     */
-    private ?array $image;
-
-    /**
-     * Which real feature/endpoint triggered this call - e.g. 'copilot_chat',
-     * 'content_assistant_chat', 'ai_action', 'geo_analysis',
-     * 'content_intelligence'. Purely an audit-trail tag: read only by
-     * AiRequestSender, written to `vulopilot_ai_history.surface`, so
-     * AI Copilot History's "Conversations" filter (and any future
-     * per-feature usage breakdown) can tell a real chat turn apart from
-     * every other feature that shares the same sender.
-     * Null for any caller that doesn't pass one - no behavior change.
-     *
-     * @var string|null
-     */
-    private ?string $surface;
-
-    /**
-     * @param array                                        $messages array<int, array{role: string, content: string}>.
-     * @param array{mime_type: string, data: string}|null $image   Optional inline image for the current turn.
-     * @param string|null                                 $surface Optional real feature label - see get_surface()'s own docblock.
-     */
-    public function __construct(
-        array $messages,
-        ?array $image = null,
-        ?string $surface = null
-    ) {
-        $this->messages = $messages;
-        $this->image    = $image;
-        $this->surface  = $surface;
-    }
-
-    /**
-     * @return array<int, array{role: string, content: string}>
-     */
-    public function get_messages(): array {
-        return $this->messages;
-    }
-
-    /**
-     * @return array{mime_type: string, data: string}|null
-     */
-    public function get_image(): ?array {
-        return $this->image;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function get_surface(): ?string {
-        return $this->surface;
-    }
-}
-
-/**
- * The response returned by the VuloCloud AI API, including the credits
- * consumed by the request. Immutable - sanitizing the content
- * (AISafetyValidator::sanitize_response()) produces a new instance via
- * with_content() rather than mutating this one.
- *
- * @class       AIResponse class
- * @version     1.0.0
- * @author      VuloLabs
- */
-final class AIResponse {
-
-    /**
-     * @var string
-     */
-    private string $content;
-
-    /**
-     * Real AI credits this call spent, as reported by VuloCloud. `0` is a
-     * genuine, honest value here, not a placeholder: it means the specific
-     * gateway path that produced this response is uncredited (e.g.
-     * AiByokGatewayClient's `/plugin/ai/byok-execute`, which has no
-     * credits field in its response at all), not that credit accounting is
-     * unfinished. A credits-metered path (e.g. AiCreditGatewayClient's
-     * `/plugin/ai/execute`) reports the real spent amount here instead.
-     *
-     * @var int
-     */
-    private int $credits_used;
-
-    /**
-     * VuloCloud's own request id for this call, when the gateway that
-     * produced this response returns one - null when it doesn't (never
-     * fabricated).
-     *
-     * @var string|null
-     */
-    private ?string $request_id;
-
-    /**
-     * @param string      $content      Generated content.
-     * @param int         $credits_used Real AI credits this call spent - see get_credits_used()'s own docblock for why `0` is a real, honest value from some gateways.
-     * @param string|null $request_id   VuloCloud's own request id for this call, if the gateway returned one.
-     */
-    public function __construct(
-        string $content,
-        int $credits_used,
-        ?string $request_id = null
-    ) {
-        $this->content      = $content;
-        $this->credits_used = $credits_used;
-        $this->request_id   = $request_id;
-    }
-
-    /**
-     * @return string
-     */
-    public function get_content(): string {
-        return $this->content;
-    }
-
-    /**
-     * @return int
-     */
-    public function get_credits_used(): int {
-        return $this->credits_used;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function get_request_id(): ?string {
-        return $this->request_id;
-    }
-
-    /**
-     * Returns a copy of this response with different content - used to
-     * apply sanitization without mutating the original.
-     *
-     * @param string $new_content Replacement content.
-     * @return self
-     */
-    public function with_content( string $new_content ): self {
-        return new self(
-            $new_content,
-            $this->credits_used,
-            $this->request_id
-        );
-    }
-}
-
-/**
- * Two gates every AI call goes through: validate_prompt() before a
- * request is ever sent (called by AiRequestSender), and sanitize_response()
- * on whatever comes back before it's used anywhere a site owner would
- * see it (a Recommendation's description, a future auto-applied fix).
- *
- * Deliberately conservative, not exhaustive - the secret-pattern check
- * catches the shapes of common API keys (an ounce of self-consistency:
- * don't let a prompt-builder accidentally interpolate a credential into a
- * prompt), not a general-purpose PII/secrets scanner.
- *
- * @class       AISafetyValidator class
- * @version     1.0.0
- * @author      VuloLabs
- */
-class AISafetyValidator {
-
-    private const MAX_PROMPT_LENGTH = 32000;
-
-    /**
-     * @var string[] Regex patterns matching common API-key shapes.
+     * @var string[]
      */
     private const SECRET_PATTERNS = array(
         '/sk-[a-zA-Z0-9]{20,}/',            // OpenAI-style secret key.
@@ -218,12 +81,64 @@ class AISafetyValidator {
     );
 
     /**
+     * Max prompt length validate_prompt() allows through.
+     */
+    private const MAX_PROMPT_LENGTH = 32000;
+
+    private AiHistoryRepository $history;
+    private AiCreditsConnection $credits_connection;
+
+    /**
+     * @param AiHistoryRepository|null $history            Defaults to a new instance (injectable for tests).
+     * @param AiCreditsConnection|null $credits_connection Defaults to a new instance (injectable for tests) - also the BYOK gateway itself (AiByokGatewayClient folded into it, see that class's former docblock, now AiCreditsConnection's own).
+     */
+    public function __construct(
+        ?AiHistoryRepository $history = null,
+        ?AiCreditsConnection $credits_connection = null
+    ) {
+        $this->credits_connection = $credits_connection ?? new AiCreditsConnection();
+        $this->history             = $history ?? new AiHistoryRepository();
+    }
+
+    /**
+     * @param array<int, array{role: string, content: string}> $messages Chat-style prompt messages.
+     * @param array{mime_type: string, data: string}|null      $image    Optional inline image for the current turn. The VuloCloud gateway's wire contract doesn't carry one today, so it is recorded on the request but never sent.
+     * @param string|null                                      $surface  Optional real feature label recorded to `vulopilot_ai_history.surface`.
+     * @return AIResponse
+     *
+     * @throws VuloPilotException If the prompt fails safety validation, this minute's request budget is already spent, VuloCloud has no AI key that resolves for this site, or the VuloCloud gateway rejects or fails the request.
+     * @throws \RuntimeException  If this site isn't connected to VuloCloud.
+     */
+    public function send( array $messages, ?array $image = null, ?string $surface = null ): AIResponse {
+        $this->validate_prompt( $messages );
+
+        if ( ! $this->credits_connection->is_connected() ) {
+            throw new \RuntimeException( esc_html__( 'No AI connection is configured.', 'vulopilot' ) );
+        }
+
+        try {
+            $response = $this->send_with_retries( $messages, $surface );
+            $this->record_success( $messages, $surface, $response );
+        } catch ( \Throwable $exception ) {
+            $this->record_failure( $messages, $surface );
+            throw $exception;
+        }
+
+        return $this->sanitize_response( $response );
+    }
+
+    /**
+     * The prompt-length/secret-pattern gate every request goes through
+     * before it's ever sent - deliberately conservative, not exhaustive
+     * (catches the shapes of common API keys, not a general-purpose
+     * PII/secrets scanner).
+     *
      * @param array<int, array{role: string, content: string}> $messages The prompt about to be sent.
      * @return void
      *
      * @throws VuloPilotException If the prompt is too long or appears to contain a secret.
      */
-    public function validate_prompt( array $messages ): void {
+    private function validate_prompt( array $messages ): void {
         $combined = implode( "\n", array_column( $messages, 'content' ) );
 
         if ( mb_strlen( $combined ) > self::MAX_PROMPT_LENGTH ) {
@@ -252,101 +167,8 @@ class AISafetyValidator {
      * @param AIResponse $response Response to sanitize.
      * @return AIResponse A copy with sanitized content.
      */
-    public function sanitize_response( AIResponse $response ): AIResponse {
+    private function sanitize_response( AIResponse $response ): AIResponse {
         return $response->with_content( wp_kses( $response->get_content(), array() ) );
-    }
-}
-
-/**
- * The one path every real AI call in this plugin goes through: safety-validate
- * the prompt, make sure this site is connected to VuloCloud, spend one request
- * from the per-minute budget, send `{feature, prompt, site_tone}` to the
- * VuloCloud gateway (retrying transient failures), record the attempt in
- * `vulopilot_ai_history`, then sanitize the response.
- *
- * VuloCloud is the only place an AI answer comes from - it holds every key and
- * decides which vendor serves a call - so there is nothing to pick between and
- * no registry/adapter/fallback layer. The budget, retry and history steps that
- * used to live in decorators around an adapter are plain private steps here,
- * in the same order: budget check on every attempt, retries inside that
- * budget, and one history row per call (failures included, so the audit trail
- * covers what was tried, not only what worked).
- *
- * @class       AiRequestSender class
- * @version     1.0.0
- * @author      VuloLabs
- */
-class AiRequestSender {
-
-    /**
-     * Requests this site may send per minute (a local, pre-emptive guard
-     * against burning through AI credits too fast).
-     */
-    private const MAX_REQUESTS_PER_MINUTE = 20;
-
-    /**
-     * Total attempts including the first; the delay doubles after each failure.
-     */
-    private const MAX_ATTEMPTS = 3;
-
-    private const BASE_RETRY_DELAY_MS = 500;
-
-    /**
-     * `response_excerpt`/`prompt_excerpt` are an audit trail, not a cache -
-     * bounds how much of a real prompt or reply gets persisted per call.
-     */
-    private const EXCERPT_MAX_LENGTH = 300;
-
-    private AISafetyValidator $safety_validator;
-    private AiByokGatewayClient $gateway;
-    private AiHistoryRepository $history;
-    private AiCreditsConnection $credits_connection;
-
-    /**
-     * @param AISafetyValidator        $safety_validator   Validator both the prompt and response pass through.
-     * @param AiByokGatewayClient|null $gateway            Defaults to a new instance (injectable for tests).
-     * @param AiHistoryRepository|null $history            Defaults to a new instance (injectable for tests).
-     * @param AiCreditsConnection|null $credits_connection Defaults to a new instance (injectable for tests).
-     */
-    public function __construct(
-        AISafetyValidator $safety_validator,
-        ?AiByokGatewayClient $gateway = null,
-        ?AiHistoryRepository $history = null,
-        ?AiCreditsConnection $credits_connection = null
-    ) {
-        $this->safety_validator   = $safety_validator;
-        $this->credits_connection = $credits_connection ?? new AiCreditsConnection();
-        $this->gateway            = $gateway ?? new AiByokGatewayClient( $this->credits_connection );
-        $this->history            = $history ?? new AiHistoryRepository();
-    }
-
-    /**
-     * @param array<int, array{role: string, content: string}> $messages Chat-style prompt messages.
-     * @param array{mime_type: string, data: string}|null      $image    Optional inline image for the current turn. The VuloCloud gateway's wire contract doesn't carry one today, so it is recorded on the request but never sent.
-     * @param string|null                                      $surface  Optional real feature label recorded to `vulopilot_ai_history.surface` - see AIRequest::get_surface()'s own docblock.
-     * @return AIResponse
-     *
-     * @throws VuloPilotException If the prompt fails safety validation, this minute's request budget is already spent, VuloCloud has no AI key that resolves for this site, or the VuloCloud gateway rejects or fails the request.
-     * @throws \RuntimeException  If this site isn't connected to VuloCloud.
-     */
-    public function send( array $messages, ?array $image = null, ?string $surface = null ): AIResponse {
-        $this->safety_validator->validate_prompt( $messages );
-
-        if ( ! $this->credits_connection->is_connected() ) {
-            throw new \RuntimeException( esc_html__( 'No AI connection is configured.', 'vulopilot' ) );
-        }
-
-        $request = new AIRequest( $messages, $image, $surface );
-
-        try {
-            $response = $this->send_with_retries( $request );
-            $this->record_success( $request, $response );
-        } catch ( \Throwable $exception ) {
-            $this->record_failure( $request );
-            throw $exception;
-        }
-
-        return $this->safety_validator->sanitize_response( $response );
     }
 
     /**
@@ -355,19 +177,20 @@ class AiRequestSender {
      * TYPE_RATE_LIMIT_EXCEEDED failure passes straight through, per those
      * types' own docblocks on VuloPilotException. Every attempt spends from the budget.
      *
-     * @param AIRequest $request Request to send.
+     * @param array<int, array{role: string, content: string}> $messages Chat-style prompt messages.
+     * @param string|null                                      $surface  Optional real feature label.
      * @return AIResponse
      *
      * @throws VuloPilotException If every attempt is exhausted.
      */
-    private function send_with_retries( AIRequest $request ): AIResponse {
+    private function send_with_retries( array $messages, ?string $surface ): AIResponse {
         $attempts_made = 0;
 
         while ( true ) {
             try {
                 $this->enforce_rate_limit();
 
-                return $this->call_gateway( $request );
+                return $this->call_gateway( $messages, $surface );
             } catch ( VuloPilotException $exception ) {
                 if ( VuloPilotException::TYPE_TRANSIENT_GATEWAY !== $exception->get_type() ) {
                     throw $exception;
@@ -410,27 +233,28 @@ class AiRequestSender {
 
     /**
      * Sends `{feature, prompt, site_tone}` to VuloCloud and returns finished
-     * text. The prompt is the request's messages flattened in order - VuloCloud
-     * alone turns it back into whatever message shape the serving vendor
-     * expects. This gateway's own response carries no credits field, so the
-     * returned AIResponse's `credits_used` is honestly `0` here - this is
-     * the free, rate-limited BYOK path, genuinely uncredited, not an
-     * unfinished calculation. `request_id` carries through VuloCloud's own
-     * real `requestId`.
+     * text. The prompt is the messages flattened in order - VuloCloud alone
+     * turns it back into whatever message shape the serving vendor expects.
+     * This gateway's own response carries no credits field, so the returned
+     * AIResponse's `credits_used` is honestly `0` here - this is the free,
+     * rate-limited BYOK path, genuinely uncredited, not an unfinished
+     * calculation. `request_id` carries through VuloCloud's own real
+     * `requestId`.
      *
-     * @param AIRequest $request Request to send.
+     * @param array<int, array{role: string, content: string}> $messages Chat-style prompt messages.
+     * @param string|null                                      $surface  Optional real feature label.
      * @return AIResponse
      *
      * @throws VuloPilotException If VuloCloud has no AI key that resolves for this site, or for any other gateway failure.
      */
-    private function call_gateway( AIRequest $request ): AIResponse {
+    private function call_gateway( array $messages, ?string $surface ): AIResponse {
         // Lives in the flat `vulopilot_settings` option (General tab's own
         // "Site tone" field, autosaved) - see UtillHelper::VULOPILOT_SETTINGS_DEFAULTS.
         $settings = wp_parse_args( (array) get_option( UtillHelper::VULOPILOT_SETTINGS_KEY, array() ), UtillHelper::VULOPILOT_SETTINGS_DEFAULTS );
 
-        $result = $this->gateway->execute(
-            $request->get_surface() ?? 'ai_action',
-            $this->flatten_messages( $request->get_messages() ),
+        $result = $this->credits_connection->execute(
+            $surface ?? 'ai_action',
+            $this->flatten_messages( $messages ),
             array(),
             (string) $settings['site_tone']
         );
@@ -458,18 +282,19 @@ class AiRequestSender {
     }
 
     /**
-     * @param AIRequest  $request  Originating request.
-     * @param AIResponse $response Completed response.
+     * @param array<int, array{role: string, content: string}> $messages Originating request messages.
+     * @param string|null                                      $surface  Originating request's own feature label.
+     * @param AIResponse                                       $response Completed response.
      * @return void
      */
-    private function record_success( AIRequest $request, AIResponse $response ): void {
+    private function record_success( array $messages, ?string $surface, AIResponse $response ): void {
         $this->history->insert(
             array(
                 'request_id'        => $response->get_request_id(),
-                'surface'           => $request->get_surface(),
+                'surface'           => $surface,
                 'credits_used'      => $response->get_credits_used(),
                 'status'            => 'success',
-                'prompt_excerpt'    => $this->build_prompt_excerpt( $request ),
+                'prompt_excerpt'    => $this->build_prompt_excerpt( $messages ),
                 'response_excerpt'  => $this->build_excerpt( $response->get_content() ),
                 'requested_by'      => get_current_user_id(),
             )
@@ -477,17 +302,18 @@ class AiRequestSender {
     }
 
     /**
-     * @param AIRequest $request Originating request.
+     * @param array<int, array{role: string, content: string}> $messages Originating request messages.
+     * @param string|null                                      $surface  Originating request's own feature label.
      * @return void
      */
-    private function record_failure( AIRequest $request ): void {
+    private function record_failure( array $messages, ?string $surface ): void {
         $this->history->insert(
             array(
                 'request_id'        => null,
-                'surface'           => $request->get_surface(),
+                'surface'           => $surface,
                 'credits_used'      => 0,
                 'status'            => 'failure',
-                'prompt_excerpt'    => $this->build_prompt_excerpt( $request ),
+                'prompt_excerpt'    => $this->build_prompt_excerpt( $messages ),
                 'requested_by'      => get_current_user_id(),
             )
         );
@@ -516,13 +342,13 @@ class AiRequestSender {
      * always message[0] and is orchestration instructions, not anything a
      * human asked). History's detail panel ("You asked") reads this.
      *
-     * @param AIRequest $request Originating request.
+     * @param array<int, array{role: string, content: string}> $messages Originating request messages.
      * @return string|null Null if the request genuinely has no user message.
      */
-    private function build_prompt_excerpt( AIRequest $request ): ?string {
+    private function build_prompt_excerpt( array $messages ): ?string {
         $last_user_message = null;
 
-        foreach ( $request->get_messages() as $message ) {
+        foreach ( $messages as $message ) {
             if ( 'user' === ( $message['role'] ?? '' ) ) {
                 $last_user_message = (string) ( $message['content'] ?? '' );
             }

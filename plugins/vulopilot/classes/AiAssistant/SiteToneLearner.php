@@ -1,6 +1,10 @@
 <?php
 namespace VuloPilot\AiAssistant;
 
+use VuloPilot\Dashboard\ActivityLogRepository;
+use VuloPilot\Utill;
+use VuloPilot\Utill\Severity;
+
 defined( 'ABSPATH' ) || exit;
 
 /**

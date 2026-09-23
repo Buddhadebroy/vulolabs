@@ -1,7 +1,6 @@
 <?php
 namespace VuloPilot\Utill;
 
-use VuloPilot\Automations\BuiltinAutomationSeeder;
 
 defined( 'ABSPATH' ) || exit;
 

@@ -1,7 +1,6 @@
 <?php
 namespace VuloPilot\AiAssistant\Rest;
 
-use VuloPilot\AiAssistant\AiByokGatewayClient;
 use VuloPilot\AiAssistant\AiCreditsConnection;
 
 defined( 'ABSPATH' ) || exit;
@@ -70,10 +69,10 @@ class VuloCloudAiConnection extends \WP_REST_Controller {
      * @inheritDoc
      */
     public function get_items( $request ) {
-        // A cheap connection-status check (AiByokGatewayClient::status(),
+        // A cheap connection-status check (AiCreditsConnection::byok_status(),
         // never a key/prompt) - the real, current answer to "does AI work
         // for this site".
-        $vulocloud_status = ( new AiByokGatewayClient() )->status();
+        $vulocloud_status = ( new AiCreditsConnection() )->byok_status();
 
         return rest_ensure_response(
             array(

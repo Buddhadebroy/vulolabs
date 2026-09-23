@@ -71,7 +71,7 @@ class VuloPilotException extends \Exception {
 	const TYPE_TRANSIENT_GATEWAY = 'transient_gateway';
 
 	/**
-	 * Thrown by AiAssistant\AISafetyValidator::validate_prompt() when a
+	 * Thrown by AiAssistant\AiRequestSender::validate_prompt() when a
 	 * request is too long or appears to contain a credential - blocked
 	 * before it's ever sent. Not an AI-request-failure type
 	 * (is_ai_request_failure() returns false for this), since it never

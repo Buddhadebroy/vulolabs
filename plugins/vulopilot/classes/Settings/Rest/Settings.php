@@ -2,17 +2,11 @@
 namespace VuloPilot\Settings\Rest;
 
 use VuloPilot\KnowledgeGraph\EntityExtractor;
-use VuloPilot\AiAssistant\ActionRunRepository;
-use VuloPilot\Dashboard\ActivityLogRepository;
-use VuloPilot\AiAssistant\AiHistoryRepository;
-use VuloPilot\Automations\AutomationsRepository;
-use VuloPilot\Utill\FindingRepository;
 use VuloPilot\Reports\ReportRepository;
 use VuloPilot\SeoVisibility\RobotsTxtBotAccess;
 use VuloPilot\SeoVisibility\SchemaCoverageAnalyzer;
 use VuloPilot\Settings\WebmasterToolsManager;
 use VuloPilot\Utill;
-use VuloPilot\Utill\Severity;
 
 defined( 'ABSPATH' ) || exit;
 

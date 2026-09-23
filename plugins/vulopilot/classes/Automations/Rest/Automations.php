@@ -4,10 +4,6 @@ namespace VuloPilot\Automations\Rest;
 use VuloPilot\Automations\BuiltinAutomationSeeder;
 use VuloPilot\Automations\AutomationsRepository;
 use VuloPilot\Automations\AutomationsRunRepository;
-use VuloPilot\Utill\FindingRepository;
-use VuloPilot\Utill\ScanRepository;
-use VuloPilot\Utill\ScannerRegistry;
-use VuloPilot\Utill\Severity;
 
 defined( 'ABSPATH' ) || exit;
 

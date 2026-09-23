@@ -1,8 +1,6 @@
 <?php
 namespace VuloPilot\SiteHealth;
 
-use VuloPilot\Dashboard\ActivityLogRepository;
-use VuloPilot\SiteHealth\BackupRepository;
 use VuloPilot\Utill;
 
 defined( 'ABSPATH' ) || exit;

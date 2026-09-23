@@ -7,7 +7,6 @@
 
 namespace VuloPilot\Utill;
 
-use VuloPilot\Utill as CoreUtill;
 
 defined( 'ABSPATH' ) || exit;
 
