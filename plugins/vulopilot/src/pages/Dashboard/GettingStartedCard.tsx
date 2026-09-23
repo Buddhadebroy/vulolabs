@@ -13,7 +13,7 @@ import BannerCard from '../../components/BannerCard';
  * their real install/activate flow, which still lives on the Modules page
  * itself.
  *
- * Rendered as its own banner (real `dashboard-banner.png` illustration as
+ * Rendered as its own banner (real `dashboard-banner.jpg` illustration as
  * background) rather than a plain `CardComponent`, matching the mockup's
  * own full-width purple banner - that asset has no title/toggle/border
  * affordances of its own, so the header row and dismiss control are

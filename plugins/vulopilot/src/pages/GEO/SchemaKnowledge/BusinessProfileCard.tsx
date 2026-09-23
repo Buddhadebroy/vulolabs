@@ -17,7 +17,7 @@ const isBrandModuleActive = () =>
 	appLocalizer.active_modules?.includes('brand-visibility') ?? false;
 
 const isEntityExtractionModuleActive = () =>
-	appLocalizer.active_modules?.includes('entity-extraction') ?? false;
+	appLocalizer.active_modules?.includes('knowledge-graph') ?? false;
 
 /**
  * Understanding-language labels for the real `entity_score` gauge -

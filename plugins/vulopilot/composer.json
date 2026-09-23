@@ -17,7 +17,11 @@
                 "classes/",
                 "modules/"
             ]
-        }
+        },
+        "classmap": [
+            "classes/",
+            "modules/"
+        ]
     },
     "require": {
         "php": ">=8.0"

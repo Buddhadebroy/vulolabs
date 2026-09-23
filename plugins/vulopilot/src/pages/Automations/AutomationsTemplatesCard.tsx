@@ -133,8 +133,8 @@ const AutomationsTemplatesCard: React.FC<AutomationsTemplatesCardProps> = ({
 	return (
 		<div id="create-new-automation-card">
 			<CardComponent
-				title={ __( 'Create new automation', 'vulopilot-pro' ) } titleIcon="analytics"
-				desc={ __( 'Start from a ready-made template instead of building one from scratch.', 'vulopilot-pro' ) }
+				title={ __( 'Create new automation', 'vulopilot' ) } titleIcon="analytics"
+				desc={ __( 'Start from a ready-made template instead of building one from scratch.', 'vulopilot' ) }
 			>
 				<ListComponent
 					className="mini-card report"

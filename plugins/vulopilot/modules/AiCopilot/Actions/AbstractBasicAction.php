@@ -7,8 +7,8 @@
 
 namespace VuloPilot\AiCopilot\Actions;
 
-use VuloPilot\Contracts\AI\AIActionInterface;
-use VuloPilot\ValueObjects\Impact;
+use VuloPilot\Utill\AIActionInterface;
+use VuloPilot\Utill\Impact;
 
 defined( 'ABSPATH' ) || exit;
 

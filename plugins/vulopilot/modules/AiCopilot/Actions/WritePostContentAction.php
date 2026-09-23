@@ -7,12 +7,11 @@
 
 namespace VuloPilot\AiCopilot\Actions;
 
-use VuloPilot\Exceptions\InvalidActionInputException;
-use VuloPilot\Exceptions\InvalidActionOutputException;
-use VuloPilot\ValueObjects\ActionExecutionResult;
-use VuloPilot\ValueObjects\ActionPreview;
-use VuloPilot\ValueObjects\AIResponse;
-use VuloPilot\ValueObjects\Impact;
+use VuloPilot\Utill\VuloPilotException;
+use VuloPilot\AiAssistant\ActionExecutionResult;
+use VuloPilot\AiAssistant\ActionPreview;
+use VuloPilot\AiAssistant\AIResponse;
+use VuloPilot\Utill\Impact;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -69,13 +68,13 @@ class WritePostContentAction extends AbstractBasicAction {
         // (a draft is created in execute()). A post_id that's supplied must
         // still be a real post/page.
         if ( $post_id && ( ! $post || ! in_array( $post->post_type, array( 'post', 'page' ), true ) ) ) {
-            throw new InvalidActionInputException( esc_html__( 'post_id must refer to an existing post or page.', 'vulopilot' ) );
+            throw new VuloPilotException( esc_html__( 'post_id must refer to an existing post or page.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
         }
 
         $brief = sanitize_textarea_field( (string) ( $input['brief'] ?? '' ) );
 
         if ( mb_strlen( $brief ) < 5 ) {
-            throw new InvalidActionInputException( esc_html__( 'Please describe what to write about (at least 5 characters).', 'vulopilot' ) );
+            throw new VuloPilotException( esc_html__( 'Please describe what to write about (at least 5 characters).', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
         }
 
         return array(
@@ -121,7 +120,7 @@ class WritePostContentAction extends AbstractBasicAction {
         $content = $output['content'] ?? '';
 
         if ( mb_strlen( wp_strip_all_tags( $content ) ) < 100 ) {
-            throw new InvalidActionOutputException( esc_html__( 'The AI returned content that is too short to be useful.', 'vulopilot' ) );
+            throw new VuloPilotException( esc_html__( 'The AI returned content that is too short to be useful.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
         }
     }
 
