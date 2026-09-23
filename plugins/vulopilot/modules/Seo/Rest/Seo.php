@@ -7,8 +7,8 @@
 
 namespace VuloPilot\Seo\Rest;
 
-use VuloPilot\Repositories\FindingRepository;
-use VuloPilot\ValueObjects\Severity;
+use VuloPilot\Utill\FindingRepository;
+use VuloPilot\Utill\Severity;
 
 defined( 'ABSPATH' ) || exit;
 

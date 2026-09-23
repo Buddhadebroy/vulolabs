@@ -7,12 +7,11 @@
 
 namespace VuloPilot\AiCopilot\Actions;
 
-use VuloPilot\Exceptions\InvalidActionInputException;
-use VuloPilot\Exceptions\InvalidActionOutputException;
-use VuloPilot\ValueObjects\ActionExecutionResult;
-use VuloPilot\ValueObjects\ActionPreview;
-use VuloPilot\ValueObjects\AIResponse;
-use VuloPilot\ValueObjects\Impact;
+use VuloPilot\Utill\VuloPilotException;
+use VuloPilot\AiAssistant\ActionExecutionResult;
+use VuloPilot\AiAssistant\ActionPreview;
+use VuloPilot\AiAssistant\AIResponse;
+use VuloPilot\Utill\Impact;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -73,11 +72,11 @@ class AuditContentAction extends AbstractBasicAction {
 		$post    = $post_id ? get_post( $post_id ) : null;
 
 		if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page' ), true ) ) {
-			throw new InvalidActionInputException( esc_html__( 'post_id must refer to an existing post or page.', 'vulopilot' ) );
+			throw new VuloPilotException( esc_html__( 'post_id must refer to an existing post or page.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
 		}
 
 		if ( mb_strlen( wp_strip_all_tags( $post->post_content ) ) < 50 ) {
-			throw new InvalidActionInputException( esc_html__( 'This post needs at least some existing content to audit.', 'vulopilot' ) );
+			throw new VuloPilotException( esc_html__( 'This post needs at least some existing content to audit.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
 		}
 
 		return array(
@@ -145,9 +144,8 @@ class AuditContentAction extends AbstractBasicAction {
 	 */
 	public function validate_output( array $output, array $input ): void {
 		if ( null === $output['score'] || '' === $output['summary'] ) {
-			throw new InvalidActionOutputException(
-				esc_html__( 'The AI response did not match the expected audit format.', 'vulopilot' )
-			);
+			throw new VuloPilotException(
+				esc_html__( 'The AI response did not match the expected audit format.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
 		}
 	}
 

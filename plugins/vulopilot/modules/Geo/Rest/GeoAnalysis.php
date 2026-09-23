@@ -7,7 +7,7 @@
 
 namespace VuloPilot\Geo\Rest;
 
-use VuloPilot\Repositories\FindingRepository;
+use VuloPilot\Utill\FindingRepository;
 use VuloPilot\Geo\GeoAnalyzer;
 
 defined( 'ABSPATH' ) || exit;

@@ -7,7 +7,7 @@
 
 namespace VuloPilot;
 
-use VuloPilot\Services\VuloCloudAccountConnection;
+use VuloPilot\AiAssistant\VuloCloudAccountConnection;
 
 defined( 'ABSPATH' ) || exit;
 

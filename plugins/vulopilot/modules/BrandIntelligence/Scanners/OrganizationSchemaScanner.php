@@ -7,9 +7,9 @@
 
 namespace VuloPilot\BrandIntelligence\Scanners;
 
-use VuloPilot\ValueObjects\Finding;
-use VuloPilot\ValueObjects\Severity;
-use VuloPilot\Scanners\Basic\AbstractBasicScanner;
+use VuloPilot\Utill\Finding;
+use VuloPilot\Utill\Severity;
+use VuloPilot\Utill\ScannerUtil;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -33,7 +33,7 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class OrganizationSchemaScanner extends AbstractBasicScanner {
+class OrganizationSchemaScanner extends ScannerUtil {
 
     private const REQUEST_TIMEOUT_SECONDS = 8;
 

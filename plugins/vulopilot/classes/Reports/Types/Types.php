@@ -16,11 +16,11 @@
 namespace VuloPilot\Reports\Types;
 
 use VuloPilot\Reports\AbstractReportType;
-use VuloPilot\Repositories\AiHistoryRepository;
-use VuloPilot\Repositories\AutomationsRunRepository;
-use VuloPilot\Repositories\FindingRepository;
-use VuloPilot\Repositories\ScanRepository;
-use VuloPilot\ValueObjects\ReportResult;
+use VuloPilot\AiAssistant\AiHistoryRepository;
+use VuloPilot\Automations\AutomationsRunRepository;
+use VuloPilot\Utill\FindingRepository;
+use VuloPilot\Utill\ScanRepository;
+use VuloPilot\Reports\ReportResult;
 
 defined( 'ABSPATH' ) || exit;
 

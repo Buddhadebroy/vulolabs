@@ -8,9 +8,9 @@
 namespace VuloPilot\Seo\Scanners;
 
 
-use VuloPilot\ValueObjects\Finding;
-use VuloPilot\ValueObjects\Severity;
-use VuloPilot\Scanners\Basic\AbstractBasicScanner;
+use VuloPilot\Utill\Finding;
+use VuloPilot\Utill\Severity;
+use VuloPilot\Utill\ScannerUtil;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -24,7 +24,7 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class ImagesScanner extends AbstractBasicScanner {
+class ImagesScanner extends ScannerUtil {
 
     /**
      * How many of the most recent image attachments to check per run.

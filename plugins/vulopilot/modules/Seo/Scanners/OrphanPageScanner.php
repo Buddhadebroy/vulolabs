@@ -8,11 +8,11 @@
 namespace VuloPilot\Seo\Scanners;
 
 
-use VuloPilot\Contracts\Scanner\TracksScannedObjectsInterface;
-use VuloPilot\ValueObjects\Finding;
-use VuloPilot\ValueObjects\Severity;
-use VuloPilot\Scanners\Basic\AbstractBasicScanner;
-use VuloPilot\Scanners\Basic\ScannedPostsTrait;
+use VuloPilot\Utill\TracksScannedObjectsInterface;
+use VuloPilot\Utill\Finding;
+use VuloPilot\Utill\Severity;
+use VuloPilot\Utill\ScannerUtil;
+use VuloPilot\Utill\ScannedPostsTrait;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -36,7 +36,7 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class OrphanPageScanner extends AbstractBasicScanner implements TracksScannedObjectsInterface {
+class OrphanPageScanner extends ScannerUtil implements TracksScannedObjectsInterface {
 
     use ScannedPostsTrait;
 

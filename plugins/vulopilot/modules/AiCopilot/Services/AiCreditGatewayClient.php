@@ -7,7 +7,7 @@
 
 namespace VuloPilot\AiCopilot\Services;
 
-use VuloPilot\Services\AiCreditsConnection;
+use VuloPilot\AiAssistant\AiCreditsConnection;
 
 defined( 'ABSPATH' ) || exit;
 

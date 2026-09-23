@@ -7,16 +7,15 @@
 
 namespace VuloPilot\AiCopilot;
 
-use VuloPilot\ValueObjects\Severity;
-use VuloPilot\ValueObjects\Impact;
-use VuloPilot\ValueObjects\AIResponse;
-use VuloPilot\AI\AiRequestSender;
-use VuloPilot\Repositories\ActionRunRepository;
-use VuloPilot\Repositories\ActivityLogRepository;
+use VuloPilot\Utill\Severity;
+use VuloPilot\Utill\Impact;
+use VuloPilot\AiAssistant\AIResponse;
+use VuloPilot\AiAssistant\AiRequestSender;
+use VuloPilot\AiAssistant\ActionRunRepository;
+use VuloPilot\Dashboard\ActivityLogRepository;
 use VuloPilot\AiCopilot\Services\AiCreditGatewayClient;
-use VuloPilot\Services\AiCreditsConnection;
-use VuloPilot\Exceptions\AiByokNotConfiguredException;
-use VuloPilot\Exceptions\InsufficientCreditsException;
+use VuloPilot\AiAssistant\AiCreditsConnection;
+use VuloPilot\Utill\VuloPilotException;
 use VuloPilot\Utill;
 
 defined( 'ABSPATH' ) || exit;
@@ -188,7 +187,7 @@ class ActionRunner {
      * own credential store), not in a local option this site can read for
      * free. So this always ATTEMPTS the BYOK path first (via
      * AiRequestSender, same as before) and only decides whether to fall
-     * through to credits by reacting to a real AiByokNotConfiguredException
+     * through to credits by reacting to a real VuloPilotException with TYPE_AI_BYOK_NOT_CONFIGURED
      * - a second, separate "is it configured?" pre-check would just be a
      * redundant network round trip for the exact same answer the real
      * attempt already gives, and would risk a stale answer if a key was
@@ -199,17 +198,21 @@ class ActionRunner {
      * "not configured" is a final, honest error, exactly as it always was.
      *
      * @param string                             $action_id Real, registered action id.
-     * @param \VuloPilot\Contracts\AI\AIActionInterface $action    Same instance get_action_or_fail() already resolved.
+     * @param \VuloPilot\Utill\AIActionInterface $action    Same instance get_action_or_fail() already resolved.
      * @param array                              $input     validate_input()'s own normalized output.
-     * @return \VuloPilot\ValueObjects\AIResponse
+     * @return \VuloPilot\AiAssistant\AIResponse
      *
-     * @throws InsufficientCreditsException If the credits fallback was used and VuloCloud reports an empty balance.
+     * @throws VuloPilotException If the credits fallback was used and VuloCloud reports an empty balance.
      * @throws \RuntimeException            If no AI is available at all - neither a BYOK key nor (for an eligible action) AI Credits.
      */
     private function send_prompt_or_credits( string $action_id, $action, array $input ): AIResponse {
         try {
             return $this->request_sender->send( $action->build_prompt( $input ), null, 'ai_action' );
-        } catch ( AiByokNotConfiguredException $exception ) {
+        } catch ( VuloPilotException $exception ) {
+            if ( VuloPilotException::TYPE_AI_BYOK_NOT_CONFIGURED !== $exception->get_type() ) {
+                throw $exception;
+            }
+
             if ( ! isset( self::CREDIT_FEATURE_MAP[ $action_id ] ) || ! $this->credits_connection->is_connected() ) {
                 throw new \RuntimeException( esc_html__( 'No AI connection is configured. Add a key in your VuloCloud account, or ask your agency to.', 'vulopilot' ) );
             }
@@ -225,11 +228,14 @@ class ActionRunner {
         }
 
         if ( empty( $result['success'] ) ) {
-            throw new InsufficientCreditsException(
+            throw new VuloPilotException(
                 esc_html__( 'You’ve used all your AI Credits.', 'vulopilot' ),
-                (int) ( $result['credits_remaining'] ?? 0 ),
-                (bool) ( $result['can_buy_credits'] ?? false ),
-                (bool) ( $result['can_upgrade'] ?? false )
+                VuloPilotException::TYPE_INSUFFICIENT_CREDITS,
+                array(
+                    'credits_remaining' => (int) ( $result['credits_remaining'] ?? 0 ),
+                    'can_buy_credits'   => (bool) ( $result['can_buy_credits'] ?? false ),
+                    'can_upgrade'       => (bool) ( $result['can_upgrade'] ?? false ),
+                )
             );
         }
 
@@ -452,7 +458,7 @@ class ActionRunner {
 
     /**
      * @param string $action_id Action id to resolve.
-     * @return \VuloPilot\Contracts\AI\AIActionInterface
+     * @return \VuloPilot\Utill\AIActionInterface
      *
      * @throws \InvalidArgumentException If unregistered.
      */

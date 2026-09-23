@@ -7,12 +7,11 @@
 
 namespace VuloPilot\AiCopilot\Actions;
 
-use VuloPilot\Exceptions\InvalidActionInputException;
-use VuloPilot\Exceptions\InvalidActionOutputException;
-use VuloPilot\ValueObjects\ActionExecutionResult;
-use VuloPilot\ValueObjects\ActionPreview;
-use VuloPilot\ValueObjects\AIResponse;
-use VuloPilot\ValueObjects\Impact;
+use VuloPilot\Utill\VuloPilotException;
+use VuloPilot\AiAssistant\ActionExecutionResult;
+use VuloPilot\AiAssistant\ActionPreview;
+use VuloPilot\AiAssistant\AIResponse;
+use VuloPilot\Utill\Impact;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -90,7 +89,7 @@ class CreateTrustPageAction extends AbstractBasicAction {
         }
 
         if ( empty( $missing ) ) {
-            throw new InvalidActionInputException( esc_html__( 'This site already has both an About and a Contact page - there is nothing to fix.', 'vulopilot' ) );
+            throw new VuloPilotException( esc_html__( 'This site already has both an About and a Contact page - there is nothing to fix.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
         }
 
         return array(
@@ -142,7 +141,7 @@ class CreateTrustPageAction extends AbstractBasicAction {
     public function validate_output( array $output, array $input ): void {
         foreach ( $input['missing_pages'] as $type ) {
             if ( empty( $output['pages'][ $type ]['title'] ) || empty( $output['pages'][ $type ]['content'] ) ) {
-                throw new InvalidActionOutputException( esc_html__( 'The AI did not return content for one of the requested pages.', 'vulopilot' ) );
+                throw new VuloPilotException( esc_html__( 'The AI did not return content for one of the requested pages.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
             }
         }
     }

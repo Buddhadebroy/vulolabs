@@ -7,9 +7,9 @@
 
 namespace VuloPilot\BrandIntelligence\Scanners;
 
-use VuloPilot\ValueObjects\Finding;
-use VuloPilot\ValueObjects\Severity;
-use VuloPilot\Scanners\Basic\AbstractBasicScanner;
+use VuloPilot\Utill\Finding;
+use VuloPilot\Utill\Severity;
+use VuloPilot\Utill\ScannerUtil;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -35,7 +35,7 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class AboutPageAnalysisScanner extends AbstractBasicScanner {
+class AboutPageAnalysisScanner extends ScannerUtil {
 
     /**
      * Same common About-page slugs GeoTrustSignalsScanner's own

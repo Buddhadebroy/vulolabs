@@ -7,7 +7,7 @@
 
 namespace VuloPilot\AiCopilot\Repositories;
 
-use VuloPilot\Repositories\AbstractRepository;
+use VuloPilot\Utill\RepositoryUtil;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * as `VuloPilotPro\CopilotChat\AiConversationRepository` while that feature
  * was Pro-only; moved back here alongside `Rest\Copilot.php` now that it's
  * genuinely free again - see that controller's own docblock. Lives in
- * AiCopilot/ rather than classes/Repositories/ (unlike AbstractRepository,
+ * AiCopilot/ rather than classes/Repositories/ (unlike RepositoryUtil,
  * a real shared base 19 other repositories extend) since AiCopilot's own
  * `Rest\Copilot.php` is this repository's only real caller. The table
  * itself was never moved (`Utill::TABLES`'s own `ai_conversation` key,
@@ -31,7 +31,7 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class AiConversationRepository extends AbstractRepository {
+class AiConversationRepository extends RepositoryUtil {
 
     /**
      * How many leading characters of the first user message become a

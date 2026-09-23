@@ -7,10 +7,10 @@
 
 namespace VuloPilot\Geo;
 
-use VuloPilot\AI\AiRequestSender;
+use VuloPilot\AiAssistant\AiRequestSender;
 use VuloPilot\Geo\ValueObjects\GeoScore;
-use VuloPilot\Repositories\ActivityLogRepository;
-use VuloPilot\Repositories\FindingRepository;
+use VuloPilot\Dashboard\ActivityLogRepository;
+use VuloPilot\Utill\FindingRepository;
 use VuloPilot\Geo\Scanners\GeoCitationOpportunityScanner;
 
 defined( 'ABSPATH' ) || exit;
@@ -474,12 +474,12 @@ class GeoAnalyzer {
     }
 
     /**
-     * @param \VuloPilot\ValueObjects\AIResponse $response Raw AI response.
+     * @param \VuloPilot\AiAssistant\AIResponse $response Raw AI response.
      * @return array{ai_scores: array{entity_coverage: int, question_coverage: int, answer_completeness: int, llm_readability: int, purpose_clarity: int, conversation_readiness: int, knowledge_graph_coverage: int, answer_first_structure: int}, suggestions: string[]}
      *
      * @throws \RuntimeException If the response isn't usable JSON in the expected shape.
      */
-    private function parse_response( \VuloPilot\ValueObjects\AIResponse $response ): array {
+    private function parse_response( \VuloPilot\AiAssistant\AIResponse $response ): array {
         $content = preg_replace( '/^```(?:json)?\s*|\s*```$/', '', trim( $response->get_content() ) );
         $decoded = json_decode( trim( (string) $content ), true );
 

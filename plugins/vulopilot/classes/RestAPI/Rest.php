@@ -13,6 +13,19 @@ use VuloPilot\ContentIntelligence\Rest as ContentIntelligenceRest;
 use VuloPilot\EntityExtraction\Rest as EntityExtractionRest;
 use VuloPilot\Geo\Rest as GeoRest;
 use VuloPilot\Seo\Rest as SeoRest;
+use VuloPilot\Dashboard\Rest as DashboardRest;
+use VuloPilot\Utill\Scans as UtillRestScans;
+use VuloPilot\Utill\Findings as UtillRestFindings;
+use VuloPilot\Reports\Rest as ReportsRest;
+use VuloPilot\AiAssistant\Rest as AiAssistantRest;
+use VuloPilot\Automations\Rest as AutomationsRest;
+use VuloPilot\Settings\Rest as SettingsRest;
+use VuloPilot\SeoVisibility\Rest as SeoVisibilityRest;
+use VuloPilot\Content\Rest as ContentRest;
+use VuloPilot\Performance\Rest as PerformanceRest;
+use VuloPilot\Security\Rest as SecurityRest;
+use VuloPilot\SiteHealth\Rest as SiteHealthRest;
+use VuloPilot\Commerce\Rest as CommerceRest;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -62,17 +75,17 @@ class Rest {
      */
     public function register_routes(): void {
         $this->controllers = array(
-            'dashboard'                   => new Controllers\Dashboard(),
-            'dashboard_layout'            => new Controllers\DashboardLayout(),
-            'scans'                       => new Controllers\Scans(),
-            'findings'                    => new Controllers\Findings(),
-            'reports'                     => new Controllers\Reports(),
-            'ai_history'                  => new Controllers\AiHistory(),
-            'vulocloud_ai_connection'     => new Controllers\VuloCloudAiConnection(),
+            'dashboard'                   => new DashboardRest\Dashboard(),
+            'dashboard_layout'            => new DashboardRest\DashboardLayout(),
+            'scans'                       => new UtillRestScans(),
+            'findings'                    => new UtillRestFindings(),
+            'reports'                     => new ReportsRest\Reports(),
+            'ai_history'                  => new AiAssistantRest\AiHistory(),
+            'vulocloud_ai_connection'     => new AiAssistantRest\VuloCloudAiConnection(),
             'ai_action_runs'              => new AiCopilotRest\AiActionRuns(),
-            'activity_logs'               => new Controllers\ActivityLogs(),
-            'history'                     => new Controllers\History(),
-            'automations'                 => new Controllers\Automations(),
+            'activity_logs'               => new DashboardRest\ActivityLogs(),
+            'history'                     => new ReportsRest\History(),
+            'automations'                 => new AutomationsRest\Automations(),
             // Deliberately NOT keyed 'automation_runs' - that data only ever
             // backed AutomationsActivityCard.tsx's own "Recent automation
             // activity" feed, which moved to vulopilot-pro's own
@@ -82,39 +95,39 @@ class Rest {
             // even without a licensed Pro Automations module, undermining
             // the gate - vulopilot-pro's own AutomationsRunsRest.php (same
             // `automation_runs` key) is this route's only real owner.
-            'automation_dashboard'        => new Controllers\AutomationDashboardStats(),
-            'settings'                    => new Controllers\Settings(),
+            'automation_dashboard'        => new AutomationsRest\AutomationDashboardStats(),
+            'settings'                    => new SettingsRest\Settings(),
             'llms_txt'                    => new GeoRest\LlmsTxt(),
-            'crawler_traffic'             => new Controllers\CrawlerTraffic(),
-            'post_seo'                    => new Controllers\PostSeo(),
-            'redirects'                   => new Controllers\Redirects(),
-            'not_found_logs'              => new Controllers\NotFoundLogs(),
-            'broken_links_stats'          => new Controllers\BrokenLinksStats(),
-            'robots_sitemap'              => new Controllers\RobotsSitemap(),
-            'indexnow'                    => new Controllers\IndexNow(),
-            'performance_actions'         => new Controllers\PerformanceActions(),
-            'performance_score_snapshots' => new Controllers\PerformanceScoreSnapshots(),
-            'security_score_snapshots'    => new Controllers\SecurityScoreSnapshots(),
-            'performance_realtime'        => new Controllers\PerformanceRealtime(),
-            'core_web_vitals'             => new Controllers\CoreWebVitals(),
-            'core_web_vitals_beacon'      => new Controllers\CoreWebVitalsBeaconRest(),
-            'page_speed'                  => new Controllers\PageSpeed(),
-            'backups'                     => new Controllers\Backups(),
+            'crawler_traffic'             => new SeoVisibilityRest\CrawlerTraffic(),
+            'post_seo'                    => new SeoVisibilityRest\PostSeo(),
+            'redirects'                   => new ContentRest\Redirects(),
+            'not_found_logs'              => new ContentRest\NotFoundLogs(),
+            'broken_links_stats'          => new ContentRest\BrokenLinksStats(),
+            'robots_sitemap'              => new SeoVisibilityRest\RobotsSitemap(),
+            'indexnow'                    => new SeoVisibilityRest\IndexNow(),
+            'performance_actions'         => new PerformanceRest\PerformanceActions(),
+            'performance_score_snapshots' => new PerformanceRest\PerformanceScoreSnapshots(),
+            'security_score_snapshots'    => new SecurityRest\SecurityScoreSnapshots(),
+            'performance_realtime'        => new PerformanceRest\PerformanceRealtime(),
+            'core_web_vitals'             => new PerformanceRest\CoreWebVitals(),
+            'core_web_vitals_beacon'      => new PerformanceRest\CoreWebVitalsBeaconRest(),
+            'page_speed'                  => new PerformanceRest\PageSpeed(),
+            'backups'                     => new SiteHealthRest\Backups(),
             // 'backup_storage' (Amazon S3/Google Drive credentials) moved
             // to vulopilot-pro's own BackupCloudStorage module - registered
             // via the `vulopilot_rest_controllers` filter below instead,
             // same as every other Pro-only REST controller.
-            'content_assistant'           => new Controllers\ContentAssistant(),
+            'content_assistant'           => new ContentRest\ContentAssistant(),
             // "Chat with VuloPilot" (/copilot/chat + /copilot/conversations)
             // - briefly a Pro-only feature (vulopilot-pro's own CopilotChat
             // module); moved back here, genuinely free again, gated the
             // same way as every other AI surface (Controllers\Copilot's
             // own create_item_permissions_check()) rather than a license.
             'copilot'                     => new AiCopilotRest\Copilot(),
-            'store_readiness'             => new Controllers\StoreReadiness(),
-            'efficiency_checks'           => new Controllers\EfficiencyChecks(),
-            'plugin_overlap'              => new Controllers\PluginOverlap(),
-            'reports_overview'            => new Controllers\ReportsOverview(),
+            'store_readiness'             => new CommerceRest\StoreReadiness(),
+            'efficiency_checks'           => new PerformanceRest\EfficiencyChecks(),
+            'plugin_overlap'              => new SiteHealthRest\PluginOverlap(),
+            'reports_overview'            => new ReportsRest\ReportsOverview(),
             // Deliberately NOT keyed 'geo_analysis' - vulopilot-pro's
             // GeoInsights module adds its own controller into
             // $extra_controllers below under that exact key (its `Rest.php`
@@ -150,10 +163,10 @@ class Rest {
             'entities'                    => new EntityExtractionRest\EntityExtraction(),
             'seo_score'                   => new SeoRest\Seo(),
             'geo_score'                   => new GeoRest\Geo(),
-            'visibility_score'            => new Controllers\Visibility(),
-            'schema_coverage'             => new Controllers\Schema(),
-            'google_services'             => new Controllers\GoogleServices(),
-            'ai_credits'                  => new Controllers\AiCredits(),
+            'visibility_score'            => new SeoVisibilityRest\Visibility(),
+            'schema_coverage'             => new SeoVisibilityRest\Schema(),
+            'google_services'             => new SettingsRest\GoogleServices(),
+            'ai_credits'                  => new AiAssistantRest\AiCredits(),
         );
 
         $extra_controllers = apply_filters( 'vulopilot_rest_controllers', array() );

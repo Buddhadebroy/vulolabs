@@ -7,10 +7,10 @@
 
 namespace VuloPilot\ContentIntelligence\Rest;
 
-use VuloPilot\Repositories\FindingRepository;
-use VuloPilot\Repositories\ActionRunRepository;
+use VuloPilot\Utill\FindingRepository;
+use VuloPilot\AiAssistant\ActionRunRepository;
 use VuloPilot\ContentIntelligence\Scanners\ReadabilityScanner;
-use VuloPilot\Services\OnPageAnalyzer;
+use VuloPilot\SeoVisibility\OnPageAnalyzer;
 
 defined( 'ABSPATH' ) || exit;
 

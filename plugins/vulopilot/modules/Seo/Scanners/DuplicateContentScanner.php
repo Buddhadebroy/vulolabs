@@ -8,9 +8,9 @@
 namespace VuloPilot\Seo\Scanners;
 
 
-use VuloPilot\ValueObjects\Finding;
-use VuloPilot\ValueObjects\Severity;
-use VuloPilot\Scanners\Basic\AbstractBasicScanner;
+use VuloPilot\Utill\Finding;
+use VuloPilot\Utill\Severity;
+use VuloPilot\Utill\ScannerUtil;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -29,7 +29,7 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class DuplicateContentScanner extends AbstractBasicScanner {
+class DuplicateContentScanner extends ScannerUtil {
 
     /**
      * How many of the most recently modified posts/pages to consider.

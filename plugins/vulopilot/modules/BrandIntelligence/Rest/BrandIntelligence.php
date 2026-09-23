@@ -7,7 +7,7 @@
 
 namespace VuloPilot\BrandIntelligence\Rest;
 
-use VuloPilot\Repositories\FindingRepository;
+use VuloPilot\Utill\FindingRepository;
 
 defined( 'ABSPATH' ) || exit;
 

@@ -7,12 +7,8 @@
 
 namespace VuloPilot\AiCopilot\Rest;
 
-use VuloPilot\Repositories\ActionRunRepository;
-use VuloPilot\Exceptions\AiRequestException;
-use VuloPilot\Exceptions\InvalidActionInputException;
-use VuloPilot\Exceptions\InvalidActionOutputException;
-use VuloPilot\Exceptions\InsufficientCreditsException;
-use VuloPilot\Exceptions\UnsafePromptException;
+use VuloPilot\AiAssistant\ActionRunRepository;
+use VuloPilot\Utill\VuloPilotException;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -168,27 +164,29 @@ class AiActionRuns extends \WP_REST_Controller {
             $result = VuloPilot()->ai_action_runner->propose( $action_id, $input );
         } catch ( \InvalidArgumentException $exception ) {
             return new \WP_Error( 'vulopilot_ai_action_invalid', $exception->getMessage(), array( 'status' => 400 ) );
-        } catch ( InvalidActionInputException $exception ) {
-            return new \WP_Error( 'vulopilot_ai_action_invalid_input', $exception->getMessage(), array( 'status' => 400 ) );
-        } catch ( InvalidActionOutputException $exception ) {
-            return new \WP_Error( 'vulopilot_ai_action_invalid_output', $exception->getMessage(), array( 'status' => 502 ) );
-        } catch ( InsufficientCreditsException $exception ) {
-            // VuloPilot brief §15 - a real, structured outcome the React
-            // side renders as the two-button exhausted-credits state, not
-            // a generic error toast. HTTP 200 (not 402): "do not treat
-            // exhausted credits as a generic API failure."
-            return rest_ensure_response(
-                array(
-                    'success'           => false,
-                    'error'             => 'insufficient_credits',
-                    'credits_remaining' => $exception->get_credits_remaining(),
-                    'can_buy_credits'   => $exception->get_can_buy_credits(),
-                    'can_upgrade'       => $exception->get_can_upgrade(),
-                )
-            );
-        } catch ( UnsafePromptException $exception ) {
-            return new \WP_Error( 'vulopilot_ai_action_unsafe_prompt', $exception->getMessage(), array( 'status' => 400 ) );
-        } catch ( AiRequestException $exception ) {
+        } catch ( VuloPilotException $exception ) {
+            if ( VuloPilotException::TYPE_INVALID_ACTION_INPUT === $exception->get_type() ) {
+                return new \WP_Error( 'vulopilot_ai_action_invalid_input', $exception->getMessage(), array( 'status' => 400 ) );
+            } elseif ( VuloPilotException::TYPE_INVALID_ACTION_OUTPUT === $exception->get_type() ) {
+                return new \WP_Error( 'vulopilot_ai_action_invalid_output', $exception->getMessage(), array( 'status' => 502 ) );
+            } elseif ( VuloPilotException::TYPE_INSUFFICIENT_CREDITS === $exception->get_type() ) {
+                // VuloPilot brief §15 - a real, structured outcome the React
+                // side renders as the two-button exhausted-credits state, not
+                // a generic error toast. HTTP 200 (not 402): "do not treat
+                // exhausted credits as a generic API failure."
+                return rest_ensure_response(
+                    array(
+                        'success'           => false,
+                        'error'             => 'insufficient_credits',
+                        'credits_remaining' => $exception->get_credits_remaining(),
+                        'can_buy_credits'   => $exception->get_can_buy_credits(),
+                        'can_upgrade'       => $exception->get_can_upgrade(),
+                    )
+                );
+            } elseif ( VuloPilotException::TYPE_UNSAFE_PROMPT === $exception->get_type() ) {
+                return new \WP_Error( 'vulopilot_ai_action_unsafe_prompt', $exception->getMessage(), array( 'status' => 400 ) );
+            }
+
             return new \WP_Error( 'vulopilot_ai_request_error', $exception->getMessage(), array( 'status' => 502 ) );
         } catch ( \RuntimeException $exception ) {
             return new \WP_Error( 'vulopilot_ai_action_runtime_error', $exception->getMessage(), array( 'status' => 500 ) );

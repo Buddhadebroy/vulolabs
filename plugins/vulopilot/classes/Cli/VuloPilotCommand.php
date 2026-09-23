@@ -7,8 +7,8 @@
 
 namespace VuloPilot\Cli;
 
-use VuloPilot\Repositories\ReportRepository;
-use VuloPilot\Repositories\ScanRepository;
+use VuloPilot\Reports\ReportRepository;
+use VuloPilot\Utill\ScanRepository;
 use VuloPilot\Utill;
 
 defined( 'ABSPATH' ) || exit;

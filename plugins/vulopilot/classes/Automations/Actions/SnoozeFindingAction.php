@@ -7,10 +7,10 @@
 
 namespace VuloPilot\Automations\Actions;
 
-use VuloPilot\Contracts\Automations\ActionInterface;
-use VuloPilot\ValueObjects\AutomationsRunResult;
-use VuloPilot\ValueObjects\Recommendation;
-use VuloPilot\Repositories\FindingRepository;
+use VuloPilot\Utill\ActionInterface;
+use VuloPilot\Automations\AutomationsRunResult;
+use VuloPilot\Utill\Recommendation;
+use VuloPilot\Utill\FindingRepository;
 
 defined( 'ABSPATH' ) || exit;
 

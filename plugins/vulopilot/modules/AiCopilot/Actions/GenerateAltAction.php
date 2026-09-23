@@ -8,12 +8,11 @@
 namespace VuloPilot\AiCopilot\Actions;
 
 
-use VuloPilot\Exceptions\InvalidActionInputException;
-use VuloPilot\Exceptions\InvalidActionOutputException;
-use VuloPilot\ValueObjects\ActionExecutionResult;
-use VuloPilot\ValueObjects\ActionPreview;
-use VuloPilot\ValueObjects\AIResponse;
-use VuloPilot\ValueObjects\Impact;
+use VuloPilot\Utill\VuloPilotException;
+use VuloPilot\AiAssistant\ActionExecutionResult;
+use VuloPilot\AiAssistant\ActionPreview;
+use VuloPilot\AiAssistant\AIResponse;
+use VuloPilot\Utill\Impact;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -63,11 +62,11 @@ class GenerateAltAction extends AbstractBasicAction {
         $attachment_id = absint( $input['attachment_id'] ?? 0 );
 
         if ( ! $attachment_id || 'attachment' !== get_post_type( $attachment_id ) ) {
-            throw new InvalidActionInputException( esc_html__( 'attachment_id must refer to an existing media attachment.', 'vulopilot' ) );
+            throw new VuloPilotException( esc_html__( 'attachment_id must refer to an existing media attachment.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
         }
 
         if ( ! wp_attachment_is_image( $attachment_id ) ) {
-            throw new InvalidActionInputException( esc_html__( 'This attachment is not an image.', 'vulopilot' ) );
+            throw new VuloPilotException( esc_html__( 'This attachment is not an image.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
         }
 
         return array( 'attachment_id' => $attachment_id );
@@ -112,11 +111,11 @@ class GenerateAltAction extends AbstractBasicAction {
         $alt_text = $output['alt_text'] ?? '';
 
         if ( '' === $alt_text ) {
-            throw new InvalidActionOutputException( esc_html__( 'The AI returned empty alt text.', 'vulopilot' ) );
+            throw new VuloPilotException( esc_html__( 'The AI returned empty alt text.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
         }
 
         if ( mb_strlen( $alt_text ) > 250 ) {
-            throw new InvalidActionOutputException( esc_html__( 'The AI returned alt text that is too long.', 'vulopilot' ) );
+            throw new VuloPilotException( esc_html__( 'The AI returned alt text that is too long.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
         }
     }
 

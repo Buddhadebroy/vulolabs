@@ -8,11 +8,11 @@
 namespace VuloPilot\AiCopilot\Rest;
 
 use VuloPilot\AiCopilot\ContentCreationOrchestrator;
-use VuloPilot\Exceptions\UnsafePromptException;
-use VuloPilot\ValueObjects\Severity;
-use VuloPilot\Repositories\FindingRepository;
-use VuloPilot\Repositories\AutomationsRepository;
-use VuloPilot\Repositories\ActionRunRepository;
+use VuloPilot\Utill\VuloPilotException;
+use VuloPilot\Utill\Severity;
+use VuloPilot\Utill\FindingRepository;
+use VuloPilot\Automations\AutomationsRepository;
+use VuloPilot\AiAssistant\ActionRunRepository;
 use VuloPilot\AiCopilot\Repositories\AiConversationRepository;
 
 defined( 'ABSPATH' ) || exit;
@@ -223,7 +223,11 @@ class Copilot extends \WP_REST_Controller {
 
         try {
             $response = VuloPilot()->ai_request_sender->send( $messages, null, 'copilot_chat' );
-        } catch ( UnsafePromptException $exception ) {
+        } catch ( VuloPilotException $exception ) {
+            if ( VuloPilotException::TYPE_UNSAFE_PROMPT !== $exception->get_type() ) {
+                throw $exception;
+            }
+
             return new \WP_Error( 'vulopilot_unsafe_prompt', $exception->getMessage(), array( 'status' => 400 ) );
         } catch ( \RuntimeException $exception ) {
             return new \WP_Error(
