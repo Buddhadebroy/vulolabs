@@ -1,8 +1,6 @@
 <?php
 namespace VuloPilot\Performance;
 
-use VuloPilot\Utill\Finding;
-use VuloPilot\Utill\Severity;
 use VuloPilot\Utill\ScannerUtil;
 
 defined( 'ABSPATH' ) || exit;

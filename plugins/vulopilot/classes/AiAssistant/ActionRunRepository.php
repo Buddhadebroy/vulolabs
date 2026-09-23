@@ -8,7 +8,6 @@
 namespace VuloPilot\AiAssistant;
 use VuloPilot\Utill\RepositoryUtil;
 
-use VuloPilot\Utill as CoreUtill;
 
 defined( 'ABSPATH' ) || exit;
 

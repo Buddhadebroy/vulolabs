@@ -1,17 +1,7 @@
 <?php
 namespace VuloPilot\AiAssistant\Rest;
 
-use VuloPilot\SiteHealth\BackupRepository;
-use VuloPilot\SeoVisibility\CrawlerVisitRepository;
-use VuloPilot\Utill\FindingRepository;
-use VuloPilot\SeoVisibility\IndexNowLogRepository;
-use VuloPilot\AiAssistant\AiByokGatewayClient;
 use VuloPilot\AiAssistant\AiCreditsConnection;
-use VuloPilot\Settings\GoogleAdSenseClient;
-use VuloPilot\Settings\GoogleAnalyticsClient;
-use VuloPilot\Settings\GoogleServicesConnection;
-use VuloPilot\SeoVisibility\IndexNowClient;
-use VuloPilot\Utill;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -79,10 +69,10 @@ class VuloCloudAiConnection extends \WP_REST_Controller {
      * @inheritDoc
      */
     public function get_items( $request ) {
-        // A cheap connection-status check (AiByokGatewayClient::status(),
+        // A cheap connection-status check (AiCreditsConnection::get_vulocloud_ai_status(),
         // never a key/prompt) - the real, current answer to "does AI work
         // for this site".
-        $vulocloud_status = ( new AiByokGatewayClient() )->status();
+        $vulocloud_status = ( new AiCreditsConnection() )->get_vulocloud_ai_status();
 
         return rest_ensure_response(
             array(

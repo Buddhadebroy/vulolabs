@@ -1,23 +1,12 @@
 <?php
 namespace VuloPilot\SeoVisibility\Rest;
 
-use VuloPilot\AiCopilot\ContentCreationOrchestrator;
 use VuloPilot\BrandVisibility\Rest\BrandIntelligence;
-use VuloPilot\Utill\VuloPilotException;
 use VuloPilot\GeoAnalysis\Rest\Geo;
 use VuloPilot\Utill\FindingRepository;
-use VuloPilot\Content\NotFoundLogRepository;
-use VuloPilot\Content\RedirectRepository;
-use VuloPilot\Utill\ScanRepository;
 use VuloPilot\TechnicalSeo\Rest\Seo;
-use VuloPilot\TechnicalSeo\Scanners\BrokenImagesScanner;
-use VuloPilot\TechnicalSeo\Scanners\BrokenLinksScanner;
 use VuloPilot\Settings\GoogleAnalyticsClient;
 use VuloPilot\Settings\GoogleServicesConnection;
-use VuloPilot\SeoVisibility\OnPageAnalyzer;
-use VuloPilot\SeoVisibility\PostSeoMetaFields;
-use VuloPilot\SeoVisibility\SchemaCoverageAnalyzer;
-use VuloPilot\SeoVisibility\SchemaPageInspector;
 
 defined( 'ABSPATH' ) || exit;
 

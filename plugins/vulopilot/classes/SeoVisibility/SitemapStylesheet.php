@@ -1,9 +1,6 @@
 <?php
 namespace VuloPilot\SeoVisibility;
 
-use VuloPilot\AiCopilot\Actions\GenerateSchemaAction;
-use VuloPilot\Content\RedirectRepository;
-use VuloPilot\Utill;
 
 defined( 'ABSPATH' ) || exit;
 

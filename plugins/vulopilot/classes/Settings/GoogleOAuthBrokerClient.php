@@ -1,7 +1,6 @@
 <?php
 namespace VuloPilot\Settings;
 
-use VuloPilot\Utill;
 
 defined( 'ABSPATH' ) || exit;
 

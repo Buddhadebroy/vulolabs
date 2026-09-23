@@ -1,9 +1,6 @@
 <?php
 namespace VuloPilot\SiteHealth;
 
-use VuloPilot\Utill\ScannerInterface;
-use VuloPilot\SiteHealth\BackupRepository;
-use VuloPilot\Utill;
 use VuloPilot\Utill\Finding;
 use VuloPilot\Utill\Severity;
 use VuloPilot\Utill\ScannerUtil;

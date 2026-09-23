@@ -11,8 +11,8 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Single exception class for every VuloPilot-specific failure that used to
- * be its own subclass (AiRequestException, AiByokNotConfiguredException,
- * GatewayRequestException, RateLimitExceededException,
+ * be its own subclass (AiRequestException, GatewayRequestException,
+ * a "VuloCloud has no usable key" subclass, RateLimitExceededException,
  * TransientGatewayException, UnsafePromptException,
  * InvalidActionInputException, InvalidActionOutputException,
  * InsufficientCreditsException) - one class, a `type` constant instead of a
@@ -36,18 +36,18 @@ class VuloPilotException extends \Exception {
 	/**
 	 * Common parent of every failure of an AI request to VuloCloud - the
 	 * type REST controllers used to catch AiRequestException (the base
-	 * class) to turn any of TYPE_AI_BYOK_NOT_CONFIGURED/
+	 * class) to turn any of TYPE_VULOCLOUD_AI_NOT_CONFIGURED/
 	 * TYPE_GATEWAY_REQUEST/TYPE_RATE_LIMIT_EXCEEDED/
 	 * TYPE_TRANSIENT_GATEWAY into a 502 - see is_ai_request_failure().
 	 */
 	const TYPE_AI_REQUEST = 'ai_request';
 
 	/**
-	 * Thrown by AiAssistant\AiRequestSender when VuloCloud reports
-	 * `AI_BYOK_NOT_CONFIGURED` - neither this site's Organization nor an
+	 * Thrown by AiAssistant\AiRequestSender when VuloCloud reports that no
+	 * key resolves for this site - neither this site's Organization nor an
 	 * allowed Customer backup has a usable AI key.
 	 */
-	const TYPE_AI_BYOK_NOT_CONFIGURED = 'ai_byok_not_configured';
+	const TYPE_VULOCLOUD_AI_NOT_CONFIGURED = 'vulocloud_ai_not_configured';
 
 	/**
 	 * A non-retryable gateway failure (a malformed request, or one
@@ -71,7 +71,7 @@ class VuloPilotException extends \Exception {
 	const TYPE_TRANSIENT_GATEWAY = 'transient_gateway';
 
 	/**
-	 * Thrown by AiAssistant\AISafetyValidator::validate_prompt() when a
+	 * Thrown by AiAssistant\AiRequestSender::validate_prompt() when a
 	 * request is too long or appears to contain a credential - blocked
 	 * before it's ever sent. Not an AI-request-failure type
 	 * (is_ai_request_failure() returns false for this), since it never
@@ -114,7 +114,7 @@ class VuloPilotException extends \Exception {
 	 */
 	const AI_REQUEST_FAILURE_TYPES = array(
 		self::TYPE_AI_REQUEST,
-		self::TYPE_AI_BYOK_NOT_CONFIGURED,
+		self::TYPE_VULOCLOUD_AI_NOT_CONFIGURED,
 		self::TYPE_GATEWAY_REQUEST,
 		self::TYPE_RATE_LIMIT_EXCEEDED,
 		self::TYPE_TRANSIENT_GATEWAY,
@@ -158,7 +158,7 @@ class VuloPilotException extends \Exception {
 	/**
 	 * Replaces the old `instanceof AiRequestException` check - true for
 	 * this exception's own TYPE_AI_REQUEST plus every AI-gateway subtype
-	 * (TYPE_AI_BYOK_NOT_CONFIGURED/TYPE_GATEWAY_REQUEST/
+	 * (TYPE_VULOCLOUD_AI_NOT_CONFIGURED/TYPE_GATEWAY_REQUEST/
 	 * TYPE_RATE_LIMIT_EXCEEDED/TYPE_TRANSIENT_GATEWAY).
 	 *
 	 * @return bool

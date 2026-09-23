@@ -23,7 +23,7 @@ export interface RelatedAction {
 
 export interface ConversationDetail {
 	id: number;
-	/** Real AI credits this turn spent, or null for a row logged before this column existed. `0` is a genuine value (the free BYOK gateway path reports no credits), never fabricated. */
+	/** Real AI credits this turn spent, or null for a row logged before this column existed. `0` is a genuine value (the free direct VuloCloud AI path reports no credits), never fabricated. */
 	credits_used: number | null;
 	/** VuloCloud's own request id for this turn, when the gateway that answered it returns one. */
 	request_id: string | null;

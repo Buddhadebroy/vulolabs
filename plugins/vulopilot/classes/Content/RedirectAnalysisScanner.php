@@ -1,7 +1,6 @@
 <?php
 namespace VuloPilot\Content;
 
-use VuloPilot\Utill\TracksScannedObjectsInterface;
 use VuloPilot\Utill\Finding;
 use VuloPilot\Utill\Severity;
 use VuloPilot\Utill\ScannerUtil;

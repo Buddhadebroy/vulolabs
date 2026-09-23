@@ -1,7 +1,6 @@
 <?php
 namespace VuloPilot\Content;
 
-use VuloPilot\AiCopilot\Actions\GenerateSchemaAction;
 use VuloPilot\Content\RedirectRepository;
 use VuloPilot\Utill;
 

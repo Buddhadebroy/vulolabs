@@ -9,7 +9,6 @@ namespace VuloPilot\Automations;
 use VuloPilot\Utill\FindingRepository;
 use VuloPilot\Utill\RepositoryUtil;
 
-use VuloPilot\Utill as CoreUtill;
 
 defined( 'ABSPATH' ) || exit;
 

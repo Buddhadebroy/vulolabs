@@ -8,7 +8,6 @@
 namespace VuloPilot\AiAssistant;
 use VuloPilot\Utill\RepositoryUtil;
 
-use VuloPilot\Utill as CoreUtill;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -28,7 +27,7 @@ class AiHistoryRepository extends RepositoryUtil {
      * (AiCopilot\ActionRunner, GeoAnalysis\GeoAnalyzer,
      * ContentIntelligence\ContentAnalyzer) tags its own rows with its own
      * real feature label instead, so this is the whitelist
-     * get_conversations() scopes to - kept in sync with AIRequest's own
+     * get_conversations() scopes to - kept in sync with AiRequestSender::send()'s own
      * `$surface` values by hand, the same way ContentCreationOrchestrator's
      * CONTENT_CREATION_ACTIONS is kept in sync with each chat controller's
      * own system prompt.
