@@ -33,11 +33,14 @@ interface SubmitResult {
 }
 
 
+/** "Products" only ever a real, selectable option once WooCommerce is actually active (`appLocalizer.has_woocommerce`, `FrontendScripts::localize_scripts()`) - a site with no WooCommerce has no `product` post type at all, so offering it here would just be a checkbox for something that can never exist. */
 const POST_TYPE_OPTIONS = [
 	{ value: 'post', label: __('Posts', 'vulopilot') },
 	{ value: 'page', label: __('Pages', 'vulopilot') },
 	{ value: 'attachment', label: __('Media', 'vulopilot') },
-	{ value: 'product', label: __('Products', 'vulopilot') },
+	...(appLocalizer.has_woocommerce
+		? [{ value: 'product', label: __('Products', 'vulopilot') }]
+		: []),
 	{ value: 'knowledgebase', label: __('Knowledgebase', 'vulopilot') },
 	{ value: 'mega_menu', label: __('Mega Menu', 'vulopilot') },
 ];
@@ -327,7 +330,7 @@ const IndexNowPanel = () => {
 					<ButtonInput
 						buttons={{
 							text: __('Response code help', 'vulopilot'),
-							icon: 'question',
+							rightIcon: 'question',
 							color: 'text-purple',
 							onClick: () => setShowResponseHelp(!showResponseHelp),
 						}}

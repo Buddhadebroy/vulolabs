@@ -259,6 +259,16 @@ class FrontendScripts {
                 // whatever's checked here, custom post types included; the
                 // UI just never offered a way to check one on.
                 'sitemap_custom_post_types' => self::get_sitemap_custom_post_types(),
+                // Whether WooCommerce is active on this site at all - same
+                // real `class_exists( 'WooCommerce' )` check
+                // StoreReadiness.php/Dashboard.php/ReportsOverview.php
+                // already use server-side. Settings → Instant Indexing's
+                // "What should notify search engines automatically"
+                // checklist (IndexNowPanel.tsx) reads this to hide its own
+                // "Products" option on a site with no WooCommerce, rather
+                // than offering a post type that can never actually exist
+                // there.
+                'has_woocommerce'           => class_exists( 'WooCommerce' ),
             )
         );
     }
