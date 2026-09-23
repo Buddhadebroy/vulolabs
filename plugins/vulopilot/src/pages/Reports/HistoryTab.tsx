@@ -1,7 +1,7 @@
 /* global appLocalizer */
 import { useEffect, useRef, useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { getApiLink, getApiResponse } from '@zyra/core';
+import { getApiLink, getApiResponse, scrollToId } from '@zyra/core';
 import {
 	CardComponent,
 	ColumnComponent,
@@ -307,6 +307,20 @@ const HistoryTab = () => {
 	};
 
 	/**
+	 * Same real "scroll the right-side detail panel into view" affordance
+	 * SeoTitlesPanel.tsx's own `handleEditRow()`/IssuesList.tsx's row select
+	 * already establish - a click on a row far down this timeline's own
+	 * scroll position otherwise leaves `HistoryDetailPanel` open off-screen
+	 * above/below the viewport, with no visual cue anything changed.
+	 * `scrollToId`, not `window.scrollTo` - WP admin's own scrollable
+	 * wrapper isn't the document (see `scrollToId`'s own docblock).
+	 */
+	const handleSelectRow = (row: HistoryRow) => {
+		setSelectedRow(row);
+		scrollToId('history-detail-panel');
+	};
+
+	/**
 	 * "Related actions (from this conversation)" (HistoryDetailPanel.tsx)
 	 * jumps to a real 'change' row elsewhere in this same timeline - seeds
 	 * `pendingSelectId`, then lets the next fetch consume it (same "select
@@ -492,7 +506,7 @@ const HistoryTab = () => {
 						rows={rows}
 						total={total}
 						selectedRow={selectedRow}
-						onSelectRow={setSelectedRow}
+						onSelectRow={handleSelectRow}
 						isLoadingMore={isLoadingMore}
 						onLoadMore={handleLoadMore}
 						pulsingRowId={pulsingRowId}
@@ -502,6 +516,7 @@ const HistoryTab = () => {
 			</ColumnComponent>
 
 			<ColumnComponent grid={4}>
+				<div id="history-detail-panel">
 				<HistoryDetailPanel
 					row={selectedRow}
 					onClose={() => setSelectedRow(null)}
@@ -509,6 +524,7 @@ const HistoryTab = () => {
 					onRolledBack={() => fetchPage(1, false)}
 					onSelectRelatedAction={handleSelectRelatedAction}
 				/>
+				</div>
 			</ColumnComponent>
 		</ContainerComponent>
 	);
