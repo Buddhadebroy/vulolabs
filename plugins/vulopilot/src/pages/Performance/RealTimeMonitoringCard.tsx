@@ -99,7 +99,7 @@ const RealTimeMonitoringCard = () => {
 								null !== stats.avg_response_time_ms
 									? `${stats.avg_response_time_ms} ms`
 									: '-',
-							icon: 'global-community green',
+							// icon: 'global-community green',
 							text: __('Server Response Time', 'vulopilot'),
 						},
 						{
@@ -107,7 +107,7 @@ const RealTimeMonitoringCard = () => {
 								hasEnoughSamples && null !== pageLoadMs
 									? `${(pageLoadMs / 1000).toFixed(1)} s`
 									: '-',
-							icon: 'global-community blue',
+							// icon: 'global-community blue',
 							text: __('Page Load Time', 'vulopilot'),
 						},
 						{
@@ -115,7 +115,7 @@ const RealTimeMonitoringCard = () => {
 								hasEnoughSamples && null !== transferBytes
 									? formatBytes(transferBytes)
 									: '-',
-							icon: 'global-community red',
+							// icon: 'global-community red',
 							text: __('Bandwidth Usage', 'vulopilot'),
 						},
 					]}

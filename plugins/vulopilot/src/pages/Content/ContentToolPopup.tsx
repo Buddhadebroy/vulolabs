@@ -10,7 +10,7 @@ import {
 	TextInput,
 } from '@zyra/inputs';
 import { ContentTool, ToolField } from './ContentToolsGrid';
-import { ConnectVuloCloudPromptContent } from '../../components/AiCredits/ConnectVuloCloudPopup';
+import { VuloCloudInlineNotice } from '../../components/Popup/Popup';
 import { useAiCredits } from '../../services/useAiCredits';
 
 interface WpRestPost {
@@ -543,11 +543,10 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 					)}
 
 					{/* No footer button for the no-provider-error case - the
-					real `ConnectVuloCloudPromptContent` shown in the body
-					below already carries its own "Connect to VuloCloud"
-					button (ConnectVuloCloudPopup.tsx's own docblock),
-					same one real component every other caller of this
-					flow now shares. */}
+					real `VuloCloudInlineNotice` shown in the body below
+					already carries its own "Connect to VuloCloud" button
+					(Popup.tsx's own docblock), same one real component
+					every other caller of this flow now shares. */}
 					{'error' === step && !isNoProviderError && (
 						<ButtonInput
 							buttons={{
@@ -638,7 +637,7 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 
 				{'error' === step && (
 					isNoProviderError ? (
-						<ConnectVuloCloudPromptContent variant="inline-notice" />
+						<VuloCloudInlineNotice />
 					) : (
 						<NoticeComponent
 							displayPosition="inline-notice"

@@ -10,7 +10,7 @@
  * AI), per direct instruction. The other 3 tiles (AI Writer, Blog
  * Generator, Duplicate Content) are NOT gated by this - they stay free,
  * gated only on `useAiCredits()`'s own real AI-connected check
- * (ConnectVuloCloudPopup), the same way this whole grid used to work
+ * (`ShowProPopup vulocloud`), the same way this whole grid used to work
  * before this split.
  *
  * A distinct id from `copilot-chat` (useCopilotChatEnabled.ts's own gate

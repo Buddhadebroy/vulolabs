@@ -140,7 +140,7 @@ interface WpRestErrorBody {
  * error (e.g. `creditsStatus` hadn't loaded yet, or the connection dropped
  * between the check and the request) opens the same popup instead of a
  * dead-end error toast. ChatTab.tsx reads `isCloudConnectPromptOpen` to
- * show the same real `ConnectVuloCloudPopup` every other free AI surface
+ * show the same real `ShowProPopup vulocloud` every other free AI surface
  * in this plugin uses for this exact condition.
  *
  * @param noticeKey Unique NoticeManager key for this composer's error banner, so two composers on the same page (if that ever happens) don't clobber each other's notice.

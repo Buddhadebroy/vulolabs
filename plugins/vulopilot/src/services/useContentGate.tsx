@@ -4,7 +4,6 @@ import { __, sprintf } from '@wordpress/i18n';
 import { PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import ShowProPopup from '../components/Popup/Popup';
-import { ConnectVuloCloudPromptContent } from '../components/AiCredits/ConnectVuloCloudPopup';
 import DummyDataNotice from '../components/DummyDataNotice';
 import { BlurredProContent } from '../components/UpgradeToProOverlay';
 import MODULES_CATALOG, { isModuleCatalogEntry } from '../components/Modules';
@@ -59,7 +58,7 @@ const DEFAULT_DUMMY_CONTENT = (
  *
  * 1. **VuloCloud connection** (`useAiCredits()`'s `status.connected`) -
  *    `realContent` blurred behind the overlay card ("Connect to
- *    VuloCloud" copy), opening `ConnectVuloCloudPromptContent` (the
+ *    VuloCloud" copy), opening `ShowProPopup vulocloud` (the
  *    passwordless broker redirect every free AI surface uses).
  * 2. **Pro** (`appLocalizer.khali_dabba` false) - `dummyContent` (or
  *    `DEFAULT_DUMMY_CONTENT` if omitted) blurred behind the same overlay
@@ -184,7 +183,7 @@ export const useContentGate = (
 						height="auto"
 						position="lightbox"
 					>
-						{isVuloCloud ? <ConnectVuloCloudPromptContent /> : <ShowProPopup />}
+						{isVuloCloud ? <ShowProPopup vulocloud /> : <ShowProPopup />}
 					</PopupComponent>
 				</div>
 			);

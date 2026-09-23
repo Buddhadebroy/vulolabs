@@ -13,7 +13,7 @@ import {
 } from '@zyra/components';
 import { ButtonInput, FileInput } from '@zyra/inputs';
 import { getApiLink, scrollToId, sendApiResponse } from '@zyra/core';
-import ConnectVuloCloudPopup from '../../components/AiCredits/ConnectVuloCloudPopup';
+import ShowProPopup from '../../components/Popup/Popup';
 import { useAiCredits } from '../../services/useAiCredits';
 import NeedsAttentionCard, { IssuesFilter } from './NeedsAttentionCard';
 import RecentConversationsCard from './RecentConversationsCard';
@@ -483,11 +483,16 @@ const AIAssistant = () => {
 								}}
 							/>
 						</PopupComponent>
-						{/* useCopilotChat.ts's own send() sets this the moment a real send is attempted (or fails) with no AI connection configured - same free "Connect to VuloCloud" popup every other free AI surface in this plugin uses for this exact condition (ConnectVuloCloudPopup.tsx's own docblock). */}
-						<ConnectVuloCloudPopup
+						{/* useCopilotChat.ts's own send() sets this the moment a real send is attempted (or fails) with no AI connection configured - same free "Connect to VuloCloud" popup every other free AI surface in this plugin uses for this exact condition (Popup.tsx's own docblock). */}
+						<PopupComponent
 							open={isCloudConnectPromptOpen}
 							onClose={dismissCloudConnectPrompt}
-						/>
+							width={22}
+							height="auto"
+							position="lightbox"
+						>
+							<ShowProPopup vulocloud />
+						</PopupComponent>
 						<RecommendedActionsCard onNavigateTab={goToTab} />
 					</ColumnComponent>
 
