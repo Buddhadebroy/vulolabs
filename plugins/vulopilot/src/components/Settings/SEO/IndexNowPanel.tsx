@@ -193,9 +193,8 @@ const IndexNowPanel = () => {
 		<>
 			<FormGroupWrapperComponent>
 				<FormGroupComponent cols={6}
-					label={__('Auto-submit post types', 'vulopilot')}
-					desc={__(
-						'Submit posts from these post types automatically to the IndexNow API when a post is published, updated, or trashed.',
+					label={__('What should notify search engines automatically', 'vulopilot')}
+					desc={__('When one of these is published, edited, or deleted, VuloPilot tells search engines right away. Everything else you will need to submit yourself, below.',
 						'vulopilot'
 					)}
 				>
@@ -279,8 +278,8 @@ const IndexNowPanel = () => {
 					</>
 				</FormGroupComponent>
 				<FormGroupComponent
-					label={__('URLs to submit', 'vulopilot')}
-					desc={__('One per line, up to 10,000.', 'vulopilot')}
+					label={__('Submit specific URLs', 'vulopilot')}
+					desc={__('Notify search engines about specific pages. One per line, up to 10,000.', 'vulopilot')}
 					cols={6}
 				>
 					<TextAreaInput
@@ -319,9 +318,9 @@ const IndexNowPanel = () => {
 			</FormGroupWrapperComponent>
 
 			<CardComponent
-				title={__('History', 'vulopilot')}
+				title={__('Recent submissions', 'vulopilot')}
 				titleIcon="clock"
-				desc={__('The last 100 IndexNow API requests.', 'vulopilot')}
+				desc={__('Your last 100 requests to search engines, and whether each was received.', 'vulopilot')}
 				isLoading={isLoadingHistory}
 				action={
 					<ButtonInput
