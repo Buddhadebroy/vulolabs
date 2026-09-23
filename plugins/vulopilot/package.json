@@ -21,14 +21,12 @@
 		"node": "^22.22.3"
 	},
 	"scripts": {
-		"prebuild": "node ../../tools/scripts/ensure-zyra-dev.mjs",
 		"build": "pnpm run build:project",
 		"build:project": "pnpm --if-present \"/^build:project:.*$/\"",
 		"build:project:bundle": "wireit",
 		"build:release": "pnpm run version && pnpm run build:zip",
 		"build:zip": "pnpm install && pnpm run readme && pnpm run build:project && pnpm run makepot && pnpm run makejson && pnpm run release",
 		"watch": "pnpm run watch:build",
-		"prewatch:build": "node ../../tools/scripts/ensure-zyra-dev.mjs",
 		"watch:build": "pnpm --if-present run \"/^watch:build:project:.*$/\"",
 		"watch:build:project:bundle": "wireit",
 		"lint": "pnpm run lint:js && pnpm run lint:css && pnpm run lint:php",
