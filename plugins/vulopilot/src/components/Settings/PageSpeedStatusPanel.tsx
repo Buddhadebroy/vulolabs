@@ -147,7 +147,7 @@ const PageSpeedStatusPanel = () => {
 					<ButtonInput
 						wrapperClass="psi-test-connection-button"
 						buttons={{
-							color: 'text-purple',
+							color: 'purple-bg',
 							text: isTesting ? __('Testing…', 'vulopilot') : __('Connect', 'vulopilot'),
 							icon: 'link',
 							disabled: isTesting,
