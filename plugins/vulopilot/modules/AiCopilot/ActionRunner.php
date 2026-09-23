@@ -57,8 +57,8 @@ class ActionRunner {
      * Real, structured `{action_id: [feature_id, action]}` mapping onto
      * VuloCloud's own ai-gateway feature catalog (architecture plan §C,
      * "3 representative features") - every other AI action id (not in this
-     * map) is unaffected and stays exactly on the BYOK path it's always
-     * used. Adding a feature to a future migration pass means adding one
+     * map) is unaffected and stays exactly on the direct VuloCloud AI path
+     * it's always used. Adding a feature to a future migration pass means adding one
      * entry here plus a matching build_credit_context() case, not
      * restructuring propose() itself.
      */
@@ -175,19 +175,21 @@ class ActionRunner {
     /**
      * Chooses between the two ways this codebase can now actually get an
      * AI completion for a proposed action: this site's own configured
-     * BYOK path - an Organization's own key, or (if allowed) a Customer
-     * backup key, resolved entirely server-side and proxied through
-     * VuloCloud (AI\AiRequestSender, contexts/vulopilot/ai-byok on the
-     * VuloCloud side) - or VuloCloud's hosted AI Gateway spending real AI
+     * direct VuloCloud AI path - an Organization's own key, or (if allowed)
+     * a Customer backup key, resolved entirely server-side and proxied
+     * through VuloCloud (AiAssistant\AiRequestSender, contexts/vulopilot/ai-byok
+     * on the VuloCloud side - that context name is VuloCloud's own, not
+     * renamed here) - or VuloCloud's hosted AI Gateway spending real AI
      * Credits (architecture plan §C).
      *
-     * Unlike the earlier, pre-BYOK-proxy version of this method, "is BYOK
-     * configured" can no longer be answered locally before making a call
-     * - that state lives in VuloCloud now (an Organization's/Customer's
-     * own credential store), not in a local option this site can read for
-     * free. So this always ATTEMPTS the BYOK path first (via
-     * AiRequestSender, same as before) and only decides whether to fall
-     * through to credits by reacting to a real VuloPilotException with TYPE_AI_BYOK_NOT_CONFIGURED
+     * Unlike the earlier, pre-VuloCloud-proxy version of this method, "is
+     * the direct path configured" can no longer be answered locally before
+     * making a call - that state lives in VuloCloud now (an
+     * Organization's/Customer's own credential store), not in a local
+     * option this site can read for free. So this always ATTEMPTS the
+     * direct path first (via AiRequestSender, same as before) and only
+     * decides whether to fall through to credits by reacting to a real
+     * VuloPilotException with TYPE_VULOCLOUD_AI_NOT_CONFIGURED
      * - a second, separate "is it configured?" pre-check would just be a
      * redundant network round trip for the exact same answer the real
      * attempt already gives, and would risk a stale answer if a key was
@@ -203,13 +205,13 @@ class ActionRunner {
      * @return \VuloPilot\AiAssistant\AIResponse
      *
      * @throws VuloPilotException If the credits fallback was used and VuloCloud reports an empty balance.
-     * @throws \RuntimeException            If no AI is available at all - neither a BYOK key nor (for an eligible action) AI Credits.
+     * @throws \RuntimeException            If no AI is available at all - neither a direct VuloCloud AI key nor (for an eligible action) AI Credits.
      */
     private function send_prompt_or_credits( string $action_id, $action, array $input ): AIResponse {
         try {
             return $this->request_sender->send( $action->build_prompt( $input ), null, 'ai_action' );
         } catch ( VuloPilotException $exception ) {
-            if ( VuloPilotException::TYPE_AI_BYOK_NOT_CONFIGURED !== $exception->get_type() ) {
+            if ( VuloPilotException::TYPE_VULOCLOUD_AI_NOT_CONFIGURED !== $exception->get_type() ) {
                 throw $exception;
             }
 
@@ -240,8 +242,8 @@ class ActionRunner {
         }
 
         // VuloCloud's own /plugin/ai/execute response DOES carry real
-        // credits_used/request_id (unlike the BYOK gateway) - use them
-        // rather than discarding them the way this call site used to.
+        // credits_used/request_id (unlike the direct VuloCloud AI gateway) -
+        // use them rather than discarding them the way this call site used to.
         return new AIResponse( $result['response'], (int) ( $result['credits_used'] ?? 0 ), $result['request_id'] ?? null );
     }
 

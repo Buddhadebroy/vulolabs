@@ -38,10 +38,11 @@ defined( 'ABSPATH' ) || exit;
  * AiCopilot\ActionRunner's credits-metered gateway call - a real,
  * cross-cutting contract type, not something private to this one sender.
  *
- * The BYOK gateway call itself (AiByokGatewayClient::execute()) folded
- * into AiCreditsConnection instead of here - it only ever read that
- * class's own stored credential, so credits_connection now doubles as
- * both "is this site connected" and "make the one real gateway call".
+ * The direct VuloCloud AI gateway call itself (formerly
+ * AiByokGatewayClient::execute()) folded into AiCreditsConnection instead
+ * of here - it only ever read that class's own stored credential, so
+ * credits_connection now doubles as both "is this site connected" and
+ * "make the one real gateway call".
  *
  * @class       AiRequestSender class
  * @version     1.0.0
@@ -90,7 +91,7 @@ class AiRequestSender {
 
     /**
      * @param AiHistoryRepository|null $history            Defaults to a new instance (injectable for tests).
-     * @param AiCreditsConnection|null $credits_connection Defaults to a new instance (injectable for tests) - also the BYOK gateway itself (AiByokGatewayClient folded into it, see that class's former docblock, now AiCreditsConnection's own).
+     * @param AiCreditsConnection|null $credits_connection Defaults to a new instance (injectable for tests) - also the direct VuloCloud AI gateway itself (formerly AiByokGatewayClient, folded into it - see AiCreditsConnection's own docblock).
      */
     public function __construct(
         ?AiHistoryRepository $history = null,
@@ -173,7 +174,7 @@ class AiRequestSender {
 
     /**
      * Only a TYPE_TRANSIENT_GATEWAY failure is retried - a TYPE_GATEWAY_REQUEST
-     * (malformed request), TYPE_AI_BYOK_NOT_CONFIGURED or
+     * (malformed request), TYPE_VULOCLOUD_AI_NOT_CONFIGURED or
      * TYPE_RATE_LIMIT_EXCEEDED failure passes straight through, per those
      * types' own docblocks on VuloPilotException. Every attempt spends from the budget.
      *
@@ -237,9 +238,9 @@ class AiRequestSender {
      * turns it back into whatever message shape the serving vendor expects.
      * This gateway's own response carries no credits field, so the returned
      * AIResponse's `credits_used` is honestly `0` here - this is the free,
-     * rate-limited BYOK path, genuinely uncredited, not an unfinished
-     * calculation. `request_id` carries through VuloCloud's own real
-     * `requestId`.
+     * rate-limited direct VuloCloud AI path, genuinely uncredited, not an
+     * unfinished calculation. `request_id` carries through VuloCloud's own
+     * real `requestId`.
      *
      * @param array<int, array{role: string, content: string}> $messages Chat-style prompt messages.
      * @param string|null                                      $surface  Optional real feature label.
@@ -260,8 +261,8 @@ class AiRequestSender {
         );
 
         if ( is_wp_error( $result ) ) {
-            if ( 'vulopilot_ai_byok_not_configured' === $result->get_error_code() ) {
-                throw new VuloPilotException( esc_html( $result->get_error_message() ), VuloPilotException::TYPE_AI_BYOK_NOT_CONFIGURED );
+            if ( 'vulopilot_vulocloud_ai_not_configured' === $result->get_error_code() ) {
+                throw new VuloPilotException( esc_html( $result->get_error_message() ), VuloPilotException::TYPE_VULOCLOUD_AI_NOT_CONFIGURED );
             }
 
             throw new VuloPilotException( esc_html( $result->get_error_message() ), VuloPilotException::TYPE_GATEWAY_REQUEST );
