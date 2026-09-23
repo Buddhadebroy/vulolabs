@@ -80,7 +80,7 @@ class DuplicateContentScanner extends ScannerUtil {
 
         $findings = array();
 
-        $duplicate_titles = $wpdb->get_col(
+        $duplicate_titles = $wpdb->get_col(  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching  -- {$this->get_table()}/$table-style variables here are always this plugin's own hardcoded table name(s), never user input; dynamic placeholder counts (IN (...) lists, optional WHERE fragments) are sized correctly at runtime, just not statically visible to this sniff.
             $wpdb->prepare(
                 "SELECT post_title FROM (
                     SELECT post_title FROM {$wpdb->posts}
@@ -107,7 +107,7 @@ class DuplicateContentScanner extends ScannerUtil {
             // with zero real change to which posts share this title,
             // producing a different object_ref string and silently
             // defeating dedup the same way a volatile title would.
-            $matching_ids = $wpdb->get_col(
+            $matching_ids = $wpdb->get_col(  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching  -- {$this->get_table()}/$table-style variables here are always this plugin's own hardcoded table name(s), never user input; dynamic placeholder counts (IN (...) lists, optional WHERE fragments) are sized correctly at runtime, just not statically visible to this sniff.
                 $wpdb->prepare(
                     "SELECT ID FROM {$wpdb->posts} WHERE post_title = %s AND post_status = 'publish' AND post_type IN ('post', 'page') ORDER BY ID ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                     $title

@@ -103,7 +103,7 @@ class PageSpeedRepository extends RepositoryUtil {
 
         $placeholders = implode( ', ', array_fill( 0, count( $current_urls ), '%s' ) );
 
-        $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
             $wpdb->prepare(
                 "DELETE FROM {$this->get_table()} WHERE url NOT IN ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
                 ...$current_urls
@@ -127,7 +127,7 @@ class PageSpeedRepository extends RepositoryUtil {
     public function get_summary(): array {
         global $wpdb;
 
-        $rows = $wpdb->get_results( "SELECT score, mobile_score, load_time_ms FROM {$this->get_table()}", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $rows = $wpdb->get_results( "SELECT score, mobile_score, load_time_ms FROM {$this->get_table()}", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
         $rows      = (array) $rows;
         $total     = count( $rows );
@@ -168,7 +168,7 @@ class PageSpeedRepository extends RepositoryUtil {
             }
         }
 
-        $last_scanned_at = $wpdb->get_var( "SELECT MAX(scanned_at) FROM {$this->get_table()}" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $last_scanned_at = $wpdb->get_var( "SELECT MAX(scanned_at) FROM {$this->get_table()}" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
         return array(
             'total'             => $total,
@@ -200,7 +200,7 @@ class PageSpeedRepository extends RepositoryUtil {
     public function get_top_issues( int $limit = 10 ): array {
         global $wpdb;
 
-        $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
             $wpdb->prepare(
                 "SELECT main_issue, COUNT(*) AS affected_pages FROM {$this->get_table()} WHERE main_issue IS NOT NULL AND main_issue != '' GROUP BY main_issue ORDER BY affected_pages DESC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                 $limit

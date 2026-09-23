@@ -114,7 +114,7 @@ class IndexNowKeyFileServer {
 
         $file_path = trailingslashit( ABSPATH ) . $key . '.txt';
 
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- a plain-text key file at the site root, same precedent/reasoning as LlmsTxtGenerator::write_file()'s own ignore comment.
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, PluginCheck.CodeAnalysis.WriteFile.ABSPATHDetected -- the IndexNow protocol itself requires this key file to be served from the site root, not wp_upload_dir(); a virtual-route fallback also exists above for hosts where ABSPATH isn't writable.
         return false !== file_put_contents( $file_path, $key );
     }
 

@@ -62,11 +62,11 @@ class GenerateAltAction extends AbstractBasicAction {
         $attachment_id = absint( $input['attachment_id'] ?? 0 );
 
         if ( ! $attachment_id || 'attachment' !== get_post_type( $attachment_id ) ) {
-            throw new VuloPilotException( esc_html__( 'attachment_id must refer to an existing media attachment.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
+            throw new VuloPilotException( esc_html__( 'attachment_id must refer to an existing media attachment.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         if ( ! wp_attachment_is_image( $attachment_id ) ) {
-            throw new VuloPilotException( esc_html__( 'This attachment is not an image.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
+            throw new VuloPilotException( esc_html__( 'This attachment is not an image.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         return array( 'attachment_id' => $attachment_id );
@@ -111,11 +111,11 @@ class GenerateAltAction extends AbstractBasicAction {
         $alt_text = $output['alt_text'] ?? '';
 
         if ( '' === $alt_text ) {
-            throw new VuloPilotException( esc_html__( 'The AI returned empty alt text.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
+            throw new VuloPilotException( esc_html__( 'The AI returned empty alt text.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         if ( mb_strlen( $alt_text ) > 250 ) {
-            throw new VuloPilotException( esc_html__( 'The AI returned alt text that is too long.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
+            throw new VuloPilotException( esc_html__( 'The AI returned alt text that is too long.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
     }
 

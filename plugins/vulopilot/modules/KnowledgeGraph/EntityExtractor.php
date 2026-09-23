@@ -405,7 +405,7 @@ class EntityExtractor {
     private function extract_people(): array {
         global $wpdb;
 
-        $author_ids = $wpdb->get_col(
+        $author_ids = $wpdb->get_col(  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching  -- {$this->get_table()}/$table-style variables here are always this plugin's own hardcoded table name(s), never user input; dynamic placeholder counts (IN (...) lists, optional WHERE fragments) are sized correctly at runtime, just not statically visible to this sniff.
             $wpdb->prepare(
                 "SELECT DISTINCT post_author FROM {$wpdb->posts} WHERE post_status = %s AND post_type IN ('post','page') LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                 'publish',

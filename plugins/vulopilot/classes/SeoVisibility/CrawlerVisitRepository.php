@@ -91,7 +91,7 @@ class CrawlerVisitRepository extends RepositoryUtil {
     public function get_bot_last_seen(): array {
         global $wpdb;
 
-        $rows = $wpdb->get_results(
+        $rows = $wpdb->get_results(  // phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching  -- {$this->get_table()}/$table-style variables here are always this plugin's own hardcoded table name(s), never user input; dynamic placeholder counts (IN (...) lists, optional WHERE fragments) are sized correctly at runtime, just not statically visible to this sniff.
             "SELECT bot_name, MAX(created_at) AS last_seen_at FROM {$this->get_table()} GROUP BY bot_name ORDER BY last_seen_at DESC", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             ARRAY_A
         );
@@ -109,7 +109,7 @@ class CrawlerVisitRepository extends RepositoryUtil {
     public function get_most_crawled_pages( int $limit = 10 ): array {
         global $wpdb;
 
-        $rows = $wpdb->get_results(
+        $rows = $wpdb->get_results(  // phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching  -- {$this->get_table()}/$table-style variables here are always this plugin's own hardcoded table name(s), never user input; dynamic placeholder counts (IN (...) lists, optional WHERE fragments) are sized correctly at runtime, just not statically visible to this sniff.
             $wpdb->prepare(
                 "SELECT requested_url, COUNT(*) AS total FROM {$this->get_table()} GROUP BY requested_url ORDER BY total DESC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                 max( 1, $limit )
@@ -134,7 +134,7 @@ class CrawlerVisitRepository extends RepositoryUtil {
 
         $days = max( 1, $days );
 
-        $rows = $wpdb->get_results(
+        $rows = $wpdb->get_results(  // phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching  -- {$this->get_table()}/$table-style variables here are always this plugin's own hardcoded table name(s), never user input; dynamic placeholder counts (IN (...) lists, optional WHERE fragments) are sized correctly at runtime, just not statically visible to this sniff.
             $wpdb->prepare(
                 "SELECT DATE(created_at) AS visit_date, COUNT(*) AS total FROM {$this->get_table()} WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL %d DAY) GROUP BY visit_date", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                 $days
@@ -177,7 +177,7 @@ class CrawlerVisitRepository extends RepositoryUtil {
 
         $days = max( 1, $days );
 
-        $rows = $wpdb->get_results(
+        $rows = $wpdb->get_results(  // phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching  -- {$this->get_table()}/$table-style variables here are always this plugin's own hardcoded table name(s), never user input; dynamic placeholder counts (IN (...) lists, optional WHERE fragments) are sized correctly at runtime, just not statically visible to this sniff.
             $wpdb->prepare(
                 "SELECT bot_name, DATE(created_at) AS visit_date, COUNT(*) AS total FROM {$this->get_table()} WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL %d DAY) GROUP BY bot_name, visit_date", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                 $days
@@ -220,7 +220,7 @@ class CrawlerVisitRepository extends RepositoryUtil {
     public function get_stats_for_period( string $period_start, string $period_end ): array {
         global $wpdb;
 
-        $total = (int) $wpdb->get_var(
+        $total = (int) $wpdb->get_var(  // phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching  -- {$this->get_table()}/$table-style variables here are always this plugin's own hardcoded table name(s), never user input; dynamic placeholder counts (IN (...) lists, optional WHERE fragments) are sized correctly at runtime, just not statically visible to this sniff.
             $wpdb->prepare(
                 "SELECT COUNT(*) FROM {$this->get_table()} WHERE created_at >= %s AND created_at < DATE_ADD(%s, INTERVAL 1 DAY)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                 $period_start,
@@ -228,7 +228,7 @@ class CrawlerVisitRepository extends RepositoryUtil {
             )
         );
 
-        $bot_rows = $wpdb->get_results(
+        $bot_rows = $wpdb->get_results(  // phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching  -- {$this->get_table()}/$table-style variables here are always this plugin's own hardcoded table name(s), never user input; dynamic placeholder counts (IN (...) lists, optional WHERE fragments) are sized correctly at runtime, just not statically visible to this sniff.
             $wpdb->prepare(
                 "SELECT bot_name, COUNT(*) AS total FROM {$this->get_table()} WHERE created_at >= %s AND created_at < DATE_ADD(%s, INTERVAL 1 DAY) GROUP BY bot_name", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                 $period_start,
@@ -242,7 +242,7 @@ class CrawlerVisitRepository extends RepositoryUtil {
             $by_bot[ $row['bot_name'] ] = (int) $row['total'];
         }
 
-        $top_pages = $wpdb->get_results(
+        $top_pages = $wpdb->get_results(  // phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching  -- {$this->get_table()}/$table-style variables here are always this plugin's own hardcoded table name(s), never user input; dynamic placeholder counts (IN (...) lists, optional WHERE fragments) are sized correctly at runtime, just not statically visible to this sniff.
             $wpdb->prepare(
                 "SELECT requested_url, COUNT(*) AS total FROM {$this->get_table()} WHERE created_at >= %s AND created_at < DATE_ADD(%s, INTERVAL 1 DAY) GROUP BY requested_url ORDER BY total DESC LIMIT 10", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                 $period_start,
@@ -319,8 +319,8 @@ class CrawlerVisitRepository extends RepositoryUtil {
         $previous_page_counts = array();
         if ( $page_urls ) {
             $placeholders          = implode( ',', array_fill( 0, count( $page_urls ), '%s' ) );
-            $previous_page_rows    = $wpdb->get_results(
-                $wpdb->prepare(
+            $previous_page_rows    = $wpdb->get_results(  // phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching  -- {$this->get_table()}/$table-style variables here are always this plugin's own hardcoded table name(s), never user input; dynamic placeholder counts (IN (...) lists, optional WHERE fragments) are sized correctly at runtime, just not statically visible to this sniff.
+                $wpdb->prepare(  // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber  -- {$this->get_table()}/$table-style variables here are always this plugin's own hardcoded table name(s), never user input; dynamic placeholder counts (IN (...) lists, optional WHERE fragments) are sized correctly at runtime, just not statically visible to this sniff.
                     "SELECT requested_url, COUNT(*) AS total FROM {$this->get_table()} WHERE created_at >= %s AND created_at < DATE_ADD(%s, INTERVAL 1 DAY) AND requested_url IN ({$placeholders}) GROUP BY requested_url", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
                     array_merge( array( $previous_start, $previous_end ), $page_urls )
                 ),
@@ -367,7 +367,7 @@ class CrawlerVisitRepository extends RepositoryUtil {
     public function get_404_rate_for_bot( string $bot_name, int $recent_n = 20, int $min_sample = 5 ): ?array {
         global $wpdb;
 
-        $rows = $wpdb->get_results(
+        $rows = $wpdb->get_results(  // phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching  -- {$this->get_table()}/$table-style variables here are always this plugin's own hardcoded table name(s), never user input; dynamic placeholder counts (IN (...) lists, optional WHERE fragments) are sized correctly at runtime, just not statically visible to this sniff.
             $wpdb->prepare(
                 "SELECT is_404 FROM {$this->get_table()} WHERE bot_name = %s ORDER BY created_at DESC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                 $bot_name,
@@ -402,7 +402,7 @@ class CrawlerVisitRepository extends RepositoryUtil {
     public function get_all_bot_names_ever_seen(): array {
         global $wpdb;
 
-        $names = $wpdb->get_col( "SELECT DISTINCT bot_name FROM {$this->get_table()}" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $names = $wpdb->get_col( "SELECT DISTINCT bot_name FROM {$this->get_table()}" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         return $names ?: array();
     }
@@ -418,7 +418,7 @@ class CrawlerVisitRepository extends RepositoryUtil {
     public function delete_older_than( int $days ): int {
         global $wpdb;
 
-        $deleted = $wpdb->query(
+        $deleted = $wpdb->query(  // phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching  -- {$this->get_table()}/$table-style variables here are always this plugin's own hardcoded table name(s), never user input; dynamic placeholder counts (IN (...) lists, optional WHERE fragments) are sized correctly at runtime, just not statically visible to this sniff.
             $wpdb->prepare(
                 "DELETE FROM {$this->get_table()} WHERE created_at < DATE_SUB(NOW(), INTERVAL %d DAY)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                 max( 1, $days )

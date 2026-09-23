@@ -64,10 +64,11 @@ class SnapshotRepository extends RepositoryUtil {
     protected function store( string $date, array $values ): void {
         global $wpdb;
 
-        $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- {$this->get_table()} is this plugin's own table name, not user input.
             $wpdb->prepare(
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- {$this->get_table()} is this plugin's own table name, not user input.
                 "INSERT INTO {$this->get_table()} (snapshot_type, snapshot_date, data) VALUES (%s, %s, %s)
-                ON DUPLICATE KEY UPDATE data = VALUES(data)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                ON DUPLICATE KEY UPDATE data = VALUES(data)",
                 $this->snapshot_type,
                 $date,
                 wp_json_encode( $values )
@@ -136,7 +137,7 @@ class SnapshotRepository extends RepositoryUtil {
     private function query_rows( string $clause, array $args ): array {
         global $wpdb;
 
-        $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- {$this->get_table()} is this plugin's own table name, and {$clause} is one of this class's own private hardcoded WHERE fragments (get_recent()/get_between()/get_latest()/get_previous()), never user input.
             $wpdb->prepare(
                 "SELECT id, snapshot_date, data, created_at FROM {$this->get_table()} WHERE snapshot_type = %s AND {$clause}", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                 ...array_merge( array( $this->snapshot_type ), $args )

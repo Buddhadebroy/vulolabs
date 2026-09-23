@@ -75,7 +75,7 @@ class GenerateLandingPageAction extends AbstractBasicAction {
         $topic = sanitize_text_field( (string) ( $input['topic'] ?? '' ) );
 
         if ( mb_strlen( $topic ) < 5 ) {
-            throw new VuloPilotException( esc_html__( 'Please describe what the landing page is for (at least 5 characters).', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
+            throw new VuloPilotException( esc_html__( 'Please describe what the landing page is for (at least 5 characters).', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         // Optional - a bare topic is still a complete, valid input, same
@@ -133,11 +133,11 @@ class GenerateLandingPageAction extends AbstractBasicAction {
     public function validate_output( array $output, array $input ): void {
         if ( '' === ( $output['title'] ?? '' ) || '' === ( $output['body'] ?? '' ) ) {
             throw new VuloPilotException(
-                esc_html__( 'The AI response did not match the expected TITLE/BODY format.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
+                esc_html__( 'The AI response did not match the expected TITLE/BODY format.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         if ( mb_strlen( wp_strip_all_tags( $output['body'] ) ) < 150 ) {
-            throw new VuloPilotException( esc_html__( 'The AI returned a landing page body that is too short to be useful.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
+            throw new VuloPilotException( esc_html__( 'The AI returned a landing page body that is too short to be useful.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
     }
 

@@ -78,7 +78,7 @@ class GoogleAnalyticsTracker {
             'vulopilot-ga-gtag',
             $script_src,
             array(),
-            null,
+            null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- $script_src is Google's own external gtag.js URL (or a self-hosted proxy of it), not a local plugin asset; a cache-busting version query has no meaning for it.
             array( 'strategy' => 'async' )
         );
 

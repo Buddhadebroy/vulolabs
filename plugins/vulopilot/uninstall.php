@@ -26,21 +26,21 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use VuloPilot\Utill;
 
-$settings = get_option( Utill::VULOPILOT_SETTINGS_KEY, array() );
+$vulopilot_uninstall_settings = get_option( Utill::VULOPILOT_SETTINGS_KEY, array() );
 
-if ( ! isset( $settings['keep_data_uninstall'] ) || 'delete_everything' !== $settings['keep_data_uninstall'] ) {
+if ( ! isset( $vulopilot_uninstall_settings['keep_data_uninstall'] ) || 'delete_everything' !== $vulopilot_uninstall_settings['keep_data_uninstall'] ) {
     return;
 }
 
 global $wpdb;
 
-foreach ( Utill::TABLES as $table ) {
+foreach ( Utill::TABLES as $vulopilot_uninstall_table ) {
     // Table identifiers can't go through $wpdb->prepare()'s placeholders
-    // (those only escape values) - safe here because $table only ever
-    // comes from this codebase's own fixed Utill::TABLES array, never
-    // user input.
+    // (those only escape values) - safe here because $vulopilot_uninstall_table
+    // only ever comes from this codebase's own fixed Utill::TABLES array,
+    // never user input.
     // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.NoCaching
-    $wpdb->query( "DROP TABLE IF EXISTS `{$wpdb->prefix}{$table}`" );
+    $wpdb->query( "DROP TABLE IF EXISTS `{$wpdb->prefix}{$vulopilot_uninstall_table}`" );
 }
 
 // Every VuloPilot option (settings, install/version tracking, crawler

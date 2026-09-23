@@ -72,18 +72,18 @@ class GenerateComparisonPageAction extends AbstractBasicAction {
         $post_b_id = absint( $input['post_b_id'] ?? 0 );
 
         if ( $post_a_id && $post_a_id === $post_b_id ) {
-            throw new VuloPilotException( esc_html__( 'post_a_id and post_b_id must refer to two different items.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
+            throw new VuloPilotException( esc_html__( 'post_a_id and post_b_id must refer to two different items.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         $post_a = $post_a_id ? get_post( $post_a_id ) : null;
         $post_b = $post_b_id ? get_post( $post_b_id ) : null;
 
         if ( ! $post_a || ! $post_b ) {
-            throw new VuloPilotException( esc_html__( 'post_a_id and post_b_id must both refer to existing posts, pages, or products.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
+            throw new VuloPilotException( esc_html__( 'post_a_id and post_b_id must both refer to existing posts, pages, or products.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         if ( '' === trim( wp_strip_all_tags( $post_a->post_content ) ) || '' === trim( wp_strip_all_tags( $post_b->post_content ) ) ) {
-            throw new VuloPilotException( esc_html__( 'Both items need existing content to compare.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
+            throw new VuloPilotException( esc_html__( 'Both items need existing content to compare.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         return array(
@@ -142,11 +142,11 @@ class GenerateComparisonPageAction extends AbstractBasicAction {
     public function validate_output( array $output, array $input ): void {
         if ( '' === ( $output['title'] ?? '' ) || '' === ( $output['body'] ?? '' ) ) {
             throw new VuloPilotException(
-                esc_html__( 'The AI response did not match the expected TITLE/BODY format.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
+                esc_html__( 'The AI response did not match the expected TITLE/BODY format.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         if ( mb_strlen( wp_strip_all_tags( $output['body'] ) ) < 100 ) {
-            throw new VuloPilotException( esc_html__( 'The AI returned a comparison that is too short to be useful.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
+            throw new VuloPilotException( esc_html__( 'The AI returned a comparison that is too short to be useful.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
     }
 

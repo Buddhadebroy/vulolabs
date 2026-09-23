@@ -124,7 +124,7 @@ class HtmlSitemapRenderer {
             );
 
             if ( $excluded_posts ) {
-                $query_args['post__not_in'] = $excluded_posts;
+                $query_args['post__not_in'] = $excluded_posts; // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- admin-configured `sitemap_exclude_posts` list, a small bounded set of explicit ids, not an unbounded/user-controlled exclusion.
             }
 
             $posts = get_posts( $query_args );
@@ -165,7 +165,7 @@ class HtmlSitemapRenderer {
             );
 
             if ( $excluded_terms ) {
-                $term_args['exclude'] = $excluded_terms;
+                $term_args['exclude'] = $excluded_terms; // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- admin-configured `sitemap_exclude_terms` list, a small bounded set of explicit ids, not an unbounded/user-controlled exclusion.
             }
 
             $terms = get_terms( $term_args );

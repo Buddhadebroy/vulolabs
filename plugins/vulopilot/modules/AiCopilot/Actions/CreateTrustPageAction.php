@@ -89,7 +89,7 @@ class CreateTrustPageAction extends AbstractBasicAction {
         }
 
         if ( empty( $missing ) ) {
-            throw new VuloPilotException( esc_html__( 'This site already has both an About and a Contact page - there is nothing to fix.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
+            throw new VuloPilotException( esc_html__( 'This site already has both an About and a Contact page - there is nothing to fix.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         return array(
@@ -141,7 +141,7 @@ class CreateTrustPageAction extends AbstractBasicAction {
     public function validate_output( array $output, array $input ): void {
         foreach ( $input['missing_pages'] as $type ) {
             if ( empty( $output['pages'][ $type ]['title'] ) || empty( $output['pages'][ $type ]['content'] ) ) {
-                throw new VuloPilotException( esc_html__( 'The AI did not return content for one of the requested pages.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
+                throw new VuloPilotException( esc_html__( 'The AI did not return content for one of the requested pages.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
             }
         }
     }

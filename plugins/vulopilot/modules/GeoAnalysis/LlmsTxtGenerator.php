@@ -120,7 +120,7 @@ class LlmsTxtGenerator {
 
         $file_path = trailingslashit( ABSPATH ) . 'llms.txt';
 
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- ABSPATH/llms.txt is a plain-text file at the site root (same convention as robots.txt/ads.txt), not a value that needs WP_Filesystem's FTP-credential fallback; matches the existing precedent in Reports/Exporters/JsonExporter.php.
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, PluginCheck.CodeAnalysis.WriteFile.ABSPATHDetected -- llms.txt is a site-root convention file (same as robots.txt/ads.txt), not wp_upload_dir()-appropriate; a virtual-route fallback also exists above for hosts where ABSPATH isn't writable. Not a value that needs WP_Filesystem's FTP-credential fallback either; matches the existing precedent in Reports/Exporters/JsonExporter.php.
         return false !== file_put_contents( $file_path, $content );
     }
 
