@@ -1,7 +1,6 @@
 <?php
 namespace VuloPilot\AiAssistant;
 
-use VuloPilot\AiAssistant\AiRequestSender;
 use VuloPilot\Dashboard\ActivityLogRepository;
 use VuloPilot\Utill;
 use VuloPilot\Utill\Severity;

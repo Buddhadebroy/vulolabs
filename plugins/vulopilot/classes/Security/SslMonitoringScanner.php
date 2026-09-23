@@ -1,9 +1,6 @@
 <?php
 namespace VuloPilot\Security;
 
-use VuloPilot\Security\FirewallBlockRepository;
-use VuloPilot\Security\LoginAttemptRepository;
-use VuloPilot\Utill;
 use VuloPilot\Utill\Finding;
 use VuloPilot\Utill\Severity;
 use VuloPilot\Utill\ScannerUtil;

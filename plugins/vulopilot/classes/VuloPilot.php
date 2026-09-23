@@ -195,8 +195,7 @@ final class VuloPilot {
 
         $this->container['rest'] = new Rest();
 
-        $this->container['ai_safety_validator'] = new \VuloPilot\AiAssistant\AISafetyValidator();
-        $this->container['ai_request_sender']   = new \VuloPilot\AiAssistant\AiRequestSender( $this->container['ai_safety_validator'] );
+        $this->container['ai_request_sender'] = new \VuloPilot\AiAssistant\AiRequestSender();
 
         $this->container['ai_action_registry'] = new AiCopilot\ActionRegistry();
         $this->container['ai_action_runner']   = new AiCopilot\ActionRunner(

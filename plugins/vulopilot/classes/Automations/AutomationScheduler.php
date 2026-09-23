@@ -4,15 +4,7 @@ namespace VuloPilot\Automations;
 use VuloPilot\Automations\BuiltinAutomationSeeder;
 use VuloPilot\Automations\AutomationsRepository;
 use VuloPilot\Automations\AutomationsRunRepository;
-use VuloPilot\SeoVisibility\CrawlerVisitRepository;
-use VuloPilot\Utill\FindingRepository;
-use VuloPilot\Security\FirewallBlockRepository;
-use VuloPilot\SeoVisibility\IndexNowLogRepository;
-use VuloPilot\Security\LoginAttemptRepository;
-use VuloPilot\Content\NotFoundLogRepository;
-use VuloPilot\Content\RedirectRepository;
 use VuloPilot\Utill\ScanRunner;
-use VuloPilot\Utill;
 
 defined( 'ABSPATH' ) || exit;
 

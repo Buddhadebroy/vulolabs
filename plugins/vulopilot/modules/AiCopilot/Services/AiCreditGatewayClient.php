@@ -19,14 +19,14 @@ defined( 'ABSPATH' ) || exit;
  * prompt - VuloCloud's own feature catalog owns the actual system
  * prompt/model/provider choice, this site never sees or influences it.
  *
- * Deliberately its own class, separate from AiCreditsApiClient (which
+ * Deliberately its own class, separate from AiCreditsConnection (which
  * only talks to the `ai-credits` context's connect/balance endpoints) -
  * this is a different bounded context on the vulocloud side and a
  * different real caller here (AiCopilot\ActionRunner, its only real
  * caller - hence living here rather than classes/AiAssistant/ alongside
  * AiCreditsConnection, which stays there as genuinely shared core, read
- * by AiByokGatewayClient/AiAssistant\Rest\AiCredits.php/FrontendScripts.php
- * too, not just this module).
+ * by AiAssistant\Rest\AiCredits.php/FrontendScripts.php too, not just this
+ * module).
  *
  * @class       AiCreditGatewayClient class
  * @version     1.0.0

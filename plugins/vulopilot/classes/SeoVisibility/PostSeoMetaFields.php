@@ -3,10 +3,6 @@ namespace VuloPilot\SeoVisibility;
 
 use VuloPilot\AiCopilot\Actions\GenerateLandingPageAction;
 use VuloPilot\AiCopilot\Actions\GenerateSchemaAction;
-use VuloPilot\Utill\FindingRepository;
-use VuloPilot\TechnicalSeo\Scanners\StructuredDataValidationScanner;
-use VuloPilot\Utill;
-use VuloPilot\Utill\ScanResult;
 
 defined( 'ABSPATH' ) || exit;
 

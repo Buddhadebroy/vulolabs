@@ -1,12 +1,7 @@
 <?php
 namespace VuloPilot\Performance\Rest;
 
-use VuloPilot\Performance\CoreWebVitalsRepository;
 use VuloPilot\Performance\PageSpeedRepository;
-use VuloPilot\Performance\PerformanceRequestRepository;
-use VuloPilot\Utill\ScoreSnapshotRepository;
-use VuloPilot\SiteHealth\DatabaseCleanupScanner;
-use VuloPilot\Performance\ImageCleanupScanner;
 
 defined( 'ABSPATH' ) || exit;
 

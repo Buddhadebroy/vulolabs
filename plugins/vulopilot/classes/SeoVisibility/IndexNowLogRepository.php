@@ -8,7 +8,6 @@
 namespace VuloPilot\SeoVisibility;
 
 use VuloPilot\Dashboard\ActivityLogRepository;
-use VuloPilot\Utill as CoreUtill;
 
 defined( 'ABSPATH' ) || exit;
 
