@@ -55,6 +55,7 @@ const AiCreditsIndicator = () => {
 							)
 							: __('Claim free AI Credits', 'vulopilot')
 						}`,
+					icon: 'ai',
 					color: 'orange-bg',
 					onClick: () => setIsOpen(!isOpen),
 				}}

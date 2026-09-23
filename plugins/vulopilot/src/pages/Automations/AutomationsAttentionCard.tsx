@@ -80,6 +80,7 @@ const AutomationsAttentionCard = ({ onViewAll, refetchSignal }: AutomationsAtten
 						buttons={{
 							color: 'text-purple',
 							text: __('View all issues', 'vulopilot'),
+							icon: 'eye',
 							onClick: onViewAll,
 						}}
 					/>
@@ -115,6 +116,7 @@ const AutomationsAttentionCard = ({ onViewAll, refetchSignal }: AutomationsAtten
 										retryingId === row.id
 											? __('Retrying…', 'vulopilot')
 											: __('Try Again', 'vulopilot'),
+									icon: 'refresh',
 									onClick: () => handleRetry(row),
 									disabled: null !== retryingId,
 								}}

@@ -892,15 +892,18 @@ const RedirectsSection = () => {
 						resetForm();
 					}}
 					width={28}
+					height="60%"
 					header={{
 						title: editingId
 							? __('Edit redirect', 'vulopilot')
 							: __('Add redirect', 'vulopilot'),
+							icon: 'plus0'
 					}}
 					footer={
 						<ButtonInput
 							buttons={{
 								text: isSaving ? __('Saving…', 'vulopilot') : __('Save', 'vulopilot'),
+								icon: 'save',
 								onClick: handleSaveRedirect,
 								disabled: isSaving,
 							}}

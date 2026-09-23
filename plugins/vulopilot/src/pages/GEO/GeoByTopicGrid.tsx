@@ -97,6 +97,7 @@ const GeoByTopicGrid = ({
 				<ButtonInput
 					buttons={{
 						text: `${__('View issues', 'vulopilot')} ›`,
+						icon: 'eye',
 						color: 'text-purple',
 						onClick: () => onViewTopic(topic.key),
 					}}

@@ -381,6 +381,7 @@ const InspectorSection = ({
 											'Validate homepage with Google ',
 											'vulopilot'
 										),
+										icon: 'external',
 										color: 'text-purple',
 										onClick: openRichResultsTest,
 									}}
@@ -534,6 +535,7 @@ const InspectorSection = ({
 							<ButtonInput
 								buttons={{
 									text: __('Open page', 'vulopilot'),
+									icon: 'external',
 									onClick: () =>
 										window.open(result.url, '_blank', 'noreferrer'),
 								}}
@@ -541,6 +543,7 @@ const InspectorSection = ({
 							<ButtonInput
 								buttons={{
 									text: __('Validate with Google', 'vulopilot'),
+									icon: 'external',
 									color: 'text-purple',
 									onClick: openRichResultsTest,
 								}}
@@ -563,12 +566,14 @@ const InspectorSection = ({
 							<ButtonInput
 								buttons={{
 									text: __('Copy', 'vulopilot'),
+									icon: 'copy',
 									onClick: handleCopy,
 								}}
 							/>
 							<ButtonInput
 								buttons={{
 									text: __('Export', 'vulopilot'),
+									icon: 'export',
 									onClick: handleExport,
 								}}
 							/>

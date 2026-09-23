@@ -178,6 +178,7 @@ const DeveloperToolsPanel = () => {
 							text: isClearing
 								? __('Clearing…', 'vulopilot')
 								: __('Clear cache', 'vulopilot'),
+							icon: 'refresh',
 							onClick: handleClearCache,
 							disabled: isClearing,
 						}}
@@ -196,6 +197,7 @@ const DeveloperToolsPanel = () => {
 							text: isResetting
 								? __('Resetting…', 'vulopilot')
 								: __('Reset settings', 'vulopilot'),
+							icon: 'refresh',
 							onClick: handleResetSettings,
 							disabled: isResetting,
 						}}

@@ -293,6 +293,7 @@ const NotFoundLogSection = () => {
 					<ButtonInput
 						buttons={{
 							text: __('Save', 'vulopilot'),
+							icon: 'save',
 							onClick: handleConvertLog,
 							disabled:
 								isConverting || '' === convertTargetUrl.trim(),

@@ -84,6 +84,7 @@ export const ConnectVuloCloudPromptContent = ({
 					text: isConnecting
 						? __('Connecting…', 'vulopilot')
 						: __('Connect to VuloCloud', 'vulopilot'),
+					icon: 'link',
 					disabled: isConnecting,
 					onClick: handleConnect,
 				}}

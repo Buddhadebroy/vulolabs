@@ -49,6 +49,7 @@ const AiAnalystCard = () => (
 			<ButtonInput
 				buttons={{
 					text: __('Review Recommendations', 'vulopilot'),
+					icon: 'eye',
 					onClick: () => {
 						window.location.href = ISSUES_TAB_URL;
 					},

@@ -552,6 +552,7 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 						<ButtonInput
 							buttons={{
 								text: __('Try again', 'vulopilot'),
+								icon: 'refresh',
 								color: 'border-red',
 								onClick: () => setStep('input'),
 							}}
@@ -563,6 +564,7 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 							<ButtonInput
 								buttons={{
 									text: __('Reject', 'vulopilot'),
+									icon: 'close',
 									color: 'border-red',
 									onClick: handleReject,
 									disabled: isBusy,

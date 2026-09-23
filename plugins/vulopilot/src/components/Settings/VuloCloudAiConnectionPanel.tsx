@@ -191,6 +191,7 @@ const VuloCloudAiConnectionPanel = () => {
 										text: isConnectingToVulocloud
 											? __('Connecting…', 'vulopilot')
 											: __('Connect to VuloCloud', 'vulopilot'),
+											icon: 'link',
 											color: 'orange-bg',
 										disabled: isConnectingToVulocloud,
 										onClick: handleConnectToVulocloud,
@@ -202,6 +203,7 @@ const VuloCloudAiConnectionPanel = () => {
 										text: isDisconnectingFromVulocloud
 											? __('Disconnecting…', 'vulopilot')
 											: __('Disconnect', 'vulopilot'),
+											icon: 'close',
 											color: 'text-red',
 										disabled: isDisconnectingFromVulocloud,
 										onClick: handleDisconnectFromVulocloud,

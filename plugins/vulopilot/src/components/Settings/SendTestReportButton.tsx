@@ -88,12 +88,12 @@ const SendTestReportButton = () => {
 	return (
 		<div className="send-test-report-button">
 			<div className="send-test-report-actions">
-				{!isPro && (
+				{/* {!isPro && (
 					<span className="admin-tag pro-tag pro-tag-inline">
 						<i className="adminfont-pro-tag" />
 						{__('Pro', 'vulopilot')}
 					</span>
-				)}
+				)} */}
 				<ButtonInput
 					wrapperClass="send-test-report-button-input"
 					position="left"

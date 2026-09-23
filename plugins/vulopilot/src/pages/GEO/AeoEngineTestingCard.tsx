@@ -97,7 +97,7 @@ const AeoEngineTestingCard = ({ isActive, pages }: AeoEngineTestingCardProps) =>
 				disabled
 			/>
 			<ButtonInput
-				buttons={{ text: __('Test this page', 'vulopilot'), disabled: true, onClick: () => {} }}
+				buttons={{ text: __('Test this page', 'vulopilot'), icon: 'search-discovery', disabled: true, onClick: () => {} }}
 			/>
 		</div>
 	);
@@ -137,6 +137,7 @@ const AeoEngineTestingCard = ({ isActive, pages }: AeoEngineTestingCardProps) =>
 								text: isRunning
 									? __('Testing…', 'vulopilot')
 									: __('Test this page', 'vulopilot'),
+								icon: 'search-discovery',
 								onClick: handleTest,
 								disabled: isRunning || !selectedPostId,
 							}}

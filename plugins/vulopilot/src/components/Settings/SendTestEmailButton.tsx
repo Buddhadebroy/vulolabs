@@ -86,6 +86,7 @@ const SendTestEmailButton = () => {
 						text: isSending
 							? __('Sending…', 'vulopilot')
 							: __('Send Test Email', 'vulopilot'),
+						icon: 'send',
 						disabled: isSending,
 						onClick: sendTestEmail,
 					}}

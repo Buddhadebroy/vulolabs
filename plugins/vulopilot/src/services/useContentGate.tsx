@@ -47,26 +47,25 @@ const DEFAULT_DUMMY_CONTENT = (
  * );
  * ```
  *
- * `wrap()` returns `realContent` unchanged once every check below passes;
- * otherwise renders a Pro/module tag row
- * (`.admin-tag.pro-tag`/`.admin-tag.module-tag`, same classes
- * InputRenderer.tsx's locked settings fields use) plus either
- * `realContent` blurred in place (VuloCloud) or `dummyContent`
- * (Pro/module) - two different lock treatments by design. Checked in
- * order VuloCloud → Pro → module; each gate's locked state
- * short-circuits the ones after it.
+ * `wrap()` returns `realContent` unchanged once every check below passes.
+ * VuloCloud and Pro both render through the same reusable
+ * `BlurredProContent`/`UpgradeToProOverlay` overlay card now
+ * (`icon`/`title`/`desc`/`buttonText` swapped per gate - see that
+ * component's own docblock) rather than each hand-rolling its own locked
+ * treatment; Module still gets its own `.admin-tag.module-tag` tag row +
+ * plain (unblurred) `dummyContent`, a genuinely different shape (no blur,
+ * no popup - a straight navigate). Checked in order VuloCloud → Pro →
+ * module; each gate's locked state short-circuits the ones after it.
  *
  * 1. **VuloCloud connection** (`useAiCredits()`'s `status.connected`) -
- *    `realContent` blurred underneath a clickable label opening
- *    `ConnectVuloCloudPromptContent` (the passwordless broker redirect
- *    every free AI surface uses).
+ *    `realContent` blurred behind the overlay card ("Connect to
+ *    VuloCloud" copy), opening `ConnectVuloCloudPromptContent` (the
+ *    passwordless broker redirect every free AI surface uses).
  * 2. **Pro** (`appLocalizer.khali_dabba` false) - `dummyContent` (or
- *    `DEFAULT_DUMMY_CONTENT` if omitted) rendered behind the shared
- *    blurred "Upgrade to Pro" overlay (`BlurredProContent`/
- *    `UpgradeToProOverlay`) plus `DummyDataNotice`. No separate
- *    `.admin-tag.pro-tag` here - the overlay text already says "Upgrade
- *    to Pro". Clicking opens the generic upgrade popup (`ShowProPopup`,
- *    no `moduleName`).
+ *    `DEFAULT_DUMMY_CONTENT` if omitted) blurred behind the same overlay
+ *    card (default "Upgrade to Pro" copy) plus `DummyDataNotice`.
+ *    Clicking opens the generic upgrade popup (`ShowProPopup`, no
+ *    `moduleName`).
  * 3. **Module** (`moduleId` missing from `appLocalizer.active_modules`) -
  *    same `dummyContent` treatment, tag shows the module's display name
  *    (Modules/index.ts catalog). Clicking skips the popup and navigates
@@ -129,25 +128,17 @@ export const useContentGate = (
 	// a real `<button disabled>` inside `dummyContent` (AiSpeedAssistantCard.tsx's
 	// own mock preview) never dispatches a click at all, so this tag can't
 	// rely on bubbling from there either; it needs one click target
-	// covering the entire section, not just this tag. Not called for
-	// 'pro' at all anymore - `BlurredProContent`'s own overlay already
-	// says "Upgrade to Pro" (see this hook's own docblock, gate 2).
+	// covering the entire section, not just this tag. Only ever called for
+	// 'module' now - 'pro'/'vulocloud' both render through
+	// `BlurredProContent`'s own overlay instead (see this hook's own
+	// docblock, gates 1-2).
 	const renderTag = (): ReactNode => {
-		if ('module' === gateReason && moduleId) {
-			const moduleName = MODULE_CATALOG_BY_ID.get(moduleId)?.name ?? moduleId;
-
-			return (
-				<span className="admin-tag module-tag">
-					<i className="adminfont-lock" />
-					{moduleName}
-				</span>
-			);
-		}
+		const moduleName = (moduleId && MODULE_CATALOG_BY_ID.get(moduleId)?.name) ?? moduleId ?? '';
 
 		return (
-			<span className="content-gate-vulocloud-label">
+			<span className="admin-tag module-tag">
 				<i className="adminfont-lock" />
-				{__('Connect to VuloCloud to use this', 'vulopilot')}
+				{moduleName}
 			</span>
 		);
 	};
@@ -157,29 +148,35 @@ export const useContentGate = (
 			return realContent;
 		}
 
-		const isVuloCloud = 'vulocloud' === gateReason;
 		const isPro = 'pro' === gateReason;
+		const isVuloCloud = 'vulocloud' === gateReason;
 
-		// 'pro' renders through `BlurredProContent` instead of this hook's
-		// own tag+click-overlay markup - that component owns its own
-		// blur-wrapper, "Upgrade to Pro" overlay, and whole-content click
-		// target already (see its own docblock), so duplicating
-		// `.content-gate-tag`/`.content-gate-click-overlay` around it here
-		// would just be a second, redundant click surface. 'vulocloud'/
-		// 'module' keep the original shape - genuinely different CTAs
-		// (blurred real content + "Connect to VuloCloud", vs. a straight
-		// navigate to Settings → Modules) that `BlurredProContent`'s own
-		// fixed "Upgrade to Pro" copy doesn't fit.
-		if (isPro) {
+		// 'pro'/'vulocloud' both render through the same reusable
+		// `BlurredProContent` overlay card now (icon/title/desc/buttonText
+		// swapped per gate - see UpgradeToProOverlay.tsx's own docblock),
+		// rather than 'vulocloud' hand-rolling a second, plainer
+		// tag+click-overlay version of the same "locked content" shape.
+		// 'module' keeps its own shape below - a straight navigate to
+		// Settings → Modules with no blur/popup, genuinely different from
+		// either (see this hook's own docblock, gate 3).
+		if (isPro || isVuloCloud) {
 			return (
 				<div className="content-gate">
 					<BlurredProContent
 						contentClassName="content-gate-dummy-content"
 						onClick={handleActivate}
+						icon={isVuloCloud ? 'cloud-upload purple' : undefined}
+						title={isVuloCloud ? __('Connect to VuloCloud', 'vulopilot') : undefined}
+						desc={
+							isVuloCloud
+								? __('Connect your account to see real, live data here.', 'vulopilot')
+								: undefined
+						}
+						buttonText={isVuloCloud ? __('Connect to VuloCloud', 'vulopilot') : undefined}
 					>
-						{dummyContent}
+						{isVuloCloud ? realContent : dummyContent}
 					</BlurredProContent>
-					<DummyDataNotice />
+					{!isVuloCloud && <DummyDataNotice />}
 					<PopupComponent
 						open={isPopupOpen}
 						onClose={() => setIsPopupOpen(false)}
@@ -187,7 +184,7 @@ export const useContentGate = (
 						height="auto"
 						position="lightbox"
 					>
-						<ShowProPopup />
+						{isVuloCloud ? <ConnectVuloCloudPromptContent /> : <ShowProPopup />}
 					</PopupComponent>
 				</div>
 			);
@@ -196,55 +193,29 @@ export const useContentGate = (
 		return (
 			<div className="content-gate">
 				<div className="content-gate-tag">{renderTag()}</div>
-				{/* VuloCloud: the real content itself, blurred in place.
-				 * Module: the caller's own dummy preview, plus the shared
+				{/* Module: the caller's own dummy preview, plus the shared
 				 * "This is dummy data" notice (DummyDataNotice) - per direct
 				 * instruction, every module-gated section showing fabricated
-				 * content gets this same notice. See this hook's own
-				 * docblock for why the two look different. */}
-				{isVuloCloud ? (
-					<div className="content-gate-blur-content" aria-hidden="true">
-						{realContent}
-					</div>
-				) : (
-					<>
-						{dummyContent}
-						<DummyDataNotice />
-					</>
-				)}
-				{/* Covers the whole section (tag + dummy/blurred content) so
-				 * a click anywhere within it activates - not just on the tag
-				 * itself. VuloCloud opens the popup; Module navigates
-				 * straight to Settings → Modules, highlighted (handleActivate
-				 * above). */}
+				 * content gets this same notice. */}
+				{dummyContent}
+				<DummyDataNotice />
+				{/* Covers the whole section (tag + dummy content) so a click
+				 * anywhere within it activates - not just on the tag itself.
+				 * Module navigates straight to Settings → Modules,
+				 * highlighted (handleActivate above); no popup for this
+				 * gate. */}
 				<div
 					className="content-gate-click-overlay"
 					role="button"
 					tabIndex={0}
-					aria-label={
-						isVuloCloud
-							? __('Connect to VuloCloud', 'vulopilot')
-							: sprintf(
-									/* translators: %s is the real module's own display name. */
-									__('Activate %s', 'vulopilot'),
-									MODULE_CATALOG_BY_ID.get(moduleId ?? '')?.name ?? moduleId ?? ''
-								)
-					}
+					aria-label={sprintf(
+						/* translators: %s is the real module's own display name. */
+						__('Activate %s', 'vulopilot'),
+						MODULE_CATALOG_BY_ID.get(moduleId ?? '')?.name ?? moduleId ?? ''
+					)}
 					onClick={handleActivate}
 					onKeyDown={handleSectionKeyDown}
 				/>
-				{/* Only 'vulocloud' ever sets isPopupOpen here - 'module'
-				 * navigates directly instead (handleActivate above). 'pro'
-				 * has its own PopupComponent above. */}
-				<PopupComponent
-					open={isPopupOpen}
-					onClose={() => setIsPopupOpen(false)}
-					width={31.25}
-					height="auto"
-					position="lightbox"
-				>
-					{isVuloCloud ? <ConnectVuloCloudPromptContent /> : <ShowProPopup />}
-				</PopupComponent>
 			</div>
 		);
 	};
