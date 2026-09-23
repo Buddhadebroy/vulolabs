@@ -11,6 +11,10 @@ export interface ModuleCatalogEntry {
 	proFeatures?: string[];
 	icon?: string;
 	settingsLink?: string;
+	/** Headline used by the generic "what Pro adds" popup (Popup.tsx's `proPopupContent`) - only set on modules that popup pitches; its presence, not `proModule`, is what selects a module into that list. */
+	popupTitle?: string;
+	/** Sentence shown under `popupTitle` in that same popup - independent copy, not derived from `proFeatures`. */
+	popupDesc?: string;
 }
 
 /** A category-pill-bar heading, not a real module - `type: 'separator'` is how ModuleGridComponent (zyra) tells the two apart in one flat array. */
@@ -38,6 +42,8 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
             settingsLink: '?page=vulopilot#&tab=settings&subtab=ai-visibility',
             name: __('GEO Analysis', 'vulopilot'),
             desc: __('Scans structure, entities, and machine-readability so AI models can understand your pages.', 'vulopilot'),
+            popupTitle: __('Show Up in AI Answers', 'vulopilot'),
+            popupDesc: __('Track GEO trends, schedule scans, fix issues in bulk with AI, and benchmark your site against competitors.', 'vulopilot'),
             proModule: false,
             category: 'ai-visibility',
             freeFeatures: [
@@ -59,6 +65,8 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
             settingsLink: '?page=vulopilot#&tab=settings&subtab=ai-visibility',
             name: __('Answer Engine Optimization', 'vulopilot'),
             desc: __('Detects FAQs, direct-answer structure, and question coverage - then helps you get cited by ChatGPT, Perplexity, Gemini, and Copilot.', 'vulopilot'),
+            popupTitle: __('Turn Content into Better Answers', 'vulopilot'),
+            popupDesc: __('Generate llms.txt, score citation potential, build AI-ready snippets, and test across ChatGPT, Perplexity, Gemini, and Copilot.', 'vulopilot'),
             proModule: false,
             category: 'ai-visibility',
             freeFeatures: [
@@ -80,6 +88,8 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
             settingsLink: '?page=vulopilot#&tab=settings&subtab=business-information',
             name: __('Knowledge Graph', 'vulopilot'),
             desc: __('Reads real people, organizations, products, services, and categories from your site and turns them into structured entities.', 'vulopilot'),
+            popupTitle: __('Make Your Business Clear to AI', 'vulopilot'),
+            popupDesc: __('Map relationships between your brand, people, products, and topics, enrich them with AI, and add custom schema.', 'vulopilot'),
             proModule: false,
             category: 'ai-visibility',
             miniModule: true,
@@ -100,6 +110,8 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
             settingsLink: '?page=vulopilot#&tab=settings&subtab=ai-visibility',
             name: __('AI Crawler Tracking', 'vulopilot'),
             desc: __('Tracks which AI bots - GPTBot, ClaudeBot, PerplexityBot, and others - are visiting your site, and what they\'re reading.', 'vulopilot'),
+            popupTitle: __('See How AI Bots Use Your Site', 'vulopilot'),
+            popupDesc: __('Keep 12 months of crawler history, catch unusual activity, and understand AI crawl-budget patterns.', 'vulopilot'),
             proModule: false,
             category: 'ai-visibility',
             miniModule: true,
@@ -123,6 +135,8 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
             settingsLink: '?page=vulopilot#&tab=settings&subtab=business-information',
             name: __('Brand Visibility', 'vulopilot'),
             desc: __('Organization & author schema, About-page completeness, and off-site mentions across the web.', 'vulopilot'),
+            popupTitle: __('See Where Your Brand Stands', 'vulopilot'),
+            popupDesc: __('Monitor off-site mentions, compare share of voice, and benchmark competitors through your connected Ahrefs account.', 'vulopilot'),
             proModule: false,
             category: 'brand-visibility',
             miniModule: true,
@@ -146,6 +160,8 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
             settingsLink: '?page=vulopilot#&tab=settings&subtab=seo-content',
             name: __('Technical SEO', 'vulopilot'),
             desc: __('Titles, meta, canonical, schema, internal links, sitemap, and robots.txt checks.', 'vulopilot'),
+            popupTitle: __('Catch SEO Problems Site-Wide', 'vulopilot'),
+            popupDesc: __('Find keyword cannibalization, validate structured data across your site, and auto-fix supported SEO issues.', 'vulopilot'),
             proModule: false,
             category: 'seo-content',
             miniModule: true,
@@ -166,6 +182,8 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
             settingsLink: '?page=vulopilot#&tab=content',
             name: __('Content Optimization', 'vulopilot'),
             desc: __('Readability, thin/duplicate content, and freshness flags - plus AI-assisted rewriting.', 'vulopilot'),
+            popupTitle: __('Create What Your Site Is Missing', 'vulopilot'),
+            popupDesc: __('Generate new content, rewrite or expand existing pages, build topic clusters, and uncover competitor content gaps.', 'vulopilot'),
             proModule: false,
             category: 'seo-content',
             miniModule: true,
@@ -201,6 +219,8 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
             settingsLink: '?page=vulopilot#&tab=seo-visibility&subtab=keywords',
             name: __('Keyword Rank Tracking', 'vulopilot'),
             desc: __('Real, synced Google Search Console rank tracking - positions, impressions, clicks, and keyword groups, tracked over time.', 'vulopilot'),
+            popupTitle: __('Know What’s Rising and Dropping', 'vulopilot'),
+            popupDesc: __('Track Search Console rankings, position history, trends, keyword groups, and your best opportunities.', 'vulopilot'),
             proModule: true,
             category: 'seo-content',
             miniModule: true,
@@ -220,6 +240,8 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
             settingsLink: '?page=vulopilot#&tab=performance',
             name: __('Core Web Vitals', 'vulopilot'),
             desc: __('Core Web Vitals, database health, and autoload size checks.', 'vulopilot'),
+            popupTitle: __('Keep Your Site Fast', 'vulopilot'),
+            popupDesc: __('Track performance trends, schedule audits, and get AI-generated optimization suggestions.', 'vulopilot'),
             proModule: false,
             category: 'site-health',
             miniModule: true,
@@ -245,6 +267,8 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
             settingsLink: '?page=vulopilot#&tab=settings&subtab=accessibility',
             name: __('Accessibility Checks', 'vulopilot'),
             desc: __('WCAG checks - alt text, headings, ARIA, and form labels.', 'vulopilot'),
+            popupTitle: __('Fix Accessibility at Scale', 'vulopilot'),
+            popupDesc: __('Bulk-fix supported accessibility issues, schedule audits, and track compliance history.', 'vulopilot'),
             proModule: false,
             category: 'site-health',
             miniModule: true,
@@ -265,6 +289,8 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
             settingsLink: '?page=vulopilot#&tab=settings&subtab=security-scanning',
             name: __('Website Security', 'vulopilot'),
             desc: __('Weak passwords, basic vulnerabilities, core file integrity, and update checks.', 'vulopilot'),
+            popupTitle: __('Catch Security Risks Early', 'vulopilot'),
+            popupDesc: __('Schedule security scans, monitor live CVEs and plugin/theme integrity, and get alerts and incident reports.', 'vulopilot'),
             proModule: false,
             category: 'site-health',
             miniModule: true,
@@ -308,6 +334,8 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
             settingsLink: '?page=vulopilot#&tab=automations',
             name: __('Workflow Automation', 'vulopilot'),
             desc: __('Triggers, conditions, schedules, and workflows that react to scan findings automatically.', 'vulopilot'),
+            popupTitle: __('Put Your Website to Work Automatically', 'vulopilot'),
+            popupDesc: __('Auto-fix supported issues, generate or refresh content, schedule scans, and trigger actions when VuloPilot finds something that needs attention.', 'vulopilot'),
             proModule: false,
             category: 'automation-ai',
             miniModule: true,
@@ -330,6 +358,8 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
             settingsLink: '?page=vulopilot#&tab=commerce',
             name: __('WooCommerce Analytics', 'vulopilot'),
             desc: __('Store health, product/checkout/order insights, revenue reports, and AI-powered sales optimization for WooCommerce.', 'vulopilot'),
+            popupTitle: __('Find More Store Opportunities', 'vulopilot'),
+            popupDesc: __('Track store health, categories, revenue, and sales trends, with AI-powered cross-sell and upsell suggestions.', 'vulopilot'),
             proModule: true,
             category: 'commerce',
             miniModule: true,

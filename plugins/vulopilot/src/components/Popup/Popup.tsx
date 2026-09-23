@@ -134,22 +134,36 @@ const resolveModuleIcon = (moduleId: string): string =>
 /**
  * The generic "what Pro adds" pitch's feature list - derived straight from
  * ../Modules/index.ts's own catalog (the real Settings → Modules page data,
- * already kept in sync with the backend's real module ids/proFeatures)
- * rather than a second, separately hand-maintained copy of the same
- * information. That second copy is what used to live here: an 11-entry
- * array of module names/blurbs, manually kept in sync "by hand" per its own
- * former docblock - the exact kind of duplicated, hardcoded module list
- * this repo's module-architecture.md and this refactor both ask to avoid.
+ * already kept in sync with the backend's real module ids) rather than a
+ * second, separately hand-maintained copy of the same information. That
+ * second copy is what used to live here: an 11-entry array of module
+ * names/blurbs, manually kept in sync "by hand" per its own former
+ * docblock - the exact kind of duplicated, hardcoded module list this
+ * repo's module-architecture.md and this refactor both ask to avoid.
+ *
+ * Selected by `popupTitle` presence rather than `proModule` - this pitch is
+ * "what Pro unlocks in this module" (marketing copy, one bullet per module
+ * that has any Pro upsell), not "modules that are entirely Pro-only".
+ * `Advanced Reports` has no Settings → Modules catalog entry of its own
+ * (it's cardless, same as CARDLESS_MODULE_ICONS above already accounts for)
+ * so it's appended by hand instead of coming from the map/filter below.
  */
 const proPopupContent = {
-	messages: MODULES_CATALOG.modules
-		.filter(isModuleCatalogEntry)
-		.filter((module) => module.proModule)
-		.map((module) => ({
-			icon: resolveModuleIcon(module.id),
-			text: module.name,
-			des: (module.proFeatures ?? []).join(', '),
-		})),
+	messages: [
+		...MODULES_CATALOG.modules
+			.filter(isModuleCatalogEntry)
+			.filter((module) => module.popupTitle)
+			.map((module) => ({
+				icon: resolveModuleIcon(module.id),
+				text: `${module.popupTitle} · ${module.name}`,
+				des: module.popupDesc ?? '',
+			})),
+		{
+			icon: resolveModuleIcon('advanced-reports'),
+			text: `${__('See What’s Actually Improving', 'vulopilot')} · ${__('Advanced Reports', 'vulopilot')}`,
+			des: __('Bring your results together to track progress, spot changes, and share clear reports with your team or clients.', 'vulopilot'),
+		},
+	],
 };
 
 const ShowProPopup: React.FC<PopupProps> = (props) => {
