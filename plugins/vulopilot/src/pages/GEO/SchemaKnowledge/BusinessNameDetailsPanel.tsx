@@ -216,6 +216,7 @@ const BusinessNameDetailsPanel = ({
 											<ButtonInput
 												buttons={{
 													text: __('View Details', 'vulopilot'),
+													icon: 'external',
 													color: 'border-purple',
 													onClick: () =>
 														window.open(source.url as string, '_blank'),

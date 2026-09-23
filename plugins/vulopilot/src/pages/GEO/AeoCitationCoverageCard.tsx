@@ -135,6 +135,7 @@ const AeoCitationCoverageCard = ({ isActive }: AeoCitationCoverageCardProps) => 
 									: coverage?.generated_at
 										? __('Run again', 'vulopilot')
 										: __('Run check', 'vulopilot'),
+								icon: 'refresh',
 								onClick: handleRun,
 								disabled: isRunning,
 							}}

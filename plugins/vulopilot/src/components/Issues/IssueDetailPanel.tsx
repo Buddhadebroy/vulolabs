@@ -598,21 +598,6 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				title={group.label}
 				titleIcon="error"
 				desc={group.sample?.title}
-				action={
-					<i
-						className="adminfont-close"
-						role="button"
-						tabIndex={0}
-						aria-label={__('Close', 'vulopilot')}
-						onClick={onClose}
-						onKeyDown={(e) => {
-							if ('Enter' === e.key || ' ' === e.key) {
-								e.preventDefault();
-								onClose();
-							}
-						}}
-					/>
-				}
 			>
 				<div className="issue-detail-badges-row">
 					<BadgeComponent
@@ -900,16 +885,9 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 						position="full-width"
 						buttons={[
 							{
-								text: __('Upgrade to Pro', 'vulopilot'),
+								text: __('Unlock to pro see details', 'vulopilot'),
 								icon: 'pro-tag',
-								color: 'orange-bg',
 								onClick: () => setIsDetailProPopupOpen(true),
-							},
-							{
-								text: __('Unlock fix details', 'vulopilot'),
-								icon: 'lock',
-								color: 'border-purple',
-								onClick: () => setIsProPopupOpen(true),
 							},
 						]}
 					/>

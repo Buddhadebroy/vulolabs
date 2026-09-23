@@ -71,7 +71,7 @@ const AiSpeedAssistantCard = ({ onReviewIssues }: AiSpeedAssistantCardProps) => 
 			/>
 			<ButtonInput
 				position="full-width"
-				buttons={{ text: __('Review First', 'vulopilot'), color: 'border-purple', disabled: true, onClick: () => {} }}
+				buttons={{ text: __('Review First', 'vulopilot'), icon: 'eye', color: 'border-purple', disabled: true, onClick: () => {} }}
 			/>
 		</>
 	);
@@ -125,6 +125,7 @@ const AiSpeedAssistantCard = ({ onReviewIssues }: AiSpeedAssistantCardProps) => 
 						position="full-width"
 						buttons={{
 							text: __('Review First', 'vulopilot'),
+							icon: 'eye',
 							color: 'border-purple',
 							onClick: onReviewIssues,
 						}}

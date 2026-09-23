@@ -5,7 +5,6 @@ import { CardComponent, ListComponent, NoticeManager, PopupComponent } from '@zy
 import { ButtonInput } from '@zyra/inputs';
 import ContentToolPopup from './ContentToolPopup';
 import { ContentTool } from './ContentToolsGrid';
-import ConnectVuloCloudPopup from '../../components/AiCredits/ConnectVuloCloudPopup';
 import ShowProPopup from '../../components/Popup/Popup';
 import { useAiCredits } from '../../services/useAiCredits';
 import { useContentToolsEnabled } from '../../services/useContentToolsEnabled';
@@ -20,7 +19,7 @@ import { useContentToolsEnabled } from '../../services/useContentToolsEnabled';
  * - "AI Content Audit" (`audit-content`, free) - an AI-generated
  *   score/summary/suggestions verdict for one existing post, saved as
  *   postmeta. Stays free - gated only on a connected VuloCloud AI account
- *   (ConnectVuloCloudPopup/useAiCredits), same treatment
+ *   (`ShowProPopup vulocloud`/useAiCredits), same treatment
  *   ContentToolsGrid.tsx's own free tiles (AI Writer, Blog Generator,
  *   Duplicate Content) get. Unrelated to (and doesn't replace)
  *   RecentContentCard.tsx's own rule-based scanner findings, which this row
@@ -47,7 +46,7 @@ import { useContentToolsEnabled } from '../../services/useContentToolsEnabled';
  * Same free/Pro split mechanics as ContentToolsGrid.tsx's own
  * `handleToolClick()` - see that file's own top docblock for the full
  * reasoning this mirrors: a free tool with no AI service connected opens
- * ConnectVuloCloudPopup immediately; a Pro tool with `content-tools`
+ * `ShowProPopup vulocloud` immediately; a Pro tool with `content-tools`
  * inactive opens ShowProPopup immediately; either way instead of letting
  * ContentToolPopup's own form open first.
  */
@@ -202,10 +201,15 @@ const QuickActionsCard = () => {
 				}}
 			/>
 			<ContentToolPopup tool={activeTool} onClose={() => setActiveTool(null)} />
-			<ConnectVuloCloudPopup
+			<PopupComponent
 				open={isCloudConnectPromptOpen}
 				onClose={() => setIsCloudConnectPromptOpen(false)}
-			/>
+				width={22}
+				height="auto"
+				position="lightbox"
+			>
+				<ShowProPopup vulocloud />
+			</PopupComponent>
 			<PopupComponent
 				open={isProLocked}
 				onClose={dismissProLocked}

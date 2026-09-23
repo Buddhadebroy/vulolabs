@@ -4,7 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { NoticeComponent, PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useAiCredits } from '../../services/useAiCredits';
-import { ConnectVuloCloudPromptContent } from './ConnectVuloCloudPopup';
+import { VuloCloudInlineNotice } from '../Popup/Popup';
 import './AiCreditsIndicator.scss';
 
 /**
@@ -74,14 +74,14 @@ const AiCreditsIndicator = () => {
 				) : (
 					// Same one real "Connect to VuloCloud" component every
 					// other real caller of this flow now shares
-					// (ConnectVuloCloudPopup.tsx's own docblock) - this
-					// already renders its own title/desc/button, so there's
-					// no separate footer button to duplicate here anymore
-					// (the previous footer button rendered unconditionally,
-					// even in the `status.connected` branch above, where a
-					// "Connect to VuloCloud" action made no sense - a real
-					// bug this consolidation also fixes).
-					<ConnectVuloCloudPromptContent variant="inline-notice" />
+					// (Popup.tsx's own docblock) - this already renders its
+					// own title/desc/button, so there's no separate footer
+					// button to duplicate here anymore (the previous footer
+					// button rendered unconditionally, even in the
+					// `status.connected` branch above, where a "Connect to
+					// VuloCloud" action made no sense - a real bug this
+					// consolidation also fixed).
+					<VuloCloudInlineNotice />
 				)}
 			</PopupComponent>
 		</div>

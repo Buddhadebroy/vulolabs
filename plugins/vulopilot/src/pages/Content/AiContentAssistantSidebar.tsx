@@ -3,9 +3,9 @@ import { useState } from 'react';
 import axios from 'axios';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink } from '@zyra/core';
-import { NoticeManager } from '@zyra/components';
+import { NoticeManager, PopupComponent } from '@zyra/components';
 import { ChatInput, AiChatCard, CopilotTurnBubble } from '../../components/ChatComposerCard';
-import ConnectVuloCloudPopup from '../../components/AiCredits/ConnectVuloCloudPopup';
+import ShowProPopup from '../../components/Popup/Popup';
 import { useAiCredits } from '../../services/useAiCredits';
 
 interface ChatLink {
@@ -116,7 +116,7 @@ const PROMPT_CHIPS: PromptChip[] = [
  * for real once this site is connected (`AiCreditsConnection::is_connected()`,
  * Settings → Connections); when it isn't, `sendToAi()` below recognizes that exact
  * real "No AI connection is configured." condition and opens
- * ConnectVuloCloudPopup - the same real free "Connect to VuloCloud/Claim
+ * `ShowProPopup vulocloud` - the same real free "Connect to VuloCloud/Claim
  * free AI Credits" flow AiCreditsIndicator.tsx's own dropdown already
  * offers - instead of a dead-end NoticeManager error toast. Every other
  * real error (a safety-validator rejection, a provider's own failure)
@@ -144,7 +144,7 @@ const AiContentAssistantSidebar = () => {
 	// Set the moment a chip is picked; cleared once the user's next message
 	// has been folded into that chip's own build() and sent for real.
 	const [pendingChip, setPendingChip] = useState<PromptChip | null>(null);
-	/** True right after a real send failed specifically because no AI service (BYOK or VuloCloud) is configured, OR a chip/send was blocked up front because `creditsStatus` already showed nobody's connected (see `handleChipClick()`/`handleSend()` below) - shows ConnectVuloCloudPopup, the same real free "Connect to VuloCloud"/"Claim free AI Credits" flow AiCreditsIndicator.tsx's own dropdown already offers, instead of a dead-end error notice. */
+	/** True right after a real send failed specifically because no AI service (BYOK or VuloCloud) is configured, OR a chip/send was blocked up front because `creditsStatus` already showed nobody's connected (see `handleChipClick()`/`handleSend()` below) - shows `ShowProPopup vulocloud`, the same real free "Connect to VuloCloud"/"Claim free AI Credits" flow AiCreditsIndicator.tsx's own dropdown already offers, instead of a dead-end error notice. */
 	const [isCloudConnectPromptOpen, setIsCloudConnectPromptOpen] = useState(false);
 	const { status: creditsStatus } = useAiCredits();
 
@@ -218,7 +218,7 @@ const AiContentAssistantSidebar = () => {
 	 * direct instruction ("when click work on description then the
 	 * connect popup show, not functionality work until the account is
 	 * connected"): picking a chip with no AI service connected opens
-	 * ConnectVuloCloudPopup immediately, rather than walking through a
+	 * `ShowProPopup vulocloud` immediately, rather than walking through a
 	 * question the eventual real send would just fail on anyway.
 	 */
 	const handleChipClick = (chip: PromptChip) => {
@@ -340,10 +340,15 @@ const AiContentAssistantSidebar = () => {
 					/>
 				}
 			/>
-			<ConnectVuloCloudPopup
+			<PopupComponent
 				open={isCloudConnectPromptOpen}
 				onClose={() => setIsCloudConnectPromptOpen(false)}
-			/>
+				width={22}
+				height="auto"
+				position="lightbox"
+			>
+				<ShowProPopup vulocloud />
+			</PopupComponent>
 		</>
 	);
 };

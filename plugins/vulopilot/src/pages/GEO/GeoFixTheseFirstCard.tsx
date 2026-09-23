@@ -81,6 +81,7 @@ const GeoFixTheseFirstCard = ({
 				<ButtonInput
 					buttons={{
 						text: `${__('View all', 'vulopilot')} ›`,
+						icon: 'eye',
 						color: 'text-purple',
 						onClick: onViewAll,
 					}}
@@ -114,6 +115,7 @@ const GeoFixTheseFirstCard = ({
 							<ButtonInput
 								buttons={{
 									text: __('View', 'vulopilot'),
+									icon: 'eye',
 									color: 'text-purple',
 									onClick: () => onSelectScanner(group.scanner_id),
 								}}

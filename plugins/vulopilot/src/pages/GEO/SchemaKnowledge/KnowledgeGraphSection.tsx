@@ -216,6 +216,7 @@ const EntityDetailContent = ({
 							__('+ %d more', 'vulopilot'),
 							remaining
 						),
+						icon: 'plus',
 						color: 'text-purple',
 						onClick: () => setExpanded(true),
 					}}
@@ -226,6 +227,7 @@ const EntityDetailContent = ({
 					position="left"
 					buttons={{
 						text: __('Show less', 'vulopilot'),
+						icon: 'eye-blocked',
 						color: 'text-purple',
 						onClick: () => setExpanded(false),
 					}}

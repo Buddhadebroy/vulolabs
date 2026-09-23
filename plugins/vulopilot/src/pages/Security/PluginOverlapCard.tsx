@@ -94,6 +94,7 @@ const PluginOverlapCard = ({ category }: PluginOverlapCardProps) => {
 							<ButtonInput
 								buttons={{
 									text: __('View in VuloPilot ', 'vulopilot'),
+									icon: 'eye',
 									color: 'text-purple',
 									onClick: () =>
 										window.open(

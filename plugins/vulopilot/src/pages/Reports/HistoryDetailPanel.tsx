@@ -346,6 +346,7 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 									<ButtonInput
 										buttons={{
 											text: __('View', 'vulopilot'),
+											icon: 'eye',
 											color: 'text-purple',
 											onClick: () => window.open(page.edit_link, '_blank', 'noopener,noreferrer'),
 										}}
@@ -382,6 +383,7 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 										<ButtonInput
 											buttons={{
 												text: __('View', 'vulopilot'),
+												icon: 'eye',
 												color: 'text-purple',
 												onClick: () => window.open(page.edit_link, '_blank', 'noopener,noreferrer'),
 											}}

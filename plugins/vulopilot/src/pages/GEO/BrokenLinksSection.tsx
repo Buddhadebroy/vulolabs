@@ -1382,7 +1382,8 @@ const BrokenLinksSection = () => {
 						<ButtonInput
 							buttons={{
 								text: __('Cancel', 'vulopilot'),
-								color: 'plain',
+								icon: 'close',
+								color: 'red',
 								onClick: closeRedirectPopup,
 							}}
 						/>
@@ -1391,6 +1392,7 @@ const BrokenLinksSection = () => {
 								text: isSavingRedirect
 									? __('Creating…', 'vulopilot')
 									: __('Create redirect', 'vulopilot'),
+								icon: 'plus',
 								onClick: handleCreateRedirect,
 								disabled:
 									isSavingRedirect || '' === redirectTargetUrl.trim(),
@@ -1418,6 +1420,7 @@ const BrokenLinksSection = () => {
 							buttons={[
 								{
 									text: __('Cancel', 'vulopilot'),
+									icon: 'close',
 									color: 'border-red',
 									onClick: closeFixPopup,
 								},
@@ -1425,6 +1428,7 @@ const BrokenLinksSection = () => {
 									text: isSavingFixUrl
 										? __('Saving…', 'vulopilot')
 										: __('Save', 'vulopilot'),
+									icon: 'save',
 									onClick: handleSaveFixUrl,
 									disabled: isSavingFixUrl || '' === fixNewUrl.trim(),
 								},

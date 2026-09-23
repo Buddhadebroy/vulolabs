@@ -775,6 +775,7 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 						<ButtonInput
 							buttons={{
 								text: __('Cancel', 'vulopilot'),
+								icon: 'close',
 								color: 'border-purple',
 								onClick: () => {
 									setRestoreTarget(null);
@@ -787,6 +788,7 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 								text: isRestoring
 									? __('Restoring…', 'vulopilot')
 									: __('Restore', 'vulopilot'),
+								icon: 'undo',
 								onClick: handleRestoreConfirmed,
 								disabled:
 									isRestoring ||

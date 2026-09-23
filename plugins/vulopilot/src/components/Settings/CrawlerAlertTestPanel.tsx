@@ -89,6 +89,7 @@ const CrawlerAlertTestPanel = () => {
 					text: isSending
 						? __('Sending…', 'vulopilot')
 						: __('Send Test Alert', 'vulopilot'),
+					icon: 'send',
 					disabled: isSending,
 					onClick: sendTestAlert,
 				}}

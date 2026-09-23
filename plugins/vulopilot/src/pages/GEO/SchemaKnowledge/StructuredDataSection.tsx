@@ -178,6 +178,12 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 		});
 	}, [snapshot]);
 
+	/** Shared by the row click and the action cell's own "More Details"/"Showing" button - same real toggle the other issues tables in this plugin already use, scrolling the detail panel into view on every select. */
+	const handleSelectRow = (row: SchemaCoverageRow) => {
+		setSelectedRow(row);
+		scrollToId('structured-data-detail-panel');
+	};
+
 	// Real open schema findings, fetched once - matched to each selected
 	// type's own pages below (a finding is scoped to a page, not a @type).
 	const [schemaFindings, setSchemaFindings] = useState<RawFinding[]>([]);
@@ -290,10 +296,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 													// IssuesList.tsx's own identical toggle
 													// uses) - harmless when it's already open,
 													// necessary when it isn't yet visible.
-													onClick: (row: SchemaCoverageRow) => {
-														setSelectedRow(row);
-														scrollToId('structured-data-detail-panel');
-													},
+													onClick: handleSelectRow,
 												},
 											],
 										},
@@ -311,6 +314,13 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 									ids={snapshot.coverage.map((row) => row.type)}
 									totalRows={snapshot.coverage.length}
 									isLoading={isLoading}
+									activeRowId={selectedRow?.type}
+									// A click anywhere on the row now opens the
+									// detail panel too, not just the action
+									// cell's own small "More Details" button.
+									onRowClick={(row: Record<string, unknown>) =>
+										handleSelectRow(row as unknown as SchemaCoverageRow)
+									}
 									emptyMessage={__(
 										'No structured data (JSON-LD) was found on any sampled page.',
 										'vulopilot'

@@ -295,6 +295,7 @@ const IndexNowPanel = () => {
 							text: isSubmitting
 								? __('Submitting…', 'vulopilot')
 								: __('Submit URLs', 'vulopilot'),
+							icon: 'send',
 							onClick: handleSubmitUrls,
 							disabled: isSubmitting,
 						}}
@@ -326,6 +327,7 @@ const IndexNowPanel = () => {
 					<ButtonInput
 						buttons={{
 							text: __('Response code help', 'vulopilot'),
+							icon: 'question',
 							color: 'text-purple',
 							onClick: () => setShowResponseHelp(!showResponseHelp),
 						}}

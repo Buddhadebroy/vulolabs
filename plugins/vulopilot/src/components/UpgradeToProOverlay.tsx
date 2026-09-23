@@ -2,6 +2,18 @@ import type { ReactNode } from 'react';
 import { __ } from '@wordpress/i18n';
 import './UpgradeToProOverlay.scss';
 
+/** Every prop here defaults to the original "Upgrade to Pro" copy, so every
+ * existing call site keeps rendering exactly what it did before - passing
+ * `icon`/`title`/`desc`/`buttonText` explicitly (see `useContentGate.tsx`'s
+ * own "Connect to VuloCloud" gate) is what makes this the same reusable
+ * "locked content" card for a different real CTA, not a new component. */
+interface OverlayCopy {
+	icon?: string;
+	title?: string;
+	desc?: string;
+	buttonText?: string;
+}
+
 /**
  * The "Upgrade to Pro" card floating over a dummy card's own blurred
  * content - originally one-off markup `BrandVisibilityProDummies.tsx`'s
@@ -10,9 +22,19 @@ import './UpgradeToProOverlay.scss';
  * content behind a click-through popup" card across the plugin (dashboard
  * widgets, Automations, Brand Visibility, …) renders the exact same
  * overlay (icon/title/desc/button, `upgrade-to-pro.png` background)
- * instead of each hand-rolling its own copy.
+ * instead of each hand-rolling its own copy - and, via `icon`/`title`/
+ * `desc`/`buttonText`, the same real "locked content" card `useContentGate.tsx`'s
+ * own VuloCloud gate now reuses too (`isVuloCloud` there passes "Connect to
+ * VuloCloud" copy through the same `BlurredProContent` below rather than a
+ * second, hand-rolled overlay).
  */
-export const UpgradeToProOverlay = ({ onClick }: { onClick?: () => void }) => (
+export const UpgradeToProOverlay = ({
+	onClick,
+	icon = 'lock purple',
+	title = __('Upgrade to Pro', 'vulopilot'),
+	desc = __('Unlock the full VuloPilot toolkit', 'vulopilot'),
+	buttonText = __('Upgrade to pro', 'vulopilot'),
+}: { onClick?: () => void } & OverlayCopy) => (
 	// The overlay sits on top of (z-index above) the blurred content, so a
 	// click on it never reaches that content's own onClick - it has to
 	// carry the same handler itself, or the "Upgrade to Pro" card is inert.
@@ -35,9 +57,9 @@ export const UpgradeToProOverlay = ({ onClick }: { onClick?: () => void }) => (
 		<div
 			className="pro-section"
 		>
-			<i className="adminfont-lock purple"></i>
-			<div className="title">{__('Upgrade to Pro', 'vulopilot')}</div>
-			<span>{__('Unlock the full VuloPilot toolkit', 'vulopilot')}</span>
+			<i className={`adminfont-${icon}`}></i>
+			<div className="title">{title}</div>
+			<span>{desc}</span>
 			<div
 				className="admin-btn btn-purple-bg"
 				role={onClick ? 'button' : undefined}
@@ -49,7 +71,7 @@ export const UpgradeToProOverlay = ({ onClick }: { onClick?: () => void }) => (
 					}
 				}}
 			>
-				{__('Upgrade to pro', 'vulopilot')}
+				{buttonText}
 			</div>
 		</div>
 	</div>
@@ -70,14 +92,15 @@ export const BlurredProContent = ({
 	contentClassName,
 	onClick,
 	children,
+	...overlayCopy
 }: {
 	/** This dummy's own content class (e.g. `health-timeline-dummy`) - `blur-wrapper-content` is appended automatically. */
 	contentClassName: string;
 	onClick: () => void;
 	children: ReactNode;
-}) => (
+} & OverlayCopy) => (
 	<div className="blur-wrapper">
-		<UpgradeToProOverlay onClick={onClick} />
+		<UpgradeToProOverlay onClick={onClick} {...overlayCopy} />
 		<div
 			className={`${contentClassName} blur-wrapper-content`}
 			role="button"

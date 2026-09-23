@@ -1,13 +1,32 @@
 /* global appLocalizer */
 import React from 'react';
 import { ButtonInput } from '@zyra/inputs';
+import { NoticeComponent } from '@zyra/components';
 import { __, sprintf } from '@wordpress/i18n';
 import MODULES_CATALOG, { isModuleCatalogEntry } from '../Modules';
+import { useConnectVuloCloud } from '../../services/useConnectVuloCloud';
 import '../Popup/Popup.scss';
 
 interface PopupProps {
 	moduleName?: string;
 	plugin?: string;
+	/**
+	 * "Connect to VuloCloud / claim free AI credits" - same real
+	 * `.popup-wrapper` shape (icon header, title, desc, one centered action)
+	 * the `moduleName`/`plugin` branches below already render, replacing
+	 * the former standalone `ConnectVuloCloudPopup.tsx` (deleted - this was
+	 * its only real consumer's own shape, folded in here per direct
+	 * instruction rather than kept as a second, differently-styled popup).
+	 * Every real call site now wraps this the exact same way it already
+	 * wraps `<ShowProPopup moduleName="..." />` - its own `PopupComponent`,
+	 * not a self-contained wrapper - so this stays a dumb content component
+	 * consistent with every other branch here, with no internal
+	 * already-connected guard of its own (unlike the deleted component,
+	 * which special-cased that) - simplest fix is on the caller's own
+	 * `isCloudConnectPromptOpen` state where relevant, matching how the
+	 * `moduleName`/`plugin` branches never guard on their own state either.
+	 */
+	vulocloud?: boolean;
 
 	/**
 	 * Renders a plain yes/no confirmation instead of the module/plugin/
@@ -134,6 +153,11 @@ const proPopupContent = {
 };
 
 const ShowProPopup: React.FC<PopupProps> = (props) => {
+	// Called unconditionally (rules of hooks) - only actually used by the
+	// `vulocloud` branch below, but every other branch here returns early
+	// before reaching it either way.
+	const { isConnecting, handleConnect } = useConnectVuloCloud();
+
 	if (props.confirmMode) {
 		return (
 			<div className="popup-confirm">
@@ -195,6 +219,40 @@ const ShowProPopup: React.FC<PopupProps> = (props) => {
 										'_blank'
 									);
 								},
+							},
+						]}
+					/>
+				</div>
+			</div>
+		);
+	}
+
+	if (props.vulocloud) {
+		return (
+			<div className="popup-wrapper">
+				<div className="popup-header">
+					<i className="adminfont-lock" />
+				</div>
+				<div className="popup-body">
+					<div className="module-name">
+						{__('Connect to VuloCloud', 'vulopilot')}
+					</div>
+					<div className="module-desc">
+						{__(
+							'Claim 100 Free AI Credits - no credit card required - to use this feature.',
+							'vulopilot'
+						)}
+					</div>
+					<ButtonInput
+						position="center"
+						buttons={[
+							{
+								icon: 'link',
+								text: isConnecting
+									? __('Connecting…', 'vulopilot')
+									: __('Connect to VuloCloud', 'vulopilot'),
+								disabled: isConnecting,
+								onClick: handleConnect,
 							},
 						]}
 					/>
@@ -317,3 +375,38 @@ const ShowProPopup: React.FC<PopupProps> = (props) => {
 };
 
 export default ShowProPopup;
+
+/**
+ * "Connect to VuloCloud / claim free AI credits", as a `NoticeComponent`
+ * instead of `ShowProPopup vulocloud`'s own full `.popup-wrapper` chrome -
+ * for a caller embedding this inside a popup that already has its own
+ * header (ContentToolPopup.tsx's own `PopupComponent`
+ * `header={{title, icon, description}}`, AiCreditsIndicator.tsx's own
+ * credit-balance popup), where a second full icon/title header would
+ * duplicate that chrome rather than reading as one real message. Same real
+ * passwordless broker redirect (`useConnectVuloCloud.ts`) `ShowProPopup`'s
+ * own `vulocloud` branch above uses - replaces the former
+ * `ConnectVuloCloudPromptContent`'s own `variant="inline-notice"` case
+ * (`ConnectVuloCloudPopup.tsx`, deleted).
+ */
+export const VuloCloudInlineNotice = () => {
+	const { isConnecting, handleConnect } = useConnectVuloCloud();
+
+	return (
+		<NoticeComponent
+			displayPosition="inline-notice"
+			type="info"
+			title={__('Connect to VuloCloud', 'vulopilot')}
+			message={__(
+				'Claim 100 Free AI Credits - no credit card required - to use this feature.',
+				'vulopilot'
+			)}
+			actionLabel={
+				isConnecting
+					? __('Connecting…', 'vulopilot')
+					: __('Connect to VuloCloud', 'vulopilot')
+			}
+			onAction={handleConnect}
+		/>
+	);
+};

@@ -88,6 +88,7 @@ export default {
             type: 'section',
             icon: 'person',
             title: __('Competitors', 'vulopilot'),
+            className: 'full-width',
             desc: __(
                 'Used to calculate Share of Voice on the Brand Visibility page.',
                 'vulopilot'
