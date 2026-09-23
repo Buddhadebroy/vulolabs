@@ -483,7 +483,7 @@ const SecurityPanel = () => {
 					<SectionComponent
 						icon="view-files"
 						title={__('Security Monitoring', 'vulopilot')}
-						desc={__('Ongoing monitoring beyond a single scan run.', 'vulopilot')}
+						desc={__('Keeps watching for threats continuously, instead of only when you run a scan manually.', 'vulopilot')}
 					/>
 				</div>
 				<div className="settings-right-section">

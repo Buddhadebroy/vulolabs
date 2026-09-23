@@ -316,7 +316,7 @@ export default {
 			icon: 'mail',
 			title: __('Notification channels', 'vulopilot'),
 			desc: __(
-				'Select how you want to receive notifications for all alert types below.',
+				'Choose how you want to receive notifications for all alert types below — by email, inside your WordPress dashboard, or both.',
 				'vulopilot'
 			),
 		},
@@ -344,7 +344,7 @@ export default {
 			icon: 'setting',
 			title: __('AI Crawler Alerts', 'vulopilot'),
 			desc: __(
-				'Get notified when AI crawlers are blocked, limited, or stop visiting your website.',
+				'Get notified when AI crawlers (like GPTBot or ClaudeBot) are blocked, limited, or stop visiting your website — so you know if AI systems are losing access to your content.',
 				'vulopilot'
 			),
 		},
@@ -362,7 +362,7 @@ export default {
 			icon: 'setting',
 			title: __('Security Alerts', 'vulopilot'),
 			desc: __(
-				'Get notified about security risks and suspicious activity on your website.',
+				'Stay on top of security risks and suspicious activity on your website, such as failed logins, malware, or unexpected file changes.',
 				'vulopilot'
 			),
 		},
@@ -440,7 +440,7 @@ export default {
 			icon: 'bar-chart',
 			title: __('Visibility Alerts', 'vulopilot'),
 			desc: __(
-				'Get notified when your visibility scores drop so you can take action early.',
+				'Catch it early when your visibility scores drop, so you can fix the underlying issue before it affects how often AI systems reference your site.',
 				'vulopilot'
 			),
 		},
@@ -522,7 +522,7 @@ export default {
 			icon: 'error',
 			title: __('Critical issue alerts', 'vulopilot'),
 			desc: __(
-				'Get notified immediately when critical issues are found on your website.',
+				'Hear about the highest-severity problems on your website right away — sent immediately, regardless of your other notification settings.',
 				'vulopilot'
 			),
 		},
