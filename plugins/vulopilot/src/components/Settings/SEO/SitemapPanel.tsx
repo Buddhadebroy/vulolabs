@@ -173,8 +173,7 @@ const SitemapPanel = () => {
 			<SectionComponent
 				icon="editor-list"
 				title={__('XML Sitemap', 'vulopilot')}
-				desc={__(
-					'Turns on your machine-readable sitemap and pings search engines whenever it changes.',
+				desc={__('A machine-readable file listing your site pages, for search engines. Turn this on and VuloPilot notifies search engines automatically whenever it changes.',
 					'vulopilot'
 				)}
 				rightContent={
@@ -197,10 +196,10 @@ const SitemapPanel = () => {
 					<ContainerComponent>
 						<ColumnComponent grid={8}>
 							<CardComponent
-								title={__('Post types & taxonomies in sitemap', 'vulopilot')}
+								title={__('What is included', 'vulopilot')}
 								titleIcon="category"
 								desc={__(
-									'Shared by the XML sitemap and the [vulopilot_html_sitemap] shortcode below. Products, Product Categories, and Product Tags only apply once WooCommerce is active.',
+									'Choose which content and terms appear in your XML sitemap and the [vulopilot_html_sitemap] shortcode below.',
 									'vulopilot'
 								)}
 							>
