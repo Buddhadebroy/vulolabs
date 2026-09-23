@@ -50,6 +50,13 @@ const includeFiles = [
 
 fs.removeSync(buildDir);
 
+fs.removeSync(
+	path.join(
+		releaseDir,
+		zipName
+	)
+);
+
 fs.ensureDirSync(buildDir);
 
 console.log(
