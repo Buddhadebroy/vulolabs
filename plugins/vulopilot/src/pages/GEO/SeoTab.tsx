@@ -134,7 +134,7 @@ const categoryScoreDelta = (category: SeoScoreResponse['category_scores'][keyof 
  * yet - run a scan" when a scan running wouldn't help.
  */
 const isSeoModuleActive = () =>
-	appLocalizer.active_modules?.includes('seo') ?? false;
+	appLocalizer.active_modules?.includes('technical-seo') ?? false;
 
 /**
  * "SEO" tab of "SEO & Visibility" - restyled a 2nd time to match a newer

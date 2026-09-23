@@ -7,12 +7,11 @@
 
 namespace VuloPilot\AiCopilot\Actions;
 
-use VuloPilot\Exceptions\InvalidActionInputException;
-use VuloPilot\Exceptions\InvalidActionOutputException;
-use VuloPilot\ValueObjects\ActionExecutionResult;
-use VuloPilot\ValueObjects\ActionPreview;
-use VuloPilot\ValueObjects\AIResponse;
-use VuloPilot\ValueObjects\Impact;
+use VuloPilot\Utill\VuloPilotException;
+use VuloPilot\AiAssistant\ActionExecutionResult;
+use VuloPilot\AiAssistant\ActionPreview;
+use VuloPilot\AiAssistant\AIResponse;
+use VuloPilot\Utill\Impact;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -76,7 +75,7 @@ class WriteMetaTitleAction extends AbstractBasicAction {
         // own "Fix with AI" title button (Checklist.tsx) is the one real
         // caller that can hand this a product id.
         if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true ) ) {
-            throw new InvalidActionInputException( esc_html__( 'post_id must refer to an existing post, page, or product.', 'vulopilot' ) );
+            throw new VuloPilotException( esc_html__( 'post_id must refer to an existing post, page, or product.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
         }
 
         return array(
@@ -126,11 +125,11 @@ class WriteMetaTitleAction extends AbstractBasicAction {
         $title = $output['title'] ?? '';
 
         if ( '' === $title ) {
-            throw new InvalidActionOutputException( esc_html__( 'The AI returned an empty title.', 'vulopilot' ) );
+            throw new VuloPilotException( esc_html__( 'The AI returned an empty title.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
         }
 
         if ( mb_strlen( $title ) > self::MAX_LENGTH * 2 ) {
-            throw new InvalidActionOutputException( esc_html__( 'The AI returned a title that is too long.', 'vulopilot' ) );
+            throw new VuloPilotException( esc_html__( 'The AI returned a title that is too long.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
         }
     }
 

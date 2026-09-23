@@ -69,8 +69,8 @@ const RESPONSE_CODE_HELP: { code: string; type: string; desc: string }[] = [
 
 /**
  * Hand-built rather than InputRenderer-driven - same escape hatch
- * VuloCloudAiConnectionPanel.tsx/ImportExportPanel.tsx already use (Settings.tsx's
- * GetForm() special-cases `currentTab === 'indexnow'`). Unlike those two,
+ * VuloCloudAiConnectionPanel.tsx already uses (Settings.tsx's
+ * GetForm() special-cases `currentTab === 'indexnow'`). Unlike that one,
  * this tab DOES have two real flat settings fields
  * (`indexnow_api_key`/`indexnow_post_types`) - read via `useSetting()`
  * (LlmsTxtCard.tsx's own precedent for a hand-built component reading/

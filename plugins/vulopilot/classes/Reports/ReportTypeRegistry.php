@@ -7,7 +7,7 @@
 
 namespace VuloPilot\Reports;
 
-use VuloPilot\Contracts\Report\ReportTypeInterface;
+use VuloPilot\Utill\ReportTypeInterface;
 
 defined( 'ABSPATH' ) || exit;
 

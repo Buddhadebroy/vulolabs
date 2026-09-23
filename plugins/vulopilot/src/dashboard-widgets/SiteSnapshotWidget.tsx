@@ -14,7 +14,7 @@ import { WidgetProps } from './types';
 
 /** Same real gate BusinessProfileCard.tsx's own identical check already uses - EntityExtractor returns empty groups when this module is inactive, so a real `''`/`[]` here is a genuine "not set" state, not a broken fetch. */
 const isEntityExtractionModuleActive = () =>
-	appLocalizer.active_modules?.includes('entity-extraction') ?? false;
+	appLocalizer.active_modules?.includes('knowledge-graph') ?? false;
 
 const NOT_SET = '-';
 /** `score`/`open_count` are `null` for a signal with no real data to compute from yet (GeoSignalScore's own docblock) - shown honestly as "-", never a fabricated 0. */

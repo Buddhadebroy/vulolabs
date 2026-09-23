@@ -8,11 +8,10 @@
 namespace VuloPilot\AiCopilot\Actions;
 
 
-use VuloPilot\Exceptions\InvalidActionInputException;
-use VuloPilot\Exceptions\InvalidActionOutputException;
-use VuloPilot\ValueObjects\ActionExecutionResult;
-use VuloPilot\ValueObjects\ActionPreview;
-use VuloPilot\ValueObjects\AIResponse;
+use VuloPilot\Utill\VuloPilotException;
+use VuloPilot\AiAssistant\ActionExecutionResult;
+use VuloPilot\AiAssistant\ActionPreview;
+use VuloPilot\AiAssistant\AIResponse;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -59,11 +58,11 @@ class GenerateFaqAction extends AbstractBasicAction {
         $post    = $post_id ? get_post( $post_id ) : null;
 
         if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page' ), true ) ) {
-            throw new InvalidActionInputException( esc_html__( 'post_id must refer to an existing post or page.', 'vulopilot' ) );
+            throw new VuloPilotException( esc_html__( 'post_id must refer to an existing post or page.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
         }
 
         if ( '' === trim( wp_strip_all_tags( $post->post_content ) ) ) {
-            throw new InvalidActionInputException( esc_html__( 'This post has no content to generate FAQs from.', 'vulopilot' ) );
+            throw new VuloPilotException( esc_html__( 'This post has no content to generate FAQs from.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
         }
 
         return array(
@@ -117,12 +116,12 @@ class GenerateFaqAction extends AbstractBasicAction {
         $pairs = $output['faq_pairs'] ?? array();
 
         if ( empty( $pairs ) || ! is_array( $pairs ) ) {
-            throw new InvalidActionOutputException( esc_html__( 'The AI did not return any FAQ questions.', 'vulopilot' ) );
+            throw new VuloPilotException( esc_html__( 'The AI did not return any FAQ questions.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
         }
 
         foreach ( $pairs as $pair ) {
             if ( ! is_array( $pair ) || empty( $pair['question'] ) || empty( $pair['answer'] ) ) {
-                throw new InvalidActionOutputException( esc_html__( 'The AI returned an incomplete FAQ question/answer pair.', 'vulopilot' ) );
+                throw new VuloPilotException( esc_html__( 'The AI returned an incomplete FAQ question/answer pair.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
             }
         }
     }

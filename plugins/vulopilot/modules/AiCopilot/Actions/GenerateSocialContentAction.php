@@ -7,12 +7,11 @@
 
 namespace VuloPilot\AiCopilot\Actions;
 
-use VuloPilot\Exceptions\InvalidActionInputException;
-use VuloPilot\Exceptions\InvalidActionOutputException;
-use VuloPilot\ValueObjects\ActionExecutionResult;
-use VuloPilot\ValueObjects\ActionPreview;
-use VuloPilot\ValueObjects\AIResponse;
-use VuloPilot\ValueObjects\Impact;
+use VuloPilot\Utill\VuloPilotException;
+use VuloPilot\AiAssistant\ActionExecutionResult;
+use VuloPilot\AiAssistant\ActionPreview;
+use VuloPilot\AiAssistant\AIResponse;
+use VuloPilot\Utill\Impact;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -66,7 +65,7 @@ class GenerateSocialContentAction extends AbstractBasicAction {
         $post    = $post_id ? get_post( $post_id ) : null;
 
         if ( ! $post || 'publish' !== $post->post_status ) {
-            throw new InvalidActionInputException( esc_html__( 'post_id must refer to a published post or page.', 'vulopilot' ) );
+            throw new VuloPilotException( esc_html__( 'post_id must refer to a published post or page.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
         }
 
         return array(
@@ -121,12 +120,12 @@ class GenerateSocialContentAction extends AbstractBasicAction {
         $captions = $output['captions'] ?? array();
 
         if ( empty( $captions ) || ! is_array( $captions ) ) {
-            throw new InvalidActionOutputException( esc_html__( 'The AI did not return any caption variants.', 'vulopilot' ) );
+            throw new VuloPilotException( esc_html__( 'The AI did not return any caption variants.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
         }
 
         foreach ( $captions as $caption ) {
             if ( ! is_string( $caption ) || '' === trim( $caption ) ) {
-                throw new InvalidActionOutputException( esc_html__( 'The AI returned an empty caption variant.', 'vulopilot' ) );
+                throw new VuloPilotException( esc_html__( 'The AI returned an empty caption variant.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
             }
         }
     }

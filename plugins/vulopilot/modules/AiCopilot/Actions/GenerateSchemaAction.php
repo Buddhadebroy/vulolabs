@@ -8,12 +8,11 @@
 namespace VuloPilot\AiCopilot\Actions;
 
 
-use VuloPilot\Exceptions\InvalidActionInputException;
-use VuloPilot\Exceptions\InvalidActionOutputException;
-use VuloPilot\ValueObjects\ActionExecutionResult;
-use VuloPilot\ValueObjects\ActionPreview;
-use VuloPilot\ValueObjects\AIResponse;
-use VuloPilot\ValueObjects\Impact;
+use VuloPilot\Utill\VuloPilotException;
+use VuloPilot\AiAssistant\ActionExecutionResult;
+use VuloPilot\AiAssistant\ActionPreview;
+use VuloPilot\AiAssistant\AIResponse;
+use VuloPilot\Utill\Impact;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -80,7 +79,7 @@ class GenerateSchemaAction extends AbstractBasicAction {
         $post    = $post_id ? get_post( $post_id ) : null;
 
         if ( ! $post || 'publish' !== $post->post_status ) {
-            throw new InvalidActionInputException( esc_html__( 'post_id must refer to a published post or page.', 'vulopilot' ) );
+            throw new VuloPilotException( esc_html__( 'post_id must refer to a published post or page.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
         }
 
         return array( 'post_id' => $post_id );
@@ -129,9 +128,8 @@ class GenerateSchemaAction extends AbstractBasicAction {
         $decoded = json_decode( $output['schema_json'] ?? '', true );
 
         if ( ! is_array( $decoded ) || ! isset( $decoded['@context'], $decoded['@type'] ) ) {
-            throw new InvalidActionOutputException(
-                esc_html__( 'The AI did not return valid schema.org JSON-LD (missing @context/@type).', 'vulopilot' )
-            );
+            throw new VuloPilotException(
+                esc_html__( 'The AI did not return valid schema.org JSON-LD (missing @context/@type).', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
         }
     }
 

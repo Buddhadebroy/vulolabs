@@ -1,6 +1,6 @@
 import { useState, type ComponentProps, type ReactNode } from 'react';
 import { ButtonInput } from '@zyra/inputs';
-import bannerBackground from '../assets/images/dashboard-banner.png';
+import bannerBackground from '../assets/images/dashboard-banner.jpg';
 import bannerIllustration from '../assets/images/banner.png';
 
 export interface BannerCardProps {
@@ -20,7 +20,7 @@ export interface BannerCardProps {
 }
 
 /**
- * The shared purple promotional banner (`dashboard-banner.png` background,
+ * The shared purple promotional banner (`dashboard-banner.jpg` background,
  * title/desc/buttons on the left, illustration on the right) - was
  * Dashboard/GettingStartedCard.tsx's own hand-built markup, now generic so
  * any page can reuse it. Styles are `.getting-started-banner*` (common.scss).

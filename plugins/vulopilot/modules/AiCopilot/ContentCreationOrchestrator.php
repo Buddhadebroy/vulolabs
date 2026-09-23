@@ -7,11 +7,8 @@
 
 namespace VuloPilot\AiCopilot;
 
-use VuloPilot\Exceptions\AiRequestException;
-use VuloPilot\Exceptions\InvalidActionInputException;
-use VuloPilot\Exceptions\InvalidActionOutputException;
-use VuloPilot\Exceptions\UnsafePromptException;
-use VuloPilot\ValueObjects\AIResponse;
+use VuloPilot\Utill\VuloPilotException;
+use VuloPilot\AiAssistant\AIResponse;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -135,13 +132,17 @@ class ContentCreationOrchestrator {
             $proposal = VuloPilot()->ai_action_runner->propose( $decision['action_id'], $decision['input'] );
         } catch ( \InvalidArgumentException $exception ) {
             return new \WP_Error( 'vulopilot_ai_action_invalid', $exception->getMessage(), array( 'status' => 400 ) );
-        } catch ( InvalidActionInputException $exception ) {
-            return new \WP_Error( 'vulopilot_ai_action_invalid_input', $exception->getMessage(), array( 'status' => 400 ) );
-        } catch ( InvalidActionOutputException $exception ) {
-            return new \WP_Error( 'vulopilot_ai_action_invalid_output', $exception->getMessage(), array( 'status' => 502 ) );
-        } catch ( UnsafePromptException $exception ) {
-            return new \WP_Error( 'vulopilot_unsafe_prompt', $exception->getMessage(), array( 'status' => 400 ) );
-        } catch ( AiRequestException $exception ) {
+        } catch ( VuloPilotException $exception ) {
+            if ( VuloPilotException::TYPE_INVALID_ACTION_INPUT === $exception->get_type() ) {
+                return new \WP_Error( 'vulopilot_ai_action_invalid_input', $exception->getMessage(), array( 'status' => 400 ) );
+            } elseif ( VuloPilotException::TYPE_INVALID_ACTION_OUTPUT === $exception->get_type() ) {
+                return new \WP_Error( 'vulopilot_ai_action_invalid_output', $exception->getMessage(), array( 'status' => 502 ) );
+            } elseif ( VuloPilotException::TYPE_UNSAFE_PROMPT === $exception->get_type() ) {
+                return new \WP_Error( 'vulopilot_unsafe_prompt', $exception->getMessage(), array( 'status' => 400 ) );
+            } elseif ( $exception->is_ai_request_failure() ) {
+                return new \WP_Error( 'vulopilot_ai_request_error', $exception->getMessage(), array( 'status' => 502 ) );
+            }
+
             return new \WP_Error( 'vulopilot_ai_request_error', $exception->getMessage(), array( 'status' => 502 ) );
         } catch ( \RuntimeException $exception ) {
             return new \WP_Error(

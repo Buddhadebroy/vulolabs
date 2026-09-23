@@ -7,7 +7,7 @@
 
 namespace VuloPilot\AiCopilot;
 
-use VuloPilot\Contracts\AI\AIActionInterface;
+use VuloPilot\Utill\AIActionInterface;
 
 defined( 'ABSPATH' ) || exit;
 

@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
  * Only `id`/`priority`/`headerTitle`/`headerIcon` are actually used for
  * navigation - Settings.tsx's GetForm() special-cases `currentTab ===
  * 'indexnow'` to render IndexNowPanel.tsx instead of InputRenderer (same
- * escape hatch 'integrations'/'import-export' already use), since this
+ * escape hatch 'integrations' already uses), since this
  * tab's "Submit URLs" and "History" cards are real actions/logs, not
  * persisted settings fields.
  *

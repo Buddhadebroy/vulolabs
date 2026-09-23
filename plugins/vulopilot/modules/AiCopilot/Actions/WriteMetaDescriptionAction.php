@@ -8,12 +8,11 @@
 namespace VuloPilot\AiCopilot\Actions;
 
 
-use VuloPilot\Exceptions\InvalidActionInputException;
-use VuloPilot\Exceptions\InvalidActionOutputException;
-use VuloPilot\ValueObjects\ActionExecutionResult;
-use VuloPilot\ValueObjects\ActionPreview;
-use VuloPilot\ValueObjects\AIResponse;
-use VuloPilot\ValueObjects\Impact;
+use VuloPilot\Utill\VuloPilotException;
+use VuloPilot\AiAssistant\ActionExecutionResult;
+use VuloPilot\AiAssistant\ActionPreview;
+use VuloPilot\AiAssistant\AIResponse;
+use VuloPilot\Utill\Impact;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -74,11 +73,11 @@ class WriteMetaDescriptionAction extends AbstractBasicAction {
         // own "Fix with AI" description button (Checklist.tsx) is the one
         // real caller that can hand this a product id.
         if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true ) ) {
-            throw new InvalidActionInputException( esc_html__( 'post_id must refer to an existing post, page, or product.', 'vulopilot' ) );
+            throw new VuloPilotException( esc_html__( 'post_id must refer to an existing post, page, or product.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
         }
 
         if ( '' === trim( wp_strip_all_tags( $post->post_content ) ) ) {
-            throw new InvalidActionInputException( esc_html__( 'This post has no content to summarize.', 'vulopilot' ) );
+            throw new VuloPilotException( esc_html__( 'This post has no content to summarize.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
         }
 
         return array(
@@ -128,11 +127,11 @@ class WriteMetaDescriptionAction extends AbstractBasicAction {
         $description = $output['description'] ?? '';
 
         if ( '' === $description ) {
-            throw new InvalidActionOutputException( esc_html__( 'The AI returned an empty description.', 'vulopilot' ) );
+            throw new VuloPilotException( esc_html__( 'The AI returned an empty description.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
         }
 
         if ( mb_strlen( $description ) > self::MAX_LENGTH * 2 ) {
-            throw new InvalidActionOutputException( esc_html__( 'The AI returned a description that is too long.', 'vulopilot' ) );
+            throw new VuloPilotException( esc_html__( 'The AI returned a description that is too long.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
         }
     }
 

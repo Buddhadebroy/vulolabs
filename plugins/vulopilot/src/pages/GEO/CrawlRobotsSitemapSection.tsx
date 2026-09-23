@@ -70,7 +70,7 @@ interface SitemapRow extends TableRow, SitemapChild {
  * isSeoModuleActive() already checks for the identical reason.
  */
 const isSeoModuleActive = () =>
-	appLocalizer.active_modules?.includes('seo') ?? false;
+	appLocalizer.active_modules?.includes('technical-seo') ?? false;
 
 /**
  * Real sitemap `loc` URL, stripped down to just its own path/name for
