@@ -404,7 +404,7 @@ class FrontendScripts {
                 'post_status'    => 'publish',
                 'posts_per_page' => 1,
                 'fields'         => 'ids',
-                'meta_key'       => '_thumbnail_id',
+                'meta_key'       => '_thumbnail_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- one-off social-share og:image fallback lookup (not a hot/repeated path), and `_thumbnail_id` is WordPress core's own indexed postmeta key.
                 'orderby'        => 'date',
                 'order'          => 'DESC',
             )

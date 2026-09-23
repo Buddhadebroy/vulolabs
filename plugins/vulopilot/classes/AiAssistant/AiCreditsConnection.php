@@ -384,7 +384,7 @@ class AiCreditsConnection {
             $result = $this->post_credits( VULOPILOT_VULOCLOUD_URL, '/plugin/ai-credits/disconnect', $credential['site_id'], $credential['secret'] );
 
             if ( is_wp_error( $result ) ) {
-                error_log( sprintf( '[VuloPilot] Could not revoke ConnectedSite %s on disconnect: %s', $credential['site_id'], $result->get_error_message() ) );
+                error_log( sprintf( '[VuloPilot] Could not revoke ConnectedSite %s on disconnect: %s', $credential['site_id'], $result->get_error_message() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- deliberate, not debug leftover: the one failure mode worth a site owner's server error log seeing, per this method's own docblock (a remote secret left un-revoked after a local disconnect).
             }
         }
 

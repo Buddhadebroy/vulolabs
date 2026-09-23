@@ -71,7 +71,7 @@ class GenerateProductDescriptionAction extends AbstractBasicAction {
         $tone         = mb_substr( sanitize_text_field( (string) ( $input['tone'] ?? '' ) ), 0, 60 );
 
         if ( mb_strlen( $product_name ) < 3 ) {
-            throw new VuloPilotException( esc_html__( 'Please provide a product name of at least 3 characters.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
+            throw new VuloPilotException( esc_html__( 'Please provide a product name of at least 3 characters.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         return array(
@@ -130,11 +130,11 @@ class GenerateProductDescriptionAction extends AbstractBasicAction {
     public function validate_output( array $output, array $input ): void {
         if ( '' === ( $output['title'] ?? '' ) || '' === ( $output['body'] ?? '' ) ) {
             throw new VuloPilotException(
-                esc_html__( 'The AI response did not match the expected TITLE/BODY format.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
+                esc_html__( 'The AI response did not match the expected TITLE/BODY format.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         if ( mb_strlen( wp_strip_all_tags( $output['body'] ) ) < 40 ) {
-            throw new VuloPilotException( esc_html__( 'The AI returned a description that is too short to be useful.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
+            throw new VuloPilotException( esc_html__( 'The AI returned a description that is too short to be useful.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
     }
 

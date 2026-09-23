@@ -137,7 +137,7 @@ class SitemapManager {
         $excluded = $this->parse_id_list( (string) ( $this->get_settings()['sitemap_exclude_posts'] ?? '' ) );
 
         if ( $excluded ) {
-            $args['post__not_in'] = array_merge( $args['post__not_in'] ?? array(), $excluded );
+            $args['post__not_in'] = array_merge( $args['post__not_in'] ?? array(), $excluded ); // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- admin-configured `sitemap_exclude_posts` list, a small bounded set of explicit ids, not an unbounded/user-controlled exclusion.
         }
 
         return $args;
@@ -154,7 +154,7 @@ class SitemapManager {
         $excluded = $this->parse_id_list( (string) ( $this->get_settings()['sitemap_exclude_terms'] ?? '' ) );
 
         if ( $excluded ) {
-            $args['exclude'] = array_merge( $args['exclude'] ?? array(), $excluded );
+            $args['exclude'] = array_merge( $args['exclude'] ?? array(), $excluded ); // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- admin-configured `sitemap_exclude_terms` list, a small bounded set of explicit ids, not an unbounded/user-controlled exclusion.
         }
 
         return $args;

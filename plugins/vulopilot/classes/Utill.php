@@ -1006,7 +1006,7 @@ class Utill {
      * @return bool
      */
     public function is_khali_dabba(): bool {
-        return (bool) apply_filters( 'kothay_dabba_vulopilot', false );
+        return (bool) apply_filters( 'kothay_dabba_vulopilot', false ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- deliberate, shared cross-plugin filter name (same kothay_dabba/kothay_dabba_{slug} pair vulocart/Utill.php and both *-pro plugins' check_pro_active() registrations use), not an accidental unprefixed hook.
     }
 
     /**

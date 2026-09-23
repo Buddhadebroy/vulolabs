@@ -59,11 +59,11 @@ class FixHeadingHierarchyAction extends AbstractBasicAction {
         $post    = $post_id ? get_post( $post_id ) : null;
 
         if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page' ), true ) ) {
-            throw new VuloPilotException( esc_html__( 'post_id must refer to an existing post or page.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
+            throw new VuloPilotException( esc_html__( 'post_id must refer to an existing post or page.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         if ( ! $this->has_heading_level_skip( $post->post_content ) ) {
-            throw new VuloPilotException( esc_html__( 'This post\'s heading levels do not skip - there is nothing to fix.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
+            throw new VuloPilotException( esc_html__( 'This post\'s heading levels do not skip - there is nothing to fix.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         return array(
@@ -107,7 +107,7 @@ class FixHeadingHierarchyAction extends AbstractBasicAction {
         $rewritten = $output['rewritten_content'] ?? '';
 
         if ( '' === trim( wp_strip_all_tags( $rewritten ) ) ) {
-            throw new VuloPilotException( esc_html__( 'The AI returned empty content.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
+            throw new VuloPilotException( esc_html__( 'The AI returned empty content.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         $original_length  = mb_strlen( wp_strip_all_tags( $input['original_content'] ) );
@@ -115,11 +115,11 @@ class FixHeadingHierarchyAction extends AbstractBasicAction {
 
         if ( $original_length > 0 && ( $rewritten_length / $original_length ) < self::MIN_LENGTH_RATIO ) {
             throw new VuloPilotException(
-                esc_html__( 'The AI returned content that looks truncated rather than a targeted rewrite - rejected for safety.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
+                esc_html__( 'The AI returned content that looks truncated rather than a targeted rewrite - rejected for safety.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         if ( $this->has_heading_level_skip( $rewritten ) ) {
-            throw new VuloPilotException( esc_html__( 'The AI did not resolve the heading level skip - rejected.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
+            throw new VuloPilotException( esc_html__( 'The AI did not resolve the heading level skip - rejected.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
     }
 

@@ -369,7 +369,7 @@ class GeoAnalysis extends \WP_REST_Controller {
         );
 
         if ( $exclude_post_ids ) {
-            $query_args['post__not_in'] = $exclude_post_ids;
+            $query_args['post__not_in'] = $exclude_post_ids; // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- excludes the small set of posts that already have a real geo finding, bounded by self::MAX_ZERO_FINDING_FILL's own result set size, not an unbounded/user-controlled list.
         }
 
         return get_posts( $query_args );

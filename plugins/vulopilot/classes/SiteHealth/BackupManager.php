@@ -172,7 +172,7 @@ class BackupManager {
 
         $steps = array();
 
-        $tables = $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $wpdb->prefix ) . '%' ) );
+        $tables = $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $wpdb->prefix ) . '%' ) );  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching  -- {$this->get_table()}/$table-style variables here are always this plugin's own hardcoded table name(s), never user input; dynamic placeholder counts (IN (...) lists, optional WHERE fragments) are sized correctly at runtime, just not statically visible to this sniff.
 
         foreach ( (array) $tables as $table ) {
             $steps[] = array(
@@ -386,7 +386,7 @@ class BackupManager {
             throw new \RuntimeException( 'Could not open temporary SQL file for writing.' );
         }
 
-        $create_row = $wpdb->get_row( "SHOW CREATE TABLE `{$table}`", ARRAY_N ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- $table is always a real name read from SHOW TABLES above, never client input.
+        $create_row = $wpdb->get_row( "SHOW CREATE TABLE `{$table}`", ARRAY_N ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.SchemaChange -- $table is always a real name read from SHOW TABLES above, never client input; SHOW CREATE TABLE is read-only introspection for this backup export, not an actual schema mutation.
 
         // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
         fwrite( $handle, "\n-- Table: {$table}\n" );
@@ -401,7 +401,7 @@ class BackupManager {
         $offset = 0;
 
         while ( true ) {
-            $rows = $wpdb->get_results( "SELECT * FROM `{$table}` LIMIT {$offset}, " . self::DB_CHUNK_SIZE, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- $table is always a real name read from SHOW TABLES above; $offset/DB_CHUNK_SIZE are internal ints, never client input.
+            $rows = $wpdb->get_results( "SELECT * FROM `{$table}` LIMIT {$offset}, " . self::DB_CHUNK_SIZE, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table is always a real name read from SHOW TABLES above; $offset/DB_CHUNK_SIZE are internal ints, never client input.
 
             if ( empty( $rows ) ) {
                 break;
@@ -559,7 +559,7 @@ class BackupManager {
                     continue;
                 }
 
-                $result = $wpdb->query( $statement ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- replaying VuloPilot's own real backup archive's SQL dump, never client-supplied SQL.
+                $result = $wpdb->query( $statement ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- replaying VuloPilot's own real backup archive's SQL dump, never client-supplied SQL.
 
                 if ( false === $result ) {
                     $this->delete_directory_recursive( $tmp_dir );

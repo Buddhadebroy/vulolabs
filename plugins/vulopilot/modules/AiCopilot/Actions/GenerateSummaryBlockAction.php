@@ -56,11 +56,11 @@ class GenerateSummaryBlockAction extends AbstractBasicAction {
         $post    = $post_id ? get_post( $post_id ) : null;
 
         if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page' ), true ) ) {
-            throw new VuloPilotException( esc_html__( 'post_id must refer to an existing post or page.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
+            throw new VuloPilotException( esc_html__( 'post_id must refer to an existing post or page.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         if ( '' === trim( wp_strip_all_tags( $post->post_content ) ) ) {
-            throw new VuloPilotException( esc_html__( 'This post has no content to summarize.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
+            throw new VuloPilotException( esc_html__( 'This post has no content to summarize.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         return array(
@@ -113,12 +113,12 @@ class GenerateSummaryBlockAction extends AbstractBasicAction {
         $takeaways = $output['takeaways'] ?? array();
 
         if ( empty( $takeaways ) || ! is_array( $takeaways ) ) {
-            throw new VuloPilotException( esc_html__( 'The AI did not return any key takeaways.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
+            throw new VuloPilotException( esc_html__( 'The AI did not return any key takeaways.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         foreach ( $takeaways as $takeaway ) {
             if ( ! is_string( $takeaway ) || '' === trim( $takeaway ) ) {
-                throw new VuloPilotException( esc_html__( 'The AI returned an empty key takeaway.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
+                throw new VuloPilotException( esc_html__( 'The AI returned an empty key takeaway.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
             }
         }
     }

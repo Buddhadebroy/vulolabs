@@ -62,13 +62,13 @@ class SuggestInternalLinksAction extends AbstractBasicAction {
         $post    = $post_id ? get_post( $post_id ) : null;
 
         if ( ! $post || 'publish' !== $post->post_status ) {
-            throw new VuloPilotException( esc_html__( 'post_id must refer to a published post or page.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
+            throw new VuloPilotException( esc_html__( 'post_id must refer to a published post or page.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         $candidates = $this->find_candidate_posts( $post );
 
         if ( empty( $candidates ) ) {
-            throw new VuloPilotException( esc_html__( 'No other published posts share a category or tag with this one to link to.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
+            throw new VuloPilotException( esc_html__( 'No other published posts share a category or tag with this one to link to.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         return array(
@@ -118,7 +118,7 @@ class SuggestInternalLinksAction extends AbstractBasicAction {
             array(
                 'post_type'      => array( 'post', 'page' ),
                 'post_status'    => 'publish',
-                'post__not_in'   => array( $post->ID ),
+                'post__not_in'   => array( $post->ID ), // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- excludes exactly the one post this suggestion is being generated for, not an unbounded/user-controlled list.
                 'posts_per_page' => self::MAX_CANDIDATES,
                 'orderby'        => 'modified',
                 'order'          => 'DESC',
@@ -192,18 +192,18 @@ class SuggestInternalLinksAction extends AbstractBasicAction {
         $suggestions = $output['suggestions'] ?? array();
 
         if ( empty( $suggestions ) || ! is_array( $suggestions ) ) {
-            throw new VuloPilotException( esc_html__( 'The AI did not return any link suggestions.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
+            throw new VuloPilotException( esc_html__( 'The AI did not return any link suggestions.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         $candidate_urls = wp_list_pluck( $input['candidates'], 'url' );
 
         foreach ( $suggestions as $suggestion ) {
             if ( ! is_array( $suggestion ) || empty( $suggestion['url'] ) || empty( $suggestion['anchor_text'] ) ) {
-                throw new VuloPilotException( esc_html__( 'The AI returned an incomplete link suggestion.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
+                throw new VuloPilotException( esc_html__( 'The AI returned an incomplete link suggestion.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
             }
 
             if ( ! in_array( $suggestion['url'], $candidate_urls, true ) ) {
-                throw new VuloPilotException( esc_html__( 'The AI suggested a URL that was not in the candidate list.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
+                throw new VuloPilotException( esc_html__( 'The AI suggested a URL that was not in the candidate list.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
             }
         }
     }

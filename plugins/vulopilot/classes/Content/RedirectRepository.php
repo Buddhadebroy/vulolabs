@@ -59,7 +59,7 @@ class RedirectRepository extends RepositoryUtil {
     public function find_by_source_path( string $source_path ): ?array {
         global $wpdb;
 
-        $row = $wpdb->get_row(
+        $row = $wpdb->get_row(  // phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching  -- {$this->get_table()}/$table-style variables here are always this plugin's own hardcoded table name(s), never user input; dynamic placeholder counts (IN (...) lists, optional WHERE fragments) are sized correctly at runtime, just not statically visible to this sniff.
             $wpdb->prepare( "SELECT * FROM {$this->get_table()} WHERE source_path = %s", $source_path ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             ARRAY_A
         );
@@ -81,7 +81,7 @@ class RedirectRepository extends RepositoryUtil {
     public function increment_hit_count( int $id ): void {
         global $wpdb;
 
-        $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
             $wpdb->prepare(
                 "UPDATE {$this->get_table()} SET hit_count = hit_count + 1, last_accessed_at = %s WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                 current_time( 'mysql' ),

@@ -59,7 +59,7 @@ class FirewallBlockRepository extends RepositoryUtil {
     public function count_recent( int $days ): int {
         global $wpdb;
 
-        return (int) $wpdb->get_var(
+        return (int) $wpdb->get_var(  // phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching  -- {$this->get_table()}/$table-style variables here are always this plugin's own hardcoded table name(s), never user input; dynamic placeholder counts (IN (...) lists, optional WHERE fragments) are sized correctly at runtime, just not statically visible to this sniff.
             $wpdb->prepare(
                 "SELECT COUNT(*) FROM {$this->get_table()} WHERE event_type = %s AND created_at >= %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                 self::EVENT_TYPE,
@@ -80,7 +80,7 @@ class FirewallBlockRepository extends RepositoryUtil {
     public function get_most_active_ip( int $days ): ?array {
         global $wpdb;
 
-        $row = $wpdb->get_row(
+        $row = $wpdb->get_row(  // phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching  -- {$this->get_table()}/$table-style variables here are always this plugin's own hardcoded table name(s), never user input; dynamic placeholder counts (IN (...) lists, optional WHERE fragments) are sized correctly at runtime, just not statically visible to this sniff.
             $wpdb->prepare(
                 "SELECT ip_address, COUNT(*) AS hit_count FROM {$this->get_table()} WHERE event_type = %s AND created_at >= %s GROUP BY ip_address ORDER BY hit_count DESC LIMIT 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                 self::EVENT_TYPE,

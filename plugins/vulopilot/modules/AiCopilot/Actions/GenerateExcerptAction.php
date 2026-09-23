@@ -71,11 +71,11 @@ class GenerateExcerptAction extends AbstractBasicAction {
         $post    = $post_id ? get_post( $post_id ) : null;
 
         if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page' ), true ) ) {
-            throw new VuloPilotException( esc_html__( 'post_id must refer to an existing post or page.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
+            throw new VuloPilotException( esc_html__( 'post_id must refer to an existing post or page.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         if ( '' === trim( wp_strip_all_tags( $post->post_content ) ) ) {
-            throw new VuloPilotException( esc_html__( 'This post has no content to summarize.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
+            throw new VuloPilotException( esc_html__( 'This post has no content to summarize.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         return array(
@@ -126,11 +126,11 @@ class GenerateExcerptAction extends AbstractBasicAction {
         $excerpt = $output['excerpt'] ?? '';
 
         if ( '' === $excerpt ) {
-            throw new VuloPilotException( esc_html__( 'The AI returned an empty excerpt.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
+            throw new VuloPilotException( esc_html__( 'The AI returned an empty excerpt.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         if ( mb_strlen( $excerpt ) > self::MAX_LENGTH * 2 ) {
-            throw new VuloPilotException( esc_html__( 'The AI returned an excerpt that is too long.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
+            throw new VuloPilotException( esc_html__( 'The AI returned an excerpt that is too long.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
     }
 

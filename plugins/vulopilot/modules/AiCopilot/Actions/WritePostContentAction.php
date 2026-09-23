@@ -68,13 +68,13 @@ class WritePostContentAction extends AbstractBasicAction {
         // (a draft is created in execute()). A post_id that's supplied must
         // still be a real post/page.
         if ( $post_id && ( ! $post || ! in_array( $post->post_type, array( 'post', 'page' ), true ) ) ) {
-            throw new VuloPilotException( esc_html__( 'post_id must refer to an existing post or page.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
+            throw new VuloPilotException( esc_html__( 'post_id must refer to an existing post or page.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         $brief = sanitize_textarea_field( (string) ( $input['brief'] ?? '' ) );
 
         if ( mb_strlen( $brief ) < 5 ) {
-            throw new VuloPilotException( esc_html__( 'Please describe what to write about (at least 5 characters).', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
+            throw new VuloPilotException( esc_html__( 'Please describe what to write about (at least 5 characters).', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
 
         return array(
@@ -120,7 +120,7 @@ class WritePostContentAction extends AbstractBasicAction {
         $content = $output['content'] ?? '';
 
         if ( mb_strlen( wp_strip_all_tags( $content ) ) < 100 ) {
-            throw new VuloPilotException( esc_html__( 'The AI returned content that is too short to be useful.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );
+            throw new VuloPilotException( esc_html__( 'The AI returned content that is too short to be useful.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
         }
     }
 

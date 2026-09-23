@@ -230,7 +230,7 @@ class ActionRunner {
         if ( empty( $result['success'] ) ) {
             throw new VuloPilotException(
                 esc_html__( 'You’ve used all your AI Credits.', 'vulopilot' ),
-                VuloPilotException::TYPE_INSUFFICIENT_CREDITS,
+                VuloPilotException::TYPE_INSUFFICIENT_CREDITS,  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
                 array(
                     'credits_remaining' => (int) ( $result['credits_remaining'] ?? 0 ),
                     'can_buy_credits'   => (bool) ( $result['can_buy_credits'] ?? false ),
