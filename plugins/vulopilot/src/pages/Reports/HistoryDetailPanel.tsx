@@ -162,7 +162,7 @@ interface HistoryDetailPanelProps {
  * only, no fabricated "related actions" copy: a scan row shows its real
  * per-severity finding breakdown from `vulopilot_scans.summary`; a change
  * row shows its real before/after text from `vulopilot_ai_action_runs.preview`;
- * a conversation row shows its real provider/model plus the same
+ * a conversation row shows its real credits used plus the same
  * humanized reply text (humanizeConversationExcerpt()) the timeline row's
  * own title already uses, just untruncated.
  *
@@ -492,10 +492,8 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 							</p>
 						</div>
 					)}
-					<FormGroupComponent row label={__('Provider', 'vulopilot')}>
-						{row.conversation.model
-							? `${row.conversation.provider} (${row.conversation.model})`
-							: row.conversation.provider}
+					<FormGroupComponent row label={__('Credits used', 'vulopilot')}>
+						{row.conversation.credits_used ?? 0}
 					</FormGroupComponent>
 					<div className="issue-detail-section">
 						<h4>{__('Reply', 'vulopilot')}</h4>

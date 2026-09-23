@@ -22,8 +22,6 @@ interface ChatTurn {
 interface ChatResponse {
 	content: string;
 	link: ChatLink | null;
-	provider: string | null;
-	model: string | null;
 }
 
 /**

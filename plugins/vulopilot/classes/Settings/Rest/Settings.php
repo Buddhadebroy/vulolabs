@@ -482,6 +482,19 @@ class Settings extends \WP_REST_Controller {
      * @return \WP_REST_Response
      */
     public function send_test_report( $request ) {
+        // report_generator is built by vulopilot-pro's AdvancedReports
+        // module now (report generation moved there wholesale, this
+        // class's own docblock) - only present on VuloPilot()'s own
+        // container when that module is active.
+        if ( ! VuloPilot()->report_generator ) {
+            return rest_ensure_response(
+                array(
+                    'success' => false,
+                    'message' => __( 'Sending a test report requires the Reports (Pro) module.', 'vulopilot' ),
+                )
+            );
+        }
+
         $settings  = $this->get_stored_settings();
         $recipient = $settings['notification_email'] ? $settings['notification_email'] : get_option( 'admin_email' );
 

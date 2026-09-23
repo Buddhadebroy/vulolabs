@@ -58,8 +58,6 @@ interface CopilotChatResponse {
 	link: CopilotChatLink | null;
 	/** The real action run id behind that same draft - see CopilotChatTurn's own `runId` docblock. */
 	run_id: number | null;
-	provider: string;
-	model: string;
 	/** The real `vulopilot_ai_conversations.id` this turn was just saved under (Copilot.php's own persist_conversation()) - new on the first turn of a session, unchanged on every following turn in the same session. */
 	conversation_id: number;
 }

@@ -23,8 +23,10 @@ export interface RelatedAction {
 
 export interface ConversationDetail {
 	id: number;
-	provider: string;
-	model: string | null;
+	/** Real AI credits this turn spent, or null for a row logged before this column existed. `0` is a genuine value (the free BYOK gateway path reports no credits), never fabricated. */
+	credits_used: number | null;
+	/** VuloCloud's own request id for this turn, when the gateway that answered it returns one. */
+	request_id: string | null;
 	status: 'success' | 'failure';
 	excerpt: string | null;
 	/** The real, human-typed question this reply answers - null for any row logged before this column existed (AiRequestSender.php's own build_prompt_excerpt()), never fabricated. */

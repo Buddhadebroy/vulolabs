@@ -186,18 +186,14 @@ class ContentAssistant extends \WP_REST_Controller {
                 return $result;
             }
 
-            return rest_ensure_response(
-                array_merge( $result, array( 'provider' => null, 'model' => null ) )
-            );
+            return rest_ensure_response( $result );
         }
 
         return rest_ensure_response(
             array(
-                'content'  => $decision['message'],
-                'link'     => null,
-                'run_id'   => null,
-                'provider' => $response->get_provider(),
-                'model'    => $response->get_model(),
+                'content' => $decision['message'],
+                'link'    => null,
+                'run_id'  => null,
             )
         );
     }

@@ -239,13 +239,10 @@ class ActionRunner {
             );
         }
 
-        // provider/model/token counts are deliberately generic -
-        // VuloCloud's feature catalog owns which real provider/model
-        // actually answered (VuloPilot brief §9), and its own
-        // /plugin/ai/execute response never exposes that to this site
-        // (§19) - parse_response()/validate_output()/build_preview() below
-        // only ever read get_content() regardless of these other fields.
-        return new AIResponse( $result['response'], 'vulocloud', 'hosted', 0, 0, 'stop' );
+        // VuloCloud's own /plugin/ai/execute response DOES carry real
+        // credits_used/request_id (unlike the BYOK gateway) - use them
+        // rather than discarding them the way this call site used to.
+        return new AIResponse( $result['response'], (int) ( $result['credits_used'] ?? 0 ), $result['request_id'] ?? null );
     }
 
     /**

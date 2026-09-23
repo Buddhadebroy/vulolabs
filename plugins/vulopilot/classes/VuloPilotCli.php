@@ -188,6 +188,14 @@ class VuloPilotCli {
             return;
         }
 
+        // report_generator is built by vulopilot-pro's AdvancedReports
+        // module now (report generation moved there wholesale) - only
+        // present on VuloPilot()'s own container when that module is active.
+        if ( ! VuloPilot()->report_generator ) {
+            \WP_CLI::error( 'Report generation requires the Reports (Pro) module.' );
+            return;
+        }
+
         $settings     = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
         $report_type  = sanitize_key( (string) $assoc_args['type'] );
         $format       = sanitize_key( (string) ( $assoc_args['format'] ?? $settings['default_report_format'] ) );

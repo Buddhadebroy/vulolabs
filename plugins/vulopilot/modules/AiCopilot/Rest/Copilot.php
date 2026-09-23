@@ -281,18 +281,10 @@ class Copilot extends \WP_REST_Controller {
                 )
             );
 
-            // provider/model null here, same as ContentAssistant.php's own
-            // equivalent response: the AI call that actually generated the
-            // saved content happened *inside* the AIAction's own execute()
-            // (a separate ai_request_sender call), not this orchestrator
-            // decision call - attributing $response's own provider/model to
-            // the saved content would be misleading.
             return rest_ensure_response(
                 array_merge(
                     $result,
                     array(
-                        'provider'        => null,
-                        'model'           => null,
                         'conversation_id' => $conversation_id,
                     )
                 )
@@ -316,8 +308,6 @@ class Copilot extends \WP_REST_Controller {
                 'content'         => $decision['message'],
                 'link'            => null,
                 'run_id'          => null,
-                'provider'        => $response->get_provider(),
-                'model'           => $response->get_model(),
                 'conversation_id' => $conversation_id,
             )
         );

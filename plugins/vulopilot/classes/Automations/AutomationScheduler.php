@@ -2,7 +2,6 @@
 namespace VuloPilot\Automations;
 
 use VuloPilot\Automations\BuiltinAutomationSeeder;
-use VuloPilot\Reports\ReportGenerator;
 use VuloPilot\Automations\AutomationsRepository;
 use VuloPilot\Automations\AutomationsRunRepository;
 use VuloPilot\SeoVisibility\CrawlerVisitRepository;
@@ -12,7 +11,6 @@ use VuloPilot\SeoVisibility\IndexNowLogRepository;
 use VuloPilot\Security\LoginAttemptRepository;
 use VuloPilot\Content\NotFoundLogRepository;
 use VuloPilot\Content\RedirectRepository;
-use VuloPilot\Reports\ReportRepository;
 use VuloPilot\Utill\ScanRunner;
 use VuloPilot\Utill;
 
@@ -44,11 +42,6 @@ class AutomationScheduler {
     private ScanRunner $scan_runner;
 
     /**
-     * @var ReportGenerator
-     */
-    private ReportGenerator $report_generator;
-
-    /**
      * @var AutomationsRepository
      */
     private AutomationsRepository $automations;
@@ -59,16 +52,14 @@ class AutomationScheduler {
     private AutomationsRunRepository $runs;
 
     /**
-     * @param ScanRunner                    $scan_runner      Runs row 1's real action.
-     * @param ReportGenerator                $report_generator Builds VisibilityReportMailer's own dependency.
-     * @param AutomationsRepository|null     $automations      Defaults to a new instance - injectable for tests.
-     * @param AutomationsRunRepository|null  $runs             Defaults to a new instance - injectable for tests.
+     * @param ScanRunner                    $scan_runner Runs row 1's real action.
+     * @param AutomationsRepository|null     $automations Defaults to a new instance - injectable for tests.
+     * @param AutomationsRunRepository|null  $runs        Defaults to a new instance - injectable for tests.
      */
-    public function __construct( ScanRunner $scan_runner, ReportGenerator $report_generator, ?AutomationsRepository $automations = null, ?AutomationsRunRepository $runs = null ) {
-        $this->scan_runner      = $scan_runner;
-        $this->report_generator = $report_generator;
-        $this->automations      = $automations ?? new AutomationsRepository();
-        $this->runs             = $runs ?? new AutomationsRunRepository();
+    public function __construct( ScanRunner $scan_runner, ?AutomationsRepository $automations = null, ?AutomationsRunRepository $runs = null ) {
+        $this->scan_runner = $scan_runner;
+        $this->automations  = $automations ?? new AutomationsRepository();
+        $this->runs         = $runs ?? new AutomationsRunRepository();
 
         add_filter( 'cron_schedules', array( $this, 'register_custom_schedules' ) ); // phpcs:ignore WordPress.WP.CronInterval.CronSchedulesInterval -- registering real, standard 7/30-day intervals, not shorter-than-recommended ones.
         add_action( 'init', array( $this, 'ensure_scheduled' ), 30 );
@@ -192,6 +183,11 @@ class AutomationScheduler {
 
     /**
      * Row 2's real cron tick - generates and emails the visibility report.
+     * report_generator is now built by vulopilot-pro's AdvancedReports
+     * module (report generation moved there wholesale) and only exists on
+     * VuloPilot()'s own container when that module is active - this row
+     * simply can't run without it, same as it always required a report
+     * exporter/type to be registered.
      *
      * @return void
      */
@@ -202,11 +198,18 @@ class AutomationScheduler {
             return;
         }
 
+        $report_generator = VuloPilot()->report_generator ?? null;
+
+        if ( ! $report_generator ) {
+            $this->record_run( (int) $row['id'], 'failed', current_time( 'mysql', true ), __( 'Reports (Pro) is not active.', 'vulopilot' ) );
+            return;
+        }
+
         $trigger_config = json_decode( (string) ( $row['trigger_config'] ?? '' ), true );
         $frequency      = is_array( $trigger_config ) ? (string) ( $trigger_config['frequency'] ?? 'weekly' ) : 'weekly';
 
         $started_at = current_time( 'mysql', true );
-        $mailer     = new VisibilityReportMailer( $this->report_generator );
+        $mailer     = new \VuloPilotPro\AdvancedReports\Core\VisibilityReportMailer( $report_generator );
 
         try {
             $sent = $mailer->send( $frequency );

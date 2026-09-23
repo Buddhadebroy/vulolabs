@@ -1,6 +1,5 @@
 import { __ } from '@wordpress/i18n';
 
-/** One real, toggleable module card - see this file's own docblock below for the id/category conventions every entry follows. */
 export interface ModuleCatalogEntry {
 	id: string;
 	name: string;
@@ -27,53 +26,6 @@ export const isModuleCatalogEntry = (
 	item: ModuleCatalogItem
 ): item is ModuleCatalogEntry => !('type' in item);
 
-/**
- * Started as exactly the 13 modules from the user's own mockup
- * (ModulesPanel.jsx), same names/descriptions/free-pro copy verbatim -
- * Reports (advanced-reports), MCP Server, WooCommerce AI/Intelligence
- * (woo-commerce-ai/woo-commerce-intelligence, still cardless below), and
- * the standalone "One-Click AI Fixes" Pro card that previously existed
- * here were all deliberately dropped to match the mockup's own 13-card,
- * 5-category list exactly, per that earlier explicit request. A 14th
- * card, Commerce (the real `commerce` module - see its own docblock
- * below), was added on top of that fixed list per a later, separate
- * direct instruction ("add module in this page so use can active and
- * deactive it") - the two WooCommerce modules it sits alongside on the
- * Commerce tab (woo-commerce-ai/woo-commerce-intelligence) stay cardless.
- *
- * Every `id` is still a real backend module id wherever one exists (see
- * Modules.php::camel_to_kebab()) - the mockup's own ids (`geo`, `aeo`,
- * `ai-crawler`, `brand-visibility`, `seo-intelligence`, `accessibility-
- * scanner`, `ai-fixes`, `automation-engine`) don't match any real module,
- * so they're swapped for the real ones the same way every other card in
- * this file was already fixed this session. Two exceptions, called out on
- * their own cards below: 'redirect-manager' and 'performance-monitoring'
- * don't correspond to any real `modules/` folder (they're core, always-on
- * `Services/*.php` classes) - toggling those two is inert, same as before
- * this session touched this file, kept only because the mockup includes
- * them by name.
- *
- * Every card sets `settingsLink` (see `ModuleCatalogEntry`'s own docblock
- * above) - a real gear icon, left of the enable/disable toggle in zyra's
- * own `ModuleGridComponent` footer. Most point at that module's own real
- * Settings tab (geo-insights/aeo-insights/ai-crawler-analytics share the
- * one Scanning → AI Visibility tab that actually holds their scan toggles,
- * same way redirect-manager shares SEO & Content's own "Redirects & 404s"
- * section rather than having a dedicated tab of its own; knowledge-graph
- * instead points at Get Started → Business Information, where its own
- * Business/Services/Locations fields moved per direct instruction).
- * content-intelligence/performance-monitoring/automations/commerce instead
- * point at that module's own real standalone top-level menu page
- * (routes.ts's own `tab: 'content'`/`'performance'`/`'automations'`/
- * `'commerce'`) rather than a Settings subtab - per a later, separate
- * direct instruction giving the exact destination for every card on this
- * page ("geo -> scanning ai visibility tab", … "commerce -> commerce
- * menu"); `performance-monitoring` in particular has no real Settings tab
- * to link to at all (no `Performance.ts` exists - same "inert toggle, no
- * real `modules/` folder" caveat as its own docblock above), so its own
- * top-level Performance page is the only real destination for it either
- * way.
- */
 const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogItem[] } = {
 	category: true,
 	tab: 'settings',
@@ -139,7 +91,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
             proFeatures: [
                 __('Entity relationship mapping', 'vulopilot'),
                 __('AI-powered graph enrichment', 'vulopilot'),
-                __('Schema.org graph export', 'vulopilot')
+                __('Custom schema creation', 'vulopilot')
             ]
         },
         {
@@ -359,7 +311,10 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
             proModule: false,
             category: 'automation-ai',
             miniModule: true,
-            freeFeatures: [],
+            freeFeatures: [
+                __('Full Site Scan', 'vulopilot'),
+                __('Website Health Check', 'vulopilot')
+            ],
             proFeatures: [
                 __('Custom triggers & conditions', 'vulopilot'),
                 __('Scheduled workflows', 'vulopilot'),

@@ -2,7 +2,6 @@
 namespace VuloPilot\Content;
 
 use VuloPilot\Automations\BuiltinAutomationSeeder;
-use VuloPilot\Reports\ReportGenerator;
 use VuloPilot\Automations\AutomationsRepository;
 use VuloPilot\Automations\AutomationsRunRepository;
 use VuloPilot\SeoVisibility\CrawlerVisitRepository;
@@ -12,7 +11,6 @@ use VuloPilot\SeoVisibility\IndexNowLogRepository;
 use VuloPilot\Security\LoginAttemptRepository;
 use VuloPilot\Content\NotFoundLogRepository;
 use VuloPilot\Content\RedirectRepository;
-use VuloPilot\Reports\ReportRepository;
 use VuloPilot\Utill\ScanRunner;
 use VuloPilot\Utill;
 

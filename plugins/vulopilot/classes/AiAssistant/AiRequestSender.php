@@ -55,12 +55,6 @@ class AiRequestSender {
      */
     private const EXCERPT_MAX_LENGTH = 300;
 
-    /**
-     * USD per 1,000 tokens, [prompt, completion]. An estimate for the
-     * dashboard, not a billing-grade figure.
-     */
-    private const COST_PER_1K_TOKENS = array( 0.005, 0.015 );
-
     private AISafetyValidator $safety_validator;
     private AiByokGatewayClient $gateway;
     private AiHistoryRepository $history;
@@ -100,7 +94,7 @@ class AiRequestSender {
             throw new \RuntimeException( esc_html__( 'No AI connection is configured.', 'vulopilot' ) );
         }
 
-        $request = new AIRequest( '', $messages, null, null, $image, $surface );
+        $request = new AIRequest( $messages, $image, $surface );
 
         try {
             $response = $this->send_with_retries( $request );
@@ -176,8 +170,11 @@ class AiRequestSender {
      * Sends `{feature, prompt, site_tone}` to VuloCloud and returns finished
      * text. The prompt is the request's messages flattened in order - VuloCloud
      * alone turns it back into whatever message shape the serving vendor
-     * expects. The response's provider/model/token fields are deliberately
-     * generic: this site never learns which vendor or key answered.
+     * expects. This gateway's own response carries no credits field, so the
+     * returned AIResponse's `credits_used` is honestly `0` here - this is
+     * the free, rate-limited BYOK path, genuinely uncredited, not an
+     * unfinished calculation. `request_id` carries through VuloCloud's own
+     * real `requestId`.
      *
      * @param AIRequest $request Request to send.
      * @return AIResponse
@@ -204,7 +201,7 @@ class AiRequestSender {
             throw new VuloPilotException( esc_html( $result->get_error_message() ), VuloPilotException::TYPE_GATEWAY_REQUEST );
         }
 
-        return new AIResponse( $result['response'], 'vulocloud', 'hosted', 0, 0, 'stop' );
+        return new AIResponse( $result['response'], 0, $result['request_id'] ?? null );
     }
 
     /**
@@ -226,12 +223,9 @@ class AiRequestSender {
     private function record_success( AIRequest $request, AIResponse $response ): void {
         $this->history->insert(
             array(
-                'provider'          => $response->get_provider(),
-                'model'             => $response->get_model(),
+                'request_id'        => $response->get_request_id(),
                 'surface'           => $request->get_surface(),
-                'prompt_tokens'     => $response->get_prompt_tokens(),
-                'completion_tokens' => $response->get_completion_tokens(),
-                'cost_estimate'     => $this->estimate_cost( $response ),
+                'credits_used'      => $response->get_credits_used(),
                 'status'            => 'success',
                 'prompt_excerpt'    => $this->build_prompt_excerpt( $request ),
                 'response_excerpt'  => $this->build_excerpt( $response->get_content() ),
@@ -247,11 +241,9 @@ class AiRequestSender {
     private function record_failure( AIRequest $request ): void {
         $this->history->insert(
             array(
-                'provider'          => 'vulocloud',
+                'request_id'        => null,
                 'surface'           => $request->get_surface(),
-                'prompt_tokens'     => 0,
-                'completion_tokens' => 0,
-                'cost_estimate'     => 0,
+                'credits_used'      => 0,
                 'status'            => 'failure',
                 'prompt_excerpt'    => $this->build_prompt_excerpt( $request ),
                 'requested_by'      => get_current_user_id(),
@@ -295,19 +287,5 @@ class AiRequestSender {
         }
 
         return null === $last_user_message ? null : $this->build_excerpt( $last_user_message );
-    }
-
-    /**
-     * @param AIResponse $response Completed response.
-     * @return float USD.
-     */
-    private function estimate_cost( AIResponse $response ): float {
-        [$prompt_rate, $completion_rate] = self::COST_PER_1K_TOKENS;
-
-        return round(
-            ( $response->get_prompt_tokens() / 1000 * $prompt_rate )
-            + ( $response->get_completion_tokens() / 1000 * $completion_rate ),
-            4
-        );
     }
 }
