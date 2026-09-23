@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Real, reversible effects for 2 of "Performance" Overview's 6 Quick
- * Actions (`classes/RestAPI/Controllers/PerformanceActions.php` only
+ * Actions (`classes/Performance/Rest/PerformanceActions.php` only
  * flips the option; this class is what actually reads it on every real
  * request):
  *

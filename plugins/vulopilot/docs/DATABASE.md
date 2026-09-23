@@ -15,7 +15,7 @@ claim above still holds.)
 
 
 > **Consolidated tables (current schema).** Where the sections below still show the original one-table-per-feature sketch, the shipped schema merged these:
-> - `vulopilot_ai_provider_configs` and `vulopilot_backup_storage_configs` were removed: no AI provider key is stored locally (VuloCloud holds them), and Backups' S3/Drive credentials live in one encrypted, non-autoloaded option (`vulopilot_backup_storage_credentials`, `Services\BackupCredentialStore`).
+> - `vulopilot_ai_provider_configs` and `vulopilot_backup_storage_configs` were removed: no AI provider key is stored locally (VuloCloud holds them), and Backups' S3/Drive credentials live in one encrypted, non-autoloaded option (`vulopilot_backup_storage_credentials`, vulopilot-pro's `BackupCloudStorage\Services\BackupCredentialStore`).
 > - `vulopilot_performance_requests` + `vulopilot_core_web_vitals` → **`vulopilot_performance_samples`** (`sample_type` = `request` | `vital`).
 > - Eight daily score-history tables (performance/security score, accessibility, site health, store trends, brand score, GEO visibility, Knowledge Graph health) → **`vulopilot_snapshots`** (`snapshot_type` + `snapshot_date` unique, values as JSON in `data`; `Repositories\SnapshotRepository`).
 > - `vulopilot_rules` and `vulopilot_ai_jobs` were removed (never used).
@@ -591,11 +591,11 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_crawler_visits` (
 - **No IP address or user column, ever** - readme.txt's own FAQ promises AI Crawler Traffic
   Monitoring "does not track human visitors, IP addresses, or personal data," enforced by the
   schema itself, not just application code.
-- One row per real crawler hit, matched against `Services\CrawlerTrafficLogger::get_bot_signatures()`
+- One row per real crawler hit, matched against `SeoVisibility\CrawlerTrafficLogger::get_bot_signatures()`
   - a User-Agent-substring map extensible via the `vulopilot_crawler_bot_signatures` filter
   (`EXTENSION-SDK.md`), so a Pro module or third party can teach this table about a new AI bot
   without editing `CrawlerTrafficLogger` itself.
-- Retention is a filter, not a fixed value: `Services\CrawlerTrafficLogger`'s daily cleanup cron
+- Retention is a filter, not a fixed value: `SeoVisibility\CrawlerTrafficLogger`'s daily cleanup cron
   deletes rows older than `apply_filters('vulopilot_crawler_log_retention_days', 30)` - Free's own
   default is the site's "Log retention" setting (30 by default), and vulopilot-pro's own historical
   logs feature extends the same filter rather than adding a second retention mechanism.
@@ -624,7 +624,7 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_redirects` (
 ) $collate;
 ```
 
-- `source_path` is `UNIQUE` - `Services\RedirectManager` looks a request path up by exact match, and
+- `source_path` is `UNIQUE` - `Content\RedirectManager` looks a request path up by exact match, and
   only one active target makes sense per source path; a second row for the same path would be
   ambiguous, not a legitimate A/B case this feature is for.
 - `redirect_type` defaults to `301` (permanent) but is a plain `smallint`, not an enum, so `302`/`307`
@@ -649,7 +649,7 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_not_found_logs` (
 ) $collate;
 ```
 
-- `requested_path` is `UNIQUE` - `Services\NotFoundLogger` upserts (increment `hit_count`, bump
+- `requested_path` is `UNIQUE` - `Content\NotFoundLogger` upserts (increment `hit_count`, bump
   `last_seen_at`) rather than inserting one row per visit, so repeat 404s to the same missing URL
   don't grow this table unboundedly the way a per-visit log would. This is the opposite shape from
   `vulopilot_crawler_visits` above (one row per hit) - deliberately: a crawler's individual visits
@@ -726,7 +726,7 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_geo_visibility_history` (
 Added for [`BRAND-INTELLIGENCE-MODULE.md`](BRAND-INTELLIGENCE-MODULE.md). Same one-row-per-day
 upsert shape as `vulopilot_geo_visibility_history` above, but simpler: Brand Score is a
 deterministic composite computed live from `vulopilot_scan_findings`
-(`Controllers\BrandIntelligence`'s own docblock), never an AI-sampled average that can come back
+(`BrandVisibility\Rest`'s own docblock), never an AI-sampled average that can come back
 empty, so there's no `sample_size`/nullable-score case to account for - every one of its 4 score
 columns is always a real `0`–`100` int.
 
@@ -744,7 +744,7 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_brand_score_history` (
 ) $collate;
 ```
 
-- `brand_score`/`trust_score`/`authority_score`/`entity_score` mirror `Controllers\BrandIntelligence`'s
+- `brand_score`/`trust_score`/`authority_score`/`entity_score` mirror `BrandVisibility\Rest`'s
   `GET /brand-intelligence/score` response shape exactly (`DASHBOARD-WIDGETS.md`'s Brand Visibility
   breakdown widget reads the live version of these same four numbers) - this table is that same
   score, snapshotted once a day for the trend chart.
@@ -755,7 +755,7 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_brand_score_history` (
 
 Added for [`KNOWLEDGE-GRAPH-MODULE.md`](KNOWLEDGE-GRAPH-MODULE.md). One row per real, deterministic
 edge `vulopilot-pro`'s own `KnowledgeGraph\EntityRelationshipBuilder` discovers between two of
-Free's own extracted entities (`Services\EntityExtractor`).
+Free's own extracted entities (`KnowledgeGraph\EntityExtractor`).
 
 ```sql
 CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_entity_relationships` (
@@ -943,7 +943,7 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_ai_conversations` (
 - `user_id` scopes each conversation to the admin who had it - every read/append
   (`AiConversationRepository::find_full()`/`append_turns()`) is ownership-checked against it, since
   `manage_options` alone doesn't imply one admin should silently read or append to another's thread.
-- Written by `Controllers\Copilot.php`'s own `POST /copilot/chat` (`persist_conversation()`), in
+- Written by `AiCopilot\Rest\Copilot.php`'s own `POST /copilot/chat` (`persist_conversation()`), in
   addition to - not instead of - the automatic `vulopilot_ai_history` write every real call already
   gets.
 

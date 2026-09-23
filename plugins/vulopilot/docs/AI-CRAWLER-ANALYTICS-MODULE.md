@@ -11,8 +11,8 @@ Intelligence/Brand Intelligence (both genuinely new modules built from
 scratch), most of this phase's Free scope - AI Crawler Detection, Crawl
 Logs, Top Crawled Pages, Crawl Statistics - **already shipped** under
 readme.txt's "AI Crawler Traffic Monitoring" feature
-(`Services\CrawlerTrafficLogger`, `Repositories\CrawlerVisitRepository`,
-`RestAPI\Controllers\CrawlerTraffic`, `src/pages/CrawlerTraffic/`). This
+(`SeoVisibility\CrawlerTrafficLogger`, `SeoVisibility\CrawlerVisitRepository`,
+`SeoVisibility\Rest\CrawlerTraffic`, `src/pages/CrawlerTraffic/`). This
 pass's real job was narrower: close the one genuine Free gap ("Blocked
 Pages"), then build the Pro layer on top of that existing infrastructure.
 
@@ -57,7 +57,7 @@ expensive, that's the point to revisit this decision - not now.
 
 ### Free
 
-**`RobotsTxtBotAccess`** (`classes/Services/RobotsTxtBotAccess.php`) - parses
+**`RobotsTxtBotAccess`** (`classes/SeoVisibility/RobotsTxtBotAccess.php`) - parses
 `/robots.txt` into per-user-agent Disallow groups, transient-cached (1
 hour) to avoid a remote fetch per scan. Real robots.txt semantics, but
 narrow by design (same restraint `RobotsTxtScanner`'s own docblock argues
@@ -73,7 +73,7 @@ other list-shaped registry in this codebase already follows, applied here
 for the first time.
 
 **`AiCrawlerBlockedPagesScanner`** (id `ai-crawler-blocked-pages`, category
-`seo`, registered by `modules/Seo/Module.php` alongside `RobotsTxtScanner`)
+`seo`, registered by `modules/TechnicalSeo/Module.php` alongside `RobotsTxtScanner`)
 - flags real published pages robots.txt disallows for one *specific* known
 AI bot. Deliberately narrower than `RobotsTxtScanner`'s own sitewide
 wildcard check: a bare `/` disallow is excluded here (already reported
@@ -158,7 +158,7 @@ volume over a longer window, default 90 days) and `POST
 /crawler-traffic/visibility-correlation`. Registered under array key
 `crawler_analytics_pro` (not `crawler_traffic`) - Free's own dispatcher
 already claims that key, same key-collision-avoidance convention
-`BrandIntelligence\Rest.php`'s own docblock documents. "AI Crawler Alerts"
+`BrandVisibility\Rest.php`'s own docblock documents. "AI Crawler Alerts"
 has no route of its own - the React card reuses Free's existing `GET
 /activity-logs?event_type=crawler_alert_check`, same "call the existing
 list endpoint" pattern `DASHBOARD-WIDGETS.md` documents for Recent

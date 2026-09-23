@@ -7,6 +7,7 @@
 
 namespace VuloPilot\SeoVisibility;
 
+use VuloPilot\Dashboard\ActivityLogRepository;
 use VuloPilot\Utill as CoreUtill;
 
 defined( 'ABSPATH' ) || exit;
@@ -15,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  * Persistence for the shared activity log (`indexnow.submitted`) (Scanning → Instant Indexing's
  * "History" card - the mockup's own "The last 100 IndexNow API requests"
  * copy). `find_all()`/pagination is entirely inherited from
- * AbstractRepository, same "repository adds its own query methods beyond
+ * RepositoryUtil, same "repository adds its own query methods beyond
  * the generic CRUD base" pattern CrawlerVisitRepository already uses.
  *
  * One row per real submission attempt (manual or auto-submitted), never

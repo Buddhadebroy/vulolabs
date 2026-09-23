@@ -22,12 +22,12 @@ defined( 'ABSPATH' ) || exit;
  * `one-click-fix` module is unchanged and stays the inner gate for the
  * advanced "one-click auto-apply" tier; this module only controls whether
  * baseline (manual, bring-your-own-key) AI functionality is reachable at
- * all, same as modules/EntityExtraction/Module.php reading
+ * all, same as modules/KnowledgeGraph/Module.php reading
  * `get_active_modules()` directly rather than gating a scanner category.
  *
  * This module ships no behavior of its own beyond existing as a real,
  * toggleable id - same "id is the product, not the code" shape a whole
- * module can have, matching how modules/Geo/Module.php's own docblock
+ * module can have, matching how modules/GeoAnalysis/Module.php's own docblock
  * describes GEO scanning staying core/always-on and the module itself
  * only governing one narrow piece of optional behavior; here even that
  * narrow piece lives in Copilot.php/the React gate, not in this class.

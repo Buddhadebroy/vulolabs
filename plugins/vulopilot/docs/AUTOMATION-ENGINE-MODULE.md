@@ -37,7 +37,7 @@ onto this existing engine as follows:
 | Automation Dashboard | Existed only as Free's own small `AutomationStatusWidget` (enabled/disabled counts). |
 | Logs | `GET /automation-runs` existed (read-only), but had **no UI** - `AutomationPanel.tsx` only ever showed `last_triggered_at` on the automations table itself. |
 | Retries | **Did not exist at all** - a failed run just stayed `failed`. |
-| Manual Actions Only (Free) | **Did not exist at all** - Free's own `Controllers\Automations::run_item()` hard-coded a 501 "not implemented yet" regardless of site state. |
+| Manual Actions Only (Free) | **Did not exist at all** - Free's own `Automations\Rest\Automations::run_item()` hard-coded a 501 "not implemented yet" regardless of site state. |
 
 One real, pre-existing bug was also found and fixed in this pass:
 `AutomationRunRepository::get_breakdown_by_automation_for_period()`'s SQL
@@ -79,7 +79,7 @@ different concerns (one action manually, vs. binding many into a
 persisted workflow) and mixing their discovery would only invite a class
 meant for one engine being silently picked up by the other.
 
-`POST /findings/{id}/actions/{action_id}` (`Controllers\Findings::run_manual_action()`)
+`POST /findings/{id}/actions/{action_id}` (`Utill\Findings::run_manual_action()`)
 backs `FindingsTable.tsx`'s new "Snooze" row action - the first thing in
 this codebase to invoke `ActionInterface::execute()` outside
 `vulopilot-pro`'s own engine.

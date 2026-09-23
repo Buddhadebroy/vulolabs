@@ -5,15 +5,17 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Base class for every free-tier scanner under Scanners/Basic/.
+ * Base class for every free-tier scanner across every tab folder
+ * (Dashboard/, SeoVisibility/, Content/, etc.).
  *
- * Every scanner in this namespace is, by definition, free-tier - that's
- * what "Basic" means here (ARCHITECTURE.md) - so get_tier() is genuinely
- * shared behavior, not per-scanner boilerplate being prematurely
- * abstracted. get_id()/get_label()/get_category()/scan() stay abstract
- * since those are what actually differ between scanners.
+ * Every scanner extending this is, by definition, free-tier - that's
+ * what "Basic" meant in this class's old name, AbstractBasicScanner
+ * (ARCHITECTURE.md) - so get_tier() is genuinely shared behavior, not
+ * per-scanner boilerplate being prematurely abstracted. get_id()/
+ * get_label()/get_category()/scan() stay abstract since those are what
+ * actually differ between scanners.
  *
- * @class       AbstractBasicScanner class
+ * @class       ScannerUtil class
  * @version     1.0.0
  * @author      VuloLabs
  */

@@ -80,6 +80,7 @@ export default {
 			// guards lives in vulopilot-pro's Automation module - the
 			// setting has nothing to configure without it.
 			moduleEnabled: 'workflow-automation',
+			proSetting: true,
 		},
 		{
 			key: 'automation_max_retries',
@@ -93,6 +94,7 @@ export default {
 				'vulopilot'
 			),
 			moduleEnabled: 'workflow-automation',
+			proSetting: true,
 		},
 		{
 			key: 'automation_retry_delay_minutes',
@@ -106,6 +108,7 @@ export default {
 				'vulopilot'
 			),
 			moduleEnabled: 'workflow-automation',
+			proSetting: true,
 		},
 		{
 			// Same real `type: 'notice'` field Scanning/SeoContent.ts's own

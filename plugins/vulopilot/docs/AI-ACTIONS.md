@@ -110,10 +110,11 @@ CREATE TABLE vulopilot_ai_action_runs (
 
 Added directly to `Install.php`'s baseline schema (`create_database_tables()`), not a
 version-gated migration - there is no real deployed prior install of this still-in-development
-plugin to stay backward-compatible with. `Repositories\ActionRunRepository` is a thin
-`AbstractRepository` subclass, same shape as every other repository in this codebase
-(`Repositories/` now holds 15 concrete repositories total, covering scans, findings, action runs,
-activity logs, AI history, AI provider configs, automations, and more).
+plugin to stay backward-compatible with. `AiAssistant\ActionRunRepository` is a thin
+`Utill\RepositoryUtil` subclass, same shape as every other repository in this codebase
+(repositories are now scattered across their owning tab folders rather than one flat
+`Repositories/` directory, covering scans, findings, action runs, activity logs, AI
+history, AI provider configs, automations, and more).
 
 ## `ActionRunner` - the orchestrator
 
@@ -146,7 +147,7 @@ for `->propose(` turns up at least six distinct call sites, all in `vulopilot-pr
 `OneClickFix\FindingFixRest`/`BulkFixRest` (a human clicks "Fix this" on a specific,
 already-scanned Finding), `OneClickFix\PostSeoFixRest` (the post-editor metabox's own "Fix with
 AI"/"Generate with AI" buttons - distinct from `FindingFixRest` because the metabox has no
-persisted Finding row to resolve a fix from at all), `ContentIntelligence\ContentBulkOptimizeRest`
+persisted Finding row to resolve a fix from at all), `ContentOptimization\ContentBulkOptimizeRest`
 and `WooCommerceAi\BulkOptimizeRest` (bulk "optimize all" flows, proposing one object at a time),
 `Automation\Actions\RunAiActionAction` (an automation's own configured action), and
 `McpServer\Tools\AbstractActionProposalTool` - a shared base class
@@ -237,7 +238,7 @@ would see.
 
 An earlier pass of this doc listed this as a gap - it validates and saves valid JSON-LD to
 `_vulopilot_schema_json` postmeta, but "actually outputting that on the frontend" was still
-needed. That's since been built: `Services\SchemaJsonLdRenderer` hooks `wp_head` and outputs the
+needed. That's since been built: `SeoVisibility\SchemaJsonLdRenderer` hooks `wp_head` and outputs the
 saved JSON-LD directly. See "What's not here yet" below.
 
 ## Pro actions (`modules/*/Actions/`)
@@ -296,7 +297,7 @@ Identical shape to `SCANNERS.md`/`RULE-ENGINE.md`/`AI-ARCHITECTURE.md`:
   them~~ - **built, on both sides.** For `propose()`: considerably more purpose-built call sites
   than the three this doc originally named; see "Three callers" above. For
   `approve()`/`reject()`/`rollback()` specifically: a dedicated, generic
-  `RestAPI\Controllers\AiActionRuns` controller (`GET /ai-action-runs`, `POST /ai-action-runs/{id}/approve|reject|rollback`)
+  `AiCopilot\Rest\AiActionRuns` controller (`GET /ai-action-runs`, `POST /ai-action-runs/{id}/approve|reject|rollback`)
   backs a real "Pending Approval" tab in the Dashboard's `NeedsAttentionWidget` - a site owner can
   approve or reject any pending run from one place without knowing which of the many `propose()`
   call sites created it. `get_items()` reads straight from `ActionRunRepository::find_all()`,
@@ -304,7 +305,7 @@ Identical shape to `SCANNERS.md`/`RULE-ENGINE.md`/`AI-ARCHITECTURE.md`:
   `propose()` caller is its own purpose-built REST route or MCP tool (see "Three callers"), not a
   thin `POST /ai-actions/{id}/propose` pass-through to the raw `ActionRunner` API.
 - ~~**Rendering `GenerateSchemaAction`'s saved JSON-LD** on the frontend.~~ - **built**, via
-  `Services\SchemaJsonLdRenderer`'s `wp_head` hook; see above.
+  `SeoVisibility\SchemaJsonLdRenderer`'s `wp_head` hook; see above.
 - **A formal Recommendation → Action mapping** (still by-convention id matching only, per
   "Recommendations as an input source" above).
 - **Multimodal input** - `GenerateAltAction` is still context-based, not vision-based, for the

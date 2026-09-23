@@ -1,5 +1,6 @@
 /* global appLocalizer */
 import { useState } from 'react';
+import type { ComponentType } from 'react';
 import { __ } from '@wordpress/i18n';
 import { addFilter } from '@wordpress/hooks';
 import { ContainerComponent, NavigatorHeaderComponent, PopupComponent } from '@zyra/components';
@@ -85,33 +86,18 @@ addFilter('vulopilot_banner_card', 'vulopilot/commerce', () => BannerCard);
  * "single-consumer wrapper" cleanup already applied to
  * pages/Content/OverviewTab.tsx and pages/AIAssistant/ChatTab.tsx.
  */
-const CommercePanel = () => {
-	const RealPanel = useFilterSlot('vulopilot_commerce_panel');
-	const isProInstalled = Boolean(appLocalizer.khali_dabba);
-	const [isPopupOpen, setIsPopupOpen] = useState(false);
-
+const CommercePanel = ({
+	RealPanel,
+	onLockedClick,
+}: {
+	RealPanel: ComponentType | null;
+	onLockedClick: () => void;
+}) => {
 	if (RealPanel) {
 		return <RealPanel />;
 	}
 
-	return (
-		<>
-			<CommerceProDummies onClick={() => setIsPopupOpen(true)} />
-			<PopupComponent
-				open={isPopupOpen}
-				onClose={() => setIsPopupOpen(false)}
-				width={31.25}
-				height="auto"
-				position="lightbox"
-			>
-				{isProInstalled ? (
-					<ShowProPopup moduleName={COMMERCE_MODULE_ID} />
-				) : (
-					<ShowProPopup />
-				)}
-			</PopupComponent>
-		</>
-	);
+	return <CommerceProDummies onClick={onLockedClick} />;
 };
 
 /**
@@ -131,6 +117,11 @@ const CommercePanel = () => {
  * Commerce tab moved to Pro" story.
  */
 const Commerce = () => {
+	const RealPanel = useFilterSlot('vulopilot_commerce_panel');
+	const isProInstalled = Boolean(appLocalizer.khali_dabba);
+	const [isPopupOpen, setIsPopupOpen] = useState(false);
+	const isUnlocked = Boolean(RealPanel);
+
 	return (
 		<>
 			<NavigatorHeaderComponent
@@ -141,15 +132,45 @@ const Commerce = () => {
 					'vulopilot'
 				)}
 				headerCustomContent={
-					<RunScanHeaderExtra
-						categories={['woocommerce']}
-						settingsSubtab="woocommerce"
-					/>
+					isUnlocked ? (
+						<RunScanHeaderExtra
+							categories={['woocommerce']}
+							settingsSubtab="woocommerce"
+						/>
+					) : (
+						<RunScanHeaderExtra
+							categories={['woocommerce']}
+							settingsSubtab="woocommerce"
+							hideSettingsButton
+							hideRunScanButton
+							replaceRunScanButton={{
+								text: __('Run scan', 'vulopilot'),
+								icon: 'search',
+								onClick: () => setIsPopupOpen(true),
+							}}
+						/>
+					)
 				}
 			/>
 			<ContainerComponent general>
-				<CommercePanel />
+				<CommercePanel
+					RealPanel={RealPanel}
+					onLockedClick={() => setIsPopupOpen(true)}
+				/>
 			</ContainerComponent>
+			<PopupComponent
+				open={isPopupOpen}
+				onClose={() => setIsPopupOpen(false)}
+				width={31.25}
+				height="auto"
+				position="lightbox"
+			>
+				{isProInstalled ? (
+					<ShowProPopup moduleName={COMMERCE_MODULE_ID} />
+				) : (
+					<ShowProPopup />
+				)}
+			</PopupComponent>
 		</>
 	);
 };

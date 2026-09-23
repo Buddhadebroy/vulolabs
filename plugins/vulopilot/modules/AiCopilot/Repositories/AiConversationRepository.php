@@ -17,12 +17,12 @@ defined( 'ABSPATH' ) || exit;
  * as `VuloPilotPro\CopilotChat\AiConversationRepository` while that feature
  * was Pro-only; moved back here alongside `Rest\Copilot.php` now that it's
  * genuinely free again - see that controller's own docblock. Lives in
- * AiCopilot/ rather than classes/Repositories/ (unlike RepositoryUtil,
+ * AiCopilot/ rather than classes/Utill/ (unlike RepositoryUtil,
  * a real shared base 19 other repositories extend) since AiCopilot's own
  * `Rest\Copilot.php` is this repository's only real caller. The table
  * itself was never moved (`Utill::TABLES`'s own `ai_conversation` key,
  * unchanged throughout). Kept separate from `AiHistoryRepository` (which
- * stays in classes/Repositories/ - read by multiple AI surfaces, not just
+ * stays in classes/AiAssistant/ - read by multiple AI surfaces, not just
  * AiCopilot), which owns the permanent excerpt-only audit trail; this
  * repository is the only one that ever stores a conversation's full,
  * untruncated text.

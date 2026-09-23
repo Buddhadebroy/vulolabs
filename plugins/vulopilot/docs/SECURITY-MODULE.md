@@ -29,7 +29,7 @@ incident-reporting concept.
 
 ## Free - four new scanners, all category `security`
 
-All four live in `classes/Scanners/Basic/`, registered in
+All four live in `classes/Security/`, registered in
 `ScannerRegistry::get_default_scanner_classes()` alongside 6 of the 7
 pre-existing Pro `SecurityMonitoring` scanners under the same `security`
 category string - `RestApiScanner`'s own category is `rest-api`, not

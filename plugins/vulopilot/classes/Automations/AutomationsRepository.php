@@ -57,7 +57,7 @@ class AutomationsRepository extends RepositoryUtil {
      * status-count pill bar ("Active"/"Paused"/"Drafts" - Automations'
      * own filter chips read 'enabled'/'disabled'/'draft' by these exact
      * keys). Delegates the actual grouped query to
-     * AbstractRepository::count_by_column() rather than running its own
+     * RepositoryUtil::count_by_column() rather than running its own
      * SQL (database.md: prefer one query over several, and don't duplicate
      * query-building logic that already exists).
      *

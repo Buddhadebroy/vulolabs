@@ -270,7 +270,7 @@ export default {
 				'GEO/AEO score drop alerts (and their threshold) are configured under <a href="?page=vulopilot#&tab=settings&subtab=notifications">Notifications → Visibility Alerts</a>.',
 				'vulopilot'
 			),
-			moduleEnabled: 'geo',
+			moduleEnabled: 'geo-analysis',
 		},
 		// "Business"/"Services"/"Locations" (entity_business_type/
 		// entity_service_pages/entity_business_locations, plus the

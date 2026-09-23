@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * PerformanceScoreCard.tsx Core Web Vitals tiles. Read-only, real p75
  * aggregate from CoreWebVitalsRepository::get_p75_summary() (the actual
  * data the public beacon endpoint,
- * classes/RestAPI/Controllers/CoreWebVitalsBeaconRest.php, has collected
+ * classes/Performance/Rest/CoreWebVitalsBeaconRest.php, has collected
  * from real visitors).
  *
  * @class       CoreWebVitals controller

@@ -1,15 +1,5 @@
 <?php
 /**
- * Every class in this file used to be its own file under classes/Reports/Exporters/
- * (same names, docblocks, and behavior) - merged into one file to reduce
- * classes/'s file count, per direct instruction. Autoloading does not rely on
- * each class's own file matching its own name for this: composer.json's
- * autoload.classmap entry (alongside the existing psr-4 one) makes Composer
- * tokenize every file under classes/ and modules/ and map each class it finds
- * to its real file, however many classes share one file - run
- * `composer dump-autoload` (no `-o`/`--optimize-autoloader` needed) after any
- * further file merge/split here.
- *
  * @package VuloPilot
  */
 
@@ -134,37 +124,5 @@ class CsvExporter implements ReportExporterInterface {
         }
 
         return (string) $value;
-    }
-}
-
-/**
- * Renders a ReportResult as pretty-printed JSON - a straight dump of
- * ReportResult::to_array(), the full-fidelity export format (unlike csv/pdf,
- * nothing is flattened or reshaped).
- *
- * @class       JsonExporter class
- * @version     1.0.0
- * @author      VuloLabs
- */
-class JsonExporter implements ReportExporterInterface {
-
-    /**
-     * @inheritDoc
-     */
-    public function get_format(): string {
-        return 'json';
-    }
-
-    /**
-     * @inheritDoc
-     *
-     * @throws \RuntimeException When $file_path can't be written.
-     */
-    public function export( ReportResult $result, string $file_path ): void {
-        $written = file_put_contents( $file_path, (string) wp_json_encode( $result->to_array(), JSON_PRETTY_PRINT ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- writing to VuloPilot's own controlled reports directory (Reports\ReportGenerator resolves $file_path under wp-content/uploads/vulopilot-reports/), not arbitrary user-supplied paths.
-
-        if ( false === $written ) {
-            throw new \RuntimeException( esc_html( sprintf( 'Could not write %s.', $file_path ) ) );
-        }
     }
 }

@@ -5,13 +5,16 @@ Covers the contracts, the engine, the original 14 built-in scanners, and
 how a new scanner gets added - by this codebase, by a Pro module, or by a
 third-party developer. Later passes added many more scanners using this
 exact same mechanism. As of this pass there are **66 concrete scanners**
-registered in Free (`classes/Scanners/Basic/`), kept in their own docs
+registered in Free (scattered across their owning tab folders under
+`classes/`, e.g. `classes/Security/`, `classes/SeoVisibility/` - see the
+Engine section below for why there's no single `classes/Scanners/Basic/`
+folder any more), kept in their own docs
 rather than rewriting this table (to avoid misrepresenting the order these
 were actually built in):
 [`SEO-MODULE.md`](SEO-MODULE.md) added 13, all category `seo`;
 [`AI-CRAWLER-ANALYTICS-MODULE.md`](AI-CRAWLER-ANALYTICS-MODULE.md) added 1
 more, also category `seo` (`AiCrawlerBlockedPagesScanner`, "Blocked
-Pages") - registered alongside SEO-MODULE.md's 13 in `modules/Seo/Module.php`,
+Pages") - registered alongside SEO-MODULE.md's 13 in `modules/TechnicalSeo/Module.php`,
 not a separate module home;
 [`GEO-MODULE.md`](GEO-MODULE.md) added 9 more, all category `geo` - the
 `geo` scanner gap this file originally called out below is now filled (the
@@ -45,7 +48,18 @@ added 1 more Free scanner (`ProductSeoScanner`, category `woocommerce`)
 and one new Pro scanner (`InventoryIntelligenceScanner`, `modules/WooCommerceIntelligence/`,
 same category, tier `pro`) - three of that pass's five Free spec bullets
 were already satisfied by pre-existing `Product*` scanners; see that doc's
-own audit table.
+own audit table. **Update, later pass:** all 18 `woocommerce`-category
+scanners described as Free throughout this section (`ProductSeoScanner`,
+`WooCommerceScanner`, the 11 pre-existing `Product*` scanners, and the
+rest) have since moved to `vulopilot-pro`'s
+`modules/WooCommerceIntelligence/Scanners/`, registered via
+`vulopilot_scanner_sources` and gated on `class_exists('WooCommerce')` -
+they were a real bug (Commerce is a Pro-tier pillar; nothing
+`woocommerce`-category should have been in Free's hardcoded default list).
+The counts and scanner-location claims below reflect the pass each was
+written in, not this later fix - see
+[`WOOCOMMERCE-INTELLIGENCE-MODULE.md`](WOOCOMMERCE-INTELLIGENCE-MODULE.md)'s
+own update note for the current state.
 
 That accounts for 14 (original) − 2 (moved to Pro) + 13 + 1 + 9 + 1 + 3 + 1
 + 3 + 1 + 1 = 46 scanners with a documented origin. The remaining **19**
@@ -83,14 +97,18 @@ folded directly into the plugin itself, under the `VuloPilot\` namespace,
 which is where every class below actually lives today:
 
 ```
-classes/
-├── Contracts/Scanner/
-│   └── ScannerInterface.php   get_id()/get_label()/get_category()/get_tier()/scan(): Finding[]
-└── ValueObjects/
-    ├── Severity.php            critical|high|medium|low|info - closed vocabulary
-    ├── Finding.php              one issue: title, severity, category, description, object_type/ref, meta
-    └── ScanResult.php           the outcome of running one scanner once (status, findings[], duration, summary)
+classes/Utill/
+├── ScannerInterface.php   get_id()/get_label()/get_category()/get_tier()/scan(): Finding[]
+├── Severity.php            critical|high|medium|low|info - closed vocabulary
+├── Finding.php              one issue: title, severity, category, description, object_type/ref, meta
+└── ScanResult.php           the outcome of running one scanner once (status, findings[], duration, summary)
 ```
+
+These used to live under `classes/Contracts/Scanner/` and `classes/ValueObjects/`
+respectively - both flat folders were retired in a later reorganization pass
+that moved every genuinely cross-tab/shared class into one `classes/Utill/`
+folder (per-tab classes moved into their owning `classes/<Tab>/` folder
+instead; see the repo's own `CLAUDE.md` for the current folder shape).
 
 - **`ScannerInterface` is the only interface.** There's deliberately no
   `ScanResultInterface` - `ScanResult` only ever has one shape/implementation
@@ -99,7 +117,7 @@ classes/
   earns its interface status because it genuinely has 66 different
   implementations today (up from 14 at this doc's first pass) and is the
   actual swap point for Free/Pro/third-party scanners.
-- **Zero WordPress dependency in `ValueObjects/`** - `Finding`/`Severity`/
+- **Zero WordPress dependency in `Utill/`'s value objects** - `Finding`/`Severity`/
   `ScanResult` are plain PHP, unit-testable with no WP bootstrap.
   `ScannerInterface` only references these, never a WP function. Real
   scanner *implementations* are WP-heavy; the *contract* they satisfy is
@@ -117,20 +135,26 @@ classes/
 - **`Finding`'s constructor args map 1:1 to `vulopilot_scan_findings`
   columns**, minus `scan_id`/`status` - those get attached when a Finding
   is persisted against a specific scan run, which is
-  `Services\ScanPersistenceListener`'s job (see "What's not here yet"
+  `Utill\ScanPersistenceListener`'s job (see "What's not here yet"
   below - this is one of the things that *was* "not built yet" when this
   doc was first written and has since shipped).
 
-## Engine (`vulolabs/plugins/vulopilot/classes/Scanners`)
+## Engine (`vulolabs/plugins/vulopilot/classes/Utill`)
 
 ```
-classes/Scanners/
+classes/Utill/
 ├── ScannerRegistry.php   Instantiates every registered scanner class, indexed by get_id(), applies category kill switches
 ├── ScanRunner.php         Runs one/many/all scanners, times them, catches failures
-└── Basic/
-    ├── AbstractBasicScanner.php   shared get_tier() = 'free'
-    └── (66 concrete scanners)
+└── ScannerUtil.php        shared abstract base, get_tier() = 'free'
 ```
+
+The 66 concrete scanner classes themselves no longer live in one flat
+folder - each lives in the `classes/<Tab>/` folder (or `modules/<Module>/Scanners/`)
+that actually owns it, matching `classes/Admin.php`'s menu-tab structure
+(e.g. `classes/Security/`, `classes/SeoVisibility/`, `modules/TechnicalSeo/Scanners/`).
+`ScannerRegistry`/`ScannerUtil` are the only genuinely shared, cross-tab
+pieces, which is why they live in `classes/Utill/` rather than any one tab
+folder.
 
 - **`ScannerRegistry` collects class names via a filter, not folders.**
   `module-architecture.md` describes `Modules.php` discovering whole
@@ -151,13 +175,13 @@ classes/Scanners/
   `BrokenLinksScanner` - the four "original 14" rows below that are
   category `seo`/`schema`/`images`/`links`. They, plus SEO-MODULE.md's 13
   and AI-CRAWLER-ANALYTICS-MODULE.md's 1, are all registered instead by
-  `modules/Seo/Module.php`'s own `add_filter( 'vulopilot_scanner_sources', ... )`
+  `modules/TechnicalSeo/Module.php`'s own `add_filter( 'vulopilot_scanner_sources', ... )`
   callback (18 classes total). This is a real architectural change since
   this doc's first pass: if the Seo module is deactivated (Settings →
   Modules), `Modules::load_active_modules()` never constructs
-  `Seo\Module`, its filter callback never registers, and none of those 18
+  `TechnicalSeo\Module`, its filter callback never registers, and none of those 18
   scanners run on the next scan - not just the 13+1 "SEO-MODULE.md era"
-  ones, but the 4 originally-hardcoded ones too. `Geo\Module` does **not**
+  ones, but the 4 originally-hardcoded ones too. `GeoAnalysis\Module` does **not**
   do this for GEO's own scanners (they stay in the hardcoded default list
   below, unconditionally) - see that module's own docblock for why GEO
   has no whole-category kill switch the way SEO now does.
@@ -182,7 +206,7 @@ classes/Scanners/
   actually does it now. This keeps `ScanRunner`'s only dependency
   direction Free → `ValueObjects`, never Free → a persistence layer.
 
-## The 14 original scanners (`classes/Scanners/Basic/`)
+## The 14 original scanners ((each tab's/module's own folder under `classes/`/`modules/`))
 
 Every one of these does exactly one real, bounded, deterministic check
 today - not because that's the ceiling, but because one honest check beats
@@ -216,7 +240,7 @@ the intro above) 9 scanners.
 
 **`SecurityScanner`/`RestApiScanner` have since moved to `vulopilot-pro`,
 unchanged in name.** Both rows above describe what was true when this
-table was first written; neither class lives under `classes/Scanners/Basic/`
+table was first written; neither class lives under `classes/Scanners/Basic/` (that flat folder no longer exists)
 anymore - `vulopilot-pro`'s `SecurityMonitoring` module now owns both
 (`modules/SecurityMonitoring/Scanners/SecurityScanner.php`/`RestApiScanner.php`,
 same class names, `get_tier()` now `'pro'`), alongside **7** more hardening
@@ -266,11 +290,11 @@ unbounded operations; none of them do an unbounded full-site crawl.
 Three ways to add a scanner, in increasing order of "how far from this
 codebase":
 
-1. **A new Free built-in scanner.** Add a class under `classes/Scanners/Basic/`
-   extending `AbstractBasicScanner`, implement `get_id()`/`get_label()`/
+1. **A new Free built-in scanner.** Add a class under the owning tab's `classes/<Tab>/` (or `modules/<Module>/Scanners/`) folder
+   extending `Utill\ScannerUtil`, implement `get_id()`/`get_label()`/
    `get_category()`/`scan()`, add its `::class` reference to
    `ScannerRegistry::get_default_scanner_classes()` (or, if it's an SEO
-   check, to `modules/Seo/Module.php`'s own `register_scanners()` instead -
+   check, to `modules/TechnicalSeo/Module.php`'s own `register_scanners()` instead -
    see the module-gating note above). Runs for every install, no license
    check (subject to whichever module/category toggle its category is
    gated by, if any).
@@ -301,7 +325,7 @@ lives on disk.
 
 Two of the three gaps this section originally called out are now closed:
 
-- ~~**Persistence.**~~ **Built.** `Services\ScanPersistenceListener`
+- ~~**Persistence.**~~ **Built.** `Utill\ScanPersistenceListener`
   self-hooks `vulopilot_scan_completed` and writes both the
   `vulopilot_scans` row and every `vulopilot_scan_findings` row, logs a
   `scan.completed` activity-log entry, optionally emails critical findings
@@ -311,12 +335,12 @@ Two of the three gaps this section originally called out are now closed:
   site-health snapshot without `ScanPersistenceListener` knowing that
   module exists.
 - ~~**REST endpoints** (`vulopilot/v1/scans`, `/findings`)~~ **Built.**
-  `RestAPI\Controllers\Scans`/`Findings` (`rest_base` = `scans`/`findings`)
+  `Utill\Scans`/`Findings` (`rest_base` = `scans`/`findings`)
   back the admin UI pages this doc originally said "correctly show their
   error state until the REST layer lands." `Findings` also has a `/bulk`
   sub-route and a `/{id}/actions/{action_id}` sub-route - the latter is
   what wires a Finding to [`AI-ACTIONS.md`](AI-ACTIONS.md)'s `propose()`.
-- **Scheduling - built, but in Pro, not Free.** Nothing in `classes/Scanners/`
+- **Scheduling - built, but in Pro, not Free.** Nothing in `classes/Utill/`
   itself calls `ScanRunner::run_all()` on a cron tick; `VuloPilot.php`'s
   own bootstrap comment is explicit that a `Scheduler` class doing that is
   "Pro business logic now" - "Scheduled Website Scans" per the readme -

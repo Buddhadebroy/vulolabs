@@ -71,16 +71,19 @@ no longer exists. It was folded directly into the plugin, under the
 `VuloPilot\` namespace, where every class below actually lives today:
 
 ```
-classes/
-├── Contracts/RuleEngine/
-│   └── RuleInterface.php   get_id/get_label/get_type/get_priority/get_categories/
-│                           get_tags/is_fixable/requires_ai/get_estimated_impact/
-│                           get_estimated_time_minutes/get_tier/applies_to()/get_recommendation()
-└── ValueObjects/
-    ├── RuleType.php         critical|error|warning|suggestion
-    ├── Impact.php           high|medium|low
-    └── Recommendation.php   the output: a rule's metadata + finding-specific content
+classes/Utill/
+├── RuleInterface.php   get_id/get_label/get_type/get_priority/get_categories/
+│                       get_tags/is_fixable/requires_ai/get_estimated_impact/
+│                       get_estimated_time_minutes/get_tier/applies_to()/get_recommendation()
+├── RuleType.php         critical|error|warning|suggestion
+├── Impact.php           high|medium|low
+└── Recommendation.php   the output: a rule's metadata + finding-specific content
 ```
+
+These used to live under `classes/Contracts/RuleEngine/` and
+`classes/ValueObjects/` respectively - both flat folders were retired in a
+later reorganization pass in favor of one `classes/Utill/` folder for
+genuinely cross-tab shared infra (see the Engine section below).
 
 - **`RuleType` and `Impact` are separate vocabularies from `Severity`.**
   `Severity` (already existed, for `Finding`) describes how bad the
@@ -111,29 +114,43 @@ classes/
   it). A rule returning an invalid type/impact string produces a
   `Recommendation` that silently carries it through to the dashboard.
 
-## Engine (`vulolabs/plugins/vulopilot/classes/RuleEngine`)
+## Engine (`vulolabs/plugins/vulopilot/classes/Utill`)
 
 ```
-classes/RuleEngine/
-├── RuleRegistry.php   Instantiates every registered rule class, indexed by get_id()
-├── RuleEngine.php      Runs rules against Findings, self-hooks vulopilot_scan_completed
-└── Rules/
-    ├── AbstractBasicRule.php   shared get_tier()='free' + sensible defaults
-    └── (19 concrete rules)
+classes/Utill/
+├── RuleRegistry.php     Instantiates every registered rule class, indexed by get_id()
+├── RuleEngine.php        Runs rules against Findings, self-hooks vulopilot_scan_completed
+└── AbstractBasicRule.php  shared get_tier()='free' + sensible defaults
 ```
 
-- **`RuleRegistry` is structurally identical to `Scanners\ScannerRegistry`**
+`RuleRegistry`/`RuleEngine`/`AbstractBasicRule` live flat in `classes/Utill/`
+(this reorganization pass's home for genuinely cross-tab shared infra) -
+there's no separate `RuleEngine/` or `Rules/` folder any more. The 19
+concrete rule classes themselves are scattered across the `classes/<Tab>/`
+(or `modules/<Module>/`) folder each one actually belongs to, the same way
+the 66 concrete scanners are (`SCANNERS.md`'s Engine section).
+
+- **`RuleRegistry` is structurally identical to `Utill\ScannerRegistry`**
   - same filter-based discovery (`vulopilot_rule_sources` instead of
   `vulopilot_scanner_sources`), same "skip anything that doesn't exist or
   doesn't implement the interface" defensiveness, same reasoning for not
   copying `Modules.php`'s folder-scan mechanism. Once one engine in this
   plugin settled on a pattern, the second engine reusing it exactly is the
   point - consistency across VuloPilot's own subsystems, not just against
-  the wider monorepo. Unlike `ScannerRegistry`, `RuleRegistry` has no
-  category kill-switch logic and no module-gated subset - all 19 rules sit
+  the wider monorepo. Unlike `ScannerRegistry`, `RuleRegistry` originally had
+  no category kill-switch logic and no module-gated subset - all 19 rules sat
   in one flat `get_default_rule_classes()` array, always registered.
+  **Update, later pass:** 9 of those 19 - the `woocommerce`-category rules
+  paired with the WooCommerce scanners covered in
+  [`WOOCOMMERCE-INTELLIGENCE-MODULE.md`](WOOCOMMERCE-INTELLIGENCE-MODULE.md)'s
+  own update note - have since moved to `vulopilot-pro`'s
+  `modules/WooCommerceIntelligence/Rules/`, registered via the
+  `vulopilot_rule_sources` filter and gated on `class_exists('WooCommerce')`,
+  for the same reason those scanners moved (Commerce is Pro-tier; nothing
+  `woocommerce`-scoped should have shipped in Free's hardcoded default
+  list). `get_default_rule_classes()` now returns 10 rules, not 19.
 - **`RuleEngine` self-hooks `vulopilot_scan_completed`** (the hook
-  `Scanners\ScanRunner` fires) - every completed scan automatically flows
+  `Utill\ScanRunner` fires) - every completed scan automatically flows
   into recommendation generation with zero coupling between the two
   engines: `ScanRunner` has never heard of `RuleEngine`; `RuleEngine` only
   depends on `ScanResult`, a shared value object both engines already
@@ -148,13 +165,13 @@ classes/RuleEngine/
 - **No persistence, again deliberately.** `RuleEngine` fires
   `vulopilot_recommendations_generated` and stops - writing recommendations
   anywhere durable is left to whatever's listening. Unlike `ScanResult`
-  (which `Services\ScanPersistenceListener` now persists - see
+  (which `Utill\ScanPersistenceListener` now persists - see
   `SCANNERS.md`'s "What's not here yet"), nothing in this codebase
   currently listens for `vulopilot_recommendations_generated` to write
   `Recommendation`s anywhere durable; they're generated fresh, in memory,
   every time a caller asks.
 
-## The 19 built-in rules (`classes/RuleEngine/Rules/`)
+## The 19 built-in rules ((scattered across owning tab/module folders, per the Engine section above))
 
 The original 5:
 
@@ -232,10 +249,10 @@ Identical shape to `SCANNERS.md`'s, on purpose - once a pattern exists in
 this codebase, the second engine that could reuse it should, rather than
 inventing a parallel-but-different extension mechanism:
 
-1. **A new Free built-in rule**: add a class under `classes/RuleEngine/Rules/`
+1. **A new Free built-in rule**: add a class under the owning tab's `classes/<Tab>/` (or `modules/<Module>/`) folder
    extending `AbstractBasicRule`, add its `::class` reference to
    `RuleRegistry::get_default_rule_classes()`.
-2. **A Pro premium rule**: implement `VuloPilot\Contracts\RuleEngine\RuleInterface`
+2. **A Pro premium rule**: implement `VuloPilot\Utill\RuleInterface`
    directly inside a Pro module (`get_tier()` would return `'pro'` - not
    `'premium'`, matching the correction in `SCANNERS.md`'s and
    `AI-ACTIONS.md`'s own extension-strategy sections - since Pro rules
@@ -252,9 +269,9 @@ inventing a parallel-but-different extension mechanism:
 ## What's not here yet
 
 - **Persistence** of `Recommendation`s. Unlike `SCANNERS.md`'s equivalent
-  gap (now closed by `Services\ScanPersistenceListener`), this one is
+  gap (now closed by `Utill\ScanPersistenceListener`), this one is
   still open: nothing listens for `vulopilot_recommendations_generated` to
-  write a `Recommendation` anywhere durable. `RestAPI\Controllers\Findings`'s
+  write a `Recommendation` anywhere durable. `Utill\Findings`'s
   `/{id}/actions/{action_id}` sub-route (see `SCANNERS.md`) lets the
   dashboard act on a Finding directly via `AI-ACTIONS.md`'s `propose()`
   without needing a persisted `Recommendation` row at all - which may be

@@ -62,10 +62,10 @@ class Geo extends \WP_REST_Controller {
     protected $rest_base = 'geo';
 
     /**
-     * Real, always-free GEO scanner ids (`classes/Scanners/Basic/`),
+     * Real, always-free GEO scanner ids (`modules/GeoAnalysis/Scanners/`),
      * regrouped 1:1 against this card's own reference mockup rows. Kept in
      * sync manually with GeoTab.tsx's own `GEO_TOPICS` - same "kept in sync
-     * manually" posture `Controllers\Seo::CATEGORY_SCANNER_IDS`'s own
+     * manually" posture `TechnicalSeo\Rest\Seo::CATEGORY_SCANNER_IDS`'s own
      * docblock already documents for SEO_SECTIONS, since these two groupings
      * serve different UI purposes (a 5-tile topic grid there vs. this card's
      * own 7-row score breakdown here) despite drawing on the same 9 real

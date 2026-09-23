@@ -46,7 +46,7 @@ for the mechanism.
 
 ### Free
 
-**`ReadabilityScanner`** (`modules/ContentIntelligence/Scanners/ReadabilityScanner.php`, id
+**`ReadabilityScanner`** (`modules/ContentOptimization/Scanners/ReadabilityScanner.php`, id
 `readability`, new category `content`) - the one genuinely new scanner. Real
 Flesch Reading Ease score (`206.835 - 1.015*(words/sentences) -
 84.6*(syllables/words)`, clamped 0–100), skipping posts under 100 words
@@ -56,11 +56,11 @@ Intelligence, default 50 - Flesch's own published "Fairly Difficult"
 boundary), not a hardcoded number.
 
 **Content Score** - `GET /content-intelligence/score`
-(`modules/ContentIntelligence/Rest/ContentIntelligence.php`) - a composite score
+(`modules/ContentOptimization/Rest/ContentIntelligence.php`) - a composite score
 over `readability` + the 4 reused `seo` scanners + `orphan-pages`, same
 weighting formula (`100 - critical*15 - high*8 - medium*3 - low*1`) every
 other category score already uses. Also wired into the Dashboard's
-`category_scores.content` (`Controllers/Dashboard.php`'s
+`category_scores.content` (`Dashboard\Rest\Dashboard`'s
 `calculate_content_score()`) and a new `content` stat widget
 (`dashboard-widgets/registry.ts`).
 
@@ -107,7 +107,7 @@ active-module check.
 ### Pro
 
 **Topic Authority** - `ContentAnalyzer`
-(`modules/ContentIntelligence/ContentAnalyzer.php`, **lives in Free**,
+(`modules/ContentOptimization/ContentAnalyzer.php`, **lives in Free**,
 mirrors `GeoAnalysis\GeoAnalyzer` exactly) produces a `ContentScore`: a
 deterministic score (% of the 5 per-post checks passing) averaged with one
 AI dimension, `topic_authority` (0–100, does the content demonstrate real
@@ -116,7 +116,7 @@ suggestions. Same Free-owns-the-engine/Pro-owns-the-costed-route split
 `GeoInsights\Rest.php`'s own docblock documents: the analyzer class is
 constructed unconditionally in Free's `VuloPilot::init_classes()`
 (`content_analyzer`), but the REST route that actually calls `analyze()`
-(real AI spend) is Pro's own `ContentIntelligence\Rest.php`
+(real AI spend) is Pro's own `ContentOptimization\Rest.php`
 (`GET`/`POST /content-intelligence/{post_id}`). Surfaced as
 `TopicAuthorityCard.tsx` via the `vulopilot_content_topic_authority_card`
 filter slot.

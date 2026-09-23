@@ -82,8 +82,7 @@ final class VuloPilot {
         // A no-op if this site already has an active-module list (e.g. a
         // deactivate/reactivate cycle) - only seeds 'geo-analysis'/'technical-seo'/
         // 'content-optimization'/'brand-visibility'/'knowledge-graph'/
-        // 'ai-copilot' as active for a genuinely fresh install, matching
-        // Install.php's own migration for sites upgrading in place instead.
+        // 'ai-copilot' as active for a genuinely fresh install.
         add_option( Utill::ACTIVE_MODULES_DB_KEY, array( 'geo-analysis', 'technical-seo', 'content-optimization', 'brand-visibility', 'knowledge-graph', 'ai-copilot' ) );
         flush_rewrite_rules();
     }
@@ -129,56 +128,6 @@ final class VuloPilot {
     }
 
     /**
-     * One-time-in-effect id remap for 5 modules folder-renamed to share an
-     * id with their Pro counterpart (Geo->geo-analysis, Seo->technical-seo,
-     * ContentIntelligence->content-optimization,
-     * EntityExtraction->knowledge-graph,
-     * BrandIntelligence->brand-visibility). Modules::camel_to_kebab()
-     * derives a module's id purely from its folder name (no override), so
-     * an already-installed site's stored ACTIVE_MODULES_DB_KEY option still
-     * has the old ids and Modules::load_active_modules() validates-and-drops
-     * anything that no longer resolves to a real module id (see that
-     * method's own docblock) - meaning these 5 modules would otherwise go
-     * silently inactive after this rename. There's no version-gated
-     * migration hook left to attach this to (Install's own docblock
-     * explains why that mechanism was reset to nothing), so this instead
-     * runs unconditionally on every 'init' before load_active_modules():
-     * it's a single get_option()/array remap + a conditional update_option(),
-     * cheap enough to not need a one-time guard, and idempotent (a no-op
-     * once every site's option only has current ids).
-     *
-     * @return void
-     */
-    private function migrate_renamed_active_module_ids() {
-        $old_to_new = array(
-            'geo'                  => 'geo-analysis',
-            'seo'                  => 'technical-seo',
-            'content-intelligence' => 'content-optimization',
-            'entity-extraction'    => 'knowledge-graph',
-            'brand-intelligence'   => 'brand-visibility',
-        );
-
-        $active = get_option( Utill::ACTIVE_MODULES_DB_KEY, array() );
-
-        if ( ! is_array( $active ) || empty( $active ) ) {
-            return;
-        }
-
-        $remapped = false;
-
-        foreach ( $active as $index => $module_id ) {
-            if ( isset( $old_to_new[ $module_id ] ) ) {
-                $active[ $index ] = $old_to_new[ $module_id ];
-                $remapped         = true;
-            }
-        }
-
-        if ( $remapped ) {
-            update_option( Utill::ACTIVE_MODULES_DB_KEY, array_values( array_unique( $active ) ) );
-        }
-    }
-
-    /**
      * Initializes VuloPilot classes and fires 'vulopilot_loaded', the hook
      * VuloPilot Pro (and any third-party extension) gates its own boot on -
      * the same boot-order-gate pattern a shared-platform architecture would
@@ -190,8 +139,6 @@ final class VuloPilot {
         $this->container['util']            = new Utill();
         $this->container['admin']           = new Admin();
         $this->container['frontendScripts'] = new FrontendScripts();
-
-        $this->migrate_renamed_active_module_ids();
 
         // Module loader (module-architecture.md) - loaded before every
         // registry below so a module's own constructor (e.g. registering

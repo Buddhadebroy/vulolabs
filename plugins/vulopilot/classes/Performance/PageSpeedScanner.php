@@ -224,7 +224,7 @@ class PageSpeedScanner {
      * Bands a real score into the same 'slow'/'needs_improvement'/'good'
      * thresholds PageSpeedRepository's own SCORE_GOOD/SCORE_NEEDS_IMPROVEMENT
      * constants define, stored redundantly as its own column purely so it's
-     * filterable/countable the way every other AbstractRepository-backed
+     * filterable/countable the way every other RepositoryUtil-backed
      * list's status column already is.
      *
      * @param int $score Real 0-100 score.

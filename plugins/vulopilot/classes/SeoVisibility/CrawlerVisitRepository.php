@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Persistence for vulopilot_crawler_visits (AI Crawler Traffic Monitoring,
  * readme.txt). `find_all()`/pagination is entirely inherited from
- * AbstractRepository - this only adds the aggregate reads the Crawler
+ * RepositoryUtil - this only adds the aggregate reads the Crawler
  * Traffic page's summary section needs (bot counts, last-seen timestamps,
  * most-crawled pages, daily volume), the same "repository adds its own
  * query methods beyond the generic CRUD base" pattern

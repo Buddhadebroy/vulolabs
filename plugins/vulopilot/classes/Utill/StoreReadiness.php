@@ -18,7 +18,8 @@ defined( 'ABSPATH' ) || exit;
  * the last scan run. Real order/checkout *problems* (failed orders,
  * stale orders, gateway test-mode, outdated templates) are genuine
  * scanner findings instead (WooCommerceFailedOrdersScanner and its
- * siblings in classes/Scanners/Basic/) so they get the real
+ * siblings, now Pro-owned under vulopilot-pro's
+ * modules/WooCommerceIntelligence/Scanners/) so they get the real
  * open/resolve/ignore workflow and show up in the same findings table
  * everything else does.
  *

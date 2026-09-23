@@ -48,20 +48,20 @@ rather than duplicating a second, Pro-gated copy of either.
 
 ### Free
 
-**`AeoSchemaScanner`** (`classes/Scanners/Basic/AeoSchemaScanner.php`, id
+**`AeoSchemaScanner`** (`classes/SeoVisibility/AeoSchemaScanner.php`, id
 `aeo-schema`, category `geo`) - covers both "AEO Scanner" and "Missing Schema
 Detection" as the same real check (deliberately not two overlapping
 scanners): flags a post whose content is *already shaped* like FAQ content
 (question-phrased headings - the same signal `GeoFaqOpportunityScanner`
 uses) or HowTo content (an ordered list with 3+ steps) but has no matching
 `FAQPage`/`HowTo` schema.org markup saved to its `_vulopilot_schema_json`
-postmeta (`Services\SchemaJsonLdRenderer`'s own key). Narrower than
+postmeta (`SeoVisibility\SchemaJsonLdRenderer`'s own key). Narrower than
 `GeoFaqOpportunityScanner` on purpose - that scanner flags content with *no*
 FAQ shape at all; this one only fires once the shape already exists but the
 schema an answer engine would actually read doesn't.
 
 **Top Pages** - `GET /geo-analysis/top-pages`
-(`modules/Geo/Rest/GeoAnalysis.php`, new file - see its own
+(`modules/GeoAnalysis/Rest/GeoAnalysis.php`, new file - see its own
 docblock for why this filename is safe to reuse even though it previously
 hosted routes that moved to Pro) ranks published posts by open
 `geo`-category finding count (fewest = most AI-visibility-ready), using
@@ -101,7 +101,7 @@ gap for the *sitewide* snapshot. New table `vulopilot_geo_visibility_history`
 `CREATE TABLE IF NOT EXISTS` migration shape every other post-v1.0.0 table
 uses). Same Free/Pro split `vulopilot_site_health_snapshots`/
 `AdvancedReports\SiteHealthSnapshotRepository` already establishes: **Free
-owns the table schema and the generic `AbstractRepository` base**;
+owns the table schema and the generic `Utill\RepositoryUtil` base**;
 **Pro owns the concrete `GeoInsights\GeoVisibilityHistoryRepository`** and is
 the only thing that ever writes to it (`VisibilitySnapshotBuilder`, on its
 existing cron cadence). Read via `GET /geo-visibility-history`
