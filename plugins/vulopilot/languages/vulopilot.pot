@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-23T07:28:02+00:00\n"
+"POT-Creation-Date: 2026-09-23T10:49:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
@@ -1149,11 +1149,11 @@ msgstr ""
 msgid "Consider a persistent object cache (Redis/Memcached) for database-heavy pages."
 msgstr ""
 
-#: classes/Reports/Exporters/Exporters.php:56
+#: classes/Reports/Exporters/CsvExporter.php:46
 msgid "Period"
 msgstr ""
 
-#: classes/Reports/Exporters/Exporters.php:59
+#: classes/Reports/Exporters/CsvExporter.php:49
 msgid "Summary"
 msgstr ""
 
@@ -1335,53 +1335,53 @@ msgstr ""
 msgid "Stable"
 msgstr ""
 
-#: classes/Reports/Types/Types.php:108
+#: classes/Reports/Types/AccessibilityReport.php:30
 msgid "Accessibility Report"
 msgstr ""
 
-#: classes/Reports/Types/Types.php:141
+#: classes/Reports/Types/AiUsageReport.php:36
 msgid "AI Usage Report"
 msgstr ""
 
-#: classes/Reports/Types/Types.php:214
+#: classes/Reports/Types/AiVisibilityReport.php:40
 msgid "AI Visibility Report"
 msgstr ""
 
-#: classes/Reports/Types/Types.php:247
+#: classes/Reports/Types/AutomationsReport.php:36
 msgid "Automations Report"
 msgstr ""
 
-#: classes/Reports/Types/Types.php:333
+#: classes/Reports/Types/BrandIntelligenceReport.php:58
 msgid "Brand Intelligence Report"
 msgstr ""
 
-#: classes/Reports/Types/Types.php:421
+#: classes/Reports/Types/ContentIntelligenceReport.php:57
 msgid "Content Intelligence Report"
 msgstr ""
 
-#: classes/Reports/Types/Types.php:488
+#: classes/Reports/Types/PerformanceReport.php:32
 msgid "Performance Report"
 msgstr ""
 
-#: classes/Reports/Types/Types.php:521
+#: classes/Reports/Types/ScanSummaryReport.php:37
 msgid "Scan Summary"
 msgstr ""
 
-#: classes/Reports/Types/Types.php:589
+#: classes/Reports/Types/SecurityReport.php:30
 #: assets/js/index.js:9
 msgid "Security Report"
 msgstr ""
 
-#: classes/Reports/Types/Types.php:621
+#: classes/Reports/Types/SeoReport.php:31
 #: assets/js/index.js:9
 msgid "SEO Report"
 msgstr ""
 
-#: classes/Reports/Types/Types.php:655
+#: classes/Reports/Types/UpdatesReport.php:33
 msgid "Updates Report"
 msgstr ""
 
-#: classes/Reports/Types/Types.php:689
+#: classes/Reports/Types/WooCommerceReport.php:33
 msgid "WooCommerce Report"
 msgstr ""
 
@@ -5317,7 +5317,7 @@ msgid "Notification channels"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Select how you want to receive notifications for all alert types below."
+msgid "Choose how you want to receive notifications for all alert types below — by email, inside your WordPress dashboard, or both."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5337,7 +5337,7 @@ msgid "AI Crawler Alerts"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Get notified when AI crawlers are blocked, limited, or stop visiting your website."
+msgid "Get notified when AI crawlers (like GPTBot or ClaudeBot) are blocked, limited, or stop visiting your website — so you know if AI systems are losing access to your content."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5349,7 +5349,7 @@ msgid "Security Alerts"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Get notified about security risks and suspicious activity on your website."
+msgid "Stay on top of security risks and suspicious activity on your website, such as failed logins, malware, or unexpected file changes."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5405,7 +5405,7 @@ msgid "Visibility Alerts"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Get notified when your visibility scores drop so you can take action early."
+msgid "Catch it early when your visibility scores drop, so you can fix the underlying issue before it affects how often AI systems reference your site."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5445,7 +5445,7 @@ msgid "Critical issue alerts"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Get notified immediately when critical issues are found on your website."
+msgid "Hear about the highest-severity problems on your website right away — sent immediately, regardless of your other notification settings."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5846,7 +5846,7 @@ msgid "Could not save title and description formats. Please try again."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Enable Site Identity"
+msgid "Custom title formats"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5913,23 +5913,43 @@ msgid "Configure your XML sitemap (for search engines) and HTML sitemap (for vis
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "VuloPilot builds an XML sitemap from the content you've selected."
+msgid "VuloPilot creates your sitemap"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "It's published at yoursite.com/sitemap.xml once enabled."
+msgid "We build an XML sitemap using the content types you've selected."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Search engines are notified automatically on publish or update."
+msgid "It's published on your site"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Cleaner sitemaps get crawled and indexed faster."
+msgid "Your sitemap is available at yoursite.com/sitemap.xml once enabled."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Search engines are notified"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "We notify search engines automatically when you publish or update content."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Helps your content get discovered"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A sitemap makes it easier for search engines to find your content. Indexing is not guaranteed."
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "How it works"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "See what happens when you enable the XML sitemap."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6049,7 +6069,7 @@ msgid "Enable HTML sitemap"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Use this shortcode to display the HTML sitemap anywhere on your site: [vulopilot_html_sitemap]"
+msgid "Use this shortcode to display the HTML sitemap anywhere on your site: <code>[vulopilot_html_sitemap] </code>"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6172,7 +6192,11 @@ msgid "These scans help your content get understood by AI systems and shown in A
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Configure how vuloPilot monitors your site for issues."
+msgid "AI Visibility scan"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Controls how VuloPilot monitors your site for issues that affect whether AI assistants reference or recommend it."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6280,7 +6304,7 @@ msgid "Which content types are listed in llms.txt."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "GEO/AEO score drop alerts (and their threshold) are configured under <a href=\"?page=vulopilot#&tab=settings&subtab=notifications\">Notifications → Visibility Alerts</a>."
+msgid "Content-freshness thresholds feed your GEO/AEO score . Get alerted when it drops under <a href=\"?page=vulopilot#&tab=settings&subtab=notifications\">Notifications → Visibility Alerts</a>."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6328,6 +6352,10 @@ msgid "Site Monitoring"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Configure how vuloPilot monitors your site for issues."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Weak password checks"
 msgstr ""
 
@@ -6336,11 +6364,11 @@ msgid "Find users with weak passwords and get suggestions to make them stronger.
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "WordPress exposure"
+msgid "Exposed WordPress details"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Check common WordPress exposure issues that can be exploited by attackers, like an exposed version number or a default database table prefix."
+msgid "Flags details that help attackers target your site — like a visible WordPress version number, or leaving the database table prefix at its default (wp_) instead of something unique."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6360,11 +6388,11 @@ msgid "Scan your website for malware, suspicious code, and harmful scripts."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "User exposure"
+msgid "Exposed usernames"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Check whether your REST API publicly exposes usernames to unauthenticated visitors - a common first step in brute-force login attacks."
+msgid "Checks whether a part of WordPress that other plugins and apps talk to automatically (the REST API) is publicly revealing usernames — often the first step in a brute-force login attack."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6468,11 +6496,15 @@ msgid "Security scans"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Block brute-force logins and log known attack patterns."
+msgid "Block repeated failed login attempts (brute-force attacks) and keep a record of suspicious activity for you to review."
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Regular security scans help you protect your website, your users, and your business from threats and attacks."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Block brute-force logins and log known attack patterns."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6481,7 +6513,7 @@ msgid "Security Monitoring"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Ongoing monitoring beyond a single scan run."
+msgid "Keeps watching for threats continuously, instead of only when you run a scan manually."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6505,7 +6537,7 @@ msgid "About Page"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Controls the Brand page's About Page Analysis finding - evaluated only for sites that already have an About-shaped page."
+msgid "Checks whether your sites About or Company page gives visitors (and search engines) enough real information to trust it. Only runs if your site has a page that looks like an About page."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7177,6 +7209,7 @@ msgid "Scanning…"
 msgstr ""
 
 #: assets/js/index.js:1
+#: assets/js/index.js:9
 msgid "Run scan"
 msgstr ""
 
