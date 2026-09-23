@@ -69,10 +69,10 @@ class VuloCloudAiConnection extends \WP_REST_Controller {
      * @inheritDoc
      */
     public function get_items( $request ) {
-        // A cheap connection-status check (AiCreditsConnection::byok_status(),
+        // A cheap connection-status check (AiCreditsConnection::get_vulocloud_ai_status(),
         // never a key/prompt) - the real, current answer to "does AI work
         // for this site".
-        $vulocloud_status = ( new AiCreditsConnection() )->byok_status();
+        $vulocloud_status = ( new AiCreditsConnection() )->get_vulocloud_ai_status();
 
         return rest_ensure_response(
             array(

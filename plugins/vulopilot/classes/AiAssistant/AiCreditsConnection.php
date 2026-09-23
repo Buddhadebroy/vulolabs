@@ -17,19 +17,16 @@ defined( 'ABSPATH' ) || exit;
  * separate person-level login status (`vulocloud_account_connected`/`_email`)
  * - a different, informational-only connection this class doesn't depend on.
  *
- * `execute()`/`status()` are the one HTTP call the BYOK proxy path makes -
- * `POST /plugin/ai/byok-execute`/`byok-status` against VuloCloud's own
- * `contexts/vulopilot/ai-byok`/`ai-gateway`: sends
- * `{siteId, secret, feature, prompt, context, site_tone}`, deliberately
- * never a `provider`/`model` field - this site never names one, never
- * learns which vendor/key actually answered, and never holds an API key at
- * all beyond this connection's own encrypted site secret. VuloCloud alone
- * resolves whichever Organization or (if allowed) Customer backup
- * credential should serve the request. Folded in here (formerly this
- * plugin's own AiByokGatewayClient.php) rather than kept as a separate
- * class - the BYOK gateway call has no state or behavior of its own beyond
- * "read this class's own credential, POST it" and had no other real
- * caller. Deliberately still a distinct wire contract from
+ * `execute()`/`get_vulocloud_ai_status()` are the one HTTP call the direct
+ * VuloCloud AI path makes: sends `{siteId, secret, feature, prompt,
+ * context, site_tone}`, deliberately never a `provider`/`model` field -
+ * this site never names one, never learns which vendor/key actually
+ * answered, and never holds an API key at all beyond this connection's own
+ * encrypted site secret. VuloCloud alone resolves whichever Organization
+ * or (if allowed) Customer backup credential should serve the request.
+ * This gateway call has no state or behavior of its own beyond "read this
+ * class's own credential, POST it", so it lives here rather than a
+ * separate class. Deliberately still a distinct wire contract from
  * AiCopilot\Services\AiCreditGatewayClient (which calls the
  * credits-metered `/plugin/ai/execute` with a structured
  * `{featureId, action, context}` shape VuloCloud's own feature catalog
@@ -37,12 +34,9 @@ defined( 'ABSPATH' ) || exit;
  * underlying Gateway, so that one stays its own class.
  *
  * The low-level `/plugin/connect/*` broker HTTP calls and the
- * `/plugin/ai-credits/*` balance/disconnect calls (formerly this plugin's
- * own VuloCloudApiClient.php, itself already a merge of the former
- * ConnectBrokerClient.php + AiCreditsApiClient.php) are folded in too as
- * private helpers - that client had no state of its own beyond a base URL
- * and, once BYOK's calls moved in here as well, no caller left outside
- * this class.
+ * `/plugin/ai-credits/*` balance/disconnect calls are private helpers on
+ * this same class too - neither has any state of its own beyond a base
+ * URL, and no caller outside this class.
  *
  * Storage is one dedicated `vulopilot_ai_credits_connection` option, same
  * "never round-trips the secret to the browser, encrypted at rest"
@@ -398,10 +392,10 @@ class AiCreditsConnection {
     }
 
     /**
-     * The BYOK proxy path's one real AI call - `POST /plugin/ai/byok-execute`.
-     * Sends `{siteId, secret, feature, prompt, context, site_tone}` - see
-     * this class's own docblock for why there's deliberately no
-     * `provider`/`model` field.
+     * The direct VuloCloud AI path's one real AI call. Sends
+     * `{siteId, secret, feature, prompt, context, site_tone}` - see this
+     * class's own docblock for why there's deliberately no `provider`/`model`
+     * field.
      *
      * @param string               $feature   Free-text action identifier (e.g. 'seo_analysis') - for VuloCloud's own usage-log categorization only.
      * @param string               $prompt    This site's own already-built prompt text - VuloCloud does not construct it.
@@ -409,22 +403,22 @@ class AiCreditsConnection {
      * @param string               $site_tone The manually-set `vulopilot_site_tone` option value, or ''.
      * @return array{success: true, request_id: string, response: string}|\WP_Error {
      *   A \WP_Error for connectivity/configuration failure OR VuloCloud
-     *   reporting `AI_BYOK_NOT_CONFIGURED` (code
-     *   'vulopilot_ai_byok_not_configured') - the caller
-     *   (AiAssistant\AiRequestSender) maps that one specific code to
-     *   VuloPilotException with TYPE_AI_BYOK_NOT_CONFIGURED; every other
-     *   \WP_Error becomes a generic VuloPilotException with TYPE_GATEWAY_REQUEST.
+     *   reporting no usable key (code 'vulopilot_vulocloud_ai_not_configured') -
+     *   the caller (AiAssistant\AiRequestSender) maps that one specific code
+     *   to VuloPilotException with TYPE_VULOCLOUD_AI_NOT_CONFIGURED; every
+     *   other \WP_Error becomes a generic VuloPilotException with
+     *   TYPE_GATEWAY_REQUEST.
      * }
      */
     public function execute( string $feature, string $prompt, array $context, string $site_tone ) {
         if ( '' === trim( VULOPILOT_VULOCLOUD_URL ) ) {
-            return new \WP_Error( 'vulopilot_ai_byok_not_configured', __( 'VuloCloud isn’t configured for this build yet.', 'vulopilot' ), array( 'status' => 400 ) );
+            return new \WP_Error( 'vulopilot_vulocloud_ai_not_configured', __( 'VuloCloud isn’t configured for this build yet.', 'vulopilot' ), array( 'status' => 400 ) );
         }
 
         $credential = $this->get_site_credential();
 
         if ( ! $credential ) {
-            return new \WP_Error( 'vulopilot_ai_byok_not_connected', __( 'This site is not connected to VuloCloud.', 'vulopilot' ), array( 'status' => 400 ) );
+            return new \WP_Error( 'vulopilot_vulocloud_ai_not_connected', __( 'This site is not connected to VuloCloud.', 'vulopilot' ), array( 'status' => 400 ) );
         }
 
         $body = array(
@@ -457,7 +451,7 @@ class AiCreditsConnection {
 
         if ( is_wp_error( $response ) ) {
             return new \WP_Error(
-                'vulopilot_ai_byok_unreachable',
+                'vulopilot_vulocloud_ai_unreachable',
                 sprintf(
                     /* translators: %s: underlying error message. */
                     __( 'Could not reach VuloCloud: %s', 'vulopilot' ),
@@ -471,23 +465,24 @@ class AiCreditsConnection {
         $decoded = json_decode( (string) wp_remote_retrieve_body( $response ), true );
 
         if ( ! is_array( $decoded ) ) {
-            return new \WP_Error( 'vulopilot_ai_byok_unparseable_response', __( 'VuloCloud returned an unexpected response.', 'vulopilot' ), array( 'status' => 502 ) );
+            return new \WP_Error( 'vulopilot_vulocloud_ai_unparseable_response', __( 'VuloCloud returned an unexpected response.', 'vulopilot' ), array( 'status' => 502 ) );
         }
 
         if ( $status < 200 || $status >= 300 ) {
-            // 'AI_BYOK_NOT_CONFIGURED' is the one code AiCopilot\ActionRunner
-            // specifically recognizes to decide whether to fall through to
-            // AI Credits (see that class's own docblock) - passed through
-            // verbatim via the \WP_Error code rather than translated to a
+            // VuloCloud's own "no usable key resolves for this site"
+            // response code - the one AiCopilot\ActionRunner specifically
+            // recognizes to decide whether to fall through to AI Credits
+            // (see that class's own docblock) - passed through as our own,
+            // differently-named \WP_Error code rather than translated to a
             // generic message here, unlike every other DomainError (never
             // expose VuloCloud's internal error text to the end user,
             // VuloPilot brief §19/§26).
             if ( 'AI_BYOK_NOT_CONFIGURED' === ( $decoded['error'] ?? '' ) ) {
-                return new \WP_Error( 'vulopilot_ai_byok_not_configured', __( 'No AI connection is configured for this site.', 'vulopilot' ), array( 'status' => $status ) );
+                return new \WP_Error( 'vulopilot_vulocloud_ai_not_configured', __( 'No AI connection is configured for this site.', 'vulopilot' ), array( 'status' => $status ) );
             }
 
             return new \WP_Error(
-                'vulopilot_ai_byok_gateway_error',
+                'vulopilot_vulocloud_ai_gateway_error',
                 __( 'VuloCloud could not process this AI request right now.', 'vulopilot' ),
                 array( 'status' => $status )
             );
@@ -501,11 +496,11 @@ class AiCreditsConnection {
     }
 
     /**
-     * `POST /plugin/ai/byok-status` - a cheap boolean-only check, no
-     * prompt/key material involved. Used only by the Settings UI's status
-     * display (VuloCloudAiConnectionPanel.tsx), never by ActionRunner's own
+     * A cheap boolean-only connection check, no prompt/key material
+     * involved. Used only by the Settings UI's status display
+     * (VuloCloudAiConnectionPanel.tsx), never by ActionRunner's own
      * per-request decision (which always attempts execute() directly and
-     * reacts to a real AI_BYOK_NOT_CONFIGURED response instead - see that
+     * reacts to a real "not configured" response instead - see that
      * class's own docblock on why a separate pre-check there would just
      * be a second, redundant round trip).
      *
@@ -524,7 +519,7 @@ class AiCreditsConnection {
      *
      * @return array{connected: bool, configured: bool}|\WP_Error
      */
-    public function byok_status() {
+    public function get_vulocloud_ai_status() {
         $credential = $this->get_site_credential();
 
         if ( ! $credential ) {

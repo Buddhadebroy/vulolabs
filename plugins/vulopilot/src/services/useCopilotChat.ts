@@ -126,8 +126,8 @@ interface WpRestErrorBody {
  * other kind of request already gets.
  *
  * Genuinely free, not Pro-gated: `send()` only needs a real AI service
- * configured (BYOK under Settings → Connections, or a connected VuloCloud
- * account) - the same gate ContentAssistant.php's own chat and
+ * configured (the direct VuloCloud AI path under Settings → Connections,
+ * or a connected VuloCloud account) - the same gate ContentAssistant.php's own chat and
  * ContentToolsGrid.tsx's free tiles already use. `useAiCredits()`'s
  * `status.connected` is checked up front, before ever calling the API
  * (per the same "check before sending, don't wait for a real failure"

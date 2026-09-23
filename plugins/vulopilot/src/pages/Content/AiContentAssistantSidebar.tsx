@@ -142,7 +142,7 @@ const AiContentAssistantSidebar = () => {
 	// Set the moment a chip is picked; cleared once the user's next message
 	// has been folded into that chip's own build() and sent for real.
 	const [pendingChip, setPendingChip] = useState<PromptChip | null>(null);
-	/** True right after a real send failed specifically because no AI service (BYOK or VuloCloud) is configured, OR a chip/send was blocked up front because `creditsStatus` already showed nobody's connected (see `handleChipClick()`/`handleSend()` below) - shows `ShowProPopup vulocloud`, the same real free "Connect to VuloCloud"/"Claim free AI Credits" flow AiCreditsIndicator.tsx's own dropdown already offers, instead of a dead-end error notice. */
+	/** True right after a real send failed specifically because no AI service (direct VuloCloud AI or connected VuloCloud account) is configured, OR a chip/send was blocked up front because `creditsStatus` already showed nobody's connected (see `handleChipClick()`/`handleSend()` below) - shows `ShowProPopup vulocloud`, the same real free "Connect to VuloCloud"/"Claim free AI Credits" flow AiCreditsIndicator.tsx's own dropdown already offers, instead of a dead-end error notice. */
 	const [isCloudConnectPromptOpen, setIsCloudConnectPromptOpen] = useState(false);
 	const { status: creditsStatus } = useAiCredits();
 

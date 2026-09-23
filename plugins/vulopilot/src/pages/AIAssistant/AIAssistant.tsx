@@ -67,8 +67,8 @@ const SUGGESTED_PROMPTS = [
  * NeedsAttentionCard.tsx) + AI Workflows (`/automations`) preview in the
  * sidebar. Sending talks to `POST /copilot/chat` (`Controllers\Copilot.php`,
  * via useCopilotChat.ts) - free, gated the same way as every other AI
- * surface (a configured AI provider, BYOK or a connected VuloCloud
- * account), not a Pro license. A request like "write a blog about X"
+ * surface (a configured AI provider - the direct VuloCloud AI path or a
+ * connected VuloCloud account), not a Pro license. A request like "write a blog about X"
  * creates and saves a WordPress draft (Copilot.php's
  * ContentCreationOrchestrator) - that turn's `link` renders as a
  * clickable edit link next to an inline "Undo" (`handleUndo()`, the same

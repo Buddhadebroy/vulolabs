@@ -9,8 +9,8 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Keeps `vulopilot_site_tone` (the placeholder field added earlier this
- * session - sent as a `site_tone` hint on every BYOK AI request, see
- * AI\AiRequestSender) learned
+ * session - sent as a `site_tone` hint on every direct VuloCloud AI
+ * request, see AiAssistant\AiRequestSender) learned
  * automatically from the site's own recent content instead of starting
  * permanently empty. Same "NOT an AIAction" posture as Geo\GeoAnalyzer/
  * ContentIntelligence\ContentAnalyzer: nothing about a post's own content
@@ -106,7 +106,7 @@ class SiteToneLearner {
         try {
             $response = $this->request_sender->send( $this->build_prompt( $samples ), null, 'site_tone_learning' );
         } catch ( \Throwable $exception ) {
-            // No BYOK key configured, provider failure, rate limited, safety
+            // No key configured, provider failure, rate limited, safety
             // validation - none of these are worth a HIGH-severity log
             // entry (a background enhancement quietly not working isn't an
             // incident), and deliberately no fallback to platform AI

@@ -29,11 +29,11 @@ final class AIResponse {
     /**
      * Real AI credits this call spent, as reported by VuloCloud. `0` is a
      * genuine, honest value here, not a placeholder: it means the specific
-     * gateway path that produced this response is uncredited (e.g.
-     * AiByokGatewayClient's `/plugin/ai/byok-execute`, which has no
-     * credits field in its response at all), not that credit accounting is
-     * unfinished. A credits-metered path (e.g. AiCreditGatewayClient's
-     * `/plugin/ai/execute`) reports the real spent amount here instead.
+     * gateway path that produced this response is uncredited (the direct
+     * VuloCloud AI path's own response has no credits field at all), not
+     * that credit accounting is unfinished. A credits-metered path (e.g.
+     * AiCreditGatewayClient's `/plugin/ai/execute`) reports the real spent
+     * amount here instead.
      *
      * @var int
      */
