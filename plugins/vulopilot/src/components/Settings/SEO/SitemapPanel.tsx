@@ -314,11 +314,11 @@ const SitemapPanel = () => {
 
 									{htmlSitemapEnabled && (
 										<>
-											<NoticeComponent
-												displayPosition="inline"
+										<NoticeComponent
+												displayPosition="inline-notice"
 												type="info"
 												message={__(
-													'Use this shortcode to display the HTML sitemap anywhere on your site: [vulopilot_html_sitemap]',
+													'Use this shortcode to display the HTML sitemap anywhere on your site: <code>[vulopilot_html_sitemap] </code>',
 													'vulopilot'
 												)}
 											/>

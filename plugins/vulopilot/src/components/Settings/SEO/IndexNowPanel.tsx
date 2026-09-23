@@ -327,7 +327,7 @@ const IndexNowPanel = () => {
 					<ButtonInput
 						buttons={{
 							text: __('Response code help', 'vulopilot'),
-							icon: 'question',
+							rightIcon: 'question',
 							color: 'text-purple',
 							onClick: () => setShowResponseHelp(!showResponseHelp),
 						}}
