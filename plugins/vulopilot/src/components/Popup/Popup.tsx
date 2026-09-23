@@ -341,7 +341,7 @@ const ShowProPopup: React.FC<PopupProps> = (props) => {
 				</div>
 				<div className="description">
 					{__(
-						'Automated fixes, scheduled scans, security monitoring, and WooCommerce AI - on top of everything Free already does.',
+						'Automate recurring checks, fix issues at scale, track progress over time, and uncover opportunities across SEO, AI search, performance, security, and WooCommerce.',
 						'vulopilot'
 					)}
 				</div>
@@ -357,7 +357,7 @@ const ShowProPopup: React.FC<PopupProps> = (props) => {
 			</div>
 			<div className="popup-details">
 				<div className="heading-text">
-					{__('What Pro adds', 'vulopilot')}
+					{__('What you unlock with Pro', 'vulopilot')}
 				</div>
 				<ul>
 					{proPopupContent.messages.map((message, index) => (
