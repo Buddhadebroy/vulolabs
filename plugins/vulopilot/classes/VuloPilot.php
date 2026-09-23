@@ -80,11 +80,11 @@ final class VuloPilot {
     public function activate() {
         add_option( Utill::VULOPILOT_OTHER_SETTINGS['run_installer'], true );
         // A no-op if this site already has an active-module list (e.g. a
-        // deactivate/reactivate cycle) - only seeds 'geo'/'seo'/
-        // 'content-intelligence'/'brand-intelligence'/'entity-extraction'/
+        // deactivate/reactivate cycle) - only seeds 'geo-analysis'/'technical-seo'/
+        // 'content-optimization'/'brand-visibility'/'knowledge-graph'/
         // 'ai-copilot' as active for a genuinely fresh install, matching
         // Install.php's own migration for sites upgrading in place instead.
-        add_option( Utill::ACTIVE_MODULES_DB_KEY, array( 'geo', 'seo', 'content-intelligence', 'brand-intelligence', 'entity-extraction', 'ai-copilot' ) );
+        add_option( Utill::ACTIVE_MODULES_DB_KEY, array( 'geo-analysis', 'technical-seo', 'content-optimization', 'brand-visibility', 'knowledge-graph', 'ai-copilot' ) );
         flush_rewrite_rules();
     }
 
@@ -129,6 +129,56 @@ final class VuloPilot {
     }
 
     /**
+     * One-time-in-effect id remap for 5 modules folder-renamed to share an
+     * id with their Pro counterpart (Geo->geo-analysis, Seo->technical-seo,
+     * ContentIntelligence->content-optimization,
+     * EntityExtraction->knowledge-graph,
+     * BrandIntelligence->brand-visibility). Modules::camel_to_kebab()
+     * derives a module's id purely from its folder name (no override), so
+     * an already-installed site's stored ACTIVE_MODULES_DB_KEY option still
+     * has the old ids and Modules::load_active_modules() validates-and-drops
+     * anything that no longer resolves to a real module id (see that
+     * method's own docblock) - meaning these 5 modules would otherwise go
+     * silently inactive after this rename. There's no version-gated
+     * migration hook left to attach this to (Install's own docblock
+     * explains why that mechanism was reset to nothing), so this instead
+     * runs unconditionally on every 'init' before load_active_modules():
+     * it's a single get_option()/array remap + a conditional update_option(),
+     * cheap enough to not need a one-time guard, and idempotent (a no-op
+     * once every site's option only has current ids).
+     *
+     * @return void
+     */
+    private function migrate_renamed_active_module_ids() {
+        $old_to_new = array(
+            'geo'                  => 'geo-analysis',
+            'seo'                  => 'technical-seo',
+            'content-intelligence' => 'content-optimization',
+            'entity-extraction'    => 'knowledge-graph',
+            'brand-intelligence'   => 'brand-visibility',
+        );
+
+        $active = get_option( Utill::ACTIVE_MODULES_DB_KEY, array() );
+
+        if ( ! is_array( $active ) || empty( $active ) ) {
+            return;
+        }
+
+        $remapped = false;
+
+        foreach ( $active as $index => $module_id ) {
+            if ( isset( $old_to_new[ $module_id ] ) ) {
+                $active[ $index ] = $old_to_new[ $module_id ];
+                $remapped         = true;
+            }
+        }
+
+        if ( $remapped ) {
+            update_option( Utill::ACTIVE_MODULES_DB_KEY, array_values( array_unique( $active ) ) );
+        }
+    }
+
+    /**
      * Initializes VuloPilot classes and fires 'vulopilot_loaded', the hook
      * VuloPilot Pro (and any third-party extension) gates its own boot on -
      * the same boot-order-gate pattern a shared-platform architecture would
@@ -140,6 +190,8 @@ final class VuloPilot {
         $this->container['util']            = new Utill();
         $this->container['admin']           = new Admin();
         $this->container['frontendScripts'] = new FrontendScripts();
+
+        $this->migrate_renamed_active_module_ids();
 
         // Module loader (module-architecture.md) - loaded before every
         // registry below so a module's own constructor (e.g. registering
@@ -190,7 +242,7 @@ final class VuloPilot {
             $this->container['report_generator']
         );
 
-        $this->container['rest'] = new RestAPI\Rest();
+        $this->container['rest'] = new Rest();
 
         $this->container['ai_safety_validator'] = new \VuloPilot\AiAssistant\AISafetyValidator();
         $this->container['ai_request_sender']   = new \VuloPilot\AiAssistant\AiRequestSender( $this->container['ai_safety_validator'] );
@@ -203,19 +255,19 @@ final class VuloPilot {
 
         // GEO module (GEO-MODULE.md) - reuses the same ai_request_sender
         // every AIAction goes through, not a second AI-calling path.
-        $this->container['geo_analyzer'] = new Geo\GeoAnalyzer( $this->container['ai_request_sender'] );
+        $this->container['geo_analyzer'] = new GeoAnalysis\GeoAnalyzer( $this->container['ai_request_sender'] );
 
         // Content Intelligence's "Topic Authority" (CONTENT-INTELLIGENCE-MODULE.md)
         // - same shape as geo_analyzer above: reuses the same
         // ai_request_sender, constructed unconditionally in Free even
         // though the REST route that actually calls analyze() (a real AI
         // cost) lives in vulopilot-pro's own ContentIntelligence module.
-        $this->container['content_analyzer'] = new ContentIntelligence\ContentAnalyzer( $this->container['ai_request_sender'] );
+        $this->container['content_analyzer'] = new ContentOptimization\ContentAnalyzer( $this->container['ai_request_sender'] );
 
         // llms.txt Generation & Management (readme.txt) - self-registers
         // its own rewrite-rule/template_redirect hooks; unconditional
         // construction, the enable_llms_txt setting only gates serving.
-        $this->container['llms_txt_generator'] = new Geo\LlmsTxtGenerator();
+        $this->container['llms_txt_generator'] = new GeoAnalysis\LlmsTxtGenerator();
 
         // AI Crawler Traffic Monitoring (readme.txt) - self-registers its
         // own template_redirect/cron hooks; unconditional construction,
@@ -406,7 +458,7 @@ final class VuloPilot {
         $this->container['extension_manager'] = new \VuloPilot\Sdk\ExtensionManager();
 
         if ( defined( 'WP_CLI' ) && WP_CLI ) {
-            add_action( 'cli_init', array( Cli\VuloPilotCommand::class, 'register' ) );
+            add_action( 'cli_init', array( VuloPilotCli::class, 'register' ) );
         }
 
         do_action( 'vulopilot_loaded' );

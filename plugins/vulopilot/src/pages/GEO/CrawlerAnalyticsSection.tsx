@@ -98,7 +98,7 @@ const CHECKLIST_ITEMS: { key: string; scannerIds: string[]; label: string }[] = 
 ];
 
 const isSeoModuleActive = () =>
-	appLocalizer.active_modules?.includes('seo') ?? false;
+	appLocalizer.active_modules?.includes('technical-seo') ?? false;
 
 interface CrawlerAnalyticsSectionProps {
 	analytics: CrawlerAnalytics | null;

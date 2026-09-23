@@ -243,12 +243,12 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
 		{ type: 'separator', id: 'brand-visibility', label: __('Brand Visibility', 'vulopilot') },
 		{
             /**
-             * Must be the real backend module id - the free and Pro
-             * BrandIntelligence modules intentionally share this exact id
+             * The real backend module id - Free's modules/BrandVisibility
+             * (folder renamed from BrandIntelligence) and Pro's own
+             * BrandVisibility module now genuinely share this exact id
              * (Modules::get_all_modules()'s own collision handling lets two
              * sources register the same id and co-activate together from
-             * one toggle). The mockup's own id ('brand-visibility') matches
-             * no real module.
+             * one toggle).
              */
             id: 'brand-visibility',
             icon: 'brand-visibility',

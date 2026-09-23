@@ -129,7 +129,7 @@ const EMPTY_SUMMARY: BrokenFindingsSummary = {
  * simply don't exist while SEO is off.
  */
 const isSeoModuleActive = () =>
-	appLocalizer.active_modules?.includes('seo') ?? false;
+	appLocalizer.active_modules?.includes('technical-seo') ?? false;
 
 /**
  * Scanners\Basic\BrokenLinksScanner/BrokenImagesScanner::scan() both

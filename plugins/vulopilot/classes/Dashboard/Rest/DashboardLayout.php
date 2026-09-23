@@ -1,7 +1,7 @@
 <?php
 namespace VuloPilot\Dashboard\Rest;
 
-use VuloPilot\EntityExtraction\EntityExtractor;
+use VuloPilot\KnowledgeGraph\EntityExtractor;
 use VuloPilot\AiAssistant\ActionRunRepository;
 use VuloPilot\Dashboard\ActivityLogRepository;
 use VuloPilot\AiAssistant\AiHistoryRepository;

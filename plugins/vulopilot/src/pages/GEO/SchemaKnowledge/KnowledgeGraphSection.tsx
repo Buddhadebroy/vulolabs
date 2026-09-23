@@ -57,7 +57,7 @@ const HIGHLIGHT_MAX_ROWS = 4;
  * explanation.
  */
 const isEntityExtractionModuleActive = () =>
-	appLocalizer.active_modules?.includes('entity-extraction') ?? false;
+	appLocalizer.active_modules?.includes('knowledge-graph') ?? false;
 
 /**
  * "Graph Visualization"/"Entity Recommendations"/"Knowledge Graph Health"

@@ -2,16 +2,16 @@
 namespace VuloPilot\SeoVisibility\Rest;
 
 use VuloPilot\AiCopilot\ContentCreationOrchestrator;
-use VuloPilot\BrandIntelligence\Rest\BrandIntelligence;
+use VuloPilot\BrandVisibility\Rest\BrandIntelligence;
 use VuloPilot\Utill\VuloPilotException;
-use VuloPilot\Geo\Rest\Geo;
+use VuloPilot\GeoAnalysis\Rest\Geo;
 use VuloPilot\Utill\FindingRepository;
 use VuloPilot\Content\NotFoundLogRepository;
 use VuloPilot\Content\RedirectRepository;
 use VuloPilot\Utill\ScanRepository;
-use VuloPilot\Seo\Rest\Seo;
-use VuloPilot\Seo\Scanners\BrokenImagesScanner;
-use VuloPilot\Seo\Scanners\BrokenLinksScanner;
+use VuloPilot\TechnicalSeo\Rest\Seo;
+use VuloPilot\TechnicalSeo\Scanners\BrokenImagesScanner;
+use VuloPilot\TechnicalSeo\Scanners\BrokenLinksScanner;
 use VuloPilot\Settings\GoogleAnalyticsClient;
 use VuloPilot\Settings\GoogleServicesConnection;
 use VuloPilot\SeoVisibility\OnPageAnalyzer;

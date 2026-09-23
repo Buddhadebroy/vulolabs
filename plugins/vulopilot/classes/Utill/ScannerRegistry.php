@@ -7,7 +7,7 @@
 
 namespace VuloPilot\Utill;
 
-use VuloPilot\Geo\Scanners as GeoScanners;
+use VuloPilot\GeoAnalysis\Scanners as GeoScanners;
 use VuloPilot\Utill as UtillHelper;
 
 defined( 'ABSPATH' ) || exit;
@@ -89,9 +89,12 @@ class ScannerRegistry {
     /**
      * Settings screen's Accessibility/WooCommerce tabs are category-level
      * kill switches (SCANNERS.md's category list) rather than per-scanner
-     * toggles - disabling "WooCommerce" turns off both the original
-     * WooCommerceScanner and the 11 Product* scanners from the WooCommerce
-     * AI pass, since both share the `woocommerce` category string.
+     * toggles. The `woocommerce` category itself is now entirely Pro-owned
+     * (WooCommerceIntelligence's own `Scanners/` - see
+     * `vulopilot_scanner_sources`'s Pro-side registration), so this toggle
+     * only takes effect when that Pro module has registered its scanners
+     * under this same category string; Free carries no scanner of its own
+     * in this category any more.
      * Scanners not covered by one of these two toggles (security,
      * performance, links, geo, seo, …) always run; only RestApiScanner has
      * its own dedicated setting, see its own docblock for why. The `geo`
@@ -124,7 +127,13 @@ class ScannerRegistry {
     /**
      * Free's own always-available scanners - matches the readme's free
      * feature list (Website Health Monitoring, SEO Optimization,
-     * Performance, Accessibility Scanner, WooCommerce Optimization).
+     * Performance, Accessibility Scanner). "WooCommerce Optimization" is no
+     * longer part of this list - per direct architecture decision,
+     * WooCommerce detection is a Pro module like every other Pro module's
+     * scanners, so all 18 WooCommerce/Product* scanners that used to be
+     * hardcoded here moved to vulopilot-pro's WooCommerceIntelligence
+     * module (`Scanners/`), registered via `vulopilot_scanner_sources`
+     * just like every other Pro scanner.
      * SecurityScanner/RestApiScanner are the one exception ("Security
      * Monitoring" is Pro-only per the readme) - they moved to
      * vulopilot-pro's SecurityMonitoring module instead. Free does own its
@@ -149,7 +158,6 @@ class ScannerRegistry {
             // extra SEO scanners on top.
             \VuloPilot\Performance\PerformanceScanner::class,
             \VuloPilot\SiteHealth\DatabaseScanner::class,
-            \VuloPilot\Commerce\WooCommerceScanner::class,
             \VuloPilot\Accessibility\AccessibilityScanner::class,
             \VuloPilot\SiteHealth\PluginsScanner::class,
             \VuloPilot\SiteHealth\ThemesScanner::class,
@@ -187,35 +195,14 @@ class ScannerRegistry {
             // its matching schema.org markup. Same 'geo' category, no
             // separate category/kill switch, same as the 9 above.
             \VuloPilot\SeoVisibility\AeoSchemaScanner::class,
-            // WooCommerce Optimization (readme) - 11 additional checks
-            // alongside the original WooCommerceScanner (checkout page),
-            // category 'woocommerce'.
-            \VuloPilot\Commerce\ProductMissingImagesScanner::class,
-            \VuloPilot\Commerce\ProductMissingCategoriesScanner::class,
-            \VuloPilot\Commerce\ProductMissingTagsScanner::class,
-            \VuloPilot\Commerce\ProductMissingDescriptionScanner::class,
-            \VuloPilot\Commerce\ProductMissingShortDescriptionScanner::class,
-            \VuloPilot\Commerce\ProductSkuIssuesScanner::class,
-            \VuloPilot\Commerce\ProductAttributesScanner::class,
-            \VuloPilot\Commerce\ProductInventoryHealthScanner::class,
-            \VuloPilot\Commerce\ProductPricingScanner::class,
-            \VuloPilot\Commerce\ProductDuplicateScanner::class,
-            \VuloPilot\Commerce\ProductCompletenessScanner::class,
-            // "Product SEO" (WOOCOMMERCE-INTELLIGENCE-MODULE.md) - category
-            // 'woocommerce', joins the 11 above. "Missing Images"/"Missing
-            // Attributes"/"Duplicate Products" (that pass's other three
-            // Free bullets) needed no new scanner - see that doc's own
-            // audit table for why.
-            \VuloPilot\Commerce\ProductSeoScanner::class,
-            // "Commerce" health overview - checkout/payment-gateway,
-            // order-health, and theme-template-compatibility checks, same
-            // category 'woocommerce' (gated by the same
-            // enable_woocommerce_scanning toggle as every scanner above).
-            \VuloPilot\Commerce\WooCommerceCheckoutScanner::class,
-            \VuloPilot\Commerce\WooCommerceFailedOrdersScanner::class,
-            \VuloPilot\Commerce\WooCommerceStalePendingOrdersScanner::class,
-            \VuloPilot\Commerce\WooCommerceStaleOnHoldOrdersScanner::class,
-            \VuloPilot\Commerce\WooCommerceCompatibilityScanner::class,
+            // WooCommerce/Product* scanners (WooCommerceScanner, the 11
+            // Product* scanners, ProductSeoScanner, and the 5 order/
+            // checkout/compatibility scanners - category 'woocommerce')
+            // used to be hardcoded here unconditionally. They've all moved
+            // to vulopilot-pro's WooCommerceIntelligence module
+            // (`Scanners/`), registered via `vulopilot_scanner_sources`
+            // and gated on WooCommerce actually being active - see that
+            // module's own Module.php docblock.
             // Website Health Monitoring (readme) - closes the PHP Warning
             // Detection/SSL Monitoring/Redirect Analysis/404 Detection gaps.
             \VuloPilot\Security\SslMonitoringScanner::class,
