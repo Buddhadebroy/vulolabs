@@ -58,6 +58,7 @@ const Route = () => {
 
 const App = () => {
 	const currentTabParams = new URLSearchParams(useLocation().hash);
+	const currentTab = currentTabParams.get('tab') || 'dashboard';
 	const [results, setResults] = useState<SearchItem[]>([]);
 
 	const handleQueryUpdate = ({
@@ -148,16 +149,13 @@ const App = () => {
 					);
 				}
 
-				if (
-					menuItemHashParams.get('tab') ===
-					currentTabParams.get('tab')
-				) {
+				if (menuItemHashParams.get('tab') === currentTab) {
 					(menuItem.parentNode as HTMLElement).classList.add(
 						'current'
 					);
 				}
 			});
-	}, [currentTabParams]);
+	}, [currentTab]);
 
 	return (
 		<>

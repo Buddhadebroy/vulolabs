@@ -223,7 +223,7 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 				.finally(() => setIsLoadingOptions(false));
 		}
 
-		if ('generate-product-description' === tool.actionId) {
+		if ('generate-product-description' === tool.actionId && appLocalizer.has_woocommerce) {
 			// No active-plugin check - same "just try the real endpoint,
 			// degrade gracefully" pattern RecentContentCard.tsx's own
 			// wc/v3 probe already uses; getApiResponse resolves to null

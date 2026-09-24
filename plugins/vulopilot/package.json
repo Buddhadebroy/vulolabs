@@ -76,7 +76,7 @@
 			"clean": true
 		},
 		"watch:build:project:bundle": {
-			"command": "wp-scripts start",
+			"command": "pnpm run minify && wp-scripts start",
 			"files": [
 				"src/**/*.{js,jsx,ts,tsx,scss}",
 				"modules/**/*.{js,jsx,ts,tsx,scss}",
@@ -98,7 +98,7 @@
 		"react-sortablejs": "^6.1.4",
 		"recharts": "^3.8.1",
 		"sortablejs": "^1.15.6",
-		"@multivendorx/zyra": "^1.0.53"
+		"@multivendorx/zyra": "^1.0.54"
 	},
 	"devDependencies": {	
 		"wireit": "^0.14.12",
