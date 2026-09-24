@@ -135,7 +135,7 @@ const Dashboard = () => {
 			}
 		)
 			.then((response) => {
-				if (!response) {
+				if (!response || !response.category_scores) {
 					setError(
 						__(
 							'Could not load the dashboard summary.',
@@ -146,7 +146,22 @@ const Dashboard = () => {
 					return;
 				}
 
-				setSummary(response);
+				setSummary({
+					...EMPTY_SUMMARY,
+					...response,
+					category_scores: {
+						...EMPTY_SUMMARY.category_scores,
+						...response.category_scores,
+					},
+					category_scores_7d_ago: {
+						...EMPTY_SUMMARY.category_scores_7d_ago,
+						...response.category_scores_7d_ago,
+					},
+					site_snapshot: {
+						...EMPTY_SUMMARY.site_snapshot,
+						...response.site_snapshot,
+					},
+				});
 			})
 			.catch(() => {
 				setError(

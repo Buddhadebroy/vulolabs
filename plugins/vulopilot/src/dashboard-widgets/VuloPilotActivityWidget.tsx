@@ -117,7 +117,12 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 	}, []);
 
 	const { data: reportRows, isLoading: isReportsLoading } =
-		useApiList<ReportRow>('reports', { per_page: 1 });
+		useApiList<ReportRow>(
+			'reports',
+			{ per_page: 1 },
+			undefined,
+			Boolean(appLocalizer.khali_dabba)
+		);
 	const { lastScanAt, isLoading: isLastScanLoading } = useLastScanTime();
 
 	// Same real `/site-health-snapshots` endpoint
@@ -134,7 +139,9 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 	const [healthTimelineDays, setHealthTimelineDays] = useState<PeriodDays>('30');
 	const { data: healthSnapshots } = useApiList<HealthSnapshot>(
 		'site-health-snapshots',
-		{ days: Number(healthTimelineDays) }
+		{ days: Number(healthTimelineDays) },
+		undefined,
+		Boolean(appLocalizer.khali_dabba)
 	);
 	const isHealthTimelineModuleActive =
 		appLocalizer.active_modules.includes(HEALTH_TIMELINE_MODULE_ID);

@@ -223,6 +223,12 @@ export const useGeoVisibilitySnapshot = (): {
 	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
+		// Both endpoints are registered only by vulopilot-pro.
+		if (!appLocalizer.khali_dabba) {
+			setIsLoading(false);
+			return;
+		}
+
 		Promise.all([
 			getApiResponse<VisibilitySnapshot>(
 				getApiLink(appLocalizer, 'geo-visibility-summary'),
