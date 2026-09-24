@@ -1,3 +1,4 @@
+/* global appLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useModules } from '@zyra/core';
@@ -114,7 +115,10 @@ const getAeoTrendScore = (row: GeoVisibilityHistoryRow): number | null =>
  * without a full refresh.
  */
 const isCitationCheckActive = (modules: string[]): boolean =>
-	modules.includes('geo-analysis') || modules.includes('answer-engine-optimization');
+	// `/aeo-citation-coverage` is registered only by vulopilot-pro, so a
+	// module id alone (Free ships its own geo-analysis module) isn't enough.
+	Boolean(appLocalizer.khali_dabba) &&
+	(modules.includes('geo-analysis') || modules.includes('answer-engine-optimization'));
 
 /**
  * AEO = Answer Engine Optimization - whether AI systems can extract,

@@ -1323,7 +1323,7 @@ const BrokenLinksSection = () => {
 										);
 									}}
 									emptyMessage={__(
-										'No broken links or images found yet. Make sure "Flag broken links"/"Flag broken images" are turned on under Settings → Scanning → SEO, then run a scan.',
+										'No broken links or images found yet. Turn on these checks under Settings > Scanning > SEO and Content > Images . After this "Run a scan" from Dashboard page to find any issues.',
 										'vulopilot'
 									)}
 								/>

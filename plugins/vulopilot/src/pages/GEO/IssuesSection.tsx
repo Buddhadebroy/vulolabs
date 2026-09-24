@@ -311,7 +311,9 @@ const IssuesSection = ({
 							.catch(() => [] as RawContentPost[]);
 
 					const fetchContentProducts = () =>
-						getApiResponse<RawContentProduct[]>(
+						!appLocalizer.has_woocommerce
+							? Promise.resolve([] as RawContentProduct[])
+							: getApiResponse<RawContentProduct[]>(
 							getApiLink(
 								appLocalizer,
 								'products?per_page=20&orderby=date&order=desc&_fields=id,name,description,status,date_created,permalink',

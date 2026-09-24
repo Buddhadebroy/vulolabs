@@ -339,7 +339,7 @@ export default {
 			),
 		},
 		{
-			key: 'general_settings',
+			key: 'ai_crawler_alerts_section',
 			type: 'section',
 			icon: 'setting',
 			title: __('AI Crawler Alerts', 'vulopilot'),
@@ -357,7 +357,7 @@ export default {
 		},
 
 		{
-			key: 'general_settings',
+			key: 'security_alerts_section',
 			type: 'section',
 			icon: 'setting',
 			title: __('Security Alerts', 'vulopilot'),
@@ -435,7 +435,7 @@ export default {
 			],
 		},
 		{
-			key: 'general_settings',
+			key: 'visibility_alerts_section',
 			type: 'section',
 			icon: 'bar-chart',
 			title: __('Visibility Alerts', 'vulopilot'),
@@ -517,7 +517,7 @@ export default {
 			],
 		},
 		{
-			key: 'general_settings',
+			key: 'critical_issue_alerts_section',
 			type: 'section',
 			icon: 'error',
 			title: __('Critical issue alerts', 'vulopilot'),
