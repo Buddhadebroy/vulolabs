@@ -208,7 +208,7 @@ export const useContentGate = (
 					role="button"
 					tabIndex={0}
 					aria-label={sprintf(
-						/* translators: %s is the real module's own display name. */
+						/* translators: %s: module display name. */
 						__('Activate %s', 'vulopilot'),
 						MODULE_CATALOG_BY_ID.get(moduleId ?? '')?.name ?? moduleId ?? ''
 					)}

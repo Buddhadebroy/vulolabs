@@ -214,6 +214,7 @@ const ShowProPopup: React.FC<PopupProps> = (props) => {
 					</div>
 					<div className="module-desc">
 						{sprintf(
+							/* translators: %s: name of the required plugin. */
 							__(
 								'This feature requires the "%s" plugin to be active.',
 								'vulopilot'
@@ -288,7 +289,7 @@ const ShowProPopup: React.FC<PopupProps> = (props) => {
 				<div className="popup-body">
 					<div className="module-name">
 						{sprintf(
-							/* translators: %s: Module name. */
+							/* translators: %s: module display name. */
 							__('Activate %s', 'vulopilot'),
 							displayName
 						)}

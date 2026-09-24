@@ -240,8 +240,9 @@ const Dashboard = () => {
 	const pageHeader = (
 		<NavigatorHeaderComponent
 			headerTitle={sprintf(
+				/* translators: 1: time-of-day greeting (e.g. "Good morning"), 2: current user's display name. */
 				__(
-					'%s, %s! \u{1F44B}',
+					'%1$s, %2$s! \u{1F44B}',
 					'vulopilot'
 				),
 				getGreeting(),
