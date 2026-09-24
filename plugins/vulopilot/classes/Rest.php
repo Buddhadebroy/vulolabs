@@ -22,6 +22,7 @@ use VuloPilot\Settings\Rest as SettingsRest;
 use VuloPilot\SeoVisibility\Rest as SeoVisibilityRest;
 use VuloPilot\Content\Rest as ContentRest;
 use VuloPilot\Performance\Rest as PerformanceRest;
+use VuloPilot\Reports\Rest as ReportsRest;
 use VuloPilot\Security\Rest as SecurityRest;
 use VuloPilot\SiteHealth\Rest as SiteHealthRest;
 use VuloPilot\Utill\StoreReadiness;
@@ -78,13 +79,12 @@ class Rest {
             'dashboard_layout'            => new DashboardRest\DashboardLayout(),
             'scans'                       => new UtillRestScans(),
             'findings'                    => new UtillRestFindings(),
-            // Deliberately NOT keyed 'reports'/'history'/'reports_overview' -
-            // one-off report generation moved to vulopilot-pro's
-            // AdvancedReports module wholesale (Reports is now a fully
-            // Pro-gated feature); its own Core\Rest\{Reports,History,
-            // ReportsOverview} controllers add themselves into
-            // $extra_controllers below under these exact keys, same
-            // "Free deliberately doesn't keep a fallback" posture
+            'history'                     => new ReportsRest\History(),
+            // 'reports'/'reports_overview' are deliberately NOT keyed here -
+            // one-off report generation lives in vulopilot-pro's
+            // AdvancedReports module (Pro-gated); its Core\Rest\{Reports,
+            // ReportsOverview} controllers add themselves via $extra_controllers
+            // below, same "Free deliberately doesn't keep a fallback" posture
             // 'automation_dashboard' below already established.
             'ai_history'                  => new AiAssistantRest\AiHistory(),
             'vulocloud_ai_connection'     => new AiAssistantRest\VuloCloudAiConnection(),

@@ -83,11 +83,13 @@ type ListResponse<T> = T[] | { data?: T[]; total?: number; [key: string]: unknow
  *                       category-scoped page). Pagination/per-page/select-filter
  *                       params are owned by TableCard itself - see onQueryUpdate.
  * @param categoryFilter Optional status-count pill bar config - see CategoryFilterConfig.
+ * @param enabled        When false, no request is made (e.g. the endpoint only exists while a Pro module is active).
  */
 export const useApiList = <T = Record<string, unknown>>(
 	endpoint: string,
 	params: Record<string, string | number | undefined> = {},
-	categoryFilter?: CategoryFilterConfig
+	categoryFilter?: CategoryFilterConfig,
+	enabled = true
 ): ApiListResult<T> => {
 	const [data, setData] = useState<T[]>([]);
 	const [total, setTotal] = useState(0);
@@ -139,6 +141,11 @@ export const useApiList = <T = Record<string, unknown>>(
 		.join('&');
 
 	useEffect(() => {
+		if (!enabled) {
+			setIsLoading(false);
+			return undefined;
+		}
+
 		let cancelled = false;
 		const isSilent = silentRef.current;
 		silentRef.current = false;
@@ -216,7 +223,7 @@ export const useApiList = <T = Record<string, unknown>>(
 		return () => {
 			cancelled = true;
 		};
-	}, [endpoint, query, reloadToken]);
+	}, [endpoint, query, reloadToken, enabled]);
 
 	const refetch = useCallback((options?: { silent?: boolean }) => {
 		silentRef.current = Boolean(options?.silent);
