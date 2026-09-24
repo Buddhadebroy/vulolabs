@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useRef } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
@@ -63,7 +63,7 @@ const SitemapPanel = () => {
 
 	const handleSettingChange = (key: string, value: unknown) => {
 		updateSetting(key, value);
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'settings'), {
 			setting: { [key]: value },
 		});
 	};
@@ -82,7 +82,7 @@ const SitemapPanel = () => {
 		}
 
 		saveTimerRef.current[key] = setTimeout(() => {
-			sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
+			sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'settings'), {
 				setting: { [key]: value },
 			}).then((response) => {
 				if (!response) {
@@ -104,7 +104,7 @@ const SitemapPanel = () => {
 	/**
 	 * The 4 real post types every site has, plus - per direct instruction -
 	 * any real custom post type this site actually has registered
-	 * (`appLocalizer.sitemap_custom_post_types`,
+	 * (`vulopilotAppLocalizer.sitemap_custom_post_types`,
 	 * FrontendScripts::get_sitemap_custom_post_types()), so a site running
 	 * a theme/plugin that registers its own post type (e.g. "Portfolio
 	 * Items") can include it in the sitemap from this same list instead of
@@ -116,7 +116,7 @@ const SitemapPanel = () => {
 		{ key: 'page', label: __('Pages', 'vulopilot'), value: 'page' },
 		{ key: 'attachment', label: __('Media', 'vulopilot'), value: 'attachment' },
 		{ key: 'product', label: __('Products', 'vulopilot'), value: 'product' },
-		...(appLocalizer.sitemap_custom_post_types ?? []).map((postType) => ({
+		...(vulopilotAppLocalizer.sitemap_custom_post_types ?? []).map((postType) => ({
 			key: postType.value,
 			label: postType.label,
 			value: postType.value,

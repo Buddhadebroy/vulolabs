@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import type { ComponentType } from 'react';
 import { applyFilters } from '@wordpress/hooks';
@@ -140,8 +140,8 @@ const SecurityStatusCard = ({
 
 	useEffect(() => {
 		getApiResponse<DashboardSummary>(
-			getApiLink(appLocalizer, 'dashboard'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, 'dashboard'),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				if (response) {
@@ -151,8 +151,8 @@ const SecurityStatusCard = ({
 			.finally(() => setIsLoading(false));
 
 		getApiResponse<AttentionSummary>(
-			getApiLink(appLocalizer, 'findings/attention-summary'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, 'findings/attention-summary'),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				if (response) {

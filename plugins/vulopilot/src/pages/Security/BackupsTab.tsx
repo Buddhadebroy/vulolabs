@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
@@ -359,8 +359,8 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 		onCreatingChange?.(true);
 
 		sendApiResponse<{ success: boolean }>(
-			appLocalizer,
-			getApiLink(appLocalizer, 'backups'),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, 'backups'),
 			{}
 		)
 			.then((response) => {
@@ -392,9 +392,9 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 		// Real browser navigation, not an XHR - the nonce travels as a query
 		// param instead of the X-WP-Nonce header, same pattern
 		// ReportTab.tsx's own download button already established.
-		const baseUrl = getApiLink(appLocalizer, `backups/${row.id}/download`);
+		const baseUrl = getApiLink(vulopilotAppLocalizer, `backups/${row.id}/download`);
 		const separator = baseUrl.includes('?') ? '&' : '?';
-		window.open(`${baseUrl}${separator}_wpnonce=${appLocalizer.nonce}`, '_blank');
+		window.open(`${baseUrl}${separator}_wpnonce=${vulopilotAppLocalizer.nonce}`, '_blank');
 	};
 
 	/** Opens the `confirmMode` popup - the actual delete runs from `handleConfirmDelete` once the user confirms there. */
@@ -411,9 +411,9 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 		setDeleteTarget(null);
 		setBusyId(row.id);
 
-		fetch(`${getApiLink(appLocalizer, 'backups')}/${row.id}`, {
+		fetch(`${getApiLink(vulopilotAppLocalizer, 'backups')}/${row.id}`, {
 			method: 'DELETE',
-			headers: { 'X-WP-Nonce': appLocalizer.nonce },
+			headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce },
 		})
 			.then((response) => {
 				NoticeManager.add({
@@ -440,8 +440,8 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 		setIsRestoring(true);
 
 		sendApiResponse<{ success: boolean; message?: string }>(
-			appLocalizer,
-			getApiLink(appLocalizer, `backups/${restoreTarget.id}/restore`),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, `backups/${restoreTarget.id}/restore`),
 			{}
 		)
 			.then((response) => {

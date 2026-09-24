@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -41,7 +41,7 @@ const REPORT_CARD_TYPES = [
 	},
 ];
 
-const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 const scrollToGenerate = () => {
 	document
@@ -64,7 +64,7 @@ const ReportTypeCards = () => {
 	const [reports, setReports] = useState<ReportRow[] | null>(null);
 
 	useEffect(() => {
-		const baseUrl = getApiLink(appLocalizer, 'reports');
+		const baseUrl = getApiLink(vulopilotAppLocalizer, 'reports');
 		const url = `${baseUrl}${
 			baseUrl.includes('?') ? '&' : '?'
 		}per_page=100&status=ready`;

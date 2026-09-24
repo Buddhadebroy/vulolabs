@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
@@ -62,7 +62,7 @@ const DeveloperToolsPanel = () => {
 	// seed `setting` with its real stored value in the first place.
 	const handleSettingChange = (key: string, value: string) => {
 		updateSetting(key, value);
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'settings'), {
 			setting: { [key]: value },
 		}).then((response) => {
 			NoticeManager.add({
@@ -80,8 +80,8 @@ const DeveloperToolsPanel = () => {
 		setIsClearing(true);
 
 		sendApiResponse(
-			appLocalizer,
-			getApiLink(appLocalizer, 'settings/clear-cache'),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, 'settings/clear-cache'),
 			{}
 		)
 			.then((response) => {
@@ -113,8 +113,8 @@ const DeveloperToolsPanel = () => {
 		setIsResetting(true);
 
 		sendApiResponse(
-			appLocalizer,
-			getApiLink(appLocalizer, 'settings/reset'),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, 'settings/reset'),
 			{}
 		)
 			.then((response) => {

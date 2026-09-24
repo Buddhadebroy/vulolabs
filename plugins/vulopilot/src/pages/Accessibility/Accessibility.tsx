@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import {
@@ -77,7 +77,7 @@ const ISSUES_TABLE_SECTIONS = ACCESSIBILITY_CHECKS.filter(
 const AccessibilityHistoryDummy = () => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
 	const [period, setPeriod] = useState<PeriodDays>('30');
-	const isProInstalled = Boolean(appLocalizer.khali_dabba);
+	const isProInstalled = Boolean(vulopilotAppLocalizer.khali_dabba);
 
 	return (
 		<>

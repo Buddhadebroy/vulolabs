@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useRef, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
@@ -136,7 +136,7 @@ const BuiltinAutomationCard = ({
 	const isEnabled = 'enabled' === row.status;
 
 	const patch = (data: Record<string, unknown>) => {
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, `automations/${row.id}`), data).then(
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, `automations/${row.id}`), data).then(
 			(response) => {
 				if (response) {
 					onChanged();
@@ -166,7 +166,7 @@ const BuiltinAutomationCard = ({
 	const handleRunNow = () => {
 		setIsRunning(true);
 
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, `automations/${row.id}/run`), {})
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, `automations/${row.id}/run`), {})
 			.then((response) => {
 				if (response) {
 					onChanged();
@@ -341,8 +341,8 @@ const BuiltinAutomationCards = ({ refetchSignal, onChanged, highlightTemplateId 
 	// remount them a moment later (reads as a page reload/flash).
 	const fetchRows = () => {
 		getApiResponse<{ data: BuiltinRow[] } | BuiltinRow[]>(
-			`${getApiLink(appLocalizer, 'automations')}?per_page=100`,
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			`${getApiLink(vulopilotAppLocalizer, 'automations')}?per_page=100`,
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				const list = Array.isArray(response) ? response : (response?.data ?? []);

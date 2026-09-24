@@ -192,7 +192,7 @@ class DifferentiateDuplicateTitleAction extends AbstractBasicAction {
         $result = wp_update_post(
             array(
                 'ID'         => $input['post_id'],
-                'post_title' => $output['title'],
+                'post_title' => sanitize_text_field( $output['title'] ),
             ),
             true
         );

@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import type { MouseEvent } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
@@ -19,7 +19,7 @@ import ProLockedCard from '../../components/ProLockedCard';
 import type { FindingsSection } from './SectionedFindingsTab';
 import './ProtectMySite.scss';
 
-const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 const PER_PAGE = 10;
 
@@ -203,7 +203,7 @@ const SectionedIssuesTable = ({
 		setIsLoading(true);
 		getApiResponse<{ data: FindingGroup[] }>(
 			getApiLink(
-				appLocalizer,
+				vulopilotAppLocalizer,
 				`findings/groups?per_page=200${showIgnored ? '&status=all' : ''}`
 			),
 			nonceHeaders

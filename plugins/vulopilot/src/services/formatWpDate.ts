@@ -1,8 +1,8 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 
 /**
  * Formats a raw date string using this site's own Settings → General →
- * Date Format (`appLocalizer.date_format_js`, already translated into
+ * Date Format (`vulopilotAppLocalizer.date_format_js`, already translated into
  * zyra's token syntax by FrontendScripts::convert_date_format_to_js()).
  *
  * `@zyra/table`'s own TableCard renders `type: 'date'` columns with this
@@ -45,7 +45,7 @@ const parseAsUtc = (value: string): Date => {
  * algorithm either way, just a different real format string (Settings →
  * General → Date Format vs. Time Format) and fallback. Shifts the parsed
  * UTC instant by this site's own configured Settings → General → Timezone
- * offset (`appLocalizer.gmt_offset_minutes`) and reads every token off
+ * offset (`vulopilotAppLocalizer.gmt_offset_minutes`) and reads every token off
  * that shifted instant's *UTC* fields - not its local ones - so the
  * result reflects this site's configured timezone specifically, never the
  * viewing browser's own local zone (which is what plain `Date` getters/
@@ -54,7 +54,7 @@ const parseAsUtc = (value: string): Date => {
 const formatWithTokens = (
 	value: string,
 	format: string,
-	offsetMinutes: number = appLocalizer.gmt_offset_minutes ?? 0
+	offsetMinutes: number = vulopilotAppLocalizer.gmt_offset_minutes ?? 0
 ): string => {
 	const utcDate = parseAsUtc(value);
 
@@ -88,7 +88,7 @@ export const formatWpDate = (value?: string | null): string => {
 		return '';
 	}
 
-	return formatWithTokens(value, appLocalizer.date_format_js || 'YYYY-MM-DD');
+	return formatWithTokens(value, vulopilotAppLocalizer.date_format_js || 'YYYY-MM-DD');
 };
 
 /**
@@ -105,13 +105,13 @@ export const formatWpDay = (value?: string | null): string => {
 
 	return formatWithTokens(
 		value.slice(0, 10),
-		appLocalizer.date_format_js || 'YYYY-MM-DD',
+		vulopilotAppLocalizer.date_format_js || 'YYYY-MM-DD',
 		0
 	);
 };
 
 /**
- * Real Settings → General → Time Format (`appLocalizer.time_format_js`,
+ * Real Settings → General → Time Format (`vulopilotAppLocalizer.time_format_js`,
  * converted server-side by the same `FrontendScripts::convert_date_format_to_js()`
  * `date_format_js` already uses) - for anywhere a row needs just the real
  * configured time, not the full date (HistoryTimeline.tsx's own per-row
@@ -123,7 +123,7 @@ export const formatWpTime = (value?: string | null): string => {
 		return '';
 	}
 
-	return formatWithTokens(value, appLocalizer.time_format_js || 'HH:mm');
+	return formatWithTokens(value, vulopilotAppLocalizer.time_format_js || 'HH:mm');
 };
 
 /**
@@ -134,7 +134,7 @@ export const formatWpTime = (value?: string | null): string => {
  * midnight in either zone.
  */
 export const wpNow = (): Date =>
-	new Date(Date.now() + (appLocalizer.gmt_offset_minutes ?? 0) * 60000);
+	new Date(Date.now() + (vulopilotAppLocalizer.gmt_offset_minutes ?? 0) * 60000);
 
 /**
  * Same-day comparison against `wpNow()` above, both read via UTC getters -
@@ -151,7 +151,7 @@ export const isWpToday = (value: string): boolean => {
 	}
 
 	const siteLocal = new Date(
-		utcDate.getTime() + (appLocalizer.gmt_offset_minutes ?? 0) * 60000
+		utcDate.getTime() + (vulopilotAppLocalizer.gmt_offset_minutes ?? 0) * 60000
 	);
 	const now = wpNow();
 

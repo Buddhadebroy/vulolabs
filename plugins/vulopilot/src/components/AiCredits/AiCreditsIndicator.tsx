@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { NoticeComponent, PopupComponent } from '@zyra/components';
@@ -29,7 +29,7 @@ import './AiCreditsIndicator.scss';
  *   two that could drift.
  * - Connected: the real credit count, click-through to balance/usage +
  *   "Buy More Credits"/"Explore VuloPilot Pro" (both external, same
- *   `appLocalizer.shop_url` link Popup.tsx's own generic Pro upsell
+ *   `vulopilotAppLocalizer.shop_url` link Popup.tsx's own generic Pro upsell
  *   already uses - this pass doesn't build a real purchase flow, see the
  *   architecture plan's own "Explicitly out of scope").
  * - Loading: renders nothing rather than a placeholder number - there's
@@ -188,7 +188,7 @@ const AiCreditsBalancePanel = ({
 						rightIcon: 'arrow-right',
 						color: 'purple-bg',
 						onClick: () => {
-							window.open(appLocalizer.shop_url, '_blank', 'noopener,noreferrer');
+							window.open(vulopilotAppLocalizer.shop_url, '_blank', 'noopener,noreferrer');
 						},
 					},
 					{
@@ -197,7 +197,7 @@ const AiCreditsBalancePanel = ({
 						rightIcon: 'arrow-right',
 						color: 'border-purple',
 						onClick: () => {
-							window.open(appLocalizer.shop_url, '_blank', 'noopener,noreferrer');
+							window.open(vulopilotAppLocalizer.shop_url, '_blank', 'noopener,noreferrer');
 						},
 					},
 				]}

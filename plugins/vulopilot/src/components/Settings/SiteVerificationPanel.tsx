@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useRef, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
@@ -113,7 +113,7 @@ const PlainCodeField = ({ field }: { field: PlainCodeFieldConfig }) => {
 
 	const persist = (nextValue: string) => {
 		updateSetting(field.key, nextValue);
-		return sendApiResponse<{ message: string }>(appLocalizer, getApiLink(appLocalizer, 'settings'), {
+		return sendApiResponse<{ message: string }>(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'settings'), {
 			setting: { [field.key]: nextValue },
 		}).then((response) => {
 			NoticeManager.add({
@@ -182,7 +182,7 @@ const CustomTagsField = () => {
 
 	const persist = (nextValue: string) => {
 		updateSetting('webmaster_custom_tags', nextValue);
-		return sendApiResponse<{ message: string }>(appLocalizer, getApiLink(appLocalizer, 'settings'), {
+		return sendApiResponse<{ message: string }>(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'settings'), {
 			setting: { webmaster_custom_tags: nextValue },
 		}).then((response) => {
 			NoticeManager.add({
@@ -261,8 +261,8 @@ const ProviderRow = ({ provider, icon, title, desc }: ProviderRowConfig) => {
 		setIsVerifying(true);
 
 		sendApiResponse<VerifyResult>(
-			appLocalizer,
-			getApiLink(appLocalizer, 'settings/verify-webmaster'),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, 'settings/verify-webmaster'),
 			{ provider, code }
 		)
 			.then((response) => {

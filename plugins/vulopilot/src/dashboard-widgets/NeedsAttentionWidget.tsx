@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
@@ -107,8 +107,8 @@ const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 		setBusyId(row.id);
 
 		sendApiResponse(
-			appLocalizer,
-			getApiLink(appLocalizer, `ai-action-runs/${row.id}/${decision}`),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, `ai-action-runs/${row.id}/${decision}`),
 			{}
 		)
 			.then((response) => {

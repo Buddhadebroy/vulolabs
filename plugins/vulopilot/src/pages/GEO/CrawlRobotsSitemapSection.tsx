@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
@@ -23,7 +23,7 @@ import { useGoogleServicesConnection } from '../../services/useGoogleServicesCon
 import ShowProPopup from '../../components/Popup/Popup';
 import './SeoVisibility.scss';
 
-const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 interface RobotsResponse {
 	reachable: boolean;
@@ -70,7 +70,7 @@ interface SitemapRow extends TableRow, SitemapChild {
  * isSeoModuleActive() already checks for the identical reason.
  */
 const isSeoModuleActive = () =>
-	appLocalizer.active_modules?.includes('technical-seo') ?? false;
+	vulopilotAppLocalizer.active_modules?.includes('technical-seo') ?? false;
 
 /**
  * Real sitemap `loc` URL, stripped down to just its own path/name for
@@ -275,12 +275,12 @@ const CrawlRobotsSitemapSection = () => {
 
 	const loadOpenCounts = () => {
 		getApiResponse<{ total: number }>(
-			getApiLink(appLocalizer, 'findings?scanner_id=robots-txt&status=open&per_page=1'),
+			getApiLink(vulopilotAppLocalizer, 'findings?scanner_id=robots-txt&status=open&per_page=1'),
 			nonceHeaders
 		).then((response) => setRobotsOpenCount(response?.total ?? 0));
 
 		getApiResponse<{ total: number }>(
-			getApiLink(appLocalizer, 'findings?scanner_id=ai-crawler-blocked-pages&status=open&per_page=1'),
+			getApiLink(vulopilotAppLocalizer, 'findings?scanner_id=ai-crawler-blocked-pages&status=open&per_page=1'),
 			nonceHeaders
 		).then((response) => setBlockedPagesOpenCount(response?.total ?? 0));
 	};
@@ -312,7 +312,7 @@ const CrawlRobotsSitemapSection = () => {
 		if (showLoadingState) {
 			setIsLoadingRobots(true);
 		}
-		getApiResponse<RobotsResponse>(getApiLink(appLocalizer, 'robots-sitemap/robots'), nonceHeaders)
+		getApiResponse<RobotsResponse>(getApiLink(vulopilotAppLocalizer, 'robots-sitemap/robots'), nonceHeaders)
 			.then((response) => {
 				if (response) {
 					setRobots(response);
@@ -330,7 +330,7 @@ const CrawlRobotsSitemapSection = () => {
 
 	const loadSitemap = () => {
 		setIsLoadingSitemap(true);
-		getApiResponse<SitemapResponse>(getApiLink(appLocalizer, 'robots-sitemap/sitemap'), nonceHeaders)
+		getApiResponse<SitemapResponse>(getApiLink(vulopilotAppLocalizer, 'robots-sitemap/sitemap'), nonceHeaders)
 			.then((response) => response && setSitemap(response))
 			.finally(() => setIsLoadingSitemap(false));
 	};
@@ -350,7 +350,7 @@ const CrawlRobotsSitemapSection = () => {
 	const persistRobotsContent = (content: string, notify = false) => {
 		setRobotsSaveState('saving');
 
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'robots-sitemap/robots'), { content })
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'robots-sitemap/robots'), { content })
 			.then((response) => {
 				setRobotsSaveState(response ? 'saved' : 'error');
 
@@ -421,7 +421,7 @@ const CrawlRobotsSitemapSection = () => {
 	const loadLlmsTxt = () => {
 		setIsLoadingLlmsTxt(true);
 		getApiResponse<{ enable_llms_txt?: string[] | boolean; llms_txt_content?: string }>(
-			getApiLink(appLocalizer, 'settings'),
+			getApiLink(vulopilotAppLocalizer, 'settings'),
 			nonceHeaders
 		)
 			.then((response) => {
@@ -440,7 +440,7 @@ const CrawlRobotsSitemapSection = () => {
 
 	const persistLlmsTxtContent = (content: string, notify = false) => {
 		setLlmsTxtSaveState('saving');
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'settings'), {
 			setting: { llms_txt_content: content },
 		}).then((response) => {
 			setLlmsTxtSaveState(response ? 'saved' : 'error');
@@ -467,7 +467,7 @@ const CrawlRobotsSitemapSection = () => {
 
 	const handleRegenerateLlmsTxt = () => {
 		setIsRegeneratingLlmsTxt(true);
-		getApiResponse<{ content: string }>(getApiLink(appLocalizer, 'llms-txt/regenerate'), nonceHeaders)
+		getApiResponse<{ content: string }>(getApiLink(vulopilotAppLocalizer, 'llms-txt/regenerate'), nonceHeaders)
 			.then((response) => {
 				if (!response) {
 					NoticeManager.add({
@@ -539,7 +539,7 @@ const CrawlRobotsSitemapSection = () => {
 			return;
 		}
 
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'indexnow/submit'), {
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'indexnow/submit'), {
 			urls: [sitemap.index_url],
 		}).then((response: { success?: boolean; message?: string } | undefined) => {
 			NoticeManager.add({
@@ -560,7 +560,7 @@ const CrawlRobotsSitemapSection = () => {
 
 	const searchConsoleUrl = gscStatus?.search_console_site
 		? `https://search.google.com/search-console?resource_id=${encodeURIComponent(gscStatus.search_console_site)}`
-		: `${appLocalizer.site_url}/wp-admin/admin.php?page=vulopilot#&tab=settings&subtab=integrations`;
+		: `${vulopilotAppLocalizer.site_url}/wp-admin/admin.php?page=vulopilot#&tab=settings&subtab=integrations`;
 
 	const sitemapRows: SitemapRow[] = (sitemap?.sitemaps ?? []).map((child, index) => ({
 		id: `${index}-${child.loc}`,
@@ -818,7 +818,7 @@ const CrawlRobotsSitemapSection = () => {
 										)}
 										buttonText={__('Open Settings', 'vulopilot')}
 										onButtonClick={() => {
-											window.location.href = `${appLocalizer.site_url}/wp-admin/admin.php?page=vulopilot#&tab=settings&subtab=ai-visibility`;
+											window.location.href = `${vulopilotAppLocalizer.site_url}/wp-admin/admin.php?page=vulopilot#&tab=settings&subtab=ai-visibility`;
 										}}
 									/>
 								)}
@@ -964,7 +964,7 @@ const CrawlRobotsSitemapSection = () => {
 			</ContainerComponent>
 
 			<PopupComponent open={isProPopupOpen} onClose={closeProPopup} width={31.25} height="auto" >
-				{appLocalizer.khali_dabba ? <ShowProPopup moduleName="one-click-fix" /> : <ShowProPopup />}
+				{vulopilotAppLocalizer.khali_dabba ? <ShowProPopup moduleName="one-click-fix" /> : <ShowProPopup />}
 			</PopupComponent>
 			<PopupComponent
 				open={isRobotsTxtProPopupOpen}
@@ -973,7 +973,7 @@ const CrawlRobotsSitemapSection = () => {
 				height="auto"
 
 			>
-				{appLocalizer.khali_dabba ? <ShowProPopup moduleName="one-click-fix" /> : <ShowProPopup />}
+				{vulopilotAppLocalizer.khali_dabba ? <ShowProPopup moduleName="one-click-fix" /> : <ShowProPopup />}
 			</PopupComponent>
 			<PopupComponent
 				open={isSitemapProPopupOpen}
@@ -982,7 +982,7 @@ const CrawlRobotsSitemapSection = () => {
 				height="auto"
 
 			>
-				{appLocalizer.khali_dabba ? <ShowProPopup moduleName="one-click-fix" /> : <ShowProPopup />}
+				{vulopilotAppLocalizer.khali_dabba ? <ShowProPopup moduleName="one-click-fix" /> : <ShowProPopup />}
 			</PopupComponent>
 		</>
 	);

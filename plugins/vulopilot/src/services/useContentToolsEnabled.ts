@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 
 /**
  * Whether the real, Pro-only `content-tools` module
@@ -33,4 +33,4 @@
  * the client-side half, not the enforcement itself.
  */
 export const useContentToolsEnabled = (): boolean =>
-	appLocalizer.active_modules?.includes('content-tools') ?? false;
+	vulopilotAppLocalizer.active_modules?.includes('content-tools') ?? false;

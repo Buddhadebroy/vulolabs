@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -65,8 +65,8 @@ const VisibilityBySourceCard = () => {
 
 	useEffect(() => {
 		getApiResponse<TrafficSourcesResponse>(
-			getApiLink(appLocalizer, 'visibility/traffic-sources'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, 'visibility/traffic-sources'),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => response && setData(response))
 			.finally(() => setIsLoading(false));

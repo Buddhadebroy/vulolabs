@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
@@ -52,8 +52,8 @@ const AeoCitationCoverageCard = ({ isActive }: AeoCitationCoverageCardProps) => 
 		}
 
 		getApiResponse<CitationCoverage>(
-			getApiLink(appLocalizer, 'aeo-citation-coverage'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, 'aeo-citation-coverage'),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				if (response) {
@@ -68,8 +68,8 @@ const AeoCitationCoverageCard = ({ isActive }: AeoCitationCoverageCardProps) => 
 		setError(null);
 
 		sendApiResponse(
-			appLocalizer,
-			getApiLink(appLocalizer, 'aeo-citation-coverage'),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, 'aeo-citation-coverage'),
 			{}
 		)
 			.then((response) => {

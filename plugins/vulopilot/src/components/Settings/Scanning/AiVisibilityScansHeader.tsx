@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
@@ -37,8 +37,8 @@ const AiVisibilityScansHeader = () => {
 		setIsResetting(true);
 
 		sendApiResponse<ResetResult>(
-			appLocalizer,
-			getApiLink(appLocalizer, 'settings/reset-ai-visibility-scans'),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, 'settings/reset-ai-visibility-scans'),
 			{}
 		)
 			.then((response) => {

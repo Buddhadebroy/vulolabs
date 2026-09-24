@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useCallback, useEffect, useState } from 'react';
 import { getApiLink, getApiResponse } from '@zyra/core';
 
@@ -37,8 +37,8 @@ export const useAiCredits = () => {
 	const refresh = useCallback(() => {
 		setIsLoading(true);
 		return getApiResponse<AiCreditsStatus>(
-			getApiLink(appLocalizer, 'ai-credits/status'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, 'ai-credits/status'),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => response && setStatus(response))
 			.finally(() => setIsLoading(false));

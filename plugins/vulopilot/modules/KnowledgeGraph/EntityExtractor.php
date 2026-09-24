@@ -347,7 +347,7 @@ class EntityExtractor {
 
         foreach ( (array) $products as $product ) {
             $relationships[] = sprintf(
-                /* translators: 1: real business name, 2: real published product title. */
+                /* translators: 1: real business name, 2: real service page title or published product title. */
                 __( '%1$s offers %2$s', 'vulopilot' ),
                 $business_name,
                 $product['name']

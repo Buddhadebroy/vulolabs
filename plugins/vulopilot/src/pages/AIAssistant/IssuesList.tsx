@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, scrollToId } from '@zyra/core';
@@ -94,12 +94,12 @@ const IssuesList: React.FC<IssuesListProps> = ({
 			params.set('priority', activePriority);
 		}
 
-		const baseUrl = getApiLink(appLocalizer, 'findings/groups');
+		const baseUrl = getApiLink(vulopilotAppLocalizer, 'findings/groups');
 		const separator = baseUrl.includes('?') ? '&' : '?';
 		const url = `${baseUrl}${separator}${params.toString()}`;
 
 		getApiResponse<GroupsResponse>(url, {
-			headers: { 'X-WP-Nonce': appLocalizer.nonce },
+			headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce },
 		})
 			.then((response) => {
 				if (cancelled) {

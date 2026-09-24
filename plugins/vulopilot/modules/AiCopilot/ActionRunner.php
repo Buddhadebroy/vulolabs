@@ -307,13 +307,6 @@ class ActionRunner {
      *  - 'risk_based'  - auto-approves only Impact::LOW proposals; anything
      *                     Impact::MEDIUM/HIGH still waits for a human.
      *  - 'never'       - auto-approves every proposal regardless of risk.
-     *                     Pro-gated the same way automation_mode's own
-     *                     'auto_fix' option is (InputRenderer's own
-     *                     `proSetting` lock icon) - but real-enforced here
-     *                     too via Utill::is_khali_dabba() rather than only
-     *                     trusting the stored option value, since nothing
-     *                     structurally prevents a free install from having
-     *                     'never' already saved (e.g. a lapsed license).
      *
      * @param string $risk_level One of Impact::LOW/MEDIUM/HIGH - the
      *                           proposal's own AIActionInterface::get_risk_level().
@@ -324,7 +317,7 @@ class ActionRunner {
         $mode     = $settings['ai_change_approval_mode'] ?? 'always';
 
         if ( 'never' === $mode ) {
-            return VuloPilot()->util->is_khali_dabba();
+            return true;
         }
 
         if ( 'risk_based' === $mode ) {

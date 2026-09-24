@@ -143,7 +143,7 @@ class GenerateSummaryBlockAction extends AbstractBasicAction {
         $result       = wp_update_post(
             array(
                 'ID'           => $input['post_id'],
-                'post_content' => $summary_html . "\n" . $input['original_content'],
+                'post_content' => wp_kses_post( $summary_html ) . "\n" . $input['original_content'],
             ),
             true
         );

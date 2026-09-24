@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse, useModules } from '@zyra/core';
@@ -55,7 +55,7 @@ const AUTOMATION_MODULE_ID = 'workflow-automation';
  */
 const EnableAutomationModuleAction: React.FC = () => {
 	const [isActive, setIsActive] = useState(
-		(appLocalizer.active_modules ?? []).includes(AUTOMATION_MODULE_ID)
+		(vulopilotAppLocalizer.active_modules ?? []).includes(AUTOMATION_MODULE_ID)
 	);
 	const [isToggling, setIsToggling] = useState(false);
 	// Same real zustand store ModuleGridComponent.tsx's own toggle already
@@ -71,7 +71,7 @@ const EnableAutomationModuleAction: React.FC = () => {
 		const nextAction = isActive ? 'deactivate' : 'activate';
 		setIsToggling(true);
 
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'modules'), {
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'modules'), {
 			id: AUTOMATION_MODULE_ID,
 			action: nextAction,
 		})

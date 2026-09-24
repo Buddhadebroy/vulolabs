@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -75,10 +75,10 @@ const ContentStatsCard = () => {
 		setIsLoading(true);
 		getApiResponse<StatsResponse>(
 			getApiLink(
-				appLocalizer,
+				vulopilotAppLocalizer,
 				`content-intelligence/stats?date_from=${dateFrom}&date_to=${dateTo}`
 			),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				if (response) {

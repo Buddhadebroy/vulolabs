@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -57,7 +57,7 @@ const SeoProgressCard = () => {
 		setIsLoading(true);
 
 		getApiResponse<SeoProgressResponse>(
-			getApiLink(appLocalizer, `seo/progress?days=${period}`),
+			getApiLink(vulopilotAppLocalizer, `seo/progress?days=${period}`),
 			nonceHeaders
 		)
 			.then((response) => {

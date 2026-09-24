@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useRef, useState } from 'react';
 import axios from 'axios';
 import { __ } from '@wordpress/i18n';
@@ -189,7 +189,7 @@ export const useCopilotChat = ( noticeKey: string ) => {
 
 		axios
 			.post< CopilotChatResponse >(
-				getApiLink( appLocalizer, 'copilot/chat' ),
+				getApiLink( vulopilotAppLocalizer, 'copilot/chat' ),
 				{
 					message: trimmed,
 					history,
@@ -204,7 +204,7 @@ export const useCopilotChat = ( noticeKey: string ) => {
 						id: attachment.id,
 					} ) ),
 				},
-				{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+				{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 			)
 			.then( ( response ) => {
 				if ( generation !== chatGeneration.current ) {
@@ -292,8 +292,8 @@ export const useCopilotChat = ( noticeKey: string ) => {
 		setIsLoadingConversation( true );
 
 		getApiResponse< StoredConversation >(
-			getApiLink( appLocalizer, `copilot/conversations/${ id }` ),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink( vulopilotAppLocalizer, `copilot/conversations/${ id }` ),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then( ( response ) => {
 				if ( ! response ) {

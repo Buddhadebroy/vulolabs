@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import type { ComponentType, FC } from 'react';
 import { __ } from '@wordpress/i18n';
@@ -64,8 +64,8 @@ const RecommendedActionsFreeCard: FC<RecommendedActionsCardProps> = () => {
 
 	useEffect(() => {
 		getApiResponse<AttentionSummaryResponse>(
-			getApiLink(appLocalizer, 'findings/attention-summary'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, 'findings/attention-summary'),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				if (response) {
@@ -140,7 +140,7 @@ const RecommendedActionsFreeCard: FC<RecommendedActionsCardProps> = () => {
 					height="auto"
 					position="lightbox"
 				>
-					{appLocalizer.khali_dabba ? (
+					{vulopilotAppLocalizer.khali_dabba ? (
 						// Pro is active - this specific module just isn't
 						// toggled on yet, so point at Modules rather than
 						// pitching an upgrade the user already has.

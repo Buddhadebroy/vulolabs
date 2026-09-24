@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import type { ReactNode } from 'react';
 import { __ } from '@wordpress/i18n';
 import { ModuleGuardComponent } from '@zyra/components';
@@ -49,7 +49,7 @@ const AiCopilotGuard = ({ title, desc, children }: AiCopilotGuardProps) => {
 				// component's own `desc` copy above, "Settings → Modules"),
 				// not the old standalone `tab=modules` route.
 				window.open(
-					`${appLocalizer.admin_url}#&tab=settings&subtab=modules&module=ai-copilot`,
+					`${vulopilotAppLocalizer.admin_url}#&tab=settings&subtab=modules&module=ai-copilot`,
 					'_self'
 				);
 			}}

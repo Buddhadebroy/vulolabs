@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
@@ -34,8 +34,8 @@ const AccessibilityRestoreDefaultsHeader = () => {
 		setIsResetting(true);
 
 		sendApiResponse(
-			appLocalizer,
-			getApiLink(appLocalizer, 'settings'),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, 'settings'),
 			{ setting: DEFAULTS, settingName: 'accessibility' }
 		)
 			.then((response) => {

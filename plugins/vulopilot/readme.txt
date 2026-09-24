@@ -2,7 +2,7 @@
 
 Contributors: vulolabs
 Tags:seo, website optimization, site health, performance, security
-Requires at least: 6.5
+Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 8.1
 Stable tag: 1.0.0
@@ -395,6 +395,89 @@ By default, VuloPilot provides recommendations and requires your approval before
 8. AI SEO Assistant
 10. Reports & Analytics Dashboard
 11. Website Activity Timeline
+
+== External services ==
+
+VuloPilot connects to the following third-party and external services. Each one is only contacted when the related feature is used or enabled, as described below.
+
+= VuloCloud (VuloLabs) =
+
+VuloCloud is the cloud service operated by VuloLabs that powers VuloPilot's AI features (AI suggestions, content generation, AI Copilot), AI Credits, and the Google sign-in broker.
+
+* When: when you use an AI feature, connect or disconnect your site to VuloCloud, refresh your AI Credits balance, or start the Google connection flow.
+* Data sent: the prompt text and page content you ask the AI to work on, the feature name, your site's tone setting, a site identifier and secret issued when you connect the site, and (for the Google flow) the OAuth redirect details. No data is sent unless you use one of these features.
+* Service provided by VuloLabs. Terms of service: https://vulolabs.com/terms/ - Privacy policy: https://vulolabs.com/privacy-policy/
+
+= Google OAuth, Search Console, Analytics and AdSense =
+
+Used only if you connect your Google account in Settings, to show Search Console, Google Analytics and AdSense data inside VuloPilot.
+
+* When: when you connect the account and whenever the related reports are loaded or refreshed.
+* Data sent: the OAuth authorization code and access tokens, and requests for the read-only Search Console, Analytics and AdSense data of the account you connected (for example your site URL or property ID). Endpoints: accounts.google.com, oauth2.googleapis.com, www.googleapis.com, analyticsdata.googleapis.com, analyticsadmin.googleapis.com, adsense.googleapis.com.
+* Provided by Google LLC. Terms of service: https://policies.google.com/terms - Privacy policy: https://policies.google.com/privacy
+
+= Google PageSpeed Insights =
+
+Used by the Performance scan to measure your pages' speed scores.
+
+* When: when a PageSpeed check runs (manually or scheduled).
+* Data sent: the URL of the page being tested (and your own PageSpeed API key, only if you entered one in Settings) to www.googleapis.com/pagespeedonline.
+* Provided by Google LLC. Terms of service: https://policies.google.com/terms - Privacy policy: https://policies.google.com/privacy
+
+= Google Analytics (gtag.js) and Google Tag Manager =
+
+Used only if you enable Google Analytics or Tag Manager in Settings.
+
+* When: on your site's front-end pages while the feature is enabled.
+* Data sent: your visitors' browser requests load scripts from www.googletagmanager.com, and the Google tag then sends visitor and page-view data to Google according to your Google Analytics or Tag Manager configuration. You are responsible for consent and privacy disclosures for your visitors.
+* Provided by Google LLC. Terms of service: https://marketingplatform.google.com/about/analytics/terms/us/ - Privacy policy: https://policies.google.com/privacy
+
+= IndexNow =
+
+Used only if you enable Instant Indexing, to tell search engines about new or updated URLs.
+
+* When: when content is published or updated, or when you submit URLs manually.
+* Data sent: the changed URL(s), your site's host name and your IndexNow key, sent to api.indexnow.org.
+* Terms of use: https://www.indexnow.org/terms - Privacy: https://www.indexnow.org/privacy
+
+= Bing sitemap ping =
+
+Used when the XML sitemap feature is enabled, to tell Bing that your sitemap was updated.
+
+* When: when content that affects your sitemap changes (the request is sent in the background).
+* Data sent: your sitemap URL, sent to www.bing.com/ping.
+* Provided by Microsoft Corporation. Terms: https://www.microsoft.com/servicesagreement - Privacy: https://privacy.microsoft.com/privacystatement
+
+= WordPress.com mShots =
+
+Used by the dashboard to show a preview thumbnail of your homepage when no featured image or logo is available.
+
+* When: when the dashboard is opened.
+* Data sent: your site's public URL (from your browser) to s0.wp.com/mshots.
+* Provided by Automattic Inc. Terms of service: https://wordpress.com/tos/ - Privacy policy: https://automattic.com/privacy/
+
+== Source Code and Build Tools ==
+
+The compiled and minified files in `assets/` (`assets/js/index.js`, `assets/js/vendors.js`, `assets/js/post-editor.js`, `assets/js/block/*/index.js`, `assets/js/public/*.min.js` and `assets/styles/public/*.min.css`) are generated from human-readable source that is publicly available:
+
+* Source repository: https://github.com/vulolabs/vulolabs (plugin folder: `plugins/vulopilot`)
+* Admin app (React + TypeScript): `src/` and `modules/*/src/`, bundled into `assets/js/index.js` and `assets/js/vendors.js`
+* Editor scripts and blocks: `src/post-editor/` (post editor sidebar) and `src/blocks/` (Table of Contents and FAQ blocks), bundled into `assets/js/post-editor.js` and `assets/js/block/`
+* Front-end and admin helper scripts/styles: `public/js/` and `public/styles/`, minified into `assets/js/public/` and `assets/styles/public/`
+
+Build steps (Node.js and pnpm are required):
+
+1. Clone the repository and run `pnpm install` in the repository root.
+2. From `plugins/vulopilot`, run `pnpm run build` to regenerate everything in `assets/` (or `pnpm run watch` during development).
+
+Third-party libraries bundled in `assets/js/vendors.js`, with their public sources:
+
+* React Router - https://github.com/remix-run/react-router (MIT)
+* Recharts - https://github.com/recharts/recharts (MIT)
+* Axios - https://github.com/axios/axios (MIT)
+* SortableJS / react-sortablejs - https://github.com/SortableJS/Sortable (MIT)
+* Emotion - https://github.com/emotion-js/emotion (MIT)
+* Zyra UI kit (`@multivendorx/zyra`) - https://github.com/multivendorx/zyra (npm: @multivendorx/zyra)
 
 == Changelog ==
 

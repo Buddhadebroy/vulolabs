@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -62,23 +62,23 @@ const LiveSiteInsightsCard: React.FC = () => {
 		setIsLoading(true);
 		setHasError(false);
 
-		const headers = { 'X-WP-Nonce': appLocalizer.nonce };
+		const headers = { 'X-WP-Nonce': vulopilotAppLocalizer.nonce };
 
 		Promise.all([
 			getApiResponse<DashboardSummary>(
-				getApiLink(appLocalizer, 'dashboard'),
+				getApiLink(vulopilotAppLocalizer, 'dashboard'),
 				{ headers }
 			),
 			getApiResponse<CoreWebVitalsSummary>(
-				getApiLink(appLocalizer, 'core-web-vitals'),
+				getApiLink(vulopilotAppLocalizer, 'core-web-vitals'),
 				{ headers }
 			),
 			getApiResponse<CrawlerSummary>(
-				getApiLink(appLocalizer, 'crawler-traffic/summary?days=30'),
+				getApiLink(vulopilotAppLocalizer, 'crawler-traffic/summary?days=30'),
 				{ headers }
 			),
 			getApiResponse<RealtimeStats>(
-				getApiLink(appLocalizer, 'performance-realtime'),
+				getApiLink(vulopilotAppLocalizer, 'performance-realtime'),
 				{ headers }
 			),
 		])

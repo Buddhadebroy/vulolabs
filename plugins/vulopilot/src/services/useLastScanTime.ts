@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { getApiLink, getApiResponse } from '@zyra/core';
 
@@ -38,7 +38,7 @@ export const useLastScanTime = (
 		setIsLoading(true);
 
 		let url =
-			getApiLink(appLocalizer, 'scans') +
+			getApiLink(vulopilotAppLocalizer, 'scans') +
 			'?status=completed&per_page=1&orderby=finished_at&order=desc';
 
 		if (scannerIdKey) {
@@ -50,7 +50,7 @@ export const useLastScanTime = (
 		}
 
 		getApiResponse<{ data: ScanRow[] }>(url, {
-			headers: { 'X-WP-Nonce': appLocalizer.nonce },
+			headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce },
 		})
 			.then((response) => {
 				setLastScanAt(response?.data?.[0]?.finished_at ?? null);

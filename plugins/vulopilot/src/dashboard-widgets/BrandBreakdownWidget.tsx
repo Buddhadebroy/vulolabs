@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -40,8 +40,8 @@ const BrandBreakdownWidget: React.FC<WidgetProps> = ({
 
 	useEffect(() => {
 		getApiResponse<BrandScore>(
-			getApiLink(appLocalizer, 'brand-intelligence/score'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, 'brand-intelligence/score'),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				if (response) {

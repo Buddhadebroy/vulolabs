@@ -4,7 +4,7 @@ export {};
 
 declare global {
 	/**
-	 * Shape of the `appLocalizer` object localized by
+	 * Shape of the `vulopilotAppLocalizer` object localized by
 	 * FrontendScripts::localize_scripts() - keep this in sync with that
 	 * method's wp_localize_script() payload.
 	 */
@@ -55,12 +55,12 @@ declare global {
 	}
 
 
-	var appLocalizer: AppLocalizer;
+	var vulopilotAppLocalizer: AppLocalizer;
 
 	/**
 	 * Shape of the `vulopilotPostSeo` object localized by
 	 * Services\PostEditorAssets::enqueue_assets() - the post-editor SEO
-	 * metabox's own script handle, separate from `appLocalizer` since the
+	 * metabox's own script handle, separate from `vulopilotAppLocalizer` since the
 	 * Block Editor screen doesn't guarantee the dashboard's own localized
 	 * script has run.
 	 */

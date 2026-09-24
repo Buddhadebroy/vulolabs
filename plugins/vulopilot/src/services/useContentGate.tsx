@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState, type KeyboardEvent, type ReactNode } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { PopupComponent } from '@zyra/components';
@@ -60,12 +60,12 @@ const DEFAULT_DUMMY_CONTENT = (
  *    `realContent` blurred behind the overlay card ("Connect to
  *    VuloCloud" copy), opening `ShowProPopup vulocloud` (the
  *    passwordless broker redirect every free AI surface uses).
- * 2. **Pro** (`appLocalizer.khali_dabba` false) - `dummyContent` (or
+ * 2. **Pro** (`vulopilotAppLocalizer.khali_dabba` false) - `dummyContent` (or
  *    `DEFAULT_DUMMY_CONTENT` if omitted) blurred behind the same overlay
  *    card (default "Upgrade to Pro" copy) plus `DummyDataNotice`.
  *    Clicking opens the generic upgrade popup (`ShowProPopup`, no
  *    `moduleName`).
- * 3. **Module** (`moduleId` missing from `appLocalizer.active_modules`) -
+ * 3. **Module** (`moduleId` missing from `vulopilotAppLocalizer.active_modules`) -
  *    same `dummyContent` treatment, tag shows the module's display name
  *    (Modules/index.ts catalog). Clicking skips the popup and navigates
  *    straight to `?page=vulopilot#&tab=settings&subtab=modules&module=<id>`
@@ -90,12 +90,12 @@ export const useContentGate = (
 	// briefly unlocking, since this drives whether `realContent` itself
 	// gets blurred.
 	const isVuloCloudLocked = !creditsStatus?.connected;
-	const isProLocked = !isVuloCloudLocked && !appLocalizer.khali_dabba;
+	const isProLocked = !isVuloCloudLocked && !vulopilotAppLocalizer.khali_dabba;
 	const isModuleLocked =
 		!isVuloCloudLocked &&
 		!isProLocked &&
 		!!moduleId &&
-		!(isModuleActive ?? appLocalizer.active_modules.includes(moduleId));
+		!(isModuleActive ?? vulopilotAppLocalizer.active_modules.includes(moduleId));
 
 	const gateReason: 'vulocloud' | 'pro' | 'module' | null = isVuloCloudLocked
 		? 'vulocloud'
@@ -110,7 +110,7 @@ export const useContentGate = (
 	// same as before. See this hook's own docblock, gate 3.
 	const handleActivate = () => {
 		if ('module' === gateReason && moduleId) {
-			window.location.href = `${appLocalizer.admin_url}#&tab=settings&subtab=modules&module=${moduleId}`;
+			window.location.href = `${vulopilotAppLocalizer.admin_url}#&tab=settings&subtab=modules&module=${moduleId}`;
 			return;
 		}
 		setIsPopupOpen(true);
@@ -208,7 +208,7 @@ export const useContentGate = (
 					role="button"
 					tabIndex={0}
 					aria-label={sprintf(
-						/* translators: %s is the real module's own display name. */
+						/* translators: %s: module display name. */
 						__('Activate %s', 'vulopilot'),
 						MODULE_CATALOG_BY_ID.get(moduleId ?? '')?.name ?? moduleId ?? ''
 					)}

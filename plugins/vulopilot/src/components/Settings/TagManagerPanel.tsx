@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useRef, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
@@ -40,7 +40,7 @@ const TagManagerPanel = () => {
 		const nextEnabled = '' !== nextContainerId.trim() ? ['tag_manager_enabled'] : [];
 		updateSetting('tag_manager_container_id', nextContainerId);
 		updateSetting('tag_manager_enabled', nextEnabled);
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'settings'), {
 			setting: {
 				tag_manager_container_id: nextContainerId,
 				tag_manager_enabled: nextEnabled,

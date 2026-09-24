@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useModules } from '@zyra/core';
@@ -109,7 +109,7 @@ const getAeoTrendScore = (row: GeoVisibilityHistoryRow): number | null =>
  * register that class. Gates the AI-call buttons in
  * AeoCitationCoverageCard.tsx/AeoEngineTestingCard.tsx.
  *
- * Reads zyra's `useModules()` store, not `appLocalizer.active_modules`
+ * Reads zyra's `useModules()` store, not `vulopilotAppLocalizer.active_modules`
  * directly - that global is a static snapshot from initial page load, so
  * toggling a module in Settings → Modules wouldn't be reflected here
  * without a full refresh.
@@ -117,7 +117,7 @@ const getAeoTrendScore = (row: GeoVisibilityHistoryRow): number | null =>
 const isCitationCheckActive = (modules: string[]): boolean =>
 	// `/aeo-citation-coverage` is registered only by vulopilot-pro, so a
 	// module id alone (Free ships its own geo-analysis module) isn't enough.
-	Boolean(appLocalizer.khali_dabba) &&
+	Boolean(vulopilotAppLocalizer.khali_dabba) &&
 	(modules.includes('geo-analysis') || modules.includes('answer-engine-optimization'));
 
 /**

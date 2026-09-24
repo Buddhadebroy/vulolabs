@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -51,8 +51,8 @@ const CrawlerTrafficWidget: React.FC<WidgetProps> = ({
 
 	useEffect(() => {
 		getApiResponse<CrawlerSummaryResponse>(
-			getApiLink(appLocalizer, 'crawler-traffic/summary'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, 'crawler-traffic/summary'),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				if (response) {

@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { nonceHeaders } from './seoIssuesShared';
@@ -60,8 +60,8 @@ export const useSeoScore = (): {
 	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
-		getApiResponse<SeoScoreResponse>(getApiLink(appLocalizer, 'seo/score'), {
-			headers: { 'X-WP-Nonce': appLocalizer.nonce },
+		getApiResponse<SeoScoreResponse>(getApiLink(vulopilotAppLocalizer, 'seo/score'), {
+			headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce },
 		})
 			.then((response) => {
 				if (response) {
@@ -116,7 +116,7 @@ export const useSeoProgress = (): {
 		let cancelled = false;
 
 		getApiResponse<SeoProgressResponse>(
-			getApiLink(appLocalizer, 'seo/progress'),
+			getApiLink(vulopilotAppLocalizer, 'seo/progress'),
 			nonceHeaders
 		)
 			.then((response) => {

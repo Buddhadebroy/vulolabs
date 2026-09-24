@@ -69,15 +69,12 @@ class ActionRegistry {
      */
     private function get_default_action_classes(): array {
         return array(
-            Actions\GenerateAltAction::class,
             Actions\ImproveReadabilityAction::class,
-            Actions\GenerateSchemaAction::class,
             Actions\GenerateBlogAction::class,
             // SEO module (SEO-MODULE.md) - closes MissingMetaDescriptionRule's fix loop.
             Actions\WriteMetaDescriptionAction::class,
             // GEO module (GEO-MODULE.md) - closes FaqOpportunityRule's and
             // MissingSummaryBlockRule's fix loops.
-            Actions\GenerateFaqAction::class,
             Actions\GenerateSummaryBlockAction::class,
             // GEO module, second pass - closes the remaining 7 GEO
             // scanners' fix loops (ScannerFixMap previously left these
@@ -93,13 +90,11 @@ class ActionRegistry {
             // SeoTitleRewriteRule's fix loop (write-meta-title) and adds
             // the two content-generation actions with no matching scanner/
             // rule (suggest-internal-links, generate-social-content).
-            Actions\WriteMetaTitleAction::class,
             Actions\SuggestInternalLinksAction::class,
             Actions\GenerateSocialContentAction::class,
             // AI Content Assistant (readme) - the 3 remaining generation
             // types with no existing action: product descriptions,
             // listing-page excerpts, and comparison pages.
-            Actions\GenerateProductDescriptionAction::class,
             Actions\GenerateExcerptAction::class,
             Actions\GenerateComparisonPageAction::class,
             // One-Click Fix coverage pass for the SEO category (Pro's
@@ -126,7 +121,6 @@ class ActionRegistry {
             // ContentTools\Actions\* (registered through this same filter
             // from that module's own Module.php) rather than staying here.
             Actions\WritePostContentAction::class,
-            Actions\GenerateLandingPageAction::class,
             // QuickActionsCard.tsx's own "AI Content Audit" shortcut - a
             // real, standalone AI action (an overall score/summary/
             // suggestions verdict, saved as postmeta) rather than the

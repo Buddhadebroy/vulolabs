@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
@@ -52,8 +52,8 @@ const AeoEngineTestingCard = ({ isActive, pages }: AeoEngineTestingCardProps) =>
 		setResult(null);
 
 		sendApiResponse<CitationCheckResult>(
-			appLocalizer,
-			getApiLink(appLocalizer, `aeo-citation-coverage/${selectedPostId}`),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, `aeo-citation-coverage/${selectedPostId}`),
 			{}
 		)
 			.then((response) => {

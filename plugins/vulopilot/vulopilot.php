@@ -1,13 +1,12 @@
 <?php
 /**
  * Plugin Name: VuloPilot
- * Plugin URI: https://vulolabs.com/vulopilot/
+ * Plugin URI: https://vulopilot.com/
  * Description: An AI Operating System for WordPress - monitor, optimize, secure, and automate your website.
  * Author: VuloLabs
  * Version: 1.0.0
  * Author URI: https://vulolabs.com/
- * Requires at least: 6.5
- * Tested up to: 7.1
+ * Requires at least: 6.7
  * Requires PHP: 8.1
  * Text Domain: vulopilot
  * Domain Path: /languages/

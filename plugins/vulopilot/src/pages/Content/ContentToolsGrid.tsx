@@ -1,9 +1,10 @@
-/* global appLocalizer */
-import { useState } from 'react';
+/* global vulopilotAppLocalizer */
+import { useState, type ComponentType } from 'react';
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ListComponent, PopupComponent } from '@zyra/components';
 import ContentToolPopup from './ContentToolPopup';
-import ShowProPopup from '../../components/Popup/Popup';
+import { useFilterSlot } from '../../services/useFilterSlot';
+import ShowProPopup, { VuloCloudInlineNotice } from '../../components/Popup/Popup';
 import { useAiCredits } from '../../services/useAiCredits';
 import { useContentToolsEnabled } from '../../services/useContentToolsEnabled';
 
@@ -101,13 +102,7 @@ export const CONTENT_TOOLS: ContentTool[] = [
 		desc: __('Create high-converting landing pages.', 'vulopilot'),
 		actionId: 'generate-landing-page',
 		pro: true,
-		fields: [
-			{
-				key: 'topic',
-				label: __('What is this landing page for?', 'vulopilot'),
-				type: 'text',
-			},
-		],
+		fields: [],
 	},
 	{
 		id: 'product-descriptions',
@@ -117,18 +112,7 @@ export const CONTENT_TOOLS: ContentTool[] = [
 		desc: __('Write persuasive product descriptions that sell.', 'vulopilot'),
 		actionId: 'generate-product-description',
 		pro: true,
-		fields: [
-			{
-				key: 'product_name',
-				label: __('Product name', 'vulopilot'),
-				type: 'text',
-			},
-			{
-				key: 'key_features',
-				label: __('Key features (optional)', 'vulopilot'),
-				type: 'textarea',
-			},
-		],
+		fields: [],
 	},
 	{
 		id: 'faq-generator',
@@ -138,13 +122,7 @@ export const CONTENT_TOOLS: ContentTool[] = [
 		desc: __('Generate FAQs that answer customer questions.', 'vulopilot'),
 		actionId: 'generate-faq',
 		pro: true,
-		fields: [
-			{
-				key: 'post_id',
-				label: __('Post or page', 'vulopilot'),
-				type: 'post-picker',
-			},
-		],
+		fields: [],
 	},
 	{
 		id: 'schema-generator',
@@ -154,13 +132,7 @@ export const CONTENT_TOOLS: ContentTool[] = [
 		desc: __('Create structured data schema markup.', 'vulopilot'),
 		actionId: 'generate-schema',
 		pro: true,
-		fields: [
-			{
-				key: 'post_id',
-				label: __('Post or page (must be published)', 'vulopilot'),
-				type: 'post-picker',
-			},
-		],
+		fields: [],
 	},
 	{
 		id: 'image-alt-text',
@@ -170,13 +142,7 @@ export const CONTENT_TOOLS: ContentTool[] = [
 		desc: __('Generate SEO-friendly alt text for images.', 'vulopilot'),
 		actionId: 'generate-alt',
 		pro: true,
-		fields: [
-			{
-				key: 'attachment_id',
-				label: __('Image', 'vulopilot'),
-				type: 'media-picker',
-			},
-		],
+		fields: [],
 	},
 	{
 		id: 'meta-generator',
@@ -186,13 +152,7 @@ export const CONTENT_TOOLS: ContentTool[] = [
 		desc: __('Create meta titles that rank.', 'vulopilot'),
 		actionId: 'write-meta-title',
 		pro: true,
-		fields: [
-			{
-				key: 'post_id',
-				label: __('Post or page', 'vulopilot'),
-				type: 'post-picker',
-			},
-		],
+		fields: [],
 	},
 	{
 		id: 'content-optimizer',
@@ -202,13 +162,7 @@ export const CONTENT_TOOLS: ContentTool[] = [
 		desc: __('Optimize content for SEO and readability.', 'vulopilot'),
 		actionId: 'optimize-content',
 		pro: true,
-		fields: [
-			{
-				key: 'post_id',
-				label: __('Post or page', 'vulopilot'),
-				type: 'post-picker',
-			},
-		],
+		fields: [],
 	},
 	{
 		id: 'content-refresh',
@@ -218,13 +172,7 @@ export const CONTENT_TOOLS: ContentTool[] = [
 		desc: __('Update and improve existing content with AI.', 'vulopilot'),
 		actionId: 'refresh-content',
 		pro: true,
-		fields: [
-			{
-				key: 'post_id',
-				label: __('Post or page', 'vulopilot'),
-				type: 'post-picker',
-			},
-		],
+		fields: [],
 	},
 	{
 		id: 'duplicate-content',
@@ -249,18 +197,25 @@ export const CONTENT_TOOLS: ContentTool[] = [
 		desc: __('Optimize alt text, titles, and captions for an image.', 'vulopilot'),
 		actionId: 'optimize-media',
 		pro: true,
-		fields: [
-			{
-				key: 'attachment_id',
-				label: __('Image', 'vulopilot'),
-				type: 'media-picker',
-			},
-		],
+		fields: [],
 	},
 ];
 
+interface ProToolsSlot {
+	// eslint-disable-next-line no-unused-vars -- named props on a type-only component signature.
+	Popup: ComponentType<{
+		tool: ContentTool | null;
+		onClose: () => void;
+		VuloCloudInlineNotice: ComponentType;
+		creditsStatus: { connected?: boolean } | null;
+	}>;
+	tools: ContentTool[];
+}
+
 const ContentToolsGrid = () => {
 	const [activeTool, setActiveTool] = useState<ContentTool | null>(null);
+	// The working Pro tools (their forms and popup) are supplied by vulopilot-pro; Free only draws the tile and PRO tag.
+	const proSlot = useFilterSlot<ProToolsSlot>('vulopilot_content_tools_pro');
 	const { status: creditsStatus } = useAiCredits();
 	const isContentToolsEnabled = useContentToolsEnabled();
 	const [isCloudConnectPromptOpen, setIsCloudConnectPromptOpen] = useState(false);
@@ -284,7 +239,7 @@ const ContentToolsGrid = () => {
 	 * connected.
 	 */
 	const handleToolClick = (tool: ContentTool) => {
-		if (tool.pro && !isContentToolsEnabled) {
+		if (tool.pro && (!isContentToolsEnabled || !proSlot)) {
 			setIsProLocked(true);
 			return;
 		}
@@ -294,7 +249,7 @@ const ContentToolsGrid = () => {
 			return;
 		}
 
-		setActiveTool(tool);
+		setActiveTool(tool.pro ? (proSlot?.tools.find((t) => t.id === tool.id) ?? tool) : tool);
 	};
 
 	return (
@@ -328,7 +283,7 @@ const ContentToolsGrid = () => {
 						desc: tool.desc,
 						tags: (
 							<>
-								{tool.pro && !isContentToolsEnabled && (
+								{tool.pro && (!isContentToolsEnabled || !proSlot) && (
 									<span className="admin-tag pro-tag">
 										<i className="adminfont-pro-tag" />
 										{__('Pro', 'vulopilot')}
@@ -340,10 +295,19 @@ const ContentToolsGrid = () => {
 						action: () => handleToolClick(tool),
 					}))}
 				/>
-				<ContentToolPopup
-					tool={activeTool}
-					onClose={() => setActiveTool(null)}
-				/>
+				{activeTool?.pro && proSlot ? (
+					<proSlot.Popup
+						tool={activeTool}
+						onClose={() => setActiveTool(null)}
+						VuloCloudInlineNotice={VuloCloudInlineNotice}
+						creditsStatus={creditsStatus}
+					/>
+				) : (
+					<ContentToolPopup
+						tool={activeTool?.pro ? null : activeTool}
+						onClose={() => setActiveTool(null)}
+					/>
+				)}
 			</CardComponent>
 			<PopupComponent
 				open={isCloudConnectPromptOpen}
@@ -361,7 +325,7 @@ const ContentToolsGrid = () => {
 				height="auto"
 				position="lightbox"
 			>
-				{appLocalizer.khali_dabba ? (
+				{vulopilotAppLocalizer.khali_dabba ? (
 					<ShowProPopup moduleName="content-tools" />
 				) : (
 					<ShowProPopup />

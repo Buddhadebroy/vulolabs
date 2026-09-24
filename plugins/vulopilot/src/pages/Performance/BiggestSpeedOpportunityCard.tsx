@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -35,7 +35,7 @@ interface BiggestSpeedOpportunityCardProps {
 	onViewFindings: () => void;
 }
 
-const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 /**
  * "Biggest Speed Opportunity" - one real, prioritized recommendation
@@ -82,7 +82,7 @@ const BiggestSpeedOpportunityCard = ({
 
 	useEffect(() => {
 		getApiResponse<PageSpeedResponse>(
-			getApiLink(appLocalizer, 'page-speed') + '?per_page=1',
+			getApiLink(vulopilotAppLocalizer, 'page-speed') + '?per_page=1',
 			nonceHeaders
 		)
 			.then((response) => {
@@ -99,7 +99,7 @@ const BiggestSpeedOpportunityCard = ({
 
 				return getApiResponse<FindingGroupsResponse>(
 					getApiLink(
-						appLocalizer,
+						vulopilotAppLocalizer,
 						'findings/groups?category=performance&per_page=1'
 					),
 					nonceHeaders

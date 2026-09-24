@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
@@ -46,7 +46,7 @@ const SecurityRestoreDefaultsHeader = () => {
 	const restoreDefaults = () => {
 		setIsResetting(true);
 
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'settings'), {
 			setting: DEFAULTS,
 			settingName: 'security-scanning',
 		})

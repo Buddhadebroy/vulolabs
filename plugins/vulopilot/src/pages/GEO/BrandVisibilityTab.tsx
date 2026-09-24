@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import {
@@ -83,7 +83,7 @@ const BRAND_SECTIONS: FindingsSection[] = [
  * this module's own 3 scanners only run while it's active.
  */
 const isBrandModuleActive = () =>
-	appLocalizer.active_modules?.includes(BRAND_MODULE_ID) ?? false;
+	vulopilotAppLocalizer.active_modules?.includes(BRAND_MODULE_ID) ?? false;
 
 /**
  * "Brand Visibility" tab of "SEO & Visibility" - on-site Brand/Trust/
@@ -167,7 +167,7 @@ const BrandVisibilityTab = ({ initialScannerId }: BrandVisibilityTabProps) => {
 		'vulopilot_brand_offsite_mentions_card'
 	);
 
-	const isProInstalled = Boolean(appLocalizer.khali_dabba);
+	const isProInstalled = Boolean(vulopilotAppLocalizer.khali_dabba);
 
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
 	const openProPopup = () => setIsProPopupOpen(true);
@@ -191,7 +191,7 @@ const BrandVisibilityTab = ({ initialScannerId }: BrandVisibilityTabProps) => {
 							'vulopilot'
 						)}
 						buttonText={__('Go to Settings → Modules', 'vulopilot')}
-						buttonLink={`${appLocalizer.admin_url}#&tab=settings&subtab=modules&module=${BRAND_MODULE_ID}`}
+						buttonLink={`${vulopilotAppLocalizer.admin_url}#&tab=settings&subtab=modules&module=${BRAND_MODULE_ID}`}
 					/>
 				</CardComponent>
 			</ColumnComponent>

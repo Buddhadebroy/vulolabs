@@ -30,7 +30,7 @@ import proPopupContent from '../Popup/Popup';
  * (apiLink="modules", see Controllers\Settings::set_modules()/
  * get_modules()), search, and category filtering internally (confirmed by
  * reading its real source via its own shipped sourcemap - it takes no
- * `appLocalizer` prop at all, reading khali_dabba/module state via zyra's
+ * `vulopilotAppLocalizer` prop at all, reading khali_dabba/module state via zyra's
  * own ZyraVariable/zustand store instead, already configured once at this
  * plugin's own bootstrap). See ./index.ts's own docblock for why every
  * card's `id` has to be a real backend module id, not display text.

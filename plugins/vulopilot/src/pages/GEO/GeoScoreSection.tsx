@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { COLOR_PALETTE, getApiLink, getApiResponse } from '@zyra/core';
@@ -215,8 +215,8 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 	useEffect(() => {
 		setIsLoadingProgress(true);
 		getApiResponse<ProgressResponse>(
-			getApiLink(appLocalizer, `geo/progress?days=${period}`),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, `geo/progress?days=${period}`),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => response && setProgress(response))
 			.finally(() => setIsLoadingProgress(false));

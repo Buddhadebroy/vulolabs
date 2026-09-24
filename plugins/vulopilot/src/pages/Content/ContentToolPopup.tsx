@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
@@ -22,13 +22,6 @@ interface WpRestMedia {
 	id: number;
 	title: { rendered: string };
 	source_url: string;
-}
-
-interface WcRestProduct {
-	id: number;
-	name: string;
-	short_description: string;
-	description: string;
 }
 
 interface DuplicateFinding {
@@ -120,8 +113,6 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 	const [duplicateFindings, setDuplicateFindings] = useState<
 		DuplicateFinding[]
 	>([]);
-	const [products, setProducts] = useState<WcRestProduct[]>([]);
-	const [selectedProductId, setSelectedProductId] = useState('');
 	const [isLoadingOptions, setIsLoadingOptions] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
 	const [runId, setRunId] = useState<number | null>(null);
@@ -130,7 +121,6 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 	);
 	const [isBusy, setIsBusy] = useState(false);
 
-	const hasProductPicker = 'generate-product-description' === tool?.actionId;
 	/** Same real "No AI connection is configured." condition AiContentAssistantSidebar.tsx's own sendToAi() checks for - ActionRunner::propose() throws this exact phrase (Rest.php's own docblock), so this offers the same real "Connect to VuloCloud" fix instead of a dead-end error notice. */
 	const { status: creditsStatus } = useAiCredits();
 	// Only offer "Connect" when not already connected - otherwise show the real server error.
@@ -144,7 +134,6 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 
 		setStep('input');
 		setFieldValues({});
-		setSelectedProductId('');
 		setErrorMessage('');
 		setRunId(null);
 		setPreview(null);
@@ -157,19 +146,19 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 			Promise.all([
 				getApiResponse<WpRestPost[]>(
 					getApiLink(
-						appLocalizer,
+						vulopilotAppLocalizer,
 						'posts?per_page=20&orderby=date&order=desc&_fields=id,title',
 						'wp/v2'
 					),
-					{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+					{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 				),
 				getApiResponse<WpRestPost[]>(
 					getApiLink(
-						appLocalizer,
+						vulopilotAppLocalizer,
 						'pages?per_page=20&orderby=date&order=desc&_fields=id,title',
 						'wp/v2'
 					),
-					{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+					{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 				),
 			])
 				.then(([posts, pages]) => {
@@ -188,11 +177,11 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 			setIsLoadingOptions(true);
 			getApiResponse<WpRestMedia[]>(
 				getApiLink(
-					appLocalizer,
+					vulopilotAppLocalizer,
 					'media?per_page=20&media_type=image&orderby=date&order=desc&_fields=id,title,source_url',
 					'wp/v2'
 				),
-				{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+				{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 			)
 				.then((media) => {
 					setMediaOptions(
@@ -212,10 +201,10 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 			setIsLoadingOptions(true);
 			getApiResponse<{ data?: DuplicateFinding[] }>(
 				getApiLink(
-					appLocalizer,
+					vulopilotAppLocalizer,
 					'findings?scanner_id=duplicate-content&status=open&per_page=20'
 				),
-				{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+				{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 			)
 				.then((response) => {
 					setDuplicateFindings(response?.data ?? []);
@@ -223,23 +212,6 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 				.finally(() => setIsLoadingOptions(false));
 		}
 
-		if ('generate-product-description' === tool.actionId && appLocalizer.has_woocommerce) {
-			// No active-plugin check - same "just try the real endpoint,
-			// degrade gracefully" pattern RecentContentCard.tsx's own
-			// wc/v3 probe already uses; getApiResponse resolves to null
-			// on a 404 (WooCommerce not installed/active) and the picker
-			// simply stays empty rather than erroring.
-			getApiResponse<WcRestProduct[]>(
-				getApiLink(
-					appLocalizer,
-					'products?per_page=20&orderby=date&order=desc&_fields=id,name,short_description,description',
-					'wc/v3'
-				),
-				{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
-			).then((response) => {
-				setProducts(response || []);
-			});
-		}
 	}, [tool]);
 
 	if (!tool) {
@@ -254,36 +226,8 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 		return Boolean(fieldValues[field.key]);
 	});
 
-	const handlePickProduct = (productId: string) => {
-		setSelectedProductId(productId);
-
-		const product = products.find((p) => String(p.id) === productId);
-
-		if (!product) {
-			return;
-		}
-
-		const rawFeatures = product.short_description || product.description;
-
-		setFieldValues((current) => ({
-			...current,
-			product_name: product.name,
-			key_features: rawFeatures
-				? rawFeatures.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
-				: current.key_features,
-		}));
-	};
-
-	// Free tiles (`tool.pro` falsy) still call Free's own shared
-	// `/ai-action-runs` directly - the same real endpoint "Fix with AI"
-	// buttons on individual findings elsewhere use, and several of these
-	// same action ids (e.g. `write-meta-title`) must keep working there.
-	// Pro tiles (`tool.pro === true`) call vulopilot-pro's own SEPARATE
-	// `/content-tools/runs` instead - same underlying engine, real
-	// Pro-license enforcement server-side (ContentTools\Rest.php's own
-	// docblock). See ContentToolsGrid.tsx's own top docblock for the full
-	// split.
-	const runsBase = tool.pro ? 'content-tools/runs' : 'ai-action-runs';
+	// Free tiles call Free's shared `/ai-action-runs`, the same endpoint "Fix with AI" buttons elsewhere use.
+	const runsBase = 'ai-action-runs';
 
 	const handleSubmit = () => {
 		setStep('loading');
@@ -305,11 +249,11 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 			input[field.key] = fieldValues[field.key] ?? '';
 		});
 
-		fetch(getApiLink(appLocalizer, runsBase), {
+		fetch(getApiLink(vulopilotAppLocalizer, runsBase), {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				'X-WP-Nonce': appLocalizer.nonce,
+				'X-WP-Nonce': vulopilotAppLocalizer.nonce,
 			},
 			body: JSON.stringify({ action_id: tool.actionId, input }),
 		})
@@ -367,8 +311,8 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 
 		setIsBusy(true);
 		sendApiResponse<{ success?: boolean }>(
-			appLocalizer,
-			getApiLink(appLocalizer, `${runsBase}/${runId}/approve`),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, `${runsBase}/${runId}/approve`),
 			{}
 		)
 			.then((response) => {
@@ -398,8 +342,8 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 
 		setIsBusy(true);
 		sendApiResponse<{ success?: boolean }>(
-			appLocalizer,
-			getApiLink(appLocalizer, `${runsBase}/${runId}/reject`),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, `${runsBase}/${runId}/reject`),
 			{}
 		)
 			.then(() => {
@@ -586,37 +530,6 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 				{'input' === step && (
 					<>
 						<FormGroupWrapperComponent>
-							{hasProductPicker && (
-								<FormGroupComponent label={__(
-									'Pick an existing product (optional)',
-									'vulopilot'
-								)}>
-									<SelectInput
-										type="single-select"
-										name="_product_picker"
-										value={selectedProductId}
-										onChange={(value) =>
-											handlePickProduct(value as string)
-										}
-										placeholder={
-											products.length > 0
-												? __(
-													'Select a product…',
-													'vulopilot'
-												)
-												: __(
-													'No products found',
-													'vulopilot'
-												)
-										}
-										options={products.map((product) => ({
-											value: String(product.id),
-											label: product.name,
-										}))}
-										isClearable={false}
-									/>
-								</FormGroupComponent>
-							)}
 							{tool.fields.map((field) => (
 								<FormGroupComponent label={field.label}>
 									{renderField(field)}

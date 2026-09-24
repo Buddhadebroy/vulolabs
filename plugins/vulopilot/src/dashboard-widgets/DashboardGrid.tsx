@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React, { useEffect, useRef, useState } from 'react';
 import { ReactSortable } from 'react-sortablejs';
 import { __ } from '@wordpress/i18n';
@@ -67,8 +67,8 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 
 	useEffect(() => {
 		getApiResponse<WidgetLayoutEntry[]>(
-			getApiLink(appLocalizer, 'dashboard-layout'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, 'dashboard-layout'),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				// DashboardLayout.php's get_items() always reconciles
@@ -99,8 +99,8 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 	const persistLayout = (nextLayout: WidgetLayoutEntry[]) => {
 		setLayout(nextLayout);
 		sendApiResponse(
-			appLocalizer,
-			getApiLink(appLocalizer, 'dashboard-layout'),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, 'dashboard-layout'),
 			{ widgets: nextLayout }
 		);
 	};

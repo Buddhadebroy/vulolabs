@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useRef, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, scrollToId } from '@zyra/core';
@@ -192,12 +192,12 @@ const HistoryTab = () => {
 			}
 		}
 
-		const baseUrl = getApiLink(appLocalizer, 'history');
+		const baseUrl = getApiLink(vulopilotAppLocalizer, 'history');
 		const separator = baseUrl.includes('?') ? '&' : '?';
 		const url = `${baseUrl}${separator}${params.toString()}`;
 
 		getApiResponse<HistoryResponse>(url, {
-			headers: { 'X-WP-Nonce': appLocalizer.nonce },
+			headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce },
 		})
 			.then((response) => {
 				if (!response) {

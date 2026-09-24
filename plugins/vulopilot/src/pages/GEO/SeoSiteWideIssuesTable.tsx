@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
@@ -130,7 +130,7 @@ const SeoSiteWideIssuesTable = ({
 		status: 'resolved' | 'ignored',
 		successMessage: string
 	) => {
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, `findings/${finding.id}`), {
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, `findings/${finding.id}`), {
 			status,
 		}).then((response: unknown) => {
 			if (response) {
@@ -286,7 +286,7 @@ const SeoSiteWideIssuesTable = ({
 				height="auto"
 				
 			>
-				{appLocalizer.khali_dabba ? (
+				{vulopilotAppLocalizer.khali_dabba ? (
 					<ShowProPopup moduleName="one-click-fix" />
 				) : (
 					<ShowProPopup />

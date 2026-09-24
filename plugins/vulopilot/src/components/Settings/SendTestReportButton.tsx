@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { __ } from '@wordpress/i18n';
@@ -17,7 +17,7 @@ interface StoredSettings {
 	report_last_test_sent?: string;
 }
 
-const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 /**
  * Settings → Reports' own "Send Test Report" button - real
@@ -48,14 +48,14 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
  * instead of calling the API.
  */
 const SendTestReportButton = () => {
-	const isPro = Boolean(appLocalizer.khali_dabba);
+	const isPro = Boolean(vulopilotAppLocalizer.khali_dabba);
 	const [lastSentAt, setLastSentAt] = useState<string | null>(null);
 	const [isSending, setIsSending] = useState(false);
 	const [result, setResult] = useState<TestReportResult | null>(null);
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
 
 	useEffect(() => {
-		getApiResponse<StoredSettings>(getApiLink(appLocalizer, 'settings'), nonceHeaders).then(
+		getApiResponse<StoredSettings>(getApiLink(vulopilotAppLocalizer, 'settings'), nonceHeaders).then(
 			(response) => {
 				if (response?.report_last_test_sent) {
 					setLastSentAt(response.report_last_test_sent);
@@ -69,8 +69,8 @@ const SendTestReportButton = () => {
 		setResult(null);
 
 		sendApiResponse<TestReportResult>(
-			appLocalizer,
-			getApiLink(appLocalizer, 'settings/test-report'),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, 'settings/test-report'),
 			{}
 		)
 			.then((response) => {

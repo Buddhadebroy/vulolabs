@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 
 /**
  * Whether the real, genuinely free `ai-copilot` module
@@ -16,4 +16,4 @@
  * client-side half, not the enforcement itself.
  */
 export const useAiCopilotEnabled = (): boolean =>
-	appLocalizer.active_modules?.includes('ai-copilot') ?? false;
+	vulopilotAppLocalizer.active_modules?.includes('ai-copilot') ?? false;

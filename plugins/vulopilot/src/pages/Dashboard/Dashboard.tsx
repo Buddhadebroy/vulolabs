@@ -1,5 +1,5 @@
 
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
@@ -127,10 +127,10 @@ const Dashboard = () => {
 		setError(null);
 
 		getApiResponse<DashboardSummary>(
-			getApiLink(appLocalizer, 'dashboard'),
+			getApiLink(vulopilotAppLocalizer, 'dashboard'),
 			{
 				headers: {
-					'X-WP-Nonce': appLocalizer.nonce,
+					'X-WP-Nonce': vulopilotAppLocalizer.nonce,
 				},
 			}
 		)
@@ -240,12 +240,13 @@ const Dashboard = () => {
 	const pageHeader = (
 		<NavigatorHeaderComponent
 			headerTitle={sprintf(
+				/* translators: 1: time-of-day greeting (e.g. "Good morning"), 2: current user's display name. */
 				__(
-					'%s, %s! \u{1F44B}',
+					'%1$s, %2$s! \u{1F44B}',
 					'vulopilot'
 				),
 				getGreeting(),
-				appLocalizer.current_user_display_name
+				vulopilotAppLocalizer.current_user_display_name
 			)}
 			headerIcon="module"
 			headerDescription={__(

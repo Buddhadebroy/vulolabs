@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -14,7 +14,7 @@ import { WidgetProps } from './types';
 
 /** Same real gate BusinessProfileCard.tsx's own identical check already uses - EntityExtractor returns empty groups when this module is inactive, so a real `''`/`[]` here is a genuine "not set" state, not a broken fetch. */
 const isEntityExtractionModuleActive = () =>
-	appLocalizer.active_modules?.includes('knowledge-graph') ?? false;
+	vulopilotAppLocalizer.active_modules?.includes('knowledge-graph') ?? false;
 
 const NOT_SET = '-';
 /** `score`/`open_count` are `null` for a signal with no real data to compute from yet (GeoSignalScore's own docblock) - shown honestly as "-", never a fabricated 0. */
@@ -100,8 +100,8 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 			return;
 		}
 
-		getApiResponse<EntitiesResponse>(getApiLink(appLocalizer, 'entities'), {
-			headers: { 'X-WP-Nonce': appLocalizer.nonce },
+		getApiResponse<EntitiesResponse>(getApiLink(vulopilotAppLocalizer, 'entities'), {
+			headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce },
 		}).then((response: EntitiesResponse | undefined) => {
 			if (response) {
 				setEntities(response);
@@ -343,13 +343,13 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 		},
 	];
 
-	const siteUrl = appLocalizer.site_url as string;
+	const siteUrl = vulopilotAppLocalizer.site_url as string;
 	const screenshotUrl = getHomeScreenshotUrl(siteUrl);
 	const [screenshotFailed, setScreenshotFailed] = useState(false);
 	const previewImage =
 		screenshotUrl && !screenshotFailed
 			? screenshotUrl
-			: appLocalizer.home_preview_image;
+			: vulopilotAppLocalizer.home_preview_image;
 
 	return (
 		<>
@@ -376,7 +376,7 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 						</div>
 						<div className="site-overview-identity">
 							<TypographyComponent variant="h4">
-								{appLocalizer.site_title || brandName}
+								{vulopilotAppLocalizer.site_title || brandName}
 							</TypographyComponent>
 							<a href={siteUrl} target="_blank" rel="noreferrer" className="site-overview-url">
 								<TypographyComponent variant="desc" color="purple">
@@ -384,8 +384,8 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 								</TypographyComponent>
 								<i className='adminfont-external'/>
 							</a>
-							{appLocalizer.site_description && (
-								<div className="desc">{appLocalizer.site_description}</div>
+							{vulopilotAppLocalizer.site_description && (
+								<div className="desc">{vulopilotAppLocalizer.site_description}</div>
 							)}
 							
 						</div>

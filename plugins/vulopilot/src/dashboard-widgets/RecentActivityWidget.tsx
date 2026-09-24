@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React, { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { useApiList } from '../services/useApiList';
@@ -78,7 +78,7 @@ const RecentActivityWidget: React.FC<WidgetProps> = ({
 					// whatever it auto-selects by default.
 					onArrowClick={(row) => {
 						window.open(
-							`${appLocalizer.admin_url}#&tab=reports&subtab=history&vulopilot_history_id=${row.id}`,
+							`${vulopilotAppLocalizer.admin_url}#&tab=reports&subtab=history&vulopilot_history_id=${row.id}`,
 							'_self'
 						);
 					}}

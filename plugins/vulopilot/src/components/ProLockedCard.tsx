@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { PopupComponent } from '@zyra/components';
@@ -40,7 +40,7 @@ const ProLockedCard = ({ moduleName, buttonText }: ProLockedCardProps) => {
 				height="auto"
 				position="lightbox"
 			>
-				{appLocalizer.khali_dabba ? (
+				{vulopilotAppLocalizer.khali_dabba ? (
 					// Pro is active - this specific module just isn't
 					// toggled on yet, so point at Modules rather than
 					// pitching an upgrade the user already has.

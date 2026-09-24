@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -75,8 +75,8 @@ const BusinessNameDetailsPanel = ({
 	const load = (refresh = false) => {
 		setIsLoading(true);
 		getApiResponse<BusinessNameSourcesResponse>(
-			`${getApiLink(appLocalizer, 'entities/business-name-sources')}${refresh ? '?refresh=1' : ''}`,
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			`${getApiLink(vulopilotAppLocalizer, 'entities/business-name-sources')}${refresh ? '?refresh=1' : ''}`,
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => response && setData(response))
 			.finally(() => setIsLoading(false));
@@ -108,7 +108,7 @@ const BusinessNameDetailsPanel = ({
 							text: __('View Source/Evidence', 'vulopilot'),
 							icon: 'external',
 							color: 'border-purple',
-							onClick: () => window.open(appLocalizer.site_url, '_blank'),
+							onClick: () => window.open(vulopilotAppLocalizer.site_url, '_blank'),
 						},
 						{
 							text: __('Edit Business Information', 'vulopilot'),

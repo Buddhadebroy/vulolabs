@@ -172,8 +172,8 @@ class GenerateComparisonPageAction extends AbstractBasicAction {
     public function execute( array $output, array $input ): ActionExecutionResult {
         $post_id = wp_insert_post(
             array(
-                'post_title'   => $output['title'],
-                'post_content' => $output['body'],
+                'post_title' => sanitize_text_field( $output['title'] ),
+                'post_content' => wp_kses_post( $output['body'] ),
                 'post_status'  => 'draft',
                 'post_type'    => 'post',
             ),

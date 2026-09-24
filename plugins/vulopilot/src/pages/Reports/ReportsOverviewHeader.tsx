@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { __, sprintf } from '@wordpress/i18n';
 import { PopupComponent, SectionComponent } from '@zyra/components';
 import { ButtonInput, SelectInput } from '@zyra/inputs';
@@ -58,7 +58,7 @@ const ReportsOverviewHeader = ({
 	const RealActions = useFilterSlot<
 		ComponentType<{ onDataChanged: () => void }>
 	>('vulopilot_reports_header_actions');
-	const isProInstalled = Boolean(appLocalizer.khali_dabba);
+	const isProInstalled = Boolean(vulopilotAppLocalizer.khali_dabba);
 	const proTagText = isProInstalled
 		? resolveModuleDisplayName(ADVANCED_REPORTS_MODULE_ID)
 		: __('PRO', 'vulopilot');

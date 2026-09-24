@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React, { useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
@@ -212,8 +212,8 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 		setIsDeleting(true);
 
 		sendApiResponse<{ success?: boolean }>(
-			appLocalizer,
-			getApiLink(appLocalizer, `history/${row.id}`),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, `history/${row.id}`),
 			{}
 		)
 			.then((response) => {
@@ -244,8 +244,8 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 		setIsRollingBack(true);
 
 		sendApiResponse<{ success?: boolean }>(
-			appLocalizer,
-			getApiLink(appLocalizer, `ai-action-runs/${row.change.id}/rollback`),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, `ai-action-runs/${row.change.id}/rollback`),
 			{}
 		)
 			.then((response) => {
@@ -400,7 +400,7 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 							text: __('View findings', 'vulopilot'),
 							icon: 'search',
 							onClick: () => {
-								window.location.href = `${appLocalizer.admin_url}#&tab=ai-assistant&subtab=issues&scanner_id=${encodeURIComponent(row.scan?.scanner_id ?? '')}`;
+								window.location.href = `${vulopilotAppLocalizer.admin_url}#&tab=ai-assistant&subtab=issues&scanner_id=${encodeURIComponent(row.scan?.scanner_id ?? '')}`;
 							},
 						}}
 					/>

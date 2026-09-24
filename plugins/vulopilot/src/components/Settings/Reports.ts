@@ -8,7 +8,7 @@ import SendTestReportButton from './SendTestReportButton';
  * The whole tab is a Pro feature: both fields carry `proSetting: true`
  * (zyra's InputRenderer then shows its "Pro" tag and, on any click inside
  * the field, opens `ShowProPopup` - the `Popup` Settings.tsx already passes
- * it - while `appLocalizer.khali_dabba` is false), and
+ * it - while `vulopilotAppLocalizer.khali_dabba` is false), and
  * SendTestReportButton.tsx does the same by hand for the header button,
  * since that isn't a declarative field. With Pro active nothing is locked.
  *

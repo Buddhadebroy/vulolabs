@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import axios from 'axios';
 import { __, sprintf } from '@wordpress/i18n';
@@ -80,7 +80,11 @@ const PROMPT_CHIPS: PromptChip[] = [
 		title: __('Generate FAQs', 'vulopilot'),
 		ask: __('What topic or policy should these FAQs cover?', 'vulopilot'),
 		build: (answer) =>
-			sprintf(__('Generate FAQs for %s', 'vulopilot'), answer),
+			sprintf(
+				/* translators: %s: topic or policy the FAQs should cover. */
+				__('Generate FAQs for %s', 'vulopilot'),
+				answer
+			),
 	},
 	{
 		id: 'meta-title',
@@ -88,7 +92,11 @@ const PROMPT_CHIPS: PromptChip[] = [
 		title: __('Create meta title', 'vulopilot'),
 		ask: __('Which page is this meta title for?', 'vulopilot'),
 		build: (answer) =>
-			sprintf(__('Create meta title for %s', 'vulopilot'), answer),
+			sprintf(
+				/* translators: %s: page the meta title is for. */
+				__('Create meta title for %s', 'vulopilot'),
+				answer
+			),
 	},
 	{
 		id: 'cta',
@@ -100,6 +108,7 @@ const PROMPT_CHIPS: PromptChip[] = [
 		),
 		build: (answer) =>
 			sprintf(
+				/* translators: %s: product or service the call-to-action is for. */
 				__('Write a call-to-action for %s', 'vulopilot'),
 				answer
 			),
@@ -151,9 +160,9 @@ const AiContentAssistantSidebar = () => {
 
 		axios
 			.post<ChatResponse>(
-				getApiLink(appLocalizer, 'content-assistant/chat'),
+				getApiLink(vulopilotAppLocalizer, 'content-assistant/chat'),
 				{ message: realMessage, history: displayedTurns },
-				{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+				{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 			)
 			.then((response) => {
 				setTurns((current) => [
@@ -312,7 +321,7 @@ const AiContentAssistantSidebar = () => {
 						'Hi %s! I can help you create amazing content. Try one of these prompt ideas or ask your own.',
 						'vulopilot'
 					),
-					appLocalizer.current_user_display_name
+					vulopilotAppLocalizer.current_user_display_name
 				)}
 				prompts={PROMPT_CHIPS}
 				onSelectPrompt={handleSelectPrompt}

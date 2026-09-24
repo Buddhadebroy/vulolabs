@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useRef, useState } from '@wordpress/element';
 import { getApiLink, getApiResponse, useOutsideClick } from '@zyra/core';
 import { TooltipComponent } from '@zyra/components';
@@ -14,7 +14,7 @@ import { SEO_SECTIONS } from './seoSections';
  * pieces stay local to that table's own file.
  */
 
-export const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+export const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 /** Every real SEO scanner id either table covers - SeoTab.tsx's own SEO_SECTIONS, the same source of truth its category tiles/score already agree with. */
 export const ALL_SEO_SCANNER_IDS = Array.from(
@@ -94,7 +94,7 @@ export const fetchOpenFindingsFor = async (
 	while (true) {
 		const response = await getApiResponse<FindingsResponse>(
 			getApiLink(
-				appLocalizer,
+				vulopilotAppLocalizer,
 				`findings?scanner_id=${scannerParam}&status=open&per_page=${FINDINGS_PAGE_SIZE}&page=${page}&orderby=id&order=desc`
 			),
 			nonceHeaders
@@ -253,7 +253,7 @@ export const fetchAllPagesWithScores = async (
 ): Promise<GeoAnalysisPageRow[]> => {
 	const response = await getApiResponse<{ data: GeoAnalysisPageRow[]; total: number }>(
 		getApiLink(
-			appLocalizer,
+			vulopilotAppLocalizer,
 			`geo-analysis/pages?per_page=1000&scanner_ids=${scannerIds.join(',')}`
 		),
 		nonceHeaders
@@ -306,7 +306,7 @@ export const fetchPagesByIds = async (
 		chunks.map((chunk) =>
 			getApiResponse<WpRestPost[]>(
 				getApiLink(
-					appLocalizer,
+					vulopilotAppLocalizer,
 					`${endpoint}?include=${chunk.join(',')}&per_page=100&_fields=id,title,status,date,link`,
 					'wp/v2'
 				),
@@ -319,7 +319,7 @@ export const fetchPagesByIds = async (
 };
 
 export const buildEditLink = (postId: number): string =>
-	`${appLocalizer.site_url}/wp-admin/post.php?post=${postId}&action=edit`;
+	`${vulopilotAppLocalizer.site_url}/wp-admin/post.php?post=${postId}&action=edit`;
 
 export interface RowAction {
 	label: string;

@@ -158,7 +158,7 @@ class WriteMetaDescriptionAction extends AbstractBasicAction {
         $result = wp_update_post(
             array(
                 'ID'           => $input['post_id'],
-                'post_excerpt' => $output['description'],
+                'post_excerpt' => wp_kses_post( $output['description'] ),
             ),
             true
         );

@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useLocation, Link } from 'react-router-dom';
@@ -84,7 +84,7 @@ const Performance = () => {
 	const handleSlowPagesScan = () => {
 		setIsSlowPagesScanning(true);
 
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'page-speed'), {})
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'page-speed'), {})
 			.then((response) => {
 				NoticeManager.add({
 					uniqueKey: 'vulopilot-slow-pages-scan',

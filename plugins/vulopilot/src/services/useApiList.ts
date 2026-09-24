@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getApiResponse, getApiLink } from '@zyra/core';
 import { __ } from '@wordpress/i18n';
@@ -163,12 +163,12 @@ export const useApiList = <T = Record<string, unknown>>(
 		// which WordPress can't match to any registered route and 404s.
 		// Pretty-permalink sites (`/wp-json/…`, no `?` yet) still get a
 		// real `?`.
-		const baseUrl = getApiLink(appLocalizer, endpoint);
+		const baseUrl = getApiLink(vulopilotAppLocalizer, endpoint);
 		const separator = baseUrl.includes('?') ? '&' : '?';
 		const url = baseUrl + (query ? `${separator}${query}` : '');
 
 		getApiResponse<ListResponse<T>>(url, {
-			headers: { 'X-WP-Nonce': appLocalizer.nonce },
+			headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce },
 		})
 			.then((response) => {
 				if (cancelled) {

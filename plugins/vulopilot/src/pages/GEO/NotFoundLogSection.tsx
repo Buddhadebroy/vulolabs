@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
@@ -83,8 +83,8 @@ const NotFoundLogSection = () => {
 
 	const handleDismissLog = (row: NotFoundLogRow) => {
 		sendApiResponse(
-			appLocalizer,
-			getApiLink(appLocalizer, `not-found-logs/${row.id}/delete`),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, `not-found-logs/${row.id}/delete`),
 			{}
 		).then((response) => {
 			if (response) {
@@ -118,9 +118,9 @@ const NotFoundLogSection = () => {
 		setIsConverting(true);
 
 		sendApiResponse(
-			appLocalizer,
+			vulopilotAppLocalizer,
 			getApiLink(
-				appLocalizer,
+				vulopilotAppLocalizer,
 				`not-found-logs/${convertingLog.id}/convert`
 			),
 			{ target_url: convertTargetUrl }

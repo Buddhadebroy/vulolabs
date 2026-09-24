@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, AnalyticsComponent } from '@zyra/core';
@@ -105,8 +105,8 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 
 	useEffect(() => {
 		getApiResponse<CrawlerAnalyticsResponse>(
-			getApiLink(appLocalizer, 'crawler-traffic/analytics?days=7'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, 'crawler-traffic/analytics?days=7'),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				if (response) {
@@ -121,7 +121,7 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 			'reports',
 			{ per_page: 1 },
 			undefined,
-			Boolean(appLocalizer.khali_dabba)
+			Boolean(vulopilotAppLocalizer.khali_dabba)
 		);
 	const { lastScanAt, isLoading: isLastScanLoading } = useLastScanTime();
 
@@ -141,10 +141,10 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 		'site-health-snapshots',
 		{ days: Number(healthTimelineDays) },
 		undefined,
-		Boolean(appLocalizer.khali_dabba)
+		Boolean(vulopilotAppLocalizer.khali_dabba)
 	);
 	const isHealthTimelineModuleActive =
-		appLocalizer.active_modules.includes(HEALTH_TIMELINE_MODULE_ID);
+		vulopilotAppLocalizer.active_modules.includes(HEALTH_TIMELINE_MODULE_ID);
 	const [isHealthTimelineProPopupOpen, setIsHealthTimelineProPopupOpen] = useState(false);
 
 	const crawlerCurrent = crawlerAnalytics?.current_total ?? 0;
@@ -261,7 +261,7 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 				height="auto"
 				position="lightbox"
 			>
-				{appLocalizer.khali_dabba ? (
+				{vulopilotAppLocalizer.khali_dabba ? (
 					<ShowProPopup moduleName={HEALTH_TIMELINE_MODULE_ID} />
 				) : (
 					<ShowProPopup />

@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { getApiLink, getApiResponse } from '@zyra/core';
 
@@ -30,7 +30,7 @@ export interface CrawlerAnalytics {
 	crawl_health_score: number;
 }
 
-const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 /**
  * Shared `GET /crawler-traffic/analytics` fetch - real current-vs-previous
@@ -47,7 +47,7 @@ export const useCrawlerAnalytics = (
 
 	useEffect(() => {
 		getApiResponse<CrawlerAnalytics>(
-			getApiLink(appLocalizer, `crawler-traffic/analytics?days=${days}`),
+			getApiLink(vulopilotAppLocalizer, `crawler-traffic/analytics?days=${days}`),
 			nonceHeaders
 		)
 			.then((response) => {

@@ -32,7 +32,7 @@ const GettingStartedCard: React.FC = () => (
 					color: 'purple-bg',
 					onClick: () =>
 						window.open(
-							'https://vulolabs.com/docs/knowledgebase/?utm_source=wpadmin&utm_medium=pluginsettings&utm_campaign=vulopilot',
+							'https://vulopilot.com/docs/?utm_source=wpadmin&utm_medium=pluginsettings&utm_campaign=vulopilot',
 							'_blank',
 							'noopener,noreferrer'
 						),
@@ -43,33 +43,21 @@ const GettingStartedCard: React.FC = () => (
 					color: 'white',
 					onClick: () =>
 						window.open(
-							'https://vulolabs.com/custom-development/?utm_source=wpadmin&utm_medium=pluginsettings&utm_campaign=vulopilot',
+							'https://vulopilot.com/book-a-consultaion/?utm_source=wpadmin&utm_medium=pluginsettings&utm_campaign=vulopilot',
 							'_blank',
 							'noopener,noreferrer'
 						),
 				},
 				{
-					text: __('Join Discord', 'vulopilot'),
+					text: __('Contact Us', 'vulopilot'),
 					icon: 'global-community',
 					color: 'white',
 					onClick: () =>
 						window.open(
-							'https://discord.com/channels/1376811097134469191/1376811102020829258',
+							'https://vulopilot.com/contact-us/?utm_source=wpadmin&utm_medium=pluginsettings&utm_campaign=vulopilot',
 							'_blank',
 							'noopener,noreferrer'
 						),
-				},
-				{
-					text: __('Extend: CatalogX, Notifima', 'vulopilot'),
-					icon: 'cart',
-					color: 'white',
-					onClick: () => {
-						// `tab=settings&subtab=modules`, not the old
-						// standalone `tab=modules` route - see
-						// Popup.tsx's own "Enable Now" comment for why.
-						window.location.href =
-							'?page=vulopilot#&tab=settings&subtab=modules';
-					},
 				},
 			]}
 	/>

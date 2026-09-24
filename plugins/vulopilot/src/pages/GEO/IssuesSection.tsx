@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -301,7 +301,7 @@ const IssuesSection = ({
 					const fetchContentPosts = (endpoint: 'posts' | 'pages') =>
 						getApiResponse<RawContentPost[]>(
 							getApiLink(
-								appLocalizer,
+								vulopilotAppLocalizer,
 								`${endpoint}?per_page=20&orderby=date&order=desc&_fields=id,title,content,status,date,link,meta`,
 								'wp/v2'
 							),
@@ -311,11 +311,11 @@ const IssuesSection = ({
 							.catch(() => [] as RawContentPost[]);
 
 					const fetchContentProducts = () =>
-						!appLocalizer.has_woocommerce
+						!vulopilotAppLocalizer.has_woocommerce
 							? Promise.resolve([] as RawContentProduct[])
 							: getApiResponse<RawContentProduct[]>(
 							getApiLink(
-								appLocalizer,
+								vulopilotAppLocalizer,
 								'products?per_page=20&orderby=date&order=desc&_fields=id,name,description,status,date_created,permalink',
 								'wc/v3'
 							),
@@ -339,7 +339,7 @@ const IssuesSection = ({
 					// `SeoIssuesByPageTable.tsx` itself.
 					const ignoredFindings = await getApiResponse<{ data: RawFinding[] }>(
 						getApiLink(
-							appLocalizer,
+							vulopilotAppLocalizer,
 							`findings?scanner_id=${scannerIds.join(',')}&status=ignored&per_page=100&orderby=id&order=desc`
 						),
 						nonceHeaders
@@ -462,7 +462,7 @@ const IssuesSection = ({
 					// `undefined`, same as before this join existed.
 					const scoreResponse = await getApiResponse<{
 						data: { post_id: number; score: number; change: number }[];
-					}>(getApiLink(appLocalizer, 'seo/pages-needing-attention'), nonceHeaders);
+					}>(getApiLink(vulopilotAppLocalizer, 'seo/pages-needing-attention'), nonceHeaders);
 
 					const scoreByPostId = new Map<number, { score: number; change: number }>(
 						(scoreResponse?.data ?? []).map(
@@ -525,7 +525,7 @@ const IssuesSection = ({
 
 	useEffect(() => {
 		getApiResponse<{ data: FindingGroupRow[] }>(
-			getApiLink(appLocalizer, 'findings/groups?per_page=100'),
+			getApiLink(vulopilotAppLocalizer, 'findings/groups?per_page=100'),
 			nonceHeaders
 		)
 			.then((response) =>
@@ -560,7 +560,7 @@ const IssuesSection = ({
 		Promise.all(
 			rows.map((row) =>
 				getApiResponse<{ readability: { score: number } }>(
-					getApiLink(appLocalizer, `content-intelligence/quality?post_id=${row.id}`),
+					getApiLink(vulopilotAppLocalizer, `content-intelligence/quality?post_id=${row.id}`),
 					nonceHeaders
 				)
 					.then(

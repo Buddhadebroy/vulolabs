@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
@@ -22,7 +22,7 @@ interface VuloCloudAiConnectionResponse {
 	vulocloud_status: VuloCloudStatus;
 }
 
-const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 /**
  * Settings → Connections → VuloCloud AI.
@@ -52,7 +52,7 @@ const VuloCloudAiConnectionPanel = () => {
 		setIsLoading(true);
 
 		getApiResponse<VuloCloudAiConnectionResponse>(
-			getApiLink(appLocalizer, 'vulocloud-ai-connection'),
+			getApiLink(vulopilotAppLocalizer, 'vulocloud-ai-connection'),
 			nonceHeaders
 		)
 			.then((response) => {
@@ -99,7 +99,7 @@ const VuloCloudAiConnectionPanel = () => {
 		setIsConnectingToVulocloud(true);
 
 		getApiResponse<{ url: string }>(
-			getApiLink(appLocalizer, 'vulocloud-ai-connection/broker-authorize-url'),
+			getApiLink(vulopilotAppLocalizer, 'vulocloud-ai-connection/broker-authorize-url'),
 			nonceHeaders
 		)
 			.then((response) => {
@@ -128,7 +128,7 @@ const VuloCloudAiConnectionPanel = () => {
 		setShowVulocloudDisconnectConfirm(false);
 		setIsDisconnectingFromVulocloud(true);
 
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'ai-credits/disconnect'), {})
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'ai-credits/disconnect'), {})
 			.then((response) => {
 				NoticeManager.add({
 					uniqueKey: 'vulopilot-vulocloud-disconnected',
