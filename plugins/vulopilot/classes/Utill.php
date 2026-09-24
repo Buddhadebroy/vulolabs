@@ -995,16 +995,6 @@ class Utill {
         error_log( sprintf( '[VuloPilot] %s', $exception->getMessage() ) );
     }
 
-    /**
-     * Whether VuloPilot Pro is installed, active, and license-active -
-     * mirrors VuloLabs\Utill::is_khali_dabba()'s role for this product
-     * line. VuloPilotPro::check_pro_active() is the only thing that ever
-     * hooks `kothay_dabba_vulopilot` (default false when Pro isn't
-     * present), same filter-based "ask Pro, don't check for it directly"
-     * pattern the vulolabs family uses.
-     *
-     * @return bool
-     */
     public function is_khali_dabba(): bool {
         return (bool) apply_filters( 'kothay_dabba_vulopilot', false ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- deliberate, shared cross-plugin filter name (same kothay_dabba/kothay_dabba_{slug} pair vulocart/Utill.php and both *-pro plugins' check_pro_active() registrations use), not an accidental unprefixed hook.
     }
