@@ -56,7 +56,7 @@
 		"version": "node ../../tools/scripts/version-replace.mjs",
 		"textdomain": "node ../../tools/scripts/update-textdomain.mjs",
 		"changelog": "composer exec -- changelogger",
-		"makepot": "pnpm exec wp i18n make-pot --domain='vulopilot' --include='assets/js,classes,templates,modules,config.php,vulopilot.php' . --headers='{\"Report-Msgid-Bugs-To\":\"https://vulolabs.com/contact/\"}' --file-comment=\"Copyright (c) $(date +'%Y') VuloLabs Inc. All Rights Reserved.\" languages/vulopilot.pot",
+		"makepot": "pnpm exec wp i18n make-pot --domain='vulopilot' --include='assets/js,classes,templates,modules,config.php,vulopilot.php' . --headers='{\"Report-Msgid-Bugs-To\":\"https://vulopilot.com/contact/\"}' --file-comment=\"Copyright (c) $(date +'%Y') VuloLabs Inc. All Rights Reserved.\" languages/vulopilot.pot",
 		"makejson": "pnpm exec wp i18n make-json languages --pretty-print --no-purge",
 		"composer": "composer dump-autoload && composer update",
 		"preinstall": "npx only-allow pnpm"
@@ -98,7 +98,7 @@
 		"react-sortablejs": "^6.1.4",
 		"recharts": "^3.8.1",
 		"sortablejs": "^1.15.6",
-		"@multivendorx/zyra": "^1.0.54"
+		"@multivendorx/zyra": "^1.0.55"
 	},
 	"devDependencies": {	
 		"wireit": "^0.14.12",
