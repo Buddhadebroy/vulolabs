@@ -484,7 +484,7 @@ class Settings extends \WP_REST_Controller {
             return rest_ensure_response(
                 array(
                     'success' => false,
-                    'message' => __( 'Sending a test report requires the Reports (Pro) module.', 'vulopilot' ),
+                    'message' => __( 'Sending a test report requires VuloPilot Pro.', 'vulopilot' ),
                 )
             );
         }
