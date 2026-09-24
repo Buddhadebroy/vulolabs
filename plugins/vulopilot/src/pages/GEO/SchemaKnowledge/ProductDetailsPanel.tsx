@@ -91,7 +91,7 @@ const ProductDetailsPanel = ({
 							<div>
 								<div className="business-name-panel-summary-label">
 									{sprintf(
-										/* translators: %d: how many real published products were checked. */
+										/* translators: %d: real number of detected products. */
 										_n('%d product', '%d products', products.length, 'vulopilot'),
 										products.length
 									)}
@@ -107,7 +107,7 @@ const ProductDetailsPanel = ({
 							text={
 								totalIssues > 0
 									? sprintf(
-											/* translators: %d: total real completeness issues across every product. */
+											/* translators: %d: real number of open issues or findings. */
 											_n('%d issue', '%d issues', totalIssues, 'vulopilot'),
 											totalIssues
 										)
@@ -135,7 +135,7 @@ const ProductDetailsPanel = ({
 											0 === product.issue_count
 												? __('No issues', 'vulopilot')
 												: sprintf(
-														/* translators: %d: how many real completeness issues this product has. */
+														/* translators: %d: real number of open issues or findings. */
 														_n(
 															'%d issue',
 															'%d issues',

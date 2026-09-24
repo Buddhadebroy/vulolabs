@@ -391,7 +391,7 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 								icon: 'knowledgebase',
 								colorClass: readabilityTone,
 								text: sprintf(
-									/* translators: %d: real Flesch Reading Ease score, 0-100. */
+									/* translators: %d: real 0-100 score. */
 									__('%d/100', 'vulopilot'),
 									data.readability.score
 								),

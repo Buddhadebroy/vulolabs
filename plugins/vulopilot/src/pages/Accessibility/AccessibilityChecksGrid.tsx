@@ -102,7 +102,7 @@ const AccessibilityChecksGrid = ({ onReview }: AccessibilityChecksGridProps) => 
 							// style={{ color: check.color }}
 						>
 							{sprintf(
-								/* translators: %d is the number of open findings. */
+								/* translators: %d: real number of open issues or findings. */
 								_n('%d issue', '%d issues', result.total, 'vulopilot'),
 								result.total
 							)}
@@ -111,7 +111,7 @@ const AccessibilityChecksGrid = ({ onReview }: AccessibilityChecksGridProps) => 
 					desc:
 						result.total > 0
 							? sprintf(
-									/* translators: %d is the number of distinct pages affected. */
+									/* translators: %d: real number of pages this affects. */
 									_n(
 										'%d page affected',
 										'%d pages affected',

@@ -495,8 +495,10 @@ const RedirectsSection = () => {
 								},
 							{
 								text: sprintf(
+									/* translators: 1: real hit count label, 2: real last-accessed date or "Never". */
 									__('%1$s · %2$s', 'vulopilot'),
 									sprintf(
+										/* translators: %d: real number of hits. */
 										_n('%d Hit', '%d Hits', row.hit_count, 'vulopilot'),
 										row.hit_count
 									),

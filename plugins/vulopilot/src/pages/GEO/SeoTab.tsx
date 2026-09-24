@@ -406,7 +406,7 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 											icon: card.icon,
 											title: card.title,
 											desc: sprintf(
-												/* translators: %d: real number of open findings in this category. */
+												/* translators: %d: real number of open findings. */
 												__('%d issues', 'vulopilot'),
 												category.open_count
 											),

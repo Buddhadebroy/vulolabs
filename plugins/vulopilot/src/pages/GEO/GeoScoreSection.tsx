@@ -336,7 +336,7 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 													trend: null,
 												})
 											: sprintf(
-													/* translators: %d: real number of open findings for this signal. */
+													/* translators: %d: real number of open findings. */
 													__('%d issues', 'vulopilot'),
 													signal?.open_count ?? 0
 												),

@@ -133,6 +133,7 @@ const HistoryTimeline = ({
 										{row.scan && (
 											<span className="history-row-meta-value">
 												{sprintf(
+													/* translators: %d: real number of issues this scan found. */
 													_n(
 														'%d issue found',
 														'%d issues found',
@@ -146,6 +147,7 @@ const HistoryTimeline = ({
 										{showBeforeAfter && (
 											<span className="history-row-meta-value">
 												{sprintf(
+													/* translators: 1: real value before the change, 2: real value after the change. */
 													__(
 														'Before: %1$s · After: %2$s',
 														'vulopilot'

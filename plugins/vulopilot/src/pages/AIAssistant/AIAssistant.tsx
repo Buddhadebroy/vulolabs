@@ -343,7 +343,7 @@ const AIAssistant = () => {
 							<AiChatCard
 								cardClassName="ai-copilot-main-chat"
 								cardTitle={__('Chat with VuloPilot', 'vulopilot')}
-								cardDesc={__('', 'vulopilot')}
+								cardDesc=""
 								onNewChat={
 									turns.length > 0 || isSending
 										? startNewConversation

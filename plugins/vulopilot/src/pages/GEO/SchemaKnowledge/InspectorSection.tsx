@@ -159,17 +159,20 @@ const InspectorSection = ({
 		{
 			key: 'all',
 			value: 'all',
+			/* translators: %d: real total number of pages. */
 			label: sprintf(__('All (%d)', 'vulopilot'), pages.length),
 		},
 		{
 			key: 'valid',
 			value: 'valid',
+			/* translators: %d: real number of pages with schema. */
 			label: sprintf(__('With schema (%d)', 'vulopilot'), validCount),
 		},
 		{
 			key: 'attention',
 			value: 'attention',
 			label: sprintf(
+				/* translators: %d: real number of pages missing schema. */
 				__('Need attention (%d)', 'vulopilot'),
 				schemaByUrl.size - validCount
 			),

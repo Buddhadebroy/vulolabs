@@ -141,21 +141,25 @@ const destinationBadge = (
 	switch (row.destination_status) {
 		case 'uploading':
 			return {
+				/* translators: %s: real remote storage provider name. */
 				text: sprintf(__('Uploading to %s…', 'vulopilot'), provider),
 				className: 'orange',
 			};
 		case 'uploaded':
 			return {
+				/* translators: %s: real remote storage provider name. */
 				text: sprintf(__('Uploaded to %s', 'vulopilot'), provider),
 				className: 'green',
 			};
 		case 'failed':
 			return {
+				/* translators: %s: real remote storage provider name. */
 				text: sprintf(__('%s upload failed', 'vulopilot'), provider),
 				className: 'red',
 			};
 		case 'skipped_not_configured':
 			return {
+				/* translators: %s: real remote storage provider name. */
 				text: sprintf(__('%s not configured', 'vulopilot'), provider),
 				className: 'yellow',
 			};

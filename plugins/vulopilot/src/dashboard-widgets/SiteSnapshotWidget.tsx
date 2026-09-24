@@ -21,7 +21,7 @@ const NOT_SET = '-';
 const formatScore = (score: number | null): string =>
 	null === score
 		? NOT_SET
-		: sprintf(/* translators: %d: real 0-100 signal score. */ __('%d/100', 'vulopilot'), score);
+		: sprintf(/* translators: %d: real 0-100 score. */ __('%d/100', 'vulopilot'), score);
 
 const formatCount = (count: number | null): string =>
 	null === count ? NOT_SET : String(count);

@@ -149,6 +149,7 @@ const BiggestSpeedOpportunityCard = ({
 								text:
 									'page_speed' === opportunity.source
 										? sprintf(
+											/* translators: %d: real number of pages this affects. */
 											_n(
 												'Affects %d page.',
 												'Affects %d pages.',
@@ -158,6 +159,7 @@ const BiggestSpeedOpportunityCard = ({
 											opportunity.count
 										)
 										: sprintf(
+											/* translators: %d: real number of endpoints this affects. */
 											_n(
 												'Affects %d endpoint.',
 												'Affects %d endpoints.',
