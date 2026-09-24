@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React, { useEffect, useRef, useState, JSX } from 'react';
 import { __ } from '@wordpress/i18n';
 import './Settings.scss';
@@ -36,7 +36,7 @@ import type { ComponentType } from 'react';
  * pattern), auto-discovered by templateService.ts's `require.context`.
  *
  * VuloPilot's settings are one flat wp_options row, not per-tab
- * namespaced data - unlike vulolabs's `appLocalizer.admin_settings`,
+ * namespaced data - unlike vulolabs's `vulopilotAppLocalizer.admin_settings`,
  * so this page fetches the full flat object once and, per tab, seeds
  * `SettingContext` with just that tab's own field keys (looked up from
  * the tab's own `modal[].key` list) and merges live edits back into a
@@ -68,8 +68,8 @@ const Settings = () => {
 		setError(null);
 
 		getApiResponse<Record<string, unknown>>(
-			getApiLink(appLocalizer, 'settings'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, 'settings'),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				if (!response) {
@@ -381,7 +381,7 @@ const Settings = () => {
 				prepareUrl={(subTab: string) =>
 					`?page=vulopilot#&tab=settings&subtab=${subTab}`
 				}
-				appLocalizer={appLocalizer}
+				appLocalizer={vulopilotAppLocalizer}
 				Link={Link}
 				settingName={'Settings'}
 				className="admin-settings"

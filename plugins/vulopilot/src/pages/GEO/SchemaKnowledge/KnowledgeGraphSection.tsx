@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
@@ -57,7 +57,7 @@ const HIGHLIGHT_MAX_ROWS = 4;
  * explanation.
  */
 const isEntityExtractionModuleActive = () =>
-	appLocalizer.active_modules?.includes('knowledge-graph') ?? false;
+	vulopilotAppLocalizer.active_modules?.includes('knowledge-graph') ?? false;
 
 /**
  * "Graph Visualization"/"Entity Recommendations"/"Knowledge Graph Health"
@@ -316,8 +316,8 @@ const KnowledgeGraphSection = () => {
 
 		setError(null);
 
-		getApiResponse<EntitiesResponse>(getApiLink(appLocalizer, 'entities'), {
-			headers: { 'X-WP-Nonce': appLocalizer.nonce },
+		getApiResponse<EntitiesResponse>(getApiLink(vulopilotAppLocalizer, 'entities'), {
+			headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce },
 		}).then((response) => {
 			if (response) {
 				setEntities(response);
@@ -436,7 +436,7 @@ const KnowledgeGraphSection = () => {
 						"This site doesn't have an active online store - VuloPilot looks for real WooCommerce products.",
 						'vulopilot'
 					),
-					viewAllHref: `${appLocalizer.site_url}/wp-admin/edit.php?post_type=product`,
+					viewAllHref: `${vulopilotAppLocalizer.site_url}/wp-admin/edit.php?post_type=product`,
 				},
 				{
 					key: 'categories',
@@ -448,7 +448,7 @@ const KnowledgeGraphSection = () => {
 						'No categories in use yet.',
 						'vulopilot'
 					),
-					viewAllHref: `${appLocalizer.site_url}/wp-admin/edit-tags.php?taxonomy=category`,
+					viewAllHref: `${vulopilotAppLocalizer.site_url}/wp-admin/edit-tags.php?taxonomy=category`,
 					rowBadge: (entity) =>
 						messyCategoryNames.has(entity.name)
 							? {

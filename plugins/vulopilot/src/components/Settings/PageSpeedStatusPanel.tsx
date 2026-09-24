@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useRef, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
@@ -24,7 +24,7 @@ interface TestResult {
 	desktop: number | null;
 }
 
-const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 /**
  * Settings → Connections' own PageSpeed Insights section - the mockup's
@@ -68,7 +68,7 @@ const PageSpeedStatusPanel = () => {
 		}
 		saveTimerRef.current = setTimeout(() => {
 			updateSetting(key, value);
-			sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
+			sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'settings'), {
 				setting: { [key]: value },
 			});
 		}, AUTOSAVE_DEBOUNCE_MS);
@@ -85,7 +85,7 @@ const PageSpeedStatusPanel = () => {
 	};
 
 	const loadStatus = () => {
-		getApiResponse<PsiStatus>(getApiLink(appLocalizer, 'settings/test-pagespeed'), nonceHeaders).then(
+		getApiResponse<PsiStatus>(getApiLink(vulopilotAppLocalizer, 'settings/test-pagespeed'), nonceHeaders).then(
 			(response) => {
 				if (response) {
 					setStatus(response);
@@ -100,8 +100,8 @@ const PageSpeedStatusPanel = () => {
 		setIsTesting(true);
 
 		sendApiResponse<TestResult>(
-			appLocalizer,
-			getApiLink(appLocalizer, 'settings/test-pagespeed'),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, 'settings/test-pagespeed'),
 			{}
 		)
 			.then((response) => {

@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
@@ -182,7 +182,7 @@ const CrawlOverviewSection = () => {
 								}}
 								showMenu={false}
 								hideHeader={true}
-								format={appLocalizer.date_format_js}
+								format={vulopilotAppLocalizer.date_format_js}
 								headers={{
 									bot_name: {
 										label: __('Bot', 'vulopilot'),

@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import type { ComponentType } from 'react';
 import { __ } from '@wordpress/i18n';
@@ -40,7 +40,7 @@ const RecentReportsCard = ({ days, refreshSignal }: RecentReportsCardProps) => {
 	const RealPanel = useFilterSlot<
 		ComponentType<{ days: number; refreshSignal?: number }>
 	>('vulopilot_recent_reports_panel');
-	const isProInstalled = Boolean(appLocalizer.khali_dabba);
+	const isProInstalled = Boolean(vulopilotAppLocalizer.khali_dabba);
 
 	return (
 		<CardComponent

@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -43,8 +43,8 @@ const ProductDetailsPanel = ({
 
 		setIsLoading(true);
 		getApiResponse<ProductSchemaDetail[]>(
-			getApiLink(appLocalizer, 'entities/product-details'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, 'entities/product-details'),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => setProducts(response ?? []))
 			.finally(() => setIsLoading(false));

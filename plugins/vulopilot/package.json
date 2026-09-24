@@ -6,13 +6,13 @@
 	"version": "1.0.0",
 	"license": "GPL-2.0-or-later",
 	"author": "VuloLabs",
-	"homepage": "https://vulolabs.com/vulopilot/",
+	"homepage": "https://vulopilot.com/",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/vulocartdev/vulolabs.git"
+		"url": "git+https://github.com/vulolabs/vulolabs.git"
 	},
 	"bugs": {
-		"url": "https://github.com/vulocartdev/vulolabs/issues"
+		"url": "https://github.com/vulolabs/vulolabs/issues"
 	},
 	"main": "index.js",
 	"mainPluginFile": "vulopilot.php",

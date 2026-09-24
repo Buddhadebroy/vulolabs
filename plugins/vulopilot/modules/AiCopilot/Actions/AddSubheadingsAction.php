@@ -153,7 +153,7 @@ class AddSubheadingsAction extends AbstractBasicAction {
         $result = wp_update_post(
             array(
                 'ID'           => $input['post_id'],
-                'post_content' => $output['rewritten_content'],
+                'post_content' => wp_kses_post( $output['rewritten_content'] ),
             ),
             true
         );

@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
@@ -64,8 +64,8 @@ const QuickActionsCard = () => {
 		setRunningActionId(action.id);
 
 		sendApiResponse<ActionResult>(
-			appLocalizer,
-			getApiLink(appLocalizer, `performance-actions/${action.id}`),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, `performance-actions/${action.id}`),
 			{}
 		)
 			.then((response) => {

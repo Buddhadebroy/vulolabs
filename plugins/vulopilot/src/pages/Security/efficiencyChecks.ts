@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useCallback, useEffect, useState } from 'react';
 import { getApiLink, getApiResponse } from '@zyra/core';
 
@@ -61,8 +61,8 @@ export const useEfficiencyChecks = () => {
 		setIsLoading(true);
 
 		getApiResponse<EfficiencyChecksResponse>(
-			getApiLink(appLocalizer, 'efficiency-checks'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, 'efficiency-checks'),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				if (!cancelled && response) {

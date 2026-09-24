@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
@@ -84,8 +84,8 @@ const RecommendedFixesCard = ({ topIssues }: { topIssues: PageSpeedIssue[] }) =>
 		setRunningActionId(fix.actionId);
 
 		sendApiResponse<ActionResult>(
-			appLocalizer,
-			getApiLink(appLocalizer, `performance-actions/${fix.actionId}`),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, `performance-actions/${fix.actionId}`),
 			{}
 		)
 			.then((response) => {

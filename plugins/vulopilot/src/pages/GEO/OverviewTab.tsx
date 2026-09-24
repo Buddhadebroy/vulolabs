@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -267,8 +267,8 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 	useEffect(() => {
 		setIsLoadingProgress(true);
 		getApiResponse<ProgressResponse>(
-			getApiLink(appLocalizer, `visibility/progress?days=${period}`),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, `visibility/progress?days=${period}`),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => response && setProgress(response))
 			.finally(() => setIsLoadingProgress(false));
@@ -277,7 +277,7 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 	useEffect(() => {
 		getApiResponse<{ data: FindingGroup[]; total: number }>(
 			getApiLink(
-				appLocalizer,
+				vulopilotAppLocalizer,
 				// Same real category grouping issuesTypes.ts's own CATEGORY_TABS
 				// already establishes for "SEO & Visibility" ('seo','images','schema','links')
 				// + "AI Visibility" ('geo','brand') - this page covers both, so
@@ -287,7 +287,7 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 				// with this page).
 				'findings/groups?per_page=5&status=open&category=seo,images,schema,links,geo,brand'
 			),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				if (response) {

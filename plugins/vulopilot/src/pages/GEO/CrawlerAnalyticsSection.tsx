@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { COLOR_PALETTE, getApiLink, getApiResponse } from '@zyra/core';
@@ -98,7 +98,7 @@ const CHECKLIST_ITEMS: { key: string; scannerIds: string[]; label: string }[] = 
 ];
 
 const isSeoModuleActive = () =>
-	appLocalizer.active_modules?.includes('technical-seo') ?? false;
+	vulopilotAppLocalizer.active_modules?.includes('technical-seo') ?? false;
 
 interface CrawlerAnalyticsSectionProps {
 	analytics: CrawlerAnalytics | null;
@@ -144,8 +144,8 @@ const CrawlerAnalyticsSection = ({
 			return;
 		}
 		getApiResponse<{ data: FindingGroup[] }>(
-			getApiLink(appLocalizer, 'findings/groups?per_page=200'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, 'findings/groups?per_page=200'),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		).then((response) => setChecklistGroups(response?.data ?? []));
 	}, []);
 

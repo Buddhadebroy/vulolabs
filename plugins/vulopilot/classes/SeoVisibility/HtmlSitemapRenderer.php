@@ -40,27 +40,31 @@ class HtmlSitemapRenderer {
      * conditional-effectiveness pattern GeoAnalysis\LlmsTxtGenerator
      * already uses for its own `products` entry.
      *
-     * @var array<string, string>
+     * @return array<string, string>
      */
-    private const POST_TYPE_LABELS = array(
-        'post'       => 'Posts',
-        'page'       => 'Pages',
-        'attachment' => 'Media',
-        'product'    => 'Products',
-    );
+    private static function get_post_type_labels(): array {
+        return array(
+            'post'       => __( 'Posts', 'vulopilot' ),
+            'page'       => __( 'Pages', 'vulopilot' ),
+            'attachment' => __( 'Media', 'vulopilot' ),
+            'product'    => __( 'Products', 'vulopilot' ),
+        );
+    }
 
     /**
-     * Same idea as POST_TYPE_LABELS, for taxonomies. `product_cat`/
+     * Same idea as get_post_type_labels(), for taxonomies. `product_cat`/
      * `product_tag` are only ever rendered when `taxonomy_exists()` is true.
      *
-     * @var array<string, string>
+     * @return array<string, string>
      */
-    private const TAXONOMY_LABELS = array(
-        'category'    => 'Categories',
-        'post_tag'    => 'Tags',
-        'product_cat' => 'Product Categories',
-        'product_tag' => 'Product Tags',
-    );
+    private static function get_taxonomy_labels(): array {
+        return array(
+            'category'    => __( 'Categories', 'vulopilot' ),
+            'post_tag'    => __( 'Tags', 'vulopilot' ),
+            'product_cat' => __( 'Product Categories', 'vulopilot' ),
+            'product_tag' => __( 'Product Tags', 'vulopilot' ),
+        );
+    }
 
     /**
      * HtmlSitemapRenderer constructor.
@@ -110,7 +114,7 @@ class HtmlSitemapRenderer {
         $excluded_posts = $this->parse_id_list( (string) ( $settings['sitemap_exclude_posts'] ?? '' ) );
         $sections       = array();
 
-        foreach ( self::POST_TYPE_LABELS as $post_type => $label ) {
+        foreach ( self::get_post_type_labels() as $post_type => $label ) {
             if ( ! in_array( $post_type, $included_types, true ) || ! post_type_exists( $post_type ) ) {
                 continue;
             }
@@ -139,7 +143,7 @@ class HtmlSitemapRenderer {
                 $items[] = $this->render_post_item( $post, $settings );
             }
 
-            $sections[] = $this->render_section( __( $label, 'vulopilot' ), $items ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- POST_TYPE_LABELS is a fixed, own-authored string constant, not user input; the same __()-over-a-variable shape this codebase already accepts elsewhere for small fixed maps.
+            $sections[] = $this->render_section( $label, $items );
         }
 
         return $sections;
@@ -154,7 +158,7 @@ class HtmlSitemapRenderer {
         $excluded_terms      = $this->parse_id_list( (string) ( $settings['sitemap_exclude_terms'] ?? '' ) );
         $sections            = array();
 
-        foreach ( self::TAXONOMY_LABELS as $taxonomy => $label ) {
+        foreach ( self::get_taxonomy_labels() as $taxonomy => $label ) {
             if ( ! in_array( $taxonomy, $included_taxonomies, true ) || ! taxonomy_exists( $taxonomy ) ) {
                 continue;
             }
@@ -180,7 +184,7 @@ class HtmlSitemapRenderer {
                 $items[] = '<li><a href="' . esc_url( get_term_link( $term ) ) . '">' . esc_html( $term->name ) . '</a></li>';
             }
 
-            $sections[] = $this->render_section( __( $label, 'vulopilot' ), $items ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- see render_post_type_sections()'s own note above.
+            $sections[] = $this->render_section( $label, $items );
         }
 
         return $sections;

@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
@@ -104,7 +104,7 @@ interface FixOutcome {
  * two things - call this handler, or open the Pro popup when it's null
  * (Pro not installed/active, or Pro's OneClickFix module specifically
  * isn't enabled - this module's own JS entry is itself gated on
- * appLocalizer.active_modules, so a null handler covers both cases without
+ * vulopilotAppLocalizer.active_modules, so a null handler covers both cases without
  * Free needing to know which).
  *
  * The handler resolves a { success, message } outcome rather than showing
@@ -118,7 +118,7 @@ interface FixOutcome {
  *
  * Read fresh on every click rather than cached in a module-level constant:
  * Pro's own script (vulopilot-pro-admin-script) is a separate, later
- * <script> tag that depends on this one (it reads the `appLocalizer` global
+ * <script> tag that depends on this one (it reads the `vulopilotAppLocalizer` global
  * this script localizes), so it hasn't registered its addFilter() callback
  * yet at the moment this module first evaluates - caching the result here
  * would permanently capture `null` and always show the popup, active
@@ -298,8 +298,8 @@ export const useFindingsTable = ({
 		}
 
 		sendApiResponse(
-			appLocalizer,
-			getApiLink(appLocalizer, `findings/${row.id}`),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, `findings/${row.id}`),
 			{ status }
 		).then((response) => {
 			if (response) {
@@ -351,8 +351,8 @@ export const useFindingsTable = ({
 		}
 
 		sendApiResponse(
-			appLocalizer,
-			getApiLink(appLocalizer, `findings/${row.id}/actions/snooze-finding`),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, `findings/${row.id}/actions/snooze-finding`),
 			{}
 		).then((response: { success?: boolean; message?: string } | undefined) => {
 			NoticeManager.add({
@@ -521,7 +521,7 @@ export const useFindingsTable = ({
 	const tableCardProps: Omit<TableCardProps, 'title'> = {
 		headers: layout === 'compact' ? compactHeaders : defaultHeaders,
 		hideHeader: true,
-		format: appLocalizer.date_format_js,
+		format: vulopilotAppLocalizer.date_format_js,
 		showMenu: false,
 		variant: 'transparent',
 		rows: data.map((row) => {
@@ -648,8 +648,8 @@ export const useFindingsTable = ({
 			}
 
 			sendApiResponse(
-				appLocalizer,
-				getApiLink(appLocalizer, 'findings/bulk'),
+				vulopilotAppLocalizer,
+				getApiLink(vulopilotAppLocalizer, 'findings/bulk'),
 				{ ids, status: action }
 			).then((response: unknown) => {
 				if (response) {

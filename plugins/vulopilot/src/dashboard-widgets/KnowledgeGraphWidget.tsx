@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -20,8 +20,8 @@ const KnowledgeGraphWidget: React.FC<WidgetProps> = ({
 	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
-		getApiResponse<EntitiesResponse>(getApiLink(appLocalizer, 'entities'), {
-			headers: { 'X-WP-Nonce': appLocalizer.nonce },
+		getApiResponse<EntitiesResponse>(getApiLink(vulopilotAppLocalizer, 'entities'), {
+			headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce },
 		})
 			.then((response) => {
 				if (response) {

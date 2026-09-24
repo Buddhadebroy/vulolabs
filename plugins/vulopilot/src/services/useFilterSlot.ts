@@ -5,7 +5,7 @@ import type { ComponentType } from 'react';
 /**
  * `vulopilot-pro-admin-script` is a hard WP script dependency of
  * `vulopilot-admin-script` (FrontendScriptsPro.php's own docblock: Pro's
- * src/index.tsx reads the `appLocalizer` global only Free's own
+ * src/index.tsx reads the `vulopilotAppLocalizer` global only Free's own
  * `wp_localize_script()` call defines), so Free's bundle is always
  * requested and parsed first. But "requested first" isn't "finishes
  * executing before Free needs it": both are plain, non-deferred <script>

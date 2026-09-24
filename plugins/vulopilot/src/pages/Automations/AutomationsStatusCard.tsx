@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -13,7 +13,7 @@ interface StatusCounts {
 /** The 2 free built-in rows (Automations\BuiltinAutomationSeeder) - everything else in `GET /automations` is a custom automation. */
 const BUILTIN_TRIGGERS = [ 'free_full_site_scan', 'free_visibility_report' ];
 
-const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 /** Label with its smaller caption underneath - `AnalyticsComponent`'s `text` slot takes any node. */
 const tileText = ( label: string, sub: string ) => (
@@ -43,11 +43,11 @@ const AutomationsStatusCard = ( { refetchSignal }: { refetchSignal: number } ) =
 
 		Promise.all( [
 			getApiResponse<{ status_counts?: StatusCounts; data?: AutomationRow[] }>(
-				`${ getApiLink( appLocalizer, 'automations' ) }?per_page=100`,
+				`${ getApiLink( vulopilotAppLocalizer, 'automations' ) }?per_page=100`,
 				nonceHeaders
 			),
 			getApiResponse<{ failed?: number }>(
-				`${ getApiLink( appLocalizer, 'automation-dashboard-stats' ) }?period=month`,
+				`${ getApiLink( vulopilotAppLocalizer, 'automation-dashboard-stats' ) }?period=month`,
 				nonceHeaders
 			),
 		] )

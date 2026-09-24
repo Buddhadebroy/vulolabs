@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -105,8 +105,8 @@ const PageAnalysisPanel = ({ postId, onClose }: PageAnalysisPanelProps) => {
 		setData(null);
 
 		getApiResponse<PageAnalysisResponse>(
-			getApiLink(appLocalizer, `seo/analyze-page?post_id=${postId}`),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, `seo/analyze-page?post_id=${postId}`),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				if (response) {

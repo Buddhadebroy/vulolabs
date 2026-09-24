@@ -151,7 +151,7 @@ class FrontendScripts {
 
         wp_localize_script(
             $handle,
-            'appLocalizer',
+            'vulopilotAppLocalizer',
             array(
                 'apiUrl'                    => untrailingslashit( get_rest_url() ),
                 'restUrl'                   => VuloPilot()->rest_namespace,
@@ -221,7 +221,7 @@ class FrontendScripts {
                 // proSetting field's Pro-tag/lock in InputRenderer) and
                 // vulopilot-pro's src/index.tsx (which module JS entries
                 // actually load) - both were reading these two keys off
-                // appLocalizer already, but nothing populated them yet.
+                // vulopilotAppLocalizer already, but nothing populated them yet.
                 'khali_dabba'               => VuloPilot()->util->is_khali_dabba(),
                 'active_modules'            => VuloPilot()->modules->get_active_modules(),
                 // useVuloCloudAccountLogin.ts's own real, synchronous read -

@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { ChartComponent, ModuleGuardComponent } from '@zyra/components';
@@ -46,7 +46,7 @@ const HealthTimelineWidget: React.FC<WidgetProps> = ({
 	 * endpoint there.
 	 */
 	const isModuleActive =
-		appLocalizer.active_modules.includes('advanced-reports');
+		vulopilotAppLocalizer.active_modules.includes('advanced-reports');
 
 	return (
 		<DashboardWidget

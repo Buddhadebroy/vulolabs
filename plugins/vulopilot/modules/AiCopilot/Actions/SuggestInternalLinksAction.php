@@ -234,7 +234,7 @@ class SuggestInternalLinksAction extends AbstractBasicAction {
         $result     = wp_update_post(
             array(
                 'ID'           => $input['post_id'],
-                'post_content' => $input['original_content'] . "\n" . $links_html,
+                'post_content' => $input['original_content'] . "\n" . wp_kses_post( $links_html ),
             ),
             true
         );

@@ -150,7 +150,7 @@ class WritePostContentAction extends AbstractBasicAction {
             $new_id = wp_insert_post(
                 array(
                     'post_title'   => $input['post_title'],
-                    'post_content' => $output['content'],
+                    'post_content' => wp_kses_post( $output['content'] ),
                     'post_status'  => 'draft',
                     'post_type'    => 'post',
                 ),
@@ -167,7 +167,7 @@ class WritePostContentAction extends AbstractBasicAction {
         $result = wp_update_post(
             array(
                 'ID'           => $input['post_id'],
-                'post_content' => $output['content'],
+                'post_content' => wp_kses_post( $output['content'] ),
             ),
             true
         );

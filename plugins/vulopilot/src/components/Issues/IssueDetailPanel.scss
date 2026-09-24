@@ -283,7 +283,7 @@
 // endpoints"/action-row sections - a generic dummy preview + "Pro" tag,
 // same "never render the real thing while locked" idiom
 // useContentGate.tsx's own Pro/module checks already use (`.content-gate-dummy-content`
-// there), until the Pro plugin itself is active (`appLocalizer.khali_dabba`).
+// there), until the Pro plugin itself is active (`vulopilotAppLocalizer.khali_dabba`).
 // Colocated here (imported by IssueDetailPanel.tsx directly) rather than
 // duplicated into every host page's own SCSS (Security/ProtectMySite.scss,
 // AIAssistant/AICopilot.scss, etc.) since this same shared component also

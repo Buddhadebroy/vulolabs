@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import {
@@ -117,8 +117,8 @@ const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 		setIsLoadingPreview(true);
 
 		getApiResponse<ConversationPreviewResponse>(
-			getApiLink(appLocalizer, `copilot/conversations/${row.id}`),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, `copilot/conversations/${row.id}`),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				if (response) {

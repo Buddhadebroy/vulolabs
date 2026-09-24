@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { bucketFindingsByPage, fetchOpenFindingsFor } from './seoIssuesShared';
@@ -14,7 +14,7 @@ import type { FindingGroup } from '../../components/Issues/issuesTypes';
  * docblock already cross-references the others by name.
  */
 
-const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 /**
  * Shared `GET /findings/groups?category=geo` fetch - same "one real call,
@@ -38,7 +38,7 @@ export const useGeoFindingGroups = (): {
 
 	useEffect(() => {
 		getApiResponse<{ data: FindingGroup[] }>(
-			getApiLink(appLocalizer, 'findings/groups?category=geo&per_page=200'),
+			getApiLink(vulopilotAppLocalizer, 'findings/groups?category=geo&per_page=200'),
 			nonceHeaders
 		)
 			.then((response) => setGroups(response?.data ?? []))
@@ -77,7 +77,7 @@ export const useAllFindingGroups = (): {
 
 	useEffect(() => {
 		getApiResponse<{ data: FindingGroup[] }>(
-			getApiLink(appLocalizer, 'findings/groups?per_page=200'),
+			getApiLink(vulopilotAppLocalizer, 'findings/groups?per_page=200'),
 			nonceHeaders
 		)
 			.then((response) => setGroups(response?.data ?? []))
@@ -224,19 +224,19 @@ export const useGeoVisibilitySnapshot = (): {
 
 	useEffect(() => {
 		// Both endpoints are registered only by vulopilot-pro.
-		if (!appLocalizer.khali_dabba) {
+		if (!vulopilotAppLocalizer.khali_dabba) {
 			setIsLoading(false);
 			return;
 		}
 
 		Promise.all([
 			getApiResponse<VisibilitySnapshot>(
-				getApiLink(appLocalizer, 'geo-visibility-summary'),
-				{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+				getApiLink(vulopilotAppLocalizer, 'geo-visibility-summary'),
+				{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 			),
 			getApiResponse<GeoVisibilityHistoryRow[]>(
-				getApiLink(appLocalizer, 'geo-visibility-history'),
-				{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+				getApiLink(vulopilotAppLocalizer, 'geo-visibility-history'),
+				{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 			),
 		])
 			.then(([summaryResponse, historyResponse]) => {

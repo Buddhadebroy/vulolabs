@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { ComponentType, useEffect, useRef, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import {
@@ -70,7 +70,7 @@ interface AutomationSlotValue {
  * Automation", "Browse Templates") always render, in Free too - a real
  * 2-tier Pro-then-module gate on click rather than being absent from the
  * DOM entirely: `openProPopup()` below opens the plain `<ShowProPopup />`
- * upgrade pitch when Pro isn't installed (`!appLocalizer.khali_dabba`), or
+ * upgrade pitch when Pro isn't installed (`!vulopilotAppLocalizer.khali_dabba`), or
  * the real module-specific `<ShowProPopup moduleName="workflow-automation" />`
  * ("Activate {name}") when Pro is installed but this page's own
  * `vulopilot_automations_panel` filter slot hasn't resolved (`Wizard`/
@@ -232,13 +232,22 @@ const Automations = () => {
 			<NavigatorHeaderComponent
 				headerIcon="automation"
 				headerTitle={__('Automations', 'vulopilot')}
-				headerDescription={__(
-					'Create workflows that automatically handle repetitive work and keep you informed.',
-					'vulopilot'
-				)}
+				headerDescription={
+					Wizard
+						? __(
+							'Create workflows that automatically handle repetitive work and keep you informed.',
+							'vulopilot'
+						)
+						: __(
+							'Two ready-made automations keep your site scanned and reported on. Custom and AI-powered automations are available in VuloPilot Pro.',
+							'vulopilot'
+						)
+				}
 				buttons={[
 					{
-						label: __('Build with AI', 'vulopilot'),
+						label: Generate
+							? __('Build with AI', 'vulopilot')
+							: __('Build with AI (Pro)', 'vulopilot'),
 						icon: 'automation',
 						color: 'border-purple',
 						onClick: openGenerate,
@@ -248,7 +257,9 @@ const Automations = () => {
 						// Pro. Allow 'Create from scratch' as a secondary Pro option" -
 						// this button keeps working exactly as before, just no longer
 						// the rightmost/most prominent one.
-						label: __('Create Your Own', 'vulopilot'),
+						label: Wizard
+							? __('Create Your Own', 'vulopilot')
+							: __('Create Your Own (Pro)', 'vulopilot'),
 						icon: 'plus',
 						color: 'border-purple',
 						onClick: openCreateWizard,
@@ -256,7 +267,9 @@ const Automations = () => {
 					{
 						// Preferred/rightmost - same "templates first, from-scratch
 						// second" ordering as above.
-						label: __('AI-Powered Automations', 'vulopilot'),
+						label: Templates
+							? __('AI-Powered Automations', 'vulopilot')
+							: __('AI-Powered Automations (Pro)', 'vulopilot'),
 						icon: 'search',
 						onClick: openTemplatesLibrary,
 					},
@@ -325,7 +338,7 @@ const Automations = () => {
 					height="auto"
 					position="lightbox"
 				>
-					{appLocalizer.khali_dabba ? (
+					{vulopilotAppLocalizer.khali_dabba ? (
 						<ShowProPopup moduleName="workflow-automation" />
 					) : (
 						<ShowProPopup />

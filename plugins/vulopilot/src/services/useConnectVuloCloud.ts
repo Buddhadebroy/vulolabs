@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -20,8 +20,8 @@ export const useConnectVuloCloud = () => {
 		setIsConnecting(true);
 
 		getApiResponse<{ url: string }>(
-			getApiLink(appLocalizer, 'vulocloud-ai-connection/broker-authorize-url'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, 'vulocloud-ai-connection/broker-authorize-url'),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				if (response?.url) {

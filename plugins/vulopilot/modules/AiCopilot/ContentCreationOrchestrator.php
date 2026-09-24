@@ -45,14 +45,6 @@ class ContentCreationOrchestrator {
             'noun'       => 'blog post',
             'link_label' => 'View/Edit Blog',
         ),
-        'generate-landing-page'        => array(
-            'noun'       => 'landing page',
-            'link_label' => 'View/Edit Landing Page',
-        ),
-        'generate-product-description' => array(
-            'noun'       => 'product description',
-            'link_label' => 'View/Edit Product Description',
-        ),
     );
 
     /**

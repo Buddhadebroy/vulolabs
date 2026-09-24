@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
@@ -265,11 +265,11 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 		setHasError(false);
 
 		Promise.all([
-			getApiResponse<DashboardSummary>(getApiLink(appLocalizer, 'dashboard'), {
-				headers: { 'X-WP-Nonce': appLocalizer.nonce },
+			getApiResponse<DashboardSummary>(getApiLink(vulopilotAppLocalizer, 'dashboard'), {
+				headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce },
 			}),
-			getApiResponse<CoreWebVitalsSummary>(getApiLink(appLocalizer, 'core-web-vitals'), {
-				headers: { 'X-WP-Nonce': appLocalizer.nonce },
+			getApiResponse<CoreWebVitalsSummary>(getApiLink(vulopilotAppLocalizer, 'core-web-vitals'), {
+				headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce },
 			}),
 		])
 			.then(([dashboardResponse, vitalsResponse]) => {

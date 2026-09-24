@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import axios from 'axios';
 import { __, sprintf } from '@wordpress/i18n';
@@ -160,9 +160,9 @@ const AiContentAssistantSidebar = () => {
 
 		axios
 			.post<ChatResponse>(
-				getApiLink(appLocalizer, 'content-assistant/chat'),
+				getApiLink(vulopilotAppLocalizer, 'content-assistant/chat'),
 				{ message: realMessage, history: displayedTurns },
-				{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+				{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 			)
 			.then((response) => {
 				setTurns((current) => [
@@ -321,7 +321,7 @@ const AiContentAssistantSidebar = () => {
 						'Hi %s! I can help you create amazing content. Try one of these prompt ideas or ask your own.',
 						'vulopilot'
 					),
-					appLocalizer.current_user_display_name
+					vulopilotAppLocalizer.current_user_display_name
 				)}
 				prompts={PROMPT_CHIPS}
 				onSelectPrompt={handleSelectPrompt}

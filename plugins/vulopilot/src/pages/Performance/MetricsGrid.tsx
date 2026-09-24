@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -188,8 +188,8 @@ const MetricsGrid = ({
 
 	useEffect(() => {
 		getApiResponse<CoreWebVitalsSummary>(
-			getApiLink(appLocalizer, 'core-web-vitals'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, 'core-web-vitals'),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		).then((response) => {
 			if (response) {
 				setVitalsSummary(response);

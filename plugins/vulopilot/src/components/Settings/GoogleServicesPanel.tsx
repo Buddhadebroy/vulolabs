@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
@@ -50,7 +50,7 @@ interface TestResults {
 	adsense: boolean;
 }
 
-const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 const BENEFITS = [
 	__( 'Verify site ownership on Google Search Console in a single click.', 'vulopilot' ),
@@ -229,7 +229,7 @@ const GoogleServicesPanel = () => {
 	const toggleSetting = ( key: string, isOn: boolean ) => {
 		const newValue = isOn ? [] : [ key ];
 		updateSetting( key, newValue );
-		sendApiResponse( appLocalizer, getApiLink( appLocalizer, 'settings' ), {
+		sendApiResponse( vulopilotAppLocalizer, getApiLink( vulopilotAppLocalizer, 'settings' ), {
 			setting: { [ key ]: newValue },
 		} );
 	};
@@ -242,14 +242,14 @@ const GoogleServicesPanel = () => {
 
 		if ( null === gscSites && ! status.search_console_site ) {
 			getApiResponse<GscSite[]>(
-				getApiLink( appLocalizer, 'google-services/search-console-sites' ),
+				getApiLink( vulopilotAppLocalizer, 'google-services/search-console-sites' ),
 				nonceHeaders
 			).then( ( response ) => setGscSites( response ?? [] ) );
 		}
 
 		if ( null === ga4Accounts ) {
 			getApiResponse<Ga4Account[]>(
-				getApiLink( appLocalizer, 'google-services/analytics-accounts' ),
+				getApiLink( vulopilotAppLocalizer, 'google-services/analytics-accounts' ),
 				nonceHeaders
 			).then( ( response ) => {
 				setGa4Accounts( response ?? [] );
@@ -262,7 +262,7 @@ const GoogleServicesPanel = () => {
 
 		if ( null === adsenseAccounts ) {
 			getApiResponse<AdSenseAccount[]>(
-				getApiLink( appLocalizer, 'google-services/adsense-accounts' ),
+				getApiLink( vulopilotAppLocalizer, 'google-services/adsense-accounts' ),
 				nonceHeaders
 			).then( ( response ) => setAdsenseAccounts( response ?? [] ) );
 		}
@@ -278,7 +278,7 @@ const GoogleServicesPanel = () => {
 
 		getApiResponse<Ga4DataStream[]>(
 			getApiLink(
-				appLocalizer,
+				vulopilotAppLocalizer,
 				`google-services/analytics-data-streams?property_id=${ encodeURIComponent( selectedPropertyId ) }`
 			),
 			nonceHeaders
@@ -307,7 +307,7 @@ const GoogleServicesPanel = () => {
 
 	const handleTestConnections = ( onlyService?: keyof TestResults ) => {
 		getApiResponse<TestResults>(
-			getApiLink( appLocalizer, 'google-services/test-connections' ),
+			getApiLink( vulopilotAppLocalizer, 'google-services/test-connections' ),
 			nonceHeaders
 		).then( ( response ) => {
 			if ( ! response ) {
@@ -332,8 +332,8 @@ const GoogleServicesPanel = () => {
 
 	const handleSelectSite = ( siteUrl: string ) => {
 		sendApiResponse<GoogleServicesStatus>(
-			appLocalizer,
-			getApiLink( appLocalizer, 'google-services/select-search-console-site' ),
+			vulopilotAppLocalizer,
+			getApiLink( vulopilotAppLocalizer, 'google-services/select-search-console-site' ),
 			{ site_url: siteUrl }
 		).then( ( response ) => {
 			if ( response ) {
@@ -344,8 +344,8 @@ const GoogleServicesPanel = () => {
 
 	const handleSelectAdsense = ( accountId: string ) => {
 		sendApiResponse<GoogleServicesStatus>(
-			appLocalizer,
-			getApiLink( appLocalizer, 'google-services/select-adsense-account' ),
+			vulopilotAppLocalizer,
+			getApiLink( vulopilotAppLocalizer, 'google-services/select-adsense-account' ),
 			{ account_id: accountId }
 		).then( ( response ) => {
 			if ( response ) {
@@ -360,8 +360,8 @@ const GoogleServicesPanel = () => {
 		}
 
 		sendApiResponse<GoogleServicesStatus>(
-			appLocalizer,
-			getApiLink( appLocalizer, 'google-services/select-analytics-property' ),
+			vulopilotAppLocalizer,
+			getApiLink( vulopilotAppLocalizer, 'google-services/select-analytics-property' ),
 			{
 				account_id: selectedAccountId,
 				property_id: selectedPropertyId,

@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
@@ -68,8 +68,8 @@ export const useSchemaInspector = (): {
 		setError(null);
 
 		sendApiResponse<SchemaInspectorResult>(
-			appLocalizer,
-			getApiLink(appLocalizer, 'schema/inspect'),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, 'schema/inspect'),
 			{ url: url.trim() }
 		)
 			.then((response) => {

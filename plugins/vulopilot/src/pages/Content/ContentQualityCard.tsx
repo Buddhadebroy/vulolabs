@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -190,11 +190,11 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 			return;
 		}
 
-		const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+		const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 		const fetchType = (endpoint: 'posts' | 'pages') =>
 			getApiResponse<WpRestPost[]>(
 				getApiLink(
-					appLocalizer,
+					vulopilotAppLocalizer,
 					`${endpoint}?per_page=10&orderby=date&order=desc&_fields=id,title,date`,
 					'wp/v2'
 				),
@@ -242,8 +242,8 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 		setIsLoadingQuality(true);
 
 		getApiResponse<ContentQualityResponse>(
-			getApiLink(appLocalizer, `content-intelligence/quality?post_id=${selectedId}`),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, `content-intelligence/quality?post_id=${selectedId}`),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				if (response) {
@@ -262,7 +262,7 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 	// per-check detail beyond this summary genuinely lives, not a page
 	// this card fabricates.
 	const editLink = selectedId
-		? `${appLocalizer.site_url}/wp-admin/post.php?post=${selectedId}&action=edit`
+		? `${vulopilotAppLocalizer.site_url}/wp-admin/post.php?post=${selectedId}&action=edit`
 		: '';
 
 	const readabilityTone = data ? getScoreTone(data.readability.score) : 'green';

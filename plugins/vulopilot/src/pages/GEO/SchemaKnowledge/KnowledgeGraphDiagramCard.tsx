@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { __, _n, sprintf } from '@wordpress/i18n';
 import type { EntitiesResponse } from './KnowledgeGraphSection';
 import { ENTITY_SETTINGS_URL } from './KnowledgeGraphSection';
@@ -35,7 +35,7 @@ interface DiagramNode {
  * graph nodes any more.
  */
 export const buildDiagramNodes = (entities: EntitiesResponse): DiagramNode[] => {
-	const siteUrl = appLocalizer.site_url;
+	const siteUrl = vulopilotAppLocalizer.site_url;
 
 	const categoryCount = entities.categories.length;
 	const locationCount = entities.locations.length;

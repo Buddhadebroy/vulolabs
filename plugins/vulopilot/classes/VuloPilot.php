@@ -65,7 +65,6 @@ final class VuloPilot {
         register_deactivation_hook( $file, array( $this, 'deactivate' ) );
 
         add_action( 'plugins_loaded', array( $this, 'init_plugin' ) );
-        add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
     }
 
     /**
@@ -412,19 +411,6 @@ final class VuloPilot {
         }
 
         do_action( 'vulopilot_loaded' );
-    }
-
-    /**
-     * Loads translation files.
-     *
-     * @return void
-     */
-    public function load_plugin_textdomain() {
-        if ( version_compare( $GLOBALS['wp_version'], '6.7', '<' ) ) {
-            load_plugin_textdomain( 'vulopilot', false, plugin_basename( dirname( $this->file ) ) . '/languages' ); // phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound -- only reached below WP 6.7 (the branch above), where core's own automatic translation loading doesn't exist yet; 6.7+ sites take the load_textdomain() branch instead.
-        } else {
-            load_textdomain( 'vulopilot', WP_LANG_DIR . '/plugins/vulopilot-' . determine_locale() . '.mo' );
-        }
     }
 
     /**

@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -50,8 +50,8 @@ const BackupProtectionNotice = ({
 
 	useEffect(() => {
 		getApiResponse<{ enable_automatic_backups?: string[] }>(
-			getApiLink(appLocalizer, 'settings'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, 'settings'),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		).then((response) => {
 			if (response) {
 				setIsEnabled(

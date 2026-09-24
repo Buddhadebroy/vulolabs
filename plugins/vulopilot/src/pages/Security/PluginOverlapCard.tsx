@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { __, sprintf } from '@wordpress/i18n';
 import { CardComponent, ListComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
@@ -98,7 +98,7 @@ const PluginOverlapCard = ({ category }: PluginOverlapCardProps) => {
 									color: 'text-purple',
 									onClick: () =>
 										window.open(
-											`${appLocalizer.admin_url}${hash}`,
+											`${vulopilotAppLocalizer.admin_url}${hash}`,
 											'_self'
 										),
 								}}

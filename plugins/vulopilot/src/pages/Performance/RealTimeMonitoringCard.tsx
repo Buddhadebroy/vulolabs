@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -64,12 +64,12 @@ const RealTimeMonitoringCard = () => {
 	useEffect(() => {
 		Promise.all([
 			getApiResponse<RealtimeStats>(
-				getApiLink(appLocalizer, 'performance-realtime'),
-				{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+				getApiLink(vulopilotAppLocalizer, 'performance-realtime'),
+				{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 			),
 			getApiResponse<CoreWebVitalsSummary>(
-				getApiLink(appLocalizer, 'core-web-vitals'),
-				{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+				getApiLink(vulopilotAppLocalizer, 'core-web-vitals'),
+				{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 			),
 		])
 			.then(([statsResponse, vitalsResponse]) => {

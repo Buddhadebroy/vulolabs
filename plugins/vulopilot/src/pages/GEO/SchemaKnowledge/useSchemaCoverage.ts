@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { getApiLink, getApiResponse } from '@zyra/core';
 
@@ -39,7 +39,7 @@ export interface SchemaCoverageSnapshot {
 	pages?: SchemaCoverageCheckedPage[];
 }
 
-const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 /**
  * `GET`/`POST /schema/coverage` - Schema.php's own real per-page JSON-LD
@@ -66,7 +66,7 @@ export const useSchemaCoverage = (): {
 
 	useEffect(() => {
 		getApiResponse<SchemaCoverageSnapshot | null>(
-			getApiLink(appLocalizer, 'schema/coverage'),
+			getApiLink(vulopilotAppLocalizer, 'schema/coverage'),
 			nonceHeaders
 		)
 			.then((response) => setSnapshot(response ?? null))

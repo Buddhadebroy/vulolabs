@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	CardComponent,
@@ -92,7 +92,7 @@ const WooCommerceFindingsTable = ({ scannerIds }: WooCommerceFindingsTableProps)
 				height="auto"
 				position="lightbox"
 			>
-				{appLocalizer.khali_dabba ? (
+				{vulopilotAppLocalizer.khali_dabba ? (
 					<ShowProPopup moduleName="one-click-fix" />
 				) : (
 					<ShowProPopup />

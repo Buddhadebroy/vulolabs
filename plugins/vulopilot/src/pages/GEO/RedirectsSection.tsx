@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { COLOR_PALETTE, getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
@@ -43,7 +43,7 @@ interface RedirectHealthResponse {
 	results: Record<number, RedirectHealthResult>;
 }
 
-const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 const FETCH_PAGE_SIZE = 100;
 /** Safety ceiling for the fetch-everything loop below - a real site's user-managed redirect list is small by nature (each one is manually added or converted from a 404), unlike scanner findings. */
@@ -116,7 +116,7 @@ const fetchAllRedirects = async (): Promise<RedirectRow[]> => {
 	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		const response = await getApiResponse<{ data: RedirectRow[]; total: number }>(
-			getApiLink(appLocalizer, `redirects?per_page=${FETCH_PAGE_SIZE}&page=${page}&orderby=id&order=desc`),
+			getApiLink(vulopilotAppLocalizer, `redirects?per_page=${FETCH_PAGE_SIZE}&page=${page}&orderby=id&order=desc`),
 			nonceHeaders
 		);
 
@@ -147,8 +147,8 @@ const fetchAllRedirects = async (): Promise<RedirectRow[]> => {
  */
 const resolveTargetPath = (targetUrl: string): string | null => {
 	try {
-		const target = new URL(targetUrl, appLocalizer.site_url);
-		const site = new URL(appLocalizer.site_url);
+		const target = new URL(targetUrl, vulopilotAppLocalizer.site_url);
+		const site = new URL(vulopilotAppLocalizer.site_url);
 
 		if (target.origin !== site.origin) {
 			return null;
@@ -266,7 +266,7 @@ const RedirectsSection = () => {
 		setIsCheckingHealth(true);
 
 		getApiResponse<RedirectHealthResponse>(
-			getApiLink(appLocalizer, `redirects/health${force ? '?force=1' : ''}`),
+			getApiLink(vulopilotAppLocalizer, `redirects/health${force ? '?force=1' : ''}`),
 			nonceHeaders
 		)
 			.then((response) => response && setHealth(response))
@@ -318,7 +318,7 @@ const RedirectsSection = () => {
 
 		const endpoint = editingId ? `redirects/${editingId}` : 'redirects';
 
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, endpoint), {
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, endpoint), {
 			...(editingId ? {} : { source_path: sourcePath }),
 			target_url: targetUrl,
 			redirect_type: Number(redirectType),
@@ -347,8 +347,8 @@ const RedirectsSection = () => {
 
 	const handleToggleActive = (row: RedirectRow) => {
 		sendApiResponse(
-			appLocalizer,
-			getApiLink(appLocalizer, `redirects/${row.id}`),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, `redirects/${row.id}`),
 			{ is_active: row.is_active ? 0 : 1 }
 		).then((response) => {
 			if (response) {
@@ -371,8 +371,8 @@ const RedirectsSection = () => {
 		setDeleteTarget(null);
 
 		sendApiResponse(
-			appLocalizer,
-			getApiLink(appLocalizer, `redirects/${row.id}/delete`),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, `redirects/${row.id}/delete`),
 			{}
 		).then((response) => {
 			NoticeManager.add({
@@ -474,7 +474,7 @@ const RedirectsSection = () => {
 			label: __('From (Old URL)', 'vulopilot'),
 			width: "65%",
 			render: (row: RedirectRow) => {
-				const pageUrl = `${appLocalizer.site_url}${row.source_path}`;
+				const pageUrl = `${vulopilotAppLocalizer.site_url}${row.source_path}`;
 
 				return (
 					<InformationItemComponent

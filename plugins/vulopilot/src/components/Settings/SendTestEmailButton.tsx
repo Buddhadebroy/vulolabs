@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
@@ -15,7 +15,7 @@ interface StoredSettings {
 	email_last_test_sent?: string;
 }
 
-const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 /**
  * Settings → Notifications' own "Send Test Email" button - real
@@ -46,7 +46,7 @@ const SendTestEmailButton = () => {
 	const [result, setResult] = useState<TestEmailResult | null>(null);
 
 	useEffect(() => {
-		getApiResponse<StoredSettings>(getApiLink(appLocalizer, 'settings'), nonceHeaders).then(
+		getApiResponse<StoredSettings>(getApiLink(vulopilotAppLocalizer, 'settings'), nonceHeaders).then(
 			(response) => {
 				if (response?.email_last_test_sent) {
 					setLastSentAt(response.email_last_test_sent);
@@ -60,8 +60,8 @@ const SendTestEmailButton = () => {
 		setResult(null);
 
 		sendApiResponse<TestEmailResult>(
-			appLocalizer,
-			getApiLink(appLocalizer, 'settings/test-email'),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, 'settings/test-email'),
 			{}
 		)
 			.then((response) => {

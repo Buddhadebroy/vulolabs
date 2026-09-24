@@ -1,7 +1,6 @@
 <?php
 namespace VuloPilot\SeoVisibility;
 
-use VuloPilot\AiCopilot\Actions\GenerateSchemaAction;
 
 defined( 'ABSPATH' ) || exit;
 

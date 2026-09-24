@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, COLOR_PALETTE, scrollToId } from '@zyra/core';
@@ -129,12 +129,12 @@ const categoryScoreDelta = (category: SeoScoreResponse['category_scores'][keyof 
  * genuinely gates scanning (modules/Seo/Module.php): if it's off, none of
  * the 18 free-tier SEO scanner classes get registered, so the table below
  * would silently sit empty forever with no explanation. This tab is the
- * one place in Free that actually checks `appLocalizer.active_modules` to
+ * one place in Free that actually checks `vulopilotAppLocalizer.active_modules` to
  * tell a site owner why, rather than leaving them staring at "no findings
  * yet - run a scan" when a scan running wouldn't help.
  */
 const isSeoModuleActive = () =>
-	appLocalizer.active_modules?.includes('technical-seo') ?? false;
+	vulopilotAppLocalizer.active_modules?.includes('technical-seo') ?? false;
 
 /**
  * "SEO" tab of "SEO & Visibility" - restyled a 2nd time to match a newer
@@ -255,10 +255,10 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 
 		getApiResponse<{ data: FindingGroup[] }>(
 			getApiLink(
-				appLocalizer,
+				vulopilotAppLocalizer,
 				`findings/groups?scanner_id=${SEARCH_ENGINE_ACCESS_SCANNER_IDS.join(',')}&per_page=200`
 			),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		).then((response) => {
 			const openCount = (response?.data ?? []).reduce(
 				(sum, group) => sum + group.count,

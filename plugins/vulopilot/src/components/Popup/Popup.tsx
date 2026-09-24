@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React from 'react';
 import { ButtonInput } from '@zyra/inputs';
 import { NoticeComponent } from '@zyra/components';
@@ -230,7 +230,7 @@ const ShowProPopup: React.FC<PopupProps> = (props) => {
 								text: __('Activate Plugin', 'vulopilot'),
 								onClick: () => {
 									window.open(
-										`${appLocalizer.admin_url.replace(/admin\.php.*/, '')}plugins.php`,
+										`${vulopilotAppLocalizer.admin_url.replace(/admin\.php.*/, '')}plugins.php`,
 										'_blank'
 									);
 								},
@@ -333,7 +333,7 @@ const ShowProPopup: React.FC<PopupProps> = (props) => {
 									// left the admin with no breadcrumb/
 									// highlighted-menu-item back out.
 									window.open(
-										`${appLocalizer.admin_url}#&tab=settings&subtab=modules&module=${props.moduleName}`,
+										`${vulopilotAppLocalizer.admin_url}#&tab=settings&subtab=modules&module=${props.moduleName}`,
 										'_self'
 									);
 								},
@@ -362,7 +362,7 @@ const ShowProPopup: React.FC<PopupProps> = (props) => {
 				</div>
 				<a
 					className="admin-btn"
-					href={appLocalizer.shop_url}
+					href={vulopilotAppLocalizer.shop_url}
 					target="_blank"
 					rel="noreferrer"
 				>

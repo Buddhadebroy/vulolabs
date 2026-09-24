@@ -1,7 +1,7 @@
 /**
  * Thin fetch wrapper for the post-editor metabox's own endpoints -
  * `vulopilotPostSeo` (Services\PostEditorAssets::enqueue_assets()) rather
- * than `appLocalizer`, since the Block Editor screen doesn't guarantee the
+ * than `vulopilotAppLocalizer`, since the Block Editor screen doesn't guarantee the
  * dashboard's own localized script has run. Native `fetch()` with a manual
  * `X-WP-Nonce` header, the same "raw call + manual nonce" pattern
  * react-frontend.md documents for direct WP/WC REST calls elsewhere in

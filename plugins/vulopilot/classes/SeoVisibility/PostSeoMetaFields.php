@@ -1,8 +1,6 @@
 <?php
 namespace VuloPilot\SeoVisibility;
 
-use VuloPilot\AiCopilot\Actions\GenerateLandingPageAction;
-use VuloPilot\AiCopilot\Actions\GenerateSchemaAction;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -104,7 +102,7 @@ class PostSeoMetaFields {
             // arbitrary text mangled by sanitize_text_field's tag-stripping.
             register_post_meta(
                 $post_type,
-                GenerateSchemaAction::META_KEY,
+                '_vulopilot_schema_json',
                 $this->string_field_args(
                     static function ( $value ) {
                         $decoded = json_decode( (string) $value, true );
@@ -120,7 +118,7 @@ class PostSeoMetaFields {
         // above's fields which apply to both.
         register_post_meta(
             'page',
-            GenerateLandingPageAction::META_KEY,
+            '_vulopilot_landing_page',
             $this->boolean_field_args()
         );
     }

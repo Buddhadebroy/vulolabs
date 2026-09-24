@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
@@ -35,8 +35,8 @@ const AutomationsAttentionCard = ({ onViewAll, refetchSignal }: AutomationsAtten
 	// elsewhere on the page) shouldn't flash this card back into its skeleton.
 	useEffect(() => {
 		getApiResponse<{ data: AutomationRow[] } | AutomationRow[]>(
-			`${getApiLink(appLocalizer, 'automations')}?per_page=100`,
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			`${getApiLink(vulopilotAppLocalizer, 'automations')}?per_page=100`,
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				const list = Array.isArray(response) ? response : (response?.data ?? []);
@@ -52,7 +52,7 @@ const AutomationsAttentionCard = ({ onViewAll, refetchSignal }: AutomationsAtten
 	const handleRetry = (row: AutomationRow) => {
 		setRetryingId(row.id);
 
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, `automations/${row.id}/run`), {})
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, `automations/${row.id}/run`), {})
 			.then((response) => {
 				if (response) {
 					setFailing((current) => current.filter((item) => item.id !== row.id));

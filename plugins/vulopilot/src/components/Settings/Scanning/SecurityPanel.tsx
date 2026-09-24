@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse, useModules } from '@zyra/core';
 import {
@@ -247,12 +247,12 @@ const LockTag = () => (
 		role="button"
 		tabIndex={0}
 		onClick={() => {
-			window.location.href = `${appLocalizer.admin_url}#&tab=settings&subtab=modules&module=website-security`;
+			window.location.href = `${vulopilotAppLocalizer.admin_url}#&tab=settings&subtab=modules&module=website-security`;
 		}}
 		onKeyDown={(event) => {
 			if ('Enter' === event.key || ' ' === event.key) {
 				event.preventDefault();
-				window.location.href = `${appLocalizer.admin_url}#&tab=settings&subtab=modules&module=website-security`;
+				window.location.href = `${vulopilotAppLocalizer.admin_url}#&tab=settings&subtab=modules&module=website-security`;
 			}
 		}}
 	>
@@ -433,7 +433,7 @@ const SecurityPanel = () => {
 		}
 
 		Object.entries(patch).forEach(([key, value]) => updateSetting(key, value));
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'settings'), {
 			setting: patch,
 			settingName: 'security-scanning',
 		}).then((response) => {
@@ -549,7 +549,7 @@ const SecurityPanel = () => {
 									}
 									const next = value as string;
 									updateSetting('security_scan_frequency', next);
-									sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
+									sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'settings'), {
 										setting: { security_scan_frequency: next },
 										settingName: 'security-scanning',
 									}).then((response) => {

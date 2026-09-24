@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { getApiLink, getApiResponse } from '@zyra/core';
 
@@ -51,8 +51,8 @@ export const useGeoScore = (): {
 	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
-		getApiResponse<GeoScoreResponse>(getApiLink(appLocalizer, 'geo/score'), {
-			headers: { 'X-WP-Nonce': appLocalizer.nonce },
+		getApiResponse<GeoScoreResponse>(getApiLink(vulopilotAppLocalizer, 'geo/score'), {
+			headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce },
 		})
 			.then((response) => {
 				if (response) {

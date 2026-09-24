@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	CardComponent,
@@ -119,8 +119,8 @@ const InspectorSection = ({
 
 	useEffect(() => {
 		getApiResponse<InspectablePage[]>(
-			getApiLink(appLocalizer, 'schema/inspectable-pages'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, 'schema/inspectable-pages'),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				const list = response ?? [];
@@ -210,7 +210,7 @@ const InspectorSection = ({
 
 	const openRichResultsTest = () =>
 		window.open(
-			`https://search.google.com/test/rich-results?url=${encodeURIComponent(result ? result.url : appLocalizer.site_url)}`,
+			`https://search.google.com/test/rich-results?url=${encodeURIComponent(result ? result.url : vulopilotAppLocalizer.site_url)}`,
 			'_blank',
 			'noreferrer'
 		);

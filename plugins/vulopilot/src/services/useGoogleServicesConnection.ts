@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useCallback, useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
@@ -28,7 +28,7 @@ export interface GoogleServicesStatus {
  */
 export type GoogleConnectReturnTo = 'settings' | 'keywords';
 
-const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 /**
  * Shared real Google OAuth 2.0 status/connect/disconnect logic -
@@ -59,7 +59,7 @@ export const useGoogleServicesConnection = (
 	const refreshStatus = useCallback(
 		() =>
 			getApiResponse<GoogleServicesStatus>(
-				getApiLink(appLocalizer, 'google-services/status'),
+				getApiLink(vulopilotAppLocalizer, 'google-services/status'),
 				nonceHeaders
 			).then((response) => {
 				if (response) {
@@ -109,7 +109,7 @@ export const useGoogleServicesConnection = (
 
 		getApiResponse<{ url: string }>(
 			getApiLink(
-				appLocalizer,
+				vulopilotAppLocalizer,
 				`google-services/authorize-url?return_to=${returnTo}`
 			),
 			nonceHeaders
@@ -144,8 +144,8 @@ export const useGoogleServicesConnection = (
 				setIsDisconnecting(true);
 
 				sendApiResponse<GoogleServicesStatus>(
-					appLocalizer,
-					getApiLink(appLocalizer, 'google-services/disconnect'),
+					vulopilotAppLocalizer,
+					getApiLink(vulopilotAppLocalizer, 'google-services/disconnect'),
 					{}
 				)
 					.then((response) => {

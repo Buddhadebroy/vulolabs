@@ -89,20 +89,6 @@ execSync(
 	}
 );
 
-fs.removeSync(
-	path.join(
-		buildDir,
-		'composer.json'
-	)
-);
-
-fs.removeSync(
-	path.join(
-		buildDir,
-		'composer.lock'
-	)
-);
-
 execSync(
 	`zip -rq ${zipName} ${pluginSlug}`,
 	{

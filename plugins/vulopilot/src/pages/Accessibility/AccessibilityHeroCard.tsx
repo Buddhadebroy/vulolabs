@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
@@ -115,8 +115,8 @@ const AccessibilityHeroCard = ({
 
 	useEffect(() => {
 		getApiResponse<DashboardSummary>(
-			getApiLink(appLocalizer, 'dashboard'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, 'dashboard'),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		).then((response) => {
 			if (response) {
 				setScore(response.category_scores.accessibility);

@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, scrollToId, sendApiResponse } from '@zyra/core';
@@ -213,9 +213,9 @@ const SeoTitlesPanel = () => {
 	};
 
 	const contexts = useMemo<ContextConfig[]>(() => {
-		const siteTitle = appLocalizer.site_title || __('Your Site', 'vulopilot');
-		const siteDescription = appLocalizer.site_description || __('A short description of your website.', 'vulopilot');
-		const siteUrl = (appLocalizer.site_url || '').replace(/\/$/, '');
+		const siteTitle = vulopilotAppLocalizer.site_title || __('Your Site', 'vulopilot');
+		const siteDescription = vulopilotAppLocalizer.site_description || __('A short description of your website.', 'vulopilot');
+		const siteUrl = (vulopilotAppLocalizer.site_url || '').replace(/\/$/, '');
 		const now = new Date();
 		const archiveDatePath = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}`;
 		const archiveLabel = now.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
@@ -342,7 +342,7 @@ const SeoTitlesPanel = () => {
 
 	const handleSettingChange = (key: string, value: string) => {
 		updateSetting(key, value);
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'settings'), {
 			setting: { [key]: value },
 		});
 	};
@@ -357,7 +357,7 @@ const SeoTitlesPanel = () => {
 	const persistTemplates = (nextTemplateValues: Record<string, string>, nextSeparator: string) => {
 		const payload: Record<string, string> = { title_separator: nextSeparator, ...nextTemplateValues };
 
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), { setting: payload }).then(
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'settings'), { setting: payload }).then(
 			(response) => {
 				Object.entries(payload).forEach(([key, value]) => updateSetting(key, value));
 

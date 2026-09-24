@@ -32,7 +32,7 @@ class Automations extends \WP_REST_Controller {
      * `components/Modules/index.ts`, `ShowProPopup moduleName`) is NOT this
      * route's own path segment - every real frontend consumer
      * (BuiltinAutomationCards.tsx, AutomationsAttentionCard.tsx,
-     * AutomationStatusWidget.tsx) calls `getApiLink(appLocalizer,
+     * AutomationStatusWidget.tsx) calls `getApiLink(vulopilotAppLocalizer,
      * 'automations')`, and this controller is itself registered under the
      * `'automations'` key in Rest.php's own controllers array - `$rest_base`
      * being `workflow-automation` instead of `automations` was a real,

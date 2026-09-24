@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { Suspense, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
@@ -186,8 +186,8 @@ const App = () => {
 				}}
 				onQueryUpdate={handleQueryUpdate}
 				onResultClick={handleResultClick}
-				free={appLocalizer.version}
-				pro={appLocalizer.pro_data.version}
+				free={vulopilotAppLocalizer.version}
+				pro={vulopilotAppLocalizer.pro_data.version}
 				searchSize={7}
 			/>
 			<Route />

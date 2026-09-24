@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ModuleGuardComponent } from '@zyra/components';
@@ -95,7 +95,7 @@ const RecentActivityCard = () => {
 					// HistoryTab.tsx's own real use of it.
 					onArrowClick={() => {
 						window.open(
-							`${appLocalizer.admin_url}#&tab=reports&subtab=history`,
+							`${vulopilotAppLocalizer.admin_url}#&tab=reports&subtab=history`,
 							'_self'
 						);
 					}}

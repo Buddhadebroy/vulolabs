@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import type { ComponentType } from 'react';
 import { __ } from '@wordpress/i18n';
@@ -118,7 +118,7 @@ const CommercePanel = ({
  */
 const Commerce = () => {
 	const RealPanel = useFilterSlot('vulopilot_commerce_panel');
-	const isProInstalled = Boolean(appLocalizer.khali_dabba);
+	const isProInstalled = Boolean(vulopilotAppLocalizer.khali_dabba);
 	const [isPopupOpen, setIsPopupOpen] = useState(false);
 	const isUnlocked = Boolean(RealPanel);
 

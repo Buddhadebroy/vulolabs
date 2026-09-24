@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { __ } from '@wordpress/i18n';
@@ -33,12 +33,12 @@ interface SubmitResult {
 }
 
 
-/** "Products" only ever a real, selectable option once WooCommerce is actually active (`appLocalizer.has_woocommerce`, `FrontendScripts::localize_scripts()`) - a site with no WooCommerce has no `product` post type at all, so offering it here would just be a checkbox for something that can never exist. */
+/** "Products" only ever a real, selectable option once WooCommerce is actually active (`vulopilotAppLocalizer.has_woocommerce`, `FrontendScripts::localize_scripts()`) - a site with no WooCommerce has no `product` post type at all, so offering it here would just be a checkbox for something that can never exist. */
 const POST_TYPE_OPTIONS = [
 	{ value: 'post', label: __('Posts', 'vulopilot') },
 	{ value: 'page', label: __('Pages', 'vulopilot') },
 	{ value: 'attachment', label: __('Media', 'vulopilot') },
-	...(appLocalizer.has_woocommerce
+	...(vulopilotAppLocalizer.has_woocommerce
 		? [{ value: 'product', label: __('Products', 'vulopilot') }]
 		: []),
 	{ value: 'knowledgebase', label: __('Knowledgebase', 'vulopilot') },
@@ -100,8 +100,8 @@ const IndexNowPanel = () => {
 		setIsLoadingHistory(true);
 
 		getApiResponse<HistoryRow[]>(
-			getApiLink(appLocalizer, 'indexnow/history'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, 'indexnow/history'),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				if (response) {
@@ -116,7 +116,7 @@ const IndexNowPanel = () => {
 	const handlePostTypesChange = (newValue: string | string[]) => {
 		const values = Array.isArray(newValue) ? newValue : [newValue];
 		updateSetting('indexnow_post_types', values);
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'settings'), {
 			setting: { indexnow_post_types: values },
 		}).then((response) => {
 			NoticeManager.add({
@@ -141,7 +141,7 @@ const IndexNowPanel = () => {
 
 		updateSetting('indexnow_api_key', newKey);
 
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'settings'), {
 			setting: { indexnow_api_key: newKey },
 		})
 			.then((response) => {
@@ -169,7 +169,7 @@ const IndexNowPanel = () => {
 
 		setIsSubmitting(true);
 
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'indexnow/submit'), {
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'indexnow/submit'), {
 			urls,
 		})
 			.then((response) => {

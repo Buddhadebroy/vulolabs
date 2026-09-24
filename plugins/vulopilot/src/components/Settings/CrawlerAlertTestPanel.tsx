@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
@@ -15,7 +15,7 @@ interface StoredSettings {
 	crawler_alert_last_test_sent?: string;
 }
 
-const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 /**
  * Settings → Notifications → AI Crawler Alerts' own "Send Test Alert" row
@@ -50,7 +50,7 @@ const CrawlerAlertTestPanel = () => {
 	const [result, setResult] = useState<TestAlertResult | null>(null);
 
 	useEffect(() => {
-		getApiResponse<StoredSettings>(getApiLink(appLocalizer, 'settings'), nonceHeaders).then(
+		getApiResponse<StoredSettings>(getApiLink(vulopilotAppLocalizer, 'settings'), nonceHeaders).then(
 			(response) => {
 				if (response?.crawler_alert_last_test_sent) {
 					setLastSentAt(response.crawler_alert_last_test_sent);
@@ -64,8 +64,8 @@ const CrawlerAlertTestPanel = () => {
 		setResult(null);
 
 		sendApiResponse<TestAlertResult>(
-			appLocalizer,
-			getApiLink(appLocalizer, 'settings/test-crawler-alert'),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, 'settings/test-crawler-alert'),
 			{}
 		)
 			.then((response) => {

@@ -157,7 +157,7 @@ class GenerateExcerptAction extends AbstractBasicAction {
         $result = wp_update_post(
             array(
                 'ID'           => $input['post_id'],
-                'post_excerpt' => $output['excerpt'],
+                'post_excerpt' => wp_kses_post( $output['excerpt'] ),
             ),
             true
         );

@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { ColumnComponent, ContainerComponent } from '@zyra/components';
@@ -135,7 +135,7 @@ const RecentContentCard = () => {
 								color: 'text-purple',
 								onClick: (e: { preventDefault: () => void }) => {
 									e.preventDefault();
-									window.location.href = `${appLocalizer.site_url}/wp-admin/edit.php`;
+									window.location.href = `${vulopilotAppLocalizer.site_url}/wp-admin/edit.php`;
 								},
 							}}
 						/>

@@ -24,14 +24,14 @@ defined( 'ABSPATH' ) || exit;
  *
  * Once the orchestrator decides it has enough information, it hands off
  * to the exact same real AIAction ContentToolsGrid.tsx's own tiles run -
- * `generate-blog`/`generate-landing-page`/`generate-product-description`
+ * `generate-blog`
  * (VuloPilot()->ai_action_runner, AI-ACTIONS.md's propose→approve
  * lifecycle) - auto-approving immediately, since the conversation itself
  * IS the user's approval, the same way clicking a tool tile and
- * submitting its form is. Only these 3 actions qualify: every other
+ * submitting its form is. Only this action qualifies: every other
  * AIAction (FAQ, meta title, schema, alt text, …) mutates an *existing*
  * post/attachment this chat has no picker for, so a request that doesn't
- * match one of these 3 is written directly in the reply instead (the
+ * match it is written directly in the reply instead (the
  * orchestrator's "respond" status) - real generated content, just never
  * claimed to be saved anywhere, since nothing was.
  *
@@ -209,8 +209,6 @@ class ContentAssistant extends \WP_REST_Controller {
 
 The 3 kinds of WordPress content you can create. For each, collect the fields in the order listed - a field being listed after the first one does NOT mean it\'s skippable; ask about each one, one at a time, unless the user already stated it somewhere in the conversation:
 1. "generate-blog" - a blog post or article. Collect, in order: topic (what it\'s about), word_count (target word count), tone (e.g. Professional/Friendly/Informative/Casual).
-2. "generate-landing-page" - a landing page. Collect, in order: topic (what the page is promoting/for), tone.
-3. "generate-product-description" - a product description. Collect, in order: product_name, key_features (a short list of what makes it worth buying), tone.
 
 Rules:
 - Ask for exactly ONE missing field at a time, as a short natural question, following the collection order above. Never ask about a field already given anywhere earlier in this conversation - check the whole conversation, not just the latest message, before asking. Never ask more than 3 questions total for one request.
@@ -220,7 +218,7 @@ Rules:
 - If the request doesn\'t match any of the 3 kinds (e.g. an email, a social caption, general advice, or editing something that already exists, which you have no way to identify from chat), have a short exchange to understand what\'s actually needed (purpose, audience, tone - whatever is relevant), then write the content yourself as a normal reply. Never claim it was created or saved - there is no WordPress content type for it.
 - If the user is just asking a question rather than requesting new content, answer it directly and helpfully. Use plain text or Markdown, never HTML.
 
-Worked example for "generate-blog" (the same collect-one-at-a-time pattern applies to the other 2 kinds and their own field lists above):
+Worked example for "generate-blog" (the same collect-one-at-a-time pattern and their own field lists above):
 User: "Write a blog" → {"status":"question","message":"Sure! What should the blog be about?"}
 User: "AI in eCommerce" → {"status":"question","message":"Great - how many words would you like?"}
 User: "1500 words" → {"status":"question","message":"What tone would you prefer? For example: Professional, Friendly, Informative, or Casual."}
@@ -230,7 +228,7 @@ But if a message already gives multiple fields at once (e.g. "Write a 1000-word 
 
 Respond with ONLY raw JSON, no markdown fences, no commentary, in exactly one of these shapes:
 {"status":"question","message":"<the single next question, phrased naturally>"}
-{"status":"ready_action","action_id":"generate-blog"|"generate-landing-page"|"generate-product-description","input":{...only the fields listed above for that action_id...}}
+{"status":"ready_action","action_id":"generate-blog","input":{...only the fields listed above for that action_id...}}
 {"status":"respond","message":"<a direct answer, or fully-written content for a kind with no matching action above>"}',
                     'vulopilot'
                 ),

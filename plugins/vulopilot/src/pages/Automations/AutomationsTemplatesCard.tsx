@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ListComponent, PopupComponent } from '@zyra/components';
@@ -52,7 +52,7 @@ interface AutomationsTemplatesCardProps {
  * Pro first then module - the same order/shape useContentGate.tsx's own
  * `isProLocked`/`isModuleLocked` derivation uses (minus its first
  * VuloCloud tier, since no automation template here needs an AI
- * provider): `appLocalizer.khali_dabba` (Pro plugin installed at all) is
+ * provider): `vulopilotAppLocalizer.khali_dabba` (Pro plugin installed at all) is
  * checked first - not installed shows the generic "PRO" badge and opens
  * the plain `<ShowProPopup />` upgrade pitch; installed-but-this-module-off
  * is a DIFFERENT, second state - the popup that opens shows the real
@@ -87,7 +87,7 @@ const AutomationsTemplatesCard: React.FC<AutomationsTemplatesCardProps> = ({
 			window.removeEventListener('vulopilot_pro_modules_loaded', recheck);
 	}, []);
 
-	const isProInstalled = Boolean(appLocalizer.khali_dabba);
+	const isProInstalled = Boolean(vulopilotAppLocalizer.khali_dabba);
 
 	/**
 	 * Which lock a Pro row's click just hit - `null` means unlocked.
@@ -108,7 +108,7 @@ const AutomationsTemplatesCard: React.FC<AutomationsTemplatesCardProps> = ({
 			// scrolls to/highlights its real BuiltinAutomationCards.tsx card
 			// (per direct instruction: clicking a row here should land on
 			// the real card, not just the bare Automations tab).
-			window.location.href = `${appLocalizer.admin_url}#&tab=automations&automation_template=${template.id}`;
+			window.location.href = `${vulopilotAppLocalizer.admin_url}#&tab=automations&automation_template=${template.id}`;
 			return;
 		}
 

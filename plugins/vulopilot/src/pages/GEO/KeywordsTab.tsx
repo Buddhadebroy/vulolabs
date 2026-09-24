@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ColumnComponent, NoticeComponent, PopupComponent } from '@zyra/components';
@@ -51,7 +51,7 @@ const BENEFITS = [
  */
 const KeywordsTab = () => {
 	const RealPanel = useFilterSlot('vulopilot_keywords_panel');
-	const isProInstalled = Boolean(appLocalizer.khali_dabba);
+	const isProInstalled = Boolean(vulopilotAppLocalizer.khali_dabba);
 	const [isPopupOpen, setIsPopupOpen] = useState(false);
 
 	if (RealPanel) {

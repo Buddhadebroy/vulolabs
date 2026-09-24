@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -66,8 +66,8 @@ const SecurityTrendCard = () => {
 	const [summary, setSummary] = useState<AttentionSummary | null>(null);
 	useEffect(() => {
 		getApiResponse<AttentionSummary>(
-			getApiLink(appLocalizer, 'findings/attention-summary'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, 'findings/attention-summary'),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		).then((response) => {
 			if (response) {
 				setSummary(response);

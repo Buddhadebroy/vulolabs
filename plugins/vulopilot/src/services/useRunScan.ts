@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
@@ -55,7 +55,7 @@ export const useRunScan = ({ categories, onSuccess = defaultOnSuccess }: UseRunS
 
 		setIsScanning(true);
 
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'scans'), {
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'scans'), {
 			...(categories?.length
 				? { category: categories.join(',') }
 				: { scanner_id: 'all' }),

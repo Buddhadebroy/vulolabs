@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
@@ -29,7 +29,7 @@ const RunAuditWidget: React.FC<WidgetProps> = ({
 	const handleRunAudit = () => {
 		setIsScanning(true);
 
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'scans'), {
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'scans'), {
 			scanner_id: 'all',
 			trigger_type: 'manual',
 		})

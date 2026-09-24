@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { getApiLink, getApiResponse } from '@zyra/core';
 
@@ -45,10 +45,10 @@ export const useAeoPageAnalysis = (
 	useEffect(() => {
 		getApiResponse<AeoPageAnalysisResponse>(
 			getApiLink(
-				appLocalizer,
+				vulopilotAppLocalizer,
 				`geo-analysis/pages?scanner_ids=${encodeURIComponent(scannerIdsKey)}&per_page=1000`
 			),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				if (response) {

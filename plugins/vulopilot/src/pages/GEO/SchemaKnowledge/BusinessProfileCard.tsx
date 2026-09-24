@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
@@ -14,10 +14,10 @@ import { KnowledgeGraphDiagram } from './KnowledgeGraphDiagramCard';
 import ShowProPopup from '../../../components/Popup/Popup';
 
 const isBrandModuleActive = () =>
-	appLocalizer.active_modules?.includes('brand-visibility') ?? false;
+	vulopilotAppLocalizer.active_modules?.includes('brand-visibility') ?? false;
 
 const isEntityExtractionModuleActive = () =>
-	appLocalizer.active_modules?.includes('knowledge-graph') ?? false;
+	vulopilotAppLocalizer.active_modules?.includes('knowledge-graph') ?? false;
 
 /**
  * Understanding-language labels for the real `entity_score` gauge -
@@ -252,8 +252,8 @@ const BusinessProfileCard = () => {
 		if (isBrandModuleActive()) {
 			requests.push(
 				getApiResponse<{ entity_score: number }>(
-					getApiLink(appLocalizer, 'brand-intelligence/score'),
-					{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+					getApiLink(vulopilotAppLocalizer, 'brand-intelligence/score'),
+					{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 				).then((response) => {
 					if (response) {
 						setEntityScore(response.entity_score);
@@ -264,8 +264,8 @@ const BusinessProfileCard = () => {
 
 		if (isEntityExtractionModuleActive()) {
 			requests.push(
-				getApiResponse<EntitiesResponse>(getApiLink(appLocalizer, 'entities'), {
-					headers: { 'X-WP-Nonce': appLocalizer.nonce },
+				getApiResponse<EntitiesResponse>(getApiLink(vulopilotAppLocalizer, 'entities'), {
+					headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce },
 				}).then((response) => {
 					if (response) {
 						setEntities(response);

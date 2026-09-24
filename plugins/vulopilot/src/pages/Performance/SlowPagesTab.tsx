@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useMemo, useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
@@ -300,8 +300,8 @@ const SlowPagesTab = () => {
 		setError(null);
 
 		getApiResponse<PageSpeedResponse>(
-			getApiLink(appLocalizer, 'page-speed') + '?per_page=200',
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			getApiLink(vulopilotAppLocalizer, 'page-speed') + '?per_page=200',
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((data) => {
 				if (data) {
@@ -327,8 +327,8 @@ const SlowPagesTab = () => {
 		setIsTrendLoading(true);
 
 		getApiResponse<ScoreSnapshot[]>(
-			`${getApiLink(appLocalizer, 'performance-score-snapshots')}?days=${trendDays}`,
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			`${getApiLink(vulopilotAppLocalizer, 'performance-score-snapshots')}?days=${trendDays}`,
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((data) => {
 				if (!cancelled) {

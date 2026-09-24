@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
@@ -58,8 +58,8 @@ const AutomationStatusWidget: React.FC<WidgetProps> = ({
 	// own `handleToggle` already uses - reused here rather than a second path.
 	const handleToggle = (row: AutomationRow) => {
 		sendApiResponse(
-			appLocalizer,
-			getApiLink(appLocalizer, `automations/${row.id}`),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, `automations/${row.id}`),
 			{ status: 'enabled' === row.status ? 'disabled' : 'enabled' }
 		).then(() => {
 			refetch();
@@ -154,15 +154,15 @@ const AutomationStatusWidget: React.FC<WidgetProps> = ({
 				/>
 			)}
 			{/* Free ships exactly 2 built-in automations; custom ones are Pro. Hidden once Pro is active. */}
-			{!appLocalizer.khali_dabba && (
+			{!vulopilotAppLocalizer.khali_dabba && (
 				<div className="automation-upgrade-banner">
 					<i className="adminfont-pro-tab automation-upgrade-banner-icon" />
 					<div className="automation-upgrade-banner-text">
 						<div className="automation-upgrade-banner-title">
-							{__('Unlock more automations', 'vulopilot')}
+							{__('Want more automations?', 'vulopilot')}
 						</div>
 						<div className="desc">
-							{__('Get Website Health daily scans, advanced reports, and more with Pro.', 'vulopilot')}
+							{__('VuloPilot Pro adds custom and AI-powered automations on top of the two included here.', 'vulopilot')}
 						</div>
 					</div>
 					<ButtonInput
@@ -170,7 +170,7 @@ const AutomationStatusWidget: React.FC<WidgetProps> = ({
 							text: __('Upgrade to Pro', 'vulopilot'),
 							rightIcon: 'arrow-right',
 							onClick: () =>
-								window.open(appLocalizer.shop_url, '_blank', 'noopener,noreferrer'),
+								window.open(vulopilotAppLocalizer.shop_url, '_blank', 'noopener,noreferrer'),
 						}}
 					/>
 				</div>

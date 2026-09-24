@@ -1,7 +1,6 @@
 <?php
 namespace VuloPilot\SeoVisibility;
 
-use VuloPilot\AiCopilot\Actions\GenerateSchemaAction;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -85,7 +84,7 @@ class PostEditorAssets {
                 // the two layers can't drift apart.
                 'metaKeys' => array_merge(
                     PostSeoMetaFields::META_KEYS,
-                    array( 'schema_json' => GenerateSchemaAction::META_KEY )
+                    array( 'schema_json' => '_vulopilot_schema_json' )
                 ),
             )
         );

@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { getApiLink, getApiResponse } from '@zyra/core';
 
@@ -12,7 +12,7 @@ export interface SalesInsights {
 	stale_products_sample: { id: number; name: string }[];
 }
 
-const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 /**
  * Shared `GET /sales-insights` fetch (Pro's WooCommerceIntelligence
@@ -35,7 +35,7 @@ export const useSalesInsights = (): {
 
 	useEffect(() => {
 		getApiResponse<SalesInsights>(
-			getApiLink(appLocalizer, 'sales-insights'),
+			getApiLink(vulopilotAppLocalizer, 'sales-insights'),
 			nonceHeaders
 		)
 			.then((response) => setData(response ?? null))

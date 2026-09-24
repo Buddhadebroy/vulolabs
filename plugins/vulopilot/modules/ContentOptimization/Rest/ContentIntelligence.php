@@ -63,7 +63,7 @@ class ContentIntelligence extends \WP_REST_Controller {
      *
      * @var string[]
      */
-    private const CONTENT_CREATION_ACTION_IDS = array( 'generate-blog', 'generate-landing-page', 'generate-product-description' );
+    private const CONTENT_CREATION_ACTION_IDS = array( 'generate-blog' );
 
     /**
      * @inheritDoc

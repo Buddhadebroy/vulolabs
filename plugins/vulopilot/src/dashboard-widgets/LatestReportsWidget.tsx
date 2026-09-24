@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { ListComponent, ModuleGuardComponent, BadgeComponent } from '@zyra/components';
@@ -27,7 +27,7 @@ const LatestReportsWidget: React.FC<WidgetProps> = ({
 		'reports',
 		{ per_page: 5 },
 		undefined,
-		Boolean(appLocalizer.khali_dabba)
+		Boolean(vulopilotAppLocalizer.khali_dabba)
 	);
 
 	return (

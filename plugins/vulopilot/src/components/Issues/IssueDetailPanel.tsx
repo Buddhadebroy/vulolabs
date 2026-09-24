@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React, { useEffect, useState, type ReactNode } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
@@ -184,7 +184,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	 * `moduleName="one-click-fix"` popup even while Pro itself is active) -
 	 * this one only ever opens from the "Example finding"/"Affected items"
 	 * blur below, which only ever gates on the Pro plugin being active at
-	 * all (`appLocalizer.khali_dabba`), so it always shows the generic
+	 * all (`vulopilotAppLocalizer.khali_dabba`), so it always shows the generic
 	 * upgrade pitch, never a per-module one.
 	 */
 	const [isDetailProPopupOpen, setIsDetailProPopupOpen] = useState(false);
@@ -212,7 +212,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	 * just left unrendered.
 	 */
 	useEffect(() => {
-		if (!group || !appLocalizer.khali_dabba) {
+		if (!group || !vulopilotAppLocalizer.khali_dabba) {
 			setAffectedItems(null);
 			return;
 		}
@@ -222,10 +222,10 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 
 		getApiResponse<{ data?: FindingRow[] } | FindingRow[]>(
 			getApiLink(
-				appLocalizer,
+				vulopilotAppLocalizer,
 				`findings?scanner_id=${encodeURIComponent(group.scanner_id)}&status=open&per_page=${MAX_AFFECTED_ITEMS_SHOWN}&orderby=id&order=desc`
 			),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				const list = Array.isArray(response)
@@ -271,7 +271,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	 * every click while Pro itself is inactive, before that handler is
 	 * ever reached.
 	 */
-	const isProActive = !!appLocalizer.khali_dabba;
+	const isProActive = !!vulopilotAppLocalizer.khali_dabba;
 
 	/**
 	 * `group.sample.meta` is the raw `wp_json_encode()`-d `Finding::get_meta()`
@@ -423,10 +423,10 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	const fetchGroupIds = (scannerId: string): Promise<number[]> =>
 		getApiResponse<{ data?: { id: number }[] } | { id: number }[]>(
 			getApiLink(
-				appLocalizer,
+				vulopilotAppLocalizer,
 				`findings?scanner_id=${encodeURIComponent(scannerId)}&status=open&per_page=100`
 			),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		).then((response) => {
 			const list = Array.isArray(response)
 				? response
@@ -447,8 +447,8 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				}
 
 				return sendApiResponse(
-					appLocalizer,
-					getApiLink(appLocalizer, 'findings/bulk'),
+					vulopilotAppLocalizer,
+					getApiLink(vulopilotAppLocalizer, 'findings/bulk'),
 					{ ids, status }
 				).then((response) => {
 					NoticeManager.add({
@@ -900,7 +900,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				height="auto"
 				position="lightbox"
 			>
-				{appLocalizer.khali_dabba ? (
+				{vulopilotAppLocalizer.khali_dabba ? (
 					<ShowProPopup moduleName="one-click-fix" />
 				) : (
 					<ShowProPopup />

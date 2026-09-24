@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from 'react';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -9,7 +9,7 @@ export const DAY_OPTIONS = [7, 30, 90] as const;
 /**
  * vulopilot-pro's AdvancedReports module id (Settings → Modules - though
  * it's actually one of `VuloPilotPro::CARDLESS_MODULE_IDS`, so it has no
- * card there; still the real id `appLocalizer.active_modules`/
+ * card there; still the real id `vulopilotAppLocalizer.active_modules`/
  * `resolveModuleDisplayName()` key off) - the single real gate every
  * section on this whole tab shares now that the entire "Create Report"/
  * "Schedule Report"/"Recent Reports"/"Scheduled Reports"/"Report History"
@@ -185,12 +185,12 @@ export const useReportsOverview = (days: number) => {
 		setIsLoading(true);
 
 		getApiResponse<ReportsOverviewResponse>(
-			`${getApiLink(appLocalizer, 'reports-overview')}${
-				getApiLink(appLocalizer, 'reports-overview').includes('?')
+			`${getApiLink(vulopilotAppLocalizer, 'reports-overview')}${
+				getApiLink(vulopilotAppLocalizer, 'reports-overview').includes('?')
 					? '&'
 					: '?'
 			}days=${days}`,
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
 				if (!cancelled && response) {

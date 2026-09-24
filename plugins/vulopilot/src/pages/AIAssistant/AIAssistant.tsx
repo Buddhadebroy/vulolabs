@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useRef, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import './AICopilot.scss';
@@ -91,7 +91,7 @@ const SUGGESTED_PROMPTS = [
  * The header's "Online"/"Offline" badge reads `AiCreditsConnection::
  * is_connected()` via `useAiCredits()` (`GET /ai-credits/status`), the
  * same gate `AI\AiRequestSender::send()` actually checks - not
- * `appLocalizer.vulocloud_connected` (the personal VuloCloud login),
+ * `vulopilotAppLocalizer.vulocloud_connected` (the personal VuloCloud login),
  * which is a separate, unrelated credential: a site can have AI credits
  * connected with no personal login connected, so that flag would show a
  * misleading "Offline" while chat still works. Loading state fails
@@ -209,8 +209,8 @@ const AIAssistant = () => {
 		setUndoingRunId(runId);
 
 		sendApiResponse<{ success?: boolean }>(
-			appLocalizer,
-			getApiLink(appLocalizer, `ai-action-runs/${runId}/rollback`),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, `ai-action-runs/${runId}/rollback`),
 			{}
 		)
 			.then((response) => {
@@ -295,7 +295,7 @@ const AIAssistant = () => {
 	 * AutomationTemplatesCard.tsx's own content-gate popup instead.
 	 */
 	const handleSelectAutomationTemplate = (template: AutomationTemplate) => {
-		window.location.href = `${appLocalizer.admin_url}#&tab=automations&automation_template=${template.id}`;
+		window.location.href = `${vulopilotAppLocalizer.admin_url}#&tab=automations&automation_template=${template.id}`;
 	};
 
 	return (

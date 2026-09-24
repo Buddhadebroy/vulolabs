@@ -7,8 +7,8 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Scanning → SEO & Content → Tag Manager card's real backing - outputs
- * Google Tag Manager's own real two-part snippet: the `<script>` block on
- * `wp_head` and the `<noscript><iframe>` fallback immediately after the
+ * Google Tag Manager's own real two-part snippet: the script (enqueued
+ * inline via `wp_add_inline_script()`, printed in `<head>`) and the `<noscript><iframe>` fallback immediately after the
  * opening `<body>` tag via `wp_body_open` (the real hook WordPress core
  * itself has shipped since 5.2 specifically for this purpose - no theme
  * template edit needed), same unconditional-construction/settings-gate-
@@ -28,27 +28,33 @@ class TagManagerService {
      * TagManagerService constructor.
      */
     public function __construct() {
-        add_action( 'wp_head', array( $this, 'maybe_output_head_script' ), 1 );
+        add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_head_script' ), 1 );
         add_action( 'wp_body_open', array( $this, 'maybe_output_body_noscript' ) );
     }
 
     /**
      * @return void
      */
-    public function maybe_output_head_script(): void {
+    public function maybe_enqueue_head_script(): void {
         $container_id = $this->get_container_id();
 
         if ( '' === $container_id ) {
             return;
         }
 
-        printf(
-            "<!-- Google Tag Manager -->\n<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':\n" .
-            "new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],\n" .
-            "j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=\n" .
-            "'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);\n" .
-            "})(window,document,'script','dataLayer','%s');</script>\n<!-- End Google Tag Manager -->\n",
-            esc_js( $container_id )
+        // A source-less handle carrying only the inline GTM bootstrap, printed in <head>.
+        wp_register_script( 'vulopilot-gtm', false, array(), VuloPilot()->version, false );
+        wp_enqueue_script( 'vulopilot-gtm' );
+        wp_add_inline_script(
+            'vulopilot-gtm',
+            sprintf(
+                "(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':\n" .
+                "new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],\n" .
+                "j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=\n" .
+                "'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);\n" .
+                "})(window,document,'script','dataLayer','%s');",
+                esc_js( $container_id )
+            )
         );
     }
 

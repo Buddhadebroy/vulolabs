@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
@@ -25,7 +25,7 @@ import { useRunScan } from '../../services/useRunScan';
 import ShowProPopup from '../../components/Popup/Popup';
 import './SeoVisibility.scss';
 
-const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 interface BrokenLinkFixParams {
 	post_id: number;
@@ -129,7 +129,7 @@ const EMPTY_SUMMARY: BrokenFindingsSummary = {
  * simply don't exist while SEO is off.
  */
 const isSeoModuleActive = () =>
-	appLocalizer.active_modules?.includes('technical-seo') ?? false;
+	vulopilotAppLocalizer.active_modules?.includes('technical-seo') ?? false;
 
 /**
  * Scanners\Basic\BrokenLinksScanner/BrokenImagesScanner::scan() both
@@ -202,8 +202,8 @@ const deriveSourcePath = (url: string): string | null => {
 	}
 
 	try {
-		const target = new URL(url, appLocalizer.site_url);
-		const site = new URL(appLocalizer.site_url);
+		const target = new URL(url, vulopilotAppLocalizer.site_url);
+		const site = new URL(vulopilotAppLocalizer.site_url);
 
 		if (target.origin !== site.origin) {
 			return null;
@@ -393,7 +393,7 @@ const fetchAllBrokenFindings = async (): Promise<BrokenLinkFinding[]> => {
 			total: number;
 		}>(
 			getApiLink(
-				appLocalizer,
+				vulopilotAppLocalizer,
 				`findings?scanner_id=${scannerParam}&per_page=${FINDINGS_PAGE_SIZE}&page=${page}&orderby=id&order=desc`
 			),
 			nonceHeaders
@@ -587,7 +587,7 @@ const BrokenLinksSection = () => {
 
 	const loadStats = () => {
 		getApiResponse<BrokenLinksStatsResponse>(
-			getApiLink(appLocalizer, 'broken-links/stats'),
+			getApiLink(vulopilotAppLocalizer, 'broken-links/stats'),
 			nonceHeaders
 		).then((response) => response && setStats(response));
 	};
@@ -622,8 +622,8 @@ const BrokenLinksSection = () => {
 		successMessage: string
 	) => {
 		sendApiResponse(
-			appLocalizer,
-			getApiLink(appLocalizer, `findings/${finding.id}`),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, `findings/${finding.id}`),
 			{ status }
 		).then((response) => {
 			NoticeManager.add({
@@ -659,8 +659,8 @@ const BrokenLinksSection = () => {
 
 	const handleSnooze = (finding: BrokenLinkFinding) => {
 		sendApiResponse(
-			appLocalizer,
-			getApiLink(appLocalizer, `findings/${finding.id}/actions/snooze-finding`),
+			vulopilotAppLocalizer,
+			getApiLink(vulopilotAppLocalizer, `findings/${finding.id}/actions/snooze-finding`),
 			{}
 		).then(
 			(response: { success?: boolean; message?: string } | undefined) => {
@@ -774,8 +774,8 @@ const BrokenLinksSection = () => {
 					// - same real status-update call handleResolve()/
 					// handleCreateRedirect() already make.
 					sendApiResponse(
-						appLocalizer,
-						getApiLink(appLocalizer, `findings/${fixFinding.id}`),
+						vulopilotAppLocalizer,
+						getApiLink(vulopilotAppLocalizer, `findings/${fixFinding.id}`),
 						{ status: 'resolved' }
 					).then(() => loadFindings());
 
@@ -817,7 +817,7 @@ const BrokenLinksSection = () => {
 
 		setIsSavingRedirect(true);
 
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'redirects'), {
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'redirects'), {
 			source_path: redirectSourcePath,
 			target_url: redirectTargetUrl,
 			redirect_type: Number(redirectType),
@@ -841,8 +841,8 @@ const BrokenLinksSection = () => {
 					// real `POST /findings/{id}` status-update call
 					// handleResolve() above makes.
 					sendApiResponse(
-						appLocalizer,
-						getApiLink(appLocalizer, `findings/${redirectFinding.id}`),
+						vulopilotAppLocalizer,
+						getApiLink(vulopilotAppLocalizer, `findings/${redirectFinding.id}`),
 						{ status: 'resolved' }
 					).then(() => loadFindings());
 
@@ -931,7 +931,7 @@ const BrokenLinksSection = () => {
 		page: {
 			label: __('Source page', 'vulopilot'),
 			render: (row: BrokenLinkFinding) => {
-				const pageUrl = `${appLocalizer.site_url}${row.page}`;
+				const pageUrl = `${vulopilotAppLocalizer.site_url}${row.page}`;
 				const statusKey = deriveStatusKey(row);
 				const external = isExternalFinding(row);
 
@@ -1488,7 +1488,7 @@ const BrokenLinksSection = () => {
 				height="auto"
 				position="lightbox"
 			>
-				{appLocalizer.khali_dabba ? (
+				{vulopilotAppLocalizer.khali_dabba ? (
 					<ShowProPopup moduleName="one-click-fix" />
 				) : (
 					<ShowProPopup />

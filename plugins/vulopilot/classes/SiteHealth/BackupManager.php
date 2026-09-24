@@ -33,7 +33,7 @@ defined( 'ABSPATH' ) || exit;
  * its real `file_size`, and `backup_retention_count` cleanup runs.
  *
  * Storage: `wp_upload_dir()['basedir'] . '/vulopilot-backups/'`, guarded by
- * a plain `index.php` stub - the same convention WP core itself uses in
+ * `index.php`, `.htaccess` and `web.config` stubs - the same convention WP core itself uses in
  * sensitive upload subdirectories. `file_path` is always stored (and
  * returned to the client) as a basename only - the real path is always
  * re-derived server-side via `resolve_file_path()`, same
@@ -100,6 +100,22 @@ class BackupManager {
             file_put_contents( $index_file, "<?php\n// Silence is golden.\n" );
         }
 
+        // Block direct HTTP access to the backup archives and temp .sql dumps
+        // (Apache and IIS; nginx needs a server-level rule instead).
+        $htaccess_file = trailingslashit( $dir ) . '.htaccess';
+
+        if ( ! file_exists( $htaccess_file ) ) {
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- access-protection rules inside VuloPilot's own backups directory.
+            file_put_contents( $htaccess_file, "<IfModule mod_authz_core.c>\nRequire all denied\n</IfModule>\n<IfModule !mod_authz_core.c>\nOrder deny,allow\nDeny from all\n</IfModule>\n" );
+        }
+
+        $web_config_file = trailingslashit( $dir ) . 'web.config';
+
+        if ( ! file_exists( $web_config_file ) ) {
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- access-protection rules inside VuloPilot's own backups directory.
+            file_put_contents( $web_config_file, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<configuration><system.webServer><authorization><deny users=\"*\" /></authorization></system.webServer></configuration>\n" );
+        }
+
         return trailingslashit( $dir );
     }
 
@@ -130,7 +146,8 @@ class BackupManager {
         $timestamp  = time();
         $filename   = 'backup-' . gmdate( 'Y-m-d-His', $timestamp ) . '-' . wp_generate_password( 6, false, false ) . '.zip';
         $zip_path   = $backup_dir . $filename;
-        $sql_path   = $backup_dir . 'tmp-' . wp_generate_password( 8, false, false ) . '.sql';
+        // Kept in the system temp dir, not the web-accessible uploads folder: it holds a raw SQL dump until it is folded into the (protected) zip.
+        $sql_path   = trailingslashit( get_temp_dir() ) . 'vulopilot-tmp-' . wp_generate_password( 16, false, false ) . '.sql';
 
         $repository = new BackupRepository();
         $backup_id  = $repository->insert(

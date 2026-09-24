@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ListComponent, NoticeManager, PopupComponent } from '@zyra/components';
@@ -217,7 +217,7 @@ const QuickActionsCard = () => {
 				height="auto"
 				position="lightbox"
 			>
-				{appLocalizer.khali_dabba ? (
+				{vulopilotAppLocalizer.khali_dabba ? (
 					<ShowProPopup moduleName="content-tools" />
 				) : (
 					<ShowProPopup />
