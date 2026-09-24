@@ -685,7 +685,7 @@ const SlowPagesTab = () => {
 										<div className="page-speed-summary-row-value">
 											<TypographyComponent variant="h5">
 												{avgLoadTimeMs !== null
-													? sprintf(__('%s s', 'vulopilot'), (avgLoadTimeMs / 1000).toFixed(1))
+													? sprintf(/* translators: %s: real load time in seconds. */ __('%s s', 'vulopilot'), (avgLoadTimeMs / 1000).toFixed(1))
 													: '-'}
 											</TypographyComponent>
 											<div className="page-speed-summary-row-sub">
@@ -828,7 +828,7 @@ const SlowPagesTab = () => {
 								label: __('Load Time', 'vulopilot'),
 								render: (row: PageSpeedRow) =>
 									null !== row.load_time_ms
-										? sprintf(__('Load Time: %s s', 'vulopilot'), (row.load_time_ms / 1000).toFixed(1))
+										? sprintf(/* translators: %s: real load time in seconds. */ __('Load Time: %s s', 'vulopilot'), (row.load_time_ms / 1000).toFixed(1))
 										: '-',
 							},
 							...(hasPsiDetail
@@ -1003,7 +1003,7 @@ const SlowPagesTab = () => {
 									</FormGroupComponent>
 									<FormGroupComponent row label={__('Load Time', 'vulopilot')}>
 										{null !== detailRow.load_time_ms
-											? sprintf(__('%s s', 'vulopilot'), (detailRow.load_time_ms / 1000).toFixed(2))
+											? sprintf(/* translators: %s: real load time in seconds. */ __('%s s', 'vulopilot'), (detailRow.load_time_ms / 1000).toFixed(2))
 											: '-'}
 									</FormGroupComponent>
 									{hasDeviceScores ? (
@@ -1064,7 +1064,7 @@ const SlowPagesTab = () => {
 										id: item.issue,
 										title: item.issue,
 										desc: sprintf(
-											/* translators: %d is the number of real pages this real issue affects. */
+											/* translators: %d: real number of pages this affects. */
 											_n(
 												'%d page affected',
 												'%d pages affected',

@@ -58,6 +58,7 @@ const PROMPT_CHIPS: PromptChip[] = [
 		title: __('Write a blog', 'vulopilot'),
 		ask: __('What should the blog be about?', 'vulopilot'),
 		build: (answer) =>
+			/* translators: %s: real user-typed topic. */
 			sprintf(__('Write a blog about %s', 'vulopilot'), answer),
 	},
 	{
@@ -70,6 +71,7 @@ const PROMPT_CHIPS: PromptChip[] = [
 		),
 		build: (answer) =>
 			sprintf(
+				/* translators: %s: real user-typed product details. */
 				__('Create a product description for %s', 'vulopilot'),
 				answer
 			),

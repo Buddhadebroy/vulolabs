@@ -519,7 +519,7 @@ const SeoTitlesPanel = () => {
 						title={__('Title & Description Format Templates', 'vulopilot')}
 						titleIcon="setting"
 						desc={__(
-							'Customize title and description formats using dynamic variables like %site_title%, %post_title%, %site_description%, etc.',
+							'Customize title and description formats using the dynamic variables below.',
 							'vulopilot'
 						)}
 						action={

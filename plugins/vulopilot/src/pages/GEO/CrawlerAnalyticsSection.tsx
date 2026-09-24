@@ -302,7 +302,7 @@ const CrawlerAnalyticsSection = ({
 														: 'error yellow',
 											title: item.label,
 											desc: sprintf(
-												/* translators: %d: real number of open findings for this check. */
+												/* translators: %d: real number of open findings. */
 												__('%d issues', 'vulopilot'),
 												openCount(item.scannerIds)
 											),

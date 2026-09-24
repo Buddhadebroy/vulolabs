@@ -99,10 +99,10 @@ const AeoCitationCoverageCard = ({ isActive }: AeoCitationCoverageCardProps) => 
 
 	const dummyContent = (
 		<>
-			<div className="crawler-stat-value">{sprintf('%d/%d', 3, 5)}</div>
+			<div className="crawler-stat-value">{sprintf('%1$d/%2$d', 3, 5)}</div>
 			<div className="desc">
 				{sprintf(
-					/* translators: %d is a placeholder example percent, not real data. */
+					/* translators: %d: percent of tested questions the AI service already recognized this site for. */
 					__(
 						'questions your AI service already recognized this site for (%d%%).',
 						'vulopilot'
@@ -163,11 +163,11 @@ const AeoCitationCoverageCard = ({ isActive }: AeoCitationCoverageCardProps) => 
 						{!error && coverage?.generated_at && (
 							<>
 								<div className="crawler-stat-value">
-									{sprintf('%d/%d', coverage.cited, coverage.tested)}
+									{sprintf('%1$d/%2$d', coverage.cited, coverage.tested)}
 								</div>
 								<div className="desc">
 									{sprintf(
-										/* translators: %d is the percent of tested questions the AI service already recognized this site for. */
+										/* translators: %d: percent of tested questions the AI service already recognized this site for. */
 										__(
 											'questions your AI service already recognized this site for (%d%%).',
 											'vulopilot'

@@ -245,6 +245,7 @@ const NotFoundLogSection = () => {
 									},
 									{
 										text: sprintf(
+											/* translators: %d: real number of hits. */
 											_n('%d hit', '%d hits', row.hit_count, 'vulopilot'),
 											row.hit_count
 										),

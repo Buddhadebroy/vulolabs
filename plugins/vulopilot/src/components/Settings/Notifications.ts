@@ -3,7 +3,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import CrawlerAlertTestPanel from './CrawlerAlertTestPanel';
 
 const THRESHOLD_OPTIONS = [5, 10, 20, 30].map((points) => ({
-	label: sprintf(__('%d%% or more', 'vulopilot'), points),
+	label: sprintf(/* translators: %d: real threshold percent. */ __('%d%% or more', 'vulopilot'), points),
 	value: String(points),
 }));
 
@@ -257,7 +257,7 @@ export default {
 			key: 'send_test_email',
 			type: 'button',
 			name: __('Send Test Email', 'vulopilot'),
-			label: __(' ', 'vulopilot'),
+			label: ' ',
 			position: 'right',
 			rightIcon: 'send',
 			color: 'text-purple',

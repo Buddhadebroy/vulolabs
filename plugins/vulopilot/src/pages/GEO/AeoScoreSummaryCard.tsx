@@ -191,7 +191,7 @@ const AeoScoreSummaryCard = ({
 			icon: topic.titleIcon,
 			title: topic.title,
 			desc: sprintf(
-				/* translators: %d: real number of open findings for this topic. */
+				/* translators: %d: real number of open findings. */
 				__('%d issues', 'vulopilot'),
 				openCount
 			),
@@ -310,7 +310,7 @@ const AeoScoreSummaryCard = ({
 					{
 						colorClass: 'admin-bg-color2',
 						number: sprintf(
-							/* translators: 1: real questions-answered count, 2: real total published pages checked. */
+							/* translators: 1: real count for this metric, 2: real total published pages checked. */
 							__('%1$d / %2$d', 'vulopilot'),
 							questionsAnswered,
 							totalPages
@@ -320,7 +320,7 @@ const AeoScoreSummaryCard = ({
 					{
 						colorClass: 'admin-bg-color3',
 						number: sprintf(
-							/* translators: 1: real pages-ready count, 2: real total published pages checked. */
+							/* translators: 1: real count for this metric, 2: real total published pages checked. */
 							__('%1$d / %2$d', 'vulopilot'),
 							pagesReady,
 							totalPages

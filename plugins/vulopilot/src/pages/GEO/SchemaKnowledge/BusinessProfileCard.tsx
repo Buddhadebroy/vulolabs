@@ -101,6 +101,7 @@ const buildRows = (entities: EntitiesResponse): ProfileRow[] => {
 			value:
 				entities.services.length > 0
 					? sprintf(
+						/* translators: %d: real number of detected services. */
 						_n('%d service', '%d services', entities.services.length, 'vulopilot'),
 						entities.services.length
 					)
@@ -114,6 +115,7 @@ const buildRows = (entities: EntitiesResponse): ProfileRow[] => {
 			value:
 				entities.locations.length > 0
 					? sprintf(
+						/* translators: %d: real number of detected locations. */
 						_n('%d location', '%d locations', entities.locations.length, 'vulopilot'),
 						entities.locations.length
 					)
@@ -127,6 +129,7 @@ const buildRows = (entities: EntitiesResponse): ProfileRow[] => {
 			value:
 				entities.people.length > 0
 					? sprintf(
+						/* translators: %d: real number of detected people. */
 						_n('%d person', '%d people', entities.people.length, 'vulopilot'),
 						entities.people.length
 					)
@@ -143,6 +146,7 @@ const buildRows = (entities: EntitiesResponse): ProfileRow[] => {
 					? __('Not applicable', 'vulopilot')
 					: entities.products.length > 0
 						? sprintf(
+							/* translators: %d: real number of detected products. */
 							_n('%d product', '%d products', entities.products.length, 'vulopilot'),
 							entities.products.length
 						)
@@ -156,6 +160,7 @@ const buildRows = (entities: EntitiesResponse): ProfileRow[] => {
 			value:
 				entities.categories.length > 0
 					? sprintf(
+						/* translators: %d: real number of detected categories. */
 						_n('%d category', '%d categories', entities.categories.length, 'vulopilot'),
 						entities.categories.length
 					)
