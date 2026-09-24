@@ -1,7 +1,7 @@
 === VuloPilot ===
 
 Contributors: vulolabs
-Tags:seo, website optimization, site health, performance, security
+Tags: seo, website optimization, site health, performance, security
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 8.1
@@ -9,15 +9,15 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-**AI-powered WordPress website optimization for SEO, site health, performance, accessibility, security, and AI search visibility.**
+**SEO, site health, performance, accessibility, security checks, and AI search visibility for WordPress.**
 
 == Description ==
 
-**VuloPilot helps WordPress site owners monitor and improve SEO, website health, security, performance, accessibility, and AI search visibility from one dashboard.**
+**VuloPilot scans your WordPress website and reports issues affecting search visibility, site health, performance, accessibility, security, and AI search readiness.**
 
-**Run website scans to identify technical SEO issues, broken links, outdated software, SSL problems, performance bottlenecks, Core Web Vitals opportunities, accessibility findings, and other website health concerns.**
+**Run a site scan, review detected issues from the dashboard, and follow the provided recommendations.**
 
-**VuloPilot also analyzes how your content is structured for AI-powered search, including AEO/GEO signals, entity coverage, answerability, citation readiness, AI crawler accessibility, and llms.txt.**
+**VuloPilot's standard scanning and reporting features work without connecting an AI provider.**
 
 
 ## Why Choose VuloPilot?
@@ -242,7 +242,8 @@ Pro turns the free version's insights into automation, and adds the depth larger
 
 ---
 
-Most WordPress sites don't have an SEO problem, or a performance problem, or an accessibility problem — they have all of them, quietly, at the same time. VuloPilot brings SEO, Site Health, Performance, Accessibility, and AI Visibility into one intelligent platform, so you can manage, optimize, and grow your WordPress website from a single dashboard — instead of five.
+Most WordPress sites don't have an SEO problem, or a performance problem, or an accessibility problem — they have all of them, quietly, at the same time. VuloPilot brings SEO, Site Health, Performance, Accessibility, and AI Visibility into one dashboard, so you can find and fix what needs attention without switching between separate tools.
+
 == Installation ==
 
 1. Upload the plugin to the `/wp-content/plugins/` directory.
@@ -302,8 +303,8 @@ Yes. Website Performance monitoring includes Core Web Vitals-related checks - La
 6. Website Performance Dashboard
 7. Accessibility Scanner Dashboard
 8. AI SEO Assistant
-10. Reports & Analytics Dashboard
-11. Website Activity Timeline
+9. Reports & Analytics Dashboard
+10. Website Activity Timeline
 
 == External services ==
 
@@ -370,6 +371,7 @@ Used by the dashboard to show a preview thumbnail of your homepage when no featu
 The compiled and minified files in `assets/` (`assets/js/index.js`, `assets/js/vendors.js`, `assets/js/post-editor.js`, `assets/js/block/*/index.js`, `assets/js/public/*.min.js` and `assets/styles/public/*.min.css`) are generated from human-readable source that is publicly available:
 
 * Source repository: https://github.com/vulolabs/vulolabs (plugin folder: `plugins/vulopilot`)
+* Issue tracker: https://github.com/vulolabs/vulolabs/issues
 * Admin app (React + TypeScript): `src/` and `modules/*/src/`, bundled into `assets/js/index.js` and `assets/js/vendors.js`
 * Editor scripts and blocks: `src/post-editor/` (post editor sidebar) and `src/blocks/` (Table of Contents and FAQ blocks), bundled into `assets/js/post-editor.js` and `assets/js/block/`
 * Front-end and admin helper scripts/styles: `public/js/` and `public/styles/`, minified into `assets/js/public/` and `assets/styles/public/`

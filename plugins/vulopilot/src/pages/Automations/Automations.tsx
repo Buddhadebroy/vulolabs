@@ -245,9 +245,7 @@ const Automations = () => {
 				}
 				buttons={[
 					{
-						label: Generate
-							? __('Build with AI', 'vulopilot')
-							: __('Build with AI (Pro)', 'vulopilot'),
+						label: __('Build with AI', 'vulopilot'),
 						icon: 'automation',
 						color: 'border-purple',
 						onClick: openGenerate,
@@ -257,9 +255,7 @@ const Automations = () => {
 						// Pro. Allow 'Create from scratch' as a secondary Pro option" -
 						// this button keeps working exactly as before, just no longer
 						// the rightmost/most prominent one.
-						label: Wizard
-							? __('Create Your Own', 'vulopilot')
-							: __('Create Your Own (Pro)', 'vulopilot'),
+						label:  __('Create Your Own', 'vulopilot'),
 						icon: 'plus',
 						color: 'border-purple',
 						onClick: openCreateWizard,
@@ -267,9 +263,7 @@ const Automations = () => {
 					{
 						// Preferred/rightmost - same "templates first, from-scratch
 						// second" ordering as above.
-						label: Templates
-							? __('AI-Powered Automations', 'vulopilot')
-							: __('AI-Powered Automations (Pro)', 'vulopilot'),
+						label:  __('AI-Powered Automations', 'vulopilot'),
 						icon: 'search',
 						onClick: openTemplatesLibrary,
 					},

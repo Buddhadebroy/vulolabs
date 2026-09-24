@@ -193,7 +193,7 @@ class AutomationScheduler {
         $report_generator = VuloPilot()->report_generator ?? null;
 
         if ( ! $report_generator ) {
-            $this->record_run( (int) $row['id'], 'failed', current_time( 'mysql', true ), __( 'Reports (Pro) is not active.', 'vulopilot' ) );
+            $this->record_run( (int) $row['id'], 'failed', current_time( 'mysql', true ), __( 'Reports is not active.', 'vulopilot' ) );
             return;
         }
 

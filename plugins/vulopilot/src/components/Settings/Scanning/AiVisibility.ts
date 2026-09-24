@@ -123,7 +123,7 @@ export default {
 							size: 5,
 							label: __('Flag content older than (months)', 'vulopilot'),
 							settingDescription: __(
-								"Pages not updated within this window are flagged (Pro) and score lower on the GEO AI score's Content Freshness.",
+								"Pages not updated within this window are flagged and score lower on the GEO AI score's Content Freshness.",
 								'vulopilot'
 							),
 						},

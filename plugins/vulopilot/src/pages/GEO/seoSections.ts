@@ -61,7 +61,7 @@ export const SEO_SECTIONS: FindingsSection[] = [
 		key: 'titles-meta',
 		title: __('Titles & Meta', 'vulopilot'),
 		description: __(
-			'Title tags, meta descriptions, and (Pro) duplicate meta descriptions and focus keyword drift.',
+			'Title tags, meta descriptions, and duplicate meta descriptions and focus keyword drift.',
 			'vulopilot'
 		),
 		emptyMessage: __(

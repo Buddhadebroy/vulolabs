@@ -192,7 +192,7 @@ class VuloPilotCli {
         // module now (report generation moved there wholesale) - only
         // present on VuloPilot()'s own container when that module is active.
         if ( ! VuloPilot()->report_generator ) {
-            \WP_CLI::error( 'Report generation requires the Reports (Pro) module.' );
+            \WP_CLI::error( 'Report generation requires VuloPilot Pro.' );
             return;
         }
 
