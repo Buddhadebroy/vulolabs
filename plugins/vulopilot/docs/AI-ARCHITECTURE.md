@@ -33,11 +33,6 @@ docblock for the full reasoning). `AIResponse` stays its own class: it's the par
 also constructed independently by `AiCopilot\ActionRunner`'s credits-metered path - a real,
 cross-cutting contract type, not something private to the sender.
 
-`AiRequestSender` is built once in `VuloPilot::init_classes()` and shared - every caller
-(`AiCopilot\ActionRunner`, `GeoAnalysis\GeoAnalyzer`, `ContentOptimization\ContentAnalyzer`,
-`AiAssistant\SiteToneLearner`, and vulopilot-pro's analyzers/REST controllers) is handed that same
-instance (`VuloPilot()->ai_request_sender`) rather than constructing its own.
-
 - **Budget.** `MAX_REQUESTS_PER_MINUTE` (20), a WP transient counter keyed by minute
   (`vulopilot_ai_rate_vulocloud_<minute>`). Every attempt, retries included, spends from it. It is
   a local pre-emptive guard against burning AI credits, not a spend cap.
@@ -108,33 +103,12 @@ credits balance/disconnect calls, and the one real BYOK AI call - all of it read
 same `vulopilot_ai_credits_connection` option, with no state or behavior left over in a
 single-purpose HTTP-client class once every one of those had exactly one real caller.
 
-`AiAssistant\CredentialEncryption` (AES-256-CBC, key derived from `wp_salt('auth')`) stays its own
-class - it's a generic secret-at-rest utility shared well beyond this connection (Google OAuth
-tokens in `Settings\GoogleServicesConnection`, vulopilot-pro's Backup Cloud Storage credentials).
-`AiAssistant\VuloCloudAccountConnection` (a separate, informational-only *person*-level login status
-- distinct from this *site*-level connection) also stays its own class - `AiCreditsConnection::get_status()`
-composes it in, but doesn't depend on it, and `FrontendScripts`/`Rest\AiCredits` read it
-independently too.
-
 AI Credits are a separate, metered path, not a layer on top: `AiCopilot\Services\AiCreditGatewayClient`
 calls VuloCloud's credit-metered `POST /plugin/ai/execute` (a different wire contract -
 `{featureId, action, context}`). `AiCopilot\ActionRunner::send_prompt_or_credits()` is where the two
 meet: it always sends through `AiRequestSender` first, and only falls through to credits - for the
 action ids in `CREDIT_FEATURE_MAP` - when that throws `VuloPilotException` with
 `TYPE_AI_BYOK_NOT_CONFIGURED`. Every other action id's "not configured" is a final `\RuntimeException`.
-
-## AI actions (`modules/AiCopilot/`)
-
-AI actions belong to the AI Copilot module: `ActionRegistry`, `ActionRunner`,
-`ContentCreationOrchestrator`, every `Actions\*Action` class, and the `Rest\AiActionRuns` and
-`Rest\Copilot` controllers all live under `modules/AiCopilot/` (`VuloPilot\AiCopilot\…`). The
-contract they implement, `Utill\AIActionInterface`, stays in shared core because vulopilot-pro
-implements it too. See [`AI-ACTIONS.md`](AI-ACTIONS.md) for the full lifecycle
-(propose → validate → preview → approve → execute → rollback → log).
-
-`ai_action_registry` and `ai_action_runner` are constructed in `VuloPilot::init_classes()` and read
-from the container by vulopilot-pro and the Dashboard/History controllers, so they exist whether or
-not the module is active; the REST surface itself gates on the module being active.
 
 ## Safety validation
 
@@ -152,9 +126,6 @@ Two gates, both private methods on `AiRequestSender`, called for every caller:
 
 ## Extension strategy
 
-- **A new AI action**: implement `AIActionInterface` and add the class through
-  `vulopilot_ai_action_sources` (`AiCopilot\ActionRegistry`), the same discovery-by-filter shape as
-  `SCANNERS.md`/`RULE-ENGINE.md`. vulopilot-pro's `AbstractBasicAction` is the model.
 - **A new AI backend**: not an extension point. Which vendor answers is a VuloCloud-side change
   (`contexts/vulopilot/ai-byok`), not a class here.
 

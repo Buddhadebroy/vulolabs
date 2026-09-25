@@ -140,22 +140,6 @@ on the same `run_id` (only proceeds from `pending_approval`), and `rollback()` o
 `executed` - both enforced by checking `status` before doing anything, not left to the caller to
 get right.
 
-**Considerably more than three callers exist today**, all calling `propose()` only - never
-`approve()`/`reject()`/`rollback()` themselves, since those three stay human-only actions taken
-from the Dashboard. An earlier pass of this doc named exactly three; grepping the current codebase
-for `->propose(` turns up at least six distinct call sites, all in `vulopilot-pro`:
-`OneClickFix\FindingFixRest`/`BulkFixRest` (a human clicks "Fix this" on a specific,
-already-scanned Finding), `OneClickFix\PostSeoFixRest` (the post-editor metabox's own "Fix with
-AI"/"Generate with AI" buttons - distinct from `FindingFixRest` because the metabox has no
-persisted Finding row to resolve a fix from at all), `ContentOptimization\ContentBulkOptimizeRest`
-and `WooCommerceAi\BulkOptimizeRest` (bulk "optimize all" flows, proposing one object at a time),
-`Automation\Actions\RunAiActionAction` (an automation's own configured action), and
-`McpServer\Tools\AbstractActionProposalTool` - a shared base class
-[`MCP-SERVER-MODULE.md`](MCP-SERVER-MODULE.md)'s Content/SEO/Visibility/Commerce Tools all
-extend, each concrete tool only declaring which existing action id it wraps. All of these exist
-specifically so the approval pause this section describes can never be skipped, regardless of what
-triggered the proposal.
-
 ## The built-in actions (`modules/AiCopilot/Actions/`)
 
 The original 4 were chosen to cover every distinct kind of WordPress mutation + rollback shape, not
@@ -241,28 +225,6 @@ An earlier pass of this doc listed this as a gap - it validates and saves valid 
 needed. That's since been built: `SeoVisibility\SchemaJsonLdRenderer` hooks `wp_head` and outputs the
 saved JSON-LD directly. See "What's not here yet" below.
 
-## Pro actions (`modules/*/Actions/`)
-
-Per the extension strategy above: a Pro action implements `AIActionInterface`
-directly via its own `VuloPilotPro\AIActions\AbstractBasicAction`
-(`get_tier()` returns `'pro'`, a separate class from Free's - both implement
-the same `AIActionInterface`), registered via `vulopilot_ai_action_sources`
-from inside its own module. Two were added by
-[`CONTENT-INTELLIGENCE-MODULE.md`](CONTENT-INTELLIGENCE-MODULE.md)'s pass:
-
-| Action | Module | Mutation pattern | Safety check | Rollback |
-|---|---|---|---|---|
-| `ExpandContentAction` (`expand-content`) | `ContentIntelligence` | Existing-content rewrite | `MIN_GROWTH_RATIO = 1.15` - output must be ≥15% *longer* than the original (rejects a paraphrase) | Restore previous `post_content` |
-| `RewriteContentAction` (`rewrite-content`) | `ContentIntelligence` | Existing-content rewrite, user-directed via a required free-text `goal` input | `MIN_LENGTH_RATIO = 0.5` - same shrink guard `ImproveReadabilityAction` uses | Restore previous `post_content` |
-
-Both are deliberately **not** entries in `OneClickFix`'s `ScannerFixMap` -
-there's no deterministic scanner finding that means "this content wants more
-depth" or "this content wants a tone change," so both stay standalone,
-manually-invoked actions (same posture `GenerateBlogAction` already has),
-reachable from the Content page's own cards/bulk-optimize (`ContentBulkOptimizeRest`,
-see "Three callers" above, no longer accurate as a count) rather than
-`FindingsTable`'s per-row fix button.
-
 ## Recommendations as an input source
 
 A `Recommendation` with `requires_ai() === true` (e.g. `MissingAltTextRule`'s) is one way an
@@ -282,14 +244,6 @@ Identical shape to `SCANNERS.md`/`RULE-ENGINE.md`/`AI-ARCHITECTURE.md`:
 
 1. **A new Free action**: extend `AbstractBasicAction`, add it to
    `ActionRegistry::get_default_action_classes()`.
-2. **A Pro action**: implement `AIActionInterface` directly via `vulopilot-pro`'s own
-   `VuloPilotPro\AIActions\AbstractBasicAction` (`get_tier()` returns `'pro'` - not `'premium'`;
-   an earlier pass of this section had that wrong, inconsistent with the "Pro actions" section
-   above it, which already had it right), register via
-   `add_filter( 'vulopilot_ai_action_sources', ... )`, license-gated like every other Pro
-   capability (`plugin-families.md`).
-3. **A third-party action**: same filter, from any other plugin - no more privileged a path for
-   Pro than a third party.
 
 ## What's not here yet
 

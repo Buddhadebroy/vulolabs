@@ -153,12 +153,6 @@
 	gap: 0.625rem;
 }
 
-// Wraps "Create Report"/"Schedule Report" so their own `.pro-tag-inline`
-// badge (common.scss's shared "admin-tag pro-tag pro-tag-inline" class -
-// see IssueDetailPanel.scss's own docblock for why that reset class exists)
-// docks right next to the button instead of floating off to this row's own
-// far edge - `position: relative` isn't needed here since `.pro-tag-inline`
-// already resets zyra's own default absolute positioning to static.
 .reports-overview-action-with-tag {
 	display: inline-flex;
 	align-items: center;

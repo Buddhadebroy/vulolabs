@@ -313,10 +313,6 @@
 	gap: 0.5rem;
 }
 
-// Settings/SendTestReportButton.tsx - Settings → Reports' header "Send Test
-// Report" button. Without Pro it carries an inline "Pro" tag (a plain
-// `.admin-tag.pro-tag` is an absolute-positioned corner ribbon; `.pro-tag-inline`
-// makes it static) beside the button, so the two share one row.
 .send-test-report-actions {
 	display: flex;
 	align-items: center;

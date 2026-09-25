@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-25T10:57:55+00:00\n"
+"POT-Creation-Date: 2026-09-25T11:27:40+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
@@ -4396,7 +4396,7 @@ msgid "Cache"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Clears every real cached result VuloPilot computes - the Knowledge Graph’s extracted entities, the Schema Coverage snapshot, the robots.txt bot-access parse, and (if active) vulopilot-pro’s own Knowledge Graph recommendations. Everything is rebuilt fresh automatically the next time it’s needed - nothing is deleted permanently."
+msgid "Clears every real cached result VuloPilot computes - the Knowledge Graph’s extracted entities, the Schema Coverage snapshot, the robots.txt bot-access parse, and any cached Knowledge Graph recommendations. Everything is rebuilt fresh automatically the next time it’s needed - nothing is deleted permanently."
 msgstr ""
 
 #: assets/js/index.js:1

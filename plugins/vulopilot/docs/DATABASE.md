@@ -1,28 +1,8 @@
 # VuloPilot - database schema
 
-All tables below live in the **Free** plugin's schema (`Utill::TABLES`, created by Free's
-`Install.php`) - per `.claude/rules/database.md`, table ownership is centralized in the free
-plugin for every existing product line, and VuloPilot Pro has no independent database of its own.
-A Pro-only feature (e.g. `ComplianceReports`) still writes into a table defined here; it just
-leaves that table empty/unused until the module is licensed and active. This avoids splitting
-migration ownership across two plugins, which nothing in this repo does today. (Confirmed against
-`plugins/vulopilot-pro/`: zero `CREATE TABLE` statements anywhere in its real code - the scope
-claim above still holds.)
-
 `Utill::TABLES` has grown to **24 entries** since this doc was first written - the original 13-table
 `1.0.0` baseline (tables 1–13 below) plus 11 tables added one-at-a-time in later passes (tables
 14–24 below), each still created/owned entirely by Free's `Install.php`.
-
-
-> **Consolidated tables (current schema).** Where the sections below still show the original one-table-per-feature sketch, the shipped schema merged these:
-> - `vulopilot_ai_provider_configs` and `vulopilot_backup_storage_configs` were removed: no AI provider key is stored locally (VuloCloud holds them), and Backups' S3/Drive credentials live in one encrypted, non-autoloaded option (`vulopilot_backup_storage_credentials`, vulopilot-pro's `BackupCloudStorage\Services\BackupCredentialStore`).
-> - `vulopilot_performance_requests` + `vulopilot_core_web_vitals` → **`vulopilot_performance_samples`** (`sample_type` = `request` | `vital`).
-> - Eight daily score-history tables (performance/security score, accessibility, site health, store trends, brand score, GEO visibility, Knowledge Graph health) → **`vulopilot_snapshots`** (`snapshot_type` + `snapshot_date` unique, values as JSON in `data`; `Repositories\SnapshotRepository`).
-> - `vulopilot_rules` and `vulopilot_ai_jobs` were removed (never used).
-> - `vulopilot_login_attempts` + `vulopilot_firewall_blocks` → **`vulopilot_security_events`** (`event_type` = `login_attempt` | `firewall_block`).
-> - `vulopilot_indexnow_log` was removed: submissions are rows in `vulopilot_activity_logs` (`event_type` = `indexnow.submitted`, details in `meta`).
-> - **Pro-only tables now live in vulopilot-pro**, not Free: `vulopilot_scheduled_jobs`, `vulopilot_keyword_rankings`, `vulopilot_brand_mentions`, `vulopilot_entity_relationships`, `vulopilot_file_baselines` are created by `VuloPilotPro\Install::ensure_tables()` and read/written through Pro's own repositories (`Install::TABLES` is their registry). Free creates 17 tables; Pro adds these 5.
-> The plugin is unreleased, so there are no upgrade/migration steps for any of this - tables are created fresh by `Install::install()`.
 
 ## Design principles (matched against the real schema in `vulolabs/plugins/vulopilot/classes/Install.php`)
 
@@ -122,10 +102,6 @@ table (`vulopilot_entity_relationships`, `vulopilot_file_baselines`).
 
 ## 1. `vulopilot_scans` - a single scan run
 
-One row per invocation of any scanner (free or premium), regardless of what triggered it. This is
-the parent of `vulopilot_scan_findings` and the thing `vulopilot_scheduled_jobs`/
-`vulopilot_automations` point at when they say "run a scan."
-
 ```sql
 CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_scans` (
     `id`            bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -147,12 +123,6 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_scans` (
 ) $collate;
 ```
 
-- `scanner_id` - the scanner's registered id from `ScannerRegistry` (free scanner slug, or a Pro
-  module's scanner slug) - a string, not a typed FK, because scanners aren't rows in a table, they're
-  code registered via the `vulopilot_scanner_sources` filter.
-- `scanner_tier` (`free`/`premium`) - denormalized so the dashboard's scan-history list can filter
-  by tier without joining back to the module registry (`.claude/rules/performance.md`'s
-  "prefer a single query" guidance, applied to a list endpoint).
 - `status` (`queued`/`running`/`completed`/`failed`/`cancelled`) - `idx_status` backs the
   `Scans` REST controller's list-filter-by-status query and the Scheduler's "any stuck scans"
   health check.
@@ -244,25 +214,12 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_automations` (
 
 - `rule_id` - unused (see above); kept nullable rather than dropped, per
   `.claude/rules/backward-compatibility.md`'s additive-only rule.
-- `trigger_type` - one of `Automation\TriggerRegistry`'s registered trigger
-  ids (`manual`/`hourly`/`daily`/`weekly`/`monthly`/`post_published`/
-  `product_created`/`product_updated`/`order_completed`/`user_registered`/
-  a Pro-registered trigger like Knowledge Graph's `knowledge_graph_built`).
-  `trigger_config` is JSON, currently just `{rule_key: string|null}` - the
-  `RuleInterface::get_id()` this automation is bound to, or `null` to match
-  any rule's recommendations. `idx_trigger_type` backs
-  `AutomationEngine::get_enabled_automations_for_trigger()`'s query.
 - `conditions` (AUTOMATION-ENGINE-MODULE.md's "Conditions") - JSON ordered
   list of `{type, config}`, each `type` a registered
   `ConditionInterface::get_id()`; every one must match (ANDed) on top of
   the bound rule, or `null`/empty to skip this layer entirely. Same
   "one JSON column, not a child table" reasoning `actions` below already
   uses.
-- `actions` - JSON ordered list of `{type, config}`; each `type` is
-  whatever's registered via `vulopilot_automation_action_sources` (Pro's
-  4 built-in actions) or Free's own much smaller
-  `vulopilot_manual_action_sources` (used only by `Automation\ManualActionRunner`,
-  never by a `vulopilot_automations` row - see AUTOMATION-ENGINE-MODULE.md).
 - `status` (`enabled`/`disabled`) - pause without delete.
 
 ## 5. `vulopilot_automation_runs` - execution history of automations
@@ -376,9 +333,6 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_ai_provider_configs` (
   only inside the `AIProviders/Providers/*` class that makes the actual HTTP call, and never return
   `credentials` from any REST response (the `Providers` controller should expose `label`,
   `provider`, `is_active`, `default_model`, masked-last-4 only).
-- `quota_limit`/`quota_used`/`quota_reset_at` - free tier's built-in rate limiting on the default
-  provider, and the mechanism Pro's `MultiProviderAI` module reuses per-provider rather than
-  inventing its own quota system.
 - `UNIQUE KEY uniq_provider` - one configuration row per provider slug; re-saving a provider's
   settings is an `UPDATE`, not an `INSERT`, by design.
 
@@ -410,9 +364,6 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_reports` (
 - `meta` - JSON: which `scan_id`s/date range fed this report, filters applied - lets a report be
   regenerated or its provenance inspected without re-deriving it from `period_start`/`period_end`
   alone.
-- This table exists in Free's schema even though report *generation* is a Pro module
-  (`ComplianceReports`) - see the file-level note at the top: schema ownership doesn't fragment by
-  license tier.
 
 ## 10. `vulopilot_scheduled_jobs` - Scheduler's queryable job registry
 
@@ -592,13 +543,6 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_crawler_visits` (
   Monitoring "does not track human visitors, IP addresses, or personal data," enforced by the
   schema itself, not just application code.
 - One row per real crawler hit, matched against `SeoVisibility\CrawlerTrafficLogger::get_bot_signatures()`
-  - a User-Agent-substring map extensible via the `vulopilot_crawler_bot_signatures` filter
-  (`EXTENSION-SDK.md`), so a Pro module or third party can teach this table about a new AI bot
-  without editing `CrawlerTrafficLogger` itself.
-- Retention is a filter, not a fixed value: `SeoVisibility\CrawlerTrafficLogger`'s daily cleanup cron
-  deletes rows older than `apply_filters('vulopilot_crawler_log_retention_days', 30)` - Free's own
-  default is the site's "Log retention" setting (30 by default), and vulopilot-pro's own historical
-  logs feature extends the same filter rather than adding a second retention mechanism.
 
 ## 15. `vulopilot_redirects` - the Redirects manager's rules
 
@@ -707,10 +651,6 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_geo_visibility_history` (
 ) $collate;
 ```
 
-- Written by `vulopilot-pro`'s `GeoInsights\VisibilitySnapshotBuilder` - Free owns the
-  schema/Repository, Pro owns the population logic, the same split `vulopilot_site_health_snapshots`/
-  `AdvancedReports` already establishes elsewhere; this table exists and is queryable even without
-  Pro active, it just stays empty.
 - `overall_score` is nullable (unlike `vulopilot_site_health_snapshots.overall_score`, which is
   `NOT NULL`) - `GeoAnalysis\GeoAnalyzer::analyze()`'s own design (`GEO-MODULE.md`) treats "no GEO
   scan history yet" as genuinely different from "a perfect score," and this table's schema preserves
@@ -748,14 +688,8 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_brand_score_history` (
   `GET /brand-intelligence/score` response shape exactly (`DASHBOARD-WIDGETS.md`'s Brand Visibility
   breakdown widget reads the live version of these same four numbers) - this table is that same
   score, snapshotted once a day for the trend chart.
-- Free owns the schema/Repository, `vulopilot-pro` owns the population logic - same split as every
-  other `*_history`/`*_snapshots` table added since the original 13.
 
 ## 20. `vulopilot_entity_relationships` - Knowledge Graph's edge list
-
-Added for [`KNOWLEDGE-GRAPH-MODULE.md`](KNOWLEDGE-GRAPH-MODULE.md). One row per real, deterministic
-edge `vulopilot-pro`'s own `KnowledgeGraph\EntityRelationshipBuilder` discovers between two of
-Free's own extracted entities (`KnowledgeGraph\EntityExtractor`).
 
 ```sql
 CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_entity_relationships` (
@@ -789,12 +723,6 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_entity_relationships` (
 
 ## 21. `vulopilot_kg_health_history` - Knowledge Graph Health's daily rollup
 
-Added alongside `vulopilot_entity_relationships` for
-[`KNOWLEDGE-GRAPH-MODULE.md`](KNOWLEDGE-GRAPH-MODULE.md). Same one-row-per-day upsert shape as
-`vulopilot_brand_score_history` above; Knowledge Graph Health is likewise a deterministic composite
-(entity/relationship completeness ratios, `vulopilot-pro`'s own `KnowledgeGraphHealthMonitor`),
-never an AI-sampled average, so every column is always a real value.
-
 ```sql
 CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_kg_health_history` (
     `id`                  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -808,16 +736,7 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_kg_health_history` (
 ) $collate;
 ```
 
-- Backs the Dashboard's `knowledge-graph-health` widget (`DASHBOARD-WIDGETS.md`) - the Pro widget
-  registered via `vulopilot_dashboard_widgets` that surfaces the most recent snapshot from this
-  table, distinct from Free's own `knowledge-graph` widget, which reads live entity counts instead.
-
 ## 22. `vulopilot_file_baselines` - Integrity Monitoring's file hash baseline
-
-Added in the Security pass - see [`SECURITY-MODULE.md`](SECURITY-MODULE.md) for the full design.
-Same "Free owns the schema, Pro owns the population logic" split as several tables above
-(`vulopilot_ai_provider_configs`, etc.) - this table exists and is queryable even without
-`vulopilot-pro`'s `SecurityMonitoring` module active, it just stays empty.
 
 ```sql
 CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_file_baselines` (
@@ -835,9 +754,6 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_file_baselines` (
 ) $collate;
 ```
 
-- One row per plugin/theme file `IntegrityMonitoringScanner` (Pro) has seen, keyed by its own path
-  so a re-scan can upsert-by-path rather than accumulating a new row per run the way
-  `vulopilot_scan_findings` does.
 - `path_hash` (an md5 of `path`) carries the `UNIQUE` key rather than `path` itself - a `varchar(500)`
   can't cheaply carry a unique index at typical charset/row-format limits, same reasoning
   `vulopilot_entity_relationships`' own `dedupe_hash` column already documents (see table 
@@ -847,11 +763,6 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_file_baselines` (
   `get_core_checksums()`, so there's no reason to match core's weaker algorithm here.
 
 ## 23. `vulopilot_accessibility_snapshots` - Historical Tracking's daily rollup
-
-Added in the Accessibility pass - see [`ACCESSIBILITY-MODULE.md`](ACCESSIBILITY-MODULE.md) for the
-full design. Same "Free owns the schema, Pro owns the population logic" split as
-`vulopilot_file_baselines`/`vulopilot_geo_visibility_history` above - this table exists and is
-queryable even without `vulopilot-pro`'s `AccessibilityAudits` module active, it just stays empty.
 
 ```sql
 CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_accessibility_snapshots` (
@@ -877,18 +788,8 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_accessibility_snapshots` (
   (`FindingRepository::get_severity_breakdown_for_category('accessibility')`) - never an AI-sampled
   average, so unlike `vulopilot_geo_visibility_history`'s `overall_score`, every column here is
   always a real value, no nullable-score case to account for.
-- Written by `AccessibilityAudits\Module::maybe_refresh_snapshot()` (Pro), self-hooked on
-  `vulopilot_scan_completed` (`EXTENSION-SDK.md`'s action-hook list), scoped to only recompute when
-  an `accessibility`-category scanner is what just completed.
 
 ## 24. `vulopilot_store_trends_snapshots` - Store Trends' daily revenue rollup
-
-Added in the store-intelligence pass - see
-[`WOOCOMMERCE-INTELLIGENCE-MODULE.md`](WOOCOMMERCE-INTELLIGENCE-MODULE.md)
-for the full design. Same "Free owns the schema, Pro owns the population
-logic" split as `vulopilot_accessibility_snapshots` above - this table
-exists and is queryable even without `vulopilot-pro`'s
-`WooCommerceIntelligence` module active, it just stays empty.
 
 ```sql
 CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_store_trends_snapshots` (
@@ -909,7 +810,6 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_store_trends_snapshots` (
   now"). See `StoreTrendsSnapshotBuilder`'s own docblock for why revenue can't work that way.
 - `revenue`/`avg_order_value` are `decimal(10,2)`, matching the store platform's own `_order_total`
   meta precision - a currency amount is never stored as a binary float in this codebase.
-- Written by `WooCommerceIntelligence\StoreTrendsSnapshotBuilder` (Pro), its own daily wp-cron tick
   - not scan-driven, since a store's revenue isn't scanner-derived the way a finding count is.
 
 ## 25. `vulopilot_ai_conversations` - AI Copilot's own persisted chat threads
@@ -950,18 +850,6 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_ai_conversations` (
 ---
 
 ## Settings - deliberately **not** a new table
-
-Per `.claude/rules/backward-compatibility.md`: new settings should be added through the existing
-settings-registry filter mechanism ... rather than a new
-bespoke `get_option()` call. VuloPilot follows this pattern with its own registry:
-`Utill::VULOPILOT_SETTINGS` (an array of setting keys → `wp_options` option names), extended by a
-`vulopilot_register_settings_keys` filter the same way Pro's bootstrap extends the marketplace one.
-Plain scalar/flat settings (scan frequency defaults, notification email, dashboard preferences) are
-`wp_options` rows, not a custom table - a table would only be justified if settings needed to be
-queried/joined/paginated the way the entities above do, and they don't. Anything that looks like
-"settings" but is actually structured, queryable, per-row config already has a home above:
-per-provider config → `vulopilot_ai_provider_configs`, per-automation config → `vulopilot_automations.trigger_config`/`actions`,
-per-scheduled-job config → `vulopilot_scheduled_jobs.config`.
 
 The Dashboard's per-user widget layout (`DASHBOARD-WIDGETS.md`) is the same story one level further:
 not even a `wp_options` row, since it's per-user rather than site-wide - `Utill::DASHBOARD_LAYOUT_META_KEY`

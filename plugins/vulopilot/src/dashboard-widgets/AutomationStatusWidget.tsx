@@ -147,7 +147,6 @@ const AutomationStatusWidget: React.FC<WidgetProps> = ({
 					})}
 				/>
 			)}
-			{/* Free ships exactly 2 built-in automations; custom ones are Pro. Hidden once Pro is active. */}
 			{!vulopilotAppLocalizer.khali_dabba && (
 				<div className="automation-upgrade-banner">
 					<i className="adminfont-pro-tab automation-upgrade-banner-icon" />

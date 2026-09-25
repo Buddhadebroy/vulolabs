@@ -9,7 +9,7 @@
  * for the actual build - the real package bundles @react-pdf/renderer,
  * which ships ESM this Jest setup can't parse, and these tests exercise
  * this plugin's own logic, not the design system's internals (see each stub
- * file's own docblock). Mirrors vulopilot-pro's own jest-unit.config.js.
+ * file's own docblock).
  */
 const jestConfig = require( '@wordpress/scripts/config/jest-unit.config' );
 

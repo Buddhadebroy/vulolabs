@@ -1,84 +1,5 @@
 # VuloPilot - scanner architecture
 
-Companion to [`DATABASE.md`](DATABASE.md).
-Covers the contracts, the engine, the original 14 built-in scanners, and
-how a new scanner gets added - by this codebase, by a Pro module, or by a
-third-party developer. Later passes added many more scanners using this
-exact same mechanism. As of this pass there are **66 concrete scanners**
-registered in Free (scattered across their owning tab folders under
-`classes/`, e.g. `classes/Security/`, `classes/SeoVisibility/` - see the
-Engine section below for why there's no single `classes/Scanners/Basic/`
-folder any more), kept in their own docs
-rather than rewriting this table (to avoid misrepresenting the order these
-were actually built in):
-[`SEO-MODULE.md`](SEO-MODULE.md) added 13, all category `seo`;
-[`AI-CRAWLER-ANALYTICS-MODULE.md`](AI-CRAWLER-ANALYTICS-MODULE.md) added 1
-more, also category `seo` (`AiCrawlerBlockedPagesScanner`, "Blocked
-Pages") - registered alongside SEO-MODULE.md's 13 in `modules/TechnicalSeo/Module.php`,
-not a separate module home;
-[`GEO-MODULE.md`](GEO-MODULE.md) added 9 more, all category `geo` - the
-`geo` scanner gap this file originally called out below is now filled (the
-current source - `ScannerRegistry::get_default_scanner_classes()`'s own
-comment - groups `GeoEntityNamingConsistencyScanner` into this same
-9-scanner GEO-MODULE.md batch, one more than that doc's own table of 8
-lists; that's a real, small drift between the code comment and
-GEO-MODULE.md's own text, noted honestly here rather than silently picking
-one);
-[`AI-VISIBILITY-MODULE.md`](AI-VISIBILITY-MODULE.md) added 1 more, also
-category `geo` (`AeoSchemaScanner`);
-[`SECURITY-MODULE.md`](SECURITY-MODULE.md) added 3 more, all category
-`security` - Free's first scanners in that category (see the note on
-`SecurityScanner`/`RestApiScanner` below for why the table itself isn't
-updated to reflect this);
-[`ACCESSIBILITY-MODULE.md`](ACCESSIBILITY-MODULE.md) added 1 more,
-category `accessibility` (`WcagScanner`) - four of that pass's five spec
-bullets were already satisfied by pre-existing scanners spread across
-`accessibility`/`images`/`geo`, so only one genuinely new scanner was
-needed; see that doc's own audit table;
-[`BRAND-INTELLIGENCE-MODULE.md`](BRAND-INTELLIGENCE-MODULE.md) added 3
-more, a new category `brand` (`AboutPageAnalysisScanner`,
-`AuthorSchemaScanner`, `OrganizationSchemaScanner`);
-[`CONTENT-INTELLIGENCE-MODULE.md`](CONTENT-INTELLIGENCE-MODULE.md) added 1
-more, a new category `content` (`ReadabilityScanner`) - that pass's other
-four requested checks (Thin Content, Duplicate Content, Heading Analysis,
-Internal Link Analysis) were already fully built by SEO-MODULE.md's own
-scanners, reused rather than duplicated;
-[`WOOCOMMERCE-INTELLIGENCE-MODULE.md`](WOOCOMMERCE-INTELLIGENCE-MODULE.md)
-added 1 more Free scanner (`ProductSeoScanner`, category `woocommerce`)
-and one new Pro scanner (`InventoryIntelligenceScanner`, `modules/WooCommerceIntelligence/`,
-same category, tier `pro`) - three of that pass's five Free spec bullets
-were already satisfied by pre-existing `Product*` scanners; see that doc's
-own audit table. **Update, later pass:** all 18 `woocommerce`-category
-scanners described as Free throughout this section (`ProductSeoScanner`,
-`WooCommerceScanner`, the 11 pre-existing `Product*` scanners, and the
-rest) have since moved to `vulopilot-pro`'s
-`modules/WooCommerceIntelligence/Scanners/`, registered via
-`vulopilot_scanner_sources` and gated on `class_exists('WooCommerce')` -
-they were a real bug (Commerce is a Pro-tier pillar; nothing
-`woocommerce`-category should have been in Free's hardcoded default list).
-The counts and scanner-location claims below reflect the pass each was
-written in, not this later fix - see
-[`WOOCOMMERCE-INTELLIGENCE-MODULE.md`](WOOCOMMERCE-INTELLIGENCE-MODULE.md)'s
-own update note for the current state.
-
-That accounts for 14 (original) − 2 (moved to Pro) + 13 + 1 + 9 + 1 + 3 + 1
-+ 3 + 1 + 1 = 46 scanners with a documented origin. The remaining **19**
-have no dedicated `docs/*.md` pass at all - `ScannerRegistry`'s own source
-comments attribute them directly to the plugin's readme.txt feature list
-instead ("WooCommerce Optimization", "Website Health Monitoring",
-"Website Performance", "Accessibility Scanner"), not a numbered
-architecture pass: the 11 pre-existing `Product*` scanners (`ProductMissingImagesScanner`
-and 10 siblings, category `woocommerce`, predating even
-WOOCOMMERCE-INTELLIGENCE-MODULE.md's own pass), `SslMonitoringScanner`/
-`RedirectAnalysisScanner`/`NotFoundScanner`/`PhpWarningScanner` (each its
-own single-scanner category - `ssl`/`redirects`/`not-found`/`php-warnings`),
-`SlowPageScanner`/`LargeImagesScanner`/`HeavyPluginsScanner`/`CacheDetectionScanner`
-(category `performance`, joining the original `PerformanceScanner`), and
-`FormLabelsScanner`/`AriaAttributesScanner` (category `accessibility`,
-predating `ACCESSIBILITY-MODULE.md`'s own pass). This doc is the accurate
-record for those 19 since no sibling doc claims them; the category rundown
-above is exactly what each one checks.
-
 **Scanners never call an AI provider.** A scanner's job is narrow and
 deterministic: inspect real WordPress/site state and report structured
 `Finding`s. Anything AI-assisted (summarizing findings in plain English,
@@ -110,13 +31,6 @@ that moved every genuinely cross-tab/shared class into one `classes/Utill/`
 folder (per-tab classes moved into their owning `classes/<Tab>/` folder
 instead; see the repo's own `CLAUDE.md` for the current folder shape).
 
-- **`ScannerInterface` is the only interface.** There's deliberately no
-  `ScanResultInterface` - `ScanResult` only ever has one shape/implementation
-  (produced by `ScanRunner`, never by a scanner), so an interface for it
-  would have exactly one implementer and add nothing. `ScannerInterface`
-  earns its interface status because it genuinely has 66 different
-  implementations today (up from 14 at this doc's first pass) and is the
-  actual swap point for Free/Pro/third-party scanners.
 - **Zero WordPress dependency in `Utill/`'s value objects** - `Finding`/`Severity`/
   `ScanResult` are plain PHP, unit-testable with no WP bootstrap.
   `ScannerInterface` only references these, never a WP function. Real
@@ -238,21 +152,6 @@ Categories are chosen to line up with the admin UI already built: the
 later filled that gap with (per the code, not that doc's own table - see
 the intro above) 9 scanners.
 
-**`SecurityScanner`/`RestApiScanner` have since moved to `vulopilot-pro`,
-unchanged in name.** Both rows above describe what was true when this
-table was first written; neither class lives under `classes/Scanners/Basic/` (that flat folder no longer exists)
-anymore - `vulopilot-pro`'s `SecurityMonitoring` module now owns both
-(`modules/SecurityMonitoring/Scanners/SecurityScanner.php`/`RestApiScanner.php`,
-same class names, `get_tier()` now `'pro'`), alongside **7** more hardening
-scanners added since (`DebugModeScanner`, `AdvancedVulnerabilitiesScanner`,
-`ExposedFilesScanner`, `IntegrityMonitoringScanner`,
-`SecurityHeadersScanner`, `XmlrpcExposureScanner`, `FileEditorScanner` - 9
-scanners in that module total, not the 5 an earlier pass of this doc
-claimed). Free's own `security`-category scanners today are the 3
-[`SECURITY-MODULE.md`](SECURITY-MODULE.md) added
-(`WeakPasswordScanner`/`BasicVulnerabilitiesScanner`/`CoreFileIntegrityScanner`)
-- genuinely new Free scanners, not a restoration of these two.
-
 **`AccessibilityScanner`'s row above is still accurate, but no longer the
 whole `accessibility`-category picture.** `FormLabelsScanner`/
 `AriaAttributesScanner` (added alongside a prior store AI pass,
@@ -263,21 +162,6 @@ why "Missing Alt"/"Labels"/"Heading Hierarchy"/"ARIA Detection" needed no
 new scanner despite being named as Phase 8 bullets - each was already
 covered, just under a different category (`images`/`accessibility`/`geo`/
 `accessibility` respectively).
-
-**`WooCommerceScanner`'s row above is also no longer the whole story.**
-It grew from one check (checkout page) to five (cart/My Account pages,
-store base location, an enabled payment gateway) in
-[`WOOCOMMERCE-INTELLIGENCE-MODULE.md`](WOOCOMMERCE-INTELLIGENCE-MODULE.md)'s
-"Store Health" pass. The `woocommerce` category itself now totals 13
-scanners: `WooCommerceScanner` + 11 pre-existing `Product*` scanners
-(`ProductMissingImagesScanner`, `ProductMissingCategoriesScanner`,
-`ProductMissingTagsScanner`, `ProductMissingDescriptionScanner`,
-`ProductMissingShortDescriptionScanner`, `ProductSkuIssuesScanner`,
-`ProductAttributesScanner`, `ProductInventoryHealthScanner`,
-`ProductPricingScanner`, `ProductDuplicateScanner`,
-`ProductCompletenessScanner`) + `ProductSeoScanner` (that pass's one
-genuinely new Free scanner) - plus its first Pro scanner
-(`InventoryIntelligenceScanner`, `modules/WooCommerceIntelligence/Scanners/`).
 
 Every scanner that runs a network request (`SchemaScanner`,
 `RestApiScanner`, `BrokenLinksScanner`) or a `$wpdb` query
@@ -298,55 +182,14 @@ codebase":
    see the module-gating note above). Runs for every install, no license
    check (subject to whichever module/category toggle its category is
    gated by, if any).
-2. **A Pro premium scanner.** A Pro module (e.g. `SecurityMonitoring`,
-   `AdvancedSeo`, `WooCommerceIntelligence`) puts its scanner class inside
-   its own module folder, extending `vulopilot-pro`'s own
-   `VuloPilotPro\Scanners\AbstractBasicScanner` - a separate class from
-   Free's, whose `get_tier()` hardcodes `'pro'` (not `'premium'` - an
-   earlier pass of this doc had that wrong). Both implement the same
-   `VuloPilot\Contracts\Scanner\ScannerInterface`. The module's
-   `Module.php` hooks `add_filter( 'vulopilot_scanner_sources', ... )` and
-   appends its own class name to the list - the exact same filter Free's
-   own scanners are discovered through, gated on license the same way
-   `VuloLabsPro` gates `vulopilot_module_sources` (`plugin-families.md`).
-3. **A third-party scanner**, from any other plugin or a site's
-   `functions.php`: implement `ScannerInterface`, hook the same
-   `vulopilot_scanner_sources` filter, append the class name. No different
-   from step 2 mechanically - Pro doesn't get a special, more-privileged
-   registration path than a third party would.
-
-In all three cases `ScannerRegistry` treats the class identically: it
-doesn't know or care whether a scanner came from Free, Pro, or a
-third-party plugin - only `get_tier()`'s return value distinguishes free
-from pro, and that's read from the instance, not from where the class
-lives on disk.
 
 ## What's not here yet
 
 Two of the three gaps this section originally called out are now closed:
 
-- ~~**Persistence.**~~ **Built.** `Utill\ScanPersistenceListener`
-  self-hooks `vulopilot_scan_completed` and writes both the
-  `vulopilot_scans` row and every `vulopilot_scan_findings` row, logs a
-  `scan.completed` activity-log entry, optionally emails critical findings
-  (`notify_on_critical_findings` setting), and fires its own
-  `vulopilot_scan_persisted` hook afterward - the seam
-  `vulopilot-pro`'s `AdvancedReports` module uses to recalculate a
-  site-health snapshot without `ScanPersistenceListener` knowing that
-  module exists.
 - ~~**REST endpoints** (`vulopilot/v1/scans`, `/findings`)~~ **Built.**
   `Utill\Scans`/`Findings` (`rest_base` = `scans`/`findings`)
   back the admin UI pages this doc originally said "correctly show their
   error state until the REST layer lands." `Findings` also has a `/bulk`
   sub-route and a `/{id}/actions/{action_id}` sub-route - the latter is
   what wires a Finding to [`AI-ACTIONS.md`](AI-ACTIONS.md)'s `propose()`.
-- **Scheduling - built, but in Pro, not Free.** Nothing in `classes/Utill/`
-  itself calls `ScanRunner::run_all()` on a cron tick; `VuloPilot.php`'s
-  own bootstrap comment is explicit that a `Scheduler` class doing that is
-  "Pro business logic now" - "Scheduled Website Scans" per the readme -
-  and lives in `vulopilot-pro`'s `Automation` module, constructed against
-  this same `scan_runner` instance via `VuloPilot()->scan_runner`. Free's
-  own automation surface is deliberately smaller: `Automation\ManualActionRunner`
-  (`classes/Automation/`) runs one registered action against one specific,
-  already-known Finding, by hand, with no trigger/schedule/cooldown at
-  all - see that class's own docblock.

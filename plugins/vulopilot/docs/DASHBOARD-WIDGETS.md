@@ -1,13 +1,5 @@
 # VuloPilot - Dashboard widgets
 
-Companion to [`DATABASE.md`](DATABASE.md), [`SCANNERS.md`](SCANNERS.md),
-[`RULE-ENGINE.md`](RULE-ENGINE.md), [`AI-ARCHITECTURE.md`](AI-ARCHITECTURE.md),
-[`AI-ACTIONS.md`](AI-ACTIONS.md), [`AI-CRAWLER-ANALYTICS-MODULE.md`](AI-CRAWLER-ANALYTICS-MODULE.md),
-[`KNOWLEDGE-GRAPH-MODULE.md`](KNOWLEDGE-GRAPH-MODULE.md), and
-[`MCP-SERVER-MODULE.md`](MCP-SERVER-MODULE.md). Covers the current 13 Free dashboard widgets (plus
-3 more Pro registers via filter), the registry/grid the Dashboard page renders them through, the
-REST endpoints that back the grid, and the extension strategy.
-
 **This widget set has been redesigned once since it was first built** - the original 13 widgets
 were 7 "one number" stat cards (Overall Health, SEO, Performance, Security, Commerce,
 Accessibility, AI Usage) plus Recent Activity, Quick Fixes, Health Timeline, Latest Reports,
@@ -20,17 +12,6 @@ were **removed rather than kept alongside**. Pending Approval was folded into th
 exist in the original set are new: `CrawlerTrafficWidget`, `KnowledgeGraphWidget`,
 `BrandBreakdownWidget`, and `IssueDistributionWidget`. The count stayed at 13 by coincidence, not
 because the set is unchanged.
-
-## Why a widget system instead of one fixed page
-
-The original Dashboard.tsx (built during the admin-UI pass) rendered a
-fixed set of stat cards plus one chart plus one findings table. This pass
-replaces that with named, independently reorderable/hideable widgets -
-because a fixed layout can't be personalized and can't be extended by a Pro module without editing
-Dashboard.tsx directly. A registry + grid gives both: a site owner
-reorders/hides widgets, and Pro/third-party code adds new ones through a
-filter, the same way every other extension point in this codebase works
-(`vulopilot_scanner_sources`, `vulopilot_ai_action_sources`, etc.).
 
 ## Contracts (`src/dashboard-widgets/types.ts`)
 
@@ -210,14 +191,6 @@ same dedicated list endpoint its full page already uses
 `/site-health-snapshots` the same way. This avoids duplicating list data inside the summary
 aggregate and keeps each widget's data source identical to its full-page equivalent.
 
-**Health Timeline degrades on Free-only installs, deliberately.** `/site-health-snapshots` only
-exists at all once `vulopilot-pro`'s `AdvancedReports` module registers it via the
-`vulopilot_rest_controllers` filter (`EXTENSION-SDK.md`) - on a Free-only install this request 404s
-every single time, which is the expected, permanent state, not a transient failure a "Retry" button
-could fix. `HealthTimelineWidget.tsx` treats "failed to load" and "loaded zero rows" as the same
-friendly empty state for exactly that reason, rather than surfacing an error+retry card for
-something retrying can't fix.
-
 ## `IssueDistributionWidget` - open findings by severity, as a donut
 
 New since this doc was first written. Reads `summary.findings_by_severity` (see the payload section
@@ -237,59 +210,7 @@ anywhere in this codebase (that would need an external source like Ahrefs, which
 this shows the three real sub-scores VuloPilot itself computes instead of fabricating a competitive
 comparison.
 
-## `KnowledgeGraphWidget` (Free) and `knowledge-graph-health` (Pro)
-
-Free's own `knowledge-graph` widget ([`KNOWLEDGE-GRAPH-MODULE.md`](KNOWLEDGE-GRAPH-MODULE.md)) is a
-plain `STANDALONE_WIDGETS` entry - a Dashboard-level teaser for the Knowledge Graph page, fetching
-`GET /entities` directly and condensing it to a per-type count row (People/Organizations/
-Products/Services/Locations/Categories). `vulopilot-pro`'s own `KnowledgeGraph` module adds a
-second widget via `vulopilot_dashboard_widgets`, `knowledge-graph-health`, surfacing the most recent
-row from `vulopilot_kg_health_history` (`DATABASE.md`, table 21) instead of live entity counts.
-Since Pro's own webpack bundle can't import Free's internal `DashboardWidget.tsx` chrome component
-or `WidgetProps` type across the plugin boundary, the Pro widget renders its own self-contained
-markup via `@zyra/components` instead - the same constraint every other cross-plugin filter slot in
-this codebase already works within.
-
-## `CrawlerTrafficWidget` (Free) and `ai-monitoring` (Pro) - two different AI-crawler widgets
-
-Easy to conflate, so worth being explicit: these are two separate widgets with two separate data
-sources, both about AI crawler traffic but not interchangeable.
-
-- **`crawler-traffic`** (Free, `STANDALONE_WIDGETS`) - a Dashboard-level teaser for the Crawler
-  Traffic page, new since this doc was first written. Fetches the same `GET /crawler-traffic/summary`
-  endpoint the full `CrawlerTraffic.tsx` page's `CrawlerSummaryCard.tsx` already uses, condensed to
-  total visits over the last 30 days plus the top 3 bots by last-seen - reading real rows out of
-  `vulopilot_crawler_visits` (`DATABASE.md`, table 14), not a Pro-only capability.
-- **`ai-monitoring`** (Pro, registered via `vulopilot_dashboard_widgets`) - `vulopilot-pro`'s
-  `AiCrawlerAnalytics` module ([`AI-CRAWLER-ANALYTICS-MODULE.md`](AI-CRAWLER-ANALYTICS-MODULE.md))
-  surfaces the most recent AI Crawler Alerts check (`CrawlerAlertMonitor`'s own
-  `vulopilot_activity_logs` entry) instead - an alert/monitoring feed, not a traffic summary. Same
-  "renders its own markup, can't import Free's chrome" constraint as `knowledge-graph-health` above.
-
-## `mcp-server-status` - the third Pro-registered widget
-
-`vulopilot-pro`'s `McpServer` module ([`MCP-SERVER-MODULE.md`](MCP-SERVER-MODULE.md)) registers
-`McpServerStatusWidget.tsx` into Free's Dashboard grid via `vulopilot_dashboard_widgets`, the same
-pattern `ai-monitoring`/`knowledge-graph-health` already use - a small status tile so an admin can
-tell whether the MCP server endpoint is enabled without leaving the Dashboard, degrading gracefully
-to "disabled" rather than erroring when the module itself is off.
-
 ## Drag-and-drop layout: `GET`/`POST /dashboard-layout`
-
-Persisted as **user meta** (`Utill::DASHBOARD_LAYOUT_META_KEY`), not a row
-in `VULOPILOT_SETTINGS_KEY`'s shared `wp_options` settings blob - a widget
-arrangement is a personal UI preference, the same category of thing
-WordPress core's own dashboard already stores per-user
-(`meta-box-order_{screen}`), not site-wide configuration every admin
-shares. `Utill::DASHBOARD_WIDGET_IDS` is the canonical id whitelist both
-`DashboardLayout.php` and `registry.ts` agree on by convention (the same
-id-matching convention `AI-ACTIONS.md` already uses between Rule ids and
-Action ids) - `update_item()` silently drops any id not on this list, so a
-client can never persist a widget id it invented. The whitelist has **15 entries** today: the 12
-Free widget ids (`ai-usage`, `health-timeline`, `latest-reports`,
-`needs-attention`, `automation-status`, `crawler-traffic`, `health-pillars`, `content`, `brand`,
-`knowledge-graph`, `brand-breakdown`, `issue-distribution`) plus the 3 Pro-registered ones
-(`ai-monitoring`, `knowledge-graph-health`, `mcp-server-status`).
 
 **Reconciliation, not raw storage**: `get_reconciled_layout()` merges the
 saved layout against the canonical id list every time it's read - any
@@ -330,19 +251,6 @@ to the one React-side registry:
 1. **A new Free widget**: add a `WidgetDefinition` (or `StatWidgetConfig`
    if it's a single-number tile) to `registry.ts`, and its id to
    `Utill::DASHBOARD_WIDGET_IDS` so a saved layout can include it.
-2. **A Pro or third-party widget**: register via
-   `addFilter('vulopilot_dashboard_widgets', ...)` from Pro's own
-   `src/index.tsx` - the same `@wordpress/hooks` mechanism
-   `.claude/rules/react-frontend.md` already
-   documents, applied to
-   VuloPilot's own filter naming (`vulopilot_` prefix, no `_pro` infix,
-   per `.claude/rules/php-wordpress.md`'s hook-naming convention extended
-   to the JS side). Its id must also be added to
-   `Utill::DASHBOARD_WIDGET_IDS`, license-gated the same way every other
-   Pro capability is (`plugin-families.md`), and - since it can't import Free's
-   `DashboardWidget.tsx` chrome across the plugin boundary - renders its own self-contained markup,
-   the pattern `ai-monitoring`/`knowledge-graph-health`/`mcp-server-status` all three already
-   establish.
 
 ## What's not here yet
 

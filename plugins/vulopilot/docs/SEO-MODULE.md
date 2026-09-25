@@ -1,29 +1,6 @@
 # VuloPilot - SEO module
 
-Companion to [`SCANNERS.md`](SCANNERS.md), [`RULE-ENGINE.md`](RULE-ENGINE.md),
-[`AI-ACTIONS.md`](AI-ACTIONS.md),
-[`AI-CRAWLER-ANALYTICS-MODULE.md`](AI-CRAWLER-ANALYTICS-MODULE.md), and to
-`vulopilot-pro`'s own
-[`ADVANCED-SEO-MODULE.md`](../../../../plugins/vulopilot-pro/docs/ADVANCED-SEO-MODULE.md).
-Covers the 15
-SEO checks (13 new scanners plus the 2 that already existed), the 3 new SEO rules
-(plus one existing rule corrected in this pass), the AI-suggestion/one-click-fix
-pairing (now closed for both `MissingMetaDescriptionRule` and the pre-existing
-`SeoTitleRewriteRule`), and how these checks are now organized as a real,
-independently-toggleable Free module.
-
 ## SEO scanning is now a real `modules/TechnicalSeo/` package
-
-This section used to explain why 13 new scanner classes weren't worth forcing
-into a `modules/SEO/` folder, because VuloPilot's own module loader
-(`classes/Modules.php`) didn't exist yet. **That's no longer true.** VuloPilot
-has since grown the same folder-scan/reflection module system `vulolabs`'s own
-`Modules` class and every Pro plugin already use (`Modules::get_all_modules()`,
-`vulopilot_module_sources`, per-module activate/deactivate), and SEO scanning
-was moved behind it: `modules/TechnicalSeo/Module.php` registers all 18 SEO-adjacent
-scanner classes via `vulopilot_scanner_sources` (the *same* extension point,
-just called from a real module instead of `ScannerRegistry`'s own hardcoded
-default list) instead of `ScannerRegistry::get_default_scanner_classes()`.
 
 This is a genuine behavior change, not just a reorganization: **`TechnicalSeo\Module`
 actually gates scanning.** If an admin turns the `seo` module off from
@@ -135,34 +112,6 @@ genuine inbound link from an older post outside the batch and still be reported 
 an orphan here - a documented, deliberate trade-off for keeping the scanner's
 runtime bounded, not a full sitewide link-graph analysis.
 
-## Pro: the `AdvancedSeo` module
-
-`vulopilot-pro/modules/AdvancedSeo` registers 5 more `category: seo` scanners on
-top of Free's 15+, each checking something Free's own scanners deliberately
-don't:
-
-| Check | Scanner `id` | What it adds over the Free equivalent |
-|---|---|---|
-| Sitewide structured data | `sitewide-structured-data` | Per-post JSON-LD presence - Free's `SchemaScanner`/`StructuredDataValidationScanner` only ever look at the homepage |
-| Sitemap validation | `sitemap-validation` | Whether the sitemap's *content* actually parses and has entries - Free's `SitemapScanner` only checks that the URL returns 200 |
-| Meta description duplication | `meta-description-duplication` | Duplicate `post_excerpt` values across posts - Free's `DuplicateContentScanner` only checks duplicate titles |
-| Multiple H1s | `multiple-h1` | More than one `<h1>` in a page's own content - Free's `HeadingStructureScanner` only checks that *any* subheading exists |
-| Focus keyword audit | `focus-keyword-audit` | A sitewide audit of the post-editor metabox's own focus-keyword field, catching drift across the whole site the metabox's live checklist can only ever check one open post at a time |
-
-Gated only by `AdvancedSeo`'s own module active-state (a Pro-tier toggle,
-`vulopilot_scanner_sources` the same as any other addition) - not by Free's
-`seo` module being active, so these 5 keep working even if a site owner has
-turned Free's own SEO scanning off. There's no `enable_seo_scanning` category
-kill switch; that setting was replaced by granular per-check `flag_*` toggles
-(`Utill.php`).
-
-Three of the five (`meta-description-duplication`, `multiple-h1`,
-`focus-keyword-audit`) are grouped into `SEO.tsx`'s "Titles & meta" section
-alongside the Free checks that section already covers; the other two
-(`sitewide-structured-data`, `sitemap-validation`) land in "Links & schema" and
-"XML Sitemap" respectively - the same `scannerIds`-based grouping described
-above, no separate Pro section on this page.
-
 ## Fixing a category collision this pass introduced
 
 Before this pass, `seo` was one scanner's (`SeoScanner`) category, so the existing
@@ -236,14 +185,6 @@ Identical shape to every other engine in this codebase:
    the same way. Also add it to the right `SEO_SECTIONS` entry in `SEO.tsx`, or
    it won't be visible on the SEO page even though it's scanning and storing
    findings correctly.
-2. **A Pro premium SEO check** (e.g. a competitor-title-comparison scanner needing
-   an external API): implement `ScannerInterface` directly inside a Pro module,
-   `get_tier()` returns `'premium'`, register via
-   `add_filter('vulopilot_scanner_sources', ...)`, license-gated
-   (`plugin-families.md`). Already realized once: `vulopilot-pro`'s
-   `AdvancedSeo` module adds 5 more `seo`-category scanners this way (see above).
-3. **A third-party SEO check**: same filter, from any other plugin - no more
-   privileged a path for Pro than a third party.
 
 ## What's not here yet
 
