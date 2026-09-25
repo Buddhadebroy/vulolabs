@@ -270,7 +270,7 @@ const AIAssistant = () => {
 							{__('AI Copilot', 'vulopilot')}
 							<TooltipComponent
 								text={__(
-									'Ask a question or pick a suggested prompt. VuloPilot checks your live site data - scans, traffic, security, and store health - and answers with real recommendations. Ask for a blog post, landing page, or product description and it writes one and saves it as a real draft, logged to History with a real Undo. Everything else - SEO, performance, security, and other fixes - is advice only for now.',
+									'Ask a question or pick a suggested prompt. VuloPilot checks your live site data - scans, traffic, security, and store health - and answers with real recommendations. Ask for a blog post and it writes one and saves it as a real draft, logged to History with a real Undo. Everything else - SEO, performance, security, and other fixes - is advice only for now.',
 									'vulopilot'
 								)}
 								position="bottom"

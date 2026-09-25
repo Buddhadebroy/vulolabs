@@ -1,4 +1,4 @@
-# VuloPilot SEO - Setup and User Guide
+# SEO - User Guide
 
 ## Brief Introduction
 
@@ -18,34 +18,9 @@ Key features:
 
 VuloPilot's standard scans and settings work without connecting an AI service.
 
-## Requirements
+> Install, requirements and the first scan are covered once in [GETTING-STARTED](GETTING-STARTED.md). This guide starts after VuloPilot is active.
 
-- WordPress 6.7 or greater
-- PHP 8.1 or greater
-- An administrator account (all VuloPilot screens require the `manage_options` capability)
-- Optional: a VuloCloud connection for AI-written suggestions, a Google account for Search Console and Analytics, and an IndexNow key (generated for you inside the plugin) for instant indexing
-
-## Installation Guide
-
-### Method I - Install from the WordPress plugin directory
-
-1. In your WordPress admin, go to **Plugins → Add New Plugin**.
-2. Search for **VuloPilot**.
-3. Click **Install Now**, then **Activate**.
-
-### Method II - Upload the plugin zip
-
-1. Download the VuloPilot zip file.
-2. Go to **Plugins → Add New Plugin → Upload Plugin**.
-3. Choose the zip file, click **Install Now**, then **Activate Plugin**.
-
-### Method III - Install manually on the server
-
-1. Unzip the plugin on your computer.
-2. Upload the `vulopilot` folder to `/wp-content/plugins/` on your server (FTP, SFTP or your host's file manager).
-3. Go to **Plugins** in the WordPress admin and click **Activate** under VuloPilot.
-
-After activation, a **VuloPilot** item appears in the admin menu. The SEO tools live in two places:
+## Where the SEO tools are
 
 | Where | What is there |
 |---|---|
@@ -57,7 +32,7 @@ After activation, a **VuloPilot** item appears in the admin menu. The SEO tools 
 
 ## First Run
 
-1. Open **VuloPilot → Dashboard** and click **Run scan** in the header.
+1. Run a scan from the Dashboard (see [GETTING-STARTED](GETTING-STARTED.md#4-your-first-scan)).
 2. When the scan finishes, open **VuloPilot → SEO & Visibility → SEO**.
 3. Read the **Overall Score**, the number of pages checked and the issue counts (critical, high priority and so on).
 4. Work through the six finding groups (see [Understanding the SEO scan](#understanding-the-seo-scan)) and use the settings below to fix what is reported.
@@ -162,7 +137,7 @@ Go to **VuloPilot → Settings → SEO → Sitemap**. VuloPilot builds on the Wo
 
 ### XML sitemap (for search engines)
 
-1. Set **XML Sitemap** to **Enabled**. Your sitemap is then available at `yoursite.com/sitemap.xml`, and search engines are notified automatically when content is published or updated.
+1. Set **XML Sitemap** to **Enabled**. Your sitemap is then available at `yoursite.com/sitemap_index.xml` (the older `/wp-sitemap.xml` address redirects there), and search engines are notified automatically when content is published or updated.
 2. Under **What is included**, tick the **Post types in sitemap** (Posts, Pages, Media, Products and any custom post types) and the **Taxonomies in sitemap** (Categories, Tags, Product Categories, Product Tags).
 3. Open **Advanced settings** if you need more control:
    - **Links per sitemap** - the maximum number of links on each sitemap page. Default: 200.
@@ -251,7 +226,7 @@ Enabling Google Analytics or Tag Manager loads Google scripts on your front end.
 ## Frequently Asked Questions
 
 **Where is my sitemap?**
-At `yoursite.com/sitemap.xml` once **XML Sitemap** is enabled in Settings → SEO → Sitemap.
+At `yoursite.com/sitemap_index.xml` once **XML Sitemap** is enabled in Settings → SEO → Sitemap.
 
 **My scan shows no SEO findings.**
 Run a scan from the Dashboard. If the SEO module was turned off in **Settings → Modules**, turn it back on to resume scanning.
