@@ -1,76 +1,81 @@
 # Performance
 
-The Performance page measures how fast your site loads, shows which pages are slow and explains what to fix first.
+## What it does
 
-> Install and the first scan are in [GETTING-STARTED](GETTING-STARTED.md). For real Mobile and Desktop speed scores, connect Google PageSpeed Insights first (step 1 below).
+Performance measures how fast your website loads for real visitors. It gives your site a speed score, shows which pages are slow, and tells you in plain terms what is slowing them down (for example, a huge image or a script that blocks the page from showing).
 
-**In this guide**
+Think of it as a speedometer for your website, plus a list of what to fix first.
 
-1. [Connect PageSpeed Insights](#1-connect-pagespeed-insights)
-2. [Run a speed test](#2-run-a-speed-test)
-3. [Read the Overview tab](#3-read-the-overview-tab)
-4. [Find slow pages](#4-find-slow-pages)
-5. [Fix the problems](#5-fix-the-problems)
-6. [Track progress](#6-track-progress)
+## Why it matters
 
-## 1. Connect PageSpeed Insights
+- **Visitors leave slow sites.** Many people close a page that takes more than a few seconds to appear.
+- **Google uses speed as a ranking signal.** A faster site has a better chance of showing up higher in search results.
+- **Speed affects sales and sign-ups.** Faster pages usually mean more people finish what they came to do.
 
-1. Go to **Settings → Integrations → PageSpeed Insights**.
-2. Enter your **Google API key** and click **Connect**. The status becomes **Connected** (or **Not Connected** if the key was rejected).
-3. VuloPilot only reads performance data from Google. It never changes your site through this connection.
+## Before you start
 
-Without a key, the score card asks you to "Connect Google PageSpeed Insights for a real Mobile/Desktop breakdown."
+Speed scores come from Google's free **PageSpeed Insights** service. To see real scores for both phones and desktop computers, connect it once:
 
-## 2. Run a speed test
+1. Go to **VuloPilot → Settings → Integrations → PageSpeed Insights**.
+2. Paste your **Google API key** and click **Connect**.
+3. The status changes to **Connected**.
+
+VuloPilot only reads speed information from Google. It never changes your site through this connection.
+
+New to VuloPilot? See [GETTING-STARTED](GETTING-STARTED.md) for installation and the first scan.
+
+## How to use it
 
 1. Open **VuloPilot → Performance**.
-2. Click **Run Speed Test** (or **Scan Again** later). The button shows **Scanning...** and a message confirms "Scan started - results will appear here shortly."
-3. Wait a short time and the cards fill in.
+2. Click **Run Speed Test**. It says "Scanning..." for a short time.
+3. Read the **Overview** tab (see below).
+4. Open the **Slow Pages** tab to see which pages need help.
+5. Fix the biggest problem first, then click **Scan Again** to see if your score improved.
 
-The page has two tabs: **Overview** and **Slow Pages**.
+## What you see on the Overview tab
 
-## 3. Read the Overview tab
-
-| Card | What it tells you |
+| Card | In plain words |
 |---|---|
-| **Overall Speed Score** | Your score from Google PageSpeed Insights, rated Good / Needs Work / At Risk, with a note when mobile is slower than desktop |
-| **Core Web Vitals** | LCP, INP, CLS and FCP - the loading, interactivity and layout-stability measures Google uses |
-| **Biggest Speed Opportunity** | The single fix with the biggest impact. Click **View Affected Pages** or **View Details** |
-| **AI Speed Assistant** | A summary of your open speed findings. Use **Optimize with AI** or **Review First** |
-| **PHP acceleration** | Whether OPcache is enabled to speed up PHP |
-| **Real-time monitoring** | Server response time, page load time and bandwidth |
-| **Speed history** | Score trend over time (builds up after your first scan) |
+| **Overall Speed Score** | One number out of 100 for how fast your site is. It is rated **Good**, **Needs Work** or **At Risk**. It also tells you if your phone version is slower than your desktop version |
+| **Core Web Vitals** | Google's three main tests of a good visit: how quickly the main content appears, how quickly the page reacts when someone taps or clicks, and whether things jump around while loading |
+| **Biggest Speed Opportunity** | The one change that would help the most. Click **View Details** or **View Affected Pages** |
+| **AI Speed Assistant** | A short summary of your speed problems written in everyday language |
+| **PHP acceleration** | Whether your server has a built-in speed booster (called OPcache) turned on |
+| **Real-time monitoring** | How quickly your server answers, how long pages take to load and how much data is used |
+| **Speed history** | A chart showing whether your speed is getting better over time |
 
-The metric tiles group the checks: **Core Web Vitals**, **Caching**, **CSS Optimization**, **JavaScript**, **Images**, **Fonts** and **Database Cleanup** (post revisions, transients and other bloat).
+Below those, the problems are sorted into groups so you can tackle one topic at a time:
 
-Findings are grouped so you can work through them one topic at a time:
+| Group | What it looks at | Common fix |
+|---|---|---|
+| **Server & Response Time** | How fast your homepage answers | Better hosting or removing plugins that slow every page |
+| **Images & Media** | Photos that are bigger than they need to be | Compress or resize images |
+| **Code Optimization** | Scripts and styles that delay the page | Remove or delay unneeded code |
+| **Caching & Delivery** | Whether pages are saved for quick reuse | Turn on a cache; use a content delivery network |
+| **Loading & Fonts** | Content far down the page and web fonts | Load them later, only when needed |
 
-| Group | What it checks |
-|---|---|
-| **Server & Response Time** | Homepage response time and autoloaded options |
-| **Images & Media** | Oversized or unoptimized images |
-| **Code Optimization** | Unused or render-blocking CSS and JavaScript |
-| **Caching & Delivery** | Page caching effectiveness and CDN coverage |
-| **Loading & Fonts** | Deferred loading for below-the-fold content and web font loading |
-
-## 4. Find slow pages
+## Find slow pages
 
 1. Open the **Slow Pages** tab.
-2. Pages are listed by type (Homepage, Page, Post, Shop, Cart, Checkout, Product, Category) with their score and **Load Time**.
-3. Click a page to see its details and top issues. A page that has not been tested shows **Not scored yet**.
+2. Each page is listed with its type (Homepage, Post, Product and so on), a score and its **Load Time** in seconds.
+3. Click a page to see exactly what is slowing it down.
 
-The summary line rates the whole site: "Your pages are loading excellently.", "...loading well, but a few pages can be improved.", "Several pages could use performance improvements." or "Many of your pages need performance attention."
+The summary at the top tells you how your site is doing overall, from "Your pages are loading excellently" to "Many of your pages need performance attention."
 
-## 5. Fix the problems
+## Quick fixes
 
-- **Quick Actions** and **Recommended Fixes** offer one-click shortcuts such as **Clear All Caches**, **Minify CSS & JS**, **Optimize Images**, **Database Cleanup**, **Image Cleanup**, **Preload Critical Resources** and **Enable Browser Caching**. Recommended Fixes suggests the ones that match your slowest pages.
-- For bigger problems (for example an oversized image), open the finding, follow its recommendation, then re-run the speed test.
+**Quick Actions** and **Recommended Fixes** offer one-click shortcuts for common jobs, such as **Clear All Caches**, **Minify CSS & JS**, **Optimize Images**, **Database Cleanup**, **Preload Critical Resources** and **Enable Browser Caching**. Recommended Fixes suggests the ones that fit your slowest pages.
 
-## 6. Track progress
+For larger problems, such as one oversized image, open the finding, follow its advice, then run the test again.
 
-Run the speed test again after each change. The **Overall Speed Score** and **Speed history** show whether you improved. To have it run on its own, use an automation ([AUTOMATIONS](AUTOMATIONS.md)).
+## Good habits
 
-## Related guides
+- Run a speed test after every big change (new plugin, new theme, many new images).
+- Fix mobile first. Most visitors use phones.
+- Check **Speed history** monthly to be sure you are not slowly getting worse.
 
-- [SITE-HEALTH-AND-BACKUPS](SITE-HEALTH-AND-BACKUPS.md) - database size, cron and server checks
-- [SETTINGS](SETTINGS.md#integrations) - PageSpeed key
+## Related
+
+- [SITE-HEALTH-AND-BACKUPS](SITE-HEALTH-AND-BACKUPS.md) - database size and background tasks
+- [AUTOMATIONS](AUTOMATIONS.md) - run tests on a schedule
+- [SETTINGS](SETTINGS.md#integrations) - where the Google key lives

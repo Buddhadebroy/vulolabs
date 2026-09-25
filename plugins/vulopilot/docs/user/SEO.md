@@ -1,248 +1,241 @@
-# SEO - User Guide
+# SEO (Search Engine Optimization)
 
-## Brief Introduction
+## What it does
 
-VuloPilot's SEO tools help site owners and webmasters check, configure and improve how their WordPress site appears in search engines. The plugin scans your site for technical and on-page SEO problems, lists what it finds with a site-wide **SEO score**, and gives you the settings to fix them: title and description formats, XML and HTML sitemaps, robots.txt, redirects, canonical tags, social sharing tags, site verification and instant indexing. A **VuloPilot SEO** sidebar in the post editor lets you edit each page's SEO fields while you write.
+SEO is the work of helping Google, Bing and other search engines find your pages, understand them and show them to the right people. VuloPilot's SEO tools do three things:
 
-Key features:
+1. **Check** your site for problems that hurt your search results, and give you a score.
+2. **Set up** the things search engines look for: page titles, sitemaps, redirects and more.
+3. **Guide you page by page** while you write, with a panel inside the post editor.
 
-- **SEO scan and score** - titles, meta descriptions, headings, images, internal links, canonicals, duplicate and thin content, Open Graph and Twitter Card tags.
-- **SEO Titles** - one place to set the title and description format for the homepage, posts, pages, categories, tags, search results and archives, with a live length check.
-- **XML sitemap and HTML sitemap** - choose what is included, exclude posts and terms, add images, and show a visitor-facing sitemap with a shortcode.
-- **Instant Indexing (IndexNow)** - tell search engines the moment content is published, edited or deleted, or submit up to 10,000 URLs by hand.
-- **Redirect manager and 404 log** - create 301 redirects, auto-redirect when a slug changes, and record visits to missing pages.
-- **robots.txt editor** - view your live robots.txt, test it and save changes from the dashboard.
-- **Per-page SEO sidebar** in the post editor - SEO title, meta description, focus keyword, social preview, canonical URL, noindex/nofollow, schema and a page analysis.
-- **Table of Contents and FAQ blocks** - the FAQ block also outputs FAQPage structured data.
-- **Site verification and Google connection** - add verification codes for search engines and connect Search Console, Analytics and Tag Manager.
+## Why it matters
 
-VuloPilot's standard scans and settings work without connecting an AI service.
+Most visitors arrive from a search engine. If your titles are missing, your pages cannot be found, or old links lead nowhere, people never reach you. Fixing these basics is usually the cheapest way to get more visitors.
 
-> Install, requirements and the first scan are covered once in [GETTING-STARTED](GETTING-STARTED.md). This guide starts after VuloPilot is active.
+New to VuloPilot? See [GETTING-STARTED](GETTING-STARTED.md) for installation and the first scan.
 
-## Where the SEO tools are
+## Where to find things
 
-| Where | What is there |
+| You want to... | Go to |
 |---|---|
-| **VuloPilot → SEO & Visibility** | The SEO score and findings, robots.txt, redirects, the 404 log and the schema/business views |
-| **VuloPilot → Settings → SEO** | SEO Titles, Sitemap, Instant Indexing |
-| **VuloPilot → Settings → Scanning → SEO & Content** | Which SEO checks run, the redirect manager switch, robots.txt options |
-| **VuloPilot → Settings → Integrations** | Google services, Tag Manager, Webmaster Tools verification |
-| **Post editor → VuloPilot SEO sidebar** | Per-page SEO fields and analysis |
+| See your SEO score and problems | **VuloPilot → SEO & Visibility → SEO** |
+| Set how page titles look | **Settings → SEO → SEO Titles** |
+| Set up your sitemap | **Settings → SEO → Sitemap** |
+| Tell search engines about new pages instantly | **Settings → SEO → Instant Indexing** |
+| Choose which problems VuloPilot looks for | **Settings → Scanning → SEO & Content** |
+| Manage redirects, missing pages and robots.txt | **SEO & Visibility → Crawl & URLs** |
+| Prove you own your site to Google or Bing | **Settings → Integrations → Webmaster Tools** |
+| Edit one page's SEO | The **VuloPilot SEO** panel in the post editor |
 
-## First Run
+---
 
-1. Run a scan from the Dashboard (see [GETTING-STARTED](GETTING-STARTED.md#4-your-first-scan)).
-2. When the scan finishes, open **VuloPilot → SEO & Visibility → SEO**.
-3. Read the **Overall Score**, the number of pages checked and the issue counts (critical, high priority and so on).
-4. Work through the six finding groups (see [Understanding the SEO scan](#understanding-the-seo-scan)) and use the settings below to fix what is reported.
+## 1. Your SEO score and problems
 
-## Understanding the SEO scan
+**What it does.** After a scan, the **SEO** tab shows an overall score and lists problems in six groups.
 
-The **SEO** tab groups findings into six sections:
+**Why it matters.** It tells you exactly what to fix, in order of importance, so you are not guessing.
 
-| Section | What it checks |
+**How to use it.**
+
+1. Run a scan (Dashboard → **Run scan**).
+2. Open **SEO & Visibility → SEO**.
+3. Read the **Overall Score** and how many issues are critical or high priority.
+4. Open a group, read each problem and its advice, fix it, then scan again.
+
+| Group | Plain-English meaning |
 |---|---|
-| **Titles & Meta** | Title tags, meta descriptions, duplicate meta descriptions and focus keyword drift |
-| **Content Structure** | Heading hierarchy, duplicate or missing H1 headings, thin content |
-| **Images** | Missing featured images and content images with no alt text |
-| **Internal Linking** | Pages with thin or missing internal links |
-| **Indexability & Canonicals** | Canonical URLs, duplicate content, orphan pages with no internal links |
-| **Structured Data** | Open Graph and Twitter Card tags |
+| **Titles & Meta** | Are page titles and short descriptions present, the right length and different on every page? |
+| **Content Structure** | Are headings in a sensible order, and are pages long enough to be useful? |
+| **Images** | Do images have a description (alt text), and do important pages have a main image? |
+| **Internal Linking** | Do your pages link to each other so visitors and search engines can move around? |
+| **Indexability & Canonicals** | Are there duplicate pages, or pages nothing links to? |
+| **Structured Data** | Do pages carry the information social sites and search engines use for previews? |
 
-The score card shows the overall score, the issues remaining and a progress trend. If a section has no findings yet, run a scan. If you turn the SEO module off in **Settings → Modules**, scanning stops, but findings already found are not deleted.
+### Choose which problems VuloPilot looks for
 
-### Choosing which checks run
+Go to **Settings → Scanning → SEO & Content**. Every switch below decides whether that problem is reported in your scan.
 
-Go to **Settings → Scanning → SEO & Content**.
+| Setting | What it does | Why you might use it |
+|---|---|---|
+| **Flag orphan pages** | Reports pages that no other page links to | Visitors and search engines struggle to find these pages |
+| **Thin content threshold (words)** | Reports pages with fewer words than this (default 300) | Very short pages rarely rank well |
+| **Flag missing meta descriptions** | Reports pages with no short summary for search results | The summary is what people read before clicking |
+| **Flag duplicate title tags** | Reports pages that share the same title | Each page should have its own title so search engines can tell them apart |
+| **Flag missing alt text** | Reports images with no description | Helps blind visitors and helps image search |
+| **Flag broken images** | Reports images that fail to load | Broken images make a site look neglected |
+| **Flag missing featured images** | Reports posts and pages with no main image | Pages with a main image look better when shared |
+| **Flag broken internal links** | Reports links to pages that no longer exist | Dead links frustrate visitors |
+| **Add canonical URL tags** | Adds a tag that tells search engines which address is the "official" one for a page | WordPress already does this; turn it on only if the scan says the tags are missing |
+| **Add Open Graph & Twitter Card tags** | Adds the information used for previews when your page is shared on social sites | Gives you a proper title, description and picture when shared |
+| **Minimum readability score** | Reports posts that are hard to read (default 50; higher is easier) | Easy text keeps visitors reading |
 
-**Titles & meta**
+---
 
-- **Flag orphan pages** - pages with no incoming internal links.
-- **Thin content threshold (words)** - pages under this word count are flagged. Default: 300.
-- **Flag missing meta descriptions**
-- **Flag duplicate title tags**
+## 2. Page titles and descriptions (SEO Titles)
 
-**Images**
+**What it does.** A page title is the clickable headline you see in search results. SEO Titles lets you set one pattern for each kind of page so every page gets a good title automatically.
 
-- **Flag missing alt text**
-- **Flag broken images** - images whose source URL returns an error.
-- **Flag missing featured images** - published posts, pages or products with no featured image.
+**Why it matters.** The title is the first thing a searcher reads. A clear, consistent title gets more clicks.
 
-**Links & schema**
+**How to use it.** Go to **Settings → SEO → SEO Titles**.
 
-- **Flag broken internal links**
-- **Add canonical URL tags** - WordPress already outputs canonical tags. Turn this on only if the "Canonical URLs" finding shows them missing.
-- **Add Open Graph & Twitter Card tags** - social sharing metadata so platforms can show your title, description and image.
-
-**Readability**
-
-- **Minimum readability score** - posts scoring below this on the Flesch Reading Ease scale (0-100, higher is easier) are flagged. Default: 50.
-
-**Robots.txt**
-
-- **Auto-generate robots.txt** - adds a sitemap reference to robots.txt so search engines can find your sitemap.
-- **Flag pages blocked for specific AI crawlers** - finds published pages affected by robots.txt rules for crawlers such as GPTBot and ClaudeBot.
-
-**Redirects**
-
-- **Enable redirect manager**
-- **Auto-create redirect on slug change**
-- **Log 404s**
-
-Click **Save** after changing any of these.
-
-## SEO Titles Setup
-
-Go to **VuloPilot → Settings → SEO → SEO Titles**. This controls how your page titles and descriptions are built across the site.
-
-1. Turn on **Custom title formats** to use the configured formats across your site.
-2. Pick a **Separator** - `|` (pipe), `-` (dash), `•` (bullet), `:` (colon), `>` (greater than) or `~` (tilde). It replaces `%sep%` in every format. Default: `|`.
-3. Open **Title & Description Format Templates**. There is one row per page type: **Homepage**, **Blog Post**, **Page**, **Category**, **Tag**, **Search Results** and **Archive**.
-4. Click **Edit** on a row and change the **Title format** and the description format. You can click the variable buttons to insert them.
-5. Watch the **Title length** indicator: **Empty**, **Too short**, **Good** or **Too long**. A summary line tells you how many formats could use improvement.
+1. Turn on **Custom title formats**.
+2. Choose a **Separator**, the small symbol between parts of the title, for example `Post title | Your site`.
+3. Under **Title & Description Format Templates**, click **Edit** on a row: **Homepage**, **Blog Post**, **Page**, **Category**, **Tag**, **Search Results** or **Archive**.
+4. Build the pattern with the variables in the table below.
+5. Watch the length indicator: **Too short**, **Good** or **Too long**. Search engines cut off long titles.
 6. Save.
 
-Variables you can use:
-
-| Variable | Replaced with |
+| Variable | Becomes |
 |---|---|
-| `%site_title%` | Your website title |
-| `%site_description%` | Your website description |
-| `%post_title%` | The post title |
-| `%page_title%` | The page title |
-| `%category_title%` | The category name |
-| `%tag_title%` | The tag name |
+| `%site_title%` | Your website name |
+| `%site_description%` | Your website tagline |
+| `%post_title%` / `%page_title%` | The name of the post or page |
+| `%category_title%` / `%tag_title%` | The name of the category or tag |
 | `%search_term%` | What the visitor searched for |
-| `%archive_title%` | The archive title |
+| `%archive_title%` | The archive name |
 | `%sep%` | Your chosen separator |
 
-Default formats:
+Example: `%post_title% %sep% %site_title%` becomes **Best Running Shoes | My Shop**. That is also the default for posts.
 
-| Page type | Default title format |
+A title you type for one page in the post editor panel always wins over these patterns.
+
+---
+
+## 3. Sitemap
+
+**What it does.** A sitemap is a list of all the pages you want search engines to know about. VuloPilot creates it and keeps it up to date. It also offers an **HTML sitemap**, a normal web page listing your content for visitors.
+
+**Why it matters.** It helps search engines discover new and updated pages faster. Note that a sitemap makes finding your pages easier, but it does not guarantee they will appear in search results.
+
+**How to use it.** Go to **Settings → SEO → Sitemap**.
+
+1. Switch **XML Sitemap** to **Enabled**. Your sitemap is at `yoursite.com/sitemap_index.xml`, and search engines are told automatically when you publish or update something.
+2. Under **What is included**, tick the content types and categories to list.
+3. Adjust **Advanced settings** only if you need to.
+4. To give visitors a sitemap page, turn on **Enable HTML sitemap** and put the shortcode `[vulopilot_html_sitemap]` on any page.
+
+| Setting | What it does | Why you might use it |
+|---|---|---|
+| **Post types in sitemap** | Which kinds of content are listed (Posts, Pages, Media, Products) | Leave out things you do not want found |
+| **Taxonomies in sitemap** | Whether categories and tags are listed | Category pages can help discovery |
+| **Links per sitemap** | How many links go in each sitemap file (default 200) | Rarely needs changing |
+| **Exclude posts / Exclude terms** | Hide specific items by their ID number, separated by commas | Keep private or thank-you pages out |
+| **Images in sitemaps** | Lists the images used in your content | Helps your pictures appear in image search |
+| **Include featured images** | Also lists main images | Same as above |
+| **Display format / Sort by / Show dates / Item titles** (HTML sitemap) | How the visitor sitemap looks and is ordered | Make it easy to read |
+
+---
+
+## 4. Instant Indexing
+
+**What it does.** Normally search engines discover changes only when they next visit, which can take days. Instant Indexing sends them a message the moment you publish, edit or delete a page, using a free system called **IndexNow**.
+
+**Why it matters.** New and updated pages can show up in search results sooner.
+
+**How to use it.** Go to **Settings → SEO → Instant Indexing**.
+
+1. If it says **IndexNow needs a key**, generate one. Then it shows **IndexNow is connected**. There is nothing else to manage.
+2. Under **What should notify search engines automatically**, tick the kinds of content that should trigger a message (default: Posts, Pages, Products).
+3. To announce specific pages by hand, paste their addresses (one per line, up to 10,000) into **Submit specific URLs** and click **Submit URLs**.
+4. **Recent submissions** shows your last 100 messages and whether each was accepted.
+
+---
+
+## 5. Redirects and missing pages
+
+**What it does.** A **redirect** sends visitors from an old address to a new one. The **404 log** records every time someone landed on a page that does not exist.
+
+**Why it matters.** When you rename or delete a page, the old address stops working. Visitors see an error and search engines lose the page's ranking. A redirect keeps both.
+
+**How to use it.**
+
+1. Go to **Settings → Scanning → SEO & Content → Redirects** and turn on what you need:
+
+| Setting | What it does | Why you might use it |
+|---|---|---|
+| **Enable redirect manager** | Lets you create and manage redirects | Needed for everything below |
+| **Auto-create redirect on slug change** | Automatically redirects the old address when you change a page's web address | Changing a slug never breaks old links |
+| **Log 404s** | Records visits to pages that do not exist | Shows you which broken links need a redirect |
+
+2. Open **SEO & Visibility → Crawl & URLs**.
+3. **Redirects:** click **Add redirect**, enter the old address (like `/old-page/`) and the new one (like `https://example.com/new-page/`), and save. You can edit, turn off or delete a redirect later. **Redirect Health** shows how many are working.
+4. **404 Log:** each entry shows the address people requested. Click **Create redirect** to fix it, or **Dismiss** if no fix is needed. Use the **All / Content / System** filter to hide noise from theme and plugin files.
+
+---
+
+## 6. robots.txt
+
+**What it does.** `robots.txt` is a small file that tells search engines and AI bots which parts of your site they may visit. VuloPilot shows your live file and lets you edit it.
+
+**Why it matters.** A wrong rule can hide your whole site from search engines by mistake. VuloPilot warns you if that happens.
+
+**How to use it.** Open **SEO & Visibility → Crawl & URLs → Robots & Sitemap**.
+
+- Read the summary of allowed and blocked rules.
+- Edit the file and save. Changes are live immediately. Use **Test robots.txt** to check it, or **Reset to WordPress default** to undo.
+- **Robots.txt Issues** warns you if the file cannot be reached or blocks everything.
+
+| Setting (in Scanning → SEO & Content) | What it does | Why you might use it |
+|---|---|---|
+| **Auto-generate robots.txt** | Adds a line pointing to your sitemap | Helps search engines find the sitemap |
+| **Flag pages blocked for specific AI crawlers** | Reports pages that AI bots such as GPTBot and ClaudeBot are told to stay away from | Lets you decide whether that is what you want |
+
+---
+
+## 7. SEO for one page (the post editor panel)
+
+**What it does.** When you edit a post or page, open the **VuloPilot SEO** sidebar. It shows how the page will look in search results and checks it as you type.
+
+**Why it matters.** You fix problems while writing, instead of finding them in a scan later.
+
+| Tab | What it is for |
 |---|---|
-| Homepage | `%site_title% %sep% %site_description%` |
-| Post | `%post_title% %sep% %site_title%` |
-| Page | `%page_title% %sep% %site_title%` |
-| Category | `%category_title% %sep% %site_title%` |
-| Tag | `%tag_title% %sep% %site_title%` |
-| Search results | `Search results for "%search_term%" %sep% %site_title%` |
-| Archive | `%archive_title% %sep% %site_title%` |
+| **General** | See a live search preview. Click **Edit Snippet** to write the **SEO Title** and **Meta Description** (the short summary under the title in search results). Add a **Focus Keyword**, the main phrase you want the page found for. A checklist shows **All Good**, **Could Be Better** or **Needs Improvement** |
+| **Social** | Choose the title, description and picture used when the page is shared on social sites. Empty fields use the SEO title, the description and the featured image |
+| **Schema** | Structured data that helps search engines understand the page. For advanced users |
+| **Advanced** | Set a **Canonical URL** (the official address; leave empty normally). Tick **No Index** to keep the page out of search results, or **No Follow** to tell search engines not to follow its links |
+| **Page Analysis** | Shows this page's current SEO issues |
 
-A title or description set on an individual page in the post editor sidebar overrides these formats for that page.
+---
 
-## Sitemap Setup
+## 8. Table of Contents and FAQ blocks
 
-Go to **VuloPilot → Settings → SEO → Sitemap**. VuloPilot builds on the WordPress core sitemap.
+**What they do.** Two ready-made blocks you can add from the block inserter under **Widgets**.
 
-### XML sitemap (for search engines)
+- **Table of Contents** builds a clickable list of the page's headings. Options: a title, which heading levels to include, and whether it can be collapsed.
+- **FAQ** shows a list of questions and answers, and also tells search engines about them, which can earn a richer result.
 
-1. Set **XML Sitemap** to **Enabled**. Your sitemap is then available at `yoursite.com/sitemap_index.xml` (the older `/wp-sitemap.xml` address redirects there), and search engines are notified automatically when content is published or updated.
-2. Under **What is included**, tick the **Post types in sitemap** (Posts, Pages, Media, Products and any custom post types) and the **Taxonomies in sitemap** (Categories, Tags, Product Categories, Product Tags).
-3. Open **Advanced settings** if you need more control:
-   - **Links per sitemap** - the maximum number of links on each sitemap page. Default: 200.
-   - **Exclude posts** - post IDs to leave out, separated by commas.
-   - **Exclude terms** - term IDs to leave out, separated by commas.
-   - **Images in sitemaps** - include references to images used in post content.
-   - **Include featured images** - include featured images even if they are not in the content.
+**Why use them.** Readers jump straight to what they need, and FAQs can win more space in search results.
 
-Note: a sitemap makes it easier for search engines to find your content, but indexing is not guaranteed.
+---
 
-### HTML sitemap (for visitors)
+## 9. Prove you own your site (verification) and connect Google
 
-1. Turn on **Enable HTML sitemap**.
-2. Add the shortcode `[vulopilot_html_sitemap]` to any page or post.
-3. Choose the **Display format** (List or Grid), **Sort by** (Published Date, Modified Date or Title), whether to **Show dates**, and whether **Item titles** use the post/term titles or the SEO titles.
+**What it does.** Search engines want proof that you own a site before they show you private data. Go to **Settings → Integrations**.
 
-The HTML sitemap uses the same included post types, taxonomies and exclusions as the XML sitemap.
+- **Webmaster Tools:** paste the code Google, Bing, Pinterest, Baidu, Yandex or Norton Safe Web gives you, then click **Verify**.
+- **Google Services:** connect your Google account to see Search Console, Analytics and AdSense information inside VuloPilot. VuloPilot only reads the data and stores it on your own site.
+- **Tag Manager:** enter your container ID (looks like `GTM-XXXXXXX`) to add Google Tag Manager.
 
-## Instant Indexing (IndexNow)
+**Why it matters.** Verified sites get accurate search data, which VuloPilot uses to give better advice. If you turn on Analytics or Tag Manager, Google scripts load on your site, so tell visitors as your privacy rules require.
 
-Go to **VuloPilot → Settings → SEO → Instant Indexing**. Without IndexNow, search engines find changes on their own schedule, which can take days. IndexNow tells them immediately.
+---
 
-1. If the panel says **IndexNow needs a key**, generate a key. The key file is served from your site and renewed automatically - there is nothing else to manage. The status changes to **IndexNow is connected** and **Active**.
-2. Under **What should notify search engines automatically**, choose which content types trigger a notification when they are published, edited or deleted. Default: Posts, Pages and Products (Products only appear when WooCommerce is active).
-3. To submit specific pages, use **Submit specific URLs**: paste one URL per line (up to 10,000) and click **Submit URLs**.
-4. **Recent submissions** lists your last 100 requests to search engines with the response of each. Use **Response code help** to understand a response.
+## Common questions
 
-You can also submit your sitemap to IndexNow from the **Crawl & URLs** view of SEO & Visibility. If it fails, check the IndexNow key under Settings → Instant Indexing.
+**Where is my sitemap?** At `yoursite.com/sitemap_index.xml` once the XML Sitemap is enabled.
 
-## Redirects and the 404 Log
+**A page still shows an old title.** A title set in the post editor panel overrides the patterns. Clear it there to use the pattern.
 
-Turn the features on first: **Settings → Scanning → SEO & Content → Redirects** - enable **Enable redirect manager**, **Auto-create redirect on slug change** and **Log 404s** as needed.
+**Will this guarantee top rankings?** No. VuloPilot fixes the technical and content problems search engines look at, but no tool can guarantee a ranking or that a page is indexed.
 
-Then open **VuloPilot → SEO & Visibility → Crawl & URLs**.
+**Which outside services are used?** Only the ones you turn on. See the readme's **External services** section.
 
-### Redirects
+More help: [TROUBLESHOOTING](TROUBLESHOOTING.md).
 
-- **Redirect Health** shows how many of your redirects are active and working.
-- The **Redirects** table lists every rule with its **From**, **To**, **Type**, **Hits**, **Created**, **Last accessed** and **Status**.
-- Click **Add redirect**, enter the **Old page url** as a path (for example `/old-page/`) and the **New page url** (for example `https://example.com/new-page/`), and save. Existing rules can be edited, deactivated, activated or deleted.
-- With **Auto-create redirect on slug change** on, changing the slug of a published post or page automatically redirects the old URL to the new one.
+## Related
 
-### 404 Log
-
-- Every 404 the site has seen is listed with the **Requested URL** and when it was last seen. Use the **All / Content / System** filter to separate missing content pages from missing theme, plugin or asset files, and search to find a URL.
-- Click **Create redirect** on a row to redirect it. If a URL does not need a redirect, click **Dismiss**.
-
-## robots.txt
-
-Open **VuloPilot → SEO & Visibility → Crawl & URLs → Robots & Sitemap**.
-
-- **Robots.txt Analysis** shows your live robots.txt, fetched just now, with the total, allowed and disallowed rules, sitemaps and any crawl delay.
-- Edit the file in the editor and save - it takes effect from the next request to `/robots.txt`. Use **Test robots.txt** to check it, and **Reset to WordPress default** to go back to the default. Other active plugins may also add their own rules to robots.txt.
-- **Robots.txt Issues** reports whether robots.txt is reachable and not accidentally blocking every crawler, and lists AI crawlers that are blocked on your published pages.
-- **llms.txt** can be generated and edited in the same section when it is turned on in the AI Visibility settings.
-
-## Per-Page SEO in the Post Editor
-
-Edit any post or page and open the **VuloPilot SEO** sidebar. It has five tabs.
-
-| Tab | What you can do |
-|---|---|
-| **General** | See a live search result **Preview**. Click **Edit Snippet** to set the **SEO Title** and **Meta Description**, and add a **Focus Keyword** - the main term you want the page to rank for. A **Title Readability** check and a checklist (**All Good**, **Could Be Better**, **Needs Improvement**) update as you type. |
-| **Social** | Set a **Social Title**, **Social Description** and **Social Image**. Empty fields fall back to the SEO title, the meta description and the featured image. |
-| **Schema** | View or edit the page's structured data (JSON-LD). Invalid JSON is cleared when you save. |
-| **Advanced** | Set a **Canonical URL** (empty uses the page's own permalink), and tick **No Index** to keep the page out of search results or **No Follow** to tell search engines not to follow its links. |
-| **Page Analysis** | See this page's live SEO, GEO and AEO issues from the last check. |
-
-## Table of Contents and FAQ Blocks
-
-Both blocks are in the block inserter under **Widgets**.
-
-- **Table of Contents** - lists the post's headings with links to each one and always reflects the current heading structure. Settings: a **title** (default "Table of Contents"), the minimum and maximum heading level (default H2 to H6) and a **collapsible** option.
-- **FAQ** - a list of questions and answers that also outputs FAQPage structured data for search engines.
-
-## Site Verification and Google Services
-
-Go to **VuloPilot → Settings → Integrations**.
-
-- **Webmaster Tools** - paste the verification code from **Google**, **Bing**, **Pinterest**, **Baidu**, **Yandex** or **Norton Safe Web**. VuloPilot adds each as a `<meta>` tag on every page. A **Custom webmaster tags** box accepts your own `<meta>` tags only; anything else is removed. After saving, use **Verify** to confirm.
-- **Google Services** - **Connect Google Services** to use Search Console, Analytics (GA4) and AdSense inside VuloPilot. VuloPilot only reads your data and stores it on your own site. After connecting, choose a verified Search Console property, and for Analytics choose an account, property and data stream. You can also switch on **Install analytics code**, **Anonymize IP addresses** and **Exclude logged-in users**. **Test Connection** and **Disconnect Google Account** are under **More actions**.
-- **Tag Manager** - enter your **Container ID** (format `GTM-XXXXXXX`) to add Google Tag Manager to your site.
-
-Enabling Google Analytics or Tag Manager loads Google scripts on your front end. You are responsible for consent notices for your visitors.
-
-## Frequently Asked Questions
-
-**Where is my sitemap?**
-At `yoursite.com/sitemap_index.xml` once **XML Sitemap** is enabled in Settings → SEO → Sitemap.
-
-**My scan shows no SEO findings.**
-Run a scan from the Dashboard. If the SEO module was turned off in **Settings → Modules**, turn it back on to resume scanning.
-
-**Why is a page still showing an old title?**
-A title set in the post editor sidebar overrides the SEO Titles format. Clear that page's SEO Title to use the format.
-
-**A 404 I fixed still appears in the log.**
-Click **Dismiss** on the row, or create a redirect for it.
-
-**IndexNow says "Key not found or doesn't match".**
-Generate the key again in Settings → SEO → Instant Indexing, and make sure the key file on your site is reachable.
-
-**Will these settings guarantee higher rankings?**
-No. VuloPilot finds and helps you fix the technical and content issues search engines look at, but it cannot guarantee a specific ranking or that a page is indexed.
-
-## External Services Used by SEO Features
-
-Only the features you turn on contact outside services: IndexNow (`api.indexnow.org`), Bing sitemap ping, Google APIs for Search Console and Analytics, and Google Tag Manager. The plugin readme's **External services** section lists what data each one receives and links to their terms and privacy policies.
+- [AI-VISIBILITY](AI-VISIBILITY.md) - being found by AI assistants
+- [CONTENT](CONTENT.md) - writing tools
+- [SETTINGS](SETTINGS.md)
