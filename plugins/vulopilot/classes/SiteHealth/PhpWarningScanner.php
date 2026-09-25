@@ -112,7 +112,7 @@ class PhpWarningScanner extends ScannerUtil {
             return WP_DEBUG_LOG;
         }
 
-        return WP_CONTENT_DIR . '/debug.log';
+        return trailingslashit( dirname( get_theme_root() ) ) . 'debug.log';
     }
 
     /**

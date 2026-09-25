@@ -9,27 +9,6 @@ interface AutomationsDummyProps {
 }
 
 /**
- * Dummy stand-ins for the two real vulopilot-pro sections Automations.tsx's
- * own `vulopilot_automations_panel` filter slot resolves when Pro is active
- * - `AutomationsManageDummy` (real "Your automations" list,
- * ManageAutomationsSection.tsx) and `AutomationsActivityDummy` (real
- * "Recent automation activity" feed, AutomationsActivityCard.tsx). Same
- * blurred-content-behind-an-"Upgrade to Pro"-overlay treatment every other
- * Pro-gated dummy card in this plugin uses
- * (../../components/UpgradeToProOverlay.tsx - shared, not reimplemented
- * per file), rather than either section being entirely absent from the DOM
- * the way it used to be (Automations.tsx used to gate its whole
- * `<ColumnComponent>` on `{Wizard && (...)}`).
- *
- * The separate `.admin-tag.pro-tag` badge this file used to float over
- * each card (its own local `ProBadge`, picking "PRO" or the real module's
- * display name) was removed per direct instruction, same reasoning
- * BrandVisibilityProDummies.tsx's own docblock gives: the shared overlay's
- * `<UpgradeToProOverlay />` already says "Upgrade to Pro" the moment the
- * blurred content renders, so the badge was a second copy of the same
- * message on the same card. `onClick` alone is all either dummy needs
- * from the host now.
- *
  * Merged into one file since both are the same small "fabricated example
  * rows behind a blurred click-through overlay" shape for the same page,
  * not two genuinely different concerns.
@@ -99,7 +78,6 @@ const ACTIVITY_DUMMY_ROWS: { title: string; desc: string; time: string }[] = [
 	},
 ];
 
-/** Rows are entirely fabricated examples (real completed/status wording from vulopilot-pro's own AutomationsActivityCard.tsx, but no real run behind any of them) - inert (`aria-hidden`, no click handler of their own): the click-through lives on the wrapping overlay instead, so clicking anywhere in the dummy list opens the same popup. */
 export const AutomationsActivityDummy = ({ onClick }: AutomationsDummyProps) => (
 	<CardComponent
 		title={__('Recent automation activity', 'vulopilot')}

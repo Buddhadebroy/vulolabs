@@ -161,16 +161,6 @@ const SECTIONS: FindingsSection[] = [
 const ISSUES_TABLE_ID = 'protect-my-site-security-issues-table';
 
 /**
- * "Security" tab of "Protect My Site" - the mockup's own single-page
- * design (hero + status, then one real, unified findings table). This
- * page briefly also had a second, "Old Security" tab (a sectioned-IA
- * redesign of the same underlying findings) - it's been removed and its
- * sections + the Pro incident-reports panel folded back into this one tab
- * per direct instruction, so this is once again the sole "Security" tab.
- * Every piece here is a real, already-built component reused as-is -
- * nothing new is fabricated to chase the reference image's specific
- * numbers:
- *
  * - Hero/status/tile-grid: SecurityMockupHeader. RecentActivityCard
  *   ("Recent Security Activity") and SecurityTrendCard ("Security
  *   Trend", real daily score history) live inside that same component,

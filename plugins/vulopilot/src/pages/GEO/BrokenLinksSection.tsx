@@ -42,24 +42,7 @@ interface BrokenLinkFixOutcome {
 }
 
 /**
- * Broken Links' own real "Fix" popup behavior - registered by
- * vulopilot-pro's OneClickFix module (modules/OneClickFix/src/index.tsx)
- * via this filter, same real "always show the entry point, supply the
- * actual behavior only when Pro's module is active" shape
- * `vulopilot_finding_fix_handler` already establishes for every other
- * finding's "Fix" action (useFindingsTable.tsx's own
- * `getFindingFixHandler()`) - Broken Links used to be the one exception
- * that worked without Pro at all (a real, free `POST
- * /broken-links/replace-url`, `BrokenLinksStats.php`); that endpoint now
- * lives in Pro's own BrokenLinkFixRest.php instead, so this is the last
- * piece bringing it in line with every other "Fix" action's real gate.
- *
- * Read fresh on every click, not cached - same reasoning
- * `getFindingFixHandler()`'s own docblock documents (Pro's script is a
- * separate, later `<script>` tag that may not have registered its
- * `addFilter()` yet at the moment this module first evaluates).
- *
- * @return A function resolving a real fix outcome, or null when Pro's OneClickFix module isn't active.
+ * @return A function resolving a real fix outcome, or null when no fix handler is available.
  */
 const getBrokenLinkFixHandler = () =>
 	applyFilters('vulopilot_broken_link_fix_handler', null);
@@ -523,21 +506,6 @@ type StatusFilter = 'all' | 'open' | 'resolved' | 'ignored' | 'snoozed';
  * scan" delta on the stat tiles (see above), and "Soft 404"/"Chain"
  * status pills (would need following redirect chains and inspecting the
  * destination's own content/status, which neither scanner does).
- *
- * "Fix" joins the same real Pro gate every other findings table's "Fix"
- * action already has (`getBrokenLinkFixHandler()` above, same shape as
- * useFindingsTable.tsx's own `getFindingFixHandler()`): clicking it always
- * opens *something* (register a source, don't modify the host), but only
- * opens the real manual URL/text popup when vulopilot-pro's OneClickFix
- * module is active - otherwise it opens the Pro popup instead. When
- * unlocked, the popup still works exactly as before: the user types a
- * real replacement URL, which the handler's own `POST
- * /broken-links/replace-url` (now BrokenLinkFixRest.php, Pro) swaps
- * straight into the source page's own real `post_content` (its own
- * `href`/`src` attribute), then marks the finding resolved. No AI call -
- * broken-link/image URLs are a mechanical find-and-replace, not something
- * that needs a model's judgment the way other scanners' findings do; the
- * gate here is licensing, not a missing AI service.
  */
 const BrokenLinksSection = () => {
 	const [allFindings, setAllFindings] = useState<BrokenLinkFinding[]>([]);
@@ -563,7 +531,6 @@ const BrokenLinksSection = () => {
 	const [fixNewText, setFixNewText] = useState('');
 	const [isSavingFixUrl, setIsSavingFixUrl] = useState(false);
 	const [isSavingRedirect, setIsSavingRedirect] = useState(false);
-	/** "Fix isn't available" Pro popup - opens instead of the real fix popup when `getBrokenLinkFixHandler()` resolves null (Pro not installed, or installed but OneClickFix isn't active). */
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
 
 	const loadFindings = () => {
@@ -683,17 +650,6 @@ const BrokenLinksSection = () => {
 		);
 	};
 
-	/**
-	 * "Fix" - always visible (register a source, don't modify the host,
-	 * same as every other findings table's "Fix" action). Opens the real
-	 * popup showing this exact finding's own real link text + current
-	 * broken URL, with fields to type a real replacement URL and (for a
-	 * `broken-links` finding, editable - a `broken-images` finding has no
-	 * visible text at all) that same `<a>` tag's own real visible text -
-	 * but only when `getBrokenLinkFixHandler()` resolves a real handler
-	 * (Pro's OneClickFix module active); otherwise opens the Pro popup
-	 * instead, same 2-tier gate every other "Fix" action already has.
-	 */
 	const openFixPopup = (finding: BrokenLinkFinding) => {
 		if ('function' !== typeof getBrokenLinkFixHandler()) {
 			setIsProPopupOpen(true);
@@ -709,19 +665,6 @@ const BrokenLinksSection = () => {
 
 	const closeFixPopup = () => setFixFinding(null);
 
-	/**
-	 * Saving calls the real handler Pro's OneClickFix module registered
-	 * (`getBrokenLinkFixHandler()`) - its own `POST
-	 * /broken-links/replace-url` (BrokenLinkFixRest.php) does a real
-	 * search-and-replace straight in the source page's own `post_content`
-	 * - not a fabricated "fixed" state, a genuine content edit, and
-	 * updates that same anchor's own real inner text too whenever it was
-	 * actually changed. On success the finding is marked resolved (same
-	 * real `POST /findings/{id}` status call handleResolve()/
-	 * handleCreateRedirect() already use), same for a broken image
-	 * (`is_image: true` tells the handler to replace `src` instead of
-	 * `href`, and skips the text edit entirely).
-	 */
 	const handleSaveFixUrl = () => {
 		const brokenLinkFixHandler = getBrokenLinkFixHandler();
 

@@ -6,18 +6,6 @@ import { getApiLink, getApiResponse } from '@zyra/core';
 /** Same 3-preset shape WebsiteProgressChart.tsx already established for this page - no arbitrary calendar range picker. */
 export const DAY_OPTIONS = [7, 30, 90] as const;
 
-/**
- * vulopilot-pro's AdvancedReports module id (Settings → Modules - though
- * it's actually one of `VuloPilotPro::CARDLESS_MODULE_IDS`, so it has no
- * card there; still the real id `vulopilotAppLocalizer.active_modules`/
- * `resolveModuleDisplayName()` key off) - the single real gate every
- * section on this whole tab shares now that the entire "Create Report"/
- * "Schedule Report"/"Recent Reports"/"Scheduled Reports"/"Report History"
- * flow is Pro-gated per direct instruction, not just the two create
- * actions. Pulled out here once so ReportsOverviewHeader.tsx/
- * RecentReportsCard.tsx/ScheduledReportsTable.tsx/ReportHistoryTable.tsx
- * all check the exact same literal string.
- */
 export const ADVANCED_REPORTS_MODULE_ID = 'advanced-reports';
 
 /**

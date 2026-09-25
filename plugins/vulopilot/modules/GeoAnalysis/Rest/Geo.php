@@ -27,29 +27,6 @@ defined( 'ABSPATH' ) || exit;
  * folded into GEO_TOPICS' 5-tile "Other Signals" catch-all - see
  * SIGNAL_SCANNER_IDS below for the exact regrouping and why).
  *
- * The 7th, "Content Freshness", is NOT finding-based - no free scanner
- * checks it (`stale-content` exists but is Pro-only, registered by
- * vulopilot-pro's GeoInsights module; giving a dedicated headline row to a
- * scanner that never runs on a free site would silently read "100/100,
- * Good" for every free-tier visitor, which is indistinguishable from
- * "genuinely fresh" - the same failure mode this codebase's own
- * GEO_TOPICS docblock already flags for Pro-only scanners folded into a
- * mixed bucket, except there the mix dilutes it and here a dedicated row
- * wouldn't). Instead this computes a real, free, deterministic sitewide
- * freshness score straight from every published post/page's own real
- * `post_modified_gmt`, using the exact same 4-tier recency bands (25%/50%/
- * 100% of the real "stale after" setting) `GeoAnalyzer::calculate_content_freshness()`
- * already applies per-post for the (AI-scored, Pro-only) per-post GEO
- * score - just averaged across every real published page instead of one.
- *
- * Overall `geo_score` is an unweighted mean of the 7 signal scores, same
- * "unweighted mean of real per-signal averages" shape
- * `VisibilitySnapshotBuilder::calculate_overall_score()` (Pro) already
- * established as this codebase's own real GEO-scoring convention - chosen
- * over re-deriving one merged severity breakdown across all 6 finding-based
- * signals (which `Content Freshness`, not being finding-based at all,
- * couldn't join anyway).
- *
  * @class       Geo controller
  * @version     1.0.0
  * @author      VuloLabs
@@ -70,32 +47,6 @@ class Geo extends \WP_REST_Controller {
      * serve different UI purposes (a 5-tile topic grid there vs. this card's
      * own 7-row score breakdown here) despite drawing on the same 9 real
      * scanners:
-     *
-     * - `ai-summary`: GEO_TOPICS' own "AI Summary" topic, unchanged.
-     * - `question-coverage`: GEO_TOPICS' own "FAQ-style Questions" topic,
-     *   renamed here to match this card's own reference mockup wording -
-     *   same real scanner underneath.
-     * - `evidence-citations`/`ai-readable-structure`: unchanged from
-     *   GEO_TOPICS.
-     * - `entity-clarity`: split out of GEO_TOPICS' "Other Signals" catch-all
-     *   into its own row, matching the mockup - real scanner
-     *   `geo-entity-naming-consistency` (label "Entity Naming Consistency"),
-     *   named "Entity Clarity" here since that's what naming
-     *   consistency/disambiguation genuinely buys an AI system.
-     * - `other-geo-signals`: the remaining always-free GEO_TOPICS "Other
-     *   Signals" scanners, minus `geo-entity-naming-consistency` (moved to
-     *   its own row above) and minus `stale-content` (the real,
-     *   deterministic, sitewide `content-freshness` score computed in
-     *   `get_content_freshness()` below already covers that concept
-     *   honestly for free-tier sites; keeping the Pro-only scanner's
-     *   findings folded in here too would double-count the same idea under
-     *   two different rows). `llms-txt-missing` is also Pro-only
-     *   (GeoInsights) - left in this mixed bucket rather than given its own
-     *   row, same reasoning GEO_TOPICS' own docblock already gives: it
-     *   simply contributes nothing yet on a free site, same as any other
-     *   not-yet-scanned signal, and this bucket has real free scanners
-     *   alongside it so a free-tier "0 open findings" reading here isn't
-     *   solely because the check never ran.
      *
      * `content-freshness` (the 7th row) is deliberately NOT a key in this
      * array - see this class's own docblock for why it's computed
@@ -133,12 +84,6 @@ class Geo extends \WP_REST_Controller {
     private const PROGRESS_TREND_DAYS = 7;
 
     /**
-     * Real day-range options "Score Snapshot"'s own period dropdown offers
-     * - same trio Pro's `GeoInsights\Rest::get_history()` already accepts
-     * on `/geo-visibility-history?days=N` (min 7, max 365), narrowed to a
-     * fixed real menu here since this card's own dropdown is a discrete
-     * choice, not a free-typed number.
-     *
      * @var int[]
      */
     private const ALLOWED_PROGRESS_DAYS = array( 7, 30, 90 );

@@ -22,16 +22,6 @@ defined( 'ABSPATH' ) || exit;
  * can never take down a live `/llms.txt` URL an AI crawler may already be
  * relying on.
  *
- * This module's own, narrower job: auto-regenerating llms.txt on
- * publish/update, per Settings → GEO's `llms_auto_regen` field - the one
- * piece of GEO behavior that's genuinely optional convenience layered on
- * top of the core feature, rather than the feature itself. Same
- * Module.php shape module-architecture.md documents for vulolabs-pro/
- * catalogx-pro, discovered by VuloPilot's own free-plugin `modules/`
- * source (Modules::get_all_modules()'s default, self-registered
- * `VuloPilot` namespace - no filter registration needed since this
- * module ships in Free itself).
- *
  * @class       Module class
  * @version     1.0.0
  * @author      VuloLabs

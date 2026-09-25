@@ -57,17 +57,6 @@ class ActivityLogRepository extends RepositoryUtil {
     }
 
     /**
-     * Paginated, searchable, date-ranged activity log rows scoped to an
-     * explicit `event_type` allow-list - what the AI Copilot History tab's
-     * timeline reads (Controllers/History.php), which only ever cares
-     * about `scan.completed`/`ai_action.*` rows, never the Pro-only
-     * snapshot event types (`brand_score_snapshot_built` etc.) this same
-     * table also carries. A dedicated method rather than routing through
-     * find_all(): `event_type` values like 'ai_action.executed' contain a
-     * dot, and find_all()'s own filterable-column path has no `sanitize_key()`-
-     * safe way to pass an explicit type allow-list alongside a separate
-     * free-text `search` - this needs both at once.
-     *
      * @param array{event_types: string[], search?: string, date_from?: string, date_to?: string, page?: int, per_page?: int} $args `event_types` is required and never empty - an empty allow-list would mean "every event type," which no caller here wants.
      * @return array{data: array<int, array<string, mixed>>, total: int}
      */

@@ -168,28 +168,6 @@ const mainProblemText = (key: string, signal: GeoSignalScore): string => {
 };
 
 /**
- * "GEO Score" - SEO & Visibility → GEO's own real, free, deterministic
- * scorecard (`GET /geo/score`/`GET /geo/progress`, Geo.php), replacing
- * `GeoVisibilitySummaryCard`'s former "Overall AI Visibility" slot on this
- * tab. That card's own real number came from Pro-only routes
- * (`useGeoTabData.ts`'s own `useGeoVisibilitySnapshot` → `/geo-visibility-summary`/
- * `/geo-visibility-history`, both registered only by vulopilot-pro's
- * GeoInsights module) and silently read `0/100 Poor` with Pro inactive -
- * this card's own `geo_score` is real and populated on every install,
- * matching the reference mockup's own 4-part layout while fixing that
- * free-tier gap. `GeoVisibilitySummaryCard.tsx` was initially kept in
- * place as unrendered dead code once superseded here, then actually
- * deleted in a later file-count reduction pass once confirmed to have
- * zero remaining consumers anywhere - its own real data-fetching hook
- * (`useGeoVisibilitySnapshot`) is still real, active code, just relocated
- * into `useGeoTabData.ts` (still used by AeoTab.tsx's own "AEO Score Over
- * Time").
- *
- * Previously also absorbed GeoTab.tsx's former standalone "How You Compare
- * to Similar Sites" row, retitled "Competitor Comparison" - removed
- * entirely per direct instruction (the real `GeoCompetitorVisibility` Pro
- * slot and its own `ProLockedCard` fallback both gone, not just hidden).
- *
  * Layout: GEO Score ring + "How this score is calculated" signal list (top
  * left) / Score Snapshot real day trend (top right) / GEO Score Breakdown
  * table - Signal, Score, Status, Main Problem (bottom left).

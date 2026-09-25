@@ -28,22 +28,6 @@ defined( 'ABSPATH' ) || exit;
  * literal "Google-Extended" string that would never appear in real
  * traffic and would silently show zero visits forever.
  *
- * One Pro extension point for "AI Crawler Traffic Analytics & Historical
- * Logs" (readme.txt's Pro line) is `vulopilot_crawler_log_retention_days`
- * - Free's daily cleanup cron deletes rows older than Settings → AI
- * Visibility's own "Log retention" value (default 30); vulopilot-pro's
- * AdvancedReports module overrides it further via this same filter.
- * No separate Pro table/REST controller is needed - see this feature's
- * plan doc for why a per-event log doesn't need the snapshot-rollup shape
- * Health Score's historical trend uses.
- *
- * A second extension point, `vulopilot_crawler_bot_signatures`, lets Pro (or
- * any third party) extend BOT_SIGNATURES without editing this class -
- * AI-CRAWLER-ANALYTICS-MODULE.md's "register a source, don't modify the
- * host" reasoning, the same posture every other *_sources filter in this
- * codebase already uses, applied to this one fixed array that previously
- * had no such seam.
- *
  * @class       CrawlerTrafficLogger class
  * @version     1.0.0
  * @author      VuloLabs
@@ -115,12 +99,6 @@ class CrawlerTrafficLogger {
     }
 
     /**
-     * User-Agent substring => display name, extensible via
-     * `vulopilot_crawler_bot_signatures` - the shared source of truth for
-     * every place in this codebase that needs to know which AI bots are
-     * detectable (Seo\Scanners\AiCrawlerBlockedPagesScanner, and
-     * vulopilot-pro's crawler-analytics correlation/alert code).
-     *
      * @return array<string, string>
      */
     public static function get_bot_signatures(): array {
@@ -128,11 +106,6 @@ class CrawlerTrafficLogger {
     }
 
     /**
-     * Schedules the daily cleanup cron once, the standard
-     * wp_next_scheduled()-guarded wp_schedule_event() pattern - no
-     * existing cron-scheduling helper to reuse in this plugin (Scheduler.php
-     * for recurring scans is Pro business logic, a different concern).
-     *
      * @return void
      */
     public function ensure_cleanup_scheduled(): void {
@@ -142,10 +115,6 @@ class CrawlerTrafficLogger {
     }
 
     /**
-     * Deletes crawler-visit rows past the retention window - the one
-     * mechanism behind readme.txt's Pro "Historical Logs" line, see this
-     * class's own docblock.
-     *
      * @return void
      */
     public function run_cleanup(): void {

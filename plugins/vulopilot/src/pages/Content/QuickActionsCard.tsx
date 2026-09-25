@@ -15,40 +15,6 @@ import { useContentToolsEnabled } from '../../services/useContentToolsEnabled';
  * ContentToolsGrid.tsx's own 12 tiles use, via the same shared
  * ContentToolPopup) rather than the plain in-page scroll/navigation
  * shortcuts these rows used to be:
- *
- * - "AI Content Audit" (`audit-content`, free) - an AI-generated
- *   score/summary/suggestions verdict for one existing post, saved as
- *   postmeta. Stays free - gated only on a connected VuloCloud AI account
- *   (`ShowProPopup vulocloud`/useAiCredits), same treatment
- *   ContentToolsGrid.tsx's own free tiles (AI Writer, Blog Generator,
- *   Duplicate Content) get. Unrelated to (and doesn't replace)
- *   RecentContentCard.tsx's own rule-based scanner findings, which this row
- *   used to just scroll to.
- * - "Keyword Research" (`keyword-research`, Pro) - AI-suggested target
- *   keywords + content-angle notes for one existing post, saved as
- *   postmeta. A real Pro feature (vulopilot-pro's own
- *   ContentTools\Actions\KeywordResearchAction) - an AI brainstorming aid
- *   alongside, not a replacement for, SEO & Visibility → Keywords' own free
- *   Google Search Console-backed ranking data (this row used to just link
- *   there).
- * - "Content Templates" (`generate-from-template`, Pro) - picks a proven
- *   post structure (how-to guide, listicle, comparison, FAQ page, product
- *   announcement) and drafts a brand-new post around a given topic. A real
- *   Pro feature (vulopilot-pro's own
- *   ContentTools\Actions\GenerateFromTemplateAction) - the actual template
- *   library this row's copy always promised, not the AI content-generation
- *   grid (ContentToolsGrid.tsx) it used to just scroll to.
- * - "Content Planner" (a content editorial calendar) has no real backend
- *   anywhere in this codebase (free or Pro) - rather than link to a
- *   fabricated destination, its row still shows a "Coming soon" tag and an
- *   honest notice on click instead of a working arrow. Untouched by this.
- *
- * Same free/Pro split mechanics as ContentToolsGrid.tsx's own
- * `handleToolClick()` - see that file's own top docblock for the full
- * reasoning this mirrors: a free tool with no AI service connected opens
- * `ShowProPopup vulocloud` immediately; a Pro tool with `content-tools`
- * inactive opens ShowProPopup immediately; either way instead of letting
- * ContentToolPopup's own form open first.
  */
 const QUICK_ACTION_TOOLS: ContentTool[] = [
 	{
@@ -218,7 +184,7 @@ const QuickActionsCard = () => {
 				position="lightbox"
 			>
 				{vulopilotAppLocalizer.khali_dabba ? (
-					<ShowProPopup moduleName="content-tools" />
+					<ShowProPopup moduleName="content-optimization" />
 				) : (
 					<ShowProPopup />
 				)}

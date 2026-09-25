@@ -1,5 +1,17 @@
 # VuloPilot - WooCommerce Intelligence
 
+> **Update note:** the `vulopilot-pro` modules this doc describes
+> (`WooCommerceAi`, `WooCommerceIntelligence`) have since been merged, along
+> with the pre-existing `WooCommerceAnalytics` module, into a single
+> `modules/WooCommerceAnalytics/` (`VuloPilotPro\WooCommerceAnalytics`) - one
+> module, one Settings → Modules toggle (`woocommerce-analytics`). The
+> scanners/rules/actions/REST endpoints this doc describes still exist and
+> work the same way; only their folder/namespace changed. They are also no
+> longer license-only auto-active - they're now gated behind that one real
+> toggle. See `vulopilot-pro`'s `modules/WooCommerceAnalytics/Module.php`
+> for the current, authoritative picture; the rest of this document is kept
+> for its detection-side design history and is otherwise still accurate.
+
 Companion to [`DATABASE.md`](DATABASE.md), [`SCANNERS.md`](SCANNERS.md),
 [`ACCESSIBILITY-MODULE.md`](ACCESSIBILITY-MODULE.md), and to `vulopilot-pro`'s own
 [`WOOCOMMERCE-INTELLIGENCE-MODULE.md`](../../../../plugins/vulopilot-pro/docs/WOOCOMMERCE-INTELLIGENCE-MODULE.md)

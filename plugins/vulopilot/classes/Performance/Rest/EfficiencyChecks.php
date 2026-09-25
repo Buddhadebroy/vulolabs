@@ -249,7 +249,7 @@ class EfficiencyChecks extends \WP_REST_Controller {
      */
     private function check_persistent_object_cache(): array {
         $active  = wp_using_ext_object_cache();
-        $drop_in = file_exists( WP_CONTENT_DIR . '/object-cache.php' );
+        $drop_in = file_exists( trailingslashit( dirname( get_theme_root() ) ) . 'object-cache.php' );
 
         $status = 'good';
         $badge  = __( 'Working', 'vulopilot' );

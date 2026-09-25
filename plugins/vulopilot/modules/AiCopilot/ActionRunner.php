@@ -102,20 +102,6 @@ class ActionRunner {
      * previews the result. Persists the outcome as a `pending_approval`
      * row - nothing about the site's actual content changes yet.
      *
-     * Also gates Settings → Automation → Approval Settings' "Ask before
-     * applying AI changes" - after persisting the pending_approval row,
-     * immediately self-approve()s it (method 'auto_unattended') when the
-     * site's `ai_change_approval_mode` setting says this proposal's own
-     * risk level doesn't need a human to look at it first (see
-     * should_auto_approve()'s own docblock). This is the one general gate
-     * every propose() call goes through - manual one-click fixes and
-     * automation-triggered ones alike - independent of vulopilot-pro's own
-     * Automations\Actions\RunAiActionAction, whose narrower 'auto_fix'
-     * automation-mode gate (automation runs only, method 'auto_automation')
-     * still layers on top of this one; that class checks this method's own
-     * `auto_approved` return value first so the two auto-approval paths
-     * never race to approve() the same run twice.
-     *
      * @param string               $action_id  e.g. 'generate-alt'.
      * @param array<string, mixed> $raw_input Raw input (REST params, or built from a Recommendation).
      * @return array{run_id: int, preview: array<string, mixed>, auto_approved: bool, approval_method: string|null}
@@ -299,15 +285,6 @@ class ActionRunner {
     }
 
     /**
-     * `ai_change_approval_mode` (Utill::VULOPILOT_SETTINGS_DEFAULTS, free
-     * plugin, meaningfully acted on right here - unlike automation_mode/
-     * auto_fix_max_impact, which are only ever read by vulopilot-pro):
-     *  - 'always'      - never auto-approves; today's existing, unchanged
-     *                     behavior (every propose() waits for a human).
-     *  - 'risk_based'  - auto-approves only Impact::LOW proposals; anything
-     *                     Impact::MEDIUM/HIGH still waits for a human.
-     *  - 'never'       - auto-approves every proposal regardless of risk.
-     *
      * @param string $risk_level One of Impact::LOW/MEDIUM/HIGH - the
      *                           proposal's own AIActionInterface::get_risk_level().
      * @return bool
@@ -335,7 +312,7 @@ class ActionRunner {
      *                       this was ever called before Automate Work's
      *                       Auto-fix mode and Approval Settings' risk-based/
      *                       "Do not ask" modes), 'auto_automation'
-     *                       (vulopilot-pro's RunAiActionAction calling this
+     *                       (an automation calling this
      *                       immediately after propose(), gated on Automate
      *                       Work's own automation_mode setting), or
      *                       'auto_unattended' (propose() calling this on

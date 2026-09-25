@@ -97,12 +97,6 @@ class OrganizationSchemaScanner extends ScannerUtil {
     }
 
     /**
-     * Simple raw-string presence check (nested-safe - an Organization
-     * reference commonly lives as a "publisher" sub-object of a WebSite
-     * block rather than a standalone top-level type), same posture
-     * vulopilot-pro's CompetitorVisibilityAnalyzer::has_author_byline()
-     * already takes for its own `"@type":"Person"` check.
-     *
      * @param string $html Fetched homepage HTML.
      * @return bool
      */

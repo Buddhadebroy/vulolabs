@@ -37,14 +37,6 @@ const AUTOMATION_MODULE_ID = 'workflow-automation';
  * own "Enable this automation" row already establishes for an identical
  * single-toggle field.
  *
- * Never redirects, on or off, per direct instruction - this real toggle
- * activates/deactivates the module in place on this same page, same
- * `POST modules` round trip either way; a failed `activate` (e.g. no
- * active Pro license - the same real gate ModuleGridComponent.tsx's own
- * `isModuleAvailable()` applies before letting a toggle activate a Pro
- * module) surfaces as a real float error notice instead of navigating
- * anywhere.
- *
  * Also writes through to zyra's own `useModules()` zustand store
  * (`insertModule`/`removeModule`, same calls ModuleGridComponent.tsx's own
  * toggle makes) on a successful flip - the 3 fields below this action read

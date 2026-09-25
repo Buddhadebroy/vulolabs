@@ -15,14 +15,6 @@ use VuloPilot\Utill\RuleType;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * "Manual Actions Only" (readme.txt) - Free's entire automation capability,
- * on purpose much smaller than vulopilot-pro's Automations module: run one
- * registered ActionInterface against one specific, already-known Finding,
- * right now, by hand. No trigger, no bound rule, no cooldown, no
- * `vulopilot_automations` row, no run history - those are exactly the
- * axes vulopilot-pro's own Automations module (Triggers/Conditions/
- * Schedules/Workflow Builder/Logs/Retries) adds on top of this.
- *
  * ActionInterface::execute() takes a Recommendation, not a Finding - this
  * class is the one place that builds a synthetic one directly off a real
  * Finding row (`rule_id` = self::MANUAL_RULE_ID) rather than getting it

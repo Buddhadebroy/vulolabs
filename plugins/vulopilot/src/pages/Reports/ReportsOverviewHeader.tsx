@@ -11,7 +11,6 @@ import { useFilterSlot } from '../../services/useFilterSlot';
 interface ReportsOverviewHeaderProps {
 	days: number;
 	onDaysChange: (days: number) => void;
-	/** Bumps OverviewTab.tsx's own refresh signal so Recent Reports/Report History/Scheduled Reports pick up a report or schedule the real Pro actions below just created. */
 	onDataChanged: () => void;
 }
 
@@ -29,25 +28,6 @@ interface ReportsOverviewHeaderProps {
  * the badge-toggle row this header used before, to match the mockup. It
  * only scopes `RecentReportsPanel`'s own preview - Report History stays a
  * real, unfiltered, paginated list of every report.
- *
- * Per direct instruction ("the section is in free and the functionality
- * code is in pro" - no duplicate code), this component itself owns only
- * the "section": the title/description and the day-range dropdown. The
- * three real actions - "Create Report"/"Schedule Report"/"Download PDF",
- * their click handlers, their modals - moved wholesale to
- * vulopilot-pro's own `AdvancedReports/src/ReportsHeaderActions.tsx` (that
- * logic no longer exists here at all, not duplicated), registered back in
- * via the `vulopilot_reports_header_actions` filter slot (`useFilterSlot`,
- * same shape Commerce.tsx/KeywordsTab.tsx's own whole-panel Pro gates
- * already use). Free's own fallback below - 3 buttons, each visually
- * unchanged, each carrying a real `.admin-tag.pro-tag` "PRO" badge (same
- * 2-tier "generic PRO tag when Pro isn't installed at all, this module's
- * own real display name when Pro is installed but not active yet"
- * convention KeywordsTab.tsx/Commerce.tsx establish) - only renders when
- * that slot resolves to nothing, i.e. vulopilot-pro's AdvancedReports
- * module isn't active. Clicking any of the 3 locked buttons opens the
- * same generic upgrade popup (`ShowProPopup`) every other Pro-locked
- * surface on this page uses.
  */
 const ReportsOverviewHeader = ({
 	days,

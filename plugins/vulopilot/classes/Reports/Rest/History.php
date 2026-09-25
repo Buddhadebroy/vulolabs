@@ -28,12 +28,6 @@ defined( 'ABSPATH' ) || exit;
  * codebase at all - it honestly returns zero rows rather than fabricating
  * any.
  *
- * Moved here from Free's classes/Reports/Rest/History.php - one-off report
- * generation is now entirely Pro business logic (Module.php's own
- * docblock), registered into Free's route table via the
- * `vulopilot_rest_controllers` filter. Still registers under
- * `VuloPilot()->rest_namespace` (vulopilot/v1).
- *
  * @class       History controller
  * @version     1.0.0
  * @author      VuloLabs
@@ -46,10 +40,6 @@ class History extends \WP_REST_Controller {
     protected $rest_base = 'history';
 
     /**
-     * The only real event types this table's timeline is ever built from -
-     * everything else `vulopilot_activity_logs` carries (Pro's GEO/Brand/KG
-     * snapshot events) belongs to those pages' own history, not this one.
-     *
      * @var array<string, string[]>
      */
     private const EVENT_TYPES_BY_CATEGORY = array(

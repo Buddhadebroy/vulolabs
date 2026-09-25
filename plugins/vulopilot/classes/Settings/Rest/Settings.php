@@ -119,12 +119,6 @@ class Settings extends \WP_REST_Controller {
             )
         );
 
-        // "Send Test Alert" (Notifications → AI Crawler Alerts) - same
-        // shape as /test-email above. The real check/send logic lives in
-        // vulopilot-pro's CrawlerAlertMonitor (that whole feature is
-        // Pro-only), so this route only fires the `vulopilot_send_test_crawler_alert`
-        // filter and passes its result straight through - see
-        // send_test_crawler_alert()'s own docblock.
         register_rest_route(
             VuloPilot()->rest_namespace,
             '/' . $this->rest_base . '/test-crawler-alert',
@@ -137,15 +131,6 @@ class Settings extends \WP_REST_Controller {
             )
         );
 
-        // "Send Test Report" (Settings → Reports) - same shape as
-        // /test-email above, but generates a real report first
-        // (VuloPilot()->report_generator, the exact engine
-        // Controllers\Reports::create_item() itself uses) using whatever
-        // format/period this tab currently has configured, then emails a
-        // "your report is ready" notice rather than attaching the file -
-        // same real pattern vulopilot-pro's ScheduledReportRunner::maybe_email_report()
-        // already uses for scheduled reports. See send_test_report()'s own
-        // docblock.
         register_rest_route(
             VuloPilot()->rest_namespace,
             '/' . $this->rest_base . '/test-report',
@@ -347,30 +332,6 @@ class Settings extends \WP_REST_Controller {
     }
 
     /**
-     * Settings → Developer Tools' "Clear cache" - every real, transient-
-     * cached piece of *content* this plugin (and vulopilot-pro, if active)
-     * computes: Knowledge Graph's own extracted entities, the Schema
-     * Coverage snapshot, and the AI-crawler-analytics robots.txt bot-group
-     * parse. Deliberately scoped to real content caches only, not every
-     * transient this plugin owns - the AI per-minute rate-limit
-     * counters (AI\AiRequestSender) and the Core
-     * Web Vitals beacon's own rate-limit transient aren't "stale data,"
-     * clearing them would just reset a rate limit early, a different
-     * (and unwanted here) effect.
-     *
-     * Pro's own real content cache (`vulopilot_kg_recommendations`,
-     * KnowledgeGraph\EntityRecommendationAnalyzer) is cleared via this same
-     * action rather than a direct call - Free never imports Pro's
-     * namespace, so `vulopilot_clear_all_caches` is the same hook-based
-     * cross-boundary contribution `vulopilot_settings_context` (Settings
-     * tab registration) already establishes, just an action instead of a
-     * filter since nothing needs collecting back. Deliberately does NOT
-     * clear Pro's own security-alert-already-sent dedup transient or its
-     * license status cache - the same "real content vs. behavioral state"
-     * distinction as the rate-limit counters above; each has its own real
-     * side effect (resending old alerts, forcing a redundant license
-     * re-check) that isn't "refreshing stale data" either.
-     *
      * @param \WP_REST_Request $request Full details about the request.
      * @return \WP_REST_Response
      */
@@ -390,13 +351,6 @@ class Settings extends \WP_REST_Controller {
     }
 
     /**
-     * "Send test email" (Settings → Notifications) - sends one real email
-     * through the exact same recipient/From-header logic every other
-     * notification email in this codebase already uses (Services\ScanPersistenceListener,
-     * GeoAnalysis\GeoAnalyzer, and their vulopilot-pro counterparts), so a
-     * successful test genuinely confirms those settings work rather than
-     * exercising a separate code path.
-     *
      * @param \WP_REST_Request $request Full details about the request.
      * @return \WP_REST_Response
      */
@@ -456,18 +410,6 @@ class Settings extends \WP_REST_Controller {
     }
 
     /**
-     * "Send Test Report" (Settings → Reports) - a real, full generation
-     * through the exact same engine Controllers\Reports::create_item()
-     * itself uses (`VuloPilot()->report_generator`), using this tab's own
-     * currently-configured `default_report_format`/`default_report_period_days`
-     * (same fallback-to-csv-when-unregistered posture create_item() already
-     * takes for the settings default, so choosing 'pdf' without Pro's
-     * AdvancedReports module active here behaves identically to a real
-     * report request would). Emails a "ready" notice rather than attaching
-     * the file - same real pattern vulopilot-pro's
-     * AdvancedReports\ScheduledReportRunner::maybe_email_report() already
-     * uses for scheduled reports, not a new delivery mechanism.
-     *
      * On success, also persists a real `report_last_test_sent` timestamp -
      * same "survives a page refresh" purpose
      * `crawler_alert_last_test_sent` already serves below.
@@ -476,10 +418,6 @@ class Settings extends \WP_REST_Controller {
      * @return \WP_REST_Response
      */
     public function send_test_report( $request ) {
-        // report_generator is built by vulopilot-pro's AdvancedReports
-        // module now (report generation moved there wholesale, this
-        // class's own docblock) - only present on VuloPilot()'s own
-        // container when that module is active.
         if ( ! VuloPilot()->report_generator ) {
             return rest_ensure_response(
                 array(
@@ -702,16 +640,6 @@ class Settings extends \WP_REST_Controller {
     }
 
     /**
-     * "Send Test Alert" (Notifications → AI Crawler Alerts). The whole AI
-     * Crawler Alerts feature (CrawlerAlertMonitor, the 5 real checks it
-     * runs daily) lives in vulopilot-pro, and Free never `use`s Pro's
-     * namespace (this repo's own CLAUDE.md) - so rather than a direct
-     * class reference, this fires the `vulopilot_send_test_crawler_alert`
-     * filter and returns whatever comes back. `has_filter()` first means
-     * this honestly reports "requires Pro" instead of a generic failure
-     * when nothing is listening (Pro inactive, or this specific module
-     * toggled off - see Module.php's own registration).
-     *
      * On success, also persists a real `crawler_alert_last_test_sent`
      * timestamp into the flat settings option - CrawlerAlertTestPanel.tsx
      * reads it back on load so the "Last test alert sent successfully on

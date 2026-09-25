@@ -136,19 +136,6 @@ class AiActionRuns extends \WP_REST_Controller {
     }
 
     /**
-     * Stages 1-4 of the AI action lifecycle: proposes a new run for a
-     * registered action - validates the real input, sends a real prompt
-     * through the AI request sender, and persists a `pending_approval`
-     * row with a real preview. The response's own `auto_approved`/
-     * `approval_method` (ActionRunner::propose()'s own docblock) say
-     * whether that's still true for this particular run - Settings →
-     * Automation → Approval Settings can make propose() itself apply the
-     * change immediately for a low-enough-risk (or, Pro-gated, any)
-     * proposal, in which case there's nothing left to approve via
-     * POST /ai-action-runs/{id}/approve; the client should check
-     * `auto_approved` rather than assuming every run it just created is
-     * still pending.
-     *
      * @param \WP_REST_Request $request Full details about the request.
      * @return \WP_REST_Response|\WP_Error
      */

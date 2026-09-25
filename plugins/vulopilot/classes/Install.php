@@ -454,14 +454,6 @@ class Install {
     }
 
     /**
-     * Creates `vulopilot_snapshots` - every feature's daily score history in
-     * one table: one row per (`snapshot_type`, `snapshot_date`), the day's
-     * values together as JSON in `data` (Repositories\SnapshotRepository).
-     * Types: `performance`, `security` (free trend cards), `site_health`,
-     * `accessibility`, `store_trends`, `brand_score`, `geo_visibility`,
-     * `kg_health` (Pro modules). Each was a date plus a few numbers, only
-     * ever read back as a time series - no reason for eight tables.
-     *
      * @return void
      */
     private static function create_snapshots_table() {

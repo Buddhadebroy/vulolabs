@@ -6,14 +6,6 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real, independent-cadence cron tick for automatic backups - Protect My
- * Site's "Backups" tile. Unconditionally constructed in
- * VuloPilot::init_classes() (not a Modules-page module). Its own small
- * scheduler, separate from any global scan cadence, same posture
- * vulopilot-pro's own `SecurityScanScheduler` documents for exactly this
- * reason: a feature's own cadence shouldn't be entangled with every other
- * feature's.
- *
  * Reads `backup_frequency` (`'daily'|'weekly'|'disabled'`); only
  * re-registers `wp_schedule_event()` when the setting's own resolved
  * schedule actually differs from what's currently scheduled (avoids
@@ -38,10 +30,6 @@ class BackupScheduler {
     }
 
     /**
-     * Adds a real 'weekly' cron schedule if nothing else already has -
-     * same pattern vulopilot-pro's `SecurityScanScheduler` already uses for
-     * its own independent cadence.
-     *
      * @param array<string, array{interval: int, display: string}> $schedules Real, currently-registered schedules.
      * @return array<string, array{interval: int, display: string}>
      */

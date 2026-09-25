@@ -19,14 +19,6 @@ defined( 'ABSPATH' ) || exit;
  * numbers that scanner never persisted anywhere before this pass - no
  * separate table, no new fabricated aggregate.
  *
- * `POST /broken-links/replace-url` - BrokenLinksSection.tsx's own "Fix"
- * popup - used to live here as a real, free, Pro-free manual
- * search-and-replace. Moved to vulopilot-pro's own OneClickFix module
- * (BrokenLinkFixRest.php) so Broken Links' "Fix" joins the same real
- * `vulopilot_finding_fix_handler`-style Pro gate every other finding's
- * "Fix" action already has, instead of being the one free exception. This
- * controller now only ever serves the read-only stats tiles below.
- *
  * @class       BrokenLinksStats controller
  * @version     1.0.0
  * @author      VuloLabs

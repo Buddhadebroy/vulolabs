@@ -18,7 +18,6 @@ import { AutomationsActivityDummy } from './AutomationsProDummies';
 import { AutomationRow, AutomationTemplate, getAutomationTemplateById } from './automationsTypes';
 import './Automations.scss';
 
-/** Mirrors vulopilot-pro's own ManageAutomationsSection.tsx props exactly (that file's own real definition) - Free can't import Pro's src/ tree, same small-matching-copy convention every other cross-plugin component prop type in this file already uses. */
 interface ManageAutomationsSectionComponentProps {
 	hasWizard: boolean;
 	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
@@ -27,7 +26,6 @@ interface ManageAutomationsSectionComponentProps {
 	refetchSignal: number;
 }
 
-/** Mirrors vulopilot-pro's own `AutomationWizardProps` - Free can't import Pro's src/ tree, same small-matching-copy convention `automationLabels.ts` already establishes for its label sets. */
 interface AutomationWizardComponentProps {
 	openSignal?: number;
 	initialName?: string;
@@ -45,7 +43,6 @@ interface AutomationGenerateComponentProps {
 	onSaved?: () => void;
 }
 
-/** Mirrors vulopilot-pro's own AutomationsActivityCard.tsx props exactly - Free can't import Pro's src/ tree, same small-matching-copy convention every other cross-plugin component prop type in this file already uses. */
 interface AutomationsActivityCardComponentProps {
 	onViewHistory: () => void;
 	refetchSignal: number;
@@ -55,9 +52,7 @@ interface AutomationSlotValue {
 	Wizard: ComponentType<AutomationWizardComponentProps>;
 	Generate: ComponentType<AutomationGenerateComponentProps>;
 	Templates: ComponentType<AutomationGenerateComponentProps>;
-	/** Real "Your automations" list (vulopilot-pro's own ManageAutomationsSection.tsx) - see AutomationsManageDummy.tsx's own docblock for the Free-side stand-in shown when this hasn't resolved. */
 	Manage: ComponentType<ManageAutomationsSectionComponentProps>;
-	/** Real "Recent automation activity" feed (vulopilot-pro's own AutomationsActivityCard.tsx) - see AutomationsActivityDummy.tsx's own docblock for the Free-side stand-in shown when this hasn't resolved. */
 	Activity: ComponentType<AutomationsActivityCardComponentProps>;
 }
 
@@ -65,35 +60,6 @@ interface AutomationSlotValue {
  * "Automate Work" - Free gets exactly 2 fixed, schedule-only automations
  * (`BuiltinAutomationCards.tsx` - "Run Full Site Scan"/"Send Visibility
  * Report", no template picker, no wizard) always shown at the top.
- *
- * Per direct instruction, the header's 3 buttons ("Build with AI", "Create
- * Automation", "Browse Templates") always render, in Free too - a real
- * 2-tier Pro-then-module gate on click rather than being absent from the
- * DOM entirely: `openProPopup()` below opens the plain `<ShowProPopup />`
- * upgrade pitch when Pro isn't installed (`!vulopilotAppLocalizer.khali_dabba`), or
- * the real module-specific `<ShowProPopup moduleName="workflow-automation" />`
- * ("Activate {name}") when Pro is installed but this page's own
- * `vulopilot_automations_panel` filter slot hasn't resolved (`Wizard`/
- * `Generate`/`Templates` below) - same order/shape
- * AutomationsTemplatesCard.tsx's own `handleItemClick` uses for its 3 Pro
- * rows. Each button's own click handler
- * (`openCreateWizard`/`openGenerate`/`openTemplatesLibrary`) already had
- * this exact guard-then-popup logic; only the header's own `buttons` prop
- * used to also hide the buttons outright whenever `Wizard` was missing,
- * short-circuiting that logic before it ever ran.
- *
- * Same real 2-tier treatment for the "Your automations" section
- * (vulopilot-pro's own ManageAutomationsSection.tsx - Pro users' own list
- * of any *additional* automations they've built beyond the 2 built-in
- * ones, already excluding those 2 rows, see that file's own docblock) and
- * for "Recent automation activity" (vulopilot-pro's own
- * AutomationsActivityCard.tsx - the last 5 runs across every automation):
- * when their own `Manage`/`Activity` filter-slot members haven't resolved,
- * `AutomationsManageDummy`/`AutomationsActivityDummy` render in their
- * place instead - fabricated example rows behind the same blurred
- * "Upgrade to Pro" overlay every other Pro-gated dummy card in this
- * plugin uses (../../components/UpgradeToProOverlay.tsx), instead of the
- * section being entirely absent from the DOM the way it used to be.
  *
  * Owns the real wizard/"Build with AI" popups' open-signal state and the
  * `vulopilot_automations_panel` filter-slot resolution directly (rather than
@@ -181,7 +147,6 @@ const Automations = () => {
 	const [initialTemplateId] = useState<string | null>(() =>
 		new URLSearchParams(window.location.hash.substring(1)).get('automation_template')
 	);
-	/** Set only when `initialTemplateId` resolves to one of the 2 real free built-ins ('run-full-site-scan'/'send-visibility-report') - passed down to BuiltinAutomationCards.tsx, which scrolls to and flashes the matching card once its own real DOM exists. `null` for a Pro template id (handled below via `openTemplate` instead) or no deep link at all. */
 	const [highlightTemplateId, setHighlightTemplateId] = useState<string | null>(null);
 	const firedInitialTemplateRef = useRef(false);
 
@@ -196,12 +161,6 @@ const Automations = () => {
 			return;
 		}
 
-		// The 2 free built-ins need no Pro Wizard at all - they already
-		// live on this page as real, always-rendered BuiltinAutomationCards.tsx
-		// cards, so this fires immediately rather than waiting on `Wizard`
-		// (which a linkOnly template would then wait on forever whenever
-		// Pro isn't installed - the exact "redirect works, nothing
-		// highlighted" bug this deep link exists to fix).
 		if (template.linkOnly) {
 			firedInitialTemplateRef.current = true;
 			setHighlightTemplateId(template.id);
@@ -251,10 +210,6 @@ const Automations = () => {
 						onClick: openGenerate,
 					},
 					{
-						// Secondary - "Make templates the preferred starting point in
-						// Pro. Allow 'Create from scratch' as a secondary Pro option" -
-						// this button keeps working exactly as before, just no longer
-						// the rightmost/most prominent one.
 						label:  __('Create Your Own', 'vulopilot'),
 						icon: 'plus',
 						color: 'border-purple',

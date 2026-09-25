@@ -40,7 +40,6 @@ const PERIOD_OPTIONS = [
 /** Same real day-range options the old `BadgeComponent` toggle used, now expressed as the real `PeriodDays` string values `ToggleInput` needs. */
 const HEALTH_TIMELINE_DAY_OPTIONS: PeriodDays[] = ['7', '30', '90'];
 
-/** Real backend module id (Settings → Modules) - `vulopilot-pro`'s `modules/AdvancedReports` own directory, which registers the real `GET /site-health-snapshots` endpoint this widget reads once active. */
 const HEALTH_TIMELINE_MODULE_ID = 'advanced-reports';
 
 /** Fabricated 7-day score trend - same "obviously fake, never mistaken for a real scan result" reasoning Accessibility.tsx's own `DUMMY_ACCESSIBILITY_HISTORY` documents; no real fetch behind this, ever. */
@@ -74,24 +73,6 @@ const DUMMY_HEALTH_TIMELINE = [
  *   NeedsAttentionWidget's "Pending approval" tab already lists.
  * - Latest report: `GET /reports?per_page=1` (same endpoint
  *   LatestReportsWidget already reads), most recent row's `created_at`.
- *
- * The mockup's own 6th tile, "Next audit" (a specific upcoming date/time,
- * e.g. "Daily at 9:00 AM"), is deliberately NOT included: `automatic_site_scan`/
- * `scan_frequency` (Settings → General) are real, stored settings, but
- * nothing in this Free plugin actually reads them to schedule a recurring
- * full scan (confirmed - no `wp_schedule_event()` call anywhere references
- * either setting, unlike BackupScheduler's own real `backup_frequency`
- * wiring). The only real recurring-schedule mechanism in this codebase
- * (`vulopilot_automations_tick_{type}`, `Controllers\Automations::with_next_run()`)
- * lives entirely in vulopilot-pro's Automations module, drives
- * notification/AI-action automations rather than scans, and would show
- * `null` on any site without that Pro module active - showing a specific
- * "Next audit" date here would be fabricated on every Free-tier site.
- * Also, "Last audit" is labeled generically ("Last scan completed") rather
- * than the mockup's "Full audit completed" - `vulopilot_scans` has one row
- * per scanner (Scanners\ScanRunner::run_all() loops per-scanner), so the
- * single most-recently-finished row doesn't by itself distinguish a full
- * "Run Complete Audit" from one category's scan finishing.
  */
 const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 	summary,
@@ -125,17 +106,6 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 		);
 	const { lastScanAt, isLoading: isLastScanLoading } = useLastScanTime();
 
-	// Same real `/site-health-snapshots` endpoint
-	// HealthTimelineWidget.tsx's own trend chart already uses - only
-	// registered once vulopilot-pro's AdvancedReports module is active
-	// (real, permanent 404 on a Free-only install otherwise, same reason
-	// that widget checks `active_modules` directly rather than treating
-	// "404'd" and "zero rows" as the same friendly empty state).
-	//
-	// Real "Last 7/30/90 days" toggle, now the same real `ToggleInput`
-	// shape `OverviewTab.tsx`'s own "Visibility Trend" card already uses
-	// for its identical day-range control - replacing the previous
-	// `BadgeComponent`-based toggle per direct instruction.
 	const [healthTimelineDays, setHealthTimelineDays] = useState<PeriodDays>('30');
 	const { data: healthSnapshots } = useApiList<HealthSnapshot>(
 		'site-health-snapshots',

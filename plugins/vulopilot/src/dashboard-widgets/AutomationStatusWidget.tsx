@@ -29,12 +29,6 @@ const BUILTIN_ROWS = [
 	},
 ];
 
-/**
- * Lists Free's 2 built-in automations (fetched from the same `/automations`
- * endpoint src/pages/Automations/Automations.tsx uses), each with an
- * Enabled/Not active badge and the real `PATCH /automations/{id}` toggle,
- * plus - until Pro is active - an "Unlock more automations" banner.
- */
 const AutomationStatusWidget: React.FC<WidgetProps> = ({
 	isLoading,
 	onHide,

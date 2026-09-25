@@ -5,7 +5,6 @@ const DOCS_URL =
 	'https://vulopilot.com/docs/?utm_source=wpadmin&utm_medium=automations&utm_campaign=vulopilot';
 
 interface AutomationsResourcesCardProps {
-	/** Opens the same create-automation flow the header's "Create Automation" button does (Pro wizard, or the upgrade popup when Pro isn't active). */
 	onCreateCustom: () => void;
 }
 

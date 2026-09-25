@@ -8,20 +8,6 @@ use VuloPilot\Utill\ScanResult;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real per-page JSON-LD sampling for the restyled Schema tab's own "Schema
- * Coverage" table - a deterministic structural check (fetch each sampled
- * page's real rendered HTML, extract `<script type="application/ld+json">`
- * blocks the same way StructuredDataValidationScanner already does for the
- * homepage, decode each block's real `@type`), not an AI call, so there's
- * no per-call cost or rate limit to worry about the way
- * GeoInsights\VisibilitySnapshotBuilder's own AI-scored sample has
- * (Pro, vulopilot-pro) - but it is still real outbound HTTP work per
- * sampled page, so results are cached (transient, `CACHE_TTL`) and only
- * ever (re)computed on an explicit `POST /schema/coverage`, same
- * "loading a page never silently spends real work" posture
- * CompetitorVisibilityAnalyzer (GeoInsights, Pro) already established for
- * its own real per-competitor HTTP fetch.
- *
  * @class       SchemaCoverageAnalyzer class
  * @version     1.0.0
  * @author      VuloLabs

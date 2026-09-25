@@ -115,8 +115,6 @@ const getAeoTrendScore = (row: GeoVisibilityHistoryRow): number | null =>
  * without a full refresh.
  */
 const isCitationCheckActive = (modules: string[]): boolean =>
-	// `/aeo-citation-coverage` is registered only by vulopilot-pro, so a
-	// module id alone (Free ships its own geo-analysis module) isn't enough.
 	Boolean(vulopilotAppLocalizer.khali_dabba) &&
 	(modules.includes('geo-analysis') || modules.includes('answer-engine-optimization'));
 
@@ -126,37 +124,6 @@ const isCitationCheckActive = (modules: string[]): boolean =>
  * from GEO's broader "can an AI understand this page at all" scope, and
  * from classic search-engine SEO). Reuses real data/components already
  * built for GEO/this tab rather than duplicating them:
- *
- * 1. Two static info banners.
- * 2. "AEO Score" (AeoScoreSummaryCard.tsx): score gauge (Pro-gated bucket
- *    average) + a "Goal: 70+" nudge, plus stat rows for Questions
- *    Answered/Pages Ready (useAeoPageAnalysis.ts) and Content Change (the
- *    first-vs-latest score delta over 30 days, via geoTrendChange.ts's
- *    `computeTrendChange()`, trending the same
- *    answer_first_structure/question_coverage/citation_readiness average
- *    the gauge uses).
- * 3. TopPagesCard.tsx/GeoFixTheseFirstCard.tsx are not rendered on this
- *    tab (still used elsewhere) - the "Pages & Posts" table below already
- *    covers the same ground with a sortable score.
- * 4. "AEO Checks at a Glance" (GeoByTopicGrid.tsx) is not currently
- *    rendered here, but its unused import stays out to avoid dead-import
- *    lint noise; it uses AEO_SECTIONS (6 topics) vs GeoTab.tsx's 5.
- * 5. "Answer Engine Coverage" (AeoCitationCoverageCard.tsx) and "Engine
- *    Testing" (AeoEngineTestingCard.tsx) make real outbound calls to this
- *    site's configured AI service (`GeoInsights\CitationCoverageChecker`,
- *    reusing Free's `ai_request_sender`), asking a question drawn from
- *    the site's content without naming the site, then checking whether
- *    the model's answer already recognizes it. Labeled "Simulated"
- *    because a plain chat completion has no live web search - a "not
- *    recognized" result on a small/new site is an expected, true finding.
- *    Both gate on `isCitationCheckActive()` (the same `active_modules`
- *    check GeoTab.tsx's `isGeoInsightsActive()` uses), not on whether a
- *    snapshot-cron run happens to have populated `hasSnapshot`.
- * 6. "All AEO Issues" uses `IssuesSection.tsx` (filter-pills + Site-wide
- *    Issues + Pages & Posts, shared with SeoTab.tsx/GeoTab.tsx). Its
- *    `pageAnalysis` prop merges the page-by-page answer-readiness table
- *    (deterministic % scoped to AEO's scanner ids + Export CSV) directly
- *    into the "Pages & Posts" table.
  */
 const AeoTab = () => {
 	const [categoryFocus, setCategoryFocus] = useState<{

@@ -20,26 +20,6 @@ defined( 'ABSPATH' ) || exit;
  * boolean regex presence check, not a parser, so there was no existing
  * extraction mechanism to build on regardless):
  *
- * - People: real WP users who have authored at least one published post/page.
- * - Organizations: the site's own real Organization entity - Services\HomepageSchemaRenderer's
- *   `vulopilot_homepage_schema_json` option's `publisher` sub-object when a
- *   site owner has run that Pro mechanical fix, falling back to the site's
- *   own title/URL (always real, never fabricated) when it hasn't.
- * - Products: real store-platform products, same `class_exists('WooCommerce')`
- *   + `wc_get_products()` guard every other Free store-platform scanner uses.
- * - Services/Locations: real data the site owner explicitly provides via
- *   two new settings (Settings → Site Identity → Business Information,
- *   moved there from Scanning → AI Visibility per direct instruction) -
- *   this codebase has no
- *   existing Service/LocalBusiness concept to derive these from
- *   automatically (confirmed absent everywhere), so rather than fabricate
- *   a data source that doesn't exist, these two types are owner-curated
- *   lists, same "Free owns the setting, deterministic once provided"
- *   posture `geo_competitor_urls` already uses. Empty (not fabricated)
- *   until configured.
- * - Categories: real taxonomy terms currently attached to at least one
- *   published post/product (`hide_empty` => true).
- *
  * Gated on the `entity-extraction` module being active
  * (`VuloPilot()->modules->get_active_modules()`) - same "deactivating a
  * module really changes behavior" posture `modules/TechnicalSeo/Module.php`'s own
@@ -166,20 +146,6 @@ class EntityExtractor {
     }
 
     /**
-     * "Business Name Details" side panel data - the real business name
-     * `extract_organizations()` already resolves, cross-checked against 4
-     * real, independently-readable WordPress data points instead of just
-     * asserting it: whether that same name shows up as the site's real
-     * static front-page title (or, with no static front page, the site
-     * title WordPress itself would render there), the real site title
-     * setting, the real Organization schema `publisher.name` (when Pro's
-     * mechanical fix has run), and the real published About page's own
-     * content. Nothing here is a second, independent name-detection
-     * mechanism - every source is checked against this one already-
-     * resolved name, so "consistent" means "these real, independent
-     * places all agree with the name VuloPilot already reports," not a
-     * second opinion that could disagree with it.
-     *
      * @param bool $refresh Bust EntityExtractor's own 1-hour cache first - real "Scan Again" semantics (re-reads every real source now), not a second, separate cache of its own.
      * @return array{business_name: string, confidence: string, sources: array<int, array{key: string, label: string, value: string|null, found: bool, url: string|null}>, sources_checked: int, is_consistent: bool, consistent_count: int}
      */
@@ -490,12 +456,6 @@ class EntityExtractor {
     }
 
     /**
-     * Reads the real Organization sub-object Pro's own
-     * MechanicalFixRunner::generate_organization_schema() nests into
-     * `vulopilot_homepage_schema_json` as `publisher`, if a site owner has
-     * ever run that fix - the one place in this codebase with a real,
-     * structured, deterministically-built Organization entity.
-     *
      * @return array{name?: string, url?: string, logo?: string}|null
      */
     private function get_homepage_publisher(): ?array {

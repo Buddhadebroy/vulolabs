@@ -83,7 +83,7 @@ type ListResponse<T> = T[] | { data?: T[]; total?: number; [key: string]: unknow
  *                       category-scoped page). Pagination/per-page/select-filter
  *                       params are owned by TableCard itself - see onQueryUpdate.
  * @param categoryFilter Optional status-count pill bar config - see CategoryFilterConfig.
- * @param enabled        When false, no request is made (e.g. the endpoint only exists while a Pro module is active).
+ * @param enabled        When false, no request is made (e.g. the endpoint only exists while an optional module is active).
  */
 export const useApiList = <T = Record<string, unknown>>(
 	endpoint: string,

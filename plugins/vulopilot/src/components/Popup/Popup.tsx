@@ -28,14 +28,6 @@ interface PopupProps {
 	 */
 	vulocloud?: boolean;
 
-	/**
-	 * Renders a plain yes/no confirmation instead of the module/plugin/
-	 * upgrade pitches below - same `PopupComponent` + `<Popup confirmMode>`
-	 * shape multivendorx-pro's own `components/Popup/Popup.tsx` already
-	 * established, reusing zyra's own built-in `.popup-confirm` styling
-	 * (PopupComponent.scss) rather than a native `window.confirm()`, which
-	 * every call site in this plugin used to fall back to.
-	 */
 	confirmMode?: boolean;
 	title?: string;
 	confirmMessage?: React.ReactNode;
@@ -101,17 +93,7 @@ export const resolveModuleDisplayName = (moduleId: string): string =>
 const CARDLESS_MODULE_ICONS: Record<string, string> = {
 	'advanced-reports': 'report',
 	'one-click-fix': 'tools',
-	// "Chat with VuloPilot" (modules/CopilotChat/Module.php, Pro) - also
-	// cardless, same reasoning.
 	'copilot-chat': 'ai',
-	// 9 of Create Content's own "Content Tools" grid tiles
-	// (modules/ContentTools/Module.php, Pro) - also cardless, same
-	// reasoning.
-	'content-tools': 'tools',
-	// 'commerce' used to be listed here (cardless) - it now has a real
-	// Modules/index.ts catalog entry with its own `icon: 'cart'` field, so
-	// `resolveModuleIcon()` below finds it there first; kept out of this
-	// map to avoid a second, now-unreachable definition of the same icon.
 };
 
 /**
@@ -131,23 +113,6 @@ const resolveModuleIcon = (moduleId: string): string =>
 	CARDLESS_MODULE_ICONS[moduleId] ??
 	moduleId;
 
-/**
- * The generic "what Pro adds" pitch's feature list - derived straight from
- * ../Modules/index.ts's own catalog (the real Settings → Modules page data,
- * already kept in sync with the backend's real module ids) rather than a
- * second, separately hand-maintained copy of the same information. That
- * second copy is what used to live here: an 11-entry array of module
- * names/blurbs, manually kept in sync "by hand" per its own former
- * docblock - the exact kind of duplicated, hardcoded module list this
- * repo's module-architecture.md and this refactor both ask to avoid.
- *
- * Selected by `popupTitle` presence rather than `proModule` - this pitch is
- * "what Pro unlocks in this module" (marketing copy, one bullet per module
- * that has any Pro upsell), not "modules that are entirely Pro-only".
- * `Advanced Reports` has no Settings → Modules catalog entry of its own
- * (it's cardless, same as CARDLESS_MODULE_ICONS above already accounts for)
- * so it's appended by hand instead of coming from the map/filter below.
- */
 const proPopupContent = {
 	messages: [
 		...MODULES_CATALOG.modules

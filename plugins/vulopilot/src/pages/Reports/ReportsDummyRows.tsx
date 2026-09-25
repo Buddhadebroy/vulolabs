@@ -2,14 +2,6 @@ import { __ } from '@wordpress/i18n';
 import { BadgeComponent } from '@zyra/components';
 import { DUMMY_REPORT_ROWS } from './reportsOverview';
 
-/**
- * Fabricated row list shared by RecentReportsCard.tsx/ReportHistoryTable.tsx
- * for their own Pro-locked state - plain, non-interactive markup (no real
- * `TableCard`/row actions) rather than feeding `DUMMY_REPORT_ROWS` into the
- * real table component both use for genuine data, since none of these rows
- * has a real id/file behind it for a "View"/"Download" action to open. One
- * shared component instead of each table hand-copying the same 3 fake rows.
- */
 const ReportsDummyRows = () => (
 	<div className="reports-dummy-rows">
 		{DUMMY_REPORT_ROWS.map((row) => (

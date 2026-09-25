@@ -71,14 +71,6 @@ export interface Finding extends TableRow {
 	 * `page` itself when this is null.
 	 */
 	page_title?: string | null;
-	/**
-	 * Which AI action can fix this finding, e.g. 'generate-alt' - null/
-	 * undefined when this finding's scanner has no mapped fix, or when
-	 * vulopilot-pro's OneClickFix module isn't active (in which case this
-	 * field is never added to the response at all). Read by the fix
-	 * handler getFindingFixHandler() below reads - see its own docblock.
-	 * See VuloPilotPro\OneClickFix\ScannerFixMap.
-	 */
 	fix_action_id?: string | null;
 }
 
@@ -92,58 +84,11 @@ interface FixOutcome {
 	message: string;
 }
 
-/**
- * The "Fix" row action's actual behavior - registered by vulopilot-pro's
- * OneClickFix module (modules/OneClickFix/src/index.tsx) via this filter,
- * replacing the `null` default with a function that calls
- * `POST /findings/{id}/fix` and resolves what happened. Free never contains
- * that REST call or any AI-action-to-scanner mapping itself: the "Fix"
- * action below is always visible (register a source, don't modify the
- * host - same pattern as vulopilot_woocommerce_ai_panel/
- * vulopilot_pro_dashboard_component), but its onClick only ever does one of
- * two things - call this handler, or open the Pro popup when it's null
- * (Pro not installed/active, or Pro's OneClickFix module specifically
- * isn't enabled - this module's own JS entry is itself gated on
- * vulopilotAppLocalizer.active_modules, so a null handler covers both cases without
- * Free needing to know which).
- *
- * The handler resolves a { success, message } outcome rather than showing
- * its own notice: @multivendorx/zyra isn't in webpack's `externals` (only
- * react/react-dom/@wordpress/* are - tools/webpack/create-config.js), so
- * it's bundled separately per plugin. Free's and Pro's NoticeManager are
- * two different in-memory singletons - a notice added from Pro's bundle is
- * invisible to the NoticeReceiverComponent Free's own HeaderComponent
- * mounted from Free's bundle. Free's onClick below shows the notice itself
- * using ITS OWN NoticeManager, which the receiver actually subscribes to.
- *
- * Read fresh on every click rather than cached in a module-level constant:
- * Pro's own script (vulopilot-pro-admin-script) is a separate, later
- * <script> tag that depends on this one (it reads the `vulopilotAppLocalizer` global
- * this script localizes), so it hasn't registered its addFilter() callback
- * yet at the moment this module first evaluates - caching the result here
- * would permanently capture `null` and always show the popup, active
- * module or not. By click time both scripts have long finished running.
- *
- * Exported (this was module-private until BrokenLinksTab.tsx's own
- * page-grouped table needed the exact same Pro-gated "Fix" behavior on its
- * expanded finding sub-rows without pulling in this whole hook - that
- * table builds its own grouped `rows`/`headers` rather than rendering
- * `tableCardProps` directly, so it can't just read the bound handler off
- * `tableCardProps.headers.actions.actions` the way every flat
- * findings-table caller does).
- */
 export const getFindingFixHandler = () =>
 	applyFilters('vulopilot_finding_fix_handler', null);
 
 /**
- * "Bulk Fixes" (AI-VISIBILITY-MODULE.md) - same registration pattern as
- * getFindingFixHandler() above, one level up: vulopilot-pro's OneClickFix
- * module replaces this `null` default with a function that calls
- * `POST /findings/bulk-fix` for a whole selected batch at once and
- * resolves a summary outcome, rather than Free looping the single-row
- * handler itself (a real batch REST call, not N sequential requests).
- *
- * @return unknown A function(ids: number[]): Promise<FixOutcome>, or null when Pro's OneClickFix isn't active.
+ * @return unknown A function(ids: number[]): Promise<FixOutcome>, or null when no fix handler is available.
  */
 const getFindingBulkFixHandler = () =>
 	applyFilters('vulopilot_finding_bulk_fix_handler', null);
@@ -197,7 +142,6 @@ export interface UseFindingsTableResult {
 	error: string | null;
 	/** Retry the fetch - wire to the error state's own retry action. */
 	refetch: () => void;
-	/** Whether the "OneClickFix isn't active" Pro popup should be open - render `<PopupComponent open={isProPopupOpen} onClose={closeProPopup}>` alongside `<TableCard />`. */
 	isProPopupOpen: boolean;
 	closeProPopup: () => void;
 }
@@ -615,10 +559,6 @@ export const useFindingsTable = ({
 				value: 'resolved',
 			},
 			{ label: __('Ignore Issue', 'vulopilot'), value: 'ignored' },
-			// Always visible, same "register a source, don't modify
-			// the host" reasoning as the per-row "Fix" action above -
-			// its onClick below only ever calls the Pro-registered
-			// handler or opens the Pro popup.
 			{ label: __('Fix selected', 'vulopilot'), value: '__fix__' },
 		],
 		onBulkActionApply: (action: string, ids: number[]) => {

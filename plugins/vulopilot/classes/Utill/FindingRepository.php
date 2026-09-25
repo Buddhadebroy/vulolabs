@@ -783,30 +783,6 @@ class FindingRepository extends RepositoryUtil {
     }
 
     /**
-     * Same shape as get_severity_breakdown_for_category(), but reconstructed
-     * as of a past moment instead of counting today's `status = 'open'`
-     * rows - what a category score trend needs, since no daily per-category
-     * score snapshot exists (only `vulopilot_site_health_snapshots.overall_score`
-     * is ever written; see SiteHealthSnapshotRepository in vulopilot-pro).
-     * A finding counts as "open as of $as_of" when it already existed
-     * (`created_at <= $as_of`) and either is still `status = 'open'` right
-     * now, or has a real `resolved_at` timestamp after `$as_of` - NOT a bare
-     * `resolved_at IS NULL` check (this method's own original condition,
-     * confirmed live to silently over-count: 120 of this table's 192
-     * `status = 'resolved'` rows have a `NULL resolved_at` - resolved
-     * before `resolved_at` tracking existed/was backfilled, not "still
-     * open" - so treating a null timestamp as "not yet resolved" was
-     * counting a majority of already-resolved findings as still open in
-     * every historical reconstruction). A currently-resolved finding with
-     * no real resolved timestamp is instead treated as already resolved by
-     * `$as_of` - the honest assumption when the exact moment isn't known,
-     * rather than the previous assumption that silently inflated every
-     * "as of" score below its real historical value. Currently
-     * ignored/snoozed findings stay excluded from both ends (same exclusion
-     * get_severity_breakdown_for_category()'s `status = 'open'` filter
-     * already applies today) since ignored/snoozed transitions don't carry
-     * their own timestamp to reconstruct from.
-     *
      * @param string $category One of the scanner category strings (SCANNERS.md).
      * @param string $as_of    MySQL datetime (UTC) to reconstruct the open set as of.
      * @return array{critical: int, high: int, medium: int, low: int}

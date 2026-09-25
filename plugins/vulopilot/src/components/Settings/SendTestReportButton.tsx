@@ -40,12 +40,6 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
  * CrawlerAlertTestPanel.tsx's own docblock gives: this key is system-set,
  * never user-edited, so it's never one of Reports.ts's own `modal[].key`
  * fields SettingContext would otherwise seed.
- *
- * The whole Reports tab is a Pro feature (see Reports.ts's own docblock).
- * Reports.ts's declarative fields get zyra's Pro tag + popup from
- * `proSetting: true`; this button isn't a declarative field, so without Pro
- * it shows the same "Pro" tag itself and opens `ShowProPopup` on click
- * instead of calling the API.
  */
 const SendTestReportButton = () => {
 	const isPro = Boolean(vulopilotAppLocalizer.khali_dabba);

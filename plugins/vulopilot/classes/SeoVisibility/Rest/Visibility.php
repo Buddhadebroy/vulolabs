@@ -30,15 +30,6 @@ defined( 'ABSPATH' ) || exit;
  * list, same "kept in sync manually" convention `Controllers\Seo`'s own
  * docblock already documents for a similar cross-file duplication.
  *
- * AEO and Keywords are deliberately NOT included: AEO has no free-tier
- * score anywhere in this codebase (`AeoTab.tsx`'s own client-side "AEO
- * Score" reads a Pro-only snapshot and silently falls back to 0 without
- * vulopilot-pro's GeoInsights module active); Keywords has no score at
- * all, only Search-Console-gated position/click stats. Averaging in a
- * fabricated or always-zero number for either would drag the combined
- * score down dishonestly rather than reflect real site health - better to
- * average 4 genuinely real areas than 6 where 2 are placeholders.
- *
  * @class       Visibility controller
  * @version     1.0.0
  * @author      VuloLabs

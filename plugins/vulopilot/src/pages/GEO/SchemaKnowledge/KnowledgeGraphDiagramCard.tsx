@@ -129,21 +129,6 @@ interface KnowledgeGraphDiagramProps {
 }
 
 /**
- * The real hub-and-spoke visualization itself - nodes/lines only, no card
- * chrome, no "Suggested relationships" panel (a standalone card wrapping
- * this with that panel used to exist here too - removed per direct
- * instruction ("remove this section"), since KnowledgeGraphSection.tsx's
- * own "What AI & Search Understand" card below already renders this exact
- * same real diagram at `compact` size and was the only real content this
- * file's own former card duplicated a 2nd time). Exported so
- * KnowledgeGraphSection.tsx can render this real diagram (not a 2nd,
- * separately-maintained one) inline in its own "What AI & Search
- * Understand" card, replacing that card's former Pro-only "Graph
- * visualization is a Pro feature" fallback with this always-real default
- * - Pro's own richer `vulopilot_knowledge_graph_visualization_card` filter
- * slot still renders first when it resolves (see that file's own
- * `useFilterSlot()` call).
- *
  * Node/box design matches a newer reference mockup exactly: each satellite
  * is its own real rounded-box "card" (a real type label above, a real
  * value or a real "Not found" + a real, functional "Add …" link inside),

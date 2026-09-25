@@ -19,43 +19,7 @@ interface DummyCardProps {
 	onClick: () => void;
 }
 
-/**
- * BrandVisibilityTab.tsx's 4 Pro-gated "still show the section, PRO-tagged,
- * with fabricated content behind a click-through popup" cards, one file per
- * the AutomationsProDummies.tsx precedent (Automations folder) -
- * AuthorityTrendsDummy/KnowledgePanelDummy/OffSiteMentionsDummy/
- * CompetitorComparisonDummy used to be 4 separate files, each a single-use
- * dummy stand-in for one real vulopilot-pro BrandIntelligence card
- * (AuthorityTrendsCard.tsx/KnowledgePanelCard.tsx/OffSiteMentionsCard.tsx/
- * CompetitorComparisonCard.tsx), consolidated here since none of the 4 has
- * any other consumer. Every row/stat in all 4 is fabricated (no real fetch
- * behind any of them) and inert - each card's own dummy content class is
- * `pointer-events: none` (SeoVisibility.scss) so a click always reaches the
- * wrapping overlay, which opens the same Pro popup either way.
- */
 
-/**
- * The one real shell every dummy card below renders through - merges what
- * used to be two separate wrappers each of the 4 dummies had to nest by
- * hand (`ProDummyCard`, the outer `.admin-tag.pro-tag` badge wrapper, and
- * the `<BlurredProContent>` shell - ../../components/UpgradeToProOverlay.tsx,
- * shared across the plugin, not just this file - for the
- * `.blur-wrapper`/`<UpgradeToProOverlay />`/click-through content) into
- * one local component. Owns the `CardComponent` itself (title/titleIcon/
- * desc/action passed straight through) so a caller no longer
- * hand-assembles `CardComponent > BlurredProContent` itself;
- * `DummyDataNotice` (real on every one of the 4) is included
- * unconditionally for the same reason.
- *
- * The `.admin-tag.pro-tag` badge that used to float over every card here
- * (`ProDummyCard`'s own job) was removed per direct instruction - every
- * one of these cards already shows the real "Upgrade to Pro" overlay
- * (`<BlurredProContent>`'s own `<UpgradeToProOverlay />`) the moment its
- * blurred content renders, so the badge was the same "this is Pro"
- * message a second time on the same card. `.brand-pro-dummy-wrapper` (the
- * outer `position: relative` div that badge needed as its own anchor)
- * went with it - see SeoVisibility.scss's own removed rule.
- */
 const BlurredDummyContent = ({
 	title,
 	titleIcon,
@@ -93,11 +57,6 @@ const DUMMY_AUTHORITY_HISTORY = [
 	{ day: __('Day 7', 'vulopilot'), brand: 89, trust: 95, authority: 85, entity: 84 },
 ];
 
-/**
- * Dummy stand-in for vulopilot-pro's own BrandIntelligence module
- * AuthorityTrendsCard.tsx (the real Brand/Trust/Authority/Entity score
- * history chart).
- */
 export const AuthorityTrendsDummy = ({ onClick }: DummyCardProps) => (
 	<BlurredDummyContent
 		title={__('Authority Trends', 'vulopilot')}
@@ -165,11 +124,6 @@ const DUMMY_KNOWLEDGE_PANEL_FINDINGS: { title: string }[] = [
 	{ title: __('No author schema found: (Example post 4)', 'vulopilot') },
 ];
 
-/**
- * Dummy stand-in for vulopilot-pro's own BrandIntelligence module
- * KnowledgePanelCard.tsx (the real Organization/author Person schema
- * one-click optimizer).
- */
 export const KnowledgePanelDummy = ({ onClick }: DummyCardProps) => (
 	<BlurredDummyContent
 		title={__('Knowledge Panel Optimization', 'vulopilot')}
@@ -237,11 +191,6 @@ const DUMMY_MENTIONS: { title: string; source: string }[] = [
 	{ title: __('(Example mention 4)', 'vulopilot'), source: 'r/example' },
 ];
 
-/**
- * Dummy stand-in for vulopilot-pro's own BrandIntelligence module
- * OffSiteMentionsCard.tsx (the real Google News/Bing News/Reddit mention
- * tracker).
- */
 export const OffSiteMentionsDummy = ({ onClick }: DummyCardProps) => (
 	<BlurredDummyContent
 		title={__('Off-site mentions', 'vulopilot')}
@@ -312,11 +261,6 @@ const DUMMY_COMPETITOR_ROWS: { label: string; score: string; isSelf: boolean; si
 	},
 ];
 
-/**
- * Dummy stand-in for vulopilot-pro's own BrandIntelligence module
- * CompetitorComparisonCard.tsx (the real 11-signal "your site vs.
- * competitor URLs" table).
- */
 export const CompetitorComparisonDummy = ({ onClick }: DummyCardProps) => (
 	<BlurredDummyContent
 		title={__('Competitor Comparison', 'vulopilot')}

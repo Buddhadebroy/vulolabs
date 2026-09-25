@@ -28,7 +28,6 @@ import { ACCESSIBILITY_CHECKS } from './accessibilityChecks';
 
 /** DOM anchor id the merged issues table below carries. */
 const ISSUES_TABLE_ID = 'accessibility-a11y-issues-table';
-/** Real backend module id (Settings → Modules) - same id `vulopilot-pro`'s `modules/AccessibilityAudits` own directory name resolves to, used both for the "which module to deep-link to" popup and for resolving its real display name for the dummy card's badge below. */
 const ACCESSIBILITY_MODULE_ID = 'accessibility-checks';
 
 /** Fabricated 7-day score trend - same "obviously fake, never mistaken for a real scan result" reasoning BrandVisibilityProDummies.tsx's own `DUMMY_AUTHORITY_HISTORY` documents; no real fetch behind this, ever. */
@@ -66,14 +65,6 @@ const ISSUES_TABLE_SECTIONS = ACCESSIBILITY_CHECKS.filter(
 	(check) => 'all' !== check.key
 );
 
-/**
- * Visible teaser for the history-trend slot above, using the shared
- * blurred "Upgrade to Pro" overlay (`BlurredProContent`/
- * `UpgradeToProOverlay`, ../../components/UpgradeToProOverlay.tsx).
- * `isProInstalled` still gates which popup state opens (`ShowProPopup`'s
- * `moduleName` prop vs none), even though no badge shows that distinction
- * visually anymore.
- */
 const AccessibilityHistoryDummy = () => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
 	const [period, setPeriod] = useState<PeriodDays>('30');
@@ -142,23 +133,6 @@ const AccessibilityHistoryDummy = () => {
  * keyboard use, readability, WCAG findings) are content-quality concepts,
  * not security ones, and it's core always-on functionality like
  * Performance/SEO & Visibility (no `modules/Accessibility/Module.php`).
- *
- * The history-trend slot (`vulopilot_accessibility_history_panel`)
- * renders a fallback teaser (AccessibilityHistoryDummy) instead of
- * nothing when `accessibility-audits` isn't active. Read via
- * `useFilterSlot()`, not a one-time `applyFilters()` call - Pro's
- * `addFilter()` registration runs after this component's first render on
- * a fresh page load, so a one-time read would permanently miss it (see
- * useFilterSlot.ts).
- *
- * The history-trend slot and WhyAccessibilityMattersCard each sit in
- * their own `ColumnComponent`, not stacked in one shared column:
- * `.admin-tag.pro-tag` is `position: absolute`, anchored to its nearest
- * `position: relative` ancestor (`.card-wrapper`) as a corner ribbon -
- * sharing a column pins the ribbon to the column's bounding box (the
- * first card) rather than the card actually rendering it. Same issue
- * KeywordsTab.tsx's `.keywords-locked` documents. PluginOverlapCard sits
- * in its own full-width row below for the same reason.
  */
 const Accessibility = () => {
 	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');

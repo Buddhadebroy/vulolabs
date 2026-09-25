@@ -10,11 +10,6 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * A rule turns a Finding into a Recommendation - not a condition tree (see
- * RULE-ENGINE.md for why that earlier sketch was superseded). Implemented
- * by RuleEngine\Rules\AbstractBasicRule (free) and any premium rule Pro
- * registers via `vulopilot_rule_sources`.
- *
  * @class       RuleInterface interface
  * @version     1.0.0
  * @author      VuloLabs

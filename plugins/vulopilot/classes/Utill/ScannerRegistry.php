@@ -15,25 +15,6 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloPilot ScannerRegistry class.
  *
- * Collects every registered scanner and instantiates it. Most of Free's own
- * Basic scanners always run; the 17 SEO ones are the one exception -
- * they're registered by modules/TechnicalSeo/Module.php instead of the hardcoded
- * list below, so SEO scanning is genuinely module-dependent (Settings →
- * Modules). Pro's premium scanners (and any third-party scanner) are added
- * on top the same way, via the `vulopilot_scanner_sources` filter - see
- * SCANNERS.md's "Extension strategy" for the full explanation.
- *
- * This intentionally does NOT copy Modules.php's folder-scan/reflection
- * discovery mechanism (module-architecture.md). A module is a whole
- * package (Module.php + Rest.php + Frontend.php + …) discovered by
- * scanning directories for a file with a fixed name; a scanner is a
- * single class implementing one small interface. Folder-scanning would
- * force every scanner into its own directory for no benefit - a plain
- * class-name filter is the simpler mechanism that still gives Pro/
- * third-party code the same "register a source, don't be instantiated
- * directly" extension point module-architecture.md's discovery model is
- * built around.
- *
  * @class       ScannerRegistry class
  * @version     1.0.0
  * @author      VuloLabs
@@ -87,22 +68,6 @@ class ScannerRegistry {
     }
 
     /**
-     * Settings screen's Accessibility/Commerce tabs are category-level
-     * kill switches (SCANNERS.md's category list) rather than per-scanner
-     * toggles. The `woocommerce` category itself is now entirely Pro-owned
-     * (the store-intelligence module's own `Scanners/` - see
-     * `vulopilot_scanner_sources`'s Pro-side registration), so this toggle
-     * only takes effect when that Pro module has registered its scanners
-     * under this same category string; Free carries no scanner of its own
-     * in this category any more.
-     * Scanners not covered by one of these two toggles (security,
-     * performance, links, geo, seo, …) always run; only RestApiScanner has
-     * its own dedicated setting, see its own docblock for why. The `geo`
-     * and `seo` categories have no kill switch here - each of their
-     * scanners reads its own granular flag_* setting directly instead
-     * (Scanning → GEO and Scanning → SEO's settings screens have no
-     * whole-category "disable" toggle).
-     *
      * @return string[] Category strings currently disabled via settings.
      */
     private function get_disabled_categories(): array {
@@ -125,37 +90,10 @@ class ScannerRegistry {
     }
 
     /**
-     * Free's own always-available scanners - matches the readme's free
-     * feature list (Website Health Monitoring, SEO Optimization,
-     * Performance, Accessibility Scanner). "Commerce Optimization" is no
-     * longer part of this list - per direct architecture decision,
-     * store-platform detection is a Pro module like every other Pro module's
-     * scanners, so all 18 store-platform/Product* scanners that used to be
-     * hardcoded here moved to vulopilot-pro's store-intelligence
-     * module (`Scanners/`), registered via `vulopilot_scanner_sources`
-     * just like every other Pro scanner.
-     * SecurityScanner/RestApiScanner are the one exception ("Security
-     * Monitoring" is Pro-only per the readme) - they moved to
-     * vulopilot-pro's SecurityMonitoring module instead. Free does own its
-     * own four security-category checks (SECURITY-MODULE.md's "Free"
-     * section) - Outdated Plugins (already covered by UpdatesScanner
-     * below), Weak Password Detection, Basic Vulnerabilities, and File
-     * Changes - each gated by its own settings toggle rather than a
-     * whole-category kill switch, same granular-toggle posture
-     * RestApiScanner/XmlrpcExposureScanner/etc. already established for
-     * this category.
-     *
      * @return string[] Fully-qualified class names implementing ScannerInterface.
      */
     private function get_default_scanner_classes(): array {
         return array(
-            // SEO (Titles, Schema, images/alt text, broken links, plus the
-            // 13 SEO-MODULE.md checks) moved out of this hardcoded list and
-            // into modules/TechnicalSeo/Module.php's own `vulopilot_scanner_sources`
-            // registration - see that class's docblock for why: this is
-            // what makes SEO scanning genuinely module-dependent, the same
-            // way vulopilot-pro's AdvancedSeo module already adds its own 2
-            // extra SEO scanners on top.
             \VuloPilot\Performance\PerformanceScanner::class,
             \VuloPilot\SiteHealth\DatabaseScanner::class,
             \VuloPilot\Accessibility\AccessibilityScanner::class,
@@ -163,9 +101,6 @@ class ScannerRegistry {
             \VuloPilot\SiteHealth\ThemesScanner::class,
             \VuloPilot\SiteHealth\UpdatesScanner::class,
             \VuloPilot\SiteHealth\CronScanner::class,
-            // Security (SECURITY-MODULE.md) - category 'security', joins
-            // vulopilot-pro's own 7 SecurityMonitoring scanners under the
-            // same category string.
             \VuloPilot\Security\WeakPasswordScanner::class,
             \VuloPilot\Security\BasicVulnerabilitiesScanner::class,
             \VuloPilot\Security\CoreFileIntegrityScanner::class,
@@ -195,25 +130,10 @@ class ScannerRegistry {
             // its matching schema.org markup. Same 'geo' category, no
             // separate category/kill switch, same as the 9 above.
             \VuloPilot\SeoVisibility\AeoSchemaScanner::class,
-            // Store-platform/Product* scanners (the store scanner, the 11
-            // Product* scanners, ProductSeoScanner, and the 5 order/
-            // checkout/compatibility scanners - category 'woocommerce')
-            // used to be hardcoded here unconditionally. They've all moved
-            // to vulopilot-pro's store-intelligence module
-            // (`Scanners/`), registered via `vulopilot_scanner_sources`
-            // and gated on the store platform actually being active - see that
-            // module's own Module.php docblock.
-            // Website Health Monitoring (readme) - closes the PHP Warning
-            // Detection/SSL Monitoring/Redirect Analysis/404 Detection gaps.
             \VuloPilot\Security\SslMonitoringScanner::class,
             \VuloPilot\Content\RedirectAnalysisScanner::class,
             \VuloPilot\Content\NotFoundScanner::class,
             \VuloPilot\SiteHealth\PhpWarningScanner::class,
-            // Website reachability (category 'availability') - closes the
-            // one gap none of the checks above cover: whether the
-            // homepage itself actually responds at all. Curated into
-            // vulopilot-pro's "Website Health - Daily Scan" default
-            // automation (Automations\WebsiteHealthScanScheduler).
             \VuloPilot\SiteHealth\SiteAvailabilityScanner::class,
             // Website Performance (readme) - category 'performance', joins
             // the original PerformanceScanner (autoload bloat).

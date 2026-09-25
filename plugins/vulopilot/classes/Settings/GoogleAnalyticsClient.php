@@ -153,19 +153,6 @@ class GoogleAnalyticsClient {
     }
 
     /**
-     * Real `POST .../v1beta/{property}:runReport` - real daily GA4
-     * `sessions` counts for a real, already-connected property, one row
-     * per real calendar day GA4 has data for. Backs Keywords' own
-     * "Estimated Traffic" card (vulopilot-pro's own Keywords module,
-     * Rest::get_summary()) when a GA4 property has actually been selected
-     * (GoogleServicesConnection's own `ga4_property_id`) - that card falls
-     * back to real Search Console click totals otherwise, never a
-     * fabricated number either way. A single `date`-dimensioned call
-     * covering the whole requested range (rather than two separate
-     * current/previous-period totals calls) so the caller can both sum a
-     * period's total AND build a real day-by-day trend sparkline from one
-     * real API round trip.
-     *
      * @param string $property_id A real `property_id` (GoogleServicesConnection::get_status()'s own `ga4_property_id`).
      * @param string $start_date  `Y-m-d`.
      * @param string $end_date    `Y-m-d`.
@@ -234,17 +221,6 @@ class GoogleAnalyticsClient {
     }
 
     /**
-     * Real `POST .../v1beta/{property}:runReport` - real GA4 sessions
-     * grouped by `sessionDefaultChannelGroup`, GA4's own built-in traffic-
-     * source classification ("Organic Search", "Direct", "Referral",
-     * "Organic Social", "Paid Search", "Email", etc. - the exact same
-     * grouping GA4's own "Traffic acquisition" report uses). Backs "SEO &
-     * Visibility → Overview"'s "Visibility by Source" card
-     * (Controllers\Visibility::get_traffic_sources()) - this plugin has no
-     * traffic-source data of its own to fabricate (see that method's own
-     * docblock), so this card only ever renders when a real GA4 property
-     * is connected and genuinely has session data to report.
-     *
      * @param string $property_id A real `property_id` (GoogleServicesConnection::get_status()'s own `ga4_property_id`).
      * @param string $start_date  `Y-m-d`.
      * @param string $end_date    `Y-m-d`.

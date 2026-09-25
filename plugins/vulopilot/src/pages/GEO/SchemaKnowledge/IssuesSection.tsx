@@ -35,24 +35,6 @@ interface GroupsResponse {
 	priority_counts: { high: number; medium: number; low: number };
 }
 
-/**
- * "Issues" section of the merged "Schema & Knowledge" tab - "Schema
- * Problems", real open findings from the 5 schema-related scanners above,
- * grouped by issue type (`GET /findings/groups?scanner_id=…`,
- * FindingRepository::get_finding_groups()'s now scanner_id-scoped grouping)
- * rather than one row per individual finding. Rebuilt to match AI Copilot's
- * own Issues table (IssuesList.tsx) exactly - the same real
- * IssuesSummaryCards stat tiles (Total/High/Medium/Low, each a real filter),
- * the same Issue/Affected/Action columns (InformationItemComponent +
- * badges, "View" opening a detail panel instead of inline per-row Fix/
- * Resolve/Ignore), and the same real side IssueDetailPanel (fully generic,
- * reused as-is - its own "Fix with AI"/"Resolve all"/"Ignore all" already
- * act on every open finding in whichever group is selected, and it already
- * owns its own Pro popup for "Fix with AI" when OneClickFix isn't active).
- * No category tab bar here (unlike IssuesList.tsx's All/SEO/AI Visibility/…
- * tabs) - this section is already fully scoped to the 5 scanner ids above,
- * so there is no wider "category" dimension left to filter by.
- */
 const IssuesSection = () => {
 	const [activePriority, setActivePriority] = useState<Priority>('all');
 	const [paged, setPaged] = useState(1);

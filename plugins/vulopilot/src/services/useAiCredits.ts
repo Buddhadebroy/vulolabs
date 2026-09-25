@@ -21,15 +21,6 @@ export interface AiCreditsStatus {
 	vulocloud_account_email: string;
 }
 
-/**
- * Fetches and refreshes AiCreditsStatus - a real, independent hook
- * instance per consumer (this codebase has no shared client-state library
- * to reach for here, e.g. Redux/TanStack Query - see the Pro plugin's own
- * CLAUDE.md on why those specifically aren't introduced), so a component
- * that just changed the balance (e.g. right after a credits-metered AI
- * action) should call `refresh()` itself rather than expect another
- * mounted instance (like the header's own indicator) to notice on its own.
- */
 export const useAiCredits = () => {
 	const [status, setStatus] = useState<AiCreditsStatus | null>(null);
 	const [isLoading, setIsLoading] = useState(true);

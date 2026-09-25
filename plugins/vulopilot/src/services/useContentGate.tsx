@@ -45,37 +45,6 @@ const DEFAULT_DUMMY_CONTENT = (
  *   </CardComponent>
  * );
  * ```
- *
- * `wrap()` returns `realContent` unchanged once every check below passes.
- * VuloCloud and Pro both render through the same reusable
- * `BlurredProContent`/`UpgradeToProOverlay` overlay card now
- * (`icon`/`title`/`desc`/`buttonText` swapped per gate - see that
- * component's own docblock) rather than each hand-rolling its own locked
- * treatment; Module still gets its own `.admin-tag.module-tag` tag row +
- * plain (unblurred) `dummyContent`, a genuinely different shape (no blur,
- * no popup - a straight navigate). Checked in order VuloCloud → Pro →
- * module; each gate's locked state short-circuits the ones after it.
- *
- * 1. **VuloCloud connection** (`useAiCredits()`'s `status.connected`) -
- *    `realContent` blurred behind the overlay card ("Connect to
- *    VuloCloud" copy), opening `ShowProPopup vulocloud` (the
- *    passwordless broker redirect every free AI surface uses).
- * 2. **Pro** (`vulopilotAppLocalizer.khali_dabba` false) - `dummyContent` (or
- *    `DEFAULT_DUMMY_CONTENT` if omitted) blurred behind the same overlay
- *    card (default "Upgrade to Pro" copy) plus `DummyDataNotice`.
- *    Clicking opens the generic upgrade popup (`ShowProPopup`, no
- *    `moduleName`).
- * 3. **Module** (`moduleId` missing from `vulopilotAppLocalizer.active_modules`) -
- *    same `dummyContent` treatment, tag shows the module's display name
- *    (Modules/index.ts catalog). Clicking skips the popup and navigates
- *    straight to `?page=vulopilot#&tab=settings&subtab=modules&module=<id>`
- *    (same shape zyra's `ModuleGridComponent` already consumes to scroll
- *    to and highlight the module card). Pass `null` as `moduleId` to skip
- *    this check. `isModuleActive` is an escape hatch for callers unlocked
- *    by more than one module (e.g. AeoTab.tsx's `isCitationCheckActive()`
- *    checks `geo-insights` OR `aeo-insights`) - pass the already-correct
- *    boolean straight through instead of re-deriving a single-id check.
- *    `moduleId` still drives the tag's display name/redirect target.
  */
 export const useContentGate = (
 	moduleId: string | null,
@@ -105,9 +74,6 @@ export const useContentGate = (
 				? 'module'
 				: null;
 
-	// Module: no popup step - straight to Settings → Modules, highlighted.
-	// Pro/VuloCloud: still open the popup (upgrade pitch / connect flow),
-	// same as before. See this hook's own docblock, gate 3.
 	const handleActivate = () => {
 		if ('module' === gateReason && moduleId) {
 			window.location.href = `${vulopilotAppLocalizer.admin_url}#&tab=settings&subtab=modules&module=${moduleId}`;
@@ -123,14 +89,6 @@ export const useContentGate = (
 		}
 	};
 
-	// Purely visual once the whole-section overlay below owns the click -
-	// a real `<button disabled>` inside `dummyContent` (AiSpeedAssistantCard.tsx's
-	// own mock preview) never dispatches a click at all, so this tag can't
-	// rely on bubbling from there either; it needs one click target
-	// covering the entire section, not just this tag. Only ever called for
-	// 'module' now - 'pro'/'vulocloud' both render through
-	// `BlurredProContent`'s own overlay instead (see this hook's own
-	// docblock, gates 1-2).
 	const renderTag = (): ReactNode => {
 		const moduleName = (moduleId && MODULE_CATALOG_BY_ID.get(moduleId)?.name) ?? moduleId ?? '';
 
@@ -150,14 +108,6 @@ export const useContentGate = (
 		const isPro = 'pro' === gateReason;
 		const isVuloCloud = 'vulocloud' === gateReason;
 
-		// 'pro'/'vulocloud' both render through the same reusable
-		// `BlurredProContent` overlay card now (icon/title/desc/buttonText
-		// swapped per gate - see UpgradeToProOverlay.tsx's own docblock),
-		// rather than 'vulocloud' hand-rolling a second, plainer
-		// tag+click-overlay version of the same "locked content" shape.
-		// 'module' keeps its own shape below - a straight navigate to
-		// Settings → Modules with no blur/popup, genuinely different from
-		// either (see this hook's own docblock, gate 3).
 		if (isPro || isVuloCloud) {
 			return (
 				<div className="content-gate">

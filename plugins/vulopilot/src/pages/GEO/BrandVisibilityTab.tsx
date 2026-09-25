@@ -85,35 +85,6 @@ const BRAND_SECTIONS: FindingsSection[] = [
 const isBrandModuleActive = () =>
 	vulopilotAppLocalizer.active_modules?.includes(BRAND_MODULE_ID) ?? false;
 
-/**
- * "Brand Visibility" tab of "SEO & Visibility" - on-site Brand/Trust/
- * Authority/Entity scoring (BRAND-INTELLIGENCE-MODULE.md, real and always
- * available) alongside a real off-site mention card (OffSiteMentionsCard,
- * vulopilot-pro's own keyless Google News RSS feed - see
- * OffSiteMentionTracker.php's own docblock for why that source rather than
- * a paid Ahrefs-style index; falls back to the original static "Not
- * connected yet" card when Pro/the module isn't active, since the feature
- * genuinely doesn't run without it). Header content (BrandScoreCard + Pro
- * slots) sits above one real, unified findings table (SectionedFindingsTab.tsx,
- * same shell GeoTab.tsx/AeoTab.tsx/SeoTab.tsx use) per direct instruction,
- * replacing what used to be 3 separate FindingsTable cards; the "Why this
- * matters more than backlinks"/off-site mentions card - previously its own
- * side-by-side sidebar column next to the section list - now sits below the
- * table as `footer` content instead, since a single-column table no longer
- * has a natural second column to pair it with.
- *
- * Authority Trends/Knowledge Panel Optimization (both real vulopilot-pro's
- * own BrandIntelligence module cards, see AuthorityTrendsCard.tsx/
- * KnowledgePanelCard.tsx there) get the same "still show the section,
- * PRO-tagged, with fabricated content behind a click-through popup" treatment
- * OffSiteMentionsCard/CompetitorComparisonCard already had here - all 4
- * dummy stand-ins (BrandVisibilityProDummies.tsx, same one-file-per-tab
- * consolidation AutomationsProDummies.tsx established for Automations.tsx's
- * own Pro dummy cards) render whenever their own filter slot hasn't
- * resolved (Pro not installed, or installed but this module not active),
- * instead of the previous `{Card && <Card />}` which silently rendered
- * nothing in that case.
- */
 interface BrandVisibilityTabProps {
 	/** Scanner to pre-select (its section's tab) and scroll to on mount - set by Overview's "Top Opportunities" View buttons. */
 	initialScannerId?: string;
@@ -145,15 +116,6 @@ const BrandVisibilityTab = ({ initialScannerId }: BrandVisibilityTabProps) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	// useFilterSlot(), not a plain top-level applyFilters() read - that
-	// pattern is a real, measured-live race (useFilterSlot.ts's own
-	// docblock) that would otherwise leave every one of these 4 slots
-	// stuck at null forever regardless of whether Pro/the module is
-	// actually active, since Free's own bundle can finish importing and
-	// evaluating this module before Pro's addFilter() calls have run.
-	// Called unconditionally, before the early return below, per the
-	// rules of hooks - a Pro slot resolving is irrelevant on the "module
-	// off" branch anyway, so there's no behavior difference either way.
 	const AuthorityTrendsCard = useFilterSlot(
 		'vulopilot_brand_authority_trends_card'
 	);

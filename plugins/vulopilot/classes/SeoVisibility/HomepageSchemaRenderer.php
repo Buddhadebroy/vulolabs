@@ -6,16 +6,6 @@ use VuloPilot\TechnicalSeo\Scanners\StructuredDataValidationScanner;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Outputs the `vulopilot_homepage_schema_json` option on `wp_head` for the
- * front page - the sitewide counterpart to Services\SchemaJsonLdRenderer's
- * per-post `_vulopilot_schema_json`. Distinct because Seo\Scanners\SchemaScanner/
- * StructuredDataValidationScanner both check `home_url('/')` specifically,
- * which isn't always a single post (a "latest posts" front page has no
- * one post to attach schema to), so this is a dedicated option rather than
- * postmeta - populated by vulopilot-pro's OneClickFix
- * `generate-homepage-schema` mechanical fix (MechanicalFixRunner), not by
- * any settings-screen field.
- *
  * No settings gate: like SchemaJsonLdRenderer, there's nothing to output
  * until the option actually has content, so construction is unconditional
  * and the hook is a no-op until then. Runs alongside SchemaJsonLdRenderer
@@ -58,6 +48,6 @@ class HomepageSchemaRenderer {
             return;
         }
 
-        echo '<script type="application/ld+json">' . wp_json_encode( $decoded ) . '</script>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode() of a value this class itself constructed/validated, same pattern as SchemaJsonLdRenderer's own output.
+        wp_print_inline_script_tag( (string) wp_json_encode( $decoded ), array( 'type' => 'application/ld+json' ) );
     }
 }

@@ -12,27 +12,6 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloPilot TechnicalSeo module.
  *
- * Unlike GeoAnalysis\Module (whose own scanners always run no matter what - see
- * that class's own docblock, since GEO has no whole-category kill switch),
- * this module genuinely gates SEO scanning. All 19 SEO-related scanner
- * classes - Titles (SeoScanner), Schema presence, images/alt text, broken
- * links, broken images, plus the 13 checks from SEO-MODULE.md (meta descriptions,
- * canonicals, internal linking, heading structure, thin content, duplicate
- * content, sitemap, robots.txt, OpenGraph/Twitter cards, orphan pages,
- * structured-data validity), plus AI-CRAWLER-ANALYTICS-MODULE.md's
- * "Blocked Pages" check - are registered here via
- * `vulopilot_scanner_sources`, not in
- * ScannerRegistry::get_default_scanner_classes(). If this module is
- * deactivated (Settings → Modules), this filter callback is never
- * registered (Modules::load_active_modules() only `new`s a module class
- * when it's active), so none of these scanner classes are instantiated and
- * no new SEO findings get produced by future scans - the same
- * "register a source, don't be instantiated directly" extension point
- * vulopilot-pro's AdvancedSeo module already uses to ADD 2 more scanners on
- * top when its own, separate Pro module is active. Already-stored findings
- * from before deactivation are untouched; this only stops new ones, the
- * same posture as any disabled category/granular flag_* setting.
- *
  * Same Module.php shape module-architecture.md documents, discovered by
  * VuloPilot's own free-plugin `modules/` source (Modules::get_all_modules()'s
  * default, self-registered `VuloPilot` namespace) - no filter registration

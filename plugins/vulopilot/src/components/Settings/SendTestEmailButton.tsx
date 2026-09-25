@@ -29,11 +29,6 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
  * (per direct instruction - "the send test email button design like the
  * send test report button").
  *
- * Unlike SendTestReportButton.tsx, this one has no Pro gate - email
- * notifications are a Free feature (Reports is the Pro one), so this
- * button always calls the real API rather than branching to a
- * `ShowProPopup` first.
- *
  * Reads its own `email_last_test_sent` value directly from `GET /settings`
  * on mount rather than through SettingContext - same reasoning
  * SendTestReportButton.tsx's own docblock gives: this key is system-set,

@@ -17,12 +17,6 @@ defined( 'ABSPATH' ) || exit;
  * nor RuleEngine has any idea this class exists - the hook is the only
  * coupling, same one-way-dependency shape used throughout.
  *
- * Fires `vulopilot_scan_persisted` after its own persistence work - the
- * seam vulopilot-pro's AdvancedReports module hooks to recalculate and
- * upsert today's site-health snapshot (historical trend data is Pro
- * business logic; this class only owns "did the scan's own rows get
- * written," not what anyone else derives from that afterward).
- *
  * @class       ScanPersistenceListener class
  * @version     1.0.0
  * @author      VuloLabs
@@ -205,21 +199,6 @@ class ScanPersistenceListener {
             );
 
             /**
-             * Fires only for a genuinely NEW finding - the branch above
-             * (an existing open duplicate refreshed instead) never reaches
-             * here, so a still-recurring problem doesn't re-fire this on
-             * every scan. vulopilot-pro's Automations\Triggers\
-             * NewFindingTrigger's own extension point - "trigger decides
-             * WHEN, conditions decide whether to continue" (same posture
-             * every other trigger in that registry already follows): this
-             * fires for every new finding regardless of severity/category,
-             * and a real automation narrows it down to "critical" or
-             * "broken link" etc. via its own existing min-priority/
-             * category/min-impact conditions, same GEO/security/visibility
-             * score-drop triggers' own "no built-in threshold" posture,
-             * rather than this codebase growing a separate hardcoded
-             * trigger per severity/category combination.
-             *
              * @param int    $finding_id  The just-inserted `vulopilot_findings` row id.
              * @param string $severity    Severity::* constant.
              * @param string $category    Real finding category.
@@ -281,13 +260,6 @@ class ScanPersistenceListener {
         $this->maybe_notify_critical_findings( $scan_result );
 
         /**
-         * Fires after a scan's own rows are persisted - vulopilot-pro's
-         * AdvancedReports module hooks this to recalculate and upsert
-         * today's site-health snapshot (historical trend data). Free
-         * itself doesn't do anything with $scan_id beyond handing it out;
-         * a hooked callback can re-query FindingRepository itself for
-         * current open-finding counts, the same way this class used to.
-         *
          * @param ScanResult $scan_result The completed scan.
          * @param int        $scan_id     The just-inserted `vulopilot_scans` row id.
          */
@@ -295,27 +267,6 @@ class ScanPersistenceListener {
     }
 
     /**
-     * A second, additional real activity-log row for the exact same
-     * completion this method's caller just logged as the generic
-     * 'scan.completed' event - under a distinct, always-on event type
-     * ('scan.completed.security') whenever the just-completed scanner's
-     * own real category is security-relevant (SECURITY_SCOPED_CATEGORIES
-     * above). What "Security" tab's own RecentActivityCard.tsx needs to
-     * filter on: the Pro-only 'security.alert' event type
-     * (vulopilot-pro\SecurityMonitoring\AlertDispatcher) only exists with
-     * an active Pro license AND the site's own `security_alerts_enabled`
-     * setting turned on (default off) - meaning on Free-only installs,
-     * unlicensed Pro installs, and licensed-but-unconfigured Pro installs
-     * (the large majority of real sites), that card would stay
-     * permanently empty no matter how many open security findings exist.
-     * This fires every real security-category scan completion, findings
-     * or not, zero configuration required - resolved via the real
-     * ScannerRegistry singleton (`VuloPilot()->scanner_registry`, already
-     * populated by the time any real scan can complete - scans only ever
-     * run well after `init` priority 20) rather than the completed scan's
-     * own findings, so a clean scan (0 findings) still logs real activity
-     * instead of this card only ever showing up when something's wrong.
-     *
      * @param ScanResult $scan_result The completed scan.
      * @param int        $scan_id     The just-inserted `vulopilot_scans` row id.
      * @return void

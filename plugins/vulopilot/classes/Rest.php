@@ -80,26 +80,11 @@ class Rest {
             'scans'                       => new UtillRestScans(),
             'findings'                    => new UtillRestFindings(),
             'history'                     => new ReportsRest\History(),
-            // 'reports'/'reports_overview' are deliberately NOT keyed here -
-            // one-off report generation lives in vulopilot-pro's
-            // AdvancedReports module (Pro-gated); its Core\Rest\{Reports,
-            // ReportsOverview} controllers add themselves via $extra_controllers
-            // below, same "Free deliberately doesn't keep a fallback" posture
-            // 'automation_dashboard' below already established.
             'ai_history'                  => new AiAssistantRest\AiHistory(),
             'vulocloud_ai_connection'     => new AiAssistantRest\VuloCloudAiConnection(),
             'ai_action_runs'              => new AiCopilotRest\AiActionRuns(),
             'activity_logs'               => new DashboardRest\ActivityLogs(),
             'automations'                 => new AutomationsRest\Automations(),
-            // Deliberately NOT keyed 'automation_runs' - that data only ever
-            // backed AutomationsActivityCard.tsx's own "Recent automation
-            // activity" feed, which moved to vulopilot-pro's own
-            // Automations module wholesale per direct instruction (Free now
-            // shows AutomationsActivityDummy.tsx in its place). Registering
-            // a Free-side fallback here would let that feed keep working
-            // even without a licensed Pro Automations module, undermining
-            // the gate - vulopilot-pro's own AutomationsRunsRest.php (same
-            // `automation_runs` key) is this route's only real owner.
             'automation_dashboard'        => new AutomationsRest\AutomationDashboardStats(),
             'settings'                    => new SettingsRest\Settings(),
             'llms_txt'                    => new GeoRest\LlmsTxt(),
@@ -118,52 +103,14 @@ class Rest {
             'core_web_vitals_beacon'      => new PerformanceRest\CoreWebVitalsBeaconRest(),
             'page_speed'                  => new PerformanceRest\PageSpeed(),
             'backups'                     => new SiteHealthRest\Backups(),
-            // 'backup_storage' (Amazon S3/Google Drive credentials) moved
-            // to vulopilot-pro's own BackupCloudStorage module - registered
-            // via the `vulopilot_rest_controllers` filter below instead,
-            // same as every other Pro-only REST controller.
             'content_assistant'           => new ContentRest\ContentAssistant(),
-            // "Chat with VuloPilot" (/copilot/chat + /copilot/conversations)
-            // - briefly a Pro-only feature (vulopilot-pro's own CopilotChat
-            // module); moved back here, genuinely free again, gated the
-            // same way as every other AI surface (Controllers\Copilot's
-            // own create_item_permissions_check()) rather than a license.
             'copilot'                     => new AiCopilotRest\Copilot(),
             'store_readiness'             => new StoreReadiness(),
             'efficiency_checks'           => new PerformanceRest\EfficiencyChecks(),
             'plugin_overlap'              => new SiteHealthRest\PluginOverlap(),
-            // Deliberately NOT keyed 'geo_analysis' - vulopilot-pro's
-            // GeoInsights module adds its own controller into
-            // $extra_controllers below under that exact key (its `Rest.php`
-            // hosts the per-post AI score routes at this same 'geo-analysis'
-            // REST base), and this controllers array is keyed by array
-            // merge, so a matching key here would let Pro's own entry
-            // silently overwrite this one before routes are ever
-            // registered. Different key, same REST base string is safe -
-            // WP_REST_Server registers routes per controller instance, not
-            // per unique base.
             'geo_top_pages'               => new GeoRest\GeoAnalysis(),
-            // Deliberately NOT keyed 'content_analysis' - vulopilot-pro's
-            // own ContentIntelligence module adds its per-post AI "Topic
-            // Authority" controller into $extra_controllers below under
-            // that key (same 'content-intelligence' REST base, a
-            // `/(?P<post_id>\d+)/analyze` sub-route) - same key-collision
-            // reasoning as 'geo_top_pages' above.
             'content_score'               => new ContentIntelligenceRest\ContentIntelligence(),
-            // Deliberately NOT keyed 'brand_insights' - vulopilot-pro's own
-            // BrandIntelligence module adds its own history/competitor-
-            // comparison/knowledge-panel controller into $extra_controllers
-            // below under that key (same 'brand-intelligence' REST base) -
-            // same key-collision reasoning as 'geo_top_pages'/'content_score'
-            // above.
             'brand_score'                 => new BrandIntelligenceRest\BrandIntelligence(),
-            // Deliberately NOT keyed 'knowledge_graph' - vulopilot-pro's own
-            // KnowledgeGraph module adds its own relationships/health-
-            // history/recommendations controller into $extra_controllers
-            // below under that key (a different REST base,
-            // 'knowledge-graph', so this one isn't strictly required to
-            // differ - kept different anyway for consistency with every
-            // other Free/Pro controller pairing above).
             'entities'                    => new EntityExtractionRest\EntityExtraction(),
             'seo_score'                   => new SeoRest\Seo(),
             'geo_score'                   => new GeoRest\Geo(),

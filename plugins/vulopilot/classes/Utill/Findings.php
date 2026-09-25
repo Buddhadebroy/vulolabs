@@ -138,12 +138,6 @@ class Findings extends \WP_REST_Controller {
             )
         );
 
-        // "Manual Actions Only" (readme.txt) - runs one registered
-        // Automations\ActionRegistry action against this specific finding,
-        // right now, via Automations\ManualActionRunner. No trigger, rule,
-        // or `vulopilot_automations` row involved - see that class's own
-        // docblock for how this differs from vulopilot-pro's Automations
-        // module.
         register_rest_route(
             VuloPilot()->rest_namespace,
             '/' . $this->rest_base . '/(?P<id>\d+)/actions/(?P<action_id>[a-z0-9-]+)',
@@ -233,11 +227,6 @@ class Findings extends \WP_REST_Controller {
         }
 
         return rest_ensure_response(
-            // Lets a Pro module (vulopilot-pro's OneClickFix) annotate each
-            // row with a `fix_action_id` without Free knowing anything
-            // about AI-action-to-scanner mapping - same "register a
-            // source, don't modify the host" pattern as
-            // vulopilot_reports_advanced_panel/vulopilot_pro_dashboard_component.
             apply_filters( 'vulopilot_finding_list_response', $result )
         );
     }

@@ -36,13 +36,6 @@ export interface GeoScoreResponse {
 	};
 }
 
-/**
- * `GET /geo/score` - Geo.php's own real, deterministic GEO Score (same
- * weighted-severity formula `useSeoScore.ts`'s own `/seo/score` uses for 6
- * of the 7 signals, plus a real sitewide Content Freshness computed
- * straight from `post_modified_gmt` - see Geo.php's own docblock). No AI
- * call, no cost, works identically whether vulopilot-pro is active or not.
- */
 export const useGeoScore = (): {
 	score: GeoScoreResponse | null;
 	isLoading: boolean;

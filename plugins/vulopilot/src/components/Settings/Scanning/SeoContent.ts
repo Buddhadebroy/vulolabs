@@ -36,27 +36,6 @@ import { __ } from '@wordpress/i18n';
  *   (Scanners\Basic\AiCrawlerBlockedPagesScanner,
  *   AI-CRAWLER-ANALYTICS-MODULE.md).
  *
- * "XML Sitemap"/"Post types & taxonomies in sitemap"/"HTML Sitemap"
- * (`sitemap_*`/`html_sitemap_*` keys) live in Settings → Get Started →
- * Sitemap (`GetStarted/Sitemap.ts`).
- * - "Add canonical URL tags" / "Add Open Graph & Twitter Card tags"
- *   (Links & schema): real, independent tag output via
- *   Services\CanonicalUrlManager/SocialMetaTagsManager - the mechanical
- *   (non-AI) fixes vulopilot-pro's OneClickFix "Fix" action flips on for
- *   CanonicalUrlScanner/OpenGraphScanner/TwitterCardScanner's findings.
- *   Both default off; WordPress core (or another plugin) already covers
- *   most sites.
- * - Redirects & 404s: persisted settings only - a real 301 redirect
- *   manager and a real 404-visit log (distinct from
- *   Scanners\Basic\NotFoundScanner, which only checks this site's OWN
- *   published permalinks for 404s, not visitor traffic) don't exist in
- *   this codebase yet. That's a separate, larger feature; these three
- *   toggles round-trip through Settings correctly but nothing reads them
- *   yet (Utill.php's own defaults list this same caveat).
- * "Tag Manager" (`tag_manager_enabled`/`tag_manager_container_id`,
- * Services\TagManagerService `<script>`/`<noscript><iframe>` output)
- * lives in Settings → Connections (TagManagerPanel.tsx).
- *
  * "Webmaster Tools"/"Custom Webmaster Tags" (6 `webmaster_*_verification`
  * codes + `webmaster_custom_tags`, Services\WebmasterToolsManager-backed
  * `<meta>` output) live in Settings → Connections → Site Verification

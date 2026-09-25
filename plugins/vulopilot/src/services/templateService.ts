@@ -1,18 +1,6 @@
 import { applyFilters } from '@wordpress/hooks';
 
 /**
- * Same `require.context`-based settings-tab discovery the free
- * vulolabs plugin's own templateService.ts uses (react-frontend.md's
- * "declarative settings-config pattern") - one context here
- * (`settings`), since VuloPilot only has one settings screen today, vs.
- * vulolabs's several (settings/tools/storeStatus/dashboardSettings).
- * `vulopilot_settings_context` is this plugin's own filter name (not
- * vulocart's) so a future
- * vulopilot-pro settings tab registers into a filter that's actually
- * scoped to this plugin family, following the same
- * discovery-by-filter extension pattern every other engine in this
- * codebase uses.
- *
  * The former `tools` context (`components/StatusAndTools/`) is gone -
  * that whole page (System Status/Log/Migration/Developer Tools) was a
  * real route kept reachable-but-unlinked after a past nav redesign

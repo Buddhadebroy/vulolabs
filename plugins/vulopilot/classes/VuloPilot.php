@@ -127,11 +127,6 @@ final class VuloPilot {
     }
 
     /**
-     * Initializes VuloPilot classes and fires 'vulopilot_loaded', the hook
-     * VuloPilot Pro (and any third-party extension) gates its own boot on -
-     * the same boot-order-gate pattern a shared-platform architecture would
-     * use, just scoped to this product line.
-     *
      * @return void
      */
     public function init_classes() {
@@ -154,35 +149,10 @@ final class VuloPilot {
 
         $this->container['scan_persistence'] = new \VuloPilot\Utill\ScanPersistenceListener();
 
-        // "Manual Actions Only" (readme.txt) - Free's own small, engine-free
-        // counterpart to vulopilot-pro's Automations module; see
-        // Automations\ManualActionRunner's own docblock for why this doesn't
-        // reuse rule_engine at all.
         $this->container['manual_action_registry'] = new Automations\ActionRegistry();
         $this->container['manual_action_runner']   = new Automations\ManualActionRunner( $this->container['manual_action_registry'] );
 
-        // The full, Recommendation-driven AutomationEngine (conditional
-        // trigger→condition→action workflows) is still Pro business logic -
-        // "AI Automation Workflows" per the plugin's own readme. It lives in
-        // vulopilot-pro's Automations module, constructed with this same
-        // rule_engine/scan_runner instance via VuloPilot()->rule_engine /
-        // VuloPilot()->scan_runner. Free's own two fixed, schedule-only
-        // automations ("Run Full Site Scan"/"Send Visibility Report" - see
-        // Automations\BuiltinAutomationSeeder's own docblock) are seeded and
-        // run below, independent of that Pro engine.
 
-        // report_type_registry/report_exporter_registry/report_generator are
-        // no longer built here - one-off report generation moved wholesale
-        // to vulopilot-pro's AdvancedReports module (Reports is now a fully
-        // Pro-gated feature). Pre-seeded to null (not simply left unset) so
-        // every read site can safely null-check VuloPilot()->report_generator
-        // - __get() throws for a container key that was never set at all.
-        // That module builds the real values onto this same container on
-        // 'init' priority 5 - after this method (which runs on 'init'
-        // priority 0) has already finished, so nothing below can depend on
-        // them existing yet; AutomationScheduler::run_scheduled_report()
-        // reads VuloPilot()->report_generator lazily, at cron-tick time,
-        // instead.
         $this->container['report_type_registry']     = null;
         $this->container['report_exporter_registry'] = null;
         $this->container['report_generator']          = null;
@@ -206,11 +176,6 @@ final class VuloPilot {
         // every AIAction goes through, not a second AI-calling path.
         $this->container['geo_analyzer'] = new GeoAnalysis\GeoAnalyzer( $this->container['ai_request_sender'] );
 
-        // Content Intelligence's "Topic Authority" (CONTENT-INTELLIGENCE-MODULE.md)
-        // - same shape as geo_analyzer above: reuses the same
-        // ai_request_sender, constructed unconditionally in Free even
-        // though the REST route that actually calls analyze() (a real AI
-        // cost) lives in vulopilot-pro's own ContentIntelligence module.
         $this->container['content_analyzer'] = new ContentOptimization\ContentAnalyzer( $this->container['ai_request_sender'] );
 
         // llms.txt Generation & Management (readme.txt) - self-registers
@@ -285,14 +250,6 @@ final class VuloPilot {
         // construction shape as indexnow_auto_submitter above.
         $this->container['site_tone_learner'] = new \VuloPilot\AiAssistant\SiteToneLearner( $this->container['ai_request_sender'] );
 
-        // One-Click Fix coverage pass for the SEO category (vulopilot-pro's
-        // OneClickFix\ScannerFixMap) - the mechanical (non-AI) fixes for
-        // CanonicalUrlScanner/OpenGraphScanner/TwitterCardScanner just flip
-        // one of these two managers' own settings on; SchemaJsonLdRenderer
-        // is what makes AiCopilot\Actions\GenerateSchemaAction's saved
-        // JSON-LD actually reach the frontend. Same unconditional-
-        // construction, settings-gate-the-output shape as the two services
-        // above.
         $this->container['canonical_url_manager']    = new \VuloPilot\SeoVisibility\CanonicalUrlManager();
         $this->container['social_meta_tags_manager'] = new \VuloPilot\SeoVisibility\SocialMetaTagsManager();
         // Settings → Site Identity → Title Formats' real backing -
@@ -301,9 +258,6 @@ final class VuloPilot {
         // above.
         $this->container['title_formatter']          = new \VuloPilot\SeoVisibility\TitleFormatter();
         $this->container['schema_json_ld_renderer']  = new \VuloPilot\SeoVisibility\SchemaJsonLdRenderer();
-        // Sitewide counterpart to schema_json_ld_renderer, for
-        // SchemaScanner's homepage-level check - populated by
-        // vulopilot-pro's OneClickFix `generate-homepage-schema` fix.
         $this->container['homepage_schema_renderer'] = new \VuloPilot\SeoVisibility\HomepageSchemaRenderer();
 
         // Post-editor SEO metabox: Advanced tab's noindex/nofollow output (PostRobotsMetaManager)
@@ -384,26 +338,8 @@ final class VuloPilot {
         $this->container['backup_manager']         = new \VuloPilot\SiteHealth\BackupManager();
         $this->container['backup_scheduler']       = new \VuloPilot\SiteHealth\BackupScheduler();
 
-        // Backups' own real local-disk feature - BackupStorageManager
-        // self-registers on 'vulopilot_backup_completed' (fired by
-        // BackupManager above) and must be unconditional, same reasoning
-        // every other self-registers-its-own-hooks Services\* class here
-        // already has. The Amazon S3/Google Drive cloud-storage
-        // destinations themselves (credentials, the actual HTTP upload,
-        // and the OAuth redirect handler) are Pro-gated - moved to
-        // vulopilot-pro's own BackupCloudStorage module, which self-registers
-        // on `vulopilot_backup_upload_to_remote`/
-        // `vulopilot_backup_delete_remote_copy` (see that module's own
-        // docblock, and BackupStorageManager's own docblock for how it
-        // asks for a cloud upload via those actions instead of
-        // referencing either moved class directly).
         $this->container['backup_storage_manager'] = new \VuloPilot\SiteHealth\BackupStorageManager();
 
-        // Extension SDK (ARCHITECTURE.md's Prompt 15) - vulopilot-pro and
-        // any third-party plugin register here (`vulopilot_extension_sources`),
-        // one tick before ScannerRegistry/RuleRegistry/etc. (all `init`
-        // priority 20) read the per-concern filters an extension's own
-        // register() call adds classes to.
         $this->container['extension_manager'] = new \VuloPilot\Sdk\ExtensionManager();
 
         if ( defined( 'WP_CLI' ) && WP_CLI ) {

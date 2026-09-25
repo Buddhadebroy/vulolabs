@@ -14,17 +14,6 @@ defined( 'ABSPATH' ) || exit;
  * homepage the scanners check), since the same missing-preview problem
  * affects every page a site owner might share, not only the front page.
  *
- * Defaults OFF (Utill::VULOPILOT_SETTINGS_DEFAULTS) since many sites
- * already have a theme or another plugin outputting these tags - this
- * exists specifically for the site that doesn't, discoverable either from
- * Settings → SEO directly or via vulopilot-pro's OneClickFix "Fix" action
- * on either scanner's finding. Doesn't attempt to detect an existing
- * og:/twitter: tag before adding its own (unlike RobotsTxtManager's
- * `Sitemap:` dedupe, checking rendered HTML from inside a `wp_head`
- * callback isn't practical without output buffering) - a site owner
- * turning this on is expected to have confirmed via the scanner that
- * nothing is outputting these today.
- *
  * Self-registers its own hook in the constructor (php-wordpress.md) and
  * is constructed unconditionally in VuloPilot::init_classes() - the
  * `social_meta_tags_enabled` setting gates OUTPUT, not construction, same
