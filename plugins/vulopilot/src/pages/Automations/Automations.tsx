@@ -216,9 +216,7 @@ const Automations = () => {
 						onClick: openCreateWizard,
 					},
 					{
-						// Preferred/rightmost - same "templates first, from-scratch
-						// second" ordering as above.
-						label:  __('AI-Powered Automations', 'vulopilot'),
+						label:  __('Choose a Template', 'vulopilot'),
 						icon: 'search',
 						onClick: openTemplatesLibrary,
 					},

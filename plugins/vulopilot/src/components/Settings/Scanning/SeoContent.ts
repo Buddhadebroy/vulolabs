@@ -321,7 +321,6 @@ export default {
 			key: 'enable_redirect_manager',
 			type: 'checkbox',
 			look: 'toggle',
-			moduleEnabled: 'redirect-manager',
 			label: __('Enable redirect manager', 'vulopilot'),
 			settingDescription: __(
 				'Create and manage 301 redirects to send visitors from old URLs to new pages.',
@@ -339,7 +338,6 @@ export default {
 			key: 'auto_redirect_on_slug_change',
 			type: 'checkbox',
 			look: 'toggle',
-			moduleEnabled: 'redirect-manager',
 			label: __('Auto-create redirect on slug change', 'vulopilot'),
 			settingDescription: __(
 				'Automatically redirect the previous URL when you change a published post or page slug.',
@@ -362,7 +360,6 @@ export default {
 			key: 'log_404s',
 			type: 'checkbox',
 			look: 'toggle',
-			moduleEnabled: 'redirect-manager',
 			label: __('Log 404s', 'vulopilot'),
 			settingDescription: __(
 				'Record visits to missing pages so you can identify broken URLs and create redirects where needed.',

@@ -218,7 +218,7 @@ class FrontendScripts {
                     wp_timezone()->getOffset( new \DateTime( 'now', new \DateTimeZone( 'UTC' ) ) ) / 60
                 ),
                 'khali_dabba'               => VuloPilot()->util->is_khali_dabba(),
-                'active_modules'            => VuloPilot()->modules->get_active_modules(),
+                'active_modules'            => (array) apply_filters( 'vulopilot_localized_active_modules', VuloPilot()->modules->get_active_modules() ),
                 'vulocloud_connected'       => $vulocloud_status['connected'],
                 'vulocloud_account_email'   => $vulocloud_status['email'],
                 'shop_url'                  => VULOPILOT_PRO_SHOP_URL,
