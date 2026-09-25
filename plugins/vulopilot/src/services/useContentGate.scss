@@ -1,9 +1,5 @@
 @use '../components/config' as *;
 
-// useContentGate.tsx's own locked-state UI, shared across every
-// `useContentGate()` caller (imported once, from the hook itself, not
-// colocated per-page) - a real Settings-style Pro/module tag row on top, a
-// generic dummy content preview underneath it.
 .content-gate {
 	position: relative;
 	display: flex;
@@ -12,12 +8,6 @@
 }
 
 .content-gate-tag {
-	// `.admin-tag.pro-tag` (zyra's own theme/src/common.scss) is written
-	// for Settings' own form-group rows - `position: absolute; right:
-	// 1rem; top: 0.813rem` docked to that row's own relatively-positioned
-	// wrapper. Reset back to normal flow here so the same real tag (same
-	// colors/shape "like settings") lays out inside this card's own row
-	// instead of jumping to a corner with nothing to dock against.
 	.pro-tag {
 		position: static;
 		transform: none;

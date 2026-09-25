@@ -1,8 +1,5 @@
 @use './config' as *;
 
-// DummyDataNotice.tsx - icon + vertical divider + text, matching the
-// reference design's own exact shape. Shared across every "PRO tag +
-// fabricated content" spot in this plugin.
 .dummy-data-notice {
 	display: flex;
 	align-items: center;

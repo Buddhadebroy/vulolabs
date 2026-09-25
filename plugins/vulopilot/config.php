@@ -16,11 +16,6 @@ define( 'VULOPILOT_PLUGIN_SLUG', 'vulopilot' );
 // fork/rebrand sets it to here), never a hardcoded literal naming a
 // different, unrelated plugin.
 define( 'VULOPILOT_PLUGIN_NAME', 'VuloPilot' );
-// Defined free-side (not by vulopilot-pro) - same "where to buy Pro"
-// pattern as MULTIVENDORX_PRO_SHOP_URL in vulolabs/plugins/vulolabs/
-// config.php: the default `manage_plan_url` fallback for the "Pro not
-// installed" case, overridden by vulopilot-pro's own VULOPILOT_MY_ACCOUNT_URL
-// once Pro registers via the `vulopilot_update_pro_data` filter.
 define( 'VULOPILOT_PRO_SHOP_URL', 'https://vulopilot.com/pricing/?utm_source=wpadmin&utm_medium=pluginsettings&utm_campaign=vulopilot' );
 
 /**
@@ -32,7 +27,7 @@ define( 'VULOPILOT_PRO_SHOP_URL', 'https://vulopilot.com/pricing/?utm_source=wpa
  * wp-config.php-only (not defined here): config.php ships in the plugin
  * zip and is committed to git, so a real secret here would be permanently
  * recoverable from git history. Dev values live in
- * `plugins/vulopilot-pro/.wp-env.override.json` (gitignored).
+ * a gitignored local override file.
  *
  * Two trade-offs this embedded-Client path still has even with the
  * secret kept out of committed files:
@@ -98,11 +93,9 @@ if ( ! defined( 'VULOPILOT_GOOGLE_APPLICATION_ID' ) ) {
  * `identity-access` bounded context - `POST {url}/auth/login`, same
  * "one dedicated server, no per-site registration needed" shape
  * VULOPILOT_PRO_LICENSE_SERVER_URL already has for Licensing, just a
- * different bounded context and, unlike that constant, owned here in the
- * FREE plugin rather than vulopilot-pro - this is a *person* logging into
+ * different bounded context - this is a *person* logging into
  * their own VuloCloud account (VuloCloudAccountConnection), never a
- * per-site Product ID/License Key pair, so it has nothing to do with
- * whether Pro is even installed. See useContentGate.tsx/
+ * per-site Product ID/License Key pair. See useContentGate.tsx/
  * useVuloCloudAccountLogin.ts (both in src/services/) for the real
  * feature this backs - the "log in" tier every one of that hook's own 3
  * gates checks first.

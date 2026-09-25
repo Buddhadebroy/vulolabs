@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { __ } from '@wordpress/i18n';
 import './UpgradeToProOverlay.scss';
 
-/** Every prop here defaults to the original "Upgrade to Pro" copy, so every
+/** Every prop defaults to the original upgrade copy, so every
  * existing call site keeps rendering exactly what it did before - passing
  * `icon`/`title`/`desc`/`buttonText` explicitly (see `useContentGate.tsx`'s
  * own "Connect to VuloCloud" gate) is what makes this the same reusable

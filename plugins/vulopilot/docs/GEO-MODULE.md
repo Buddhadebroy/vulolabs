@@ -1,15 +1,5 @@
 # VuloPilot - GEO module
 
-Companion to [`SEO-MODULE.md`](SEO-MODULE.md), [`SCANNERS.md`](SCANNERS.md),
-[`RULE-ENGINE.md`](RULE-ENGINE.md), [`AI-ACTIONS.md`](AI-ACTIONS.md),
-[`AI-VISIBILITY-MODULE.md`](AI-VISIBILITY-MODULE.md), and to `vulopilot-pro`'s own
-[`GEO-INSIGHTS-MODULE.md`](../../../../plugins/vulopilot-pro/docs/GEO-INSIGHTS-MODULE.md).
-Covers the 12 originally
-requested GEO checks, why 8 became real scanners and 4 became an AI-powered
-analysis instead, the 9th deterministic scanner added since, the
-`GeoAnalysis\GeoAnalyzer` (the "Generate GEO Score"/"Generate AI suggestions"
-capability), the 2 rules, and the 2 AI Actions that close their fix loops.
-
 ## What GEO means here
 
 GEO = Generative Engine Optimization - how discoverable and citable a page is to
@@ -154,46 +144,6 @@ of a provider registry + `AISafetyValidator` separately - that registry has sinc
 `GeoAnalyzer` now go through the identical safety-validated call path - no parallel
 "send an AI request" logic exists anywhere in this codebase.
 
-### `GeoScore` (`modules/GeoAnalysis/ValueObjects/GeoScore.php`)
-
-Immutable, same shape as `Finding`/`Recommendation`/`ScanResult` - a plain Free
-plugin value object (`VuloPilot\ValueObjects\GeoScore`), not a member of some
-separate shared package: this codebase has no `vulopilot-core`/shared-composer-
-package layer between Free and Pro. Pro reaches into it directly the same way it
-reaches into any other Free class (`\VuloPilot()->geo_analyzer`, `GeoScore`'s own
-getters). Its shape grew alongside `GeoAnalyzer` above: `post_id`,
-`deterministic_score` (int|null), `ai_scores` (8 keys), `sub_scores` (6 keys),
-`overall_score`, `suggestions`, `generated_at`.
-
-### REST: moved to Pro, still two routes, two costs
-
-The per-post score read/generate routes **no longer live in Free**. They moved to
-`vulopilot-pro`'s `GeoInsights\Rest` (`modules/GeoInsights/Rest.php`), registered
-at the same `geo-analysis` REST base Free originally used:
-
-- `GET /geo-analysis/{post_id}` - reads a previously generated score back from
-  postmeta via `\VuloPilot()->geo_analyzer->get_stored_score()`. **No AI call, no
-  cost.**
-- `POST /geo-analysis/{post_id}` - runs `\VuloPilot()->geo_analyzer->analyze()`.
-  **A real AI call.**
-
-Split into two verbs/routes deliberately so simply loading the GEO page (or
-re-opening the score card) never silently re-spends an AI call a site owner
-didn't explicitly ask for - the same cost-consciousness `AI-ARCHITECTURE.md`'s
-rate limiting/usage tracking already treats as a first-class concern. The
-underlying `GeoAnalyzer` service itself is still constructed unconditionally in
-Free's own bootstrap (`VuloPilot()->geo_analyzer`) - only its REST surface and
-UI moved to Pro, since generating a score is a Pro-gated capability but the
-engine underneath it is shared Free infrastructure, the same way Automation's
-module reaches into Free's `RuleEngine`/`FindingRepository` without those being
-Pro-only.
-
-Free's own `modules/GeoAnalysis/Rest/GeoAnalysis.php` still exists at the same
-filename, but now hosts a different, unrelated route - `GET
-/geo-analysis/top-pages`, the GEO page's deterministic "Top Pages" ranking (no
-AI cost). See that controller's own docblock and `AI-VISIBILITY-MODULE.md` for
-why reusing the filename is safe.
-
 ## The 2 new rules and 2 new AI Actions
 
 | Rule | `id` | Pairs with scanner | Fix action |
@@ -224,63 +174,6 @@ actions used yet:
 Both get a WordPress revision for free via `wp_update_post()` (`ImproveReadabilityAction`'s
 same bonus safety net) and roll back by restoring the previous full `post_content`.
 
-## Frontend: `GeoScoreCard` - now a Pro-registered slot
-
-`GeoScoreCard.tsx` **moved out of Free** to
-`vulopilot-pro/modules/GeoInsights/src/GeoScoreCard.tsx` - it's a self-contained
-AI-scoring widget with no other Free consumer, unlike the GEO page's 10
-deterministic scanners and their findings table below it, which stay Free (same
-"health findings" shape every other category page already has). It's still a
-small, hand-built form (post-ID input + "Load existing score"/"Generate GEO
-score" buttons), still rendered above `FindingsTable` on the GEO page, and still
-not a table-row action for the same reason as before: a GEO score is inherently
-per-post while every other section on this page lists sitewide findings.
-
-**Registration**: Free's `GEO.tsx` never imports `GeoScoreCard` directly. It
-resolves it through `useFilterSlot('vulopilot_geo_score_card')`
-(`src/services/useFilterSlot.ts`), and Pro's `GeoInsights/src/index.tsx`
-registers the component into that same hook name via `@wordpress/hooks`'
-`addFilter()`. When the `geo-insights` module is inactive, `GEO.tsx` renders a
-single "AI Visibility Score" `ProLockedCard` in its place instead (along with
-the other 3 Pro widget slots - visibility summary, trend, competitor
-comparison - see `AI-VISIBILITY-MODULE.md`).
-
-**Why `useFilterSlot()` and not a plain `applyFilters()` call**: Free's and
-Pro's admin bundles are two separately-enqueued `<script>` tags (`Pro` declared
-as a hard WP dependency of `Free`, so it's *requested* first, but not
-guaranteed to have *finished executing* first - the browser can yield to the
-network in between). A one-time `applyFilters()` read at module scope or on
-first render can run before Pro's `addFilter()` calls have actually executed,
-permanently missing the registration regardless of which modules are active.
-`useFilterSlot()` fixes this by re-checking `applyFilters()` on a second,
-timing-independent signal: Pro's own `src/index.tsx` dispatches a
-`window` event, `vulopilot_pro_modules_loaded`, once every active module's
-`addFilter()` calls have actually run, and the hook re-resolves on that event
-(plus once on mount, cheap insurance if Pro's script had already finished by
-then).
-
-**Feedback (invalid ID, load-404, generate-failure) uses inline card state, not
-`NoticeManager.add()`.** `GeoScoreCard` now lives in Pro's own webpack bundle,
-and `@multivendorx/zyra` isn't in webpack's `externals`, so Pro gets its own
-separate, bundled copy of `NoticeManager`'s module-level singleton - a real but
-different queue from Free's. The only mounted `NoticeReceiverComponent` on the
-GEO page lives in Free's `FindingsTable`, subscribed to Free's own queue, so a
-notice added to Pro's queue from this card would silently never render. (Same
-cross-bundle singleton split `src/components/FindingsTable.tsx`'s own docblock
-documents for its row-action notices.) Fixed by keeping all of this card's own
-feedback in local component state instead.
-
-Displays the overall score, all 8 AI-judged dimensions and all 6 sub-scores
-(both via `AnalyticsComponent`), and the AI-generated suggestions list - with an
-explicit note when a stored score predates the sub-scores field (prompting a
-re-generate) or when the deterministic component is still null (no GEO scan
-history yet).
-
-**Known UX gap, not fixed here**: the post picker is a plain numeric ID field, not
-a live-search autocomplete - building a proper post-search component would need
-its own new REST search endpoint, a genuinely separate, larger piece of UI work
-than this pass's scope. Honest about being functional, not polished.
-
 ## Extension strategy
 
 Identical shape to every other engine in this codebase:
@@ -289,22 +182,11 @@ Identical shape to every other engine in this codebase:
    with `get_category() === 'geo'` (register in `ScannerRegistry`); if it genuinely
    needs semantic judgment, extend `GeoAnalyzer`'s prompt/parsing to score another AI
    dimension instead of forcing a fake scanner.
-2. **A Pro premium GEO capability** (e.g. multi-page GEO audits, competitor
-   citation-gap analysis): implement `ScannerInterface`/extend `GeoAnalyzer`'s
-   reusable `GeoScore` value object from a Pro module, license-gated
-   (`plugin-families.md`), same filter-based registration as everywhere else.
-   Already realized twice: `vulopilot-pro`'s `GeoInsights` module adds 2 more
-   `geo`-category scanners this way (`llms-txt-missing`, `stale-content` - see
-   `AI-VISIBILITY-MODULE.md`) on top of Free's 9.
 3. **A third-party check**: same filters, from any other plugin.
 
 ## What's not here yet
 
 - **A live post-search picker** for `GeoScoreCard` - see above.
-- **True bulk/sitewide *AI-scored* GEO scoring** - `GeoAnalyzer::analyze()` is
-  still one post at a time; vulopilot-pro's `GeoInsights\VisibilitySnapshotBuilder`
-  runs it across a bounded 20-post sample on a schedule (a disclosed
-  approximation, not every post), it doesn't queue/batch across the whole site.
 - **Per-post GEO score history** - each `analyze()` call still overwrites the
   previous postmeta value for that one post; there's no trend-over-time view
   for an individual post's own score. (The *sitewide sample average*

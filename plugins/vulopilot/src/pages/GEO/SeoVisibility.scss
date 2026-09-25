@@ -314,10 +314,6 @@
 	color: $sub-text-color;
 }
 
-// CompetitorVisibilityCard.tsx (Pro, GeoInsights) - its own bundle has no
-// SCSS of its own, so it renders inside this page sharing this
-// stylesheet, same "Pro has no SCSS of its own" pattern established for
-// Automation's own Pro form classes.
 .geo-competitor-bars {
 	display: flex;
 	flex-direction: column;
@@ -541,11 +537,6 @@
 	}
 }
 
-// KnowledgeGraphSection.tsx's own "What AI & Search Understand" card - real
-// entity-type count list, vulopilot-pro's real relationship diagram, and
-// the currently active tab's own real detail panel, all 3 side by side in
-// one row (rather than the 3rd dropping to a full-width row underneath -
-// direct instruction).
 .kg-understand-grid {
 	display: grid;
 	grid-template-columns: minmax(11rem, 0.85fr) 1.3fr 1.3fr;
@@ -1853,15 +1844,6 @@
 	}
 }
 
-// vulopilot-pro's own (moved) KeywordsTab.tsx's real 6-stat-card row (Total
-// Keywords/Top 3/Top 10/Avg. Position/Estimated Traffic/Impressions) - each
-// card's own real trend sparkline is zyra ChartComponent's `type="area"
-// sparkline` mode, fed real `vulopilot_keyword_rankings` history
-// (Rest::get_summary()'s own `trend` block), not a decorative shape. Kept
-// here (not moved into Pro's own stylesheet) because this page's
-// SeoVisibility.scss is always loaded regardless of which plugin's JS
-// renders the card - same reasoning every other Free/Pro split card style
-// on this page already follows.
 .keyword-stat-card {
 	display: flex;
 	flex-direction: column;
@@ -2616,12 +2598,6 @@
 	word-break: break-all;
 }
 
-// AuthorityTrendsDummy.tsx - the Pro-tag-gated stand-in for
-// vulopilot-pro's own BrandIntelligence AuthorityTrendsCard.tsx. The
-// plotted series is fabricated; `pointer-events: none` on the chart itself
-// so a click always reaches the wrapping `.brand-authority-trends-dummy`
-// overlay (the real click target), same convention Automations.scss's own
-// `.automations-manage-dummy-row` uses.
 .brand-authority-trends-dummy {
 	cursor: pointer;
 
@@ -2630,13 +2606,6 @@
 	}
 }
 
-// KnowledgePanelDummy.tsx - the Pro-tag-gated stand-in for
-// vulopilot-pro's own BrandIntelligence KnowledgePanelCard.tsx. Rows are
-// fabricated examples (same list-item shape as the real card's own
-// `.knowledge-panel-list*`, kept as a separate `brand-knowledge-panel-
-// dummy-*` set of classes here since that pro-only stylesheet never ships
-// in Free's bundle); the list is `pointer-events: none` so a click always
-// reaches the wrapping `.brand-knowledge-panel-dummy` overlay instead.
 .brand-knowledge-panel-dummy {
 	cursor: pointer;
 }
@@ -2688,13 +2657,6 @@
 	white-space: nowrap;
 }
 
-// OffSiteMentionsDummy.tsx - the Pro-tag-gated stand-in for
-// vulopilot-pro's own BrandIntelligence OffSiteMentionsCard.tsx. Same
-// summary-stats-plus-list shape as the real card's own
-// `.brand-mentions-*` classes (that pro-only stylesheet never ships in
-// Free's bundle, so this is its own `brand-offsite-mentions-dummy-*` set);
-// the list is `pointer-events: none` so a click always reaches the
-// wrapping `.brand-offsite-mentions-dummy` overlay instead.
 .brand-offsite-mentions-dummy {
 	cursor: pointer;
 }
@@ -2725,13 +2687,6 @@
 	pointer-events: none;
 }
 
-// CompetitorComparisonDummy.tsx - the Pro-tag-gated stand-in for
-// vulopilot-pro's own BrandIntelligence CompetitorComparisonCard.tsx. Same
-// table shape as the real card's own `.brand-competitor-comparison__*`
-// classes (that pro-only stylesheet never ships in Free's bundle, so this
-// is its own `brand-competitor-comparison-dummy-*` set); the table is
-// `pointer-events: none` so a click always reaches the wrapping
-// `.brand-competitor-comparison-dummy` overlay instead.
 .brand-competitor-comparison-dummy {
 	cursor: pointer;
 }
@@ -2765,16 +2720,6 @@
 	font-weight: 600;
 }
 
-// KeywordsTab.tsx (Free) - the real Pro/module tag shown in this section
-// itself, above the real "Connect Google Search Console" hero card (the
-// tag is NOT hidden inside the upgrade popup - same
-// "one tag, docked above the real/preview content" shape
-// Commerce.scss's own `.commerce-locked`/`.commerce-locked-tag` rules
-// already establish for the identical Commerce.tsx gate). `.keywords-locked`
-// needs its own `position: relative` because zyra's own `.admin-tag.pro-tag`
-// rule (theme/src/common.scss) is `position: absolute`, anchoring to the
-// nearest `position: relative` ancestor as a corner ribbon - without this,
-// that ancestor would be some far larger positioned ancestor up the tree.
 .keywords-locked {
 	position: relative;
 }

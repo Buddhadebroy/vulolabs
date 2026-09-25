@@ -250,10 +250,6 @@ const Automations = () => {
 					<AutomationsResourcesCard onCreateCustom={openCreateWizard} />
 				</ColumnComponent>
 
-				{/* Pro's own "Your automations" list - the redesigned page no longer
-				shows Free's fabricated `AutomationsManageDummy` preview here (the
-				mockup has no such card), but real Pro users still need to manage
-				their custom automations, so the real slot member stays. */}
 				{Manage && (
 					<ColumnComponent grid={12}>
 						<Manage

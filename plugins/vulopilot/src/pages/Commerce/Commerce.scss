@@ -1,11 +1,5 @@
 @use '../../components/config' as *;
 
-// .woocommerce-metrics-grid/.woocommerce-metric-tile (WooCommerceMetricsGrid.tsx)
-// and .sell-more-ai-insight/.sell-more-pro-tip (AiInsightBanner.tsx/
-// ProTipBanner.tsx) were removed here - those components only ever
-// rendered on the Overview tab (OverviewTab.tsx), which no longer exists
-// (Commerce now goes straight to the real WooCommerce tab, see
-// Commerce.tsx).
 
 .ai-sales-optimize {
 	display: inline-flex;
@@ -28,11 +22,6 @@
 	}
 }
 
-// "Commerce" WooCommerce tab's real health-overview section
-// (CommerceTab.tsx) - banner, readiness checklist, category grid,
-// "what to work on first", and the issues table's own tab bar.
-// Layout/typography/background come from BannerCard (`.getting-started-banner`,
-// common.scss) - this only tunes it for StoreHealthBanner.tsx (Pro).
 .store-health-banner {
 	padding-block: 1.75rem;
 	margin-bottom: 0;
@@ -236,12 +225,6 @@
 	gap: 0.5rem;
 }
 
-// CommercePanel.tsx - the Pro-then-module-gated stand-in for
-// vulopilot-pro's own real Commerce module content (CommerceTab.tsx and
-// most of its children). Fabricated preview tiles, blurred and inert;
-// `.commerce-locked-overlay` is the real click target covering the whole
-// preview, same "one overlay, not per-row handlers" shape
-// AutomationsManageDummy.tsx's own dummy list already uses.
 .commerce-locked {
 	position: relative;
 }

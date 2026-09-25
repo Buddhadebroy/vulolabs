@@ -131,24 +131,6 @@ concrete rule classes themselves are scattered across the `classes/<Tab>/`
 the 66 concrete scanners are (`SCANNERS.md`'s Engine section).
 
 - **`RuleRegistry` is structurally identical to `Utill\ScannerRegistry`**
-  - same filter-based discovery (`vulopilot_rule_sources` instead of
-  `vulopilot_scanner_sources`), same "skip anything that doesn't exist or
-  doesn't implement the interface" defensiveness, same reasoning for not
-  copying `Modules.php`'s folder-scan mechanism. Once one engine in this
-  plugin settled on a pattern, the second engine reusing it exactly is the
-  point - consistency across VuloPilot's own subsystems, not just against
-  the wider monorepo. Unlike `ScannerRegistry`, `RuleRegistry` originally had
-  no category kill-switch logic and no module-gated subset - all 19 rules sat
-  in one flat `get_default_rule_classes()` array, always registered.
-  **Update, later pass:** 9 of those 19 - the `woocommerce`-category rules
-  paired with the store-platform scanners covered in
-  [`WOOCOMMERCE-INTELLIGENCE-MODULE.md`](WOOCOMMERCE-INTELLIGENCE-MODULE.md)'s
-  own update note - have since moved to `vulopilot-pro`'s
-  `modules/WooCommerceIntelligence/Rules/`, registered via the
-  `vulopilot_rule_sources` filter and gated on `class_exists('WooCommerce')`,
-  for the same reason those scanners moved (Commerce is Pro-tier; nothing
-  `woocommerce`-scoped should have shipped in Free's hardcoded default
-  list). `get_default_rule_classes()` now returns 10 rules, not 19.
 - **`RuleEngine` self-hooks `vulopilot_scan_completed`** (the hook
   `Utill\ScanRunner` fires) - every completed scan automatically flows
   into recommendation generation with zero coupling between the two
@@ -252,19 +234,6 @@ inventing a parallel-but-different extension mechanism:
 1. **A new Free built-in rule**: add a class under the owning tab's `classes/<Tab>/` (or `modules/<Module>/`) folder
    extending `AbstractBasicRule`, add its `::class` reference to
    `RuleRegistry::get_default_rule_classes()`.
-2. **A Pro premium rule**: implement `VuloPilot\Utill\RuleInterface`
-   directly inside a Pro module (`get_tier()` would return `'pro'` - not
-   `'premium'`, matching the correction in `SCANNERS.md`'s and
-   `AI-ACTIONS.md`'s own extension-strategy sections - since Pro rules
-   don't extend `AbstractBasicRule`, whose whole reason to exist is
-   hard-coding `'free'`), hook `add_filter( 'vulopilot_rule_sources', ... )`
-   from the module's `Module.php` to append the class name. **Unlike
-   scanners and AI actions, no Pro module actually does this yet** -
-   there's no `vulopilot-pro` class implementing `RuleInterface` and no
-   `vulopilot_rule_sources` filter callback anywhere in that plugin today.
-   The mechanism is real and ready; nothing has used it.
-3. **A third-party rule**: same mechanism as step 2, from any other plugin
-   or theme - no more privileged a path for Pro than for a third party.
 
 ## What's not here yet
 
@@ -277,20 +246,6 @@ inventing a parallel-but-different extension mechanism:
   without needing a persisted `Recommendation` row at all - which may be
   why this gap was never closed: the REST layer routed around it rather
   than through it.
-- ~~The Automation Engine.~~ Built - see
-  [`AUTOMATION-ENGINE-MODULE.md`](AUTOMATION-ENGINE-MODULE.md).
-  `vulopilot-pro`'s `Automation\AutomationEngine` (confirmed present at
-  `modules/Automation/AutomationEngine.php`) triggers off `Recommendation`s
-  exactly as sketched here, plus a small, separately registered
-  "Conditions" layer on top (composable, but still flat and ANDed - not
-  the standalone condition-tree this doc already rejected). Free itself
-  also gained a much smaller, engine-free counterpart since this doc's
-  first pass - `Automation\ManualActionRunner` (`classes/Automation/`,
-  "Manual Actions Only" per the readme) runs one registered action against
-  one already-known Finding, by hand, building a synthetic `Recommendation`
-  directly off that Finding rather than going through
-  `RuleEngine::generate_recommendations()` at all, since a manual run has
-  no rule that matched in the first place.
 - **User-authored custom rules.** The former `vulopilot_rules` table was
   removed (nothing read or wrote it). A *different*, later feature - letting
   a site owner author or override rules from the dashboard - would add its

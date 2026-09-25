@@ -15,11 +15,6 @@ filters - an extension's own `register()` method still calls them, exactly as be
 one place to declare *who this is, what version it is, and what core version it needs*, checked
 once, honestly, before any of the extension's own registrations run.
 
-This is not a module system. `module-architecture.md`'s folder-scan/reflection discovery
-(`Module.php` + `Frontend.php`/`Rest.php`/…) is a different, heavier mechanism for a different job
-(vulolabs-pro/catalogx-pro's `modules/` trees) that VuloPilot deliberately doesn't have - see
-`plugin-families.md`. An `ExtensionInterface` implementation is a single class, not a folder.
-
 ## PHP extension points
 
 | Filter | Registry | Registers |
@@ -27,8 +22,6 @@ This is not a module system. `module-architecture.md`'s folder-scan/reflection d
 | `vulopilot_extension_sources` | `Sdk\ExtensionManager` | `ExtensionInterface` implementations - the entry point everything below is normally reached through |
 | `vulopilot_scanner_sources` | `Utill\ScannerRegistry` | `ScannerInterface` implementations (`SCANNERS.md`) |
 | `vulopilot_rule_sources` | `Utill\RuleRegistry` | `RuleInterface` implementations (`RULE-ENGINE.md`) |
-| `vulopilot_trigger_sources` | `VuloPilotPro\Automation\TriggerRegistry` | `TriggerInterface` implementations |
-| `vulopilot_automation_action_sources` | `VuloPilotPro\Automation\ActionRegistry` | Automation `ActionInterface` implementations |
 | `vulopilot_report_type_sources` | `Reports\ReportTypeRegistry` | `ReportTypeInterface` implementations |
 | `vulopilot_report_exporter_sources` | `Reports\ReportExporterRegistry` | `ReportExporterInterface` implementations |
 | `vulopilot_ai_action_sources` | `AiCopilot\ActionRegistry` | `AIActionInterface` implementations (`AI-ACTIONS.md`) |
@@ -37,23 +30,6 @@ This is not a module system. `module-architecture.md`'s folder-scan/reflection d
 All ten follow the same shape: a class-string (or, for `vulopilot_rest_controllers`, an instance)
 added to the filtered array, checked against the right interface, silently skipped if it doesn't
 match - one broken third-party registration never takes the rest down with it.
-
-**`vulopilot_trigger_sources` and `vulopilot_automation_action_sources` are the two exceptions to
-"Free applies every filter in this table."** Every other row's registry class lives in Free
-(`vulolabs/plugins/vulopilot/classes/`) and `apply_filters()`s unconditionally on every request.
-These two don't - `apply_filters('vulopilot_trigger_sources', …)` and
-`apply_filters('vulopilot_automation_action_sources', …)` only exist inside
-`vulopilot-pro/modules/Automation/TriggerRegistry.php`/`ActionRegistry.php` (namespace
-`VuloPilotPro\Automation`, not `AutomationEngine` - there's no `AutomationEngine` namespace
-anywhere in this codebase; `Contracts\Automation\TriggerInterface`'s own docblock phrasing predates
-where the registry actually ended up). Free ships the `TriggerInterface`/`ActionInterface`
-contracts and Free's own separate, smaller `Automation\ActionRegistry`
-(`vulopilot_manual_action_sources` - a different filter again, backing only
-`ManualActionRunner`'s "run one action against one open finding, right now," not the full
-trigger→rule→action engine), but the two full-engine registries these two filters feed are only
-ever instantiated when `vulopilot-pro`'s own `Automation` module is active. Registering a trigger
-or automation-action class into either filter is a no-op on a Free-only install - there's nothing
-there yet to read the filtered array back.
 
 ### Writing an extension
 
@@ -137,11 +113,9 @@ extension shape or override a single value instead of registering a whole class:
 
 | Filter | Where | Lets an extension… |
 |---|---|---|
-| `vulopilot_finding_list_response` | `Controllers/Findings.php` | Annotate the `GET /findings` response before it's returned - e.g. `vulopilot-pro`'s `OneClickFix` module adds a `fix_action_id` to each row without Free knowing anything about AI-action-to-scanner mapping |
 | `vulopilot_custom_report_type` | `Reports/ReportGenerator.php` | Supply a report type the built-in `ReportTypeRegistry` doesn't recognize, given the registry and any other requested type ids as context |
 | `vulopilot_crawler_bot_signatures` | `Services/CrawlerTrafficLogger.php` | Extend the User-Agent-substring → bot-name map `AiCrawlerBlockedPagesScanner` and the crawler-traffic logger both read from, without editing that class |
 | `vulopilot_crawler_log_retention_days` | `Services/CrawlerTrafficLogger.php` | Override how many days of `vulopilot_crawler_visits` rows (`DATABASE.md`, table 14) the daily cleanup cron keeps - Free's own default is the site's "Log retention" setting (30 by default) |
-| `kothay_dabba_vulopilot` | `Utill::is_khali_dabba()` | Tell Free whether Pro is active - `VuloPilotPro::check_pro_active()` is the only real hook, mirroring `VuloLabs\Utill::is_khali_dabba()`'s identical role for the free/Pro relationship elsewhere in this family; the odd literal name is this family's own established convention, not a typo |
 
 None of these are documented elsewhere, and none replace anything in the class-registration table
 above - they're narrower, single-value extension points worth knowing about for the same reason:
@@ -155,10 +129,7 @@ callback return value" shape WordPress action hooks always have.
 
 | Hook | Fired by | When |
 |---|---|---|
-| `vulopilot_loaded` | `VuloPilot.php`, end of `init_classes()` | Free has finished booting - the gate `vulopilot-pro`'s own bootstrap (and every Pro module) waits for before instantiating anything, per the root `CLAUDE.md`'s boot-order description |
 | `vulopilot_after_installed` | `Install::run_migration()` | A fresh install or an upgrade's migration pass has just finished |
-| `vulopilot_scan_completed( $result )` | `Scanners/ScanRunner.php` | One `ScannerInterface` run has finished - `$result` is a `ValueObjects\ScanResult`. `vulopilot-pro`'s `AccessibilityAudits` module self-hooks this to refresh `vulopilot_accessibility_snapshots` (`DATABASE.md`, table 23) |
-| `vulopilot_scan_persisted( $scan_result, $scan_id )` | `Services/ScanPersistenceListener.php` | A scan's results have just been written to `vulopilot_scans`/`vulopilot_scan_findings` - `$scan_id` is the just-inserted row id. `vulopilot-pro`'s `AdvancedReports` module hooks this to recalculate/refresh its own data |
 | `vulopilot_recommendations_generated( $recommendations, $findings )` | `RuleEngine/RuleEngine.php` | The Rule Engine has finished turning a batch of findings into recommendations, before any persistence layer reacts to them |
 
 ## React extension points
@@ -172,10 +143,6 @@ the whole story:
   point, same one the free vulolabs plugin's `Settings.tsx` uses).
 - **`vulopilot_dashboard_widgets`** (`@wordpress/hooks` filter, `src/dashboard-widgets/registry.ts`,
   see `DASHBOARD-WIDGETS.md`) - adds a widget to the Dashboard page's reorderable grid.
-- **Pro's own dynamic module loading** - Pro's `src/index.tsx` doesn't mount a React root
-  (`react-frontend.md`); it `require.context`-loads each `modules/*/src/index.(ts|tsx)` entry gated
-  on `appLocalizer.active_modules`. A third-party extension with its own React UI follows the same
-  shape: register filters into the two points above rather than trying to mount a second root.
 
 ## CLI extension point
 

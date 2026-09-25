@@ -209,28 +209,11 @@ const Settings = () => {
 								)}
 							/>
 						)}
-						{/* Cloud Storage section - appended AFTER this
-						 * tab's own fields, since S3/Google Drive credentials
-						 * only make sense once `backup_storage_destination`
-						 * itself has already been picked, the last
-						 * field this tab's own `modal` renders. See
-						 * Backups.ts's own docblock for why the
-						 * credentials themselves can't just be more
-						 * fields in that same array. Now Pro-gated - see
-						 * this function's own `CloudStoragePanel` slot
-						 * resolution above. */}
 						{'backups' === currentTab &&
 							(CloudStoragePanel ? (
 								<CloudStoragePanel />
 							) : (
 								<div className="settings-section-group cloud-storage-section-group">
-									{/* `.admin-tag.pro-tag` is an absolute-positioned
-									 * corner ribbon (zyra's own theme/src/common.scss
-									 * - see Accessibility.tsx's own docblock), so it
-									 * needs a `position: relative` ancestor rather
-									 * than being passed into SectionComponent's own
-									 * `title` (a plain string everywhere else this
-									 * component is used). */}
 									<div className="settings-left-section" style={{ position: 'relative' }}>
 										<span className="admin-tag pro-tag">
 											<i className="adminfont-pro-tag" />
@@ -248,17 +231,6 @@ const Settings = () => {
 									<div className="settings-right-section">
 										<FormGroupWrapperComponent>
 											<FormGroupComponent>
-												{/* Real layout, real row config (see
-												 * `CLOUD_STORAGE_LOCKED_METHODS` above) -
-												 * gate the interaction, not the content:
-												 * `onClickCapture` intercepts every click
-												 * before `ExpandablePanelInput`'s own
-												 * internal row-toggle handler ever sees it
-												 * (that component has no `canAccess`-gated
-												 * header click of its own to hook into -
-												 * its header always dispatches its own
-												 * "expand" action directly), redirecting to
-												 * the Pro popup below instead. */}
 												<div
 													className="cloud-storage-locked"
 													onClickCapture={(event) => {

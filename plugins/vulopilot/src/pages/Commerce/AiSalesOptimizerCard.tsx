@@ -15,12 +15,6 @@ const AiSalesOptimizerCard = ({
 
 	return (
 		<>
-			{/* Docks against `.card-wrapper` (ColumnComponent's own root div,
-			 * always `position: relative` in zyra) rather than a wrapper div
-			 * of its own - CardComponent's `badges` prop can't be used here
-			 * since it only forwards `color`/`text` into its own internal
-			 * `BadgeComponent` call, dropping any custom class, so the real
-			 * "admin-tag pro-tag" markup has to render as a sibling instead. */}
 			<span className="admin-tag pro-tag">
 				<i className="adminfont-pro-tag" />
 				{__('Pro', 'vulopilot')}

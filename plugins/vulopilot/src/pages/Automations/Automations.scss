@@ -389,11 +389,6 @@
 	}
 }
 
-// vulopilot-pro/modules/Automation/src/AutomationWizard.tsx and
-// AutomationGenerate.tsx - that module has no SCSS of its own (Pro's JS
-// renders inside this same page, sharing this stylesheet - see this repo's
-// own CLAUDE.md on how Pro's src/ mounts), so the real wizard/generate
-// popups style from here.
 .vulopilot-pro-automation-form {
 	display: flex;
 	flex-direction: column;
@@ -607,11 +602,6 @@
 	margin-top: 0.75rem;
 }
 
-// AutomationsManageDummy.tsx - the Pro-tag-gated stand-in for
-// vulopilot-pro's own real "Your automations" list. Rows are fabricated
-// examples, `pointer-events: none` so a click always reaches the wrapping
-// `.automations-manage-dummy` overlay (the real click target) rather than
-// the inert toggle inside each row.
 .automations-manage-dummy {
 	cursor: pointer;
 	display: flex;
@@ -646,12 +636,6 @@
 	min-width: 0;
 }
 
-// AutomationsActivityDummy.tsx - the Pro-tag-gated stand-in for
-// vulopilot-pro's own real "Recent automation activity" feed. Reuses the
-// real `.activity-log`/`.activity` row markup/styling (AutomationsActivityCard.tsx's
-// own, still shared since the real component uses the same classes), just
-// makes the whole list one clickable overlay instead of a real
-// "View automation history" action.
 .automations-activity-dummy {
 	cursor: pointer;
 }
