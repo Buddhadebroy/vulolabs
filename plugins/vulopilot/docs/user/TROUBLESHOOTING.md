@@ -1,6 +1,6 @@
 # Troubleshooting and FAQ
 
-Find your symptom, follow the steps. Each answer points to the guide with the full detail.
+Find what is going wrong, then follow the steps. Each answer points to the guide with more detail.
 
 **Jump to**
 
@@ -30,12 +30,12 @@ Find your symptom, follow the steps. Each answer points to the guide with the fu
 
 ## Scheduled scans or emails do not run
 
-Automations use WP-Cron, which only runs when the site gets visits.
+Automations run on WordPress's built-in scheduler, which only wakes up when someone visits your site. On a quiet site, tasks can start late.
 
 1. Check **Site Health → Background Tasks** for overdue events.
 2. Open **Automations** and confirm the automation is switched on and not showing **Errors**.
 3. For the emailed report, confirm the recipient in **Settings → Notifications** and click **Send Test Email**.
-4. On low-traffic sites, ask your host to run WP-Cron on a real server schedule.
+4. On a quiet site, ask your web host to trigger WordPress's scheduled tasks on a fixed timer.
 
 See [AUTOMATIONS](AUTOMATIONS.md).
 

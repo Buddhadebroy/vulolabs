@@ -1,97 +1,90 @@
 # Security
 
-The Security page scans for weak spots, watches for attacks and blocks repeated login abuse. It shows a security score based on your open security findings.
+## What it does
 
-> Install and the first scan are in [GETTING-STARTED](GETTING-STARTED.md). Turn on backups before you change security settings: [SITE-HEALTH-AND-BACKUPS](SITE-HEALTH-AND-BACKUPS.md).
+Security looks for weak spots that hackers use, watches for attacks, and stops people who keep guessing passwords. It gives your site a security score based on the problems it finds, and a list of what to fix.
 
-**In this guide**
+## Why it matters
 
-1. [Run a security scan](#1-run-a-security-scan)
-2. [Read the score and the threat monitor](#2-read-the-score-and-the-threat-monitor)
-3. [Work through the findings](#3-work-through-the-findings)
-4. [Turn on protection](#4-turn-on-protection)
-5. [Get email alerts](#5-get-email-alerts)
-6. [Reference: what each check does](#6-reference-what-each-check-does)
+A hacked site can lose customers, get blocked by browsers and search engines, and cost real money to clean up. Most attacks are automatic and target easy weaknesses: weak passwords, out-of-date software and files that should not be there. Finding those early is far cheaper than repairing damage.
 
-## 1. Run a security scan
+**Tip.** Turn on backups before you change security settings. See [SITE-HEALTH-AND-BACKUPS](SITE-HEALTH-AND-BACKUPS.md). New to VuloPilot? See [GETTING-STARTED](GETTING-STARTED.md).
+
+## How to use it
 
 1. Open **VuloPilot → Security**.
-2. Click **Run Security Scan** in the header.
-3. Wait for the score and findings to update.
+2. Click **Run Security Scan**.
+3. Look at the score. It is rated **Good**, **Needs Work** or **At Risk**.
+4. Work through the findings, most serious first, then scan again.
 
-## 2. Read the score and the threat monitor
+## What you see
 
-| Card | What it shows |
+| Card | In plain words |
 |---|---|
-| **Security status** | Score and remaining points, with a rating: **Good**, **Needs Work** or **At Risk** ("I found N security issues." or "You're all caught up") |
-| **Security Trend** | Daily security score over the last days (builds up after your first scan) |
-| **Live Threat Monitor** | Status of each check: **Malware Scanning**, **Firewall**, **Login Protection**, **File Integrity** and **Spam Protection** |
-| **Recent Activity** | The last few security-related events |
+| **Security status** | Your score and how much is left to fix |
+| **Security Trend** | Whether your security is improving day by day |
+| **Live Threat Monitor** | A checklist of protections: **Malware Scanning**, **Firewall**, **Login Protection**, **File Integrity** and **Spam Protection**. "Not tracked yet" means it has not run |
+| **Recent Activity** | The latest security events |
 | **Backup protection** | Whether automatic backups are on |
-| **Plugin Overlap** | Active plugins that duplicate a VuloPilot feature |
+| **Plugin Overlap** | Plugins you have installed that do something VuloPilot already does, so you can remove extras |
 
-A check that has not run yet shows "Not tracked yet". A check with nothing wrong shows "No open findings".
+## The problems it finds
 
-## 3. Work through the findings
-
-Findings are grouped:
-
-| Group | What it covers |
+| Group | What it means |
 |---|---|
-| **Login & Accounts** | Weak or easily guessed admin credentials, plus IPs blocked by login protection |
-| **Website Exposure** | Anonymous REST API user listing, `xmlrpc.php`, exposed backup or editor files, debug mode, the theme/plugin file editor |
-| **Browser Protection** | Security response headers - clickjacking, MIME-sniffing and HTTPS enforcement |
+| **Login & Accounts** | Passwords that are easy to guess, and addresses that were blocked for too many wrong logins |
+| **Website Exposure** | Things visible to the public that should be hidden, such as a list of your usernames, leftover backup files or debug mode left on |
+| **Browser Protection** | Missing safety settings your site should send to visitors' browsers, and whether the site forces a secure connection |
 
-The issues table has columns **Issue**, **Category**, **Severity**, **Affected** and **Resource type**. **Important** lists the critical and high-severity findings first. Fix a finding by following its recommendation, then run the scan again.
+The list shows each problem's **Severity** (how serious it is) and what is **Affected**. **Important** shows the most serious problems first.
 
-## 4. Turn on protection
+## Settings explained
 
 Go to **Settings → Scanning → Security**.
 
-### Scans
+### What to check
 
-| Setting | What it does |
-|---|---|
-| **Weak password checks** | Finds users with weak passwords |
-| **Exposed WordPress details** | Flags a visible WordPress version or the default `wp_` database prefix |
-| **Core file changes** | Detects unauthorized changes in WordPress core files |
-| **Malware checks** | Scans for suspicious code and harmful scripts (including PHP files hidden in your uploads folder) |
-| **Exposed usernames** | Checks whether the REST API reveals usernames |
+| Setting | What it does | Why turn it on |
+|---|---|---|
+| **Weak password checks** | Finds users with easy-to-guess passwords | Weak passwords are the most common way in |
+| **Exposed WordPress details** | Reports a visible WordPress version and the default database name prefix | Hides clues attackers use |
+| **Core file changes** | Reports changes to WordPress's own files | A changed core file can mean the site was tampered with |
+| **Malware checks** | Looks for harmful code, including program files hiding in your uploads folder | Uploads should only hold pictures and documents |
+| **Exposed usernames** | Checks whether visitors can list your usernames | Knowing usernames is the first step of a break-in attempt |
 
-### Login protection
+### Stop password guessing
 
-1. Turn on **Block repeated failed login attempts**.
-2. Set **Failed attempts before lockout** - how many failures from one IP are allowed.
-3. Set **Lockout window (minutes)** - how long a blocked IP waits, and how far back failures are counted.
+| Setting | What it does | Why turn it on |
+|---|---|---|
+| **Block repeated failed login attempts** | Blocks an address that gets the password wrong too many times | Stops automated guessing |
+| **Failed attempts before lockout** | How many wrong tries are allowed | Lower is stricter, but may lock out you or your staff by mistake |
+| **Lockout window (minutes)** | How long a blocked address must wait | Longer is stricter |
 
-### Firewall
+### Attack filter (firewall)
 
-1. Turn on **Log requests matching known attack patterns**. This checks each request's URL against known SQL-injection, path-traversal and direct-PHP-execution patterns and logs matches. It never blocks anyone on its own.
-2. Review the log for a while to make sure nothing legitimate matches.
-3. Then turn on **Enable active blocking**. A matched request now gets a 403 and is stopped. This is off by default on purpose.
+| Setting | What it does | Why use it |
+|---|---|---|
+| **Log requests matching known attack patterns** | Watches web requests for well-known attack shapes and writes them down. It never blocks anyone by itself | A safe first step: see what is really happening |
+| **Enable active blocking** | Actually stops matching requests | Turn it on only after you have reviewed the log for a while and seen nothing legitimate matched. It is off by default on purpose |
 
-## 5. Get email alerts
+### Get warned
 
-1. In the same settings page, turn on **Email me on new security alerts**.
-2. Enter a **Security alert email**. Leave it blank to use the site admin email.
-3. Choose the **Minimum alert severity** (for example **Critical only**).
+| Setting | What it does | Why turn it on |
+|---|---|---|
+| **Email me on new security alerts** | Emails you when a scan finds a new problem | You hear about trouble without opening the dashboard |
+| **Security alert email** | Where the email goes. Blank uses the site admin address | Send it to whoever will act on it |
+| **Minimum alert severity** | Only problems at or above this level trigger an email, for example **Critical only** | Avoids inbox noise. The same open problem is not emailed again on every scan |
 
-An alert is sent when a scan finds a new finding at or above that severity. Findings that were already alerted and are still open are not re-sent on every scan.
+## Suggested setup
 
-## 6. Reference: what each check does
+1. Turn on backups.
+2. Turn on **Weak password checks**, **Malware checks** and **Core file changes**.
+3. Turn on **Block repeated failed login attempts**.
+4. Turn on **Log requests matching known attack patterns**. Enable active blocking later.
+5. Turn on email alerts with **Critical only**.
 
-| Check | Detects |
-|---|---|
-| Malware and infection | PHP files in uploads and known backdoor patterns in your active theme |
-| Core file integrity | Changed or missing WordPress core files |
-| Weak passwords | Easily guessed user passwords |
-| Basic vulnerabilities | Known-risk configuration |
-| SSL monitoring | HTTPS and certificate problems |
-| Firewall | Attack-pattern requests |
-| Login protection | Repeated failed logins |
-
-## Related guides
+## Related
 
 - [SITE-HEALTH-AND-BACKUPS](SITE-HEALTH-AND-BACKUPS.md)
 - [SETTINGS](SETTINGS.md#scanning)
-- [TROUBLESHOOTING](TROUBLESHOOTING.md) - if you lock yourself out
+- [TROUBLESHOOTING](TROUBLESHOOTING.md#locked-out-after-failed-logins) - if you lock yourself out

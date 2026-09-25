@@ -1,52 +1,45 @@
-# Commerce (WooCommerce)
+# Commerce (Your Online Store)
 
-The Commerce page collects store-related findings for WooCommerce sites. It is only shown in the menu when WooCommerce is active.
+## What it does
 
-> Install and the first scan are in [GETTING-STARTED](GETTING-STARTED.md).
+If you run a WooCommerce store, the Commerce page collects problems that could cost you sales: product information that is missing, checkout problems and store settings that need attention. It only appears in the menu when WooCommerce is active.
 
-**In this guide**
+## Why it matters
 
-1. [Open the Commerce page](#1-open-the-commerce-page)
-2. [Run a scan](#2-run-a-scan)
-3. [Read the findings](#3-read-the-findings)
-4. [Product structured data](#4-product-structured-data)
-5. [Turn checks on or off](#5-turn-checks-on-or-off)
+Shoppers leave if a product page looks incomplete or checkout feels broken. Finding these issues yourself means clicking through every product. Commerce lists them for you.
 
-## 1. Open the Commerce page
+New to VuloPilot? See [GETTING-STARTED](GETTING-STARTED.md).
 
-Go to **VuloPilot → Commerce**. If you do not see it, WooCommerce is not active on your site. The page describes itself as AI-powered WooCommerce intelligence to help you increase sales and grow revenue.
+## How to use it
 
-## 2. Run a scan
-
-Click **Run scan** in the header. When the scan finishes, findings appear in the issues table. Until then you will see "No WooCommerce findings yet - run a scan to check store settings, product data, and checkout health."
-
-## 3. Read the findings
-
-The **All WooCommerce Issues** table groups findings as:
+1. Open **VuloPilot → Commerce**.
+2. Click **Run scan**. Until you do, the page says "No WooCommerce findings yet."
+3. Read the **All WooCommerce Issues** table. **Important** shows the most serious ones first.
+4. Open an issue, fix it in WooCommerce and scan again.
 
 | Group | What it covers |
 |---|---|
-| **Products** | Product data problems |
-| **Checkout** | Checkout health |
-| **Store** | Store settings |
+| **Products** | Problems with product information |
+| **Checkout** | Problems that could stop someone buying |
+| **Store** | Store-wide settings |
 
-**Important** lists the most serious ones first. Open a finding to read its recommendation, fix it in WooCommerce, then re-scan.
+## AI Sales Assistant
 
-The **AI Sales Assistant** card summarizes your open store findings. It uses your AI service ([AI-COPILOT](AI-COPILOT.md#1-before-you-start)); use **Review Suggestions First** to check its proposals before anything changes.
+This card sums up your store's open problems in plain language and can suggest improvements using your AI connection ([AI-COPILOT](AI-COPILOT.md#before-you-start-connect-to-vulocloud)). Choose **Review Suggestions First** to look at what it proposes before anything changes.
 
-## 4. Product structured data
+## Product labels for search engines
 
-Product schema (the data that lets search engines show price and availability) is checked under **SEO & Visibility → Business Identity & Schema → Product Details**, which lists detected products and their schema status. See [AI-VISIBILITY](AI-VISIBILITY.md#9-business-identity--schema).
+To show price and stock in search results, products need hidden labels called **schema**. Check them at **SEO & Visibility → Business Identity & Schema → Product Details**, which lists your products and whether their schema is fine. More in [AI-VISIBILITY](AI-VISIBILITY.md#business-identity--schema-what-machines-learn-about-you).
 
-## 5. Turn checks on or off
+## Setting
 
-Go to **Settings → Scanning → WooCommerce**:
+Go to **Settings → Scanning → WooCommerce**.
 
-| Setting | What it does |
-|---|---|
-| **Flag products missing schema** | Flags products without valid Product structured data |
+| Setting | What it does | Why turn it on |
+|---|---|---|
+| **Flag products missing schema** | Reports products that lack the hidden labels search engines use | Products with schema can show price and availability in search results |
 
-## Related guides
+## Related
 
-- [SEO](SEO.md) - product pages in sitemaps and IndexNow
+- [SEO](SEO.md) - product pages in your sitemap and instant indexing
 - [SETTINGS](SETTINGS.md#scanning)

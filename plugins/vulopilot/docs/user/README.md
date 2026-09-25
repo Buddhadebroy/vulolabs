@@ -1,6 +1,6 @@
 # VuloPilot User Guides
 
-Step-by-step guides for site owners and webmasters. Start with **Getting Started** once; every other guide assumes it and does not repeat installation.
+Plain-language guides for site owners. Each one first explains **what a feature does and why it matters**, then shows **how to use it** and explains every setting. Start with **Getting Started** once; the other guides do not repeat installation.
 
 Looking for code-level detail? See [../developer](../developer/README.md).
 
@@ -37,7 +37,8 @@ Looking for code-level detail? See [../developer](../developer/README.md).
 
 Each guide has the same shape so you can skim it:
 
-1. A one-paragraph summary and a link back to Getting Started.
-2. An **In this guide** list of numbered steps.
-3. Numbered how-to steps and tables for each setting.
-4. **Related guides** at the end.
+1. **What it does** - the feature in plain words.
+2. **Why it matters** - what you gain, or risk if you ignore it.
+3. **How to use it** - numbered steps.
+4. **Settings explained** - a table saying what each setting does and why you might use it.
+5. **Related** - where to go next.

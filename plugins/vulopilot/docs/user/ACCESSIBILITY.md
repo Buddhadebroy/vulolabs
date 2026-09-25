@@ -1,79 +1,62 @@
 # Accessibility
 
-The Accessibility page checks whether people with disabilities can use your site. It scans against WCAG 2.1 (levels A, AA or AAA) and groups what it finds by topic.
+## What it does
 
-> Install and the first scan are in [GETTING-STARTED](GETTING-STARTED.md).
+Accessibility means making your website usable by everyone, including people who are blind, have low vision, cannot use a mouse or have other disabilities. VuloPilot scans your pages against the international standard for this (called **WCAG**) and lists what to fix.
 
-**In this guide**
+## Why it matters
 
-1. [Run an accessibility audit](#1-run-an-accessibility-audit)
-2. [Read the score](#2-read-the-score)
-3. [Work through the findings](#3-work-through-the-findings)
-4. [Do the manual checks](#4-do-the-manual-checks)
-5. [Choose what is checked](#5-choose-what-is-checked)
+- **More people can use your site.** Roughly one in six people lives with a disability.
+- **It helps your search ranking.** Clear headings, image descriptions and readable text also help search engines.
+- **It reduces legal risk.** Many countries expect websites to be accessible.
+- **It is better for everyone.** Clear, well-labelled pages are easier for all visitors.
 
-## 1. Run an accessibility audit
+New to VuloPilot? See [GETTING-STARTED](GETTING-STARTED.md).
+
+## How to use it
 
 1. Open **VuloPilot → Accessibility**.
-2. Click **Run Accessibility Audit** in the header.
-3. When it finishes, the score and findings update.
+2. Click **Run Accessibility Audit**.
+3. Look at your score: **Good**, **Needs Work** or **At Risk**.
+4. Click **Review Important Issues** to see the most serious problems first.
+5. Fix each one, then run the audit again. **Accessibility Score History** shows whether you are improving.
 
-To have audits run on their own, set a **Scan frequency** in the settings (step 5).
+## The problems it finds
 
-## 2. Read the score
+| Group | What it means | Example fix |
+|---|---|---|
+| **Page Structure** | Headings are missing, repeated or in the wrong order | Use one main heading and put the rest in order |
+| **Images & Media** | Pictures have no text description, so a screen reader cannot describe them | Add "alt text" to the image in the Media Library |
+| **Links & Forms** | Form fields have no label, or links say things like "Click here" | Label every field; make link text describe where it goes |
+| **Keyboard Use** | Buttons and menus that a keyboard user cannot reach or understand | Make sure everything works with the Tab key |
+| **Visual Readability** | Text that is hard to see | Increase contrast or size |
+| **All Checks** | Everything combined | |
 
-The hero card shows a **Score** and how much is **Remaining** to fix, with a rating:
+## Some checks need a person
 
-| Rating | Message |
+A tool cannot tell whether your page is truly pleasant to use. The **Manual testing recommended** panel lists three things to try yourself:
+
+| Check | Try this |
 |---|---|
-| **Good** | Great job - no open accessibility issues |
-| **Needs Work** | Most visitors can use your site, but some areas could be improved |
-| **At Risk** | Accessibility needs urgent attention |
-
-Click **Review Important Issues** to jump to the most serious findings. **Accessibility Score History** shows the trend so you can see whether your fixes are helping.
-
-## 3. Work through the findings
-
-Findings are grouped so you can fix one topic at a time.
-
-| Group | What it checks |
-|---|---|
-| **Page Structure** | Heading hierarchy and duplicate `<h1>` tags |
-| **Images & Media** | Images without alt text |
-| **Links & Forms** | Form fields without labels, and unclear link text such as "Click here" |
-| **Keyboard Use** | Interactive elements that keyboard users may not reach or understand (ARIA roles and attributes) |
-| **Visual Readability** | Text that may be difficult to see |
-| **All Checks** | Every check combined |
-
-For each finding: open it, read the recommendation, fix the page (for example add alt text in the Media Library), then re-run the audit.
-
-## 4. Do the manual checks
-
-Automated tests find many technical issues, but some things need a person. The **Manual testing recommended** panel lists three:
-
-| Check | Ask yourself |
-|---|---|
-| **Keyboard navigation** | Can you reach and use everything without a mouse? |
+| **Keyboard navigation** | Put the mouse aside. Can you reach and use everything with the keyboard? |
 | **Screen-reader experience** | Does the content make sense when read aloud? |
-| **Zoom & text resizing** | Does the page still work when text is enlarged? |
+| **Zoom & text resizing** | Make the text bigger. Does the page still work? |
 
-Click **Open Manual Checklist** for a step-by-step list.
+Click **Open Manual Checklist** for step-by-step help.
 
-## 5. Choose what is checked
+## Settings explained
 
 Go to **Settings → Scanning → Accessibility**.
 
-| Setting | What it does |
-|---|---|
-| **Accessibility checks** | Turns the accessibility scan on or off |
-| **Scan frequency** | How often it runs on its own: Off, Hourly, Daily or Weekly |
-| **WCAG level** | Which standard to check against: A, AA or AAA |
-| **WCAG scanner** | Turns on the extra WCAG checks |
-| **Check for generic, out-of-context link text** | Flags links such as "Click here" or "Read more" whose purpose is unclear |
+| Setting | What it does | Why you might use it |
+|---|---|---|
+| **Accessibility checks** | Turns the accessibility scan on or off | Leave it on |
+| **Scan frequency** | How often the scan runs by itself: **Off**, **Hourly**, **Daily** or **Weekly** | Weekly is enough for most sites; use daily if you publish often |
+| **WCAG level** | How strict to be: **A** (basic), **AA** (the common target) or **AAA** (strictest) | Choose **AA** unless you have a specific requirement |
+| **WCAG scanner** | Turns on additional standard-based checks | Gives a fuller picture |
+| **Check for generic, out-of-context link text** | Reports links like "Click here" or "Read more" | Screen-reader users often hear links as a list, so each one must make sense alone |
 
-There is also a **Restore defaults** action in the header of that settings page.
+## Related
 
-## Related guides
-
-- [SEO](SEO.md) - missing alt text is also an image SEO issue
+- [SEO](SEO.md) - missing image descriptions also hurt image search
 - [SETTINGS](SETTINGS.md#scanning)

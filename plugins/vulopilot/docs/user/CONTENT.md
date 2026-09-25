@@ -1,86 +1,74 @@
 # Content
 
-The Content page helps you create content with AI and keep your existing content healthy.
+## What it does
 
-> AI tools need a VuloCloud connection ([GETTING-STARTED](GETTING-STARTED.md#7-connect-the-optional-services)). Every AI change follows the same flow: **Generate → Preview (Before/After) → Approve & apply or Reject**.
+The Content page helps you **write** new content with AI and **keep your existing content healthy**. You can generate a blog post from a topic, check how good a page is, and fix pages that share the same title.
 
-**In this guide**
+## Why it matters
 
-1. [The page at a glance](#1-the-page-at-a-glance)
-2. [Create content with the AI tools](#2-create-content-with-the-ai-tools)
-3. [Run a content audit](#3-run-a-content-audit)
-4. [Check one page's quality](#4-check-one-pages-quality)
-5. [Fix duplicate titles](#5-fix-duplicate-titles)
-6. [Recent content and stats](#6-recent-content-and-stats)
-7. [Readability checks](#7-readability-checks)
+Good content brings visitors, but writing takes time. AI drafts save hours, and content checks stop old or weak pages from quietly hurting your search results.
 
-## 1. The page at a glance
+New to VuloPilot? See [GETTING-STARTED](GETTING-STARTED.md). AI tools need a VuloCloud connection ([AI-COPILOT](AI-COPILOT.md#before-you-start-connect-to-vulocloud)).
+
+## How AI tools work here
+
+Every AI tool follows the same safe steps:
 
 ```
-Header:      Content  +  Run Content Audit
-Left:        Content tools grid  |  Quick actions
-Right:       AI Content Assistant (chat-style shortcuts)
-Below:       Content Stats  |  Content Quality (Page Analysis)  |  Recent Content
+You give a topic  ->  AI writes it  ->  You see Before and After  ->  You click Approve & apply, or Reject
 ```
 
-## 2. Create content with the AI tools
+Nothing goes live until you approve. Generated posts are saved as **drafts**, not published.
 
-The tools grid contains these available tools:
+## Tools you can use
 
-| Tool | Use it to |
-|---|---|
-| **AI Writer** | Write content from a topic ("What should it write about?") |
-| **Blog Generator** | Generate an SEO-optimized blog post from a **Topic** |
-| **Duplicate Content** | Give posts that share the same title distinct titles |
-
-Steps:
-
-1. Click a tool tile. A window opens.
-2. Fill in the fields (for example the topic).
-3. Click **Generate**. You will see "Generating with AI...".
-4. Review the result in **Before / After**.
-5. Click **Approve & apply** to make it live, or **Reject** to discard. If it did not turn out well, click **Try again**.
-
-Messages you may see: "Applied - the change is now live.", "Applied automatically - the change is now live." and "Discarded - nothing was changed."
-
-Generated posts are saved as drafts, not published.
+| Tool | What it does | When to use it |
+|---|---|---|
+| **AI Writer** | Writes content about a topic you describe ("What should it write about?") | A first draft of a page or post |
+| **Blog Generator** | Creates an SEO-friendly blog post from a **Topic** | Fresh blog content |
+| **Duplicate Content** | Suggests a different title for posts that share exactly the same title | Cleaning up repeated titles |
 
 Tiles marked with a tag are not part of this plugin and stay locked.
 
-### AI Content Assistant
+**How to use a tool:**
 
-The assistant panel offers ready-made requests: **Write a blog**, **Create a product description**, **Generate FAQs**, **Create meta title** and **Write a call-to-action**. Each one asks a short follow-up question ("What should the blog be about?") and then runs the request.
+1. Click the tile.
+2. Fill in the topic or choose the post.
+3. Click **Generate**. You see "Generating with AI...".
+4. Compare **Before** and **After**.
+5. Click **Approve & apply** to keep it, **Reject** to discard, or **Try again** for a new attempt.
 
-## 3. Run a content audit
+## AI Content Assistant
 
-1. Click **Run Content Audit** in the header for a scan of your content, or use **AI Content Audit** under **Quick actions**.
-2. For the quick action, pick a **Post or page** and run it to get an overall score, a summary and suggestions for that page.
+A shortcut panel with ready-made requests: **Write a blog**, **Create a product description**, **Generate FAQs**, **Create meta title** and **Write a call-to-action**. Each asks one short question, such as "What should the blog be about?", then does the work.
 
-## 4. Check one page's quality
+## Check your existing content
 
-The **Content Quality** card ("Page Analysis") checks one page live.
+| Feature | What it does | Why use it |
+|---|---|---|
+| **Run Content Audit** (header button) | Scans your content for problems | Finds weak pages in one go |
+| **AI Content Audit** (Quick actions) | Scores one post or page and lists suggestions | A focused review before you publish or update |
+| **Content Quality** (Page Analysis) | Shows quality signals for a single page you pick | Compare pages and see what to improve |
+| **Content Stats** | Content created, words generated, SEO score and time saved for a period | See what your effort produced |
+| **Recent Content** | Your latest posts and pages, filterable by type, with a **Content Issues** link | Jump to what needs work |
 
-1. Choose the page under **Page being analyzed**. Changing it updates all results below.
-2. Read the signals. If you have no content yet, publish a post or page first.
+## Readable content
 
-## 5. Fix duplicate titles
+VuloPilot flags posts that are hard to read, using a standard 0 to 100 scale where a higher number is easier. Choose your minimum under **Settings → Scanning → SEO & Content → Readability → Minimum readability score** (default 50). Lower scores usually mean long sentences and complicated words; shorter sentences fix most of it.
+
+Other content checks, such as very short pages, are explained in [SEO](SEO.md#choose-which-problems-vulopilot-looks-for).
+
+## Fixing duplicate titles
+
+If two posts have exactly the same title, search engines struggle to tell them apart.
 
 1. Open the **Duplicate Content** tool.
-2. If posts or pages share exactly the same title, they are listed. Pick one.
-3. Generate a new title, review Before/After, and approve.
+2. Pick one of the listed posts.
+3. Generate a new title, compare and approve.
 
-If none are found you will see "No duplicate titles found." Most sites never have any.
+If you see "No duplicate titles found", you have nothing to fix.
 
-## 6. Recent content and stats
+## Related
 
-- **Content Stats** shows content created, words generated, SEO score and time saved for a chosen period.
-- **Recent Content** lists your most recently published or updated content, filtered by **All resources**, **Blog Posts**, **Landing Pages**, **Products** or **Other**, with a **Content Issues** shortcut and **View All**.
-
-## 7. Readability checks
-
-Scans flag posts that are hard to read using the Flesch Reading Ease scale (0-100, higher is easier). Set the minimum score in **Settings → Scanning → SEO & Content → Readability** (default 50). Thin-content and other page checks are described in [SEO](SEO.md#choosing-which-checks-run).
-
-## Related guides
-
-- [AI-COPILOT](AI-COPILOT.md) - ask for a blog post in chat
-- [SEO](SEO.md) - titles, meta descriptions, per-page SEO sidebar
+- [AI-COPILOT](AI-COPILOT.md)
+- [SEO](SEO.md)

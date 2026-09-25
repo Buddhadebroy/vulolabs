@@ -1,62 +1,58 @@
 # Reports and History
 
-The Reports page has two tabs: **Overview** (how your site changed) and **History** (a timeline of everything VuloPilot did).
+## What it does
 
-> Install and the first scan are in [GETTING-STARTED](GETTING-STARTED.md).
+The Reports page answers two questions: **Is my site getting better?** (Overview) and **What has been done to my site, and when?** (History).
 
-**In this guide**
+## Why it matters
 
-1. [The Overview tab](#1-the-overview-tab)
-2. [The History tab](#2-the-history-tab)
-3. [Find something in History](#3-find-something-in-history)
-4. [Export the history](#4-export-the-history)
-5. [Report settings](#5-report-settings)
-6. [Undo a change](#6-undo-a-change)
+- The Overview shows progress, so you can tell whether your effort is paying off.
+- History is a diary of every scan, change and AI conversation. If something looks different on your site, you can see what caused it, and undo it.
 
-## 1. The Overview tab
+New to VuloPilot? See [GETTING-STARTED](GETTING-STARTED.md).
 
-- The top card says whether your site is **improving** or **needs attention**. "Every tracked area held steady or improved this period" means no area got worse. It counts issues **Fixed** and issues that **Still need attention**.
-- The report-type cards (**Visibility Report**, **Commerce Report**, **Content Report**) show the total findings from your most recent report of that type, or "No report generated yet".
-- **Recent Reports** lists your latest generated reports, with **View All Reports**.
+## Overview tab
 
-## 2. The History tab
+- The top card says whether your site is **improving** or **needs attention**. It counts issues **Fixed** and issues that **Still need attention**. "Every tracked area held steady or improved this period" means nothing got worse.
+- The report cards (**Visibility Report**, **Commerce Report**, **Content Report**) show the total findings from your latest report of each kind, or "No report generated yet".
+- **Recent Reports** lists your latest reports; **View All Reports** shows the rest.
 
-History is a day-grouped timeline of:
+## History tab
 
-- **Scans** you or an automation ran,
-- **Content changes** applied to your site,
-- **AI Copilot conversations**,
-- other events such as alerts and applied AI actions.
+History is a timeline, grouped by day, of everything VuloPilot has:
 
-Each row shows what happened, when, and details such as a scan's issue count ("12 issues found") or a change's **Before / After** values.
+- **scanned** (each scan and how many issues it found),
+- **changed** on your site (with **Before / After** values),
+- **discussed** in AI Copilot conversations,
+- and other events such as alerts.
 
-## 3. Find something in History
+### Find something
 
-1. Type in **Search history...** to filter by text.
-2. Use **Select date range** (or the quick presets such as **Today** and **All time**) to limit the dates.
-3. Use the type filters to show only scans, changes or conversations.
-4. Click a row for the full detail panel.
+1. Type in **Search history...** to search by words.
+2. Use **Select date range** (or shortcuts like **Today** and **All time**).
+3. Use the filters to show only what you need.
+4. Click a row for the full details.
 
-## 4. Export the history
+### Save a copy
 
-Click **Export** to download the history that matches your current filters. If nothing matches you will see "Nothing to export."
+Click **Export** to download the history that matches your filters. If nothing matches you see "Nothing to export."
 
-## 5. Report settings
+### Undo a change
+
+If VuloPilot applied a change (for example an AI edit), its row has an **Undo** option. You will see "Change undone." The Dashboard's **Recent Changes** card lists the same changes.
+
+## Report settings
 
 Go to **Settings → Reports**.
 
-| Setting | Options |
-|---|---|
-| **Default report format** | **PDF** (recommended - great for sharing and printing), **CSV** (best for spreadsheets) or **Both** (choose each time you download) |
-| **Default reporting period** | 7 days, 30 days, 90 days or 6 months |
+| Setting | Choices | Why you might change it |
+|---|---|---|
+| **Default report format** | **PDF** (recommended, good for sharing and printing), **CSV** (best for spreadsheets), or **Both** (pick each time) | Choose what you will actually do with the report |
+| **Default reporting period** | 7 days, 30 days, 90 days or 6 months | A short period shows recent change; a long one shows the big picture |
 
-You can change the format and period each time you generate a report.
+You can change the format and period each time you create a report.
 
-## 6. Undo a change
+## Related
 
-When VuloPilot applied a change (for example an AI edit), the History row offers **Undo**. See "Change undone." on success. The **Recent Changes** widget on the [DASHBOARD](DASHBOARD.md) links to the same changes.
-
-## Related guides
-
-- [AUTOMATIONS](AUTOMATIONS.md) - schedule the emailed visibility report
-- [AI-COPILOT](AI-COPILOT.md) - conversations logged in History
+- [AUTOMATIONS](AUTOMATIONS.md) - get the visibility report by email
+- [AI-COPILOT](AI-COPILOT.md)

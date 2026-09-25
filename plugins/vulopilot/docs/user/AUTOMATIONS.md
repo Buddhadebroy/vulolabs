@@ -1,71 +1,61 @@
 # Automations
 
-Automations run VuloPilot tasks on a schedule so your scores stay fresh without you opening the dashboard. This plugin includes two ready-made automations.
+## What it does
 
-> Install and the first scan are in [GETTING-STARTED](GETTING-STARTED.md).
-
-**In this guide**
-
-1. [The two included automations](#1-the-two-included-automations)
-2. [Turn one on and set its schedule](#2-turn-one-on-and-set-its-schedule)
-3. [Check that they are running](#3-check-that-they-are-running)
-4. [Fix a failed run](#4-fix-a-failed-run)
-5. [Advanced automation settings](#5-advanced-automation-settings)
-6. [How scheduling works](#6-how-scheduling-works)
-
-## 1. The two included automations
+An automation is a task VuloPilot does on its own, on a schedule, so you do not have to remember. This plugin includes two ready-made ones:
 
 | Automation | What it does |
 |---|---|
-| **Run Full Site Scan** | Automatically scans your website and refreshes your VuloPilot insights |
-| **Send Visibility Report** | Emails you a summary of your website's visibility, issues and opportunities |
+| **Run Full Site Scan** | Checks your whole website and refreshes all your scores |
+| **Send Visibility Report** | Emails you a summary of how visible your site is, what issues exist and what opportunities you have |
 
-Both are always listed at the top of **VuloPilot → Automations**. There is no template picker or wizard for these two.
+## Why it matters
 
-## 2. Turn one on and set its schedule
+Scores and problems change as your site changes. A scan that runs every week keeps the dashboard honest, and an emailed summary keeps you informed without logging in.
 
-1. Open **VuloPilot → Automations**.
-2. Find the automation card.
-3. Switch it on.
-4. Choose the schedule: **daily, weekly, monthly** or **manual** (only when you run it).
-5. Save.
+New to VuloPilot? See [GETTING-STARTED](GETTING-STARTED.md).
 
-For the email report, set the recipient address and sender in **Settings → Notifications → Email Settings** first, and use **Send Test Email** to confirm delivery.
+## How to use it
 
-## 3. Check that they are running
+1. Open **VuloPilot → Automations**. Both automations are listed at the top.
+2. Switch on the one you want.
+3. Choose how often it runs: **daily**, **weekly**, **monthly** or **manual** (only when you start it).
+4. Save.
 
-The top of the page has two cards:
+**For the email report,** first set where it goes: **Settings → Notifications → Email Settings** (Notification email, Sender name, Sender email), then click **Send Test Email** to make sure it arrives.
 
-| Card | Shows |
+## Are they working?
+
+| Card | What it tells you |
 |---|---|
-| **Automation status** | Counts of **Active**, **Not active**, needs setup and **Errors** |
-| **Needs your attention** | Automations that failed. "Great job! Your automations are running smoothly." means none |
+| **Automation status** | How many are **Active**, **Not active**, need setup, or have **Errors** |
+| **Needs your attention** | Automations that failed. "Great job! Your automations are running smoothly." means all is well |
 
-The **Automation status** widget on the Dashboard shows the same enabled/not active state.
+The Dashboard's **Automation status** card shows the same information.
 
-## 4. Fix a failed run
+## If one fails
 
-If a scheduled run did not complete, the attention card says "The last scheduled run didn't complete successfully."
+The attention card says "The last scheduled run didn't complete successfully."
 
-1. Click **Try Again** (it shows **Retrying...**).
-2. If it fails again, read the error shown with the run.
-3. For the email report, common causes are a missing recipient ("No recipient configured, or the report failed to generate") or report delivery not being available on the site ("No report delivery extension is active").
+1. Click **Try Again**.
+2. If it fails again, read the reason shown. Common reasons: no email recipient is set, or email delivery is not available on your site.
+3. Still stuck? See [TROUBLESHOOTING](TROUBLESHOOTING.md#scheduled-scans-or-emails-do-not-run).
 
-## 5. Advanced automation settings
+## Fine-tuning (optional)
 
-Go to **Settings → Automation**. The defaults are safe; only change them if you have a reason.
+Go to **Settings → Automation**. The defaults are safe. Change them only if you have a reason.
 
-| Setting | Meaning |
-|---|---|
-| **Cooldown duration (minutes)** | Minimum wait before another automated action for the same issue (1-1440) |
-| **Maximum retry attempts (times)** | How many times a failed automation is retried (0-5) |
-| **Delay between retries (minutes)** | Wait between retries (1-1440) |
+| Setting | What it does | Why you might change it |
+|---|---|---|
+| **Cooldown duration (minutes)** | The minimum wait before VuloPilot acts on the same issue again | Prevents repeated actions in a short time |
+| **Maximum retry attempts (times)** | How many times a failed task is retried before giving up (0 to 5) | Set 0 if you never want retries |
+| **Delay between retries (minutes)** | How long to wait between tries | A longer wait helps with temporary problems, such as a busy server |
 
-## 6. How scheduling works
+## A note on timing
 
-Scheduled runs use WordPress's own scheduler (WP-Cron). WP-Cron runs when someone visits your site, so on very quiet sites a run can start late. If **Site Health → Background Tasks** reports overdue events, see [TROUBLESHOOTING](TROUBLESHOOTING.md#scheduled-scans-or-emails-do-not-run).
+Scheduled tasks run when someone visits your site, so on a very quiet site a run can start a little late. That is normal.
 
-## Related guides
+## Related
 
 - [REPORTS](REPORTS.md)
 - [SETTINGS](SETTINGS.md#notifications)

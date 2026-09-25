@@ -1,134 +1,127 @@
-# AI Visibility, Brand and Schema
+# AI Visibility (Being Found by AI Assistants)
 
-This guide covers the parts of **SEO & Visibility** that help AI assistants (ChatGPT, Claude, Gemini, Perplexity and others) find, understand and cite your site: GEO, AEO, Brand Visibility, crawler traffic, llms.txt, and your Business Identity and Schema.
+## What it does
 
-> Classic SEO (titles, sitemaps, redirects) is in [SEO](SEO.md). Install and the first scan are in [GETTING-STARTED](GETTING-STARTED.md).
+More and more people ask ChatGPT, Claude, Gemini or Perplexity instead of typing into Google. AI Visibility checks how easy it is for these assistants to **find your site, understand it and quote it** in their answers. It gives you scores and a to-do list, just like the SEO tools do for search engines.
 
-**In this guide**
+## Why it matters
 
-1. [The terms](#1-the-terms)
-2. [Set up your business first](#2-set-up-your-business-first)
-3. [Run a visibility scan](#3-run-a-visibility-scan)
-4. [The Overview tab](#4-the-overview-tab)
-5. [GEO: improve AI visibility](#5-geo-improve-ai-visibility)
-6. [AEO: get cited as an answer](#6-aeo-get-cited-as-an-answer)
-7. [Brand Visibility](#7-brand-visibility)
-8. [Crawl & URLs: AI crawler traffic and llms.txt](#8-crawl--urls-ai-crawler-traffic-and-llmstxt)
-9. [Business Identity & Schema](#9-business-identity--schema)
-10. [Keywords](#10-keywords)
-11. [Settings for these scans](#11-settings-for-these-scans)
+If an AI assistant cannot understand what your business is, it will not recommend you. Clear business details, direct answers and trustworthy signals make your site more likely to be mentioned.
 
-## 1. The terms
+New to VuloPilot? See [GETTING-STARTED](GETTING-STARTED.md). Classic search engine work is in [SEO](SEO.md).
 
-| Term | Plain meaning |
+## Words you will see
+
+| Word | Simple meaning |
 |---|---|
-| **GEO** (Generative Engine Optimization) | Making your content easy for AI systems to read and reuse |
-| **AEO** (Answer Engine Optimization) | Making pages answer questions directly so they can be quoted |
-| **Brand Visibility** | Trust and authority signals that make AI treat your site as a reliable source |
-| **Entity** | A named thing on your site - business, person, product, service, location |
-| **Schema / JSON-LD** | Machine-readable data that describes your pages to search engines |
-| **llms.txt** | A plain Markdown index of your key pages for AI systems |
+| **GEO** | Making your content easy for AI systems to read and reuse |
+| **AEO** | Making pages answer questions directly so they can be quoted |
+| **Brand Visibility** | Signs that your site is trustworthy and an authority |
+| **Entity** | A named thing on your site: your business, a person, a product, a service, a place |
+| **Schema** | Hidden labels on a page that tell machines what it is about |
+| **llms.txt** | A simple page that lists your most important pages for AI to read |
 
-## 2. Set up your business first
+## Step 1: Tell VuloPilot about your business
 
-1. Go to **Settings → Business Information**.
-2. Fill in **Business type**, **Site tone**, **Service pages**, **Business locations** and **Competitors**.
-3. Save.
+Go to **Settings → Business Information** and fill in:
 
-This lets VuloPilot build a more complete profile and shape AI requests to sound like your site. See [SETTINGS](SETTINGS.md#business-information).
+| Field | What it is | Why it helps |
+|---|---|---|
+| **Business type** | For example "Online Store" or "Consulting Agency" | Helps VuloPilot describe you correctly |
+| **Site tone** | How you sound, such as "Friendly and casual" | AI writing then matches your style |
+| **Service pages** | The pages that describe what you offer | Helps AI see your services |
+| **Business locations** | Where you operate | Helps with local questions |
+| **Competitors** | Other businesses in your field | Lets VuloPilot compare your presence with theirs |
 
-## 3. Run a visibility scan
+## Step 2: Run a scan
 
 1. Open **VuloPilot → SEO & Visibility**.
-2. Click **Run Visibility Scan** in the header.
-3. Open the tabs below to see results.
+2. Click **Run Visibility Scan**.
+3. Explore the tabs: **Overview, Brand Visibility, SEO, GEO, AEO, Keywords, Crawl & URLs, Business Identity & Schema**.
 
-The page tabs are **Overview, Brand Visibility, SEO, GEO, AEO, Keywords, Crawl & URLs** and **Business Identity & Schema**.
+## The Overview tab
 
-## 4. The Overview tab
+Four scores at a glance: **Brand Visibility**, **SEO Health**, **GEO Visibility** and **Crawl & URLs**. Each is **Good**, **Needs Work** or **At Risk**, with a one-line summary. If you connect Google Analytics you also see where your visitors come from.
 
-Four scores in one place: **Brand Visibility Score**, **SEO Health Score**, **GEO Visibility Score** and **Crawl & URLs Score**, each rated **Good**, **Needs Work** or **At Risk**. A short message sums up your visibility ("...in good shape across the board", "...could use some improvement", "...needs attention in several areas"). If you connect Google Analytics, **Visibility by Source** shows real sessions by channel.
+## GEO: make your content easy for AI to use
 
-## 5. GEO: improve AI visibility
+**What it checks.**
 
-The **GEO** tab shows a GEO score and groups findings by topic:
-
-| Topic | Question it answers |
+| Topic | The question it asks |
 |---|---|
-| **AI Summary** | Do pages have a short, up-front summary an AI can quote? |
-| **Question Coverage** | Are common questions answered, with a FAQ or Q&A block? |
-| **Evidence & Citations** | Are statistics backed by a citation or link? |
-| **AI-Readable Structure** | Are paragraphs short and headings well ordered? |
-| **Entity Clarity** | Are your brand, people and products named consistently? |
-| **Content Freshness** | Have pages been updated recently? |
+| **AI Summary** | Does the page start with a short answer an AI can quote? |
+| **Question Coverage** | Does the page answer common questions, ideally in a FAQ? |
+| **Evidence & Citations** | Are numbers and claims backed by a source? |
+| **AI-Readable Structure** | Are paragraphs short and headings in a sensible order? |
+| **Entity Clarity** | Do you call your brand, people and products the same thing every time? |
+| **Content Freshness** | Has the page been updated recently? |
 
-Use **A Closer Look, By Topic** to see open issues and affected pages for each topic, then **View issues**. A **Fix these first** card orders the work for you.
+**How to use it.** Open **GEO**, use **A Closer Look, By Topic** to see which pages are affected, and follow the advice on each. The **Fix these first** card puts the work in order.
 
-## 6. AEO: get cited as an answer
+## AEO: get picked as the answer
 
-The **AEO** tab has three groups: **Questions & Answers**, **Direct Answers** and **Schema Markup**. It also shows:
+**What it checks.** Whether pages answer questions clearly. It also has two helpers:
 
-- **Citation coverage** - how many tested questions your configured AI service already recognizes your site for.
-- **Engine Testing** - pick a page you have just fixed and click **Test this page** to run a live single-page citation check without waiting for the next full scan. This uses your AI service.
+- **Citation coverage** shows how many test questions your AI service already links to your site.
+- **Engine Testing** lets you pick a page you just fixed and click **Test this page** to see right away whether AI now recognizes it. This uses your AI connection.
 
-Tip: add a **FAQ block** to pages that answer common questions (see [SEO](SEO.md#table-of-contents-and-faq-blocks)).
+**Tip.** Add a **FAQ block** to pages that answer common questions (see [SEO](SEO.md#8-table-of-contents-and-faq-blocks)).
 
-## 7. Brand Visibility
+## Brand Visibility: look trustworthy
 
-The **Brand Visibility** tab shows a **Brand Score** made of two parts:
+**What it does.** Scores how trustworthy and well-known your brand looks.
 
 | Score | Meaning |
 |---|---|
-| **Trust Score** | How trustworthy your site looks to people and AI engines |
-| **Authority Score** | How strong your reputation and credibility are |
+| **Trust Score** | Would a person or AI trust your site? |
+| **Authority Score** | How strong is your reputation and credibility? |
 
-Findings are grouped under **Trust Signals** (a real About and Contact page), **Authority Signals** (author bios, content updates, Person schema) and **Entity Consistency**.
+It checks for a real **About** page and **Contact** page, author information, regular content updates, and consistent naming.
 
-The About page check flags a page that is too thin to be a real trust signal. Set the minimum word count under **Settings → Scanning → SEO & Content → About Page** (default 80).
+The About page check has one setting: **Settings → Scanning → SEO & Content → About Page → Minimum About page word count** (default 80). A page shorter than this is treated as too thin to build trust.
 
-## 8. Crawl & URLs: AI crawler traffic and llms.txt
+## Crawl & URLs: who visits your site
 
-Open **Crawl & URLs**. Beyond redirects and the 404 log (see [SEO](SEO.md)), this tab shows:
+**What it does.** Shows visits from AI robots (called **crawlers**) such as GPTBot, ClaudeBot and PerplexityBot, and whether your site is set up to let them in.
 
-- **Crawler Traffic** - real visits from AI crawlers over time: GPTBot, ChatGPT-User, ClaudeBot, anthropic-ai, PerplexityBot, Bytespider, CCBot, Google-CloudVertexBot, Amazonbot and others. **Recent Crawl Requests** lists each visit, searchable by requested URL. Only the bot name, user agent and URL are stored - no visitor IP addresses.
-- **Overall Crawl Health** - whether robots.txt is reachable, whether an XML sitemap exists and whether important AI bots are blocked.
-- **llms.txt** - an editable Markdown index served at `/llms.txt`.
+**Why it matters.** If a robot is blocked, that assistant cannot learn about you. If you do not want a robot to visit, you can see whether it keeps trying.
 
-To turn on crawler tracking and llms.txt see step 11. Crawler alerts are set up under [SETTINGS](SETTINGS.md#notifications).
+- **Crawler Traffic** charts visits over time. **Recent Crawl Requests** lists each visit. VuloPilot stores only the bot name and the page, never visitor IP addresses.
+- **Overall Crawl Health** checks that your robots.txt file works, you have a sitemap, and important AI bots are not blocked by accident.
+- **llms.txt** is an editable list of your key pages, served at `yoursite.com/llms.txt`, for AI to read instead of browsing your whole site.
 
-## 9. Business Identity & Schema
+## Business Identity & Schema: what machines learn about you
 
-This tab shows what search engines and AI learn about your business.
+**What it does.** Shows what search engines and AI think your business is, based on your site.
 
-| Section | What it shows |
+| Section | What you see |
 |---|---|
-| **Business Profile** | Business name, type, services, locations, people, products and categories found on your site, each with a confidence level. Click **Edit Business Information** to correct anything |
-| **Knowledge Graph** | A diagram of entities extracted from your content and how they connect, with **Add category / Add product** shortcuts |
-| **Schema Coverage** | Which pages have valid structured data (JSON-LD) and which have problems |
-| **Inspect a specific page** | Choose a page and see exactly what structured data it sends. Filters: **All**, **With schema**, **Need attention** |
-| **Issues** | Schema and structured-data findings |
-| **Product Details** | Products and their schema status (needs WooCommerce) |
+| **Business Profile** | Business name, type, services, locations, people, products and categories found, each with a confidence level. Click **Edit Business Information** to correct anything |
+| **Knowledge Graph** | A diagram of the things VuloPilot found and how they connect |
+| **Schema Coverage** | Which pages carry the hidden labels (schema) and which have problems |
+| **Inspect a specific page** | Pick a page to see exactly what labels it sends. Filters: **All**, **With schema**, **Need attention** |
+| **Product Details** | Your products and whether they have schema (needs WooCommerce) |
 
-If nothing shows, run a scan first.
+**Why it matters.** If the profile is wrong or empty, AI will describe your business wrongly or not at all.
 
-## 10. Keywords
+## Keywords
 
-The **Keywords** tab shows real ranking keywords once you connect Google Search Console. Until then it says "Connect Google Search Console to see your real keyword rankings." Use **Connect Google Services** ([SETTINGS](SETTINGS.md#integrations)).
+The **Keywords** tab shows which search phrases bring people to you, after you connect Google Search Console (**Connect Google Services**). Until then it reminds you to connect.
 
-## 11. Settings for these scans
+## Settings for these scans
 
 Go to **Settings → Scanning → AI Visibility**.
 
-| Setting | What it does |
-|---|---|
-| **Entity clarity** | Checks how clearly brand, people and products are defined. **Minimum entity mentions** flags pages that mention their main entity too little |
-| **Content freshness** | Flags pages not updated within **Flag content older than (months)** |
-| **Answer-first content** | Flags a page if its core answer does not appear within **Answer-first threshold (words)** |
-| **Evidence checks** | Checks for citations and facts; **Minimum data points per 500 words** |
-| **Generate llms.txt** | Creates the Markdown index at `/llms.txt` |
-| **Auto-regenerate on publish** | Rebuilds llms.txt whenever content is published or updated |
+| Setting | What it does | Why you might use it |
+|---|---|---|
+| **Entity clarity** and **Minimum entity mentions** | Reports pages that barely mention their main subject | Clear subjects are easier for AI to understand |
+| **Content freshness** and **Flag content older than (months)** | Reports pages not updated within this time | Old content is trusted less |
+| **Answer-first content** and **Answer-first threshold (words)** | Reports pages where the answer comes too late | AI quotes early, direct answers |
+| **Evidence checks** and **Minimum data points per 500 words** | Reports pages with too few facts, numbers or sources | Facts build credibility |
+| **Generate llms.txt** | Creates the `/llms.txt` page | Gives AI a tidy map of your site |
+| **Auto-regenerate on publish** | Rebuilds llms.txt whenever content changes | Keeps it up to date without effort |
 
-## Related guides
+## Related
 
-- [SEO](SEO.md) - robots.txt, sitemap, redirects
+- [SEO](SEO.md)
 - [SETTINGS](SETTINGS.md)

@@ -1,94 +1,72 @@
 # Dashboard
 
-The Dashboard is your starting point. It shows how healthy your site is right now, what needs attention and what VuloPilot did recently.
+## What it does
 
-> New here? Read [GETTING-STARTED](GETTING-STARTED.md) first. It covers install, the first scan and the ideas (findings, scores, approvals) this page builds on.
+The Dashboard is the first screen you see. It answers three questions at a glance: **How healthy is my site? What needs my attention? What has VuloPilot been doing?**
 
-**In this guide**
+## Why it matters
 
-1. [What you see](#1-what-you-see)
-2. [Run a scan](#2-run-a-scan)
-3. [Read the scores](#3-read-the-scores)
-4. [Act on "Needs your attention"](#4-act-on-needs-your-attention)
-5. [Customize the layout](#5-customize-the-layout)
-6. [Widget reference](#6-widget-reference)
+Instead of opening ten pages to find problems, you see the important ones in one place, with a score that tells you whether things are getting better or worse.
 
-## 1. What you see
+New to VuloPilot? See [GETTING-STARTED](GETTING-STARTED.md) for installation and the first scan.
 
-The page greets you ("Good morning / afternoon / evening") and shows a set of widgets:
+## How to use it
 
-```
-Header:  greeting + Run scan + Customize
-Row 1:   Website Health Scores  |  Health timeline
-Row 2:   Site snapshot          |  Automation status
-Row 3:   Needs your attention   |  AI suggestions
-Row 4:   AI crawler traffic     |  Recent activity  |  Latest reports  |  ...
-```
+1. Open **VuloPilot → Dashboard**.
+2. Click **Run scan** in the header. VuloPilot checks your whole site and refreshes every score.
+3. Read your scores (below).
+4. Work through **Needs your attention**.
 
-A **Getting started** card at the top of a new install links to docs, help and support.
+## Your scores
 
-## 2. Run a scan
+The **Website Health Scores** card shows one overall score and one for each area. Each score is out of 100.
 
-1. Click **Run scan** in the header.
-2. VuloPilot runs every scanner and refreshes every score and finding on the page.
-3. The **Health timeline** and **Recent activity** update with the result.
-
-You can also schedule scans (see [AUTOMATIONS](AUTOMATIONS.md)).
-
-## 3. Read the scores
-
-The **Website Health Scores** widget shows one overall score plus a score per area:
-
-| Score | Covers |
+| Score | What it tells you |
 |---|---|
-| **Visibility Score** | SEO and AI visibility |
-| **Health Score** | WordPress and server health |
-| **Commerce Score** | Store checks (WooCommerce sites) |
-| **Performance Score** | Speed and Core Web Vitals |
-| **Content Score** | Content quality |
-| **Brand Score** | Trust and authority signals |
+| **Visibility Score** | How easy your site is to find in search and by AI |
+| **Health Score** | How well WordPress and your server are running |
+| **Commerce Score** | How healthy your online store is (WooCommerce sites) |
+| **Performance Score** | How fast your site is |
+| **Content Score** | How good your content is |
+| **Brand Score** | How trustworthy your brand looks |
 
-The rating labels are **Excellent, Good, Fair, Needs work** with a one-line message such as "Your site could use some improvement." Click **View full report** to open the detail. The **Health timeline** shows how these scores have trended; it fills in after your first scan.
+Ratings run from **Excellent** and **Good** to **Fair** and **Needs work**, each with a one-line message. Click **View full report** for more. The **Health timeline** chart shows whether your scores are rising; it fills in after your first scan.
 
-## 4. Act on "Needs your attention"
+## Needs your attention
 
-This widget has three lists:
+This is your to-do list, in three parts.
 
-| List | What it means | What to do |
+| List | What it is | What to do |
 |---|---|---|
-| **Open issues** | Findings still open from the last scans | Click an issue to open its page and fix it |
-| **Quick fixes** | Simple problems AI can resolve, such as an image issue | Click **Fix with AI**, review the preview, approve or reject |
-| **Pending approval** | AI changes waiting for you | Approve to apply, reject to discard |
+| **Open issues** | Problems found by your last scans | Click one to open the page where you can fix it |
+| **Quick fixes** | Simple problems AI can fix for you, such as an image issue | Click **Fix with AI**, look at the before and after, then approve or reject |
+| **Pending approval** | AI changes waiting for your OK | Approve to apply, or reject to discard |
 
-After you approve or reject, you see "Action approved and executed." or "Action rejected." Approved changes appear in **Recent Changes**.
+Nothing changes on your site until you approve. After you decide, you see "Action approved and executed" or "Action rejected." Approved changes are listed under **Recent Changes**.
 
-The **AI Suggestions** widget lists AI-generated fixes waiting for your review. It fills up once a scan finds something worth fixing.
+**AI Suggestions** lists fixes AI has prepared and is waiting for you to review.
 
-## 5. Customize the layout
+## Other cards
 
-1. Click the **Customize** (pencil) icon in the header.
-2. Drag a widget by its handle (**Drag to reorder**) to move it.
-3. Click **Hide** on a widget to remove it. Hidden widgets are listed under **Hidden widgets:** so you can bring them back.
-4. Click **Reset to default** to restore the original layout.
+| Card | What it shows | Why it is useful |
+|---|---|---|
+| **Site snapshot** | How many posts, pages, comments, users and plugins you have | A quick size check |
+| **Automation status** | Which automatic tasks are on | Confirms your scans and emails are running |
+| **Recent activity** | Scans, alerts and AI actions as they happen | An audit trail |
+| **Recent Changes** | Changes VuloPilot made for you | Lets you see (and undo) what changed |
+| **AI crawler traffic** | Visits from AI robots such as GPTBot and ClaudeBot | Shows whether AI assistants are reading your site |
+| **Brand Visibility breakdown** | Overall, Trust and Authority scores | Shows how your brand looks to AI |
+| **Knowledge Graph** | People, organizations, products, services, places and categories found on your site | Shows what machines learn about you |
+| **Latest reports** | Your most recent reports | Quick access |
 
-## 6. Widget reference
+## Arrange the dashboard your way
 
-| Widget | Shows |
-|---|---|
-| **Website Health Scores** | Overall score and score per area |
-| **Health timeline** | Score trend over time |
-| **Site snapshot** | Counts of posts, pages, comments, users, active plugins, and a homepage thumbnail |
-| **Automation status** | Which built-in automations are enabled |
-| **Needs your attention** | Open issues, quick fixes, pending approvals |
-| **AI Suggestions** | AI-generated fixes waiting for review |
-| **Recent activity** | Scans, alerts and AI actions as they happen |
-| **Recent Changes** | Changes VuloPilot made automatically |
-| **AI crawler traffic** | Visits from GPTBot, ClaudeBot, PerplexityBot and other AI crawlers |
-| **Brand Visibility breakdown** | Overall, Trust and Authority scores |
-| **Knowledge Graph** | People, Organizations, Products, Services, Locations and Categories found on your site |
-| **Latest reports** | Your most recent scan and audit reports |
+1. Click the **Customize** pencil in the header.
+2. Drag a card by its handle to move it.
+3. Click **Hide** on a card you do not need. Hidden cards are listed at the bottom so you can bring them back.
+4. Click **Reset to default** to start over.
 
-## Related guides
+## Related
 
-- Fixing what the Dashboard flags: [SEO](SEO.md), [PERFORMANCE](PERFORMANCE.md), [SECURITY](SECURITY.md), [ACCESSIBILITY](ACCESSIBILITY.md)
-- AI and approvals: [AI-COPILOT](AI-COPILOT.md)
+- Fix what the Dashboard flags: [SEO](SEO.md), [PERFORMANCE](PERFORMANCE.md), [SECURITY](SECURITY.md), [ACCESSIBILITY](ACCESSIBILITY.md)
+- Approvals and AI: [AI-COPILOT](AI-COPILOT.md)

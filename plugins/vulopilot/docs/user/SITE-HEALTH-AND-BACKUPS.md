@@ -1,75 +1,85 @@
 # Site Health and Backups
 
-This page checks the technical health of WordPress itself and lets you back up and restore your site. It has two tabs: **Site Health** and **Backups**.
+This page has two parts: **Site Health**, which checks that WordPress itself is in good shape, and **Backups**, which saves a copy of your site so you can recover from a mistake or a hack.
 
-> Install and the first scan are in [GETTING-STARTED](GETTING-STARTED.md).
+## Site Health
 
-**In this guide**
+### What it does
 
-1. [Run a Site Health scan](#1-run-a-site-health-scan)
-2. [Understand the Site Health checks](#2-understand-the-site-health-checks)
-3. [Create a backup](#3-create-a-backup)
-4. [Restore, download or delete a backup](#4-restore-download-or-delete-a-backup)
-5. [Set up automatic backups](#5-set-up-automatic-backups)
+Site Health runs a checkup of the technical side of your site: is WordPress up to date, is the database tidy, are scheduled tasks running, is the server set up well.
 
-## 1. Run a Site Health scan
+### Why it matters
+
+Out-of-date software is a top cause of hacked sites, and hidden technical problems slowly make a site slower or unreliable. A regular checkup catches them while they are small.
+
+### How to use it
 
 1. Open **VuloPilot → Site Health**.
-2. Click **Run Site Health Scan** in the header.
-3. Read the results on the **Site Health** tab.
+2. Click **Run Site Health Scan**.
+3. Read each finding, follow its advice and scan again.
 
-## 2. Understand the Site Health checks
-
-| Group | What it checks |
+| Group | What it checks, in plain words |
 |---|---|
-| **WordPress** | Core version, HTTPS setup and REST API availability |
-| **Updates** | Pending WordPress core, plugin and theme updates |
-| **Background Tasks** | Overdue scheduled events - a sign WP-Cron is not firing |
-| **Database** | Table integrity, size and cleanup opportunities |
-| **Server** | PHP and server configuration |
+| **WordPress** | Is WordPress up to date, using a secure connection (HTTPS), and reachable by other tools? |
+| **Updates** | Are there waiting updates for WordPress, plugins or themes? |
+| **Background Tasks** | Are the site's automatic jobs running on time? Late jobs usually mean scheduled tasks are stuck |
+| **Database** | Is the database healthy and not bloated with clutter? |
+| **Server** | Is the hosting set up well for WordPress? |
 
-Other checks in this area cover plugins, themes, PHP warnings, site availability and heavy or dormant plugins. Fix each finding by following its recommendation, then re-scan.
+It also checks that your site is online, looks for error messages from PHP and points out plugins that are heavy or unused.
 
-**Plugin overlap.** The **Plugin Overlap** card lists active plugins that duplicate a feature already built into VuloPilot, so you can simplify your plugin list.
+**Plugin Overlap.** Lists plugins that repeat something VuloPilot already does. Removing extras makes your site lighter.
 
-**Backup protection notice.** A banner tells you whether your site is being backed up automatically ("Backup protection: Enabled") or not ("Not enabled"), with a **View Backups** link.
+## Backups
 
-## 3. Create a backup
+### What it does
 
-1. Open the **Backups** tab, or click **Create Backup Now** in the header.
-2. The backup starts in the background ("Backup started - this runs in the background and will appear below as it progresses").
-3. Watch its status change: **Queued → Running → Completed** (or **Failed**). Completed backups show "Finished in ..." and failed ones "Failed after ...".
+A backup is a saved copy of your database (your posts, pages and settings) and your files. VuloPilot can make one on demand or on a schedule, and restore your site from any of them.
 
-A backup is a database plus file archive stored on your own server. Manual backups always work, whether or not automatic backups are on.
+### Why it matters
 
-## 4. Restore, download or delete a backup
+Backups are your undo button for the worst days: a failed update, a mistake, a hack. Without one, some of these problems cannot be undone.
 
-The backup list shows each backup's trigger (**Manual**, **Scheduled** or **Pre-restore safety snapshot**), where it is stored and its status. Use the search box and the trigger filter to find one.
+### Make a backup now
 
-| Action | What happens |
+1. Open the **Backups** tab, or click **Create Backup Now**.
+2. It starts in the background and appears in the list. Its status goes **Queued → Running → Completed** (or **Failed**).
+
+Backups are stored on your own server. Manual backups always work, even if automatic backups are off.
+
+### Turn on automatic backups
+
+Go to **Settings → Backups**.
+
+| Setting | What it does | Why you might use it |
+|---|---|---|
+| **Enable automatic backups** | Makes a backup on a schedule | You never have to remember |
+| **Backup frequency** | **Daily** or **Weekly** | Daily for busy sites that change often; weekly for quiet sites |
+| **Backups to keep** | How many completed backups to keep. The oldest are deleted after each new one | Stops backups filling your disk |
+
+### Download, restore or delete
+
+Each backup in the list shows how it was made (**Manual**, **Scheduled** or **Pre-restore safety snapshot**), when, and its status. You can search and filter the list.
+
+| Action | What it does |
 |---|---|
-| **Download** | Saves the backup archive to your computer |
-| **Restore** | Overwrites the live site with that backup. **This is real and destructive.** A safety snapshot of the current state is taken automatically first |
-| **Delete** | Removes the backup ("Backup deleted.") |
+| **Download** | Saves the backup file to your computer |
+| **Restore** | Puts your site back the way it was at that backup. **This replaces your current site.** VuloPilot first saves a **safety snapshot** of the site as it is now |
+| **Delete** | Removes the backup |
 
-Restore steps:
+**To restore:**
 
 1. Click **Restore** on the backup you want.
 2. Read the warning and confirm.
-3. Wait for "Restore complete. A safety snapshot of the previous state was taken automatically before this restore ran."
+3. Wait for "Restore complete."
 
-If a restore fails you will see "Restore failed - the site was not changed", with the error above. Nothing is overwritten in that case.
+If a restore fails, you see "Restore failed - the site was not changed." Nothing is lost; fix the problem shown and try again.
 
-## 5. Set up automatic backups
+A banner on the Security and Site Health pages tells you whether backup protection is on.
 
-1. Go to **Settings → Backups**.
-2. Turn on **Enable automatic backups**.
-3. Choose the **Backup frequency**: **Daily** or **Weekly**.
-4. Set **Backups to keep**. The oldest completed backups beyond this number are deleted after each new one finishes, so disk use stays bounded.
-5. Save.
+## Related
 
-## Related guides
-
-- [SECURITY](SECURITY.md) - malware and integrity checks
-- [PERFORMANCE](PERFORMANCE.md) - database and caching
+- [SECURITY](SECURITY.md)
+- [PERFORMANCE](PERFORMANCE.md)
 - [SETTINGS](SETTINGS.md#backups)
+- [TROUBLESHOOTING](TROUBLESHOOTING.md#backups-and-restore)

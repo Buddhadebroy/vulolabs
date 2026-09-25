@@ -1,117 +1,141 @@
 # Settings
 
-Every VuloPilot setting lives under **VuloPilot → Settings**. This page is a map: it tells you what each group is for and links to the guide that explains it in depth.
+## What it does
 
-> Install and the first scan are in [GETTING-STARTED](GETTING-STARTED.md). Settings save when you click **Save**; some panels save each change automatically and show "Settings saved."
+Settings is where you control how VuloPilot behaves: what it checks, how it contacts you and what it connects to. Everything is under **VuloPilot → Settings**.
 
-**In this guide**
+## Why it matters
 
-1. [The settings groups](#1-the-settings-groups)
-2. [Business Information](#business-information)
-3. [SEO](#seo)
-4. [Scanning](#scanning)
-5. [Automation](#automation)
-6. [Reports](#reports)
-7. [Notifications](#notifications)
-8. [Integrations](#integrations)
-9. [Backups](#backups)
-10. [Developer Tools](#developer-tools)
-11. [Modules](#modules)
+The defaults work for most sites, but a few settings, especially **Business Information** and **Notifications**, make VuloPilot's advice and alerts much more useful.
 
-## 1. The settings groups
+New to VuloPilot? See [GETTING-STARTED](GETTING-STARTED.md).
 
-In order: **Business Information, SEO, Scanning, Automation, Reports, Notifications, Integrations, Backups, Developer Tools, Modules.**
+## Which settings to do first
+
+1. **Business Information** - so AI understands your business.
+2. **Notifications** - so alerts reach the right person.
+3. **Backups** - so you can always recover.
+4. **Integrations** - only the services you want (AI, Google).
+
+## Saving
+
+Most panels save when you click **Save**. Some save each change immediately and show "Settings saved."
+
+## All settings, in order
+
+| Group | What it is for |
+|---|---|
+| [Business Information](#business-information) | Tell VuloPilot about your business |
+| [SEO](#seo) | Titles, sitemap, instant indexing |
+| [Scanning](#scanning) | What each scan checks |
+| [Automation](#automation) | Timing rules for automatic tasks |
+| [Reports](#reports) | Default report format and period |
+| [Notifications](#notifications) | Who is emailed, and about what |
+| [Integrations](#integrations) | Connect AI, Google and other services |
+| [Backups](#backups) | Automatic backups |
+| [Developer Tools](#developer-tools) | Cache, reset and uninstall choices |
+| [Modules](#modules) | Turn features on or off |
 
 ## Business Information
 
-Tell VuloPilot about your business so it can build a complete Business Profile and Knowledge Graph.
+**What it does.** Describes your business so VuloPilot's advice, writing and profile are accurate.
 
-| Field | Meaning |
-|---|---|
-| **Site tone** | How your site should sound (for example "Friendly and casual" or "Formal and technical"). Sent with every AI request |
-| **Business type** | For example Software Company, Online Store, Consulting Agency |
-| **Service pages** | Page URLs or page IDs for each service |
-| **Business locations** | For example `Downtown Store | 123 Main St, Springfield` |
-| **Competitors** | Used to calculate share of voice on the Brand Visibility page |
+| Field | What to enter | Why |
+|---|---|---|
+| **Site tone** | A few words on how you sound, like "Friendly and casual" or "Formal and technical" | AI writing matches your voice |
+| **Business type** | For example Software Company, Online Store, Consulting Agency | Used to describe you correctly |
+| **Service pages** | Addresses or page numbers of your service pages | Helps VuloPilot see what you offer |
+| **Business locations** | For example `Downtown Store | 123 Main St, Springfield` | Helps with local searches |
+| **Competitors** | Other businesses in your field | Used to compare your visibility with theirs |
 
-Guide: [AI-VISIBILITY](AI-VISIBILITY.md#2-set-up-your-business-first)
+More: [AI-VISIBILITY](AI-VISIBILITY.md).
 
 ## SEO
 
-Three panels: **SEO Titles**, **Sitemap** and **Instant Indexing**. Guide: [SEO](SEO.md).
+Three panels: **SEO Titles** (how titles look), **Sitemap** (a list of your pages for search engines) and **Instant Indexing** (tell search engines about changes at once). Full explanation: [SEO](SEO.md).
 
 ## Scanning
 
-What each scan checks and how often.
+Choose what each scan looks for.
 
-| Panel | Controls | Guide |
+| Panel | It controls | Read more |
 |---|---|---|
-| **SEO & Content** | Titles/meta, images, links and schema, readability, robots.txt, redirects, About page | [SEO](SEO.md#choosing-which-checks-run) |
-| **AI Visibility** | Entity clarity, freshness, answer-first, evidence, llms.txt | [AI-VISIBILITY](AI-VISIBILITY.md#11-settings-for-these-scans) |
-| **Accessibility** | Frequency, WCAG level, WCAG scanner, link text | [ACCESSIBILITY](ACCESSIBILITY.md#5-choose-what-is-checked) |
-| **Security** | Password, exposure, malware, login protection, firewall, email alerts | [SECURITY](SECURITY.md#4-turn-on-protection) |
-| **WooCommerce** | Product schema check | [COMMERCE](COMMERCE.md#5-turn-checks-on-or-off) |
+| **SEO & Content** | Title and description checks, images, links, readability, robots.txt, redirects, About page | [SEO](SEO.md#choose-which-problems-vulopilot-looks-for) |
+| **AI Visibility** | How clearly your content can be understood and quoted by AI | [AI-VISIBILITY](AI-VISIBILITY.md#settings-for-these-scans) |
+| **Accessibility** | How often to check, and how strict | [ACCESSIBILITY](ACCESSIBILITY.md#settings-explained) |
+| **Security** | Passwords, malware, login protection, firewall, alerts | [SECURITY](SECURITY.md#settings-explained) |
+| **WooCommerce** | Product label check | [COMMERCE](COMMERCE.md#setting) |
 
-Each Scanning panel has a **Restore defaults** action where offered.
+Where offered, a **Restore defaults** action puts a panel back the way it was.
 
 ## Automation
 
-Advanced settings for scheduled automations: cooldown, retry attempts and retry delay. Guide: [AUTOMATIONS](AUTOMATIONS.md#5-advanced-automation-settings).
+Timing rules for scheduled tasks: cooldown, retries and wait between retries. Safe defaults are set. Read more: [AUTOMATIONS](AUTOMATIONS.md#fine-tuning-optional).
 
 ## Reports
 
-Default report format (PDF, CSV or Both) and default period (7 days, 30 days, 90 days, 6 months). Guide: [REPORTS](REPORTS.md#5-report-settings).
+Default format (**PDF**, **CSV** or **Both**) and default period (7 days, 30 days, 90 days, 6 months). Read more: [REPORTS](REPORTS.md#report-settings).
 
 ## Notifications
 
-How and when VuloPilot contacts you.
+**What it does.** Decides who VuloPilot emails and about what. **Why it matters:** you get warned about real problems, like a hacked file or a site that is down, without checking the dashboard.
 
 **Email Settings**
 
-| Field | Meaning |
+| Field | What it does |
 |---|---|
-| **Notification email** | Where alerts go |
-| **Sender name / Sender email** | The "from" details on alert emails |
-| **Send Test Email** | Sends a test so you can confirm delivery |
+| **Notification email** | The address that receives alerts |
+| **Sender name / Sender email** | The "from" name and address on alert emails |
+| **Send Test Email** | Sends a test so you know delivery works |
 
 **Notification channels:** **Email** and **In-dashboard**.
 
-**Alert groups** (each lets you pick what to be told about and how often - **Immediately**, **Daily digest** or **Weekly digest**):
+**Alert groups.** In each you choose what to be told about and how often: **Immediately**, **Daily digest** or **Weekly digest**.
 
-| Group | Examples |
+| Group | You can be told when... |
 |---|---|
-| **AI Crawler Alerts** | Crawler blocked, access limited, traffic drop, crawler inactive (3/7/14/30 days), new crawler detected |
-| **Security Alerts** | Security vulnerabilities, malware detected, failed login attempts, new user created, file changes, SSL/certificate issues |
-| **Visibility Alerts** | AI visibility score drop, Brand score drop, Knowledge Graph score drop (choose the drop size that triggers it) |
-| **Critical issue alerts** | Security vulnerabilities, website down, critical performance issues, SEO indexing problems, data or functionality issues |
+| **AI Crawler Alerts** | An AI robot is blocked, mostly hits missing pages, visits drop, stops visiting (3, 7, 14 or 30 days) or a new robot appears |
+| **Security Alerts** | Vulnerabilities, malware, failed logins, new users, file changes or certificate problems appear |
+| **Visibility Alerts** | Your AI visibility, brand or knowledge graph score drops by an amount you choose |
+| **Critical issue alerts** | Vulnerabilities, your website goes down, performance is critical, search indexing breaks or something stops working |
+
+Tip: use **Daily digest** for low-urgency groups so your inbox is not flooded.
 
 ## Integrations
 
-| Panel | What it does |
-|---|---|
-| **VuloCloud AI** | Connect the site to VuloCloud to enable AI features. Shows **Connected**, **Not Connected** or **Key needed** |
-| **Google Services** | Connect one Google account for Search Console, Analytics (GA4) and AdSense. VuloPilot only reads data and stores it on your own site |
-| **Tag Manager** | Enter a Google Tag Manager container ID (`GTM-XXXXXXX`) |
-| **PageSpeed Insights** | Enter a Google API key for real speed scores |
-| **Webmaster Tools** | Verification codes for Google, Bing, Pinterest, Baidu, Yandex, Norton Safe Web, plus custom `<meta>` tags |
+Connect VuloPilot to other services. Connect only what you need.
 
-Guides: [AI-COPILOT](AI-COPILOT.md), [SEO](SEO.md#site-verification-and-google-services), [PERFORMANCE](PERFORMANCE.md#1-connect-pagespeed-insights).
+| Panel | What it does | Why connect it |
+|---|---|---|
+| **VuloCloud AI** | Connects your site to VuloCloud. Status: **Connected**, **Not Connected** or **Key needed** | Turns on AI features |
+| **Google Services** | Connects one Google account for Search Console, Analytics and AdSense. VuloPilot only reads the data and keeps it on your site | Shows real search and visitor data inside VuloPilot |
+| **Tag Manager** | Add your Google Tag Manager container ID (`GTM-XXXXXXX`) | Runs your tracking tags |
+| **PageSpeed Insights** | Add a Google API key | Real speed scores |
+| **Webmaster Tools** | Paste verification codes from Google, Bing, Pinterest, Baidu, Yandex or Norton, or your own `<meta>` tags | Proves you own the site |
+
+More: [AI-COPILOT](AI-COPILOT.md), [SEO](SEO.md#9-prove-you-own-your-site-verification-and-connect-google), [PERFORMANCE](PERFORMANCE.md#before-you-start).
 
 ## Backups
 
-Automatic backup switch, frequency (Daily or Weekly) and how many backups to keep. Guide: [SITE-HEALTH-AND-BACKUPS](SITE-HEALTH-AND-BACKUPS.md#5-set-up-automatic-backups).
+Turn on automatic backups, choose **Daily** or **Weekly**, and choose how many to keep. Read more: [SITE-HEALTH-AND-BACKUPS](SITE-HEALTH-AND-BACKUPS.md#turn-on-automatic-backups).
 
 ## Developer Tools
 
-Diagnostics and maintenance.
+Maintenance options. Most people never need them.
 
-| Item | What it does |
-|---|---|
-| **Anonymous usage data** | Stores your preference to share anonymous usage information (nothing is collected yet) |
-| **Cache → Clear cache** | Clears VuloPilot's cached results (extracted entities, schema snapshot, robots.txt parse). Everything rebuilds automatically |
-| **Reset VuloPilot → Reset settings** | Restores every setting to its default. Scan reports and history are not deleted |
-| **Keep VuloPilot data after uninstall** | **Keep data** (settings, scan history and reports stay if you reinstall) or **Delete everything** |
+| Item | What it does | When to use it |
+|---|---|---|
+| **Anonymous usage data** | Stores your choice about sharing anonymous usage information (nothing is collected yet) | If you want to say yes or no in advance |
+| **Clear cache** | Clears VuloPilot's saved results; they rebuild by themselves | If something looks out of date |
+| **Reset settings** | Puts every setting back to its default. Reports and history stay | If you want a fresh start |
+| **Keep VuloPilot data after uninstall** | **Keep data** (settings, history and reports remain if you reinstall) or **Delete everything** | Decide before you remove the plugin |
 
 ## Modules
 
-Turn optional features on or off. Modules are grouped: **AI Visibility**, **Brand Visibility**, **SEO & Content**, **Site Health**, **Automations & AI** and **Commerce**. Turning a module off stops its scanning and hides its findings from the dashboard; findings already found are not deleted. The core modules (GEO analysis, technical SEO, content optimization, brand visibility, knowledge graph and AI Copilot) are on by default.
+**What it does.** Modules are optional features you can switch on or off, grouped as **AI Visibility**, **Brand Visibility**, **SEO & Content**, **Site Health**, **Automations & AI** and **Commerce**.
+
+**Why it matters.** Turning off features you do not use keeps the dashboard focused. Turning a module off stops its scanning; findings already found are kept. The main modules are on by default.
+
+## Related
+
+- [TROUBLESHOOTING](TROUBLESHOOTING.md)

@@ -1,10 +1,23 @@
 # Getting Started with VuloPilot
 
-This page covers everything you need once, before using any module: requirements, installing, the first scan, how the admin is laid out and the ideas every other guide relies on. The module guides link back here instead of repeating it.
+## What VuloPilot does
+
+VuloPilot is a health-check and helper for your WordPress website. It **scans** your site, tells you **what is wrong in plain language**, gives you a **score** for each area, and helps you **fix** problems. Areas covered: search engine visibility (SEO), being found by AI assistants, site health, speed, accessibility, security and (with WooCommerce) your online store.
+
+## Why use it
+
+- One place to see what needs attention, instead of many tools.
+- Scores show whether your site is getting better or worse over time.
+- Nothing changes on your site unless you approve it.
+- The core scans and reports work without any AI service.
+
+## About this page
+
+This page covers what you only need once: requirements, installing, your first scan, a map of the menu and the ideas every other guide uses. The other guides do not repeat it.
 
 **In this guide**
 
-1. [What VuloPilot does](#1-what-vulopilot-does)
+1. [How it works](#1-how-it-works)
 2. [Requirements](#2-requirements)
 3. [Install and activate](#3-install-and-activate)
 4. [Your first scan](#4-your-first-scan)
@@ -13,17 +26,13 @@ This page covers everything you need once, before using any module: requirements
 7. [Connect the optional services](#7-connect-the-optional-services)
 8. [Where to go next](#8-where-to-go-next)
 
-## 1. What VuloPilot does
-
-VuloPilot scans your WordPress site, lists what it finds as **findings**, turns them into scores you can track, and helps you fix them. It covers SEO, site health, performance, accessibility, security, AI search visibility and (with WooCommerce) store health.
+## 1. How it works
 
 The flow is always the same:
 
 ```
-Scan  →  Findings and scores  →  Fix (by hand, or with an AI draft you approve)  →  Re-scan
+Scan  ->  Findings and scores  ->  Fix (yourself, or with an AI draft you approve)  ->  Scan again
 ```
-
-Standard scans and reports work without any AI service. AI is an optional extra.
 
 ## 2. Requirements
 
@@ -31,7 +40,7 @@ Standard scans and reports work without any AI service. AI is an optional extra.
 |---|---|
 | WordPress | 6.7 or greater |
 | PHP | 8.1 or greater |
-| Who can use it | Administrators (the `manage_options` capability) |
+| Who can use it | Site administrators |
 
 Optional: a VuloCloud connection (for AI), a Google account (Search Console, Analytics), WooCommerce (Commerce page).
 
