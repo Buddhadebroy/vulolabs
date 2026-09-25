@@ -10,20 +10,6 @@ namespace VuloPilot\Sdk;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The top-level contract for a VuloPilot extension - vulopilot-pro, or any
- * third-party plugin, registered via the `vulopilot_extension_sources`
- * filter (Sdk\ExtensionManager). An extension is a coherent *bundle*: it
- * doesn't scan/rule/automate/report anything itself - register() is where
- * it calls `add_filter('vulopilot_scanner_sources', ...)` and the other
- * existing per-concern filters (SCANNERS.md, RULE-ENGINE.md, ARCHITECTURE.md's
- * "Extension system = the discovery-by-filter mechanism itself") to add its
- * own scanners/rules/automation pieces/report types. This
- * interface adds exactly what those lower-level filters don't have on
- * their own: a stable identity, a version, and a declared minimum
- * VuloPilot version so ExtensionManager can gate registration on real
- * compatibility instead of assuming every registered class is safe to run
- * against any installed core version.
- *
  * @class       ExtensionInterface interface
  * @version     1.0.0
  * @author      VuloLabs

@@ -35,7 +35,6 @@ export interface ContentTool {
 	/** The real AIActionInterface id this tool runs (classes/AIActions/Actions/*.php). */
 	actionId: string;
 	fields: ToolField[];
-	/** True for the 9 tiles that are a real, Pro-only feature (vulopilot-pro's own modules/ContentTools/Rest.php) - see this file's own top docblock for the exact split and why. Omitted (falsy) for the 3 that stay free. */
 	pro?: boolean;
 }
 
@@ -51,21 +50,6 @@ export interface ContentTool {
  * OptimizeContentAction, RefreshContentAction, DifferentiateDuplicateTitleAction,
  * OptimizeMediaAction) are new, purpose-built for these tiles - see each
  * class's own docblock.
- *
- * Per direct instruction, this grid is a real split, not one uniform
- * gate: AI Writer/Blog Generator/Duplicate Content (`pro` omitted) stay
- * free - `POST /ai-action-runs` (Free's own shared
- * AIActions\ActionRunner::propose(), still there, still free for "Fix
- * with AI" buttons elsewhere too), gated only on `useAiCredits()`'s own
- * real AI-connected check (`ShowProPopup vulocloud` opens
- * immediately on click if not). The other 9 (`pro: true`) are a real
- * Pro feature - `POST /content-tools/runs` (vulopilot-pro's own
- * ContentTools\Rest.php, a SEPARATE route forwarding to that exact same
- * engine, gated behind the real `content-tools` Pro module) - a tile
- * click with Pro inactive opens ShowProPopup immediately instead
- * (`handleToolClick()` below), and shows a small "PRO" badge in its own
- * row so which tiles need Pro is visible before clicking, not just
- * discovered by trying.
  */
 export const CONTENT_TOOLS: ContentTool[] = [
 	{
@@ -214,30 +198,13 @@ interface ProToolsSlot {
 
 const ContentToolsGrid = () => {
 	const [activeTool, setActiveTool] = useState<ContentTool | null>(null);
-	// The working Pro tools (their forms and popup) are supplied by vulopilot-pro; Free only draws the tile and PRO tag.
 	const proSlot = useFilterSlot<ProToolsSlot>('vulopilot_content_tools_pro');
 	const { status: creditsStatus } = useAiCredits();
 	const isContentToolsEnabled = useContentToolsEnabled();
 	const [isCloudConnectPromptOpen, setIsCloudConnectPromptOpen] = useState(false);
-	/** True right after a Pro-only tile was clicked without an active Pro license - opens ShowProPopup below. Reset via `dismissProLocked()`. */
 	const [isProLocked, setIsProLocked] = useState(false);
 	const dismissProLocked = () => setIsProLocked(false);
 
-	/**
-	 * Checked up front, before a tool even opens - per direct instruction.
-	 * A `pro` tile with `content-tools` inactive opens ShowProPopup
-	 * immediately; a free tile with no AI service connected opens
-	 * `ShowProPopup vulocloud` immediately - either way, instead of letting
-	 * the tool's own form open first and only discovering a real failure
-	 * at Generate time (both still real fallbacks too - see
-	 * ContentToolPopup.tsx's own `isNoProviderError` handling - for the
-	 * rare case either state changes between this check and that click).
-	 * `creditsStatus` starts `null` while `useAiCredits()`'s own first
-	 * fetch is in flight - deliberately NOT blocked on that (a tile click
-	 * in the first instant after page load falls through to the tool's own
-	 * normal open), only once it's positively known the site isn't
-	 * connected.
-	 */
 	const handleToolClick = (tool: ContentTool) => {
 		if (tool.pro && (!isContentToolsEnabled || !proSlot)) {
 			setIsProLocked(true);
@@ -326,7 +293,7 @@ const ContentToolsGrid = () => {
 				position="lightbox"
 			>
 				{vulopilotAppLocalizer.khali_dabba ? (
-					<ShowProPopup moduleName="content-tools" />
+					<ShowProPopup moduleName="content-optimization" />
 				) : (
 					<ShowProPopup />
 				)}

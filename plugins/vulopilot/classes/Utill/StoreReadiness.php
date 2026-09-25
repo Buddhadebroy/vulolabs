@@ -6,21 +6,6 @@ use VuloPilot\Automations\AutomationsRunRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /store-readiness - "Commerce"'s live store-status checklist
- * (`StoreReadinessCard.tsx`) and the informational (not "problem")
- * numbers its category-card grid needs. Deliberately separate from the
- * Findings/scanner system: these are live facts about the store's
- * *current* configuration (a page either exists and is published right
- * now, or it doesn't), not persistent issues with an open/resolve/ignore
- * lifecycle - recomputed fresh on every request rather than only as-of
- * the last scan run. Real order/checkout *problems* (failed orders,
- * stale orders, gateway test-mode, outdated templates) are genuine
- * scanner findings instead (the store failed-orders scanner and its
- * siblings, now Pro-owned under vulopilot-pro's
- * store-intelligence module's Scanners/) so they get the real
- * open/resolve/ignore workflow and show up in the same findings table
- * everything else does.
- *
  * @class       StoreReadiness controller
  * @version     1.0.0
  * @author      VuloLabs

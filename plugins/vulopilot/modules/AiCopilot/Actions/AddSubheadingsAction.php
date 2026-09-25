@@ -28,8 +28,7 @@ defined( 'ABSPATH' ) || exit;
  * changing any wording, not to write new content. `validate_output()`
  * re-runs the exact same "no h2-h6 anywhere" check
  * HeadingStructureScanner itself uses (duplicated here rather than a
- * cross-namespace dependency, the same tradeoff ScannerFixMap's own
- * docblock already accepts) so a rewrite that fails to actually add
+ * cross-namespace dependency) so a rewrite that fails to actually add
  * subheadings is rejected rather than silently accepted as "fixed".
  *
  * @class       AddSubheadingsAction class

@@ -80,6 +80,13 @@ class BackupManager {
     }
 
     /**
+     * @return string Absolute path of the directory holding all installed plugins.
+     */
+    private function get_plugins_dir(): string {
+        return dirname( untrailingslashit( VuloPilot()->plugin_path ) );
+    }
+
+    /**
      * Real, plugin-owned backups storage directory - created and
      * index-protected on first use.
      *
@@ -225,7 +232,7 @@ class BackupManager {
 
         foreach ( (array) get_option( 'active_plugins', array() ) as $plugin_file ) {
             $plugin_slug = strtok( (string) $plugin_file, '/' );
-            $plugin_dir  = WP_PLUGIN_DIR . '/' . $plugin_slug;
+            $plugin_dir  = trailingslashit( $this->get_plugins_dir() ) . $plugin_slug;
 
             if ( $plugin_slug && is_dir( $plugin_dir ) ) {
                 $steps = array_merge(
@@ -608,7 +615,7 @@ class BackupManager {
 
         if ( is_dir( $files_dir . '/plugins' ) ) {
             foreach ( (array) glob( $files_dir . '/plugins/*', GLOB_ONLYDIR ) as $plugin_backup_dir ) {
-                $this->copy_directory_recursive( $plugin_backup_dir, trailingslashit( WP_PLUGIN_DIR ) . basename( $plugin_backup_dir ) );
+                $this->copy_directory_recursive( $plugin_backup_dir, trailingslashit( $this->get_plugins_dir() ) . basename( $plugin_backup_dir ) );
             }
         }
 

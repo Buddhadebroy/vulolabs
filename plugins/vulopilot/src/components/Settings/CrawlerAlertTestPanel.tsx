@@ -18,18 +18,6 @@ interface StoredSettings {
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 /**
- * Settings → Notifications → AI Crawler Alerts' own "Send Test Alert" row
- * - real `POST /settings/test-crawler-alert` (Controllers\Settings::send_test_crawler_alert(),
- * which itself only fires a filter vulopilot-pro's CrawlerAlertMonitor
- * listens on - see that method's own docblock for why Free's controller
- * can't call Pro's class directly), plus the persisted "Last test alert
- * sent successfully on ..." line. A hand-built component rather than
- * another declarative field type - needed here for the same reason
- * BackupStoragePanel.tsx exists for Backups: a real API call and a value
- * that must still be visible after a page refresh, neither of which a
- * static `type: 'notice'` field's `message` string (evaluated once, at
- * config-definition time) can provide.
- *
  * Unlike BackupStoragePanel.tsx (which Settings.tsx's own GetForm()
  * appends after ALL of its tab's fields), this one is wired straight into
  * AiCrawlerAlerts.ts's own "Notification channels" `type: 'section'`

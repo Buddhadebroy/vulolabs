@@ -302,16 +302,6 @@ interface BuiltinAutomationCardsProps {
 	refetchSignal: number;
 	/** Called after this component's own mutations (toggle/frequency/run now) so sibling cards (stats, attention, activity) refetch too. */
 	onChanged: () => void;
-	/**
-	 * Automations.tsx's own `automation_template=<id>` deep-link param
-	 * (AI Copilot's "Create new automation" card, AutomationsTemplatesCard.tsx's
-	 * own `handleItemClick` - see that file's own docblock), resolved to a
-	 * real template id ('run-full-site-scan'/'send-visibility-report') only
-	 * when it's one of these 2 free built-ins, `null` otherwise (a Pro
-	 * template id, or no deep link at all). Scrolls to and briefly
-	 * highlights the matching card below once it's real DOM has rendered,
-	 * rather than leaving the click land on a bare, unhighlighted tab.
-	 */
 	highlightTemplateId?: string | null;
 }
 

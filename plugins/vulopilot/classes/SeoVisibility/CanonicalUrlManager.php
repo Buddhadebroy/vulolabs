@@ -18,12 +18,6 @@ defined( 'ABSPATH' ) || exit;
  * net around a WP-core behavior" shape as SitemapManager/RobotsTxtManager,
  * just for a tag instead of a route.
  *
- * Defaults OFF (Utill::VULOPILOT_SETTINGS_DEFAULTS) since most sites don't
- * need this - core's own tag already covers them; this exists specifically
- * for the site that doesn't, discoverable either from Settings → SEO
- * directly or via vulopilot-pro's OneClickFix "Fix" action on this
- * scanner's finding.
- *
  * Self-registers its own hook in the constructor (php-wordpress.md) and
  * is constructed unconditionally in VuloPilot::init_classes() - the
  * `canonical_url_enabled` setting gates OUTPUT, not construction, same as

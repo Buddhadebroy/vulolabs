@@ -9,14 +9,6 @@ import { useApiList } from '../../services/useApiList';
 import CrawlerAnalyticsSection from './CrawlerAnalyticsSection';
 import { useCrawlerAnalytics } from './useCrawlerAnalytics';
 
-/**
- * vulopilot-pro's AiCrawlerAnalytics module's own cards - "Historical Crawl
- * Trends", "AI Visibility Correlation", and "AI Crawler Alerts"
- * (AI-CRAWLER-ANALYTICS-MODULE.md). Same "register a source, don't modify
- * the host" slot pattern BrandVisibility.tsx's own Pro card slots already
- * use - null (nothing rendered) until vulopilot-pro's module registers a
- * component into these filters.
- */
 const HistoricalCrawlTrendsCard = applyFilters(
 	'vulopilot_crawler_historical_trends_card',
 	null
@@ -42,17 +34,6 @@ interface CrawlerVisitRow extends TableRow {
 }
 
 /**
- * "Overview" inner section of the merged "Crawl & URLs" tab - was this
- * whole tab's own content before the merge split it (direct instruction:
- * "Broken Links + Redirects + Crawler Traffic are fragmented... one main
- * tab: Crawl & URLs [with] Overview | Broken Links | Redirects | 404s |
- * Robots & Sitemap"): a real health/stat row, a real trend chart + "by AI
- * lab" breakdown, real Top Crawlers/Most Crawled Pages tables (all from
- * CrawlerAnalyticsSection.tsx, backed by `crawler-traffic/analytics`,
- * including its own real Crawl Health Checklist), vulopilot-pro's 3 Pro
- * card slots, and the pre-existing paginated raw visit log (useApiList +
- * TableCard, same shape ActivityLogs.php already uses).
- *
  * Used to also render a separate "Last seen" tiles card
  * (CrawlerSummaryCard.tsx) right here - removed per direct instruction
  * ("merge top crawlers and last seen section, add a column in top crawlers

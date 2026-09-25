@@ -24,10 +24,6 @@ export interface BannerCardProps {
  * title/desc/buttons on the left, illustration on the right) - was
  * Dashboard/GettingStartedCard.tsx's own hand-built markup, now generic so
  * any page can reuse it. Styles are `.getting-started-banner*` (common.scss).
- *
- * Also registered into the `vulopilot_banner_card` filter (see Commerce.tsx)
- * so vulopilot-pro's StoreHealthBanner can render this same component -
- * Pro can't import from Free's src/ tree directly.
  */
 const BannerCard = ({
 	title,

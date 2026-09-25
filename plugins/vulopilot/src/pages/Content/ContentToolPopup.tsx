@@ -56,23 +56,6 @@ interface ContentToolPopupProps {
 }
 
 /**
- * The real propose → preview → approve/reject flow for one Create Content
- * tool tile - collects the one real input its action needs (an existing
- * post, an image, a topic, a fixed template choice - see ContentToolsGrid.tsx's
- * own `fields`). Shared verbatim by both ContentToolsGrid.tsx's own 12-tile
- * grid and QuickActionsCard.tsx's 3 shortcut tools (AI Content Audit,
- * Keyword Research, Content Templates) - same `ContentTool` shape, same
- * `tool.pro` free/Pro endpoint split, just a different `tool` prop value.
- * calls the real propose endpoint, shows the real AI-generated preview,
- * then really approves/rejects it. Which endpoint (`runsBase` below)
- * depends on `tool.pro`: a free tile (AI Writer/Blog Generator/Duplicate
- * Content) still calls Free's own shared `/ai-action-runs`
- * (AIActions\ActionRunner::propose(), the same real endpoint "Fix with
- * AI" buttons on individual findings and NeedsAttentionWidget.tsx's own
- * Pending Approval widget also use); a Pro tile calls vulopilot-pro's own
- * separate `/content-tools/runs` instead - see ContentToolsGrid.tsx's own
- * top docblock for the full split and why.
- *
  * Uses a raw `fetch()` for the propose() call specifically rather than
  * zyra's `sendApiResponse()` - that helper always resolves to `null` on
  * any failure (confirmed by reading its own implementation), discarding

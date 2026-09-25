@@ -251,12 +251,6 @@ class RobotsSitemap extends \WP_REST_Controller {
      * real child, a second real request counts its own real `<url>`
      * entries (bounded, see MAX_CHILD_SITEMAPS's own docblock).
      *
-     * Parses via `local-name()` XPath rather than SimpleXML's magic
-     * `->sitemap`/`->url` property access - the same choice
-     * VuloPilotPro\AdvancedSeo\Scanners\SitemapValidationScanner already
-     * makes, since core's sitemap XML declares a default namespace that
-     * magic property access doesn't reliably traverse.
-     *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response
      */

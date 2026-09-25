@@ -18,22 +18,6 @@ import './AiCreditsIndicator.scss';
  * this component drives its own `PopupComponent` in fully-controlled mode
  * instead, with the credit count as its own custom, always-visible
  * trigger).
- *
- * Three real states, all driven by useAiCredits()'s own live
- * `GET /ai-credits/status` read - never a fabricated number:
- * - Not connected: "Claim your 100 Free AI Credits" - opens the same
- *   passwordless "Connect to VuloCloud" redirect Settings → Connections'
- *   own button uses (AiCreditsConnection::get_broker_authorize_url()'s own
- *   docblock for the full sequence) rather than a second, separate
- *   embedded login/signup form - one connect flow in the whole plugin, not
- *   two that could drift.
- * - Connected: the real credit count, click-through to balance/usage +
- *   "Buy More Credits"/"Explore VuloPilot Pro" (both external, same
- *   `vulopilotAppLocalizer.shop_url` link Popup.tsx's own generic Pro upsell
- *   already uses - this pass doesn't build a real purchase flow, see the
- *   architecture plan's own "Explicitly out of scope").
- * - Loading: renders nothing rather than a placeholder number - there's
- *   no honest "0" or "-" to show before the real value is known.
  */
 const AiCreditsIndicator = () => {
 	const { status, isLoading, refresh } = useAiCredits();

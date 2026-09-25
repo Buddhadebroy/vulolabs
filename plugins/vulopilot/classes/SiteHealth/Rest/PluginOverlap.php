@@ -32,15 +32,6 @@ class PluginOverlap extends \WP_REST_Controller {
     protected $rest_base = 'plugin-overlap';
 
     /**
-     * Curated, well-known WordPress.org plugin main-file paths (the same
-     * `folder/file.php` shape `get_option('active_plugins')` stores and
-     * `is_plugin_active()` checks against) mapped to the real VuloPilot
-     * feature that covers the same ground. `module_id` is a real id from
-     * src/components/Modules/index.ts's own catalog when the overlap is a
-     * togglable Pro module; `null` for the caching/performance category,
-     * which isn't gated behind a module toggle - its destination is the
-     * "Improve My Speed" tab instead (`link_tab`).
-     *
      * @var array<string, array{plugin_name: string, category: string, vulopilot_feature: string, module_id: string|null, link_tab: string}>
      */
     private const KNOWN_OVERLAPS = array(

@@ -188,9 +188,6 @@ class VuloPilotCli {
             return;
         }
 
-        // report_generator is built by vulopilot-pro's AdvancedReports
-        // module now (report generation moved there wholesale) - only
-        // present on VuloPilot()'s own container when that module is active.
         if ( ! VuloPilot()->report_generator ) {
             \WP_CLI::error( 'Report generation requires VuloPilot Pro.' );
             return;

@@ -7,24 +7,6 @@ use VuloPilot\Utill\ScoreSnapshotRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Writes today's real security-category score into
- * `vulopilot_score_snapshots` (category `security`) - the data SecurityTrendCard.tsx's
- * chart reads. Not a reuse of `vulopilot_site_health_snapshots` - that
- * table's own `security_score` column is only ever written by Pro's
- * AdvancedReports module, so a Free-tier "Security Trend" card can't
- * depend on it (would stay empty on any site without that Pro module
- * active). Same trigger shape, same weighting, and same idempotent-upsert
- * reasoning as Services\PerformanceScoreSnapshotRecorder - hooked on
- * `vulopilot_scan_completed` at priority 20 (after
- * Services\ScanPersistenceListener's own default-priority-10 handler has
- * already written that scanner's findings) plus a daily cron so the trend
- * stays continuous even on days nobody triggers a scan. The score itself
- * is always computed live from current open findings, the same weighting
- * `Dashboard.php`'s own `calculate_category_score()` uses for
- * `category_scores.security` - duplicated here rather than made reusable
- * there, same "duplicate small shared logic across scopes" precedent
- * PerformanceScoreSnapshotRecorder's own docblock already documents.
- *
  * @class       SecurityScoreSnapshotRecorder class
  * @version     1.0.0
  * @author      VuloLabs
@@ -63,13 +45,6 @@ class SecurityScoreSnapshotRecorder {
         $repository->upsert_today( $score );
 
         /**
-         * Fires after today's security-category score snapshot is written
-         * - vulopilot-pro's Automations\Triggers\SecurityScoreDropTrigger
-         * own extension point, same "fire the real number plus what it was
-         * compared against" shape GeoInsights\VisibilitySnapshotBuilder's
-         * own `vulopilot_pro_geo_visibility_snapshot_built` action already
-         * established.
-         *
          * @param int      $score          Today's real security_score (0-100).
          * @param int|null $previous_score The most recent prior day's security_score, or null before this site has a second day of history.
          */

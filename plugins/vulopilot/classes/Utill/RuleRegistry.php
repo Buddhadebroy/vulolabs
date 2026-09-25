@@ -13,15 +13,6 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloPilot RuleRegistry class.
  *
- * Collects every registered rule and instantiates it - the RuleEngine
- * equivalent of Scanners\ScannerRegistry, same filter-based discovery
- * mechanism and same reasoning for why it isn't Modules.php's folder-scan
- * approach (see ScannerRegistry's docblock; a rule is one class
- * implementing one small interface, not a multi-file package). Free's own
- * 5 Basic rules always run; Pro's premium rules and any third-party rule
- * register on top via the `vulopilot_rule_sources` filter - see
- * RULE-ENGINE.md's "Extension strategy".
- *
  * @class       RuleRegistry class
  * @version     1.0.0
  * @author      VuloLabs
@@ -86,13 +77,6 @@ class RuleRegistry {
 			// GEO module (GEO-MODULE.md).
 			\VuloPilot\Content\FaqOpportunityRule::class,
 			\VuloPilot\Content\MissingSummaryBlockRule::class,
-			// Commerce Optimization's 9 rules used to be hardcoded here
-			// unconditionally. Per direct architecture decision, store-platform
-			// detection is a Pro module like every other Pro module's
-			// scanners/rules, so they've all moved to vulopilot-pro's
-			// store-intelligence module (`Rules/`), registered via
-			// `vulopilot_rule_sources` and gated on the store platform actually
-			// being active - see that module's own Module.php docblock.
 		);
 	}
 

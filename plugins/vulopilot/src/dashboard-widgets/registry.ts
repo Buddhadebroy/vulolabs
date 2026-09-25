@@ -131,16 +131,6 @@ const STAT_WIDGETS: WidgetDefinition[] = STAT_WIDGET_CONFIGS.map(
 	})
 );
 
-/**
- * Every widget the Dashboard can render, in the same order the widget
- * list was requested in. Passed through `vulopilot_dashboard_widgets`
- * (@wordpress/hooks - the same filter mechanism react-frontend.md
- * documents vulolabs using elsewhere) so a
- * Pro module or third-party plugin can append its own WidgetDefinition
- * without touching this file - the same "register a source, don't
- * modify the registry" pattern used by every PHP-side registry in this
- * plugin (ScannerRegistry, RuleRegistry, ActionRegistry).
- */
 
 export const DEFAULT_DASHBOARD_WIDGETS: WidgetDefinition[] = applyFilters(
 	'vulopilot_dashboard_widgets',

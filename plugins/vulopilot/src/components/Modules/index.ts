@@ -11,7 +11,6 @@ export interface ModuleCatalogEntry {
 	proFeatures?: string[];
 	icon?: string;
 	settingsLink?: string;
-	/** Headline used by the generic "what Pro adds" popup (Popup.tsx's `proPopupContent`) - only set on modules that popup pitches; its presence, not `proModule`, is what selects a module into that list. */
 	popupTitle?: string;
 	/** Sentence shown under `popupTitle` in that same popup - independent copy, not derived from `proFeatures`. */
 	popupDesc?: string;

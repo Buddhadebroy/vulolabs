@@ -30,19 +30,6 @@ interface AttentionSummary {
 	priority_counts: { high: number; medium: number; low: number };
 }
 
-/**
- * Same "register a source, don't modify the host" Pro filter slot Security
- * pages already establish elsewhere - Pro's SecurityMonitoring module
- * redesigned the component behind this filter to match the mockup's hero
- * card (severity breakdown, real auto-scan toggle, honestly-disabled
- * Fix-All). It now also accepts `onNavigateToSecurityTab`, passed through
- * below.
- *
- * If a Pro module is registered behind this filter, its component fully
- * replaces this card's own Free-tier rendering - the same behavior
- * `VulnerabilityHeroCard.tsx` had, kept here so Pro's custom hero still
- * wins when it's active.
- */
 const SecurityDashboardCard = applyFilters(
 	'vulopilot_security_dashboard_card',
 	null
@@ -114,10 +101,6 @@ interface SecurityStatusCardProps {
  * replacing the older `AnalyticsComponent` tile grid, per direct
  * instruction, so this card matches the row shape every other list in
  * this plugin already uses.
- *
- * If Pro's SecurityMonitoring module registers a component behind the
- * `vulopilot_security_dashboard_card` filter, that component replaces
- * this entire card, same as it replaced the old `VulnerabilityHeroCard`.
  */
 const SecurityStatusCard = ({
 	onNavigateToSecurityTab,
@@ -162,8 +145,6 @@ const SecurityStatusCard = ({
 			.finally(() => setIsLoadingSummary(false));
 	}, []);
 
-	// Pro's registered component fully replaces this card, same as it did
-	// for `VulnerabilityHeroCard`.
 	if (SecurityDashboardCard) {
 		return (
 			<SecurityDashboardCard

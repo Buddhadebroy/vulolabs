@@ -33,17 +33,12 @@ declare global {
 		time_format_js: string;
 		/** Settings → General → Timezone, as this site's current UTC offset in minutes (`wp_timezone()`, DST-aware for a real `timezone_string`) - every raw timestamp this plugin's REST layer returns is UTC, so services/formatWpDate.ts's own `formatWpDate()`/`formatWpTime()` add this before reading date/time parts, rather than leaving the browser to guess (and silently apply its own local zone instead of this site's configured one). */
 		gmt_offset_minutes: number;
-		/** Whether VuloPilot Pro is installed, active, and license-active - feeds zyra's configureZyra()/ZyraVariable.khali_dabba. */
 		khali_dabba: boolean;
-		/** Kebab-case ids of every currently-active module (Free's own + any active vulopilot-pro modules) - feeds zyra's `moduleEnabled` settings-field gate and vulopilot-pro/src/index.tsx's per-module JS loading. */
 		active_modules: string[];
-		/** Whether this WP admin has a personal VuloCloud account connected (VuloCloudAccountConnection.php) - a *person* logged into VuloCloud, not this site's own Pro license (`khali_dabba` above), and not the same thing as AiCreditsStatus's own `connected` (useAiCredits.ts) that useContentGate.tsx's "log in" tier now checks instead. No current TS consumer since that switch - kept localized as a real, accurate field in case a future surface needs this specific account-level flag back. */
 		vulocloud_connected: boolean;
 		/** The connected VuloCloud account's own email, empty string when not connected - see `vulocloud_connected`'s own docblock above. */
 		vulocloud_account_email: string;
-		/** Where to send a user who wants to buy VuloPilot Pro - feeds zyra's configureZyra()/ZyraVariable.shop_url and the generic "Upgrade to Pro" popup's CTA link. */
 		shop_url: string;
-		/** VuloPilot Pro's own reported version/account-management link - `version: false` when Pro isn't installed/registered, populated via the `vulopilot_update_pro_data` filter Pro's own bootstrap hooks. Feeds the header's "Pro: …" version tag. */
 		pro_data: {
 			version: string | false;
 			manage_plan_url: string;
@@ -67,7 +62,6 @@ declare global {
 	interface VuloPilotPostSeoLocalizer {
 		apiUrl: string;
 		nonce: string;
-		/** Whether VuloPilot Pro is installed, active, and license-active - gates "Fix with AI"/"Generate with AI" buttons. */
 		isPro: boolean;
 		shopUrl: string;
 		/** Postmeta key strings, keyed by field name - Services\PostSeoMetaFields::META_KEYS plus 'schema_json' (AIActions\Actions\GenerateSchemaAction::META_KEY), so this bundle never hand-copies the literal strings. */

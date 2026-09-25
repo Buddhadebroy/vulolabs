@@ -14,13 +14,6 @@ use VuloPilot\AiAssistant\ActionExecutionResult;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * An AI action is a user-typed-input AI workflow with an approval-gated
- * propose()/approve()/reject()/rollback() lifecycle (AI-ACTIONS.md) -
- * distinct from RuleInterface, which is Recommendation-only and doesn't
- * cover a workflow like "Generate Blog" that has no triggering Finding at
- * all. Implemented by AiCopilot\Actions\AbstractBasicAction (free) and any
- * premium action Pro registers via `vulopilot_ai_action_sources`.
- *
  * @class       AIActionInterface interface
  * @version     1.0.0
  * @author      VuloLabs

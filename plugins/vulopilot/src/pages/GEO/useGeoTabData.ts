@@ -16,19 +16,6 @@ import type { FindingGroup } from '../../components/Issues/issuesTypes';
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
-/**
- * Shared `GET /findings/groups?category=geo` fetch - same "one real call,
- * reused by every card that needs a per-scanner-id breakdown" pattern
- * vulopilot-pro's own (moved) Commerce/CommerceTab.tsx already establishes.
- * Used by GeoFixTheseFirstCard.tsx and GeoByTopicGrid.tsx so the GEO tab's
- * "Fix These First" and "A Closer Look, By Topic" sections don't each run
- * their own independent copy of the same fetch. 200 is comfortably above
- * the real number of 'geo'-category scanners that exist today (12).
- * Deliberately separate from SectionedIssuesTable.tsx's own internal
- * fetch (all categories, powering the "All GEO Issues" table further down
- * this same tab) - that one needs every category for its cross-page
- * "Important" tab logic, this one only ever needs 'geo'.
- */
 export const useGeoFindingGroups = (): {
 	groups: FindingGroup[];
 	isLoading: boolean;
@@ -57,17 +44,6 @@ export const sumGroupCounts = (
 		.filter((group) => scannerIds.includes(group.scanner_id))
 		.reduce((total, group) => total + group.count, 0);
 
-/**
- * Shared `GET /findings/groups` fetch with no `category` filter - same
- * all-categories shape SectionedIssuesTable.tsx's own internal fetch
- * already uses. Unlike `useGeoFindingGroups` above (fixed to
- * `category=geo`), this is for callers whose own scanner ids span more
- * than one real `category` column value - AeoTab.tsx's own 5 AEO_SECTIONS
- * include `aeo-schema` (registered under Free's own 'seo'-ish scanner set)
- * and `llms-txt-missing` (vulopilot-pro, its own 'geo' scanner but
- * Pro-gated), so a `category=geo`-scoped fetch would silently miss one of
- * them.
- */
 export const useAllFindingGroups = (): {
 	groups: FindingGroup[];
 	isLoading: boolean;
@@ -196,23 +172,6 @@ export interface GeoVisibilityHistoryRow {
 	sub_scores: VisibilitySubScores | null;
 }
 
-/**
- * Shared `GET /geo-visibility-summary` + `GET /geo-visibility-history`
- * fetch (both vulopilot-pro's GeoInsights module - Pro-only) - one real
- * pair of calls, reused by GeoVisibilitySummaryCard.tsx ("Overall AI
- * Visibility", merging what used to be GeoVisibilityOverviewRow.tsx's
- * "Overall AI Visibility"/"The 4 things AI checks for" and
- * GeoTrendCompactCard.tsx's "Are You Getting Easier to Find?" into one
- * card - see that component's own docblock), and the "your own score" bar
- * GeoTab.tsx passes into the Pro competitor-comparison slot - same "one
- * real call, reused by every card that needs it" pattern
- * `useGeoFindingGroups` above already establishes for `/findings/groups`.
- * `history`'s own most-recent row already carries a real `overall_score`
- * (GeoInsights\VisibilitySnapshotBuilder::calculate_overall_score()) even
- * though `snapshot` itself only exposes the raw per-dimension breakdown -
- * see GeoVisibilitySummaryCard.tsx's own docblock for why both are needed
- * together.
- */
 export const useGeoVisibilitySnapshot = (): {
 	snapshot: VisibilitySnapshot | null;
 	history: GeoVisibilityHistoryRow[];
@@ -223,7 +182,6 @@ export const useGeoVisibilitySnapshot = (): {
 	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
-		// Both endpoints are registered only by vulopilot-pro.
 		if (!vulopilotAppLocalizer.khali_dabba) {
 			setIsLoading(false);
 			return;

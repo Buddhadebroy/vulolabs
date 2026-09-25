@@ -91,25 +91,6 @@ interface WpRestErrorBody {
 }
 
 /**
- * `POST /copilot/chat` (`Controllers\Copilot.php` - briefly moved to
- * vulopilot-pro as a Pro-only feature, moved back per direct instruction:
- * "make this section login popup dependency not pro also code in free for
- * this section not pro dependency with login popup") - the real chat
- * backend for AI Copilot's Chat tab (ChatTab.tsx), the one real remaining
- * consumer of this hook (GEO/OverviewTab.tsx used to have its own "How
- * would you like to grow today?" composer built on this same hook too, but
- * that layout was replaced in an earlier session - see that file's own
- * docblock). The running conversation (`turns`) is still kept here,
- * client-side, and sent back as `history` on every call - but every real
- * call also really persists to `vulopilot_ai_conversations` server-side
- * (Copilot.php's own persist_conversation()), keyed by `conversationId`
- * below, which is what lets loadConversation() reload a real, full past
- * thread (not just an excerpt) after a refresh or a brand-new session.
- * Every real call is *separately* still recorded to `vulopilot_ai_history`
- * too, unchanged - that table stays a permanent, excerpt-only audit trail
- * (AiRequestSender::record_success()), not the source this hook
- * reloads from.
- *
  * A message like "write a blog about X" really creates and saves a
  * WordPress draft (Copilot.php's own ContentCreationOrchestrator hand-off,
  * shared with the separate "Create Content" page) - that reply's `link`
@@ -124,22 +105,6 @@ interface WpRestErrorBody {
  * state with no server effect at all. When off, Copilot.php describes what
  * it would create instead of creating it, same "advice-only" shape every
  * other kind of request already gets.
- *
- * Genuinely free, not Pro-gated: `send()` only needs a real AI service
- * configured (the direct VuloCloud AI path under Settings → Connections,
- * or a connected VuloCloud account) - the same gate ContentAssistant.php's own chat and
- * ContentToolsGrid.tsx's free tiles already use. `useAiCredits()`'s
- * `status.connected` is checked up front, before ever calling the API
- * (per the same "check before sending, don't wait for a real failure"
- * posture AiContentAssistantSidebar.tsx's own handleChipClick() already
- * documents), setting `isCloudConnectPromptOpen` instead of making a
- * request that would just fail. As defense-in-depth, a real send that
- * still comes back with Copilot.php's own "No AI connection is configured."
- * error (e.g. `creditsStatus` hadn't loaded yet, or the connection dropped
- * between the check and the request) opens the same popup instead of a
- * dead-end error toast. ChatTab.tsx reads `isCloudConnectPromptOpen` to
- * show the same real `ShowProPopup vulocloud` every other free AI surface
- * in this plugin uses for this exact condition.
  *
  * @param noticeKey Unique NoticeManager key for this composer's error banner, so two composers on the same page (if that ever happens) don't clobber each other's notice.
  */

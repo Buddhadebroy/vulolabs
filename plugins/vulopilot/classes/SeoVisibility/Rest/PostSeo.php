@@ -27,9 +27,6 @@ defined( 'ABSPATH' ) || exit;
 class PostSeo extends \WP_REST_Controller {
 
     /**
-     * REST base shared with vulopilot-pro's PostSeoFixRest (rest-api.md's
-     * "share a base, register different sub-routes" pattern).
-     *
      * @var string
      */
     protected $rest_base = 'post-seo';

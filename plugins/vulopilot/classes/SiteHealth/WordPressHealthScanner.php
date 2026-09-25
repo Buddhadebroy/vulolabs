@@ -106,14 +106,6 @@ class WordPressHealthScanner extends ScannerUtil {
         $all_plugins    = get_plugins();
         $active_plugins = (array) get_option( 'active_plugins', array() );
         $inactive_names = array();
-        // Real basenames (e.g. `hello-dolly/hello.php`) alongside the
-        // display names above - `delete_plugins()`/`deactivate_plugins()`
-        // both need this exact identifier, not the human-readable Name;
-        // stored in `meta` below so vulopilot-pro's own OneClickFix
-        // MechanicalFixRunner (Pro-owned; Free never runs the actual
-        // delete itself - see DATABASE.md's Free/Pro schema-vs-logic
-        // split this codebase already follows elsewhere) can act on
-        // exactly the plugins this scan actually found, not guess.
         $inactive_files = array();
 
         foreach ( $all_plugins as $plugin_file => $plugin_data ) {

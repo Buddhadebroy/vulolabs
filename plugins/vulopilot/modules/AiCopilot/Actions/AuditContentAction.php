@@ -26,12 +26,6 @@ defined( 'ABSPATH' ) || exit;
  * verdict as post meta rather than rewriting anything, since an audit is
  * meant to inform a human, not silently change the page.
  *
- * Stays free (`get_tier()` inherited as 'free') - QuickActionsCard.tsx
- * gates this tile only on a connected VuloCloud AI account
- * (ConnectVuloCloudPopup/useAiCredits), the same treatment
- * ContentToolsGrid.tsx's own free tiles (AI Writer, Blog Generator,
- * Duplicate Content) get, not a Pro license.
- *
  * @class       AuditContentAction class
  * @version     1.0.0
  * @author      VuloLabs

@@ -16,14 +16,6 @@ defined( 'ABSPATH' ) || exit;
  * shared scan cadence (Seo\Scanners\BrokenLinksScanner/
  * BrokenImagesScanner's own `due_to_run()` - see that method's docblock).
  *
- * ScannerInterface::scan() deliberately takes no parameters, and isn't
- * widened here - every other scanner (free or Pro) implements the plain
- * zero-arg contract and would need no changes, so a real, user-initiated
- * "Run scan" click threading a force flag through only reaches the one or
- * two scanners that actually gate themselves, via ScanRunner::run()'s own
- * `instanceof` check, rather than every ScannerInterface implementation
- * across both plugins gaining a parameter it would never use.
- *
  * @class       SupportsForceRunInterface interface
  * @version     1.0.0
  * @author      VuloLabs

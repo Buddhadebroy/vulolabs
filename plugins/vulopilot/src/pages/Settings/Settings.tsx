@@ -94,21 +94,6 @@ const Settings = () => {
 		// exactly React error #310 ("rendered fewer hooks than expected").
 		const { setting, settingName, setSetting, updateSetting } = useSetting();
 
-		// Settings → Backups' own "Cloud Storage" section
-		// (BackupStoragePanel.tsx) is now Pro-gated - moved to
-		// vulopilot-pro's own BackupCloudStorage module, which registers
-		// its real UI into this slot (see that module's own src/index.tsx).
-		// That module is cardless (VuloPilotPro::CARDLESS_MODULE_IDS) - an
-		// active Pro license alone activates it, no separate Settings →
-		// Modules toggle - so this slot resolves purely on "is Pro
-		// licensed", not a second module-enable step. Falls back to the
-		// real layout + a "Pro" tag below whenever it hasn't resolved -
-		// row config (`CLOUD_STORAGE_LOCKED_METHODS`) lives in Backups.ts
-		// itself (that tab's own config file), imported here rather than
-		// hand-typed in this shared function, per direct instruction; not
-		// fabricated content either way. Must run on every call regardless
-		// of $currentTab, same reasoning this function's own top comment
-		// gives for every other hook here.
 		const CloudStoragePanel = useFilterSlot<ComponentType>(
 			'vulopilot_backup_cloud_storage_panel'
 		);
@@ -180,20 +165,6 @@ const Settings = () => {
 			return <DeveloperToolsPanel />;
 		}
 
-		// Generic version of the three escape hatches above - Settings/
-		// Integrations.ts (real OAuth/credential flows, same reasoning as
-		// 'indexnow' above) carries its own `PanelComponent` this way
-		// instead of a hardcoded
-		// `currentTab === '...'` case, the same mechanism vulopilot-pro's
-		// Licensing tab already relies on since it's registered into
-		// settingsArray via the `vulopilot_settings_context` filter
-		// (templateService.ts) rather than a file under this plugin's own
-		// components/Settings/ - Free can't hardcode a
-		// `currentTab === 'licensing'` case without importing something
-		// Pro-specific, so any tab config may carry its own
-		// `PanelComponent` and have it rendered here in place of
-		// InputRenderer instead, resolved from the config object itself
-		// rather than the tab id.
 		if (settingModal?.PanelComponent) {
 			const PanelComponent = settingModal.PanelComponent;
 			return <PanelComponent />;

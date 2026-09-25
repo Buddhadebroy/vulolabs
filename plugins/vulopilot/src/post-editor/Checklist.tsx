@@ -44,16 +44,6 @@ const summarizeGroup = ( results: AnalysisResult[] ): keyof typeof GROUP_STATUS 
 	return 'good';
 };
 
-/**
- * Renders one of Services\OnPageAnalyzer::analyze()'s check groups
- * ('basic'/'additional'/'title_readability') as a collapsible section
- * with a status-summary pill in its header. Starts expanded; collapsing
- * is a local UI convenience only, every check is still computed either
- * way. Every `fixable` row gets a "Fix with AI" button wired to
- * vulopilot-pro's `POST /post-seo/{id}/fix` (Pro-only - free users see an
- * upgrade prompt, same posture as the SEO tab's FindingsTable "Fix" row
- * action).
- */
 export default function Checklist( { title, results, postId, isPro, shopUrl, onFixed, highlightId }: ChecklistProps ) {
 	const [ fixingId, setFixingId ] = useState< string | null >( null );
 	const [ error, setError ] = useState< string | null >( null );

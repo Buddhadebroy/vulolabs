@@ -22,15 +22,6 @@ interface FixOutcome {
 	message: string;
 }
 
-/**
- * Real, immediate AI-apply "Fix" handler - the SAME `vulopilot_finding_fix_handler`
- * filter RecentContentCard.tsx/FindingsTable.tsx already read (registered by
- * vulopilot-pro's OneClickFix module when active, `null` otherwise). Used
- * here because these findings aren't tied to any one page - the navigate-
- * to-editor-and-highlight "Fix with AI" `SeoIssuesByPageTable.tsx` uses has
- * no page to navigate to for a sitemap/robots.txt finding. Read fresh on
- * every click rather than cached, same reasoning as those call sites.
- */
 const getFindingFixHandler = () => applyFilters('vulopilot_finding_fix_handler', null);
 
 /** Same local helper RecentContentCard.tsx's own `timeAgo` is - kept per-file rather than shared since this is the only real date this page renders. */

@@ -173,25 +173,6 @@ const CRAWLER_ALERT_ROWS: CrawlerAlertRow[] = [
  * Email fields (`notification_email`/`email_from_name`/`email_from_address`)
  * - same real setting keys the old `EmailSettings.ts` used.
  *
- * "AI Crawler Alerts": vulopilot-pro's CrawlerAlertMonitor runs 5 checks
- * once daily (CrawlerAlertScheduler) - see that class's own docblock for
- * the full detail on each. Every row below toggles a real,
- * independently-gated setting that class reads; nothing here is
- * decorative. "Notify me about" is a real zyra `type: 'setting-row'` field
- * (`components-settingrowcomponent--with-select-and-toggle`) - one flat row
- * per alert type, each with its own frequency/duration select and on/off
- * toggle both visible at once, no expand/collapse step. `rows` is this
- * file's own `CRAWLER_ALERT_ROWS` above, using zyra's declarative
- * `control: { toggle, select }` shape (SettingRowComponent's own
- * `resolveControl()` builds the real `SettingToggle`/`SelectInput` pair and
- * reads/writes each row's own `valueKey` slice of this field's
- * `value`/`onChange` itself) - so persisting a row goes through
- * InputRenderer's normal auto-save path, same as every other field here.
- * That field's own value shape is one nested object keyed by alert type
- * (`{ [valueKey]: { enable, frequency? | days_threshold? } }`,
- * `crawler_alerts` in Utill::VULOPILOT_SETTINGS_DEFAULTS), not N flat
- * settings.
- *
  * One shared "Notification channels" control applies to every alert
  * section below (AI Crawler/Security/Visibility/Critical issue alerts) -
  * shown once, rather than repeating an identical multi-checkbox per

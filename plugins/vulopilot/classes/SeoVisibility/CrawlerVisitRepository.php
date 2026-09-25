@@ -13,14 +13,6 @@ use VuloPilot\Utill\RepositoryUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for vulopilot_crawler_visits (AI Crawler Traffic Monitoring,
- * readme.txt). `find_all()`/pagination is entirely inherited from
- * RepositoryUtil - this only adds the aggregate reads the Crawler
- * Traffic page's summary section needs (bot counts, last-seen timestamps,
- * most-crawled pages, daily volume), the same "repository adds its own
- * query methods beyond the generic CRUD base" pattern
- * SiteHealthSnapshotRepository (vulopilot-pro) already uses.
- *
  * @class       CrawlerVisitRepository class
  * @version     1.0.0
  * @author      VuloLabs
@@ -160,15 +152,6 @@ class CrawlerVisitRepository extends RepositoryUtil {
     }
 
     /**
-     * Per-bot visit counts per calendar day over a trailing window, zero-
-     * filled the same way get_daily_volume() already is - backs
-     * vulopilot-pro's "Historical Crawl Trends" (AI-CRAWLER-ANALYTICS-MODULE.md),
-     * which needs a per-bot breakdown get_daily_volume() itself doesn't
-     * return. Lives here (Free's own repository) rather than in Pro, same
-     * "Free owns the table + its query methods, Pro decides which ones its
-     * UI calls" posture FindingRepository::get_severity_breakdown_for_scanner_ids()
-     * already established for a method added for a later Pro consumer.
-     *
      * @param int $days Trailing window size.
      * @return array<string, array<int, array{date: string, total: int}>> Bot name => daily volume, oldest first.
      */
@@ -207,12 +190,6 @@ class CrawlerVisitRepository extends RepositoryUtil {
     }
 
     /**
-     * Aggregate stats for a fixed date range - backs vulopilot-pro's "Crawl
-     * Reports" (Reports\Types\CrawlReport there), same "generate() only
-     * ever reads plain SQL, never calls out to anything" rule
-     * AiVisibilityReport's own docblock documents, applied to crawler-visit
-     * data instead of findings.
-     *
      * @param string $period_start Y-m-d, inclusive.
      * @param string $period_end   Y-m-d, inclusive.
      * @return array{total: int, by_bot: array<string, int>, top_pages: array<int, array{requested_url: string, total: int}>}
@@ -408,10 +385,6 @@ class CrawlerVisitRepository extends RepositoryUtil {
     }
 
     /**
-     * Deletes rows older than $days - the retention/cleanup half of
-     * readme.txt's Pro "Historical Logs" line (Services\CrawlerTrafficLogger's
-     * daily cron calls this with `apply_filters('vulopilot_crawler_log_retention_days', 30)`).
-     *
      * @param int $days Rows with `created_at` older than this many days are deleted.
      * @return int Number of rows deleted.
      */

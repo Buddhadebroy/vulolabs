@@ -166,18 +166,6 @@ const AeoScoreSummaryCard = ({
 		return { topic, openCount, score: calculateScore(breakdown) };
 	});
 
-	/**
-	 * Real overall AEO score - an unweighted mean of the same 6 real
-	 * per-topic scores the rows below show, same "unweighted mean of real
-	 * per-X scores" convention `Controllers\Geo::get_score()`'s own
-	 * `geo_score` already establishes. Replaces the ring's former
-	 * `aeoScore` prop (`AeoTab.tsx`'s own `average()` of 3 Pro-only
-	 * `useGeoVisibilitySnapshot()` fields, which silently read 0 with Pro
-	 * inactive - same free-tier gap that endpoint's own docblock already
-	 * flags for `GeoVisibilitySummaryCard`) with a number that's real and
-	 * populated on every install, matching how `GeoScoreSection.tsx`'s own
-	 * ring already avoids that same trap.
-	 */
 	const overallScore = topicScores.length
 		? Math.round(
 				topicScores.reduce((sum, row) => sum + row.score, 0) /

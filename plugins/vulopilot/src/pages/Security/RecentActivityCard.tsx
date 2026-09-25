@@ -14,22 +14,6 @@ interface ActivityLogRow {
 	event_type: string;
 }
 
-/**
- * Every real, security-scoped `event_type` this table actually carries.
- * `security.alert`/`security.new_user` (vulopilot-pro's own
- * SecurityMonitoring\AlertDispatcher) only ever log when Pro is licensed
- * AND the site has turned on Settings → Notifications → Security Alerts
- * (`security_alerts_enabled`, default OFF) - on a Free-only install, an
- * unlicensed Pro install, or a licensed-but-unconfigured one (the large
- * majority of real sites), those two event types never fire at all, no
- * matter how many open security findings exist. `scan.completed.security`
- * (Services\ScanPersistenceListener, Free, always on) is the fix: a real
- * row every time a security/ssl-category scanner finishes, findings or
- * not, zero configuration required - see that method's own docblock.
- * Multiple values here become a real SQL `IN (...)` filter
- * (ActivityLogs.php's own `parse_comma_separated_event_types()`, same
- * comma-separated-list shape Findings.php's own scanner_id filter uses).
- */
 const SECURITY_ACTIVITY_EVENT_TYPES = [
 	'scan.completed.security',
 	'security.alert',

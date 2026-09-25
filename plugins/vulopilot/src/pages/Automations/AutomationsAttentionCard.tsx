@@ -12,20 +12,6 @@ interface AutomationsAttentionCardProps {
 	refetchSignal: number;
 }
 
-/**
- * "Needs your attention" - real currently-enabled automations whose most
- * recent run actually failed (`last_run_status === 'failed'`, already
- * returned by `GET /automations` - no new endpoint). Deliberately doesn't
- * include the mockup's own second example, "Monthly report has no
- * recipient": confirmed against `SendEmailAction.php` that a `send-email`
- * action always resolves a real recipient (`config.recipient` → the
- * `notification_email` setting → WordPress's own `admin_email`, which
- * every site has) - there is no real "nothing configured anywhere"
- * condition to detect, so surfacing that example here would be a fabricated
- * alert with nothing behind it. "Try Again" re-runs the real automation
- * (`POST /automations/{id}/run`, the same action vulopilot-pro's own
- * ManageAutomationsSection.tsx row-level "Run now" already performs).
- */
 const AutomationsAttentionCard = ({ onViewAll, refetchSignal }: AutomationsAttentionCardProps) => {
 	const [failing, setFailing] = useState<AutomationRow[]>([]);
 	const [isLoading, setIsLoading] = useState(true);

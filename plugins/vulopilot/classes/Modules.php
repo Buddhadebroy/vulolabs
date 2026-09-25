@@ -12,14 +12,6 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloPilot Modules class.
  *
- * The folder-scan/reflection module loader module-architecture.md
- * documents - mirrors VuloLabs\Modules exactly (same discovery
- * mechanism, same activate/deactivate/is_available/is_active API), so
- * vulopilot-pro and any third-party plugin extend VuloPilot the same way
- * a Pro/catalogx-pro module extends vulolabs: a folder under
- * `modules/` containing `Module.php`, registered via the
- * `vulopilot_module_sources` filter, never instantiated directly.
- *
  * Distinct from Scanners\ScannerRegistry/RuleEngine\RuleRegistry/etc. -
  * those are a single class implementing one small interface (a plain
  * class-name filter is enough); a module is a whole package (potentially
@@ -155,14 +147,6 @@ class Modules {
     }
 
     /**
-     * Instantiates every currently-active, available module - the actual
-     * "boot" step. Silently drops (and persists the drop of) any stored
-     * active-module id that no longer resolves to a real, available
-     * module, e.g. after a folder rename or a Pro deactivation
-     * (backward-compatibility.md's module-rename caveat is about the
-     * *id* silently no longer matching anything, not about this cleanup
-     * step, which is deliberate here).
-     *
      * @return void
      */
     public function load_active_modules() {

@@ -19,7 +19,6 @@ export interface AiChatCardProps<TTurn> {
 	cardTitle: ReactNode;
 	cardTitleIcon?: string;
 	cardDesc?: ReactNode;
-	/** Shows the "PRO" badge next to the card header - the same convention StoreIntelligenceSummaryCard.tsx/AiSalesOptimizerCard.tsx already use for a Pro-gated card, matching AI Copilot's own real "Chat with VuloPilot is Pro" gate (useCopilotChat.ts's own docblock). Omit/`false` for a composer with no Pro gate. */
 	showProBadge?: boolean;
 	/** Renders a real "Chat History" button in the card header - omit for a composer with no conversation history to show (only AI Copilot's own Chat tab has one today). */
 	onOpenHistoryPopup?: () => void;
@@ -46,26 +45,6 @@ export interface AiChatCardProps<TTurn> {
 }
 
 /**
- * The "Chat with VuloPilot" look - every real AI chat composer card in
- * this plugin (AI Copilot's own Chat tab, GEO's "How would you like to
- * grow today?", Create Content's AI Content Assistant) now renders
- * through this one component instead of each hand-assembling its own
- * `ChatComposerCard` call with a slightly different card header/empty
- * state/prompt grid. Built on top of `ChatComposerCard` (this folder's
- * own bare skeleton): supplies the icon-badge card header, the `ai.png`
- * illustration + heading + subtitle empty state (with the suggested
- * prompts nested inside it, shown only before the first real turn - not
- * a separate always-visible slot), and the chip-grid prompt pills -
- * `.ai-card`/`.chip-grid` in ChatComposerCard.scss already style all of
- * this identically for every consumer. The header's own "PRO" badge/
- * "New Chat"/"Chat History" buttons (previously each hand-built via
- * `ChatComposerCard`'s generic `cardAction` slot) now live here too, real
- * props (`showProBadge`/`onNewChat`/`onOpenHistoryPopup`) rather than
- * freeform JSX - AI Copilot's Chat tab is still the only real consumer of
- * any of them today, but any future composer with the same Pro gate/
- * reset/history popup gets all three for free instead of re-assembling
- * this exact badge+button set.
- *
  * Turn rendering stays a `renderTurn` callback rather than being folded
  * in here too: `CopilotTurnBubble` (this folder's own component) is the
  * shared bubble for every real `useCopilotChat` consumer, but Create

@@ -18,19 +18,6 @@ use VuloPilot\AiCopilot\Repositories\AiConversationRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `POST /copilot/chat` - the real conversational backend for "AI Copilot"'s
- * Chat tab (src/pages/AIAssistant/ChatTab.tsx). Genuinely free, gated the
- * same way as every other AI-branded surface in this plugin - the free
- * `ai-copilot` module (see create_item_permissions_check()) - not a Pro
- * license. This briefly lived in vulopilot-pro as a Pro-only feature
- * (`modules/CopilotChat/Rest.php`); moved back here per direct instruction
- * ("make this section login popup dependency not pro also code in free for
- * this section not pro dependency with login popup") - the real gate is now
- * the same free "Connect to VuloCloud / Claim free AI Credits" flow every
- * other free AI surface uses when no AI connection is configured
- * (ConnectVuloCloudPopup.tsx, `useAiCredits()`), not a module/license check.
- * See useCopilotChat.ts's own docblock for the client-side half of that gate.
- *
  * Reuses VuloPilot()->ai_request_sender (AI\AiRequestSender)
  * exactly like ContentAssistant.php and GeoAnalyzer already do - same
  * safety-validate → send → sanitize sequence, and every
@@ -159,15 +146,6 @@ class Copilot extends \WP_REST_Controller {
     }
 
     /**
-     * Same manage_options gate every other VuloPilot REST route uses, plus
-     * the real AI Copilot module check every AI surface shares (see
-     * modules/AiCopilot/Module.php's own docblock) - this is the
-     * server-side half; the client-side half is useAiCopilotEnabled(). No
-     * Pro/license check: "Chat with VuloPilot" is genuinely free, gated on
-     * a connected VuloCloud AI account the
-     * same way ContentAssistant.php's own chat already is, not on this
-     * permission callback.
-     *
      * @param \WP_REST_Request $request Full request object.
      * @return bool|\WP_Error
      */

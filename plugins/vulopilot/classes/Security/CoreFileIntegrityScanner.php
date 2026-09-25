@@ -9,17 +9,6 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * "File Changes" (readme's Free feature list) for WordPress core files -
- * uses core's own `get_core_checksums()` (the same official,
- * api.wordpress.org-published md5 list `wp core verify-checksums`/Site
- * Health's own core-file check use), so this never invents its own
- * checksum source or bundles a stale one. Deliberately core-only, not
- * plugins/themes: core ships an authoritative published baseline to diff
- * against; there's no equivalent public baseline for third-party
- * plugin/theme files, which is exactly the gap vulopilot-pro's own
- * "Integrity Monitoring" (IntegrityMonitoringScanner, a locally-maintained
- * baseline/diff instead of an external published one) closes.
- *
  * Only flags modified/missing files - the same two states core's own
  * checksum verification reports; it does not detect unexpected *added*
  * files, since the checksums list only enumerates files that are supposed

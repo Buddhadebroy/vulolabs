@@ -64,13 +64,6 @@ class Utill {
     const VULOPILOT_OTHER_SETTINGS = array(
         'run_installer'     => 'vulopilot_run_installer',
         'plugin_db_version' => 'vulopilot_version',
-        // AI Crawler Alerts' own system-managed state - not a user-facing
-        // setting (no field ever writes these), so it lives here rather
-        // than in VULOPILOT_SETTINGS_DEFAULTS below. Read/written only by
-        // vulopilot-pro's CrawlerAlertMonitor.
-        // 'new crawler detected' diffs the real bot names seen so far
-        // (CrawlerVisitRepository::get_all_bot_names_ever_seen()) against
-        // this stored list to find ones never alerted on before.
         'crawler_alert_known_bots'   => 'vulopilot_crawler_alert_known_bots',
         // Per alert-type digest bookkeeping (last-sent timestamp + pending
         // items accumulated since then) for the "Daily digest"/"Weekly
@@ -96,19 +89,6 @@ class Utill {
      * @var array
      */
     const VULOPILOT_SETTINGS_DEFAULTS = array(
-        // General. Previously only `scan_frequency` had a default here -
-        // the other 3 General tab fields round-tripped through Settings
-        // with no default and no PHP consumer anywhere.
-        // `automatic_site_scan` is now Automations\Scheduler's own real
-        // whole-scan kill switch (vulopilot-pro) - 'enabled' is the
-        // non-surprising default, matching `scan_frequency` already
-        // running unconditionally before this pass. `keep_data_uninstall`
-        // is read by this plugin's own uninstall.php (the safe default -
-        // an uninstall keeps data unless the exact 'delete_everything'
-        // value is stored). `anonymous_usage_data` still has no real
-        // telemetry collector anywhere in this codebase to gate - this
-        // default alone doesn't change that; see the field's own
-        // settingDescription in General.ts.
         'automatic_site_scan'                   => 'enabled',
         'scan_frequency'                        => 'daily',
         'keep_data_uninstall'                   => 'keep_data',
@@ -149,9 +129,6 @@ class Utill {
         // the surprising state" posture every other Notifications
         // checklist in this file already uses.
         'critical_alert_types'                  => array( 'security', 'availability', 'performance', 'seo', 'other' ),
-        // Read by vulopilot-pro's AiCrawlerAnalytics\CrawlerAlertMonitor -
-        // comma-separated category ids to email/log about; see that
-        // class's own docblock.
         'email_on_crawler_alerts'               => array(),
         // Settings → Notifications → Visibility Alerts' own master switch -
         // gates all three panels of 'visibility_alerts' below without
@@ -162,16 +139,6 @@ class Utill {
         // the three panels below still defaults its own `enable` to off,
         // so this alone changes no existing install's actual email volume.
         'email_on_visibility_alerts'            => array( 'email_on_visibility_alerts' ),
-        // Settings → Notifications → Visibility Alerts' own `expandable-panel`
-        // field - same nested-object-keyed-by-id shape 'crawler_alerts'
-        // above already uses, not three separate flat settings. Read by
-        // GeoAnalysis\GeoAnalyzer::analyze() and vulopilot-pro's
-        // GeoInsights\VisibilityMonitor ('geo' - one scores a single post,
-        // the other the sitewide sampled average, same threshold either
-        // way), vulopilot-pro's BrandIntelligence\BrandMonitor ('brand'),
-        // and vulopilot-pro's KnowledgeGraph\KnowledgeGraphHealthMonitor
-        // ('kg') - each checks its own `[id]['enable']` before emailing,
-        // and the drop must be at least `[id]['threshold']` points.
         'visibility_alerts'                     => array(
             'geo'   => array(
                 'enable'    => false,
@@ -193,54 +160,15 @@ class Utill {
         // shipped a fixed 60-minute rate limit as a pragmatic v1; this
         // makes it a real, per-site setting instead).
         'automation_cooldown_minutes'           => 60,
-        // Read by vulopilot-pro's Automations\AutomationEngine - 0 (the
-        // default) means retries are off; an automation run with at least
-        // one failed action simply stays 'failed', same as before this
-        // setting existed.
         'automation_max_retries'                => 0,
         'automation_retry_delay_minutes'        => 5,
-        // Automations' "Automation modes" card - same "setting lives
-        // here, only meaningfully acted on by vulopilot-pro" split as
-        // automation_max_retries above. Read by vulopilot-pro's
-        // RunAiActionAction: 'monitor' skips proposing an AI fix entirely
-        // (notify-only), 'suggest' is today's existing propose-then-wait-
-        // for-a-human behavior (default - 'monitor'/'auto_fix' both
-        // require Pro, so defaulting to either would be a dead default on
-        // most installs), 'auto_fix' additionally auto-approves a proposed
-        // fix when its estimated_impact is at/below auto_fix_max_impact.
         'automation_mode'                       => 'suggest',
         'auto_fix_max_impact'                   => 'low',
-        // Settings → Automation → Approval Settings' "Ask before applying
-        // AI changes" - read by AiCopilot\ActionRunner::propose() itself
-        // (not vulopilot-pro-only), so unlike automation_mode above this
-        // one is meaningfully acted on by the free plugin too: 'always'
-        // (default - today's existing behavior, unchanged) always creates
-        // a pending_approval row and waits for a human; 'risk_based' skips
-        // that wait only for a proposed change whose own action
-        // (AIActionInterface::get_risk_level()) is Impact::LOW; 'never' -
-        // Pro-gated the same way automation_mode's own 'auto_fix' is,
-        // real-enforced server-side via Utill::is_khali_dabba() rather
-        // than trusting the stored value - skips the wait unconditionally.
-        // Replaces the previous `require_approval_before_ai_change`
-        // boolean, which had no default here and nothing ever actually
-        // read.
         'ai_change_approval_mode'               => 'always',
-        // SECURITY-MODULE.md's "Scheduled Security Monitoring"/"Alerts"/
-        // "Integrity Monitoring" - same "setting lives here, only
-        // meaningfully acted on by vulopilot-pro's SecurityMonitoring
-        // module" split as scan_frequency/automation_* above.
         'security_scan_frequency'               => 'daily',
         'security_alerts_enabled'               => array(),
         'security_alert_email'                  => '',
         'security_alert_min_severity'           => 'high',
-        // Settings → Notifications → Security Alerts' own "Notify me
-        // about" checklist - which alert types vulopilot-pro's
-        // AlertDispatcher should actually raise. Five of the six map to
-        // real scanner ids (AlertDispatcher::TYPE_SCANNER_MAP); 'new_user'
-        // has no scanner behind it at all - it gates a real `user_register`
-        // hook directly, a genuine WP event rather than a scan finding. All
-        // on by default, same "off is the surprising state" posture
-        // 'crawler_alerts' above already uses for its own per-type toggles.
         'security_alert_types'                  => array( 'vulnerabilities', 'malware', 'failed_login', 'new_user', 'file_changes', 'ssl_certificate' ),
         'enable_integrity_monitoring'           => array( 'enable_integrity_monitoring' ),
         'integrity_monitoring_max_files'        => 2000,
@@ -249,9 +177,6 @@ class Utill {
         // above, default on (a WCAG link-text check makes no outbound
         // request, so there's no WAF-flagging reason to ship it off).
         'enable_wcag_scanner'                   => array( 'enable_wcag_scanner' ),
-        // ACCESSIBILITY-MODULE.md's "Scheduled Audits" - same "setting
-        // lives here, only meaningfully acted on by vulopilot-pro's
-        // AccessibilityAudits module" split as security_scan_frequency above.
         'accessibility_audit_frequency'         => 'daily',
         // Settings → Scanning → Accessibility's own "WCAG level" row. Real
         // consumer: Scanners\Basic\AccessibilityScanner (the one check
@@ -265,19 +190,7 @@ class Utill {
         // UI-only field in Scanning → Security with no PHP consumer at
         // all; this is its first real read).
         'target_wcag_level'                     => '2.1_aa',
-        // WOOCOMMERCE-INTELLIGENCE-MODULE.md's "Inventory Intelligence" -
-        // same "setting lives here, only meaningfully acted on by
-        // vulopilot-pro's store-intelligence module" split as
-        // integrity_monitoring_max_files above. Read by
-        // InventoryIntelligenceScanner as the "projected to run out within
-        // this many days" threshold.
         'inventory_stockout_threshold_days'     => 7,
-        // MCP-SERVER-MODULE.md's MCP Server - same "setting lives here,
-        // only meaningfully acted on by vulopilot-pro's McpServer module"
-        // split as the settings above. Off by default: this gates an
-        // endpoint external AI clients can reach with a valid WordPress
-        // Application Password, so it's an explicit opt-in rather than
-        // silently available the moment Pro's module is toggled on.
         'enable_mcp_server'                     => array(),
         // Reports.
         'default_report_format'                 => 'pdf',
@@ -611,19 +524,7 @@ class Utill {
         // (AI-CRAWLER-ANALYTICS-MODULE.md) - flags real published pages
         // robots.txt disallows for one specific known AI bot.
         'flag_ai_crawler_blocked_pages'         => array( 'flag_ai_crawler_blocked_pages' ),
-        // Read by Services\CanonicalUrlManager - WordPress core already
-        // outputs a canonical tag by default (rel_canonical() on wp_head),
-        // so this defaults OFF; it exists as a safety net a site owner (or
-        // vulopilot-pro's OneClickFix "Fix" action) can turn on when a
-        // theme/caching plugin is found to be stripping it, per
-        // Seo\Scanners\CanonicalUrlScanner's own finding.
         'canonical_url_enabled'                 => array(),
-        // Read by Services\SocialMetaTagsManager - outputs Open Graph +
-        // Twitter Card meta tags. Defaults OFF since many sites already
-        // have another plugin/theme outputting these; exists so
-        // vulopilot-pro's OneClickFix "Fix" action has something real to
-        // turn on for Seo\Scanners\OpenGraphScanner/TwitterCardScanner's
-        // findings.
         'social_meta_tags_enabled'              => array(),
         // Settings → Site Identity → Title Formats, read by
         // Services\TitleFormatter (`pre_get_document_title`). Same
@@ -699,11 +600,6 @@ class Utill {
         // new opt-in alerts, so "on" is the non-surprising default that
         // changes no existing install's findings.
         'ai_visibility_scans'                   => array(
-            // Read by Geo\Scanners\GeoSemanticStructureScanner. Its own
-            // "AI-readable structure" row on the AI Visibility settings
-            // panel was removed per direct instruction - always `true` now
-            // with no UI control left to turn it off, so the scanner just
-            // always runs (Free and Pro alike).
             'structure'    => array(
                 'enable' => true,
             ),
@@ -720,11 +616,6 @@ class Utill {
                 'enable'       => true,
                 'min_mentions' => 2,
             ),
-            // Read by vulopilot-pro's GeoInsights\Scanners\StaleContentScanner
-            // (its `enable`) and GeoAnalysis\GeoAnalyzer::calculate_content_freshness()
-            // (`stale_months` only - that deterministic per-post sub-score
-            // always runs regardless of `enable`, see that method's own
-            // docblock).
             'freshness'    => array(
                 'enable'       => true,
                 'stale_months' => 12,
@@ -749,17 +640,6 @@ class Utill {
                 'min_data_points' => 3,
             ),
         ),
-        // Read by vulopilot-pro's GeoInsights\CompetitorVisibilityAnalyzer -
-        // an array of `{ name, url }` rows (Settings → Business Information's
-        // `type: 'dynamic-row'` field) to fetch and compare structural
-        // GEO-readiness signals against (schema/author/heading structure),
-        // real HTTP requests with no AI cost. Persisted here (Free owns the
-        // setting/interface) even though only Pro ever reads it - same
-        // "setting round-trips through Settings regardless of which tier
-        // reads it" posture every other Pro-gated setting in this file
-        // already takes. Use `self::competitor_urls()` to read it - older
-        // installs may still have the pre-`dynamic-row` newline-separated
-        // string stored, which that helper also understands.
         'geo_competitor_urls'                   => array(),
         // Scanning > Brand Intelligence. Read by
         // BrandIntelligence\Scanners\AboutPageAnalysisScanner - the minimum real word
@@ -769,17 +649,7 @@ class Utill {
         'brand_about_page_min_words'            => 80,
         // AI Crawler Traffic Monitoring.
         'enable_crawler_tracking'               => array( 'enable_crawler_tracking' ),
-        // Read by Services\CrawlerTrafficLogger::run_cleanup() as the base
-        // value passed through the `vulopilot_crawler_log_retention_days`
-        // filter (30, matching this class's own prior hardcoded default) -
-        // vulopilot-pro's AdvancedReports module extends it further.
         'log_retention'                         => '30',
-        // Scanning > Crawler Analytics. Read by vulopilot-pro's
-        // AiCrawlerAnalytics\CrawlerAlertMonitor - the minimum percentage
-        // drop in daily AI crawler visit volume (vs. the trailing 7-day
-        // average) that triggers `email_on_crawler_alerts`. Same
-        // "setting round-trips through Settings regardless of which tier
-        // reads it" posture as 'geo_competitor_urls' above.
         'crawler_volume_drop_threshold_percent' => 50,
         // Notifications > AI Crawler Alerts' "Notify me about" - one real
         // zyra `expandable-panel` field (AiCrawlerAlerts.ts), all 5 rows in
@@ -881,15 +751,6 @@ class Utill {
     );
 
     /**
-     * Canonical widget ids for the Dashboard's drag-and-drop layout
-     * (src/dashboard-widgets/registry.ts's DEFAULT_DASHBOARD_WIDGETS,
-     * kept in sync with this list by convention - same id-matching
-     * convention AI-ACTIONS.md already uses between Rule ids and Action
-     * ids). `Controllers\DashboardLayout` validates against this list so
-     * a saved layout can never contain an id the client made up; new
-     * widgets (Free or, via `vulopilot_dashboard_widgets`, Pro) get added
-     * here so an existing user's saved layout doesn't silently drop them.
-     *
      * @var string[]
      */
     const DASHBOARD_WIDGET_IDS = array(
@@ -909,14 +770,8 @@ class Utill {
         'needs-attention',
         'crawler-traffic',
         'recent-activity',
-        // Registered by vulopilot-pro's AiCrawlerAnalytics module via
-        // `vulopilot_dashboard_widgets` (AI-CRAWLER-ANALYTICS-MODULE.md).
         'ai-monitoring',
-        // Registered by vulopilot-pro's KnowledgeGraph module via
-        // `vulopilot_dashboard_widgets` (KNOWLEDGE-GRAPH-MODULE.md).
         'knowledge-graph-health',
-        // Registered by vulopilot-pro's McpServer module via
-        // `vulopilot_dashboard_widgets` (MCP-SERVER-MODULE.md).
         'mcp-server-status',
         // Known gap, not fixed here (out of scope for the ordering bug
         // above): none of these ids has its own top-level
@@ -973,14 +828,6 @@ class Utill {
     const ACTIVE_MODULES_DB_KEY = 'vulopilot_all_active_module_list';
 
     /**
-     * Records an unexpected exception - Modules::load_active_modules()'s
-     * catch-and-skip path calls this so one broken module's constructor
-     * (Free's own, vulopilot-pro's, or a third party's) doesn't take the
-     * whole site down. Writes to PHP's own error log only when the
-     * Advanced tab's debug-logging setting is on - the same opt-in gate
-     * Reports\ReportGenerator::maybe_log_debug() already uses, kept
-     * consistent rather than introducing a second logging convention.
-     *
      * @param \Throwable $exception The exception to record.
      * @return void
      */
@@ -1000,14 +847,6 @@ class Utill {
     }
 
     /**
-     * Extracts the plain competitor URL list out of the `geo_competitor_urls`
-     * setting, for every Pro module that only ever needs the URLs
-     * (GeoInsights\CompetitorVisibilityAnalyzer, BrandIntelligence\Rest,
-     * ContentIntelligence\ContentGapAnalyzer) - none of them care about the
-     * per-row `name`, which exists purely so the Settings UI
-     * (BusinessInformation.ts's `type: 'dynamic-row'` field) can show a
-     * human-readable label next to each URL.
-     *
      * Accepts both the current shape (`array<{name, url}>`) and the
      * pre-`dynamic-row` shape (a single newline-separated string) so an
      * older stored option value still works until it's next saved through

@@ -28,18 +28,6 @@ import EnableAutomationModuleAction from './Automation/EnableAutomationModuleAct
  * id (see that file's own docblock: "Automation's folder name
  * kebab-cased, no 'Engine' suffix").
  *
- * `settingAction: createElement(EnableAutomationModuleAction)` - a real,
- * hand-built button (needs live `sendApiResponse`/navigation, not
- * InputRenderer's own declarative fields) enabling that same `automations`
- * module and landing on the real Automations page in one click, instead of
- * only the 3 fields below silently no-op'ing (Pro-locked) until an admin
- * separately finds Settings → Modules on their own. Set as this tab's own
- * top-level `settingAction` (NavigatorComponent.tsx's own per-tab header
- * action slot, same "next to the tab's own title" placement
- * Notifications/AiCrawlerAlerts.ts's own `settingAction` already
- * establishes) so it sits right next to "Advanced Automation Settings"
- * itself, matching where the mockup's own button sits.
- *
  * The mockup's own per-row icon box + a second "Cooldown duration"-style
  * label above a value+unit-dropdown control isn't a real, existing zyra
  * field shape - there's no compound number+select input in this
@@ -76,9 +64,6 @@ export default {
 				'Minimum time VuloPilot waits before taking another automated action for the same issue. Helps prevent repeated actions in a short period.',
 				'vulopilot'
 			),
-			// The whole trigger→action AutomationEngine this cooldown
-			// guards lives in vulopilot-pro's Automation module - the
-			// setting has nothing to configure without it.
 			moduleEnabled: 'workflow-automation',
 			proSetting: true,
 		},

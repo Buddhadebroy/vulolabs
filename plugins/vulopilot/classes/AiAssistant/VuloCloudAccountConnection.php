@@ -4,12 +4,6 @@ namespace VuloPilot\AiAssistant;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The stored status of a *person* signing into the VuloCloud platform from
- * this WP admin - a different concept from `vulopilotAppLocalizer.khali_dabba`
- * (vulopilot-pro's own site-wide Product ID/License Key, a different
- * bounded context entirely - see this plugin's own config.php docblock on
- * VULOPILOT_VULOCLOUD_URL).
- *
  * Read-only from this class's own side: `FrontendScripts::localize_scripts()`
  * surfaces `get_status()` as `vulopilotAppLocalizer.vulocloud_connected`/
  * `vulocloud_account_email` (a display-only badge), and

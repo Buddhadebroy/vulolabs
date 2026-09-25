@@ -32,19 +32,6 @@ const HealthTimelineWidget: React.FC<WidgetProps> = ({
 		isLoading,
 	} = useApiList<HealthSnapshot>('site-health-snapshots', { days: 30 });
 
-	/**
-	 * `/site-health-snapshots` only exists at all once vulopilot-pro's
-	 * AdvancedReports module registers it (via the vulopilot_rest_controllers
-	 * filter) - on a Free-only install this request 404s every time, which
-	 * is the expected, permanent state, not a transient failure. Checking
-	 * `active_modules` directly (rather than treating "zero rows" and
-	 * "404'd" as the same friendly empty state, as this widget used to)
-	 * distinguishes the two honestly: a Free user sees the real "unlock
-	 * with Pro" pitch (same ProLockedCard/ShowProPopup pattern every other
-	 * Pro-gated panel in this plugin uses) instead of "run a scan" copy
-	 * that can never resolve on Free, since scans never populate this
-	 * endpoint there.
-	 */
 	const isModuleActive =
 		vulopilotAppLocalizer.active_modules.includes('advanced-reports');
 

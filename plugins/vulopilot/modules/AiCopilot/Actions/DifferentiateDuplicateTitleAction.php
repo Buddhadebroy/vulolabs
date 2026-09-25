@@ -22,14 +22,13 @@ defined( 'ABSPATH' ) || exit;
  * `object_ref` is a COMMA-JOINED LIST of every matching post id (e.g.
  * "12,45,78"), not a single id, because the finding is inherently about a
  * group, not one post. `object_type` is still 'post', so
- * ScannerFixMap/FindingFixRest still resolve a `post_id` input key from it
+ * a caller can still resolve a `post_id` input key from it
  * as normal - but naively `absint()`-ing a comma-joined string only ever
  * parses its leading numeric prefix, silently operating on the wrong (or
  * an arbitrary) post. This action instead reads the finding's own `meta`
  * column, which DuplicateContentScanner already stores as a real
  * `post_ids` array (merged into this action's raw input by
- * FindingFixRest's generic meta-merge - no ScannerFixMap/FindingFixRest
- * change needed) and uses THAT, ignoring whatever `post_id` a naive
+ * the caller's generic meta-merge) and uses THAT, ignoring whatever `post_id` a naive
  * comma-string parse would have produced.
  *
  * Only ONE of the duplicate posts is rewritten - the one with the

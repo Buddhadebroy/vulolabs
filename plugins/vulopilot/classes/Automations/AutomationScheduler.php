@@ -9,16 +9,6 @@ use VuloPilot\Utill\ScanRunner;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real, independent cron tick for Free's two built-in automations (see
- * Automations\BuiltinAutomationSeeder) - same "own small scheduler, not
- * entangled with any other feature's cadence" posture Services\
- * BackupScheduler already documents, and the free-tier counterpart to
- * vulopilot-pro's Automations\Scheduler: this deliberately does NOT go
- * through vulopilot-pro's AutomationsEngine (Recommendation-driven; see
- * WebsiteHealthScanScheduler's own docblock for why a bare site-level
- * action can't run through that engine) - it invokes each row's one real
- * action directly.
- *
  * @class       AutomationScheduler class
  * @version     1.0.0
  * @author      VuloLabs
@@ -174,13 +164,6 @@ class AutomationScheduler {
     }
 
     /**
-     * Row 2's real cron tick - generates and emails the visibility report.
-     * report_generator is now built by vulopilot-pro's AdvancedReports
-     * module (report generation moved there wholesale) and only exists on
-     * VuloPilot()'s own container when that module is active - this row
-     * simply can't run without it, same as it always required a report
-     * exporter/type to be registered.
-     *
      * @return void
      */
     public function run_scheduled_report(): void {
@@ -190,22 +173,26 @@ class AutomationScheduler {
             return;
         }
 
-        $report_generator = VuloPilot()->report_generator ?? null;
-
-        if ( ! $report_generator ) {
-            $this->record_run( (int) $row['id'], 'failed', current_time( 'mysql', true ), __( 'Reports is not active.', 'vulopilot' ) );
-            return;
-        }
-
         $trigger_config = json_decode( (string) ( $row['trigger_config'] ?? '' ), true );
         $frequency      = is_array( $trigger_config ) ? (string) ( $trigger_config['frequency'] ?? 'weekly' ) : 'weekly';
-
-        $started_at = current_time( 'mysql', true );
-        $mailer     = new \VuloPilotPro\AdvancedReports\Core\VisibilityReportMailer( $report_generator );
+        $started_at     = current_time( 'mysql', true );
 
         try {
-            $sent = $mailer->send( $frequency );
-            $this->record_run( (int) $row['id'], $sent ? 'completed' : 'failed', $started_at, $sent ? '' : 'No recipient configured, or the report failed to generate.' );
+            /**
+             * Sends the scheduled visibility report email. Returns null when no
+             * extension provides report delivery.
+             *
+             * @param bool|null $sent      Whether the email was sent.
+             * @param string    $frequency Configured frequency.
+             */
+            $sent = apply_filters( 'vulopilot_send_scheduled_visibility_report', null, $frequency );
+
+            if ( null === $sent ) {
+                $this->record_run( (int) $row['id'], 'failed', $started_at, __( 'No report delivery extension is active.', 'vulopilot' ) );
+                return;
+            }
+
+            $this->record_run( (int) $row['id'], $sent ? 'completed' : 'failed', $started_at, $sent ? '' : __( 'No recipient configured, or the report failed to generate.', 'vulopilot' ) );
         } catch ( \Throwable $exception ) {
             $this->record_run( (int) $row['id'], 'failed', $started_at, $exception->getMessage() );
         }

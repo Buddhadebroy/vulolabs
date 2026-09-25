@@ -74,17 +74,6 @@ class AutomationsRepository extends RepositoryUtil {
     }
 
     /**
-     * Looks up a system-seeded automation by a stable marker embedded in
-     * its own `trigger_config` JSON (`{"system_default": "<marker>"}`)
-     * rather than by `name` - added specifically for
-     * vulopilot-pro's WebsiteHealthScanScheduler, whose seeding logic must
-     * stay idempotent (never insert a second "Website Health - Daily
-     * Scan" row) even after an administrator has renamed the automation,
-     * which a name-based lookup would miss. A plain LIKE match on the raw
-     * JSON column, same pragmatic shape FindingRepository::
-     * find_open_duplicate() already uses for its own natural-key lookup
-     * that doesn't justify a dedicated indexed column.
-     *
      * @param string $marker The exact `system_default` value to look for.
      * @return array<string, mixed>|null
      */

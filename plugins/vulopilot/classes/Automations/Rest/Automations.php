@@ -128,7 +128,6 @@ class Automations extends \WP_REST_Controller {
     }
 
     /**
-     * @see \VuloPilotPro\Automations\AutomationsRest::with_next_run() - identical shape (that controller's own docblock explains the real cron-hook-per-trigger-type reasoning). Doesn't need `VuloPilotPro()->scheduler` - `wp_next_scheduled()` is a plain WP core read, not something only the Pro scheduler wrapper can do.
      *
      * @param array<int, array<string, mixed>> $rows Real automation rows, each with a real 'trigger_type'.
      * @return array<int, array<string, mixed>>
@@ -203,15 +202,6 @@ class Automations extends \WP_REST_Controller {
     }
 
     /**
-     * Free's own two built-in automations (Automations\
-     * BuiltinAutomationSeeder) are the only rows this route allows a
-     * `trigger_config` patch for - every other row's trigger configuration
-     * is Pro's own AutomationsRest::update_item() territory (a full wizard
-     * re-save, not a partial patch). Preserves the row's own
-     * `system_default` marker unconditionally (never client-writable - it's
-     * how BuiltinAutomationSeeder/AutomationScheduler keep recognizing this
-     * row across renames).
-     *
      * @param string               $trigger_type   The row's own, already-known trigger_type.
      * @param array<string, mixed> $incoming       Raw `trigger_config` from the request body.
      * @return array<string, mixed>|\WP_Error
@@ -281,20 +271,6 @@ class Automations extends \WP_REST_Controller {
     }
 
     /**
-     * Enriches each automation row with its own real most-recent run
-     * (`last_run_status`/`last_run_actions_executed`/`last_run_actions_failed`/
-     * `last_run_finished_at`) - what the "Automations" tab's table reads
-     * for its "Last run" column's real outcome subtext (e.g. "3 actions
-     * taken" / "No changes needed" / "Run failed"), one batch query via
-     * AutomationsRunRepository::get_latest_by_automation_ids() rather than
-     * N+1 (performance.md). `null` fields mean this automation has never
-     * run yet - the frontend renders that as "Never run" rather than a
-     * fabricated outcome. Same small helper, independently duplicated in
-     * vulopilot-pro's own AutomationsRest.php (that controller doesn't
-     * extend this one - it's a separate registry override for when the
-     * Automations module is active - same "duplicate small per-file logic"
-     * convention automationsLabels.ts's own docblock already establishes).
-     *
      * @param array<int, array<string, mixed>> $rows Real automation rows, each with a real 'id'.
      * @return array<int, array<string, mixed>>
      */

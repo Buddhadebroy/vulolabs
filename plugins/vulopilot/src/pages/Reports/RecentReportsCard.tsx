@@ -12,26 +12,8 @@ import { ADVANCED_REPORTS_MODULE_ID } from './reportsOverview';
 import ReportsDummyRows from './ReportsDummyRows';
 import { useFilterSlot } from '../../services/useFilterSlot';
 
-/**
- * The mockup's "Recent Reports" card. Per direct instruction ("the section
- * is in free and the functionality code is in pro" - no duplicate code),
- * this component owns only the "section": the `CardComponent` wrapper,
- * its title/description, and the "View All Reports" action. The real
- * data-fetching/table (scoped to `days`, capped to 6 rows) moved wholesale
- * to vulopilot-pro's own `AdvancedReports/src/RecentReportsPanel.tsx`
- * (that logic no longer exists here at all, not duplicated), registered
- * back in via the `vulopilot_recent_reports_panel` filter slot
- * (`useFilterSlot`, same shape Commerce.tsx/KeywordsTab.tsx's own
- * whole-panel Pro gates already use).
- *
- * Free's own fallback below - `ReportsDummyRows` + `DummyDataNotice`
- * behind `BlurredProContent` - only renders when that slot resolves to
- * nothing, i.e. vulopilot-pro's AdvancedReports module isn't active; it
- * never fetches real report data itself.
- */
 interface RecentReportsCardProps {
 	days: number;
-	/** Bumped by OverviewTab.tsx once the real Pro actions generate a new report - passed straight through to RecentReportsPanel's own refetch. */
 	refreshSignal?: number;
 }
 

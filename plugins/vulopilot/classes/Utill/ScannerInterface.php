@@ -10,11 +10,6 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Every scanner - free-tier (Utill\ScannerUtil) or a
- * premium Pro scanner registered via the `vulopilot_scanner_sources`
- * filter - implements this so ScannerRegistry/ScanRunner can run either
- * kind without knowing which side authored it.
- *
  * @class       ScannerInterface interface
  * @version     1.0.0
  * @author      VuloLabs

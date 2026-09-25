@@ -10,13 +10,6 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * A trigger decides *when* AutomationEngine re-checks automations bound to
- * it - a cron tick (hourly/daily/weekly/monthly), a WordPress/store-platform
- * event (product created, order completed, …), or nothing at all for
- * triggers invoked directly (manual "Run now", REST/webhook call).
- * Implemented by AutomationEngine\Triggers\* (free) and any premium
- * trigger Pro registers via `vulopilot_trigger_sources`.
- *
  * @class       TriggerInterface interface
  * @version     1.0.0
  * @author      VuloLabs

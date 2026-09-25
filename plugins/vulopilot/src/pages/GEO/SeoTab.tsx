@@ -203,14 +203,6 @@ const isSeoModuleActive = () =>
  *   (CrawlRobotsSitemapSection.tsx, its own "Robots & Sitemap" inner
  *   tab). SEO keeps on-page SEO only now: titles, meta, headings,
  *   canonicals, images, and internal links.
- *
- * There's deliberately no "Ranking keywords" table the way the reference
- * mockup has one - this plugin has no real keyword-rank-tracking data
- * source anywhere (Free or Pro; SEO Copilot's own Pro pitch in Popup.tsx
- * already lists "Keyword rank tracking... Google Search Console
- * integration" as a still-unbuilt Pro feature) - an honest "not connected
- * yet" card sits where that table would go instead of fabricated
- * positions/volumes.
  */
 interface SeoTabProps {
 	/**

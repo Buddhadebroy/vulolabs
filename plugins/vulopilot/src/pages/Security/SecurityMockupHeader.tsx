@@ -19,20 +19,6 @@ interface SecurityMockupHeaderProps {
 }
 
 /**
- * The mockup's top section - "I found N security issues" (Pro's real
- * severity breakdown when licensed, Free's honest open-count fallback
- * otherwise; see VulnerabilityHeroCard's own docblock), the "What
- * VuloPilot is checking" tile grid, and the "Security Status" score gauge
- * - factored out of SecurityTab.tsx (Protect My Site's "Security"
- * tab) into its own component since a near-identical version of this
- * same top section briefly also lived on a second "Old Security" tab
- * before that tab was removed. Deliberately the exact same grid={8}/
- * grid={4} nesting OverviewTab.tsx's own hero row uses (SecurityMetricsGrid
- * *inside* the grid={8} column alongside the hero card, not full-width
- * outside it - SecurityMetricsGrid's own 2-tile grid is deliberately
- * sized for that narrower column; getting this nesting wrong once made
- * an earlier pass render 4 tiles per row here instead of the mockup's 2).
- *
  * RecentActivityCard/SecurityTrendCard (real daily score history, its own
  * dedicated table - see that component's own docblock) stack
  * directly below SecurityStatusCard in this same grid={4} sidebar column

@@ -8,7 +8,7 @@ Free-side MCP code of any kind, and nothing in this file describes something
 Free ships. Confirmed by grepping this plugin's own source tree: no `Mcp*`
 class, no `/mcp` route, no MCP-related file exists anywhere under
 `vulolabs/plugins/vulopilot/`. Every file that implements this feature lives
-in `vulopilot-pro/modules/McpServer/` - see that plugin's own
+in `vulopilot-pro/classes/McpServer/` - see that plugin's own
 [`MCP-SERVER-MODULE.md`](../../../../plugins/vulopilot-pro/docs/MCP-SERVER-MODULE.md)
 for the full audit (every file, the protocol handler, all 16 tools, the
 constructor-ordering bug that made an early draft silently register zero
@@ -22,7 +22,7 @@ Every other module doc in this folder - `RULE-ENGINE.md`, `SCANNERS.md`,
 capability split across both tiers, or at minimum a Free-owned engine that
 Pro extends. MCP Server is neither: the entire module (contract, registry,
 protocol handler, every one of its 16 tools) is Pro-exclusive, per
-`modules/McpServer/Module.php`'s own docblock: "No Free-side equivalent
+`classes/McpServer/Module.php`'s own docblock: "No Free-side equivalent
 exists at all." This file exists specifically so someone browsing Free's own
 `docs/` folder doesn't come away thinking Free exposes an MCP endpoint - it
 doesn't - and so the *Free-owned* pieces this Pro-only module reuses (below)

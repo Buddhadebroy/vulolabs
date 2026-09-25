@@ -88,13 +88,6 @@ const AeoCitationCoverageCard = ({ isActive }: AeoCitationCoverageCardProps) => 
 		{ text: __('Simulated Citation Checks', 'vulopilot'), color: 'purple' },
 	];
 
-	// Both 'geo-insights' and 'aeo-insights' are real, independent Pro
-	// modules that unlock this same card (`isActive` above is already
-	// their real OR - see AeoTab.tsx's own `isCitationCheckActive()`), so
-	// this hook's own single-id module check is overridden with that
-	// already-correct boolean; 'aeo-insights' is still what the tag names/
-	// the popup deep-links to, same single target ProLockedCard used here
-	// before.
 	const { wrap } = useContentGate('answer-engine-optimization', isActive);
 
 	const dummyContent = (

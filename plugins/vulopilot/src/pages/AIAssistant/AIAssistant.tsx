@@ -31,15 +31,6 @@ import { ChatInput, AiChatCard, CopilotTurnBubble } from '../../components/ChatC
 /** Mirrors Controllers\Copilot.php's own MAX_ATTACHMENTS - capped client-side too so the composer never offers to add more than the server would actually resolve. */
 const MAX_ATTACHMENTS = 3;
 
-/**
- * Types vulopilot-pro's Rest.php actually reads: text/csv files are read
- * as text (ATTACHMENT_TEXT_MIME_TYPES); anything else, images included,
- * gets a "can't be read" note since the VuloCloud gateway carries text
- * only. Only restricts drag-and-drop/native-picker validation - the
- * "Upload File" button's wp.media() picker ignores `accept` and can
- * select anything in the Media Library, which Rest.php still resolves
- * honestly either way.
- */
 const ATTACHMENT_ACCEPT =
 	'.txt,.csv,text/plain,text/csv,.jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/png,image/gif,image/webp';
 
@@ -61,26 +52,6 @@ const SUGGESTED_PROMPTS = [
  * RecentConversationsCard.tsx/RecommendedActionsCard.tsx/IssuesList.tsx
  * stay as their own files: each is a self-contained concern with its own
  * state and API calls, not a thin pass-through.
- *
- * Welcome message, "Try asking me…" prompt grid, and composer bar in the
- * main column; "Site Overview" findings summary (`/dashboard`,
- * NeedsAttentionCard.tsx) + AI Workflows (`/automations`) preview in the
- * sidebar. Sending talks to `POST /copilot/chat` (`Controllers\Copilot.php`,
- * via useCopilotChat.ts) - free, gated the same way as every other AI
- * surface (a configured AI provider - the direct VuloCloud AI path or a
- * connected VuloCloud account), not a Pro license. A request like "write a blog about X"
- * creates and saves a WordPress draft (Copilot.php's
- * ContentCreationOrchestrator) - that turn's `link` renders as a
- * clickable edit link next to an inline "Undo" (`handleUndo()`, the same
- * `POST /ai-action-runs/{id}/rollback` HistoryDetailPanel.tsx's Undo
- * button calls). Every other request stays advice-only. `turns` is
- * client-side React state (cleared on unmount/refresh), but each
- * conversation persists server-side too (`vulopilot_ai_conversations`,
- * Copilot.php's persist_conversation()) - "Recent conversations"
- * (RecentConversationsCard.tsx, `GET /copilot/conversations`) lists past
- * threads, and clicking one (`handleSelectConversation()`,
- * useCopilotChat.ts's loadConversation()) loads its full turns back into
- * the composer.
  *
  * "Attach" opens zyra's FileInput, which - now that Admin.php calls
  * wp_enqueue_media() - hands back a WP Media Library attachment {id, url}
@@ -273,15 +244,6 @@ const AIAssistant = () => {
 	const removeAttachment = (id: number) =>
 		setAttachments((current) => current.filter((file) => file.id !== id));
 
-	/**
-	 * Same `vulopilot_automations_panel` Pro filter slot Automations.tsx
-	 * reads - `!Wizard` is the same "Automations Pro module isn't active"
-	 * check that page gates every action on. Passed to
-	 * AutomationTemplatesCard.tsx's `isAutomationsActive` prop so a locked
-	 * click shows the "Unlock with Pro" popup immediately from inside that
-	 * card, instead of first navigating to Automate Work and popping up
-	 * there.
-	 */
 	const automationsPanelSlot = useFilterSlot<{ Wizard?: unknown }>(
 		'vulopilot_automations_panel'
 	);

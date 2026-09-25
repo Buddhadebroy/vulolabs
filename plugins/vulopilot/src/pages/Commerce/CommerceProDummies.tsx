@@ -16,15 +16,6 @@ interface CommerceProDummiesProps {
 	onClick: () => void;
 }
 
-/**
- * Fabricated preview of the real Commerce page vulopilot-pro's own Commerce
- * module renders (CommerceTab.tsx and children) - one card per real
- * section, each behind the shared blurred "Upgrade to Pro" overlay
- * (components/UpgradeToProOverlay.tsx) with the shared `DummyDataNotice`,
- * same treatment BrandVisibilityProDummies.tsx/AutomationsProDummies.tsx
- * use. Every number/row here is made up (rows are "(Example …)"), never a
- * real store result; clicking anywhere opens the host's upgrade popup.
- */
 const DummyCard = ({
 	title,
 	titleIcon,

@@ -22,10 +22,6 @@ defined( 'ABSPATH' ) || exit;
  * it adds the one thing raw filter registration can't: a real version
  * compatibility gate).
  *
- * Unlike every other registry here, there are no Free-authored defaults -
- * Free doesn't extend itself, so the filter's base list is empty; every
- * registered extension is either vulopilot-pro or genuine third-party code.
- *
  * Hooked at `init` priority 15, one tick before the per-concern registries
  * (ScannerRegistry et al., all priority 20) read their own filters - so an
  * extension's register() call has already added its own scanner/rule/
@@ -125,11 +121,6 @@ class ExtensionManager {
 	}
 
 	/**
-	 * Admin-facing warning for any extension skipped over a version
-	 * mismatch - the same "don't fail silently on a real problem" posture
-	 * VuloPilotPro's own is_vulopilot_loaded() notice already uses for a
-	 * missing Free plugin.
-	 *
 	 * @return void
 	 */
 	public function render_incompatible_notice(): void {

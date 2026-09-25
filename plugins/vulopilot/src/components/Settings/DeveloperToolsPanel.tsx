@@ -29,15 +29,6 @@ import CardHeader from '../CardHeader';
  * history/reports on uninstall), unlike "Anonymous usage data" or
  * "Reset VuloPilot" (which explicitly preserves scan reports/history).
  *
- * "Clear cache" (`POST /settings/clear-cache`, Controllers\Settings::clear_cache())
- * clears every real content cache both this plugin and vulopilot-pro (if
- * active) own - Knowledge Graph's own extracted entities, the Schema
- * Coverage snapshot, the robots.txt bot-group parse, and Pro's own
- * Knowledge Graph recommendations. Deliberately does NOT touch AI
- * rate-limit counters, Pro's security-alert-already-sent dedup marker, or
- * the license status cache - see that controller method's own docblock for
- * why those aren't "stale data" the same way.
- *
  * "Reset VuloPilot" - also moved here from Settings → General per direct
  * instruction, a real action (`POST /settings/reset`) rather than a
  * persisted field.

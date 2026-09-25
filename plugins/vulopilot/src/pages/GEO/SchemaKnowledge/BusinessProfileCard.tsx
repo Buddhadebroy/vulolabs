@@ -213,15 +213,6 @@ const ROW_ICON: Record<string, string> = {
  * same real data either way. Nothing here is fabricated - a "Not found"
  * row is a real absence of data, not a placeholder; see `buildRows()`'s
  * own docblock for exactly what each row's "confidence" is based on.
- *
- * The "Business Information" card also now renders the real Graph
- * Visualization pane below its own score ring - moved here from
- * KnowledgeGraphSection.tsx per direct instruction (that file's own
- * docblock has the real reasoning for why it moved and why that card
- * widened to fill its own row afterward). Same real
- * `vulopilot_knowledge_graph_visualization_card` Pro slot / free
- * `KnowledgeGraphDiagram` fallback either way, just reusing this card's
- * own already-fetched `entities` instead of a 2nd fetch.
  */
 const BusinessProfileCard = () => {
 	const [entityScore, setEntityScore] = useState<number | null>(null);
@@ -236,17 +227,12 @@ const BusinessProfileCard = () => {
 	// same reasoning as `isNamePanelOpen` above, just for the "Products"
 	// row instead of "Business name".
 	const [isProductsPanelOpen, setIsProductsPanelOpen] = useState(false);
-	/** "Add custom schema" - real Pro popup instead of a real editor (nothing implemented yet, Free or Pro, to gate here); opens in place of the button's own previous `window.location.href = 'edit.php'` dead-end. */
 	const [isCustomSchemaProPopupOpen, setIsCustomSchemaProPopupOpen] = useState(false);
 	/** The "People" row's own real popup - same `PopupComponent` pattern `business_name`/`products` already use, listing every real Administrator + post author (Services\EntityExtractor::extract_people()), each with its own real role and, for whoever the viewing admin can actually edit, a real `get_edit_user_link()` destination. */
 	const [isPeopleDropdownOpen, setIsPeopleDropdownOpen] = useState(false);
 	/** The "Categories" row's own real popup - same pattern as `isPeopleDropdownOpen` above, listing every real `category` + (when WooCommerce is active) `product_cat` term (Services\EntityExtractor::extract_categories()), each with its own real taxonomy and, for whoever the viewing admin can actually edit, a real `get_edit_term_link()` destination. */
 	const [isCategoriesPopupOpen, setIsCategoriesPopupOpen] = useState(false);
 
-	// Called unconditionally, before the early return below, per the rules
-	// of hooks - same reasoning KnowledgeGraphSection.tsx's own identical
-	// call already documents (a Pro slot resolving is irrelevant on the
-	// "modules off" branch anyway).
 	const KnowledgeGraphVisualizationCard = useFilterSlot(
 		'vulopilot_knowledge_graph_visualization_card'
 	);
@@ -419,16 +405,6 @@ const BusinessProfileCard = () => {
 					{KnowledgeGraphVisualizationCard ? (
 						<KnowledgeGraphVisualizationCard />
 					) : (
-						// `entities` is still null for a real, guaranteed-to-happen
-						// window on every load (this state's own initial value, before
-						// `GET /entities` resolves) - KnowledgeGraphDiagram's own props
-						// type requires a real EntitiesResponse and dereferences it
-						// immediately (`entities.organizations[0]`), so rendering it
-						// unguarded would crash this whole card on every single load
-						// whenever Pro's own KnowledgeGraphVisualizationCard isn't
-						// available. Same real `entities &&` guard
-						// KnowledgeGraphSection.tsx's own former render site for this
-						// same diagram already used.
 						entities && <KnowledgeGraphDiagram entities={entities} />
 					)}
 				</CardComponent>

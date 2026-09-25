@@ -20,12 +20,6 @@ defined( 'ABSPATH' ) || exit;
  * only handles the token leg" shape GoogleServicesConnection already
  * uses talking to Google directly.
  *
- * Mirrors vulopilot-pro's LicenseApiClient (wp_remote_post(), JSON
- * body/response, WP_Error only for a genuine transport failure) - kept
- * as its own class for the same reason: GoogleServicesConnection stays
- * the one place that decides direct-vs-broker, this class only knows how
- * to talk to the broker once that decision is made.
- *
  * @class       GoogleOAuthBrokerClient class
  * @version     1.0.0
  * @author      VuloLabs

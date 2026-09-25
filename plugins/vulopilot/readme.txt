@@ -381,14 +381,7 @@ Build steps (Node.js and pnpm are required):
 1. Clone the repository and run `pnpm install` in the repository root.
 2. From `plugins/vulopilot`, run `pnpm run build` to regenerate everything in `assets/` (or `pnpm run watch` during development).
 
-Third-party libraries bundled in `assets/js/vendors.js`, with their public sources:
-
-* React Router - https://github.com/remix-run/react-router (MIT)
-* Recharts - https://github.com/recharts/recharts (MIT)
-* Axios - https://github.com/axios/axios (MIT)
-* SortableJS / react-sortablejs - https://github.com/SortableJS/Sortable (MIT)
-* Emotion - https://github.com/emotion-js/emotion (MIT)
-* Zyra UI kit (`@multivendorx/zyra`) - https://github.com/multivendorx/zyra (npm: @multivendorx/zyra)
+For further details about installation and production, please refer to the `package.json` file: https://github.com/vulolabs/vulolabs/blob/main/plugins/vulopilot/package.json
 
 == Changelog ==
 

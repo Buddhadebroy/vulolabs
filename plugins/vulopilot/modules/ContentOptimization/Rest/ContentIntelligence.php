@@ -24,12 +24,6 @@ defined( 'ABSPATH' ) || exit;
  * exact same weighting Controllers\Dashboard::calculate_category_score()
  * already uses, just scoped to this scanner list instead of one category.
  *
- * Distinct from ContentIntelligence\ContentAnalyzer's own per-post
- * "Topic Authority" AI score - that's a real AI cost, its REST route lives
- * in vulopilot-pro's own ContentIntelligence module (same Free/Pro split
- * GeoAnalysis\GeoAnalyzer/GeoInsights\Rest.php already establish). This
- * route is the free, always-available, no-cost half.
- *
  * @class       ContentIntelligence controller
  * @version     1.0.0
  * @author      VuloLabs

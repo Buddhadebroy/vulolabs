@@ -217,27 +217,11 @@ class FrontendScripts {
                 'gmt_offset_minutes'        => (int) round(
                     wp_timezone()->getOffset( new \DateTime( 'now', new \DateTimeZone( 'UTC' ) ) ) / 60
                 ),
-                // Feeds zyra's configureZyra()/ZyraVariable.khali_dabba (a
-                // proSetting field's Pro-tag/lock in InputRenderer) and
-                // vulopilot-pro's src/index.tsx (which module JS entries
-                // actually load) - both were reading these two keys off
-                // vulopilotAppLocalizer already, but nothing populated them yet.
                 'khali_dabba'               => VuloPilot()->util->is_khali_dabba(),
                 'active_modules'            => VuloPilot()->modules->get_active_modules(),
-                // useVuloCloudAccountLogin.ts's own real, synchronous read -
-                // same "localized once at page load, no fetch/loading state
-                // needed" shape 'khali_dabba' above already has. A *person*
-                // logged into VuloCloud (VuloCloudAccountConnection), not
-                // this site's own Pro license - see that class's own
-                // docblock.
                 'vulocloud_connected'       => $vulocloud_status['connected'],
                 'vulocloud_account_email'   => $vulocloud_status['email'],
                 'shop_url'                  => VULOPILOT_PRO_SHOP_URL,
-                // 'version' defaults to false (Pro not installed) unless
-                // vulopilot-pro's own bootstrap overrides it - same
-                // shape/default as vulocart's 'pro_data'/
-                // `vulocart_update_pro_data` filter. Feeds the header's
-                // "Pro: …" version tag (app.tsx).
                 'pro_data'                  => apply_filters(
                     'vulopilot_update_pro_data',
                     array(

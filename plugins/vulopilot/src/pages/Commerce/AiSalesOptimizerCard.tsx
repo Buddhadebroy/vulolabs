@@ -8,17 +8,6 @@ interface AiSalesOptimizerCardProps {
 	onFindOpportunities: () => void;
 }
 
-/**
- * "AI Sales Optimizer" - real cross-sell/upsell/bundle-opportunity counts
- * (`GET /sales-insights`, Pro's WooCommerceIntelligence module). "Find
- * Sales Opportunities →" scrolls down to the existing, unchanged "Bulk AI
- * optimization" panel further down this page - that panel already has
- * the real action picker/product search/approve flow; this card is a
- * real-data summary and entry point, not a second implementation of it.
- * AiCopilotGuard is the outer gate (the free master AI toggle); the
- * ModuleGuardComponent below it is a second, more specific gate for
- * WooCommerce Intelligence (Pro) - both must be satisfied to see real data.
- */
 const AiSalesOptimizerCard = ({
 	onFindOpportunities,
 }: AiSalesOptimizerCardProps) => {

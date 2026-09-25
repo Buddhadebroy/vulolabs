@@ -19,29 +19,6 @@ const STATUS_LABELS = { active: __('Active', 'vulopilot'), inactive: __('Inactiv
  * Scanning → Brand Intelligence tab, which it moved through before
  * landing there for good).
  *
- * Real backend: 7 previously-flat settings (`flag_missing_semantic`,
- * `flag_weak_entity`, `minimum_entity_mentions`, `flag_missing_ai_summary`,
- * `answer_first_words`, `min_data_points`, `stale_content_months`) were
- * migrated into this one nested `ai_visibility_scans` setting
- * (Utill::VULOPILOT_SETTINGS_DEFAULTS's own docblock has the full
- * migration list) - each row's `enable` is a REAL on/off switch its own
- * PHP scanner now checks:
- *   - 'structure'    → Scanners\Basic\GeoSemanticStructureScanner - row
- *     removed from this panel per direct instruction ("remove this
- *     settings ... default active"); `ai_visibility_scans.structure.enable`
- *     itself is untouched in Utill::VULOPILOT_SETTINGS_DEFAULTS (still
- *     `true`), so with no UI control left to turn it off, the scanner now
- *     just always runs, in both Free and Pro.
- *   - 'entity'       → GeoAnalysis\GeoAnalyzer (entity_coverage AI dimension)
- *   - 'freshness'    → vulopilot-pro's GeoInsights\Scanners\StaleContentScanner
- *     (a genuinely NEW gate - this scanner always ran before)
- *   - 'answer_first' → Scanners\Basic\GeoSummaryBlockScanner
- *   - 'evidence'     → Scanners\Basic\GeoCitationOpportunityScanner
- *     (also a genuinely NEW gate - this scanner always ran before)
- * Each row's own threshold (min_mentions/stale_months/min_words/
- * min_data_points) lives in that same panel item's `formFields`, not a
- * separate flat setting duplicating the same value.
- *
  * "Restore Defaults" is AiVisibilityScansHeader.tsx - a real, scoped
  * reset (`POST /settings/reset-ai-visibility-scans`), not a UI-only
  * component field, since it needs to persist server-side and refresh

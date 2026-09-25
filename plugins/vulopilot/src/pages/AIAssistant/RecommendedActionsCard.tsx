@@ -42,21 +42,6 @@ const BUCKET_META: Record<
 const isUrgent = (severity: Recommendation['severity']): boolean =>
 	'critical' === severity || 'high' === severity;
 
-/**
- * Free's own fallback render for "Recommended by VuloPilot" - shown only
- * when vulopilot-pro's own CopilotChat module isn't active (the
- * `useFilterSlot()` check in `RecommendedActionsCard` below). Reads the
- * same real, already-free `GET /findings/attention-summary` endpoint Pro's
- * own real card (`modules/CopilotChat/src/RecommendedActionsCard.tsx`)
- * does, and renders the identical real per-bucket cards - real labels,
- * real counts, not fabricated placeholder copy or a generic locked banner,
- * per direct instruction ("show the cards when click on cards then open
- * pro popup"). Only the CTA is gated: clicking a card opens the same real
- * "Unlock with Pro" popup every other Pro-gated surface in this plugin
- * uses, instead of the real `onNavigateTab('chat', filter)` jump Pro's own
- * card performs - a small "PRO" badge on each card makes that plain before
- * the click, not just after.
- */
 const RecommendedActionsFreeCard: FC<RecommendedActionsCardProps> = () => {
 	const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -141,9 +126,6 @@ const RecommendedActionsFreeCard: FC<RecommendedActionsCardProps> = () => {
 					position="lightbox"
 				>
 					{vulopilotAppLocalizer.khali_dabba ? (
-						// Pro is active - this specific module just isn't
-						// toggled on yet, so point at Modules rather than
-						// pitching an upgrade the user already has.
 						<ShowProPopup moduleName="copilot-chat" />
 					) : (
 						<ShowProPopup />
@@ -154,16 +136,6 @@ const RecommendedActionsFreeCard: FC<RecommendedActionsCardProps> = () => {
 	);
 };
 
-/**
- * AI Copilot's "Recommended by VuloPilot" card - real, direct-instruction
- * Pro feature (the real implementation lives in vulopilot-pro's own
- * CopilotChat module, `modules/CopilotChat/src/RecommendedActionsCard.tsx`,
- * registered via the `vulopilot_ai_copilot_recommended_actions` filter).
- * When that module is active, its own real card renders here unchanged
- * (real `onNavigateTab('chat', filter)` clicks included). Otherwise Free's
- * own `RecommendedActionsFreeCard` above renders the same real cards with
- * a "PRO" badge, opening the upgrade popup on click instead.
- */
 const RecommendedActionsCard: FC<RecommendedActionsCardProps> = ({ onNavigateTab }) => {
 	const ProRecommendedActionsCard = useFilterSlot<
 		ComponentType<RecommendedActionsCardProps>

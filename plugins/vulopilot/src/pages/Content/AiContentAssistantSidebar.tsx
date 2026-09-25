@@ -24,16 +24,6 @@ interface ChatResponse {
 	link: ChatLink | null;
 }
 
-/**
- * The shape WP_REST_Server::error_to_response() gives a WP_Error - what
- * actually arrives in `error.response.data` when ContentAssistant.php
- * returns one (e.g. "No AI connection is configured…", a safety-validator
- * rejection). Same reasoning as vulopilot-pro's OneClickFix module: raw
- * axios rather than @zyra/core's sendApiResponse() here on purpose, since
- * sendApiResponse() swallows the response body on any error and would
- * always show the same generic message no matter what actually went
- * wrong.
- */
 interface WpRestErrorBody {
 	code?: string;
 	message?: string;

@@ -13,24 +13,6 @@ use VuloPilot\GeoAnalysis\GeoAnalyzer;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /geo-analysis/top-pages` - the GEO page's "Top Pages" card. This
- * filename previously hosted the per-post AI GEO score read/generate
- * routes too; those moved to vulopilot-pro's GeoInsights module (see that
- * module's `Rest.php`, registered at the same `geo-analysis` base but a
- * `/(?P<post_id>\d+)` sub-route, since generating a score is a real AI
- * call) - this route doesn't collide with that one (a literal `top-pages`
- * never matches a digits-only regex), and stays in Free deliberately: it's
- * a purely deterministic ranking over already-persisted
- * `vulopilot_scan_findings` rows, no AI call, no cost, nothing that needs
- * gating.
- *
- * Ranks by open `geo`-category finding count per post rather than by
- * GeoAnalysis\GeoAnalyzer's own AI-judged score - that score only exists
- * for posts an admin (or Pro's VisibilitySnapshotBuilder sample) has
- * explicitly analyzed, so ranking by it would silently exclude every
- * post nobody has ever run an AI analysis on. Finding count is the one
- * GEO-health signal every scanned post always has.
- *
  * @class       GeoAnalysis controller
  * @version     1.0.0
  * @author      VuloLabs

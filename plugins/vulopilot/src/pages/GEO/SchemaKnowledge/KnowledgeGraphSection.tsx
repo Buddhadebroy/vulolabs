@@ -59,26 +59,6 @@ const HIGHLIGHT_MAX_ROWS = 4;
 const isEntityExtractionModuleActive = () =>
 	vulopilotAppLocalizer.active_modules?.includes('knowledge-graph') ?? false;
 
-/**
- * "Graph Visualization"/"Entity Recommendations"/"Knowledge Graph Health"
- * - vulopilot-pro's KnowledgeGraph module's own real Pro card slots.
- *
- * `useFilterSlot()`, not a plain top-level `applyFilters()` read - this
- * file used the plain-read pattern for all 3 of these slots until now,
- * which is a real, confirmed bug: BrandVisibilityTab.tsx's own docblock
- * already documents that a top-level `applyFilters()` call evaluates
- * before Pro's own script has necessarily finished registering its
- * filters (Free's bundle can finish importing and evaluating this module
- * before Pro's later `<script>` tag runs its `addFilter()` calls), which
- * leaves the slot permanently stuck at `null` regardless of whether the
- * `knowledge-graph` module is actually active - confirmed live: even with
- * that module active, "Graph Visualization" kept showing its own
- * "Graph visualization is a Pro feature" fallback every time, the exact
- * symptom that docblock describes. `useFilterSlot()` re-checks on the
- * real `vulopilot_pro_modules_loaded` event Pro's own script fires once
- * it's actually finished, which is what BrandVisibilityTab.tsx's own 4
- * slots already correctly use instead of this same broken pattern.
- */
 
 /**
  * Real category names flagged as worth cleaning up - either the generic WP
@@ -276,17 +256,6 @@ const EntityDetailContent = ({
  * list/empty-state/badge/link content the old standalone cards rendered,
  * via `EntityDetailContent`) in its own panel, inside this same card.
  * Defaults to the "Organization" tab so that panel never starts blank.
- *
- * Count list and the active tab's detail panel sit side by side inside
- * this one real `grid={12}` card (`.kg-understand-grid`) rather than the
- * detail panel dropping to a full-width row underneath - per direct
- * instruction ("make the 3 sections side by side instead of organization
- * list in the 2nd row"), back when Graph Visualization was still this
- * card's own 3rd column here too. Graph Visualization itself has since
- * moved to BusinessProfileCard.tsx (per direct instruction), so this card
- * widened from `grid={8}` to fill the row on its own - see that file's
- * own docblock for the real `vulopilot_knowledge_graph_visualization_card`
- * Pro slot / free `KnowledgeGraphDiagram` fallback it now renders instead.
  */
 const KnowledgeGraphSection = () => {
 	const [entities, setEntities] = useState<EntitiesResponse | null>(null);
@@ -294,14 +263,6 @@ const KnowledgeGraphSection = () => {
 	const [activeEntityTab, setActiveEntityTab] =
 		useState<keyof EntitiesResponse>('organizations');
 
-	// Called unconditionally, before the early returns below, per the
-	// rules of hooks - same reasoning BrandVisibilityTab.tsx's own 4
-	// useFilterSlot() calls already document (a Pro slot resolving is
-	// irrelevant on the "module off"/error branches anyway).
-	// `vulopilot_knowledge_graph_visualization_card`'s own real render site
-	// moved to BusinessProfileCard.tsx (its own identical `useFilterSlot()`
-	// call there) - the free `KnowledgeGraphDiagram` fallback it decides
-	// between now lives there too.
 	const EntityRecommendationsCard = useFilterSlot(
 		'vulopilot_knowledge_graph_recommendations_card'
 	);

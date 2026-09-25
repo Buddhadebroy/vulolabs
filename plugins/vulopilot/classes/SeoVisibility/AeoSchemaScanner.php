@@ -23,14 +23,6 @@ defined( 'ABSPATH' ) || exit;
  * currently-uncovered signal, not a restatement of that scanner's own
  * check.
  *
- * Reads `_vulopilot_schema_json` postmeta directly (Services\SchemaJsonLdRenderer's
- * own key - the same JSON-LD this codebase already renders on `wp_head` for
- * a post, see GenerateSchemaAction/SchemaJsonLdRenderer) rather than making
- * a real HTTP request per post - every signal this scanner needs already
- * exists locally, so there's no reason to fetch the page over the network
- * the way Pro's SitewideStructuredDataScanner does for its own, different
- * ("is there any JSON-LD present at all") check.
- *
  * @class       AeoSchemaScanner class
  * @version     1.0.0
  * @author      VuloLabs

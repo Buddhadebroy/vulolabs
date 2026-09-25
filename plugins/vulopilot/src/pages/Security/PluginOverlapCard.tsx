@@ -29,22 +29,6 @@ interface PluginOverlapCardProps {
 }
 
 /**
- * "VuloPilot already covers this" - real, currently-*active* plugins
- * (checked server-side via `is_plugin_active()`, `GET /plugin-overlap`,
- * PluginOverlap.php) whose category (SEO/security/accessibility/
- * automation/caching) overlaps with a real VuloPilot feature. Deliberately
- * NOT tied to any vulnerability finding or claim - this repo's own
- * documented policy (LocalSeedVulnerabilityFeed.php's docblock) is to
- * never name a real, currently-maintained third-party plugin as
- * vulnerable, so this card only ever says "you have two tools doing the
- * same job," never "this plugin is unsafe." Each row links to either the
- * Modules page (a real Pro module toggle, `module_id`) or the Performance
- * tab (the caching category, which isn't gated behind a module toggle).
- * Renders nothing at all when no known plugin is active (or none match
- * this instance's `category`) - same "don't show an empty teaser for a
- * comparison that found nothing" posture as this page's other real-data
- * cards.
- *
  * Promoted into every page whose category has real matches - SecurityTab
  * (`category="security"`), Accessibility.tsx (`category="accessibility"`,
  * its own top-level page, `../Security/PluginOverlapCard` imported

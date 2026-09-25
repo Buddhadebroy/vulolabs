@@ -11,21 +11,6 @@ interface HealthSnapshot {
 
 const DAY_OPTIONS = [7, 30, 90];
 
-/**
- * The mockup's "Website Progress" is a 4-line chart (Traffic/Visibility/
- * Revenue/Performance) - none of those has real daily history (only
- * `overall_score` gets a daily snapshot, and only when Pro's
- * AdvancedReports module is active). This shows that one real series
- * instead of fabricating the other three, reusing the exact same
- * `/site-health-snapshots` + `ChartComponent type="area"` pattern Free's
- * own Dashboard HealthTimelineWidget.tsx already established (including
- * its graceful 404→empty degrade on Free-only installs - a 404 here is
- * permanent, not transient, so no error+retry card). "7/30/90 Days" is
- * real (the endpoint already supports `?days=N`); "1 Year" and "Compare
- * Previous Period" are dropped - the site is very unlikely to have a full
- * year of daily snapshots, and no overlay-comparison series exists
- * anywhere to back a "Compare Previous Period" toggle.
- */
 const WebsiteProgressChart = () => {
 	const [days, setDays] = useState(30);
 

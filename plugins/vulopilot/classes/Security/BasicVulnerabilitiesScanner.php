@@ -9,19 +9,6 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Three deterministic, zero-cost-to-verify hardening checks that make a
- * site an easier target once *any* vulnerability is known - distinct from
- * UpdatesScanner (which flags "a newer version exists", not exposure) and
- * from vulopilot-pro's SecurityMonitoring scanners (admin username,
- * anonymous REST enumeration, file editor, debug mode, xmlrpc, headers,
- * exposed files) - none of those three checks below overlap with any of
- * this scanner's checks. "Basic" (readme's Free feature name) because each
- * check is a single anonymous HTTP request or a local option read, same
- * scope as this tab's own Utill\ScannerUtil siblings; Pro's "Advanced
- * Vulnerabilities" (AdvancedVulnerabilitiesScanner, vulopilot-pro) is what
- * matches installed plugin *versions* against known CVEs - a different,
- * deeper kind of check this one doesn't attempt.
- *
  * @class       BasicVulnerabilitiesScanner class
  * @version     1.0.0
  * @author      VuloLabs

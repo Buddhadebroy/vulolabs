@@ -15,22 +15,6 @@ use VuloPilot\Utill\FindingRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Marks the specific Finding a Recommendation came from as 'snoozed' -
- * Free's own manual-only counterpart to vulopilot-pro's Automations module
- * (Contracts\Automations\ActionInterface's Pro-side implementations:
- * SendEmailAction/ResolveFindingAction/CreateNotificationAction/
- * RunAiActionAction). 'snoozed' has been a valid Finding status
- * (FindingRepository::get_status_counts(), the FindingsTable status filter)
- * since it was first introduced, but nothing has ever actually set it -
- * Free's own FindingsTable.tsx only ever wires "Mark resolved"/"Ignore"/
- * "Reopen" row actions. This is the first thing that sets it, deliberately
- * distinct from ResolveFindingAction's 'resolved' (a permanent "this is
- * fixed") and CreateNotificationAction's activity-log entry (an FYI with no
- * state change): a temporary "not now, but don't forget it either" - same
- * lookup-by-object_type/object_ref shape as ResolveFindingAction, since
- * Recommendation carries neither a finding id nor Free's own automation
- * engine to run it through (see ManualActionRunner).
- *
  * @class       SnoozeFindingAction class
  * @version     1.0.0
  * @author      VuloLabs

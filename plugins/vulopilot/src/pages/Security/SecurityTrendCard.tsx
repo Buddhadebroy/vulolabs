@@ -30,21 +30,6 @@ const PERIOD_OPTIONS = [
 ];
 
 /**
- * "Security Trend" - real daily `security_score` snapshots from
- * `GET /security-score-snapshots?days=N`
- * (`classes/Repositories/SecurityScoreSnapshotRepository.php`, written by
- * `Services\SecurityScoreSnapshotRecorder` after every scan plus once
- * daily via cron - the same real weighting `GET /dashboard`'s
- * `category_scores.security` already uses). Not a reuse of
- * `vulopilot_site_health_snapshots.security_score` - that column exists
- * but is only ever written by Pro's AdvancedReports module, so this Free
- * tab needed its own dedicated table, same reasoning Performance's own
- * "Speed History" already established for `performance_score`. Same
- * `useApiList` + `ChartComponent type="area"` pattern SpeedHistoryCard.tsx
- * uses, including its graceful "no trend data yet" empty state for a
- * freshly-installed site or one that hasn't run a scan/waited for the
- * daily cron yet.
- *
  * `days` is a real 7/30/90 toggle now (same `PERIOD_OPTIONS`/`ToggleInput`
  * shape GeoScoreSection.tsx's own card action already uses) rather than a
  * fixed 30 - `useApiList`'s own `params` are re-read on every render, so

@@ -1,13 +1,3 @@
-/**
- * Real scanner_id → mockup-category bucket mapping for "Commerce"'s
- * WooCommerce tab. The real category grid itself now lives in
- * vulopilot-pro's own (moved) CommerceCategoryGrid.tsx - this Free-side
- * copy stays only because Free's own CommerceIssuesTable.tsx (kept here
- * - see modules/Commerce/Module.php's own docblock, Pro side, for why)
- * still needs the same bucket vocabulary for its tab bar's `scannerIds`
- * filters, so both read the exact same real `GET /findings/groups` data
- * bucketed the same way rather than drifting apart.
- */
 
 /** The 11 existing free-tier Product* scanners that aren't about stock. */
 export const PRODUCT_SCANNER_IDS = [
@@ -24,7 +14,6 @@ export const PRODUCT_SCANNER_IDS = [
 	'product-seo',
 ];
 
-/** Free's data-integrity stock check - Pro's 'inventory-intelligence' (stockout projection) is added separately only when that module is active. */
 export const INVENTORY_SCANNER_IDS = ['product-inventory-health'];
 
 /** The 4 new "Checkout & Payments"/"Orders" scanners (WooCommerceCheckoutScanner + its 3 order-health siblings). */

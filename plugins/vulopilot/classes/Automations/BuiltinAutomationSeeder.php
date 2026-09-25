@@ -12,26 +12,6 @@ use VuloPilot\Automations\AutomationsRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Seeds Free's own two fixed, schedule-only automations - "Run Full Site
- * Scan" and "Send Visibility Report" (VuloPilot Free vs Pro Automation
- * Builder Prompt.md: "Free will get only 2 predefined automations"). Real
- * `vulopilot_automations` rows, same table every automation (Free or Pro)
- * lives in, so they show up in the existing Automations table/dashboard
- * widget for free - but their own `trigger_type` (`TRIGGER_FULL_SITE_SCAN`/
- * `TRIGGER_VISIBILITY_REPORT`) is deliberately outside vulopilot-pro's
- * TriggerRegistry vocabulary (hourly/daily/weekly/monthly/...), so Pro's
- * AutomationsEngine - which is Recommendation-driven, see
- * WebsiteHealthScanScheduler's own docblock for why that engine can't run a
- * bare site-level action like these two - never selects or fires these
- * rows even when Pro is active. Services\AutomationScheduler is the only
- * thing that ever reads/runs them.
- *
- * Idempotent the same way vulopilot-pro's WebsiteHealthScanScheduler
- * already is: a stable `trigger_config.system_default` marker
- * (AutomationsRepository::find_by_system_default_marker()) means a renamed
- * row is never mistaken for "not seeded yet," and a site-wide "already
- * seeded" option means a deleted row is never silently resurrected.
- *
  * @class       BuiltinAutomationSeeder class
  * @version     1.0.0
  * @author      VuloLabs

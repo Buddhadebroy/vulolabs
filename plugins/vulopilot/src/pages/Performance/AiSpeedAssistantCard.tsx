@@ -25,24 +25,6 @@ interface AiSpeedAssistantCardProps {
  * matching the simpler "N optimizations available" shape the removed
  * card used, and the two buttons ("Optimize with AI"/"Review First") stay
  * this card's own copy.
- *
- * No *bulk* AI action-trigger engine exists for performance findings
- * anywhere in this codebase (WooCommerceAi's own `BulkOptimizePanel.tsx`
- * is real, but scoped to WooCommerce products - there's no equivalent for
- * performance), so "Optimize with AI" stays honestly disabled with a
- * tooltip rather than silently doing nothing, same as before. Real
- * open-finding count for category 'performance' (same `useApiList('findings',
- * ...)` pattern AiInsightBanner.tsx/AiSalesAssistantCard.tsx already use).
- *
- * Real content is gated behind useContentGate.tsx's own 3 real checks
- * (Pro license → this card's own 'ai-copilot' module → a VuloCloud account
- * login - see that hook's own docblock) instead of the plain module-only
- * AiCopilotGuard every other AI-branded card still uses. Note this makes
- * the card Pro-gated too, even though 'ai-copilot' is a free module
- * (`proModule: false` in its own Modules/index.ts catalog entry) - a real,
- * direct behavior change from before, done because it was explicitly
- * asked for on this card specifically, not applied to
- * AiSalesAssistantCard.tsx/other AiCopilotGuard call sites.
  */
 const AiSpeedAssistantCard = ({ onReviewIssues }: AiSpeedAssistantCardProps) => {
 	const { total, isLoading } = useApiList<FindingRow>('findings', {
