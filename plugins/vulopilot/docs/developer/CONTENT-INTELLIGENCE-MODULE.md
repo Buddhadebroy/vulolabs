@@ -1,75 +1,41 @@
-# VuloPilot - Content Intelligence module
+# Content Optimization (`modules/ContentOptimization`)
 
-## Audit: requested vs. already-shipped
+Content quality checks. User view: [../user/CONTENT.md](../user/CONTENT.md).
 
-**Already shipped, unchanged by this pass:**
+## Components
 
-| Requested | Already implemented as |
+| Component | Role |
 |---|---|
-| Thin Content Detection | `SeoAnalysis\Basic\ThinContentScanner` (`thin-content`, category `seo`) |
-| Duplicate Content Detection | `DuplicateContentScanner` (`duplicate-content`) |
-| Heading Analysis | `HeadingStructureScanner` (`heading-structure`) |
-| Internal Link Analysis | `InternalLinkingScanner` (`internal-linking`) |
+| `Scanners\ReadabilityScanner` | Flags posts whose Flesch Reading Ease score is below `content_readability_min_score` (default 50). Registered through `vulopilot_scanner_sources` |
+| `ContentAnalyzer` | `analyze( $post_id ): ContentScore` combines deterministic checks with an AI "topic authority" assessment; `get_stored_score()` reads the last result |
+| `Rest\ContentIntelligence` | `GET /content-intelligence/quality`, `/score`, `/stats` |
+| `ValueObjects\ContentScore` | Result of one analysis |
 
-Thin Content/Duplicate Content/Heading Structure/Internal Linking scanners
-are **reused, not recategorized** - they stay `seo`-category (so
-`SEO.tsx`'s own `SEO_SECTIONS` grouping doesn't break) and are additionally
-read into Content Intelligence's own composite score/page/report via an
-explicit `scanner_id` list, not a `category` filter. See
-`FindingRepository::get_severity_breakdown_for_scanner_ids()`'s own docblock
-for the mechanism.
+`ContentAnalyzer` follows the same shape as `GeoAnalysis\GeoAnalyzer`: a plain orchestrator that reuses `AiRequestSender`, stores through `FindingRepository`, and is not an AI action because it changes nothing.
 
-## What's genuinely new in this pass
+## Content creation
 
-### Free
+Free AI content tools (AI Writer, Blog Generator, Duplicate Content, AI Content Audit) run through AI actions ([AI-ACTIONS](AI-ACTIONS.md)). `AiCopilot\ContentCreationOrchestrator` allows the chat to create a draft only for whitelisted actions (`generate-blog`).
 
-**`ReadabilityScanner`** (`modules/ContentOptimization/Scanners/ReadabilityScanner.php`, id
-`readability`, new category `content`) - the one genuinely new scanner. Real
-Flesch Reading Ease score (`206.835 - 1.015*(words/sentences) -
-84.6*(syllables/words)`, clamped 0–100), skipping posts under 100 words
-(already flagged by `ThinContentScanner` for a different reason). Threshold
-is a real setting, `content_readability_min_score` (Scanning → Content
-Intelligence, default 50 - Flesch's own published "Fairly Difficult"
-boundary), not a hardcoded number.
+## Settings
 
-**Content Score** - `GET /content-intelligence/score`
-(`modules/ContentOptimization/Rest/ContentIntelligence.php`) - a composite score
-over `readability` + the 4 reused `seo` scanners + `orphan-pages`, same
-weighting formula (`100 - critical*15 - high*8 - medium*3 - low*1`) every
-other category score already uses. Also wired into the Dashboard's
-`category_scores.content` (`Dashboard\Rest\Dashboard`'s
-`calculate_content_score()`) and a new `content` stat widget
-(`dashboard-widgets/registry.ts`).
+| Setting key | Default |
+|---|---|
+| `thin_content_word_threshold` | `300` |
+| `content_search_scans` | `array( ... )` |
+| `content_readability_min_score` | `50` |
 
-**Content Reports** - `Reports\Types\ContentIntelligenceReport`. Extends
-`AbstractReportType` directly rather than `AbstractCategoryReportType` - that
-base only scopes to one category string, but this report spans the same
-cross-category `scanner_id` list the Content Score does (`orphan-pages`
-included here, since a report period naturally includes sitewide findings
-too, unlike the per-post `ContentAnalyzer`).
+## Class reference
 
-## Extension points added
+| Class | File | What it does |
+|---|---|---|
+| `ContentAnalyzer` | `modules/ContentOptimization/ContentAnalyzer.php` | Generates a ContentScore for one post - "Topic Authority" (the one Content Intelligence AI capability actually requested), combined with a deterministic score over this module's own 5 real checks. |
+| `Module` | `modules/ContentOptimization/Module.php` | VuloPilot ContentOptimization module. |
+| `ContentIntelligence` | `modules/ContentOptimization/Rest/ContentIntelligence.php` | `GET /content-intelligence/score` - the composite, deterministic "Content Score" (no AI, no cost). |
+| `ReadabilityScanner` | `modules/ContentOptimization/Scanners/ReadabilityScanner.php` | Content Intelligence's own deterministic readability check - the one genuinely new scanner this module adds (Thin Content/Duplicate Content/ Heading Structure/Internal Linking already exist as `seo`-category scanners and aren't du |
+| `ContentScore` | `modules/ContentOptimization/ValueObjects/ContentScore.php` | A single post's Content Intelligence score, produced by ContentOptimization\ContentAnalyzer::analyze() (its only real caller, hence living here rather than classes/Utill/) - same shape as GeoAnalysis\ValueObjects\GeoScore (combine |
 
-- `vulopilot_content_topic_authority_card` / `vulopilot_content_gap_analysis_card` (React filters, `@wordpress/hooks`) - same "register a source, don't modify the host" slot pattern GEO.tsx's own `GeoScoreCard`/`GeoVisibilitySummary` slots use.
-- No new PHP registry - the new scanner/REST controllers/report/AI actions all go through the existing `vulopilot_scanner_sources`/`vulopilot_rest_controllers`/`ReportTypeRegistry`/`vulopilot_ai_action_sources`, exactly as documented in `SCANNERS.md`/`AI-ACTIONS.md`.
+Hooks and routes registered by these classes:
 
-## REST routes added
-
-| Route | Plugin | Cost | Notes |
-|---|---|---|---|
-| `GET /content-intelligence/score` | Free | None | Composite Content Score (dashboard/page use) |
-
-## What's still not here (honest gaps)
-
-- **No Content Gap history / trend** - `ContentGapAnalyzer` stores one
-  cached snapshot, overwritten each run, the same pre-history-table shape
-  `VisibilitySnapshotBuilder` had before GEO's own Historical Trends pass -
-  a growing history table wasn't requested for this module.
-- **No scheduled/automatic Content Gap regeneration** - always a manual
-  "Regenerate" action from the Content page; no cron trigger the way GEO's
-  `VisibilitySnapshotScheduler` runs on a cadence.
-- **`ExpandContentAction`/`RewriteContentAction` are standalone, not
-  scanner-mapped** - by design (see above), but this means Health/Content
-  page "one-click fix" flows never surface them; they're only reachable via
-  the Content page's own cards/bulk-optimize, not `FindingsTable`'s per-row
-  fix button.
+- `Module` - hooks: `vulopilot_scanner_sources`
+- `ContentIntelligence` - ; routes: `/content-intelligence/quality`, `/content-intelligence/score`, `/content-intelligence/stats`

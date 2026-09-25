@@ -1,58 +1,50 @@
-# VuloPilot - Knowledge Graph module
+# Knowledge Graph (`modules/KnowledgeGraph`)
 
-## Free - `KnowledgeGraph\EntityExtractor`
+Builds a picture of the entities on the site - organization, people, products, services, locations and categories - from data WordPress already has. User view: [../user/AI-VISIBILITY.md](../user/AI-VISIBILITY.md#business-identity--schema-what-machines-learn-about-you).
 
-Six entity types, each backed by a real, deterministic data source:
+## How it works
 
-| Type | Real source |
+`EntityExtractor::extract_all()` reads existing WordPress data. There is no text mining or NLP:
+
+| Entity | Source |
 |---|---|
-| People | WP users who authored at least one published post/page (`get_userdata()` per distinct `post_author`) |
-| Products | Real store products (`wc_get_products()`, `class_exists('WooCommerce')` guard - same pattern `ProductMissingCategoriesScanner` already uses), `null` when the store platform isn't active |
-| Services | Owner-curated: newline-separated page URLs/ids (new `entity_service_pages` setting), each resolved to a real published page |
-| Locations | Owner-curated: newline-separated `Name \| Address` lines (new `entity_business_locations` setting) |
-| Categories | Real taxonomy terms currently attached to at least one published post/product (`get_terms(['taxonomy' => [...], 'hide_empty' => true])`) |
+| Organization / business name | Business Information settings, site identity and detected sources (`get_business_name_sources()`) |
+| People | Authors of published posts |
+| Products | WooCommerce products, when active (`get_product_schema_details()` adds their schema status) |
+| Services, Locations | Business Information settings |
+| Categories | Post categories that have published content |
 
-Services/Locations are owner-curated rather than auto-derived because
-there is no existing Service/LocalBusiness concept anywhere in this
-codebase to read them from automatically - same "Free owns the setting,
-deterministic once provided" posture `geo_competitor_urls` already
-established. Nothing is fabricated: both are empty arrays until
-configured, and `products` is `null` (not `0`) when the store platform isn't
-active, matching `Dashboard`'s own `category_scores.woocommerce`
-convention.
+It also produces suggested relationships between the business and its services, products and categories (translated strings such as "%1$s offers %2$s").
 
-Gated on the `knowledge-graph` module being active
-(`VuloPilot()->modules->get_active_modules()`) - this service has no
-scanner/finding of its own to gate through `ScannerRegistry`'s usual
-category mechanism, so it checks module state directly.
-`modules/KnowledgeGraph/Module.php`'s own job is narrow but real: bust
-`EntityExtractor`'s 1-hour transient cache on the WordPress hooks that
-would actually change its output (`save_post`/`deleted_post`/
-`created_term`/`edited_term`/`delete_term`).
+## Caching
 
-## Tests
+Results are cached in a transient for one hour (`CACHE_KEY`, `CACHE_TTL_SECONDS`). `KnowledgeGraph\Module` clears it when the data can change: `save_post`, `deleted_post`, `created_term`, `edited_term`, `delete_term`, and `update_option_vulopilot_settings` when a Business Information field actually changed. Settings -> Developer Tools -> Clear cache also clears it.
 
-`test-entity-extractor.php` (Free) - real unit tests over
-`EntityExtractor`'s own deterministic `extract_*()`/`get_homepage_publisher()`
-methods (invoked via Reflection, same posture
-`test-about-page-analysis-scanner.php` already documents), stubbing only
-the plain WordPress functions each one touches. `extract_products()`'s
-"store platform active" branch isn't covered (would need a real/mocked
-`WC_Product` graph this test suite has no precedent for); its "store platform
-inactive" branch is covered for free since the `WooCommerce` class
-genuinely doesn't exist in this Brain\Monkey-only bootstrap.
+## Module gating
 
-## What's not here yet
+The extractor checks that the `knowledge-graph` module is active; a deactivated module returns no entities.
 
-- **A shared PHP/TS source of truth for relationship-type display
-  labels** - `authored_content_for`/`offered_by`/`located_at`/
-  `categorized_as` are plain strings on both sides today, same kind of
-  manual-sync gap `AI-CRAWLER-ANALYTICS-MODULE.md`'s own bot-signature
-  list already documents.
-- **A "mentions" relationship type** (post content referencing an entity
-  by name) - deliberately out of scope this phase; see the audit section
-  above for why re-scanning content for name mentions was rejected as too
-  weak a signal to persist as a real graph edge.
-- **A mutating Entity Automation action** - this phase's trigger only
-  ever fires into the existing action library; no new
-  `AIActionInterface`/`ActionInterface` action was added.
+## REST
+
+`GET /entities`, `/entities/business-name-sources`, `/entities/product-details` (`Rest\EntityExtraction`).
+
+## Settings
+
+| Setting key | Default |
+|---|---|
+| `entity_business_type` | `''` |
+| `entity_service_pages` | `''` |
+| `entity_business_locations` | `''` |
+
+## Class reference
+
+| Class | File | What it does |
+|---|---|---|
+| `EntityExtractor` | `modules/KnowledgeGraph/EntityExtractor.php` | - |
+| `Module` | `modules/KnowledgeGraph/Module.php` | VuloPilot KnowledgeGraph module. |
+| `EntityExtraction` | `modules/KnowledgeGraph/Rest/EntityExtraction.php` | `GET /entities` backs src/pages/KnowledgeGraph/KnowledgeGraph.tsx - Services\EntityExtractor's own docblock has the full extraction design. |
+
+Hooks and routes registered by these classes:
+
+- `Module` - hooks: `created_term`, `delete_term`, `deleted_post`, `edited_term`, `save_post`, `update_option_`
+- `EntityExtraction` - ; routes: `/entities`, `/entities/business-name-sources`, `/entities/product-details`

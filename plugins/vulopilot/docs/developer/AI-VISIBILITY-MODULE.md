@@ -1,68 +1,42 @@
-# VuloPilot - AI Visibility module
+# AI Visibility: AEO, Visibility Score and Schema
 
-## Audit: requested vs. already-shipped
+Answer Engine Optimization (AEO) and the combined visibility score. User view: [../user/AI-VISIBILITY.md](../user/AI-VISIBILITY.md). GEO scanning is in [GEO-MODULE](GEO-MODULE.md), crawler tracking in [AI-CRAWLER-ANALYTICS-MODULE](AI-CRAWLER-ANALYTICS-MODULE.md).
 
-Before writing any code, every requested item was checked against what
-already existed, since re-implementing an already-shipped feature (or
-silently moving it behind a paywall it was never behind) would violate this
-codebase's own "don't introduce duplicated systems" rule.
+## Components
 
-**Already shipped, unchanged by this pass:**
-
-| Requested | Already implemented as |
+| Component | Role |
 |---|---|
-| AI Visibility Scanner / GEO Scanner | The 9 `geo`-category scanners (GEO-MODULE.md) |
-| Visibility Score | `GeoAnalyzer::analyze()`'s `overall_score` (per-post) |
-| Missing FAQ Detection | `GeoFaqOpportunityScanner` |
-| Missing Author Detection | `GeoAuthorInfoScanner` |
-| Recommendations | `GeoAnalyzer`'s AI-generated suggestions list |
-| Dashboard Widget | `geo` stat widget (`registry.ts`, backed by `Dashboard.php`'s `category_scores.geo`) |
-| Report | `Reports\Types\AiVisibilityReport` (category `geo`) |
-| Manual Scan | `ScanRunner`, already supports category `geo` |
+| `SeoVisibility\AeoSchemaScanner` | Flags posts shaped like an FAQ or how-to that lack the matching structured data (category `geo`) |
+| `Content\FaqOpportunityRule`, `Content\MissingSummaryBlockRule` | Recommendations to add an FAQ or a summary block |
+| `SeoVisibility\SchemaCoverageAnalyzer` | Snapshot of which pages have valid JSON-LD, refreshed after each scan (`vulopilot_scan_completed`) |
+| `SeoVisibility\SchemaPageInspector` | Fetches one page and extracts its JSON-LD (used by the Inspector) |
+| `SeoVisibility\Rest\Schema` | `POST /schema/coverage`, `/schema/inspect`, `/schema/inspectable-pages` |
+| `SeoVisibility\Rest\Visibility` | `GET /visibility/score`, `/visibility/progress`, `/visibility/traffic-sources` |
+| FAQ block (`vulopilot/faq`) | Emits FAQPage JSON-LD |
 
-## What's genuinely new in this pass
+## Visibility score
 
-### Free
+`GET /visibility/score` combines four area scores that are already computed elsewhere: Brand Visibility, SEO Health, GEO Visibility and Crawl & URLs. It reads scores from finding severity counts; it does not make AI calls. `/visibility/progress` returns the trend and `/visibility/traffic-sources` reads Google Analytics sessions by channel when a GA4 property is connected.
 
-**`AeoSchemaScanner`** (`classes/SeoVisibility/AeoSchemaScanner.php`, id
-`aeo-schema`, category `geo`) - covers both "AEO Scanner" and "Missing Schema
-Detection" as the same real check (deliberately not two overlapping
-scanners): flags a post whose content is *already shaped* like FAQ content
-(question-phrased headings - the same signal `GeoFaqOpportunityScanner`
-uses) or HowTo content (an ordered list with 3+ steps) but has no matching
-`FAQPage`/`HowTo` schema.org markup saved to its `_vulopilot_schema_json`
-postmeta (`SeoVisibility\SchemaJsonLdRenderer`'s own key). Narrower than
-`GeoFaqOpportunityScanner` on purpose - that scanner flags content with *no*
-FAQ shape at all; this one only fires once the shape already exists but the
-schema an answer engine would actually read doesn't.
+Outbound HTTP (the coverage refresh and the inspector) only happens on an explicit request or after a scan, never on every page load.
 
-## Extension points added
+## Engine testing
 
-- `vulopilot_finding_bulk_fix_handler` (React filter) - bulk-action counterpart to the existing `vulopilot_finding_fix_handler`.
+The AEO tab's "Test this page" runs a single-page citation check through `AiRequestSender`. It needs the AI connection.
 
-No new PHP registry was introduced - every new scanner/REST controller
-still goes through `vulopilot_scanner_sources`/`vulopilot_rest_controllers`,
-exactly as documented in `GEO-MODULE.md`/`SCANNERS.md`.
+## Class reference
 
-## Tests
+| Class | File | What it does |
+|---|---|---|
+| `AeoSchemaScanner` | `classes/SeoVisibility/AeoSchemaScanner.php` | AEO (Answer Engine Optimization) - the one GEO check this pass adds that the existing 9 `geo`-category scanners don't already cover: whether a post whose own content is *already shaped* like an answer-engine-ready FAQ or HowTo (qu |
+| `SchemaCoverageAnalyzer` | `classes/SeoVisibility/SchemaCoverageAnalyzer.php` | Snapshot of which pages have valid JSON-LD. |
+| `SchemaPageInspector` | `classes/SeoVisibility/SchemaPageInspector.php` | Real single-page JSON-LD inspection for the "Schema & Knowledge" tab's own Inspector section - a real `wp_remote_get()` of the requested page plus the exact same `StructuredDataValidationScanner::extract_json_ld_blocks()` extracti |
+| `Schema` | `classes/SeoVisibility/Rest/Schema.php` | `POST /schema/inspect` backs the Inspector section's real single-page checker (SchemaPageInspector) - POST, not GET, same "real outbound HTTP only on explicit request" reasoning as `/schema/coverage`. |
+| `Visibility` | `classes/SeoVisibility/Rest/Visibility.php` | `GET /visibility/score` / `GET /visibility/progress` - back the "SEO & Visibility → Overview" tab's own real dashboard (OverviewTab.tsx): one combined score across the 4 real free-tier areas already scored elsewhere on this plugin |
+| `FaqOpportunityRule` | `classes/Content/FaqOpportunityRule.php` | Turns Geo\Scanners\GeoFaqOpportunityScanner's "no FAQ-style questions" Finding into a recommendation to draft one with AI - good FAQ questions have to actually anticipate what a reader would ask about this specific content, which  |
+| `MissingSummaryBlockRule` | `classes/Content/MissingSummaryBlockRule.php` | Turns Geo\Scanners\GeoSummaryBlockScanner's "no upfront summary" Finding into a recommendation to draft one with AI - a good summary has to actually distill this specific content's key points, which needs the content itself. |
 
-`tests/php/` (both plugins - this pass is what scaffolded the directory
-`phpunit.xml.dist` already pointed at but that didn't exist yet). Uses
-Brain\Monkey (already a dev dependency) for fast, isolated unit tests over
-deterministic logic - not a full `wp-phpunit` integration bootstrap against a
-real WordPress+MySQL install, which is real infrastructure this pass didn't
-stand up. Covers `AeoSchemaScanner`'s content-shape detection,
-`CompetitorVisibilityAnalyzer`'s structural-signal regexes, and
-`GeoVisibilityHistoryRepository`'s table-key wiring. Run with
-`vendor/bin/phpunit` from either plugin directory.
+Hooks and routes registered by these classes:
 
-## What's still not here (honest gaps)
-
-- **Real off-site brand-mention tracking** - Competitor Visibility above is
-  a real, on-page structural comparison, not the Ahrefs-Brand-Radar-backed
-  share-of-voice feature `BrandVisibility.tsx` still honestly says it needs.
-- **A live post-search picker, bulk/sitewide *AI-scored* GEO scoring, and
-  per-post GEO score history** - still open per `GEO-MODULE.md`'s own "What's
-  not here yet" (the *sitewide sample average* now has history via this
-  pass; a single post's own AI-judged score still only ever has its latest
-  value in postmeta).
+- `Schema` - ; routes: `/schema/coverage`, `/schema/inspect`, `/schema/inspectable-pages`
+- `Visibility` - ; routes: `/visibility/progress`, `/visibility/score`, `/visibility/traffic-sources`

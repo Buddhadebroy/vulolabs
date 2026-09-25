@@ -26,11 +26,11 @@ Hooks and routes registered by these classes:
 
 | Class | File | What it does |
 |---|---|---|
-| `GoogleServices` | `classes/Settings/Rest/GoogleServices.php` | Backs Settings → Connections → Google Services' real "Connect Google Services" flow (GoogleServicesPanel.tsx) and the Keywords tab's own real connection-status read (KeywordsTab.tsx). |
+| `GoogleServices` | `classes/Settings/Rest/GoogleServices.php` | - |
 | `Settings` | `classes/Settings/Rest/Settings.php` | GET/POST /settings backs src/pages/Settings/Settings.tsx, now built on zyra's real settings framework (`InputRenderer`/`NavigatorComponent`, `getAvailableSettings`/`getSettingById` from zyra's core module - see the free vulolabs p |
-| `AiCredits` | `classes/AiAssistant/Rest/AiCredits.php` | Backs the AI Credits indicator/claim CTA (VuloPilot brief §4/§21) - a real `GET .../status` (composes AiCreditsConnection + the underlying VuloCloudAccountConnection's own status, see that class's own get_status() docblock) and a  |
+| `AiCredits` | `classes/AiAssistant/Rest/AiCredits.php` | - |
 | `AiHistory` | `classes/AiAssistant/Rest/AiHistory.php` | GET /ai-history backs src/pages/AIAssistant/AIAssistant.tsx's table. |
-| `VuloCloudAiConnection` | `classes/AiAssistant/Rest/VuloCloudAiConnection.php` | GET /vulocloud-ai-connection, GET /vulocloud-ai-connection/broker-authorize-url - backs src/components/Settings/VuloCloudAiConnectionPanel.tsx (Settings → Connections → VuloCloud AI): the "Connect to VuloCloud" / "Disconnect" sect |
+| `VuloCloudAiConnection` | `classes/AiAssistant/Rest/VuloCloudAiConnection.php` | - |
 
 Hooks and routes registered by these classes:
 
@@ -44,7 +44,7 @@ Hooks and routes registered by these classes:
 
 | Class | File | What it does |
 |---|---|---|
-| `CrawlerTraffic` | `classes/SeoVisibility/Rest/CrawlerTraffic.php` | Backs src/pages/CrawlerTraffic/CrawlerTraffic.tsx (AI Crawler Traffic Monitoring, readme.txt). |
+| `CrawlerTraffic` | `classes/SeoVisibility/Rest/CrawlerTraffic.php` | - |
 | `IndexNow` | `classes/SeoVisibility/Rest/IndexNow.php` | Backs the Instant Indexing tab's two action-driven cards that don't fit Controllers\Settings' per-field auto-save model (Settings.tsx's own "special component" escape hatch - see that class's docblock): the "Submit URLs" textarea/ |
 | `PostSeo` | `classes/SeoVisibility/Rest/PostSeo.php` | `POST /post-seo/{id}/analyze` - the one part of the post-editor metabox that needs a custom endpoint. |
 | `RobotsSitemap` | `classes/SeoVisibility/Rest/RobotsSitemap.php` | `GET /robots-sitemap/robots` and `GET /robots-sitemap/sitemap` - real, live fetch-and-parse of this site's OWN actual `/robots.txt` and sitemap index, backing RobotsSitemapSection.tsx's "Robots.txt Analysis"/"XML Sitemap Overview" |
@@ -74,17 +74,17 @@ Hooks and routes registered by these classes:
 |---|---|---|
 | `CoreWebVitals` | `classes/Performance/Rest/CoreWebVitals.php` | `GET /core-web-vitals` - backs "Performance" Overview's PerformanceScoreCard.tsx Core Web Vitals tiles. |
 | `CoreWebVitalsBeaconRest` | `classes/Performance/Rest/CoreWebVitalsBeaconRest.php` | `POST /performance-vitals-beacon` - this codebase's first public, anonymous REST route (confirmed via a full audit: every other `permission_callback` in this plugin is `current_user_can('manage_options')`). |
-| `EfficiencyChecks` | `classes/Performance/Rest/EfficiencyChecks.php` | GET /efficiency-checks - backs "Protect My Site" → Performance tab. |
+| `EfficiencyChecks` | `classes/Performance/Rest/EfficiencyChecks.php` | - |
 | `PageSpeed` | `classes/Performance/Rest/PageSpeed.php` | `GET /page-speed` lists real per-page speed results plus a real summary and `top_issues` (PageSpeedRepository::get_top_issues() - the real, deduplicated `main_issue` values grouped by how many pages they affect, backing the "Perfo |
 | `PerformanceActions` | `classes/Performance/Rest/PerformanceActions.php` | `POST /performance-actions/{action_id}` - backs "Performance" Overview's Quick Actions card (QuickActionsCard.tsx). |
 | `PerformanceRealtime` | `classes/Performance/Rest/PerformanceRealtime.php` | `GET /performance-realtime` - backs "Performance" Overview's RealTimeMonitoringCard.tsx (Server Response Time, Page Views Last 5 Min) and MetricsGrid.tsx's "Performance Monitor" tile (Active vs. |
 | `PerformanceScoreSnapshots` | `classes/Performance/Rest/PerformanceScoreSnapshots.php` | `GET /performance-score-snapshots?days=N` - backs SpeedHistoryCard.tsx's trend chart. |
 | `SecurityScoreSnapshots` | `classes/Security/Rest/SecurityScoreSnapshots.php` | `GET /security-score-snapshots?days=N` - backs SecurityTrendCard.tsx's trend chart. |
 | `Backups` | `classes/SiteHealth/Rest/Backups.php` | `GET /backups` lists real backup runs; `POST /backups` starts a real manual backup (never runs synchronously - `VuloPilot()->backup_manager` processes it via WP-Cron in small batches, same "GET lists, POST triggers, persistence ha |
-| `PluginOverlap` | `classes/SiteHealth/Rest/PluginOverlap.php` | GET /plugin-overlap - backs "Protect My Site" → Files & Plugins' own "VuloPilot already covers this" card. |
+| `PluginOverlap` | `classes/SiteHealth/Rest/PluginOverlap.php` | - |
 | `AutomationDashboardStats` | `classes/Automations/Rest/AutomationDashboardStats.php` | - |
 | `Automations` | `classes/Automations/Rest/Automations.php` | GET /automations backs src/pages/Automations/Automations.tsx's table. |
-| `ReportRepository` | `classes/Reports/ReportRepository.php` | Persistence for vulopilot_reports (DATABASE.md). |
+| `ReportRepository` | `classes/Reports/ReportRepository.php` | - |
 | `History` | `classes/Reports/Rest/History.php` | GET /history backs the AI Copilot page's History tab (HistoryTab.tsx) - a real, day-groupable activity timeline, distinct from `GET /activity-logs` (ActivityLogs.php, Free, backs Reports > Activity's own flat, unfiltered table): t |
 
 Hooks and routes registered by these classes:
@@ -111,7 +111,7 @@ Hooks and routes registered by these classes:
 | `Copilot` | `modules/AiCopilot/Rest/Copilot.php` | Reuses VuloPilot()->ai_request_sender (AI\AiRequestSender) exactly like ContentAssistant.php and GeoAnalyzer already do - same safety-validate → send → sanitize sequence, and every call is automatically recorded to `vulopilot_ai_h |
 | `Geo` | `modules/GeoAnalysis/Rest/Geo.php` | `GET /geo/score` - a real, deterministic GEO Score (no AI, no cost) for the GEO tab's own "GEO Score" card (SEO & Visibility → GEO). |
 | `GeoAnalysis` | `modules/GeoAnalysis/Rest/GeoAnalysis.php` | - |
-| `LlmsTxt` | `modules/GeoAnalysis/Rest/LlmsTxt.php` | GET /llms-txt/regenerate backs the "Regenerate" button on Crawl & URLs → Robots & Sitemap (src/pages/GEO/CrawlRobotsSitemapSection.tsx; moved there from Settings → AI Visibility) - returns a fresh GeoAnalysis\LlmsTxtGenerator::gen |
+| `LlmsTxt` | `modules/GeoAnalysis/Rest/LlmsTxt.php` | - |
 | `BrandIntelligence` | `modules/BrandVisibility/Rest/BrandIntelligence.php` | `GET /brand-intelligence/score` - Brand Intelligence's composite, deterministic scores (no AI, no cost): an overall "Brand Score" plus three named sub-scores (Trust, Authority, Entity), each scoped to its own `scanner_id` list via |
 | `EntityExtraction` | `modules/KnowledgeGraph/Rest/EntityExtraction.php` | `GET /entities` backs src/pages/KnowledgeGraph/KnowledgeGraph.tsx - Services\EntityExtractor's own docblock has the full extraction design. |
 | `ContentIntelligence` | `modules/ContentOptimization/Rest/ContentIntelligence.php` | `GET /content-intelligence/score` - the composite, deterministic "Content Score" (no AI, no cost). |

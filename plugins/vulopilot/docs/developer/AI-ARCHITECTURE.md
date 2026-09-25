@@ -1,138 +1,67 @@
-# VuloPilot - AI request architecture
+# AI Architecture
 
-Companion to [`RULE-ENGINE.md`](RULE-ENGINE.md), [`SCANNERS.md`](SCANNERS.md), and
-[`DATABASE.md`](DATABASE.md). Covers how an AI call gets from a feature to VuloCloud and back:
-`AiRequestSender`, the failures it can throw, safety validation, the VuloCloud connection/credits
-layer, and where AI actions live.
-
-There is **no provider concept** in this plugin. VuloCloud is the only place an AI answer comes
-from - it holds every key and decides which vendor serves a call - so there is nothing to register,
-select, decorate or fall back between. Earlier versions had a `ProviderRegistry`,
-`AIProviderInterface`, a `VuloCloudProxyProvider` adapter, three decorators and a fallback chain
-around that single gateway call; all of it was removed, and the decorators' real work (budget,
-retry, history) became plain steps inside `AiRequestSender`.
-
-## The request path (`classes/AiAssistant/`)
+How the plugin talks to AI. There is one path: every request goes through **VuloCloud**, VuloLabs' AI service. The plugin never holds a provider key and never calls an AI vendor directly.
 
 ```
-feature  →  VuloPilot()->ai_request_sender->send( $messages, $image, $surface )
-              1. validate_prompt()                            (VuloPilotException, TYPE_UNSAFE_PROMPT)
-              2. AiCreditsConnection::is_connected()           (\RuntimeException "No AI connection is configured.")
-              3. per-minute request budget                     (VuloPilotException, TYPE_RATE_LIMIT_EXCEEDED)
-              4. AiCreditsConnection::execute()                {siteId, secret, feature, prompt, context, site_tone} → VuloCloud
-                 retried on TYPE_TRANSIENT_GATEWAY, exponential backoff, 3 attempts
-              5. one vulopilot_ai_history row                 (success and failure both)
-              6. sanitize_response()
+Feature (Copilot chat, an AI action, an analyzer)
+   -> AiRequestSender::send( $messages, $image = null, $surface = null ): AIResponse
+        -> VuloCloud AI endpoint (uses the AI key configured for the connected site/account)
+        -> if the site has no AI key configured: fall back to the AI credits gateway (AiCreditGatewayClient)
+   -> AiHistoryRepository writes one excerpt-only row per call (vulopilot_ai_history)
 ```
 
-`AiRequestSender` is one class - the request-building, safety-validation and response-sanitizing
-steps that used to live in separate `AIRequest`/`AISafetyValidator` classes were folded into it as
-private state/methods, since neither had a real caller besides this one (see that class's own
-docblock for the full reasoning). `AIResponse` stays its own class: it's the parameter type
-`Utill\AIActionInterface::parse_response()` takes, read by every AI Action across both plugins, and
-also constructed independently by `AiCopilot\ActionRunner`'s credits-metered path - a real,
-cross-cutting contract type, not something private to the sender.
+## Connection
 
-- **Budget.** `MAX_REQUESTS_PER_MINUTE` (20), a WP transient counter keyed by minute
-  (`vulopilot_ai_rate_vulocloud_<minute>`). Every attempt, retries included, spends from it. It is
-  a local pre-emptive guard against burning AI credits, not a spend cap.
-- **History.** Recorded around the retries (`AiHistoryRepository::insert()`), so one call is one row
-  regardless of how many attempts it took. Failures are recorded too (`status = 'failure'`, zero
-  credits) so the audit trail covers what was tried, not only what worked.
-- **Images.** `send()`'s own `$image` parameter is recorded on the call but the VuloCloud wire
-  contract carries text only today, so nothing sends one. Image attachments in Copilot chat get the
-  same honest "can't be read" note any other unsupported file does.
+| Class | Role |
+|---|---|
+| `AiAssistant\VuloCloudAccountConnection` | Login state of the person connecting the site; status is localized to the React app |
+| `AiAssistant\ConnectBrokerCallbackHandler` | Handles the redirect back from VuloCloud when connecting |
+| `AiAssistant\AiCreditsConnection` | Site credentials and the credit balance |
+| `AiAssistant\CredentialEncryption` | Encrypts stored secrets |
+| `AiCopilot\Services\AiCreditGatewayClient` | Spends AI credits for supported actions |
+| `AiAssistant\SiteToneLearner`, `SiteTelemetryReporter` | Site tone and connection telemetry |
 
-## Failures: one exception class, not a hierarchy
+Data sent to VuloCloud and the links to its terms are documented in the readme's **External services** section. Update it whenever the payload changes.
 
-`Utill\VuloPilotException` replaced what used to be a small hierarchy of near-empty subclasses
-(`AiRequestException`, `AiByokNotConfiguredException`, `GatewayRequestException`,
-`RateLimitExceededException`, `TransientGatewayException`, `UnsafePromptException`,
-`InvalidActionInputException`, `InvalidActionOutputException`, `InsufficientCreditsException`) - one
-class, a `type` constant instead of a class hierarchy, and an optional `$context` array for
-whichever extra data that type needs.
+## Request and response
 
-```
-VuloPilotException::TYPE_AI_REQUEST              common parent type - see is_ai_request_failure()
-VuloPilotException::TYPE_AI_BYOK_NOT_CONFIGURED  VuloCloud has no AI key that resolves for this site
-VuloPilotException::TYPE_GATEWAY_REQUEST         not retry-eligible (malformed request, rejected)
-VuloPilotException::TYPE_RATE_LIMIT_EXCEEDED     thrown before the request is sent
-VuloPilotException::TYPE_TRANSIENT_GATEWAY       retry-eligible (network error, 5xx, 429)
-VuloPilotException::TYPE_UNSAFE_PROMPT           thrown by validate_prompt(); not an AI-request-failure type
-VuloPilotException::TYPE_INVALID_ACTION_INPUT    an AIActionInterface's validate_input() rejected the input
-VuloPilotException::TYPE_INVALID_ACTION_OUTPUT   an AIActionInterface's validate_output() rejected the output
-VuloPilotException::TYPE_INSUFFICIENT_CREDITS    ActionRunner's credits fallback came back empty
-```
+- `AiRequestSender::send()` takes chat-style messages, an optional image and a `surface` label (which screen or feature asked). It returns an `AIResponse` (content, credits used, request id).
+- A `VuloPilotException` of type "not configured" makes the caller fall back to credits where the action supports it; otherwise the error is shown to the user.
 
-A caller that wants to turn any AI-gateway failure into a 502 calls `$exception->is_ai_request_failure()`
-(true for `TYPE_AI_REQUEST`/`TYPE_AI_BYOK_NOT_CONFIGURED`/`TYPE_GATEWAY_REQUEST`/
-`TYPE_RATE_LIMIT_EXCEEDED`/`TYPE_TRANSIENT_GATEWAY` - what `instanceof AiRequestException` used to
-mean) rather than comparing `get_type()` against each one by hand; one that wants to tell "not
-connected" apart catches `\RuntimeException` (thrown by the sender when this site isn't connected to
-VuloCloud at all).
+## History and privacy
 
-## Contracts and value objects
+`vulopilot_ai_history` stores excerpts only. Full chat threads are in `vulopilot_ai_conversations` (Copilot only). See [DATABASE](DATABASE.md).
 
-```
-classes/
-├── Utill/
-│   ├── AIActionInterface.php         one AI-assisted workflow (see AI-ACTIONS.md)
-│   └── VuloPilotException.php        the one exception class - see "Failures" above
-└── AiAssistant/
-    ├── AiRequestSender.php           the request path - see above (also holds the former
-    │                                 AIRequest/AISafetyValidator logic as private state/methods)
-    ├── AIResponse.php                content, credits_used, request_id - the AIActionInterface contract type
-    ├── ActionPreview.php             AIActionInterface::build_preview()'s own return type
-    ├── ActionExecutionResult.php     AIActionInterface::execute()'s own return type
-    ├── AiHistoryRepository.php       `vulopilot_ai_history` - one row per AiRequestSender::send() call
-    └── ActionRunRepository.php       `vulopilot_ai_action_runs` - one row per AiCopilot\ActionRunner::propose()
-```
+## Safety rules for AI output
 
-## VuloCloud connection and credits (`classes/AiAssistant/`)
+- AI text that becomes post content is passed through `wp_kses_post()`; titles through `sanitize_text_field()`, before saving.
+- Nothing changes the site until a person approves (see [AI-ACTIONS](AI-ACTIONS.md)); every applied change can be rolled back.
 
-This site holds no AI credential itself. `AiCreditsConnection` is the site-scoped connection to
-VuloCloud - the passwordless broker "Connect to VuloCloud" flow behind Settings → Connections →
-VuloCloud AI (served by `Rest\VuloCloudAiConnection`/`Rest\AiCredits`, the return redirect handled
-by `ConnectBrokerCallbackHandler`, which self-registers at boot since `admin-post.php` never fires
-`rest_api_init`) - **and** the BYOK gateway call itself (`execute()`/`byok_status()`, folded in from
-this plugin's former, single-caller `AiByokGatewayClient` class) **and** the low-level
-`/plugin/connect/*`/`/plugin/ai-credits/*` HTTP calls (folded in from this plugin's former, also
-single-caller `VuloCloudApiClient` class, itself already a merge of `ConnectBrokerClient` +
-`AiCreditsApiClient`). One class now owns: stored connection state, the connect/exchange flow, the
-credits balance/disconnect calls, and the one real BYOK AI call - all of it read/write against the
-same `vulopilot_ai_credits_connection` option, with no state or behavior left over in a
-single-purpose HTTP-client class once every one of those had exactly one real caller.
+## Class reference
 
-AI Credits are a separate, metered path, not a layer on top: `AiCopilot\Services\AiCreditGatewayClient`
-calls VuloCloud's credit-metered `POST /plugin/ai/execute` (a different wire contract -
-`{featureId, action, context}`). `AiCopilot\ActionRunner::send_prompt_or_credits()` is where the two
-meet: it always sends through `AiRequestSender` first, and only falls through to credits - for the
-action ids in `CREDIT_FEATURE_MAP` - when that throws `VuloPilotException` with
-`TYPE_AI_BYOK_NOT_CONFIGURED`. Every other action id's "not configured" is a final `\RuntimeException`.
+| Class | File | What it does |
+|---|---|---|
+| `AIResponse` | `classes/AiAssistant/AIResponse.php` | The response returned by the VuloCloud AI API, including the credits consumed by the request. |
+| `ActionExecutionResult` | `classes/AiAssistant/ActionExecutionResult.php` | The outcome of an AIActionInterface::execute() call. |
+| `ActionPreview` | `classes/AiAssistant/ActionPreview.php` | The human-facing preview an AIActionInterface::build_preview() returns, shown to the user before they approve an ActionRunner::propose() call. |
+| `ActionRunRepository` | `classes/AiAssistant/ActionRunRepository.php` | - |
+| `AiCreditsConnection` | `classes/AiAssistant/AiCreditsConnection.php` | The real "AI Credits" site connection - a genuine `ConnectedSite` credential (siteId + secret) minted by VuloCloud's own `contexts/vulopilot/ai-credits` bounded context. |
+| `AiHistoryRepository` | `classes/AiAssistant/AiHistoryRepository.php` | - |
+| `AiRequestSender` | `classes/AiAssistant/AiRequestSender.php` | The one path every real AI call in this plugin goes through: safety-validate the prompt, make sure this site is connected to VuloCloud, spend one request from the per-minute budget, send `{feature, prompt, site_tone}` to the VuloC |
+| `ConnectBrokerCallbackHandler` | `classes/AiAssistant/ConnectBrokerCallbackHandler.php` | Handles the Connect broker's real redirect back to this site (`admin-post.php?action=vulopilot_connect_broker_callback` - AiCreditsConnection::get_broker_redirect_uri()'s own exact URL). |
+| `CredentialEncryption` | `classes/AiAssistant/CredentialEncryption.php` | Encrypts/decrypts third-party secrets (Backups' S3/Drive credentials, the VuloCloud site secret, Google tokens) before they're stored. |
+| `SiteTelemetryReporter` | `classes/AiAssistant/SiteTelemetryReporter.php` | Reports this site's own real WordPress/PHP/theme/plugin details to VuloCloud's generic `POST /connected-sites/ingest` endpoint - the one HTTP surface that fills in the Connected Sites detail page's "Site & Server"/"Plugin & Theme" |
+| `SiteToneLearner` | `classes/AiAssistant/SiteToneLearner.php` | Keeps `vulopilot_site_tone` (the placeholder field added earlier this session - sent as a `site_tone` hint on every direct VuloCloud AI request, see AiAssistant\AiRequestSender) learned automatically from the site's own recent con |
+| `VuloCloudAccountConnection` | `classes/AiAssistant/VuloCloudAccountConnection.php` | Read-only from this class's own side: `FrontendScripts::localize_scripts()` surfaces `get_status()` as `vulopilotAppLocalizer.vulocloud_connected`/ `vulocloud_account_email` (a display-only badge), and AiCreditsConnection::get_sta |
+| `AiCredits` | `classes/AiAssistant/Rest/AiCredits.php` | - |
+| `AiHistory` | `classes/AiAssistant/Rest/AiHistory.php` | GET /ai-history backs src/pages/AIAssistant/AIAssistant.tsx's table. |
+| `VuloCloudAiConnection` | `classes/AiAssistant/Rest/VuloCloudAiConnection.php` | - |
 
-## Safety validation
+Hooks and routes registered by these classes:
 
-Two gates, both private methods on `AiRequestSender`, called for every caller:
-
-- **`validate_prompt()`** - runs *before* a request is ever sent. Rejects prompts over 32,000
-  characters (`MAX_PROMPT_LENGTH`), and rejects (rather than silently stripping) any prompt whose
-  text matches a known API-key shape (OpenAI-style `sk-[a-zA-Z0-9]{20,}`, Google
-  `AIza[0-9A-Za-z\-_]{35}`, a PEM `-----BEGIN (RSA |EC )?PRIVATE KEY-----` header) - a
-  self-consistency check against a prompt-builder interpolating a credential, not a general PII
-  scanner.
-- **`sanitize_response()`** - runs on every response before anything sees it. Strips all
-  HTML/script content via `wp_kses( $content, array() )` - an AI response is never trusted as
-  safe-to-render markup just because the HTTP call succeeded.
-
-## Extension strategy
-
-- **A new AI backend**: not an extension point. Which vendor answers is a VuloCloud-side change
-  (`contexts/vulopilot/ai-byok`), not a class here.
-
-## What's not here yet
-
-- **Multimodal (vision) messages** - see "Images" above; needs a VuloCloud-side wire contract
-  change. `AI-ACTIONS.md`'s `GenerateAltAction` is context-based, not vision-based, as an honest
-  answer to that gap.
-- **Quota enforcement** - nothing reads or increments a spend/token budget. The per-minute budget
-  in `AiRequestSender` limits *rate*, not total spend, a related but different mechanism.
+- `ConnectBrokerCallbackHandler` - hooks: `admin_post_vulopilot_connect_broker_callback`
+- `SiteTelemetryReporter` - hooks: `init`
+- `SiteToneLearner` - hooks: `save_post`
+- `AiCredits` - ; routes: `/ai-credits/disconnect`, `/ai-credits/refresh-balance`, `/ai-credits/status`
+- `AiHistory` - ; routes: `/ai-history`
+- `VuloCloudAiConnection` - ; routes: `/vulocloud-ai-connection`, `/vulocloud-ai-connection/broker-authorize-url`

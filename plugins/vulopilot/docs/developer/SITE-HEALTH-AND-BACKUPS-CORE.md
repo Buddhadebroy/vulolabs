@@ -33,8 +33,8 @@ Storage safety:
 | Class | File | What it does |
 |---|---|---|
 | `BackupHealthScanner` | `classes/SiteHealth/BackupHealthScanner.php` | Turns Services\BackupManager/BackupScheduler's own real backup-run log (`vulopilot_backups`) into a real Finding when automatic backups are enabled but something's actually wrong - the most recent run failed, or nothing has comple |
-| `BackupManager` | `classes/SiteHealth/BackupManager.php` | Real DB + file backups - Protect My Site's "Backups"/"Recovery" tiles. |
-| `BackupRepository` | `classes/SiteHealth/BackupRepository.php` | Persistence for `vulopilot_backups` (DATABASE.md) - Services\BackupManager/BackupScheduler's own real backup-run log, backing "Backups"/"Recovery", `RestAPI\Controllers\Backups`, and Scanners\Basic\BackupHealthScanner's Finding ro |
+| `BackupManager` | `classes/SiteHealth/BackupManager.php` | - |
+| `BackupRepository` | `classes/SiteHealth/BackupRepository.php` | - |
 | `BackupScheduler` | `classes/SiteHealth/BackupScheduler.php` | Reads `backup_frequency` (`'daily'/'weekly'/'disabled'`); only re-registers `wp_schedule_event()` when the setting's own resolved schedule actually differs from what's currently scheduled (avoids constantly rescheduling on every ` |
 | `BackupStorageManager` | `classes/SiteHealth/BackupStorageManager.php` | Real remote-upload orchestration for Backups' own storage destination - hooks `vulopilot_backup_completed` (already fired by `BackupManager::finalize_backup()` for every trigger type, manual/ scheduled/pre-restore-safety alike) an |
 | `CoreUpdateAvailableRule` | `classes/SiteHealth/CoreUpdateAvailableRule.php` | Turns Scanners\Basic\UpdatesScanner's WordPress-core-update Finding (object_type 'core') into a recommendation to update now. |
@@ -51,7 +51,7 @@ Storage safety:
 | `UpdatesScanner` | `classes/SiteHealth/UpdatesScanner.php` | Flags any pending WordPress core, plugin, or theme update, using core's own update-check APIs rather than re-implementing version comparison - `get_core_updates()`, `get_plugin_updates()`, and `get_theme_updates()` already do exac |
 | `WordPressHealthScanner` | `classes/SiteHealth/WordPressHealthScanner.php` | Wraps 3 of WordPress core's own `WP_Site_Health` tests - the same class and same cached results Tools → Site Health already computes - rather than re-implementing core-version/HTTPS/REST-API checks from scratch, same "wrap core, d |
 | `Backups` | `classes/SiteHealth/Rest/Backups.php` | `GET /backups` lists real backup runs; `POST /backups` starts a real manual backup (never runs synchronously - `VuloPilot()->backup_manager` processes it via WP-Cron in small batches, same "GET lists, POST triggers, persistence ha |
-| `PluginOverlap` | `classes/SiteHealth/Rest/PluginOverlap.php` | GET /plugin-overlap - backs "Protect My Site" → Files & Plugins' own "VuloPilot already covers this" card. |
+| `PluginOverlap` | `classes/SiteHealth/Rest/PluginOverlap.php` | - |
 
 Hooks and routes registered by these classes:
 

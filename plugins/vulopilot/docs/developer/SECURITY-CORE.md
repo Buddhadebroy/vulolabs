@@ -1,6 +1,6 @@
 # Security Core
 
-Code reference for `classes/Security`. User view: [../user/SECURITY.md](../user/SECURITY.md). Also see [SECURITY-MODULE](SECURITY-MODULE.md).
+Code reference for `classes/Security`. User view: [../user/SECURITY.md](../user/SECURITY.md).
 
 ## Components
 
@@ -22,11 +22,11 @@ Settings keys are in [SETTINGS-SYSTEM](SETTINGS-SYSTEM.md). Alert email: sent wh
 |---|---|---|
 | `BasicVulnerabilitiesScanner` | `classes/Security/BasicVulnerabilitiesScanner.php` | - |
 | `CoreFileIntegrityScanner` | `classes/Security/CoreFileIntegrityScanner.php` | Only flags modified/missing files - the same two states core's own checksum verification reports; it does not detect unexpected *added* files, since the checksums list only enumerates files that are supposed to exist, not every fi |
-| `FirewallBlockRepository` | `classes/Security/FirewallBlockRepository.php` | Persistence for `vulopilot_security_events` (type `firewall_block`) (DATABASE.md) - Services\FirewallGuard's own real request-block/log, backing Scanners\Basic\FirewallScanner's Finding rows. |
-| `FirewallGuard` | `classes/Security/FirewallGuard.php` | Real, always-on request-time pattern blocking - Protect My Site's "Firewall" tile. |
+| `FirewallBlockRepository` | `classes/Security/FirewallBlockRepository.php` | - |
+| `FirewallGuard` | `classes/Security/FirewallGuard.php` | - |
 | `FirewallScanner` | `classes/Security/FirewallScanner.php` | Turns Services\FirewallGuard's own real request block/log (`vulopilot_security_events` (type `firewall_block`)) into one real summary Finding when there's been any activity in the last 7 days - `HIGH` when a single IP repeatedly h |
-| `LoginAttemptRepository` | `classes/Security/LoginAttemptRepository.php` | Persistence for `vulopilot_security_events` (type `login_attempt`) (DATABASE.md) - Services\LoginProtectionGuard's own real failed/successful login log, backing both the live brute-force lockout check and Scanners\Basic\LoginProte |
-| `LoginProtectionGuard` | `classes/Security/LoginProtectionGuard.php` | Real, always-on brute-force login protection - Protect My Site's "Login Protection" tile. |
+| `LoginAttemptRepository` | `classes/Security/LoginAttemptRepository.php` | - |
+| `LoginProtectionGuard` | `classes/Security/LoginProtectionGuard.php` | - |
 | `LoginProtectionScanner` | `classes/Security/LoginProtectionScanner.php` | Turns Services\LoginProtectionGuard's own real login-attempt log (`vulopilot_security_events` (type `login_attempt`)) into real Finding rows - one per IP that actually tripped the real, currently-configured `login_max_attempts` lo |
 | `MalwareScanner` | `classes/Security/MalwareScanner.php` | Two real, low-false-positive checks - no external signature feed, no network call, everything derived from files that already exist on disk: 1. |
 | `SecurityScoreSnapshotRecorder` | `classes/Security/SecurityScoreSnapshotRecorder.php` | - |

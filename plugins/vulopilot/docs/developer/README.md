@@ -21,12 +21,10 @@ Code-level documentation for developers who extend or maintain the free plugin. 
 | Performance | [PERFORMANCE-CORE](PERFORMANCE-CORE.md) | PageSpeed, Web Vitals, asset scanners |
 | Site health | [SITE-HEALTH-AND-BACKUPS-CORE](SITE-HEALTH-AND-BACKUPS-CORE.md) | Health scanners, backups |
 | Accessibility | [ACCESSIBILITY-MODULE](ACCESSIBILITY-MODULE.md) | WCAG scanners |
-| Security | [SECURITY-CORE](SECURITY-CORE.md), [SECURITY-MODULE](SECURITY-MODULE.md) | Guards and scanners |
-| WooCommerce | [WOOCOMMERCE-INTELLIGENCE-MODULE](WOOCOMMERCE-INTELLIGENCE-MODULE.md) | Store checks |
-| Automation, findings | [AUTOMATIONS-AND-REPORTS-CORE](AUTOMATIONS-AND-REPORTS-CORE.md), [AUTOMATION-ENGINE-MODULE](AUTOMATION-ENGINE-MODULE.md), [SCANNERS](SCANNERS.md), [RULE-ENGINE](RULE-ENGINE.md) | Scan pipeline, rules, schedules |
+| Security | [SECURITY-CORE](SECURITY-CORE.md) | Guards and scanners |
+| Automation, findings | [AUTOMATIONS-AND-REPORTS-CORE](AUTOMATIONS-AND-REPORTS-CORE.md), [SCANNERS](SCANNERS.md), [RULE-ENGINE](RULE-ENGINE.md) | Scan pipeline, rules, schedules |
 | Settings | [SETTINGS-SYSTEM](SETTINGS-SYSTEM.md) | Storage, screens, integrations, notifications |
 | Dashboard | [DASHBOARD-WIDGETS](DASHBOARD-WIDGETS.md) | Widget registry |
-| Admin pages | [ADMIN-PAGES-OVERVIEW](ADMIN-PAGES-OVERVIEW.md) | Menu and page map |
 | Extending | [EXTENSION-SDK](EXTENSION-SDK.md) | Extension classes and filters |
 
 ## Working on the code

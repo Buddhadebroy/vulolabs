@@ -1,266 +1,80 @@
-# VuloPilot - AI Actions
+# AI Actions
 
-Companion to [`AI-ARCHITECTURE.md`](AI-ARCHITECTURE.md), [`RULE-ENGINE.md`](RULE-ENGINE.md),
-[`SCANNERS.md`](SCANNERS.md), and [`DATABASE.md`](DATABASE.md). Covers the action contract, the
-8-stage lifecycle, all **21** built-in Free actions (up from the original 4), persistence, and the
-extension strategy.
-
-## What an AI Action is
-
-Everything up through the Rule Engine pass produces *advice* - a `Recommendation` telling a site
-owner what to do. An AI Action is what actually **does** it: a complete, safe, undoable workflow
-from "here's the input" to "here's what changed on the site," with a mandatory human approval gate
-in between and a recorded way back out.
+An **AI action** is a change to the site drafted by AI and applied only after a person approves it. Every action follows the same lifecycle, run by `ActionRunner`.
 
 ```
-Input → Prompt Builder → (AI call, via AiRequestSender) → Validator → Preview → Approval → Execution → Rollback → Logging
+propose()   input -> validate -> build prompt -> AI call -> parse -> validate output -> preview     [row: pending_approval]
+approve()   execute()                                                                            [row: executed | failed]
+reject()    record the decision                                                                  [row: rejected]
+rollback()  rollback( snapshot )                                                                 [row: rolled_back]
 ```
 
-Worked example (`GenerateAltAction`):
+`propose()` and `approve()` are always separate HTTP requests, so the run is persisted in `vulopilot_ai_action_runs` between them (input, output, preview, snapshot, who requested, who approved and how).
 
-| Stage | What happens |
+## Contract
+
+`VuloPilot\Utill\AIActionInterface`:
+
+| Method | Job |
 |---|---|
-| Input | `attachment_id` validated - must exist and be an image |
-| Prompt Builder | Filename + the post it's attached to become a chat prompt |
-| *(AI call)* | Sent through `AI\AiRequestSender::send()` - safety-validates the prompt, checks the VuloCloud connection and request budget, sends to VuloCloud (retrying transient failures), records one history row, sanitizes the response (see [`AI-ARCHITECTURE.md`](AI-ARCHITECTURE.md)) |
-| Validator | Rejects an empty or absurdly long answer |
-| Preview | "Set alt text for photo.jpg" + before/after text |
-| Approval | A site owner clicks Approve (or Reject) - nothing has changed yet |
-| Execution | `update_post_meta()` writes the new alt text |
-| Rollback | Restores the exact previous value from a stored snapshot |
-| Logging | Every stage transition above is a `vulopilot_activity_logs` row |
+| `get_id()`, `get_label()`, `get_tier()` | Identity |
+| `get_risk_level()` | Risk of the change (`Impact` constants) |
+| `validate_input( array $input ): array` | Check and normalize the request; throw `VuloPilotException` on bad input |
+| `build_prompt( array $input ): array` | Messages for the AI |
+| `parse_response( AIResponse ): array` | Turn the raw text into structured output |
+| `validate_output( array $output, array $input ): void` | Reject unusable output |
+| `build_preview( array $output, array $input ): ActionPreview` | Summary plus before/after shown to the person |
+| `execute( array $output, array $input ): ActionExecutionResult` | Apply the change; the result carries the snapshot needed to undo it |
+| `rollback( array $snapshot ): void` | Undo |
 
-## Why this supersedes `AIJobHandlerInterface`
+Extend `AiCopilot\Actions\AbstractBasicAction` for the defaults.
 
-The AI-architecture pass built `AIJobHandlerInterface` (context/prompt/parse for one AI
-conversation) keyed to a `Recommendation`. Given a concrete spec for what a complete action needs
-- Preview, Approval, Execution, Rollback - that assumption breaks: **`GenerateBlogAction` has no
-Recommendation to build context from at all.** A site owner types a topic and clicks Generate;
-there was no Finding, no Rule, no scan involved. Tying every AI conversation to a Recommendation
-was already too narrow the moment a second, genuinely different kind of AI-assisted workflow
-existed.
+## Rules every action must follow
 
-So this pass replaces it rather than running two parallel "how do we talk to AI" systems side by
-side (`AIJobHandlerInterface`'s two implementations, `AltTextJobHandler`/`SeoTitleRewriteJobHandler`,
-and the now-unused `JobHandlerRegistry`/`AIJobRunner`, were deleted - not deprecated in place -
-along with `AIJobHandlerInterface` itself). `AIActionInterface`'s `validate_input()` takes a plain
-array, not a `Recommendation`, which is what makes both cases - "derived from a Finding" and
-"typed by a user" - first-class instead of one being a workaround.
+1. Sanitize before saving: `wp_kses_post()` for HTML body content, `sanitize_text_field()` for titles and plain fields.
+2. Put everything needed to undo the change in the snapshot returned by `execute()`.
+3. Validate the AI output; never trust its structure.
+4. Do not publish content. Create drafts unless the action's purpose requires otherwise.
 
-## Contracts (`vulolabs/plugins/vulopilot/classes/`)
+## Approval modes
 
-These, like every other contract in this codebase, used to live in a separate Composer path
-package, `vulolabs/packages/php/vulopilot-core` - that package no longer exists (see
-`SCANNERS.md`'s and `RULE-ENGINE.md`'s own "Contracts" sections for the same correction). Every
-class below lives directly in the plugin under `VuloPilot\`:
+`ActionRunner::propose()` persists the run first. It then self-approves (`approval_method` `auto_unattended`) only when the site setting `ai_change_approval_mode` allows it for the action's risk level: `always` (default) asks a person, `risk_based` auto-approves low risk, `never` auto-approves everything. Add-ons that run actions may approve with their own method after `propose()`.
 
-```
-classes/
-├── Contracts/AI/
-│   └── AIActionInterface.php   get_id/get_label/get_tier + 6 lifecycle methods (below)
-├── ValueObjects/
-│   ├── ActionPreview.php            summary + before/after + format - what stage 4 produces
-│   └── ActionExecutionResult.php    success + object_type/ref + snapshot - what stage 6 produces
-└── Exceptions/
-    ├── InvalidActionInputException.php   thrown by validate_input(), before any AI call
-    └── InvalidActionOutputException.php  thrown by validate_output(), before a Preview is built
+## Registry and REST
+
+`AiCopilot\ActionRegistry` starts from its default class list and applies `vulopilot_ai_action_sources`, so other plugins can add actions. REST controllers: `AiActionRuns` (propose, approve, reject, rollback, list) and `Copilot` (chat). See [REST-API](REST-API.md).
+
+## Add an action
+
+```php
+add_filter( 'vulopilot_ai_action_sources', fn( array $c ) => array_merge( $c, array( \MyPlugin\MyAction::class ) ) );
 ```
 
-`AIActionInterface` covers 6 of the 8 lifecycle stages directly:
+## Actions in the core
 
-| Stage | Interface method |
-|---|---|
-| 1. Input | `validate_input( array $input ): array` |
-| 2. Prompt Builder | `build_prompt( array $input ): array` |
-| - (AI call) | not on this interface - `AiCopilot\ActionRunner::propose()` calls it via an injected `AI\AiRequestSender`, which itself resolves `AIProviderInterface::send()` through `ProviderRegistry`'s fallback chain, never re-implemented per-action |
-| - (parsing) | `parse_response( AIResponse $response ): array` |
-| 3. Validator | `validate_output( array $output, array $input ): void` |
-| 4. Preview | `build_preview( array $output, array $input ): ActionPreview` |
-| 6. Execution | `execute( array $output, array $input ): ActionExecutionResult` |
-| 7. Rollback | `rollback( array $snapshot ): void` |
+| Class | File | What it does |
+|---|---|---|
+| `AbstractBasicAction` | `modules/AiCopilot/Actions/AbstractBasicAction.php` | Base class for every free-tier action under AiCopilot/Actions/. |
+| `AddSubheadingsAction` | `modules/AiCopilot/Actions/AddSubheadingsAction.php` | Fixes Seo\Scanners\HeadingStructureScanner's finding: 300+ word content with no `<h2>`-`<h6>` tag anywhere in it. |
+| `AuditContentAction` | `modules/AiCopilot/Actions/AuditContentAction.php` | Create Content's "AI Content Audit" quick action (QuickActionsCard.tsx) - a real, standalone AI action rather than the in-page scroll shortcut this row used to be (it used to jump to RecentContentCard.tsx's own rule-based scanner  |
+| `DifferentiateDuplicateTitleAction` | `modules/AiCopilot/Actions/DifferentiateDuplicateTitleAction.php` | Fixes Seo\Scanners\DuplicateContentScanner's finding: two or more published posts sharing the exact same title. |
+| `GenerateBlogAction` | `modules/AiCopilot/Actions/GenerateBlogAction.php` | The new-content-creation pattern - the odd one out among the four built-in actions: its input is a topic the site owner types, not a Recommendation's object_type/object_ref (there's no existing post or attachment this operates on; |
+| `ImproveReadabilityAction` | `modules/AiCopilot/Actions/ImproveReadabilityAction.php` | The existing-content-rewrite pattern: unlike GenerateAltAction's single postmeta value, this replaces a post's entire `post_content` - a much larger snapshot, and a real risk (an AI rewrite could gut the content) that validate_out |
+| `WriteMetaDescriptionAction` | `modules/AiCopilot/Actions/WriteMetaDescriptionAction.php` | - |
+| `WritePostContentAction` | `modules/AiCopilot/Actions/WritePostContentAction.php` | Create Content's "AI Writer" tool (ContentToolsGrid.tsx) - given a short brief of what to write, creates a new draft post with AI-written body copy. |
 
-**Stage 5 (Approval) and stage 8 (Logging) are deliberately not methods on the interface** - both
-are identical across every action (a yes/no gate; a `vulopilot_activity_logs` write), so putting
-either on the per-action contract would mean every new action re-implementing the same logic.
-`ActionRunner` owns both generically instead.
+## Runner, registry and REST
 
-## Persistence: `vulopilot_ai_action_runs`
+| Class | File | What it does |
+|---|---|---|
+| `ActionRunner` | `modules/AiCopilot/ActionRunner.php` | Orchestrates every AIAction through its full lifecycle - the same orchestrator role Scanners\ScanRunner and RuleEngine\RuleEngine play for their own engines, but split across four public methods instead of one `run()`, because "Ap |
+| `ActionRegistry` | `modules/AiCopilot/ActionRegistry.php` | - |
+| `ContentCreationOrchestrator` | `modules/AiCopilot/ContentCreationOrchestrator.php` | The shared "parse an orchestrator's JSON decision, then really create the content" half of what used to be Controllers\ContentAssistant.php alone. |
+| `AiActionRuns` | `modules/AiCopilot/Rest/AiActionRuns.php` | GET /ai-action-runs backs the Dashboard's "Pending Approval" widget. |
+| `Copilot` | `modules/AiCopilot/Rest/Copilot.php` | Reuses VuloPilot()->ai_request_sender (AI\AiRequestSender) exactly like ContentAssistant.php and GeoAnalyzer already do - same safety-validate → send → sanitize sequence, and every call is automatically recorded to `vulopilot_ai_h |
 
-Approval is a genuine pause - `propose()` and `approve()`/`reject()` are always two separate HTTP
-requests, sometimes by two different people. A table (confirmed still exactly as designed, in
-`Install.php`'s `create_database_tables()`) bridges them:
+Hooks and routes registered by these classes:
 
-```sql
-CREATE TABLE vulopilot_ai_action_runs (
-    id             bigint(20) unsigned AUTO_INCREMENT,
-    action_id      varchar(100),          -- e.g. 'generate-alt'
-    status         varchar(20),           -- pending_approval|approved|rejected|executed|failed|rolled_back
-    object_type    varchar(50),           -- set once executed, e.g. 'attachment'
-    object_ref     varchar(255),
-    input          longtext,              -- JSON, validate_input()'s output
-    output         longtext,              -- JSON, parse_response()'s output
-    preview        longtext,              -- JSON, ActionPreview::to_array()
-    snapshot       longtext,              -- JSON, ActionExecutionResult::get_snapshot()
-    error_message  text,
-    requested_by   bigint(20) unsigned,
-    approved_by    bigint(20) unsigned,
-    created_at, approved_at, executed_at, rolled_back_at
-);
-```
-
-Added directly to `Install.php`'s baseline schema (`create_database_tables()`), not a
-version-gated migration - there is no real deployed prior install of this still-in-development
-plugin to stay backward-compatible with. `AiAssistant\ActionRunRepository` is a thin
-`Utill\RepositoryUtil` subclass, same shape as every other repository in this codebase
-(repositories are now scattered across their owning tab folders rather than one flat
-`Repositories/` directory, covering scans, findings, action runs, activity logs, AI
-history, AI provider configs, automations, and more).
-
-## `ActionRunner` - the orchestrator
-
-Four public methods, not one `run()`, because of the approval pause:
-
-```
-propose( action_id, raw_input )   Stages 1-4. Persists 'pending_approval'. Nothing on the site changes.
-approve( run_id )                 Stage 6. Persists 'executed' or 'failed'.
-reject( run_id )                  Stage 5's negative branch. Persists 'rejected'. execute() never runs.
-rollback( run_id )                Stage 7. Persists 'rolled_back'.
-```
-
-`ActionRunner`'s constructor takes an `ActionRegistry` and an `AI\AiRequestSender`
-(plus optional injectable `ActionRunRepository`/`ActivityLogRepository` for tests) - `propose()`
-itself no longer inlines "safety-validate → build a fallback chain → send → sanitize"; that
-sequence was extracted into `AiRequestSender` once [`GEO-MODULE.md`](GEO-MODULE.md)'s
-`GeoAnalysis\GeoAnalyzer` needed the identical sequence for a read-only call that isn't an
-`AIAction` at all. See [`AI-ARCHITECTURE.md`](AI-ARCHITECTURE.md) for `AiRequestSender` itself.
-
-Every one of the four writes a `vulopilot_activity_logs` row (stage 8) via the existing
-`ActivityLogRepository` - reused, not a second logging mechanism. `approve()` refuses to run twice
-on the same `run_id` (only proceeds from `pending_approval`), and `rollback()` only proceeds from
-`executed` - both enforced by checking `status` before doing anything, not left to the caller to
-get right.
-
-## The built-in actions (`modules/AiCopilot/Actions/`)
-
-The original 4 were chosen to cover every distinct kind of WordPress mutation + rollback shape, not
-to cover all 11 examples from the original spec. Every one of those examples has since been built,
-plus several more not in the original spec at all - 21 concrete Free actions total today, all
-registered in `ActionRegistry::get_default_action_classes()`:
-
-**The original 4:**
-
-| Action | Mutation pattern | Writes to | Rollback |
-|---|---|---|---|
-| `GenerateAltAction` | Metadata-only write | `_wp_attachment_image_alt` postmeta | Restore previous meta value |
-| `ImproveReadabilityAction` | Existing-content rewrite | `post_content` via `wp_update_post()` | Restore previous `post_content` (also gets a bonus WP revision for free) |
-| `GenerateSchemaAction` | Content-append (structured data) | `_vulopilot_schema_json` postmeta | Restore previous value, or delete if there wasn't one |
-| `GenerateBlogAction` | New-content creation | `wp_insert_post()`, always `post_status = 'draft'` | `wp_trash_post()` (WordPress's own trash/restore is a second safety net) |
-
-**[`SEO-MODULE.md`](SEO-MODULE.md)'s 1** (closes `MissingMetaDescriptionRule`'s fix loop):
-
-| Action | Mutation pattern | Writes to | Rollback |
-|---|---|---|---|
-| `WriteMetaDescriptionAction` | Existing-field rewrite | `post_excerpt` via `wp_update_post()` | Restore previous `post_excerpt` |
-
-**[`GEO-MODULE.md`](GEO-MODULE.md)'s 2**, introducing the append/prepend content-mutation shapes:
-
-| Action | Mutation pattern | Writes to | Rollback |
-|---|---|---|---|
-| `GenerateFaqAction` | Content-append (visible HTML) | `post_content` via `wp_update_post()` | Restore previous `post_content` |
-| `GenerateSummaryBlockAction` | Content-prepend (visible HTML) | `post_content` via `wp_update_post()` | Restore previous `post_content` |
-
-**GEO's second pass, 6 more** - closing every remaining GEO scanner's fix loop
-(`OneClickFix`'s `ScannerFixMap` previously left these unmapped entirely):
-
-| Action | Mutation pattern | Writes to | Rollback |
-|---|---|---|---|
-| `GenerateAuthorBioAction` | Metadata-only write | `description` user meta | Restore previous bio |
-| `CreateTrustPageAction` | New-content creation (possibly multiple pages) | `wp_insert_post()` per missing page (About/Contact), always `post_status = 'publish'` | `wp_trash_post()` for every page this run created; a mid-loop failure trashes whatever it had already created before returning |
-| `SoftenUnsourcedClaimsAction` | Existing-content rewrite | `post_content` via `wp_update_post()` | Restore previous `post_content` |
-| `SplitLongParagraphsAction` | Existing-content rewrite | `post_content` via `wp_update_post()` | Restore previous `post_content` |
-| `FixHeadingHierarchyAction` | Existing-content rewrite | `post_content` via `wp_update_post()` | Restore previous `post_content` |
-| `NormalizeEntityNamingAction` | Existing-content rewrite | `post_content` via `wp_update_post()` | Restore previous `post_content` |
-
-**"AI SEO Assistant"/"AI Content Assistant" (readme), 6 more** - undocumented by any sibling
-`docs/*.md` pass, same "readme, not a numbered pass" status as several `SCANNERS.md`/
-`RULE-ENGINE.md` additions:
-
-| Action | Mutation pattern | Writes to | Rollback |
-|---|---|---|---|
-| `WriteMetaTitleAction` | Existing-field rewrite | `post_title` via `wp_update_post()` | Restore previous `post_title` |
-| `SuggestInternalLinksAction` | Content-append (visible HTML) | `post_content` (appends a links block) via `wp_update_post()` | Restore previous `post_content` |
-| `GenerateSocialContentAction` | Metadata-only write, no matching scanner/rule | A dedicated social-captions postmeta key | Restore previous meta value, or delete if there wasn't one |
-| `GenerateProductDescriptionAction` | New-content creation | `wp_insert_post()`, `post_type` = `product` if the store platform is active else `post`, always `post_status = 'draft'` | `wp_trash_post()` |
-| `GenerateExcerptAction` | Existing-field rewrite | `post_excerpt` via `wp_update_post()` | Restore previous `post_excerpt` |
-| `GenerateComparisonPageAction` | New-content creation from two source posts | `wp_insert_post()`, `post_type = 'post'`, always `post_status = 'draft'` | `wp_trash_post()` |
-
-**"One-Click Fix coverage pass for SEO", 2 more** - closes `HeadingStructureScanner`'s and
-`DuplicateContentScanner`'s fix loops, the two remaining SEO findings judged safely automatable at
-the single-post level (as opposed to a site-config/structural issue - see `ScannerFixMap`'s own
-docblock for the rest):
-
-| Action | Mutation pattern | Writes to | Rollback |
-|---|---|---|---|
-| `AddSubheadingsAction` | Existing-content rewrite | `post_content` via `wp_update_post()` | Restore previous `post_content` |
-| `DifferentiateDuplicateTitleAction` | Existing-field rewrite | `post_title` via `wp_update_post()` | Restore previous `post_title` |
-
-`GenerateAltAction` is still deliberately the one built to naturally pair with
-`RuleEngine\Rules\MissingAltTextRule`'s recommendations - see "Recommendations as an input
-source" below.
-
-### `GenerateBlogAction`/`GenerateProductDescriptionAction`/`GenerateComparisonPageAction` never auto-publish
-
-Approving any of these three only approves *generating a draft* - none put AI-written content
-live. A human still has to open the draft and hit Publish themselves. This is a deliberate safety
-choice, not a missing feature: the approval gate covers "should the AI attempt this," not "should
-this go live unsupervised." `CreateTrustPageAction` is the one new-content action that's the
-exception - it publishes immediately, on the reasoning that a missing About/Contact page is itself
-the finding being fixed, and a draft trust page fixes nothing a site visitor (or an AI crawler)
-would see.
-
-### `GenerateSchemaAction`'s saved JSON-LD is now rendered on the frontend
-
-An earlier pass of this doc listed this as a gap - it validates and saves valid JSON-LD to
-`_vulopilot_schema_json` postmeta, but "actually outputting that on the frontend" was still
-needed. That's since been built: `SeoVisibility\SchemaJsonLdRenderer` hooks `wp_head` and outputs the
-saved JSON-LD directly. See "What's not here yet" below.
-
-## Recommendations as an input source
-
-A `Recommendation` with `requires_ai() === true` (e.g. `MissingAltTextRule`'s) is one way an
-action's `raw_input` gets built - a caller constructs
-`['attachment_id' => $recommendation->get_object_ref()]` from the Recommendation and calls
-`propose('generate-alt', $input)`. There's no hard-coded field linking a `RuleInterface` to an
-`AIActionInterface` - the connection today is by convention (matching id/concept, e.g.
-`missing-alt-text` ↔ `generate-alt`), not an enforced mapping - the same status this doc originally
-described, still true. In practice, `Findings`'s own `/{id}/actions/{action_id}` REST sub-route
-(see `SCANNERS.md`'s "What's not here yet") and `OneClickFix`'s `ScannerFixMap` are what actually
-wire a Finding to an action id today, both keeping that mapping in application code rather than in
-either engine's own contract.
-
-## Extension strategy
-
-Identical shape to `SCANNERS.md`/`RULE-ENGINE.md`/`AI-ARCHITECTURE.md`:
-
-1. **A new Free action**: extend `AbstractBasicAction`, add it to
-   `ActionRegistry::get_default_action_classes()`.
-
-## What's not here yet
-
-- ~~**REST endpoints** for `propose`/`approve`/`reject`/`rollback` and an admin UI to trigger
-  them~~ - **built, on both sides.** For `propose()`: considerably more purpose-built call sites
-  than the three this doc originally named; see "Three callers" above. For
-  `approve()`/`reject()`/`rollback()` specifically: a dedicated, generic
-  `AiCopilot\Rest\AiActionRuns` controller (`GET /ai-action-runs`, `POST /ai-action-runs/{id}/approve|reject|rollback`)
-  backs a real "Pending Approval" tab in the Dashboard's `NeedsAttentionWidget` - a site owner can
-  approve or reject any pending run from one place without knowing which of the many `propose()`
-  call sites created it. `get_items()` reads straight from `ActionRunRepository::find_all()`,
-  filterable by `status`/`action_id`. There is still no generic `propose` route, though - every
-  `propose()` caller is its own purpose-built REST route or MCP tool (see "Three callers"), not a
-  thin `POST /ai-actions/{id}/propose` pass-through to the raw `ActionRunner` API.
-- ~~**Rendering `GenerateSchemaAction`'s saved JSON-LD** on the frontend.~~ - **built**, via
-  `SeoVisibility\SchemaJsonLdRenderer`'s `wp_head` hook; see above.
-- **A formal Recommendation → Action mapping** (still by-convention id matching only, per
-  "Recommendations as an input source" above).
-- **Multimodal input** - `GenerateAltAction` is still context-based, not vision-based, for the
-  same reason noted in `AI-ARCHITECTURE.md`.
+- `ActionRegistry` - hooks: `init`
+- `AiActionRuns` - ; routes: `/ai-action-runs`, `/ai-action-runs/(?P<id>\d+)/approve`, `/ai-action-runs/(?P<id>\d+)/reject`, `/ai-action-runs/(?P<id>\d+)/rollback`
+- `Copilot` - ; routes: `/copilot/chat`, `/copilot/conversations`, `/copilot/conversations/(?P<id>\d+)`

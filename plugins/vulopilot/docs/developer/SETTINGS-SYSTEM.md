@@ -128,24 +128,24 @@ Alert groups (AI crawler, security, visibility, critical issue) are defined in `
 | `GoogleOAuthBrokerClient` | `classes/Settings/GoogleOAuthBrokerClient.php` | HTTP client for VuloCloud's `/plugin/google/*` broker endpoints - the real fix for the "Redirect URI scaling" trade-off documented in config.php: VuloCloud holds the ONE Google Cloud OAuth Client actually registered with Google (i |
 | `GoogleSearchConsoleOAuthCallbackHandler` | `classes/Settings/GoogleSearchConsoleOAuthCallbackHandler.php` | Handles Google's real OAuth redirect back to this site (`admin-post.php?action=vulopilot_gsc_oauth_callback` - GoogleServicesConnection::get_redirect_uri()'s own exact URL). |
 | `GoogleServicesConnection` | `classes/Settings/GoogleServicesConnection.php` | Real Google OAuth 2.0 connection shared by Search Console, Analytics (GA4), and AdSense - one "Connect Google Services" button/consent screen covering all three read scopes at once, matching the reference flow (a single connect st |
-| `WebmasterToolsManager` | `classes/Settings/WebmasterToolsManager.php` | Scanning → Webmaster Tools tab's real backing - outputs one `<meta>` verification tag per configured provider on `wp_head`, same self-registers-own-hook/setting-gates-output shape as CanonicalUrlManager/SocialMetaTagsManager. |
-| `GoogleServices` | `classes/Settings/Rest/GoogleServices.php` | Backs Settings → Connections → Google Services' real "Connect Google Services" flow (GoogleServicesPanel.tsx) and the Keywords tab's own real connection-status read (KeywordsTab.tsx). |
+| `WebmasterToolsManager` | `classes/Settings/WebmasterToolsManager.php` | - |
+| `GoogleServices` | `classes/Settings/Rest/GoogleServices.php` | - |
 | `Settings` | `classes/Settings/Rest/Settings.php` | GET/POST /settings backs src/pages/Settings/Settings.tsx, now built on zyra's real settings framework (`InputRenderer`/`NavigatorComponent`, `getAvailableSettings`/`getSettingById` from zyra's core module - see the free vulolabs p |
 | `AIResponse` | `classes/AiAssistant/AIResponse.php` | The response returned by the VuloCloud AI API, including the credits consumed by the request. |
 | `ActionExecutionResult` | `classes/AiAssistant/ActionExecutionResult.php` | The outcome of an AIActionInterface::execute() call. |
 | `ActionPreview` | `classes/AiAssistant/ActionPreview.php` | The human-facing preview an AIActionInterface::build_preview() returns, shown to the user before they approve an ActionRunner::propose() call. |
-| `ActionRunRepository` | `classes/AiAssistant/ActionRunRepository.php` | Persistence for vulopilot_ai_action_runs (see AI-ACTIONS.md) - the record of one AIAction going through propose → approve/reject → execute → rollback. |
+| `ActionRunRepository` | `classes/AiAssistant/ActionRunRepository.php` | - |
 | `AiCreditsConnection` | `classes/AiAssistant/AiCreditsConnection.php` | The real "AI Credits" site connection - a genuine `ConnectedSite` credential (siteId + secret) minted by VuloCloud's own `contexts/vulopilot/ai-credits` bounded context. |
-| `AiHistoryRepository` | `classes/AiAssistant/AiHistoryRepository.php` | Persistence for vulopilot_ai_history (DATABASE.md). |
+| `AiHistoryRepository` | `classes/AiAssistant/AiHistoryRepository.php` | - |
 | `AiRequestSender` | `classes/AiAssistant/AiRequestSender.php` | The one path every real AI call in this plugin goes through: safety-validate the prompt, make sure this site is connected to VuloCloud, spend one request from the per-minute budget, send `{feature, prompt, site_tone}` to the VuloC |
 | `ConnectBrokerCallbackHandler` | `classes/AiAssistant/ConnectBrokerCallbackHandler.php` | Handles the Connect broker's real redirect back to this site (`admin-post.php?action=vulopilot_connect_broker_callback` - AiCreditsConnection::get_broker_redirect_uri()'s own exact URL). |
 | `CredentialEncryption` | `classes/AiAssistant/CredentialEncryption.php` | Encrypts/decrypts third-party secrets (Backups' S3/Drive credentials, the VuloCloud site secret, Google tokens) before they're stored. |
 | `SiteTelemetryReporter` | `classes/AiAssistant/SiteTelemetryReporter.php` | Reports this site's own real WordPress/PHP/theme/plugin details to VuloCloud's generic `POST /connected-sites/ingest` endpoint - the one HTTP surface that fills in the Connected Sites detail page's "Site & Server"/"Plugin & Theme" |
 | `SiteToneLearner` | `classes/AiAssistant/SiteToneLearner.php` | Keeps `vulopilot_site_tone` (the placeholder field added earlier this session - sent as a `site_tone` hint on every direct VuloCloud AI request, see AiAssistant\AiRequestSender) learned automatically from the site's own recent con |
 | `VuloCloudAccountConnection` | `classes/AiAssistant/VuloCloudAccountConnection.php` | Read-only from this class's own side: `FrontendScripts::localize_scripts()` surfaces `get_status()` as `vulopilotAppLocalizer.vulocloud_connected`/ `vulocloud_account_email` (a display-only badge), and AiCreditsConnection::get_sta |
-| `AiCredits` | `classes/AiAssistant/Rest/AiCredits.php` | Backs the AI Credits indicator/claim CTA (VuloPilot brief §4/§21) - a real `GET .../status` (composes AiCreditsConnection + the underlying VuloCloudAccountConnection's own status, see that class's own get_status() docblock) and a  |
+| `AiCredits` | `classes/AiAssistant/Rest/AiCredits.php` | - |
 | `AiHistory` | `classes/AiAssistant/Rest/AiHistory.php` | GET /ai-history backs src/pages/AIAssistant/AIAssistant.tsx's table. |
-| `VuloCloudAiConnection` | `classes/AiAssistant/Rest/VuloCloudAiConnection.php` | GET /vulocloud-ai-connection, GET /vulocloud-ai-connection/broker-authorize-url - backs src/components/Settings/VuloCloudAiConnectionPanel.tsx (Settings → Connections → VuloCloud AI): the "Connect to VuloCloud" / "Disconnect" sect |
+| `VuloCloudAiConnection` | `classes/AiAssistant/Rest/VuloCloudAiConnection.php` | - |
 
 Hooks and routes registered by these classes:
 
