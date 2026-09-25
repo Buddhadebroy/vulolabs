@@ -316,7 +316,7 @@ VuloCloud is the cloud service operated by VuloLabs that powers VuloPilot's AI f
 
 * When: when you use an AI feature, connect or disconnect your site to VuloCloud, refresh your AI Credits balance, or start the Google connection flow.
 * Data sent: the prompt text and page content you ask the AI to work on, the feature name, your site's tone setting, a site identifier and secret issued when you connect the site, and (for the Google flow) the OAuth redirect details. No data is sent unless you use one of these features.
-* Service provided by VuloLabs. Terms of service: https://vulolabs.com/terms/ - Privacy policy: https://vulolabs.com/privacy-policy/
+* Service provided by VuloLabs. Terms of service: https://vulolabs.com/terms - Privacy policy: https://vulolabs.com/privacy
 
 = Google OAuth, Search Console, Analytics and AdSense =
 
