@@ -109,6 +109,13 @@ const DeveloperToolsPanel = () => {
 			{}
 		)
 			.then((response) => {
+				// Every Settings tab keeps its own copy of the stored values in
+				// React state, so reload to show the restored defaults instead
+				// of leaving stale toggles on screen.
+				if (response) {
+					setTimeout(() => window.location.reload(), 1200);
+				}
+
 				NoticeManager.add({
 					uniqueKey: 'vulopilot-reset-settings',
 					type: response ? 'success' : 'error',

@@ -963,7 +963,7 @@ const CrawlRobotsSitemapSection = () => {
 				</ColumnComponent>
 			</ContainerComponent>
 
-			<PopupComponent open={isProPopupOpen} onClose={closeProPopup} width={31.25} height="auto" >
+			<PopupComponent open={isProPopupOpen} onClose={closeProPopup} width={31.25} height="auto" position="lightbox">
 				{vulopilotAppLocalizer.khali_dabba ? <ShowProPopup moduleName="one-click-fix" /> : <ShowProPopup />}
 			</PopupComponent>
 			<PopupComponent

@@ -169,6 +169,11 @@ class History extends \WP_REST_Controller {
                 'date_to'     => sanitize_text_field( (string) $request->get_param( 'date_to' ) ),
                 'page'        => $page > 0 ? $page : 1,
                 'per_page'    => $per_page > 0 ? $per_page : 20,
+                // A deep link's row id (`?vulopilot_history_id=`) - the
+                // timeline returns every row down through the page holding
+                // it so the client can always find and highlight it, see
+                // ActivityLogRepository::get_timeline().
+                'around_id'   => absint( $request->get_param( 'around_id' ) ),
             )
         );
 

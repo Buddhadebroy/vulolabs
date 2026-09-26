@@ -275,7 +275,7 @@ const SeoSiteWideIssuesTable = ({
 				onClose={() => setIsProPopupOpen(false)}
 				width={31.25}
 				height="auto"
-				
+				position="lightbox"
 			>
 				{vulopilotAppLocalizer.khali_dabba ? (
 					<ShowProPopup moduleName="one-click-fix" />

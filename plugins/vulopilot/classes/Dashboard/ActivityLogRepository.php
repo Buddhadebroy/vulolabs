@@ -21,6 +21,13 @@ defined( 'ABSPATH' ) || exit;
 class ActivityLogRepository extends RepositoryUtil {
 
     /**
+     * Most rows get_timeline() will return in one response when seeking to a
+     * deep-linked row (`around_id`) - bounds the response size on a site with
+     * a long history.
+     */
+    private const MAX_AROUND_ROWS = 1000;
+
+    /**
      * @var string[]
      */
     protected array $filterable_columns = array( 'actor_type', 'event_type' );
@@ -57,8 +64,16 @@ class ActivityLogRepository extends RepositoryUtil {
     }
 
     /**
-     * @param array{event_types: string[], search?: string, date_from?: string, date_to?: string, page?: int, per_page?: int} $args `event_types` is required and never empty - an empty allow-list would mean "every event type," which no caller here wants.
-     * @return array{data: array<int, array<string, mixed>>, total: int}
+     * Newest-first page of the activity timeline. `around_id` is for deep
+     * links: a single scan writes one row per scanner, so a row the user was
+     * just pointed at can sit many pages down, and plain pagination would
+     * never load it. When it names a row that passes the other filters, the
+     * result is every row from the top down through the page containing it
+     * (so paging onward with `pages_loaded + 1` stays consistent) - capped at
+     * MAX_AROUND_ROWS, past which the normal page is returned instead.
+     *
+     * @param array{event_types: string[], search?: string, date_from?: string, date_to?: string, page?: int, per_page?: int, around_id?: int} $args `event_types` is required and never empty - an empty allow-list would mean "every event type," which no caller here wants.
+     * @return array{data: array<int, array<string, mixed>>, total: int, pages_loaded: int}
      */
     public function get_timeline( array $args ): array {
         global $wpdb;
@@ -102,20 +117,70 @@ class ActivityLogRepository extends RepositoryUtil {
 
         if ( 0 === $total ) {
             return array(
-                'data'  => array(),
-                'total' => 0,
+                'data'         => array(),
+                'total'        => 0,
+                'pages_loaded' => 1,
             );
         }
 
+        $limit        = $per_page;
+        $pages_loaded = $page;
+        $around_id    = absint( $args['around_id'] ?? 0 );
+
+        if ( $around_id > 0 ) {
+            $pages_to_target = $this->get_pages_down_to( $table, $where, $values, $around_id, $per_page );
+
+            if ( $pages_to_target > 0 && $pages_to_target * $per_page <= self::MAX_AROUND_ROWS ) {
+                $limit        = $pages_to_target * $per_page;
+                $offset       = 0;
+                $pages_loaded = $pages_to_target;
+            }
+        }
+
         $rows = $wpdb->get_results(  // phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching  -- {$this->get_table()}/$table-style variables here are always this plugin's own hardcoded table name(s), never user input; dynamic placeholder counts (IN (...) lists, optional WHERE fragments) are sized correctly at runtime, just not statically visible to this sniff.
-            $wpdb->prepare( "SELECT * FROM {$table} {$where} ORDER BY created_at DESC, id DESC LIMIT %d OFFSET %d", ...array_merge( $values, array( $per_page, $offset ) ) ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- same runtime-sized-array case as above.
+            $wpdb->prepare( "SELECT * FROM {$table} {$where} ORDER BY created_at DESC, id DESC LIMIT %d OFFSET %d", ...array_merge( $values, array( $limit, $offset ) ) ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- same runtime-sized-array case as above.
             ARRAY_A
         );
 
         return array(
-            'data'  => null !== $rows ? $rows : array(),
-            'total' => $total,
+            'data'         => null !== $rows ? $rows : array(),
+            'total'        => $total,
+            'pages_loaded' => $pages_loaded,
         );
+    }
+
+    /**
+     * How many `$per_page`-sized pages, counted from the newest row, it takes
+     * to include row `$id` under the same WHERE as the timeline query - 0 when
+     * that row doesn't pass those filters (wrong event type, outside the date
+     * range, doesn't match the search, or doesn't exist), meaning "nothing to
+     * seek." Position uses the same `created_at DESC, id DESC` ordering the
+     * timeline itself sorts by.
+     *
+     * @param string       $table    This plugin's own activity-log table name.
+     * @param string       $where    The timeline's already-built WHERE clause.
+     * @param array<mixed> $values   Placeholder values for `$where`.
+     * @param int          $id       Row to reach.
+     * @param int          $per_page Page size.
+     * @return int
+     */
+    private function get_pages_down_to( string $table, string $where, array $values, int $id, int $per_page ): int {
+        global $wpdb;
+
+        $target = $wpdb->get_row(  // phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching  -- table name is this plugin's own hardcoded one; $where's placeholder count matches $values at runtime.
+            $wpdb->prepare( "SELECT id, created_at FROM {$table} {$where} AND id = %d", ...array_merge( $values, array( $id ) ) ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- same runtime-sized-array case as above.
+            ARRAY_A
+        );
+
+        if ( ! $target ) {
+            return 0;
+        }
+
+        $newer_rows = (int) $wpdb->get_var(  // phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching  -- same as above.
+            $wpdb->prepare( "SELECT COUNT(*) FROM {$table} {$where} AND ( created_at > %s OR ( created_at = %s AND id > %d ) )", ...array_merge( $values, array( $target['created_at'], $target['created_at'], (int) $target['id'] ) ) ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- same runtime-sized-array case as above.
+        );
+
+        return (int) floor( $newer_rows / $per_page ) + 1;
     }
 
     /**

@@ -88,11 +88,41 @@ class PageSpeedScanner {
 
         if ( ! empty( $pages ) && ! wp_next_scheduled( self::BATCH_HOOK ) ) {
             wp_schedule_single_event( time(), self::BATCH_HOOK );
+            spawn_cron();
         }
 
         return array(
             'queued' => count( $pages ),
         );
+    }
+
+    /**
+     * Number of pages still waiting to be checked. While the queue is not empty
+     * this also keeps the scan moving when WP-Cron is not doing it: it
+     * reschedules a lost batch, and on a site without a PageSpeed Insights key
+     * (each page then takes seconds, not minutes) it runs a batch that is more
+     * than 30 seconds overdue right away.
+     *
+     * @return int
+     */
+    public function get_pending_count(): int {
+        $queue = (array) get_option( self::QUEUE_OPTION, array() );
+
+        if ( empty( $queue ) ) {
+            return 0;
+        }
+
+        $next = wp_next_scheduled( self::BATCH_HOOK );
+
+        if ( ! $next ) {
+            wp_schedule_single_event( time(), self::BATCH_HOOK );
+            spawn_cron();
+        } elseif ( $next < time() - 30 && '' === $this->get_psi_api_key() ) {
+            wp_clear_scheduled_hook( self::BATCH_HOOK );
+            $this->process_batch();
+        }
+
+        return count( (array) get_option( self::QUEUE_OPTION, array() ) );
     }
 
     /**
@@ -143,7 +173,23 @@ class PageSpeedScanner {
         );
         $elapsed_ms = (int) round( ( microtime( true ) - $started_at ) * 1000 );
 
+        // A page that cannot be fetched is still a result: leave it out and the
+        // list stays empty with no hint of what went wrong.
         if ( is_wp_error( $response ) ) {
+            $repository->replace_for_url(
+                array(
+                    'url'           => $page['url'],
+                    'title'         => $page['title'],
+                    'page_type'     => $page['page_type'],
+                    'load_time_ms'  => $elapsed_ms,
+                    'score'         => 0,
+                    'status'        => 'slow',
+                    'mobile_score'  => null,
+                    'desktop_score' => null,
+                    'main_issue'    => __( 'Page could not be loaded', 'vulopilot' ),
+                    'scanned_at'    => current_time( 'mysql' ),
+                )
+            );
             return;
         }
 

@@ -108,6 +108,7 @@ class PageSpeed extends \WP_REST_Controller {
                 'top_issues'    => $repository->get_top_issues(),
                 'data'          => $result['data'],
                 'total'         => $result['total'],
+                'pending'       => VuloPilot()->page_speed_scanner->get_pending_count(),
             )
         );
     }

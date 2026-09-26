@@ -174,6 +174,9 @@ class Schema extends \WP_REST_Controller {
                 'post_type'      => array( 'post', 'page', 'product' ),
                 'post_status'    => 'publish',
                 'posts_per_page' => 30,
+                // A static front page (Settings → Reading) is the homepage, which is
+                // added separately below - keep it out so it isn't listed twice.
+                'post__not_in'   => array( (int) get_option( 'page_on_front' ) ),
                 'orderby'        => 'modified',
                 'order'          => 'DESC',
                 'fields'         => 'ids',

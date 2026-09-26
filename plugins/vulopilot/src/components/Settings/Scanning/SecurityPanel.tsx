@@ -1,4 +1,6 @@
 /* global vulopilotAppLocalizer */
+import { useState } from 'react';
+import type { MouseEvent } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse, useModules } from '@zyra/core';
 import {
@@ -7,7 +9,8 @@ import {
 	SectionComponent,
 	SettingRowComponent
 } from '@zyra/inputs';
-import { FormGroupComponent, FormGroupWrapperComponent, NoticeComponent, NoticeManager } from '@zyra/components';
+import { FormGroupComponent, FormGroupWrapperComponent, NoticeComponent, NoticeManager, PopupComponent } from '@zyra/components';
+import ShowProPopup from '../../Popup/Popup';
 import { useSetting } from '../../../contexts/SettingContext';
 
 const STATUS_LABELS = { active: __('Active', 'vulopilot'), inactive: __('Inactive', 'vulopilot') };
@@ -228,18 +231,16 @@ const ALL_ROWS = [...SCAN_ROWS, ...PROTECTION_ROWS, ...MONITORING_ROWS];
 
 const isChecked = (value: unknown): boolean => Array.isArray(value) && value.length > 0;
 
-const LockTag = () => (
+const LockTag = ({ onOpen }: { onOpen: () => void }) => (
 	<span
 		className="admin-tag module-tag"
 		role="button"
 		tabIndex={0}
-		onClick={() => {
-			window.location.href = `${vulopilotAppLocalizer.admin_url}#&tab=settings&subtab=modules&module=website-security`;
-		}}
+		onClick={onOpen}
 		onKeyDown={(event) => {
 			if ('Enter' === event.key || ' ' === event.key) {
 				event.preventDefault();
-				window.location.href = `${vulopilotAppLocalizer.admin_url}#&tab=settings&subtab=modules&module=website-security`;
+				onOpen();
 			}
 		}}
 	>
@@ -247,7 +248,6 @@ const LockTag = () => (
 		{__('Website Security', 'vulopilot')}
 	</span>
 );
-
 
 /**
  * Settings → Scanning → Security.
@@ -269,6 +269,20 @@ const SecurityPanel = () => {
 	const { setting, updateSetting } = useSetting();
 	const { modules } = useModules();
 	const hasSecurityMonitoring = modules.includes('website-security');
+	const [isModulePopupOpen, setIsModulePopupOpen] = useState(false);
+	const openModulePopup = () => setIsModulePopupOpen(true);
+
+	// Every row on this tab needs the Website Security module, so with it off
+	// any click on the panel opens the module popup (same as a locked field
+	// elsewhere in Settings) instead of doing nothing.
+	const handleLockedClick = (event: MouseEvent) => {
+		if (hasSecurityMonitoring) {
+			return;
+		}
+		event.preventDefault();
+		event.stopPropagation();
+		openModulePopup();
+	};
 
 	const buildMethods = (rows: Row[]) =>
 		rows.map((row) => ({
@@ -278,7 +292,7 @@ const SecurityPanel = () => {
 				row.pro && !hasSecurityMonitoring ? (
 					<>
 						{row.label}
-						<LockTag />
+						<LockTag onOpen={openModulePopup} />
 					</>
 				) : (
 					row.label
@@ -309,7 +323,7 @@ const SecurityPanel = () => {
 				title: locked ? (
 					<>
 						{row.label}
-						<LockTag />
+						<LockTag onOpen={openModulePopup} />
 					</>
 				) : (
 					row.label
@@ -382,6 +396,7 @@ const SecurityPanel = () => {
 
 	return (
 		<>
+			<div onClickCapture={handleLockedClick}>
 			<div className="settings-section-group">
 				<div className="settings-left-section">
 					<SectionComponent
@@ -463,7 +478,7 @@ const SecurityPanel = () => {
 							label={
 								<>
 									{__('Scheduled security monitoring', 'vulopilot')}
-									{!hasSecurityMonitoring && <LockTag />}
+									{!hasSecurityMonitoring && <LockTag onOpen={openModulePopup} />}
 								</>
 							}
 							desc={__(
@@ -515,6 +530,16 @@ const SecurityPanel = () => {
 					</FormGroupWrapperComponent>
 				</div>
 			</div>
+			</div>
+			<PopupComponent
+				open={isModulePopupOpen}
+				onClose={() => setIsModulePopupOpen(false)}
+				width={31.25}
+				height="auto"
+				position="lightbox"
+			>
+				<ShowProPopup moduleName="website-security" />
+			</PopupComponent>
 		</>
 	);
 };

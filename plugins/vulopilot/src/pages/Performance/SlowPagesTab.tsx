@@ -70,6 +70,8 @@ interface PageSpeedResponse {
 	top_issues: PageSpeedIssue[];
 	data: PageSpeedRow[];
 	total: number;
+	/** Pages a running scan has still to check; 0 once it has finished. */
+	pending?: number;
 }
 
 interface ScoreSnapshot {
@@ -321,6 +323,27 @@ const SlowPagesTab = () => {
 	useEffect(() => {
 		load();
 	}, []);
+
+	// "Scan Again" lives in the page header (Performance.tsx) and only starts a
+	// background scan, so refresh when it fires and keep refreshing until the
+	// scan has no pages left to check.
+	useEffect(() => {
+		window.addEventListener('vulopilot_page_speed_scan_started', load);
+
+		return () => window.removeEventListener('vulopilot_page_speed_scan_started', load);
+	}, []);
+
+	const pendingPages = response?.pending ?? 0;
+
+	useEffect(() => {
+		if (pendingPages <= 0) {
+			return;
+		}
+
+		const timer = window.setTimeout(load, 5000);
+
+		return () => window.clearTimeout(timer);
+	}, [pendingPages, response]);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -763,7 +786,7 @@ const SlowPagesTab = () => {
 						desc={
 							0 === rows.length
 								? __(
-									'No pages scanned yet - click "Run Speed Test" to check your real pages\' load times.',
+									'No pages scanned yet - click "Scan Again" to check your real pages\' load times.',
 									'vulopilot'
 								)
 								: __(
