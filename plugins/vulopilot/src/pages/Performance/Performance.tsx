@@ -101,6 +101,7 @@ const Performance = () => {
 							),
 				});
 			})
+			.then(() => window.dispatchEvent(new Event('vulopilot_page_speed_scan_started')))
 			.finally(() => setIsSlowPagesScanning(false));
 	};
 

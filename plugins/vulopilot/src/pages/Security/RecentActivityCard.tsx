@@ -21,6 +21,15 @@ const SECURITY_ACTIVITY_EVENT_TYPES = [
 ].join(',');
 
 /**
+ * The only event types above that Reports → History lists
+ * (Reports\Rest\History's EVENT_TYPES_BY_CATEGORY: scans and AI actions).
+ * `security.alert`/`security.new_user` (vulopilot-pro's AlertDispatcher) are
+ * real activity but never appear there, so a History deep link for one would
+ * land on a page with nothing to select.
+ */
+const HISTORY_LISTED_EVENT_TYPES = ['scan.completed', 'scan.completed.security'];
+
+/**
  * "Recent Activity" - `GET activity-logs` is real and generic
  * (`ActivityLogs.php`), filtered to `SECURITY_ACTIVITY_EVENT_TYPES` above
  * so this stays genuinely security-scoped rather than showing every SEO/
@@ -73,13 +82,24 @@ const RecentActivityCard = () => {
 					onSelectRow={setSelectedRow}
 					isLoadingMore={false}
 					onLoadMore={() => {}}
-					// Real navigation to the full History tab (Reports →
-					// History) - this card has no side detail panel of its
-					// own for the arrow to open a row into, unlike
-					// HistoryTab.tsx's own real use of it.
-					onArrowClick={() => {
+					// "More Details" opens this exact row in Reports → History
+					// (this card has no detail panel of its own): the row's own
+					// id rides along as `vulopilot_history_id` - the same
+					// `vulopilot_activity_logs.id` History keys its rows by,
+					// and the same deep link the Dashboard's Recent activity
+					// widget uses - so that tab selects, scrolls to and pulses
+					// it instead of just landing on whatever it shows first.
+					// Rows History doesn't list can't be opened there, so they
+					// only highlight in place rather than redirect somewhere
+					// they don't exist.
+					onArrowClick={(row) => {
+						if (!HISTORY_LISTED_EVENT_TYPES.includes(row.event_type)) {
+							setSelectedRow(row);
+							return;
+						}
+
 						window.open(
-							`${vulopilotAppLocalizer.admin_url}#&tab=reports&subtab=history`,
+							`${vulopilotAppLocalizer.admin_url}#&tab=reports&subtab=history&vulopilot_history_id=${row.id}`,
 							'_self'
 						);
 					}}

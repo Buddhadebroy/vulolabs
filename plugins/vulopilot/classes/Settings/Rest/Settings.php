@@ -284,7 +284,16 @@ class Settings extends \WP_REST_Controller {
             $updated['site_tone_source'] = 'manual';
         }
 
+        $sitemap_was_enabled = ! empty( $this->get_stored_settings()['sitemap_enabled'] );
+
         update_option( Utill::VULOPILOT_SETTINGS_KEY, $updated );
+
+        // Turning the XML sitemap on is when its pretty addresses first need to
+        // resolve, so have the rewrite rules rebuilt on the next request (this one
+        // ran with the sitemap still off, so its rules are not registered yet).
+        if ( ! $sitemap_was_enabled && ! empty( $updated['sitemap_enabled'] ) ) {
+            VuloPilot()->sitemap_url_rewriter->request_flush();
+        }
 
         $response = array(
             'success' => true,

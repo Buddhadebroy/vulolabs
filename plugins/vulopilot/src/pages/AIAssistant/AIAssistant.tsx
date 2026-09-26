@@ -305,7 +305,10 @@ const AIAssistant = () => {
 							<AiChatCard
 								cardClassName="ai-copilot-main-chat"
 								cardTitle={__('Chat with VuloPilot', 'vulopilot')}
-								cardDesc=""
+								cardDesc={__(
+									'Your AI assistant for site health, SEO, security and content. Review every change before it is applied.',
+									'vulopilot'
+								)}
 								onNewChat={
 									turns.length > 0 || isSending
 										? startNewConversation

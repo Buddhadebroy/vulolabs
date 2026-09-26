@@ -59,11 +59,12 @@ const DUMMY_HEALTH_TIMELINE = [
  * only re-presents it compactly rather than introducing a new data source
  * per tile:
  *
- * - AI crawler visits: `GET /crawler-traffic/analytics?days=7` (same
- *   endpoint CrawlerAnalyticsSection.tsx uses) - `current_total`/
- *   `previous_total` are a real, already-computed 7-day-vs-previous-7-day
+ * - AI crawler visits: `GET /crawler-traffic/analytics?days=N` (same
+ *   endpoint CrawlerAnalyticsSection.tsx uses), N following the Health
+ *   timeline's own 7D/30D/90D toggle - `current_total`/
+ *   `previous_total` are a real, already-computed N-day-vs-previous-N-day
  *   comparison (CrawlerVisitRepository::get_period_comparison()), and
- *   `daily_volume` backs a real sparkline of the last 7 real days.
+ *   `daily_volume` backs a real sparkline of the selected period's days.
  * - Automations: `summary.automation_status.enabled` - already on the
  *   shared `/dashboard` payload (Controllers\Dashboard::get_items()).
  * - Last audit: `useLastScanTime()` (sitewide, no scanner/category
@@ -80,13 +81,18 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 	onHide,
 	isCustomizing,
 }) => {
+	const [healthTimelineDays, setHealthTimelineDays] = useState<PeriodDays>('30');
 	const [crawlerAnalytics, setCrawlerAnalytics] =
 		useState<CrawlerAnalyticsResponse | null>(null);
 	const [isCrawlerLoading, setIsCrawlerLoading] = useState(true);
 
 	useEffect(() => {
+		setIsCrawlerLoading(true);
 		getApiResponse<CrawlerAnalyticsResponse>(
-			getApiLink(vulopilotAppLocalizer, 'crawler-traffic/analytics?days=7'),
+			getApiLink(
+				vulopilotAppLocalizer,
+				`crawler-traffic/analytics?days=${healthTimelineDays}`
+			),
 			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
@@ -95,7 +101,7 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 				}
 			})
 			.finally(() => setIsCrawlerLoading(false));
-	}, []);
+	}, [healthTimelineDays]);
 
 	const { data: reportRows, isLoading: isReportsLoading } =
 		useApiList<ReportRow>(
@@ -106,7 +112,6 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 		);
 	const { lastScanAt, isLoading: isLastScanLoading } = useLastScanTime();
 
-	const [healthTimelineDays, setHealthTimelineDays] = useState<PeriodDays>('30');
 	const { data: healthSnapshots } = useApiList<HealthSnapshot>(
 		'site-health-snapshots',
 		{ days: Number(healthTimelineDays) },

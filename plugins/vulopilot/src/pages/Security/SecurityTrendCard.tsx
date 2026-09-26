@@ -1,7 +1,6 @@
 /* global vulopilotAppLocalizer */
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse } from '@zyra/core';
 import {
 	AnalyticsComponent,
 	CardComponent,
@@ -11,15 +10,11 @@ import {
 import { ToggleInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
+import { useReportsOverview } from '../Reports/reportsOverview';
 
 interface SecurityScoreSnapshot {
 	snapshot_date: string;
 	security_score: number;
-}
-
-interface AttentionSummary {
-	total: number;
-	priority_counts: { high: number; medium: number; low: number };
 }
 
 type PeriodDays = '7' | '30' | '90';
@@ -43,24 +38,13 @@ const SecurityTrendCard = () => {
 		{ days: Number(period) }
 	);
 
-	// Same real `GET /findings/attention-summary` `high`/`medium`/`low`/
-	// `total` counts SecurityStatusCard.tsx's own hero card reads - moved
-	// here (per direct instruction) as a real `AnalyticsComponent` tile row
-	// under the trend chart, replacing the `ListComponent` rows that used
-	// to sit under SecurityStatusCard's own metrics list.
-	const [summary, setSummary] = useState<AttentionSummary | null>(null);
-	useEffect(() => {
-		getApiResponse<AttentionSummary>(
-			getApiLink(vulopilotAppLocalizer, 'findings/attention-summary'),
-			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
-		).then((response) => {
-			if (response) {
-				setSummary(response);
-			}
-		});
-	}, []);
-	const { high = 0, medium = 0, low = 0 } = summary?.priority_counts ?? {};
-	const total = summary?.total ?? 0;
+	// Fixed / new / still-open counts for the same selected period - the
+	// Reports Overview's own real `security_summary`, so these tiles move
+	// with the 7D/30D/90D toggle like the SEO progress card's do.
+	const { data: overview, isLoading: isLoadingSummary } = useReportsOverview(
+		Number(period)
+	);
+	const summary = overview?.security_summary;
 
 	return (
 		<CardComponent
@@ -107,27 +91,23 @@ const SecurityTrendCard = () => {
 			)}
 			<AnalyticsComponent
 				variant="background-color"
-				cols={4}
+				cols={3}
+				isLoading={isLoadingSummary}
 				data={[
 					{
-						colorClass: 'admin-bg-color2',
-						number: high,
-						text: __('High', 'vulopilot'),
+						colorClass: 'green',
+						number: String(summary?.fixed ?? 0),
+						text: __('Issues Fixed', 'vulopilot'),
 					},
 					{
-						colorClass: 'admin-bg-color3',
-						number: medium,
-						text: __('Medium', 'vulopilot'),
+						colorClass: 'yellow',
+						number: String(summary?.new ?? 0),
+						text: __('New Issues', 'vulopilot'),
 					},
 					{
-						colorClass: 'admin-bg-color4',
-						number: low,
-						text: __('Low', 'vulopilot'),
-					},
-					{
-						colorClass: 'admin-bg-color5',
-						number: total,
-						text: __('Total findings', 'vulopilot'),
+						colorClass: 'blue',
+						number: String(summary?.still_open ?? 0),
+						text: __('Still Open', 'vulopilot'),
 					},
 				]}
 			/>

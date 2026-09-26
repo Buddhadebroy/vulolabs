@@ -32,6 +32,8 @@ interface HistoryResponse {
 	data: HistoryRow[];
 	total: number;
 	type_counts: Record<HistoryFilter, number>;
+	/** How many pages of `per_page` rows this response actually covers - more than 1 when `around_id` made the server return everything down to a deep-linked row. */
+	pages_loaded?: number;
 }
 
 type DateRangePreset = 'all' | 'today' | '7d' | '30d';
@@ -182,6 +184,23 @@ const HistoryTab = () => {
 			params.set('search', search);
 		}
 
+		// A deep-linked row can sit many pages down (one scan logs a row per
+		// scanner), so ask the server for everything down through it rather
+		// than only page 1 - see ActivityLogRepository::get_timeline(). Sent
+		// on every first-page fetch while the filters are still the ones the
+		// deep link arrived with: this tab fires several on mount, and one
+		// that omitted it would replace the rows and drop the selection.
+		// Any filter/search/date change means the user has moved on.
+		if (
+			!append &&
+			deepLinkRowId.current &&
+			'all' === activeFilter &&
+			'all' === dateRange &&
+			!search
+		) {
+			params.set('around_id', String(deepLinkRowId.current));
+		}
+
 		const dateFrom = resolveDateFrom(dateRange);
 
 		if (dateFrom) {
@@ -222,6 +241,10 @@ const HistoryTab = () => {
 				});
 
 				if (!append) {
+					// Keeps "Load more" paging on from where the (possibly
+					// extended) first response ended.
+					setPage(response.pages_loaded ?? 1);
+
 					const wantedId = pendingSelectId.current;
 					pendingSelectId.current = null;
 

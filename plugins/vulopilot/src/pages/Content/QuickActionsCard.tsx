@@ -87,6 +87,11 @@ const QuickActionsCard = () => {
 	};
 
 	const notifyComingSoon = () => {
+		if (creditsStatus && !creditsStatus.connected) {
+			setIsCloudConnectPromptOpen(true);
+			return;
+		}
+
 		NoticeManager.add({
 			uniqueKey: 'vulopilot-content-planner-coming-soon',
 			type: 'info',
@@ -104,7 +109,7 @@ const QuickActionsCard = () => {
 			return;
 		}
 
-		if (!tool.pro && creditsStatus && !creditsStatus.connected) {
+		if (creditsStatus && !creditsStatus.connected) {
 			setIsCloudConnectPromptOpen(true);
 			return;
 		}

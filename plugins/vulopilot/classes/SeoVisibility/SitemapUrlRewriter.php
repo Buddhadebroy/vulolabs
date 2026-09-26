@@ -103,6 +103,27 @@ class SitemapUrlRewriter {
      * @param string|null $subtype  Real object subtype, or null/empty for a provider with none.
      * @return string
      */
+    /**
+     * @return bool Whether the site uses pretty permalinks (rewrite rules can resolve).
+     */
+    private function uses_pretty_permalinks(): bool {
+        return '' !== (string) get_option( 'permalink_structure' );
+    }
+
+    /**
+     * Whether the stored rewrite rules contain this class's own rules. Until
+     * they do (before the first flush, or after another plugin rebuilt the
+     * rules without them) the pretty addresses would 404, so the index keeps
+     * core's `wp-sitemap-*.xml` addresses, which always resolve.
+     *
+     * @return bool
+     */
+    private function pretty_rules_registered(): bool {
+        $rules = get_option( 'rewrite_rules' );
+
+        return is_array( $rules ) && isset( $rules['^sitemap_index\.xml$'] );
+    }
+
     private function pretty_name( string $provider, ?string $subtype ): string {
         return $subtype ? $subtype : $provider;
     }
@@ -146,7 +167,9 @@ class SitemapUrlRewriter {
      * @return array
      */
     public function filter_index_entry_loc( $sitemap_entry, $object_type, $object_subtype ) {
-        if ( ! isset( $sitemap_entry['loc'] ) ) {
+        // Pretty sitemap URLs are rewrite rules; with plain permalinks they cannot
+        // resolve, so keep the core `?sitemap=` addresses that do work.
+        if ( ! isset( $sitemap_entry['loc'] ) || ! $this->uses_pretty_permalinks() || ! $this->pretty_rules_registered() ) {
             return $sitemap_entry;
         }
 
@@ -186,6 +209,10 @@ class SitemapUrlRewriter {
      * @return void
      */
     public function register_pretty_rewrites(): void {
+        if ( ! $this->uses_pretty_permalinks() ) {
+            return;
+        }
+
         // Real new index route.
         add_rewrite_rule( '^sitemap_index\.xml$', 'index.php?sitemap=index', 'top' );
 
@@ -263,12 +290,47 @@ class SitemapUrlRewriter {
      * @return void
      */
     public function maybe_flush_rewrite_rules(): void {
-        if ( get_option( self::REWRITE_VERSION_OPTION ) === self::REWRITE_VERSION ) {
+        if ( ! $this->uses_pretty_permalinks() ) {
+            return;
+        }
+
+        $rules = get_option( 'rewrite_rules' );
+
+        // Flush when the version changed, or when the stored rules no longer contain ours
+        // (another plugin or a permalink reset can rebuild them without our rules).
+        if ( get_option( self::REWRITE_VERSION_OPTION ) === self::REWRITE_VERSION && ( ! is_array( $rules ) || isset( $rules['^sitemap_index\.xml$'] ) ) ) {
+            return;
+        }
+
+        $this->flush_rules();
+    }
+
+    /**
+     * Rebuilds the rewrite rules with this class's sitemap rules included and
+     * records that it did. Only valid after `wp_sitemaps_init` has fired, when
+     * the rules are registered.
+     *
+     * @return void
+     */
+    private function flush_rules(): void {
+        if ( ! $this->uses_pretty_permalinks() ) {
             return;
         }
 
         flush_rewrite_rules( false );
         update_option( self::REWRITE_VERSION_OPTION, self::REWRITE_VERSION, false );
+    }
+
+    /**
+     * Makes the next request rebuild the rewrite rules. Use it when the sitemap
+     * has just been switched on: in the request that saves the setting,
+     * WordPress has not registered the sitemap rules yet, so a flush there
+     * would leave them out.
+     *
+     * @return void
+     */
+    public function request_flush(): void {
+        delete_option( self::REWRITE_VERSION_OPTION );
     }
 
     /**

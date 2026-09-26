@@ -83,6 +83,10 @@ final class VuloPilot {
         // 'content-optimization'/'brand-visibility'/'knowledge-graph'/
         // 'ai-copilot' as active for a genuinely fresh install.
         add_option( Utill::ACTIVE_MODULES_DB_KEY, array( 'geo-analysis', 'technical-seo', 'content-optimization', 'brand-visibility', 'knowledge-graph', 'ai-copilot' ) );
+        // The sitemap rules are only registered once WordPress has initialised its
+        // sitemaps, after this hook. Clearing the version makes the next request
+        // flush again with them included.
+        delete_option( 'vulopilot_sitemap_rewrite_version' );
         flush_rewrite_rules();
     }
 
