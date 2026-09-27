@@ -321,6 +321,18 @@ module.exports = function createWebpackConfig(
 
 			rules: [
 				{
+					// Strip unused remote-host loaders (maps, reCAPTCHA,
+					// TinyMCE Cloud) shipped inside zyra - see the loader.
+					test: /\.m?js$/,
+					include: /[\\/]node_modules[\\/]@multivendorx[\\/]zyra[\\/]/,
+					enforce: 'pre',
+					use: path.resolve(
+						__dirname,
+						'loaders/disable-remote-hosts.js'
+					),
+				},
+
+				{
 					test: /\.html$/i,
 
 					type: 'asset/source',

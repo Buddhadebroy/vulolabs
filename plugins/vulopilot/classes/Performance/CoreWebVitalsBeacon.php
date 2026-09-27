@@ -34,7 +34,8 @@ class CoreWebVitalsBeacon {
      * @return void
      */
     public function enqueue_beacon_script(): void {
-        if ( is_admin() ) {
+        // Vitals are only worth sampling on real content pages - attachment, 404 and search-result views add noise, not signal.
+        if ( is_admin() || is_attachment() || is_404() || is_search() ) {
             return;
         }
 
@@ -43,7 +44,10 @@ class CoreWebVitalsBeacon {
             VuloPilot()->plugin_url . 'assets/js/public/vulopilot-performance-vitals-beacon.min.js',
             array(),
             VuloPilot()->version,
-            true
+            array(
+                'in_footer' => true,
+                'strategy'  => 'defer',
+            )
         );
 
         wp_localize_script(
