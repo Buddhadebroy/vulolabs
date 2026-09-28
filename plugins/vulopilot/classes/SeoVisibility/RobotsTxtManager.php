@@ -47,7 +47,7 @@ class RobotsTxtManager {
 	public function maybe_append_sitemap_line( $output, $is_public ) {
 		$settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
-		if ( empty( $settings['robots_auto_generate'] ) || ! $is_public ) {
+		if ( empty( $settings['robots_auto_generate'] ) || empty( $settings['sitemap_enabled'] ) || ! $is_public ) {
 			return $output;
 		}
 

@@ -230,6 +230,7 @@ class Settings extends \WP_REST_Controller {
 		$sitemap_was_enabled = ! empty( $this->get_stored_settings()['sitemap_enabled'] );
 
 		update_option( Utill::VULOPILOT_SETTINGS_KEY, $updated );
+		delete_transient( 'vulopilot_sitemap_conflicting_ids' );
 
 		// Turning the XML sitemap on is when its pretty addresses first need to resolve.
 		if ( ! $sitemap_was_enabled && ! empty( $updated['sitemap_enabled'] ) ) {

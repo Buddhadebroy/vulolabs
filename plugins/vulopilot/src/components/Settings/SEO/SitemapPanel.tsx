@@ -1,6 +1,6 @@
 /* global vulopilotAppLocalizer */
-import { useRef } from 'react';
-import { __ } from '@wordpress/i18n';
+import { useRef, useState } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import {
 	CardComponent,
@@ -10,10 +10,13 @@ import {
 	FormGroupWrapperComponent,
 	NoticeComponent,
 	NoticeManager,
+	PopupComponent,
 	SectionComponent,
 } from '@zyra/components';
 import { MultiCheckboxInput, SelectInput, TextInput } from '@zyra/inputs';
 import { useSetting } from '../../../contexts/SettingContext';
+import ShowProPopup from '../../Popup/Popup';
+import { formatWpDate } from '../../../services/formatWpDate';
 import SitemapHowItWorksCard from './SitemapHowItWorksCard';
 
 /**
@@ -59,6 +62,25 @@ const SitemapPanel = () => {
 			});
 		}, AUTOSAVE_DEBOUNCE_MS);
 	};
+
+	const isPro = Boolean(vulopilotAppLocalizer.khali_dabba);
+	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
+
+	/** Pro settings keep their real controls; without Pro, a change opens the upgrade popup instead of saving. */
+	const proGuard = (save: () => void) => (isPro ? save() : setIsProPopupOpen(true));
+
+	const HEALTH_CHECK_OPTIONS = [
+		{ key: 'broken', label: __('Broken URLs', 'vulopilot'), value: 'broken' },
+		{ key: 'redirected', label: __('Redirected URLs', 'vulopilot'), value: 'redirected' },
+		{ key: 'noindex', label: __('Noindex URLs', 'vulopilot'), value: 'noindex' },
+		{ key: 'canonical', label: __('Canonical pointing elsewhere', 'vulopilot'), value: 'canonical' },
+		{ key: 'duplicates', label: __('Duplicate URLs', 'vulopilot'), value: 'duplicates' },
+		{ key: 'placeholders', label: __('Placeholder URLs', 'vulopilot'), value: 'placeholders' },
+		{ key: 'lastmod', label: __('Last modified dates', 'vulopilot'), value: 'lastmod' },
+	];
+
+	const lastRun = String(setting.sitemap_health_last_run ?? '');
+	const lastProblems = Number(setting.sitemap_health_last_problems ?? 0);
 
 	const sitemapEnabled = isChecked('sitemap_enabled');
 	const htmlSitemapEnabled = isChecked('html_sitemap_enabled');
@@ -116,10 +138,6 @@ const SitemapPanel = () => {
 				options={[{ key, value: key, label: '' }]}
 				value={isChecked(key) ? [key] : []}
 				onChange={(value) => handleSettingChange(key, value)}
-				toggleStatusLabel={{
-					on: __('Enabled', 'vulopilot'),
-					off: __('Disabled', 'vulopilot'),
-				}}
 			/>
 		</FormGroupComponent>
 	);
@@ -139,10 +157,6 @@ const SitemapPanel = () => {
 						options={[{ key: 'sitemap_enabled', value: 'sitemap_enabled', label: '' }]}
 						value={sitemapEnabled ? ['sitemap_enabled'] : []}
 						onChange={(value) => handleSettingChange('sitemap_enabled', value)}
-						toggleStatusLabel={{
-							on: __('Enabled', 'vulopilot'),
-							off: __('Disabled', 'vulopilot'),
-						}}
 					/>
 				}
 			/>
@@ -178,6 +192,135 @@ const SitemapPanel = () => {
 											onChange={(value) => handleSettingChange('sitemap_xml_taxonomies', value)}
 										/>
 									</FormGroupComponent>
+								</FormGroupWrapperComponent>
+							</CardComponent>
+
+							<CardComponent
+								title={__('Keep the sitemap clean', 'vulopilot')}
+								titleIcon="security"
+								desc={__(
+									'List only pages you want in search results. Turn off a rule only if you have a reason to list those pages.',
+									'vulopilot'
+								)}
+							>
+								<FormGroupWrapperComponent>
+									{renderToggle(
+										'sitemap_exclude_noindex',
+										__('Leave out noindex pages', 'vulopilot'),
+										__('Pages marked noindex in the post editor are not listed.', 'vulopilot')
+									)}
+									{renderToggle(
+										'sitemap_exclude_canonical_elsewhere',
+										__('Leave out pages with another canonical', 'vulopilot'),
+										__('Pages whose canonical URL points to a different page are not listed.', 'vulopilot')
+									)}
+									{renderToggle(
+										'sitemap_exclude_redirected',
+										__('Leave out redirected pages', 'vulopilot'),
+										__('Pages whose address redirects elsewhere are not listed.', 'vulopilot')
+									)}
+									{renderToggle(
+										'sitemap_exclude_placeholders',
+										__('Leave out placeholder content', 'vulopilot'),
+										__('The unedited default "Hello world!" and "Sample Page" are not listed.', 'vulopilot')
+									)}
+									{renderToggle(
+										'sitemap_skip_single_author',
+										__('Hide the author sitemap on single-author sites', 'vulopilot'),
+										__('With one author, the author page only repeats your blog page.', 'vulopilot')
+									)}
+								</FormGroupWrapperComponent>
+							</CardComponent>
+
+							<CardComponent
+								title={__('Sitemap health checks', 'vulopilot')}
+								titleIcon="tools"
+								desc={__(
+									'Regularly check that the URLs in your sitemap load, can be indexed and are their own canonical.',
+									'vulopilot'
+								)}
+							>
+								<FormGroupWrapperComponent>
+									<FormGroupComponent
+										row
+										label={
+											<>
+												{__('Run health checks', 'vulopilot')}
+												{!isPro && (
+													<span
+														className="admin-tag module-tag"
+														role="button"
+														tabIndex={0}
+														onClick={() => setIsProPopupOpen(true)}
+														onKeyDown={(event) => {
+															if ('Enter' === event.key || ' ' === event.key) {
+																event.preventDefault();
+																setIsProPopupOpen(true);
+															}
+														}}
+													>
+														<i className="adminfont-lock" />
+														{__('Pro', 'vulopilot')}
+													</span>
+												)}
+											</>
+										}
+										desc={__(
+											'Checks a sample of your sitemap URLs each time a scan runs and reports problems in your SEO issues.',
+											'vulopilot'
+										)}
+									>
+										<MultiCheckboxInput
+											look="toggle"
+											modules={[]}
+											options={[{ key: 'sitemap_health_enabled', value: 'sitemap_health_enabled', label: '' }]}
+											value={isChecked('sitemap_health_enabled') ? ['sitemap_health_enabled'] : []}
+											onChange={(value) =>
+												proGuard(() => handleSettingChange('sitemap_health_enabled', value))
+											}
+										/>
+									</FormGroupComponent>
+									<FormGroupComponent
+										row
+										label={__('URLs to check', 'vulopilot')}
+										desc={__('How many sitemap URLs to fetch per run (5 to 100).', 'vulopilot')}
+									>
+										<TextInput
+											type="number"
+											size={10}
+											value={(setting.sitemap_health_sample_size as number) ?? 25}
+											onChange={(value) => proGuard(() => scheduleSave('sitemap_health_sample_size', value))}
+										/>
+									</FormGroupComponent>
+									<FormGroupComponent row label={__('Problems to look for', 'vulopilot')}>
+										<MultiCheckboxInput
+											modules={[]}
+											selectDeselect
+											options={HEALTH_CHECK_OPTIONS}
+											value={toArray(setting.sitemap_health_checks)}
+											onChange={(value) => proGuard(() => handleSettingChange('sitemap_health_checks', value))}
+										/>
+									</FormGroupComponent>
+									{lastRun && (
+										<NoticeComponent
+											displayPosition="inline-notice"
+											type={lastProblems > 0 ? 'warning' : 'success'}
+											message={
+												lastProblems > 0
+													? sprintf(
+															/* translators: 1: date, 2: number of problems. */
+															__('Last checked %1$s: %2$d problem types found.', 'vulopilot'),
+															formatWpDate(lastRun),
+															lastProblems
+													  )
+													: sprintf(
+															/* translators: %s: date. */
+															__('Last checked %s: no problems found.', 'vulopilot'),
+															formatWpDate(lastRun)
+													  )
+											}
+										/>
+									)}
 								</FormGroupWrapperComponent>
 							</CardComponent>
 
@@ -341,6 +484,15 @@ const SitemapPanel = () => {
 					</ContainerComponent>
 				</>
 			)}
+			<PopupComponent
+				open={isProPopupOpen}
+				onClose={() => setIsProPopupOpen(false)}
+				width={31.25}
+				height="auto"
+				position="lightbox"
+			>
+				<ShowProPopup />
+			</PopupComponent>
 		</div>
 	);
 };
