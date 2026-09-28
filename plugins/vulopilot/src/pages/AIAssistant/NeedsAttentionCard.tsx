@@ -14,12 +14,8 @@ import { ButtonInput } from '@zyra/inputs';
 import './AICopilot.scss';
 
 /**
- * Narrow local slice of `/dashboard`'s real aggregate payload (same
- * endpoint OverallScoreWidget.tsx/SecurityStatusCard.tsx already read) -
- * only the fields this card's own "Site Overview" breakdown renders,
- * same "define just the subset actually used" call SecurityStatusCard.tsx
- * already makes rather than importing dashboard-widgets/types.ts's full
- * DashboardSummary wholesale.
+ * Narrow local slice of `/dashboard`'s real aggregate payload (same endpoint
+ * OverallScoreWidget.tsx/SecurityStatusCard.tsx already read).
  */
 interface DashboardSummary {
 	overall_score: number;
@@ -45,11 +41,8 @@ interface NeedsAttentionCardProps {
 type ScoreTone = 'green' | 'orange' | 'red';
 
 /**
- * One shared 3-band split for both the ring's own descriptive rating and
- * each category row's colored number - green >= 75, orange 60-74, red <
- * 60. Deliberately one function reused both places rather than two
- * separately-tuned scales, so a row's color and the headline rating it
- * rolls up into never disagree about where a given score sits.
+ * One shared 3-band split for both the ring's own descriptive rating and each category row's
+ * colored number.
  */
 const getScoreTone = (score: number): ScoreTone => {
 	if (score >= 75) {
@@ -61,11 +54,7 @@ const getScoreTone = (score: number): ScoreTone => {
 	return 'red';
 };
 
-// Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`) - same colors
-// SecurityStatusCard.tsx's own ChartComponent pie uses for this exact
-// "green/orange/red gauge" pattern (that one only needed two of the
-// three, this one needs the full set), read from the one shared source
-// instead of each file guessing its own approximation of "orange".
+// Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`).
 const TONE_COLOR: Record<ScoreTone, string> = {
 	green: COLOR_PALETTE.green,
 	orange: COLOR_PALETTE.orange,
@@ -79,13 +68,8 @@ const TONE_RATING_LABEL: Record<ScoreTone, string> = {
 };
 
 /**
- * AI Copilot's "Site Overview" card - a real health-score breakdown read
- * from `GET /dashboard` (the same aggregate payload the Dashboard's own
- * OverallScoreWidget/SecurityStatusCard already read), replacing the old
- * priority-pill + top-issue-type preview: a ring for `overall_score`, the
- * 4 category scores the mockup shows (SEO & Visibility, Performance,
- * Security, Content), and a real `open_findings` count linking to the
- * Issues table.
+ * "Site Overview" card: overall score ring, four category scores and the open findings count, from
+ * `GET /dashboard`.
  */
 const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 	onNavigateTab,
@@ -119,11 +103,8 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 
 	useEffect(load, []);
 
-	// The Issues table is inline on the page now (appended below the
-	// composer), not a separate 'issues' nav tab - this card is only ever
-	// rendered directly on AIAssistant.tsx, so 'chat' just updates that
-	// page's own issuesFilter state and its scroll-into-view effect,
-	// rather than actually switching tabs.
+	// The Issues table is inline on the page now (appended below the composer), not a separate
+	// 'issues' nav tab.
 	const goToAllIssues = () => onNavigateTab('chat');
 
 	const overallTone = summary ? getScoreTone(summary.overall_score) : 'green';
@@ -179,18 +160,12 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 			) : (
 				<>
 					<div className="overall-score-summary">
-						{/* Same `type="ring"` ChartComponent + TypographyComponent
-						centerLabel structure every other real score ring in this
-						app now uses (OverallScoreWidget.tsx/SeoTab.tsx/
-						CrawlerAnalyticsSection.tsx/etc.), instead of this card's
-						own now-removed ScoreRingComponent usage. */}
+						{/* Same `type="ring"` ChartComponent + TypographyComponent centerLabel structure every other real score ring in this app now uses (OverallScoreWidget.tsx/SeoTab.tsx/ CrawlerAnalyticsSection.tsx/etc.), instead of this card's own now-removed ScoreRingComponent usage. */}
 						<ChartComponent
 							type="ring"
 							height={200}
-							// Top-level `color` - `type="ring"` only ever paints
-							// its stroke from this prop, never from `data[].color`
-							// below (same real fix every other converted ring
-							// already carries).
+							// Top-level `color` - `type="ring"` only ever paints its stroke from
+							// this prop.
 							color={TONE_COLOR[overallTone]}
 							centerLabel={
 								<>
@@ -223,13 +198,7 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 						</div>
 					</div>
 
-					{/* Same `ListComponent` + "mini-card report" variant this card's own
-					    old group rows used (and most other cards across this plugin -
-					    TopIssuesToWorkOn.tsx, StoreIntelligenceSummaryCard.tsx, etc. -
-					    already reuse it too): icon on the left, `tags` pinned to the
-					    right (ListComponent.scss's own `.report .tags`), which is
-					    exactly this row's icon+label…score shape without hand-rolling a
-					    new row layout. */}
+					{/* Same `ListComponent` + "mini-card report" variant this card's own old group rows used (and most other cards across this plugin - TopIssuesToWorkOn.tsx, StoreIntelligenceSummaryCard.tsx, etc. - already reuse it too): icon on the left, `tags` pinned to the right (ListComponent.scss's own `.report .tags`), which is exactly this row's icon+label…score shape without hand-rolling a new row layout. */}
 					<ListComponent
 						className="mini-card report without-border"
 						items={scoreRows.map((row) => {

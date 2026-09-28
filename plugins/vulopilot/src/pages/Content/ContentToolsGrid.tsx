@@ -39,17 +39,8 @@ export interface ContentTool {
 }
 
 /**
- * The 12 tool tiles each run a real AI action end-to-end: pick the real
- * input it needs (an existing post, an image, a topic - see `fields`),
- * propose it for real, show the real AI-generated preview, then
- * approve/reject it for real - see ContentToolPopup.tsx for the full
- * flow. 6 of these actions already existed (GenerateBlogAction,
- * GenerateProductDescriptionAction, GenerateFaqAction, GenerateSchemaAction,
- * GenerateAltAction, WriteMetaTitleAction) but had no route to trigger
- * them; the other 6 (WritePostContentAction, GenerateLandingPageAction,
- * OptimizeContentAction, RefreshContentAction, DifferentiateDuplicateTitleAction,
- * OptimizeMediaAction) are new, purpose-built for these tiles - see each
- * class's own docblock.
+ * The 12 tool tiles each run a real AI action end-to-end: pick the real input it needs (an
+ * existing post, an image, a topic - see `fields`).
  */
 export const CONTENT_TOOLS: ContentTool[] = [
 	{
@@ -232,19 +223,8 @@ const ContentToolsGrid = () => {
 					className="tool-grid"
 					items={CONTENT_TOOLS.map((tool) => ({
 						id: tool.id,
-						// "<adminfont name> <$color-palette key>" - same
-						// icon-name-plus-palette-key convention MetricsGrid.tsx/
-						// SecurityMetricsGrid.tsx already use: the extra word
-						// isn't part of the icon name, it's zyra's own real,
-						// already-compiled `.{color}` global utility class
-						// (theme/src/common.scss's `@each $name, $style in
-						// $color-palette` loop) tacked on via IconComponent's
-						// className string. Replaces a custom `icon-${tool.color}`
-						// class this card used to set - that class landed on the
-						// whole list-item row (ListComponent's own `item.className`
-						// slot), not the icon, and had no matching CSS rule
-						// anywhere in this codebase either way, so it never
-						// painted anything.
+						// "{adminfont name} {color-palette key}" - same icon-name-plus-palette- key
+						// convention MetricsGrid.tsx/ SecurityMetricsGrid.tsx already use.
 						icon: `${tool.icon} ${tool.color}`,
 						title: tool.title,
 						desc: tool.desc,

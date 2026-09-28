@@ -17,11 +17,7 @@ import './Commerce.scss';
 const COMMERCE_MODULE_ID = 'woocommerce-analytics';
 
 /**
- * Runs once, unconditionally, at this module's own top-level scope - this
- * file (Commerce.tsx) is this route's own entry point, itself always
- * eagerly imported by routes.ts - so these 3 registrations exist on every
- * VuloPilot admin page load, not just while the Commerce tab is actually
- * open.
+ * Runs once, unconditionally, at this module's own top-level scope.
  */
 addFilter(
 	'vulopilot_commerce_issues_table',
@@ -44,10 +40,7 @@ addFilter(
 addFilter('vulopilot_banner_card', 'vulopilot/commerce', () => BannerCard);
 
 /**
- * Was previously its own CommercePanel.tsx file, imported only here -
- * merged into this route's own entry point (its one real consumer), same
- * "single-consumer wrapper" cleanup already applied to
- * pages/Content/OverviewTab.tsx and pages/AIAssistant/ChatTab.tsx.
+ * Was previously its own CommercePanel.tsx file, imported only here.
  */
 const CommercePanel = ({
 	RealPanel,

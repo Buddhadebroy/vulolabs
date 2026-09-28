@@ -43,33 +43,21 @@ interface FindingRow {
 	object_ref: string | null;
 	created_at: string;
 	/**
-	 * When this row was last reconfirmed by a scan - same value as
-	 * `created_at` for a finding that's only ever been detected once;
-	 * moves forward for a scanner in ScanPersistenceListener's own
-	 * DEDUPE_ON_RESCAN list (e.g. `core-file-integrity`) each time a
-	 * still-open problem is seen again, rather than piling up a duplicate
-	 * row per scan run. Optional only because a row fetched before this
-	 * column existed won't have it - falls back to `created_at` below.
+	 * When this row was last reconfirmed by a scan - same value as `created_at` for a finding
+	 * that's only ever been detected once.
 	 */
 	last_seen_at?: string;
 	page?: string;
 }
 
 /**
- * How many individual findings to actually list under "Affected accounts"/
- * "Affected pages"/etc. - the group's own real `count` (shown right above
- * this list) is always the true total; this only bounds how many rows the
- * panel renders so a group with hundreds of open findings doesn't dump an
- * unbounded list into a fixed-width side panel. A "+N more" line covers
- * the remainder.
+ * How many individual findings to actually list under "Affected accounts"/ "Affected pages"/etc..
  */
 const MAX_AFFECTED_ITEMS_SHOWN = 20;
 
 /**
- * Section label per real `object_type` - same noun set formatAffected()
- * already uses for the bare count line, just as a section heading instead
- * of "N {noun}". Falls back to "Affected items" for any object_type this
- * map doesn't know about, same fallback formatAffected() uses.
+ * Section label per real `object_type` - same noun set formatAffected() already uses for the bare
+ * count line.
  */
 const AFFECTED_ITEMS_LABEL: Record<string, string> = {
 	user: __('Affected accounts', 'vulopilot'),
@@ -85,9 +73,7 @@ const AFFECTED_ITEMS_LABEL: Record<string, string> = {
 };
 
 /**
- * Same registration FindingsTable.tsx's own bulk "Fix selected" reads -
- * see that file's own getFindingBulkFixHandler docblock for why it's read
- * fresh on every click rather than cached.
+ * Same registration FindingsTable.tsx's own bulk "Fix selected" reads.
  */
 const getFindingBulkFixHandler = () =>
 	applyFilters('vulopilot_finding_bulk_fix_handler', null);
@@ -103,36 +89,14 @@ const SEVERITY_LABEL: Record<string, string> = {
 interface IssueDetailPanelProps {
 	group: FindingGroup | null;
 	onActionComplete: () => void;
-	onClose: () => void;
 }
 
 /**
- * Performance findings are one exception to "no scanner writes that copy"
- * above: every `classes/Scanners/Basic/*Scanner.php` under the
- * `performance` category now writes a real, scanner-specific
- * `recommended_fix` step list into `Finding::get_meta()` (e.g. CdnScanner's
- * own "sign up for a CDN"/"confirm assets resolve through it"/… steps) -
- * genuine, accurate remediation guidance, not fabricated data. When a
- * performance finding's sample carries that list, this panel swaps
- * "Example finding" for "Recommended fix" (a numbered step list, per
- * direct instruction matching a reference design) instead of the generic
- * title/description/page example.
- *
- * The header's own `desc` deliberately shows the sample's `title` (short)
- * rather than its `description` (long) - the latter is already shown once,
- * in full, by whichever of the three sections above ends up rendering; an
- * earlier version of this panel showed the same long description in both
- * places. "Affected items" below has the same care taken: `group.sample`
- * is normally also the first row that list's own fetch would return (both
- * read the same scanner_id ordered by id desc), so `otherAffectedItems`
- * filters that one row out - this list only ever shows open findings
- * genuinely NOT already covered by "Recommended fix"/"What happened"/
- * "Example finding" above.
+ * Performance findings are one exception to "no scanner writes that copy" above.
  */
 const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	group,
 	onActionComplete,
-	onClose,
 }) => {
 	const [isBusy, setIsBusy] = useState(false);
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
@@ -143,15 +107,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	const [isLoadingAffected, setIsLoadingAffected] = useState(false);
 
 	/**
-	 * The group response only ever carries a `count` + one sample - this
-	 * fetches the real, current individual findings in the group (the same
-	 * `GET /findings` row list fetchGroupIds() below also reads, just kept
-	 * as full rows here instead of only `.id`) so "Affected" can show which
-	 * specific accounts/pages/etc. were actually detected, not just a bare
-	 * number. Capped to MAX_AFFECTED_ITEMS_SHOWN for display - the group's
-	 * own real `count` (shown above this list) stays the true total either
-	 * way, and bulk actions below still act on every open finding via their
-	 * own uncapped fetchGroupIds() call.
+	 * The group response only ever carries a `count` + one sample.
 	 */
 	useEffect(() => {
 		if (!group || !vulopilotAppLocalizer.khali_dabba) {
@@ -201,12 +157,8 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	const isProActive = !!vulopilotAppLocalizer.khali_dabba;
 
 	/**
-	 * `group.sample.meta` is the raw `wp_json_encode()`-d `Finding::get_meta()`
-	 * column (AbstractRepository::find_all() is a plain `SELECT *`, no
-	 * server-side decode - see issuesTypes.ts's own `FindingSample.meta`
-	 * docblock) - parsed once here rather than trusting its shape, since a
-	 * finding scanned before a given scanner started writing this data (or
-	 * any scanner category that never will) simply won't have it.
+	 * Parses `group.sample.meta`, the raw JSON `Finding::get_meta()` column, which older findings
+	 * may not have.
 	 */
 	const sampleMeta: Record<string, unknown> | null = (() => {
 		if (!group.sample?.meta) {
@@ -223,9 +175,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	})();
 
 	/**
-	 * Real, scanner-specific remediation steps - see this file's own top
-	 * docblock. An empty array means "fall back to Example finding" below,
-	 * never a fabricated step list.
+	 * Real, scanner-specific remediation steps - see this file's own top docblock.
 	 */
 	const recommendedFixSteps: string[] = Array.isArray(
 		sampleMeta?.recommended_fix
@@ -249,15 +199,8 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	const showWhatHappened = !showRecommendedFix && '' !== whatHappened;
 
 	/**
-	 * `group.sample` is always the same finding "Recommended fix"/"What
-	 * happened"/"Example finding" above already shows in full - and since
-	 * it's also the group's own most-recently-detected finding, it's
-	 * normally the very first row `affectedItems` itself fetches (same
-	 * `orderby=id&order=desc` as `group.sample`, see this file's own
-	 * `useEffect` above). Left in, "Affected items" would repeat that exact
-	 * same title/page/date a second time right below content that already
-	 * covered it. Filtered out here so this list only ever shows OTHER open
-	 * findings in the group - real data either way, just not shown twice.
+	 * `group.sample` is always the same finding "Recommended fix"/"What happened"/"Example
+	 * finding" above already shows in full.
 	 */
 	const otherAffectedItems = (affectedItems ?? []).filter(
 		(row) => row.id !== group.sample?.id
@@ -285,11 +228,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				<div className="issue-detail-pro-gate-dummy" aria-hidden="true">
 					{dummyContent}
 				</div>
-				{/* Same reasoning as `showTag` above - the action row's own
-				 * call (showTag=false) sits directly under "Affected items"'
-				 * own gated section, which already shows this notice; a
-				 * second copy immediately below would just be duplicate
-				 * clutter, not a second distinct locked thing. */}
+				{/* Same reasoning as `showTag` above - the action row's own * call (showTag=false) sits directly under "Affected items"' * own gated section. */}
 				{showTag && <DummyDataNotice />}
 				<div
 					className="issue-detail-pro-gate-overlay"
@@ -309,12 +248,8 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	};
 
 	/**
-	 * The group response only ever carries a `count` + one sample row, not
-	 * every individual finding id - this fetches the real, current id list
-	 * for the group's scanner_id right before a bulk action runs, so
-	 * Fix/Resolve/Ignore act on every open finding in the group (not just
-	 * the one example shown), using the same real `GET /findings` endpoint
-	 * every other findings list already reads.
+	 * The group response only ever carries a `count` + one sample row, not every individual
+	 * finding id.
 	 */
 	const fetchGroupIds = (scannerId: string): Promise<number[]> =>
 		getApiResponse<{ data?: { id: number }[] } | { id: number }[]>(
@@ -368,12 +303,8 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	};
 
 	/**
-	 * Runs the registered bulk-fix handler once per BULK_FIX_BATCH_SIZE
-	 * chunk of ids (sequentially - these can be real AI propose+approve
-	 * calls, not something to fire dozens of at once) and aggregates the
-	 * real succeeded/total/noFixAvailable counts across every batch into
-	 * one final outcome, rather than reporting only the last batch's own
-	 * numbers.
+	 * Runs the bulk-fix handler sequentially in BULK_FIX_BATCH_SIZE chunks and aggregates the
+	 * counts into one outcome.
 	 */
 	const runBulkFixInBatches = (
 		// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
@@ -408,10 +339,8 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 			.then(({ succeeded, total, noFixAvailable, lastMessage }) => {
 				const failed = total - succeeded;
 
-				// Single batch: the handler's own message already says
-				// exactly the right thing (including the "no automatic
-				// fix exists yet" honest case) - reuse it as-is rather
-				// than re-deriving a coarser version here.
+				// Single batch: the handler's own message already says exactly the right thing
+				// (including the "no automatic fix exists yet" honest case).
 				if (batches.length <= 1) {
 					return { success: 0 === failed, message: lastMessage };
 				}

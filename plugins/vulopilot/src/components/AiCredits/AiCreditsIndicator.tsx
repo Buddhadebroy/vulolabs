@@ -9,16 +9,7 @@ import { VuloCloudInlineNotice } from '../Popup/Popup';
 import './AiCreditsIndicator.scss';
 
 /**
- * The persistent "⚡ N AI Credits" indicator (architecture plan §21) -
- * mounted once, via zyra's own `HeaderComponent`'s `beforeSearch` prop in
- * app.tsx, which renders it inline in the header's right-section row,
- * immediately before the "Modules & Settings" search box (not through
- * that component's own `utilityList` prop: that prop's `toggleIcon` only
- * ever renders a plain icon-font glyph - see PopupComponent's own real
- * toggle-icon behavior - so it has nowhere to put the live number itself;
- * this component drives its own `PopupComponent` in fully-controlled mode
- * instead, with the credit count as its own custom, always-visible
- * trigger).
+ * The persistent "⚡ N AI Credits" indicator (architecture plan §21).
  */
 const AiCreditsIndicator = () => {
 	const { status, isLoading, refresh } = useAiCredits();
@@ -78,12 +69,7 @@ const AiCreditsBalancePanel = ({
 	onRefresh: () => void;
 }) => {
 	const exhausted = status.credits <= 0;
-	// Depletion meter - how much of what's ever been earned is still
-	// available, not how much has been used (an all-time-earned account
-	// with nothing spent yet reads as "full", same intuition as "remaining"
-	// being this panel's own headline number). Earned starts at 0 for a
-	// brand-new connection, so this guards the same divide-by-zero every
-	// other real percentage in this codebase already does.
+	// Depletion meter - how much of what's ever been earned is still available.
 	const remainingPercent =
 		status.lifetime_earned > 0
 			? Math.min(100, Math.round((status.credits / status.lifetime_earned) * 100))
@@ -172,7 +158,7 @@ const AiCreditsBalancePanel = ({
 						rightIcon: 'arrow-right',
 						color: 'purple-bg',
 						onClick: () => {
-							window.open(appLocalizer.shop_url, '_blank', 'noopener,noreferrer');
+							window.open(vulopilotAppLocalizer.shop_url, '_blank', 'noopener,noreferrer');
 						},
 					},
 					{

@@ -30,17 +30,8 @@ interface IssuesListProps {
 }
 
 /**
- * AI Copilot's Issues table - every open finding grouped by issue type
- * (`GET /findings/groups`, FindingRepository::get_finding_groups()), not
- * one row per individual finding: "8 images are missing alt text" is one
- * row for 8 real findings sharing the same scanner_id, matching the
- * mockup's own row shape. Stat cards + category tabs above the table and
- * a real detail panel to the side (IssuesSummaryCards.tsx/
- * IssueDetailPanel.tsx) are real, all backed by this same endpoint - the
- * stat tiles double as a real High/Medium/Low filter (same 3-tier bucket
- * FindingRepository::get_priority_counts() already uses for their own
- * counts), alongside the category tabs, both scoped server-side so the
- * table's own pagination footer always matches what's actually filtered.
+ * AI Copilot's Issues table - every open finding grouped by issue type (`GET /findings/groups`,
+ * FindingRepository::get_finding_groups()).
  */
 const IssuesList: React.FC<IssuesListProps> = ({
 	initialScannerId,
@@ -50,11 +41,8 @@ const IssuesList: React.FC<IssuesListProps> = ({
 		initialCategory ? findTabIdForCategory(initialCategory) : 'all'
 	);
 	const [activePriority, setActivePriority] = useState<Priority>('all');
-	// Matches TableCard's own initial `{ paged: 1, per_page: 10 }` state
-	// (same reasoning useApiList.ts's own comment gives) - its first
-	// mount-time onQueryUpdate call corrects this to whatever its page-size
-	// selector actually shows, so the fetched row count and the "Showing X
-	// to Y of Z" footer it renders always agree.
+	// Matches TableCard's own initial `{ paged: 1, per_page: 10 }` state (same reasoning
+	// useApiList.ts's own comment gives).
 	const [paged, setPaged] = useState(1);
 	const [perPage, setPerPage] = useState(10);
 
@@ -168,15 +156,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 	const refetch = () => setReloadToken((n) => n + 1);
 
 	/**
-	 * Same toggle both "More Details" triggers below already did (row click,
-	 * action-cell button) - now also scrolls to the detail panel itself
-	 * (`scrollToId`, the same real scroll-into-view helper
-	 * NeedsAttentionCard.tsx's own `scrollToId('ai-copilot-issues-section')`
-	 * already uses) when a group is actually selected, so the panel opens
-	 * fully visible regardless of which ancestor is actually the scrollable
-	 * one - a plain `window.scrollTo()` only moves the document, not WP
-	 * admin's own scrollable wrapper. No scroll on deselect (closing the
-	 * panel shouldn't jump the page).
+	 * Same toggle both "More Details" triggers below already did (row click, action-cell button).
 	 */
 	const selectGroup = (group: FindingGroup) => {
 		setSelectedGroup((current) => {
@@ -225,16 +205,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 
 	return (
 		<>
-			{/* Real scroll target for AIAssistant.tsx's own "View all issues"/
-			group-row clicks (NeedsAttentionCard.tsx →
-			`scrollToId('ai-copilot-issues-section')`) - kept INSIDE this
-			grid={8} column rather than as a wrapping element around both of
-			this component's own columns, since a wrapping `<div>` there
-			would put the grid={8}/grid={4} pair inside ITS OWN box instead
-			of the page's shared flex row they're meant to sit side by side
-			in (same real layout bug already fixed once for
-			SchemaKnowledge/IssuesSection.tsx - see that file's own
-			docblock). */}
+			{/* Real scroll target for AIAssistant.tsx's own "View all issues"/ group-row clicks (NeedsAttentionCard.tsx → `scrollToId('ai-copilot-issues-section')`) - kept INSIDE this grid={8} column rather than as a wrapping element around both of this component's own columns, since a wrapping `<div>` there would put the grid={8}/grid={4} pair inside ITS OWN box instead of the page's shared flex row they're meant to sit side by side in (same real layout bug already fixed once for SchemaKnowledge/IssuesSection.tsx - see that file's own docblock). */}
 			<ColumnComponent grid={8}>
 				<div id="ai-copilot-issues-section">
 					<IssuesSummaryCards
@@ -260,14 +231,8 @@ const IssuesList: React.FC<IssuesListProps> = ({
 							categoryCounts={tableCategoryCounts}
 							activeCategory={activeTabId}
 							activeRowId={selectedGroup?.scanner_id}
-							// Same toggle the action cell's own "More
-							// Details"/"Showing" button already does - a
-							// click anywhere on the row now opens/closes the
-							// details panel too, not just that one small
-							// button (zyra's own `onRowClick`, which already
-							// skips the action cell itself via
-							// `stopPropagation`, so this doesn't double-fire
-							// alongside a real button click).
+							// Same toggle the action cell's own "More Details"/"Showing" button
+							// already does.
 							onRowClick={(row: Record<string, unknown>) => {
 								selectGroup(row as unknown as FindingGroup);
 							}}
@@ -322,15 +287,12 @@ const IssuesList: React.FC<IssuesListProps> = ({
 							}}
 							rows={data.map((row) => ({
 								...row,
-								// Real `SCANNER_ICONS[scanner_id]` first, so
-								// e.g. Performance's own CDN/JavaScript/CSS
-								// Optimization/Cache Issues rows (all real
-								// `category: 'performance'`) each get their
-								// own real distinct icon instead of every
-								// row in that category sharing one identical
-								// glyph - `CATEGORY_ICONS[category]` stays
-								// the fallback for any scanner_id not
-								// explicitly listed (issuesTypes.ts's own
+								// Real `SCANNER_ICONS[scanner_id]` first, so e.g. Performance's own
+								// CDN/JavaScript/CSS Optimization/Cache Issues rows (all real
+								// `category: 'performance'`) each get their own real distinct icon
+								// instead of every row in that category sharing one identical glyph
+								// - `CATEGORY_ICONS[category]` stays the fallback for any
+								// scanner_id not explicitly listed (issuesTypes.ts's own
 								// `issueIconFor()` docblock).
 								categoryIcon: issueIconFor(
 									row.category,
@@ -374,19 +336,13 @@ const IssuesList: React.FC<IssuesListProps> = ({
 				</div>
 			</ColumnComponent>
 
-			{/* No right-side detail panel at all while there's genuinely
-			nothing to show detail for - not even the empty "Select an
-			issue" placeholder - same real `isLoading || data.length > 0`
-			check the left column's own "Nothing to suggest right now"
-			branch above already uses, so both columns agree on whether
-			there's real data. */}
+			{/* No right-side detail panel at all while there's genuinely nothing to show detail for - not even the empty "Select an issue" placeholder. */}
 			{(isLoading || data.length > 0) && (
 				<ColumnComponent grid={4}>
 					<div id="ai-copilot-issue-detail-panel">
 						<IssueDetailPanel
 							group={selectedGroup}
 							onActionComplete={refetch}
-							onClose={() => setSelectedGroup(null)}
 						/>
 					</div>
 				</ColumnComponent>

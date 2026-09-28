@@ -12,9 +12,8 @@ import PluginOverlapCard from './PluginOverlapCard';
 import { SECURITY_FINDINGS_SCANNER_IDS } from './securityScannerIds';
 
 /**
- * SECURITY-MODULE.md's "Incident Reports" panel - was "Old Security"'s
- * own footer before that tab was removed and folded into this one; same
- * real slot, just rendered here now, after every section.
+ * "Incident Reports" panel - was "Old Security"'s own footer before that tab was removed and
+ * folded into this one.
  */
 const SecurityIncidentReportsPanel = applyFilters(
 	'vulopilot_security_incident_reports_panel',
@@ -22,32 +21,8 @@ const SecurityIncidentReportsPanel = applyFilters(
 ) as ComponentType | null;
 
 /**
- * The 4 detail sections formerly on "Old Security" (SecurityDetailTab.tsx)
- * - moved here, appended last on this tab, per direct instruction. Same
- * scanner_id groupings that tab always used. The 5th, catch-all "Security
- * Findings" section (every one of these scanner ids, combined, plus file
- * integrity and known plugin/theme vulnerabilities) no longer needs its
- * own entry here - SectionedIssuesTable.tsx's own "All" tab already covers
- * exactly the same scope (SECURITY_FINDINGS_SCANNER_IDS), so a separate,
- * identically-scoped section would just be a second "All" under a
- * different label.
- *
- * "Vulnerabilities"/"Suspicious File Changes" (2 more sections, appended
- * last) moved here from the now-removed "Files & Plugins" tab per direct
- * instruction - Security owns these findings now rather than splitting
- * them across tabs. Same scanner ids as that tab's former "Plugin
- * Vulnerabilities"/"File Integrity"/"Recent File Changes" sections,
- * already counted in `SECURITY_FINDINGS_SCANNER_IDS` before this move (so
- * "All" never undercounted them), just without a named section here until
- * now. "Vulnerabilities" also absorbed that tab's former "Theme
- * Vulnerabilities" section (`theme-vulnerabilities` added to this
- * section's own scannerIds) rather than getting a separate section of its
- * own - one real "Vulnerabilities" tile/section covering both plugin and
- * theme CVEs, matching the generic (not "Plugin"-qualified) name this
- * section and its matching tile in SecurityMetricsGrid.tsx already used.
- * "Outdated Software", that tab's 5th section, wasn't moved anywhere -
- * it shared its scanner id with Site Health's own "Updates" section
- * (SiteHealthTab.tsx), which already covers the exact same finding.
+ * The 4 detail sections formerly on "Old Security" (SecurityDetailTab.tsx) - moved here, appended
+ * last on this tab.
  */
 const SECTIONS: FindingsSection[] = [
 	{
@@ -161,39 +136,12 @@ const SECTIONS: FindingsSection[] = [
 const ISSUES_TABLE_ID = 'protect-my-site-security-issues-table';
 
 /**
- * - Hero/status/tile-grid: SecurityMockupHeader. RecentActivityCard
- *   ("Recent Security Activity") and SecurityTrendCard ("Security
- *   Trend", real daily score history) live inside that same component,
- *   stacked one after another directly below "Security Status" in its
- *   own narrow sidebar column - per direct instruction, not a separate
- *   full-width 3-column row on this tab. Its own "Review Issues First"
- *   button now scrolls straight to the issues table below (`ISSUES_TABLE_ID`)
- *   - previously scrolled to "Issues that need your attention"
- *   (IssuesNeedAttentionCard), removed per direct instruction.
- * - BackupProtectionNotice (a single real "Backup protection: Enabled/Not
- *   enabled" status line) used to sit on this tab (first right after the
- *   header, then briefly right before the issues table's own tab bar) -
- *   moved one level up, above Security.tsx's own outer "Security"/"Site
- *   Health"/"Backups" tab bar, per direct instruction ("move this before
- *   tab names Security Site Health Backups"), so it's now a real,
- *   always-visible status line regardless of which of those 3 inner tabs
- *   is active, rather than only showing on this one. See Security.tsx's
- *   own docblock for where it lives now.
- * - Issues table: one real SectionedIssuesTable (All/Important/Login &
- *   Accounts/Website Exposure/Browser Protection/SSL & Secure Connection),
- *   replacing what used to be 5 separate `layout="compact"` FindingsTable
- *   cards stacked here - same merge pattern WooCommerce's own "All
- *   WooCommerce Issues" already established, per direct instruction to
- *   apply it here too.
- * - Closes with PluginOverlapCard filtered to `category="security"` - real
- *   cross-sell (Wordfence/Sucuri/Solid Security/AIOS active → VuloPilot's
- *   own Security Watchtower) surfaced in the tab a user reading about
- *   security is already on.
+ * - Hero/status/tile-grid: SecurityMockupHeader.
  */
 const SecurityTab = () => {
 	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');
 
-	/** SecurityMetricsGrid's own scanner-backed tiles ("Security Scan"/"SSL") - switches the merged issues table below to that tile's own section and scrolls to it, same "controlled activeTab passed down" shape MetricsGrid.tsx's own View buttons use on Performance. */
+	/** SecurityMetricsGrid's own scanner-backed tiles ("Security Scan"/"SSL"). */
 	const goToIssuesTab = (tab: SectionedIssuesTab) => {
 		setActiveTab(tab);
 		setTimeout(() => {
@@ -214,19 +162,15 @@ const SecurityTab = () => {
 		<>
 			<ColumnComponent>
 				<SecurityMockupHeader
-					scrollTargetId={ISSUES_TABLE_ID}
 					onViewSection={goToIssuesTab}
 				/>
 				<SectionedIssuesTable
 					id={ISSUES_TABLE_ID}
 					title={__('All Security Issues', 'vulopilot')}
 					sections={SECTIONS}
-					// The 4 named sections below don't cover every real
-					// scanner id in SECURITY_FINDINGS_SCANNER_IDS (e.g.
-					// core-file-integrity has no dedicated section) -
-					// without this, "All" would silently undercount, same
-					// catch-all scope the removed "Security Findings"
-					// section used to guarantee.
+					// The 4 named sections below don't cover every real scanner id in
+					// SECURITY_FINDINGS_SCANNER_IDS (e.g. core-file-integrity has no dedicated
+					// section).
 					allScannerIds={SECURITY_FINDINGS_SCANNER_IDS}
 					activeTab={activeTab}
 					onTabChange={setActiveTab}

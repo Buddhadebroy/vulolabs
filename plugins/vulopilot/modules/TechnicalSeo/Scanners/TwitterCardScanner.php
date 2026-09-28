@@ -7,7 +7,6 @@
 
 namespace VuloPilot\TechnicalSeo\Scanners;
 
-
 use VuloPilot\Utill\Finding;
 use VuloPilot\Utill\Severity;
 use VuloPilot\Utill\ScannerUtil;
@@ -15,11 +14,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Fetches the homepage and flags a missing `twitter:card` meta tag -
- * without it, X/Twitter falls back to a plain link with no preview image
- * or summary when this site's pages are shared there, independent of
- * whether Open Graph tags (a separate protocol X/Twitter only partially
- * respects) are present.
+ * Fetches the homepage and flags a missing `twitter:card` meta tag.
  *
  * @class       TwitterCardScanner class
  * @version     1.0.0
@@ -27,61 +22,61 @@ defined( 'ABSPATH' ) || exit;
  */
 class TwitterCardScanner extends ScannerUtil {
 
-    private const REQUEST_TIMEOUT_SECONDS = 8;
+	private const REQUEST_TIMEOUT_SECONDS = 8;
 
-    /**
-     * @inheritDoc
-     */
-    public function get_id(): string {
-        return 'twitter-card';
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function get_id(): string {
+		return 'twitter-card';
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function get_label(): string {
-        return __( 'Twitter Cards', 'vulopilot' );
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function get_label(): string {
+		return __( 'Twitter Cards', 'vulopilot' );
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function get_category(): string {
-        return 'seo';
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function get_category(): string {
+		return 'seo';
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function scan(): array {
-        $findings = array();
-        $response = wp_remote_get(
-            home_url( '/' ),
-            array(
-                'timeout'   => self::REQUEST_TIMEOUT_SECONDS,
-                'sslverify' => false,
-            )
-        );
+	/**
+	 * @inheritDoc
+	 */
+	public function scan(): array {
+		$findings = array();
+		$response = wp_remote_get(
+			home_url( '/' ),
+			array(
+				'timeout'   => self::REQUEST_TIMEOUT_SECONDS,
+				'sslverify' => false,
+			)
+		);
 
-        if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-            return $findings;
-        }
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return $findings;
+		}
 
-        $body = wp_remote_retrieve_body( $response );
+		$body = wp_remote_retrieve_body( $response );
 
-        if ( false !== stripos( $body, 'name="twitter:card"' ) || false !== stripos( $body, "name='twitter:card'" ) ) {
-            return $findings;
-        }
+		if ( false !== stripos( $body, 'name="twitter:card"' ) || false !== stripos( $body, "name='twitter:card'" ) ) {
+			return $findings;
+		}
 
-        $findings[] = new Finding(
-            __( 'No Twitter Card tag found on the homepage', 'vulopilot' ),
-            Severity::LOW,
-            $this->get_category(),
-            __( 'Without a twitter:card meta tag, links to this site shared on X/Twitter show as a plain link with no preview image or summary.', 'vulopilot' ),
-            'url',
-            home_url( '/' )
-        );
+		$findings[] = new Finding(
+			__( 'No Twitter Card tag found on the homepage', 'vulopilot' ),
+			Severity::LOW,
+			$this->get_category(),
+			__( 'Without a twitter:card meta tag, links to this site shared on X/Twitter show as a plain link with no preview image or summary.', 'vulopilot' ),
+			'url',
+			home_url( '/' )
+		);
 
-        return $findings;
-    }
+		return $findings;
+	}
 }

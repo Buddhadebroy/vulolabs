@@ -10,16 +10,8 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Base class for every free-tier rule across every tab folder.
- *
- * get_tier() is shared for the same reason Utill\ScannerUtil
- * hard-codes it: every rule extending this class is free-tier by definition.
- * get_tags()/is_fixable()/requires_ai()/get_estimated_impact()/
- * get_estimated_time_minutes() get sensible defaults (no tags, not
- * fixable, no AI required, medium impact, 5 minutes) - most rules only
- * need to override a couple of these, not restate all six every time. The
- * methods that meaningfully differ per rule (id/label/type/priority/
- * categories/applies_to/get_recommendation) stay abstract.
+ * Base class for free-tier rules, with defaults for tags, fixability, AI requirement,
+ * impact and estimated time.
  *
  * @class       AbstractBasicRule class
  * @version     1.0.0
@@ -27,80 +19,80 @@ defined( 'ABSPATH' ) || exit;
  */
 abstract class AbstractBasicRule implements RuleInterface {
 
-    /**
-     * @inheritDoc
-     */
-    public function get_tier(): string {
-        return 'free';
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function get_tier(): string {
+		return 'free';
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function get_tags(): array {
-        return array();
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function get_tags(): array {
+		return array();
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function is_fixable(): bool {
-        return false;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function is_fixable(): bool {
+		return false;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function requires_ai(): bool {
-        return false;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function requires_ai(): bool {
+		return false;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function get_estimated_impact(): string {
-        return Impact::MEDIUM;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function get_estimated_impact(): string {
+		return Impact::MEDIUM;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function get_estimated_time_minutes(): int {
-        return 5;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function get_estimated_time_minutes(): int {
+		return 5;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    abstract public function get_id(): string;
+	/**
+	 * @inheritDoc
+	 */
+	abstract public function get_id(): string;
 
-    /**
-     * @inheritDoc
-     */
-    abstract public function get_label(): string;
+	/**
+	 * @inheritDoc
+	 */
+	abstract public function get_label(): string;
 
-    /**
-     * @inheritDoc
-     */
-    abstract public function get_type(): string;
+	/**
+	 * @inheritDoc
+	 */
+	abstract public function get_type(): string;
 
-    /**
-     * @inheritDoc
-     */
-    abstract public function get_priority(): int;
+	/**
+	 * @inheritDoc
+	 */
+	abstract public function get_priority(): int;
 
-    /**
-     * @inheritDoc
-     */
-    abstract public function get_categories(): array;
+	/**
+	 * @inheritDoc
+	 */
+	abstract public function get_categories(): array;
 
-    /**
-     * @inheritDoc
-     */
-    abstract public function applies_to( \VuloPilot\Utill\Finding $finding ): bool;
+	/**
+	 * @inheritDoc
+	 */
+	abstract public function applies_to( \VuloPilot\Utill\Finding $finding ): bool;
 
-    /**
-     * @inheritDoc
-     */
-    abstract public function get_recommendation( \VuloPilot\Utill\Finding $finding ): \VuloPilot\Utill\Recommendation;
+	/**
+	 * @inheritDoc
+	 */
+	abstract public function get_recommendation( \VuloPilot\Utill\Finding $finding ): \VuloPilot\Utill\Recommendation;
 }

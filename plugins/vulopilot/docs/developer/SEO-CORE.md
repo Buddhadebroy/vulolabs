@@ -11,7 +11,7 @@ Settings (option vulopilot_settings)
    |                                  SitemapUrlRewriter (/sitemap_index.xml, 301 from /wp-sitemap.xml)
    |                                  SitemapStylesheet  (XSL restyle)
    |                                  HtmlSitemapRenderer ([vulopilot_html_sitemap])
-   |-- title_* / description_*     -> TitleFormatter (pre_get_document_title + <meta description>)
+   |-- title_* / description_*     -> TitleFormatter (pre_get_document_title + meta)
    |-- indexnow_*                  -> IndexNowAutoSubmitter (save_post, wp_trash_post) -> IndexNowClient
    |                                  IndexNowKeyFileServer (serves /{key}.txt)
    |-- robots_auto_generate        -> RobotsTxtManager (robots_txt filter)
@@ -131,7 +131,7 @@ Post editor sidebar (src/post-editor)
 | `MissingMetaDescriptionRule` | `classes/SeoVisibility/MissingMetaDescriptionRule.php` | Turns Seo\Scanners\MetaDescriptionScanner's "no excerpt set" Finding into a recommendation to draft one with AI - same reasoning as SeoTitleRewriteRule: a good description has to actually summarize the page's content, which needs  |
 | `OnPageAnalyzer` | `classes/SeoVisibility/OnPageAnalyzer.php` | Stateless on-page SEO checklist for the post-editor metabox (RestAPI\Controllers\PostSeo::analyze_item()), grouped into "Basic SEO"/"Additional"/"Title Readability". |
 | `PostEditorAssets` | `classes/SeoVisibility/PostEditorAssets.php` | Enqueues the post-editor SEO metabox - src/post-editor/index.tsx, a `@wordpress/plugins` PluginSidebar registered into the Block Editor, not a mount into VuloPilot's own dashboard app (a separate `#admin-main-wrapper` mount point) |
-| `PostRobotsMetaManager` | `classes/SeoVisibility/PostRobotsMetaManager.php` | The post-editor metabox's General tab noindex/nofollow toggles (Services\PostSeoMetaFields::META_KEYS) - filters WordPress core's own `wp_robots` output (the `<meta name="robots">` tag core has generated since WP 5.7) rather than |
+| `PostRobotsMetaManager` | `classes/SeoVisibility/PostRobotsMetaManager.php` | The post-editor metabox's General tab noindex/nofollow toggles (Services\PostSeoMetaFields::META_KEYS) - filters WordPress core's own `wp_robots` output (the `meta` tag core has generated since WP 5.7) rather than |
 | `PostSeoMetaFields` | `classes/SeoVisibility/PostSeoMetaFields.php` | Registers the post-editor metabox's own postmeta fields via `register_post_meta( ..., 'show_in_rest' => true )` rather than a bespoke REST controller for reading/writing them - this makes every field here ride along with the Block |
 | `RobotsBlockingCrawlersRule` | `classes/SeoVisibility/RobotsBlockingCrawlersRule.php` | Turns Seo\Scanners\RobotsTxtScanner's "robots.txt blocks every crawler" HIGH-severity Finding into a critical recommendation. |
 | `RobotsTxtBotAccess` | `classes/SeoVisibility/RobotsTxtBotAccess.php` | Parses `/robots.txt` into per-user-agent Disallow groups, scoped to the known AI bot tokens (CrawlerTrafficLogger::get_bot_signatures()) - the one piece Seo\Scanners\RobotsTxtScanner deliberately doesn't cover (its own docblock: a |
@@ -185,8 +185,8 @@ Hooks and routes registered by these classes:
 | `BlockRegistrar` | `classes/Content/BlockRegistrar.php` | Discovers and registers every Gutenberg block VuloPilot ships - `tools/webpack/create-config.js` builds each `src/blocks/{name}/` folder into `assets/js/block/{name}/` (block.json + render.php, if present, copied alongside the bui |
 | `FaqOpportunityRule` | `classes/Content/FaqOpportunityRule.php` | Turns Geo\Scanners\GeoFaqOpportunityScanner's "no FAQ-style questions" Finding into a recommendation to draft one with AI - good FAQ questions have to actually anticipate what a reader would ask about this specific content, which  |
 | `FaqRenderer` | `classes/Content/FaqRenderer.php` | Real render logic for the `vulopilot/faq` block (`src/blocks/faq/render.php` calls straight into this - see TableOfContentsRenderer's own docblock for why render.php itself must stay declaration-free). |
-| `HeadingAnchorInjector` | `classes/Content/HeadingAnchorInjector.php` | Injects `id="..."` onto every real `<h1>`-`<h6>` a `vulopilot/table-of- contents` block's own links point to - without this, the TOC's `<a href="#slug">` links would have nowhere real to land. |
-| `HeadingAnchorResolver` | `classes/Content/HeadingAnchorResolver.php` | The one real heading-slug algorithm both the `vulopilot/table-of-contents` block and `HeadingAnchorInjector` build on - kept in exactly one place so the TOC's own `<a href="#...">` links and the `id="..."` actually injected onto t |
+| `HeadingAnchorInjector` | `classes/Content/HeadingAnchorInjector.php` | Injects `id="..."` onto every real `h1`-`h6` a `vulopilot/table-of- contents` block's own links point to - without this, the TOC's `a` links would have nowhere real to land. |
+| `HeadingAnchorResolver` | `classes/Content/HeadingAnchorResolver.php` | The one real heading-slug algorithm both the `vulopilot/table-of-contents` block and `HeadingAnchorInjector` build on - kept in exactly one place so the TOC's own `a` links and the `id="..."` actually injected onto t |
 | `MissingSummaryBlockRule` | `classes/Content/MissingSummaryBlockRule.php` | Turns Geo\Scanners\GeoSummaryBlockScanner's "no upfront summary" Finding into a recommendation to draft one with AI - a good summary has to actually distill this specific content's key points, which needs the content itself. |
 | `NotFoundLogRepository` | `classes/Content/NotFoundLogRepository.php` | Persistence for vulopilot_not_found_logs - one row per unique missing URL visitors actually hit, not one row per visit (Install.php's own schema: `requested_path` is UNIQUE). |
 | `NotFoundLogger` | `classes/Content/NotFoundLogger.php` | - |

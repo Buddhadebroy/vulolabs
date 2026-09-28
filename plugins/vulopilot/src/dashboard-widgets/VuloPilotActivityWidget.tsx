@@ -26,7 +26,7 @@ interface HealthSnapshot {
 
 type PeriodDays = '7' | '30' | '90';
 
-/** Same real `key` field convention `OverviewTab.tsx`'s own identical `ToggleInput` usage already establishes - required so React's list key and each radio's real `id`/`htmlFor` pair are unique. */
+/** Same real `key` field convention `OverviewTab.tsx`'s own identical `ToggleInput` usage already establishes. */
 const PERIOD_OPTIONS = [
 	{ key: '7', value: '7', label: __('7D', 'vulopilot') },
 	{ key: '30', value: '30', label: __('30D', 'vulopilot') },
@@ -34,7 +34,7 @@ const PERIOD_OPTIONS = [
 ];
 
 
-/** Fabricated 7-day score trend - same "obviously fake, never mistaken for a real scan result" reasoning Accessibility.tsx's own `DUMMY_ACCESSIBILITY_HISTORY` documents; no real fetch behind this, ever. */
+/** Fabricated 7-day score trend - same "obviously fake, never mistaken for a real scan result" reasoning Accessibility.tsx's own `DUMMY_ACCESSIBILITY_HISTORY` documents. */
 const DUMMY_HEALTH_TIMELINE = [
 	{ day: __('Day 1', 'vulopilot'), score: 58 },
 	{ day: __('Day 2', 'vulopilot'), score: 63 },
@@ -46,26 +46,7 @@ const DUMMY_HEALTH_TIMELINE = [
 ];
 
 /**
- * "VuloPilot activity" - a real 5-tile activity strip. Every tile reads
- * data that already exists elsewhere on this Dashboard/plugin; this widget
- * only re-presents it compactly rather than introducing a new data source
- * per tile:
- *
- * - AI crawler visits: `GET /crawler-traffic/analytics?days=N` (same
- *   endpoint CrawlerAnalyticsSection.tsx uses), N following the Health
- *   timeline's own 7D/30D/90D toggle - `current_total`/
- *   `previous_total` are a real, already-computed N-day-vs-previous-N-day
- *   comparison (CrawlerVisitRepository::get_period_comparison()), and
- *   `daily_volume` backs a real sparkline of the selected period's days.
- * - Automations: `summary.automation_status.enabled` - already on the
- *   shared `/dashboard` payload (Controllers\Dashboard::get_items()).
- * - Last audit: `useLastScanTime()` (sitewide, no scanner/category
- *   filter) - the same real `vulopilot_scans.finished_at` used by every
- *   category page's own header.
- * - Pending approvals: `summary.pending_approvals` - the same real count
- *   NeedsAttentionWidget's "Pending approval" tab already lists.
- * - Latest report: `GET /reports?per_page=1` (same endpoint
- *   LatestReportsWidget already reads), most recent row's `created_at`.
+ * "VuloPilot activity" - a real 5-tile activity strip.
  */
 const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 	summary,

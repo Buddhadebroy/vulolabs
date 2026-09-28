@@ -29,14 +29,7 @@ const formatModuleName = (name: string): string => {
 };
 
 /**
- * Every real module id from ../Modules/index.ts's own catalog, keyed for a
- * cheap lookup below. GEO Radar ('geo-insights') and AEO Autopilot
- * ('aeo-insights') used to share one id here, which silently mislabeled
- * every 'geo-insights' popup as "Activate AEO Autopilot" (a `Map` keyed by
- * id keeps only the last of two entries sharing a key, and the AEO card is
- * listed second in that file) - fixed by giving AEO Autopilot its own
- * real, separate backend module id (see that catalog entry's own
- * docblock), so this lookup no longer has two entries to choose between.
+ * Every real module id from ../Modules/index.ts's own catalog, keyed for a cheap lookup below.
  */
 const MODULE_CATALOG_BY_ID = new Map(
 	MODULES_CATALOG.modules
@@ -45,33 +38,15 @@ const MODULE_CATALOG_BY_ID = new Map(
 );
 
 /**
- * Resolves a real module id to the SAME name Settings → Modules shows for
- * it - used to render `Activate {name}` below. Falls back to a plain
- * Title-Cased-from-kebab guess only for the handful of real, backend
- * modules that have no card on that page at all ('one-click-fix' - see Modules/index.ts's own docblock for why), since
- * there's no human-authored name anywhere in this catalog to look up for
- * those. Fixes a real mismatch this popup used to always have: every
- * moduleName call site with a real card (`automation`, `accessibility-
- * audits`, `geo-insights`, …) previously showed this same guessed name
- * ("Activate Automation") instead of that module's own real, branded name
- * ("Activate Workflow Autopilot - Automation Engine") - two different
- * names for the same module, depending on which part of the app you saw
- * it locked from.
- *
- * Exported so a caller rendering its own module-lock tag (e.g.
- * AutomationsTemplatesCard.tsx's per-row "module" badge) can show the exact
- * same name this popup's own "Activate {name}" heading uses, rather than a
- * second, separately-typed label that could drift from it.
+ * Resolves a real module id to the SAME name Settings → Modules shows for it - used to render
+ * `Activate {name}` below.
  */
 export const resolveModuleDisplayName = (moduleId: string): string =>
 	MODULE_CATALOG_BY_ID.get(moduleId)?.name ?? formatModuleName(moduleId);
 
 /**
- * Real icons for the real backend modules with no catalog entry at all
- * (see Modules/index.ts's own ModuleCatalogEntry.icon docblock) - kept
- * local here rather than added to that catalog, which would misleadingly
- * imply these have a real card to point `moduleName`'s "Enable Now"
- * link at.
+ * Real icons for the real backend modules with no catalog entry at all (see Modules/index.ts's own
+ * ModuleCatalogEntry.icon docblock).
  */
 const CARDLESS_MODULE_ICONS: Record<string, string> = {
 	'one-click-fix': 'tools',
@@ -79,16 +54,7 @@ const CARDLESS_MODULE_ICONS: Record<string, string> = {
 };
 
 /**
- * Resolves a real module id to a real `adminfont-*` glyph - every id in
- * Modules/index.ts's own catalog uses that entry's `icon` field; the 2
- * cardless ids above use CARDLESS_MODULE_ICONS; anything else (there
- * shouldn't be one) falls back to the id itself, same as before this
- * lookup existed. Fixes a real regression this popup would otherwise have:
- * `module.id` values (`geo-insights`, `accessibility-audits`, …) aren't
- * real icon glyph names in zyra's fonts.scss - confirmed only 1 of the 15
- * real module ids used across this file (`automation`) happens to also be
- * a defined `adminfont-automation` glyph, so deriving icons straight from
- * id would silently render a blank icon for the other 14.
+ * Resolves a real module id to a real `adminfont-*` glyph.
  */
 const resolveModuleIcon = (moduleId: string): string =>
 	MODULE_CATALOG_BY_ID.get(moduleId)?.icon ??
@@ -255,27 +221,8 @@ const ShowProPopup: React.FC<PopupProps> = (props) => {
 								icon: 'eye',
 								text: __('Enable Now', 'vulopilot'),
 								onClick: () => {
-									// Same admin page, just a different
-									// hash tab - '_self' matches this
-									// plugin's own same-page navigation
-									// convention. Omitting the
-									// target opens a new background tab
-									// instead (real browser behavior,
-									// despite MDN's prose default of
-									// '_self'), which silently left the
-									// user looking at the still-locked
-									// widget with no visible feedback.
-									//
-									// `tab=settings&subtab=modules`, not the
-									// old standalone `tab=modules` route -
-									// the real Modules UI moved there per
-									// direct instruction (Modules.ts's own
-									// docblock); that old route is still
-									// registered and renders the same real
-									// page, but it's no longer in the WP
-									// sidebar, so a deep-link landing there
-									// left the admin with no breadcrumb/
-									// highlighted-menu-item back out.
+									// Same admin page, just a different hash tab - '_self' matches
+									// this plugin's own same-page navigation convention.
 									window.open(
 										`${vulopilotAppLocalizer.admin_url}#&tab=settings&subtab=modules&module=${props.moduleName}`,
 										'_self'

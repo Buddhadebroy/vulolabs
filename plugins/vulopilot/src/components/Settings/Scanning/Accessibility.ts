@@ -2,19 +2,6 @@ import { __ } from '@wordpress/i18n';
 
 /**
  * Settings → Scanning → Accessibility.
- *
- * New tab pulling together 3 fields that previously lived inside Scanning
- * → Security's own shared "Accessibility" section (`enable_wcag_scanner`,
- * `accessibility_audit_frequency`, `target_wcag_level` - moved, not
- * duplicated, same precedent GetStarted/GoogleServices.ts's own docblock
- * documents for its move out of Scanning), plus one real setting that had
- * no settings-UI exposure anywhere until now:
- *
- * "Restore Defaults" is AccessibilityRestoreDefaultsHeader.tsx, wired via
- * this config's own `settingAction` (same migration AiVisibility.ts/
- * Security.ts already went through - rendered by
- * NavigatorComponent.tsx's renderSettingHeaderInfo(), not Settings.tsx's
- * own currentTab special-case anymore).
  */
 export default {
 	id: 'accessibility',

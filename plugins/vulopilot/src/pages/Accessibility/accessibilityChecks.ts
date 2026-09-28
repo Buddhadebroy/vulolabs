@@ -14,19 +14,7 @@ export interface AccessibilityCheck {
 }
 
 /**
- * The reference mockup's 5-tile "Accessibility Checks" grid - one bucket
- * merges what AccessibilityTab.tsx previously split into two separate
- * FindingsTable sections ("Forms" + "Links & Buttons") into one "Links &
- * Forms" tile, matching the mockup's own 5-tile IA exactly; every other
- * bucket is a 1:1 rename of an existing section. Shared by
- * AccessibilityHeroCard.tsx (combined scanner id list for its own
- * counts), AccessibilityChecksGrid.tsx (the tiles themselves),
- * AccessibilityPriorityList.tsx ("What should I fix first" - looks up
- * which check a given finding's scanner_id belongs to, for that row's
- * icon/color), and AccessibilityTab.tsx (passed straight through as
- * SectionedIssuesTable.tsx's own `sections` prop, for the merged issues
- * table at the bottom of the page) - one definition, not four driftable
- * copies.
+ * The reference mockup's 5-tile "Accessibility Checks" grid.
  */
 const REAL_ACCESSIBILITY_CHECKS: AccessibilityCheck[] = [
 	{
@@ -100,26 +88,13 @@ const REAL_ACCESSIBILITY_CHECKS: AccessibilityCheck[] = [
 	},
 ];
 
-/** Every real scanner id any of the 5 buckets above covers - the hero card's own combined counts. Deliberately excludes the synthetic `'all'` tile below (its own `scannerIds` already reduces to this same list) so nothing here double-counts. */
+/** Every real scanner id any of the 5 buckets above covers - the hero card's own combined counts. */
 export const ACCESSIBILITY_SCANNER_IDS = REAL_ACCESSIBILITY_CHECKS.flatMap(
 	(check) => check.scannerIds
 );
 
 /**
- * The 5 real buckets above, plus a 6th synthetic `'all'` tile - a real 6th
- * "All Checks" spot for AccessibilityChecksGrid.tsx's own grid (direct
- * instruction), combining every one of the 5 real buckets' own scanner
- * ids into one, same real total `ACCESSIBILITY_SCANNER_IDS` above already
- * is. Deliberately last, not first: `checkForScannerId()` below is a
- * `.find()`, so every real scanner id still resolves to its own specific
- * bucket first - `'all'` is never actually reachable through that lookup,
- * it exists only for the grid tile itself.
- *
- * Not passed to SectionedIssuesTable.tsx's own `sections` prop
- * (Accessibility.tsx filters this `'all'` entry back out before passing
- * it down) - that component already synthesizes its own "All" tab above
- * `sections` (see its own docblock), so including this tile there would
- * render two.
+ * The 5 real buckets above, plus a 6th synthetic `'all'` tile.
  */
 export const ACCESSIBILITY_CHECKS: AccessibilityCheck[] = [
 	...REAL_ACCESSIBILITY_CHECKS,

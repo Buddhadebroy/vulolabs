@@ -17,13 +17,7 @@ class SiteTelemetryReporter {
 	private const CRON_HOOK = 'vulopilot_site_telemetry_daily';
 
 	/**
-	 * Registers the daily cron report alongside the immediate,
-	 * connect-time report - Services\SecurityScoreSnapshotRecorder's own
-	 * "wp_next_scheduled()-guarded wp_schedule_event() on init" pattern.
-	 * The immediate report itself isn't triggered from here - it's called
-	 * directly by AiCreditsConnection::exchange_broker_code() right after
-	 * its own successful connect, since only it knows the connection just
-	 * became real.
+	 * Registers the daily cron report alongside the immediate, connect-time report.
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'ensure_daily_report_scheduled' ) );
@@ -40,11 +34,8 @@ class SiteTelemetryReporter {
 	}
 
 	/**
-	 * The daily cron callback - reports every currently-connected
-	 * connection this plugin holds. Best-effort: a failed report just
-	 * means the detail page keeps showing stale/blank telemetry until the
-	 * next successful attempt, never surfaced to the site owner as an
-	 * error.
+	 * The daily cron callback - reports every currently-connected connection this plugin
+	 * holds.
 	 *
 	 * @return void
 	 */
@@ -115,35 +106,20 @@ class SiteTelemetryReporter {
 			'Theme'          => $theme->get( 'Name' ),
 			'Theme Version'  => $theme->get( 'Version' ),
 			'Platform'       => 'WordPress',
-			// $wpdb->db_version() is the server's raw MySQL/MariaDB protocol
-			// version (e.g. "5.7.44-log") - real and always available,
-			// unlike Commerce/LMS Platform below.
+			// $wpdb->db_version() is the server's raw MySQL/MariaDB protocol version (e.g.
+			// "5.7.44-log").
 			'Database'       => $wpdb->db_version(),
-			// Core since WP 5.5 ('production' unless the host/wp-config.php
-			// explicitly sets WP_ENVIRONMENT_TYPE otherwise) - real, not a
-			// guess, so worth sending even though most sites report the
-			// same default value.
+			// Core since WP 5.5 ('production' unless the host/wp-config.php explicitly sets
+			// WP_ENVIRONMENT_TYPE otherwise).
 			'Environment'    => wp_get_environment_type(),
 			'Hosting Type'   => $this->detect_hosting_type(),
-			// Commerce/LMS Platform, Framework Version and Site Type are
-			// deliberately omitted - this plugin has no generic, honest way
-			// to determine "does this site run a commerce/LMS platform" or
-			// "what's its cart-framework version" (that was MultiVendorX's
-			// own tracker reporting on itself, not something a generic
-			// tracker for a security/management plugin can infer). Sending
-			// a guess here would be worse than leaving the console's own
-			// "-" placeholder. Country is likewise left for the server
-			// side to resolve from the request's own IP at ingest time,
-			// not something this site can determine about itself.
+			// Commerce/LMS Platform, Framework Version and Site Type are deliberately omitted.
 		);
 	}
 
 	/**
-	 * Best-effort recognition of a handful of hosts that identify
-	 * themselves via a well-known constant/function in wp-config.php or
-	 * an mu-plugin - never a network call, and '' (shown as "-") rather
-	 * than a guess when none match, same honesty posture the rest of this
-	 * payload follows.
+	 * Best-effort recognition of a handful of hosts that identify themselves via a well-
+	 * known constant/function in wp-config.php or an mu-plugin.
 	 *
 	 * @return string
 	 */

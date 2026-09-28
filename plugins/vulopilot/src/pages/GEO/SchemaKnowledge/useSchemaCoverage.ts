@@ -30,30 +30,20 @@ export interface SchemaCoverageSnapshot {
 	generated_at: string;
 	sample_size: number;
 	pages_checked: number;
-	/** Real count of `pages_checked` where at least one real `@type` was actually found - the "Schema Status" summary card's own per-page pass count. */
+	/** Real count of `pages_checked` where at least one real `@type` was actually found. */
 	pages_with_valid_schema: number;
 	/** `pages_checked - pages_with_valid_schema` - pages where the real sample found zero structured data at all. */
 	pages_needing_attention: number;
 	coverage: SchemaCoverageRow[];
-	/** Every checked page with its own found types. Absent on a snapshot cached before this field existed - re-analyze to populate. */
+	/** Every checked page with its own found types. */
 	pages?: SchemaCoverageCheckedPage[];
 }
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 /**
- * `GET`/`POST /schema/coverage` - Schema.php's own real per-page JSON-LD
- * sample (SchemaCoverageAnalyzer, real outbound HTTP, no AI). GET reads
- * back whatever was last generated (or `null`); `analyze()` triggers a
- * fresh real sample and updates local state with the result, same
- * "loading a page never silently spends real work" posture
- * GEO's own useGeoTabData.ts (`useGeoVisibilitySnapshot`) summary/history split already
- * documents for GEO.
- *
- * Moved here unchanged from GEO/useSchemaCoverage.ts as part of merging
- * the standalone Schema tab into the "Schema & Knowledge" tab's own
- * Overview/Structured Data sections - this hook's own contract didn't
- * change, only which components import it.
+ * `GET`/`POST /schema/coverage` - Schema.php's own real per-page JSON-LD sample
+ * (SchemaCoverageAnalyzer, real outbound HTTP, no AI).
  */
 export const useSchemaCoverage = (): {
 	snapshot: SchemaCoverageSnapshot | null;

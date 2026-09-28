@@ -86,12 +86,8 @@ const SCAN_ROWS: Row[] = [
 		flatKey: 'enable_rest_api_scanner',
 		icon: 'person pink',
 		label: __('Exposed usernames', 'vulopilot'),
-		// The mockup's own copy here ("risky roles or unnecessary access")
-		// doesn't describe any real scanner this codebase has - the closest
-		// real check is RestApiScanner's anonymous `GET /wp/v2/users`
-		// probe, which is about username enumeration, not role/capability
-		// auditing. Worded to what it actually does rather than the
-		// mockup's literal text.
+		// The mockup's own copy here ("risky roles or unnecessary access") doesn't describe any
+		// real scanner this codebase has.
 		desc: __(
 			'Checks whether a part of WordPress that other plugins and apps talk to automatically (the REST API) is publicly revealing usernames — often the first step in a brute-force login attack.',
 			'vulopilot'
@@ -256,9 +252,7 @@ const SecurityPanel = () => {
 	const [isModulePopupOpen, setIsModulePopupOpen] = useState(false);
 	const openModulePopup = () => setIsModulePopupOpen(true);
 
-	// Every row on this tab needs the Website Security module, so with it off
-	// any click on the panel opens the module popup (same as a locked field
-	// elsewhere in Settings) instead of doing nothing.
+	// Every row on this tab needs the Website Security module.
 	const handleLockedClick = (event: MouseEvent) => {
 		if (hasSecurityMonitoring) {
 			return;
@@ -408,22 +402,7 @@ const SecurityPanel = () => {
 					</FormGroupWrapperComponent>
 				</div>
 			</div>
-			{/*
-			 * `.settings-section-group` > `.settings-left-section` (the
-			 * section header) + `.settings-right-section` (a nested
-			 * `FormGroupWrapperComponent` holding that group's own fields)
-			 * - the exact same markup/classes InputRenderer.tsx's own
-			 * `renderForm()` generates automatically when grouping a
-			 * declarative `modal` array by its `type: 'section'` fields
-			 * (`groupBySections`). This tab is hand-built rather than
-			 * InputRenderer-driven (see this file's own docblock - every
-			 * "section" here wraps a real `ExpandablePanelInput` wired to
-			 * live handlers, not a flat FIELD_REGISTRY field), so it
-			 * doesn't get that grouping for free; replicated by hand
-			 * instead of inventing new markup, so a hand-built tab's own
-			 * section cards render identically to a declarative one's
-			 * (e.g. General.ts).
-			 */}
+			{/* * `.settings-section-group` > `.settings-left-section` (the * section header) + `.settings-right-section` (a nested * `FormGroupWrapperComponent` holding that group's own fields) * - the exact same markup/classes InputRenderer.tsx's own * `renderForm()` generates automatically when grouping a * declarative `modal` array by its `type: 'section'` fields * (`groupBySections`). */}
 			<div className="settings-section-group">
 				<div className="settings-left-section">
 					<SectionComponent

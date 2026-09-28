@@ -25,14 +25,7 @@ import {
 const BRAND_MODULE_ID = 'brand-visibility';
 
 /**
- * Section → scanner_id grouping for Brand Intelligence's 7 scanners
- * (BRAND-INTELLIGENCE-MODULE.md) - this module's own 3 new `brand`-category
- * scanners, plus 4 existing `geo`-category scanners it reports on rather
- * than duplicates. Fed into SectionedFindingsTab (same shell GeoTab.tsx/
- * AeoTab.tsx/SeoTab.tsx use) per direct instruction, replacing what used to
- * be 3 separate FindingsTable cards. Same cross-category `scannerIds`-prop
- * mechanism Content.tsx's own CONTENT_SECTIONS already documents - no
- * `category` prop passed, same as before.
+ * Section → scanner_id grouping for Brand Intelligence's 7 scanners.
  */
 const BRAND_SECTIONS: FindingsSection[] = [
 	{
@@ -77,10 +70,7 @@ const BRAND_SECTIONS: FindingsSection[] = [
 ];
 
 /**
- * Whether the Brand Intelligence module (Settings → Modules) is active -
- * same "genuinely gates scanning" posture Content.tsx's own
- * isContentModuleActive() already documents, for the identical reason:
- * this module's own 3 scanners only run while it's active.
+ * Whether the Brand Intelligence module (Settings → Modules) is active.
  */
 const isBrandModuleActive = () =>
 	vulopilotAppLocalizer.active_modules?.includes(BRAND_MODULE_ID) ?? false;

@@ -15,156 +15,151 @@ defined( 'ABSPATH' ) || exit;
  */
 class BasicVulnerabilitiesScanner extends ScannerUtil {
 
-    private const REQUEST_TIMEOUT_SECONDS = 10;
+	private const REQUEST_TIMEOUT_SECONDS = 10;
 
-    /**
-     * @inheritDoc
-     */
-    public function get_id(): string {
-        return 'basic-vulnerabilities';
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function get_id(): string {
+		return 'basic-vulnerabilities';
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function get_label(): string {
-        return __( 'Basic Vulnerabilities', 'vulopilot' );
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function get_label(): string {
+		return __( 'Basic Vulnerabilities', 'vulopilot' );
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function get_category(): string {
-        return 'security';
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function get_category(): string {
+		return 'security';
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function scan(): array {
-        $findings = array();
+	/**
+	 * @inheritDoc
+	 */
+	public function scan(): array {
+		$findings = array();
 
-        $settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
+		$settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
-        if ( empty( $settings['enable_basic_vulnerabilities_scanner'] ) ) {
-            return $findings;
-        }
+		if ( empty( $settings['enable_basic_vulnerabilities_scanner'] ) ) {
+			return $findings;
+		}
 
-        $generator_finding = $this->check_generator_meta_tag();
-        if ( $generator_finding ) {
-            $findings[] = $generator_finding;
-        }
+		$generator_finding = $this->check_generator_meta_tag();
+		if ( $generator_finding ) {
+			$findings[] = $generator_finding;
+		}
 
-        $readme_finding = $this->check_readme_exposed();
-        if ( $readme_finding ) {
-            $findings[] = $readme_finding;
-        }
+		$readme_finding = $this->check_readme_exposed();
+		if ( $readme_finding ) {
+			$findings[] = $readme_finding;
+		}
 
-        $prefix_finding = $this->check_default_table_prefix();
-        if ( $prefix_finding ) {
-            $findings[] = $prefix_finding;
-        }
+		$prefix_finding = $this->check_default_table_prefix();
+		if ( $prefix_finding ) {
+			$findings[] = $prefix_finding;
+		}
 
-        return $findings;
-    }
+		return $findings;
+	}
 
-    /**
-     * The homepage's own `<meta name="generator">` tag advertises the
-     * exact WordPress core version to anyone viewing the page source -
-     * makes it trivial for automated tooling to target known
-     * version-specific vulnerabilities without even needing readme.html.
-     *
-     * @return Finding|null
-     */
-    private function check_generator_meta_tag(): ?Finding {
-        $url = home_url( '/' );
+	/**
+	 * The homepage's own `meta` tag advertises the exact WordPress core
+	 * version to anyone viewing the page source.
+	 *
+	 * @return Finding|null
+	 */
+	private function check_generator_meta_tag(): ?Finding {
+		$url = home_url( '/' );
 
-        $response = wp_remote_get(
-            $url,
-            array(
-                'timeout'   => self::REQUEST_TIMEOUT_SECONDS,
-                'sslverify' => false,
-            )
-        );
+		$response = wp_remote_get(
+			$url,
+			array(
+				'timeout'   => self::REQUEST_TIMEOUT_SECONDS,
+				'sslverify' => false,
+			)
+		);
 
-        if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-            return null;
-        }
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return null;
+		}
 
-        $body = wp_remote_retrieve_body( $response );
+		$body = wp_remote_retrieve_body( $response );
 
-        if ( ! preg_match( '/<meta\s+name=["\']generator["\']\s+content=["\']WordPress\s/i', $body ) ) {
-            return null;
-        }
+		if ( ! preg_match( '/<meta\s+name=["\']generator["\']\s+content=["\']WordPress\s/i', $body ) ) {
+			return null;
+		}
 
-        return new Finding(
-            __( 'WordPress version is exposed in the homepage\'s generator tag', 'vulopilot' ),
-            Severity::MEDIUM,
-            $this->get_category(),
-            __( 'The homepage\'s HTML includes a generator meta tag naming the exact WordPress version, making it easier for automated scanners to target version-specific vulnerabilities. Remove it via the `wp_head` "wp_generator" callback.', 'vulopilot' ),
-            'url',
-            $url
-        );
-    }
+		return new Finding(
+			__( 'WordPress version is exposed in the homepage\'s generator tag', 'vulopilot' ),
+			Severity::MEDIUM,
+			$this->get_category(),
+			__( 'The homepage\'s HTML includes a generator meta tag naming the exact WordPress version, making it easier for automated scanners to target version-specific vulnerabilities. Remove it via the `wp_head` "wp_generator" callback.', 'vulopilot' ),
+			'url',
+			$url
+		);
+	}
 
-    /**
-     * The bundled `readme.html` at the site root also reveals the exact
-     * core version (its "Version X.Y" line), independent of the generator
-     * meta tag - a site that removed the tag but left this file in place
-     * is still exposed.
-     *
-     * @return Finding|null
-     */
-    private function check_readme_exposed(): ?Finding {
-        $url = home_url( '/readme.html' );
+	/**
+	 * The bundled `readme.html` at the site root also reveals the exact core version (its
+	 * "Version X.Y" line), independent of the generator meta tag.
+	 *
+	 * @return Finding|null
+	 */
+	private function check_readme_exposed(): ?Finding {
+		$url = home_url( '/readme.html' );
 
-        $response = wp_remote_get(
-            $url,
-            array(
-                'timeout'   => self::REQUEST_TIMEOUT_SECONDS,
-                'sslverify' => false,
-            )
-        );
+		$response = wp_remote_get(
+			$url,
+			array(
+				'timeout'   => self::REQUEST_TIMEOUT_SECONDS,
+				'sslverify' => false,
+			)
+		);
 
-        if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-            return null;
-        }
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return null;
+		}
 
-        if ( false === stripos( wp_remote_retrieve_body( $response ), 'WordPress' ) ) {
-            return null;
-        }
+		if ( false === stripos( wp_remote_retrieve_body( $response ), 'WordPress' ) ) {
+			return null;
+		}
 
-        return new Finding(
-            __( 'The default readme.html file is publicly accessible', 'vulopilot' ),
-            Severity::LOW,
-            $this->get_category(),
-            __( 'This file ships with WordPress core and reveals the installed version. Delete it or block direct access to it.', 'vulopilot' ),
-            'url',
-            $url
-        );
-    }
+		return new Finding(
+			__( 'The default readme.html file is publicly accessible', 'vulopilot' ),
+			Severity::LOW,
+			$this->get_category(),
+			__( 'This file ships with WordPress core and reveals the installed version. Delete it or block direct access to it.', 'vulopilot' ),
+			'url',
+			$url
+		);
+	}
 
-    /**
-     * A table prefix left at the WordPress default (`wp_`) makes certain
-     * classes of SQL-injection attack marginally easier to write, since the
-     * attacker doesn't need to first discover the prefix.
-     *
-     * @return Finding|null
-     */
-    private function check_default_table_prefix(): ?Finding {
-        global $wpdb;
+	/**
+	 * A table prefix left at the WordPress default (`wp_`) makes certain classes of SQL-
+	 * injection attack marginally easier to write.
+	 *
+	 * @return Finding|null
+	 */
+	private function check_default_table_prefix(): ?Finding {
+		global $wpdb;
 
-        if ( 'wp_' !== $wpdb->prefix ) {
-            return null;
-        }
+		if ( 'wp_' !== $wpdb->prefix ) {
+			return null;
+		}
 
-        return new Finding(
-            __( 'Database table prefix is the WordPress default ("wp_")', 'vulopilot' ),
-            Severity::LOW,
-            $this->get_category(),
-            __( 'A non-default table prefix is a small extra hurdle against certain automated SQL-injection attempts. Changing it on an existing site requires a careful, backed-up migration - this is a hardening note, not something to change casually.', 'vulopilot' ),
-            'table',
-            $wpdb->prefix
-        );
-    }
+		return new Finding(
+			__( 'Database table prefix is the WordPress default ("wp_")', 'vulopilot' ),
+			Severity::LOW,
+			$this->get_category(),
+			__( 'A non-default table prefix is a small extra hurdle against certain automated SQL-injection attempts. Changing it on an existing site requires a careful, backed-up migration - this is a hardening note, not something to change casually.', 'vulopilot' ),
+			'table',
+			$wpdb->prefix
+		);
+	}
 }

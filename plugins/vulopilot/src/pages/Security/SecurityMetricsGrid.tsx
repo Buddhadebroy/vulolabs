@@ -6,18 +6,7 @@ import type { SectionedIssuesTab } from './SectionedIssuesTable';
 import './ProtectMySite.scss';
 
 /**
- * Where each of the 7 real (scanner-backed) tiles' row click goes - every
- * one of them now has a real matching section on THIS SAME tab's own
- * merged issues table (SectionedIssuesTable.tsx, via `onViewSection`,
- * passed down from SecurityTab.tsx). Used to also carry Accessibility/Site
- * Health/Backups/Recovery, each linking out to a different "Protect My
- * Site" sub-tab - removed per direct instruction: those already have their
- * own dedicated tabs, so showing them a second time here was pure IA
- * duplication, not a genuine security finding this list should surface.
- * "Plugin Vulnerabilities"/"File Changes" used to link out to Files &
- * Plugins the same way - now real in-tab sections instead
- * ('vulnerabilities'/'suspicious-file-changes'), since those findings moved
- * onto this tab's own issues table (SecurityTab.tsx's own docblock).
+ * Where each of the 7 real (scanner-backed) tiles' row click goes.
  */
 const VIEW_TARGET_BY_TILE_ID: Record<
 	string,
@@ -89,37 +78,7 @@ const NOT_TRACKED_BADGES = [
 ];
 
 /**
- * The mockup's tile grid - converted from a `MetricTileComponent` grid to
- * the same real per-section `ListComponent` row shape
- * SiteHealthStatusCard.tsx's own list already uses (icon + title + desc on
- * the left, 2 real separate badges - total open + top-severity breakdown,
- * `useSectionStatus()`'s own `badges` array - on the right), per direct
- * instruction to match that same structure. Down to 7 rows (from 11) per
- * earlier direct instruction: Accessibility/Site Health/Backups/Recovery
- * removed (dedicated tabs already cover them, so showing them here too was
- * pure duplication, not a security finding this list should surface).
- * Every remaining row is real and scanner-backed. Security Scan (whole
- * 'security' category), Vulnerabilities
- * (`basic-vulnerabilities`/`advanced-vulnerabilities`/`theme-vulnerabilities`
- * - the latter absorbed from the now-removed "Files & Plugins" tab's own
- * "Theme Vulnerabilities" section per direct instruction, one combined
- * row rather than a separate one), Suspicious File Changes
- * (`core-file-integrity`/`integrity-monitoring`), SSL - note category
- * **'ssl'**, not 'security' (`SslMonitoringScanner` registers under its own
- * category; `useSectionStatus` ANDs category+scanner_id server-side, same
- * as FindingsTable, so passing 'security' here would silently return zero
- * results).
- *
- * Malware/Firewall/Login Protection are real, always-on core features
- * (Services\MalwareScanner et al., `classes/Services/`), each with its own
- * companion Scanner (`malware`/`firewall`/`login-protection`) so they slot
- * into this exact same real `useSectionStatus()` badge machinery.
- *
- * Clicking a row (`ListComponent`'s own `action`) jumps to that row's own
- * section on this same tab's merged issues table (`VIEW_TARGET_BY_TILE_ID`
- * above), same destination the old tile grid's badge-click used - rows
- * with no matching section (none currently) render without an `action`, so
- * they're not clickable.
+ * Security tile grid, rendered as a `ListComponent` of per-section rows.
  */
 const SecurityMetricsGrid = ({
 	onViewSection,
@@ -184,12 +143,8 @@ const SecurityMetricsGrid = ({
 				const isTracked = Boolean(VIEW_TARGET_BY_TILE_ID[tile.id]);
 				const badges = badgesFor(tile.id);
 
-				// 2 real badges (total open + top-severity breakdown) split
-				// one after the title, one on the row's far right - same
-				// `titleTag`/`tags` split HistoryDetailPanel.tsx's own
-				// `ListComponent` rows already use for this. A single-badge
-				// row ("No open findings"/plain "N Open" - nothing to
-				// split) keeps its one badge on the right only.
+				// 2 real badges (total open + top-severity breakdown) split one after the title,
+				// one on the row's far right.
 				const [rightBadge, titleBadge] = badges ?? [];
 
 				return {

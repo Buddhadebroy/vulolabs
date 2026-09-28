@@ -12,21 +12,8 @@ use VuloPilot\Dashboard\ActivityLogRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Collects every registered extension (`vulopilot_extension_sources`
- * filter) and calls its register() - the SDK's discovery layer, same
- * discovery-by-filter shape as Scanners\ScannerRegistry/RuleEngine\RuleRegistry/
- * AutomationEngine\TriggerRegistry, but one level up: an extension doesn't
- * scan or rule anything itself, it's a bundle whose own register() method
- * calls those *existing* filters (ARCHITECTURE.md's "Extension system =
- * the discovery-by-filter mechanism itself" - this doesn't replace that,
- * it adds the one thing raw filter registration can't: a real version
- * compatibility gate).
- *
- * Hooked at `init` priority 15, one tick before the per-concern registries
- * (ScannerRegistry et al., all priority 20) read their own filters - so an
- * extension's register() call has already added its own scanner/rule/
- * automation/report classes to those filters by the time the
- * registries that consume them run.
+ * Collects every registered extension (`vulopilot_extension_sources` filter) and calls its
+ * register().
  *
  * @class       ExtensionManager class
  * @version     1.0.0
@@ -42,9 +29,8 @@ class ExtensionManager {
 	private array $extensions = array();
 
 	/**
-	 * Extensions found but skipped for failing the version check, keyed
-	 * by their own get_id() - what the admin notice and
-	 * `wp vulopilot extensions list` both read.
+	 * Extensions found but skipped for failing the version check, keyed by their own
+	 * get_id().
 	 *
 	 * @var array<string, array{name: string, version: string, required: string}>
 	 */
@@ -60,11 +46,7 @@ class ExtensionManager {
 
 	/**
 	 * Instantiates every registered extension class, gates each on
-	 * VersionGuard::meets_minimum(), and calls register() on the ones that
-	 * pass. A class that doesn't exist, doesn't implement
-	 * ExtensionInterface, or fails its own register() call is silently
-	 * skipped (the latter logged, not thrown) rather than fataling every
-	 * other extension - same defensive posture as every sibling registry.
+	 * VersionGuard::meets_minimum(), and calls register() on the ones that pass.
 	 *
 	 * @return void
 	 */

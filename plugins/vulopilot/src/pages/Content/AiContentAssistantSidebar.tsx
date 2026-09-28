@@ -161,30 +161,7 @@ const AiContentAssistantSidebar = () => {
 	};
 
 	/**
-	 * Picking a chip doesn't send anything to the AI yet - it asks the real
-	 * follow-up question first (a local, scripted chat turn, not an AI
-	 * response) and waits for the user's next message to answer it. That
-	 * reply gets folded into the chip's own build() into one real, useful
-	 * instruction (e.g. "Write a blog about eco-friendly packaging") -
-	 * what's actually shown as the user's turn and sent to the AI, not the
-	 * bare reply on its own.
-	 *
-	 * Guarded on `pendingChip` the same way `handleSend()` already guards
-	 * on `isSending` - the chip grid stays clickable the whole time (it's
-	 * not disabled/hidden once a question is asked), so without this a
-	 * user clicking the same chip again while its question is still
-	 * unanswered re-ran this and appended a 2nd, identical "assistant"
-	 * turn - confirmed live: 4 clicks on "Write a blog" stacked 4 copies
-	 * of "What should the blog be about?" in the chat. One open question
-	 * at a time is the real, correct behavior; the user must answer (or
-	 * the request must finish) before another chip can ask a new one.
-	 *
-	 * Checked up front, before even asking the clarifying question - per
-	 * direct instruction ("when click work on description then the
-	 * connect popup show, not functionality work until the account is
-	 * connected"): picking a chip with no AI service connected opens the connect
-	 * popup immediately, rather than walking through a
-	 * question the eventual real send would just fail on anyway.
+	 * Picking a chip doesn't send anything to the AI yet.
 	 */
 	const handleChipClick = (chip: PromptChip) => {
 		if (isSending || pendingChip) {
@@ -211,9 +188,7 @@ const AiContentAssistantSidebar = () => {
 			return;
 		}
 
-		// Same up-front check `handleChipClick()` already makes - this is
-		// the one still needed for a message typed directly into "Ask
-		// Anything…" without going through a chip first.
+		// Same up-front check `handleChipClick()` already makes.
 		if (creditsStatus && !creditsStatus.connected) {
 			setIsCloudConnectPromptOpen(true);
 			return;
@@ -228,10 +203,8 @@ const AiContentAssistantSidebar = () => {
 		sendToAi(realMessage, history);
 	};
 
-	// AiChatCard's own onSelectPrompt only hands back a prompt's title (the
-	// shape every real composer's prompt grid shares) - looked back up
-	// against PROMPT_CHIPS here since handleChipClick needs the chip's own
-	// `ask`/`build`, not just its title.
+	// AiChatCard's own onSelectPrompt only hands back a prompt's title (the shape every real
+	// composer's prompt grid shares).
 	const handleSelectPrompt = (title: string) => {
 		const chip = PROMPT_CHIPS.find((c) => c.title === title);
 
@@ -241,11 +214,7 @@ const AiContentAssistantSidebar = () => {
 	};
 
 	/**
-	 * "New Chat" - this composer has no server-side conversation entity to
-	 * reset (see this file's own docblock: `turns` is client-side-only,
-	 * sent back as plain `history` on every call), so starting fresh is
-	 * just clearing everything local: the running turns, whatever's typed,
-	 * and a still-unanswered chip question.
+	 * "New Chat": clears the local turns, the typed text and any unanswered chip question.
 	 */
 	const handleNewChat = () => {
 		setTurns([]);
@@ -254,17 +223,7 @@ const AiContentAssistantSidebar = () => {
 	};
 
 	/**
-	 * "Chat History" - unlike AI Copilot's own per-conversation popup, this
-	 * composer has no `vulopilot_ai_conversations` row to reopen a past
-	 * thread from (this file's own docblock). What IS real: every message
-	 * that actually creates content runs through the same
-	 * `ContentCreationOrchestrator` AI Copilot's own content-creation turns
-	 * do (ContentAssistant.php), which logs a real `vulopilot_ai_action_runs`
-	 * row/activity-log "change" event - exactly what Reports → History's
-	 * own "Change" filter (HistoryTab.tsx, moved there from AI Copilot)
-	 * already lists. So "Chat History" here is a real navigation to that
-	 * existing report rather than a reopen-this-thread popup - there's
-	 * nothing to reopen, but there's real history to see.
+	 * "Chat History" - unlike AI Copilot's own per-conversation popup.
 	 */
 	const handleOpenHistory = () => {
 		window.location.href = '?page=vulopilot#&tab=reports&subtab=history';

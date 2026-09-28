@@ -15,7 +15,7 @@ interface AutomationRow {
 	trigger_type: string;
 }
 
-/** Free ships exactly these 2 built-in automations (Automations\BuiltinAutomationSeeder) - the card lists only them, in this order, with their own icon/description. */
+/** Free ships exactly these 2 built-in automations (Automations\BuiltinAutomationSeeder). */
 const BUILTIN_ROWS = [
 	{
 		trigger: 'free_visibility_report',

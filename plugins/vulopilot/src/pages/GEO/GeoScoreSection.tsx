@@ -30,14 +30,7 @@ const ratingClass = (score: number): string => {
 };
 
 /**
- * This card's own 7 `SIGNAL_META` keys → GeoTab.tsx's own 5 real
- * `GEO_TOPICS` keys - not 1:1 (see `Geo.php`'s own `SIGNAL_SCANNER_IDS`
- * docblock: `entity-clarity`/`content-freshness`/`other-geo-signals` are
- * split out of `GEO_TOPICS`' single "Other Signals" catch-all here, and
- * `question-coverage` is `GEO_TOPICS`' own differently-named
- * "faq-questions"), so a signal row's own click-through to the real
- * "All GEO Issues" table below needs this real mapping rather than
- * assuming the two keyspaces line up.
+ * This card's own 7 `SIGNAL_META` keys → GeoTab.tsx's own 5 real `GEO_TOPICS` keys.
  */
 const SIGNAL_TO_TOPIC_KEY: Record<string, string> = {
 	'ai-summary': 'ai-summary',
@@ -50,13 +43,8 @@ const SIGNAL_TO_TOPIC_KEY: Record<string, string> = {
 };
 
 /**
- * The 7 real signals `Geo.php`'s own `SIGNAL_SCANNER_IDS` (+ the separately
- * computed `content-freshness`) return - display metadata only (label,
- * icon, a real description of what each one actually checks) kept
- * deliberately free of any numeric "weight", since the real `geo_score`
- * behind this card is an unweighted mean (see Geo.php's own docblock) and
- * no such per-signal weighting number exists anywhere in this codebase to
- * honestly print next to these names.
+ * The 7 real signals `Geo.php`'s own `SIGNAL_SCANNER_IDS` (+ the separately computed `content-
+ * freshness`) return.
  */
 const SIGNAL_META: { key: keyof import('./useGeoScore').GeoScoreResponse['signals']; label: string; icon: string; description: string }[] = [
 	{
@@ -133,7 +121,7 @@ interface ProgressResponse {
 	trend: { date: string; score: number }[];
 }
 
-/** Same real `document.getElementById(...).scrollIntoView()` convention `QuickActionsCard.tsx`'s own `scrollTo()` already establishes - a signal row's own click target here, since (unlike SEO's per-category `categoryFocus` filter) the "GEO Score Breakdown" table below has no real per-signal filtering to drive, just the same `SIGNAL_META` rows to scroll down to. */
+/** Same real `document.getElementById(...).scrollIntoView()` convention `QuickActionsCard.tsx`'s own `scrollTo()` already establishes. */
 const scrollToBreakdown = () => {
 	document
 		.getElementById('geo-score-breakdown-table')
@@ -141,14 +129,9 @@ const scrollToBreakdown = () => {
 };
 
 /**
- * Real per-signal score change - same real "current score minus the
- * oldest point in this signal's own real `trend`" shape `SeoTab.tsx`'s own
- * `categoryScoreDelta()` already established, now backed by `Geo.php`'s
- * own real `signal.trend` (added alongside this). `null` when there's no
- * real trend to diff (a `content-freshness` signal, or a signal with a
- * `null` score) - the row's own delta arrow renders nothing rather than a
- * fabricated "+0" in either case, same convention `categoryScoreDelta()`
- * already follows.
+ * Real per-signal score change - same real "current score minus the oldest point in this signal's
+ * own real `trend`" shape `SeoTab.tsx`'s own `categoryScoreDelta()` already established, now
+ * backed by `Geo.php`'s own real `signal.trend` (added alongside this).
  */
 const signalScoreDelta = (signal: GeoSignalScore): number | null =>
 	null !== signal.score && signal.trend && signal.trend.length > 0
@@ -168,18 +151,13 @@ const mainProblemText = (key: string, signal: GeoSignalScore): string => {
 };
 
 /**
- * Layout: GEO Score ring + "How this score is calculated" signal list (top
- * left) / Score Snapshot real day trend (top right) / GEO Score Breakdown
- * table - Signal, Score, Status, Main Problem (bottom left).
+ * Layout: GEO Score ring + "How this score is calculated" signal list (top left) / Score Snapshot
+ * real day trend (top right) / GEO Score Breakdown table - Signal, Score, Status, Main Problem
+ * (bottom left).
  */
 interface GeoScoreSectionProps {
 	/**
-	 * GeoTab.tsx's own real `goToIssuesTable()` (its `setCategoryFocus`
-	 * wrapper) - same real click-through SeoTab.tsx's own category rows
-	 * already give SeoTab.tsx's own `categoryFocus`, now wired here too
-	 * so a signal row filters + scrolls to the real "All GEO Issues" table
-	 * below (`GeoTab.tsx`'s own `IssuesSection`) instead of just scrolling
-	 * to this card's own static breakdown table.
+	 * GeoTab.tsx's own real `goToIssuesTable()` (its `setCategoryFocus` wrapper).
 	 */
 	onSelectSignal?: (topicKey: string) => void;
 }
@@ -220,12 +198,8 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 								<ChartComponent
 									type="ring"
 									height={200}
-									// Top-level `color` - `type="ring"` only ever
-									// paints its stroke from this prop, never from
-									// `data[].color` below (see SeoTab.tsx's own
-									// identical fix) - without it the ring stayed
-									// `ChartComponent`'s default brand purple
-									// regardless of score.
+									// Top-level `color` - `type="ring"` only ever paints its stroke
+									// from this prop.
 									color={
 										COLOR_PALETTE[
 											ratingClass(overall) as keyof typeof COLOR_PALETTE
@@ -245,14 +219,9 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 										{
 											label: __('Score', 'vulopilot'),
 											value: overall,
-											// Same real rating color the ring's own
-											// Good/Needs Work/Poor label above already
-											// uses (`ratingClass()`/`getRating()`) -
-											// resolved through `COLOR_PALETTE`, same
-											// convention SeoTab.tsx's own identical ring
-											// already established, rather than the fixed
-											// brand purple this used before (unrelated to
-											// the actual score).
+											// Same real rating color the ring's own Good/Needs
+											// Work/Poor label above already uses
+											// (`ratingClass()`/`getRating()`).
 											color: COLOR_PALETTE[
 												ratingClass(overall) as keyof typeof COLOR_PALETTE
 											],
@@ -271,26 +240,7 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 									)}
 								</div>
 						</div>
-						{/*
-						 * Same real `ListComponent` "mini-card report" row
-						 * shape SeoTab.tsx's own "SEO Health" card uses for
-						 * its 6 category rows - reused here for this card's
-						 * own real 7 signals (`SIGNAL_META`/`score.signals`).
-						 * No per-row delta arrow (unlike SEO's rows): this
-						 * endpoint's own `GeoScoreResponse` has no
-						 * per-signal `trend` to diff against, only a single
-						 * sitewide `deltas.total_open` (the "Issues found"
-						 * tile below), so nothing is fabricated here to fill
-						 * that slot. A row's own real open-issue count
-						 * becomes its `desc` the same way SEO's does; a
-						 * `null` score (not enough content yet) reuses this
-						 * file's own real `mainProblemText()` copy instead
-						 * of a fake number. Clicking a row scrolls to the
-						 * real "GEO Score Breakdown" table below (this
-						 * card's own SIGNAL_META rows again, just as a real
-						 * table) since there's no per-signal filtered table
-						 * here to open the way SEO's `categoryFocus` does.
-						 */}
+						{/* * Same real `ListComponent` "mini-card report" row * shape SeoTab.tsx's own "SEO Health" card uses for * its 6 category rows. */}
 						 <div className="overall-score-summary">
 						<ListComponent
 							className="mini-card report hover without-border seo-health-score-category-list"
@@ -375,14 +325,9 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 									iconClass: 'admin-bg-color2',
 								},
 								{
-									// Real sum of every signal's own real
-									// `open_count` - `GeoScoreResponse` has
-									// no single "total open" field the way
-									// `SeoScoreResponse.total_open` does,
-									// only the week-over-week `deltas.total_open`,
-									// so this is computed from the same real
-									// per-signal counts the rows above
-									// already show, not a separate fetch.
+									// Real sum of every signal's own real `open_count` -
+									// `GeoScoreResponse` has no single "total open" field the way
+									// `SeoScoreResponse.total_open` does.
 									number: Object.values(score.signals).reduce(
 										(sum, signal) => sum + (signal.open_count ?? 0),
 										0

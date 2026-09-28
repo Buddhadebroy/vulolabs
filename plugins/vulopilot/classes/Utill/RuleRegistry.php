@@ -7,7 +7,6 @@
 
 namespace VuloPilot\Utill;
 
-
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -34,9 +33,7 @@ class RuleRegistry {
 	}
 
 	/**
-	 * Instantiates every registered rule class and indexes it by id. A
-	 * rule class that doesn't exist, or doesn't implement RuleInterface,
-	 * is silently skipped rather than fataling the whole registry.
+	 * Instantiates every registered rule class and indexes it by id.
 	 *
 	 * @return void
 	 */
@@ -70,11 +67,11 @@ class RuleRegistry {
 			\VuloPilot\SiteHealth\CoreUpdateAvailableRule::class,
 			\VuloPilot\SiteHealth\DormantPluginRule::class,
 			\VuloPilot\SeoVisibility\SeoTitleRewriteRule::class,
-			// SEO module (SEO-MODULE.md).
+			// SEO module.
 			\VuloPilot\SeoVisibility\MissingMetaDescriptionRule::class,
 			\VuloPilot\SeoVisibility\MissingFeaturedImageRule::class,
 			\VuloPilot\SeoVisibility\RobotsBlockingCrawlersRule::class,
-			// GEO module (GEO-MODULE.md).
+			// GEO module.
 			\VuloPilot\Content\FaqOpportunityRule::class,
 			\VuloPilot\Content\MissingSummaryBlockRule::class,
 		);
@@ -94,5 +91,4 @@ class RuleRegistry {
 	public function get_all_rules(): array {
 		return $this->rules;
 	}
-
 }

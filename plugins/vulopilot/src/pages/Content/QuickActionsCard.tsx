@@ -12,11 +12,8 @@ import { useContentToolsEnabled } from '../../services/useContentToolsEnabled';
 import { useFilterSlot } from '../../services/useFilterSlot';
 
 /**
- * Content page's "Quick Actions" card - 4 rows: 3 standalone
- * AI actions (the same real propose→preview→approve/reject flow
- * ContentToolsGrid.tsx's own 12 tiles use, via the same shared
- * ContentToolPopup) rather than the plain in-page scroll/navigation
- * shortcuts these rows used to be:
+ * "Quick Actions" card: standalone AI actions using the same propose, preview and approve flow as
+ * ContentToolsGrid.tsx.
  */
 const QUICK_ACTION_TOOLS: ContentTool[] = [
 	{

@@ -40,10 +40,8 @@ export interface SchemaInspectorResult {
 }
 
 /**
- * `POST /schema/inspect` - a real, on-demand single-page JSON-LD check
- * (SchemaPageInspector, real outbound HTTP + extraction, no AI). Same
- * "loading a page never silently spends real work" posture
- * useSchemaCoverage.ts's own `analyze()` already documents.
+ * `POST /schema/inspect` - a real, on-demand single-page JSON-LD check (SchemaPageInspector, real
+ * outbound HTTP + extraction, no AI).
  */
 export const useSchemaInspector = (): {
 	result: SchemaInspectorResult | null;

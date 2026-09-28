@@ -32,7 +32,7 @@ interface SubmitResult {
 }
 
 
-/** "Products" only ever a real, selectable option once WooCommerce is actually active (`vulopilotAppLocalizer.has_woocommerce`, `FrontendScripts::localize_scripts()`) - a site with no WooCommerce has no `product` post type at all, so offering it here would just be a checkbox for something that can never exist. */
+/** "Products" only ever a real, selectable option once WooCommerce is actually active (`vulopilotAppLocalizer.has_woocommerce`, `FrontendScripts::localize_scripts()`). */
 const POST_TYPE_OPTIONS = [
 	{ value: 'post', label: __('Posts', 'vulopilot') },
 	{ value: 'page', label: __('Pages', 'vulopilot') },
@@ -46,16 +46,8 @@ const POST_TYPE_OPTIONS = [
 
 
 /**
- * Hand-built rather than InputRenderer-driven - same escape hatch
- * other panels already use (Settings.tsx's
- * GetForm() special-cases `currentTab === 'indexnow'`). Unlike those,
- * this tab DOES have two real flat settings fields
- * (`indexnow_api_key`/`indexnow_post_types`) - read via `useSetting()`
- * (LlmsTxtCard.tsx's own precedent for a hand-built component reading/
- * writing the shared SettingContext) - alongside two real actions/logs
- * that don't fit the per-field model at all: manual URL submission
- * (`POST /indexnow/submit`) and submission history (`GET /indexnow/history`),
- * both backed by RestAPI\Controllers\IndexNow.
+ * Hand-built rather than InputRenderer-driven - same escape hatch other panels already use
+ * (Settings.tsx's GetForm() special-cases `currentTab === 'indexnow'`).
  */
 const IndexNowPanel = () => {
 	const { setting, updateSetting } = useSetting();
@@ -177,12 +169,10 @@ const IndexNowPanel = () => {
 											'vulopilot'
 										)
 							}
-							// Real zyra palette green, same literal hex this
-							// codebase's own other `.is-good`/success-state
-							// rules already mirror it with (no `.scss` source
-							// to `@use` a real token from - see
-							// BrandVisibilityProDummies.tsx's own identical
-							// docblock on this).
+							// Real zyra palette green, same literal hex this codebase's own other
+							// `.is-good`/success-state rules already mirror it with (no `.scss`
+							// source to `@use` a real token from - see
+							// BrandVisibilityProDummies.tsx's own identical docblock on this).
 							borderColor={apiKey ? '#16a34a' : undefined}
 							action={
 								<span className={`admin-badge ${apiKey ? 'green' : 'gray'}`}>
@@ -251,20 +241,7 @@ const IndexNowPanel = () => {
 					/>
 				</FormGroupComponent>
 
-				{/* {submitResults.length > 0 && (
-					<FormGroupComponent label={__('Just submitted', 'vulopilot')}>
-						<div>
-							{submitResults.map((result, index) => (
-								<div key={index}>
-									<code>{result.url}</code>
-									{' - '}
-									{result.status_code ?? __('error', 'vulopilot')}{' '}
-									{result.message}
-								</div>
-							))}
-						</div>
-					</FormGroupComponent>
-				)} */}
+				{/* {submitResults.length > 0 && ( <FormGroupComponent label={__('Just submitted', 'vulopilot')}> <div> {submitResults.map((result, index) => ( <div key={index}> <code>{result.url}</code> {' - '} {result.status_code ?? __('error', 'vulopilot')}{' '} {result.message} </div> ))} </div> </FormGroupComponent> )} */}
 			</FormGroupWrapperComponent>
 
 			<CardComponent
@@ -283,15 +260,7 @@ const IndexNowPanel = () => {
 					/>
 				}
 			>
-				{/* {showResponseHelp && (
-					<div className="vulopilot-indexnow-help">
-						{RESPONSE_CODE_HELP.map((row) => (
-							<div key={row.code} className={`vulopilot-indexnow-help__${row.type}`}>
-								<strong>{row.code}</strong> - {row.desc}
-							</div>
-						))}
-					</div>
-				)} */}
+				{/* {showResponseHelp && ( <div className="vulopilot-indexnow-help"> {RESPONSE_CODE_HELP.map((row) => ( <div key={row.code} className={`vulopilot-indexnow-help__${row.type}`}> <strong>{row.code}</strong> - {row.desc} </div> ))} </div> )} */}
 
 				{history.length === 0 ? (
 					<div className="desc">{__('No submissions yet.', 'vulopilot')}</div>

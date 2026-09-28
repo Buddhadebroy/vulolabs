@@ -9,17 +9,7 @@ import PluginOverlapCard from '../Security/PluginOverlapCard';
 const ISSUES_TABLE_ID = 'performance-top-issues-table';
 
 /**
- * The 11 real category-'performance' scanner ids (`classes/Scanners/Basic/`),
- * grouped the same human-readable way MetricsGrid.tsx's own 10-tile grid
- * already labels them, into the same "one real, unified issues table with a
- * category tab bar" shape Security/Files & Plugins/Accessibility already
- * use (SectionedIssuesTable.tsx) - same real `GET /findings/groups` data,
- * summary priority cards, and side detail panel, replacing the plain
- * spreadsheet-style FindingsTable this tab used to render alone.
- *
- * Section `key`s are also read by MetricsGrid.tsx's own
- * `SECTION_KEY_BY_TILE_ID` map, kept in sync by hand - each scanner-backed
- * metric tile's "View" button jumps straight to its matching section here.
+ * The 11 real category-'performance' scanner ids (`classes/Scanners/Basic/`).
  */
 export const SECTIONS: FindingsSection[] = [
 	{
@@ -101,11 +91,8 @@ export const SECTIONS: FindingsSection[] = [
 
 interface PerformanceTabProps {
 	/**
-	 * Owned by OverviewTab.tsx (not internal state) so MetricsGrid.tsx's
-	 * own per-tile "View" buttons can jump this table straight to a
-	 * specific section - same "controlled activeTab passed down" shape
-	 * AccessibilityTab.tsx already uses for its own AccessibilityChecksGrid
-	 * "Review" buttons.
+	 * Owned by OverviewTab.tsx (not internal state) so MetricsGrid.tsx's own per-tile "View"
+	 * buttons can jump this table straight to a specific section.
 	 */
 	activeTab: SectionedIssuesTab;
 	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
@@ -113,19 +100,8 @@ interface PerformanceTabProps {
 }
 
 /**
- * "Top Issues" - Performance's own OverviewTab.tsx (wrapped in
- * `#performance-section-findings`) is this component's only call site.
- * Now the same real, unified issues table (summary priority cards +
- * tabbed category bar + side detail panel) "Protect My Site"'s Security/
- * Files & Plugins/Accessibility tabs already use, scoped to every real
- * category-'performance' scanner instead of the plain per-row spreadsheet
- * FindingsTable this tab used to render alone - same underlying
- * `GET /findings/groups` data either way.
- *
- * Closes with PluginOverlapCard filtered to `category="caching"` (real
- * active caching plugins - WP Rocket, etc. - overlapping with VuloPilot's
- * own efficiency/speed-monitoring checks), matching the same per-tab
- * cross-sell promotion Security/Accessibility already carry.
+ * "Top Issues" - Performance's own OverviewTab.tsx (wrapped in `#performance-section-findings`) is
+ * this component's only call site.
  */
 const PerformanceTab = ({ activeTab, onTabChange }: PerformanceTabProps) => {
 	return (

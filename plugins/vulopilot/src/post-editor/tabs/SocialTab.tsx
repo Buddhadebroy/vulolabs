@@ -8,7 +8,7 @@ import { useFieldHighlight } from '../useFieldHighlight';
 type MediaFrame = any;
 
 interface SocialTabProps {
-	/** "All SEO Issues" table's "Fix with AI" deep link - both 'open-graph' and 'twitter-card' scanner ids resolve to 'social_title' here (see seoIssueEditorTarget.ts), since this tab's 3 fields aren't split per-network. */
+	/** "All SEO Issues" table's "Fix with AI" deep link. */
 	highlightTarget?: string;
 	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch - accepted for prop-shape parity with every other tab, unused here. */
 	onNavigate?: ( tab: string, target?: string ) => void;
@@ -16,16 +16,6 @@ interface SocialTabProps {
 
 /**
  * The metabox's Social tab - per-post Open Graph/Twitter Card overrides.
- * Services\SocialMetaTagsManager already outputs sitewide OG/Twitter tags
- * (gated by the `social_meta_tags_enabled` setting); these three fields
- * override the title/description/image for THIS post specifically, and -
- * per that manager's own `has_post_override()` check - take effect even
- * when the sitewide setting is off, since setting one of these is a
- * deliberate per-post action.
- *
- * Uses `window.wp.media` directly (WP core's own media modal, already
- * loaded on every post-edit screen) rather than pulling in
- * `@wordpress/media-utils` for a single "pick an image" button.
  */
 export default function SocialTab( { highlightTarget }: SocialTabProps ) {
 	const { meta, setMeta } = usePostData();

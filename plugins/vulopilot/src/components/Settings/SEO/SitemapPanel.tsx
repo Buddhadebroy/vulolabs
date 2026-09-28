@@ -18,42 +18,6 @@ import SitemapHowItWorksCard from './SitemapHowItWorksCard';
 
 /**
  * Settings → SEO → Sitemap.
- *
- * Hand-built `PanelComponent` (Sitemap.ts's own escape hatch, same
- * mechanism SeoTitlesPanel.tsx uses - see that file's own docblock),
- * replacing the former plain declarative `modal` (InputRenderer) - same
- * real `sitemap_*`/`html_sitemap_*` keys and same `id: 'sitemap'`
- * throughout, unchanged backend (Controllers\RobotsSitemap/
- * Services\SitemapGenerator/Services\HtmlSitemapRenderer), only how the
- * fields are rendered/saved changed: real per-field autosave via
- * `useSetting()` + `handleSettingChange()`/`scheduleSave()` (same
- * immediate-vs-debounced split SeoTitlesPanel.tsx's own
- * `handleSettingChange`/`scheduleSave` use - a checkbox/select autosaves
- * immediately, a free-text field debounces 1000ms after the last
- * keystroke) instead of InputRenderer's own per-field autosave.
- *
- * Every checkbox field here (`sitemap_enabled`, `sitemap_include_images`,
- * `sitemap_include_featured_images`, `html_sitemap_enabled`,
- * `html_sitemap_show_dates`, plus the two real multi-selects
- * `sitemap_xml_post_types`/`sitemap_xml_taxonomies`) was a real
- * `type: 'checkbox'` field before this rewrite, so its already-saved
- * value is a real array (empty, or containing the field's own key for a
- * single toggle) - `isChecked()`/`toArray()` below read and write that
- * exact same wire shape, not a plain string, so an existing site's saved
- * settings still mean the same thing after this rewrite.
- *
- * "Enable sitemap" gates everything below it (post types/taxonomies,
- * advanced settings, the whole HTML Sitemap section) via plain
- * conditional rendering now, same real gate the former declarative
- * `dependent: { key: 'sitemap_enabled', ... }` array enforced - every
- * HTML-Sitemap-specific field is additionally still gated on
- * `html_sitemap_enabled` too (an AND of both, same as before).
- *
- * 2-column layout (`ContainerComponent`/`ColumnComponent grid={8|4}`,
- * `SitemapHowItWorksCard` in the sidebar) - previously a `'sitemap' ===
- * currentTab` special case inside Settings.tsx's own `GetForm()`; moved
- * in here now that this tab has its own `PanelComponent` (checked before
- * that special case, so the two could never both apply at once).
  */
 const SitemapPanel = () => {
 	const { setting, updateSetting } = useSetting();
@@ -68,9 +32,8 @@ const SitemapPanel = () => {
 		});
 	};
 
-	// "Stop typing, then save" debounce - same shape SeoTitlesPanel.tsx's
-	// own `AUTOSAVE_DEBOUNCE_MS`/`scheduleSave()` use, rather than saving
-	// every keystroke or requiring an explicit "Save Changes" click.
+	// "Stop typing, then save" debounce - same shape SeoTitlesPanel.tsx's own
+	// `AUTOSAVE_DEBOUNCE_MS`/`scheduleSave()` use.
 	const AUTOSAVE_DEBOUNCE_MS = 1000;
 	const saveTimerRef = useRef<Record<string, ReturnType<typeof setTimeout> | null>>({});
 
@@ -102,14 +65,7 @@ const SitemapPanel = () => {
 	const sitemapIncludeImages = isChecked('sitemap_include_images');
 
 	/**
-	 * The 4 real post types every site has, plus - per direct instruction -
-	 * any real custom post type this site actually has registered
-	 * (`vulopilotAppLocalizer.sitemap_custom_post_types`,
-	 * FrontendScripts::get_sitemap_custom_post_types()), so a site running
-	 * a theme/plugin that registers its own post type (e.g. "Portfolio
-	 * Items") can include it in the sitemap from this same list instead of
-	 * it being impossible to check on from the UI. Empty array on a site
-	 * with no custom post types, same as before.
+	 * The core post types plus any registered custom post types (`sitemap_custom_post_types`).
 	 */
 	const POST_TYPE_OPTIONS = [
 		{ key: 'post', label: __('Posts', 'vulopilot'), value: 'post' },

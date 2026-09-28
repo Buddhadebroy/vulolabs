@@ -18,8 +18,8 @@ defined( 'ABSPATH' ) || exit;
  */
 final class RuleType {
 
-    const CRITICAL   = 'critical';
-    const ERROR      = 'error';
-    const WARNING    = 'warning';
-    const SUGGESTION = 'suggestion';
+	const CRITICAL   = 'critical';
+	const ERROR      = 'error';
+	const WARNING    = 'warning';
+	const SUGGESTION = 'suggestion';
 }

@@ -26,30 +26,7 @@ interface TestResult {
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 /**
- * Settings → Connections' own PageSpeed Insights section - the mockup's
- * "Connection Status" pill, "Daily API Usage" bar, "Test Connection"
- * button, and (per direct instruction, when this folder's 5 separate
- * sub-tabs were merged into one "Connections" tab) the real "API Key"/
- * "Daily API Limit" fields and the "how this data is used" notice that
- * used to be rendered separately by InputRenderer against this tab's own
- * `modal` array - now fully self-contained, same "one real component per
- * section" shape ConnectionsPanel.tsx composes GoogleServicesPanel.tsx/
- * SiteVerificationPanel.tsx from.
- *
- * Reads real state from `GET /settings/test-pagespeed`
- * (Services\PageSpeedInsightsFetcher::get_status() - no live API call) on
- * mount, and re-reads it after a real `POST /settings/test-pagespeed`
- * (::test_connection(), the same class the daily cron itself uses).
- *
- * The mockup's own "Default Strategy" and "Analysis Location" controls
- * aren't reproduced anywhere in this tab: Google's real PageSpeed Insights
- * API v5 always scores both Mobile AND Desktop together (there's no
- * "default" that changes what gets fetched - see PerformanceScoreCard.tsx,
- * which already shows both), and has no parameter for choosing where the
- * test runs from (only `locale`, for the report's own language - a
- * different thing than the mockup's "closest location improves accuracy"
- * claim). Same "no real backend, don't build a fake control" posture
- * Reports.ts's own docblock already documents for "Report Branding".
+ * Settings → Connections' own PageSpeed Insights section.
  */
 const AUTOSAVE_DEBOUNCE_MS = 1000;
 
@@ -102,10 +79,8 @@ const PageSpeedStatusPanel = () => {
 				if (!response) {
 					return;
 				}
-				// Floating notice (NoticeReceiverComponent position="float",
-				// already mounted app-wide by zyra's own HeaderComponent) -
-				// per direct instruction, not the inline <p> this used to
-				// render in the card body.
+				// Floating notice (NoticeReceiverComponent position="float", already mounted app-
+				// wide by zyra's own HeaderComponent).
 				NoticeManager.add({
 					message: response.message,
 					type: response.success ? 'success' : 'error',

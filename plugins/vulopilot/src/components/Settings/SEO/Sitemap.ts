@@ -3,22 +3,6 @@ import SitemapPanel from './SitemapPanel';
 
 /**
  * Settings → SEO → Sitemap.
- *
- * `PanelComponent` escape hatch (Settings.tsx's own GetForm(), same
- * mechanism SeoTitles.ts/GetStarted/AiProviders.ts already use) -
- * SitemapPanel.tsx manages its own real per-field autosave and the
- * 2-column "How it works" sidebar layout, which don't fit InputRenderer's
- * static declarative fields (see that file's own docblock for exactly why
- * and how). `modal` still lists the real underlying keys purely so
- * Settings.tsx's own per-tab seeding logic (`fieldKeys` from
- * `modal[].key`) populates SettingContext with their current values
- * before the panel reads/writes them via `useSetting()` - same role
- * SeoTitles.ts's own `modal` array plays.
- *
- * Same real `sitemap_*`/`html_sitemap_*` keys and same `id: 'sitemap'`
- * throughout - unchanged backend (Controllers\RobotsSitemap/
- * Services\SitemapGenerator/Services\HtmlSitemapRenderer), only how the
- * UI for it renders/saves changed.
  */
 export default {
 	id: 'sitemap',

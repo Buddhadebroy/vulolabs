@@ -8,7 +8,7 @@ export interface AnalysisResult {
 	action_id: string | null;
 }
 
-/** One row of `Controllers\Seo::get_page_analysis()`'s real `checks` array - the same saved-post-state SEO/GEO checklist `GEO/PageAnalysisPanel.tsx`'s own "Page Analysis" panel already renders, reused here verbatim so this tab's own "Page Analysis" list is never a second, possibly-drifting copy of that data. */
+/** One row of `Seo::get_page_analysis()`'s real `checks` array. */
 export interface PageAnalysisCheck {
 	key: string;
 	label: string;
@@ -38,7 +38,7 @@ export interface FixResponse {
 	};
 }
 
-/** Same real shape `seoIssuesShared.tsx`'s own `RawFinding` (dashboard bundle) already establishes - duplicated here per this file's own top docblock reasoning (a separate, small Block Editor bundle, not pulling in that bundle's zyra-based helpers). */
+/** Same real shape `seoIssuesShared.tsx`'s own `RawFinding` (dashboard bundle) already establishes. */
 export interface RawFinding {
 	id: number;
 	title: string;
@@ -59,15 +59,8 @@ const FINDINGS_PAGE_SIZE = 100;
 const MAX_FINDINGS = 1000;
 
 /**
- * Same real `GET /findings` pagination loop `seoIssuesShared.tsx`'s own
- * `fetchOpenFindingsFor()` already establishes for the dashboard bundle -
- * duplicated here (see this file's own top docblock) so `PageAnalysisTab.tsx`'s
- * own "GEO Issues"/"AEO Issues" sections can fetch real open findings for
- * this tab's own scanner ids without importing that dashboard-only helper.
- * There's no server-side "just this post" filter (`object_ref` isn't a
- * registered query arg - confirmed against `Controllers\Findings`), so
- * callers filter the result to one post client-side, same as
- * `GeoAeoPageAnalysisPanel.tsx`'s own identical fetch-then-filter.
+ * Same real `GET /findings` pagination loop `seoIssuesShared.tsx`'s own `fetchOpenFindingsFor()`
+ * already establishes for the dashboard bundle.
  */
 export async function fetchOpenFindings( scannerIds: string[] ): Promise< RawFinding[] > {
 	const scannerParam = scannerIds.join( ',' );
@@ -136,7 +129,7 @@ export function analyzePage( postId: number ): Promise< PageAnalysisResponse > {
 	return request( `seo/analyze-page?post_id=${ postId }`, { method: 'GET' } );
 }
 
-/** Same real `POST /findings/{id}/fix` the dashboard's own "Fix with AI" buttons call (vulopilot-pro's OneClickFix `FindingFixRest`) - resolves the fix from the finding's own scanner, so this needs no action id. */
+/** Same real `POST /findings/{id}/fix` the dashboard's own "Fix with AI" buttons call (vulopilot-pro's OneClickFix `FindingFixRest`). */
 export function fixFinding( findingId: number ): Promise< FixResponse > {
 	return request( `findings/${ findingId }/fix`, { method: 'POST' } );
 }

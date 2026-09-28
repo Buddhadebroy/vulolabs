@@ -4,18 +4,13 @@ import { getApiLink, getApiResponse } from '@zyra/core';
 import type { FindingGroup } from '../../components/Issues/issuesTypes';
 
 /**
- * GeoTab.tsx's/AeoTab.tsx's own family of small `GET /findings/groups`-
- * shaped and `/geo-visibility-*`-shaped data-fetching hooks - each used to
- * be its own file (`useGeoFindingGroups.ts`, `useAllFindingGroups.ts`,
- * `useGeoTopicAffectedPages.ts`, `useGeoVisibilitySnapshot.ts`); merged
- * here since they're all small, all real siblings of the same "one real
- * call, reused by every card that needs it" pattern, and each one's own
- * docblock already cross-references the others by name.
+ * GeoTab.tsx's/AeoTab.tsx's own family of small `GET /findings/groups`- shaped and `/geo-
+ * visibility-*`-shaped data-fetching hooks.
  */
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
-/** Real sum of `.count` across every group whose scanner_id is in `scannerIds` - same technique Commerce/CommerceIssuesTable.tsx's own `sumGroupCounts()` already establishes. */
+/** Real sum of `.count` across every group whose scanner_id is in `scannerIds`. */
 export const sumGroupCounts = (
 	groups: FindingGroup[],
 	scannerIds: string[]
@@ -69,7 +64,7 @@ export interface GeoVisibilityHistoryRow {
 	snapshot_date: string;
 	sample_size: number;
 	overall_score: number | null;
-	/** Same per-dimension breakdown `snapshot.ai_scores`/`sub_scores` carries for "today", now also available per historical day - lets a consumer compute its own scoped sub-average trend (e.g. AeoTab.tsx's "AEO Score Over Time") instead of only the one combined `overall_score` above. Null on a day the sample batch found nothing to average, same as `overall_score`. */
+	/** Same per-dimension breakdown `snapshot.ai_scores`/`sub_scores` carries for "today", now also available per historical day. */
 	ai_scores: VisibilityAiScores | null;
 	sub_scores: VisibilitySubScores | null;
 }

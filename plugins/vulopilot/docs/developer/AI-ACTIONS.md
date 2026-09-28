@@ -55,7 +55,7 @@ add_filter( 'vulopilot_ai_action_sources', fn( array $c ) => array_merge( $c, ar
 | Class | File | What it does |
 |---|---|---|
 | `AbstractBasicAction` | `modules/AiCopilot/Actions/AbstractBasicAction.php` | Base class for every free-tier action under AiCopilot/Actions/. |
-| `AddSubheadingsAction` | `modules/AiCopilot/Actions/AddSubheadingsAction.php` | Fixes Seo\Scanners\HeadingStructureScanner's finding: 300+ word content with no `<h2>`-`<h6>` tag anywhere in it. |
+| `AddSubheadingsAction` | `modules/AiCopilot/Actions/AddSubheadingsAction.php` | Fixes Seo\Scanners\HeadingStructureScanner's finding: 300+ word content with no `h2`-`h6` tag anywhere in it. |
 | `AuditContentAction` | `modules/AiCopilot/Actions/AuditContentAction.php` | Create Content's "AI Content Audit" quick action (QuickActionsCard.tsx) - a real, standalone AI action rather than the in-page scroll shortcut this row used to be (it used to jump to RecentContentCard.tsx's own rule-based scanner  |
 | `DifferentiateDuplicateTitleAction` | `modules/AiCopilot/Actions/DifferentiateDuplicateTitleAction.php` | Fixes Seo\Scanners\DuplicateContentScanner's finding: two or more published posts sharing the exact same title. |
 | `GenerateBlogAction` | `modules/AiCopilot/Actions/GenerateBlogAction.php` | The new-content-creation pattern - the odd one out among the four built-in actions: its input is a topic the site owner types, not a Recommendation's object_type/object_ref (there's no existing post or attachment this operates on; |

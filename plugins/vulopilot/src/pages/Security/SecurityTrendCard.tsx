@@ -25,11 +25,8 @@ const PERIOD_OPTIONS = [
 ];
 
 /**
- * `days` is a real 7/30/90 toggle now (same `PERIOD_OPTIONS`/`ToggleInput`
- * shape GeoScoreSection.tsx's own card action already uses) rather than a
- * fixed 30 - `useApiList`'s own `params` are re-read on every render, so
- * changing `period` here refetches the same real endpoint with a
- * different `days` value, no new request-plumbing needed.
+ * `days` is a real 7/30/90 toggle now (same `PERIOD_OPTIONS`/`ToggleInput` shape
+ * GeoScoreSection.tsx's own card action already uses).
  */
 const SecurityTrendCard = () => {
 	const [period, setPeriod] = useState<PeriodDays>('30');
@@ -38,11 +35,7 @@ const SecurityTrendCard = () => {
 		{ days: Number(period) }
 	);
 
-	// Fixed / new / still-open counts for the same selected period - the
-	// Reports Overview's own real `security_summary`, so these tiles move
-	// with the 7D/30D/90D toggle like the SEO progress card's do.
-	// The overview endpoint comes with Pro; without it the request would 404,
-	// so the counts are only fetched and shown when Pro is active.
+	// Fixed / new / still-open counts for the same selected period.
 	const hasOverview = Boolean(vulopilotAppLocalizer.khali_dabba);
 	const { data: overview, isLoading: isLoadingSummary } = useReportsOverview(
 		Number(period),

@@ -4,10 +4,7 @@ import { getApiLink, getApiResponse } from '@zyra/core';
 
 /**
  * `GET /ai-credits/status` (AiCredits::get_status(), this plugin's own
- * `classes/RestAPI/Controllers/`) - the real, live AI Credits balance
- * (architecture plan: "WordPress may cache/display the balance, but it
- * must never be considered the source of truth" - this hook always
- * reflects what THIS site's own local cache last synced from the server's authoritative wallet).
+ * `classes/RestAPI/Controllers/`).
  */
 export interface AiCreditsStatus {
 	connected: boolean;

@@ -1,4 +1,4 @@
-/* global appLocalizer */
+/* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { NoticeComponent, PopupComponent } from '@zyra/components';
@@ -11,12 +11,8 @@ import {
 } from './insufficientCredits';
 
 /**
- * The one "You don't have enough credits to complete this request. [Buy
- * Credits]" prompt every AI feature shares - opened by the axios
- * interceptor in insufficientCredits.ts whenever a request is refused for lack of
- * credits (nothing was charged). Buy Credits goes to
- * the site owner's own AI Credits page, where their
- * Organization's credit packs are sold through the normal checkout.
+ * The one "You don't have enough credits to complete this request. [Buy Credits]" prompt every AI
+ * feature shares.
  */
 const InsufficientCreditsNotice = () => {
 	const [detail, setDetail] = useState<InsufficientCreditsDetail | null>(null);
@@ -59,7 +55,7 @@ const InsufficientCreditsNotice = () => {
 						color: 'purple-bg',
 						onClick: () => {
 							window.open(
-								detail.buyCreditsUrl || appLocalizer.shop_url,
+								detail.buyCreditsUrl || vulopilotAppLocalizer.shop_url,
 								'_blank',
 								'noopener,noreferrer'
 							);

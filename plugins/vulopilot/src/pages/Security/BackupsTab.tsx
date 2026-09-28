@@ -25,9 +25,9 @@ interface BackupRow {
 	trigger_type: 'manual' | 'scheduled' | 'pre_restore_safety';
 	has_file: boolean;
 	file_size: number | null;
-	/** 'local' (the default - every backup always saves here) or the remote destination active when this backup finished (Services\BackupStorageManager). */
+	/** 'local' (the default - every backup always saves here) or the remote destination active when this backup finished (BackupStorageManager). */
 	destination: 'local' | 's3' | 'google_drive';
-	/** Null for a 'local'-only row (nothing else to track) - see Install.php's own `create_backups_table()` docblock for what each real value means. */
+	/** Null for a 'local'-only row (nothing else to track). */
 	destination_status: 'uploading' | 'uploaded' | 'failed' | 'skipped_not_configured' | null;
 	destination_error: string | null;
 	started_at: string | null;
@@ -51,9 +51,8 @@ const STATUS_ICON: Record<string, string> = {
 };
 
 /**
- * Real HH:MM:SS between two real timestamps - same padding technique
- * BrokenLinksSection.tsx's own `formatDurationMs()` already uses, just
- * over a real start/end pair instead of a stored `duration_ms`.
+ * Real HH:MM:SS between two real timestamps - same padding technique BrokenLinksSection.tsx's own
+ * `formatDurationMs()` already uses.
  */
 const formatDuration = (startIso: string, endIso: string): string => {
 	const totalSeconds = Math.max(
@@ -71,15 +70,7 @@ const formatDuration = (startIso: string, endIso: string): string => {
 };
 
 /**
- * Real "Finished in/Failed after/Elapsed" sub-line under the Status badge
- * (reference mockup) - built only from this row's own real `started_at`/
- * `finished_at` timestamps. The mockup's own "Running" row also shows a
- * numeric progress % + a progress bar + an "Est: …" remaining-time
- * estimate - deliberately NOT reproduced here: nothing in
- * `Services\BackupManager`/`Controllers\Backups.php` tracks or returns a
- * real completion percentage or estimate for an in-progress backup, so
- * those would be fabricated. "Elapsed" alone (real, computed from
- * `started_at` to now) is the honest subset of that same row.
+ * Real "Finished in/Failed after/Elapsed" sub-line under the Status badge (reference mockup).
  */
 const statusSubtext = (row: BackupRow): string | null => {
 	if ('completed' === row.status && row.started_at && row.finished_at) {
@@ -121,13 +112,7 @@ const DESTINATION_PROVIDER_LABEL: Record<string, string> = {
 };
 
 /**
- * A real remote destination's own upload badge - `null` for a `'local'`
- * row, rendered as plain text instead (every backup is local; a badge
- * there would just be visual noise for the common case). Reflects exactly
- * what `Services\BackupStorageManager` actually did for this row, not the
- * site's *current* `backup_storage_destination` setting (e.g. deleting the
- * S3 credentials after a real upload succeeded doesn't retroactively
- * change what already happened).
+ * A real remote destination's own upload badge - `null` for a `'local'` row.
  */
 const destinationBadge = (
 	row: BackupRow
@@ -187,44 +172,19 @@ const RESTORE_CONFIRM_PHRASE = 'RESTORE';
 
 export interface BackupsTabHandle {
 	/**
-	 * Same real `handleCreate` this card's own "Create Backup Now" header
-	 * button (`action`, below) calls directly - still exposed so a parent
-	 * (SiteHealth.tsx's own page-level header intended to also trigger it
-	 * via RunScanHeaderExtra's "Run scan" slot) can fire the same real
-	 * request, if it ever actually wires that up. Restored per direct
-	 * instruction (screenshot showed no create-backup button anywhere on
-	 * the page - SiteHealth.tsx declares the plumbing for a page-header
-	 * button, `backupsTabRef`/`isCreatingBackup`, but never actually renders
-	 * one, so the action had no real entry point at all before this).
+	 * Same real `handleCreate` this card's own "Create Backup Now" header button (`action`, below)
+	 * calls directly.
 	 */
 	createBackup: () => void;
 }
 
 interface BackupsTabProps {
-	/** Mirrors this card's own real `isCreating` state (driving its header button's label/disabled state) out to a parent, if one wants to show the same real state elsewhere too - SiteHealth.tsx declares `isCreatingBackup` for this but doesn't currently render anything with it. */
+	/** Mirrors this card's own real `isCreating` state (driving its header button's label/disabled state) out to a parent. */
 	onCreatingChange?: (isCreating: boolean) => void;
 }
 
 /**
- * "Backups" tab of "Protect My Site" - real backup creation, listing,
- * download, delete, and Recovery's real restore (RestAPI\Controllers\Backups,
- * Services\BackupManager). Every row is a real `vulopilot_backups` run -
- * manual, scheduled (Settings → Get Started → Backups), or a
- * `pre_restore_safety` snapshot Recovery takes automatically before every
- * real restore. Restore is real and destructive (overwrites the live
- * database + files) - gated here by a typed confirmation phrase, on top of
- * the automatic pre-restore safety snapshot the backend always takes first.
- *
- * "Destination" column - real per-row remote-upload state
- * (Services\BackupStorageManager, `destination`/`destination_status`/
- * `destination_error`), not just the site's current
- * `backup_storage_destination` setting: a `'local'` row (the default -
- * every backup always saves here regardless) renders as plain text, while
- * an `'s3'`/`'google_drive'` row shows what actually happened
- * (Uploading…/Uploaded/upload failed/not configured) via
- * `destinationBadge()`. Credentials for those 2 remote destinations live
- * in Settings → Backups' own "Cloud Storage" section
- * (BackupStoragePanel.tsx), not on this tab.
+ * "Backups" tab of "Protect My Site" - real backup creation, listing, download, delete.
  */
 const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 	onCreatingChange,
@@ -234,11 +194,7 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 		{ per_page: 20, orderby: 'id', order: 'desc' }
 	);
 
-	// Real "Create Backup Now" state for this card's own header button below -
-	// separate from the `onCreatingChange` prop callback (which only exists
-	// for a parent, e.g. SiteHealth.tsx's own page header, to mirror this
-	// same real request state elsewhere; nothing here depends on a parent
-	// actually consuming it).
+	// Real "Create Backup Now" state for this card's own header button below.
 	const [isCreating, setIsCreating] = useState(false);
 	const [busyId, setBusyId] = useState<number | null>(null);
 	const [restoreTarget, setRestoreTarget] = useState<BackupRow | null>(null);
@@ -247,11 +203,8 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 	/** Row pending deletion, shown via the `confirmMode` popup below instead of `window.confirm()`. */
 	const [deleteTarget, setDeleteTarget] = useState<BackupRow | null>(null);
 
-	// Real "All triggers"/"All statuses"/"All destinations" filters + search
-	// (mockup's own filter row) - same real client-side-slice-of-one-fetch
-	// posture SectionedIssuesTable.tsx's own filters already use, since
-	// this tab's own `useApiList` call above already fetches every row
-	// (`per_page: 20`) rather than paging server-side per filter.
+	// Real "All triggers"/"All statuses"/"All destinations" filters + search (mockup's own filter
+	// row).
 	const [searchValue, setSearchValue] = useState('');
 	const [triggerFilter, setTriggerFilter] = useState('');
 	const [statusFilter, setStatusFilter] = useState('');
@@ -281,10 +234,7 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 		return true;
 	});
 
-	// Real, already-present values in this tab's own current backup list -
-	// not a hardcoded list, so an option never shows with nothing behind
-	// it (same principle SectionedIssuesTable.tsx's own filter options
-	// already follow).
+	// Real, already-present values in this tab's own current backup list.
 	const triggerFilterOptions = Array.from(
 		new Set(data.map((row) => row.trigger_type))
 	).map((value) => ({ label: TRIGGER_LABEL[value] ?? value, value }));
@@ -306,13 +256,7 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 	);
 
 	/**
-	 * Real live-refresh while a backup is queued/running - this list has no
-	 * push/WS channel, so a queued/running row's real status can only reach
-	 * this screen by re-fetching `backups` again; without this, a
-	 * completed/failed transition only ever showed up after the admin
-	 * manually reloaded the whole page. Polls this same real list endpoint
-	 * every 5s and stops itself the moment nothing is pending - no
-	 * open-ended polling once every row has settled.
+	 * Real live-refresh while a backup is queued/running.
 	 */
 	useEffect(() => {
 		if (!hasPendingBackup) {
@@ -359,9 +303,8 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 	useImperativeHandle(ref, () => ({ createBackup: handleCreate }));
 
 	const handleDownload = (row: BackupRow) => {
-		// Real browser navigation, not an XHR - the nonce travels as a query
-		// param instead of the X-WP-Nonce header, same pattern
-		// ReportTab.tsx's own download button already established.
+		// Real browser navigation, not an XHR - the nonce travels as a query param instead of the
+		// X-WP-Nonce header.
 		const baseUrl = getApiLink(vulopilotAppLocalizer, `backups/${row.id}/download`);
 		const separator = baseUrl.includes('?') ? '&' : '?';
 		window.open(`${baseUrl}${separator}_wpnonce=${vulopilotAppLocalizer.nonce}`, '_blank');
@@ -494,14 +437,8 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 							placeholder: __('Search backups…', 'vulopilot'),
 						}}
 						filtersBeforeSearch
-						// Real toolbar order (TableCard.tsx: filters →
-						// search → buttonActions, per direct instruction -
-						// "after search field") - puts "Create Backup Now"
-						// after the search box instead of up in the card's
-						// own header, where it used to sit. zyra's own
-						// `ButtonAction` type has no `disabled` field (only
-						// `label`/`icon`/`onClick`/`color`), so the
-						// in-flight guard lives in `onClick` itself instead.
+						// Real toolbar order - puts "Create Backup Now" after the search box
+						// instead of up in the card's own header.
 						buttonActions={[
 							{
 								label: isCreating
@@ -591,13 +528,8 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 							},
 							action: {
 								label: __('Action', 'vulopilot'),
-								// Button actions, not icon-only/badges - each
-								// action below sets its own real
-								// `type: 'button'` (TableRowActions.tsx),
-								// which renders as an always-visible labelled
-								// `ButtonInput` (label + icon) instead of the
-								// icon-only look the column's own `type: 'action'`
-								// would otherwise default every action to.
+								// Button actions, not icon-only/badges - each action below sets
+								// its own real `type: 'button'` (TableRowActions.tsx).
 								type: 'action',
 								actions: [
 									{
@@ -651,15 +583,8 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 							},
 						}}
 						rows={filteredData.map((row) => {
-							// Real trigger/status badges + the same real
-							// "Finished in/Failed after/Elapsed" subtext
-							// `statusSubtext()` already computes - plus,
-							// for a real failure, the real error message as
-							// a second description line - feeding the
-							// merged Date `type: 'info'` column above
-							// (icon+title+badges+description) instead of
-							// the 3 separate Date/Trigger/Status columns
-							// this table used to render.
+							// Real trigger/status badges + the same real "Finished in/Failed
+							// after/Elapsed" subtext `statusSubtext()` already computes.
 							const statusBadge =
 								STATUS_BADGE[row.status] ?? STATUS_BADGE.queued;
 							const subtext = statusSubtext(row);

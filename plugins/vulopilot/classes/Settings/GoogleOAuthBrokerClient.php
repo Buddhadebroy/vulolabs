@@ -1,7 +1,6 @@
 <?php
 namespace VuloPilot\Settings;
 
-
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -54,17 +53,8 @@ class GoogleOAuthBrokerClient {
 	}
 
 	/**
-	 * Real `POST {broker}/plugin/google/refresh` - used instead of a
-	 * direct `grant_type=refresh_token` call to Google whenever the
-	 * stored connection's tokens were originally issued via this broker
-	 * (GoogleServicesConnection::refresh_access_token()'s own `via`
-	 * check): a refresh token is only valid against the OAuth Client that
-	 * issued it, and a broker-issued one belongs to the Organization's own
-	 * Google Client that `$application_id` resolves to, not this build's
-	 * embedded VULOPILOT_GOOGLE_CLIENT_ID/SECRET. `$application_id` is
-	 * required here for the same reason it's required by
-	 * get_authorize_url() - a bare refresh token doesn't say which
-	 * Organization's Client it belongs to.
+	 * `POST {broker}/plugin/google/refresh` - refreshes tokens that were issued through
+	 * the broker, since a refresh token only works with the OAuth client that issued it.
 	 *
 	 * @return array{access_token: string, expires_in: int}|\WP_Error
 	 */

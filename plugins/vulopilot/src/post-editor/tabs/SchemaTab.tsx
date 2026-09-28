@@ -8,23 +8,11 @@ import { useFieldHighlight } from '../useFieldHighlight';
 const SCHEMA_TYPES = [ 'Article', 'Product', 'FAQPage', 'Recipe', 'Event', 'JobPosting', 'Organization', 'LocalBusiness', 'Review' ];
 
 /**
- * The metabox's Schema tab - a type hint (`_vulopilot_schema_type`, UI-only:
- * it labels the dropdown, it isn't sent to the AI prompt, since
- * AIActions\Actions\GenerateSchemaAction already infers Article vs
- * Product/Recipe/Event from the content itself) plus the actual JSON-LD,
- * which rides the SAME postmeta key GenerateSchemaAction writes
- * (GenerateSchemaAction::META_KEY, registered for REST by
- * Services\PostSeoMetaFields so this textarea's edits save through the
- * Block Editor's own native Save button same as everything else here).
- * Services\SchemaJsonLdRenderer outputs whatever ends up in that key on
- * the frontend - manual edits here "just work" with no output-layer change.
+ * The metabox's Schema tab: a UI-only schema type hint, plus the schema JSON editor.
  */
 interface SchemaTabProps {
 	/**
-	 * Deep link's resolved target - every schema-flavored scanner id
-	 * (schema/structured-data/author-schema/organization-schema/aeo-schema,
-	 * seoIssueEditorTarget.ts) resolves to 'schema_json', which scrolls to
-	 * and pulses the Generate button + JSON-LD field: the actual fix.
+	 * Resolved deep-link target: every schema-related scanner id resolves to 'schema_json'.
 	 */
 	highlightTarget?: string;
 	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch - accepted for prop-shape parity with every other tab, unused here. */

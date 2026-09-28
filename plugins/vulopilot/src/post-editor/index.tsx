@@ -22,39 +22,8 @@ interface DeepLinkTarget {
 }
 
 /**
- * Two independent deep-link sources land here, both stripped from the URL
- * immediately so a page refresh doesn't keep re-triggering the highlight,
- * and both read once, on module load (before first render - matches
- * TabPanel's own mount-time-only `initialTabName` prop):
- *
- * - "All SEO Issues" table's "Fix with AI" link
- *   (`src/pages/GEO/SeoIssuesByPageTable.tsx`) and
- *   `Content/ContentQualityCard.tsx`'s own check rows, as
- *   `?vulopilot_seo_issue={scannerId}` - resolved via
- *   `SEO_ISSUE_EDITOR_TARGETS`, the same shared map those callers used to
- *   build the link, so both sides agree on what "general/description_length"
- *   etc. means without either duplicating the other's logic.
- * - `GEO/PageAnalysisPanel.tsx`'s own checklist, as
- *   `?vulopilot_page_analysis_check={checkKey}` - always resolves straight
- *   to the "Page Analysis" tab, highlighting the row whose `key` matches
- *   (see `PAGE_ANALYSIS_CHECK_QUERY_PARAM`'s own docblock for why this one
- *   doesn't go through the scanner-id map at all).
- *
- * A 3rd source lands here too, same posture as the 2nd: GEO's/AEO's own
- * real open-findings tables (`GeoAeoPageAnalysisPanel.tsx`,
- * `SeoIssuesByPageTable.tsx`), as `?vulopilot_finding_id={findingId}` -
- * used instead of `?vulopilot_seo_issue=` whenever that finding's own
- * `scanner_id` has no `SEO_ISSUE_EDITOR_TARGETS` entry (most real GEO/AEO
- * scanner ids), always resolving straight to "Page Analysis" too, where
- * `PageAnalysisTab.tsx`'s own "GEO Issues"/"AEO Issues" sections match it
- * against their own real findings by id (see `FINDING_ID_QUERY_PARAM`'s
- * own docblock).
- *
- * `wasPresent` is tracked separately from the resolved tab/target - the
- * first source's query param can be present but resolve to nothing (a
- * scanner id with no editor-sidebar equivalent); the sidebar should still
- * open in that case so the user isn't left staring at a plain redirect with
- * nothing visibly changed, it just won't have a specific tab/highlight.
+ * Two independent deep-link sources land here, both stripped from the URL immediately so a page
+ * refresh doesn't keep re-triggering the highlight.
  */
 const readDeepLinkTarget = (): DeepLinkTarget => {
 	const params = new URLSearchParams( window.location.search );
@@ -88,21 +57,12 @@ const readDeepLinkTarget = (): DeepLinkTarget => {
 	return { wasPresent: true, tab: resolved?.tab, target: resolved?.target };
 };
 
-// Read once at module scope, before first render - deep-link state is
-// static for the lifetime of this editor page load, so there's no need to
-// re-derive it on every render the way component state would.
+// Read once at module scope, before first render - deep-link state is static for the lifetime of
+// this editor page load.
 const { wasPresent: shouldOpenSidebar, tab: deepLinkTab, target: deepLinkHighlight } = readDeepLinkTarget();
 
 /**
- * The post-editor SEO metabox - VuloPilot's first Block Editor
- * integration (react-frontend.md's mounting rules cover the dashboard
- * app at `#admin-main-wrapper`/`#vulolabs-store-dashboard`, a different
- * surface). Registered as a `PluginSidebar`, not a classic
- * `add_meta_box()` panel - see PostEditorAssets.php for why.
- *
- * Only enqueued for post/page/product screens
- * (Services\PostEditorAssets::enqueue_assets()), so this module never runs
- * anywhere else.
+ * The post-editor SEO metabox, mounted separately from the dashboard app.
  */
 const VuloPilotIcon = () => (
 	<svg
@@ -178,9 +138,7 @@ const VuloPilotSeoPlugin = () => {
 		open();
 
 		/**
-		 * WordPress may restore the previously selected sidebar
-		 * during editor initialization, so run this once more
-		 * after the editor has had time to initialize.
+		 * WordPress may restore the previously selected sidebar during editor initialization.
 		 */
 		const timeout = setTimeout( open, 500 );
 

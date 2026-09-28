@@ -26,32 +26,7 @@ import { useFilterSlot } from '../../services/useFilterSlot';
 import type { ComponentType } from 'react';
 
 /**
- * Built on zyra's real settings framework (`InputRenderer`/
- * `NavigatorComponent`, `getAvailableSettings`/`getSettingById` from
- * @zyra/core) - the same one the free vulolabs plugin's own
- * components/Settings/Settings.tsx uses, replacing this page's previous
- * hand-built form. Tab configs live under ../../components/Settings/*.ts
- * as plain declarative objects (react-frontend.md's business-hours.ts
- * pattern), auto-discovered by templateService.ts's `require.context`.
- *
- * VuloPilot's settings are one flat wp_options row, not per-tab
- * namespaced data - unlike vulolabs's `vulopilotAppLocalizer.admin_settings`,
- * so this page fetches the full flat object once and, per tab, seeds
- * `SettingContext` with just that tab's own field keys (looked up from
- * the tab's own `modal[].key` list) and merges live edits back into a
- * ref so switching tabs and back doesn't lose unsaved-but-in-flight
- * edits. Each field then auto-saves itself via InputRenderer's own
- * built-in debounce, POSTing `{ setting, settingName }` - Controllers\Settings's
- * `update_item()` merges that subset into the stored option rather than
- * replacing it wholesale.
- *
- * 'modules' is the same "special component" escape hatch (same one
- * vulolabs's Settings.tsx uses for StoreStatus/Invoice/etc.) - real
- * enable/disable toggles, not persisted fields, don't fit the per-field
- * auto-save model, so that one tab id renders ModulesPanel.tsx instead of
- * InputRenderer, added per direct instruction ("move the modules tab in
- * settings after general tab"); see Modules.ts's own docblock for where
- * its content used to live.
+ * Settings page built on zyra's settings framework.
  */
 
 const Settings = () => {
@@ -84,13 +59,7 @@ const Settings = () => {
 	useEffect(loadSettings, []);
 
 	const GetForm = (currentTab: string | null): JSX.Element | null => {
-		// Every hook this function uses must run on every call regardless
-		// of $currentTab - an early `return null` before useEffect() (the
-		// original shape this was ported from also has this same latent
-		// issue) makes the number of hooks React sees differ between the
-		// render where NavigatorComponent hasn't picked a subtab yet
-		// (currentTab === null) and the one right after it does, which is
-		// exactly React error #310 ("rendered fewer hooks than expected").
+		// Every hook this function uses must run on every call regardless of $currentTab.
 		const { setting, settingName, setSetting, updateSetting } = useSetting();
 
 		const CloudStoragePanel = useFilterSlot<ComponentType>(
@@ -103,21 +72,7 @@ const Settings = () => {
 			(field: { key: string }) => field.key
 		);
 
-		// Was a synchronous `setSetting()` call made straight in the render
-		// body - React flags that as "Cannot update a component while
-		// rendering a different component" (confirmed live, every tab
-		// switch) since it's a real setState-during-render of a DIFFERENT
-		// component's context (SettingProvider) triggered from inside
-		// NavigatorComponent's (zyra) own render. Usually tolerated by
-		// React's batching, but not guaranteed - real, unhurried click
-		// timing (unlike a fast synthetic click) can let a stale render
-		// win, which is the likely cause of a reported bug where a module
-		// card's settings-gear link stopped navigating after an earlier
-		// tab switch. Moved into an effect, keyed on the same
-		// `currentTab`/`settingName` mismatch, so it only ever runs as a
-		// committed update, never mid-render. The existing `settingName
-		// === currentTab ? … : 'Loading…'` branch further down already
-		// treats this one-render gap as an expected, handled state.
+		// Was a synchronous `setSetting()` call made straight in the render body.
 		useEffect(() => {
 			if (currentTab && settingName !== currentTab) {
 				const tabFields: Record<string, unknown> = {};
@@ -139,21 +94,14 @@ const Settings = () => {
 			return null;
 		}
 
-		// Modules tab - real enable/disable toggles (ModuleGridComponent's
-		// own `apiLink="modules"` round-trip), not persisted-field settings
-		// - same escape hatch as the generic `PanelComponent` case below
-		// (AI Providers/Licensing use that one instead since their config
-		// lives outside this plugin's own hardcoded tab ids). Moved here
-		// from a standalone top-level page per direct instruction ("move
-		// the modules tab in settings after general tab") - see Modules.ts's
-		// own docblock.
+		// Modules tab - real enable/disable toggles (ModuleGridComponent's own `apiLink="modules"`
+		// round-trip), not persisted-field settings.
 		if (currentTab === 'modules') {
 			return <ModulesPanel />;
 		}
 
-		// Instant Indexing tab's "Submit URLs"/"History" cards are real
-		// actions/logs, not persisted-field settings - same escape hatch as
-		// 'modules' above (see InstantIndexing.ts's own docblock).
+		// Instant Indexing tab's "Submit URLs"/"History" cards are real actions/logs, not
+		// persisted-field settings.
 		if (currentTab === 'indexnow') {
 			return <IndexNowPanel />;
 		}
@@ -173,29 +121,15 @@ const Settings = () => {
 			<>
 				{settingName === currentTab ? (
 					<>
-						{/* `settingModal` is `getSettingById(settingsArray, currentTab)`
-						 * (line ~93) - real `null` for a `currentTab` that doesn't
-						 * match any entry in `settingsArray` (a stale/unknown
-						 * `subtab=` URL param, or a tab gated behind a module
-						 * that's since been deactivated). `InputRenderer` itself
-						 * unconditionally destructures its own `settings` prop
-						 * (zyra's own InputRenderer.tsx) and crashes the whole
-						 * page rather than degrading, so this has to stay guarded
-						 * here rather than just passing `settingModal` through. */}
+						{/* `settingModal` is `getSettingById(settingsArray, currentTab)` * (line ~93). */}
 						{settingModal ? (
 							<InputRenderer
 								settings={settingModal}
 								setting={setting}
 								updateSetting={updateSetting}
 								Popup={ShowProPopup}
-								// Per-tab opt-in (General.ts's own `groupBySections: true`
-								// is the first) into InputRenderer's card-grouped layout -
-								// same `.settings-section-group` real CSS
-								// NavigatorComponent.scss already ships, matching
-								// NavigatorComponent's own "Default" Storybook story.
-								// `hideSettingHeader` is deliberately NOT forwarded here:
-								// it only ever gates NavigatorComponent's own outer header
-								// (see that story's own docblock), not this grouping.
+								// Per-tab opt-in (General.ts's own `groupBySections: true` is the
+								// first) into InputRenderer's card-grouped layout.
 								groupBySections={settingModal.groupBySections}
 							/>
 						) : (
@@ -262,14 +196,7 @@ const Settings = () => {
 								<ShowProPopup />
 							</PopupComponent>
 						)}
-						{/* AI Crawler Alerts' own "Send Test Alert" button
-						 * (CrawlerAlertTestPanel.tsx) is NOT appended here
-						 * - unlike Backups above, it's wired straight into
-						 * AiCrawlerAlerts.ts's own "Notification channels"
-						 * `type: 'section'` field via SectionComponent's
-						 * `rightContent` slot, so InputRenderer renders it
-						 * inline as part of that tab's own fields. See
-						 * that file's own docblock. */}
+						{/* AI Crawler Alerts' own "Send Test Alert" button * (CrawlerAlertTestPanel.tsx) is NOT appended here *. */}
 					</>
 				) : (
 					<>{__('Loading…', 'vulopilot')}</>

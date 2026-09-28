@@ -10,12 +10,8 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Optional companion to ScannerInterface, implemented only by scanners that
- * iterate individual posts/pages (Scanners\Basic\ScannedPostsTrait). Lets
- * ScanRunner recover which posts a scan actually considered even when zero
- * findings resulted - Finding objects alone only ever exist for objects
- * that DID trip a check (ScannerInterface::scan()'s own docblock), so a
- * clean scan otherwise leaves no record of what it looked at.
+ * Optional companion to ScannerInterface, implemented only by scanners that iterate
+ * individual posts/pages (ScannedPostsTrait).
  *
  * @class       TracksScannedObjectsInterface interface
  * @version     1.0.0

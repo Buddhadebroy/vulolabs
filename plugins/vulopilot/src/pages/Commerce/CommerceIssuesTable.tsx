@@ -34,15 +34,8 @@ interface WooCommerceFindingsTableProps {
 }
 
 /**
- * One tab panel's real findings table - a thin shell around
- * `useFindingsTable` + Zyra's own `<TableCard />`, kept as its own
- * component (rather than inlined straight into the `tabs` array below) so
- * each tab's table only mounts - and only fetches - when TabsComponent
- * actually renders it as the current tab's content (`tabs[activeIndex]`,
- * TabsComponent.tsx's own `currentTab`), same lazy per-tab-switch fetch
- * behavior a dedicated `<FindingsTable>` instance per tab used to give for
- * free before that component was removed in favor of every real table
- * being a real `<TableCard />`.
+ * One tab panel's real findings table - a thin shell around `useFindingsTable` + Zyra's own
+ * `TableCard`.
  */
 const WooCommerceFindingsTable = ({ scannerIds }: WooCommerceFindingsTableProps) => {
 	const { tableCardProps, error, isProPopupOpen, closeProPopup } =
@@ -97,13 +90,9 @@ interface CommerceIssuesTableProps {
 }
 
 /**
- * "All WooCommerce Issues" - a real category-tab bar on top of a real
- * `<TableCard>` (via `useFindingsTable`'s own `scannerIds` scoping -
- * GEO.tsx's per-section tables already scope the same hook the same way).
- * Tab counts are real `/findings/groups` sums per CommerceTab.constants.ts's
- * scanner_id buckets - "Important" is the one dynamic bucket, built from
- * whichever groups are currently critical/high severity rather than a
- * fixed scanner_id list.
+ * "All WooCommerce Issues" - a real category-tab bar on top of a real `TableCard` (via
+ * `useFindingsTable`'s own `scannerIds` scoping - GEO.tsx's per-section tables already scope the
+ * same hook the same way).
  */
 const CommerceIssuesTable = ({
 	groups,

@@ -19,13 +19,7 @@ const CATEGORY_ACRONYMS: Record<string, string> = {
 };
 
 /**
- * `Finding.category` is the raw scanner category string ('security',
- * 'wordpress', 'ssl', …) - this turns it into the same kind of short
- * label the mockup's per-row category tag shows ('WordPress', 'SSL'); no
- * category string in this codebase is more than one hyphenated word.
- * Exported so other per-row category tags (e.g. Reports'
- * NextPrioritiesList.tsx) can reuse the identical humanization instead of
- * a second copy.
+ * `Finding.category` is the raw scanner category string ('security', 'wordpress', 'ssl', …).
  */
 export const humanizeCategory = (category: string): string =>
 	category
@@ -45,39 +39,27 @@ export interface Finding extends TableRow {
 	status: 'open' | 'resolved' | 'ignored' | 'snoozed';
 	created_at: string;
 	/**
-	 * The scanner's own longer explanation of the finding (Finding::
-	 * get_description() server-side) - already returned by GET /findings
-	 * (FindingRepository's `SELECT *`), just not previously surfaced in the
-	 * UI. `layout="compact"` shows this as the row's description line when
-	 * present, falling back to the `page`/`created_at` line below when a
-	 * finding has none.
+	 * The scanner's own longer explanation of the finding (Finding:: get_description() server-
+	 * side).
 	 */
 	description?: string;
 	/**
-	 * Resolved page path (e.g. '/pricing') for a per-post finding, or
-	 * 'Site-wide' for a sitewide check - added server-side by
-	 * Controllers/Findings.php's `add_page_field()` from the row's raw
-	 * `object_type`/`object_ref` columns. Only used by `layout="compact"`'s
-	 * name-column description line.
+	 * Resolved page path (e.g. '/pricing') for a per-post finding, or 'Site-wide' for a sitewide
+	 * check.
 	 */
 	page?: string;
 	/**
-	 * The real post's own title (`get_the_title()`), added alongside
-	 * `page` by the same `add_page_field()` - `null` when this finding
-	 * has no real post behind it (a sitewide check, or an external/raw
-	 * URL object_ref), never a fabricated title. Callers that want a
-	 * human-readable page name instead of the raw path (e.g.
-	 * BrokenLinksSection.tsx's own "Source page" column) fall back to
-	 * `page` itself when this is null.
+	 * The real post's own title (`get_the_title()`), added alongside `page` by the same
+	 * `add_page_field()`.
 	 */
 	page_title?: string | null;
 	fix_action_id?: string | null;
 }
 
 /**
- * What a registered fix handler resolves to - Free displays this itself
- * (see getFindingFixHandler's own docblock for why the handler can't just
- * show its own notice) rather than caring what actually happened.
+ * What a registered fix handler resolves to - Free displays this itself (see
+ * getFindingFixHandler's own docblock for why the handler can't just show its own notice) rather
+ * than caring what actually happened.
  */
 interface FixOutcome {
 	success: boolean;
@@ -97,48 +79,28 @@ export interface UseFindingsTableProps {
 	/** Restricts the list to one finding category (e.g. 'seo', 'geo', 'woocommerce'). Omit to show every category (Health). */
 	category?: string;
 	/**
-	 * Further restricts the list to a specific set of scanner ids within
-	 * `category` - what SEO.tsx's per-section tables (e.g. "Titles & meta"
-	 * vs. "Images") use to split one category's findings into several
-	 * independent tables without duplicating this hook's fetch/filter/
-	 * bulk-action/fix-action wiring per section. Omit to show every scanner
-	 * in `category` (every other page's single-table usage).
+	 * Further restricts the list to a specific set of scanner ids within `category`.
 	 */
 	scannerIds?: string[];
 	/**
-	 * 'compact' renders each row as a single InformationItemComponent
-	 * (title + "$page · Detected $date" description line, same shape as
-	 * zyra's own TableCard "Transparent" story) with inline admin-badge
-	 * row actions, instead of the default multi-column table - GEO.tsx's
-	 * per-section tables opt into this; every other page keeps the default.
+	 * Compact layout: each row is one InformationItemComponent with title, page and detected date.
 	 */
 	layout?: 'default' | 'compact';
 	/** Empty-state message - shown by TableCard's own `emptyMessage` when there's nothing to list. */
 	description?: string;
 	/**
-	 * Which categorical dimension drives the pill bar above the table -
-	 * `'status'` (Open/Resolved/Ignored/Snoozed, every existing caller's
-	 * default) or `'priority'` (Critical/Important/Minor, the "Schema &
-	 * Knowledge" tab's Issues section - see Findings.php's own
-	 * `priority`/`priority_counts` handling). Real severity values
-	 * underneath either way (`high`/`medium`/`low`) - only the pill
-	 * labels and which REST param they drive change.
+	 * Which categorical dimension drives the pill bar above the table.
 	 */
 	pillDimension?: 'status' | 'priority';
 }
 
 export interface UseFindingsTableResult {
 	/**
-	 * Spread straight onto Zyra's `<TableCard />` - every prop this hook
-	 * derives from `/findings` plus the row actions/bulk actions/filters.
-	 * Omits `title`: `hideHeader: true` below means TableCard never
-	 * renders its own header/title bar, and the original FindingsTable
-	 * component never actually passed one through either - each caller's
-	 * own surrounding CardComponent/NavigatorHeaderComponent already
-	 * supplies the visible title.
+	 * Spread straight onto Zyra's `TableCard` - every prop this hook derives from `/findings`
+	 * plus the row actions/bulk actions/filters.
 	 */
 	tableCardProps: Omit<TableCardProps, 'title'>;
-	/** Real fetch error (`useApiList`'s own) - render an error state (e.g. ModuleGuardComponent) instead of `<TableCard />` when set, same as FindingsTable.tsx used to. */
+	/** Real fetch error (`useApiList`'s own) - render an error state (e.g. ModuleGuardComponent) instead of `TableCard` when set. */
 	error: string | null;
 	/** Retry the fetch - wire to the error state's own retry action. */
 	refetch: () => void;
@@ -147,18 +109,8 @@ export interface UseFindingsTableResult {
 }
 
 /**
- * Shared findings-list logic - the Health, SEO, GEO, and WooCommerce pages
- * are all "vulopilot_scan_findings filtered to a category" (DATABASE.md),
- * so this one hook serves all of them rather than duplicating the same
- * table/filter/state wiring per page. Each caller renders the real
- * `<TableCard />` (and a `<PopupComponent>` for `isProPopupOpen`) itself -
- * this hook owns no JSX beyond each row's own `render()` cell content,
- * matching TableCard's own `headers[key].render` contract. Replaces the
- * former `FindingsTable` component (removed) - callers used to render
- * `<FindingsTable {...props} />` and get TableCard for free internally;
- * now they call this hook and render `<TableCard {...tableCardProps} />`
- * themselves, so `<TableCard />` is the one real table implementation
- * everywhere, not a component wrapping it a second time.
+ * Shared findings-list logic - the Health, SEO, GEO, and WooCommerce pages are all
+ * "vulopilot_scan_findings filtered to a category".
  */
 export const useFindingsTable = ({
 	category,
@@ -178,11 +130,8 @@ export const useFindingsTable = ({
 	];
 
 	/**
-	 * Critical/Important/Minor - a display-only relabeling of the same
-	 * real `high`/`medium`/`low` priority buckets `get_finding_groups()`'s
-	 * own stat tiles already use elsewhere; the underlying `severity`
-	 * column/value object is untouched (Findings.php's own
-	 * `PRIORITY_SEVERITY_LABELS`).
+	 * Critical/Important/Minor - a display-only relabeling of the same real `high`/`medium`/`low`
+	 * priority buckets `get_finding_groups()`'s own stat tiles already use elsewhere.
 	 */
 	const priorityOptions = [
 		{ label: __('Critical', 'vulopilot'), value: 'high' },
@@ -207,23 +156,15 @@ export const useFindingsTable = ({
 		'findings',
 		{
 			category,
-			// Comma-joined, not an array - useApiList's params are plain
-			// string|number values (see its own JSDoc); Findings::get_items()
-			// on the backend splits this back into a scanner_id list
-			// (see parse_scanner_ids()).
+			// Comma-joined, not an array - useApiList's params are plain string|number values (see
+			// its own JSDoc).
 			scanner_id: scannerIds?.length ? scannerIds.join(',') : undefined,
 		},
 		pillConfig
 	);
 
 	/**
-	 * Whether the user currently has a search term typed in - tracked so
-	 * the `search` box below can hide itself when there's nothing to
-	 * search (`total === 0`), without also hiding it out from under
-	 * someone whose own search just happens to match nothing: `total`
-	 * reflects the *current* (possibly search-filtered) result count, not
-	 * "has this table ever had any rows," so gating on `total === 0` alone
-	 * would make the box vanish mid-search with no way left to clear it.
+	 * Whether the user currently has a search term typed in.
 	 */
 	const [hasSearchTerm, setHasSearchTerm] = useState(false);
 
@@ -282,12 +223,8 @@ export const useFindingsTable = ({
 		handleSetStatus(row, 'open', __('Finding reopened.', 'vulopilot'));
 
 	/**
-	 * "Manual Actions Only" (readme.txt) - goes through the
-	 * Automation\ActionRegistry/ManualActionRunner abstraction
-	 * (`POST /findings/{id}/actions/snooze-finding`) rather than a plain
-	 * `PATCH /findings/{id} {status: 'snoozed'}`, unlike handleResolve/
-	 * handleIgnore/handleReopen above - those predate this feature and set
-	 * status directly; this is Free's one built-in manual action.
+	 * "Manual Actions Only": runs through ActionRegistry/ManualActionRunner (`POST
+	 * /findings/{id}/actions/snooze-finding`) rather than a plain PATCH.
 	 */
 	const handleSnooze = (row?: Record<string, unknown>) => {
 		if (!row) {
@@ -315,9 +252,8 @@ export const useFindingsTable = ({
 	};
 
 	/**
-	 * "Fix" - always visible (register a source, don't modify the host -
-	 * see getFindingFixHandler's own docblock above); shared by both the
-	 * default table's row action and compact layout's inline badge.
+	 * "Fix" - always visible (register a source, don't modify the host - see
+	 * getFindingFixHandler's own docblock above).
 	 */
 	const handleFix = (row?: Record<string, unknown>) => {
 		const findingFixHandler = getFindingFixHandler();
@@ -386,9 +322,8 @@ export const useFindingsTable = ({
 					icon: 'clock',
 					onClick: handleSnooze,
 				},
-				// Always visible - Free itself has no AI-action-to-scanner
-				// mapping or fix REST call (see getFindingFixHandler's own
-				// docblock above); this is only ever the entry point + gate.
+				// Always visible - Free itself has no AI-action-to-scanner mapping or fix REST call
+				// (see getFindingFixHandler's own docblock above).
 				{
 					label: __('Fix', 'vulopilot'),
 					icon: 'tools',
@@ -399,17 +334,7 @@ export const useFindingsTable = ({
 	};
 
 	/**
-	 * "Transparent" TableCard story shape (zyra Storybook, `table-tablecard
-	 * --transparent`) - one InformationItemComponent per row (icon, title,
-	 * a category + severity badge, then a description line) with inline
-	 * admin-badge row actions on the right, instead of separate category/
-	 * severity/status/date columns. Originally GEO.tsx's per-section
-	 * tables only; "Protect My Site"'s SectionedFindingsTab (Security/Site
-	 * Health/Files & Plugins/Accessibility) now uses this same layout too,
-	 * matching the "Issues that need your attention" list-row design the
-	 * Overview tab's own OpenIssuesGlimpse already established, rather
-	 * than a spreadsheet-style grid - same underlying `/findings` data and
-	 * row actions either way, just presented as a list.
+	 * "Transparent" TableCard story shape (zyra Storybook, `table-tablecard --transparent`).
 	 */
 	const compactHeaders: Record<string, any> = {
 		title: {
@@ -423,15 +348,8 @@ export const useFindingsTable = ({
 		},
 		action: {
 			label: __('Action', 'vulopilot'),
-			// Native `type: 'action'` + `type: 'button'` actions
-			// (TableRowActions.tsx) instead of a hand-built
-			// `<BadgeComponent>` in `render` - same real Fix/Resolve/
-			// Ignore/Reopen actions. Fix/Resolve/Ignore only apply to an
-			// open finding, Reopen only to a resolved/ignored/snoozed one
-			// - `hidden` (zyra's own real per-row action visibility) drops
-			// whichever set doesn't apply to this row's own `status`,
-			// same real either/or the old `row.status === 'open' ? … : …`
-			// branch enforced.
+			// Native `type: 'action'` + `type: 'button'` actions (TableRowActions.tsx) instead of
+			// a hand-built `BadgeComponent` in `render`.
 			type: 'action',
 			actions: [
 				{
@@ -481,27 +399,16 @@ export const useFindingsTable = ({
 			return {
 				...row,
 				descriptionText,
-				// `defaultHeaders.title`'s own avatar - color baked into the
-				// icon string (real zyra `$color-palette` utility class, see
-				// SeoTab.tsx's own `icon: 'name colorword'` convention).
+				// `defaultHeaders.title`'s own avatar - color baked into the icon string (real zyra
+				// `$color-palette` utility class, see SeoTab.tsx's own `icon: 'name colorword'`
+				// convention).
 				defaultTitleIcon:
 					row.severity === 'low' || row.severity === 'info'
 						? 'info blue'
 						: 'error red',
 				defaultTitleBadges: [
-					// Same real category tag the compact layout's own
-					// `compactTitleBadges` already shows - folded in here
-					// instead of the separate, now-removed standalone
-					// "Category" column, only when this table itself spans
-					// more than one category (a `category`-scoped caller's
-					// own rows are all the same one already, so repeating
-					// it per row would just be noise). Same real
-					// `badge-{value}` convention the status/severity badges
-					// right below already use - not the uncolored `color: ''`
-					// `compactTitleBadges` uses for this same tag, which
-					// renders as a real, styled color for every category that
-					// has one (`badge-seo`/`badge-geo`/`badge-security`, see
-					// BadgeComponent.scss) instead of always plain/uncolored.
+					// Same real category tag the compact layout's own `compactTitleBadges` already
+					// shows.
 					...(category
 						? []
 						: [
@@ -512,16 +419,11 @@ export const useFindingsTable = ({
 							]),
 					{ text: row.status, color: `badge-${row.status}` },
 					{ text: row.severity, color: `blue` },
-					// Replaces the now-removed standalone "Detected" date
-					// column - same real `created_at` value, just folded
-					// into the title's own badge row instead of its own
-					// column, freeing that column width for `title` itself
-					// (see `defaultHeaders.title`'s own `width: '75%'`).
+					// Replaces the now-removed standalone "Detected" date column.
 					{ text: formatWpDate(row.created_at), color: '' },
 				],
-				// `compactHeaders.title`'s own avatar - same real icon, but
-				// tinted via a real color (`iconColorKey`) instead of a
-				// baked-in class word.
+				// `compactHeaders.title`'s own avatar - same real icon, but tinted via a real color
+				// (`iconColorKey`) instead of a baked-in class word.
 				compactTitleIcon:
 					row.severity === 'low' || row.severity === 'info'
 						? 'info'

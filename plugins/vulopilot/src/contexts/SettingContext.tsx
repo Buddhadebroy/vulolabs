@@ -1,12 +1,7 @@
 import React, { createContext, useReducer, useContext, ReactNode } from 'react';
 
 /**
- * Same tiny reducer-backed context every plugin in this workspace that
- * uses zyra's InputRenderer/NavigatorComponent settings framework carries
- * its own copy of (see the free vulolabs plugin's
- * contexts/SettingContext.tsx) - it's generic, per-tab local state, not
- * something zyra itself exports, so each consuming plugin owns its own
- * instance rather than importing a shared one that doesn't exist.
+ * Small reducer-backed context holding per-tab settings state, which zyra does not export.
  */
 type SettingState = {
 	settingName: string;

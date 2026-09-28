@@ -4,15 +4,9 @@ namespace VuloPilot\AiAssistant;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Handles the Connect broker's real redirect back to this site
- * (`admin-post.php?action=vulopilot_connect_broker_callback` -
- * AiCreditsConnection::get_broker_redirect_uri()'s own exact URL). Kept as
- * its own tiny class for the same reason GoogleSearchConsoleOAuthCallbackHandler
- * is: this hook must be registered unconditionally at plugin boot
- * (VuloPilot.php's init_classes()), not lazily inside a REST controller
- * that's only ever instantiated on `rest_api_init` - a request to
- * `admin-post.php` never fires that hook at all, so a REST-controller-only
- * registration would silently 404 every real return redirect.
+ * Handles the Connect broker's real redirect back to this site (`admin-
+ * post.php?action=vulopilot_connect_broker_callback` -
+ * AiCreditsConnection::get_broker_redirect_uri()'s own exact URL).
  *
  * @class       ConnectBrokerCallbackHandler class
  * @version     1.0.0
@@ -25,12 +19,8 @@ class ConnectBrokerCallbackHandler {
 	}
 
 	/**
-	 * Verifies the real `state` nonce, exchanges the real `code` for a
-	 * ConnectedSite credential (AiCreditsConnection::exchange_broker_code()),
-	 * then redirects back to Settings → Integrations with a real
-	 * success/error query flag. Never renders its own page, same
-	 * "redirect back into the SPA" shape GoogleSearchConsoleOAuthCallbackHandler
-	 * already uses.
+	 * Verifies the real `state` nonce, exchanges the real `code` for a ConnectedSite
+	 * credential (AiCreditsConnection::exchange_broker_code()).
 	 *
 	 * @return void
 	 */

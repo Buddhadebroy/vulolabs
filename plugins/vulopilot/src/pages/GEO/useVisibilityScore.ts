@@ -20,15 +20,13 @@ export interface VisibilityScoreResponse {
 		geo: VisibilityArea;
 		crawl: VisibilityArea;
 	};
-	/** Real AI-lab breakdown, same `by_vendor` field `/crawler-traffic/analytics` itself returns - passed through so this one response can also back a donut without a second fetch. */
+	/** Real AI-lab breakdown, same `by_vendor` field `/crawler-traffic/analytics` itself returns. */
 	crawler_by_vendor: Record<string, number>;
 }
 
 /**
- * `GET /visibility/score` - Visibility.php's own real combined score across
- * the 4 real free-tier areas (Brand/SEO/GEO/Crawl & URLs), each read
- * straight from that area's own existing endpoint so this number can never
- * disagree with what that area's own tab shows. No AI call, no cost.
+ * `GET /visibility/score` - Visibility.php's own real combined score across the 4 real free-tier
+ * areas (Brand/SEO/GEO/Crawl & URLs).
  */
 export const useVisibilityScore = (): {
 	score: VisibilityScoreResponse | null;

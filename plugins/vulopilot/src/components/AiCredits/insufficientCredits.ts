@@ -1,16 +1,8 @@
 import axios from 'axios';
 
 /**
- * An AI request the site owner's credits can't cover is refused before the AI
- * provider is ever called, so nothing is charged. Every AI
- * endpoint in this plugin reports that the same way (HTTP 402,
- * `code: 'vulopilot_insufficient_credits'`, see
- * VuloPilotException::to_insufficient_credits_error()), and every AI call
- * goes through axios (directly, or via zyra's getApiResponse/
- * sendApiResponse, which use this same axios) - so one response
- * interceptor here recognizes it everywhere and raises one shared
- * "not enough credits → Buy Credits" notice (InsufficientCreditsNotice),
- * instead of each of the ~10 AI surfaces re-implementing that UI.
+ * An AI request the site owner's credits can't cover is refused before the AI provider is ever
+ * called, so nothing is charged.
  */
 export const INSUFFICIENT_CREDITS_EVENT = 'vulopilot:insufficient-credits';
 
