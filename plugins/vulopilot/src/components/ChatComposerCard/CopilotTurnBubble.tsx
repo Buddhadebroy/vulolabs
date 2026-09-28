@@ -4,17 +4,13 @@ import ChatMessage from './ChatMessage';
 import { ChatMarkdown } from '../ChatMarkdown';
 import type { CopilotChatTurn } from '../../services/useCopilotChat';
 
-/** Matches the image extensions AI Copilot's own ATTACHMENT_ACCEPT (ChatTab.tsx) allows - used to decide whether a sent turn's attachment renders as an inline thumbnail or a plain file chip. */
+/** Matches the image extensions AI Copilot's own ATTACHMENT_ACCEPT (ChatTab.tsx) allows. */
 const IMAGE_EXTENSION_RE = /\.(jpe?g|png|gif|webp)$/i;
 
 export interface CopilotTurnBubbleProps {
 	turn: CopilotChatTurn;
 	/**
-	 * A turn's own `runId` currently being rolled back, or null - a turn's
-	 * "Undo" link disables/relabels itself while its own rollback is in
-	 * flight. Omit both this and `onUndo` for a composer that doesn't
-	 * offer undo at all (the link itself still renders; just no Undo
-	 * affordance next to it).
+	 * A turn's own `runId` currently being rolled back, or null.
 	 */
 	undoingRunId?: number | null;
 	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
@@ -22,12 +18,8 @@ export interface CopilotTurnBubbleProps {
 }
 
 /**
- * The standard `CopilotChatTurn` bubble - sent attachments (inline
- * thumbnail or file chip), real Markdown, and a created-content turn's
- * clickable link + inline "Undo" - shared by every real `useCopilotChat`
- * consumer (AI Copilot's own Chat tab, GEO's "How would you like to grow
- * today?" composer) instead of each hand-rolling its own copy. Used as a
- * `renderTurn` callback: `renderTurn={(turn, index) => <CopilotTurnBubble key={index} turn={turn} .../>}`.
+ * The standard `CopilotChatTurn` bubble - sent attachments (inline thumbnail or file chip), real
+ * Markdown.
  */
 const CopilotTurnBubble: React.FC<CopilotTurnBubbleProps> = ({
 	turn,

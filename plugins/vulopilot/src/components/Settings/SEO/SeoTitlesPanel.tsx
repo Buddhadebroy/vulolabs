@@ -25,9 +25,9 @@ interface ContextConfig {
 	descriptionTemplateKey: string;
 	icon: string;
 	label: string;
-	/** Real zyra palette color name for this row's own content-type badge - a distinct color per context so the 7 rows read apart at a glance instead of all sharing the same "indigo" pill. */
+	/** Real zyra palette color name for this row's own content-type badge. */
 	badgeColor: string;
-	/** Real, one-line explanation of which real frontend pages this template applies to - shown under the edit panel's own title (e.g. "Search Results Format"). */
+	/** Real, one-line explanation of which real frontend pages this template applies to. */
 	description: string;
 	urlExample: string;
 	vars: Record<string, string>;
@@ -48,7 +48,7 @@ interface PreviewRow extends ContextConfig {
 	descriptionScore: LengthScore;
 }
 
-/** The 9 tokens Services\TitleFormatter::VARIABLES resolves (`%sep%` plus 8). */
+/** The 9 tokens TitleFormatter::VARIABLES resolves (`%sep%` plus 8). */
 const VARIABLES: Array<{ token: string; label: string }> = [
 	{ token: '%site_title%', label: __('Your website title', 'vulopilot') },
 	{ token: '%site_description%', label: __('Your website description', 'vulopilot') },
@@ -61,7 +61,7 @@ const VARIABLES: Array<{ token: string; label: string }> = [
 	{ token: '%sep%', label: __('Separator (e.g. | – -)', 'vulopilot') },
 ];
 
-/** Real, fixed separator characters this field offers - a `SelectInput` instead of a free-text field, per direct instruction. `title_separator` still stores the literal character (e.g. `'|'`), same as every already-saved site's own value, so this is a closed but backward-compatible set rather than a new stored shape. */
+/** Real, fixed separator characters this field offers - a `SelectInput` instead of a free-text field. */
 const SEPARATOR_OPTIONS: Array<{ value: string; label: string; char: string }> = [
 	{ value: 'pipe', label: __('| (Pipe)', 'vulopilot'), char: '|' },
 	{ value: 'dash', label: __('- (Dash)', 'vulopilot'), char: '-' },
@@ -72,11 +72,8 @@ const SEPARATOR_OPTIONS: Array<{ value: string; label: string; char: string }> =
 ];
 
 /**
- * Same token-replacement + leading/trailing-separator-trim logic as
- * Services\TitleFormatter::resolve() (PHP) - kept as a parallel
- * implementation rather than a shared module since the two run in
- * different languages/runtimes; if one changes, the other needs the same
- * change by hand.
+ * Same token-replacement + leading/trailing-separator-trim logic as TitleFormatter::resolve()
+ * (PHP).
  */
 const resolveTemplate = (template: string, vars: Record<string, string>, separator: string): string => {
 	const resolved = template.replace(/%([a-z_]+)%/g, (_match, token: string) => {
@@ -95,14 +92,8 @@ const resolveTemplate = (template: string, vars: Record<string, string>, separat
 };
 
 /**
- * Length-based heuristic, graded against real, already-established
- * thresholds elsewhere in this codebase rather than an invented number -
- * `TITLE_MAX_LENGTH` (60) matches SnippetPreview.tsx/Services\OnPageAnalyzer's
- * own title truncation point; `DESCRIPTION_MIN_LENGTH`/`DESCRIPTION_MAX_LENGTH`
- * (120/160) match `Services\OnPageAnalyzer::DESCRIPTION_MIN_LENGTH`/
- * `DESCRIPTION_MAX_LENGTH`, which itself reuses `WriteMetaDescriptionAction::MAX_LENGTH`.
- * Displayed as a plain "N/max" character count (not an invented 0-80 score)
- * so the number means something a site owner can act on directly.
+ * Length-based heuristic, graded against real, already-established thresholds elsewhere in this
+ * codebase rather than an invented number.
  */
 const scoreLength = (text: string, max: number, min = 0): LengthScore => {
 	const length = text.trim().length;
@@ -133,7 +124,7 @@ const TITLE_MIN_LENGTH = 30;
 const DESCRIPTION_MIN_LENGTH = 120;
 const DESCRIPTION_MAX_LENGTH = 160;
 
-/** Same real `urlExample` every row already carries, reformatted as a plain "domain › path › segments" breadcrumb (Google's own real search-result URL styling) instead of a raw `http://…` string - matches the search-result-snippet look the rest of this row's preview block (resolved title/desc) is already going for. */
+/** Same real `urlExample` every row already carries. */
 const toBreadcrumb = (urlExample: string): string =>
 	urlExample
 		.replace(/^https?:\/\//, '')
@@ -143,70 +134,15 @@ const toBreadcrumb = (urlExample: string): string =>
 
 /**
  * Settings → SEO → SEO Titles.
- *
- * Real backend: Services\TitleFormatter filters `pre_get_document_title`
- * with whichever `title_format_*` template matches the current frontend
- * request's context (home/post/page/category/tag/search/archive), and
- * echoes a real `<meta name="description">` on `wp_head` from the
- * matching `description_format_*` template - both gated on
- * `site_identity_enabled` - see that class's own docblock, including why
- * `post`/`page` descriptions defer to a real `post_excerpt` first when one
- * exists. This panel is a hand-built `PanelComponent` escape hatch
- * (SeoTitles.ts, same mechanism GetStarted/SiteVerification.ts already
- * uses) rather than InputRenderer, since it needs a live, client-computed
- * preview across 14 interdependent template fields at once - something
- * InputRenderer's own per-field declarative shape doesn't support, even
- * though every field here still autosaves the same way InputRenderer's
- * own fields do.
- *
- * "Enable Site Identity" autosaves immediately on change (same
- * `handleSettingChange` shape DeveloperToolsPanel.tsx's own two toggles
- * use) - a real `ToggleInput` two-button switch (Enabled/Disabled), not a
- * `SelectInput` dropdown, matching every other on/off setting in this
- * codebase. The 14 template fields + separator autosave too, per direct
- * instruction ("remove the save changes button this is autosave") -
- * `scheduleTemplateSave()` debounces 1000ms after the last keystroke
- * (same "stop typing, then save" shape BackupStoragePanel.tsx's own
- * `AUTOSAVE_DEBOUNCE_MS`/CrawlRobotsSitemapSection.tsx's own
- * `handleRobotsContentChange` already use) rather than saving every
- * keystroke, and rather than requiring an explicit "Save Changes" click.
- *
- * Built entirely from real `@zyra/components`/`@zyra/inputs` exports
- * rather than hand-rolled markup. `ContainerComponent`/`ColumnComponent
- * grid={8|4}` is the same 12-column layout primitive used throughout GEO's
- * own tabs. Every real context row (Homepage/Blog Post/Page/…) is one real
- * `TableCard` row (its own real Google-snippet-style preview + content-type
- * badge + real length-score badges) instead of a flat 16-field grid - its
- * "Edit" action opens that row's own Title format/Description format
- * fields (each a real `%token%`-insertion pill row + a real length
- * `BadgeComponent`) in the right column, always showing the first real
- * context ('home') on load rather than an empty/placeholder sidebar. The
- * separator field is `FormGroupWrapperComponent`/`FormGroupComponent` (the same
- * label+field row SiteVerificationPanel.tsx's own code fields already
- * use), not a hand-rolled label/div pair, and every status pill (Good/Too
- * short/Too long/"N/max") is a real `BadgeComponent` (`color`+`text`), not
- * a raw `<span className="admin-badge">`.
- *
- * The Live Title Preview's 7 rows use fixed sample values ("Sample Post
- * Title", "sample search", …) rather than real site content - this plugin
- * has no reason to fetch a real post/page/category/tag just to preview a
- * title format, and the mockup's own preview data is equally illustrative
- * (not live site content either). Only the Homepage row is real (real
- * site title/tagline/URL), so only it gets a real "View" link; the other
- * 6 rows don't pretend to link anywhere.
- *
- * No "How it works?"/"Need Help" (Watch Guide / Book a Free Call) - those
- * would need real destination URLs (a demo video, a booking page) that
- * don't exist anywhere in this codebase; omitted rather than fabricated.
  */
 const SeoTitlesPanel = () => {
 	const { setting, updateSetting } = useSetting();
 
 	const [separator, setSeparator] = useState<string>('|');
-	/** Which real context row's own Edit action opened the right-side edit panel - defaults to the first real context ('home') so the edit panel is open on load instead of an empty state, since this panel has no fallback sidebar to show otherwise. */
+	/** Which real context row's own Edit action opened the right-side edit panel. */
 	const [editingKey, setEditingKey] = useState<string | null>('home');
 
-	/** Shared by the row click and the action cell's own "Edit"/"Editing" button - same real toggle SeoIssuesByPageTable.tsx's own identical row-select pattern already establishes, now also scrolling the edit panel into view (`scrollToId`, not `window.scrollTo` - WP admin's own scrollable wrapper isn't the document) on a real select. */
+	/** Shared by the row click and the action cell's own "Edit"/"Editing" button. */
 	const handleEditRow = (key: string) => {
 		setEditingKey(key);
 		scrollToId('site-identity-edit-panel');
@@ -310,16 +246,8 @@ const SeoTitlesPanel = () => {
 
 	const [templateValues, setTemplateValues] = useState<Record<string, string>>({});
 
-	// Settings.tsx's own GetForm() seeds SettingContext with this tab's real
-	// values (from `modal[].key`) as a render-phase `setSetting()` call, not
-	// before this component's own first mount - a `useState(() => ...)`
-	// lazy initializer reading `setting` here would capture whatever was in
-	// context on that first, not-yet-seeded pass and never update again
-	// (lazy initializers only run once). Hydrating once via this effect,
-	// gated on `title_format_home` actually being present, avoids depending
-	// on exactly which render pass this component's mount happens to land
-	// on - and `hydratedRef` keeps it from firing again and clobbering the
-	// user's own in-progress edits once "Title Format Templates" is open.
+	// Settings.tsx's own GetForm() seeds SettingContext with this tab's real values (from
+	// `modal[].key`) as a render-phase `setSetting()` call.
 	const hydratedRef = useRef(false);
 
 	useEffect(() => {
@@ -347,10 +275,9 @@ const SeoTitlesPanel = () => {
 		});
 	};
 
-	// "Stop typing, then save" debounce - same shape BackupStoragePanel.tsx's
-	// own `AUTOSAVE_DEBOUNCE_MS`/CrawlRobotsSitemapSection.tsx's own
-	// `handleRobotsContentChange` already use, rather than saving every
-	// keystroke or requiring an explicit "Save Changes" click.
+	// "Stop typing, then save" debounce - same shape BackupStoragePanel.tsx's own
+	// `AUTOSAVE_DEBOUNCE_MS`/CrawlRobotsSitemapSection.tsx's own `handleRobotsContentChange`
+	// already use.
 	const AUTOSAVE_DEBOUNCE_MS = 1000;
 	const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -396,7 +323,7 @@ const SeoTitlesPanel = () => {
 		scheduleSave(templateValues, value);
 	};
 
-	/** Appends a real `%token%` to whichever field's own pill row was clicked - the edit panel's own "click a variable to insert it" affordance, in place of the old sidebar's plain click-to-copy-to-clipboard behavior (still real for the non-editing sidebar below). */
+	/** Appends a real `%token%` to whichever field's own pill row was clicked. */
 	const insertToken = (key: string, token: string) => {
 		const current = templateValues[key] ?? '';
 		handleTemplateChange(key, current ? `${current} ${token}` : token);
@@ -426,10 +353,8 @@ const SeoTitlesPanel = () => {
 	const editingRow = previewRows.find((row) => row.key === editingKey) ?? null;
 
 	/**
-	 * One real `%token%` field + its own "click to insert" pill row + a real
-	 * length `BadgeComponent` - reused for both Title format and Description
-	 * format below, the two fields the edit panel's own docblock ("image 5
-	 * like variables") describes.
+	 * One real `%token%` field + its own "click to insert" pill row + a real length
+	 * `BadgeComponent`.
 	 */
 	const renderTemplateField = (
 		key: string,
@@ -518,14 +443,7 @@ const SeoTitlesPanel = () => {
 							</div>
 						}
 					>
-						{/* One real row per context - just this row's own
-						content-type icon/label, with a real "More Details"/
-						"Showing" disclosure action (same shape
-						SeoIssuesByPageTable.tsx's own identical
-						PageAnalysisPanel toggle already establishes) opening
-						the right-side edit panel below, instead of every
-						row also repeating its own resolved-title/breadcrumb/
-						raw-template preview inline. */}
+						{/* One real row per context - just this row's own content-type icon/label. */}
 						<TableCard
 							showMenu={false}
 							hideHeader={true}

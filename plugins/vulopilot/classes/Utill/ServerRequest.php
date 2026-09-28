@@ -10,18 +10,8 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Reads web-server-provided request values (client IP, raw request URI,
- * user agent, server software) that WordPress core has no accessor for,
- * without touching the PHP superglobals directly - the same
- * `filter_input()` convention this plugin already uses for `INPUT_GET`.
- *
- * `filter_input( INPUT_SERVER )` returns null on some FastCGI setups, so
- * `getenv()` is the fallback: both read the SAPI's own request values,
- * so a firewall/login guard never silently sees an empty request.
- *
- * Values from `filter_input()`/`getenv()` are the original, un-slashed
- * SAPI data (unlike the magic-quoted superglobal), so they are
- * sanitized here but never `wp_unslash()`ed.
+ * Reads web-server-provided request values (client IP, raw request URI, user agent, server
+ * software) that WordPress core has no accessor for.
  *
  * @class       ServerRequest class
  * @version     1.0.0
@@ -46,9 +36,8 @@ class ServerRequest {
 	}
 
 	/**
-	 * Real client IP - the connecting address only, never a client-supplied
-	 * `X-Forwarded-For`-style header, which is trivially spoofable and would
-	 * let an attacker blame (or exempt) an arbitrary IP.
+	 * Real client IP - the connecting address only, never a client-supplied `X-Forwarded-
+	 * For`-style header.
 	 *
 	 * @return string Real IP, or '0.0.0.0' if genuinely unavailable (e.g. CLI context).
 	 */

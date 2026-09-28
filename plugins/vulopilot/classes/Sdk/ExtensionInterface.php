@@ -38,11 +38,7 @@ interface ExtensionInterface {
 
 	/**
 	 * Called once, only after ExtensionManager has confirmed
-	 * get_minimum_vulopilot_version() is satisfied by the running core
-	 * version - everything this extension does (registering scanners,
-	 * rules, automation triggers/actions, report types/exporters,
-	 * REST controllers, CLI commands) happens here or in
-	 * classes this method wires up.
+	 * get_minimum_vulopilot_version() is satisfied by the running core version.
 	 *
 	 * @return void
 	 */

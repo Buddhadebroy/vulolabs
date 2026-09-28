@@ -41,15 +41,8 @@ export interface EfficiencyChecksResponse {
 }
 
 /**
- * `GET /efficiency-checks` (Controllers\EfficiencyChecks.php) - every
- * check computed live on the server on each call, not read back from
- * stored findings (that controller's own docblock explains why). Shared
- * by every component on this tab that needs the same payload
- * (PerformanceTab.tsx's own header count, EfficiencyHeroCard,
- * EfficiencySectionsList, EfficiencyThingsToReview,
- * EfficiencyOverviewChart) rather than each one fetching independently -
- * the "Run Efficiency Test" button re-runs all of them at once via one
- * `refetch()`.
+ * `GET /efficiency-checks` (EfficiencyChecks.php) - every check computed live on the server on
+ * each call.
  */
 export const useEfficiencyChecks = () => {
 	const [data, setData] = useState<EfficiencyChecksResponse | null>(null);

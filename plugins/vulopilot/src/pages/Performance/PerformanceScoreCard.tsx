@@ -62,18 +62,7 @@ const getScoreRating = (score: number): Rating => {
 };
 
 /**
- * Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`) - the same real
- * colors Performance.scss's own `$vulopilot-rating-*` variables now read
- * too. `ChartComponent`'s own `type="ring"` needs a literal CSS color for
- * its stroke, not a class name, so this reads the shared source rather
- * than inventing a 2nd copy of it.
- *
- * Single source for every ring color in this file - the hero "Overall
- * Speed Score" ring, the Mobile/Desktop `ScoreTile` rings, and each
- * `VitalRow` ring all read from this same map, so they can never drift.
- * Previously there were two maps (`RATING_COLOR` from `COLOR_PALETTE` and
- * `RATING_RING_COLOR` with hardcoded hex) that could disagree if
- * `COLOR_PALETTE` ever changed.
+ * Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`).
  */
 const RATING_COLOR: Record<Rating['className'], string> = {
 	good: COLOR_PALETTE.green,
@@ -81,12 +70,12 @@ const RATING_COLOR: Record<Rating['className'], string> = {
 	poor: COLOR_PALETTE.red,
 };
 
-/** Same real bands as `getScoreRating()` above, mapped to the real palette class name this file's own SCSS and the reference snippet both use - good/needs-improvement/poor. */
+/** Same real bands as `getScoreRating()` above, mapped to the real palette class name this file's own SCSS and the reference snippet both use. */
 const ratingClass = (score: number): Rating['className'] => {
 	return getScoreRating(score).className;
 };
 
-/** Same 3 tiers as `RATING_COLOR` above, mapped to `TypographyComponent`'s own palette color names instead of a literal hex - for the hero ring's center number below, which (unlike `ScoreTile`/`VitalRow`'s own `className`-driven `<span>`s) reads a class name through this prop, not a CSS color. */
+/** Same 3 tiers as `RATING_COLOR` above, mapped to `TypographyComponent`'s own palette color names instead of a literal hex. */
 const TEXT_COLOR: Record<Rating['className'], string> = {
 	good: 'green',
 	'needs-improvement': 'orange',
@@ -100,46 +89,18 @@ const TEXT_COLOR: Record<Rating['className'], string> = {
 
 
 /**
- * "Performance Score" - now two real cards:
- *
- * "Overall Speed Score" reads `psi_speed_scores` from `GET /dashboard`
- * (`classes/RestAPI/Controllers/Dashboard.php`, populated by
- * `Services\PageSpeedInsightsFetcher` only when a real `psi_api_key` is
- * configured in Settings → Scanning → Performance). With a key configured,
- * shows real Mobile/Desktop scores from Google PageSpeed Insights, rated
- * against Lighthouse's own real Good/Needs Improvement/Poor bands, plus a
- * real one-line comparison only when the two scores actually differ by
- * ≥10 points. Without a key, falls back to the single real unified
- * `category_scores.performance` number (no fabricated device split).
- *
- * "Core Web Vitals" reads `GET /core-web-vitals`
- * (`classes/RestAPI/Controllers/CoreWebVitals.php`), a real p75 of LCP/INP/
- * CLS collected from actual visitors by `public/js/performance-vitals-
- * beacon.js` (Services\CoreWebVitalsBeacon) - genuine client-side RUM, no
- * external API. FCP is deliberately dropped: INP replaced FID as Google's
- * third official Core Web Vital in March 2024, so LCP/INP/CLS is the
- * current real set. Below `MIN_SAMPLES` real samples, shows an honest
- * "still collecting" state instead of a p75 computed from too few points.
+ * "Performance Score": an Overall Speed Score card (from `GET /dashboard`) plus Core Web Vitals.
  */
 const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 	const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [hasError, setHasError] = useState(false);
-	/** Drives SpeedHistoryCard's own real `days` param below - same `PERIOD_OPTIONS`/`ToggleInput` shape SecurityTrendCard.tsx's own card action already uses. RealTimeMonitoringCard isn't affected - its own metrics are real-time, not a day-range trend. */
+	/** Drives SpeedHistoryCard's own real `days` param below. */
 	const [period, setPeriod] = useState<PeriodDays>('30');
 
 	/**
-	 * Real objects only - `getApiResponse` (zyra) hands back whatever axios
-	 * parsed `response.data` into, and axios silently falls back to a raw
-	 * string rather than throwing when the body isn't valid JSON (e.g. a
-	 * stray PHP notice/warning printed ahead of the real JSON on some
-	 * hosts/PHP configs, only ever seen on a fresh install this dev
-	 * environment's already-populated options never triggered). A truthy
-	 * non-object response used to pass the old `dashboardResponse &&` check
-	 * unchanged, then crash further down reading `.category_scores.performance`
-	 * off a string - this validates the actual shape before it's ever
-	 * stored, so a malformed response becomes an honest error state instead
-	 * of a render-time crash with no error boundary.
+	 * Real objects only - `getApiResponse` (zyra) hands back whatever axios parsed `response.data`
+	 * into.
 	 */
 	const isPlainObject = (value: unknown): value is Record<string, unknown> =>
 		null !== value && 'object' === typeof value && !Array.isArray(value);
@@ -180,12 +141,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 		'number' === typeof psi.desktop;
 
 	/**
-	 * Real score the hero ring plots - same number the old `ScoreTile`
-	 * row showed, just picked once here so both the ring and its
-	 * Mobile/Desktop breakdown below can share it. With a real PSI key
-	 * configured this averages the real Mobile/Desktop scores (the mockup's
-	 * own single "overall" ring); without one it's already the single real
-	 * unified `category_scores.performance` number.
+	 * Real score the hero ring plots - same number the old `ScoreTile` row showed.
 	 */
 	const overallScore = hasPsi && psi
 		? Math.round(((psi.mobile as number) + (psi.desktop as number)) / 2)
@@ -259,13 +215,9 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 										type="ring"
 										height={200}
 										// Top-level `color` - same prop this file's own
-										// `ScoreTile`/`VitalRow` rings already set
-										// correctly (`type="ring"` only ever paints its
-										// stroke from this prop, never from
-										// `data[].color`); this hero ring was the one
-										// place in the file that still lacked it, so it
-										// alone stayed `ChartComponent`'s default brand
-										// purple regardless of score.
+										// `ScoreTile`/`VitalRow` rings already set correctly
+										// (`type="ring"` only ever paints its stroke from this
+										// prop, never from `data[].color`).
 										color={RATING_COLOR[ratingClass(overallScore)]}
 										centerLabel={
 											<>
@@ -306,7 +258,6 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 									<LiveSiteInsightsCard />
 								</div>
 							</div>
-							{/* <PhpAccelerationCard /> */}
 						</>
 					)}
 				</CardComponent>

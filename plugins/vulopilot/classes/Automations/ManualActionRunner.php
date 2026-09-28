@@ -15,12 +15,7 @@ use VuloPilot\Utill\RuleType;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * ActionInterface::execute() takes a Recommendation, not a Finding - this
- * class is the one place that builds a synthetic one directly off a real
- * Finding row (`rule_id` = self::MANUAL_RULE_ID) rather than getting it
- * from RuleEngine::generate_recommendations(), since a manual run has no
- * rule to have matched in the first place; the human, not a rule, decided
- * this action should run against this specific finding.
+ * ActionInterface::execute() takes a Recommendation, not a Finding.
  *
  * @class       ManualActionRunner class
  * @version     1.0.0
@@ -29,10 +24,7 @@ defined( 'ABSPATH' ) || exit;
 class ManualActionRunner {
 
 	/**
-	 * Synthetic rule_id stamped on every Recommendation this class builds
-	 * - no RuleInterface produced it, so 'manual' is a stable, honest
-	 * marker rather than an empty string or a name borrowed from an
-	 * unrelated real rule.
+	 * Synthetic rule_id stamped on every Recommendation this class builds.
 	 */
 	private const MANUAL_RULE_ID = 'manual';
 

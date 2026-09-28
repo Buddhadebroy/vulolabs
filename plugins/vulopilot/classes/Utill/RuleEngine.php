@@ -7,29 +7,10 @@
 
 namespace VuloPilot\Utill;
 
-
 defined( 'ABSPATH' ) || exit;
 
 /**
  * VuloPilot RuleEngine class.
- *
- * Runs every registered rule's applies_to() against a batch of Findings
- * and collects the Recommendation each match produces, sorted by
- * priority (highest first) so the dashboard/AI Assistant can just take
- * the top of the list. One rule throwing doesn't stop the batch - same
- * defensive posture as Scanners\ScanRunner toward third-party code.
- *
- * Self-hooks `vulopilot_scan_completed` (fired by Scanners\ScanRunner) so
- * every scan automatically flows into recommendations without either
- * engine needing to know about the other directly - ScanRunner has no
- * idea RuleEngine exists; RuleEngine only knows about ScanResult, a
- * shared value object, not about ScanRunner itself.
- *
- * Deliberately does not persist recommendations - same reasoning as
- * ScanRunner not persisting ScanResults (see ScanRunner's docblock):
- * that's the Repositories/Services layer's job, a separate pass.
- * RuleEngine fires `vulopilot_recommendations_generated` so that layer
- * (or anything else) can react.
  *
  * @class       RuleEngine class
  * @version     1.0.0
@@ -52,9 +33,7 @@ class RuleEngine {
 	}
 
 	/**
-	 * Runs every registered rule against every Finding in a completed
-	 * scan. Failed scans (ScanResult::STATUS_FAILED) have no findings to
-	 * process and are ignored.
+	 * Runs every registered rule against every Finding in a completed scan.
 	 *
 	 * @param ScanResult $scan_result The completed scan.
 	 * @return void

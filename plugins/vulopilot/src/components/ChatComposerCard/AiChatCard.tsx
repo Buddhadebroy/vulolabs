@@ -14,19 +14,19 @@ export interface AiChatCardPrompt {
 export interface AiChatCardProps<TTurn> {
 	guarded?: boolean;
 	sendingAvatarIcon?: string;
-	/** Passed straight through to ChatComposerCard's own `cardClassName` - an escape hatch for a one-off page-scoped tweak (e.g. AI Copilot's own "Chat History" button whitespace), not for re-doing this card's shared look. */
+	/** Passed straight through to ChatComposerCard's own `cardClassName`. */
 	cardClassName?: string;
 	cardTitle: ReactNode;
 	cardTitleIcon?: string;
 	cardDesc?: ReactNode;
 	showProBadge?: boolean;
-	/** Renders a real "Chat History" button in the card header - omit for a composer with no conversation history to show (only AI Copilot's own Chat tab has one today). */
+	/** Renders a real "Chat History" button in the card header. */
 	onOpenHistoryPopup?: () => void;
-	/** Renders a real "New Chat" button in the card header, right next to "Chat History" - resets the current conversation (e.g. useCopilotChat.ts's own `startNewConversation()`). Omit for a composer with no conversation to reset. */
+	/** Renders a real "New Chat" button in the card header, right next to "Chat History". */
 	onNewChat?: () => void;
 	emptyTitle?: ReactNode;
 	emptyDesc?: ReactNode;
-	/** Suggested-prompt pills, rendered right below the empty-state text (only while `turns` is empty) - clicking one calls `onSelectPrompt(prompt.title)`. Omit/pass `[]` for a composer with no prompt grid. */
+	/** Suggested-prompt pills, rendered right below the empty-state text (only while `turns` is empty). */
 	prompts?: AiChatCardPrompt[];
 	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	onSelectPrompt?: (title: string) => void;
@@ -37,22 +37,15 @@ export interface AiChatCardProps<TTurn> {
 	sendingSpinnerClassName?: string;
 	/** Whether `composer` renders before or after the turns block - GEO's Overview composer puts it first, matching that page's own mockup order. */
 	composerPosition?: 'before-turns' | 'after-turns';
-	/** Extra content rendered right before the composer - attachment/context chips, toggleable picker panels, a pending-chip question, etc.; still built by each page itself. */
+	/** Extra content rendered right before the composer - attachment/context chips, toggleable picker panels, a pending-chip question, etc.. */
 	beforeComposer?: ReactNode;
-	/** The fully-built `<ChatInput />` element - still built by each page itself, since its own props (attach/context handlers, auto-apply tooltip, a pending-answer placeholder, …) genuinely differ per composer. */
+	/** The fully-built `ChatInput` element - still built by each page itself. */
 	composer: ReactNode;
 	note?: ReactNode;
 }
 
 /**
- * Turn rendering stays a `renderTurn` callback rather than being folded
- * in here too: `CopilotTurnBubble` (this folder's own component) is the
- * shared bubble for every real `useCopilotChat` consumer, but Create
- * Content's own chat has a different turn shape (no attachments/runId/
- * undone) and needs its own - genericizing turn content itself would mean
- * forcing every future consumer's shape through one type, which the
- * `composer`/`beforeComposer` props already deliberately avoid doing for
- * the same reason.
+ * Turn rendering stays a `renderTurn` callback rather than being folded in here too.
  */
 const AiChatCard = <TTurn,>({
 	guarded = true,

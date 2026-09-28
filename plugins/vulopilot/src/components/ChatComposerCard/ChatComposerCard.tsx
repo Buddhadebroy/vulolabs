@@ -14,24 +14,16 @@ export interface ChatComposerCardProps<TTurn = unknown> {
 	cardAction?: ReactNode;
 	cardClassName?: string;
 	/**
-	 * Wraps the body in AiCopilotGuard (the shared "AI Copilot is turned
-	 * off" fallback). Off by default - not every composer here actually
-	 * talks to the AI Copilot module (AutomationComposerCard has no AI
-	 * backend to gate at all).
+	 * Wraps the body in AiCopilotGuard (the shared "AI Copilot is turned off" fallback).
 	 */
 	guarded?: boolean;
-	/** A custom header rendered above everything else, for cards whose title isn't a plain CardComponent `title` (AutomationComposerCard's own `<h2>`). */
+	/** A custom header rendered above everything else, for cards whose title isn't a plain CardComponent `title` (AutomationComposerCard's own `h2`). */
 	header?: ReactNode;
-	/** A static first turn (e.g. a greeting), rendered before `turns` - as a real `ChatMessage` bubble, and (unlike `emptyState` below) still shown once real turns exist. */
+	/** A static first turn (e.g. a greeting), rendered before `turns`. */
 	welcome?: ReactNode;
 	/**
-	 * A centered "nothing sent yet" placeholder (icon + heading + subtitle,
-	 * typically) rendered on its own - NOT wrapped in a `ChatMessage`
-	 * bubble - in place of `welcome`/`turns` while `turns` is empty and
-	 * nothing is sending. Once a real turn exists (or one is in flight),
-	 * this stops rendering and `welcome`/`turns` take over as normal. Most
-	 * callers get this for free via `AiChatCard` (this folder's own
-	 * `ChatComposerCard`+`ai.png` wrapper) rather than building it by hand.
+	 * A centered "nothing sent yet" placeholder (icon + heading + subtitle, typically) rendered on
+	 * its own - NOT wrapped in a `ChatMessage` bubble.
 	 */
 	emptyState?: ReactNode;
 	turns?: TTurn[];
@@ -42,10 +34,7 @@ export interface ChatComposerCardProps<TTurn = unknown> {
 	sendingAvatarIcon?: string;
 	sendingSpinnerClassName?: string;
 	/**
-	 * The fully-built `<ChatInput />` element. Left to the caller rather
-	 * than genericized - each site's composer props diverge too much
-	 * (`sendDisabledReason` vs `onAttach`/`autoApply`) to be worth forcing
-	 * through one shared prop shape.
+	 * The fully-built `ChatInput` element.
 	 */
 	composer: ReactNode;
 	/** Whether `composer` renders before or after the welcome/turns block. */
@@ -53,10 +42,7 @@ export interface ChatComposerCardProps<TTurn = unknown> {
 	/** Extra content rendered right before the composer - e.g. ChatTab's "Try asking me…" label, attachment/context chips, attach/context panels. */
 	beforeComposer?: ReactNode;
 	/**
-	 * The fully-built prompt-pills element. Left to the caller for the same
-	 * reason as `composer` - shapes genuinely differ (zyra's `ListComponent`
-	 * chip-grid vs AutomationComposerCard's raw `<button>` grid). Most
-	 * callers get this for free via `AiChatCard` instead.
+	 * The fully-built prompt-pills element.
 	 */
 	prompts?: ReactNode;
 	note?: ReactNode;
@@ -124,16 +110,7 @@ const ChatComposerCard = <TTurn,>({
 			</div>
 		);
 
-	// Every real composer here is a `ChatInput` whose own textarea handles
-	// Enter-to-send - without this, a page-level `keydown` listener above
-	// this card (e.g. a global hotkey) sees that same Enter bubble past the
-	// textarea and can fire too. Bubble-phase (not capture) on purpose:
-	// capture fires top-down *before* the event reaches ChatInput's own
-	// textarea, so stopping it there would swallow the textarea's own
-	// Enter-to-send handler before it ever runs - this lets that listener
-	// fire first, then blocks it from reaching anything above this point.
-	// Lives here once rather than in every `composer` prop's own JSX (each
-	// consumer building one used to hand-wrap it identically).
+	// Every real composer here is a `ChatInput` whose own textarea handles Enter-to-send.
 	const wrappedComposer = (
 		// eslint-disable-next-line jsx-a11y/no-static-element-interactions -- pure event-propagation guard, not an interactive element.
 		<div onKeyDown={(e) => e.stopPropagation()}>{composer}</div>

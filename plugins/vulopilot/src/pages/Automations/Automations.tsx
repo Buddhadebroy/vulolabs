@@ -57,15 +57,8 @@ interface AutomationSlotValue {
 
 /**
  * "Automate Work" - Free gets exactly 2 fixed, schedule-only automations
- * (`BuiltinAutomationCards.tsx` - "Run Full Site Scan"/"Send Visibility
- * Report", no template picker, no wizard) always shown at the top.
- *
- * Owns the real wizard/"Build with AI" popups' open-signal state and the
- * `vulopilot_automations_panel` filter-slot resolution directly (rather than
- * `ManageAutomationsSection.tsx`, their previous host) since the header's
- * own buttons need to open them too, not just the table's row actions - a
- * single shared instance of each popup, not two independently-triggered
- * ones.
+ * (`BuiltinAutomationCards.tsx` - "Run Full Site Scan"/"Send Visibility Report", no template
+ * picker, no wizard) always shown at the top.
  */
 const Automations = () => {
 	const slot = useFilterSlot<AutomationSlotValue>('vulopilot_automations_panel');
@@ -138,11 +131,8 @@ const Automations = () => {
 		setWizardOpenSignal((n) => n + 1);
 	};
 
-	// AI Copilot's Chat tab (AIAssistant.tsx's own AutomationsTemplatesCard
-	// preview) deep-links here as `?...#tab=automations&automation_template=<id>`
-	// - the id itself is read once on mount (URL param, never changes for
-	// the life of this page load), same as this page's previous tab-shell
-	// version.
+	// AI Copilot's Chat tab (AIAssistant.tsx's own AutomationsTemplatesCard preview) deep-links
+	// here as `?...#tab=automations&automation_template={id}`.
 	const [initialTemplateId] = useState<string | null>(() =>
 		new URLSearchParams(window.location.hash.substring(1)).get('automation_template')
 	);
@@ -175,13 +165,8 @@ const Automations = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- deliberately re-checks only when Wizard itself resolves (useFilterSlot's own real script-load-order race - see that hook's docblock) or initialTemplateId (set once, stable); openTemplate is redefined every render and the ref guard already makes this safely re-runnable.
 	}, [Wizard, initialTemplateId]);
 
-	// "View all issues →" (AutomationAttentionCard) and "View automation
-	// history →" (AutomationActivityCard) both jump to the same real
-	// destination - the "Your Automations" table already shows every
-	// automation's own real status/last-run outcome, and the wizard's own
-	// read-only "Open" view already surfaces a filtered run history per
-	// automation; there's no separate unfiltered history view to link to
-	// instead.
+	// "View all issues →" (AutomationAttentionCard) and "View automation history →"
+	// (AutomationActivityCard) both jump to the same real destination.
 	const scrollToTable = () =>
 		document.getElementById('automation-manage')?.scrollIntoView({ behavior: 'smooth' });
 

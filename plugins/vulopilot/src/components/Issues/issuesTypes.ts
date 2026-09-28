@@ -1,14 +1,6 @@
 /**
- * Shared `FindingGroup`/`Finding` types and helpers (`formatAffected()`,
- * `issueIconFor()`, `CATEGORY_LABELS`, `CATEGORY_TABS`, …) behind every
- * "Issues" table in this plugin - AI Copilot's own IssuesList.tsx
- * (`pages/AIAssistant/`), GEO's several finding-group cards, Security's
- * SectionedIssuesTable.tsx, and Commerce's CommerceIssuesTable.tsx all read
- * from here. Moved out of `pages/AIAssistant/` into this shared
- * `components/Issues/` folder alongside IssuesSummaryCards.tsx/
- * IssueDetailPanel.tsx (its own real UI, same real reuse across those same
- * pages) per direct instruction - this was never actually AI-Copilot-
- * specific, just historically created there.
+ * Shared `FindingGroup`/`Finding` types and helpers (`formatAffected()`, `issueIconFor()`,
+ * `CATEGORY_LABELS`, `CATEGORY_TABS`, …) behind every "Issues" table in this plugin.
  */
 export interface FindingSample {
 	id: number;
@@ -21,7 +13,7 @@ export interface FindingSample {
 	last_seen_at?: string;
 	/** Resolved page path or 'Site-wide' - added server-side by Findings.php's add_page_field(). */
 	page?: string;
-	/** Raw `wp_json_encode()`-d `Finding::get_meta()` column, unparsed (AbstractRepository::find_all() is a plain `SELECT *`, no server-side decode) - e.g. Performance scanners' own `recommended_fix` step list. Parse with `JSON.parse()` before use. */
+	/** Raw `wp_json_encode()`-d `Finding::get_meta()` column. */
 	meta?: string | null;
 }
 
@@ -34,23 +26,13 @@ export interface FindingGroup {
 	/** Scanner's real get_label(), e.g. "Weak Password Detection". */
 	label: string;
 	/**
-	 * One real, most-recent open finding from this group - GET /findings/groups
-	 * always includes this so the detail panel can show real title/
-	 * description/page text instead of fabricating "why it matters"/
-	 * "how to fix" copy no scanner actually writes (see ScannerInterface -
-	 * no such fields exist server-side).
+	 * One real, most-recent open finding from this group.
 	 */
 	sample: FindingSample | null;
 }
 
 /**
- * Real category strings (Scanners/*::get_category()) mapped to display
- * labels - 'seo'/'images'/'schema'/'links' fold into "SEO & Visibility"
- * (GEO.tsx's own SEO subtab groups them the same way already, see
- * getCategoryTabLink.ts), 'geo'/'brand' fold into "AI Visibility" (GeoTab.tsx
- * already calls this same feature area "AI Visibility Score"), and
- * 'plugins'/'themes'/'php-warnings' (real DB category values with no
- * dedicated page of their own) fold into "Site Health".
+ * Real category strings (Scanners/*::get_category()) mapped to display labels.
  */
 export const CATEGORY_LABELS: Record<string, string> = {
 	seo: 'SEO & Visibility',
@@ -72,14 +54,9 @@ export const CATEGORY_LABELS: Record<string, string> = {
 };
 
 /**
- * The Issues table's category tab bar - each tab folds one or more real
- * `category` DB values into one mockup-matching tab (e.g. "SEO &
- * Visibility" covers 'seo'/'images'/'schema'/'links', the same grouping
- * getCategoryTabLink.ts's own CATEGORY_TAB_LINKS already uses for
- * navigation). `categories` is sent to `GET /findings/groups` as a
- * comma-separated `category` param (Findings.php's own
- * `parse_comma_separated_list()`, same IN-matching already used for
- * `scanner_id`).
+ * The Issues table's category tab bar - each tab folds one or more real `category` DB values into
+ * one mockup-matching tab (e.g. "SEO & Visibility" covers 'seo'/'images'/'schema'/'links', the
+ * same grouping getCategoryTabLink.ts's own CATEGORY_TAB_LINKS already uses for navigation).
  */
 export const CATEGORY_TABS: { id: string; label: string; categories: string[] }[] = [
 	{ id: 'seo', label: 'SEO & Visibility', categories: ['seo', 'images', 'schema', 'links'] },
@@ -92,7 +69,7 @@ export const CATEGORY_TABS: { id: string; label: string; categories: string[] }[
 	{ id: 'site-health', label: 'Site Health', categories: ['plugins', 'themes', 'php-warnings'] },
 ];
 
-/** Which CATEGORY_TABS entry a real `category` value belongs to - used to preset the active tab when arriving with a specific group already known (NeedsAttentionCard.tsx's own group rows). */
+/** Which CATEGORY_TABS entry a real `category` value belongs to. */
 export const findTabIdForCategory = (category: string): string =>
 	CATEGORY_TABS.find((tab) => tab.categories.includes(category))?.id ?? 'all';
 
@@ -116,20 +93,8 @@ export const CATEGORY_ICONS: Record<string, string> = {
 };
 
 /**
- * Real per-`scanner_id` icon, for the handful of categories (Performance in
- * particular - CDN/JavaScript/CSS Optimization/Cache Issues/… all share the
- * single real `category: 'performance'`) where `CATEGORY_ICONS` above
- * collapses several genuinely different real checks onto one identical
- * icon (confirmed live: every row in Performance's own "Top Issues" table
- * rendered the same bar-chart glyph regardless of which real scanner it
- * came from). Checked first in `issueIconFor()` below - `CATEGORY_ICONS`
- * remains the fallback for every scanner_id not listed here, so this only
- * ever narrows, never replaces, that map.
- *
- * Reuses the exact same icon+color each id's own tile already shows on
- * MetricsGrid.tsx's Performance overview grid, so a row here and its tile
- * above read as the same real check rather than two different glyphs for
- * one thing.
+ * Per-`scanner_id` icons for categories (such as Performance) where `CATEGORY_ICONS` would give
+ * every check the same icon.
  */
 export const SCANNER_ICONS: Record<string, string> = {
 	'cache-detection': 'refresh-bold blue',
@@ -145,12 +110,8 @@ export const SCANNER_ICONS: Record<string, string> = {
 };
 
 /**
- * `SCANNER_ICONS[scanner_id]` first (several real scanners inside one real
- * category otherwise all render the same glyph - see that map's own
- * docblock), `CATEGORY_ICONS[category]` as the fallback every scanner_id
- * not explicitly listed already had. Named `issueIconFor` rather than
- * `rowIcon` to stay clearly distinct from `historyTypes.ts`'s own
- * `rowIcon(row: HistoryRow)` - same concept, different real row shape.
+ * `SCANNER_ICONS[scanner_id]` first (several real scanners inside one real category otherwise all
+ * render the same glyph - see that map's own docblock).
  */
 export const issueIconFor = (
 	category: string,

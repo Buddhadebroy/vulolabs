@@ -15,7 +15,7 @@ export interface AutomationRow extends TableRow {
 	last_run_actions_executed: number | null;
 	last_run_actions_failed: number | null;
 	last_run_changes_made: number | null;
-	/** Real for the 4 cron-based trigger types only (see `AutomationsRest::with_next_run()`'s own docblock) - null for event/manual/webhook triggers, which have no "next scheduled" concept at all. */
+	/** Real for the 4 cron-based trigger types only (see `AutomationsRest::with_next_run()`'s own docblock). */
 	next_run_at: string | null;
 	last_run_finished_at: string | null;
 }
@@ -34,7 +34,7 @@ export interface AutomationTemplate {
 }
 
 /**
- * The 2 real free built-in automations, per direct instruction shown first
+ * The 2 real free built-in automations shown first
  * - see `AutomationTemplate.linkOnly`'s own docblock.
  */
 const FREE_TEMPLATES: AutomationTemplate[] = [

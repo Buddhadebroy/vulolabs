@@ -29,29 +29,14 @@ interface CrawlerVisitRow extends TableRow {
 	bot_name: string;
 	requested_url: string;
 	created_at: string;
-	/** Real `is_404` column (`wp_vulopilot_crawler_visits`) - whether WordPress resolved this exact request to a 404 at the time it was logged (CrawlerVisitRepository::log()'s own docblock). wpdb returns this as a numeric string over REST (e.g. `"1"`), not a real boolean. */
+	/** Real `is_404` column (`wp_vulopilot_crawler_visits`). */
 	is_404: string | number | boolean;
 }
 
 /**
- * Used to also render a separate "Last seen" tiles card
- * (CrawlerSummaryCard.tsx) right here - removed per direct instruction
- * ("merge top crawlers and last seen section, add a column in top crawlers
- * last seen"): that same real per-bot timestamp is now its own "Last seen"
- * column on CrawlerAnalyticsSection.tsx's own Top Crawlers table instead
- * (see that file's own docblock). CrawlerSummaryCard.tsx was deleted, not
- * kept as dead code - this was its only real consumer.
- *
- * The 3 real findings tables this tab used to also render here - "Blocked
- * pages"/"Robots.txt Issues"/"XML Sitemap Issues" - moved to
- * CrawlRobotsSitemapSection.tsx (this same merge's own "Robots & Sitemap"
- * inner tab): those are drill-down findings about crawl DIRECTIVES
- * specifically, a distinct concern from this section's own real-time
- * traffic analytics, and the requested structure gives them their own
- * tab rather than bundling everything crawler-related into one
- * "Overview."
+ * Used to also render a separate "Last seen" tiles card (CrawlerSummaryCard.tsx) right here.
  */
-/** Same real 7/30/90-day trio `SeoProgressCard.tsx`'s/`GeoScoreSection.tsx`'s own identical period toggles already use - `crawler-traffic/analytics`'s own `days` param already accepts any real value (`CrawlerTraffic.php::get_analytics()`, defaults to 30), so this is a real, already-working range, not a new backend capability. */
+/** Same real 7/30/90-day trio `SeoProgressCard.tsx`'s/`GeoScoreSection.tsx`'s own identical period toggles already use. */
 type PeriodDays = '7' | '30' | '90';
 const PERIOD_OPTIONS = [
 	{ key: '7', value: '7', label: __('7D', 'vulopilot') },

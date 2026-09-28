@@ -5,14 +5,8 @@ import type { FindingGroup } from '../../components/Issues/issuesTypes';
 import type { TrendChange } from './geoTrendChange';
 
 /**
- * Same real severity-weighted 0-100 formula `Controllers\Seo::calculate_score()`/
- * `Controllers\Geo::calculate_score()` use server-side for their own
- * per-category/per-signal scores - duplicated here client-side (this
- * codebase's own "duplicate small per-file logic" convention) since AEO has
- * no dedicated `/aeo/score` endpoint of its own; `groups` (`GET
- * /findings/groups`, already fetched by AeoTab.tsx for `GeoByTopicGrid`)
- * already carries each group's own real `severity` + `count`, which is all
- * this formula needs.
+ * Same real severity-weighted 0-100 formula `Seo::calculate_score()`/ `Geo::calculate_score()` use
+ * server-side for their own per-category/per-signal scores.
  */
 const calculateScore = (breakdown: {
 	critical: number;
@@ -41,9 +35,8 @@ const ratingColorFor = (score: number): string => {
 };
 
 /**
- * Same real 3-tier text `AeoTab.tsx`'s own (now-removed) local `getRating()`
- * used for this same ring - kept local rather than a shared import per this
- * codebase's own "duplicate small per-file logic" convention.
+ * Same real 3-tier text `AeoTab.tsx`'s own (now-removed) local `getRating()` used for this same
+ * ring.
  */
 const overallRatingLabel = (score: number): string => {
 	if (score >= 70) {
@@ -69,43 +62,18 @@ interface AeoScoreSummaryCardProps {
 	questionsAnswered: number;
 	totalPages: number;
 	pagesReady: number;
-	/** `null` when there isn't at least 2 real sampled days to compare yet (GeoTrendCompactCard.tsx's own `computeTrendChange()`) - the bottom "Content Change" tile shows an em dash rather than a fabricated number in that case. */
+	/** `null` when there isn't at least 2 real sampled days to compare yet (GeoTrendCompactCard.tsx's own `computeTrendChange()`). */
 	trend: TrendChange | null;
 	/** AeoTab.tsx's own real `AEO_SECTIONS` - this card's own row breakdown, same shape `GeoScoreSection.tsx`'s own `SIGNAL_META` feeds its 7 rows. */
 	topics: AeoTopic[];
-	/** `GET /findings/groups`, already fetched by AeoTab.tsx for `GeoByTopicGrid` - reused here rather than a second fetch, same real per-scanner severity/count data this card's own rows compute their real score/issue-count from. */
+	/** `GET /findings/groups`, already fetched by AeoTab.tsx for `GeoByTopicGrid`. */
 	groups: FindingGroup[];
-	/** AeoTab.tsx's own real `goToIssuesTable` - same real click-through `GeoScoreSection.tsx`'s own `onSelectSignal` gives its rows, filtering + scrolling to the real "All AEO Issues" table below instead of doing nothing. */
+	/** AeoTab.tsx's own real `goToIssuesTable` - same real click-through `GeoScoreSection.tsx`'s own `onSelectSignal` gives its rows. */
 	onSelectTopic?: (topicKey: string) => void;
 }
 
 /**
- * "AEO Score" - restructured to match `GeoScoreSection.tsx`'s own "GEO
- * Score" card exactly (direct instruction: "same to same" as that card's
- * real per-signal row breakdown), replacing the previous 4 generic stat
- * rows (Current Score/Questions Answered/Pages Ready/Content Change) with
- * a real per-topic breakdown over the same 6 real `AEO_SECTIONS` topics
- * `GeoByTopicGrid.tsx`'s own tile grid above this card already groups
- * findings into.
- *
- * Each row's own score is real but client-computed: AEO has no dedicated
- * `/aeo/score` REST endpoint the way SEO/GEO do (`Controllers\Seo`/
- * `Controllers\Geo`), so `calculateScore()` above duplicates their exact
- * same severity-weighted formula against `groups` (already real, already
- * fetched) filtered to that topic's own scanner ids - the same real
- * severity/count numbers `GeoByTopicGrid.tsx`'s own tiles already read,
- * just folded into one 0-100 number instead of shown as a raw count.
- *
- * No real per-topic delta (unlike `GeoScoreSection.tsx`'s own rows, once
- * `Geo.php` grew a real `signals[*].trend`): `groups` is a live snapshot
- * with no stored history to reconstruct a real "score 7 days ago" from,
- * and building that would mean a new backend endpoint (same lift
- * `Geo.php`'s own `get_signal_trend()` needed) - not fabricated here.
- *
- * The original 4 real numbers (overall `aeoScore`, `questionsAnswered`,
- * `pagesReady`, `trend`) aren't discarded - they move to a real bottom
- * stat row (`AnalyticsComponent`), same "topic rows above, stat tiles
- * below" shape `GeoScoreSection.tsx`'s own card already established.
+ * "AEO Score" - restructured to match `GeoScoreSection.tsx`'s own "GEO Score" card exactly.
  */
 const AeoScoreSummaryCard = ({
 	isLoading,
@@ -199,11 +167,8 @@ const AeoScoreSummaryCard = ({
 						<ChartComponent
 							type="ring"
 							height={200}
-							// Top-level `color` - `type="ring"` only ever paints
-							// its stroke from this prop, never from `data[].color`
-							// below (see SeoTab.tsx's own identical fix) - without
-							// it the ring stayed `ChartComponent`'s default brand
-							// purple regardless of score.
+							// Top-level `color` - `type="ring"` only ever paints its stroke from
+							// this prop.
 							color={
 								COLOR_PALETTE[
 									ratingColorFor(overallScore) as keyof typeof COLOR_PALETTE
@@ -226,16 +191,9 @@ const AeoScoreSummaryCard = ({
 								{
 									label: __('Score', 'vulopilot'),
 									value: overallScore,
-									// Same real rating color the ring's own
-									// Needs Work/Good/Poor label above already
-									// uses (`overallRatingClass()`/
-									// `overallRatingLabel()`) - resolved
-									// through `COLOR_PALETTE` for the real hex
-									// `ratingColorFor()`'s own palette name
-									// stands for, same convention SeoTab.tsx's
-									// own identical ring already established,
-									// rather than a fixed brand purple
-									// unrelated to the actual score.
+									// Same real rating color the ring's own Needs Work/Good/Poor
+									// label above already uses (`overallRatingClass()`/
+									// `overallRatingLabel()`).
 									color: COLOR_PALETTE[
 										ratingColorFor(overallScore) as keyof typeof COLOR_PALETTE
 									],

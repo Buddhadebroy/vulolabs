@@ -8,7 +8,7 @@ import type { AutomationRow } from './automationsTypes';
 
 interface AutomationsAttentionCardProps {
 	onViewAll: () => void;
-	/** Bumped by the host after something changes elsewhere on the page (a new automation created, a status toggled) - this card fetches its own copy of the list (small, per-file fetch, same convention `AutomationSuggestions.tsx` already established), so it needs to know when to refetch. */
+	/** Bumped by the host after something changes elsewhere on the page (a new automation created, a status toggled). */
 	refetchSignal: number;
 }
 
@@ -52,9 +52,7 @@ const AutomationsAttentionCard = ({ onViewAll, refetchSignal }: AutomationsAtten
 			title={
 				<>
 					{__('Needs your attention', 'vulopilot')}
-					{/* {failing.length > 0 && (
-						<span className="automation-attention-count">{failing.length}</span>
-					)} */}
+					{/* {failing.length > 0 && ( <span className="automation-attention-count">{failing.length}</span> )} */}
 				</>
 			}
 			titleIcon="error"

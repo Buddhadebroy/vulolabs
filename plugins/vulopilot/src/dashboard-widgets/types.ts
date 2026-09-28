@@ -1,8 +1,5 @@
 /**
- * Shared shapes for the Dashboard's widget system. Kept in one file
- * because every widget component and the registry/grid all need the
- * same two contracts - DashboardSummary (the /dashboard aggregate
- * payload) and WidgetDefinition (what makes a widget registrable).
+ * Shared shapes for the Dashboard's widget system.
  */
 import React from 'react';
 
@@ -30,12 +27,8 @@ export interface DashboardSummary {
 		brand: number;
 	};
 	/**
-	 * Same 8 keys as `category_scores`, reconstructed as of 7 days ago
-	 * (Dashboard controller's build_category_scores_as_of()) - no
-	 * per-category score snapshot history exists, so this is computed
-	 * fresh from findings' real `created_at`/`resolved_at` timestamps
-	 * rather than read from a trend table. Diff against `category_scores`
-	 * for a real week-over-week delta per score-card.
+	 * Same 8 keys as `category_scores`, reconstructed as of 7 days ago (Dashboard controller's
+	 * build_category_scores_as_of()).
 	 */
 	category_scores_7d_ago: {
 		seo: number;
@@ -57,7 +50,7 @@ export interface DashboardSummary {
 		enabled: number;
 		disabled: number;
 	};
-	/** Real WP core counts (Dashboard controller's build_site_snapshot()) - plain `wp_count_posts()`/`get_plugins()`/etc, not derived from scan findings like every other field here. */
+	/** Real WP core counts (Dashboard controller's build_site_snapshot()). */
 	site_snapshot: {
 		posts: number;
 		pages: number;
@@ -75,27 +68,16 @@ export interface WidgetProps {
 	isLoading: boolean;
 	/** Removes this widget from the visible grid - DashboardGrid.tsx supplies the real handler, which toggles `enabled: false` in the saved layout. */
 	onHide: () => void;
-	/** Whether Dashboard.tsx's "Customize dashboard" mode is on - forwarded through to DashboardWidget.tsx, which only renders the drag handle/hide button while this is true. */
+	/** Whether Dashboard.tsx's "Customize dashboard" mode is on. */
 	isCustomizing: boolean;
 	/**
-	 * Re-fetches `summary` (Dashboard.tsx's own `loadDashboard`) - for a
-	 * widget whose own real mutation (e.g. AutomationStatusWidget.tsx's
-	 * enable/disable toggle) changes a number `summary` itself carries
-	 * (`automation_status.enabled`/`.disabled`); that widget's own
-	 * `useApiList` `refetch` only re-fetches its own row list, not this
-	 * sibling top-level payload, so without also calling this the
-	 * summary-derived count would only ever catch up on the next full
-	 * page load.
+	 * Re-fetches `summary` (Dashboard.tsx's own `loadDashboard`).
 	 */
 	onRefreshSummary: () => void;
 }
 
 /**
- * What a widget registers with the grid. `size` maps to a CSS grid
- * column span (DashboardGrid.tsx) rather than a pixel size, so widgets
- * keep behaving responsively at narrow admin-column widths the same way
- * the rest of the dashboard already does (react-frontend.md/Dashboard.scss's
- * existing `@media (max-width: 782px)` collapse).
+ * What a widget registers with the grid.
  */
 export interface WidgetDefinition {
 	id: string;

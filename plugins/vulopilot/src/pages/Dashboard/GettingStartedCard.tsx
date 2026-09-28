@@ -3,21 +3,9 @@ import { __ } from '@wordpress/i18n';
 import BannerCard from '../../components/BannerCard';
 
 /**
- * Compact, dismissible "finish setup" banner - replaces the old
- * WelcomeSection's much larger welcome banner + Modules grid + Extend your
- * website + Need help getting started cards, none of which exist in the
- * Dashboard mockup this page is modeled on. Same-publisher quick links the
- * old WelcomeSection used (VuloLabs/dualcube docs, consultation, Discord -
- * no confirmed VuloPilot-specific URLs exist anywhere in this codebase),
- * plus a shortcut into Modules for CatalogX/Notifima instead of duplicating
- * their real install/activate flow, which still lives on the Modules page
- * itself.
- *
- * Rendered as its own banner (real `dashboard-banner.jpg` illustration as
- * background) rather than a plain `CardComponent`, matching the mockup's
- * own full-width purple banner - that asset has no title/toggle/border
- * affordances of its own, so the header row and dismiss control are
- * hand-built here instead of borrowed from `CardComponent`.
+ * Compact, dismissible "finish setup" banner - replaces the old WelcomeSection's much larger
+ * welcome banner + Modules grid + Extend your website + Need help getting started cards, none of
+ * which exist in the Dashboard mockup this page is modeled on.
  */
 const GettingStartedCard: React.FC = () => (
 	<BannerCard

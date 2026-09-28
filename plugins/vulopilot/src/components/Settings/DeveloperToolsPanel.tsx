@@ -8,30 +8,8 @@ import { useSetting } from '../../contexts/SettingContext';
 import CardHeader from '../CardHeader';
 
 /**
- * Hand-built rather than InputRenderer-driven - same escape hatch
- * IndexNowPanel.tsx already uses (Settings.tsx's
- * GetForm() special-cases `currentTab === 'developer-tools'`).
- *
- * "Keep VuloPilot data after uninstall"/"Anonymous usage data" - moved
- * here from Settings → General per direct instruction (General.ts is now
- * empty). Real `choice-toggle` fields (`vulopilot_settings.
- * keep_data_uninstall`/`anonymous_usage_data`), just rendered by hand via
- * `ToggleInput` + `useSetting()` instead of InputRenderer, same as
- * "Reset VuloPilot" below. Their `desc` text is a single plain sentence
- * here rather than General.ts's own two-line `<br />`-separated HTML -
- * CardHeader's own `desc` slot renders as a plain ReactNode child, not
- * `dangerouslySetInnerHTML` the way InputRenderer's field `desc` is, so an
- * embedded `<br />` string would show up as literal text instead of a line
- * break. "Keep VuloPilot data after uninstall" specifically sits in its own
- * "Danger Zone" `FormGroupWrapperComponent` (`.danger-zone`, styled in
- * Settings.scss) below the main one - it's the field whose "Delete
- * everything" option is actually destructive (wipes settings/scan
- * history/reports on uninstall), unlike "Anonymous usage data" or
- * "Reset VuloPilot" (which explicitly preserves scan reports/history).
- *
- * "Reset VuloPilot" - also moved here from Settings → General per direct
- * instruction, a real action (`POST /settings/reset`) rather than a
- * persisted field.
+ * Hand-built panel (not InputRenderer-driven) for "Keep VuloPilot data after uninstall",
+ * "Anonymous usage data" and Reset.
  */
 const DeveloperToolsPanel = () => {
 	const [isClearing, setIsClearing] = useState(false);
@@ -41,16 +19,7 @@ const DeveloperToolsPanel = () => {
 	const keepDataUninstall = (setting.keep_data_uninstall as string) || 'keep_data';
 	const anonymousUsageData = (setting.anonymous_usage_data as string) || 'disabled';
 
-	// Moved from Settings → General's own "Basic Preferences" section
-	// (General.ts) per direct instruction - same real `vulopilot_settings.
-	// keep_data_uninstall`/`anonymous_usage_data` fields, read/written via
-	// `useSetting()` + a direct `PATCH /settings` call instead of
-	// InputRenderer's own `choice-toggle` field type, since this tab is
-	// hand-built (see this file's own top docblock) - same
-	// `useSetting()`-inside-a-hand-built-panel shape IndexNowPanel.tsx's own
-	// `handlePostTypesChange` already establishes. `keep_data_uninstall`'s
-	// modal entry in DeveloperTools.ts is what makes GetForm() (Settings.tsx)
-	// seed `setting` with its real stored value in the first place.
+	// Moved from Settings → General's own "Basic Preferences" section (General.ts).
 	const handleSettingChange = (key: string, value: string) => {
 		updateSetting(key, value);
 		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'settings'), {
@@ -91,15 +60,7 @@ const DeveloperToolsPanel = () => {
 			.finally(() => setIsClearing(false));
 	};
 
-	// Moved from Settings → General's own "Basic Preferences" section
-	// (General.ts) per direct instruction - same real `POST /settings/reset`
-	// route (Controllers\Settings::reset_settings(), deletes the whole
-	// stored settings option, reverting to VULOPILOT_SETTINGS_DEFAULTS;
-	// findings/scan history/reports live in their own tables, untouched by
-	// this), just called directly here instead of through InputRenderer's
-	// declarative `type: 'button'` + `apilink` field - this tab is hand-built
-	// (see this file's own top docblock), so `modal` in DeveloperTools.ts is
-	// never read and can't drive it the way General.ts's own field did.
+	// Moved from Settings → General's own "Basic Preferences" section (General.ts).
 	const handleResetSettings = () => {
 		setIsResetting(true);
 
@@ -109,9 +70,7 @@ const DeveloperToolsPanel = () => {
 			{}
 		)
 			.then((response) => {
-				// Every Settings tab keeps its own copy of the stored values in
-				// React state, so reload to show the restored defaults instead
-				// of leaving stale toggles on screen.
+				// Every Settings tab keeps its own copy of the stored values in React state.
 				if (response) {
 					setTimeout(() => window.location.reload(), 1200);
 				}

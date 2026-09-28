@@ -29,7 +29,7 @@ class BuiltinAutomationSeeder {
 	public const TRIGGER_VISIBILITY_REPORT = 'free_visibility_report';
 
 	/**
-	 * @var string Public - Services\AutomationScheduler looks its two rows up by these same markers.
+	 * @var string Public - AutomationScheduler looks its two rows up by these same markers.
 	 */
 	public const MARKER_FULL_SITE_SCAN = 'free-full-site-scan';
 
@@ -58,9 +58,8 @@ class BuiltinAutomationSeeder {
 	}
 
 	/**
-	 * Runs on every request (cheap no-op after the first, via
-	 * SEEDED_OPTION) rather than only on activation - same posture
-	 * WebsiteHealthScanScheduler::ensure_seeded() already documents.
+	 * Runs on every request (cheap no-op after the first, via SEEDED_OPTION) rather than
+	 * only on activation.
 	 *
 	 * @return void
 	 */

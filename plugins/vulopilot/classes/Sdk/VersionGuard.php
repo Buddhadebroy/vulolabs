@@ -42,7 +42,7 @@ class VersionGuard {
 	}
 
 	/**
-	 * @param string|null $required The lowest store-platform version an extension needs, or null to only check the store platform is active at all.
+	 * @param string|null $required The lowest store-platform version an extension needs.
 	 * @return bool
 	 */
 	public static function is_woocommerce_compatible( ?string $required = null ): bool {

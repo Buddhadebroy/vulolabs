@@ -25,7 +25,7 @@ const CATEGORY_CARDS: {
 	key: keyof SeoScoreResponse['category_scores'];
 	title: string;
 	icon: string;
-	/** A fixed per-category identity color for the icon box - independent of `ratingColor(category.score)`, which separately tints the border/graph/number by real live status. */
+	/** A fixed per-category identity color for the icon box. */
 	color: string;
 }[] = [
 		{ key: 'titles-meta', title: __('Titles & Meta', 'vulopilot'), icon: 'search blue', color: 'purple' },
@@ -41,14 +41,7 @@ const CATEGORY_CARDS: {
 
 
 /**
- * Real per-band copy under the "Overall SEO Score" ring - same real
- * `getRating()` 3-tier thresholds this tab already renders as the ring's
- * own label, just a longer sentence for the same real number. Duplicated
- * locally rather than importing `OverallScoreWidget.tsx`'s own
- * `getRatingSummary()` (dashboard-widgets/) since that one describes a
- * different, sitewide score - this is SEO's own scoped copy for SEO's own
- * scoped score, same "duplicate small per-file logic" convention as
- * `signedDelta()` above.
+ * Real per-band copy under the "Overall SEO Score" ring.
  */
 const scoreSummary = (score: number): string => {
 	if (score >= 70) {
@@ -70,25 +63,16 @@ const scoreSummary = (score: number): string => {
 };
 
 /**
- * Real per-category score change - this category's current `score` minus
- * the oldest point in its own real `trend` array (`Seo.php`'s own
- * `get_category_trend()`, oldest-first - same real series
+ * Real per-category score change - this category's current `score` minus the oldest point in its
+ * own real `trend` array (`Seo.php`'s own `get_category_trend()`, oldest-first - same real series
  * `overallCategoryTrend()` above already folds into the "All Areas" tile).
- * `null` when there's no real 2nd point to diff against yet, so the row's
- * own arrow/number renders nothing rather than a fabricated "+0".
  */
 const categoryScoreDelta = (category: SeoScoreResponse['category_scores'][keyof SeoScoreResponse['category_scores']]): number | null =>
 	category.trend.length > 0 ? category.score - category.trend[0] : null;
 
 /**
- * Unlike the 'geo' module (whose own scanners run regardless of its
- * active-module state - see modules/Geo/Module.php's docblock), 'seo'
- * genuinely gates scanning (modules/Seo/Module.php): if it's off, none of
- * the 18 free-tier SEO scanner classes get registered, so the table below
- * would silently sit empty forever with no explanation. This tab is the
- * one place in Free that actually checks `vulopilotAppLocalizer.active_modules` to
- * tell a site owner why, rather than leaving them staring at "no findings
- * yet - run a scan" when a scan running wouldn't help.
+ * Unlike the 'geo' module (whose own scanners run regardless of its active-module state - see
+ * modules/Geo/Module.php's docblock).
  */
 const isSeoModuleActive = () =>
 	vulopilotAppLocalizer.active_modules?.includes('technical-seo') ?? false;
@@ -99,7 +83,7 @@ const SeoTab = () => {
 	const [categoryFocus, setCategoryFocus] = useState<{ key: string; token: number } | null>(
 		null
 	);
-	/** Set by a real "Analyze" click in the "Pages & Posts" table below - opens PageAnalysisPanel as a real sidebar alongside this tab's own existing content, rather than replacing it. */
+	/** Set by a real "Analyze" click in the "Pages & Posts" table below. */
 	const [analyzingPostId, setAnalyzingPostId] = useState<number | null>(null);
 
 	/** Same real "scroll the just-opened detail panel into view" fix the other issues tables' own `handleSelectGroup` already establishes (`scrollToId`, not `window.scrollTo` - WP admin's own scrollable wrapper isn't the document). */
@@ -145,15 +129,8 @@ const SeoTab = () => {
 										<ChartComponent
 											type="ring"
 											height={200}
-											// Top-level `color` - `type="ring"` only ever
-											// paints its stroke from this prop, never from
-											// `data[].color` below (that's `type="pie"`'s
-											// own read - see OverviewTab.tsx's/
-											// BusinessProfileCard.tsx's identical fix/
-											// docblock) - without it the ring always
-											// rendered in `ChartComponent`'s default brand
-											// purple regardless of score, disagreeing with
-											// the center number's own real rating color.
+											// Top-level `color` - `type="ring"` only ever paints
+											// its stroke from this prop.
 											color={
 												COLOR_PALETTE[
 													ratingColor(score.seo_score) as keyof typeof COLOR_PALETTE
@@ -176,15 +153,9 @@ const SeoTab = () => {
 												{
 													label: __('Score', 'vulopilot'),
 													value: score.seo_score,
-													// Same real rating color the ring's
-													// own "Needs Attention"/"Good"/"Poor"
-													// label below already uses
-													// (`ratingClass()`/`getRating()`) -
-													// resolved through `COLOR_PALETTE`
-													// for the real hex `ratingColor()`'s
-													// own palette name stands for,
-													// rather than a fixed brand purple
-													// unrelated to the actual score.
+													// Same real rating color the ring's own "Needs
+													// Attention"/"Good"/"Poor" label below already
+													// uses (`ratingClass()`/`getRating()`).
 													color: COLOR_PALETTE[
 														ratingColor(score.seo_score) as keyof typeof COLOR_PALETTE
 													],
@@ -196,18 +167,7 @@ const SeoTab = () => {
 												},
 											]}
 										/>
-										{/*
-										 * "Overall Score" - was a verbatim repeat of
-										 * this card's own header title ("SEO Health")
-										 * right above it, with the caption below it
-										 * repeating the header's own `desc` too. Matched
-										 * to OverallScoreWidget.tsx's/OverviewTab.tsx's
-										 * own real shape instead: a distinct inner
-										 * label, and `scoreSummary()` (already defined
-										 * in this file, used elsewhere) for a real
-										 * dynamic per-tier caption rather than a static
-										 * repeat.
-										 */}
+										{/* * "Overall Score" - was a verbatim repeat of * this card's own header title ("SEO Health") * right above it. */}
 										<TypographyComponent variant={'h3'} color="text-green">
 											{__('Overall Score', 'vulopilot')}
 										</TypographyComponent>
@@ -215,24 +175,7 @@ const SeoTab = () => {
 											{scoreSummary(score.seo_score)}
 										</div>
 								</div>
-								{/*
-							 * Same 6 real per-category scores the old
-							 * `AnalyticsComponent` progress-bar rows above
-							 * this used to show - now the same real
-							 * `ListComponent` "mini-card report" row shape
-							 * `TechnicalVisibilityCard.tsx`/`WhatShouldIFixFirstCard.tsx`
-							 * already use elsewhere in this tab's own module
-							 * (icon + title + trailing value, one divider
-							 * per row, no progress bar - that variant
-							 * doesn't have one), `without-border` added on
-							 * top since this row sits inside a card that
-							 * already has its own outer border. The same
-							 * real number (`category.score`) is still
-							 * there as the row's own trailing value, and
-							 * clicking a row still opens the same real
-							 * `categoryFocus` drill-down (`IssuesSection`
-							 * below) it always did.
-							 */}
+								{/* * Same 6 real per-category scores the old * `AnalyticsComponent` progress-bar rows above * this used to show. */}
 							  <div className="overall-score-summary">
 								<ListComponent
 									className="mini-card report hover without-border seo-health-score-category-list"
@@ -340,11 +283,7 @@ const SeoTab = () => {
 				<SeoProgressCard />
 			</ColumnComponent>
 			<ColumnComponent grid={8}>
-				{/* SEO's own thin, defaults-only wrapping of the generalized
-				 * IssuesSection.tsx - `pageScore` is the one thing only this
-				 * SEO usage sets, previously factored into its own
-				 * `SeoIssuesSection.tsx` (this tab's only consumer, merged
-				 * back in here). */}
+				{/* SEO's own thin, defaults-only wrapping of the generalized * IssuesSection.tsx. */}
 				<IssuesSection
 					id="seo-all-issues-table"
 					scannerIds={ALL_SEO_SCANNER_IDS}
@@ -361,7 +300,6 @@ const SeoTab = () => {
 					<div id="seo-page-analysis-panel">
 					<PageAnalysisPanel
 						postId={analyzingPostId}
-						onClose={() => setAnalyzingPostId(null)}
 					/>
 					</div>
 				</ColumnComponent>

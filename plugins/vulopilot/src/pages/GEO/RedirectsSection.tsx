@@ -46,7 +46,7 @@ interface RedirectHealthResponse {
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 const FETCH_PAGE_SIZE = 100;
-/** Safety ceiling for the fetch-everything loop below - a real site's user-managed redirect list is small by nature (each one is manually added or converted from a 404), unlike scanner findings. */
+/** Safety ceiling for the fetch-everything loop below. */
 const MAX_REDIRECTS = 1000;
 const DEFAULT_PER_PAGE = 10;
 
@@ -57,7 +57,7 @@ const TYPE_BADGE_CLASS: Record<number, string> = {
 	307: 'badge-locked',
 };
 
-/** Same real 3-tier 0-100 band SeoTab.tsx's own `getRating()`/`ratingColor()` already establish - duplicated locally per this codebase's own "duplicate small per-file logic" convention. Used for the "Redirect Health" ring's own real `activeCount/totalCount` percentage below. */
+/** Same real 3-tier 0-100 band SeoTab.tsx's own `getRating()`/`ratingColor()` already establish. */
 const getRating = (score: number): string => {
 	if (score >= 70) {
 		return __('Good', 'vulopilot');
@@ -79,12 +79,8 @@ const ratingColor = (score: number): string => {
 };
 
 /**
- * `$wpdb`'s own raw row shape - every numeric column comes back as a PHP
- * string once JSON-encoded (confirmed live: `redirect_type: "307"`, not
- * `307`), so this normalizes the fields this file actually compares
- * (`===`) or does arithmetic on into real JS numbers right at the fetch
- * boundary - the one place that needs to happen, rather than every
- * comparison site remembering to `Number()` it.
+ * `$wpdb`'s own raw row shape - every numeric column comes back as a PHP string once JSON-encoded
+ * (confirmed live: `redirect_type: "307"`, not `307`).
  */
 const normalizeRedirectRow = (row: RedirectRow): RedirectRow => ({
 	...row,
@@ -125,10 +121,8 @@ const fetchAllRedirects = async (): Promise<RedirectRow[]> => {
 };
 
 /**
- * A redirect's `target_url` resolved down to a real, comparable path -
- * same-origin check as BrokenLinksSection.tsx's own `deriveSourcePath()` -
- * null for a target pointing at a different site entirely, which can
- * never chain into another row of THIS site's own redirect table.
+ * A redirect's `target_url` resolved down to a real, comparable path - same-origin check as
+ * BrokenLinksSection.tsx's own `deriveSourcePath()`.
  */
 const resolveTargetPath = (targetUrl: string): string | null => {
 	try {
@@ -147,13 +141,7 @@ const resolveTargetPath = (targetUrl: string): string | null => {
 };
 
 /**
- * Real chain detection over the actual `vulopilot_redirects` rows - a
- * redirect "chains" when its own `target_url` resolves to a path that is
- * itself another redirect's `source_path`: a visitor following it hits a
- * SECOND redirect before reaching a final destination. Nothing here is
- * simulated/estimated - it's a plain lookup across the same rows the
- * table already renders. Returns a `Map<redirectId, nextHopRow>` for
- * every redirect that chains into another one.
+ * Real chain detection over the actual `vulopilot_redirects` rows.
  */
 const detectChains = (rows: RedirectRow[]): Map<number, RedirectRow> => {
 	const bySourcePath = new Map<string, RedirectRow>();
@@ -182,29 +170,7 @@ type TypeFilter = 'all' | 301 | 302 | 307;
 type StatusFilter = 'all' | 'active' | 'inactive' | 'broken';
 
 /**
- * "Redirects" inner section of the "Crawl & URLs" tab. Real 301/302/307
- * redirect manager (`vulopilot_redirects`) - rebuilt to match the
- * reference mockup wherever the data genuinely supports it:
- *   - 5 real stat tiles: Total/Active (existing `is_active_counts`-shaped
- *     data), Redirect Chains (detectChains() above, a real computation
- *     over the actual rows - no scanner needed), Broken Redirects (a new
- *     real `GET /redirects/health` HEAD-check of each active redirect's
- *     own `target_url`, added alongside this pass since nothing
- *     previously checked that), and Last Checked (that same endpoint's
- *     real `checked_at`, plus the real cache-expiry time as an honest
- *     "next automatic check" - not a fabricated schedule).
- *   - A real 301/302/307 legend and type filter. A 4th "Meta Refresh"
- *     legend entry from the mockup is deliberately NOT reproduced: that's
- *     an HTML-level `<meta http-equiv="refresh">` mechanism, unrelated to
- *     this HTTP-redirect table, and nothing in this codebase implements
- *     it - adding a legend entry with no real rows behind it would be a
- *     decoration, not a filter.
- *   - No "All groups" filter: there is no group/category/label concept
- *     anywhere on a redirect row (confirmed against `Install.php`'s own
- *     schema and `RedirectRepository`) - the mockup's grouping has no
- *     real data behind it here.
- *   - Flat table, one row per redirect, matching the mockup's own
- *     From/To/Type/Hits/Created/Last Accessed/Status/Actions columns.
+ * "Redirects" inner section of the "Crawl & URLs" tab.
  */
 const RedirectsSection = () => {
 	const [allRedirects, setAllRedirects] = useState<RedirectRow[]>([]);
@@ -449,12 +415,8 @@ const RedirectsSection = () => {
 	};
 
 	const headers = {
-		// Same real `InformationItemComponent` "title + badges" shape
-		// BrokenLinksSection.tsx's own row cell already uses - folds the
-		// old separate "Type"/"Status" columns into this one row's own
-		// real badges (redirect_type/is_active/isBroken(), all real
-		// values already read elsewhere on this row) instead of 2 extra
-		// columns.
+		// Same real `InformationItemComponent` "title + badges" shape BrokenLinksSection.tsx's own
+		// row cell already uses.
 		source_path: {
 			label: __('From (Old URL)', 'vulopilot'),
 			width: "65%",
@@ -585,12 +547,8 @@ const RedirectsSection = () => {
 	}
 
 
-	// Real percentage of redirects that are active - the one real 0-100
-	// figure these 5 stats naturally produce (the other 4 are plain counts
-	// or a date), so it's the only honest candidate for this card's own
-	// ring; matching SeoTab.tsx's/GeoScoreSection.tsx's real ring shape
-	// rather than fabricating a synthetic "redirect score" no real
-	// weighting exists for.
+	// Real percentage of redirects that are active - the one real 0-100 figure these 5 stats
+	// naturally produce (the other 4 are plain counts or a date).
 	const activePercent = totalCount
 		? Math.round((activeCount / totalCount) * 100)
 		: 0;
@@ -602,10 +560,9 @@ const RedirectsSection = () => {
 					title={__('Redirect Health', 'vulopilot')}
 					titleIcon="link"
 					desc={__('How many of your redirects are active and working.', 'vulopilot')}
-					// Grid-wide, not per-tile - same real "both real fetches start
-					// together" reasoning the old `MetricTileComponent`'s own
-					// combined `isLoading` docblock already gave; unchanged by
-					// this restructure.
+					// Grid-wide, not per-tile - same real "both real fetches start together"
+					// reasoning the old `MetricTileComponent`'s own combined `isLoading` docblock
+					// already gave.
 					isLoading={isLoading || isCheckingHealth}
 				>
 					<div className="overall-score-wrapper">
@@ -613,13 +570,8 @@ const RedirectsSection = () => {
 								<ChartComponent
 									type="ring"
 									height={200}
-									// Top-level `color` - `type="ring"` only ever
-									// paints its stroke from this prop, never from
-									// `data[].color` below (see SeoTab.tsx's own
-									// identical fix) - without it the ring stayed
-									// `ChartComponent`'s default brand purple
-									// regardless of the real active-redirect
-									// percentage.
+									// Top-level `color` - `type="ring"` only ever paints its stroke
+									// from this prop.
 									color={
 										COLOR_PALETTE[
 											ratingColor(activePercent) as keyof typeof COLOR_PALETTE
@@ -660,16 +612,7 @@ const RedirectsSection = () => {
 									{__('How many of your redirects are active and working.', 'vulopilot')}
 								</div>
 						</div>
-						{/*
-					 * Same real `ListComponent` "mini-card report" row
-					 * shape SeoTab.tsx's/BrokenLinksSection.tsx's own
-					 * stat rows already use - these 5 real values (a
-					 * count, a count, a count, a count, and a date)
-					 * don't each have their own 0-100 score the way
-					 * SEO's/GEO's category rows do, so each row's own
-					 * trailing value is just its real number/date, not a
-					 * fabricated "/100".
-					 */}
+						{/* * Same real `ListComponent` "mini-card report" row * shape SeoTab.tsx's/BrokenLinksSection.tsx's own * stat rows already use. */}
 					 <div className="overall-score-summary">
 						<ListComponent
 							className="mini-card report hover seo-health-score-category-list"
@@ -694,11 +637,9 @@ const RedirectsSection = () => {
 									id: 'active',
 									icon: 'check green',
 									title: __('Active', 'vulopilot'),
-									// desc: sprintf(
-									// 	/* translators: %d: percentage of redirects that are active. */
-									// 	__('Working correctly · %d%% of total', 'vulopilot'),
-									// 	activePercent
-									// ),
+									// desc: sprintf( /* translators: %d: percentage of redirects
+									// that are active. */ __('Working correctly · %d%% of total',
+									// 'vulopilot'), activePercent ),
 									tags: (
 										<TypographyComponent
 											variant="h5"
@@ -714,13 +655,11 @@ const RedirectsSection = () => {
 									id: 'chains',
 									icon: 'link yellow',
 									title: __('Redirect Chains', 'vulopilot'),
-									// desc: chainCount
-									// 	? sprintf(
-									// 		/* translators: %d: number of chains detected. */
-									// 		_n('%d chain detected - needs review', '%d chains detected - needs review', chainCount, 'vulopilot'),
-									// 		chainCount
-									// 	)
-									// 	: __('No chains detected', 'vulopilot'),
+									// desc: chainCount ? sprintf( /* translators: %d: number of
+									// chains detected. */ _n('%d chain detected - needs review',
+									// '%d chains detected - needs review', chainCount,
+									// 'vulopilot'), chainCount ) : __('No chains detected',
+									// 'vulopilot'),
 									tags: (
 										<TypographyComponent
 											variant="h5"
@@ -736,11 +675,9 @@ const RedirectsSection = () => {
 									id: 'broken',
 									icon: 'error pink',
 									title: __('Broken Redirects', 'vulopilot'),
-									// desc: sprintf(
-									// 	/* translators: %d: percentage of redirects that are broken. */
-									// 	__('Needs attention · %d%% of total', 'vulopilot'),
-									// 	totalCount ? Math.round((brokenCount / totalCount) * 100) : 0
-									// ),
+									// desc: sprintf( /* translators: %d: percentage of redirects
+									// that are broken. */ __('Needs attention · %d%% of total',
+									// 'vulopilot'), totalCount ?
 									tags: (
 										<TypographyComponent
 											variant="h5"
@@ -756,13 +693,11 @@ const RedirectsSection = () => {
 									id: 'last-checked',
 									icon: 'calendar blue',
 									title: __('Last Checked', 'vulopilot'),
-									// desc: nextCheckLabel
-									// 	? sprintf(
-									// 		/* translators: %s: formatted date/time of the next automatic health check. */
-									// 		__('Next automatic check: %s', 'vulopilot'),
-									// 		nextCheckLabel
-									// 	)
-									// 	: __('Broken-redirect check has not run yet.', 'vulopilot'),
+									// desc: nextCheckLabel ? sprintf( /* translators: %s:
+									// formatted date/time of the next automatic health check. */
+									// __('Next automatic check: %s', 'vulopilot'), nextCheckLabel
+									// ) : __('Broken-redirect check has not run yet.',
+									// 'vulopilot'),
 									tags: (
 										<TypographyComponent
 											as="span"

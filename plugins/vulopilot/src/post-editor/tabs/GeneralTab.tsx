@@ -13,23 +13,8 @@ interface GeneralTabProps {
 }
 
 /**
- * The metabox's General tab - focus keyword, SEO title (native
- * `post_title`), meta description (native `post_excerpt`), a live snippet
- * preview, and the per-post robots/canonical settings: a canonical URL
- * override (Services\CanonicalUrlManager::maybe_override_canonical(), which
- * filters WP core's own `get_canonical_url` directly, so it takes effect
- * regardless of the sitewide "Add canonical URL tags" setting) and
- * noindex/nofollow (Services\PostRobotsMetaManager's `wp_robots` filter).
- * The live checklist (Services\OnPageAnalyzer) is on the Page Analysis tab,
- * next to the saved-page checks it complements.
- *
- * Preview sits first with title/description tucked behind an "Edit
- * Snippet" toggle; Focus Keyword is a single removable pill, not a
- * multi-keyword field - Services\OnPageAnalyzer only ever grades ONE
- * `_vulopilot_focus_keyword` string end to end, and there's no
- * pillar-content concept in this codebase, so a multi-pill input or a
- * "Pillar Content" checkbox would have nothing real backing it, doing
- * nothing.
+ * The metabox's General tab - focus keyword, SEO title (native `post_title`), meta description
+ * (native `post_excerpt`), a live snippet preview.
  */
 export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
 	const { title, excerpt, slug, meta, setTitle, setExcerpt, setMeta } = usePostData();

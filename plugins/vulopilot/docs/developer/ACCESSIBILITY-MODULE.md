@@ -8,7 +8,7 @@ All use category `accessibility`. The whole category can be switched off with th
 
 | Scanner id | Detects |
 |---|---|
-| `accessibility` | Published content containing its own `<h1>` |
+| `accessibility` | Published content containing its own `h1` |
 | `form-labels` | Inputs, textareas and selects with no label, `aria-label` or similar |
 | `aria-attributes` | Click-handler elements (for example a `div` with `onclick`) that have no `role` |
 | `keyboard-accessibility` | A positive `tabindex` (focus-order problem) |
@@ -35,9 +35,9 @@ The accessibility score is calculated from the severities of open `accessibility
 
 | Class | File | What it does |
 |---|---|---|
-| `AccessibilityScanner` | `classes/Accessibility/AccessibilityScanner.php` | Flags published content that contains its own `<h1>` tag. |
-| `AriaAttributesScanner` | `classes/Accessibility/AriaAttributesScanner.php` | Flags interactive-looking elements - a <div> or <span> with an onclick handler - that carry no `role` attribute. |
-| `FormLabelsScanner` | `classes/Accessibility/FormLabelsScanner.php` | Flags <input>/<textarea>/<select> elements in published content with no associated label - no <label for="...">, aria-label, or aria-labelledby. |
+| `AccessibilityScanner` | `classes/Accessibility/AccessibilityScanner.php` | Flags published content that contains its own `h1` tag. |
+| `AriaAttributesScanner` | `classes/Accessibility/AriaAttributesScanner.php` | Flags interactive-looking elements - a div or span with an onclick handler - that carry no `role` attribute. |
+| `FormLabelsScanner` | `classes/Accessibility/FormLabelsScanner.php` | Flags input/textarea/select elements in published content with no associated label - no label, aria-label, or aria-labelledby. |
 | `KeyboardAccessibilityScanner` | `classes/Accessibility/KeyboardAccessibilityScanner.php` | Flags a positive `tabindex` (`tabindex="1"` and above) in published content - WCAG 2.4.3 (Focus Order): a positive tabindex pulls that element out of the page's natural DOM tab order and inserts it at a fixed position ahead of eve |
 | `MissingAltTextRule` | `classes/Accessibility/MissingAltTextRule.php` | - |
 | `WcagScanner` | `classes/Accessibility/WcagScanner.php` | - |

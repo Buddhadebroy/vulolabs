@@ -20,12 +20,12 @@ type GlanceRow = {
 	key: 'seo' | 'geo' | 'aeo';
 	label: string;
 	subtab: string;
-	/** `scanner_id`/`category` REST params to count real open findings with - see each row's own definition below for why GEO uses `category` while SEO/AEO use an explicit `scanner_id` list. */
+	/** `scanner_id`/`category` REST params to count real open findings with. */
 	params: Record<string, string>;
 };
 const SEO_SCANNER_IDS = SEO_SECTIONS.flatMap((section) => section.scannerIds);
 
-/** Same 3 real "Issues at a glance" rows KeyPagesWidget.tsx used - GEO filters by `category`, SEO/AEO by an explicit `scanner_id` allowlist (see KeyPagesWidget.tsx's own docblock for why). */
+/** Same 3 real "Issues at a glance" rows KeyPagesWidget.tsx used. */
 const GLANCE_ROWS: GlanceRow[] = [
 	{
 		key: 'seo',
@@ -48,31 +48,8 @@ const GLANCE_ROWS: GlanceRow[] = [
 ];
 
 /**
- * "Vital Pulse" - the Dashboard's hero status ring: one real 0-100
- * `overall_score`, colored by its own real rating band via
- * `ratingColorFor()`, with a real "Last scanned" timestamp
- * (`useLastScanTime()`'s own most-recently-completed scan, called with no
- * category filter since this score is a sitewide rollup) below it - per a
- * newer reference mockup.
- *
- * The critical-findings badge that used to sit here ("No critical issues" /
- * "N critical issues") was removed per direct instruction - that count is
- * real findings data, not a Vital Pulse-specific rollup, so it's now a
- * plain link straight to NeedsAttentionWidget's own "Needs your attention"
- * card instead of being duplicated here as a second badge.
- *
- * Now also includes the category score breakdown list (previously
- * ScoreBreakdownWidget.tsx) and a "View full report ›" header link.
- *
- * Renders `VuloPilotActivityWidget` ("Health timeline") as a sibling card
- * right after its own `<DashboardWidget>`, both inside the same `<>...</>`
- * this component returns - registry.ts's own `overall-score` entry is the
- * only one DashboardGrid.tsx wraps in a `ColumnComponent` for either, per
- * direct instruction to put them in the same column instead of two
- * separately-registered, independently-draggable cells (`vulopilot-activity`
- * removed from registry.ts's own `MOCKUP_WIDGETS` accordingly). Each keeps
- * its own full `<DashboardWidget>` card chrome - genuine siblings, not one
- * nested inside the other's card body.
+ * "Vital Pulse" - the Dashboard's hero status ring: one real 0-100 `overall_score`, colored by its
+ * own real rating band via `ratingColorFor()`.
  */
 export const getRating = (score: number): string => {
 	if (score >= 90) {
@@ -87,7 +64,7 @@ export const getRating = (score: number): string => {
 	return __('Needs work', 'vulopilot');
 };
 
-/** Same real 4-tier `getRating()` bands above, mapped to real palette color names - feeds the ring's own stroke color and each row's own score number color. */
+/** Same real 4-tier `getRating()` bands above, mapped to real palette color names. */
 export const ratingColorFor = (score: number): string => {
 	if (score >= 90) {
 		return 'green';

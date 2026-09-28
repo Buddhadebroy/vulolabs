@@ -8,9 +8,8 @@ import DummyDataNotice from '../../components/DummyDataNotice';
 import { useFilterSlot } from '../../services/useFilterSlot';
 
 /**
- * Fabricated preview rows - same "obviously fake" reasoning
- * reportsOverview.ts's own `DUMMY_REPORT_ROWS` documents, shaped for this
- * table's own columns (frequency/recipients) rather than a report row's.
+ * Fabricated preview rows - same "obviously fake" reasoning reportsOverview.ts's own
+ * `DUMMY_REPORT_ROWS` documents.
  */
 const DUMMY_SCHEDULE_ROWS = [
 	{

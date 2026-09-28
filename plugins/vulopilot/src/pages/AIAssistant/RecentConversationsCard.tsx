@@ -11,14 +11,14 @@ import { useApiList } from '../../services/useApiList';
 import { ChatMarkdown } from '../../components/ChatMarkdown';
 import { ChatMessage } from '../../components/ChatComposerCard';
 
-/** One row of `GET /copilot/conversations` (Controllers\Copilot.php) - a real, reloadable conversation thread, not a single logged AI call. */
+/** One row of `GET /copilot/conversations` (Copilot.php) - a real, reloadable conversation thread, not a single logged AI call. */
 interface RecentConversationRow {
 	id: number;
 	title: string;
 	updated_at: string;
 }
 
-/** One turn of `GET /copilot/conversations/{id}` - same real endpoint/shape useCopilotChat.ts's own loadConversation() reads (StoredConversationTurn there), just the subset this read-only preview popup actually renders. */
+/** One turn of `GET /copilot/conversations/{id}`. */
 interface ConversationPreviewTurn {
 	role: 'user' | 'assistant';
 	content: string;
@@ -31,10 +31,8 @@ interface ConversationPreviewResponse {
 }
 
 /**
- * Relative "2h ago"/"3d ago" formatting - same local pattern already used
- * by RecentContentCard.tsx/RecentActivityCard.tsx. No shared relative-time
- * utility exists in this codebase yet, and this is small enough to keep
- * local rather than add a new cross-page service for a third consumer.
+ * Relative "2h ago"/"3d ago" formatting - same local pattern already used by
+ * RecentContentCard.tsx/RecentActivityCard.tsx.
  */
 const timeAgo = (dateString: string): string => {
 	const seconds = Math.max(
@@ -58,28 +56,13 @@ const timeAgo = (dateString: string): string => {
 };
 
 interface RecentConversationsCardProps {
-	/** Called with a row's real `vulopilot_ai_conversations.id` when clicked - AIAssistant.tsx's own handleSelectConversation() loads that thread's full history straight into the composer (useCopilotChat.ts's loadConversation()), no navigation involved since this card already lives on the same page as the composer. */
+	/** Called with a row's real `vulopilot_ai_conversations.id` when clicked. */
 	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	onSelectConversation: (id: number) => void;
 }
 
 /**
- * AI Copilot's "Recent conversations" card - the 5 most recently-updated
- * real, reloadable conversation threads (`GET /copilot/conversations`,
- * Copilot.php's own get_conversations() /
- * AiConversationRepository::get_recent()). Deliberately a different source
- * than History's own "Conversations" filter (`GET /history?type=conversation`,
- * `vulopilot_ai_history`) - that table is a permanent, excerpt-only audit
- * trail of individual AI calls, not grouped into threads and never storing
- * full text, so it can't back a real "load this conversation back into the
- * composer" click. `title` here is each thread's own real first message
- * (`AiConversationRepository::build_title()`), not an unwrapped AI-reply
- * excerpt, so no humanizeConversationExcerpt()-style unwrapping is needed.
- *
- * "View all history" now navigates to Reports' own History tab (moved
- * there from AI Copilot's own former tab shell) - a real page transition,
- * not a same-page tab switch, since this card and History no longer live
- * under the same top-level menu item.
+ * AI Copilot's "Recent conversations" card - the 5 most recently-updated real.
  */
 const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 	onSelectConversation,
@@ -88,7 +71,7 @@ const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 		'copilot/conversations',
 		{ per_page: 5 }
 	);
-	/** The conversation currently shown in the preview popup - null closes it. `turns` starts empty while the fetch below is in flight. */
+	/** The conversation currently shown in the preview popup - null closes it. */
 	const [previewConversation, setPreviewConversation] = useState<{
 		id: number;
 		title: string;
@@ -97,16 +80,8 @@ const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 	const [isLoadingPreview, setIsLoadingPreview] = useState(false);
 
 	/**
-	 * Opens the popup immediately (with a loading state) and fetches the
-	 * same real `GET /copilot/conversations/{id}` useCopilotChat.ts's own
-	 * loadConversation() reads - read-only here, unlike that hook: this
-	 * never touches the composer's own `turns`/`conversationId` state, so
-	 * previewing a thread never disturbs whatever the user is already
-	 * composing. `e.stopPropagation()` keeps this icon's click from also
-	 * bubbling up into the row's own `action` (ListComponent's item click
-	 * handler), which would otherwise ALSO fire onSelectConversation and
-	 * load this thread into the composer - the row itself still does that
-	 * on its own click, unchanged.
+	 * Opens the popup immediately (with a loading state) and fetches the same real `GET
+	 * /copilot/conversations/{id}` useCopilotChat.ts's own loadConversation() reads.
 	 */
 	const handlePreview = (
 		row: RecentConversationRow,
@@ -134,11 +109,7 @@ const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 
 	return (
 		<>
-			{/* No own CardComponent wrapper - its title/desc/"View all
-			history" action moved to AIAssistant.tsx's own PopupComponent
-			header/footer (this card's only real caller, already inside a
-			popup of its own), so the two don't double up their own
-			separate header/action chrome. */}
+			{/* No own CardComponent wrapper - its title/desc/"View all history" action moved to AIAssistant.tsx's own PopupComponent header/footer (this card's only real caller, already inside a popup of its own), so the two don't double up their own separate header/action chrome. */}
 			{error ? (
 				<ModuleGuardComponent
 					icon="error"

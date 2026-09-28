@@ -23,7 +23,7 @@ interface FixOutcome {
 
 const getFindingFixHandler = () => applyFilters('vulopilot_finding_fix_handler', null);
 
-/** Same local helper RecentContentCard.tsx's own `timeAgo` is - kept per-file rather than shared since this is the only real date this page renders. */
+/** Same local helper RecentContentCard.tsx's own `timeAgo` is. */
 const timeAgo = (dateString: string): string => {
 	const seconds = Math.max(
 		0,
@@ -48,23 +48,15 @@ const timeAgo = (dateString: string): string => {
 interface SeoSiteWideIssuesTableProps {
 	findings: RawFinding[];
 	activeScannerIds: 'all' | string[];
-	/** IssuesSection.tsx's own real `IssuesSummaryCards` priority tile - `'all'`/`'high'`/`'medium'`/`'low'`, folded against each finding's own real severity via `PRIORITY_SEVERITIES`. */
+	/** IssuesSection.tsx's own real `IssuesSummaryCards` priority tile. */
 	activePriority: Priority;
 	isLoading: boolean;
 	hasError: boolean;
 }
 
 /**
- * "Site-wide Issues" - one of the two real tables that replace the old
- * combined "All SEO Issues" card, split apart per direct instruction.
- * Covers only findings NOT tied to a specific page (SitemapScanner/
- * RobotsTxtScanner's own `object_type: 'url'`, plus anything with an
- * unresolvable `object_ref`) - `SeoIssuesByPageTable.tsx` owns everything
- * page/post-scoped. Purely presentational for its data: `findings` comes
- * from SeoTab.tsx's own single fetch (so this table's counts
- * always agree with the shared filter pills above it) - this component
- * only mirrors that prop into local state so Resolve/Ignore/Fix can
- * optimistically remove a row without waiting on a full section refetch.
+ * "Site-wide Issues" - one of the two real tables that replace the old combined "All SEO Issues"
+ * card, split apart.
  */
 const SeoSiteWideIssuesTable = ({
 	findings,
@@ -81,7 +73,7 @@ const SeoSiteWideIssuesTable = ({
 		setLocalFindings(findings);
 	}, [findings]);
 
-	/** Purely client-side, same as RecentContentCard.tsx's own `removeFindingLocally` - filters the flat list by finding id directly, since these findings aren't nested under a page row. Optimistic only: the next real `onRetry()`/section refetch resyncs from the server. */
+	/** Purely client-side, same as RecentContentCard.tsx's own `removeFindingLocally`. */
 	const removeFindingLocally = (findingId: number) => {
 		setLocalFindings((current) => current.filter((finding) => finding.id !== findingId));
 	};
@@ -114,7 +106,7 @@ const SeoSiteWideIssuesTable = ({
 			.finally(() => setFixingFindingId(null));
 	};
 
-	/** Resolve/Ignore - the same real `POST /findings/{id} {status}` RecentContentCard.tsx's own `handleFindingStatus` calls (Findings.php::update_item() has no `object_type` restriction, so this works unmodified here). Every finding here is fetched with `status=open`, so there's no "Reopen" case - Resolve/Ignore are both one-way, removing the row locally on success. */
+	/** Resolve/Ignore - the same real `POST /findings/{id} {status}` RecentContentCard.tsx's own `handleFindingStatus` calls (Findings.php::update_item() has no `object_type` restriction, so this works unmodified here). */
 	const handleStatus = (
 		finding: RawFinding,
 		status: 'resolved' | 'ignored',
@@ -170,11 +162,8 @@ const SeoSiteWideIssuesTable = ({
 		);
 	}
 
-	// Nothing site-wide to show (either genuinely clean, or filtered out by
-	// an active category/scanner filter that has no site-wide matches) -
-	// SeoIssuesByPageTable.tsx's own empty state already covers "all clean"
-	// for the section as a whole, so this table just steps aside rather
-	// than showing a second, redundant empty card.
+	// Nothing site-wide to show (either genuinely clean, or filtered out by an active
+	// category/scanner filter that has no site-wide matches).
 	if (!isLoading && 0 === visibleFindings.length) {
 		return null;
 	}
@@ -238,12 +227,8 @@ const SeoSiteWideIssuesTable = ({
 								color: 'orange-bg',
 								onClick: (row) => {
 									const finding = row as unknown as RawFinding;
-									// Was `onClick: undefined` on the raw
-									// `<BadgeComponent>` badge to disable the
-									// click while a fix is already running -
-									// `ActionItem.onClick` is required here, so
-									// a no-op stands in for that same "ignore
-									// clicks mid-fix" behavior instead.
+									// Was `onClick: undefined` on the raw `BadgeComponent` badge
+									// to disable the click while a fix is already running.
 									if (fixingFindingId === finding.id) {
 										return;
 									}

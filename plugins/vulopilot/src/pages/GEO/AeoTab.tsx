@@ -18,13 +18,8 @@ import {
 import { useAeoPageAnalysis } from './useAeoPageAnalysis';
 
 /**
- * Section → scanner_id grouping for AEO's 6 topics - every scanner_id is
- * a real, already-running scanner; no topic invents a signal. Some
- * scanners (e.g. `geo-chunking`/`geo-semantic-structure`,
- * `geo-summary-block`) are intentionally reused from GEO's own topic
- * groupings - a finding can legitimately show up under both tabs, since
- * each is its own complete lens over the same finding data, not a
- * disjoint partition of it.
+ * Section → scanner_id grouping for AEO's 6 topics - every scanner_id is a real, already-running
+ * scanner; no topic invents a signal.
  */
 const AEO_SECTIONS: {
 	key: string;
@@ -78,7 +73,7 @@ const AEO_SECTIONS: {
 	},
 ];
 
-/** Exported so KeyPagesWidget.tsx's own Dashboard-tab "Issues at a glance" row can count real open AEO findings the same way this tab itself does, rather than duplicating this scanner-id union a 2nd time. */
+/** Exported so KeyPagesWidget.tsx's own Dashboard-tab "Issues at a glance" row can count real open AEO findings the same way this tab itself does. */
 export const ALL_AEO_SCANNER_IDS = AEO_SECTIONS.flatMap((section) => section.scannerIds);
 
 const average = (values: number[]): number =>
@@ -88,11 +83,7 @@ const average = (values: number[]): number =>
 
 /**
  * The same 3-dimension average the "AEO Score" ring computes for "today"
- * (`answer_first_structure`/`question_coverage`/`citation_readiness`),
- * applied to one historical `history` row - passed as
- * `computeTrendChange()`'s `getScore` param so "AEO Score Over Time"
- * trends this scoped average, not sitewide `overall_score`. Null means
- * no sample that day (same meaning `overall_score: null` carries).
+ * (`answer_first_structure`/`question_coverage`/`citation_readiness`).
  */
 const getAeoTrendScore = (row: GeoVisibilityHistoryRow): number | null =>
 	row.ai_scores && row.sub_scores
@@ -104,33 +95,22 @@ const getAeoTrendScore = (row: GeoVisibilityHistoryRow): number | null =>
 		: null;
 
 /**
- * Whether GeoInsights' Rest.php class is registered - either
- * 'geo-insights' or 'aeo-insights' being active is enough, since both
- * register that class. Gates the AI-call buttons in
- * AeoCitationCoverageCard.tsx/AeoEngineTestingCard.tsx.
- *
- * Reads zyra's `useModules()` store, not `vulopilotAppLocalizer.active_modules`
- * directly - that global is a static snapshot from initial page load, so
- * toggling a module in Settings → Modules wouldn't be reflected here
- * without a full refresh.
+ * Whether GeoInsights' Rest.php class is registered - either 'geo-insights' or 'aeo-insights'
+ * being active is enough.
  */
 const isCitationCheckActive = (modules: string[]): boolean =>
 	Boolean(vulopilotAppLocalizer.khali_dabba) &&
 	(modules.includes('geo-analysis') || modules.includes('answer-engine-optimization'));
 
 /**
- * AEO = Answer Engine Optimization - whether AI systems can extract,
- * structure, and cite a direct answer from this site's pages (distinct
- * from GEO's broader "can an AI understand this page at all" scope, and
- * from classic search-engine SEO). Reuses real data/components already
- * built for GEO/this tab rather than duplicating them:
+ * AEO = Answer Engine Optimization - whether AI systems can extract, structure.
  */
 const AeoTab = () => {
 	const [categoryFocus, setCategoryFocus] = useState<{
 		key: string;
 		token: number;
 	} | null>(null);
-	/** Set by a real "Analyze" click in the "Pages & Posts" table below - opens `GeoAeoPageAnalysisPanel` as a real sidebar, same real "Analyze"/"Viewing" toggle + side panel SeoTab.tsx's own SEO table already has (see that panel's own docblock for why it shows real findings instead of a fabricated pass/fail checklist). */
+	/** Set by a real "Analyze" click in the "Pages & Posts" table below. */
 	const [analyzingPostId, setAnalyzingPostId] = useState<number | null>(null);
 	const { modules } = useModules();
 	const { groups, isLoading: isLoadingGroups } = useAllFindingGroups();
@@ -138,30 +118,19 @@ const AeoTab = () => {
 	const { pages: aeoPages, total: totalPages, isLoading: isLoadingPages } =
 		useAeoPageAnalysis(ALL_AEO_SCANNER_IDS);
 
-	// "Questions Answered" - real published pages minus the real count of
-	// pages with an open geo-faq-opportunity finding (i.e. pages that
-	// already have adequate question coverage). Reuses the same `groups`
-	// fetch above rather than a second request just for this one number.
+	// "Questions Answered" - real published pages minus the real count of pages with an open geo-
+	// faq-opportunity finding (i.e. pages that already have adequate question coverage).
 	const openFaqFindings = sumGroupCounts(groups, ['geo-faq-opportunity']);
 	const questionsAnswered = totalPages
 		? Math.max(0, totalPages - openFaqFindings)
 		: 0;
 
-	// "Pages Ready" - real published pages with zero open AEO findings
-	// (across all 6 topics above), out of the real total. `aeoPages` is
-	// the same real `/geo-analysis/pages` dataset GeoPageAnalysisTable
-	// below independently re-fetches paginated - see useAeoPageAnalysis.ts's
-	// own docblock for why this is a second real request rather than a
-	// shared one.
+	// "Pages Ready" - real published pages with zero open AEO findings (across all 6 topics
+	// above), out of the real total.
 	const pagesReady = aeoPages.filter((page) => 0 === page.open_findings).length;
 
 	/**
-	 * Sets a fresh `categoryFocus` (a new `token` even for the same `key`
-	 * twice in a row) - `IssuesSection.tsx`'s own effect both switches its
-	 * active filter to that category (or resets to unfiltered for the
-	 * literal `'all'`) and scrolls itself into view, so this doesn't also
-	 * need its own `scrollToId()` call the way the old `SectionedFindingsTab`-based
-	 * version did (that component had no such self-scrolling behavior).
+	 * Sets a fresh `categoryFocus` (a new `token` even for the same `key` twice in a row).
 	 */
 	const goToIssuesTable = (key: string = 'all') => {
 		setCategoryFocus({ key, token: Date.now() });
@@ -187,7 +156,7 @@ const AeoTab = () => {
 			<AeoEngineTestingCard isActive={isCitationCheckActive(modules)} pages={aeoPages} />
 	
 
-			{/* Same real "filter pills + Site-wide Issues + Pages & Posts" structure SeoTab.tsx's own issues table already has (IssuesSection.tsx, generalized from what used to be SEO-only) - replaces the differently-shaped SectionedFindingsTab this used before, per direct instruction. `pageAnalysis` merges the former standalone "Page-by-Page Answer Readiness" table into the "Pages & Posts" table below. */}
+			{/* Same real "filter pills + Site-wide Issues + Pages & Posts" structure SeoTab.tsx's own issues table already has (IssuesSection.tsx, generalized from what used to be SEO-only) - replaces the differently-shaped SectionedFindingsTab this used before. */}
 			<ColumnComponent grid={8}>
 				<IssuesSection
 					id="aeo-all-issues-table"

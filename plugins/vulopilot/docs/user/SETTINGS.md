@@ -111,7 +111,7 @@ Connect VuloPilot to other services. Connect only what you need.
 | **Google Services** | Connects one Google account for Search Console, Analytics and AdSense. VuloPilot only reads the data and keeps it on your site | Shows real search and visitor data inside VuloPilot |
 | **Tag Manager** | Add your Google Tag Manager container ID (`GTM-XXXXXXX`) | Runs your tracking tags |
 | **PageSpeed Insights** | Add a Google API key | Real speed scores |
-| **Webmaster Tools** | Paste verification codes from Google, Bing, Pinterest, Baidu, Yandex or Norton, or your own `<meta>` tags | Proves you own the site |
+| **Webmaster Tools** | Paste verification codes from Google, Bing, Pinterest, Baidu, Yandex or Norton, or your own `meta` tags | Proves you own the site |
 
 More: [AI-COPILOT](AI-COPILOT.md), [SEO](SEO.md#9-prove-you-own-your-site-verification-and-connect-google), [PERFORMANCE](PERFORMANCE.md#before-you-start).
 

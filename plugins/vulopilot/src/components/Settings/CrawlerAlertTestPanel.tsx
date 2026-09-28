@@ -18,19 +18,8 @@ interface StoredSettings {
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 /**
- * Unlike BackupStoragePanel.tsx (which Settings.tsx's own GetForm()
- * appends after ALL of its tab's fields), this one is wired straight into
- * AiCrawlerAlerts.ts's own "Notification channels" `type: 'section'`
- * field, via `SectionComponent`'s real `rightContent` slot - see that
- * file's own docblock for why this belongs next to the channels it tests
- * rather than at the bottom of the tab.
- *
- * Reads its own `crawler_alert_last_test_sent` value directly from
- * `GET /settings` on mount rather than through SettingContext - that
- * context only ever seeds the ACTIVE tab's own `modal[].key` list
- * (Settings.tsx's own GetForm()), and this key deliberately isn't one of
- * AiCrawlerAlerts.ts's fields (it's system-set, never user-edited), so it
- * would never be seeded there anyway.
+ * Unlike BackupStoragePanel.tsx (which Settings.tsx's own GetForm() appends after ALL of its tab's
+ * fields).
  */
 const CrawlerAlertTestPanel = () => {
 	const [lastSentAt, setLastSentAt] = useState<string | null>(null);

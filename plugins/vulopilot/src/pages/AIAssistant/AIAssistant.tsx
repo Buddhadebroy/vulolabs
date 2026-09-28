@@ -28,7 +28,7 @@ import {
 } from '../../services/useCopilotChat';
 import { ChatInput, AiChatCard, CopilotTurnBubble } from '../../components/ChatComposerCard';
 
-/** Mirrors Controllers\Copilot.php's own MAX_ATTACHMENTS - capped client-side too so the composer never offers to add more than the server would actually resolve. */
+/** Mirrors Copilot.php's own MAX_ATTACHMENTS - capped client-side too so the composer never offers to add more than the server would actually resolve. */
 const MAX_ATTACHMENTS = 3;
 
 const ATTACHMENT_ACCEPT =
@@ -48,50 +48,23 @@ const SUGGESTED_PROMPTS = [
 ];
 
 /**
- * "AI Copilot" - a single-view page. NeedsAttentionCard.tsx/
- * RecentConversationsCard.tsx/RecommendedActionsCard.tsx/IssuesList.tsx
- * stay as their own files: each is a self-contained concern with its own
- * state and API calls, not a thin pass-through.
- *
- * "Attach" opens zyra's FileInput, which - now that Admin.php calls
- * wp_enqueue_media() - hands back a WP Media Library attachment {id, url}
- * via wp.media(), never a client-only blob. Sent as `attachments` on the
- * next `POST /copilot/chat` and re-resolved server-side
- * (Copilot.php's build_extra_context()); this component only carries an id.
- *
- * The header's "Online"/"Offline" badge reads `AiCreditsConnection::
- * is_connected()` via `useAiCredits()` (`GET /ai-credits/status`), the
- * same gate `AI\AiRequestSender::send()` actually checks - not the account-login
- * flag in `vulopilotAppLocalizer`, which is a separate, unrelated credential: a
- * site can have AI credits
- * connected with no personal login connected, so that flag would show a
- * misleading "Offline" while chat still works. Loading state fails
- * closed (`status?.connected` false-y default), same convention
- * useContentGate.tsx uses.
+ * "AI Copilot" - a single-view page.
  */
 const AIAssistant = () => {
 	const [chatMessage, setChatMessage] = useState('');
 	const [autoApply, setAutoApply] = useState(true);
-	/** Opens the "Recent conversations" popup - the header button lives in this page's own header, the popup and the real conversation data/selection it needs render further down. */
+	/** Opens the "Recent conversations" popup - the header button lives in this page's own header. */
 	const [isHistoryPopupOpen, setIsHistoryPopupOpen] = useState(false);
 	const [issuesFilter, setIssuesFilter] = useState<IssuesFilter | null>(
 		null
 	);
-	// Bumped on every "go to the Issues section" navigation, even when
-	// `issuesFilter` resolves to the same value as before (e.g. clicking
-	// "View all issues" when it was already null) - the scroll-into-view
-	// effect below keys off this instead of `issuesFilter` so a same-value
-	// React state bailout doesn't silently swallow the scroll.
+	// Bumped on every "go to the Issues section" navigation.
 	const [issuesNavToken, setIssuesNavToken] = useState(0);
 	const { status: aiCreditsStatus } = useAiCredits();
 	const vulocloudConnected = Boolean(aiCreditsStatus?.connected);
 
 	/**
-	 * The Issues table lives inline below the composer rather than as its
-	 * own nav tab - NeedsAttentionCard's "View all issues"/group-row clicks
-	 * still pass through here as `onNavigateTab('chat', filter)`, so this
-	 * still needs to update the filter that table reads. `tab` itself is
-	 * otherwise unused now that Chat is the only surface this page renders.
+	 * The Issues table lives inline below the composer rather than as its own nav tab.
 	 */
 	const goToTab = (tab: string, filter?: IssuesFilter) => {
 		if ('chat' === tab) {
@@ -103,10 +76,8 @@ const AIAssistant = () => {
 	const composerRef = useRef<HTMLDivElement>(null);
 	const didMountRef = useRef(false);
 
-	// Scrolls the appended Issues table into view whenever NeedsAttentionCard
-	// sends a new filter (or a bare "View all issues" click) - without this
-	// the click would silently do nothing visible if the table is off-screen.
-	// Skipped on first mount so loading this page itself never auto-scrolls.
+	// Scrolls the appended Issues table into view whenever NeedsAttentionCard sends a new filter
+	// (or a bare "View all issues" click).
 	useEffect(() => {
 		if (!didMountRef.current) {
 			didMountRef.current = true;
@@ -130,11 +101,7 @@ const AIAssistant = () => {
 	const [undoingRunId, setUndoingRunId] = useState<number | null>(null);
 
 	/**
-	 * RecentConversationsCard.tsx's own click-to-load - the card renders
-	 * below the composer, so loading a past thread also scrolls the
-	 * composer back into view rather than leaving the user looking at the
-	 * still-visible "Recent conversations" list while the turns above it
-	 * silently change.
+	 * RecentConversationsCard.tsx's own click-to-load - the card renders below the composer.
 	 */
 	const handleSelectConversation = (id: number) => {
 		loadConversation(id);
@@ -164,17 +131,13 @@ const AIAssistant = () => {
 		send(chatMessage, [], attachments, autoApply);
 		setChatMessage('');
 		setAttachments([]);
-		// Close the Attach panel on send - otherwise it stays open and
-		// reverts to its own empty "Drag and drop" state, which reads as if
-		// nothing was actually sent.
+		// Close the Attach panel on send - otherwise it stays open and reverts to its own empty
+		// "Drag and drop" state.
 		setIsAttachPanelOpen(false);
 	};
 
 	/**
-	 * Undoes a turn's own content-creation run - the same real
-	 * `POST /ai-action-runs/{id}/rollback` (AIActions\ActionRunner::rollback())
-	 * HistoryDetailPanel.tsx's own Undo button already calls, just reachable
-	 * right here next to what it undoes instead of only from History.
+	 * Undoes a turn's content-creation run via `POST /ai-action-runs/{id}/rollback`.
 	 */
 	const handleUndo = (runId: number) => {
 		setUndoingRunId(runId);
@@ -249,12 +212,8 @@ const AIAssistant = () => {
 	);
 
 	/**
-	 * AutomationTemplatesCard's real home is Automate Work
-	 * (`ManageAutomationsSection.tsx`, via `Automations.tsx`) - this
-	 * preview navigates there, carrying the picked template through the
-	 * `automation_template` URL param so the wizard opens already seeded.
-	 * Only reached for an unlocked row - a locked one is replaced by
-	 * AutomationTemplatesCard.tsx's own content-gate popup instead.
+	 * AutomationTemplatesCard's real home is Automate Work (`ManageAutomationsSection.tsx`, via
+	 * `Automations.tsx`).
 	 */
 	const handleSelectAutomationTemplate = (template: AutomationTemplate) => {
 		window.location.href = `${vulopilotAppLocalizer.admin_url}#&tab=automations&automation_template=${template.id}`;
@@ -377,10 +336,9 @@ const AIAssistant = () => {
 									</>
 								}
 								composer={
-									// The Enter-to-send bubble-propagation guard every
-									// real composer needs now lives once in
-									// ChatComposerCard.tsx itself (wraps `composer`
-									// there) rather than duplicated per consumer.
+									// The Enter-to-send bubble-propagation guard every real
+									// composer needs now lives once in ChatComposerCard.tsx itself
+									// (wraps `composer` there) rather than duplicated per consumer.
 									<ChatInput
 										value={chatMessage}
 										onChange={setChatMessage}

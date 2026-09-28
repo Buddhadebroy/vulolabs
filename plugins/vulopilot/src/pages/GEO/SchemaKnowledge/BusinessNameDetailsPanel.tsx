@@ -11,7 +11,7 @@ interface BusinessNameSource {
 	label: string;
 	value: string | null;
 	found: boolean;
-	/** Real destination "View Details" opens for this source - the site's own real homepage for `homepage`/`website_title`/`organization_schema` (all 3 actually render there), the real published About page's own permalink for `about_page` (even when its content doesn't mention the name, so there's still somewhere real to check), or null when no real page exists to send someone to. */
+	/** Real destination "View Details" opens for this source. */
 	url: string | null;
 }
 
@@ -33,14 +33,7 @@ const SOURCE_ICON: Record<string, string> = {
 };
 
 /**
- * Real per-source identity color for the icon box - same real
- * `$color-palette` names BadgeComponent's own `color` prop already
- * resolves elsewhere on this tab (BusinessProfileCard.tsx's own
- * `ROW_ICON`), just distinguishing each of these 4 real sources from
- * each other visually instead of every icon box sharing one flat
- * found/not-found color. Real found/not-found status is still shown
- * separately, via each row's own dot badge below the label - this color
- * is purely "which source is this," not a status signal.
+ * Real per-source identity color for the icon box.
  */
 const SOURCE_COLOR: Record<string, string> = {
 	homepage: 'green',
@@ -51,16 +44,7 @@ const SOURCE_COLOR: Record<string, string> = {
 
 /**
  * "Business Name Details" - the reference mockup's own slide-in panel for
- * `BusinessProfileCard.tsx`'s "Business name" row, backed by the real
- * `GET /entities/business-name-sources` cross-check
- * (`EntityExtractor::get_business_name_sources()`'s own docblock has the
- * full "what counts as a real source" design). Every other row on that
- * card (People/Services/Locations/…) still only has the one real value +
- * confidence EntityExtractor already reports - there's no equivalent
- * real multi-source cross-check for those yet, so this panel is
- * deliberately Business-name-specific rather than a generic "details for
- * any row" panel that would have to fabricate the same breadth for
- * fields that don't have it.
+ * `BusinessProfileCard.tsx`'s "Business name" row.
  */
 const BusinessNameDetailsPanel = ({
 	open,

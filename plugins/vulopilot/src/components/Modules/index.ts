@@ -257,9 +257,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
         },
         {
             /**
-             * Must be the real backend module id - AccessibilityAudits'
-             * folder name kebab-cased. The mockup's own id
-             * ('accessibility-scanner') matches no real module.
+             * Must be the real backend module id - AccessibilityAudits' folder name kebab-cased.
              */
             id: 'accessibility-checks',
             icon: 'accessibility',

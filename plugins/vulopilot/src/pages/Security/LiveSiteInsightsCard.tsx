@@ -34,21 +34,7 @@ interface RealtimeStats {
 }
 
 /**
- * "Live Site Insights" card - moved here from AI Copilot Chat's
- * ChatTab.tsx (pages/AIAssistant/) per direct instruction, onto Protect
- * My Site's own Performance tab (PerformanceTab.tsx, this folder), where
- * a live snapshot of security/crawler/vitals signals fits its actual
- * subject better than the AI chat surface it used to sit under. No
- * behavior changed in the move - same real endpoints below, same
- * component, same props (none).
- *
- * Now also shows a real "Page Views (5 min)" row - moved here from
- * `RealTimeMonitoringCard.tsx`'s own 4-tile `AnalyticsComponent` per
- * direct instruction, since it's a live activity signal (like AI crawler
- * traffic), not a performance metric, so it reads more naturally
- * alongside this card's other real rows. Same real
- * `GET /performance-realtime`'s own `page_views_last_5_min` value,
- * unchanged.
+ * "Live Site Insights" card - moved here from AI Copilot Chat's ChatTab.tsx (pages/AIAssistant/).
  */
 const LiveSiteInsightsCard: React.FC = () => {
 	const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
