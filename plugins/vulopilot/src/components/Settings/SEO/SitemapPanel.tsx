@@ -69,16 +69,6 @@ const SitemapPanel = () => {
 	/** Pro settings keep their real controls; without Pro, a change opens the upgrade popup instead of saving. */
 	const proGuard = (save: () => void) => (isPro ? save() : setIsProPopupOpen(true));
 
-	const HEALTH_CHECK_OPTIONS = [
-		{ key: 'broken', label: __('Broken URLs', 'vulopilot'), value: 'broken' },
-		{ key: 'redirected', label: __('Redirected URLs', 'vulopilot'), value: 'redirected' },
-		{ key: 'noindex', label: __('Noindex URLs', 'vulopilot'), value: 'noindex' },
-		{ key: 'canonical', label: __('Canonical pointing elsewhere', 'vulopilot'), value: 'canonical' },
-		{ key: 'duplicates', label: __('Duplicate URLs', 'vulopilot'), value: 'duplicates' },
-		{ key: 'placeholders', label: __('Placeholder URLs', 'vulopilot'), value: 'placeholders' },
-		{ key: 'lastmod', label: __('Last modified dates', 'vulopilot'), value: 'lastmod' },
-	];
-
 	const lastRun = String(setting.sitemap_health_last_run ?? '');
 	const lastProblems = Number(setting.sitemap_health_last_problems ?? 0);
 
@@ -169,7 +159,7 @@ const SitemapPanel = () => {
 								title={__('What is included', 'vulopilot')}
 								titleIcon="category"
 								desc={__(
-									'Choose which content and terms appear in your XML sitemap and the [vulopilot_html_sitemap] shortcode below.',
+									'Choose which content and terms appear in your XML sitemap and the [vulopilot_html_sitemap] shortcode below. Noindex, redirected, canonical-elsewhere and placeholder pages are always left out.',
 									'vulopilot'
 								)}
 							>
@@ -192,38 +182,6 @@ const SitemapPanel = () => {
 											onChange={(value) => handleSettingChange('sitemap_xml_taxonomies', value)}
 										/>
 									</FormGroupComponent>
-								</FormGroupWrapperComponent>
-							</CardComponent>
-
-							<CardComponent
-								title={__('Keep the sitemap clean', 'vulopilot')}
-								titleIcon="security"
-								desc={__(
-									'List only pages you want in search results. Turn off a rule only if you have a reason to list those pages.',
-									'vulopilot'
-								)}
-							>
-								<FormGroupWrapperComponent>
-									{renderToggle(
-										'sitemap_exclude_noindex',
-										__('Leave out noindex pages', 'vulopilot'),
-										__('Pages marked noindex in the post editor are not listed.', 'vulopilot')
-									)}
-									{renderToggle(
-										'sitemap_exclude_canonical_elsewhere',
-										__('Leave out pages with another canonical', 'vulopilot'),
-										__('Pages whose canonical URL points to a different page are not listed.', 'vulopilot')
-									)}
-									{renderToggle(
-										'sitemap_exclude_redirected',
-										__('Leave out redirected pages', 'vulopilot'),
-										__('Pages whose address redirects elsewhere are not listed.', 'vulopilot')
-									)}
-									{renderToggle(
-										'sitemap_exclude_placeholders',
-										__('Leave out placeholder content', 'vulopilot'),
-										__('The unedited default "Hello world!" and "Sample Page" are not listed.', 'vulopilot')
-									)}
 									{renderToggle(
 										'sitemap_skip_single_author',
 										__('Hide the author sitemap on single-author sites', 'vulopilot'),
@@ -236,7 +194,7 @@ const SitemapPanel = () => {
 								title={__('Sitemap health checks', 'vulopilot')}
 								titleIcon="tools"
 								desc={__(
-									'Regularly check that the URLs in your sitemap load, can be indexed and are their own canonical.',
+									'Fetches a sample of your sitemap URLs and reports any that fail to load, redirect, are noindex or point to another canonical, plus duplicates, placeholders and unchanged last modified dates.',
 									'vulopilot'
 								)}
 							>
@@ -248,7 +206,7 @@ const SitemapPanel = () => {
 												{__('Run health checks', 'vulopilot')}
 												{!isPro && (
 													<span
-														className="admin-tag module-tag"
+														className="admin-tag pro-tag pro-tag-inline"
 														role="button"
 														tabIndex={0}
 														onClick={() => setIsProPopupOpen(true)}
@@ -259,7 +217,7 @@ const SitemapPanel = () => {
 															}
 														}}
 													>
-														<i className="adminfont-lock" />
+														<i className="adminfont-pro-tag" />
 														{__('Pro', 'vulopilot')}
 													</span>
 												)}
@@ -278,27 +236,6 @@ const SitemapPanel = () => {
 											onChange={(value) =>
 												proGuard(() => handleSettingChange('sitemap_health_enabled', value))
 											}
-										/>
-									</FormGroupComponent>
-									<FormGroupComponent
-										row
-										label={__('URLs to check', 'vulopilot')}
-										desc={__('How many sitemap URLs to fetch per run (5 to 100).', 'vulopilot')}
-									>
-										<TextInput
-											type="number"
-											size={10}
-											value={(setting.sitemap_health_sample_size as number) ?? 25}
-											onChange={(value) => proGuard(() => scheduleSave('sitemap_health_sample_size', value))}
-										/>
-									</FormGroupComponent>
-									<FormGroupComponent row label={__('Problems to look for', 'vulopilot')}>
-										<MultiCheckboxInput
-											modules={[]}
-											selectDeselect
-											options={HEALTH_CHECK_OPTIONS}
-											value={toArray(setting.sitemap_health_checks)}
-											onChange={(value) => proGuard(() => handleSettingChange('sitemap_health_checks', value))}
 										/>
 									</FormGroupComponent>
 									{lastRun && (

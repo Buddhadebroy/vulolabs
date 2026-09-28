@@ -496,6 +496,17 @@ const GoogleServicesPanel = () => {
 				isDisconnecting={ isDisconnecting }
 				isExpanded={ 'analytics' === expandedCard }
 			>
+				<ol className="desc gsc-steps">
+					<li>{ __( 'Connect your Google account.', 'vulopilot' ) }</li>
+					<li>{ __( 'Choose the Account, Property and Data Stream for this site.', 'vulopilot' ) }</li>
+					<li>
+						{ __(
+							'Turn on “Install analytics code” - only if no other plugin or theme already adds it, to avoid duplicate tracking.',
+							'vulopilot'
+						) }
+					</li>
+				</ol>
+
 				<div className="gsc-select-row">
 					<SelectInput
 						name="ga4_account"

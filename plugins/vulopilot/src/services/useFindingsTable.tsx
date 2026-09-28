@@ -1,4 +1,6 @@
 /* global vulopilotAppLocalizer */
+import { FixOutcome } from './showFixOutcome';
+import { useFixNotice } from './useFixNotice';
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
@@ -61,10 +63,6 @@ export interface Finding extends TableRow {
  * getFindingFixHandler's own docblock for why the handler can't just show its own notice) rather
  * than caring what actually happened.
  */
-interface FixOutcome {
-	success: boolean;
-	message: string;
-}
 
 export const getFindingFixHandler = () =>
 	applyFilters('vulopilot_finding_fix_handler', null);
@@ -162,6 +160,8 @@ export const useFindingsTable = ({
 		},
 		pillConfig
 	);
+
+	const { show: showFix, fixNotice } = useFixNotice(refetch);
 
 	/**
 	 * Whether the user currently has a search term typed in.
@@ -262,15 +262,7 @@ export const useFindingsTable = ({
 			Promise.resolve(
 				findingFixHandler(row) as Promise<FixOutcome> | undefined
 			).then((outcome) => {
-				if (outcome?.message) {
-					NoticeManager.add({
-						uniqueKey: `finding-fix-${row?.id}`,
-						type: outcome.success ? 'success' : 'error',
-						position: 'float',
-						message: outcome.message,
-					});
-				}
-
+				showFix(outcome);
 				refetch();
 			});
 			return;
@@ -460,15 +452,7 @@ export const useFindingsTable = ({
 					Promise.resolve(
 						bulkFixHandler(ids) as Promise<FixOutcome> | undefined
 					).then((outcome) => {
-						if (outcome?.message) {
-							NoticeManager.add({
-								uniqueKey: 'findings-bulk-fix',
-								type: outcome.success ? 'success' : 'error',
-								position: 'float',
-								message: outcome.message,
-							});
-						}
-
+						showFix(outcome);
 						refetch();
 					});
 					return;
@@ -533,5 +517,6 @@ export const useFindingsTable = ({
 		refetch,
 		isProPopupOpen,
 		closeProPopup: () => setIsProPopupOpen(false),
+		fixNotice,
 	};
 };

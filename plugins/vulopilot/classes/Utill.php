@@ -228,15 +228,9 @@ class Utill {
 		'sitemap_xml_post_types'                => array( 'post', 'page', 'attachment', 'product' ),
 		'sitemap_xml_taxonomies'                => array( 'category', 'post_tag', 'product_cat', 'product_tag' ),
 		// Read by SitemapManager - keep the sitemap to URLs meant for search results.
-		'sitemap_exclude_noindex'               => array( 'sitemap_exclude_noindex' ),
-		'sitemap_exclude_canonical_elsewhere'   => array( 'sitemap_exclude_canonical_elsewhere' ),
-		'sitemap_exclude_redirected'            => array( 'sitemap_exclude_redirected' ),
-		'sitemap_exclude_placeholders'          => array( 'sitemap_exclude_placeholders' ),
 		'sitemap_skip_single_author'            => array( 'sitemap_skip_single_author' ),
 		// Read by the Pro sitemap health check (SitemapValidationScanner).
 		'sitemap_health_enabled'                => array( 'sitemap_health_enabled' ),
-		'sitemap_health_sample_size'            => 25,
-		'sitemap_health_checks'                 => array( 'broken', 'redirected', 'noindex', 'canonical', 'duplicates', 'placeholders', 'lastmod' ),
 		'sitemap_health_last_run'               => '',
 		'sitemap_health_last_problems'          => 0,
 		// Read by HtmlSitemapRenderer - a real, human-readable `[vulopilot_html_sitemap]` shortcode

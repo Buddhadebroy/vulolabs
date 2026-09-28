@@ -1,28 +1,8 @@
-/* global vulopilotAppLocalizer */
-import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
-import { CardComponent, ModuleGuardComponent,ColumnComponent } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
+import { CardComponent, ColumnComponent } from '@zyra/components';
 import { useContentGate } from '../../services/useContentGate';
-
-export interface CitationCheckResult {
-	post_id: number;
-	title: string;
-	question: string;
-	/** Whether `question` was extracted verbatim from a real question-phrased heading on this post. */
-	from_content: boolean;
-	cited: boolean;
-	answer: string;
-}
-
-export interface CitationCoverage {
-	generated_at: string | null;
-	tested: number;
-	cited: number;
-	coverage_percent: number;
-	results: CitationCheckResult[];
-}
+import { useFilterSlot } from '../../services/useFilterSlot';
+import type { ComponentType } from 'react';
 
 interface AeoCitationCoverageCardProps {
 	/** Whether GeoInsights' own Rest.php class is registered at all (either 'geo-insights' or 'aeo-insights' active - both register the same class, so either is enough). */
@@ -30,54 +10,13 @@ interface AeoCitationCoverageCardProps {
 }
 
 /**
- * "Answer Engine Coverage" - real, disclosed "Simulated Citation Check"
- * (CitationCoverageChecker.php's own docblock explains exactly what this can and can't honestly
- * measure).
+ * "Answer Engine Coverage" - card shell only. The real "Simulated Citation
+ * Check" lives in Pro (AnswerEngineOptimization/src/CitationCoveragePanel.tsx)
+ * and is plugged in via the `vulopilot_aeo_citation_coverage_panel` filter;
+ * without it, only inert placeholder numbers render.
  */
 const AeoCitationCoverageCard = ({ isActive }: AeoCitationCoverageCardProps) => {
-	const [coverage, setCoverage] = useState<CitationCoverage | null>(null);
-	const [isLoading, setIsLoading] = useState(true);
-	const [isRunning, setIsRunning] = useState(false);
-	const [error, setError] = useState<string | null>(null);
-
-	useEffect(() => {
-		if (!isActive) {
-			setIsLoading(false);
-			return;
-		}
-
-		getApiResponse<CitationCoverage>(
-			getApiLink(vulopilotAppLocalizer, 'aeo-citation-coverage'),
-			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
-		)
-			.then((response) => {
-				if (response) {
-					setCoverage(response);
-				}
-			})
-			.finally(() => setIsLoading(false));
-	}, [isActive]);
-
-	const handleRun = () => {
-		setIsRunning(true);
-		setError(null);
-
-		sendApiResponse(
-			vulopilotAppLocalizer,
-			getApiLink(vulopilotAppLocalizer, 'aeo-citation-coverage'),
-			{}
-		)
-			.then((response) => {
-				if (response && 'object' === typeof response && 'results' in response) {
-					setCoverage(response as CitationCoverage);
-				} else {
-					setError(
-						__('Publish some content, then run this check again.', 'vulopilot')
-					);
-				}
-			})
-			.finally(() => setIsRunning(false));
-	};
+	const Panel = useFilterSlot<ComponentType>('vulopilot_aeo_citation_coverage_panel');
 
 	const badges = [
 		{ text: __('Simulated Citation Checks', 'vulopilot'), color: 'purple' },
@@ -111,85 +50,8 @@ const AeoCitationCoverageCard = ({ isActive }: AeoCitationCoverageCardProps) => 
 					'vulopilot'
 				)}
 				badges={badges}
-				isLoading={isLoading}
-				action={
-					isActive && (
-						<ButtonInput
-							buttons={{
-								text: isRunning
-									? __('Checking…', 'vulopilot')
-									: coverage?.generated_at
-										? __('Run again', 'vulopilot')
-										: __('Run check', 'vulopilot'),
-								icon: 'refresh',
-								onClick: handleRun,
-								disabled: isRunning,
-							}}
-						/>
-					)
-				}
 			>
-				{wrap(
-					<>
-						{error && (
-							<ModuleGuardComponent
-								icon="error"
-								title={__('Nothing to test yet', 'vulopilot')}
-								desc={error}
-							/>
-						)}
-						{!error && !isLoading && !coverage?.generated_at && (
-							<ModuleGuardComponent
-								icon="info"
-								title={__('Not run yet', 'vulopilot')}
-								desc={__(
-									'Click "Run check" to ask your configured AI service a handful of real questions from your own published content.',
-									'vulopilot'
-								)}
-							/>
-						)}
-						{!error && coverage?.generated_at && (
-							<>
-								<div className="crawler-stat-value">
-									{sprintf('%1$d/%2$d', coverage.cited, coverage.tested)}
-								</div>
-								<div className="desc">
-									{sprintf(
-										/* translators: %d: percent of tested questions the AI service already recognized this site for. */
-										__(
-											'questions your AI service already recognized this site for (%d%%).',
-											'vulopilot'
-										),
-										coverage.coverage_percent
-									)}
-								</div>
-								<table className="geo-competitor-visibility__table">
-									<thead>
-										<tr>
-											<th>{__('Question', 'vulopilot')}</th>
-											<th>{__('Source', 'vulopilot')}</th>
-											<th>{__('Recognized?', 'vulopilot')}</th>
-										</tr>
-									</thead>
-									<tbody>
-										{coverage.results.map((row) => (
-											<tr key={row.post_id}>
-												<td>{row.question}</td>
-												<td>
-													{row.from_content
-														? __('From your content', 'vulopilot')
-														: __('From page title', 'vulopilot')}
-												</td>
-												<td>{row.cited ? '✓' : '-'}</td>
-											</tr>
-										))}
-									</tbody>
-								</table>
-							</>
-						)}
-					</>,
-					dummyContent
-				)}
+				{wrap(Panel ? <Panel /> : dummyContent, dummyContent)}
 			</CardComponent>
 		</ColumnComponent>
 	);

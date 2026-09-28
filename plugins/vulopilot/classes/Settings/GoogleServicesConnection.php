@@ -1,6 +1,8 @@
 <?php
 namespace VuloPilot\Settings;
 
+use VuloPilot\AiAssistant\CredentialEncryption;
+
 defined( 'ABSPATH' ) || exit;
 
 /**

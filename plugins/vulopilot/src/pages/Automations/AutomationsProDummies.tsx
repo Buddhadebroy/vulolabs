@@ -8,40 +8,86 @@ interface AutomationsDummyProps {
 }
 
 
-const ACTIVITY_DUMMY_ROWS: { title: string; desc: string; time: string }[] = [
+const AGENT_DUMMY_ROWS: { name: string; task: string; progress: number }[] = [
+	{ name: __('Monitoring Agent', 'vulopilot'), task: __('Optimizing internal links…', 'vulopilot'), progress: 72 },
+	{ name: __('Content Agent', 'vulopilot'), task: __('Generating blog drafts…', 'vulopilot'), progress: 54 },
+	{ name: __('Commerce Agent', 'vulopilot'), task: __('Checking abandoned carts…', 'vulopilot'), progress: 63 },
+	{ name: __('Security Agent', 'vulopilot'), task: __('Scanning plugins…', 'vulopilot'), progress: 88 },
+	{ name: __('Reporting Agent', 'vulopilot'), task: __('Building the weekly report…', 'vulopilot'), progress: 66 },
+];
+
+const OVERVIEW_DUMMY_CARDS: { title: string; icon: string; desc: string; action: string }[] = [
 	{
-		title: __('Run Full Site Scan completed', 'vulopilot'),
-		desc: __('No changes needed.', 'vulopilot'),
-		time: __('Today, 10:29', 'vulopilot'),
+		title: __('Automation Library', 'vulopilot'),
+		icon: 'category',
+		desc: __('120 ready-made automations', 'vulopilot'),
+		action: __('Explore Library', 'vulopilot'),
 	},
 	{
-		title: __('Security Monitoring completed', 'vulopilot'),
-		desc: __('1 change made.', 'vulopilot'),
-		time: __('Yesterday, 16:01', 'vulopilot'),
+		title: __('AI Agents', 'vulopilot'),
+		icon: 'ai',
+		desc: __('Monitoring, Security, Commerce & Content agents', 'vulopilot'),
+		action: __('Manage Agents', 'vulopilot'),
 	},
 	{
-		title: __('Send Visibility Report completed', 'vulopilot'),
-		desc: __('No changes needed.', 'vulopilot'),
-		time: __('Sept 10, 16:00', 'vulopilot'),
+		title: __('Scheduled Jobs', 'vulopilot'),
+		icon: 'clock',
+		desc: __('Next job in 2h 34m', 'vulopilot'),
+		action: __('View Schedule', 'vulopilot'),
 	},
 ];
 
-export const AutomationsActivityDummy = ({ onClick }: AutomationsDummyProps) => (
-	<CardComponent
-		title={__('Recent automation activity', 'vulopilot')}
-		titleIcon="clock"
-		desc={__('The last 5 automation runs and what they did.', 'vulopilot')}
-	>
-		<BlurredProContent contentClassName="automations-activity-dummy" onClick={onClick}>
-			<ul className="activity-log">
-				{ACTIVITY_DUMMY_ROWS.map((row) => (
-					<li key={row.title} className="activity" aria-hidden="true">
-						<div className="title">
-							{row.title}
-							<div className="admin-badge green">{__('Completed', 'vulopilot')} </div>
+export const AutomationsOverviewDummy = ({ onClick }: AutomationsDummyProps) => (
+	<BlurredProContent contentClassName="automations-overview-dummy" onClick={onClick}>
+		<div className="automation-overview-cards" aria-hidden="true">
+			{OVERVIEW_DUMMY_CARDS.map((card) => (
+				<CardComponent key={card.title} title={card.title} titleIcon={card.icon} desc={card.desc}>
+					<span className="automation-overview-link">{card.action}</span>
+				</CardComponent>
+			))}
+		</div>
+		<CardComponent title={__('Running AI Agents', 'vulopilot')} titleIcon="ai">
+			<div className="automation-agents-grid" aria-hidden="true">
+				{AGENT_DUMMY_ROWS.map((agent) => (
+					<div key={agent.name} className="automation-agent">
+						<div className="automation-agent-name">
+							<span className="automation-agent-dot is-green" />
+							{agent.name}
 						</div>
-						<div className="desc">{row.desc}</div>
-						<span>{row.time}</span>
+						<div className="automation-agent-task">{agent.task}</div>
+						<div className="automation-agent-progress">
+							<div className="automation-agent-bar">
+								<span style={{ width: `${agent.progress}%` }} />
+							</div>
+							<span>{`${agent.progress}%`}</span>
+						</div>
+						<div className="automation-agent-status is-green">{__('Working', 'vulopilot')}</div>
+					</div>
+				))}
+			</div>
+		</CardComponent>
+		<DummyDataNotice />
+	</BlurredProContent>
+);
+
+const AI_ACTIVITY_DUMMY_ROWS: { title: string; time: string }[] = [
+	{ title: __('Optimized 128 images', 'vulopilot'), time: __('10 min ago', 'vulopilot') },
+	{ title: __('Updated 9 plugins', 'vulopilot'), time: __('25 min ago', 'vulopilot') },
+	{ title: __('Published new blog', 'vulopilot'), time: __('1 hour ago', 'vulopilot') },
+	{ title: __('Fixed 14 metadata issues', 'vulopilot'), time: __('2 hours ago', 'vulopilot') },
+];
+
+export const AutomationsAiActivityDummy = ({ onClick }: AutomationsDummyProps) => (
+	<CardComponent title={__('Automation Activity', 'vulopilot')} titleIcon="ai">
+		<BlurredProContent contentClassName="automations-activity-dummy" onClick={onClick}>
+			<ul className="automation-ai-activity" aria-hidden="true">
+				{AI_ACTIVITY_DUMMY_ROWS.map((row) => (
+					<li key={row.title} className="automation-ai-activity-row">
+						<i className="adminfont-check" />
+						<span className="automation-ai-activity-title">{row.title}</span>
+						<span className="admin-badge purple">{__('AI', 'vulopilot')}</span>
+						<span className="automation-agent-task">{row.time}</span>
+						<span className="automation-overview-link">{__('Undo', 'vulopilot')}</span>
 					</li>
 				))}
 			</ul>

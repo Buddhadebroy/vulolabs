@@ -95,6 +95,24 @@ class AiCreditGatewayClient {
 		}
 
 		if ( $status < 200 || $status >= 300 ) {
+			$error = (string) ( $body['error'] ?? '' );
+
+			if ( 'AI_PROVIDER_NOT_CONFIGURED' === $error ) {
+				return new \WP_Error(
+					'vulopilot_ai_credits_provider_not_configured',
+					__( 'The AI provider on VuloCloud is not set up yet, so this request cannot run. This is a VuloCloud setup issue rather than a problem with your site; contact support if it continues.', 'vulopilot' ),
+					array( 'status' => $status )
+				);
+			}
+
+			if ( 'AI_PROVIDER_CALL_FAILED' === $error ) {
+				return new \WP_Error(
+					'vulopilot_ai_credits_provider_unavailable',
+					__( 'The AI provider is temporarily unavailable. Please try again in a minute.', 'vulopilot' ),
+					array( 'status' => $status )
+				);
+			}
+
 			return new \WP_Error(
 				'vulopilot_ai_credits_gateway_error',
 				__( 'VuloCloud could not process this AI request right now.', 'vulopilot' ),

@@ -1,5 +1,5 @@
 /* global vulopilotAppLocalizer */
-import React, { useEffect, useState, type ReactNode } from 'react';
+import React, { useEffect, useRef, useState, type ReactNode } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
@@ -7,7 +7,6 @@ import {
 	CardComponent,
 	ListComponent,
 	ModuleGuardComponent,
-	NoticeManager,
 	PopupComponent,
 	ClipboardComponent,
 	BadgeComponent,
@@ -24,11 +23,11 @@ import {
 	formatAffected,
 	FindingGroup,
 } from './issuesTypes';
+import { FixOutcome } from '../../services/showFixOutcome';
+import { useFixNotice } from '../../services/useFixNotice';
 import './IssueDetailPanel.scss';
 
-interface FixOutcome {
-	success: boolean;
-	message: string;
+interface BatchFixOutcome extends FixOutcome {
 	succeeded?: number;
 	total?: number;
 	noFixAvailable?: number;
@@ -88,7 +87,8 @@ const SEVERITY_LABEL: Record<string, string> = {
 
 interface IssueDetailPanelProps {
 	group: FindingGroup | null;
-	onActionComplete: () => void;
+	/** `event` is set for a fix or an undo of `group`, so the host can keep it listed instead of dropping it. */
+	onActionComplete: (event?: { group: FindingGroup; fixed: boolean }) => void;
 }
 
 /**
@@ -105,6 +105,22 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		null
 	);
 	const [isLoadingAffected, setIsLoadingAffected] = useState(false);
+	// Result of the last action, rendered by Pro's view right above the action buttons.
+	const { show: showPanelNotice, fixNotice } = useFixNotice(() => group && onActionComplete({ group, fixed: false }));
+	// The panel stays mounted while another issue is selected: clear the previous issue's result,
+	// and ignore a result that arrives after the selection moved on.
+	const activeScannerId = useRef<string | undefined>(group?.scanner_id);
+
+	useEffect(() => {
+		activeScannerId.current = group?.scanner_id;
+		// A fixed issue listed again after a reload gets its Fixed message and Undo back from Pro.
+		showPanelNotice(
+			group?.fixed && group.undo_ids?.length
+				? (applyFilters('vulopilot_fixed_group_outcome', null, group) as FixOutcome | null) ?? undefined
+				: undefined
+		);
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- `showPanelNotice` is re-created every render and only calls a state setter; re-run only when the selected issue changes.
+	}, [group?.scanner_id]);
 
 	/**
 	 * The group response only ever carries a `count` + one sample.
@@ -282,10 +298,12 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					getApiLink(vulopilotAppLocalizer, 'findings/bulk'),
 					{ ids, status }
 				).then((response) => {
-					NoticeManager.add({
-						uniqueKey: `issue-group-${status}-${group.scanner_id}`,
-						type: response ? 'success' : 'error',
-						position: 'float',
+					if (activeScannerId.current !== group.scanner_id) {
+						return;
+					}
+
+					showPanelNotice({
+						success: !!response,
 						message: response
 							? successMessage
 							: __(
@@ -308,7 +326,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	 */
 	const runBulkFixInBatches = (
 		// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
-		bulkFixHandler: (batchIds: number[]) => Promise<FixOutcome> | undefined,
+		bulkFixHandler: (batchIds: number[]) => Promise<BatchFixOutcome> | undefined,
 		ids: number[]
 	): Promise<FixOutcome> => {
 		const batches: number[][] = [];
@@ -327,6 +345,8 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 							noFixAvailable:
 								totals.noFixAvailable + (outcome?.noFixAvailable ?? 0),
 							lastMessage: outcome?.message ?? totals.lastMessage,
+							link: outcome?.link ?? totals.link,
+							undos: outcome?.undo ? [...totals.undos, outcome.undo] : totals.undos,
 						}))
 					),
 				Promise.resolve({
@@ -334,15 +354,28 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					total: 0,
 					noFixAvailable: 0,
 					lastMessage: '',
+					link: undefined as FixOutcome['link'],
+					undos: [] as Array<NonNullable<FixOutcome['undo']>>,
 				})
 			)
-			.then(({ succeeded, total, noFixAvailable, lastMessage }) => {
+			.then(({ succeeded, total, noFixAvailable, lastMessage, link, undos }) => {
+				// One Undo that reverses every batch that could be undone.
+				const undo: FixOutcome['undo'] = undos.length
+					? () =>
+							Promise.all(undos.map((run) => run())).then((results) => ({
+								success: results.every((result) => result.success),
+								message:
+									results.find((result) => !result.success)?.message ??
+									results[0].message,
+							}))
+					: undefined;
+
 				const failed = total - succeeded;
 
 				// Single batch: the handler's own message already says exactly the right thing
 				// (including the "no automatic fix exists yet" honest case).
 				if (batches.length <= 1) {
-					return { success: 0 === failed, message: lastMessage };
+					return { success: 0 === failed, message: lastMessage, link, undo };
 				}
 
 				let message: string;
@@ -355,7 +388,10 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					);
 				} else if (noFixAvailable === failed) {
 					message =
-						succeeded > 0
+						0 === succeeded && lastMessage
+							// Nothing was fixable: keep the handler's own message, it says why.
+							? lastMessage
+							: succeeded > 0
 							? sprintf(
 								/* translators: 1: number fixed, 2: how many had no automatic fix available at all. */
 								__(
@@ -381,7 +417,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					);
 				}
 
-				return { success: 0 === failed, message };
+				return { success: 0 === failed, message, link, undo };
 			});
 	};
 
@@ -400,17 +436,14 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					return;
 				}
 
+				showPanelNotice(undefined);
+
 				return runBulkFixInBatches(bulkFixHandler, ids).then((outcome) => {
-					if (outcome?.message) {
-						NoticeManager.add({
-							uniqueKey: `issue-group-fix-${group.scanner_id}`,
-							type: outcome.success ? 'success' : 'error',
-							position: 'float',
-							message: outcome.message,
-						});
+					if (activeScannerId.current === group.scanner_id) {
+						showPanelNotice({ ...outcome, label: group.label });
 					}
 
-					onActionComplete();
+					onActionComplete({ group, fixed: outcome.success });
 				});
 			})
 			.finally(() => setIsBusy(false));
@@ -425,6 +458,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				desc={group.sample?.title}
 			>
 				<div className="issue-detail-badges-row">
+					{group.fixed && <BadgeComponent color="green" text={__('Fixed', 'vulopilot')} />}
 					<BadgeComponent
 						color={getSeverityClass(group.severity)}
 						text={SEVERITY_LABEL[group.severity]}
@@ -665,6 +699,8 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 						</span>
 					</div>
 				)}
+
+				{isProActive && fixNotice}
 
 				{isProActive ? (
 					<ButtonInput

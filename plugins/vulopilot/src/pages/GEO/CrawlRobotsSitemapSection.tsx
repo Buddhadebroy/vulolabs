@@ -355,6 +355,7 @@ const CrawlRobotsSitemapSection = () => {
 
 	const {
 		tableCardProps: blockedPagesProps,
+		fixNotice: blockedFixNotice,
 		error: blockedPagesError,
 		isProPopupOpen,
 		closeProPopup,
@@ -368,6 +369,7 @@ const CrawlRobotsSitemapSection = () => {
 
 	const {
 		tableCardProps: robotsTxtProps,
+		fixNotice: robotsFixNotice,
 		error: robotsTxtError,
 		isProPopupOpen: isRobotsTxtProPopupOpen,
 		closeProPopup: closeRobotsTxtProPopup,
@@ -381,6 +383,7 @@ const CrawlRobotsSitemapSection = () => {
 
 	const {
 		tableCardProps: sitemapFindingsProps,
+		fixNotice: sitemapFixNotice,
 		error: sitemapFindingsError,
 		isProPopupOpen: isSitemapProPopupOpen,
 		closeProPopup: closeSitemapProPopup,
@@ -586,7 +589,10 @@ const CrawlRobotsSitemapSection = () => {
 											titleIcon="security"
 											desc={__('Whether robots.txt is reachable and not accidentally blocking every crawler.', 'vulopilot')}
 										/>
-										<TableCard {...robotsTxtProps} bulkActions={[]} />
+										<>
+											{robotsFixNotice}
+											<TableCard {...robotsTxtProps} bulkActions={[]} />
+										</>
 									</>
 								)}
 							</div>
@@ -660,7 +666,10 @@ const CrawlRobotsSitemapSection = () => {
 										desc={sitemapFindingsError}
 									/>
 								) : (
-									<TableCard {...sitemapFindingsProps} bulkActions={[]} />
+									<>
+										{sitemapFixNotice}
+										<TableCard {...sitemapFindingsProps} bulkActions={[]} />
+									</>
 								)}
 							</div>
 						</div>
@@ -778,7 +787,10 @@ const CrawlRobotsSitemapSection = () => {
 										)}
 									</TypographyComponent>
 								</div>
+								<>
+								{blockedFixNotice}
 								<TableCard {...blockedPagesProps} />
+							</>
 							</>
 						)}
 					</CardComponent>

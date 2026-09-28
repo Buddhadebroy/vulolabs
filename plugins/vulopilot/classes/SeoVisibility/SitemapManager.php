@@ -195,10 +195,10 @@ class SitemapManager {
 		}
 
 		$ids = array_merge(
-			$this->is_enabled( 'sitemap_exclude_noindex' ) ? $this->get_noindex_post_ids() : array(),
-			$this->is_enabled( 'sitemap_exclude_canonical_elsewhere' ) ? $this->get_canonicalized_elsewhere_post_ids() : array(),
-			$this->is_enabled( 'sitemap_exclude_redirected' ) ? $this->get_redirected_post_ids() : array(),
-			$this->is_enabled( 'sitemap_exclude_placeholders' ) ? $this->get_placeholder_post_ids() : array()
+			$this->get_noindex_post_ids(),
+			$this->get_canonicalized_elsewhere_post_ids(),
+			$this->get_redirected_post_ids(),
+			$this->get_placeholder_post_ids()
 		);
 		$ids = array_values( array_unique( array_map( 'absint', $ids ) ) );
 

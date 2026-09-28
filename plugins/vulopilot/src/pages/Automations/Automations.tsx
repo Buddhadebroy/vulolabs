@@ -13,7 +13,7 @@ import AutomationsStatusCard from './AutomationsStatusCard';
 import AutomationsResourcesCard from './AutomationsResourcesCard';
 import AutomationsAttentionCard from './AutomationsAttentionCard';
 import BuiltinAutomationCards from './BuiltinAutomationCards';
-import { AutomationsActivityDummy } from './AutomationsProDummies';
+import { AutomationsAiActivityDummy, AutomationsOverviewDummy } from './AutomationsProDummies';
 import { AutomationRow, AutomationTemplate, getAutomationTemplateById } from './automationsTypes';
 import './Automations.scss';
 
@@ -42,8 +42,12 @@ interface AutomationGenerateComponentProps {
 	onSaved?: () => void;
 }
 
-interface AutomationsActivityCardComponentProps {
-	onViewHistory: () => void;
+interface AutomationsOverviewComponentProps {
+	onOpenLibrary: () => void;
+	refetchSignal: number;
+}
+
+interface AutomationsActivityComponentProps {
 	refetchSignal: number;
 }
 
@@ -52,7 +56,8 @@ interface AutomationSlotValue {
 	Generate: ComponentType<AutomationGenerateComponentProps>;
 	Templates: ComponentType<AutomationGenerateComponentProps>;
 	Manage: ComponentType<ManageAutomationsSectionComponentProps>;
-	Activity: ComponentType<AutomationsActivityCardComponentProps>;
+	Overview?: ComponentType<AutomationsOverviewComponentProps>;
+	Activity?: ComponentType<AutomationsActivityComponentProps>;
 }
 
 /**
@@ -66,6 +71,7 @@ const Automations = () => {
 	const Generate = slot?.Generate;
 	const Templates = slot?.Templates;
 	const Manage = slot?.Manage;
+	const Overview = slot?.Overview;
 	const Activity = slot?.Activity;
 
 	const [wizardOpenSignal, setWizardOpenSignal] = useState(0);
@@ -165,8 +171,7 @@ const Automations = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- deliberately re-checks only when Wizard itself resolves (useFilterSlot's own real script-load-order race - see that hook's docblock) or initialTemplateId (set once, stable); openTemplate is redefined every render and the ref guard already makes this safely re-runnable.
 	}, [Wizard, initialTemplateId]);
 
-	// "View all issues →" (AutomationAttentionCard) and "View automation history →"
-	// (AutomationActivityCard) both jump to the same real destination.
+	// "View all issues →" (AutomationAttentionCard) jumps to the automations list.
 	const scrollToTable = () =>
 		document.getElementById('automation-manage')?.scrollIntoView({ behavior: 'smooth' });
 
@@ -208,6 +213,17 @@ const Automations = () => {
 			/>
 
 			<ContainerComponent general>
+				<ColumnComponent grid={12}>
+					{Overview ? (
+						<Overview
+							onOpenLibrary={openTemplatesLibrary}
+							refetchSignal={refetchSignal}
+						/>
+					) : (
+						<AutomationsOverviewDummy onClick={openProPopup} />
+					)}
+				</ColumnComponent>
+
 				<BuiltinAutomationCards
 					refetchSignal={refetchSignal}
 					onChanged={handleSaved}
@@ -223,9 +239,9 @@ const Automations = () => {
 
 				<ColumnComponent grid={7} fullHeight>
 					{Activity ? (
-						<Activity onViewHistory={scrollToTable} refetchSignal={refetchSignal} />
+						<Activity refetchSignal={refetchSignal} />
 					) : (
-						<AutomationsActivityDummy onClick={openProPopup} />
+						<AutomationsAiActivityDummy onClick={openProPopup} />
 					)}
 				</ColumnComponent>
 				<ColumnComponent grid={5} fullHeight>

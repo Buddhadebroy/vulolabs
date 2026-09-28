@@ -38,7 +38,7 @@ interface WooCommerceFindingsTableProps {
  * `TableCard`.
  */
 const WooCommerceFindingsTable = ({ scannerIds }: WooCommerceFindingsTableProps) => {
-	const { tableCardProps, error, isProPopupOpen, closeProPopup } =
+	const { tableCardProps, error, isProPopupOpen, closeProPopup, fixNotice } =
 		useFindingsTable({
 			category: 'woocommerce',
 			scannerIds,
@@ -63,7 +63,10 @@ const WooCommerceFindingsTable = ({ scannerIds }: WooCommerceFindingsTableProps)
 					/>
 				</CardComponent>
 			) : (
-				<TableCard {...tableCardProps} />
+				<>
+					{fixNotice}
+					<TableCard {...tableCardProps} />
+				</>
 			)}
 			<PopupComponent
 				open={isProPopupOpen}

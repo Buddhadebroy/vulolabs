@@ -29,6 +29,10 @@ export interface FindingGroup {
 	 * One real, most-recent open finding from this group.
 	 */
 	sample: FindingSample | null;
+	/** Set by the issues table for a group fixed this session, so it stays listed as Fixed. */
+	fixed?: boolean;
+	/** Finding ids whose fix can still be undone, when the group came from the fixed-issues list. */
+	undo_ids?: number[];
 }
 
 /**

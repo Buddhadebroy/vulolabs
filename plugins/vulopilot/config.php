@@ -31,18 +31,38 @@ if ( ! defined( 'VULOPILOT_GOOGLE_CLIENT_SECRET' ) ) {
 	define( 'VULOPILOT_GOOGLE_CLIENT_SECRET', '' );
 }
 
+/**
+ * "Connect Google Services" goes through VuloCloud's Google connect broker by default: Google only
+ * accepts redirect URIs registered on the OAuth client, and every site has its own address, so a
+ * site can't be the redirect target. The broker owns the one fixed redirect URI, then hands the
+ * browser back to the site with a single-use code (see GoogleOAuthBrokerClient). The OAuth client
+ * itself is set up once, in VuloCloud's organization panel - not per site.
+ *
+ * Both are overridable in wp-config.php. Set VULOPILOT_GOOGLE_BROKER_URL to '' to fall back to the
+ * embedded Client ID/Secret above (only workable when that client lists this site's callback URL).
+ */
 if ( ! defined( 'VULOPILOT_GOOGLE_BROKER_URL' ) ) {
-	define( 'VULOPILOT_GOOGLE_BROKER_URL', '' );
+	define( 'VULOPILOT_GOOGLE_BROKER_URL', 'https://vulocloud-api.vercel.app' );
 }
 
 if ( ! defined( 'VULOPILOT_GOOGLE_APPLICATION_ID' ) ) {
-	define( 'VULOPILOT_GOOGLE_APPLICATION_ID', '' );
+	define( 'VULOPILOT_GOOGLE_APPLICATION_ID', '506dde24-bdff-425e-a501-a7df14ed80b5' );
 }
 
 if ( ! defined( 'VULOPILOT_VULOCLOUD_URL' ) ) {
 	define( 'VULOPILOT_VULOCLOUD_URL', 'https://vulocloud-api.vercel.app' );
 }
 
+
+/**
+ * Browser-facing base for the connect link when it differs from the API host
+ * above (e.g. a local dev setup where the server reaches VuloCloud at a
+ * docker-internal address). Empty means "use VULOPILOT_VULOCLOUD_URL". The
+ * connect link must start on the API host: it creates the session and then
+ * redirects the browser to the store's own connect page
+ * (`VULOPILOT_VULOCLOUD_CONFIG['domain']`/connect-site), so don't point this at
+ * the store domain itself.
+ */
 if ( ! defined( 'VULOPILOT_VULOCLOUD_PUBLIC_URL' ) ) {
 	define( 'VULOPILOT_VULOCLOUD_PUBLIC_URL', '' );
 }

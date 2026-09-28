@@ -30,9 +30,9 @@ class AiRequestSender {
 	/**
 	 * Total attempts including the first; the delay doubles after each failure.
 	 */
-	private const MAX_ATTEMPTS = 3;
+	private const MAX_ATTEMPTS = 4;
 
-	private const BASE_RETRY_DELAY_MS = 500;
+	private const BASE_RETRY_DELAY_MS = 1000;
 
 	/**
 	 * `response_excerpt`/`prompt_excerpt` are an audit trail, not a cache -
