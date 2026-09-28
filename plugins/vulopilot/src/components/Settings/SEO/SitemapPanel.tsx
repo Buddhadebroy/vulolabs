@@ -114,12 +114,9 @@ const SitemapPanel = () => {
 		{ label: __('SEO Titles', 'vulopilot'), value: 'seo_title' },
 	];
 
-	/** Single-option `look="toggle"` switch - same shape
-	 * DeveloperToolsPanel.tsx's own "Anonymous usage data"/
-	 * EnableAutomationModuleAction.tsx's module toggle use. Wrapped in
-	 * `FormGroupComponent` rather than relying on `MultiCheckboxInput`'s
-	 * own `option.label`, which the toggle look swallows visually (same
-	 * real reason those two callers wrap it too). */
+	/** Single-option `look="toggle"` switch, as in DeveloperToolsPanel.tsx and
+	 * EnableAutomationModuleAction.tsx. Wrapped in `FormGroupComponent` because the toggle look swallows
+	 * `MultiCheckboxInput`'s own `option.label`. */
 	const renderToggle = (key: string, label: string, desc?: string) => (
 		<FormGroupComponent row label={label} desc={desc}>
 			<MultiCheckboxInput

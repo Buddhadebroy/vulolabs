@@ -481,11 +481,9 @@ class Seo extends \WP_REST_Controller {
 				'permalink'        => $permalink,
 				'meta_description' => $post->post_excerpt,
 				'analyzed_at'      => current_time( 'mysql', true ),
-				// `check_featured_image()`/`check_orphan_page()` return `null` (filtered out here)
-				// when their own real settings toggle (Settings → Scanning → SEO's "Flag missing
-				// featured image"/ "Flag orphan pages") is off - same real on/off
-				// SeoImagesScanner/OrphanPageScanner themselves already respect, so this panel
-				// never complains about a check the site owner deliberately turned off elsewhere.
+				// `check_featured_image()`/`check_orphan_page()` return `null` (filtered out) when their Settings →
+				// Scanning → SEO toggle is off, matching SeoImagesScanner/OrphanPageScanner, so this panel never
+				// complains about a check the owner turned off.
 				'checks'           => array_values(
 					array_filter(
 						array(

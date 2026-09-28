@@ -158,25 +158,14 @@ class FrontendScripts {
 				// Settings → General → Date Format, translated into zyra's own token syntax
 				// (YYYY/MM/DD/…).
 				'date_format_js'            => self::convert_date_format_to_js( get_option( 'date_format' ) ),
-				// Settings → General → Time Format, same real token conversion as 'date_format_js'
-				// above (same static helper - its own docblock's "date_format never contains time
-				// tokens" caveat is exactly why this needed its own separate call, real
-				// `time_format` was never actually converted before). zyra's own token syntax has
-				// no am/pm token, so a 12-hour 'g:i a'-style format still renders without the AM/PM
-				// suffix - the same already-accepted limitation 'date_format_js' itself already
-				// carries for any date format containing 'a'/'A'.
+				// Settings → General → Time Format, converted like 'date_format_js' above but with its own call
+				// (that helper assumes no time tokens). zyra has no am/pm token, so a 12-hour 'g:i a' format still
+				// renders without AM/PM, the same limitation 'date_format_js' has for 'a'/'A'.
 				'time_format_js'            => self::convert_date_format_to_js( get_option( 'time_format' ) ),
-				// Settings → General → Timezone, as a plain minute offset from UTC (`wp_timezone()`
-				// already resolves both a real `timezone_string` like 'Asia/Kolkata' and a plain
-				// `gmt_offset` fallback into one DateTimeZone, DST included for the former) - every
-				// raw timestamp this plugin's own REST layer returns is UTC (`current_time(
-				// 'mysql', true )`, confirmed across ScanPersistenceListener.php/
-				// BackupManager.php/AutomationScheduler.php), so formatWpDate.ts/ formatWpTime()
-				// need this to shift a raw UTC value to this site's own configured local time
-				// before reading its date/time parts - without it, a JS `new Date()` on that same
-				// naive "Y-m-d H:i:s" string (no 'Z'/offset) gets parsed as the *visiting
-				// browser's* local time instead, which silently disagrees with this site's own
-				// Settings → General → Timezone for any admin not physically in that same zone.
+				// Settings → General → Timezone as a minute offset from UTC (`wp_timezone()` resolves both a
+				// `timezone_string` and a `gmt_offset` fallback, DST included). The REST layer returns raw UTC
+				// timestamps, so formatWpDate.ts/formatWpTime() need this to shift them to site time; a JS
+				// `new Date()` on a naive "Y-m-d H:i:s" string would parse it in the visitor's browser zone.
 				'gmt_offset_minutes'        => (int) round(
 					wp_timezone()->getOffset( new \DateTime( 'now', new \DateTimeZone( 'UTC' ) ) ) / 60
 				),

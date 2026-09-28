@@ -85,7 +85,7 @@ const AIAssistant = () => {
 		}
 
 		scrollToId('ai-copilot-issues-section');
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the token specifically so a same-value issuesFilter update (e.g. "View all issues" when it was already null) still re-triggers the scroll.
+		// keyed on the token specifically so a same-value issuesFilter update (e.g. "View all issues" when it was already null) still re-triggers the scroll.
 	}, [issuesNavToken]);
 
 	const {

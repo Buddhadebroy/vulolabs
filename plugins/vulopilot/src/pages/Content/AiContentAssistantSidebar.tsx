@@ -38,7 +38,8 @@ interface PromptChip {
 	/** The clarifying question asked (as a local, non-AI chat turn) once this chip is picked. */
 	ask: string;
 	/** Combines the user's next reply into the real instruction actually sent to the AI. */
-	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	 
+	// eslint-disable-next-line no-unused-vars
 	build: (answer: string) => string;
 }
 

@@ -1,5 +1,5 @@
 /* global vulopilotAppLocalizer */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FC } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import {
@@ -83,7 +83,7 @@ const CHECK_ID_TO_SCANNER_ID: Record<string, string> = {
 /**
  * One real on-page check - zyra's own `ListComponent`, one item per check.
  */
-const CheckRow: React.FC<{ check: OnPageCheck; onClick?: () => void }> = ({
+const CheckRow: FC<{ check: OnPageCheck; onClick?: () => void }> = ({
 	check,
 	onClick,
 }) => (
@@ -160,7 +160,7 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 				}
 			})
 			.finally(() => setIsLoadingOptions(false));
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- `isExternal`/`externalPostId` are fixed for this component instance's whole lifetime (RecentContentCard.tsx always mounts a fresh instance per `analyzingId`, same as PageAnalysisPanel.tsx's own `postId` prop) - this effect only ever needs to run once, for the picker-driven case.
+		// `isExternal`/`externalPostId` are fixed for this component instance's whole lifetime (RecentContentCard.tsx always mounts a fresh instance per `analyzingId`, same as PageAnalysisPanel.tsx's own `postId` prop) - this effect only ever needs to run once, for the picker-driven case.
 	}, []);
 
 	// Externally driven: track a later `postId` prop change too (e.g. the host clicking "Analyze"
@@ -169,7 +169,6 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 		if (isExternal) {
 			setSelectedId(externalPostId);
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [externalPostId]);
 
 	useEffect(() => {

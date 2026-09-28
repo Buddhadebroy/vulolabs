@@ -70,7 +70,6 @@ const BusinessNameDetailsPanel = ({
 		if (open) {
 			load();
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [open]);
 
 	return (

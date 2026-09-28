@@ -294,7 +294,6 @@ const fetchAllBrokenFindings = async (): Promise<BrokenLinkFinding[]> => {
 	let page = 1;
 	let all: BrokenLinkFinding[] = [];
 
-	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		const response = await getApiResponse<{
 			data: BrokenLinkFinding[];
@@ -444,7 +443,6 @@ const BrokenLinksSection = () => {
 	useEffect(() => {
 		loadFindings();
 		loadStats();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 

@@ -177,7 +177,6 @@ export const CONTENT_TOOLS: ContentTool[] = [
 ];
 
 interface ProToolsSlot {
-	// eslint-disable-next-line no-unused-vars -- named props on a type-only component signature.
 	Popup: ComponentType<{
 		tool: ContentTool | null;
 		onClose: () => void;

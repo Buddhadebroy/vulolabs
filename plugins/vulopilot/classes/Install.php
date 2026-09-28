@@ -72,11 +72,9 @@ class Install {
             KEY `idx_created` (`created_at`)
         ) $collate;";
 
-		// No "IF NOT EXISTS" here - same dbDelta table-name-parsing bug
-		// $sql_redirects/$sql_not_found_logs's own docblock documents (`preg_match( '|CREATE TABLE
-		// ([^ ]*)|', ... )` captures "IF" as the table name, so dbDelta never diffs against the
-		// real table and a new column added here would silently never reach an already-installed
-		// site).
+		// No "IF NOT EXISTS": dbDelta's `preg_match( '|CREATE TABLE ([^ ]*)|', ... )` would capture "IF" as
+		// the table name (see $sql_redirects' docblock), never diffing the real table, so a new column
+		// wouldn't reach an installed site.
 		$sql_scan_findings = "CREATE TABLE `{$wpdb->prefix}" . Utill::TABLES['scan_finding'] . "` (
             `id`           bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             `scan_id`      bigint(20) unsigned NOT NULL,

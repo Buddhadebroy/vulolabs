@@ -7,18 +7,21 @@ export interface StatWidgetConfig {
 	id: string;
 	title: string;
 	icon: string;
-	/* eslint-disable no-unused-vars -- named params on a type-only interface signature; base no-unused-vars doesn't recognize TS call-signature parameters, only @typescript-eslint/no-unused-vars (which does, via argsIgnorePattern) is meant to check these */
+	 
 	/** Reads this widget's headline number out of the shared /dashboard summary payload. */
+	// eslint-disable-next-line no-unused-vars
 	getNumber: (summary: DashboardSummary) => React.ReactNode;
 	/** Optional secondary line under the number (e.g. "3 critical", "2 open issues"). */
+	// eslint-disable-next-line no-unused-vars
 	getExtra?: (summary: DashboardSummary) => React.ReactNode;
 	/**
 	 * When present and returns a value, the widget shows this empty state instead of a number.
 	 */
 	getUnavailableState?: (
+		// eslint-disable-next-line no-unused-vars
 		summary: DashboardSummary
 	) => { title: string; desc: string } | null;
-	/* eslint-enable no-unused-vars */
+	 
 }
 
 interface StatWidgetProps {

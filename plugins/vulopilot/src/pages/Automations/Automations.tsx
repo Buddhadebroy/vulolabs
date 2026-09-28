@@ -19,7 +19,8 @@ import './Automations.scss';
 
 interface ManageAutomationsSectionComponentProps {
 	hasWizard: boolean;
-	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	 
+	// eslint-disable-next-line no-unused-vars
 	onOpenRow: (row: AutomationRow) => void;
 	onRequireProUpsell: () => void;
 	refetchSignal: number;
@@ -168,7 +169,7 @@ const Automations = () => {
 
 		firedInitialTemplateRef.current = true;
 		openTemplate(template);
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- deliberately re-checks only when Wizard itself resolves (useFilterSlot's own real script-load-order race - see that hook's docblock) or initialTemplateId (set once, stable); openTemplate is redefined every render and the ref guard already makes this safely re-runnable.
+		// deliberately re-checks only when Wizard itself resolves (useFilterSlot's own real script-load-order race - see that hook's docblock) or initialTemplateId (set once, stable); openTemplate is redefined every render and the ref guard already makes this safely re-runnable.
 	}, [Wizard, initialTemplateId]);
 
 	// "View all issues →" (AutomationAttentionCard) jumps to the automations list.

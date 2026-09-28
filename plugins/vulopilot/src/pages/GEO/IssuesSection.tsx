@@ -58,6 +58,7 @@ export interface ContentRowTab {
 	key: string;
 	label: string;
 	/** Real per-row test - `RecentContentCard.tsx`'s own post-type/meta classification (Blog Post/Landing Page/Product/Other). */
+	// eslint-disable-next-line no-unused-vars
 	matches: (row: PageRow) => boolean;
 }
 
@@ -72,6 +73,7 @@ export interface ContentModeConfig {
 	categories: Record<string, { label: string; icon: string }>;
 	rowTabs: ContentRowTab[];
 	/** Real `DELETE` row action (moves to trash) - `undefined` hides it. */
+	// eslint-disable-next-line no-unused-vars
 	onDelete?: (row: PageRow) => void;
 	/** Which row's real delete request is currently in flight, so that row's own action label can read "Deleting…". */
 	deletingId?: number | null;
@@ -106,6 +108,7 @@ interface IssuesSectionProps {
 	 */
 	id?: string;
 	/** Only passed by `SeoTab.tsx`'s own SEO usage - see `SeoIssuesByPageTable.tsx`'s own `onAnalyze` prop docblock. */
+	// eslint-disable-next-line no-unused-vars
 	onAnalyze?: (postId: number) => void;
 	/** `SeoTab.tsx`'s own `analyzingPostId` - which row's `PageAnalysisPanel` (if any) is currently open. */
 	activePostId?: number | null;
@@ -390,7 +393,7 @@ const IssuesSection = ({
 		return () => {
 			cancelled = true;
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- `scannerIds` is a fresh array every render from every real call site (inline `.flatMap()`/literal); re-running on its own reference would refetch every render. Callers never change which scanner ids a given tab covers at runtime, so `reloadToken` (Retry) / `reloadSignal` (a parent-triggered reload, e.g. `RecentContentCard.tsx`'s own real Delete) are the only real triggers this needs.
+		// `scannerIds` is a fresh array every render from every real call site (inline `.flatMap()`/literal); re-running on its own reference would refetch every render. Callers never change which scanner ids a given tab covers at runtime, so `reloadToken` (Retry) / `reloadSignal` (a parent-triggered reload, e.g. `RecentContentCard.tsx`'s own real Delete) are the only real triggers this needs.
 	}, [reloadToken, reloadSignal]);
 
 	// Default-opens the first row's "More Details" panel (SeoTab.tsx's own PageAnalysisPanel
@@ -417,7 +420,7 @@ const IssuesSection = ({
 				)
 			)
 			.catch(() => setGroups([]));
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- see the fetch effect above.
+		// see the fetch effect above.
 	}, [reloadToken]);
 
 	/**
@@ -460,7 +463,7 @@ const IssuesSection = ({
 		return () => {
 			cancelled = true;
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on `rows.length` (a fresh real fetch/page of rows), not `rows` itself - `rows` gets a new array reference every time this same effect's own `setRows` call above runs, which would otherwise re-trigger it forever.
+		// keyed on `rows.length` (a fresh real fetch/page of rows), not `rows` itself - `rows` gets a new array reference every time this same effect's own `setRows` call above runs, which would otherwise re-trigger it forever.
 	}, [content, rows.length, reloadToken, reloadSignal]);
 
 	useEffect(() => {
@@ -470,16 +473,13 @@ const IssuesSection = ({
 
 		setActiveTab(categoryFocus.key);
 		sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-		// Only a fresh external trigger (a new `token` each time) should
-		// re-trigger this - not every re-render that happens to pass a new
-		// `categoryFocus` object reference.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		// Only a fresh external trigger (a new `token`) should re-trigger this, not a new `categoryFocus`
+		// object reference on every re-render.
 	}, [categoryFocus?.token]);
 
 	// Resets the priority filter whenever the active tab changes.
 	useEffect(() => {
 		setActivePriority('all');
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeTab]);
 
 	/** Same CSV shape the old standalone `GeoPageAnalysisTable.tsx` exported. */

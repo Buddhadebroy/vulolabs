@@ -122,6 +122,7 @@ const highlightRobotsLine = (line: string): string => {
  */
 interface RobotsTxtEditorProps {
 	value: string;
+	// eslint-disable-next-line no-unused-vars
 	onChange?: (next: string) => void;
 	placeholder?: string;
 	readOnly?: boolean;
@@ -350,7 +351,6 @@ const CrawlRobotsSitemapSection = () => {
 		loadSitemap();
 		loadOpenCounts();
 		loadLlmsTxt();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const {

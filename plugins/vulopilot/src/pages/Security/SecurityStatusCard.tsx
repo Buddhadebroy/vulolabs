@@ -78,7 +78,8 @@ interface SecurityStatusCardProps {
 	/** Navigates to the Security tab - same handler `VulnerabilityHeroCard`'s own "Review Issues First" button already called. */
 	onNavigateToSecurityTab?: () => void;
 	/** Forwarded to `SecurityMetricsGrid`'s own row clicks - switches the merged issues table below to that row's own section. */
-	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	 
+	// eslint-disable-next-line no-unused-vars
 	onViewSection: (tab: SectionedIssuesTab) => void;
 }
 
@@ -172,10 +173,7 @@ const SecurityStatusCard = ({
 							<ChartComponent
 								type="ring"
 								height={200}
-								// Top-level `color` - same prop this ring's own sibling rings
-								// elsewhere in this plugin
-								// (OverallScoreWidget.tsx/PerformanceScoreCard.tsx's own
-								// ScoreTile/VitalRow) already set.
+								// Top-level `color`, like the sibling rings (OverallScoreWidget, PerformanceScoreCard).
 								color={RATING_COLOR[ratingClass(overallScore)]}
 								centerLabel={
 									<>

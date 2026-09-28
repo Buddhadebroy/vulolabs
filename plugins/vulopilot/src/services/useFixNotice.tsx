@@ -4,6 +4,7 @@ import { useFilterSlot } from './useFilterSlot';
 
 interface FixOutcomeViewProps {
 	outcome: FixOutcome;
+	// eslint-disable-next-line no-unused-vars
 	onUpdate: (outcome: FixOutcome | null) => void;
 	onChanged?: () => void;
 }

@@ -6,7 +6,8 @@ import SecurityTrendCard from './SecurityTrendCard';
 
 interface SecurityMockupHeaderProps {
 	/** Forwarded to SecurityMetricsGrid.tsx's own scanner-backed tiles' "View" buttons. */
-	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	 
+	// eslint-disable-next-line no-unused-vars
 	onViewSection: (tab: SectionedIssuesTab) => void;
 }
 

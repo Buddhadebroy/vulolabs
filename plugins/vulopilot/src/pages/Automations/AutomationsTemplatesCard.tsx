@@ -8,7 +8,8 @@ import { getAutomationTemplates, AutomationTemplate } from './automationsTypes';
 const AUTOMATIONS_MODULE_ID = 'workflow-automation';
 
 interface AutomationsTemplatesCardProps {
-	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	 
+	// eslint-disable-next-line no-unused-vars
 	onSelectTemplate: (template: AutomationTemplate) => void;
 	isAutomationsActive: boolean;
 }

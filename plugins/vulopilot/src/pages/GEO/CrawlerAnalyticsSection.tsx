@@ -101,6 +101,7 @@ interface CrawlerAnalyticsSectionProps {
 	/** CrawlOverviewSection.tsx's own real period state - same real `days` `useCrawlerAnalytics()` already fetches with. */
 	period: string;
 	periodOptions: { key: string; value: string; label: string }[];
+	// eslint-disable-next-line no-unused-vars
 	onPeriodChange: (value: string) => void;
 }
 

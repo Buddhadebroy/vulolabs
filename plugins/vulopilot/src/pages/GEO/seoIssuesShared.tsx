@@ -72,7 +72,6 @@ export const fetchOpenFindingsFor = async (
 	let page = 1;
 	let all: RawFinding[] = [];
 
-	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		const response = await getApiResponse<FindingsResponse>(
 			getApiLink(

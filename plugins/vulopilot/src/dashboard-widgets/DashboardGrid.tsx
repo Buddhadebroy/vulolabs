@@ -90,7 +90,6 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 				enabled: true,
 			}))
 		);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [restoreDefaultSignal]);
 
 	const handleHide = (id: string) => {

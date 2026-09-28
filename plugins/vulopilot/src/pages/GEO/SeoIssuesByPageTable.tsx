@@ -108,6 +108,7 @@ interface SeoIssuesByPageTableProps {
 	/** Only set alongside `visibilityColumnLabel` - shows a real "Export CSV" action in this card's header. */
 	onExportCsv?: () => void;
 	/** Only set by SeoTab.tsx's own SEO usage - adds a real "Analyze" row action opening its own PageAnalysisPanel for that page. */
+	// eslint-disable-next-line no-unused-vars
 	onAnalyze?: (postId: number) => void;
 	/** SeoTab.tsx's own `analyzingPostId` - which row's panel (if any) is currently open. */
 	activePostId?: number | null;
@@ -118,6 +119,7 @@ interface SeoIssuesByPageTableProps {
 	/** Only set by `IssuesSection.tsx`'s own `content.toolbarFilters` mode. */
 	hideSearch?: boolean;
 	/** Only set by `IssuesSection.tsx`'s own `content` mode (`RecentContentCard.tsx`). */
+	// eslint-disable-next-line no-unused-vars
 	onDelete?: (row: PageRow) => void;
 	/** Only set alongside `onDelete` - which row's real delete request is currently in flight. */
 	deletingId?: number | null;
@@ -501,13 +503,8 @@ const SeoIssuesByPageTable = ({
 							actions: [
 								{
 									type: 'button',
-									// Same real "More Details"/"Showing" toggle every other issues
-									// table in this plugin uses
-									// (SectionedIssuesTable.tsx/IssuesList.tsx/
-									// SlowPagesTab.tsx/SchemaKnowledge's
-									// IssuesSection.tsx+StructuredDataSection.tsx) - this row's own
-									// action used to say "Viewing" instead, the one table with
-									// different wording for the identical toggle.
+									// Same "More Details"/"Showing" toggle wording as the other issues tables (SectionedIssuesTable,
+									// IssuesList, SlowPagesTab, SchemaKnowledge's IssuesSection and StructuredDataSection).
 									label: (row: Record<string, unknown>) =>
 										(row as unknown as PageRow).id === activePostId
 											? __('Showing', 'vulopilot')

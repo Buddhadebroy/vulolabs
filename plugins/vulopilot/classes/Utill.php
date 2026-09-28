@@ -239,10 +239,8 @@ class Utill {
 		'html_sitemap_display_format'           => 'list',
 		'html_sitemap_sort_by'                  => 'published_date',
 		'html_sitemap_show_dates'               => array( 'html_sitemap_show_dates' ),
-		// 'post_title' or 'seo_title' - the latter reads
-		// PostSeoMetaFields::META_KEYS['social_title'] per post/term when set (the closest real
-		// "SEO title" field this codebase has; there is no separate meta box "SEO title" distinct
-		// from the social/OG title), falling back to the normal title when empty.
+		// 'post_title' or 'seo_title'; the latter reads PostSeoMetaFields::META_KEYS['social_title'] per
+		// post/term (the closest "SEO title" field; there's no separate one), falling back to the title.
 		'html_sitemap_item_titles'              => 'post_title',
 		// Scanning > SEO & Content > Tag Manager.
 		'tag_manager_enabled'                   => array(),
@@ -326,10 +324,8 @@ class Utill {
 			'structure'    => array(
 				'enable' => true,
 			),
-			// `enable` gates whether GeoAnalysis\GeoAnalyzer's AI-judged "entity_coverage"
-			// dimension is scored at all for a post (Entity Coverage needs AI judgment per the GEO
-			// "Splitting 12 checks into two honest categories," so this can't be a deterministic
-			// scanner's kill switch the way 'structure' above is).
+			// `enable` gates whether GeoAnalyzer's AI-judged "entity_coverage" dimension is scored for a post.
+			// It needs per-post AI judgment, so it can't be a deterministic scanner's kill switch like 'structure'.
 			'entity'       => array(
 				'enable'       => true,
 				'min_mentions' => 2,

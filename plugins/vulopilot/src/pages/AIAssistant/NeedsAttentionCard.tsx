@@ -35,6 +35,7 @@ export interface IssuesFilter {
 }
 
 interface NeedsAttentionCardProps {
+	// eslint-disable-next-line no-unused-vars
 	onNavigateTab: (tab: string, filter?: IssuesFilter) => void;
 }
 

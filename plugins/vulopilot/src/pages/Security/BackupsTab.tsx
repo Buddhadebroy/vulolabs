@@ -180,6 +180,7 @@ export interface BackupsTabHandle {
 
 interface BackupsTabProps {
 	/** Mirrors this card's own real `isCreating` state (driving its header button's label/disabled state) out to a parent. */
+	// eslint-disable-next-line no-unused-vars
 	onCreatingChange?: (isCreating: boolean) => void;
 }
 

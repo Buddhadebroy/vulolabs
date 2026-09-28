@@ -1,32 +1,19 @@
 /**
- * Grafts collapsible group headers onto the native #toplevel_page_vulopilot
- * admin menu - see Admin::enqueue_menu_grouping_assets()'s docblock for
- * why this exists as hand-written vanilla JS rather than a webpack entry.
- *
- * Only ever shows/hides and inserts a header before the <li> elements
- * WordPress itself already rendered (from Admin::add_menus()'s $submenus
- * list) - never re-parents them, so src/app.tsx's own
- * `#toplevel_page_vulopilot > ul > li > a` selector (used to toggle the
- * 'current' class as the hash tab changes) keeps matching every item
- * regardless of which group it ends up visually under.
- *
- * window.vulopilotMenuGroups is localized by that same PHP method:
- * { groups: [ { id, label, icon } ], tabToGroup: { [tabId]: groupId },
- * tabToIcon: { [tabId]: dashiconClass }, dividerBefore: [ tabId ] }.
+ * Grafts collapsible group headers onto the native #toplevel_page_vulopilot admin
+ * menu. Only shows/hides and inserts headers before the <li> elements WordPress
+ * already rendered - never re-parents them, so src/app.tsx's `current`-class selector
+ * keeps matching. Config comes from window.vulopilotMenuGroups (localized by
+ * Admin::enqueue_menu_grouping_assets()): { groups, tabToGroup, tabToIcon, dividerBefore }.
  */
 ( function () {
 	'use strict';
 
 	/**
-	 * Pulls the `tab` value out of an `admin.php?page=vulopilot#&tab=xxx`
-	 * style href - every real VuloPilot submenu link is built this way
-	 * (Admin::add_menus()), so this is the one thing that reliably
-	 * identifies which page an <li> points to regardless of its
-	 * (translated) label text.
+	 * Pulls the `tab` value out of an `admin.php?page=vulopilot#&tab=xxx` href - the one
+	 * thing that reliably identifies a submenu link regardless of its translated label.
 	 *
 	 * @param {string} href Anchor href.
-	 * @return {string|null} The tab id, or null if this isn't a tab link
-	 * (e.g. the vendored License page, which uses its own real admin URL).
+	 * @return {string|null} The tab id, or null if this isn't a tab link.
 	 */
 	function getTabFromHref( href ) {
 		var match = ( href || '' ).match( /[#&]tab=([^&]+)/ );
@@ -125,14 +112,9 @@
 	}
 
 	/**
-	 * Prepends a dashicon to every real submenu <a> that has a matching
-	 * entry in tabToIcon - covers both standalone items (Dashboard, Brand
-	 * Visibility, WooCommerce, Automation, Health, Settings) and grouped
-	 * children (GEO, SEO, Performance, etc.), so the whole menu reads
-	 * consistently rather than only the group headers having icons.
-	 * Guarded per-anchor (not just per-submenu) since it runs after
-	 * buildGroups() has already inserted the synthetic group-header <li>s,
-	 * which have no tab id and are skipped naturally.
+	 * Prepends a dashicon to every submenu <a> with an entry in tabToIcon, covering standalone and
+	 * grouped items. Guarded per anchor, since it runs after buildGroups() inserted the synthetic
+	 * group-header <li>s (no tab id, skipped naturally).
 	 */
 	function addItemIcons() {
 		var config = window.vulopilotMenuGroups;
@@ -164,12 +146,9 @@
 	}
 
 	/**
-	 * Draws a thin rule before each `<li>` listed in dividerBefore - e.g.
-	 * separates "Reports"/"Settings"/"Modules" from the work items above
-	 * them. Runs once at init: dividerBefore is a static, config-driven
-	 * list (unlike group expansion, nothing about it changes on
-	 * hashchange), so there's no equivalent of syncActiveGroup() needed
-	 * here.
+	 * Draws a thin rule before each `<li>` in dividerBefore (e.g. separating "Reports"/"Settings"/
+	 * "Modules" from the work items). Runs once at init: the list is static config, unlike group
+	 * expansion, so no hashchange handling is needed.
 	 */
 	function addDividers() {
 		var config = window.vulopilotMenuGroups;
@@ -194,10 +173,8 @@
 	}
 
 	/**
-	 * Re-expands whichever group contains the newly-active tab - the
-	 * hash itself (not the 'current' class app.tsx's own effect sets,
-	 * which lags behind React mounting) is the source of truth here, so
-	 * this works immediately on every hash change with no race condition.
+	 * Re-expands the group containing the newly active tab. The hash, not the 'current' class (which
+	 * lags React mounting), is the source of truth, so this works on every hash change without a race.
 	 */
 	function syncActiveGroup() {
 		var config = window.vulopilotMenuGroups;

@@ -169,10 +169,8 @@ const IndexNowPanel = () => {
 											'vulopilot'
 										)
 							}
-							// Real zyra palette green, same literal hex this codebase's own other
-							// `.is-good`/success-state rules already mirror it with (no `.scss`
-							// source to `@use` a real token from - see
-							// BrandVisibilityProDummies.tsx's own identical docblock on this).
+							// zyra palette green, as this codebase's other `.is-good` rules mirror it (no `.scss` source to
+							// `@use` a token from; see BrandVisibilityProDummies.tsx).
 							borderColor={apiKey ? '#16a34a' : undefined}
 							action={
 								<span className={`admin-badge ${apiKey ? 'green' : 'gray'}`}>

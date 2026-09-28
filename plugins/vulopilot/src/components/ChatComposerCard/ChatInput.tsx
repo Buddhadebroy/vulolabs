@@ -4,6 +4,7 @@ import { MultiCheckboxInput, TextAreaInput } from '@zyra/inputs';
 
 interface ChatInputProps {
 	value: string;
+	// eslint-disable-next-line no-unused-vars
 	onChange: (value: string) => void;
 	onSend: () => void;
 	placeholder?: string;
@@ -11,6 +12,7 @@ interface ChatInputProps {
 	attachLabel?: string;
 	autoApply?: {
 		checked: boolean;
+		// eslint-disable-next-line no-unused-vars
 		onChange: (checked: boolean) => void;
 		label: React.ReactNode;
 	};

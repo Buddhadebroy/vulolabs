@@ -75,7 +75,7 @@ class SitemapManager {
 	public function filter_post_types( $post_types ) {
 		$included = (array) ( $this->get_settings()['sitemap_xml_post_types'] ?? array() );
 
-		foreach ( $post_types as $slug => $post_type_object ) {
+		foreach ( array_keys( $post_types ) as $slug ) {
 			if ( ! in_array( $slug, $included, true ) ) {
 				unset( $post_types[ $slug ] );
 			}
@@ -93,7 +93,7 @@ class SitemapManager {
 	public function filter_taxonomies( $taxonomies ) {
 		$included = (array) ( $this->get_settings()['sitemap_xml_taxonomies'] ?? array() );
 
-		foreach ( $taxonomies as $slug => $taxonomy_object ) {
+		foreach ( array_keys( $taxonomies ) as $slug ) {
 			if ( ! in_array( $slug, $included, true ) ) {
 				unset( $taxonomies[ $slug ] );
 			}

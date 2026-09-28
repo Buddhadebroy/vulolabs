@@ -152,7 +152,8 @@ interface CoreWebVitalsSummary {
 const MIN_CWV_SAMPLES = 10;
 
 interface MetricsGridProps {
-	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	 
+	// eslint-disable-next-line no-unused-vars
 	onViewSection: (sectionKey: string) => void;
 	onViewCoreWebVitals: () => void;
 }

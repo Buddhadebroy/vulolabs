@@ -47,9 +47,8 @@ export const useSchemaInspector = (): {
 	result: SchemaInspectorResult | null;
 	isInspecting: boolean;
 	error: string | null;
-	// Base no-unused-vars doesn't understand TS function-type parameter
-	// positions (no runtime binding to "use") - same known gap
-	// useApiList.ts's own onQueryUpdate type already documents.
+	// Base no-unused-vars doesn't understand TS function-type parameters (same gap as useApiList.ts).
+	 
 	// eslint-disable-next-line no-unused-vars
 	inspect: (url: string) => void;
 } => {

@@ -67,7 +67,6 @@ export async function fetchOpenFindings( scannerIds: string[] ): Promise< RawFin
 	let page = 1;
 	let all: RawFinding[] = [];
 
-	// eslint-disable-next-line no-constant-condition
 	while ( true ) {
 		const response = await request< FindingsResponse >(
 			`findings?scanner_id=${ scannerParam }&status=open&per_page=${ FINDINGS_PAGE_SIZE }&page=${ page }&orderby=id&order=desc`

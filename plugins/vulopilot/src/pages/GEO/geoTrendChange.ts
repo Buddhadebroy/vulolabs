@@ -23,6 +23,7 @@ export interface TrendChange {
  */
 export const computeTrendChange = (
 	history: GeoVisibilityHistoryRow[],
+	// eslint-disable-next-line no-unused-vars
 	getScore: (row: GeoVisibilityHistoryRow) => number | null = defaultGetScore
 ): TrendChange | null => {
 	const withScore = history

@@ -94,7 +94,6 @@ const fetchAllRedirects = async (): Promise<RedirectRow[]> => {
 	let page = 1;
 	let all: RedirectRow[] = [];
 
-	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		const response = await getApiResponse<{ data: RedirectRow[]; total: number }>(
 			getApiLink(vulopilotAppLocalizer, `redirects?per_page=${FETCH_PAGE_SIZE}&page=${page}&orderby=id&order=desc`),
@@ -227,7 +226,6 @@ const RedirectsSection = () => {
 	useEffect(() => {
 		loadRedirects();
 		loadHealth();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {
@@ -655,11 +653,6 @@ const RedirectsSection = () => {
 									id: 'chains',
 									icon: 'link yellow',
 									title: __('Redirect Chains', 'vulopilot'),
-									// desc: chainCount ? sprintf( /* translators: %d: number of
-									// chains detected. */ _n('%d chain detected - needs review',
-									// '%d chains detected - needs review', chainCount,
-									// 'vulopilot'), chainCount ) : __('No chains detected',
-									// 'vulopilot'),
 									tags: (
 										<TypographyComponent
 											variant="h5"
@@ -693,11 +686,6 @@ const RedirectsSection = () => {
 									id: 'last-checked',
 									icon: 'calendar blue',
 									title: __('Last Checked', 'vulopilot'),
-									// desc: nextCheckLabel ? sprintf( /* translators: %s:
-									// formatted date/time of the next automatic health check. */
-									// __('Next automatic check: %s', 'vulopilot'), nextCheckLabel
-									// ) : __('Broken-redirect check has not run yet.',
-									// 'vulopilot'),
 									tags: (
 										<TypographyComponent
 											as="span"

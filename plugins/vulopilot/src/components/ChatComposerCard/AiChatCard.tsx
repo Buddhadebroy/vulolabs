@@ -28,10 +28,12 @@ export interface AiChatCardProps<TTurn> {
 	emptyDesc?: ReactNode;
 	/** Suggested-prompt pills, rendered right below the empty-state text (only while `turns` is empty). */
 	prompts?: AiChatCardPrompt[];
-	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	 
+	// eslint-disable-next-line no-unused-vars
 	onSelectPrompt?: (title: string) => void;
 	turns: TTurn[];
-	// eslint-disable-next-line no-unused-vars -- named params on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	 
+	// eslint-disable-next-line no-unused-vars
 	renderTurn: (turn: TTurn, index: number) => ReactNode;
 	isSending?: boolean;
 	sendingSpinnerClassName?: string;

@@ -258,11 +258,8 @@ class Findings extends \WP_REST_Controller {
 		$scanner_ids = $this->parse_comma_separated_list( $request->get_param( 'scanner_id' ) );
 		$priority    = sanitize_key( (string) $request->get_param( 'priority' ) );
 
-		// Real group-level status filter - 'open' (default, unchanged behavior for every existing
-		// caller that never passes this) or 'all' (SectionedIssuesTable.tsx's own real "Show
-		// ignored" toggle: every real status together, not a second, separate "ignored only" view)
-		// - never an arbitrary caller-supplied string, so this can't become a SQL-injection vector
-		// via FindingRepository::get_finding_groups()'s own `WHERE status = %s`.
+		// Group-level status filter: 'open' (default) or 'all' (SectionedIssuesTable's "Show ignored"
+		// toggle). Never an arbitrary string, so it can't inject SQL via get_finding_groups()' `WHERE status = %s`.
 		$requested_status = sanitize_key( (string) $request->get_param( 'status' ) );
 		$status           = in_array( $requested_status, array( 'open', 'all' ), true ) ? $requested_status : 'open';
 

@@ -84,7 +84,6 @@ export const useGoogleServicesConnection = (
 				),
 			});
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const connect = useCallback(() => {

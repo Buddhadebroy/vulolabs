@@ -77,6 +77,7 @@ interface SectionedIssuesTableProps {
 	 */
 	allScannerIds?: string[];
 	activeTab: SectionedIssuesTab;
+	// eslint-disable-next-line no-unused-vars
 	onTabChange: (tab: SectionedIssuesTab) => void;
 }
 
@@ -153,7 +154,6 @@ const SectionedIssuesTable = ({
 		setPaged(1);
 		setSelectedGroup(null);
 		setKeptGroups([]);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeTab]);
 
 	const allScannerIds =
@@ -279,11 +279,9 @@ const SectionedIssuesTable = ({
 		paged * PER_PAGE
 	);
 
-	// Same "keep the current selection if it's still on screen, otherwise fall back to the first
-	// visible row" reconciliation IssuesSection.tsx (GEO/SchemaKnowledge) and IssuesList.tsx (AI
-	// Copilot) already do inside their own fetch response handlers - replicated here as its own
-	// effect instead, since this component derives `pageRows` client-side (one `findings/groups`
-	// fetch, filtered/sorted/paged on every render) rather than re-fetching per filter change.
+	// Keep the current selection if still on screen, else fall back to the first visible row (as
+	// IssuesSection.tsx and IssuesList.tsx do in their fetch handlers). An effect here because
+	// `pageRows` is derived client-side from one `findings/groups` fetch.
 	useEffect(() => {
 		setSelectedGroup((current) => {
 			if (
@@ -299,7 +297,6 @@ const SectionedIssuesTable = ({
 
 			return pageRows[0] ?? null;
 		});
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [groups, activeTab, activePriority, searchValue, resourceFilterValue, paged]);
 
 	const handlePriorityChange = (priority: Priority) => {
@@ -402,10 +399,8 @@ const SectionedIssuesTable = ({
 										width: '65%',
 										descriptionKey: 'descriptionText',
 										badgesKey: 'issueBadges',
-										// Real, per-row `category` icon - same `CATEGORY_ICONS` map
-										// (icon name + palette color class in one string, e.g.
-										// "security lime") IssuesList.tsx's own row icons already
-										// use.
+										// Per-row `category` icon, from the same `CATEGORY_ICONS` map as IssuesList.tsx (icon name +
+										// palette class in one string, e.g. "security lime").
 										iconKey: 'issueIcon',
 									},
 									affected: {

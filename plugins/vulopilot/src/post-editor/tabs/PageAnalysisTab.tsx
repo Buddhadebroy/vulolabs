@@ -11,6 +11,7 @@ interface PageAnalysisTabProps {
 	/** Either of 2 real deep-link vocabularies this tab now understands. */
 	highlightTarget?: string;
 	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch - lets a row here jump straight to the real General/Social/Schema field that fixes it. */
+	// eslint-disable-next-line no-unused-vars
 	onNavigate?: ( tab: SeoIssueEditorTab, target?: string ) => void;
 }
 
@@ -179,6 +180,7 @@ interface FixControls {
 	isPro: boolean;
 	shopUrl: string;
 	fixingId: string | null;
+	// eslint-disable-next-line no-unused-vars
 	onFix: ( row: IssueRow ) => void;
 }
 
@@ -186,6 +188,7 @@ interface IssueListProps {
 	idPrefix: string;
 	rows: IssueRow[];
 	pulsingId: string | null;
+	// eslint-disable-next-line no-unused-vars
 	onNavigate?: ( tab: SeoIssueEditorTab, target?: string ) => void;
 	fixControls: FixControls;
 }
@@ -267,6 +270,7 @@ interface IssueSectionProps {
 	error: string | null;
 	emptyMessage: string;
 	pulsingId: string | null;
+	// eslint-disable-next-line no-unused-vars
 	onNavigate?: ( tab: SeoIssueEditorTab, target?: string ) => void;
 	fixControls: FixControls;
 	/** Worst status across `rows` - drives the header's summary pill (same look the old General-tab groups had). */
@@ -513,11 +517,10 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 			.map( rowFromCheck ),
 	].sort( bySeverity );
 
-	// Deep-link highlighting - live checks (matched by their check id, e.g. 'description_length',
-	// `SEO_ISSUE_EDITOR_TARGETS`) and SEO's own saved `data.checks` (matched by real `key`,
-	// `PAGE_ANALYSIS_CHECK_QUERY_PARAM`) are tried first; GEO's/AEO's own findings (matched by real
-	// numeric id, `FINDING_ID_QUERY_PARAM` - see that constant's own docblock) are tried next, once
-	// each section's own independent fetch has actually resolved.
+	// Deep-link highlighting: live checks (by check id, e.g. 'description_length',
+	// `SEO_ISSUE_EDITOR_TARGETS`) and SEO's saved `data.checks` (by `key`,
+	// `PAGE_ANALYSIS_CHECK_QUERY_PARAM`) are tried first; GEO/AEO findings (by numeric id,
+	// `FINDING_ID_QUERY_PARAM`) next, once each section's fetch has resolved.
 	useEffect( () => {
 		if ( ! highlightTarget || hasScrolledRef.current ) {
 			return;

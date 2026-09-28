@@ -63,10 +63,8 @@ class SitemapUrlRewriter {
 	}
 
 	/**
-	 * Real per-provider pretty name - the real registered subtype name
-	 * when one exists (`page`, `post`, `category`, a custom post type's
-	 * own slug, …), falling back to the real provider name itself for a
-	 * provider with none (`users`).
+	 * Pretty name per provider: the registered subtype name when one exists (`page`, `post`, `category`,
+	 * a custom post type slug, …), else the provider name itself (`users`).
 	 *
 	 * @param string      $provider Real provider name (`posts`/`taxonomies`/`users`/a 3rd-party-registered one).
 	 * @param string|null $subtype  Real object subtype, or null/empty for a provider with none.

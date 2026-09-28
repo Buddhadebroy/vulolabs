@@ -9,6 +9,7 @@ interface IssuesSummaryCardsProps {
 	priorityCounts: { high: number; medium: number; low: number };
 	isLoading: boolean;
 	activePriority: Priority;
+	// eslint-disable-next-line no-unused-vars
 	onSelectPriority: (priority: Priority) => void;
 }
 
@@ -33,6 +34,7 @@ const IssuesSummaryCards: React.FC<IssuesSummaryCardsProps> = ({
 		onSelectPriority(item.priority);
 	};
 
+	// eslint-disable-next-line no-unused-vars
 	const data: (SummaryTile & { onClick?: (item: SummaryTile) => void })[] = [
 		{
 			priority: 'high',

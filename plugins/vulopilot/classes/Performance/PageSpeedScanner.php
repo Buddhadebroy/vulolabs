@@ -193,7 +193,7 @@ class PageSpeedScanner {
 				$main_issue = $psi_issue;
 			}
 
-			foreach ( $psi_detail as $key => $default_value ) {
+			foreach ( array_keys( $psi_detail ) as $key ) {
 				$psi_detail[ $key ] = $mobile[ $key ] ?? ( $desktop[ $key ] ?? null );
 			}
 		}

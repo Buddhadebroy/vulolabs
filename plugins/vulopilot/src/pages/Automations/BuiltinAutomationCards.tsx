@@ -329,7 +329,7 @@ const BuiltinAutomationCards = ({ refetchSignal, onChanged, highlightTemplateId 
 			.finally(() => setIsLoading(false));
 	};
 
-	// eslint-disable-next-line react-hooks/exhaustive-deps -- deliberately re-fetches only on mount and when refetchSignal bumps; fetchRows is redefined every render.
+	// deliberately re-fetches only on mount and when refetchSignal bumps; fetchRows is redefined every render.
 	useEffect(fetchRows, [refetchSignal]);
 
 	// Scrolls to and flashes the deep-linked card once these 2 rows have really loaded (their own

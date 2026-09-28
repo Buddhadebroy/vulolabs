@@ -16,14 +16,14 @@ export interface ApiListResult<T> {
 	isLoading: boolean;
 	error: string | null;
 	/** `{ silent: true }` reloads in the background - rows stay on screen and no loading state shows (used by live-status polling). */
+	 
 	// eslint-disable-next-line no-unused-vars
 	refetch: (options?: { silent?: boolean }) => void;
 	/**
 	 * Pass straight through to TableCard's `onQueryUpdate` prop.
 	 */
-	// Base no-unused-vars doesn't understand TS function-type parameter
-	// positions (no runtime binding to "use"); @typescript-eslint/no-unused-vars
-	// already handles this correctly.
+	// Base no-unused-vars doesn't understand TS function-type parameters; @typescript-eslint's does.
+	 
 	// eslint-disable-next-line no-unused-vars
 	onQueryUpdate: (query: TableCardQuery) => void;
 }

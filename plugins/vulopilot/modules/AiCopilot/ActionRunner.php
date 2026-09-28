@@ -321,7 +321,7 @@ class ActionRunner {
 	 * @throws \RuntimeException If $run_id doesn't exist or isn't pending approval.
 	 */
 	public function reject( int $run_id ): void {
-		$run = $this->get_pending_run_or_fail( $run_id );
+		$this->get_pending_run_or_fail( $run_id );
 
 		$this->runs->update( $run_id, array( 'status' => 'rejected' ) );
 

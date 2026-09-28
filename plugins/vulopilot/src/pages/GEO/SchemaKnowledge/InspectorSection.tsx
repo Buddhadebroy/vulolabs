@@ -76,6 +76,7 @@ interface InspectorSectionProps {
 	/** Latest schema coverage sample - tells which inspectable pages have structured data and which don't. */
 	snapshot: SchemaCoverageSnapshot | null;
 	pageFilter: SchemaPageFilter;
+	// eslint-disable-next-line no-unused-vars
 	onPageFilterChange: (filter: SchemaPageFilter) => void;
 }
 
@@ -108,7 +109,6 @@ const InspectorSection = ({
 				}
 			})
 			.finally(() => setIsLoadingPages(false));
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	// Pages the last coverage sample found schema on (or not) - keyed by

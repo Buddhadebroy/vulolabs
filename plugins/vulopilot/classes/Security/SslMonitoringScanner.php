@@ -93,11 +93,8 @@ class SslMonitoringScanner extends ScannerUtil {
 			)
 		);
 
-		// stream_socket_client() emits a PHP warning on connection failure
-		// in addition to returning false - the boolean return value below
-		// is already how this method detects and handles that failure, so
-		// the warning itself is expected noise, not something masking a
-		// real bug.
+		// stream_socket_client() warns on connection failure as well as returning false; the boolean return
+		// is how failure is handled here, so the warning is expected noise.
         // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_stream_socket_client, WordPress.PHP.NoSilencedErrors.Discouraged
 		$client = @stream_socket_client(
 			sprintf( 'ssl://%s:443', $host ),

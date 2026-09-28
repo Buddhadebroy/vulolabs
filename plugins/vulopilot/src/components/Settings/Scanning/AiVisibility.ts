@@ -210,10 +210,8 @@ export default {
 			),
 			moduleEnabled: 'geo-analysis',
 		},
-		// "Business"/"Services"/"Locations" (entity_business_type/
-		// entity_service_pages/entity_business_locations, plus the Knowledge Graph Health drop-
-		// threshold notice that followed them) moved out to Settings → Get Started → Business
-		// Information - see GetStarted/BusinessInformation.ts's own docblock.
+		// "Business"/"Services"/"Locations" (and the Knowledge Graph Health drop-threshold notice) moved to
+		// Settings → Get Started → Business Information (GetStarted/BusinessInformation.ts).
 		{
 			key: 'crawler-traffic',
 			type: 'section',

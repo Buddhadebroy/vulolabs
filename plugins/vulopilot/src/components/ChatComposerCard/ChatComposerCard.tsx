@@ -27,7 +27,8 @@ export interface ChatComposerCardProps<TTurn = unknown> {
 	 */
 	emptyState?: ReactNode;
 	turns?: TTurn[];
-	// eslint-disable-next-line no-unused-vars -- named params on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	 
+	// eslint-disable-next-line no-unused-vars
 	renderTurn?: (turn: TTurn, index: number) => ReactNode;
 	isSending?: boolean;
 	sendingLabel?: string;
@@ -112,7 +113,7 @@ const ChatComposerCard = <TTurn,>({
 
 	// Every real composer here is a `ChatInput` whose own textarea handles Enter-to-send.
 	const wrappedComposer = (
-		// eslint-disable-next-line jsx-a11y/no-static-element-interactions -- pure event-propagation guard, not an interactive element.
+		// pure event-propagation guard, not an interactive element.
 		<div onKeyDown={(e) => e.stopPropagation()}>{composer}</div>
 	);
 

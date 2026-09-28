@@ -88,6 +88,7 @@ const SEVERITY_LABEL: Record<string, string> = {
 interface IssueDetailPanelProps {
 	group: FindingGroup | null;
 	/** `event` is set for a fix or an undo of `group`, so the host can keep it listed instead of dropping it. */
+	// eslint-disable-next-line no-unused-vars
 	onActionComplete: (event?: { group: FindingGroup; fixed: boolean }) => void;
 }
 
@@ -119,7 +120,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				? (applyFilters('vulopilot_fixed_group_outcome', null, group) as FixOutcome | null) ?? undefined
 				: undefined
 		);
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- `showPanelNotice` is re-created every render and only calls a state setter; re-run only when the selected issue changes.
+		// `showPanelNotice` is re-created every render and only calls a state setter; re-run only when the selected issue changes.
 	}, [group?.scanner_id]);
 
 	/**
@@ -325,7 +326,8 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	 * counts into one outcome.
 	 */
 	const runBulkFixInBatches = (
-		// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+		 
+		// eslint-disable-next-line no-unused-vars
 		bulkFixHandler: (batchIds: number[]) => Promise<BatchFixOutcome> | undefined,
 		ids: number[]
 	): Promise<FixOutcome> => {

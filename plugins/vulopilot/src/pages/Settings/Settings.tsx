@@ -94,7 +94,6 @@ const Settings = () => {
 				});
 				setSetting(currentTab, tabFields);
 			}
-			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, [currentTab, settingName]);
 
 		useEffect(() => {

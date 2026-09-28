@@ -95,7 +95,8 @@ interface PerformanceTabProps {
 	 * buttons can jump this table straight to a specific section.
 	 */
 	activeTab: SectionedIssuesTab;
-	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	 
+	// eslint-disable-next-line no-unused-vars
 	onTabChange: (tab: SectionedIssuesTab) => void;
 }
 

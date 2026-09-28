@@ -57,7 +57,8 @@ const timeAgo = (dateString: string): string => {
 
 interface RecentConversationsCardProps {
 	/** Called with a row's real `vulopilot_ai_conversations.id` when clicked. */
-	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	 
+	// eslint-disable-next-line no-unused-vars
 	onSelectConversation: (id: number) => void;
 }
 

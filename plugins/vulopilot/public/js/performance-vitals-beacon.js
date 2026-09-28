@@ -1,30 +1,17 @@
 /**
- * Real Core Web Vitals RUM (Real User Monitoring) - measures this actual
- * page view's LCP/CLS/INP in the visitor's own browser via native
- * PerformanceObserver, plus real page load time and transfer size via the
- * Navigation/Resource Timing APIs, and reports them once, on page-hide, to
- * VuloPilot's own public beacon endpoint
- * (classes/RestAPI/Controllers/CoreWebVitalsBeaconRest.php). See
- * Services\CoreWebVitalsBeacon.php's own docblock for why this exists as
- * hand-written vanilla JS in public/js/ rather than a webpack entry (same
- * reasoning admin-menu-groups.js already documents - plain DOM/Web APIs
- * only, no JSX/TS, no admin bundle dependency).
+ * Core Web Vitals RUM: measures this page view's LCP/CLS/INP in the visitor's browser via
+ * PerformanceObserver, plus load time and transfer size via Navigation/Resource Timing, and reports
+ * them once on page-hide to the public beacon endpoint (CoreWebVitalsBeaconRest.php). Hand-written
+ * vanilla JS in public/js/ rather than a webpack entry, like admin-menu-groups.js (see
+ * Services\CoreWebVitalsBeacon.php).
  *
- * Sends no cookie, no visitor id, no IP, no URL - just five numbers,
- * aggregated site-wide rather than broken down per page. INP here is a
- * simplified, honest approximation (the
- * largest single interaction duration observed) rather than the full
- * official percentile-across-all-interactions algorithm, which needs more
- * bookkeeping than a v1 beacon warrants - still a real, measured number,
- * never fabricated. `transferBytes` sums real `transferSize` across every
- * resource this page view actually loaded (0 for a cross-origin resource
- * without a `Timing-Allow-Origin` response header - a real browser
- * security limit, not a bug) - an honest lower bound, never inflated.
- * `pageLoadMs` is left `null` (never a fabricated 0) if the visitor
- * navigated away before the `load` event finished.
+ * Sends no cookie, visitor id, IP or URL - just five numbers, aggregated site-wide. INP is a
+ * simplified approximation (the largest single interaction duration), not the official percentile
+ * algorithm. `transferBytes` sums `transferSize` over loaded resources (0 for cross-origin ones
+ * without `Timing-Allow-Origin`), so it's a lower bound. `pageLoadMs` is `null` (never 0) if the
+ * visitor left before the `load` event finished.
  *
- * window.vulopilotCwvBeacon is localized by
- * Services\CoreWebVitalsBeacon::enqueue_beacon_script():
+ * window.vulopilotCwvBeacon is localized by Services\CoreWebVitalsBeacon::enqueue_beacon_script():
  * { endpoint: 'https://.../wp-json/vulopilot/v1/performance-vitals-beacon' }.
  */
 ( function () {
@@ -50,7 +37,7 @@
 				lcpMs = Math.round( last.startTime );
 			}
 		} ).observe( { type: 'largest-contentful-paint', buffered: true } );
-	} catch ( e ) {
+	} catch {
 		// Not supported in this browser - lcpMs stays null, honestly omitted.
 	}
 
@@ -63,7 +50,7 @@
 				}
 			} );
 		} ).observe( { type: 'layout-shift', buffered: true } );
-	} catch ( e ) {
+	} catch {
 		clsValue = null;
 	}
 
@@ -76,17 +63,14 @@
 				}
 			} );
 		} ).observe( { type: 'event', buffered: true, durationThreshold: 40 } );
-	} catch ( e ) {
+	} catch {
 		// Not supported in this browser - inpMs stays null, honestly omitted.
 	}
 
 	/**
-	 * Read once, at send time, straight from the browser's own Navigation/
-	 * Resource Timing buffers - no PerformanceObserver needed, since both
-	 * are already fully populated by the time a real visitor is navigating
-	 * away. `loadEventEnd` is 0 (per spec) until the `load` event actually
-	 * completes, so a visitor who leaves mid-load honestly reports no page
-	 * load time rather than a fabricated 0.
+	 * Read once at send time from the Navigation/Resource Timing buffers, which are populated by the time
+	 * a visitor navigates away. `loadEventEnd` is 0 until `load` completes, so a visitor who leaves
+	 * mid-load reports no load time rather than 0.
 	 */
 	function collectLoadMetrics() {
 		var pageLoadMs = null;
@@ -107,7 +91,7 @@
 					transferBytes += Math.round( entry.transferSize || 0 );
 				} );
 			}
-		} catch ( e ) {
+		} catch {
 			// Navigation/Resource Timing not supported - both stay null, honestly omitted.
 			pageLoadMs = null;
 			transferBytes = null;

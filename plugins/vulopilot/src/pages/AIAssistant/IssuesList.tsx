@@ -150,7 +150,6 @@ const IssuesList: React.FC<IssuesListProps> = ({
 		return () => {
 			cancelled = true;
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeTabId, activePriority, paged, perPage, reloadToken]);
 
 	const refetch = () => setReloadToken((n) => n + 1);
@@ -287,13 +286,8 @@ const IssuesList: React.FC<IssuesListProps> = ({
 							}}
 							rows={data.map((row) => ({
 								...row,
-								// Real `SCANNER_ICONS[scanner_id]` first, so e.g. Performance's own
-								// CDN/JavaScript/CSS Optimization/Cache Issues rows (all real
-								// `category: 'performance'`) each get their own real distinct icon
-								// instead of every row in that category sharing one identical glyph
-								// - `CATEGORY_ICONS[category]` stays the fallback for any
-								// scanner_id not explicitly listed (issuesTypes.ts's own
-								// `issueIconFor()` docblock).
+								// `SCANNER_ICONS[scanner_id]` first, so e.g. Performance's CDN/JavaScript/CSS/Cache rows each get a
+								// distinct icon; `CATEGORY_ICONS[category]` is the fallback (see issuesTypes.ts `issueIconFor()`).
 								categoryIcon: issueIconFor(
 									row.category,
 									row.scanner_id

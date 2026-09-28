@@ -214,10 +214,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 									<ChartComponent
 										type="ring"
 										height={200}
-										// Top-level `color` - same prop this file's own
-										// `ScoreTile`/`VitalRow` rings already set correctly
-										// (`type="ring"` only ever paints its stroke from this
-										// prop, never from `data[].color`).
+										// Top-level `color`: `type="ring"` paints its stroke only from this, never `data[].color`.
 										color={RATING_COLOR[ratingClass(overallScore)]}
 										centerLabel={
 											<>

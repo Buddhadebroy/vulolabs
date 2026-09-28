@@ -1,4 +1,4 @@
-import { __, sprintf, _n } from '@wordpress/i18n';
+import { sprintf, _n } from '@wordpress/i18n';
 import { ListComponent, TypographyComponent } from '@zyra/components';
 import { useApiList } from '../../services/useApiList';
 import { ACCESSIBILITY_CHECKS } from './accessibilityChecks';
@@ -14,6 +14,7 @@ const pagesAffectedIn = (rows: AccessibilityFinding[]): number =>
 
 interface AccessibilityChecksGridProps {
 	/** Switches the merged issues table (SectionedIssuesTable.tsx, further down this tab) to this check's own tab and scrolls to it. */
+	// eslint-disable-next-line no-unused-vars
 	onReview: (checkKey: string) => void;
 }
 

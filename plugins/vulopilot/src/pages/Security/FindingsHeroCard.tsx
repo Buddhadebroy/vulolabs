@@ -102,6 +102,7 @@ interface FindingsHeroCardProps {
 	scannerIds: string[];
 	/** Scrolls to the tab's own first section. */
 	/** Forwarded straight to SiteHealthStatusCard's own `onSectionClick` - see that file's docblock. */
+	// eslint-disable-next-line no-unused-vars
 	onSectionClick?: (key: string) => void;
 }
 
@@ -171,10 +172,7 @@ const FindingsHeroCard = ({
 								<ChartComponent
 									type="ring"
 									height={200}
-									// Top-level `color` - see SecurityStatusCard.tsx's/
-									// PerformanceScoreCard.tsx's own identical fix: `type="ring"`
-									// only ever paints its stroke from this prop, never from
-									// `data[].color`.
+									// Top-level `color`: `type="ring"` paints its stroke only from this, never `data[].color`.
 									color={RATING_COLOR[ratingClass(score)]}
 									centerLabel={
 										<>

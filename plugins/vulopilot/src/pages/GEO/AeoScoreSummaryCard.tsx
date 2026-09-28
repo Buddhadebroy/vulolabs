@@ -69,6 +69,7 @@ interface AeoScoreSummaryCardProps {
 	/** `GET /findings/groups`, already fetched by AeoTab.tsx for `GeoByTopicGrid`. */
 	groups: FindingGroup[];
 	/** AeoTab.tsx's own real `goToIssuesTable` - same real click-through `GeoScoreSection.tsx`'s own `onSelectSignal` gives its rows. */
+	// eslint-disable-next-line no-unused-vars
 	onSelectTopic?: (topicKey: string) => void;
 }
 

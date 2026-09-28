@@ -235,7 +235,6 @@ const GoogleServicesPanel = () => {
 				nonceHeaders
 			).then( ( response ) => setAdsenseAccounts( response ?? [] ) );
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ status?.connected ] );
 
 	// Real data streams load whenever the selected property changes.
