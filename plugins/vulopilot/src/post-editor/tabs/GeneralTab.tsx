@@ -1,9 +1,11 @@
 import { __ } from '@wordpress/i18n';
 import { Button, TextControl, TextareaControl, ToggleControl } from '@wordpress/components';
 import { useState } from '@wordpress/element';
+import type { ComponentType } from 'react';
 import { usePostData } from '../usePostData';
 import SnippetPreview from '../SnippetPreview';
 import { useFieldHighlight } from '../useFieldHighlight';
+import { useFilterSlot } from '../../services/useFilterSlot';
 
 interface GeneralTabProps {
 	/** "All SEO Issues" table's "Fix with AI" deep link - currently only ever resolves to 'canonical_url' on this tab (see seoIssueEditorTarget.ts). */
@@ -18,8 +20,8 @@ interface GeneralTabProps {
  * (native `post_excerpt`), a live snippet preview.
  */
 export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
-	const { title, excerpt, slug, meta, setTitle, setExcerpt, setMeta } = usePostData();
-	const { metaKeys } = window.vulopilotPostSeo;
+	const { postId, title, excerpt, slug, meta, setTitle, setExcerpt, setMeta } = usePostData();
+	const { metaKeys, shopUrl } = window.vulopilotPostSeo;
 	const canonicalUrl = ( meta[ metaKeys.canonical_url ] as string ) || '';
 	const noindex = Boolean( meta[ metaKeys.robots_noindex ] );
 	const nofollow = Boolean( meta[ metaKeys.robots_nofollow ] );
@@ -29,6 +31,11 @@ export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
 	const [ isEditingSnippet, setIsEditingSnippet ] = useState( false );
 	const [ isAddingKeyword, setIsAddingKeyword ] = useState( false );
 	const [ keywordDraft, setKeywordDraft ] = useState( '' );
+
+	/** vulopilot-pro's own "Suggest Titles" button + popup. */
+	const SuggestTitlesButton = useFilterSlot< ComponentType< { postId: number; onApply: ( title: string ) => void } > >(
+		'vulopilot_seo_title_suggestions_button'
+	);
 
 	const startAddingKeyword = () => {
 		setKeywordDraft( '' );
@@ -79,6 +86,21 @@ export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
 						value={ title }
 						onChange={ setTitle }
 					/>
+
+					{ SuggestTitlesButton ? (
+						<SuggestTitlesButton postId={ postId } onApply={ setTitle } />
+					) : (
+						<Button
+							variant="tertiary"
+							size="small"
+							className="vulopilot-seo-suggest-titles-toggle"
+							href={ shopUrl }
+							target="_blank"
+							rel="noreferrer"
+						>
+							{ __( 'Suggest Titles (Upgrade to unlock)', 'vulopilot' ) }
+						</Button>
+					) }
 
 					<TextareaControl
 						label={ __( 'Meta Description', 'vulopilot' ) }

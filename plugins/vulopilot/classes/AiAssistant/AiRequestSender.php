@@ -28,11 +28,16 @@ class AiRequestSender {
 	private const MAX_REQUESTS_PER_MINUTE = 20;
 
 	/**
-	 * Total attempts including the first; the delay doubles after each failure.
+	 * Total attempts including the first; the delay doubles after each failure. Was 4 (up to
+	 * 1s+2s+4s = 7s of pure backoff on top of the failed attempts themselves) - a chat reply
+	 * already waits on one real, non-streamed AI generation; a doomed request piling on 7
+	 * more seconds of silent waiting before it can even report the honest "VuloCloud is busy"
+	 * made every failure feel far worse than the retry was worth. One retry, half the delay,
+	 * still gives a genuinely transient blip a real second chance.
 	 */
-	private const MAX_ATTEMPTS = 4;
+	private const MAX_ATTEMPTS = 2;
 
-	private const BASE_RETRY_DELAY_MS = 1000;
+	private const BASE_RETRY_DELAY_MS = 500;
 
 	/**
 	 * `response_excerpt`/`prompt_excerpt` are an audit trail, not a cache -

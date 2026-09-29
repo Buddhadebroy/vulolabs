@@ -112,6 +112,8 @@ interface IssuesSectionProps {
 	onAnalyze?: (postId: number) => void;
 	/** `SeoTab.tsx`'s own `analyzingPostId` - which row's `PageAnalysisPanel` (if any) is currently open. */
 	activePostId?: number | null;
+	/** Called when the active tab's "Pages & Posts" list has nothing to show, so the host can close an open page-analysis panel that no longer applies. */
+	onAnalyzeClose?: () => void;
 	/**
 	 * Set by SeoTab.tsx to also fetch `GET /seo/pages-needing-attention` and show a per-page score
 	 * and change.
@@ -141,6 +143,7 @@ const IssuesSection = ({
 	id,
 	onAnalyze,
 	activePostId,
+	onAnalyzeClose,
 	pageScore,
 	title = __('All SEO Findings', 'vulopilot'),
 	titleIcon = 'search',
@@ -152,7 +155,13 @@ const IssuesSection = ({
 	const [rows, setRows] = useState<PageRow[]>([]);
 	const [siteWideFindings, setSiteWideFindings] = useState<RawFinding[]>([]);
 	const [groups, setGroups] = useState<FindingGroupRow[]>([]);
-	const [activeTab, setActiveTab] = useState('all');
+	// `content` mode's own `rowTabs` always has a real 'all' entry ("All resources"), but the
+	// default `tabs` array below (['important', ...categories]) never does - so TabsComponent's own
+	// activeIndex fallback (`Math.max(tabs.findIndex(...), 0)`) always visually highlights index 0
+	// ("Important") regardless of this state there. Starting there in sync avoids the two
+	// disagreeing on first render (visually "Important" selected while actually filtering by
+	// nothing).
+	const [activeTab, setActiveTab] = useState(content ? 'all' : 'important');
 	const [activePriority, setActivePriority] = useState<Priority>('all');
 	const [isLoading, setIsLoading] = useState(true);
 	const [hasError, setHasError] = useState(false);
@@ -724,6 +733,15 @@ const IssuesSection = ({
 				hideSearch={Boolean(content?.toolbarFilters)}
 				onAnalyze={onAnalyze}
 				activePostId={activePostId}
+				onEmptyChange={
+					activePostId
+						? (isEmpty: boolean) => {
+								if (isEmpty) {
+									onAnalyzeClose?.();
+								}
+							}
+						: undefined
+				}
 				showScoreChange={pageScore}
 				showContentScore={Boolean(content)}
 				onDelete={content?.onDelete}

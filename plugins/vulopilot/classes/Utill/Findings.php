@@ -308,6 +308,11 @@ class Findings extends \WP_REST_Controller {
 			: $repository->get_priority_counts();
 		$result['category_counts'] = $repository->get_category_group_counts();
 
+		// Same `fix_action_id` annotation get_items() already gives flat Finding rows - lets
+		// IssueDetailPanel.tsx know a group's "Fix with AI" button can never succeed before
+		// the admin clicks it and hits a dead end.
+		$result = apply_filters( 'vulopilot_finding_list_response', $result );
+
 		return rest_ensure_response( $result );
 	}
 

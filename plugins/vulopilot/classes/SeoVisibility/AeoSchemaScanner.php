@@ -24,7 +24,7 @@ class AeoSchemaScanner extends ScannerUtil implements TracksScannedObjectsInterf
 	private const BATCH_SIZE = 50;
 
 	/**
-	 * Must match SchemaJsonLdRenderer::META_KEY / GenerateSchemaAction::META_KEY.
+	 * Must match SchemaJsonLdRenderer::META_KEY - the same postmeta key this site's schema is saved under.
 	 */
 	private const SCHEMA_META_KEY = '_vulopilot_schema_json';
 
@@ -136,7 +136,7 @@ class AeoSchemaScanner extends ScannerUtil implements TracksScannedObjectsInterf
 	/**
 	 * @param \WP_Post $post        The post missing schema.
 	 * @param string   $schema_type 'FAQPage' or 'HowTo'.
-	 * @param string   $shape       'faq' or 'howto' - recorded in meta for AiCopilot\Actions\GenerateSchemaAction to read a hint from.
+	 * @param string   $shape       'faq' or 'howto' - recorded in meta as a hint for whatever generates schema for this post.
 	 * @return Finding
 	 */
 	private function build_finding( \WP_Post $post, string $schema_type, string $shape ): Finding {

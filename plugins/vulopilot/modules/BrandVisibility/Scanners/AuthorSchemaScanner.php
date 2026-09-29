@@ -31,7 +31,7 @@ class AuthorSchemaScanner extends ScannerUtil implements TracksScannedObjectsInt
 	private const BATCH_SIZE = 50;
 
 	/**
-	 * Must match SchemaJsonLdRenderer::META_KEY / GenerateSchemaAction::META_KEY.
+	 * Must match SchemaJsonLdRenderer::META_KEY.
 	 */
 	private const SCHEMA_META_KEY = '_vulopilot_schema_json';
 

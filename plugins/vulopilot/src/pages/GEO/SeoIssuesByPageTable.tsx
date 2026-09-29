@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { CardComponent, ChartComponent, ContainerComponent, InformationItemComponent, ModuleGuardComponent, SectionComponent } from '@zyra/components';
 import { TableCard } from '@zyra/table';
@@ -112,6 +112,9 @@ interface SeoIssuesByPageTableProps {
 	onAnalyze?: (postId: number) => void;
 	/** SeoTab.tsx's own `analyzingPostId` - which row's panel (if any) is currently open. */
 	activePostId?: number | null;
+	/** Called with `true` when this tab's "Pages & Posts" list has nothing to show (and no search is active), `false` otherwise - lets the host close an open page-analysis panel that no longer applies to the selected tab. */
+	// eslint-disable-next-line no-unused-vars
+	onEmptyChange?: (isEmpty: boolean) => void;
 	/** Only set by SeoTab.tsx's own SEO usage (`IssuesSection.tsx`'s own `pageScore` prop). */
 	showScoreChange?: boolean;
 	/** Only set by `IssuesSection.tsx`'s own `content` mode. */
@@ -141,6 +144,7 @@ const SeoIssuesByPageTable = ({
 	onExportCsv,
 	onAnalyze,
 	activePostId,
+	onEmptyChange,
 	showScoreChange,
 	showContentScore,
 	hideSearch,
@@ -220,6 +224,13 @@ const SeoIssuesByPageTable = ({
 		rows.filter((row) => rowMatchesFilter(row) && rowMatchesSearch(row))
 	);
 
+	const isEmptyForTab = !isLoading && 0 === visibleRows.length && '' === searchValue.trim();
+
+	useEffect(() => {
+		onEmptyChange?.(isEmptyForTab);
+		// `onEmptyChange` is a fresh function reference every render from every real call site; re-run only when the actual empty/not-empty verdict changes.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isEmptyForTab]);
 
 	if (hasError) {
 		return (
@@ -247,7 +258,7 @@ const SeoIssuesByPageTable = ({
 				desc={__('Findings from your most recent scans, grouped by check.', 'vulopilot')}
 			/>
 			{/* * The "nice work, nothing to fix" empty state only replaces the * whole card when there's truly nothing to show *and* no active * search. */}
-			{!isLoading && 0 === visibleRows.length && '' === searchValue.trim() ? (
+			{isEmptyForTab ? (
 				<ModuleGuardComponent
 					icon="check"
 					title={__('Nothing here right now', 'vulopilot')}

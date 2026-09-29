@@ -13,9 +13,6 @@ defined( 'ABSPATH' ) || exit;
  */
 class SchemaJsonLdRenderer {
 
-	/**
-	 * Must match GenerateSchemaAction::META_KEY.
-	 */
 	private const META_KEY = '_vulopilot_schema_json';
 
 	/**

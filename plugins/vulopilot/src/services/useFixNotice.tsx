@@ -15,7 +15,10 @@ interface FixOutcomeViewProps {
  * `vulopilot_fix_outcome_view`. Without Pro nothing is rendered.
  *
  * @param onChanged Called after an undo finishes, to refresh whatever lists the finding(s).
- * @return `show` to report an outcome, and `fixNotice` - the element to render above the table.
+ * @return `show` to report an outcome, `fixNotice` - the element to render above the table, and
+ *         `isUnfixable` - true once the last outcome shown was the honest "no automatic fix
+ *         exists" case, so a caller can stop offering a "Fix with AI" button that can only fail
+ *         the same way again.
  */
 export const useFixNotice = (onChanged?: () => void) => {
 	const [outcome, setOutcome] = useState<FixOutcome | null>(null);
@@ -31,5 +34,9 @@ export const useFixNotice = (onChanged?: () => void) => {
 			<View outcome={outcome} onUpdate={setOutcome} onChanged={onChanged} />
 		) : null;
 
-	return { show, fixNotice };
+	return {
+		show,
+		fixNotice,
+		isUnfixable: !outcome?.success && !!outcome?.noFixAvailable,
+	};
 };

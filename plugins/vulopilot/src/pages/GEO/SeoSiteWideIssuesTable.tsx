@@ -245,6 +245,9 @@ const SeoSiteWideIssuesTable = ({
 						{ text: finding.severity, color: `badge-${finding.severity}` },
 					],
 					descriptionItems: [
+						...(finding.description
+							? [{ value: finding.description, icon: 'info' }]
+							: []),
 						{ value: finding.scanner_id, icon: 'category' },
 						{ value: timeAgo(finding.created_at), icon: 'clock' },
 					],

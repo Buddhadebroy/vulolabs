@@ -180,7 +180,10 @@ class BrokenLinksScanner extends ScannerUtil implements TracksScannedObjectsInte
 					break;
 				}
 
-				$url = $match[1];
+				// Stored post_content encodes "&" as an entity (e.g. "&#038;"/"&amp;") - decode
+				// before using this as a real URL, or the query string (and the live HTTP
+				// check, and "Open URL") breaks on every link with more than one param.
+				$url = html_entity_decode( $match[1], ENT_QUOTES );
 
 				if ( 0 !== strpos( $url, 'http://' ) && 0 !== strpos( $url, 'https://' ) ) {
 					continue;

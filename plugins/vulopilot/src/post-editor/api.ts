@@ -35,6 +35,8 @@ export interface FixResponse {
 		/** The saved post_content after a content-mutating action (empty otherwise). */
 		content?: string;
 		schema_json: string;
+		/** Only set by the 'set-featured-image-from-content' mechanical fix. */
+		featured_media_id?: number | null;
 	};
 }
 
@@ -128,7 +130,7 @@ export function analyzePage( postId: number ): Promise< PageAnalysisResponse > {
 	return request( `seo/analyze-page?post_id=${ postId }`, { method: 'GET' } );
 }
 
-/** Same real `POST /findings/{id}/fix` the dashboard's own "Fix with AI" buttons call (vulopilot-pro's OneClickFix `FindingFixRest`). */
+/** Same real `POST /findings/{id}/fix` the dashboard's own "Fix with AI" buttons call. */
 export function fixFinding( findingId: number ): Promise< FixResponse > {
 	return request( `findings/${ findingId }/fix`, { method: 'POST' } );
 }

@@ -32,12 +32,21 @@ const CHECK_KEY_TO_SCANNER_ID: Record< string, string > = {
  */
 const CHECKS_COVERED_BY_LIVE_CHECKLIST = [ 'title_tag', 'meta_description', 'content', 'headings', 'images' ];
 
-/** Saved-page checks with a real AI action behind them (`PostSeoFixRest::ACTION_ALLOWLIST`). */
+/** Saved-page checks with a real fix. Social Metadata is left out - its only fix is sitewide, not per-post. */
 const CHECK_KEY_TO_FIX_ACTION: Record< string, string > = {
 	structured_data: 'generate-schema',
+	featured_image: 'set-featured-image-from-content',
+	orphan_page: 'add-to-navigation-menu',
+	h1_heading: 'insert-h1-from-title',
 };
 
-/** GEO/AEO scanners `ScannerFixMap` maps to an AI action - `POST /findings/{id}/fix` resolves the fix from the finding's own scanner. */
+/** Fix ids that run a deterministic action, not an AI generation - shown as "Fix" rather than "Fix with AI". */
+const MECHANICAL_FIX_ACTIONS = [ 'set-featured-image-from-content', 'add-to-navigation-menu', 'insert-h1-from-title' ];
+
+/** Mechanical fix ids whose result rewrites post_content, same as CONTENT_MUTATING_ACTIONS below for the AI ones. */
+const CONTENT_MUTATING_MECHANICAL_ACTIONS = [ 'insert-h1-from-title' ];
+
+/** GEO/AEO scanners with a mapped fix - `POST /findings/{id}/fix` resolves it from the finding's own scanner. */
 const FIXABLE_FINDING_SCANNER_IDS = [
 	'geo-faq-opportunity',
 	'geo-summary-block',
@@ -244,7 +253,13 @@ function IssueList( { idPrefix, rows, pulsingId, onNavigate, fixControls }: Issu
 										fixControls.onFix( row );
 									} }
 								>
-									{ fixControls.fixingId === row.id ? <Spinner /> : __( 'Fix with AI', 'vulopilot' ) }
+									{ fixControls.fixingId === row.id ? (
+										<Spinner />
+									) : 'post' === row.fix.kind && MECHANICAL_FIX_ACTIONS.includes( row.fix.actionId ) ? (
+										__( 'Fix', 'vulopilot' )
+									) : (
+										__( 'Fix with AI', 'vulopilot' )
+									) }
 								</Button>
 							) : (
 								<Button variant="tertiary" size="small" href={ fixControls.shopUrl } target="_blank" rel="noreferrer">
@@ -460,6 +475,11 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 		if ( response.post.content_changed && response.post.content ) {
 			applyContentToEditor( response.post.content );
 		}
+
+		// Updates the Document sidebar's own Featured Image panel live, without a page reload.
+		if ( 'set-featured-image-from-content' === actionId && response.post.featured_media_id ) {
+			( dispatch( 'core/editor' ) as any ).editPost( { featured_media: response.post.featured_media_id } );
+		}
 	};
 
 	const handleFix = async ( row: IssueRow ) => {
@@ -472,14 +492,18 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 
 		try {
 			if ( 'post' === row.fix.kind ) {
+				const rewritesContent =
+					CONTENT_MUTATING_ACTIONS.includes( row.fix.actionId ) ||
+					CONTENT_MUTATING_MECHANICAL_ACTIONS.includes( row.fix.actionId );
+
 				// A content fix works on the SAVED post, then its result is loaded into the editor.
-				if ( CONTENT_MUTATING_ACTIONS.includes( row.fix.actionId ) && ( select( 'core/editor' ) as any ).isEditedPostDirty() ) {
+				if ( rewritesContent && ( select( 'core/editor' ) as any ).isEditedPostDirty() ) {
 					await ( dispatch( 'core/editor' ) as any ).savePost();
 				}
 
 				applyPostFix( row.fix.actionId, await fixWithAi( postId, row.fix.actionId ) );
 				notify(
-					CONTENT_MUTATING_ACTIONS.includes( row.fix.actionId )
+					rewritesContent
 						? __( 'Fixed - the updated content is now in the editor.', 'vulopilot' )
 						: __( 'Fixed.', 'vulopilot' )
 				);

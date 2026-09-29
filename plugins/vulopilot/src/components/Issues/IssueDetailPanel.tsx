@@ -27,9 +27,10 @@ import { FixOutcome } from '../../services/showFixOutcome';
 import { useFixNotice } from '../../services/useFixNotice';
 import './IssueDetailPanel.scss';
 
-interface BatchFixOutcome extends FixOutcome {
+interface BatchFixOutcome extends Omit<FixOutcome, 'noFixAvailable'> {
 	succeeded?: number;
 	total?: number;
+	/** The bulk handler's own real per-batch count - a number, unlike FixOutcome's own `noFixAvailable`, which is this file's final "never fixable" verdict (see runBulkFixInBatches()'s own return statements). */
 	noFixAvailable?: number;
 }
 
@@ -107,7 +108,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	);
 	const [isLoadingAffected, setIsLoadingAffected] = useState(false);
 	// Result of the last action, rendered by Pro's view right above the action buttons.
-	const { show: showPanelNotice, fixNotice } = useFixNotice(() => group && onActionComplete({ group, fixed: false }));
+	const { show: showPanelNotice, fixNotice, isUnfixable } = useFixNotice(() => group && onActionComplete({ group, fixed: false }));
 	// The panel stays mounted while another issue is selected: clear the previous issue's result,
 	// and ignore a result that arrives after the selection moved on.
 	const activeScannerId = useRef<string | undefined>(group?.scanner_id);
@@ -344,8 +345,8 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 						Promise.resolve(bulkFixHandler(batch)).then((outcome) => ({
 							succeeded: totals.succeeded + (outcome?.succeeded ?? 0),
 							total: totals.total + (outcome?.total ?? batch.length),
-							noFixAvailable:
-								totals.noFixAvailable + (outcome?.noFixAvailable ?? 0),
+							noFixCount:
+								totals.noFixCount + (outcome?.noFixAvailable ?? 0),
 							lastMessage: outcome?.message ?? totals.lastMessage,
 							link: outcome?.link ?? totals.link,
 							undos: outcome?.undo ? [...totals.undos, outcome.undo] : totals.undos,
@@ -354,13 +355,13 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				Promise.resolve({
 					succeeded: 0,
 					total: 0,
-					noFixAvailable: 0,
+					noFixCount: 0,
 					lastMessage: '',
 					link: undefined as FixOutcome['link'],
 					undos: [] as Array<NonNullable<FixOutcome['undo']>>,
 				})
 			)
-			.then(({ succeeded, total, noFixAvailable, lastMessage, link, undos }) => {
+			.then(({ succeeded, total, noFixCount, lastMessage, link, undos }) => {
 				// One Undo that reverses every batch that could be undone.
 				const undo: FixOutcome['undo'] = undos.length
 					? () =>
@@ -377,7 +378,13 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				// Single batch: the handler's own message already says exactly the right thing
 				// (including the "no automatic fix exists yet" honest case).
 				if (batches.length <= 1) {
-					return { success: 0 === failed, message: lastMessage, link, undo };
+					return {
+						success: 0 === failed,
+						message: lastMessage,
+						link,
+						undo,
+						noFixAvailable: 0 === succeeded && noFixCount === total && total > 0,
+					};
 				}
 
 				let message: string;
@@ -388,7 +395,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 						__('Fixed %d findings.', 'vulopilot'),
 						succeeded
 					);
-				} else if (noFixAvailable === failed) {
+				} else if (noFixCount === failed) {
 					message =
 						0 === succeeded && lastMessage
 							// Nothing was fixable: keep the handler's own message, it says why.
@@ -401,7 +408,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 									'vulopilot'
 								),
 								succeeded,
-								noFixAvailable
+								noFixCount
 							)
 							: __(
 								'No automatic fix exists yet for these findings.',
@@ -419,7 +426,13 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					);
 				}
 
-				return { success: 0 === failed, message, link, undo };
+				return {
+					success: 0 === failed,
+					message,
+					link,
+					undo,
+					noFixAvailable: 0 === succeeded && noFixCount === total && total > 0,
+				};
 			});
 	};
 
@@ -702,19 +715,45 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					</div>
 				)}
 
+				{isProActive && !fixNotice && !group.fix_action_id && group.no_fix_reason && (
+					<div className="issue-detail-manual-fix-notice">
+						<div className="issue-detail-manual-fix-notice-icon">
+							<i className="adminfont-info" />
+						</div>
+						<div>
+							<div className="issue-detail-manual-fix-notice-title">
+								{__('Needs your review - no automatic fix', 'vulopilot')}
+							</div>
+							<div className="desc">{group.no_fix_reason}</div>
+							<div className="small desc">
+								{__('Check the details above for what to look at.', 'vulopilot')}
+							</div>
+						</div>
+					</div>
+				)}
+
 				{isProActive && fixNotice}
 
 				{isProActive ? (
 					<ButtonInput
 						position="full-width"
 						buttons={[
-							{
-								text: __('Fix with AI', 'vulopilot'),
-								icon: 'ai',
-								color: 'orange-bg',
-								onClick: handleFix,
-								disabled: isBusy,
-							},
+							// Known, either from the group data itself (no scanner-to-fix mapping
+							// exists at all - e.g. Performance's cache/CDN/minification checks) or
+							// from the last click (isUnfixable), that this kind of issue has no
+							// automatic fix - keep showing why (fixNotice, above) but stop offering
+							// a button that can only fail the same way again.
+							...(isUnfixable || !group.fix_action_id
+								? []
+								: [
+										{
+											text: __('Fix with AI', 'vulopilot'),
+											icon: 'ai',
+											color: 'orange-bg',
+											onClick: handleFix,
+											disabled: isBusy,
+										},
+									]),
 							{
 								text: __('Resolve all', 'vulopilot'),
 								color: 'border-purple',

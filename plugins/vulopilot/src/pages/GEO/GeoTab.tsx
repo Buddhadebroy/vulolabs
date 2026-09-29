@@ -90,7 +90,7 @@ const GeoTab = () => {
 		<ContainerComponent>
 			<GeoScoreSection onSelectSignal={goToIssuesTable} />
 
-			<ColumnComponent grid={8}>
+			<ColumnComponent grid={analyzingPostId ? 8 : 12}>
 				<IssuesSection
 					id="geo-all-issues-table"
 					scannerIds={allGeoScannerIds}
@@ -106,6 +106,7 @@ const GeoTab = () => {
 					}}
 					onAnalyze={setAnalyzingPostId}
 					activePostId={analyzingPostId}
+					onAnalyzeClose={() => setAnalyzingPostId(null)}
 				/>
 			</ColumnComponent>
 			{analyzingPostId && (

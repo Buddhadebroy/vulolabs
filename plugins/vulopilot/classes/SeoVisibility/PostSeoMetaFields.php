@@ -72,8 +72,8 @@ class PostSeoMetaFields {
 			register_post_meta( $post_type, self::META_KEYS['social_image_id'], $this->integer_field_args() );
 			register_post_meta( $post_type, self::META_KEYS['schema_type'], $this->string_field_args() );
 
-			// GenerateSchemaAction's own meta key, registered here too so the Schema tab's manual
-			// JSON textarea rides the same native save button as every other field.
+			// Same meta key this site's schema is saved under, registered here too so the Schema
+			// tab's manual JSON textarea rides the same native save button as every other field.
 			register_post_meta(
 				$post_type,
 				'_vulopilot_schema_json',
