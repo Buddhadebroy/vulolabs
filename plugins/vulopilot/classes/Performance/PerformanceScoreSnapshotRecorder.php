@@ -35,12 +35,12 @@ class PerformanceScoreSnapshotRecorder {
 		$breakdown = $findings->get_severity_breakdown_for_category( 'performance' );
 
 		$score = 100
-			- ( $breakdown['critical'] * 15 )
-			- ( $breakdown['high'] * 8 )
-			- ( $breakdown['medium'] * 3 )
-			- ( $breakdown['low'] * 1 );
+			- ( 15 * log( 1 + $breakdown['critical'] ) )
+			- ( 8 * log( 1 + $breakdown['high'] ) )
+			- ( 3 * log( 1 + $breakdown['medium'] ) )
+			- ( 1 * log( 1 + $breakdown['low'] ) );
 
-		$score = max( 0, min( 100, $score ) );
+		$score = (int) round( max( 0, min( 100, $score ) ) );
 
 		( new ScoreSnapshotRepository( 'performance' ) )->upsert_today( $score );
 	}

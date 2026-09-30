@@ -305,7 +305,7 @@ class EntityExtractor {
 	 * @return bool
 	 */
 	private function is_module_active(): bool {
-		return in_array( 'entity-extraction', VuloPilot()->modules->get_active_modules(), true );
+		return in_array( 'knowledge-graph', VuloPilot()->modules->get_active_modules(), true );
 	}
 
 	/**

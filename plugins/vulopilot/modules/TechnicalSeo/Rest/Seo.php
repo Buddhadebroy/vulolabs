@@ -148,6 +148,45 @@ class Seo extends \WP_REST_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			VuloPilot()->rest_namespace,
+			'/' . $this->rest_base . '/post-score',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_post_score' ),
+					'permission_callback' => array( $this, 'get_score_permissions_check' ),
+					'args'                => array(
+						'post_id' => array(
+							'required'          => true,
+							'validate_callback' => static fn( $value ): bool => is_numeric( $value ),
+						),
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * The block-editor sidebar's own "SEO score" badge - same `calculate_score()` formula the
+	 * site-wide score/`get_pages_needing_attention()` rows already use, narrowed to one post's
+	 * own open findings instead of every post's.
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response
+	 */
+	public function get_post_score( \WP_REST_Request $request ) {
+		$post_id         = (int) $request->get_param( 'post_id' );
+		$findings        = new FindingRepository();
+		$all_scanner_ids = array_merge( ...array_values( self::CATEGORY_SCANNER_IDS ) );
+		$breakdown       = $findings->get_severity_breakdown_for_scanner_ids_by_post_id( $all_scanner_ids, $post_id );
+
+		return rest_ensure_response(
+			array(
+				'score' => $this->calculate_score( $breakdown ),
+			)
+		);
 	}
 
 	/**
@@ -244,12 +283,12 @@ class Seo extends \WP_REST_Controller {
 	 */
 	private function calculate_score( array $breakdown ): int {
 		$score = 100
-			- ( $breakdown['critical'] * 15 )
-			- ( $breakdown['high'] * 8 )
-			- ( $breakdown['medium'] * 3 )
-			- ( $breakdown['low'] * 1 );
+			- ( 15 * log( 1 + $breakdown['critical'] ) )
+			- ( 8 * log( 1 + $breakdown['high'] ) )
+			- ( 3 * log( 1 + $breakdown['medium'] ) )
+			- ( 1 * log( 1 + $breakdown['low'] ) );
 
-		return max( 0, min( 100, $score ) );
+		return (int) round( max( 0, min( 100, $score ) ) );
 	}
 
 	/**

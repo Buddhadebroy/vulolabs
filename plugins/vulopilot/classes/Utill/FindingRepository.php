@@ -147,9 +147,12 @@ class FindingRepository extends RepositoryUtil {
 	 * Open findings bucketed into the 3-tier "priority" AI Copilot's "Needs your
 	 * attention" card shows (mockup: High/Medium/Low pills).
 	 *
+	 * @param string|null $category Real category value (e.g. 'security') to scope to, or null for
+	 *                               sitewide (every category combined) - the default, unchanged
+	 *                               behavior for existing callers.
 	 * @return array{high: int, medium: int, low: int}
 	 */
-	public function get_priority_counts(): array {
+	public function get_priority_counts( ?string $category = null ): array {
 		$raw = array_merge(
 			array(
 				'critical' => 0,
@@ -158,7 +161,13 @@ class FindingRepository extends RepositoryUtil {
 				'low'      => 0,
 				'info'     => 0,
 			),
-			$this->count_by_column( 'severity', array( 'status' => 'open' ) )
+			$this->count_by_column(
+				'severity',
+				array(
+					'status'   => 'open',
+					'category' => $category ?? '',
+				)
+			)
 		);
 
 		return array(
@@ -336,8 +345,8 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Open **group** counts per category - i.e. how many distinct (scanner_id, category)
-	 * rows get_finding_groups() would return for each category.
+	 * Open **group** counts per category - i.e. how many distinct (scanner_id, category,
+	 * object_type) rows get_finding_groups() would return for each category.
 	 *
 	 * @return array<string, int> category => open group count.
 	 */
@@ -345,7 +354,7 @@ class FindingRepository extends RepositoryUtil {
 		global $wpdb;
 		$table = $this->get_table();
 
-		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT category, COUNT(*) AS total FROM ( SELECT scanner_id, category FROM %i WHERE status = 'open' GROUP BY scanner_id, category ) grouped GROUP BY category", $table ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- $table is code-controlled, no user input in this query.
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT category, COUNT(*) AS total FROM ( SELECT scanner_id, category, object_type FROM %i WHERE status = 'open' GROUP BY scanner_id, category, object_type ) grouped GROUP BY category", $table ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- $table is code-controlled, no user input in this query.
 
 		$counts = array();
 
@@ -423,7 +432,7 @@ class FindingRepository extends RepositoryUtil {
 
 		$total_groups = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- the query is prepared.
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM ( SELECT scanner_id, category, MIN( CASE severity WHEN 'critical' THEN 0 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 WHEN 'info' THEN 4 ELSE 5 END ) AS severity_rank FROM %i WHERE {$where} GROUP BY scanner_id, category ) grouped WHERE {$having}", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- the table and optional filters are picked from fixed literals and every value is a bound placeholder; only the placeholder count varies at runtime.
+				"SELECT COUNT(*) FROM ( SELECT scanner_id, category, object_type, MIN( CASE severity WHEN 'critical' THEN 0 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 WHEN 'info' THEN 4 ELSE 5 END ) AS severity_rank FROM %i WHERE {$where} GROUP BY scanner_id, category, object_type ) grouped WHERE {$having}", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- the table and optional filters are picked from fixed literals and every value is a bound placeholder; only the placeholder count varies at runtime.
 				...$count_values
 			)
 		);
@@ -435,9 +444,15 @@ class FindingRepository extends RepositoryUtil {
 			);
 		}
 
+		// Grouped by object_type too (not just scanner_id/category) - a scanner like
+		// WordPressHealthScanner legitimately reports several unrelated finding types (inactive
+		// plugins, REST availability, HTTPS status, ...) under one scanner_id; without this, an
+		// unrelated finding could win the group's own sample/"Affected items" list (Findings.php's
+		// own per-group sample lookup, and IssueDetailPanel.tsx's affected-items fetch, are both
+		// scoped by this same scanner_id + object_type pair).
 		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- the query is prepared.
 			$wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- the table and optional filters are picked from fixed literals and every value is a bound placeholder; only the placeholder count varies at runtime.
-				"SELECT * FROM ( SELECT scanner_id, category, COUNT(*) AS count, MAX(object_type) AS object_type, MIN( CASE severity WHEN 'critical' THEN 0 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 WHEN 'info' THEN 4 ELSE 5 END ) AS severity_rank FROM %i WHERE {$where} GROUP BY scanner_id, category ) grouped WHERE {$having} ORDER BY severity_rank ASC, count DESC, scanner_id ASC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- the table and optional filters are picked from fixed literals and every value is a bound placeholder; only the placeholder count varies at runtime.
+				"SELECT * FROM ( SELECT scanner_id, category, object_type, COUNT(*) AS count, MIN( CASE severity WHEN 'critical' THEN 0 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 WHEN 'info' THEN 4 ELSE 5 END ) AS severity_rank FROM %i WHERE {$where} GROUP BY scanner_id, category, object_type ) grouped WHERE {$having} ORDER BY severity_rank ASC, count DESC, scanner_id ASC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- the table and optional filters are picked from fixed literals and every value is a bound placeholder; only the placeholder count varies at runtime.
 				...array_merge( array( $table ), $values, $priority_ranks, array( $per_page, $offset ) )
 			),
 			ARRAY_A
@@ -637,6 +652,44 @@ class FindingRepository extends RepositoryUtil {
 				"SELECT severity, COUNT(*) AS total FROM %i WHERE scanner_id IN ({$placeholders}) AND status = 'open' GROUP BY severity", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $placeholders' %s count matches $scanner_ids' size at runtime.
 				$this->get_table(),
 				...$scanner_ids
+			),
+			ARRAY_A
+		);
+
+		foreach ( (array) $rows as $row ) {
+			if ( array_key_exists( $row['severity'], $counts ) ) {
+				$counts[ $row['severity'] ] = (int) $row['total'];
+			}
+		}
+
+		return $counts;
+	}
+
+	/**
+	 * Same shape as get_severity_breakdown_for_scanner_ids(), scoped to one post's own open
+	 * findings - the per-post SEO score badge in the block-editor sidebar reuses this to run the
+	 * exact same calculate_score() formula the site-wide "SEO & Visibility" score already uses,
+	 * just narrowed to a single post_id instead of every post.
+	 *
+	 * @param string[] $scanner_ids Scanner ids to scope to.
+	 * @param int      $post_id    Finding::get_object_ref(), as a real post id.
+	 * @return array{critical: int, high: int, medium: int, low: int, info: int}
+	 */
+	public function get_severity_breakdown_for_scanner_ids_by_post_id( array $scanner_ids, int $post_id ): array {
+		global $wpdb;
+
+		$counts = array_fill_keys( array( 'critical', 'high', 'medium', 'low', 'info' ), 0 );
+
+		if ( ! $scanner_ids ) {
+			return $counts;
+		}
+
+		$placeholders = implode( ', ', array_fill( 0, count( $scanner_ids ), '%s' ) );
+
+		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- {$this->get_table()} is this plugin's own table name, not user input.
+			$wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- the placeholder count varies at runtime with $scanner_ids' size, every value is still a bound placeholder.
+				"SELECT severity, COUNT(*) AS total FROM %i WHERE scanner_id IN ({$placeholders}) AND status = 'open' AND object_ref = %s GROUP BY severity", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $placeholders' %s count matches $scanner_ids' size at runtime.
+				...array_merge( array( $this->get_table() ), $scanner_ids, array( (string) $post_id ) )
 			),
 			ARRAY_A
 		);

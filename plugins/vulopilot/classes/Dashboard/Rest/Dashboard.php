@@ -206,19 +206,25 @@ class Dashboard extends \WP_REST_Controller {
 
 	/**
 	 * The weighting formula shared by the overall, category, content and brand scores, so
-	 * past and current breakdowns are scored identically.
+	 * past and current breakdowns are scored identically. Logarithmic (not linear) per-tier
+	 * penalty: a linear `count * weight` saturates the whole score to 0 once a single category
+	 * has roughly a dozen high-severity findings, making it useless for distinguishing "a dozen
+	 * problems" from "hundreds of problems" on a real site's first scan. `log(1 + n)` keeps the
+	 * same relative severity ordering (critical worse than high worse than medium/low) but grows
+	 * far more slowly, so the score degrades gracefully across the realistic range instead of
+	 * flooring almost immediately.
 	 *
 	 * @param array{critical: int, high: int, medium: int, low: int} $breakdown Severity counts to score.
 	 * @return int 0-100.
 	 */
 	private function score_from_breakdown( array $breakdown ): int {
 		$score = 100
-			- ( $breakdown['critical'] * 15 )
-			- ( $breakdown['high'] * 8 )
-			- ( $breakdown['medium'] * 3 )
-			- ( $breakdown['low'] * 1 );
+			- ( 15 * log( 1 + $breakdown['critical'] ) )
+			- ( 8 * log( 1 + $breakdown['high'] ) )
+			- ( 3 * log( 1 + $breakdown['medium'] ) )
+			- ( 1 * log( 1 + $breakdown['low'] ) );
 
-		return max( 0, min( 100, $score ) );
+		return (int) round( max( 0, min( 100, $score ) ) );
 	}
 
 	/**
@@ -229,25 +235,19 @@ class Dashboard extends \WP_REST_Controller {
 	 * @return int 0-100.
 	 */
 	private function calculate_brand_score( FindingRepository $findings ): int {
-		$breakdown = $findings->get_severity_breakdown_for_scanner_ids(
-			array(
-				'geo-trust-signals',
-				'about-page-analysis',
-				'geo-eeat-signals',
-				'geo-author-info',
-				'author-schema',
-				'geo-entity-naming-consistency',
-				'organization-schema',
+		return $this->score_from_breakdown(
+			$findings->get_severity_breakdown_for_scanner_ids(
+				array(
+					'geo-trust-signals',
+					'about-page-analysis',
+					'geo-eeat-signals',
+					'geo-author-info',
+					'author-schema',
+					'geo-entity-naming-consistency',
+					'organization-schema',
+				)
 			)
 		);
-
-		$score = 100
-			- ( $breakdown['critical'] * 15 )
-			- ( $breakdown['high'] * 8 )
-			- ( $breakdown['medium'] * 3 )
-			- ( $breakdown['low'] * 1 );
-
-		return max( 0, min( 100, $score ) );
 	}
 
 	/**
@@ -258,17 +258,11 @@ class Dashboard extends \WP_REST_Controller {
 	 * @return int 0-100.
 	 */
 	private function calculate_content_score( FindingRepository $findings ): int {
-		$breakdown = $findings->get_severity_breakdown_for_scanner_ids(
-			array( 'readability', 'thin-content', 'duplicate-content', 'heading-structure', 'internal-linking', 'orphan-pages' )
+		return $this->score_from_breakdown(
+			$findings->get_severity_breakdown_for_scanner_ids(
+				array( 'readability', 'thin-content', 'duplicate-content', 'heading-structure', 'internal-linking', 'orphan-pages' )
+			)
 		);
-
-		$score = 100
-			- ( $breakdown['critical'] * 15 )
-			- ( $breakdown['high'] * 8 )
-			- ( $breakdown['medium'] * 3 )
-			- ( $breakdown['low'] * 1 );
-
-		return max( 0, min( 100, $score ) );
 	}
 
 	/**
@@ -279,15 +273,7 @@ class Dashboard extends \WP_REST_Controller {
 	 * @return int 0-100.
 	 */
 	private function calculate_category_score( FindingRepository $findings, string $category ): int {
-		$breakdown = $findings->get_severity_breakdown_for_category( $category );
-
-		$score = 100
-			- ( $breakdown['critical'] * 15 )
-			- ( $breakdown['high'] * 8 )
-			- ( $breakdown['medium'] * 3 )
-			- ( $breakdown['low'] * 1 );
-
-		return max( 0, min( 100, $score ) );
+		return $this->score_from_breakdown( $findings->get_severity_breakdown_for_category( $category ) );
 	}
 
 	/**

@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { Button, Spinner } from '@wordpress/components';
+import { Button, Dropdown, Spinner } from '@wordpress/components';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { dispatch, select } from '@wordpress/data';
 import { parse } from '@wordpress/blocks';
@@ -24,6 +24,9 @@ const CHECK_KEY_TO_SCANNER_ID: Record< string, string > = {
 	canonical: 'canonical-url',
 	structured_data: 'structured-data',
 	social_metadata: 'open-graph',
+	// No literal single-field fix for "nothing links here" - points at the real Internal
+	// Linking check instead of running the nav-menu proxy fix below.
+	orphan_page: 'internal-linking',
 };
 
 /**
@@ -32,16 +35,19 @@ const CHECK_KEY_TO_SCANNER_ID: Record< string, string > = {
  */
 const CHECKS_COVERED_BY_LIVE_CHECKLIST = [ 'title_tag', 'meta_description', 'content', 'headings', 'images' ];
 
-/** Saved-page checks with a real fix. Social Metadata is left out - its only fix is sitewide, not per-post. */
+/**
+ * Saved-page checks with a real fix. Social Metadata is left out - its only fix is sitewide, not
+ * per-post. Orphan Page has none here on purpose - it now just navigates to the real Internal
+ * Linking check (`CHECK_KEY_TO_SCANNER_ID` above) instead of running the nav-menu proxy action.
+ */
 const CHECK_KEY_TO_FIX_ACTION: Record< string, string > = {
 	structured_data: 'generate-schema',
 	featured_image: 'set-featured-image-from-content',
-	orphan_page: 'add-to-navigation-menu',
 	h1_heading: 'insert-h1-from-title',
 };
 
 /** Fix ids that run a deterministic action, not an AI generation - shown as "Fix" rather than "Fix with AI". */
-const MECHANICAL_FIX_ACTIONS = [ 'set-featured-image-from-content', 'add-to-navigation-menu', 'insert-h1-from-title' ];
+const MECHANICAL_FIX_ACTIONS = [ 'set-featured-image-from-content', 'insert-h1-from-title' ];
 
 /** Mechanical fix ids whose result rewrites post_content, same as CONTENT_MUTATING_ACTIONS below for the AI ones. */
 const CONTENT_MUTATING_MECHANICAL_ACTIONS = [ 'insert-h1-from-title' ];
@@ -126,7 +132,32 @@ interface IssueRow {
 	message: string;
 	target: SeoIssueEditorTarget | null;
 	fix?: RowFix;
+	/**
+	 * A second, manual option next to `fix` - jumps to the real WordPress field instead of running
+	 * the automatic action, for checks (like Featured Image) whose fix a site owner may reasonably
+	 * want to do by hand.
+	 */
+	manualFix?: { label: string; onClick: () => void };
 }
+
+/**
+ * Opens the Document sidebar and expands WordPress core's own Featured Image panel - the real
+ * manual field, not one of VuloPilot's own tabs, so this doesn't go through `onNavigate`/
+ * `SEO_ISSUE_EDITOR_TARGETS` at all.
+ */
+const jumpToFeaturedImagePanel = () => {
+	( dispatch( 'core/edit-post' ) as any ).openGeneralSidebar( 'edit-post/document' );
+
+	if ( ! ( select( 'core/editor' ) as any ).isEditorPanelOpened( 'featured-image' ) ) {
+		( dispatch( 'core/editor' ) as any ).toggleEditorPanelOpened( 'featured-image' );
+	}
+
+	setTimeout( () => {
+		document
+			.querySelector( '.editor-post-featured-image' )
+			?.scrollIntoView( { behavior: 'smooth', block: 'center' } );
+	}, 100 );
+};
 
 const rowFromCheck = ( check: PageAnalysisCheck ): IssueRow => {
 	const actionId = CHECK_KEY_TO_FIX_ACTION[ check.key ];
@@ -138,6 +169,10 @@ const rowFromCheck = ( check: PageAnalysisCheck ): IssueRow => {
 		message: check.message,
 		target: editorTargetForCheck( check.key ),
 		fix: actionId && 'pass' !== check.status ? { kind: 'post', actionId } : undefined,
+		manualFix:
+			'featured_image' === check.key && 'pass' !== check.status
+				? { label: __( 'Set it myself', 'vulopilot' ), onClick: jumpToFeaturedImagePanel }
+				: undefined,
 	};
 };
 
@@ -243,24 +278,79 @@ function IssueList( { idPrefix, rows, pulsingId, onNavigate, fixControls }: Issu
 						</span>
 						{ row.fix && (
 							fixControls.isPro ? (
-								<Button
-									variant="secondary"
-									size="small"
-									isBusy={ fixControls.fixingId === row.id }
-									disabled={ null !== fixControls.fixingId }
-									onClick={ ( event: { stopPropagation: () => void } ) => {
-										event.stopPropagation();
-										fixControls.onFix( row );
-									} }
-								>
-									{ fixControls.fixingId === row.id ? (
-										<Spinner />
-									) : 'post' === row.fix.kind && MECHANICAL_FIX_ACTIONS.includes( row.fix.actionId ) ? (
-										__( 'Fix', 'vulopilot' )
-									) : (
-										__( 'Fix with AI', 'vulopilot' )
-									) }
-								</Button>
+								row.manualFix ? (
+									<Dropdown
+										className="vulopilot-seo-checklist__fix-dropdown"
+										popoverProps={ { placement: 'bottom-end' } }
+										renderToggle={ ( { isOpen, onToggle } ) => (
+											<Button
+												variant="secondary"
+												size="small"
+												isBusy={ fixControls.fixingId === row.id }
+												disabled={ null !== fixControls.fixingId }
+												aria-expanded={ isOpen }
+												onClick={ ( event: { stopPropagation: () => void } ) => {
+													event.stopPropagation();
+													onToggle();
+												} }
+											>
+												{ fixControls.fixingId === row.id ? (
+													<Spinner />
+												) : (
+													<>
+														{ __( 'Fix', 'vulopilot' ) }
+														<i className="dashicons dashicons-arrow-down-alt2" />
+													</>
+												) }
+											</Button>
+										) }
+										renderContent={ ( { onClose } ) => (
+											<div className="vulopilot-seo-checklist__fix-menu">
+												<Button
+													variant="tertiary"
+													size="small"
+													onClick={ ( event: { stopPropagation: () => void } ) => {
+														event.stopPropagation();
+														onClose();
+														fixControls.onFix( row );
+													} }
+												>
+													{ __( 'Fix automatically', 'vulopilot' ) }
+												</Button>
+												<Button
+													variant="tertiary"
+													size="small"
+													onClick={ ( event: { stopPropagation: () => void } ) => {
+														event.stopPropagation();
+														onClose();
+														row.manualFix!.onClick();
+													} }
+												>
+													{ row.manualFix!.label }
+												</Button>
+											</div>
+										) }
+									/>
+								) : (
+									<Button
+										variant="secondary"
+										size="small"
+										isBusy={ fixControls.fixingId === row.id }
+										disabled={ null !== fixControls.fixingId }
+										onClick={ ( event: { stopPropagation: () => void } ) => {
+											event.stopPropagation();
+											fixControls.onFix( row );
+										} }
+									>
+										{ fixControls.fixingId === row.id ? (
+											<Spinner />
+										) : 'post' === row.fix.kind && MECHANICAL_FIX_ACTIONS.includes( row.fix.actionId ) ? (
+											__( 'Fix', 'vulopilot' )
+										) : (
+											__( 'Fix with AI', 'vulopilot' )
+										) }
+									</Button>
+								)
 							) : (
 								<Button variant="tertiary" size="small" href={ fixControls.shopUrl } target="_blank" rel="noreferrer">
 									{ __( 'Upgrade to fix', 'vulopilot' ) }

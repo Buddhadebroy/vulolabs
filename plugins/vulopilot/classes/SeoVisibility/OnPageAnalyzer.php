@@ -48,7 +48,10 @@ class OnPageAnalyzer {
 		$content_text  = trim( wp_strip_all_tags( $content_html ) );
 		$excerpt       = trim( (string) ( $fields['excerpt'] ?? '' ) );
 		$slug          = (string) ( $fields['slug'] ?? '' );
-		$focus_keyword = trim( (string) ( $fields['focus_keyword'] ?? '' ) );
+		// `focus_keyword` may now carry a comma-separated list (multiple focus keywords) - every
+		// check below still scores against just the primary (first) one, same as Rank Math's own
+		// primary/additional distinction.
+		$focus_keyword = PostSeoMetaFields::primary_keyword( (string) ( $fields['focus_keyword'] ?? '' ) );
 
 		$results = array();
 

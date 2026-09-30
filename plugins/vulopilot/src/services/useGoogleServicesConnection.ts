@@ -39,6 +39,7 @@ export const useGoogleServicesConnection = (
 	const [isLoading, setIsLoading] = useState(true);
 	const [isConnecting, setIsConnecting] = useState(false);
 	const [isDisconnecting, setIsDisconnecting] = useState(false);
+	const [connectError, setConnectError] = useState<string | null>(null);
 
 	const refreshStatus = useCallback(
 		() =>
@@ -74,20 +75,23 @@ export const useGoogleServicesConnection = (
 				message: __('Connected to Google.', 'vulopilot'),
 			});
 		} else if (gscStatus === 'error') {
+			const message = __(
+				'Could not connect to Google. Please check your Client ID/Secret and try again.',
+				'vulopilot'
+			);
+			setConnectError(message);
 			NoticeManager.add({
 				uniqueKey: 'vulopilot-gsc-connect-failed',
 				type: 'error',
 				position: 'float',
-				message: __(
-					'Could not connect to Google. Please check your Client ID/Secret and try again.',
-					'vulopilot'
-				),
+				message,
 			});
 		}
 	}, []);
 
 	const connect = useCallback(() => {
 		setIsConnecting(true);
+		setConnectError(null);
 
 		// Raw axios (not getApiResponse): a failing broker answers 502 with its own reason, and
 		// getApiResponse would swallow that body.
@@ -109,16 +113,18 @@ export const useGoogleServicesConnection = (
 				throw new Error('no-url');
 			})
 			.catch((error) => {
+				const message =
+					error?.response?.data?.message ??
+					__(
+						'Could not start the Google connection. Please try again.',
+						'vulopilot'
+					);
+				setConnectError(message);
 				NoticeManager.add({
 					uniqueKey: 'vulopilot-gsc-authorize-url-failed',
 					type: 'error',
 					position: 'float',
-					message:
-						error?.response?.data?.message ??
-						__(
-							'Could not start the Google connection. Please try again.',
-							'vulopilot'
-						),
+					message,
 				});
 				setIsConnecting(false);
 			});
@@ -153,6 +159,7 @@ export const useGoogleServicesConnection = (
 		isLoading,
 		isConnecting,
 		isDisconnecting,
+		connectError,
 		connect,
 		disconnect,
 		refreshStatus,

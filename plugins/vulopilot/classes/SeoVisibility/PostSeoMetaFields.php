@@ -97,6 +97,30 @@ class PostSeoMetaFields {
 	}
 
 	/**
+	 * `focus_keyword` is stored as one comma-separated string (matches every other plain-text
+	 * meta field here - no schema change for what's really a small list). Splits it back into
+	 * real, trimmed, non-empty keyword strings, in the order the user entered them.
+	 *
+	 * @param string $raw The raw stored/submitted `focus_keyword` value.
+	 * @return string[]
+	 */
+	public static function split_keywords( string $raw ): array {
+		return array_values( array_filter( array_map( 'trim', explode( ',', $raw ) ) ) );
+	}
+
+	/**
+	 * The first keyword in the list - the one every existing single-keyword check (OnPageAnalyzer,
+	 * FocusKeywordAuditScanner) scores against, same as Rank Math's own "Focus Keyword" primary/
+	 * additional distinction.
+	 *
+	 * @param string $raw The raw stored/submitted `focus_keyword` value.
+	 * @return string
+	 */
+	public static function primary_keyword( string $raw ): string {
+		return self::split_keywords( $raw )[0] ?? '';
+	}
+
+	/**
 	 * Shared register_post_meta() args for every plain-string field.
 	 *
 	 * @param callable|string $sanitize_callback Defaults to sanitize_text_field.

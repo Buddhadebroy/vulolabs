@@ -31,13 +31,17 @@ class SecurityScoreSnapshotRecorder {
 		$findings  = new FindingRepository();
 		$breakdown = $findings->get_severity_breakdown_for_category( 'security' );
 
+		// Logarithmic, not linear, per-tier penalty - same reasoning/weights as
+		// Dashboard::score_from_breakdown() (kept in sync so the trend chart and the "At Risk"
+		// gauge agree): a linear count*weight penalty saturates to 0 after roughly a dozen
+		// high-severity findings, which is useless for a real first scan.
 		$score = 100
-			- ( $breakdown['critical'] * 15 )
-			- ( $breakdown['high'] * 8 )
-			- ( $breakdown['medium'] * 3 )
-			- ( $breakdown['low'] * 1 );
+			- ( 15 * log( 1 + $breakdown['critical'] ) )
+			- ( 8 * log( 1 + $breakdown['high'] ) )
+			- ( 3 * log( 1 + $breakdown['medium'] ) )
+			- ( 1 * log( 1 + $breakdown['low'] ) );
 
-		$score = max( 0, min( 100, $score ) );
+		$score = (int) round( max( 0, min( 100, $score ) ) );
 
 		$repository     = new ScoreSnapshotRepository( 'security' );
 		$previous_score = $this->find_previous_score( $repository );

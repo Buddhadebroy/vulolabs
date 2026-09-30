@@ -1926,6 +1926,17 @@
 	font-size: 0.75rem;
 }
 
+.business-name-panel-source-issues {
+	margin: 0.25rem 0 0;
+	padding-left: 1.125rem;
+	font-size: 0.75rem;
+	color: $sub-text-color;
+
+	li {
+		list-style: disc;
+	}
+}
+
 .business-name-panel-tip,
 .business-name-panel-recommendation {
 	display: flex;

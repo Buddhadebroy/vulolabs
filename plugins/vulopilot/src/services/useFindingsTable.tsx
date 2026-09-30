@@ -2,14 +2,16 @@
 import { FixOutcome } from './showFixOutcome';
 import { useFixNotice } from './useFixNotice';
 import { useState } from 'react';
+import type { ReactElement } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { getApiLink, sendApiResponse } from '@zyra/core';
-import { NoticeManager } from '@zyra/components';
+import { BadgeComponent, NoticeManager, PopupComponent } from '@zyra/components';
 import type { TableCardProps, TableRow } from '@zyra/table';
 import { useApiList } from './useApiList';
 import { formatWpDate } from './formatWpDate';
 import { getSeverityColor } from './getSeverityClass';
+import TypographyComponent from '../components/TypographyComponent';
 
 /** Categories whose conventional written form isn't plain title-case. */
 const CATEGORY_ACRONYMS: Record<string, string> = {
@@ -104,6 +106,11 @@ export interface UseFindingsTableResult {
 	refetch: () => void;
 	isProPopupOpen: boolean;
 	closeProPopup: () => void;
+	/**
+	 * The "View" row action's own detail popup, already wired to `viewingFinding`/`closeView` -
+	 * render it once alongside `tableCardProps` (same pattern as `fixNotice`).
+	 */
+	viewPopup: ReactElement;
 }
 
 /**
@@ -118,6 +125,7 @@ export const useFindingsTable = ({
 	pillDimension = 'status',
 }: UseFindingsTableProps): UseFindingsTableResult => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
+	const [viewingFinding, setViewingFinding] = useState<Finding | null>(null);
 
 	/** Every finding status, in display order - reused for both the status-count pill bar and (previously) the status dropdown filter it now replaces. */
 	const statusOptions = [
@@ -209,6 +217,12 @@ export const useFindingsTable = ({
 		});
 	};
 
+	const handleView = (row?: Record<string, unknown>) => {
+		if (row) {
+			setViewingFinding(row as Finding);
+		}
+	};
+
 	const handleResolve = (row?: Record<string, unknown>) =>
 		handleSetStatus(
 			row,
@@ -285,6 +299,11 @@ export const useFindingsTable = ({
 			label: __('Actions', 'vulopilot'),
 			type: 'action',
 			actions: [
+				{
+					label: __('View', 'vulopilot'),
+					icon: 'eye',
+					onClick: handleView,
+				},
 				{
 					label: (row?: Record<string, unknown>) =>
 						row?.status === 'open'
@@ -511,6 +530,62 @@ export const useFindingsTable = ({
 		],
 	};
 
+	const closeView = () => setViewingFinding(null);
+
+	const viewPopup = (
+		<PopupComponent
+			open={Boolean(viewingFinding)}
+			onClose={closeView}
+			width={28}
+			height="auto"
+			header={{
+				title: viewingFinding?.title || '',
+				icon: 'info',
+			}}
+		>
+			{viewingFinding && (
+				<div className="finding-view-popup">
+					<TypographyComponent as="p" variant="desc">
+						{viewingFinding.description ||
+							sprintf(
+								/* translators: 1: page path or "Site-wide", 2: formatted date */
+								__('%1$s · Detected %2$s', 'vulopilot'),
+								viewingFinding.page || __('Site-wide', 'vulopilot'),
+								formatWpDate(viewingFinding.created_at)
+							)}
+					</TypographyComponent>
+					<div className="finding-view-popup-badges">
+						<BadgeComponent
+							text={humanizeCategory(viewingFinding.category)}
+							color={`badge-${viewingFinding.category}`}
+						/>
+						<BadgeComponent text={viewingFinding.severity} color="blue" />
+						<BadgeComponent
+							text={viewingFinding.status}
+							color={`badge-${viewingFinding.status}`}
+						/>
+					</div>
+					{viewingFinding.page && (
+						<TypographyComponent as="p" variant="desc">
+							{sprintf(
+								/* translators: %s: page path or title this finding was detected on. */
+								__('Page: %s', 'vulopilot'),
+								viewingFinding.page_title || viewingFinding.page
+							)}
+						</TypographyComponent>
+					)}
+					<TypographyComponent as="p" variant="desc">
+						{sprintf(
+							/* translators: %s: formatted date the finding was first detected. */
+							__('Detected: %s', 'vulopilot'),
+							formatWpDate(viewingFinding.created_at)
+						)}
+					</TypographyComponent>
+				</div>
+			)}
+		</PopupComponent>
+	);
+
 	return {
 		tableCardProps,
 		error,
@@ -518,5 +593,6 @@ export const useFindingsTable = ({
 		isProPopupOpen,
 		closeProPopup: () => setIsProPopupOpen(false),
 		fixNotice,
+		viewPopup,
 	};
 };

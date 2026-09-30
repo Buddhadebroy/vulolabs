@@ -173,10 +173,16 @@ class BrokenImagesScanner extends ScannerUtil implements TracksScannedObjectsInt
 				continue;
 			}
 
-			foreach ( $matches[1] as $url ) {
+			foreach ( $matches[1] as $raw_url ) {
 				if ( count( $images ) >= self::MAX_IMAGES_PER_RUN ) {
 					break;
 				}
+
+				// Stored post_content encodes "&" as an entity (e.g. "&#038;"/"&amp;") - decode
+				// before using this as a real URL, same fix as BrokenLinksScanner's own href
+				// extraction (see that method's own comment for why - the live HTTP check and
+				// "Open URL" both break on every image URL with more than one query param).
+				$url = html_entity_decode( $raw_url, ENT_QUOTES );
 
 				if ( 0 !== strpos( $url, 'http://' ) && 0 !== strpos( $url, 'https://' ) ) {
 					continue;

@@ -359,6 +359,7 @@ const CrawlRobotsSitemapSection = () => {
 		error: blockedPagesError,
 		isProPopupOpen,
 		closeProPopup,
+		viewPopup: blockedPagesViewPopup,
 	} = useFindingsTable({
 		description: __(
 			'No AI-bot-specific blocks found - run a scan to check robots.txt against your published pages.',
@@ -373,26 +374,38 @@ const CrawlRobotsSitemapSection = () => {
 		error: robotsTxtError,
 		isProPopupOpen: isRobotsTxtProPopupOpen,
 		closeProPopup: closeRobotsTxtProPopup,
+		viewPopup: robotsTxtViewPopup,
 	} = useFindingsTable({
 		description: __(
-			'No robots.txt findings yet - run a scan to check crawler access.',
+			'No robots.txt issues yet - run a scan to check crawler access.',
 			'vulopilot'
 		),
 		scannerIds: ['robots-txt'],
 	});
 
+	/**
+	 * Only its own "Fix" pro-upsell popup is still used (below) - the sitemap findings table
+	 * itself isn't rendered anywhere in this section (see `llmsTxtFindingsProps`, which used to be
+	 * mistakenly fed by this hook's `tableCardProps`).
+	 */
 	const {
-		tableCardProps: sitemapFindingsProps,
-		fixNotice: sitemapFixNotice,
-		error: sitemapFindingsError,
 		isProPopupOpen: isSitemapProPopupOpen,
 		closeProPopup: closeSitemapProPopup,
 	} = useFindingsTable({
+		scannerIds: ['sitemap', 'sitemap-validation'],
+	});
+
+	const {
+		tableCardProps: llmsTxtFindingsProps,
+		fixNotice: llmsTxtFixNotice,
+		error: llmsTxtFindingsError,
+		viewPopup: llmsTxtViewPopup,
+	} = useFindingsTable({
 		description: __(
-			'No sitemap findings yet - run a scan to check your XML sitemap.',
+			'No llms.txt findings yet - run a scan to check your llms.txt.',
 			'vulopilot'
 		),
-		scannerIds: ['sitemap', 'sitemap-validation'],
+		scannerIds: ['llms-txt-missing'],
 	});
 
 
@@ -579,7 +592,7 @@ const CrawlRobotsSitemapSection = () => {
 								{robotsTxtError ? (
 									<ModuleGuardComponent
 										icon="error"
-										title={__('Could not load findings', 'vulopilot')}
+										title={__('Could not load issues', 'vulopilot')}
 										desc={robotsTxtError}
 									/>
 								) : (
@@ -659,16 +672,16 @@ const CrawlRobotsSitemapSection = () => {
 										'Whether robots.txt is reachable and not accidentally blocking every crawler.',
 										'vulopilot'
 									)} />
-								{sitemapFindingsError ? (
+								{llmsTxtFindingsError ? (
 									<ModuleGuardComponent
 										icon="error"
 										title={__('Could not load findings', 'vulopilot')}
-										desc={sitemapFindingsError}
+										desc={llmsTxtFindingsError}
 									/>
 								) : (
 									<>
-										{sitemapFixNotice}
-										<TableCard {...sitemapFindingsProps} bulkActions={[]} />
+										{llmsTxtFixNotice}
+										<TableCard {...llmsTxtFindingsProps} bulkActions={[]} />
 									</>
 								)}
 							</div>
@@ -818,6 +831,10 @@ const CrawlRobotsSitemapSection = () => {
 			>
 				{vulopilotAppLocalizer.khali_dabba ? <ShowProPopup moduleName="one-click-fix" /> : <ShowProPopup />}
 			</PopupComponent>
+
+			{blockedPagesViewPopup}
+			{robotsTxtViewPopup}
+			{llmsTxtViewPopup}
 		</>
 	);
 };

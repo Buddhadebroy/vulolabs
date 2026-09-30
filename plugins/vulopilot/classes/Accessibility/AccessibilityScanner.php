@@ -82,7 +82,7 @@ class AccessibilityScanner extends ScannerUtil implements TracksScannedObjectsIn
 				),
 				Severity::LOW,
 				$this->get_category(),
-				__( 'Most themes already render the title as the page\'s <h1>. A second <h1> in the content creates a conflicting heading hierarchy for screen readers.', 'vulopilot' ),
+				__( 'Your theme already shows this page\'s title as an H1 heading. The content below also has a heading set to "Heading 1", so the page ends up with two H1s. Screen reader users navigate by jumping between heading levels, and two H1s breaks that structure - it\'s like a document having two "Chapter 1"s. Fix: in the editor, change that content heading to "Heading 2" (or lower), or use "Fix with AI" below to have it demoted automatically.', 'vulopilot' ),
 				'post',
 				(string) $post->ID
 			);

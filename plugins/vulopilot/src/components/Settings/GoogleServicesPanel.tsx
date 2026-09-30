@@ -171,6 +171,7 @@ const GoogleServicesPanel = () => {
 		isLoading,
 		isConnecting,
 		isDisconnecting,
+		connectError,
 		connect: handleConnect,
 		disconnect: handleDisconnect,
 	} = useGoogleServicesConnection( 'settings' );
@@ -396,6 +397,7 @@ const GoogleServicesPanel = () => {
 								</li>
 							) ) }
 						</ul>
+						{ connectError && <div className="desc gsc-connect-error">{ connectError }</div> }
 					</CardHeader>
 				) }
 			</>

@@ -37,6 +37,10 @@ export interface FindingGroup {
 	fix_action_id?: string | null;
 	/** Set when fix_action_id is null - why this scanner's findings need a manual/admin decision instead. */
 	no_fix_reason?: string | null;
+	/** The real admin screen no_fix_reason points at, when one exists. */
+	no_fix_link?: { url: string; label: string } | null;
+	/** Step-by-step version of no_fix_reason, when written for this scanner_id - shown as a numbered "Recommended fix" list instead of the plain reason paragraph. */
+	no_fix_steps?: string[] | null;
 }
 
 /**

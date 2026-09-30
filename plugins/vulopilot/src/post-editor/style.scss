@@ -6,6 +6,38 @@
 	}
 }
 
+.vulopilot-seo-score-badges {
+	display: flex;
+	gap: 8px;
+	padding: 0 4px 12px;
+}
+
+.vulopilot-seo-score-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 3px 10px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 600;
+
+	.dashicons {
+		width: 14px;
+		height: 14px;
+		font-size: 14px;
+	}
+
+	&--seo {
+		background: #fdf0d5;
+		color: #8a6d1e;
+	}
+
+	&--ai {
+		background: #fbe1ec;
+		color: #a41e5c;
+	}
+}
+
 .vulopilot-seo-section-label {
 	font-size: 11px;
 	font-weight: 600;
@@ -48,8 +80,9 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
-	background: #d9ead1;
-	color: #2a5a1e;
+	// Default (additional/secondary keyword) - Primary below overrides this.
+	background: #fbe1e6;
+	color: #9a2b45;
 	border-radius: 3px;
 	padding: 4px 6px 4px 8px;
 	font-size: 13px;
@@ -59,7 +92,16 @@
 		width: 14px;
 		height: 14px;
 		font-size: 14px;
-		color: #6ba043;
+		color: inherit;
+	}
+
+	&--primary {
+		background: #fbeacb;
+		color: #8a5a00;
+
+		.dashicons {
+			color: #d69e00;
+		}
 	}
 
 	&__remove {
@@ -71,7 +113,7 @@
 		padding: 2px;
 		margin: 0;
 		cursor: pointer;
-		color: #2a5a1e;
+		color: inherit;
 
 		.dashicons {
 			width: 12px;
@@ -247,6 +289,26 @@
 
 	&__message {
 		flex-grow: 1;
+	}
+
+	&__fix-dropdown .components-button .dashicons {
+		width: 14px;
+		height: 14px;
+		font-size: 14px;
+		margin-left: 2px;
+	}
+}
+
+.vulopilot-seo-checklist__fix-menu {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 4px;
+	min-width: 160px;
+
+	.components-button {
+		justify-content: flex-start;
+		width: 100%;
 	}
 }
 

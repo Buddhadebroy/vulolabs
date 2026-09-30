@@ -377,6 +377,16 @@ class AiCreditsConnection {
 				return new \WP_Error( 'vulopilot_vulocloud_ai_not_configured', __( 'Your Organization hasn’t configured an AI key yet.', 'vulopilot' ), array( 'status' => $status ) );
 			}
 
+			if ( 'CONNECTED_SITE_REVOKED' === $error ) {
+				// VuloCloud no longer recognizes this site's stored credential (e.g. disconnected/
+				// reconnected on the VuloCloud side) - our local option is stale and would otherwise
+				// keep claiming "connected" forever. Clear it so Settings → Connections reflects
+				// reality and offers to reconnect, instead of every AI call failing silently.
+				delete_option( self::OPTION_KEY );
+
+				return new \WP_Error( 'vulopilot_vulocloud_site_revoked', __( 'This site\'s VuloCloud connection was revoked. Please reconnect under Settings → Connections.', 'vulopilot' ), array( 'status' => $status ) );
+			}
+
 			if ( 409 === $status || 429 === $status || $status >= 500 ) {
 				// Retryable - including 409 "this same requestId is still running": the retry
 				// either replays the finished answer or waits its turn.

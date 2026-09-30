@@ -102,11 +102,11 @@ class BrandIntelligence extends \WP_REST_Controller {
 	 */
 	private function calculate_score( array $breakdown ): int {
 		$score = 100
-			- ( $breakdown['critical'] * 15 )
-			- ( $breakdown['high'] * 8 )
-			- ( $breakdown['medium'] * 3 )
-			- ( $breakdown['low'] * 1 );
+			- ( 15 * log( 1 + $breakdown['critical'] ) )
+			- ( 8 * log( 1 + $breakdown['high'] ) )
+			- ( 3 * log( 1 + $breakdown['medium'] ) )
+			- ( 1 * log( 1 + $breakdown['low'] ) );
 
-		return max( 0, min( 100, $score ) );
+		return (int) round( max( 0, min( 100, $score ) ) );
 	}
 }

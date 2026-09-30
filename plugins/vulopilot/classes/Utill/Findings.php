@@ -148,6 +148,7 @@ class Findings extends \WP_REST_Controller {
 		$search      = sanitize_text_field( (string) $request->get_param( 'search' ) );
 		$scanner_ids = $this->parse_comma_separated_list( $request->get_param( 'scanner_id' ) );
 		$priority    = sanitize_key( (string) $request->get_param( 'priority' ) );
+		$object_type = sanitize_key( (string) $request->get_param( 'object_type' ) );
 
 		if ( '' !== $severity && ! Severity::is_valid( $severity ) ) {
 			return new \WP_Error( 'vulopilot_invalid_severity', __( 'Invalid severity filter.', 'vulopilot' ), array( 'status' => 400 ) );
@@ -162,15 +163,16 @@ class Findings extends \WP_REST_Controller {
 
 		$result                  = $repository->find_all(
 			array(
-				'page'       => absint( $request->get_param( 'page' ) ) ? absint( $request->get_param( 'page' ) ) : 1,
-				'per_page'   => absint( $request->get_param( 'per_page' ) ) ? absint( $request->get_param( 'per_page' ) ) : 20,
-				'category'   => $category,
-				'severity'   => $severity_filter,
-				'status'     => $status,
-				'search'     => $search,
-				'scanner_id' => $scanner_ids ?? '',
-				'orderby'    => sanitize_key( (string) $request->get_param( 'orderby' ) ),
-				'order'      => sanitize_key( (string) $request->get_param( 'order' ) ),
+				'page'        => absint( $request->get_param( 'page' ) ) ? absint( $request->get_param( 'page' ) ) : 1,
+				'per_page'    => absint( $request->get_param( 'per_page' ) ) ? absint( $request->get_param( 'per_page' ) ) : 20,
+				'category'    => $category,
+				'severity'    => $severity_filter,
+				'status'      => $status,
+				'search'      => $search,
+				'scanner_id'  => $scanner_ids ?? '',
+				'object_type' => $object_type,
+				'orderby'     => sanitize_key( (string) $request->get_param( 'orderby' ) ),
+				'order'       => sanitize_key( (string) $request->get_param( 'order' ) ),
 			)
 		);
 		$result['status_counts'] = $repository->get_status_counts( '' !== $category ? $category : null, $scanner_ids );
@@ -204,15 +206,19 @@ class Findings extends \WP_REST_Controller {
 
 	/**
 	 * GET /findings/attention-summary - real open-findings counts bucketed into 3 priority
-	 * tiers.
+	 * tiers. Sitewide (every category combined) by default - AI Copilot's own "Needs your
+	 * attention" card wants that - or scoped to one real category (e.g. `?category=security`) for
+	 * a category-specific card like SecurityStatusCard.tsx's own banner, which otherwise shows a
+	 * sitewide total mislabeled as if it were specific to that one category.
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return \WP_REST_Response
 	 */
 	public function get_attention_summary( $request ) {
+		$category        = sanitize_key( (string) $request->get_param( 'category' ) );
 		$repository      = new FindingRepository();
-		$priority_counts = $repository->get_priority_counts();
-		$groups          = $repository->get_top_finding_groups( 3 );
+		$priority_counts = $repository->get_priority_counts( '' !== $category ? $category : null );
+		$groups          = $repository->get_top_finding_groups( 3, '' !== $category ? array( $category ) : array() );
 
 		$label_scanner = static function ( array $group ): array {
 			$scanner        = VuloPilot()->scanner_registry->get_scanner( $group['scanner_id'] );
@@ -284,11 +290,16 @@ class Findings extends \WP_REST_Controller {
 
 				$sample = $repository->find_all(
 					array(
-						'scanner_id' => $group['scanner_id'],
-						'status'     => 'open',
-						'per_page'   => 1,
-						'orderby'    => 'id',
-						'order'      => 'desc',
+						'scanner_id'  => $group['scanner_id'],
+						// A scanner can report several unrelated object_types under one
+						// scanner_id (see FindingRepository::get_finding_groups()'s own
+						// docblock) - without this, the sample could be a different finding
+						// type than the one this group's count/severity actually describe.
+						'object_type' => $group['object_type'] ?? '',
+						'status'      => 'open',
+						'per_page'    => 1,
+						'orderby'     => 'id',
+						'order'       => 'desc',
 					)
 				);
 

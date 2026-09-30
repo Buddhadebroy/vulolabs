@@ -115,8 +115,11 @@ const SecurityStatusCard = ({
 			})
 			.finally(() => setIsLoading(false));
 
+		// Scoped to 'security' - the endpoint is sitewide by default (every category combined),
+		// which used to make this card's "I found N security issues" banner show the site's TOTAL
+		// open-finding count across every category, mislabeled as if it were security-specific.
 		getApiResponse<AttentionSummary>(
-			getApiLink(vulopilotAppLocalizer, 'findings/attention-summary'),
+			getApiLink(vulopilotAppLocalizer, 'findings/attention-summary?category=security'),
 			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {

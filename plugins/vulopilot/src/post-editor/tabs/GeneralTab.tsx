@@ -26,7 +26,14 @@ export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
 	const noindex = Boolean( meta[ metaKeys.robots_noindex ] );
 	const nofollow = Boolean( meta[ metaKeys.robots_nofollow ] );
 	const isCanonicalHighlighted = useFieldHighlight( highlightTarget, 'canonical_url' );
-	const focusKeyword = ( meta[ window.vulopilotPostSeo.metaKeys.focus_keyword ] as string ) || '';
+	// Stored as one comma-separated string (PostSeoMetaFields::split_keywords()'s own docblock) -
+	// the first is the "primary" keyword every check on the Page Analysis tab scores against,
+	// same primary/additional distinction Rank Math's own focus keyword field uses.
+	const focusKeywordRaw = ( meta[ window.vulopilotPostSeo.metaKeys.focus_keyword ] as string ) || '';
+	const focusKeywords = focusKeywordRaw
+		.split( ',' )
+		.map( ( keyword ) => keyword.trim() )
+		.filter( Boolean );
 
 	const [ isEditingSnippet, setIsEditingSnippet ] = useState( false );
 	const [ isAddingKeyword, setIsAddingKeyword ] = useState( false );
@@ -42,18 +49,23 @@ export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
 		setIsAddingKeyword( true );
 	};
 
+	const saveKeywords = ( keywords: string[] ) =>
+		setMeta( { [ window.vulopilotPostSeo.metaKeys.focus_keyword ]: keywords.join( ', ' ) } );
+
 	const commitKeywordDraft = () => {
 		const value = keywordDraft.trim();
 
-		if ( value ) {
-			setMeta( { [ window.vulopilotPostSeo.metaKeys.focus_keyword ]: value } );
+		// Case-insensitive de-dupe - re-typing the same keyword shouldn't add a second pill.
+		if ( value && ! focusKeywords.some( ( keyword ) => keyword.toLowerCase() === value.toLowerCase() ) ) {
+			saveKeywords( [ ...focusKeywords, value ] );
 		}
 
+		setKeywordDraft( '' );
 		setIsAddingKeyword( false );
 	};
 
-	const removeKeyword = () =>
-		setMeta( { [ window.vulopilotPostSeo.metaKeys.focus_keyword ]: '' } );
+	const removeKeyword = ( index: number ) =>
+		saveKeywords( focusKeywords.filter( ( _keyword, i ) => i !== index ) );
 
 	return (
 		<div className="vulopilot-seo-tab vulopilot-seo-tab--general">
@@ -114,46 +126,53 @@ export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
 
 			<div className="vulopilot-seo-section-label">{ __( 'Focus Keyword', 'vulopilot' ) }</div>
 			<p className="small desc vulopilot-seo-focus-keyword-help">
-				{ __( 'The main term you want this page to rank for - drives the checks on the Page Analysis tab.', 'vulopilot' ) }
+				{ __( 'The terms you want this page to rank for. The first (primary) keyword drives the checks on the Page Analysis tab - the rest are tracked alongside it.', 'vulopilot' ) }
 			</p>
 
 			<div className="vulopilot-seo-focus-keyword">
-				{ focusKeyword && (
-					<span className="vulopilot-seo-keyword-pill">
-						<i className="dashicons dashicons-star-filled" />
-						{ focusKeyword }
+				{ focusKeywords.map( ( keyword, index ) => (
+					<span
+						key={ `${ keyword }-${ index }` }
+						className={ `vulopilot-seo-keyword-pill${ 0 === index ? ' vulopilot-seo-keyword-pill--primary' : '' }` }
+					>
+						{ 0 === index && <i className="dashicons dashicons-star-filled" /> }
+						{ keyword }
 						<button
 							type="button"
 							className="vulopilot-seo-keyword-pill__remove"
 							aria-label={ __( 'Remove focus keyword', 'vulopilot' ) }
-							onClick={ removeKeyword }
+							onClick={ () => removeKeyword( index ) }
 						>
 							<i className="dashicons dashicons-no-alt" />
 						</button>
 					</span>
-				) }
+				) ) }
 
-				{ ! focusKeyword && isAddingKeyword && (
+				{ isAddingKeyword ? (
 					<TextControl
 						autoFocus
 						value={ keywordDraft }
-						placeholder={ __( 'Add a focus keyword…', 'vulopilot' ) }
+						placeholder={
+							0 === focusKeywords.length
+								? __( 'Add a focus keyword…', 'vulopilot' )
+								: __( 'Add another keyword…', 'vulopilot' )
+						}
 						onChange={ setKeywordDraft }
 						onKeyDown={ ( event ) => {
-							if ( 'Enter' === event.key ) {
+							if ( 'Enter' === event.key || ',' === event.key ) {
 								event.preventDefault();
 								commitKeywordDraft();
+								setIsAddingKeyword( true );
 							}
 
 							if ( 'Escape' === event.key ) {
+								setKeywordDraft( '' );
 								setIsAddingKeyword( false );
 							}
 						} }
 						onBlur={ commitKeywordDraft }
 					/>
-				) }
-
-				{ ! focusKeyword && ! isAddingKeyword && (
+				) : (
 					<Button variant="tertiary" size="small" icon="plus-alt2" onClick={ startAddingKeyword }>
 						{ __( 'Add Focus Keyword', 'vulopilot' ) }
 					</Button>

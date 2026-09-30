@@ -182,19 +182,21 @@ class Visibility extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Same weighting every other real score in this codebase uses.
+	 * Same weighting every other real score in this codebase uses - logarithmic, not linear,
+	 * per-tier penalty (see Dashboard::score_from_breakdown()'s own docblock for why: a linear
+	 * count*weight penalty saturates to 0 after roughly a dozen high-severity findings).
 	 *
 	 * @param array{critical: int, high: int, medium: int, low: int} $breakdown Severity breakdown to score.
 	 * @return int 0-100.
 	 */
 	private function calculate_score( array $breakdown ): int {
 		$score = 100
-			- ( $breakdown['critical'] * 15 )
-			- ( $breakdown['high'] * 8 )
-			- ( $breakdown['medium'] * 3 )
-			- ( $breakdown['low'] * 1 );
+			- ( 15 * log( 1 + $breakdown['critical'] ) )
+			- ( 8 * log( 1 + $breakdown['high'] ) )
+			- ( 3 * log( 1 + $breakdown['medium'] ) )
+			- ( 1 * log( 1 + $breakdown['low'] ) );
 
-		return max( 0, min( 100, $score ) );
+		return (int) round( max( 0, min( 100, $score ) ) );
 	}
 
 	/**

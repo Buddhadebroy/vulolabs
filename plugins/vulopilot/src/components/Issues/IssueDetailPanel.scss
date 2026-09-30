@@ -176,6 +176,20 @@
 
 .issue-detail-example-where {
 	margin-top: 0.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+}
+
+.issue-detail-example-open-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	color: var(--color-primary);
+	text-decoration: underline;
+	font-size: 0.8125rem;
+	white-space: nowrap;
 }
 
 .issue-detail-fix-steps {

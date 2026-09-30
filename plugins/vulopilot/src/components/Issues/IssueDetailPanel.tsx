@@ -56,6 +56,36 @@ interface FindingRow {
 const MAX_AFFECTED_ITEMS_SHOWN = 20;
 
 /**
+ * Where clicking an affected item (in the "Affected items" list) should open. Prefers the live
+ * front-end page (`row.page`, already a site-relative path from `Findings::add_page_field()`) so
+ * the user sees the actual rendered issue in context - the point for review-only findings like
+ * WCAG link text, which isn't visible from the editor. Falls back to WordPress's own
+ * `post.php?post={id}&action=edit` screen when there's no page (e.g. site-wide checks) but the
+ * row is still a real post/attachment.
+ *
+ * @param row A FindingRow (or FindingGroup.sample, same shape).
+ * @return The URL to open, or undefined if this row has no obvious target.
+ */
+const getAffectedItemLink = (
+	row: Pick<FindingRow, 'object_type' | 'object_ref' | 'page'>
+): string | undefined => {
+	if (row.page && __('Site-wide', 'vulopilot') !== row.page) {
+		return `${vulopilotAppLocalizer.site_url}${row.page}`;
+	}
+
+	if (
+		!row.object_ref ||
+		('attachment' !== row.object_type && 'post' !== row.object_type)
+	) {
+		return undefined;
+	}
+
+	// admin_url is `.../admin.php?page=vulopilot` (built for appending `#&tab=...` hashes
+	// elsewhere in this app) - not a base to prefix a *different* admin.php query onto.
+	return `${vulopilotAppLocalizer.site_url}/wp-admin/post.php?post=${encodeURIComponent(row.object_ref)}&action=edit`;
+};
+
+/**
  * Section label per real `object_type` - same noun set formatAffected() already uses for the bare
  * count line.
  */
@@ -136,10 +166,18 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		setIsLoadingAffected(true);
 		setAffectedItems(null);
 
+		// Scoped by object_type too, not just scanner_id - a scanner like WordPressHealthScanner
+		// legitimately reports several unrelated finding types (inactive plugins, REST
+		// availability, HTTPS status, ...) under one scanner_id, and this group's own count/sample
+		// only describe one of them (see FindingRepository::get_finding_groups()'s own docblock).
+		const objectTypeParam = group.object_type
+			? `&object_type=${encodeURIComponent(group.object_type)}`
+			: '';
+
 		getApiResponse<{ data?: FindingRow[] } | FindingRow[]>(
 			getApiLink(
 				vulopilotAppLocalizer,
-				`findings?scanner_id=${encodeURIComponent(group.scanner_id)}&status=open&per_page=${MAX_AFFECTED_ITEMS_SHOWN}&orderby=id&order=desc`
+				`findings?scanner_id=${encodeURIComponent(group.scanner_id)}${objectTypeParam}&status=open&per_page=${MAX_AFFECTED_ITEMS_SHOWN}&orderby=id&order=desc`
 			),
 			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
@@ -151,7 +189,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				setAffectedItems(list);
 			})
 			.finally(() => setIsLoadingAffected(false));
-	}, [group?.scanner_id]);
+	}, [group?.scanner_id, group?.object_type]);
 
 	if (!group) {
 		return (
@@ -193,7 +231,10 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	})();
 
 	/**
-	 * Real, scanner-specific remediation steps - see this file's own top docblock.
+	 * Real, scanner-specific remediation steps - see this file's own top docblock. Two sources,
+	 * tried in order: a performance scanner's own `meta.recommended_fix` (computed per-finding,
+	 * e.g. exact autoloaded option names), then Pro's scanner_id-keyed `no_fix_steps` (written
+	 * once per scanner, covers every other "no automatic fix" category).
 	 */
 	const recommendedFixSteps: string[] = Array.isArray(
 		sampleMeta?.recommended_fix
@@ -201,10 +242,10 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		? (sampleMeta?.recommended_fix as unknown[]).filter(
 			(step: unknown): step is string => 'string' === typeof step
 		)
-		: [];
+		: (group.no_fix_steps ?? []);
 
 	const showRecommendedFix =
-		'performance' === group.category && recommendedFixSteps.length > 0;
+		!group.fix_action_id && recommendedFixSteps.length > 0;
 
 	const whyItMatters =
 		'string' === typeof sampleMeta?.why_it_matters
@@ -267,13 +308,23 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 
 	/**
 	 * The group response only ever carries a `count` + one sample row, not every individual
-	 * finding id.
+	 * finding id. Scoped by `object_type` too, not just `scanner_id` - same reasoning as the
+	 * "Affected items" fetch above (a scanner can legitimately report several unrelated finding
+	 * types under one scanner_id), otherwise this bulk-updates every open finding for the whole
+	 * scanner, not just this group's.
 	 */
-	const fetchGroupIds = (scannerId: string): Promise<number[]> =>
+	const fetchGroupIds = (
+		scannerId: string,
+		objectType: string | null
+	): Promise<number[]> =>
 		getApiResponse<{ data?: { id: number }[] } | { id: number }[]>(
 			getApiLink(
 				vulopilotAppLocalizer,
-				`findings?scanner_id=${encodeURIComponent(scannerId)}&status=open&per_page=100`
+				`findings?scanner_id=${encodeURIComponent(scannerId)}${
+					objectType
+						? `&object_type=${encodeURIComponent(objectType)}`
+						: ''
+				}&status=open&per_page=100`
 			),
 			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		).then((response) => {
@@ -289,7 +340,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		successMessage: string
 	) => {
 		setIsBusy(true);
-		fetchGroupIds(group.scanner_id)
+		fetchGroupIds(group.scanner_id, group.object_type)
 			.then((ids) => {
 				if (!ids.length) {
 					return;
@@ -445,7 +496,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		}
 
 		setIsBusy(true);
-		fetchGroupIds(group.scanner_id)
+		fetchGroupIds(group.scanner_id, group.object_type)
 			.then((ids) => {
 				if (!ids.length) {
 					return;
@@ -526,7 +577,10 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					</div>
 				)}
 
-				{group.sample && (
+				{group.sample && (() => {
+					const samplePageLink = getAffectedItemLink(group.sample);
+
+					return (
 					<div className="issue-detail-section">
 						<div className="issue-detail-section-header">
 							{!isProActive && (
@@ -581,6 +635,17 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 												copyButtonLabel={__('Copy', 'vulopilot')}
 												copiedLabel={__('Copied!', 'vulopilot')}
 											/>
+											{samplePageLink && (
+												<a
+													href={samplePageLink}
+													target="_blank"
+													rel="noreferrer"
+													className="issue-detail-example-open-link"
+												>
+													<i className="adminfont-external" />
+													{__('View page', 'vulopilot')}
+												</a>
+											)}
 										</div>
 									</>,
 									<span className="desc">
@@ -606,6 +671,17 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 												copyButtonLabel={__('Copy', 'vulopilot')}
 												copiedLabel={__('Copied!', 'vulopilot')}
 											/>
+											{samplePageLink && (
+												<a
+													href={samplePageLink}
+													target="_blank"
+													rel="noreferrer"
+													className="issue-detail-example-open-link"
+												>
+													<i className="adminfont-external" />
+													{__('View page', 'vulopilot')}
+												</a>
+											)}
 										</div>
 									</>,
 									<span className="desc">
@@ -617,7 +693,8 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 									false
 								)}
 					</div>
-				)}
+				);
+			})()}
 
 				<div className="issue-detail-section">
 					<div className="issue-detail-section-header">
@@ -640,17 +717,47 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 							<ListComponent
 								className="mini-card report"
 								loading={isLoadingAffected}
-								items={otherAffectedItems.map((row) => ({
-									id: row.id,
-									icon: CATEGORY_ICONS[group.category] ?? 'ai',
-									title: row.title,
-									desc: sprintf(
-										/* translators: 1: affected page/location, 2: formatted detection date */
-										__('%1$s • Detected %2$s', 'vulopilot'),
-										row.page || __('Site-wide', 'vulopilot'),
-										formatWpDate(row.last_seen_at ?? row.created_at)
-									),
-								}))}
+								items={otherAffectedItems.map((row) => {
+									const pageLink = getAffectedItemLink(row);
+
+									return {
+										id: row.id,
+										icon: CATEGORY_ICONS[group.category] ?? 'ai',
+										title: row.title,
+										desc: sprintf(
+											/* translators: 1: affected page/location, 2: formatted detection date */
+											__('%1$s • Detected %2$s', 'vulopilot'),
+											row.page || __('Site-wide', 'vulopilot'),
+											formatWpDate(row.last_seen_at ?? row.created_at)
+										),
+										// `action` (not `link`) - ListComponent's own `<a>` branch
+										// for `link` drops the `desc` line entirely.
+										action: pageLink
+											? () =>
+												window.open(
+													pageLink,
+													'_blank',
+													'noopener,noreferrer'
+												)
+											: undefined,
+										// Explicit visible link, since `action` alone (the whole row
+										// being clickable) has no visual affordance of its own.
+										// `stopPropagation` avoids double-opening via the row's
+										// own `action` above.
+										tags: pageLink ? (
+											<a
+												href={pageLink}
+												target="_blank"
+												rel="noreferrer"
+												className="issue-detail-example-open-link"
+												onClick={(e) => e.stopPropagation()}
+											>
+												<i className="adminfont-external" />
+												{__('View page', 'vulopilot')}
+											</a>
+										) : undefined,
+									};
+								})}
 							/>
 							{!isLoadingAffected &&
 								affectedItems &&
@@ -724,7 +831,25 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 							<div className="issue-detail-manual-fix-notice-title">
 								{__('Needs your review - no automatic fix', 'vulopilot')}
 							</div>
-							<div className="desc">{group.no_fix_reason}</div>
+							{/* The numbered steps above already say this - skip the redundant paragraph, keep the link. */}
+							{!showRecommendedFix && (
+								<div className="desc">{group.no_fix_reason}</div>
+							)}
+							{group.no_fix_link && (
+								<div className="small desc">
+									<a
+										href={group.no_fix_link.url}
+										target="_blank"
+										rel="noreferrer"
+										style={{
+											color: 'var(--color-primary)',
+											textDecoration: 'underline',
+										}}
+									>
+										{group.no_fix_link.label}
+									</a>
+								</div>
+							)}
 							<div className="small desc">
 								{__('Check the details above for what to look at.', 'vulopilot')}
 							</div>

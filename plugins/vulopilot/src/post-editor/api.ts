@@ -130,6 +130,11 @@ export function analyzePage( postId: number ): Promise< PageAnalysisResponse > {
 	return request( `seo/analyze-page?post_id=${ postId }`, { method: 'GET' } );
 }
 
+/** Same real severity-weighted score `Seo::calculate_score()` uses site-wide, narrowed to this post. */
+export function getPostSeoScore( postId: number ): Promise< { score: number } > {
+	return request( `seo/post-score?post_id=${ postId }`, { method: 'GET' } );
+}
+
 /** Same real `POST /findings/{id}/fix` the dashboard's own "Fix with AI" buttons call. */
 export function fixFinding( findingId: number ): Promise< FixResponse > {
 	return request( `findings/${ findingId }/fix`, { method: 'POST' } );

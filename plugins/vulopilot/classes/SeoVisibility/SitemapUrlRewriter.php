@@ -126,9 +126,44 @@ class SitemapUrlRewriter {
 			if ( $last_modified ) {
 				$sitemap_entry['lastmod'] = wp_date( DATE_W3C, strtotime( $last_modified ) );
 			}
+		} elseif ( ! isset( $sitemap_entry['lastmod'] ) && 'term' === $object_type && $object_subtype ) {
+			$last_modified = $this->get_last_modified_for_taxonomy( $object_subtype );
+
+			if ( $last_modified ) {
+				$sitemap_entry['lastmod'] = wp_date( DATE_W3C, strtotime( $last_modified ) );
+			}
 		}
 
 		return $sitemap_entry;
+	}
+
+	/**
+	 * Core has no `get_lastpostmodified()` equivalent scoped to a taxonomy, so this finds it
+	 * directly: the most recently modified published post carrying any term of `$taxonomy`.
+	 *
+	 * @param string $taxonomy Taxonomy slug.
+	 * @return string Post's `post_modified_gmt`, or '' when nothing is published yet.
+	 */
+	private function get_last_modified_for_taxonomy( string $taxonomy ): string {
+		$posts = get_posts(
+			array(
+				'post_type'      => 'any',
+				'post_status'    => 'publish',
+				'posts_per_page' => 1,
+				'orderby'        => 'modified',
+				'order'          => 'DESC',
+				'fields'         => 'ids',
+				'no_found_rows'  => true,
+				'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- one bounded, LIMIT 1 lookup for the sitemap index's own lastmod column.
+					array(
+						'taxonomy' => $taxonomy,
+						'operator' => 'EXISTS',
+					),
+				),
+			)
+		);
+
+		return $posts ? (string) get_post_field( 'post_modified_gmt', $posts[0] ) : '';
 	}
 
 	/**
