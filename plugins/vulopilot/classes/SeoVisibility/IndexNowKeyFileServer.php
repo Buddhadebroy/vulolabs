@@ -88,8 +88,7 @@ class IndexNowKeyFileServer {
 	}
 
 	/**
-	 * Generates a fresh 32-character lowercase hex key - real cryptographically-suitable
-	 * randomness (`random_bytes()`), not a client-trusted value.
+	 * Generates a fresh 32-character lowercase hex key.
 	 *
 	 * @return string
 	 */

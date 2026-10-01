@@ -23,6 +23,7 @@ interface SectionedFindingsTabProps {
 	title: string;
 	sections: FindingsSection[];
 	activeTab: SectionedIssuesTab;
+	// eslint-disable-next-line no-unused-vars
 	onTabChange: (tab: SectionedIssuesTab) => void;
 	header?: ReactNode;
 	footer?: ReactNode;

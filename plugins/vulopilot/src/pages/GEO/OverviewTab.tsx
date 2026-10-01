@@ -23,8 +23,11 @@ import './SeoVisibility.scss';
 
 interface OverviewTabProps {
 	onNavigateTab: (
+		// eslint-disable-next-line no-unused-vars
 		tab: string,
+		// eslint-disable-next-line no-unused-vars
 		crawlUrlsSection?: CrawlUrlsSectionId,
+		// eslint-disable-next-line no-unused-vars
 		scannerId?: string
 	) => void;
 }
@@ -263,11 +266,8 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 									<ChartComponent
 										type="ring"
 										height={200}
-										// Top-level `color` - same prop `OverallScoreWidget.tsx`'s
-										// own identical ring reads for its actual stroke
-										// (`type="ring"` never reads a per-row `data[].color` the
-										// way `type="pie"` does - see BusinessProfileCard.tsx's own
-										// docblock on this same point).
+										// Top-level `color`, as OverallScoreWidget.tsx's ring reads: `type="ring"` never reads per-row
+										// `data[].color` (only `type="pie"` does; see BusinessProfileCard.tsx).
 										color={RATING_RING_COLOR[ratingClass(score.visibility_score)]}
 										centerLabel={
 											<>

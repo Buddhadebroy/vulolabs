@@ -107,7 +107,6 @@ const GeoAeoPageAnalysisPanel = ({
 		return () => {
 			cancelled = true;
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [postId, scannerIdsKey]);
 
 	/** Same real "pick the worst one" posture `SeoIssuesByPageTable.tsx`'s own row-level "Fix with AI" already uses (`worstFinding()`). */

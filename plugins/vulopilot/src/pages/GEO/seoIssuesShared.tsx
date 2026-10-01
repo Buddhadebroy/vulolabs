@@ -31,6 +31,8 @@ export const PRIORITY_SEVERITIES: Record<'high' | 'medium' | 'low', FindingSever
 export interface RawFinding {
 	id: number;
 	title: string;
+	/** The scanner's own longer explanation of the finding - already returned by `find_all()`'s own `SELECT *`, same as `created_at` below. */
+	description?: string;
 	severity: FindingSeverity;
 	status: 'open' | 'resolved' | 'ignored' | 'snoozed';
 	scanner_id: string;
@@ -72,7 +74,6 @@ export const fetchOpenFindingsFor = async (
 	let page = 1;
 	let all: RawFinding[] = [];
 
-	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		const response = await getApiResponse<FindingsResponse>(
 			getApiLink(

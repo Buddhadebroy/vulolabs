@@ -139,8 +139,7 @@ class PageSpeedScanner {
 		);
 		$elapsed_ms = (int) round( ( microtime( true ) - $started_at ) * 1000 );
 
-		// A page that cannot be fetched is still a result: leave it out and the
-		// list stays empty with no hint of what went wrong.
+		// A failed fetch is still recorded, instead of just vanishing from the list.
 		if ( is_wp_error( $response ) ) {
 			$repository->replace_for_url(
 				array(
@@ -193,7 +192,7 @@ class PageSpeedScanner {
 				$main_issue = $psi_issue;
 			}
 
-			foreach ( $psi_detail as $key => $default_value ) {
+			foreach ( array_keys( $psi_detail ) as $key ) {
 				$psi_detail[ $key ] = $mobile[ $key ] ?? ( $desktop[ $key ] ?? null );
 			}
 		}

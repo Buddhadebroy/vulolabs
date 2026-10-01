@@ -138,11 +138,13 @@ const CHANGE_STATUS_LABEL: Record<string, string> = {
 
 interface HistoryDetailPanelProps {
 	row: HistoryRow | null;
-	/* eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters, same as StatWidget.tsx's StatWidgetConfig. */
+	 
+	// eslint-disable-next-line no-unused-vars
 	onDeleted: (row: HistoryRow) => void;
 	/** Called after a real, successful rollback so the caller can reload the timeline. */
 	onRolledBack: () => void;
-	/* eslint-disable-next-line no-unused-vars -- named param on a type-only call signature, same as onDeleted above. */
+	 
+	// eslint-disable-next-line no-unused-vars
 	onSelectRelatedAction: (id: number) => void;
 }
 

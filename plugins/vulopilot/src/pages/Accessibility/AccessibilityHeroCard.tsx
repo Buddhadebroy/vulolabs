@@ -27,13 +27,13 @@ interface AccessibilityHeroCardProps {
 	onReviewIssues: () => void;
 }
 
-/** Same real 3-tier band shape `PerformanceScoreCard.tsx`'s own `Rating` interface uses. */
+/** Same 3-tier band shape as PerformanceScoreCard.tsx's Rating. */
 interface Rating {
 	label: string;
 	className: 'good' | 'needs-improvement' | 'poor';
 }
 
-/** Lighthouse-style real 0-100 bands, matching `PerformanceScoreCard.tsx`'s own `getScoreRating()` so a "good" accessibility score and a "good" performance score mean the same thing. */
+/** Lighthouse-style 0-100 bands, matching PerformanceScoreCard.tsx's getScoreRating(). */
 const getScoreRating = (score: number): Rating => {
 	if (score >= 90) {
 		return { label: __('Good', 'vulopilot'), className: 'good' };
@@ -44,32 +44,26 @@ const getScoreRating = (score: number): Rating => {
 	return { label: __('At Risk', 'vulopilot'), className: 'poor' };
 };
 
-/**
- * Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`) - same real source
- * `PerformanceScoreCard.tsx`'s own `RATING_COLOR` reads.
- */
+/** Zyra palette hex (@zyra/core's COLOR_PALETTE). */
 const RATING_COLOR: Record<Rating['className'], string> = {
 	good: COLOR_PALETTE.green,
 	'needs-improvement': COLOR_PALETTE.orange,
 	poor: COLOR_PALETTE.red,
 };
 
-/** Same 3 tiers as `RATING_COLOR` above, mapped to `TypographyComponent`'s own palette color names instead of a literal hex. */
+/** Same 3 tiers as RATING_COLOR, mapped to TypographyComponent's palette color names. */
 const TEXT_COLOR: Record<Rating['className'], string> = {
 	good: 'green',
 	'needs-improvement': 'orange',
 	poor: 'red',
 };
 
-/** Same real bands as `getScoreRating()` above, mapped to the real palette class name the ring color map is keyed by. */
+/** Maps a score to the rating class key used by the color maps above. */
 const ratingClass = (score: number): Rating['className'] => {
 	return getScoreRating(score).className;
 };
 
-/**
- * `category_scores.accessibility` (GET /dashboard, same endpoint SecurityStatusCard.tsx already
- * uses) is real.
- */
+/** Uses category_scores.accessibility from GET /dashboard. */
 const getRating = (score: number): string => {
 	if (score >= 90) {
 		return __(
@@ -86,10 +80,7 @@ const getRating = (score: number): string => {
 	return __('Accessibility needs urgent attention.', 'vulopilot');
 };
 
-/**
- * The mockup's hero card - a real accessibility score gauge (see getRating()'s own docblock for
- * its one real scope caveat).
- */
+/** Hero card showing the accessibility score gauge. */
 const AccessibilityHeroCard = ({
 	onReviewIssues,
 }: AccessibilityHeroCardProps) => {
@@ -106,17 +97,12 @@ const AccessibilityHeroCard = ({
 		});
 	}, []);
 
-	// Real week-over-week delta - `category_scores_7d_ago` is already part of the same `GET
-	// /dashboard` response this card already fetches (Dashboard.php's own snapshot-based 7-days-
-	// ago score).
-
 	const { total, isLoading } = useApiList<AccessibilityFinding>(
 		'findings',
 		{
 			scanner_id: ACCESSIBILITY_SCANNER_IDS.join(','),
 			status: 'open',
-			// Bounds the client-side high-priority/pages-affected tally to the 100 most recent open
-			// findings.
+			// Limits to the 100 most recent open findings.
 			per_page: 100,
 		}
 	);
@@ -134,8 +120,7 @@ const AccessibilityHeroCard = ({
 							<ChartComponent
 								type="ring"
 								height={200}
-								// Top-level `color` - see SecurityStatusCard.tsx's own identical
-								// fix: `type="ring"` only ever paints its stroke from this prop.
+								// type="ring" only paints its stroke from this top-level color prop.
 								color={RATING_COLOR[ratingClass(overallScore)]}
 								centerLabel={
 									<>

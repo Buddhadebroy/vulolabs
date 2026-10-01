@@ -111,6 +111,13 @@ class NotFoundLogs extends \WP_REST_Controller {
 
 		$result['is_system_counts'] = $repository->count_by_column( 'is_system' );
 
+		$redirects = new RedirectRepository();
+
+		foreach ( $result['data'] as &$row ) {
+			$row['has_redirect'] = null !== $redirects->find_by_source_path( RedirectRepository::normalize_path( $row['requested_path'] ) );
+		}
+		unset( $row );
+
 		return rest_ensure_response( $result );
 	}
 

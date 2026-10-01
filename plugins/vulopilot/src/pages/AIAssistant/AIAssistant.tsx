@@ -28,7 +28,7 @@ import {
 } from '../../services/useCopilotChat';
 import { ChatInput, AiChatCard, CopilotTurnBubble } from '../../components/ChatComposerCard';
 
-/** Mirrors Copilot.php's own MAX_ATTACHMENTS - capped client-side too so the composer never offers to add more than the server would actually resolve. */
+/** Mirrors Copilot.php's MAX_ATTACHMENTS. */
 const MAX_ATTACHMENTS = 3;
 
 const ATTACHMENT_ACCEPT =
@@ -53,7 +53,7 @@ const SUGGESTED_PROMPTS = [
 const AIAssistant = () => {
 	const [chatMessage, setChatMessage] = useState('');
 	const [autoApply, setAutoApply] = useState(true);
-	/** Opens the "Recent conversations" popup - the header button lives in this page's own header. */
+	/** Opens the "Recent conversations" popup. */
 	const [isHistoryPopupOpen, setIsHistoryPopupOpen] = useState(false);
 	const [issuesFilter, setIssuesFilter] = useState<IssuesFilter | null>(
 		null
@@ -76,8 +76,7 @@ const AIAssistant = () => {
 	const composerRef = useRef<HTMLDivElement>(null);
 	const didMountRef = useRef(false);
 
-	// Scrolls the appended Issues table into view whenever NeedsAttentionCard sends a new filter
-	// (or a bare "View all issues" click).
+	// Scrolls the Issues table into view on a new filter or "View all issues" click.
 	useEffect(() => {
 		if (!didMountRef.current) {
 			didMountRef.current = true;
@@ -85,7 +84,7 @@ const AIAssistant = () => {
 		}
 
 		scrollToId('ai-copilot-issues-section');
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the token specifically so a same-value issuesFilter update (e.g. "View all issues" when it was already null) still re-triggers the scroll.
+		// Keyed on the token so a same-value filter update still re-triggers the scroll.
 	}, [issuesNavToken]);
 
 	const {
@@ -131,8 +130,7 @@ const AIAssistant = () => {
 		send(chatMessage, [], attachments, autoApply);
 		setChatMessage('');
 		setAttachments([]);
-		// Close the Attach panel on send - otherwise it stays open and reverts to its own empty
-		// "Drag and drop" state.
+		// Close the Attach panel on send.
 		setIsAttachPanelOpen(false);
 	};
 
@@ -211,10 +209,7 @@ const AIAssistant = () => {
 		'vulopilot_automations_panel'
 	);
 
-	/**
-	 * AutomationTemplatesCard's real home is Automate Work (`ManageAutomationsSection.tsx`, via
-	 * `Automations.tsx`).
-	 */
+	/** AutomationTemplatesCard's real home is Automate Work (Automations.tsx). */
 	const handleSelectAutomationTemplate = (template: AutomationTemplate) => {
 		window.location.href = `${vulopilotAppLocalizer.admin_url}#&tab=automations&automation_template=${template.id}`;
 	};
@@ -259,7 +254,7 @@ const AIAssistant = () => {
 			<ContainerComponent general>
 				<ContainerComponent>
 					<ColumnComponent grid={8}>
-						{/* Scroll target for handleSelectConversation() - loading a past thread from the "Recent conversations" sidebar brings this composer back into view. */}
+						{/* Scroll target for handleSelectConversation(). */}
 						<div ref={composerRef}>
 							<AiChatCard
 								cardClassName="ai-copilot-main-chat"
@@ -336,9 +331,7 @@ const AIAssistant = () => {
 									</>
 								}
 								composer={
-									// The Enter-to-send bubble-propagation guard every real
-									// composer needs now lives once in ChatComposerCard.tsx itself
-									// (wraps `composer` there) rather than duplicated per consumer.
+									// Enter-to-send guard lives in ChatComposerCard.tsx now.
 									<ChatInput
 										value={chatMessage}
 										onChange={setChatMessage}

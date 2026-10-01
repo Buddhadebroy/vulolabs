@@ -89,8 +89,7 @@ abstract class RepositoryUtil implements RepositoryInterface {
 				continue;
 			}
 
-			// A plain scalar is an exact match; an array (e.g. a findings table
-			// section grouping several scanner_id values together) becomes IN (...).
+			// A plain scalar is an exact match; an array becomes IN (...).
 			if ( is_array( $args[ $column ] ) ) {
 				$values = array_values( array_filter( array_map( 'strval', $args[ $column ] ), fn( $item ) => '' !== $item ) );
 

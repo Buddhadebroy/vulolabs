@@ -31,7 +31,7 @@ class CoreWebVitalsBeacon {
 	 * @return void
 	 */
 	public function enqueue_beacon_script(): void {
-		// Vitals are only worth sampling on real content pages - attachment, 404 and search-result views add noise, not signal.
+		// Only sample real content pages, not attachment/404/search views.
 		if ( is_admin() || is_attachment() || is_404() || is_search() ) {
 			return;
 		}

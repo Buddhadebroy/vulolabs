@@ -1,14 +1,17 @@
 import { __ } from '@wordpress/i18n';
 import { Button, TextControl, TextareaControl, ToggleControl } from '@wordpress/components';
 import { useState } from '@wordpress/element';
+import type { ComponentType } from 'react';
 import { usePostData } from '../usePostData';
 import SnippetPreview from '../SnippetPreview';
 import { useFieldHighlight } from '../useFieldHighlight';
+import { useFilterSlot } from '../../services/useFilterSlot';
 
 interface GeneralTabProps {
 	/** "All SEO Issues" table's "Fix with AI" deep link - currently only ever resolves to 'canonical_url' on this tab (see seoIssueEditorTarget.ts). */
 	highlightTarget?: string;
 	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch - accepted for prop-shape parity with every other tab, unused here. */
+	// eslint-disable-next-line no-unused-vars
 	onNavigate?: ( tab: string, target?: string ) => void;
 }
 
@@ -17,35 +20,53 @@ interface GeneralTabProps {
  * (native `post_excerpt`), a live snippet preview.
  */
 export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
-	const { title, excerpt, slug, meta, setTitle, setExcerpt, setMeta } = usePostData();
-	const { metaKeys } = window.vulopilotPostSeo;
+	const { postId, title, excerpt, slug, meta, setTitle, setExcerpt, setMeta } = usePostData();
+	const { metaKeys, shopUrl } = window.vulopilotPostSeo;
 	const canonicalUrl = ( meta[ metaKeys.canonical_url ] as string ) || '';
 	const noindex = Boolean( meta[ metaKeys.robots_noindex ] );
 	const nofollow = Boolean( meta[ metaKeys.robots_nofollow ] );
 	const isCanonicalHighlighted = useFieldHighlight( highlightTarget, 'canonical_url' );
-	const focusKeyword = ( meta[ window.vulopilotPostSeo.metaKeys.focus_keyword ] as string ) || '';
+	// Stored as one comma-separated string (PostSeoMetaFields::split_keywords()'s own docblock) -
+	// the first is the "primary" keyword every check on the Page Analysis tab scores against,
+	// same primary/additional distinction Rank Math's own focus keyword field uses.
+	const focusKeywordRaw = ( meta[ window.vulopilotPostSeo.metaKeys.focus_keyword ] as string ) || '';
+	const focusKeywords = focusKeywordRaw
+		.split( ',' )
+		.map( ( keyword ) => keyword.trim() )
+		.filter( Boolean );
 
 	const [ isEditingSnippet, setIsEditingSnippet ] = useState( false );
 	const [ isAddingKeyword, setIsAddingKeyword ] = useState( false );
 	const [ keywordDraft, setKeywordDraft ] = useState( '' );
+
+	/** vulopilot-pro's own "Suggest Titles" button + popup. */
+	// eslint-disable-next-line no-unused-vars
+	const SuggestTitlesButton = useFilterSlot< ComponentType< { postId: number; onApply: ( title: string ) => void } > >(
+		'vulopilot_seo_title_suggestions_button'
+	);
 
 	const startAddingKeyword = () => {
 		setKeywordDraft( '' );
 		setIsAddingKeyword( true );
 	};
 
+	const saveKeywords = ( keywords: string[] ) =>
+		setMeta( { [ window.vulopilotPostSeo.metaKeys.focus_keyword ]: keywords.join( ', ' ) } );
+
 	const commitKeywordDraft = () => {
 		const value = keywordDraft.trim();
 
-		if ( value ) {
-			setMeta( { [ window.vulopilotPostSeo.metaKeys.focus_keyword ]: value } );
+		// Case-insensitive de-dupe - re-typing the same keyword shouldn't add a second pill.
+		if ( value && ! focusKeywords.some( ( keyword ) => keyword.toLowerCase() === value.toLowerCase() ) ) {
+			saveKeywords( [ ...focusKeywords, value ] );
 		}
 
+		setKeywordDraft( '' );
 		setIsAddingKeyword( false );
 	};
 
-	const removeKeyword = () =>
-		setMeta( { [ window.vulopilotPostSeo.metaKeys.focus_keyword ]: '' } );
+	const removeKeyword = ( index: number ) =>
+		saveKeywords( focusKeywords.filter( ( _keyword, i ) => i !== index ) );
 
 	return (
 		<div className="vulopilot-seo-tab vulopilot-seo-tab--general">
@@ -79,6 +100,21 @@ export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
 						onChange={ setTitle }
 					/>
 
+					{ SuggestTitlesButton ? (
+						<SuggestTitlesButton postId={ postId } onApply={ setTitle } />
+					) : (
+						<Button
+							variant="tertiary"
+							size="small"
+							className="vulopilot-seo-suggest-titles-toggle"
+							href={ shopUrl }
+							target="_blank"
+							rel="noreferrer"
+						>
+							{ __( 'Suggest Titles (Upgrade to unlock)', 'vulopilot' ) }
+						</Button>
+					) }
+
 					<TextareaControl
 						label={ __( 'Meta Description', 'vulopilot' ) }
 						help={ __( 'Shown as the description snippet in search results.', 'vulopilot' ) + ` (${ excerpt.length }/160)` }
@@ -91,46 +127,53 @@ export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
 
 			<div className="vulopilot-seo-section-label">{ __( 'Focus Keyword', 'vulopilot' ) }</div>
 			<p className="small desc vulopilot-seo-focus-keyword-help">
-				{ __( 'The main term you want this page to rank for - drives the checks on the Page Analysis tab.', 'vulopilot' ) }
+				{ __( 'The terms you want this page to rank for. The first (primary) keyword drives the checks on the Page Analysis tab - the rest are tracked alongside it.', 'vulopilot' ) }
 			</p>
 
 			<div className="vulopilot-seo-focus-keyword">
-				{ focusKeyword && (
-					<span className="vulopilot-seo-keyword-pill">
-						<i className="dashicons dashicons-star-filled" />
-						{ focusKeyword }
+				{ focusKeywords.map( ( keyword, index ) => (
+					<span
+						key={ `${ keyword }-${ index }` }
+						className={ `vulopilot-seo-keyword-pill${ 0 === index ? ' vulopilot-seo-keyword-pill--primary' : '' }` }
+					>
+						{ 0 === index && <i className="dashicons dashicons-star-filled" /> }
+						{ keyword }
 						<button
 							type="button"
 							className="vulopilot-seo-keyword-pill__remove"
 							aria-label={ __( 'Remove focus keyword', 'vulopilot' ) }
-							onClick={ removeKeyword }
+							onClick={ () => removeKeyword( index ) }
 						>
 							<i className="dashicons dashicons-no-alt" />
 						</button>
 					</span>
-				) }
+				) ) }
 
-				{ ! focusKeyword && isAddingKeyword && (
+				{ isAddingKeyword ? (
 					<TextControl
 						autoFocus
 						value={ keywordDraft }
-						placeholder={ __( 'Add a focus keyword…', 'vulopilot' ) }
+						placeholder={
+							0 === focusKeywords.length
+								? __( 'Add a focus keyword…', 'vulopilot' )
+								: __( 'Add another keyword…', 'vulopilot' )
+						}
 						onChange={ setKeywordDraft }
 						onKeyDown={ ( event ) => {
-							if ( 'Enter' === event.key ) {
+							if ( 'Enter' === event.key || ',' === event.key ) {
 								event.preventDefault();
 								commitKeywordDraft();
+								setIsAddingKeyword( true );
 							}
 
 							if ( 'Escape' === event.key ) {
+								setKeywordDraft( '' );
 								setIsAddingKeyword( false );
 							}
 						} }
 						onBlur={ commitKeywordDraft }
 					/>
-				) }
-
-				{ ! focusKeyword && ! isAddingKeyword && (
+				) : (
 					<Button variant="tertiary" size="small" icon="plus-alt2" onClick={ startAddingKeyword }>
 						{ __( 'Add Focus Keyword', 'vulopilot' ) }
 					</Button>

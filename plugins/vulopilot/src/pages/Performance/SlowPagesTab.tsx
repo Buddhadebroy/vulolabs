@@ -417,7 +417,6 @@ const SlowPagesTab = () => {
 		if (!stillVisible) {
 			setDetailRow(filteredRows[0]);
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [filteredRows]);
 
 	const pageRows = filteredRows.slice((paged - 1) * perPage, paged * perPage);

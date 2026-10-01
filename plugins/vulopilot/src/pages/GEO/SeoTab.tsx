@@ -33,7 +33,7 @@ const CATEGORY_CARDS: {
 		{ key: 'images', title: __('Images', 'vulopilot'), icon: 'image pink', color: 'green' },
 		{ key: 'internal-linking', title: __('Internal Linking', 'vulopilot'), icon: 'link lime', color: 'indigo' },
 		{ key: 'indexability-canonicals', title: __('Indexability & Canonicals', 'vulopilot'), icon: 'search-discovery cyan', color: 'teal' },
-		{ key: 'structured-data', title: __('Structured Data', 'vulopilot'), icon: 'blocks teal', color: 'orange' },
+		{ key: 'structured-data', title: __('Social Metadata', 'vulopilot'), icon: 'blocks teal', color: 'orange' },
 	];
 
 
@@ -282,7 +282,7 @@ const SeoTab = () => {
 			<ColumnComponent grid={6} fullHeight>
 				<SeoProgressCard />
 			</ColumnComponent>
-			<ColumnComponent grid={8}>
+			<ColumnComponent grid={analyzingPostId ? 8 : 12}>
 				{/* SEO's own thin, defaults-only wrapping of the generalized * IssuesSection.tsx. */}
 				<IssuesSection
 					id="seo-all-issues-table"
@@ -292,6 +292,7 @@ const SeoTab = () => {
 					issuesColumnLabel="SEO Issues"
 					onAnalyze={handleAnalyze}
 					activePostId={analyzingPostId}
+					onAnalyzeClose={() => setAnalyzingPostId(null)}
 					pageScore
 				/>
 			</ColumnComponent>

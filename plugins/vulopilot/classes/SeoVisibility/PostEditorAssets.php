@@ -61,11 +61,7 @@ class PostEditorAssets {
 				'apiUrl'   => esc_url_raw( rest_url( VuloPilot()->rest_namespace ) ),
 				'nonce'    => wp_create_nonce( 'wp_rest' ),
 				'isPro'    => VuloPilot()->util->is_khali_dabba(),
-				// Same constant FrontendScripts::localize_scripts() itself
-				// localizes as 'shop_url' - not a container key.
 				'shopUrl'  => defined( 'VULOPILOT_PRO_SHOP_URL' ) ? VULOPILOT_PRO_SHOP_URL : '',
-				// The metabox reads/writes native post meta via wp.data's core/editor 'meta'
-				// attribute (registered by PostSeoMetaFields).
 				'metaKeys' => array_merge(
 					PostSeoMetaFields::META_KEYS,
 					array( 'schema_json' => '_vulopilot_schema_json' )

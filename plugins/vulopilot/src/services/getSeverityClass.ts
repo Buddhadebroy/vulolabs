@@ -13,12 +13,8 @@ const SEVERITY_COLOR_NAME: Record<FindingSeverity, keyof typeof COLOR_PALETTE> =
 	info: 'blue',
 };
 
-/** Same plain color-name modifier classes HealthPillarsWidget's own
- * `admin-badge` usage already uses (`green`/`red`/`yellow`), rather than a
- * new class per severity level. Real zyra `$color-palette` names only -
- * this used to return `'grey'` for `low`, a class zyra never ships
- * (`$color-palette`'s own key is `'gray'`), silently leaving every "Low"
- * severity badge unstyled. */
+/** Plain color-name modifier classes, as HealthPillarsWidget's `admin-badge` uses (`green`/`red`/
+ * `yellow`). Only zyra `$color-palette` names: `'grey'` isn't shipped (the key is `'gray'`). */
 export const getSeverityClass = (severity: FindingSeverity): string =>
 	SEVERITY_COLOR_NAME[severity] ?? '';
 

@@ -34,16 +34,8 @@ class ScanRunner {
 	 * Runs a single scanner by id.
 	 *
 	 * @param string $scanner_id A scanner's get_id().
-	 * @param bool   $force      True for a real, user-initiated "Run scan" - passed on to
-	 *                           the scanner via SupportsForceRunInterface::set_force_run()
-	 *                           when it implements that optional interface (see that
-	 *                           interface's own docblock), so a scanner that self-rate-limits
-	 *                           independently of the shared scan cadence (BrokenLinksScanner/
-	 *                           BrokenImagesScanner) always actually checks again rather than
-	 *                           silently no-op'ing because it already ran earlier today. A
-	 *                           scanner that doesn't implement it (the vast majority - they
-	 *                           run their real check every time scan() is called regardless)
-	 *                           is unaffected either way.
+	 * @param bool   $force      True for a user-initiated "Run scan" - forces a scanner
+	 *                           implementing SupportsForceRunInterface to bypass its own rate limit.
 	 * @return ScanResult|null Null if no scanner is registered under that id.
 	 */
 	public function run( string $scanner_id, bool $force = false ): ?ScanResult {

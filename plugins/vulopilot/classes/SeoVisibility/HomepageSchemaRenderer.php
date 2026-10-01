@@ -4,8 +4,7 @@ namespace VuloPilot\SeoVisibility;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * No settings gate: like SchemaJsonLdRenderer, there's nothing to output until the option
- * actually has content.
+ * Outputs the saved homepage schema as JSON-LD.
  *
  * @class       HomepageSchemaRenderer class
  * @version     1.0.0

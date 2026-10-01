@@ -7,6 +7,7 @@ import { useSectionStatus } from '../../services/useSectionStatus';
  * page.
  */
 interface SiteHealthStatusCardProps {
+	// eslint-disable-next-line no-unused-vars
 	onSectionClick?: (key: string) => void;
 }
 

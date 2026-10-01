@@ -6,8 +6,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Scanning → SEO's "Add canonical URL tags" toggle - the mechanical fix behind
- * CanonicalUrlScanner's finding.
+ * Outputs and overrides canonical URL tags.
  *
  * @class       CanonicalUrlManager class
  * @version     1.0.0
@@ -74,6 +73,6 @@ class CanonicalUrlManager {
 			return home_url( '/' );
 		}
 
-		return null; // Archives/search/404 - core's own rel_canonical() already skips these too.
+		return null; // Archives/search/404 are skipped.
 	}
 }

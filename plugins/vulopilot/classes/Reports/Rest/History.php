@@ -38,8 +38,7 @@ class History extends \WP_REST_Controller {
 	);
 
 	/**
-	 * See ActivityLogRepository::find_actions_in_window()'s own docblock
-	 * for why this can be tight rather than a same-day heuristic.
+	 * Window for matching an AI action to the conversation turn that triggered it.
 	 */
 	private const RELATED_ACTION_WINDOW_SECONDS = 30;
 
@@ -59,9 +58,7 @@ class History extends \WP_REST_Controller {
 			)
 		);
 
-		// Zyra's sendApiResponse() (src/services/useApiList.ts and every other AI Copilot
-		// delete/apply action this session) always issues a plain POST regardless of semantic
-		// intent.
+		// Zyra's sendApiResponse() always issues a plain POST regardless of semantic intent.
 		register_rest_route(
 			VuloPilot()->rest_namespace,
 			'/' . $this->rest_base . '/(?P<id>\d+)',
@@ -99,8 +96,7 @@ class History extends \WP_REST_Controller {
 		$page         = absint( $request->get_param( 'page' ) );
 		$per_page     = absint( $request->get_param( 'per_page' ) );
 
-		// 'automations' is a real filter pill the client always sends, but has no backing (see
-		// class docblock).
+		// 'automations' is a filter pill the client always sends, but has no backing data.
 		if ( 'automations' === $category ) {
 			return rest_ensure_response(
 				array(
@@ -111,8 +107,7 @@ class History extends \WP_REST_Controller {
 			);
 		}
 
-		// 'conversation' is a real filter pill too now, but a distinct source table
-		// (`vulopilot_ai_history`, not `vulopilot_activity_logs`).
+		// 'conversation' reads from a distinct source table (vulopilot_ai_history).
 		if ( 'conversation' === $category ) {
 			$result = $history_repo->get_conversations(
 				array(
@@ -130,27 +125,317 @@ class History extends \WP_REST_Controller {
 			return rest_ensure_response( $result );
 		}
 
-		$event_types = isset( self::EVENT_TYPES_BY_CATEGORY[ $category ] )
-			? self::EVENT_TYPES_BY_CATEGORY[ $category ]
-			: array_merge( ...array_values( self::EVENT_TYPES_BY_CATEGORY ) );
+		// A single category filters activity_logs alone; 'all' also needs conversations, a separate table.
+		if ( isset( self::EVENT_TYPES_BY_CATEGORY[ $category ] ) ) {
+			$result = $repository->get_timeline(
+				array(
+					'event_types' => self::EVENT_TYPES_BY_CATEGORY[ $category ],
+					'search'      => sanitize_text_field( (string) $request->get_param( 'search' ) ),
+					'date_from'   => sanitize_text_field( (string) $request->get_param( 'date_from' ) ),
+					'date_to'     => sanitize_text_field( (string) $request->get_param( 'date_to' ) ),
+					'page'        => $page > 0 ? $page : 1,
+					'per_page'    => $per_page > 0 ? $per_page : 20,
+					// A deep link's row id (`?vulopilot_history_id=`).
+					'around_id'   => absint( $request->get_param( 'around_id' ) ),
+				)
+			);
 
-		$result = $repository->get_timeline(
+			$result['data']        = array_map( array( $this, 'enrich_row' ), $result['data'] );
+			$result['type_counts'] = $this->get_type_counts( $repository, $history_repo );
+
+			return rest_ensure_response( $result );
+		}
+
+		$result = $this->get_combined_timeline(
 			array(
-				'event_types' => $event_types,
-				'search'      => sanitize_text_field( (string) $request->get_param( 'search' ) ),
-				'date_from'   => sanitize_text_field( (string) $request->get_param( 'date_from' ) ),
-				'date_to'     => sanitize_text_field( (string) $request->get_param( 'date_to' ) ),
-				'page'        => $page > 0 ? $page : 1,
-				'per_page'    => $per_page > 0 ? $per_page : 20,
-				// A deep link's row id (`?vulopilot_history_id=`).
-				'around_id'   => absint( $request->get_param( 'around_id' ) ),
+				'search'    => sanitize_text_field( (string) $request->get_param( 'search' ) ),
+				'date_from' => sanitize_text_field( (string) $request->get_param( 'date_from' ) ),
+				'date_to'   => sanitize_text_field( (string) $request->get_param( 'date_to' ) ),
+				'page'      => $page > 0 ? $page : 1,
+				'per_page'  => $per_page > 0 ? $per_page : 20,
+				'around_id' => absint( $request->get_param( 'around_id' ) ),
 			)
 		);
 
-		$result['data']        = array_map( array( $this, 'enrich_row' ), $result['data'] );
 		$result['type_counts'] = $this->get_type_counts( $repository, $history_repo );
 
 		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * The 'all' tab's timeline: activity_logs and ai_history merged via UNION ALL and
+	 * ordered by created_at, so pagination stays correct across both sources.
+	 *
+	 * @param array{search?: string, date_from?: string, date_to?: string, page?: int, per_page?: int, around_id?: int} $args
+	 * @return array{data: array<int, array<string, mixed>>, total: int, pages_loaded: int}
+	 */
+	private function get_combined_timeline( array $args ): array {
+		global $wpdb;
+
+		$log_table = $wpdb->prefix . \VuloPilot\Utill::TABLES['activity_log'];
+		$ai_table  = $wpdb->prefix . \VuloPilot\Utill::TABLES['ai_history'];
+		$event_types = array_merge( ...array_values( self::EVENT_TYPES_BY_CATEGORY ) );
+		$chat_surfaces = array( 'copilot_chat', 'content_assistant_chat' );
+
+		$log_where = implode(
+			' AND ',
+			array(
+				'event_type IN (' . implode( ', ', array_fill( 0, count( $event_types ), '%s' ) ) . ')',
+				! empty( $args['search'] ) ? 'message LIKE %s' : '1 = 1',
+				! empty( $args['date_from'] ) ? 'DATE(created_at) >= %s' : '1 = 1',
+				! empty( $args['date_to'] ) ? 'DATE(created_at) <= %s' : '1 = 1',
+			)
+		);
+		$log_values = $event_types;
+		if ( ! empty( $args['search'] ) ) {
+			$log_values[] = '%' . $wpdb->esc_like( (string) $args['search'] ) . '%';
+		}
+		if ( ! empty( $args['date_from'] ) ) {
+			$log_values[] = (string) $args['date_from'];
+		}
+		if ( ! empty( $args['date_to'] ) ) {
+			$log_values[] = (string) $args['date_to'];
+		}
+
+		$ai_where = implode(
+			' AND ',
+			array(
+				'surface IN (' . implode( ', ', array_fill( 0, count( $chat_surfaces ), '%s' ) ) . ')',
+				! empty( $args['search'] ) ? '(prompt_excerpt LIKE %s OR response_excerpt LIKE %s)' : '1 = 1',
+				! empty( $args['date_from'] ) ? 'DATE(created_at) >= %s' : '1 = 1',
+				! empty( $args['date_to'] ) ? 'DATE(created_at) <= %s' : '1 = 1',
+			)
+		);
+		$ai_values = $chat_surfaces;
+		if ( ! empty( $args['search'] ) ) {
+			$like        = '%' . $wpdb->esc_like( (string) $args['search'] ) . '%';
+			$ai_values[] = $like;
+			$ai_values[] = $like;
+		}
+		if ( ! empty( $args['date_from'] ) ) {
+			$ai_values[] = (string) $args['date_from'];
+		}
+		if ( ! empty( $args['date_to'] ) ) {
+			$ai_values[] = (string) $args['date_to'];
+		}
+
+		$total_log = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- the query is prepared.
+			$wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE {$log_where}", $log_table, ...$log_values ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- the table and optional filters are picked from fixed literals and every value is a bound placeholder; only the placeholder count varies at runtime.
+		);
+		$total_ai = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- the query is prepared.
+			$wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE {$ai_where}", $ai_table, ...$ai_values ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- the table and optional filters are picked from fixed literals and every value is a bound placeholder; only the placeholder count varies at runtime.
+		);
+		$total = $total_log + $total_ai;
+
+		if ( 0 === $total ) {
+			return array(
+				'data'         => array(),
+				'total'        => 0,
+				'pages_loaded' => 1,
+			);
+		}
+
+		$page     = max( 1, (int) ( $args['page'] ?? 1 ) );
+		$per_page = max( 1, min( 100, (int) ( $args['per_page'] ?? 20 ) ) );
+
+		$pages_loaded = $page;
+		$around_id    = absint( $args['around_id'] ?? 0 );
+
+		// A deep link always points at an activity_logs row. Count how many rows across
+		// both sources are newer and jump straight to that page.
+		if ( $around_id > 0 ) {
+			$target_created_at = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- the query is prepared.
+				$wpdb->prepare( "SELECT created_at FROM %i WHERE {$log_where} AND id = %d", $log_table, ...array_merge( $log_values, array( $around_id ) ) ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- same runtime-sized-array case as above.
+			);
+
+			$limit  = $per_page;
+			$offset = ( $page - 1 ) * $per_page;
+
+			if ( $target_created_at ) {
+				$newer_log = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- the query is prepared.
+					$wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE {$log_where} AND ( created_at > %s OR ( created_at = %s AND id > %d ) )", $log_table, ...array_merge( $log_values, array( $target_created_at, $target_created_at, $around_id ) ) ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- same runtime-sized-array case as above.
+				);
+				$newer_ai = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- the query is prepared.
+					$wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE {$ai_where} AND created_at > %s", $ai_table, ...array_merge( $ai_values, array( $target_created_at ) ) ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- same runtime-sized-array case as above.
+				);
+				$newer_rows      = $newer_log + $newer_ai;
+				$pages_to_target = (int) floor( $newer_rows / $per_page ) + 1;
+
+				if ( $pages_to_target > 0 && $pages_to_target * $per_page <= 1000 ) {
+					$limit        = $pages_to_target * $per_page;
+					$offset       = 0;
+					$pages_loaded = $pages_to_target;
+				}
+			}
+
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- assembled entirely from the two
+			// prepared fragments above; no raw request input reaches this string.
+			$union_sql = $wpdb->prepare( "(SELECT id, created_at, 'log' AS src FROM %i WHERE {$log_where})", $log_table, ...$log_values ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- same runtime-sized-array case as above.
+				. ' UNION ALL '
+				. $wpdb->prepare( "(SELECT id, created_at, 'ai' AS src FROM %i WHERE {$ai_where})", $ai_table, ...$ai_values ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- same runtime-sized-array case as above.
+
+			$ids = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- the two halves above are each individually prepared; this only orders/limits their already-safe union.
+				$wpdb->prepare( "SELECT * FROM ({$union_sql}) combined ORDER BY created_at DESC, id DESC LIMIT %d OFFSET %d", $limit, $offset ), // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $union_sql is built entirely from the two prepared fragments above.
+				ARRAY_A
+			);
+
+			$data = $this->hydrate_combined_rows( (array) $ids, $log_table, $ai_table );
+
+			return array(
+				'data'         => $data,
+				'total'        => $total,
+				'pages_loaded' => $pages_loaded,
+			);
+		}
+
+		// Reserve a small per-page quota for conversations, since a single scan can log
+		// many rows and would otherwise bury conversations for pages at a time.
+		$conversation_quota = max( 1, (int) round( $per_page * 0.2 ) );
+
+		$ai_offset  = 0;
+		$log_offset = 0;
+		$ai_remaining  = $total_ai;
+		$log_remaining = $total_log;
+
+		for ( $seek_page = 1; $seek_page < $page; $seek_page++ ) {
+			[ $seek_ai_take, $seek_log_take ] = $this->split_page_quota( $per_page, $conversation_quota, $ai_remaining, $log_remaining );
+			$ai_offset      += $seek_ai_take;
+			$log_offset     += $seek_log_take;
+			$ai_remaining   -= $seek_ai_take;
+			$log_remaining  -= $seek_log_take;
+		}
+
+		[ $ai_take, $log_take ] = $this->split_page_quota( $per_page, $conversation_quota, $ai_remaining, $log_remaining );
+
+		$page_rows = array();
+
+		if ( $ai_take > 0 ) {
+			$page_rows = array_merge(
+				$page_rows,
+				(array) $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- the query is prepared.
+					$wpdb->prepare( "SELECT *, 'ai' AS src FROM %i WHERE {$ai_where} ORDER BY created_at DESC, id DESC LIMIT %d OFFSET %d", $ai_table, ...array_merge( $ai_values, array( $ai_take, $ai_offset ) ) ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- same runtime-sized-array case as above.
+					ARRAY_A
+				)
+			);
+		}
+
+		if ( $log_take > 0 ) {
+			$page_rows = array_merge(
+				$page_rows,
+				(array) $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- the query is prepared.
+					$wpdb->prepare( "SELECT *, 'log' AS src FROM %i WHERE {$log_where} ORDER BY created_at DESC, id DESC LIMIT %d OFFSET %d", $log_table, ...array_merge( $log_values, array( $log_take, $log_offset ) ) ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- same runtime-sized-array case as above.
+					ARRAY_A
+				)
+			);
+		}
+
+		// Both slices are independently newest-first; interleave them back into one
+		// newest-first page so day-grouping and read order stay sensible.
+		usort(
+			$page_rows,
+			static function ( $a, $b ) {
+				return $b['created_at'] <=> $a['created_at'] ?: $b['id'] <=> $a['id'];
+			}
+		);
+
+		$data = array();
+
+		foreach ( $page_rows as $row ) {
+			$data[] = 'ai' === $row['src'] ? $this->enrich_conversation_row( $row ) : $this->enrich_row( $row );
+		}
+
+		return array(
+			'data'         => $data,
+			'total'        => $total,
+			'pages_loaded' => $pages_loaded,
+		);
+	}
+
+	/**
+	 * One page's worth of (ai_take, log_take) under get_combined_timeline()'s quota. Gives
+	 * leftover slots to whichever source isn't exhausted.
+	 *
+	 * @param int $per_page           Rows per page.
+	 * @param int $conversation_quota This page's conversation reservation, before checking what's left.
+	 * @param int $ai_remaining       Conversation rows not yet handed out to an earlier page.
+	 * @param int $log_remaining      Log rows not yet handed out to an earlier page.
+	 * @return array{0: int, 1: int} [ai_take, log_take].
+	 */
+	private function split_page_quota( int $per_page, int $conversation_quota, int $ai_remaining, int $log_remaining ): array {
+		$ai_take  = min( $conversation_quota, $ai_remaining );
+		$log_take = min( $per_page - $ai_take, $log_remaining );
+
+		// The log ran dry before filling the page - hand its unused slots to conversations.
+		if ( $ai_take + $log_take < $per_page && $ai_remaining > $ai_take ) {
+			$ai_take = min( $ai_take + ( $per_page - $ai_take - $log_take ), $ai_remaining );
+		}
+
+		return array( $ai_take, $log_take );
+	}
+
+	/**
+	 * Turns get_combined_timeline()'s around_id branch's (id, src) pairs back into full,
+	 * enriched rows, in the same order.
+	 *
+	 * @param array<int, array{id: string, src: string}> $ordered
+	 * @param string $log_table
+	 * @param string $ai_table
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function hydrate_combined_rows( array $ordered, string $log_table, string $ai_table ): array {
+		global $wpdb;
+
+		if ( ! $ordered ) {
+			return array();
+		}
+
+		$log_ids = array();
+		$ai_ids  = array();
+
+		foreach ( $ordered as $row ) {
+			if ( 'log' === $row['src'] ) {
+				$log_ids[] = (int) $row['id'];
+			} else {
+				$ai_ids[] = (int) $row['id'];
+			}
+		}
+
+		$log_rows_by_id = array();
+		if ( $log_ids ) {
+			$placeholders = implode( ', ', array_fill( 0, count( $log_ids ), '%d' ) );
+			$rows         = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- the query is prepared.
+				$wpdb->prepare( "SELECT * FROM %i WHERE id IN ({$placeholders})", $log_table, ...$log_ids ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- same runtime-sized-array case as above.
+				ARRAY_A
+			);
+			foreach ( (array) $rows as $row ) {
+				$log_rows_by_id[ (int) $row['id'] ] = $this->enrich_row( $row );
+			}
+		}
+
+		$ai_rows_by_id = array();
+		if ( $ai_ids ) {
+			$placeholders = implode( ', ', array_fill( 0, count( $ai_ids ), '%d' ) );
+			$rows         = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- the query is prepared.
+				$wpdb->prepare( "SELECT * FROM %i WHERE id IN ({$placeholders})", $ai_table, ...$ai_ids ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- same runtime-sized-array case as above.
+				ARRAY_A
+			);
+			foreach ( (array) $rows as $row ) {
+				$ai_rows_by_id[ (int) $row['id'] ] = $this->enrich_conversation_row( $row );
+			}
+		}
+
+		$data = array();
+
+		foreach ( $ordered as $row ) {
+			$id       = (int) $row['id'];
+			$enriched = 'log' === $row['src'] ? ( $log_rows_by_id[ $id ] ?? null ) : ( $ai_rows_by_id[ $id ] ?? null );
+
+			if ( $enriched ) {
+				$data[] = $enriched;
+			}
+		}
+
+		return $data;
 	}
 
 	/**

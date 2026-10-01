@@ -1,5 +1,5 @@
 /* global vulopilotAppLocalizer */
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { MouseEvent } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, scrollToId } from '@zyra/core';
@@ -77,6 +77,7 @@ interface SectionedIssuesTableProps {
 	 */
 	allScannerIds?: string[];
 	activeTab: SectionedIssuesTab;
+	// eslint-disable-next-line no-unused-vars
 	onTabChange: (tab: SectionedIssuesTab) => void;
 }
 
@@ -91,7 +92,11 @@ const SectionedIssuesTable = ({
 	activeTab,
 	onTabChange,
 }: SectionedIssuesTableProps) => {
-	const [groups, setGroups] = useState<FindingGroup[]>([]);
+	const [fetchedGroups, setFetchedGroups] = useState<FindingGroup[]>([]);
+	// Fixed issues whose fix can still be undone, so they stay listed after a reload (empty without Pro).
+	const [fixedGroups, setFixedGroups] = useState<FindingGroup[]>([]);
+	// Groups fixed this session: kept listed as Fixed (with Undo in the panel) after the refetch drops them.
+	const [keptGroups, setKeptGroups] = useState<FindingGroup[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [reloadToken, setReloadToken] = useState(0);
 	const [activePriority, setActivePriority] = useState<Priority>('all');
@@ -106,16 +111,40 @@ const SectionedIssuesTable = ({
 
 	useEffect(() => {
 		setIsLoading(true);
-		getApiResponse<{ data: FindingGroup[] }>(
-			getApiLink(
-				vulopilotAppLocalizer,
-				`findings/groups?per_page=200${showIgnored ? '&status=all' : ''}`
+		Promise.all([
+			getApiResponse<{ data: FindingGroup[] }>(
+				getApiLink(
+					vulopilotAppLocalizer,
+					`findings/groups?per_page=200${showIgnored ? '&status=all' : ''}`
+				),
+				nonceHeaders
 			),
-			nonceHeaders
-		)
-			.then((response) => setGroups(response?.data ?? []))
+			getApiResponse<{ data: FindingGroup[] }>(
+				getApiLink(vulopilotAppLocalizer, 'findings/fixed-groups'),
+				nonceHeaders
+			).catch(() => null),
+		])
+			.then(([open, fixed]) => {
+				setFetchedGroups(open?.data ?? []);
+				setFixedGroups(fixed?.data ?? []);
+			})
 			.finally(() => setIsLoading(false));
 	}, [reloadToken, showIgnored]);
+
+	const groups = useMemo(
+		() => {
+			const listed = new Set(fetchedGroups.map((group) => group.scanner_id));
+			const fixedOnly = fixedGroups.filter((group) => !listed.has(group.scanner_id));
+			fixedOnly.forEach((group) => listed.add(group.scanner_id));
+
+			return [
+				...fetchedGroups,
+				...fixedOnly,
+				...keptGroups.filter((kept) => !listed.has(kept.scanner_id)),
+			];
+		},
+		[fetchedGroups, fixedGroups, keptGroups]
+	);
 
 	const refetch = () => setReloadToken((current) => current + 1);
 
@@ -124,7 +153,7 @@ const SectionedIssuesTable = ({
 		setActivePriority('all');
 		setPaged(1);
 		setSelectedGroup(null);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		setKeptGroups([]);
 	}, [activeTab]);
 
 	const allScannerIds =
@@ -250,11 +279,9 @@ const SectionedIssuesTable = ({
 		paged * PER_PAGE
 	);
 
-	// Same "keep the current selection if it's still on screen, otherwise fall back to the first
-	// visible row" reconciliation IssuesSection.tsx (GEO/SchemaKnowledge) and IssuesList.tsx (AI
-	// Copilot) already do inside their own fetch response handlers - replicated here as its own
-	// effect instead, since this component derives `pageRows` client-side (one `findings/groups`
-	// fetch, filtered/sorted/paged on every render) rather than re-fetching per filter change.
+	// Keep the current selection if still on screen, else fall back to the first visible row (as
+	// IssuesSection.tsx and IssuesList.tsx do in their fetch handlers). An effect here because
+	// `pageRows` is derived client-side from one `findings/groups` fetch.
 	useEffect(() => {
 		setSelectedGroup((current) => {
 			if (
@@ -270,7 +297,6 @@ const SectionedIssuesTable = ({
 
 			return pageRows[0] ?? null;
 		});
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [groups, activeTab, activePriority, searchValue, resourceFilterValue, paged]);
 
 	const handlePriorityChange = (priority: Priority) => {
@@ -291,9 +317,20 @@ const SectionedIssuesTable = ({
 		}
 	};
 
-	const handleActionComplete = () => {
+	const handleActionComplete = (event?: { group: FindingGroup; fixed: boolean }) => {
 		refetch();
-		setSelectedGroup(null);
+
+		if (!event) {
+			setSelectedGroup(null);
+			return;
+		}
+
+		// A fix keeps the group listed as Fixed; an undo drops that marker so it shows as open again.
+		setKeptGroups((current) => {
+			const others = current.filter((group) => group.scanner_id !== event.group.scanner_id);
+
+			return event.fixed ? [...others, { ...event.group, fixed: true }] : others;
+		});
 	};
 
 	// Shared across every tab - TabsComponent only ever renders `tabs[activeIndex].content`.
@@ -362,10 +399,8 @@ const SectionedIssuesTable = ({
 										width: '65%',
 										descriptionKey: 'descriptionText',
 										badgesKey: 'issueBadges',
-										// Real, per-row `category` icon - same `CATEGORY_ICONS` map
-										// (icon name + palette color class in one string, e.g.
-										// "security lime") IssuesList.tsx's own row icons already
-										// use.
+										// Per-row `category` icon, from the same `CATEGORY_ICONS` map as IssuesList.tsx (icon name +
+										// palette class in one string, e.g. "security lime").
 										iconKey: 'issueIcon',
 									},
 									affected: {
@@ -383,11 +418,13 @@ const SectionedIssuesTable = ({
 											{
 												type: 'button',
 												label: (row) =>
-													(row as unknown as FindingGroup)
-														.scanner_id ===
-													selectedGroup?.scanner_id
-														? __('Showing', 'vulopilot')
-														: __('More Details', 'vulopilot'),
+													(row as unknown as FindingGroup).fixed
+														? __('Fixed', 'vulopilot')
+														: (row as unknown as FindingGroup)
+																.scanner_id ===
+															selectedGroup?.scanner_id
+															? __('Showing', 'vulopilot')
+															: __('More Details', 'vulopilot'),
 												color: (row) =>
 													(row as unknown as FindingGroup)
 														.scanner_id ===

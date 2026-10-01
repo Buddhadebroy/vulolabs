@@ -1,5 +1,5 @@
 /* global vulopilotAppLocalizer */
-import React, { useEffect, useState, type ReactNode } from 'react';
+import React, { useEffect, useRef, useState, type ReactNode } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
@@ -7,7 +7,6 @@ import {
 	CardComponent,
 	ListComponent,
 	ModuleGuardComponent,
-	NoticeManager,
 	PopupComponent,
 	ClipboardComponent,
 	BadgeComponent,
@@ -24,13 +23,14 @@ import {
 	formatAffected,
 	FindingGroup,
 } from './issuesTypes';
+import { FixOutcome } from '../../services/showFixOutcome';
+import { useFixNotice } from '../../services/useFixNotice';
 import './IssueDetailPanel.scss';
 
-interface FixOutcome {
-	success: boolean;
-	message: string;
+interface BatchFixOutcome extends Omit<FixOutcome, 'noFixAvailable'> {
 	succeeded?: number;
 	total?: number;
+	/** Per-batch no-fix count, distinct from FixOutcome's final verdict. */
 	noFixAvailable?: number;
 }
 
@@ -56,9 +56,31 @@ interface FindingRow {
 const MAX_AFFECTED_ITEMS_SHOWN = 20;
 
 /**
- * Section label per real `object_type` - same noun set formatAffected() already uses for the bare
- * count line.
+ * Prefers the live front-end page, falls back to the post edit screen.
+ *
+ * @param row A FindingRow (or FindingGroup.sample, same shape).
+ * @return The URL to open, or undefined if this row has no obvious target.
  */
+const getAffectedItemLink = (
+	row: Pick<FindingRow, 'object_type' | 'object_ref' | 'page'>
+): string | undefined => {
+	if (row.page && __('Site-wide', 'vulopilot') !== row.page) {
+		return `${vulopilotAppLocalizer.site_url}${row.page}`;
+	}
+
+	if (
+		!row.object_ref ||
+		('attachment' !== row.object_type && 'post' !== row.object_type)
+	) {
+		return undefined;
+	}
+
+	// admin_url is `.../admin.php?page=vulopilot` (built for appending `#&tab=...` hashes
+	// elsewhere in this app) - not a base to prefix a *different* admin.php query onto.
+	return `${vulopilotAppLocalizer.site_url}/wp-admin/post.php?post=${encodeURIComponent(row.object_ref)}&action=edit`;
+};
+
+/** Section label per `object_type`. */
 const AFFECTED_ITEMS_LABEL: Record<string, string> = {
 	user: __('Affected accounts', 'vulopilot'),
 	post: __('Affected pages', 'vulopilot'),
@@ -72,9 +94,6 @@ const AFFECTED_ITEMS_LABEL: Record<string, string> = {
 	site: __('Affected checks', 'vulopilot'),
 };
 
-/**
- * Same registration FindingsTable.tsx's own bulk "Fix selected" reads.
- */
 const getFindingBulkFixHandler = () =>
 	applyFilters('vulopilot_finding_bulk_fix_handler', null);
 
@@ -88,12 +107,11 @@ const SEVERITY_LABEL: Record<string, string> = {
 
 interface IssueDetailPanelProps {
 	group: FindingGroup | null;
-	onActionComplete: () => void;
+	/** `event` is set for a fix or an undo of `group`, so the host can keep it listed instead of dropping it. */
+	// eslint-disable-next-line no-unused-vars
+	onActionComplete: (event?: { group: FindingGroup; fixed: boolean }) => void;
 }
 
-/**
- * Performance findings are one exception to "no scanner writes that copy" above.
- */
 const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	group,
 	onActionComplete,
@@ -105,6 +123,21 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		null
 	);
 	const [isLoadingAffected, setIsLoadingAffected] = useState(false);
+	// Result of the last action, rendered by Pro's view right above the action buttons.
+	const { show: showPanelNotice, fixNotice, isUnfixable } = useFixNotice(() => group && onActionComplete({ group, fixed: false }));
+	// Tracks the selected issue so a late-arriving result doesn't apply after selection changes.
+	const activeScannerId = useRef<string | undefined>(group?.scanner_id);
+
+	useEffect(() => {
+		activeScannerId.current = group?.scanner_id;
+		// A fixed issue listed again after a reload gets its Fixed message and Undo back from Pro.
+		showPanelNotice(
+			group?.fixed && group.undo_ids?.length
+				? (applyFilters('vulopilot_fixed_group_outcome', null, group) as FixOutcome | null) ?? undefined
+				: undefined
+		);
+		// `showPanelNotice` is re-created every render and only calls a state setter; re-run only when the selected issue changes.
+	}, [group?.scanner_id]);
 
 	/**
 	 * The group response only ever carries a `count` + one sample.
@@ -118,10 +151,16 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		setIsLoadingAffected(true);
 		setAffectedItems(null);
 
+		// Scoped by object_type too, not just scanner_id - one scanner can report several
+		// unrelated finding types under the same scanner_id.
+		const objectTypeParam = group.object_type
+			? `&object_type=${encodeURIComponent(group.object_type)}`
+			: '';
+
 		getApiResponse<{ data?: FindingRow[] } | FindingRow[]>(
 			getApiLink(
 				vulopilotAppLocalizer,
-				`findings?scanner_id=${encodeURIComponent(group.scanner_id)}&status=open&per_page=${MAX_AFFECTED_ITEMS_SHOWN}&orderby=id&order=desc`
+				`findings?scanner_id=${encodeURIComponent(group.scanner_id)}${objectTypeParam}&status=open&per_page=${MAX_AFFECTED_ITEMS_SHOWN}&orderby=id&order=desc`
 			),
 			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
@@ -133,7 +172,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				setAffectedItems(list);
 			})
 			.finally(() => setIsLoadingAffected(false));
-	}, [group?.scanner_id]);
+	}, [group?.scanner_id, group?.object_type]);
 
 	if (!group) {
 		return (
@@ -174,19 +213,17 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		}
 	})();
 
-	/**
-	 * Real, scanner-specific remediation steps - see this file's own top docblock.
-	 */
+	/** Per-finding `meta.recommended_fix` if present, else Pro's per-scanner `no_fix_steps`. */
 	const recommendedFixSteps: string[] = Array.isArray(
 		sampleMeta?.recommended_fix
 	)
 		? (sampleMeta?.recommended_fix as unknown[]).filter(
 			(step: unknown): step is string => 'string' === typeof step
 		)
-		: [];
+		: (group.no_fix_steps ?? []);
 
 	const showRecommendedFix =
-		'performance' === group.category && recommendedFixSteps.length > 0;
+		!group.fix_action_id && recommendedFixSteps.length > 0;
 
 	const whyItMatters =
 		'string' === typeof sampleMeta?.why_it_matters
@@ -228,7 +265,6 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				<div className="issue-detail-pro-gate-dummy" aria-hidden="true">
 					{dummyContent}
 				</div>
-				{/* Same reasoning as `showTag` above - the action row's own * call (showTag=false) sits directly under "Affected items"' * own gated section. */}
 				{showTag && <DummyDataNotice />}
 				<div
 					className="issue-detail-pro-gate-overlay"
@@ -247,15 +283,19 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		);
 	};
 
-	/**
-	 * The group response only ever carries a `count` + one sample row, not every individual
-	 * finding id.
-	 */
-	const fetchGroupIds = (scannerId: string): Promise<number[]> =>
+	/** Fetches every finding id for this group, scoped by object_type like the fetch above. */
+	const fetchGroupIds = (
+		scannerId: string,
+		objectType: string | null
+	): Promise<number[]> =>
 		getApiResponse<{ data?: { id: number }[] } | { id: number }[]>(
 			getApiLink(
 				vulopilotAppLocalizer,
-				`findings?scanner_id=${encodeURIComponent(scannerId)}&status=open&per_page=100`
+				`findings?scanner_id=${encodeURIComponent(scannerId)}${
+					objectType
+						? `&object_type=${encodeURIComponent(objectType)}`
+						: ''
+				}&status=open&per_page=100`
 			),
 			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		).then((response) => {
@@ -271,7 +311,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		successMessage: string
 	) => {
 		setIsBusy(true);
-		fetchGroupIds(group.scanner_id)
+		fetchGroupIds(group.scanner_id, group.object_type)
 			.then((ids) => {
 				if (!ids.length) {
 					return;
@@ -282,10 +322,12 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					getApiLink(vulopilotAppLocalizer, 'findings/bulk'),
 					{ ids, status }
 				).then((response) => {
-					NoticeManager.add({
-						uniqueKey: `issue-group-${status}-${group.scanner_id}`,
-						type: response ? 'success' : 'error',
-						position: 'float',
+					if (activeScannerId.current !== group.scanner_id) {
+						return;
+					}
+
+					showPanelNotice({
+						success: !!response,
 						message: response
 							? successMessage
 							: __(
@@ -307,8 +349,9 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	 * counts into one outcome.
 	 */
 	const runBulkFixInBatches = (
-		// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
-		bulkFixHandler: (batchIds: number[]) => Promise<FixOutcome> | undefined,
+		 
+		// eslint-disable-next-line no-unused-vars
+		bulkFixHandler: (batchIds: number[]) => Promise<BatchFixOutcome> | undefined,
 		ids: number[]
 	): Promise<FixOutcome> => {
 		const batches: number[][] = [];
@@ -324,25 +367,46 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 						Promise.resolve(bulkFixHandler(batch)).then((outcome) => ({
 							succeeded: totals.succeeded + (outcome?.succeeded ?? 0),
 							total: totals.total + (outcome?.total ?? batch.length),
-							noFixAvailable:
-								totals.noFixAvailable + (outcome?.noFixAvailable ?? 0),
+							noFixCount:
+								totals.noFixCount + (outcome?.noFixAvailable ?? 0),
 							lastMessage: outcome?.message ?? totals.lastMessage,
+							link: outcome?.link ?? totals.link,
+							undos: outcome?.undo ? [...totals.undos, outcome.undo] : totals.undos,
 						}))
 					),
 				Promise.resolve({
 					succeeded: 0,
 					total: 0,
-					noFixAvailable: 0,
+					noFixCount: 0,
 					lastMessage: '',
+					link: undefined as FixOutcome['link'],
+					undos: [] as Array<NonNullable<FixOutcome['undo']>>,
 				})
 			)
-			.then(({ succeeded, total, noFixAvailable, lastMessage }) => {
+			.then(({ succeeded, total, noFixCount, lastMessage, link, undos }) => {
+				// One Undo that reverses every batch that could be undone.
+				const undo: FixOutcome['undo'] = undos.length
+					? () =>
+							Promise.all(undos.map((run) => run())).then((results) => ({
+								success: results.every((result) => result.success),
+								message:
+									results.find((result) => !result.success)?.message ??
+									results[0].message,
+							}))
+					: undefined;
+
 				const failed = total - succeeded;
 
 				// Single batch: the handler's own message already says exactly the right thing
 				// (including the "no automatic fix exists yet" honest case).
 				if (batches.length <= 1) {
-					return { success: 0 === failed, message: lastMessage };
+					return {
+						success: 0 === failed,
+						message: lastMessage,
+						link,
+						undo,
+						noFixAvailable: 0 === succeeded && noFixCount === total && total > 0,
+					};
 				}
 
 				let message: string;
@@ -353,9 +417,12 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 						__('Fixed %d findings.', 'vulopilot'),
 						succeeded
 					);
-				} else if (noFixAvailable === failed) {
+				} else if (noFixCount === failed) {
 					message =
-						succeeded > 0
+						0 === succeeded && lastMessage
+							// Nothing was fixable: keep the handler's own message, it says why.
+							? lastMessage
+							: succeeded > 0
 							? sprintf(
 								/* translators: 1: number fixed, 2: how many had no automatic fix available at all. */
 								__(
@@ -363,7 +430,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 									'vulopilot'
 								),
 								succeeded,
-								noFixAvailable
+								noFixCount
 							)
 							: __(
 								'No automatic fix exists yet for these findings.',
@@ -381,7 +448,13 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					);
 				}
 
-				return { success: 0 === failed, message };
+				return {
+					success: 0 === failed,
+					message,
+					link,
+					undo,
+					noFixAvailable: 0 === succeeded && noFixCount === total && total > 0,
+				};
 			});
 	};
 
@@ -394,23 +467,20 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		}
 
 		setIsBusy(true);
-		fetchGroupIds(group.scanner_id)
+		fetchGroupIds(group.scanner_id, group.object_type)
 			.then((ids) => {
 				if (!ids.length) {
 					return;
 				}
 
+				showPanelNotice(undefined);
+
 				return runBulkFixInBatches(bulkFixHandler, ids).then((outcome) => {
-					if (outcome?.message) {
-						NoticeManager.add({
-							uniqueKey: `issue-group-fix-${group.scanner_id}`,
-							type: outcome.success ? 'success' : 'error',
-							position: 'float',
-							message: outcome.message,
-						});
+					if (activeScannerId.current === group.scanner_id) {
+						showPanelNotice({ ...outcome, label: group.label });
 					}
 
-					onActionComplete();
+					onActionComplete({ group, fixed: outcome.success });
 				});
 			})
 			.finally(() => setIsBusy(false));
@@ -425,6 +495,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				desc={group.sample?.title}
 			>
 				<div className="issue-detail-badges-row">
+					{group.fixed && <BadgeComponent color="green" text={__('Fixed', 'vulopilot')} />}
 					<BadgeComponent
 						color={getSeverityClass(group.severity)}
 						text={SEVERITY_LABEL[group.severity]}
@@ -477,7 +548,10 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					</div>
 				)}
 
-				{group.sample && (
+				{group.sample && (() => {
+					const samplePageLink = getAffectedItemLink(group.sample);
+
+					return (
 					<div className="issue-detail-section">
 						<div className="issue-detail-section-header">
 							{!isProActive && (
@@ -532,6 +606,17 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 												copyButtonLabel={__('Copy', 'vulopilot')}
 												copiedLabel={__('Copied!', 'vulopilot')}
 											/>
+											{samplePageLink && (
+												<a
+													href={samplePageLink}
+													target="_blank"
+													rel="noreferrer"
+													className="issue-detail-example-open-link"
+												>
+													<i className="adminfont-external" />
+													{__('View page', 'vulopilot')}
+												</a>
+											)}
 										</div>
 									</>,
 									<span className="desc">
@@ -557,6 +642,17 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 												copyButtonLabel={__('Copy', 'vulopilot')}
 												copiedLabel={__('Copied!', 'vulopilot')}
 											/>
+											{samplePageLink && (
+												<a
+													href={samplePageLink}
+													target="_blank"
+													rel="noreferrer"
+													className="issue-detail-example-open-link"
+												>
+													<i className="adminfont-external" />
+													{__('View page', 'vulopilot')}
+												</a>
+											)}
 										</div>
 									</>,
 									<span className="desc">
@@ -568,7 +664,8 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 									false
 								)}
 					</div>
-				)}
+				);
+			})()}
 
 				<div className="issue-detail-section">
 					<div className="issue-detail-section-header">
@@ -591,17 +688,44 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 							<ListComponent
 								className="mini-card report"
 								loading={isLoadingAffected}
-								items={otherAffectedItems.map((row) => ({
-									id: row.id,
-									icon: CATEGORY_ICONS[group.category] ?? 'ai',
-									title: row.title,
-									desc: sprintf(
-										/* translators: 1: affected page/location, 2: formatted detection date */
-										__('%1$s • Detected %2$s', 'vulopilot'),
-										row.page || __('Site-wide', 'vulopilot'),
-										formatWpDate(row.last_seen_at ?? row.created_at)
-									),
-								}))}
+								items={otherAffectedItems.map((row) => {
+									const pageLink = getAffectedItemLink(row);
+
+									return {
+										id: row.id,
+										icon: CATEGORY_ICONS[group.category] ?? 'ai',
+										title: row.title,
+										desc: sprintf(
+											/* translators: 1: affected page/location, 2: formatted detection date */
+											__('%1$s • Detected %2$s', 'vulopilot'),
+											row.page || __('Site-wide', 'vulopilot'),
+											formatWpDate(row.last_seen_at ?? row.created_at)
+										),
+										// `action` (not `link`) - ListComponent's own `<a>` branch
+										// for `link` drops the `desc` line entirely.
+										action: pageLink
+											? () =>
+												window.open(
+													pageLink,
+													'_blank',
+													'noopener,noreferrer'
+												)
+											: undefined,
+										// Visible link affordance; stopPropagation avoids double-opening via the row's action.
+										tags: pageLink ? (
+											<a
+												href={pageLink}
+												target="_blank"
+												rel="noreferrer"
+												className="issue-detail-example-open-link"
+												onClick={(e) => e.stopPropagation()}
+											>
+												<i className="adminfont-external" />
+												{__('View page', 'vulopilot')}
+											</a>
+										) : undefined,
+									};
+								})}
 							/>
 							{!isLoadingAffected &&
 								affectedItems &&
@@ -666,17 +790,59 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					</div>
 				)}
 
+				{isProActive && !fixNotice && !group.fix_action_id && group.no_fix_reason && (
+					<div className="issue-detail-manual-fix-notice">
+						<div className="issue-detail-manual-fix-notice-icon">
+							<i className="adminfont-info" />
+						</div>
+						<div>
+							<div className="issue-detail-manual-fix-notice-title">
+								{__('Needs your review - no automatic fix', 'vulopilot')}
+							</div>
+							{/* The numbered steps above already say this - skip the redundant paragraph, keep the link. */}
+							{!showRecommendedFix && (
+								<div className="desc">{group.no_fix_reason}</div>
+							)}
+							{group.no_fix_link && (
+								<div className="small desc">
+									<a
+										href={group.no_fix_link.url}
+										target="_blank"
+										rel="noreferrer"
+										style={{
+											color: 'var(--color-primary)',
+											textDecoration: 'underline',
+										}}
+									>
+										{group.no_fix_link.label}
+									</a>
+								</div>
+							)}
+							<div className="small desc">
+								{__('Check the details above for what to look at.', 'vulopilot')}
+							</div>
+						</div>
+					</div>
+				)}
+
+				{isProActive && fixNotice}
+
 				{isProActive ? (
 					<ButtonInput
 						position="full-width"
 						buttons={[
-							{
-								text: __('Fix with AI', 'vulopilot'),
-								icon: 'ai',
-								color: 'orange-bg',
-								onClick: handleFix,
-								disabled: isBusy,
-							},
+							// No automatic fix exists for this issue; don't offer a button that can only fail again.
+							...(isUnfixable || !group.fix_action_id
+								? []
+								: [
+										{
+											text: __('Fix with AI', 'vulopilot'),
+											icon: 'ai',
+											color: 'orange-bg',
+											onClick: handleFix,
+											disabled: isBusy,
+										},
+									]),
 							{
 								text: __('Resolve all', 'vulopilot'),
 								color: 'border-purple',

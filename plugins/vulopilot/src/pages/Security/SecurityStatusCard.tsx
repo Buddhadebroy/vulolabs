@@ -78,7 +78,8 @@ interface SecurityStatusCardProps {
 	/** Navigates to the Security tab - same handler `VulnerabilityHeroCard`'s own "Review Issues First" button already called. */
 	onNavigateToSecurityTab?: () => void;
 	/** Forwarded to `SecurityMetricsGrid`'s own row clicks - switches the merged issues table below to that row's own section. */
-	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	 
+	// eslint-disable-next-line no-unused-vars
 	onViewSection: (tab: SectionedIssuesTab) => void;
 }
 
@@ -114,8 +115,11 @@ const SecurityStatusCard = ({
 			})
 			.finally(() => setIsLoading(false));
 
+		// Scoped to 'security' - the endpoint is sitewide by default (every category combined),
+		// which used to make this card's "I found N security issues" banner show the site's TOTAL
+		// open-finding count across every category, mislabeled as if it were security-specific.
 		getApiResponse<AttentionSummary>(
-			getApiLink(vulopilotAppLocalizer, 'findings/attention-summary'),
+			getApiLink(vulopilotAppLocalizer, 'findings/attention-summary?category=security'),
 			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
@@ -172,10 +176,7 @@ const SecurityStatusCard = ({
 							<ChartComponent
 								type="ring"
 								height={200}
-								// Top-level `color` - same prop this ring's own sibling rings
-								// elsewhere in this plugin
-								// (OverallScoreWidget.tsx/PerformanceScoreCard.tsx's own
-								// ScoreTile/VitalRow) already set.
+								// Top-level `color`, like the sibling rings (OverallScoreWidget, PerformanceScoreCard).
 								color={RATING_COLOR[ratingClass(overallScore)]}
 								centerLabel={
 									<>

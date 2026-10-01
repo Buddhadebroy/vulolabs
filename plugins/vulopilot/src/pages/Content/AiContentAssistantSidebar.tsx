@@ -1,13 +1,24 @@
 /* global vulopilotAppLocalizer */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import InsufficientCreditsNotice from '../../components/AiCredits/InsufficientCreditsNotice';
 import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink } from '@zyra/core';
+import { getApiLink, getApiResponse } from '@zyra/core';
 import { NoticeManager, PopupComponent } from '@zyra/components';
+import { SelectInput } from '@zyra/inputs';
 import { ChatInput, AiChatCard, CopilotTurnBubble } from '../../components/ChatComposerCard';
 import ShowProPopup from '../../components/Popup/Popup';
 import { useAiCredits } from '../../services/useAiCredits';
+
+interface WpRestPost {
+	id: number;
+	title: { rendered: string };
+}
+
+interface PageOption {
+	value: string;
+	label: string;
+}
 
 interface ChatLink {
 	url: string;
@@ -38,7 +49,8 @@ interface PromptChip {
 	/** The clarifying question asked (as a local, non-AI chat turn) once this chip is picked. */
 	ask: string;
 	/** Combines the user's next reply into the real instruction actually sent to the AI. */
-	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	 
+	// eslint-disable-next-line no-unused-vars
 	build: (answer: string) => string;
 }
 
@@ -116,7 +128,51 @@ const AiContentAssistantSidebar = () => {
 	// has been folded into that chip's own build() and sent for real.
 	const [pendingChip, setPendingChip] = useState<PromptChip | null>(null);
 	const [isCloudConnectPromptOpen, setIsCloudConnectPromptOpen] = useState(false);
+	const [pageOptions, setPageOptions] = useState<PageOption[]>([]);
+	const [isLoadingPageOptions, setIsLoadingPageOptions] = useState(false);
 	const { status: creditsStatus } = useAiCredits();
+
+	/**
+	 * "Create meta title" is the one chip whose answer is a real page/post, not free text -
+	 * load a searchable list the moment it's picked (SelectInput filters the typed text against
+	 * `label` itself, so this alone gives real search-as-you-type, same as ContentToolPopup.tsx's
+	 * own `post-picker` field).
+	 */
+	useEffect(() => {
+		if ('meta-title' !== pendingChip?.id) {
+			return;
+		}
+
+		setIsLoadingPageOptions(true);
+
+		Promise.all([
+			getApiResponse<WpRestPost[]>(
+				getApiLink(
+					vulopilotAppLocalizer,
+					'posts?per_page=100&orderby=title&order=asc&_fields=id,title',
+					'wp/v2'
+				),
+				{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
+			),
+			getApiResponse<WpRestPost[]>(
+				getApiLink(
+					vulopilotAppLocalizer,
+					'pages?per_page=100&orderby=title&order=asc&_fields=id,title',
+					'wp/v2'
+				),
+				{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
+			),
+		])
+			.then(([posts, pages]) => {
+				setPageOptions(
+					[...(posts || []), ...(pages || [])].map((post) => ({
+						value: String(post.id),
+						label: post.title.rendered || `#${post.id}`,
+					}))
+				);
+			})
+			.finally(() => setIsLoadingPageOptions(false));
+	}, [pendingChip]);
 
 	const sendToAi = (realMessage: string, displayedTurns: ChatTurn[]) => {
 		setIsSending(true);
@@ -181,10 +237,13 @@ const AiContentAssistantSidebar = () => {
 		]);
 	};
 
-	const handleSend = () => {
-		const trimmed = message.trim();
-
-		if ('' === trimmed || isSending) {
+	/**
+	 * Shared by both answer paths: typing free text (`handleSend`) and picking a page from the
+	 * search dropdown (`handlePagePicked`) - either way, `answer` is folded into the pending
+	 * chip's own build() the same way.
+	 */
+	const submitAnswer = (answer: string) => {
+		if ('' === answer || isSending) {
 			return;
 		}
 
@@ -195,12 +254,26 @@ const AiContentAssistantSidebar = () => {
 		}
 
 		const history = turns;
-		const realMessage = pendingChip ? pendingChip.build(trimmed) : trimmed;
+		const realMessage = pendingChip ? pendingChip.build(answer) : answer;
 
 		setTurns([...history, { role: 'user', content: realMessage }]);
 		setMessage('');
 		setPendingChip(null);
 		sendToAi(realMessage, history);
+	};
+
+	const handleSend = () => submitAnswer(message.trim());
+
+	/**
+	 * Selecting a page submits immediately - there's nothing left to type once a real page is
+	 * picked.
+	 */
+	const handlePagePicked = (pageId: string) => {
+		const picked = pageOptions.find((option) => option.value === pageId);
+
+		if (picked) {
+			submitAnswer(picked.label);
+		}
 	};
 
 	// AiChatCard's own onSelectPrompt only hands back a prompt's title (the shape every real
@@ -252,17 +325,34 @@ const AiContentAssistantSidebar = () => {
 				isSending={isSending}
 				sendingSpinnerClassName="content-assistant-spinner"
 				composer={
-					<ChatInput
-						value={message}
-						onChange={setMessage}
-						onSend={handleSend}
-						disabled={isSending}
-						placeholder={
-							pendingChip
-								? __('Type your answer…', 'vulopilot')
-								: __('Ask Anything…', 'vulopilot')
-						}
-					/>
+					'meta-title' === pendingChip?.id ? (
+						<SelectInput
+							type="single-select"
+							options={pageOptions}
+							value={null}
+							onChange={(value) =>
+								handlePagePicked(String(value ?? ''))
+							}
+							placeholder={
+								isLoadingPageOptions
+									? __('Loading pages…', 'vulopilot')
+									: __('Search for a page…', 'vulopilot')
+							}
+							disabled={isSending || isLoadingPageOptions}
+						/>
+					) : (
+						<ChatInput
+							value={message}
+							onChange={setMessage}
+							onSend={handleSend}
+							disabled={isSending}
+							placeholder={
+								pendingChip
+									? __('Type your answer…', 'vulopilot')
+									: __('Ask Anything…', 'vulopilot')
+							}
+						/>
+					)
 				}
 			/>
 			<PopupComponent

@@ -14,7 +14,7 @@ import CommerceProDummies from './CommerceProDummies';
 import BannerCard from '../../components/BannerCard';
 import './Commerce.scss';
 
-const COMMERCE_MODULE_ID = 'woocommerce-analytics';
+const COMMERCE_MODULE_ID = 'woo-commerce-analytics';
 
 /**
  * Runs once, unconditionally, at this module's own top-level scope.

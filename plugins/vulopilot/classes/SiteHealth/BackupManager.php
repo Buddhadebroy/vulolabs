@@ -26,24 +26,23 @@ class BackupManager {
 	private const BATCH_HOOK = 'vulopilot_backup_process_batch';
 
 	/**
-	 * Real elapsed-time budget per batch tick, in seconds.
+	 * Elapsed-time budget per batch tick, in seconds.
 	 */
 	private const BATCH_SECONDS_BUDGET = 15;
 
 	/**
-	 * Real files enumerated across uploads/theme/plugins combined, per backup.
+	 * Max files enumerated across uploads/theme/plugins combined, per backup.
 	 */
 	private const MAX_BACKUP_FILES = 5000;
 
 	/**
-	 * Real rows read per table dump chunk - bounds peak memory for a large
-	 * table.
+	 * Rows read per table dump chunk, to bound peak memory.
 	 */
 	private const DB_CHUNK_SIZE = 500;
 
 	/**
 	 * Access-protection stubs planted in the backups directory, filename => contents.
-	 * Apache and IIS are covered here; nginx needs a server-level rule instead.
+	 * Covers Apache and IIS; nginx needs a server-level rule instead.
 	 */
 	private const PROTECTION_FILES = array(
 		'index.php'  => "<?php\n// Silence is golden.\n",
@@ -52,8 +51,7 @@ class BackupManager {
 	);
 
 	/**
-	 * Backslash escapes a dumped string value can carry, escape letter =>
-	 * character. Any other escaped character stands for itself (`\\`, `\'`, `\"`).
+	 * Backslash escapes a dumped string value can carry, escape letter => character.
 	 */
 	private const SQL_ESCAPES = array(
 		'n' => "\n",
@@ -79,8 +77,7 @@ class BackupManager {
 	}
 
 	/**
-	 * Real, plugin-owned backups storage directory - created and
-	 * index-protected on first use.
+	 * Plugin-owned backups storage directory, created and index-protected on first use.
 	 *
 	 * @return string Trailing-slashed absolute path.
 	 */
@@ -102,10 +99,9 @@ class BackupManager {
 	}
 
 	/**
-	 * Real absolute path for a stored backup's basename - never trusts a client-supplied
-	 * path.
+	 * Resolves a stored backup's basename to an absolute path, never trusting client input.
 	 *
-	 * @param string $file_basename Real stored `file_path` basename.
+	 * @param string $file_basename Stored `file_path` basename.
 	 * @return string
 	 */
 	public function resolve_file_path( string $file_basename ): string {
@@ -270,8 +266,8 @@ class BackupManager {
 	}
 
 	/**
-	 * Processes as many queued steps as fit in `BATCH_SECONDS_BUDGET`, then either self-
-	 * reschedules (steps remain) or finalizes the archive (queue drained).
+	 * Processes as many queued steps as fit in `BATCH_SECONDS_BUDGET`, then either
+	 * reschedules itself or finalizes the archive once the queue is drained.
 	 *
 	 * @return void
 	 */
@@ -386,7 +382,7 @@ class BackupManager {
 	private function dump_table_to_sql( string $table, string $sql_path ): void {
 		global $wpdb;
 
-		// The dump is streamed to a plain temp file in bounded chunks, which WP_Filesystem can't append to - so the native stream functions are used here.
+		// WP_Filesystem can't append, so native stream functions are used here instead.
         // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 		$handle = fopen( $sql_path, 'a' );
 
@@ -588,8 +584,7 @@ class BackupManager {
 
 		$this->delete_directory_recursive( $tmp_dir );
 
-		// The DB rows above were restored via raw `$wpdb->query()`, which never goes through
-		// `update_option()`/etc.'s own cache-invalidation path.
+		// Raw $wpdb->query() calls above bypass update_option()'s cache invalidation.
 		wp_cache_flush();
 
 		( new ActivityLogRepository() )->insert(
@@ -846,8 +841,7 @@ class BackupManager {
 				wp_delete_file( $this->resolve_file_path( (string) $row['file_path'] ) );
 			}
 
-			// Real remote-copy cleanup (S3/Google Drive) - same real no-op-for-local/never-
-			// uploaded posture Backups::delete_item() already uses.
+			// No-ops for local/never-uploaded backups.
 			$storage->delete_remote_copy( $row );
 
 			$repository->delete( (int) $row['id'] );

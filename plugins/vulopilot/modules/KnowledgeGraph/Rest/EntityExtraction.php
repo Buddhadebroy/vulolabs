@@ -106,10 +106,8 @@ class EntityExtraction extends \WP_REST_Controller {
 			function ( array $person ): array {
 				$user_id = (int) $person['source_object_ref'];
 
-				// Not `get_edit_user_link()` - core's own version routes to `profile.php` instead
-				// of `user-edit.php` whenever `$user_id` happens to be the currently logged-in
-				// admin (e.g. viewing this list as "admin" and that same "admin" is also one of the
-				// detected people), which isn't what this "Edit" action is for here.
+				// Not `get_edit_user_link()`: core routes it to `profile.php` when `$user_id` is the logged-in admin,
+				// which isn't what this "Edit" action is for.
 				$person['meta']['edit_url'] = current_user_can( 'edit_user', $user_id )
 					? add_query_arg( 'user_id', $user_id, admin_url( 'user-edit.php' ) )
 					: null;

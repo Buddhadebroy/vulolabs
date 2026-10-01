@@ -12,14 +12,10 @@ import {
 } from '@zyra/components';
 import { TableCard } from '@zyra/table';
 import ShowProPopup from '../../components/Popup/Popup';
+import { FixOutcome } from '../../services/showFixOutcome';
+import { useFixNotice } from '../../services/useFixNotice';
 import { PRIORITY_SEVERITIES, Priority, RawFinding } from './seoIssuesShared';
 import './SeoVisibility.scss';
-
-/** What a registered fix handler resolves to - same shape RecentContentCard.tsx's own FixOutcome uses. */
-interface FixOutcome {
-	success: boolean;
-	message: string;
-}
 
 const getFindingFixHandler = () => applyFilters('vulopilot_finding_fix_handler', null);
 
@@ -68,6 +64,15 @@ const SeoSiteWideIssuesTable = ({
 	const [localFindings, setLocalFindings] = useState<RawFinding[]>(findings);
 	const [fixingFindingId, setFixingFindingId] = useState<number | null>(null);
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
+	// An undone fix puts the finding back in the list. Set per fix, since Undo runs later.
+	const [undoneFinding, setUndoneFinding] = useState<RawFinding | null>(null);
+	const { show: showFix, fixNotice } = useFixNotice(() =>
+		setLocalFindings((current) =>
+			undoneFinding && !current.some((item) => item.id === undoneFinding.id)
+				? [undoneFinding, ...current]
+				: current
+		)
+	);
 
 	useEffect(() => {
 		setLocalFindings(findings);
@@ -87,17 +92,11 @@ const SeoSiteWideIssuesTable = ({
 		}
 
 		setFixingFindingId(finding.id);
+		setUndoneFinding(finding);
 
 		Promise.resolve(findingFixHandler(finding) as Promise<FixOutcome> | undefined)
 			.then((outcome) => {
-				if (outcome?.message) {
-					NoticeManager.add({
-						uniqueKey: `seo-sitewide-fix-${finding.id}`,
-						type: outcome.success ? 'success' : 'error',
-						position: 'float',
-						message: outcome.message,
-					});
-				}
+				showFix(outcome);
 
 				if (outcome?.success) {
 					removeFindingLocally(finding.id);
@@ -165,7 +164,8 @@ const SeoSiteWideIssuesTable = ({
 	// Nothing site-wide to show (either genuinely clean, or filtered out by an active
 	// category/scanner filter that has no site-wide matches).
 	if (!isLoading && 0 === visibleFindings.length) {
-		return null;
+		// Keep the last fix's result (and its Undo) visible even though the table is now empty.
+		return fixNotice;
 	}
 
 	return (
@@ -174,6 +174,7 @@ const SeoSiteWideIssuesTable = ({
 				title={__('Site-wide Issues', 'vulopilot')}
 				desc={__('Not tied to a specific page - these affect the whole site (e.g. your XML sitemap or robots.txt).', 'vulopilot')}
 			/>
+			{fixNotice}
 			<TableCard
 				showMenu={false}
 				variant="transparent"
@@ -244,6 +245,9 @@ const SeoSiteWideIssuesTable = ({
 						{ text: finding.severity, color: `badge-${finding.severity}` },
 					],
 					descriptionItems: [
+						...(finding.description
+							? [{ value: finding.description, icon: 'info' }]
+							: []),
 						{ value: finding.scanner_id, icon: 'category' },
 						{ value: timeAgo(finding.created_at), icon: 'clock' },
 					],

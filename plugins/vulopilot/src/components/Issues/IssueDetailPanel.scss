@@ -105,6 +105,34 @@
 	margin-bottom: 0.25rem;
 }
 
+.issue-detail-manual-fix-notice {
+	display: flex;
+	gap: 0.625rem;
+	padding: 0.875rem 1rem;
+	margin-bottom: 1rem;
+	border-radius: $border-radius-small;
+	background: $theme-background-color;
+	border: $border-light-small;
+}
+
+.issue-detail-manual-fix-notice-icon {
+	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	border-radius: 50%;
+	background: $sub-text-color;
+	color: #fff;
+	font-size: 0.875rem;
+}
+
+.issue-detail-manual-fix-notice-title {
+	font-weight: 600;
+	margin-bottom: 0.25rem;
+}
+
 .issue-detail-section {
 	border: $border-light-small;
 	border-radius: $border-radius-small;
@@ -148,6 +176,20 @@
 
 .issue-detail-example-where {
 	margin-top: 0.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+}
+
+.issue-detail-example-open-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	color: var(--color-primary);
+	text-decoration: underline;
+	font-size: 0.8125rem;
+	white-space: nowrap;
 }
 
 .issue-detail-fix-steps {

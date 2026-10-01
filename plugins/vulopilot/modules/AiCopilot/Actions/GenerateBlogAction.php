@@ -16,8 +16,7 @@ use VuloPilot\Utill\Impact;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The new-content-creation pattern - the odd one out among the four built-in actions: its
- * input is a topic the site owner types.
+ * Generates a new blog post draft from a topic the site owner types.
  *
  * @class       GenerateBlogAction class
  * @version     1.0.0
@@ -40,7 +39,7 @@ class GenerateBlogAction extends AbstractBasicAction {
 	}
 
 	/**
-	 * Impact::HIGH - `wp_insert_post()`s a brand-new post with AI-generated `post_content` - creates new, potentially publicly-visible content outright.
+	 * Impact::HIGH - creates a brand-new post outright.
 	 *
 	 * @inheritDoc
 	 */

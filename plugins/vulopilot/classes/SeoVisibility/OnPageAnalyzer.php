@@ -23,8 +23,7 @@ class OnPageAnalyzer {
 	private const TITLE_MAX_LENGTH = 60;
 
 	/**
-	 * Reuses WriteMetaDescriptionAction::MAX_LENGTH (160) as the upper
-	 * bound rather than inventing a second number.
+	 * Matches WriteMetaDescriptionAction::MAX_LENGTH.
 	 */
 	private const DESCRIPTION_MIN_LENGTH = 120;
 	private const DESCRIPTION_MAX_LENGTH = 160;
@@ -48,7 +47,8 @@ class OnPageAnalyzer {
 		$content_text  = trim( wp_strip_all_tags( $content_html ) );
 		$excerpt       = trim( (string) ( $fields['excerpt'] ?? '' ) );
 		$slug          = (string) ( $fields['slug'] ?? '' );
-		$focus_keyword = trim( (string) ( $fields['focus_keyword'] ?? '' ) );
+		// `focus_keyword` may carry a comma-separated list; only the primary (first) one is scored.
+		$focus_keyword = PostSeoMetaFields::primary_keyword( (string) ( $fields['focus_keyword'] ?? '' ) );
 
 		$results = array();
 
@@ -100,7 +100,7 @@ class OnPageAnalyzer {
 	/**
 	 * Checks the meta description's length against the recommended window.
 	 *
-	 * @param string $excerpt Current post excerpt (this codebase's meta description field, see MetaDescriptionScanner).
+	 * @param string $excerpt Current post excerpt (used as the meta description).
 	 * @return array<string, mixed>
 	 */
 	private function check_description_length( string $excerpt ): array {

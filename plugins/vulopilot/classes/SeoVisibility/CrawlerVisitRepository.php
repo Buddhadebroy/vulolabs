@@ -39,12 +39,10 @@ class CrawlerVisitRepository extends RepositoryUtil {
 	/**
 	 * Records one detected bot visit - no IP address, user id.
 	 *
-	 * @param string $bot_name      Display name of the matched bot (CrawlerTrafficLogger::BOT_SIGNATURES value).
+	 * @param string $bot_name      Display name of the matched bot.
 	 * @param string $user_agent    The raw User-Agent header that matched.
 	 * @param string $requested_url The requested path.
-	 * @param bool   $is_404        Whether WordPress resolved this exact request to a 404 (`is_404()` at
-	 *                              `template_redirect` time, the same hook this is logged from) - AI Crawler
-	 *                              Alerts' "access limited" check reads this back via get_404_rate_for_bot().
+	 * @param bool   $is_404        Whether the request resolved to a 404.
 	 * @return int Inserted row id.
 	 */
 	public function log( string $bot_name, string $user_agent, string $requested_url, bool $is_404 = false ): int {
@@ -68,8 +66,7 @@ class CrawlerVisitRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Most recent visit timestamp per bot - readme.txt's "Last-Seen Timestamps." Still
-	 * backs `GET /crawler-traffic/summary`.
+	 * Most recent visit timestamp per bot.
 	 *
 	 * @return array<int, array{bot_name: string, last_seen_at: string}>
 	 */
@@ -85,8 +82,7 @@ class CrawlerVisitRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Most-requested URLs across every bot - readme.txt's "Most-Crawled
-	 * Pages."
+	 * Most-requested URLs across every bot.
 	 *
 	 * @param int $limit Max rows to return.
 	 * @return array<int, array{requested_url: string, total: int}>
@@ -258,8 +254,6 @@ class CrawlerVisitRepository extends RepositoryUtil {
 		$current  = $this->get_stats_for_period( $current_start, gmdate( 'Y-m-d' ) );
 		$previous = $this->get_stats_for_period( $previous_start, $previous_end );
 
-		// Same real `MAX(created_at)` per bot get_bot_last_seen() already computes for the summary
-		// endpoint's own "Last seen" tiles.
 		$last_seen_by_bot = array();
 		foreach ( $this->get_bot_last_seen() as $row ) {
 			$last_seen_by_bot[ $row['bot_name'] ] = $row['last_seen_at'];
@@ -313,10 +307,9 @@ class CrawlerVisitRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * 404 rate for one bot's most recent visits - AI Crawler Alerts' "access limited"
-	 * check.
+	 * 404 rate for one bot's most recent visits.
 	 *
-	 * @param string $bot_name  Display name (CrawlerTrafficLogger::BOT_SIGNATURES value).
+	 * @param string $bot_name  Display name.
 	 * @param int    $recent_n  How many of the bot's most recent visits to look at.
 	 * @param int    $min_sample Minimum visits required before a rate is considered meaningful.
 	 * @return array{rate_percent: int, sample_size: int}|null

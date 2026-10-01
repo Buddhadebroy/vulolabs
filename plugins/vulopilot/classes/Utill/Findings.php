@@ -148,13 +148,13 @@ class Findings extends \WP_REST_Controller {
 		$search      = sanitize_text_field( (string) $request->get_param( 'search' ) );
 		$scanner_ids = $this->parse_comma_separated_list( $request->get_param( 'scanner_id' ) );
 		$priority    = sanitize_key( (string) $request->get_param( 'priority' ) );
+		$object_type = sanitize_key( (string) $request->get_param( 'object_type' ) );
 
 		if ( '' !== $severity && ! Severity::is_valid( $severity ) ) {
 			return new \WP_Error( 'vulopilot_invalid_severity', __( 'Invalid severity filter.', 'vulopilot' ), array( 'status' => 400 ) );
 		}
 
-		// `priority` (the "Schema & Knowledge" tab's Issues section - Critical/Important/Minor
-		// pills) is a display-only relabeling of the same real severity values.
+		// `priority` is a display-only relabeling of the same severity values.
 		$severity_filter = $severity;
 		if ( '' === $severity_filter && '' !== $priority && isset( self::PRIORITY_SEVERITY_LABELS[ $priority ] ) ) {
 			$severity_filter = self::PRIORITY_SEVERITY_LABELS[ $priority ];
@@ -162,15 +162,16 @@ class Findings extends \WP_REST_Controller {
 
 		$result                  = $repository->find_all(
 			array(
-				'page'       => absint( $request->get_param( 'page' ) ) ? absint( $request->get_param( 'page' ) ) : 1,
-				'per_page'   => absint( $request->get_param( 'per_page' ) ) ? absint( $request->get_param( 'per_page' ) ) : 20,
-				'category'   => $category,
-				'severity'   => $severity_filter,
-				'status'     => $status,
-				'search'     => $search,
-				'scanner_id' => $scanner_ids ?? '',
-				'orderby'    => sanitize_key( (string) $request->get_param( 'orderby' ) ),
-				'order'      => sanitize_key( (string) $request->get_param( 'order' ) ),
+				'page'        => absint( $request->get_param( 'page' ) ) ? absint( $request->get_param( 'page' ) ) : 1,
+				'per_page'    => absint( $request->get_param( 'per_page' ) ) ? absint( $request->get_param( 'per_page' ) ) : 20,
+				'category'    => $category,
+				'severity'    => $severity_filter,
+				'status'      => $status,
+				'search'      => $search,
+				'scanner_id'  => $scanner_ids ?? '',
+				'object_type' => $object_type,
+				'orderby'     => sanitize_key( (string) $request->get_param( 'orderby' ) ),
+				'order'       => sanitize_key( (string) $request->get_param( 'order' ) ),
 			)
 		);
 		$result['status_counts'] = $repository->get_status_counts( '' !== $category ? $category : null, $scanner_ids );
@@ -203,16 +204,17 @@ class Findings extends \WP_REST_Controller {
 	);
 
 	/**
-	 * GET /findings/attention-summary - real open-findings counts bucketed into 3 priority
-	 * tiers.
+	 * GET /findings/attention-summary - open-findings counts bucketed into 3 priority
+	 * tiers, sitewide by default or scoped to one category via `?category=`.
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return \WP_REST_Response
 	 */
 	public function get_attention_summary( $request ) {
+		$category        = sanitize_key( (string) $request->get_param( 'category' ) );
 		$repository      = new FindingRepository();
-		$priority_counts = $repository->get_priority_counts();
-		$groups          = $repository->get_top_finding_groups( 3 );
+		$priority_counts = $repository->get_priority_counts( '' !== $category ? $category : null );
+		$groups          = $repository->get_top_finding_groups( 3, '' !== $category ? array( $category ) : array() );
 
 		$label_scanner = static function ( array $group ): array {
 			$scanner        = VuloPilot()->scanner_registry->get_scanner( $group['scanner_id'] );
@@ -258,11 +260,7 @@ class Findings extends \WP_REST_Controller {
 		$scanner_ids = $this->parse_comma_separated_list( $request->get_param( 'scanner_id' ) );
 		$priority    = sanitize_key( (string) $request->get_param( 'priority' ) );
 
-		// Real group-level status filter - 'open' (default, unchanged behavior for every existing
-		// caller that never passes this) or 'all' (SectionedIssuesTable.tsx's own real "Show
-		// ignored" toggle: every real status together, not a second, separate "ignored only" view)
-		// - never an arbitrary caller-supplied string, so this can't become a SQL-injection vector
-		// via FindingRepository::get_finding_groups()'s own `WHERE status = %s`.
+		// Group-level status filter: 'open' (default) or 'all'.
 		$requested_status = sanitize_key( (string) $request->get_param( 'status' ) );
 		$status           = in_array( $requested_status, array( 'open', 'all' ), true ) ? $requested_status : 'open';
 
@@ -287,11 +285,13 @@ class Findings extends \WP_REST_Controller {
 
 				$sample = $repository->find_all(
 					array(
-						'scanner_id' => $group['scanner_id'],
-						'status'     => 'open',
-						'per_page'   => 1,
-						'orderby'    => 'id',
-						'order'      => 'desc',
+						'scanner_id'  => $group['scanner_id'],
+						// One scanner_id can report several unrelated object_types.
+						'object_type' => $group['object_type'] ?? '',
+						'status'      => 'open',
+						'per_page'    => 1,
+						'orderby'     => 'id',
+						'order'       => 'desc',
 					)
 				);
 
@@ -311,6 +311,8 @@ class Findings extends \WP_REST_Controller {
 			: $repository->get_priority_counts();
 		$result['category_counts'] = $repository->get_category_group_counts();
 
+		$result = apply_filters( 'vulopilot_finding_list_response', $result );
+
 		return rest_ensure_response( $result );
 	}
 
@@ -329,9 +331,6 @@ class Findings extends \WP_REST_Controller {
 			$post_id     = (int) $object_ref;
 			$permalink   = get_permalink( $post_id );
 			$row['page'] = $permalink ? wp_make_link_relative( $permalink ) : __( 'Site-wide', 'vulopilot' );
-			// Real post title (`get_the_title()`), for callers that show a human-readable page name
-			// instead of/alongside the real path above (e.g. BrokenLinksSection.tsx's own "Source
-			// page" column).
 			$row['page_title'] = $permalink ? ( get_the_title( $post_id ) ? get_the_title( $post_id ) : null ) : null;
 
 			return $row;
@@ -358,8 +357,7 @@ class Findings extends \WP_REST_Controller {
 	}
 
 	/**
-	 * SEO.tsx's per-section tables (e.g. "Titles & meta") pass a comma-separated
-	 * `scanner_id` param covering every scanner id that section groups together.
+	 * Parses a comma-separated `scanner_id` request param.
 	 *
 	 * @param mixed $raw_param Raw comma-separated request param.
 	 * @return string[]|null Sanitized values, or null when the param was empty/absent.

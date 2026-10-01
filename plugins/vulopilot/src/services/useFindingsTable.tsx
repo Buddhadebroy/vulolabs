@@ -1,13 +1,17 @@
 /* global vulopilotAppLocalizer */
+import { FixOutcome } from './showFixOutcome';
+import { useFixNotice } from './useFixNotice';
 import { useState } from 'react';
+import type { ReactElement } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { getApiLink, sendApiResponse } from '@zyra/core';
-import { NoticeManager } from '@zyra/components';
+import { BadgeComponent, NoticeManager, PopupComponent } from '@zyra/components';
 import type { TableCardProps, TableRow } from '@zyra/table';
 import { useApiList } from './useApiList';
 import { formatWpDate } from './formatWpDate';
 import { getSeverityColor } from './getSeverityClass';
+import TypographyComponent from '../components/TypographyComponent';
 
 /** Categories whose conventional written form isn't plain title-case. */
 const CATEGORY_ACRONYMS: Record<string, string> = {
@@ -56,21 +60,11 @@ export interface Finding extends TableRow {
 	fix_action_id?: string | null;
 }
 
-/**
- * What a registered fix handler resolves to - Free displays this itself (see
- * getFindingFixHandler's own docblock for why the handler can't just show its own notice) rather
- * than caring what actually happened.
- */
-interface FixOutcome {
-	success: boolean;
-	message: string;
-}
-
 export const getFindingFixHandler = () =>
 	applyFilters('vulopilot_finding_fix_handler', null);
 
 /**
- * @return unknown A function(ids: number[]): Promise<FixOutcome>, or null when no fix handler is available.
+ * @return A function(ids: number[]): Promise<FixOutcome>, or null when no fix handler is available.
  */
 const getFindingBulkFixHandler = () =>
 	applyFilters('vulopilot_finding_bulk_fix_handler', null);
@@ -106,6 +100,11 @@ export interface UseFindingsTableResult {
 	refetch: () => void;
 	isProPopupOpen: boolean;
 	closeProPopup: () => void;
+	/**
+	 * The "View" row action's own detail popup, already wired to `viewingFinding`/`closeView` -
+	 * render it once alongside `tableCardProps` (same pattern as `fixNotice`).
+	 */
+	viewPopup: ReactElement;
 }
 
 /**
@@ -120,8 +119,9 @@ export const useFindingsTable = ({
 	pillDimension = 'status',
 }: UseFindingsTableProps): UseFindingsTableResult => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
+	const [viewingFinding, setViewingFinding] = useState<Finding | null>(null);
 
-	/** Every finding status, in display order - reused for both the status-count pill bar and (previously) the status dropdown filter it now replaces. */
+	/** Every finding status, in display order, for the status-count pill bar. */
 	const statusOptions = [
 		{ label: __('Open', 'vulopilot'), value: 'open' },
 		{ label: __('Resolved', 'vulopilot'), value: 'resolved' },
@@ -129,10 +129,7 @@ export const useFindingsTable = ({
 		{ label: __('Snoozed', 'vulopilot'), value: 'snoozed' },
 	];
 
-	/**
-	 * Critical/Important/Minor - a display-only relabeling of the same real `high`/`medium`/`low`
-	 * priority buckets `get_finding_groups()`'s own stat tiles already use elsewhere.
-	 */
+	/** Display labels for the high/medium/low priority buckets. */
 	const priorityOptions = [
 		{ label: __('Critical', 'vulopilot'), value: 'high' },
 		{ label: __('Important', 'vulopilot'), value: 'medium' },
@@ -156,12 +153,13 @@ export const useFindingsTable = ({
 		'findings',
 		{
 			category,
-			// Comma-joined, not an array - useApiList's params are plain string|number values (see
-			// its own JSDoc).
+			// Comma-joined, not an array - useApiList's params are plain string|number values.
 			scanner_id: scannerIds?.length ? scannerIds.join(',') : undefined,
 		},
 		pillConfig
 	);
+
+	const { show: showFix, fixNotice } = useFixNotice(refetch);
 
 	/**
 	 * Whether the user currently has a search term typed in.
@@ -209,6 +207,12 @@ export const useFindingsTable = ({
 		});
 	};
 
+	const handleView = (row?: Record<string, unknown>) => {
+		if (row) {
+			setViewingFinding(row as Finding);
+		}
+	};
+
 	const handleResolve = (row?: Record<string, unknown>) =>
 		handleSetStatus(
 			row,
@@ -222,10 +226,7 @@ export const useFindingsTable = ({
 	const handleReopen = (row?: Record<string, unknown>) =>
 		handleSetStatus(row, 'open', __('Finding reopened.', 'vulopilot'));
 
-	/**
-	 * "Manual Actions Only": runs through ActionRegistry/ManualActionRunner (`POST
-	 * /findings/{id}/actions/snooze-finding`) rather than a plain PATCH.
-	 */
+	/** Runs through ManualActionRunner rather than a plain status PATCH. */
 	const handleSnooze = (row?: Record<string, unknown>) => {
 		if (!row) {
 			return;
@@ -251,10 +252,7 @@ export const useFindingsTable = ({
 		});
 	};
 
-	/**
-	 * "Fix" - always visible (register a source, don't modify the host - see
-	 * getFindingFixHandler's own docblock above).
-	 */
+	/** "Fix" is always visible; falls back to the Pro upsell popup with no handler registered. */
 	const handleFix = (row?: Record<string, unknown>) => {
 		const findingFixHandler = getFindingFixHandler();
 
@@ -262,15 +260,7 @@ export const useFindingsTable = ({
 			Promise.resolve(
 				findingFixHandler(row) as Promise<FixOutcome> | undefined
 			).then((outcome) => {
-				if (outcome?.message) {
-					NoticeManager.add({
-						uniqueKey: `finding-fix-${row?.id}`,
-						type: outcome.success ? 'success' : 'error',
-						position: 'float',
-						message: outcome.message,
-					});
-				}
-
+				showFix(outcome);
 				refetch();
 			});
 			return;
@@ -293,6 +283,11 @@ export const useFindingsTable = ({
 			label: __('Actions', 'vulopilot'),
 			type: 'action',
 			actions: [
+				{
+					label: __('View', 'vulopilot'),
+					icon: 'eye',
+					onClick: handleView,
+				},
 				{
 					label: (row?: Record<string, unknown>) =>
 						row?.status === 'open'
@@ -322,8 +317,7 @@ export const useFindingsTable = ({
 					icon: 'clock',
 					onClick: handleSnooze,
 				},
-				// Always visible - Free itself has no AI-action-to-scanner mapping or fix REST call
-				// (see getFindingFixHandler's own docblock above).
+				// Always visible, even with no fix handler registered.
 				{
 					label: __('Fix', 'vulopilot'),
 					icon: 'tools',
@@ -333,9 +327,6 @@ export const useFindingsTable = ({
 		},
 	};
 
-	/**
-	 * "Transparent" TableCard story shape (zyra Storybook, `table-tablecard --transparent`).
-	 */
 	const compactHeaders: Record<string, any> = {
 		title: {
 			key: 'title',
@@ -348,8 +339,6 @@ export const useFindingsTable = ({
 		},
 		action: {
 			label: __('Action', 'vulopilot'),
-			// Native `type: 'action'` + `type: 'button'` actions (TableRowActions.tsx) instead of
-			// a hand-built `BadgeComponent` in `render`.
 			type: 'action',
 			actions: [
 				{
@@ -399,16 +388,12 @@ export const useFindingsTable = ({
 			return {
 				...row,
 				descriptionText,
-				// `defaultHeaders.title`'s own avatar - color baked into the icon string (real zyra
-				// `$color-palette` utility class, see SeoTab.tsx's own `icon: 'name colorword'`
-				// convention).
+				// Color is baked into the icon string (zyra `$color-palette` utility class convention).
 				defaultTitleIcon:
 					row.severity === 'low' || row.severity === 'info'
 						? 'info blue'
 						: 'error red',
 				defaultTitleBadges: [
-					// Same real category tag the compact layout's own `compactTitleBadges` already
-					// shows.
 					...(category
 						? []
 						: [
@@ -419,11 +404,9 @@ export const useFindingsTable = ({
 							]),
 					{ text: row.status, color: `badge-${row.status}` },
 					{ text: row.severity, color: `blue` },
-					// Replaces the now-removed standalone "Detected" date column.
 					{ text: formatWpDate(row.created_at), color: '' },
 				],
-				// `compactHeaders.title`'s own avatar - same real icon, but tinted via a real color
-				// (`iconColorKey`) instead of a baked-in class word.
+				// Same icon as defaultTitleIcon, tinted via iconColorKey instead of a baked-in class word.
 				compactTitleIcon:
 					row.severity === 'low' || row.severity === 'info'
 						? 'info'
@@ -460,15 +443,7 @@ export const useFindingsTable = ({
 					Promise.resolve(
 						bulkFixHandler(ids) as Promise<FixOutcome> | undefined
 					).then((outcome) => {
-						if (outcome?.message) {
-							NoticeManager.add({
-								uniqueKey: 'findings-bulk-fix',
-								type: outcome.success ? 'success' : 'error',
-								position: 'float',
-								message: outcome.message,
-							});
-						}
-
+						showFix(outcome);
 						refetch();
 					});
 					return;
@@ -527,11 +502,69 @@ export const useFindingsTable = ({
 		],
 	};
 
+	const closeView = () => setViewingFinding(null);
+
+	const viewPopup = (
+		<PopupComponent
+			open={Boolean(viewingFinding)}
+			onClose={closeView}
+			width={28}
+			height="auto"
+			header={{
+				title: viewingFinding?.title || '',
+				icon: 'info',
+			}}
+		>
+			{viewingFinding && (
+				<div className="finding-view-popup">
+					<TypographyComponent as="p" variant="desc">
+						{viewingFinding.description ||
+							sprintf(
+								/* translators: 1: page path or "Site-wide", 2: formatted date */
+								__('%1$s · Detected %2$s', 'vulopilot'),
+								viewingFinding.page || __('Site-wide', 'vulopilot'),
+								formatWpDate(viewingFinding.created_at)
+							)}
+					</TypographyComponent>
+					<div className="finding-view-popup-badges">
+						<BadgeComponent
+							text={humanizeCategory(viewingFinding.category)}
+							color={`badge-${viewingFinding.category}`}
+						/>
+						<BadgeComponent text={viewingFinding.severity} color="blue" />
+						<BadgeComponent
+							text={viewingFinding.status}
+							color={`badge-${viewingFinding.status}`}
+						/>
+					</div>
+					{viewingFinding.page && (
+						<TypographyComponent as="p" variant="desc">
+							{sprintf(
+								/* translators: %s: page path or title this finding was detected on. */
+								__('Page: %s', 'vulopilot'),
+								viewingFinding.page_title || viewingFinding.page
+							)}
+						</TypographyComponent>
+					)}
+					<TypographyComponent as="p" variant="desc">
+						{sprintf(
+							/* translators: %s: formatted date the finding was first detected. */
+							__('Detected: %s', 'vulopilot'),
+							formatWpDate(viewingFinding.created_at)
+						)}
+					</TypographyComponent>
+				</div>
+			)}
+		</PopupComponent>
+	);
+
 	return {
 		tableCardProps,
 		error,
 		refetch,
 		isProPopupOpen,
 		closeProPopup: () => setIsProPopupOpen(false),
+		fixNotice,
+		viewPopup,
 	};
 };

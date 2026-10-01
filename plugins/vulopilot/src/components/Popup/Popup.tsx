@@ -28,34 +28,23 @@ const formatModuleName = (name: string): string => {
 		.join(' ');
 };
 
-/**
- * Every real module id from ../Modules/index.ts's own catalog, keyed for a cheap lookup below.
- */
+/** Module catalog keyed by id for lookup below. */
 const MODULE_CATALOG_BY_ID = new Map(
 	MODULES_CATALOG.modules
 		.filter(isModuleCatalogEntry)
 		.map((module) => [module.id, module])
 );
 
-/**
- * Resolves a real module id to the SAME name Settings → Modules shows for it - used to render
- * `Activate {name}` below.
- */
+/** Resolves a module id to the same name Settings → Modules shows for it. */
 export const resolveModuleDisplayName = (moduleId: string): string =>
 	MODULE_CATALOG_BY_ID.get(moduleId)?.name ?? formatModuleName(moduleId);
 
-/**
- * Real icons for the real backend modules with no catalog entry at all (see Modules/index.ts's own
- * ModuleCatalogEntry.icon docblock).
- */
+/** Icons for backend modules with no catalog entry. */
 const CARDLESS_MODULE_ICONS: Record<string, string> = {
 	'one-click-fix': 'tools',
 	'copilot-chat': 'ai',
 };
 
-/**
- * Resolves a real module id to a real `adminfont-*` glyph.
- */
 const resolveModuleIcon = (moduleId: string): string =>
 	MODULE_CATALOG_BY_ID.get(moduleId)?.icon ??
 	CARDLESS_MODULE_ICONS[moduleId] ??

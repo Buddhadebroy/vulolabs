@@ -24,7 +24,7 @@ class AeoSchemaScanner extends ScannerUtil implements TracksScannedObjectsInterf
 	private const BATCH_SIZE = 50;
 
 	/**
-	 * Must match SchemaJsonLdRenderer::META_KEY / GenerateSchemaAction::META_KEY.
+	 * Must match SchemaJsonLdRenderer::META_KEY.
 	 */
 	private const SCHEMA_META_KEY = '_vulopilot_schema_json';
 
@@ -89,7 +89,7 @@ class AeoSchemaScanner extends ScannerUtil implements TracksScannedObjectsInterf
 
 	/**
 	 * @param string $content Post content HTML.
-	 * @return bool Whether this content already has GeoFaqOpportunityScanner's own "question-phrased heading" signal.
+	 * @return bool Whether the content has a question-phrased heading.
 	 */
 	private function looks_faq_shaped( string $content ): bool {
 		return 1 === preg_match( '/<h[2-6][^>]*>[^<]*\?\s*<\/h[2-6]>/i', $content );
@@ -115,7 +115,7 @@ class AeoSchemaScanner extends ScannerUtil implements TracksScannedObjectsInterf
 
 	/**
 	 * @param int $post_id Post to read declared schema types for.
-	 * @return string[] `@type` value(s) already saved to this post's own SCHEMA_META_KEY, empty if none/malformed.
+	 * @return string[] Declared schema @type value(s), empty if none/malformed.
 	 */
 	private function get_declared_schema_types( int $post_id ): array {
 		$raw = get_post_meta( $post_id, self::SCHEMA_META_KEY, true );
@@ -136,7 +136,7 @@ class AeoSchemaScanner extends ScannerUtil implements TracksScannedObjectsInterf
 	/**
 	 * @param \WP_Post $post        The post missing schema.
 	 * @param string   $schema_type 'FAQPage' or 'HowTo'.
-	 * @param string   $shape       'faq' or 'howto' - recorded in meta for AiCopilot\Actions\GenerateSchemaAction to read a hint from.
+	 * @param string   $shape       'faq' or 'howto'.
 	 * @return Finding
 	 */
 	private function build_finding( \WP_Post $post, string $schema_type, string $shape ): Finding {

@@ -37,10 +37,9 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * The already-open finding a fresh re-detection of the exact same problem should
-	 * refresh instead of duplicating.
+	 * The already-open finding a fresh re-detection should refresh instead of duplicating.
 	 *
-	 * @param string      $scanner_id  Finding::get_category()'s owning scanner's own get_id().
+	 * @param string      $scanner_id  Owning scanner's id.
 	 * @param string|null $object_type Finding::get_object_type().
 	 * @param string|null $object_ref  Finding::get_object_ref().
 	 * @param string      $title       Finding::get_title().
@@ -93,10 +92,9 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Every currently-open row id for one scanner - unpaginated (unlike `find_all()`,
-	 * which caps at 100 rows).
+	 * Every currently-open row id for one scanner, unpaginated.
 	 *
-	 * @param string $scanner_id Finding::get_category()'s owning scanner's own get_id().
+	 * @param string $scanner_id Owning scanner id.
 	 * @return int[]
 	 */
 	public function get_open_finding_ids_for_scanner( string $scanner_id ): array {
@@ -114,11 +112,10 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Open/resolved/ignored/snoozed counts, zero-filled and optionally scoped to one
-	 * category and/or one section's scanner_id list.
+	 * Open/resolved/ignored/snoozed counts, zero-filled.
 	 *
-	 * @param string|null   $category    One of the scanner category strings, or null for every category.
-	 * @param string[]|null $scanner_ids Scanner ids to scope to (IN-matched), or null for every scanner in $category.
+	 * @param string|null   $category    Category to scope to, or null for all.
+	 * @param string[]|null $scanner_ids Scanner ids to scope to, or null for all.
 	 * @return array{open: int, resolved: int, ignored: int, snoozed: int}
 	 */
 	public function get_status_counts( ?string $category = null, ?array $scanner_ids = null ): array {
@@ -144,12 +141,12 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Open findings bucketed into the 3-tier "priority" AI Copilot's "Needs your
-	 * attention" card shows (mockup: High/Medium/Low pills).
+	 * Open findings bucketed into the 3-tier High/Medium/Low priority.
 	 *
+	 * @param string|null $category Category to scope to, or null for sitewide.
 	 * @return array{high: int, medium: int, low: int}
 	 */
-	public function get_priority_counts(): array {
+	public function get_priority_counts( ?string $category = null ): array {
 		$raw = array_merge(
 			array(
 				'critical' => 0,
@@ -158,7 +155,13 @@ class FindingRepository extends RepositoryUtil {
 				'low'      => 0,
 				'info'     => 0,
 			),
-			$this->count_by_column( 'severity', array( 'status' => 'open' ) )
+			$this->count_by_column(
+				'severity',
+				array(
+					'status'   => 'open',
+					'category' => $category ?? '',
+				)
+			)
 		);
 
 		return array(
@@ -169,8 +172,7 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Same 3-tier Critical+High/Medium/Low collapse as get_priority_counts(), scoped to
-	 * one scanner_id set instead of the whole site.
+	 * Same as get_priority_counts(), scoped to a scanner_id set.
 	 *
 	 * @param string[] $scanner_ids Scanner ids to scope to.
 	 * @return array{high: int, medium: int, low: int}
@@ -186,15 +188,10 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Groups every currently open finding by its scanner_id and returns the top $limit
-	 * groups, most-severe-first (ties broken by count).
+	 * Groups every open finding by scanner_id, top $limit groups, most-severe-first.
 	 *
 	 * @param int      $limit      Max groups to return.
-	 * @param string[] $categories Optional real `category` values to scope both the
-	 *                             per-scanner counts and the representative sample to
-	 *                             (get_top_finding_group_for_categories() passes this so
-	 *                             "top 3 sitewide" and "top 1 within this category bucket"
-	 *                             share one implementation) - empty means sitewide, same as before.
+	 * @param string[] $categories Categories to scope to; empty means sitewide.
 	 * @return array<int, array{scanner_id: string, count: int, severity: string, category: string, object_type: ?string}>
 	 */
 	public function get_top_finding_groups( int $limit = 3, array $categories = array() ): array {
@@ -284,9 +281,9 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * The single top open finding-type group within a fixed set of real `category` values.
+	 * The single top open finding-type group within a fixed set of categories.
 	 *
-	 * @param string[] $categories Real category values (e.g. ['security', 'ssl', 'rest-api']).
+	 * @param string[] $categories Category values to scope to.
 	 * @return array{scanner_id: string, count: int, severity: string, category: string, object_type: ?string}|null
 	 */
 	public function get_top_finding_group_for_categories( array $categories ): ?array {
@@ -296,11 +293,10 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Same worst-severity grouping get_finding_groups() computes, scoped to exactly one
-	 * scanner_id.
+	 * Same worst-severity grouping as get_finding_groups(), for one scanner_id.
 	 *
 	 * @param string $scanner_id Scanner id to look up.
-	 * @return array{scanner_id: string, category: string, count: int, severity: string}|null Null if this scanner has no open findings right now.
+	 * @return array{scanner_id: string, category: string, count: int, severity: string}|null Null if no open findings.
 	 */
 	public function get_group_by_scanner_id( string $scanner_id ): ?array {
 		global $wpdb;
@@ -336,8 +332,7 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Open **group** counts per category - i.e. how many distinct (scanner_id, category)
-	 * rows get_finding_groups() would return for each category.
+	 * Open group counts per category (distinct scanner_id/category/object_type rows).
 	 *
 	 * @return array<string, int> category => open group count.
 	 */
@@ -345,7 +340,7 @@ class FindingRepository extends RepositoryUtil {
 		global $wpdb;
 		$table = $this->get_table();
 
-		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT category, COUNT(*) AS total FROM ( SELECT scanner_id, category FROM %i WHERE status = 'open' GROUP BY scanner_id, category ) grouped GROUP BY category", $table ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- $table is code-controlled, no user input in this query.
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT category, COUNT(*) AS total FROM ( SELECT scanner_id, category, object_type FROM %i WHERE status = 'open' GROUP BY scanner_id, category, object_type ) grouped GROUP BY category", $table ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- $table is code-controlled, no user input in this query.
 
 		$counts = array();
 
@@ -357,10 +352,9 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Same grouping as get_top_finding_groups() - every open finding bucketed by
-	 * scanner_id, worst-severity-first.
+	 * Paginated version of get_top_finding_groups(), with explicit filters.
 	 *
-	 * @param array{status?: string, category?: string|string[], scanner_ids?: string[], priority_ranks?: int[], page?: int, per_page?: int} $args Grouping/pagination args - `category` accepts several real category values at once (IN-matched), same reasoning as get_status_counts()'s own `$scanner_ids` param: the Issues table's "SEO & Visibility" tab, for example, folds 4 real category values ('seo'/'images'/'schema'/'links') into one tab. `scanner_ids` (IN-matched, ANDed with `category` when both are given) scopes to an explicit scanner_id set instead - what the "Schema & Knowledge" tab's own grouped Issues section needs, since its 5 real scanners span 3 different categories mixed with many unrelated scanners in those same categories, so `category` alone can't express it. `priority_ranks` filters to groups whose own worst-severity rank (this method's own severity->rank scale, 0=critical..4=info) is one of the given ranks - how the Issues table's High/Medium/Low stat tiles filter the table to match the same priority bucket Controllers/Findings.php maps their click to (same 3-tier collapse get_priority_counts() already uses for the tiles' own counts).
+	 * @param array{status?: string, category?: string|string[], scanner_ids?: string[], priority_ranks?: int[], page?: int, per_page?: int} $args `category` accepts several values (IN-matched); `scanner_ids` scopes to an explicit scanner set (ANDed with `category`); `priority_ranks` filters by worst-severity rank (0=critical..4=info).
 	 * @return array{data: array<int, array{scanner_id: string, category: string, count: int, severity: string, object_type: ?string}>, total: int}
 	 */
 	public function get_finding_groups( array $args = array() ): array {
@@ -375,7 +369,7 @@ class FindingRepository extends RepositoryUtil {
 		$per_page       = max( 1, min( 100, (int) ( $args['per_page'] ?? 20 ) ) );
 		$offset         = ( $page - 1 ) * $per_page;
 
-		// 'all' is a real, deliberate escape hatch - not a real status value any row ever has.
+		// 'all' is a deliberate escape hatch, not a real status value.
 		$category_values = array();
 
 		if ( is_array( $category ) ) {
@@ -397,8 +391,7 @@ class FindingRepository extends RepositoryUtil {
 		$scanner_placeholders  = implode( ', ', array_fill( 0, count( $scanner_ids ), '%s' ) );
 		$rank_placeholders     = implode( ', ', array_fill( 0, count( $priority_ranks ), '%d' ) );
 
-		// Each optional filter is picked, never assembled, so the query text stays
-		// fixed apart from these choices.
+		// Each optional filter is picked, never assembled.
 		$where = implode(
 			' AND ',
 			array(
@@ -409,8 +402,7 @@ class FindingRepository extends RepositoryUtil {
 			)
 		);
 
-		// Grouped once, filtered by the group's own worst-severity rank in an outer WHERE against
-		// this subquery.
+		// Grouped once, then filtered by worst-severity rank in an outer WHERE.
 		$having = implode(
 			' AND ',
 			array(
@@ -423,7 +415,7 @@ class FindingRepository extends RepositoryUtil {
 
 		$total_groups = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- the query is prepared.
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM ( SELECT scanner_id, category, MIN( CASE severity WHEN 'critical' THEN 0 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 WHEN 'info' THEN 4 ELSE 5 END ) AS severity_rank FROM %i WHERE {$where} GROUP BY scanner_id, category ) grouped WHERE {$having}", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- the table and optional filters are picked from fixed literals and every value is a bound placeholder; only the placeholder count varies at runtime.
+				"SELECT COUNT(*) FROM ( SELECT scanner_id, category, object_type, MIN( CASE severity WHEN 'critical' THEN 0 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 WHEN 'info' THEN 4 ELSE 5 END ) AS severity_rank FROM %i WHERE {$where} GROUP BY scanner_id, category, object_type ) grouped WHERE {$having}", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- the table and optional filters are picked from fixed literals and every value is a bound placeholder; only the placeholder count varies at runtime.
 				...$count_values
 			)
 		);
@@ -435,9 +427,10 @@ class FindingRepository extends RepositoryUtil {
 			);
 		}
 
+		// Grouped by object_type too, since one scanner_id can report several unrelated finding types.
 		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- the query is prepared.
 			$wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- the table and optional filters are picked from fixed literals and every value is a bound placeholder; only the placeholder count varies at runtime.
-				"SELECT * FROM ( SELECT scanner_id, category, COUNT(*) AS count, MAX(object_type) AS object_type, MIN( CASE severity WHEN 'critical' THEN 0 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 WHEN 'info' THEN 4 ELSE 5 END ) AS severity_rank FROM %i WHERE {$where} GROUP BY scanner_id, category ) grouped WHERE {$having} ORDER BY severity_rank ASC, count DESC, scanner_id ASC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- the table and optional filters are picked from fixed literals and every value is a bound placeholder; only the placeholder count varies at runtime.
+				"SELECT * FROM ( SELECT scanner_id, category, object_type, COUNT(*) AS count, MIN( CASE severity WHEN 'critical' THEN 0 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 WHEN 'info' THEN 4 ELSE 5 END ) AS severity_rank FROM %i WHERE {$where} GROUP BY scanner_id, category, object_type ) grouped WHERE {$having} ORDER BY severity_rank ASC, count DESC, scanner_id ASC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- the table and optional filters are picked from fixed literals and every value is a bound placeholder; only the placeholder count varies at runtime.
 				...array_merge( array( $table ), $values, $priority_ranks, array( $per_page, $offset ) )
 			),
 			ARRAY_A
@@ -470,8 +463,7 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Counts findings by severity across every scan - what the dashboard's summary cards
-	 * and site-health scoring read.
+	 * Counts open findings by severity across every scan.
 	 *
 	 * @param string $severity One of Severity's constants.
 	 * @return int
@@ -489,8 +481,7 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Counts open findings in one category - what each domain dashboard widget
-	 * (SEO/Performance/Security/Accessibility/Commerce) reads.
+	 * Counts open findings in one category.
 	 *
 	 * @param string $category One of the scanner category strings.
 	 * @return int
@@ -508,8 +499,7 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Findings first detected on or after $since - the Dashboard's "N new issues this
-	 * week" badge reads this.
+	 * Findings first detected on or after $since.
 	 *
 	 * @param string $since MySQL datetime (UTC), inclusive.
 	 * @return int
@@ -527,7 +517,7 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Findings resolved on or after $since - the Dashboard's "N fixed" badge reads this.
+	 * Findings resolved on or after $since.
 	 *
 	 * @param string $since MySQL datetime (UTC), inclusive.
 	 * @return int
@@ -545,8 +535,7 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Findings resolved within a bounded window, optionally scoped to one category and/or
-	 * scanner_id list.
+	 * Findings resolved within a bounded window, optionally scoped.
 	 *
 	 * @param string        $period_start MySQL datetime (UTC), inclusive.
 	 * @param string        $period_end   MySQL datetime (UTC), inclusive.
@@ -568,7 +557,6 @@ class FindingRepository extends RepositoryUtil {
 
 		$scanner_placeholders = implode( ', ', array_fill( 0, count( $scanner_ids ), '%s' ) );
 
-		// Each optional filter is picked, never assembled.
 		$where = implode(
 			' AND ',
 			array(
@@ -584,8 +572,7 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Open-finding counts by severity within a single category, in one grouped query
-	 * rather than four count_by_severity()-style calls.
+	 * Open-finding counts by severity within a single category.
 	 *
 	 * @param string $category One of the scanner category strings.
 	 * @return array{critical: int, high: int, medium: int, low: int}
@@ -614,8 +601,7 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Same shape as get_severity_breakdown_for_category(), scoped to an explicit
-	 * scanner_id list instead of one category string.
+	 * Same shape as get_severity_breakdown_for_category(), scoped to scanner ids.
 	 *
 	 * @param string[] $scanner_ids Scanner ids to scope to.
 	 * @return array{critical: int, high: int, medium: int, low: int, info: int}
@@ -623,7 +609,6 @@ class FindingRepository extends RepositoryUtil {
 	public function get_severity_breakdown_for_scanner_ids( array $scanner_ids ): array {
 		global $wpdb;
 
-		// Every real Severity value (Severity::all()) - 'info' was missing here until this fix.
 		$counts = array_fill_keys( array( 'critical', 'high', 'medium', 'low', 'info' ), 0 );
 
 		if ( ! $scanner_ids ) {
@@ -651,6 +636,41 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
+	 * Same shape as get_severity_breakdown_for_scanner_ids(), scoped to one post.
+	 *
+	 * @param string[] $scanner_ids Scanner ids to scope to.
+	 * @param int      $post_id    Post id to scope to.
+	 * @return array{critical: int, high: int, medium: int, low: int, info: int}
+	 */
+	public function get_severity_breakdown_for_scanner_ids_by_post_id( array $scanner_ids, int $post_id ): array {
+		global $wpdb;
+
+		$counts = array_fill_keys( array( 'critical', 'high', 'medium', 'low', 'info' ), 0 );
+
+		if ( ! $scanner_ids ) {
+			return $counts;
+		}
+
+		$placeholders = implode( ', ', array_fill( 0, count( $scanner_ids ), '%s' ) );
+
+		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- {$this->get_table()} is this plugin's own table name, not user input.
+			$wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- the placeholder count varies at runtime with $scanner_ids' size, every value is still a bound placeholder.
+				"SELECT severity, COUNT(*) AS total FROM %i WHERE scanner_id IN ({$placeholders}) AND status = 'open' AND object_ref = %s GROUP BY severity", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $placeholders' %s count matches $scanner_ids' size at runtime.
+				...array_merge( array( $this->get_table() ), $scanner_ids, array( (string) $post_id ) )
+			),
+			ARRAY_A
+		);
+
+		foreach ( (array) $rows as $row ) {
+			if ( array_key_exists( $row['severity'], $counts ) ) {
+				$counts[ $row['severity'] ] = (int) $row['total'];
+			}
+		}
+
+		return $counts;
+	}
+
+	/**
 	 * @param string $category One of the scanner category strings.
 	 * @param string $as_of    MySQL datetime (UTC) to reconstruct the open set as of.
 	 * @return array{critical: int, high: int, medium: int, low: int}
@@ -660,7 +680,6 @@ class FindingRepository extends RepositoryUtil {
 
 		$counts = array_fill_keys( array( 'critical', 'high', 'medium', 'low' ), 0 );
 
-		// {$this->get_table()} is this plugin's own table name, not user input.
         // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
@@ -687,8 +706,7 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Same "as of a past moment" reconstruction as
-	 * get_severity_breakdown_for_category_as_of().
+	 * Same "as of a past moment" reconstruction as get_severity_breakdown_for_category_as_of().
 	 *
 	 * @param string[] $scanner_ids Scanner ids to scope to.
 	 * @param string   $as_of       MySQL datetime (UTC) to reconstruct the open set as of.
@@ -705,7 +723,6 @@ class FindingRepository extends RepositoryUtil {
 
 		$placeholders = implode( ', ', array_fill( 0, count( $scanner_ids ), '%s' ) );
 
-		// The table name and placeholder string are built by this plugin, not user input.
         // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
@@ -730,12 +747,11 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Open findings among `$scanner_ids` tied to a page or post (or as of `$as_of`),
-	 * bucketed by post id.
+	 * Open findings among $scanner_ids tied to a page or post, bucketed by post id.
 	 *
 	 * @param string[]    $scanner_ids Scanner ids to scope to.
-	 * @param string|null $as_of       MySQL datetime (UTC) to reconstruct the open set as of; null for the real current open set.
-	 * @return array<int, array<int, array{id: int, title: string, severity: string}>> post_id => that post's own open findings.
+	 * @param string|null $as_of       MySQL datetime (UTC) to reconstruct as of; null for the current open set.
+	 * @return array<int, array<int, array{id: int, title: string, severity: string}>> post_id => its open findings.
 	 */
 	public function get_open_findings_for_scanner_ids_by_post( array $scanner_ids, ?string $as_of = null ): array {
 		global $wpdb;
@@ -748,7 +764,6 @@ class FindingRepository extends RepositoryUtil {
 
 		$placeholders = implode( ', ', array_fill( 0, count( $scanner_ids ), '%s' ) );
 
-		// The table name and placeholder string are built by this plugin, not user input.
         // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 		if ( null === $as_of ) {
 			$rows = $wpdb->get_results(
@@ -794,8 +809,7 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Distinct real pages/posts/URLs with at least one currently-open finding among
-	 * $scanner_ids.
+	 * Distinct objects with at least one currently-open finding among $scanner_ids.
 	 *
 	 * @param string[] $scanner_ids Scanner ids to scope to.
 	 * @return int
@@ -819,8 +833,7 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Aggregate finding counts for one date range, optionally narrowed by category or
-	 * scanner ids.
+	 * Aggregate finding counts for one date range, optionally narrowed.
 	 *
 	 * @param string        $period_start Y-m-d, inclusive.
 	 * @param string        $period_end   Y-m-d, inclusive.
@@ -842,7 +855,6 @@ class FindingRepository extends RepositoryUtil {
 
 		$scanner_placeholders = implode( ', ', array_fill( 0, count( $scanner_ids ), '%s' ) );
 
-		// Each optional filter is picked, never assembled.
 		$where = implode(
 			' AND ',
 			array(
@@ -900,7 +912,7 @@ class FindingRepository extends RepositoryUtil {
 	/**
 	 * Every object_type/object_ref pair from one scan run.
 	 *
-	 * @param int $scan_id vulopilot_scans.id.
+	 * @param int $scan_id Scan id.
 	 * @return array<int, array{object_type: string|null, object_ref: string|null}>
 	 */
 	public function get_object_refs_for_scan( int $scan_id ): array {
@@ -919,8 +931,7 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * The highest-severity currently-open findings, worst-first - what ReportsOverview's
-	 * own "Your next priorities" list reads.
+	 * The highest-severity currently-open findings, worst-first.
 	 *
 	 * @param int $limit Max rows to return.
 	 * @return array<int, array<string, mixed>>
@@ -941,14 +952,13 @@ class FindingRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * The highest-severity findings opened in one date range - what a report's "top
-	 * issues" section reads, ordered worst-first rather than newest-first.
+	 * The highest-severity findings opened in one date range, worst-first.
 	 *
 	 * @param string        $period_start Y-m-d, inclusive.
 	 * @param string        $period_end   Y-m-d, inclusive.
 	 * @param string|null   $category     One of the scanner category strings, or null for all.
 	 * @param int           $limit        Max rows to return.
-	 * @param string[]|null $scanner_ids  Scanner ids to additionally scope to - same reasoning as get_stats_for_period()'s own docblock.
+	 * @param string[]|null $scanner_ids  Scanner ids to additionally scope to.
 	 * @return array<int, array<string, mixed>>
 	 */
 	public function get_top_findings_for_period( string $period_start, string $period_end, ?string $category = null, int $limit = 10, ?array $scanner_ids = null ): array {
@@ -965,7 +975,6 @@ class FindingRepository extends RepositoryUtil {
 
 		$scanner_placeholders = implode( ', ', array_fill( 0, count( $scanner_ids ), '%s' ) );
 
-		// Each optional filter is picked, never assembled.
 		$where = implode(
 			' AND ',
 			array(

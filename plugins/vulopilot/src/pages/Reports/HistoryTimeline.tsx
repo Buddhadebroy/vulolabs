@@ -15,10 +15,12 @@ interface HistoryTimelineProps {
 	rows: HistoryRow[];
 	total: number;
 	selectedRow: HistoryRow | null;
+	// eslint-disable-next-line no-unused-vars
 	onSelectRow: (row: HistoryRow) => void;
 	isLoadingMore: boolean;
 	onLoadMore: () => void;
 	/** Overrides what the trailing arrow does - HistoryTab.tsx's own real use (select the row, open the side detail panel) is the default when this is omitted. */
+	// eslint-disable-next-line no-unused-vars
 	onArrowClick?: (row: HistoryRow) => void;
 }
 

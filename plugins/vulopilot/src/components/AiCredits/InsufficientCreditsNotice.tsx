@@ -10,10 +10,7 @@ import {
 	installInsufficientCreditsInterceptor,
 } from './insufficientCredits';
 
-/**
- * The one "You don't have enough credits to complete this request. [Buy Credits]" prompt every AI
- * feature shares.
- */
+/** The shared "insufficient credits" prompt used by every AI feature. */
 const InsufficientCreditsNotice = () => {
 	const [detail, setDetail] = useState<InsufficientCreditsDetail | null>(null);
 

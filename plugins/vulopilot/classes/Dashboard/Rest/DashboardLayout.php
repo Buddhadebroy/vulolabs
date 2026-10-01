@@ -60,10 +60,8 @@ class DashboardLayout extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Returns the current user's saved layout, reconciled against
-	 * Utill::DASHBOARD_WIDGET_IDS: any widget id that exists but isn't in the saved layout
-	 * yet (a widget added after this user last saved a custom order) is appended, enabled
-	 * by default; any saved id that no longer exists (a removed widget) is dropped.
+	 * Returns the user's saved layout reconciled against Utill::DASHBOARD_WIDGET_IDS: widgets added since
+	 * the last save are appended (enabled), and saved ids that no longer exist are dropped.
 	 *
 	 * @inheritDoc
 	 */

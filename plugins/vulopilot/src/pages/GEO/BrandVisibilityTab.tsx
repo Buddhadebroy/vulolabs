@@ -103,7 +103,6 @@ const BrandVisibilityTab = ({ initialScannerId }: BrandVisibilityTabProps) => {
 		);
 		return () => clearTimeout(timer);
 		// Mount-time value only.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const AuthorityTrendsCard = useFilterSlot(

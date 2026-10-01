@@ -11,6 +11,7 @@ interface SocialTabProps {
 	/** "All SEO Issues" table's "Fix with AI" deep link. */
 	highlightTarget?: string;
 	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch - accepted for prop-shape parity with every other tab, unused here. */
+	// eslint-disable-next-line no-unused-vars
 	onNavigate?: ( tab: string, target?: string ) => void;
 }
 
@@ -30,7 +31,8 @@ export default function SocialTab( { highlightTarget }: SocialTabProps ) {
 	const isSocialTitleHighlighted = useFieldHighlight( highlightTarget, 'social_title' );
 
 	const openMediaPicker = () => {
-		/* eslint-disable-next-line no-unused-vars */
+		 
+		// eslint-disable-next-line no-unused-vars
 		const wp = ( window as unknown as { wp: { media: ( args: Record< string, unknown > ) => MediaFrame } } ).wp;
 
 		if ( ! wp?.media ) {

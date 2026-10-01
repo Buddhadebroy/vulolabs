@@ -35,6 +35,8 @@ export interface FixResponse {
 		/** The saved post_content after a content-mutating action (empty otherwise). */
 		content?: string;
 		schema_json: string;
+		/** Only set by the 'set-featured-image-from-content' mechanical fix. */
+		featured_media_id?: number | null;
 	};
 }
 
@@ -67,7 +69,6 @@ export async function fetchOpenFindings( scannerIds: string[] ): Promise< RawFin
 	let page = 1;
 	let all: RawFinding[] = [];
 
-	// eslint-disable-next-line no-constant-condition
 	while ( true ) {
 		const response = await request< FindingsResponse >(
 			`findings?scanner_id=${ scannerParam }&status=open&per_page=${ FINDINGS_PAGE_SIZE }&page=${ page }&orderby=id&order=desc`
@@ -129,7 +130,12 @@ export function analyzePage( postId: number ): Promise< PageAnalysisResponse > {
 	return request( `seo/analyze-page?post_id=${ postId }`, { method: 'GET' } );
 }
 
-/** Same real `POST /findings/{id}/fix` the dashboard's own "Fix with AI" buttons call (vulopilot-pro's OneClickFix `FindingFixRest`). */
+/** Same real severity-weighted score `Seo::calculate_score()` uses site-wide, narrowed to this post. */
+export function getPostSeoScore( postId: number ): Promise< { score: number } > {
+	return request( `seo/post-score?post_id=${ postId }`, { method: 'GET' } );
+}
+
+/** Same real `POST /findings/{id}/fix` the dashboard's own "Fix with AI" buttons call. */
 export function fixFinding( findingId: number ): Promise< FixResponse > {
 	return request( `findings/${ findingId }/fix`, { method: 'POST' } );
 }

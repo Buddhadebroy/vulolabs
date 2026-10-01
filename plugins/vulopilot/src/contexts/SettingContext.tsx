@@ -16,13 +16,15 @@ type SettingAction =
 	| { type: 'UPDATE_SETTINGS'; payload: { key: string; value: unknown } }
 	| { type: 'CLEAR_SETTINGS' };
 
-/* eslint-disable no-unused-vars -- named params in a type signature aren't runtime bindings; the base no-unused-vars rule doesn't parse TS type positions and misflags them. */
+ 
 type SettingContextType = SettingState & {
+	// eslint-disable-next-line no-unused-vars
 	setSetting: (name: string, setting: Record<string, unknown>) => void;
+	// eslint-disable-next-line no-unused-vars
 	updateSetting: (key: string, value: unknown) => void;
 	clearSetting: () => void;
 };
-/* eslint-enable no-unused-vars */
+ 
 
 const initialState: SettingState = {
 	settingName: '',

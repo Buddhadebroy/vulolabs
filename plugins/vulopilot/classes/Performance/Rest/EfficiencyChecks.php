@@ -18,8 +18,7 @@ class EfficiencyChecks extends \WP_REST_Controller {
 	protected $rest_base = 'efficiency-checks';
 
 	/**
-	 * Seconds a `wp_remote_get()` probe (homepage or a static asset) is allowed to take
-	 * before this reports "can't tell" rather than hanging the whole page load.
+	 * Timeout for a probe request, in seconds.
 	 */
 	private const REQUEST_TIMEOUT_SECONDS = 8;
 
@@ -103,8 +102,7 @@ class EfficiencyChecks extends \WP_REST_Controller {
 						'checks'   => array( $checks[3] ),
 					),
 				),
-				// Only the checks actually needing attention - same "Things to review" list the
-				// mockup shows below the tile sections.
+				// Only the checks that need attention.
 				'review_items' => array_values(
 					array_filter(
 						$checks,
@@ -124,8 +122,7 @@ class EfficiencyChecks extends \WP_REST_Controller {
 	 */
 	private function check_page_caching(): array {
 		$known_plugin_active = $this->has_known_caching_plugin();
-		// WP core itself sets this constant true the moment a page-cache plugin's own advanced-
-		// cache.php drop-in is present and loaded (wp-settings.php).
+		// WP core sets this true once a page-cache plugin's advanced-cache.php drop-in is loaded.
 		$advanced_cache_present = defined( 'WP_CACHE' ) && WP_CACHE;
 		$page_cache_detected    = $known_plugin_active || $advanced_cache_present;
 
@@ -137,8 +134,6 @@ class EfficiencyChecks extends \WP_REST_Controller {
 			'id'                 => 'page-caching',
 			'title'              => __( 'Page caching', 'vulopilot' ),
 			'description'        => __( 'WordPress may be rebuilding pages that could otherwise be served from a saved copy.', 'vulopilot' ),
-			// Same icon MetricsGrid.tsx already uses for its own 'cache-detection' tile on the
-			// separate "Improve My Speed" page.
 			'icon'               => 'refresh-bold',
 			'status'             => $status,
 			'badge'              => 'good' === $status ? __( 'Working', 'vulopilot' ) : __( 'Not detected', 'vulopilot' ),
@@ -289,8 +284,7 @@ class EfficiencyChecks extends \WP_REST_Controller {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		// Same list Basic\CacheDetectionScanner already maintains for its own (coarser, single-
-		// signal) check.
+		// Mirrors the list CacheDetectionScanner maintains.
 		$known_caching_plugins = array(
 			'wp-rocket/wp-rocket.php',
 			'w3-total-cache/w3-total-cache.php',
@@ -311,16 +305,8 @@ class EfficiencyChecks extends \WP_REST_Controller {
 
 	/**
 	 * @param string $url URL to request.
-	 * @return array|null The raw `wp_remote_get()` response, or null on
-	 *                     request failure - read with
-	 *                     `wp_remote_retrieve_header()` rather than cast
-	 *                     to an array, since the header bag WordPress
-	 *                     returns (`WpOrg\Requests\Utility\
-	 *                     CaseInsensitiveDictionary` on WP 6.2+) stores
-	 *                     its data behind non-public properties; an
-	 *                     `(array)` cast on it would produce mangled
-	 *                     property-name keys instead of real header
-	 *                     names.
+	 * @return array|null The raw `wp_remote_get()` response, or null on failure. Read
+	 *                     headers with `wp_remote_retrieve_header()`, not an `(array)` cast.
 	 */
 	private function probe( string $url ): ?array {
 		$response = wp_remote_get(
@@ -342,8 +328,7 @@ class EfficiencyChecks extends \WP_REST_Controller {
 		$response = $this->probe( $url );
 
 		if ( ! $response ) {
-			// Can't tell either way - same "don't flag on an inconclusive request" posture
-			// CacheDetectionScanner already takes for this exact case.
+			// Can't tell either way - don't flag on an inconclusive request.
 			return true;
 		}
 

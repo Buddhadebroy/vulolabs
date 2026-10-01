@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { Button, Spinner } from '@wordpress/components';
+import { Button, Dropdown, Spinner } from '@wordpress/components';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { dispatch, select } from '@wordpress/data';
 import { parse } from '@wordpress/blocks';
@@ -11,6 +11,7 @@ interface PageAnalysisTabProps {
 	/** Either of 2 real deep-link vocabularies this tab now understands. */
 	highlightTarget?: string;
 	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch - lets a row here jump straight to the real General/Social/Schema field that fixes it. */
+	// eslint-disable-next-line no-unused-vars
 	onNavigate?: ( tab: SeoIssueEditorTab, target?: string ) => void;
 }
 
@@ -23,6 +24,9 @@ const CHECK_KEY_TO_SCANNER_ID: Record< string, string > = {
 	canonical: 'canonical-url',
 	structured_data: 'structured-data',
 	social_metadata: 'open-graph',
+	// No literal single-field fix for "nothing links here" - points at the real Internal
+	// Linking check instead of running the nav-menu proxy fix below.
+	orphan_page: 'internal-linking',
 };
 
 /**
@@ -31,12 +35,24 @@ const CHECK_KEY_TO_SCANNER_ID: Record< string, string > = {
  */
 const CHECKS_COVERED_BY_LIVE_CHECKLIST = [ 'title_tag', 'meta_description', 'content', 'headings', 'images' ];
 
-/** Saved-page checks with a real AI action behind them (`PostSeoFixRest::ACTION_ALLOWLIST`). */
+/**
+ * Saved-page checks with a real fix. Social Metadata is left out - its only fix is sitewide, not
+ * per-post. Orphan Page has none here on purpose - it now just navigates to the real Internal
+ * Linking check (`CHECK_KEY_TO_SCANNER_ID` above) instead of running the nav-menu proxy action.
+ */
 const CHECK_KEY_TO_FIX_ACTION: Record< string, string > = {
 	structured_data: 'generate-schema',
+	featured_image: 'set-featured-image-from-content',
+	h1_heading: 'insert-h1-from-title',
 };
 
-/** GEO/AEO scanners `ScannerFixMap` maps to an AI action - `POST /findings/{id}/fix` resolves the fix from the finding's own scanner. */
+/** Fix ids that run a deterministic action, not an AI generation - shown as "Fix" rather than "Fix with AI". */
+const MECHANICAL_FIX_ACTIONS = [ 'set-featured-image-from-content', 'insert-h1-from-title' ];
+
+/** Mechanical fix ids whose result rewrites post_content, same as CONTENT_MUTATING_ACTIONS below for the AI ones. */
+const CONTENT_MUTATING_MECHANICAL_ACTIONS = [ 'insert-h1-from-title' ];
+
+/** GEO/AEO scanners with a mapped fix - `POST /findings/{id}/fix` resolves it from the finding's own scanner. */
 const FIXABLE_FINDING_SCANNER_IDS = [
 	'geo-faq-opportunity',
 	'geo-summary-block',
@@ -116,7 +132,32 @@ interface IssueRow {
 	message: string;
 	target: SeoIssueEditorTarget | null;
 	fix?: RowFix;
+	/**
+	 * A second, manual option next to `fix` - jumps to the real WordPress field instead of running
+	 * the automatic action, for checks (like Featured Image) whose fix a site owner may reasonably
+	 * want to do by hand.
+	 */
+	manualFix?: { label: string; onClick: () => void };
 }
+
+/**
+ * Opens the Document sidebar and expands WordPress core's own Featured Image panel - the real
+ * manual field, not one of VuloPilot's own tabs, so this doesn't go through `onNavigate`/
+ * `SEO_ISSUE_EDITOR_TARGETS` at all.
+ */
+const jumpToFeaturedImagePanel = () => {
+	( dispatch( 'core/edit-post' ) as any ).openGeneralSidebar( 'edit-post/document' );
+
+	if ( ! ( select( 'core/editor' ) as any ).isEditorPanelOpened( 'featured-image' ) ) {
+		( dispatch( 'core/editor' ) as any ).toggleEditorPanelOpened( 'featured-image' );
+	}
+
+	setTimeout( () => {
+		document
+			.querySelector( '.editor-post-featured-image' )
+			?.scrollIntoView( { behavior: 'smooth', block: 'center' } );
+	}, 100 );
+};
 
 const rowFromCheck = ( check: PageAnalysisCheck ): IssueRow => {
 	const actionId = CHECK_KEY_TO_FIX_ACTION[ check.key ];
@@ -128,6 +169,10 @@ const rowFromCheck = ( check: PageAnalysisCheck ): IssueRow => {
 		message: check.message,
 		target: editorTargetForCheck( check.key ),
 		fix: actionId && 'pass' !== check.status ? { kind: 'post', actionId } : undefined,
+		manualFix:
+			'featured_image' === check.key && 'pass' !== check.status
+				? { label: __( 'Set it myself', 'vulopilot' ), onClick: jumpToFeaturedImagePanel }
+				: undefined,
 	};
 };
 
@@ -179,6 +224,7 @@ interface FixControls {
 	isPro: boolean;
 	shopUrl: string;
 	fixingId: string | null;
+	// eslint-disable-next-line no-unused-vars
 	onFix: ( row: IssueRow ) => void;
 }
 
@@ -186,6 +232,7 @@ interface IssueListProps {
 	idPrefix: string;
 	rows: IssueRow[];
 	pulsingId: string | null;
+	// eslint-disable-next-line no-unused-vars
 	onNavigate?: ( tab: SeoIssueEditorTab, target?: string ) => void;
 	fixControls: FixControls;
 }
@@ -231,18 +278,79 @@ function IssueList( { idPrefix, rows, pulsingId, onNavigate, fixControls }: Issu
 						</span>
 						{ row.fix && (
 							fixControls.isPro ? (
-								<Button
-									variant="secondary"
-									size="small"
-									isBusy={ fixControls.fixingId === row.id }
-									disabled={ null !== fixControls.fixingId }
-									onClick={ ( event: { stopPropagation: () => void } ) => {
-										event.stopPropagation();
-										fixControls.onFix( row );
-									} }
-								>
-									{ fixControls.fixingId === row.id ? <Spinner /> : __( 'Fix with AI', 'vulopilot' ) }
-								</Button>
+								row.manualFix ? (
+									<Dropdown
+										className="vulopilot-seo-checklist__fix-dropdown"
+										popoverProps={ { placement: 'bottom-end' } }
+										renderToggle={ ( { isOpen, onToggle } ) => (
+											<Button
+												variant="secondary"
+												size="small"
+												isBusy={ fixControls.fixingId === row.id }
+												disabled={ null !== fixControls.fixingId }
+												aria-expanded={ isOpen }
+												onClick={ ( event: { stopPropagation: () => void } ) => {
+													event.stopPropagation();
+													onToggle();
+												} }
+											>
+												{ fixControls.fixingId === row.id ? (
+													<Spinner />
+												) : (
+													<>
+														{ __( 'Fix', 'vulopilot' ) }
+														<i className="dashicons dashicons-arrow-down-alt2" />
+													</>
+												) }
+											</Button>
+										) }
+										renderContent={ ( { onClose } ) => (
+											<div className="vulopilot-seo-checklist__fix-menu">
+												<Button
+													variant="tertiary"
+													size="small"
+													onClick={ ( event: { stopPropagation: () => void } ) => {
+														event.stopPropagation();
+														onClose();
+														fixControls.onFix( row );
+													} }
+												>
+													{ __( 'Fix automatically', 'vulopilot' ) }
+												</Button>
+												<Button
+													variant="tertiary"
+													size="small"
+													onClick={ ( event: { stopPropagation: () => void } ) => {
+														event.stopPropagation();
+														onClose();
+														row.manualFix!.onClick();
+													} }
+												>
+													{ row.manualFix!.label }
+												</Button>
+											</div>
+										) }
+									/>
+								) : (
+									<Button
+										variant="secondary"
+										size="small"
+										isBusy={ fixControls.fixingId === row.id }
+										disabled={ null !== fixControls.fixingId }
+										onClick={ ( event: { stopPropagation: () => void } ) => {
+											event.stopPropagation();
+											fixControls.onFix( row );
+										} }
+									>
+										{ fixControls.fixingId === row.id ? (
+											<Spinner />
+										) : 'post' === row.fix.kind && MECHANICAL_FIX_ACTIONS.includes( row.fix.actionId ) ? (
+											__( 'Fix', 'vulopilot' )
+										) : (
+											__( 'Fix with AI', 'vulopilot' )
+										) }
+									</Button>
+								)
 							) : (
 								<Button variant="tertiary" size="small" href={ fixControls.shopUrl } target="_blank" rel="noreferrer">
 									{ __( 'Upgrade to fix', 'vulopilot' ) }
@@ -267,6 +375,7 @@ interface IssueSectionProps {
 	error: string | null;
 	emptyMessage: string;
 	pulsingId: string | null;
+	// eslint-disable-next-line no-unused-vars
 	onNavigate?: ( tab: SeoIssueEditorTab, target?: string ) => void;
 	fixControls: FixControls;
 	/** Worst status across `rows` - drives the header's summary pill (same look the old General-tab groups had). */
@@ -456,6 +565,11 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 		if ( response.post.content_changed && response.post.content ) {
 			applyContentToEditor( response.post.content );
 		}
+
+		// Updates the Document sidebar's own Featured Image panel live, without a page reload.
+		if ( 'set-featured-image-from-content' === actionId && response.post.featured_media_id ) {
+			( dispatch( 'core/editor' ) as any ).editPost( { featured_media: response.post.featured_media_id } );
+		}
 	};
 
 	const handleFix = async ( row: IssueRow ) => {
@@ -468,14 +582,18 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 
 		try {
 			if ( 'post' === row.fix.kind ) {
+				const rewritesContent =
+					CONTENT_MUTATING_ACTIONS.includes( row.fix.actionId ) ||
+					CONTENT_MUTATING_MECHANICAL_ACTIONS.includes( row.fix.actionId );
+
 				// A content fix works on the SAVED post, then its result is loaded into the editor.
-				if ( CONTENT_MUTATING_ACTIONS.includes( row.fix.actionId ) && ( select( 'core/editor' ) as any ).isEditedPostDirty() ) {
+				if ( rewritesContent && ( select( 'core/editor' ) as any ).isEditedPostDirty() ) {
 					await ( dispatch( 'core/editor' ) as any ).savePost();
 				}
 
 				applyPostFix( row.fix.actionId, await fixWithAi( postId, row.fix.actionId ) );
 				notify(
-					CONTENT_MUTATING_ACTIONS.includes( row.fix.actionId )
+					rewritesContent
 						? __( 'Fixed - the updated content is now in the editor.', 'vulopilot' )
 						: __( 'Fixed.', 'vulopilot' )
 				);
@@ -513,11 +631,10 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 			.map( rowFromCheck ),
 	].sort( bySeverity );
 
-	// Deep-link highlighting - live checks (matched by their check id, e.g. 'description_length',
-	// `SEO_ISSUE_EDITOR_TARGETS`) and SEO's own saved `data.checks` (matched by real `key`,
-	// `PAGE_ANALYSIS_CHECK_QUERY_PARAM`) are tried first; GEO's/AEO's own findings (matched by real
-	// numeric id, `FINDING_ID_QUERY_PARAM` - see that constant's own docblock) are tried next, once
-	// each section's own independent fetch has actually resolved.
+	// Deep-link highlighting: live checks (by check id, e.g. 'description_length',
+	// `SEO_ISSUE_EDITOR_TARGETS`) and SEO's saved `data.checks` (by `key`,
+	// `PAGE_ANALYSIS_CHECK_QUERY_PARAM`) are tried first; GEO/AEO findings (by numeric id,
+	// `FINDING_ID_QUERY_PARAM`) next, once each section's fetch has resolved.
 	useEffect( () => {
 		if ( ! highlightTarget || hasScrolledRef.current ) {
 			return;

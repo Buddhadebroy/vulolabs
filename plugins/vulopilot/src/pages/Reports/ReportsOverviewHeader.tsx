@@ -9,6 +9,7 @@ import { useFilterSlot } from '../../services/useFilterSlot';
 
 interface ReportsOverviewHeaderProps {
 	days: number;
+	// eslint-disable-next-line no-unused-vars
 	onDaysChange: (days: number) => void;
 	onDataChanged: () => void;
 }

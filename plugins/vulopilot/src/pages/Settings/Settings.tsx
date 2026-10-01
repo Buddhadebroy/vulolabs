@@ -33,6 +33,19 @@ const Settings = () => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const settingsRef = useRef<Record<string, unknown>>({});
+	// Pro adds tabs (Licensing) through a filter when its script loads - which can be after this
+	// page first rendered, and the navigator keeps the tab list it mounted with - so remount it (via
+	// `key`) then, so the tab bar is never missing them.
+	const [proTabsTick, setProTabsTick] = useState(0);
+
+	useEffect(() => {
+		const refresh = () => setProTabsTick((tick) => tick + 1);
+
+		window.addEventListener('vulopilot_pro_modules_loaded', refresh);
+
+		return () =>
+			window.removeEventListener('vulopilot_pro_modules_loaded', refresh);
+	}, []);
 
 	const settingsArray = getAvailableSettings(getTemplateData('settings'), []);
 	const location = new URLSearchParams(useLocation().hash.substring(1));
@@ -81,7 +94,6 @@ const Settings = () => {
 				});
 				setSetting(currentTab, tabFields);
 			}
-			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, [currentTab, settingName]);
 
 		useEffect(() => {
@@ -235,6 +247,7 @@ const Settings = () => {
 	return (
 		<SettingProvider>
 			<NavigatorComponent
+				key={proTabsTick}
 				settingContent={settingsArray}
 				currentSetting={location.get('subtab') as string}
 				getForm={GetForm}

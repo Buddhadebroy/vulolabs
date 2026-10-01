@@ -214,7 +214,6 @@ const HistoryTab = () => {
 	useEffect(() => {
 		setPage(1);
 		fetchPage(1, false);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeFilter, dateRange]);
 
 	// `?vulopilot_history_id=` deep-link arrival (this file's own top docblock).
@@ -249,7 +248,6 @@ const HistoryTab = () => {
 		}, 400);
 
 		return () => window.clearTimeout(timeout);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [search]);
 
 	const handleLoadMore = () => {

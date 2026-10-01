@@ -6,26 +6,24 @@ import { formatWpDate, formatWpTime } from '../services/formatWpDate';
 import './RunScanHeaderExtra.scss';
 
 interface RunScanHeaderExtraProps {
-	/** Same real category ids passed to `useRunScan`'s own `categories` - omit for a site-wide "Run scan" (Health.tsx/Reports.tsx). */
+	/** Category ids passed to `useRunScan` - omit for a site-wide "Run scan". */
 	categories?: string[];
-	/** Real Settings → … subtab id this page's own scan settings live on (`?page=vulopilot#&tab=settings&subtab={id}`). */
+	/** Settings subtab id this page's scan settings live on. */
 	settingsSubtab: string;
-	/** Drops the gear/settings button beside "Run scan" - Dashboard.tsx's own header. */
+	/** Drops the gear/settings button beside "Run scan". */
 	hideSettingsButton?: boolean;
-	/** Drops the "Run scan" button itself (the settings gear, "Last scan: …" caption, and any `trailingButtons` stay). */
+	/** Drops the "Run scan" button itself; settings gear, "Last scan" caption, and trailingButtons stay. */
 	hideRunScanButton?: boolean;
-	/**
-	 * Renders in "Run scan"'s own place - same slot in this component's single button row.
-	 */
+	/** Renders in "Run scan"'s place, same button-row slot. */
 	replaceRunScanButton?: {
 		text: string;
 		icon: string;
 		color?: string;
 		onClick: () => void;
 	};
-	/** Overrides the button's own idle-state label (Performance.tsx's "Run Speed Test"). */
+	/** Overrides the button's idle-state label. */
 	label?: string;
-	/** Same real `onSuccess` `useRunScan` already supports - a page's own refetch after a scan completes. */
+	/** Called after a scan completes, for a page's own refetch. */
 	onSuccess?: () => void;
 	/** Extra icon-only buttons appended after "Run scan"/the settings gear, in the same row. */
 	trailingButtons?: {
@@ -37,11 +35,7 @@ interface RunScanHeaderExtraProps {
 	}[];
 }
 
-/**
- * The "Run scan"/gear-icon/"Last scan: …" cluster every category page's own header now shows ("in
- * every page where run scan button show then show the last scan time … also beside run button show
- * a settings icon").
- */
+/** The "Run scan"/gear-icon/"Last scan" cluster shown in each category page's header. */
 const RunScanHeaderExtra = ({
 	categories,
 	settingsSubtab,

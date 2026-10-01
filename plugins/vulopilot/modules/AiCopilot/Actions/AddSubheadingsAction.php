@@ -170,8 +170,7 @@ class AddSubheadingsAction extends AbstractBasicAction {
 	}
 
 	/**
-	 * Same "no h2-h6 tag anywhere" definition as HeadingStructureScanner::scan()'s own
-	 * inline check.
+	 * Matches HeadingStructureScanner::scan()'s own h2-h6 check.
 	 *
 	 * @param string $content Post content (raw HTML).
 	 * @return bool

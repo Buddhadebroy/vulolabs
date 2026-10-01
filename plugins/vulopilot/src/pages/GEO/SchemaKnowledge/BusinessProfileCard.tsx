@@ -443,12 +443,7 @@ const BusinessProfileCard = () => {
 													icon: row.found
 														? __('eye', 'vulopilot')
 														: __('plus', 'vulopilot'),
-													// Was 'text-purple' - the only 3 rows that fall
-													// through to this default branch (Business
-													// type, Services, Locations) rendered a visibly
-													// darker blue than every other row's own
-													// explicit branch above, all of which use
-													// 'text-blue'.
+													// Was 'text-purple', which rendered darker than the explicit branches above (all 'text-blue').
 													color: 'text-blue',
 													onClick: () =>
 														window.open(ENTITY_SETTINGS_URL, '_self'),

@@ -11,10 +11,8 @@ import {
 import metadata from './block.json';
 
 /**
- * Live editor-side mirror of PHP's HeadingAnchorResolver::collect() - text
- * and level only (no anchor/slug logic needed here, real anchors only
- * matter on the published page, computed server-side by render.php so the
- * TOC's own links and the real heading ids can never drift apart).
+ * Editor-side mirror of PHP's HeadingAnchorResolver::collect(): text and level only. Anchors matter
+ * only on the published page, computed by render.php so TOC links and heading ids can't drift.
  */
 function collectHeadings( blocks, minLevel, maxLevel ) {
 	let headings = [];
@@ -22,12 +20,8 @@ function collectHeadings( blocks, minLevel, maxLevel ) {
 	blocks.forEach( ( block ) => {
 		if ( block.name === 'core/heading' ) {
 			const level = block.attributes.level || 2;
-			// core/heading's `content` attribute is a rich-text-sourced
-			// value - WordPress hands it back as a RichTextData object
-			// (not a plain string) when read this way via getBlocks(),
-			// not through <RichText>'s own value/onChange plumbing.
-			// String() calls its real toString() (plain text, formatting
-			// stripped) rather than letting an object reach JSX directly.
+			// core/heading's `content` comes back from getBlocks() as a RichTextData object, not a string.
+			// String() gives its plain text rather than letting an object reach JSX.
 			const text = String( block.attributes.content ?? '' );
 
 			if (

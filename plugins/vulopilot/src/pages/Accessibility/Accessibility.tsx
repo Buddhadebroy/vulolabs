@@ -30,7 +30,7 @@ import { ACCESSIBILITY_CHECKS } from './accessibilityChecks';
 const ISSUES_TABLE_ID = 'accessibility-a11y-issues-table';
 const ACCESSIBILITY_MODULE_ID = 'accessibility-checks';
 
-/** Fabricated 7-day score trend - same "obviously fake, never mistaken for a real scan result" reasoning BrandVisibilityProDummies.tsx's own `DUMMY_AUTHORITY_HISTORY` documents. */
+/** Fabricated 7-day score trend for the dummy chart. */
 const DUMMY_ACCESSIBILITY_SCORES = [62, 66, 65, 71, 74, 78, 82];
 
 /** Last 7 days ending today, labeled with the site's own date format ("August 26, 2026"). */
@@ -48,7 +48,7 @@ const DUMMY_ACCESSIBILITY_HISTORY = DUMMY_ACCESSIBILITY_SCORES.map(
 	}
 );
 
-/** Purely decorative on this dummy card (no real per-period fetch behind it, ever - see `DUMMY_ACCESSIBILITY_HISTORY`'s own docblock). */
+/** Decorative only - no real per-period fetch behind it. */
 type PeriodDays = '7' | '30' | '90';
 const PERIOD_OPTIONS = [
 	{ key: '7', value: '7', label: __('7D', 'vulopilot') },

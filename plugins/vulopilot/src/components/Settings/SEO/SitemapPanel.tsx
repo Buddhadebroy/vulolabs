@@ -1,6 +1,6 @@
 /* global vulopilotAppLocalizer */
-import { useRef } from 'react';
-import { __ } from '@wordpress/i18n';
+import { useRef, useState } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import {
 	CardComponent,
@@ -10,10 +10,13 @@ import {
 	FormGroupWrapperComponent,
 	NoticeComponent,
 	NoticeManager,
+	PopupComponent,
 	SectionComponent,
 } from '@zyra/components';
 import { MultiCheckboxInput, SelectInput, TextInput } from '@zyra/inputs';
 import { useSetting } from '../../../contexts/SettingContext';
+import ShowProPopup from '../../Popup/Popup';
+import { formatWpDate } from '../../../services/formatWpDate';
 import SitemapHowItWorksCard from './SitemapHowItWorksCard';
 
 /**
@@ -60,6 +63,15 @@ const SitemapPanel = () => {
 		}, AUTOSAVE_DEBOUNCE_MS);
 	};
 
+	const isPro = Boolean(vulopilotAppLocalizer.khali_dabba);
+	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
+
+	/** Pro settings keep their real controls; without Pro, a change opens the upgrade popup instead of saving. */
+	const proGuard = (save: () => void) => (isPro ? save() : setIsProPopupOpen(true));
+
+	const lastRun = String(setting.sitemap_health_last_run ?? '');
+	const lastProblems = Number(setting.sitemap_health_last_problems ?? 0);
+
 	const sitemapEnabled = isChecked('sitemap_enabled');
 	const htmlSitemapEnabled = isChecked('html_sitemap_enabled');
 	const sitemapIncludeImages = isChecked('sitemap_include_images');
@@ -102,12 +114,9 @@ const SitemapPanel = () => {
 		{ label: __('SEO Titles', 'vulopilot'), value: 'seo_title' },
 	];
 
-	/** Single-option `look="toggle"` switch - same shape
-	 * DeveloperToolsPanel.tsx's own "Anonymous usage data"/
-	 * EnableAutomationModuleAction.tsx's module toggle use. Wrapped in
-	 * `FormGroupComponent` rather than relying on `MultiCheckboxInput`'s
-	 * own `option.label`, which the toggle look swallows visually (same
-	 * real reason those two callers wrap it too). */
+	/** Single-option `look="toggle"` switch, as in DeveloperToolsPanel.tsx and
+	 * EnableAutomationModuleAction.tsx. Wrapped in `FormGroupComponent` because the toggle look swallows
+	 * `MultiCheckboxInput`'s own `option.label`. */
 	const renderToggle = (key: string, label: string, desc?: string) => (
 		<FormGroupComponent row label={label} desc={desc}>
 			<MultiCheckboxInput
@@ -116,10 +125,6 @@ const SitemapPanel = () => {
 				options={[{ key, value: key, label: '' }]}
 				value={isChecked(key) ? [key] : []}
 				onChange={(value) => handleSettingChange(key, value)}
-				toggleStatusLabel={{
-					on: __('Enabled', 'vulopilot'),
-					off: __('Disabled', 'vulopilot'),
-				}}
 			/>
 		</FormGroupComponent>
 	);
@@ -139,10 +144,6 @@ const SitemapPanel = () => {
 						options={[{ key: 'sitemap_enabled', value: 'sitemap_enabled', label: '' }]}
 						value={sitemapEnabled ? ['sitemap_enabled'] : []}
 						onChange={(value) => handleSettingChange('sitemap_enabled', value)}
-						toggleStatusLabel={{
-							on: __('Enabled', 'vulopilot'),
-							off: __('Disabled', 'vulopilot'),
-						}}
 					/>
 				}
 			/>
@@ -155,7 +156,7 @@ const SitemapPanel = () => {
 								title={__('What is included', 'vulopilot')}
 								titleIcon="category"
 								desc={__(
-									'Choose which content and terms appear in your XML sitemap and the [vulopilot_html_sitemap] shortcode below.',
+									'Choose which content and terms appear in your XML sitemap and the [vulopilot_html_sitemap] shortcode below. Noindex, redirected, canonical-elsewhere and placeholder pages are always left out.',
 									'vulopilot'
 								)}
 							>
@@ -178,6 +179,82 @@ const SitemapPanel = () => {
 											onChange={(value) => handleSettingChange('sitemap_xml_taxonomies', value)}
 										/>
 									</FormGroupComponent>
+									{renderToggle(
+										'sitemap_skip_single_author',
+										__('Hide the author sitemap on single-author sites', 'vulopilot'),
+										__('With one author, the author page only repeats your blog page.', 'vulopilot')
+									)}
+								</FormGroupWrapperComponent>
+							</CardComponent>
+
+							<CardComponent
+								title={__('Sitemap health checks', 'vulopilot')}
+								titleIcon="tools"
+								desc={__(
+									'Fetches a sample of your sitemap URLs and reports any that fail to load, redirect, are noindex or point to another canonical, plus duplicates, placeholders and unchanged last modified dates.',
+									'vulopilot'
+								)}
+							>
+								<FormGroupWrapperComponent>
+									<FormGroupComponent
+										row
+										label={
+											<>
+												{__('Run health checks', 'vulopilot')}
+												{!isPro && (
+													<span
+														className="admin-tag pro-tag pro-tag-inline"
+														role="button"
+														tabIndex={0}
+														onClick={() => setIsProPopupOpen(true)}
+														onKeyDown={(event) => {
+															if ('Enter' === event.key || ' ' === event.key) {
+																event.preventDefault();
+																setIsProPopupOpen(true);
+															}
+														}}
+													>
+														<i className="adminfont-pro-tag" />
+														{__('Pro', 'vulopilot')}
+													</span>
+												)}
+											</>
+										}
+										desc={__(
+											'Checks a sample of your sitemap URLs each time a scan runs and reports problems in your SEO issues.',
+											'vulopilot'
+										)}
+									>
+										<MultiCheckboxInput
+											look="toggle"
+											modules={[]}
+											options={[{ key: 'sitemap_health_enabled', value: 'sitemap_health_enabled', label: '' }]}
+											value={isChecked('sitemap_health_enabled') ? ['sitemap_health_enabled'] : []}
+											onChange={(value) =>
+												proGuard(() => handleSettingChange('sitemap_health_enabled', value))
+											}
+										/>
+									</FormGroupComponent>
+									{lastRun && (
+										<NoticeComponent
+											displayPosition="inline-notice"
+											type={lastProblems > 0 ? 'warning' : 'success'}
+											message={
+												lastProblems > 0
+													? sprintf(
+															/* translators: 1: date, 2: number of problems. */
+															__('Last checked %1$s: %2$d problem types found.', 'vulopilot'),
+															formatWpDate(lastRun),
+															lastProblems
+													  )
+													: sprintf(
+															/* translators: %s: date. */
+															__('Last checked %s: no problems found.', 'vulopilot'),
+															formatWpDate(lastRun)
+													  )
+											}
+										/>
+									)}
 								</FormGroupWrapperComponent>
 							</CardComponent>
 
@@ -341,6 +418,15 @@ const SitemapPanel = () => {
 					</ContainerComponent>
 				</>
 			)}
+			<PopupComponent
+				open={isProPopupOpen}
+				onClose={() => setIsProPopupOpen(false)}
+				width={31.25}
+				height="auto"
+				position="lightbox"
+			>
+				<ShowProPopup />
+			</PopupComponent>
 		</div>
 	);
 };

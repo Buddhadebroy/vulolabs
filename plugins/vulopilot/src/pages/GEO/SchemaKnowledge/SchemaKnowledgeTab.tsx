@@ -35,7 +35,6 @@ const SchemaKnowledgeTab = ({
 		}
 		// Only the initial mount-time value matters - this never re-runs
 		// on a later, unrelated re-render.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	return (

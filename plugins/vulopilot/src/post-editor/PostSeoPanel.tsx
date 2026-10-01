@@ -5,6 +5,8 @@ import GeneralTab from './tabs/GeneralTab';
 import SocialTab from './tabs/SocialTab';
 import SchemaTab from './tabs/SchemaTab';
 import PageAnalysisTab from './tabs/PageAnalysisTab';
+import PostScoreBadges from './PostScoreBadges';
+import { usePostData } from './usePostData';
 
 import type { SeoIssueEditorTab } from '../services/seoIssueEditorTarget';
 
@@ -31,6 +33,7 @@ interface PostSeoPanelProps {
  */
 export default function PostSeoPanel( { initialTabName, highlightTarget }: PostSeoPanelProps ) {
 	const [ navTarget, setNavTarget ] = useState< { tab: SeoIssueEditorTab; target?: string } | null >( null );
+	const { postId } = usePostData();
 
 	const activeTabName = navTarget?.tab ?? initialTabName;
 	const activeHighlight = navTarget ? navTarget.target : highlightTarget;
@@ -41,6 +44,7 @@ export default function PostSeoPanel( { initialTabName, highlightTarget }: PostS
 
 	return (
 		<div className="vulopilot-seo-panel">
+			{ postId && <PostScoreBadges postId={ postId } /> }
 			<TabPanel
 				key={ activeTabName ?? 'general' }
 				tabs={ TABS.map( ( { name, title, icon } ) => ( { name, title, icon } ) ) }

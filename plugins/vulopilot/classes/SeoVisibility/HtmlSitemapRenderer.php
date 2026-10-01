@@ -6,7 +6,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Scanning → Sitemap tab's "HTML Sitemap" card - a real.
+ * Renders the `[vulopilot_html_sitemap]` shortcode.
  *
  * @class       HtmlSitemapRenderer class
  * @version     1.0.0
@@ -29,8 +29,7 @@ class HtmlSitemapRenderer {
 	}
 
 	/**
-	 * Same idea as get_post_type_labels(), for taxonomies. `product_cat`/
-	 * `product_tag` are only ever rendered when `taxonomy_exists()` is true.
+	 * Taxonomy slug => display label.
 	 *
 	 * @return array<string, string>
 	 */

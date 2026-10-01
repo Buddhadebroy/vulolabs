@@ -195,6 +195,37 @@ class GoogleServices extends \WP_REST_Controller {
 			return new \WP_Error( 'vulopilot_gsc_no_credentials', __( 'Google Connect isn’t configured for this build yet.', 'vulopilot' ), array( 'status' => 400 ) );
 		}
 
+		$connection = new GoogleServicesConnection();
+
+		if ( $connection->has_broker() ) {
+			// Ask the broker first, so a broker that isn't fully set up answers with its own
+			// message here instead of sending the browser to a raw JSON error page.
+			$probe = wp_remote_get( $url, array( 'timeout' => 15, 'redirection' => 0 ) );
+
+			if ( ! is_wp_error( $probe ) ) {
+				$status = (int) wp_remote_retrieve_response_code( $probe );
+
+				if ( $status >= 300 && $status < 400 && wp_remote_retrieve_header( $probe, 'location' ) ) {
+					$url = (string) wp_remote_retrieve_header( $probe, 'location' );
+				} elseif ( $status >= 400 ) {
+					$body    = json_decode( (string) wp_remote_retrieve_body( $probe ), true );
+					$message = is_array( $body ) && ! empty( $body['message'] ) ? (string) $body['message'] : '';
+
+					return new \WP_Error(
+						'vulopilot_gsc_broker_unavailable',
+						'' !== $message
+							? sprintf(
+								/* translators: %s: the Google connect service's own explanation. */
+								__( 'Google connect service: %s', 'vulopilot' ),
+								$message
+							)
+							: __( 'The Google connect service could not start the connection. Please try again later.', 'vulopilot' ),
+						array( 'status' => 502 )
+					);
+				}
+			}
+		}
+
 		return rest_ensure_response( array( 'url' => $url ) );
 	}
 

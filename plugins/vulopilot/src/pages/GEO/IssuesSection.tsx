@@ -58,6 +58,7 @@ export interface ContentRowTab {
 	key: string;
 	label: string;
 	/** Real per-row test - `RecentContentCard.tsx`'s own post-type/meta classification (Blog Post/Landing Page/Product/Other). */
+	// eslint-disable-next-line no-unused-vars
 	matches: (row: PageRow) => boolean;
 }
 
@@ -72,6 +73,7 @@ export interface ContentModeConfig {
 	categories: Record<string, { label: string; icon: string }>;
 	rowTabs: ContentRowTab[];
 	/** Real `DELETE` row action (moves to trash) - `undefined` hides it. */
+	// eslint-disable-next-line no-unused-vars
 	onDelete?: (row: PageRow) => void;
 	/** Which row's real delete request is currently in flight, so that row's own action label can read "Deleting…". */
 	deletingId?: number | null;
@@ -106,9 +108,12 @@ interface IssuesSectionProps {
 	 */
 	id?: string;
 	/** Only passed by `SeoTab.tsx`'s own SEO usage - see `SeoIssuesByPageTable.tsx`'s own `onAnalyze` prop docblock. */
+	// eslint-disable-next-line no-unused-vars
 	onAnalyze?: (postId: number) => void;
 	/** `SeoTab.tsx`'s own `analyzingPostId` - which row's `PageAnalysisPanel` (if any) is currently open. */
 	activePostId?: number | null;
+	/** Called when the active tab's "Pages & Posts" list has nothing to show, so the host can close an open page-analysis panel that no longer applies. */
+	onAnalyzeClose?: () => void;
 	/**
 	 * Set by SeoTab.tsx to also fetch `GET /seo/pages-needing-attention` and show a per-page score
 	 * and change.
@@ -138,6 +143,7 @@ const IssuesSection = ({
 	id,
 	onAnalyze,
 	activePostId,
+	onAnalyzeClose,
 	pageScore,
 	title = __('All SEO Findings', 'vulopilot'),
 	titleIcon = 'search',
@@ -149,7 +155,13 @@ const IssuesSection = ({
 	const [rows, setRows] = useState<PageRow[]>([]);
 	const [siteWideFindings, setSiteWideFindings] = useState<RawFinding[]>([]);
 	const [groups, setGroups] = useState<FindingGroupRow[]>([]);
-	const [activeTab, setActiveTab] = useState('all');
+	// `content` mode's own `rowTabs` always has a real 'all' entry ("All resources"), but the
+	// default `tabs` array below (['important', ...categories]) never does - so TabsComponent's own
+	// activeIndex fallback (`Math.max(tabs.findIndex(...), 0)`) always visually highlights index 0
+	// ("Important") regardless of this state there. Starting there in sync avoids the two
+	// disagreeing on first render (visually "Important" selected while actually filtering by
+	// nothing).
+	const [activeTab, setActiveTab] = useState(content ? 'all' : 'important');
 	const [activePriority, setActivePriority] = useState<Priority>('all');
 	const [isLoading, setIsLoading] = useState(true);
 	const [hasError, setHasError] = useState(false);
@@ -390,7 +402,7 @@ const IssuesSection = ({
 		return () => {
 			cancelled = true;
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- `scannerIds` is a fresh array every render from every real call site (inline `.flatMap()`/literal); re-running on its own reference would refetch every render. Callers never change which scanner ids a given tab covers at runtime, so `reloadToken` (Retry) / `reloadSignal` (a parent-triggered reload, e.g. `RecentContentCard.tsx`'s own real Delete) are the only real triggers this needs.
+		// `scannerIds` is a fresh array every render from every real call site (inline `.flatMap()`/literal); re-running on its own reference would refetch every render. Callers never change which scanner ids a given tab covers at runtime, so `reloadToken` (Retry) / `reloadSignal` (a parent-triggered reload, e.g. `RecentContentCard.tsx`'s own real Delete) are the only real triggers this needs.
 	}, [reloadToken, reloadSignal]);
 
 	// Default-opens the first row's "More Details" panel (SeoTab.tsx's own PageAnalysisPanel
@@ -417,7 +429,7 @@ const IssuesSection = ({
 				)
 			)
 			.catch(() => setGroups([]));
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- see the fetch effect above.
+		// see the fetch effect above.
 	}, [reloadToken]);
 
 	/**
@@ -460,7 +472,7 @@ const IssuesSection = ({
 		return () => {
 			cancelled = true;
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on `rows.length` (a fresh real fetch/page of rows), not `rows` itself - `rows` gets a new array reference every time this same effect's own `setRows` call above runs, which would otherwise re-trigger it forever.
+		// keyed on `rows.length` (a fresh real fetch/page of rows), not `rows` itself - `rows` gets a new array reference every time this same effect's own `setRows` call above runs, which would otherwise re-trigger it forever.
 	}, [content, rows.length, reloadToken, reloadSignal]);
 
 	useEffect(() => {
@@ -470,16 +482,13 @@ const IssuesSection = ({
 
 		setActiveTab(categoryFocus.key);
 		sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-		// Only a fresh external trigger (a new `token` each time) should
-		// re-trigger this - not every re-render that happens to pass a new
-		// `categoryFocus` object reference.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		// Only a fresh external trigger (a new `token`) should re-trigger this, not a new `categoryFocus`
+		// object reference on every re-render.
 	}, [categoryFocus?.token]);
 
 	// Resets the priority filter whenever the active tab changes.
 	useEffect(() => {
 		setActivePriority('all');
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeTab]);
 
 	/** Same CSV shape the old standalone `GeoPageAnalysisTable.tsx` exported. */
@@ -724,6 +733,15 @@ const IssuesSection = ({
 				hideSearch={Boolean(content?.toolbarFilters)}
 				onAnalyze={onAnalyze}
 				activePostId={activePostId}
+				onEmptyChange={
+					activePostId
+						? (isEmpty: boolean) => {
+								if (isEmpty) {
+									onAnalyzeClose?.();
+								}
+							}
+						: undefined
+				}
 				showScoreChange={pageScore}
 				showContentScore={Boolean(content)}
 				onDelete={content?.onDelete}

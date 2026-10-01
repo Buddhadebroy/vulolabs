@@ -13,8 +13,7 @@ use VuloPilot\Utill\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /seo/score` - a real, deterministic SEO Score (no AI, no cost) for the restyled SEO
- * tab's own "SEO Health Score" card.
+ * `GET /seo/score` - a deterministic SEO score (no AI) for the SEO tab's score card.
  *
  * @class       Seo controller
  * @version     1.0.0
@@ -28,8 +27,7 @@ class Seo extends \WP_REST_Controller {
 	protected $rest_base = 'seo';
 
 	/**
-	 * The same 15 real scanner ids SeoTab.tsx's own SEO_SECTIONS/ seoSections.ts groups
-	 * its unified findings table into.
+	 * Scanner ids grouped by the SEO tab's category sections.
 	 *
 	 * @var array<string, string[]>
 	 */
@@ -56,36 +54,35 @@ class Seo extends \WP_REST_Controller {
 	);
 
 	/**
-	 * How far back "since last week" looks for the real deltas below.
+	 * Days back for the "since last week" delta comparison.
 	 *
 	 * @var int
 	 */
 	private const DELTA_LOOKBACK_DAYS = 7;
 
 	/**
-	 * Real number of daily points "SEO progress"'s own "SEO Score Over Time" chart plots.
+	 * Number of points plotted in the score-over-time chart.
 	 *
 	 * @var int
 	 */
 	private const PROGRESS_TREND_DAYS = 7;
 
 	/**
-	 * Real day-range options "SEO progress"'s own new period toggle offers.
+	 * Day-range options the progress period toggle offers.
 	 *
 	 * @var int[]
 	 */
 	private const ALLOWED_PROGRESS_DAYS = array( 7, 30, 90 );
 
 	/**
-	 * Below this real character count, a set meta description is flagged "Too short"
-	 * rather than passed outright.
+	 * Below this length a meta description is flagged "Too short".
 	 *
 	 * @var int
 	 */
 	private const MIN_META_DESCRIPTION_LENGTH = 50;
 
 	/**
-	 * Real request timeout for fetch_rendered_body()'s own `wp_remote_get()`.
+	 * Timeout for fetch_rendered_body()'s wp_remote_get() call.
 	 *
 	 * @var int
 	 */
@@ -148,11 +145,47 @@ class Seo extends \WP_REST_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			VuloPilot()->rest_namespace,
+			'/' . $this->rest_base . '/post-score',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_post_score' ),
+					'permission_callback' => array( $this, 'get_score_permissions_check' ),
+					'args'                => array(
+						'post_id' => array(
+							'required'          => true,
+							'validate_callback' => static fn( $value ): bool => is_numeric( $value ),
+						),
+					),
+				),
+			)
+		);
 	}
 
 	/**
-	 * Same manage_options gate every other VuloPilot REST route uses.
+	 * Block-editor sidebar's SEO score badge, using the same calculate_score() formula
+	 * scoped to one post.
 	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response
+	 */
+	public function get_post_score( \WP_REST_Request $request ) {
+		$post_id         = (int) $request->get_param( 'post_id' );
+		$findings        = new FindingRepository();
+		$all_scanner_ids = array_merge( ...array_values( self::CATEGORY_SCANNER_IDS ) );
+		$breakdown       = $findings->get_severity_breakdown_for_scanner_ids_by_post_id( $all_scanner_ids, $post_id );
+
+		return rest_ensure_response(
+			array(
+				'score' => $this->calculate_score( $breakdown ),
+			)
+		);
+	}
+
+	/**
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return bool
 	 */
@@ -201,8 +234,7 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real published post/page count - the same real scope `SeoScanner::run()` itself
-	 * scans (`post_type => ['post', 'page'], post_status => 'publish'`).
+	 * Published post/page count, matching the scope SeoScanner::run() scans.
 	 *
 	 * @return int
 	 */
@@ -214,11 +246,11 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real `PROGRESS_TREND_DAYS`-point daily score trend for one "SEO areas" category.
+	 * Daily score trend for one SEO category, over PROGRESS_TREND_DAYS days.
 	 *
-	 * @param FindingRepository $findings    Shared repository instance, reused across every category's own call rather than re-instantiated per category.
-	 * @param string[]          $scanner_ids This one category's own scanner ids (one value of `self::CATEGORY_SCANNER_IDS`).
-	 * @return int[] `PROGRESS_TREND_DAYS` real scores, oldest first.
+	 * @param FindingRepository $findings    Shared repository instance.
+	 * @param string[]          $scanner_ids Scanner ids for this category.
+	 * @return int[] Scores, oldest first.
 	 */
 	private function get_category_trend( FindingRepository $findings, array $scanner_ids ): array {
 		$trend = array();
@@ -236,25 +268,21 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Same weighting BrandIntelligence::calculate_score()/
-	 * ContentIntelligence's own "Content Score" already use.
-	 *
 	 * @param array{critical: int, high: int, medium: int, low: int} $breakdown Severity breakdown to score.
 	 * @return int 0-100.
 	 */
 	private function calculate_score( array $breakdown ): int {
 		$score = 100
-			- ( $breakdown['critical'] * 15 )
-			- ( $breakdown['high'] * 8 )
-			- ( $breakdown['medium'] * 3 )
-			- ( $breakdown['low'] * 1 );
+			- ( 15 * log( 1 + $breakdown['critical'] ) )
+			- ( 8 * log( 1 + $breakdown['high'] ) )
+			- ( 3 * log( 1 + $breakdown['medium'] ) )
+			- ( 1 * log( 1 + $breakdown['low'] ) );
 
-		return max( 0, min( 100, $score ) );
+		return (int) round( max( 0, min( 100, $score ) ) );
 	}
 
 	/**
-	 * "Pages that need attention" (SEO & Visibility → SEO's own new "What should I fix
-	 * first?" section).
+	 * Pages that need attention, for the "What should I fix first?" section.
 	 *
 	 * @return \WP_REST_Response
 	 */
@@ -321,8 +349,7 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * "SEO progress" (SEO & Visibility → SEO's own new progress-over-time card) - a real
-	 * 7-point daily score trend, plus 3 real week-over-week counters.
+	 * Daily score trend plus week-over-week counters for the progress card.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
@@ -349,8 +376,7 @@ class Seo extends \WP_REST_Controller {
 			);
 		}
 
-		// The 3 week-over-week counters below now scale with the same real `$days` the trend above
-		// just widened to (7/30/90 - the "SEO progress" card's own new period toggle).
+		// Counters scale with $days (7/30/90).
 		$now             = gmdate( 'Y-m-d H:i:s' );
 		$period_ago      = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
 		$two_periods_ago = gmdate( 'Y-m-d H:i:s', strtotime( '-' . ( $days * 2 ) . ' days' ) );
@@ -358,7 +384,7 @@ class Seo extends \WP_REST_Controller {
 		$issues_fixed_this_week = $findings->count_resolved_between( $period_ago, $now, null, $all_scanner_ids );
 		$issues_fixed_last_week = $findings->count_resolved_between( $two_periods_ago, $period_ago, null, $all_scanner_ids );
 
-		// Two clean, equal-length, back-to-back `$days`-length calendar windows.
+		// Two equal-length, back-to-back windows.
 		$new_issues_this_week = $findings->get_stats_for_period(
 			gmdate( 'Y-m-d', strtotime( '-' . ( $days - 1 ) . ' days' ) ),
 			gmdate( 'Y-m-d' ),
@@ -402,8 +428,7 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * How many real published pages/posts scored better (a higher real `calculate_score()`
-	 * result) in `$current` than in `$previous`.
+	 * How many published pages/posts scored better in $current than in $previous.
 	 *
 	 * @param array<int, array<int, array{id: int, title: string.
 	 * @param array<int, array<int, array{id: int, title: string, severity: string}>> $previous Same shape.
@@ -453,8 +478,7 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * "Page Analysis" - a real, on-demand, per-page check runner (SEO & Visibility → SEO →
-	 * "Pages & Posts" table's own "Analyze" row action).
+	 * On-demand per-page check runner for the "Analyze" row action.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
@@ -481,11 +505,7 @@ class Seo extends \WP_REST_Controller {
 				'permalink'        => $permalink,
 				'meta_description' => $post->post_excerpt,
 				'analyzed_at'      => current_time( 'mysql', true ),
-				// `check_featured_image()`/`check_orphan_page()` return `null` (filtered out here)
-				// when their own real settings toggle (Settings → Scanning → SEO's "Flag missing
-				// featured image"/ "Flag orphan pages") is off - same real on/off
-				// SeoImagesScanner/OrphanPageScanner themselves already respect, so this panel
-				// never complains about a check the site owner deliberately turned off elsewhere.
+				// check_featured_image()/check_orphan_page() return null when their setting is off.
 				'checks'           => array_values(
 					array_filter(
 						array(
@@ -510,8 +530,7 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real, unique-title-in-database check - same exact query shape
-	 * DuplicateContentScanner::scan() already uses to find posts sharing a title.
+	 * Checks the title is unique in the database, same query DuplicateContentScanner uses.
 	 *
 	 * @param \WP_Post $post Page being analyzed.
 	 * @return array{key: string, label: string, status: string, message: string}
@@ -541,8 +560,6 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Same real `post_excerpt` field MetaDescriptionScanner::scan() already reads.
-	 *
 	 * @param \WP_Post $post Page being analyzed.
 	 * @return array{key: string, label: string, status: string, message: string}
 	 */
@@ -572,7 +589,7 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real presence check for an `h1` tag anywhere in this page's own `post_content`.
+	 * Checks for an h1 tag anywhere in post_content.
 	 *
 	 * @param \WP_Post $post Page being analyzed.
 	 * @return array{key: string, label: string, status: string, message: string}
@@ -588,8 +605,6 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Same real `h2`-`h6` presence regex HeadingStructureScanner::scan() already uses.
-	 *
 	 * @param \WP_Post $post Page being analyzed.
 	 * @return array{key: string, label: string, status: string, message: string}
 	 */
@@ -604,9 +619,6 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Same real word-count + `thin_content_word_threshold` setting
-	 * ThinContentScanner::scan() already reads.
-	 *
 	 * @param \WP_Post $post Page being analyzed.
 	 * @return array{key: string, label: string, status: string, message: string}
 	 */
@@ -635,7 +647,7 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real per-`img` alt-text presence check across this page's own `post_content`.
+	 * Checks each img tag in post_content for alt text.
 	 *
 	 * @param \WP_Post $post Page being analyzed.
 	 * @return array{key: string, label: string, status: string, message: string}
@@ -675,9 +687,6 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Checks `has_post_thumbnail()` live for this page, honoring the
-	 * `flag_missing_featured_image` setting.
-	 *
 	 * @param \WP_Post $post Page being analyzed.
 	 * @return array{key: string, label: string, status: string, message: string}|null
 	 */
@@ -698,8 +707,7 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real, already-stored `broken-links` findings scoped to this one page
-	 * (`FindingRepository::find_all()`'s own `object_type`/ `object_ref` filters).
+	 * Reads stored broken-links findings scoped to this page.
 	 *
 	 * @param int $post_id Page being analyzed.
 	 * @return array{key: string, label: string, status: string, message: string}
@@ -736,8 +744,7 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Reads the stored `orphan-pages` finding for this page instead of re-running the
-	 * scan.
+	 * Reads the stored orphan-pages finding instead of re-running the scan.
 	 *
 	 * @param int $post_id Page being analyzed.
 	 * @return array{key: string, label: string, status: string, message: string}|null
@@ -774,9 +781,7 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Same real `rel="canonical"` presence check CanonicalUrlScanner::scan() already uses.
-	 *
-	 * @param string|null $body This page's real fetched HTML, or null if the fetch failed.
+	 * @param string|null $body Fetched HTML, or null if the fetch failed.
 	 * @return array{key: string, label: string, status: string, message: string}
 	 */
 	private function check_canonical( ?string $body ): array {
@@ -794,8 +799,6 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real per-page indexability signal - this page's own real `post_status`.
-	 *
 	 * @param \WP_Post $post Page being analyzed.
 	 * @return array{key: string, label: string, status: string, message: string}
 	 */
@@ -814,9 +817,7 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Same real `application/ld+json` presence check SchemaScanner::scan() already uses.
-	 *
-	 * @param string|null $body This page's real fetched HTML, or null if the fetch failed.
+	 * @param string|null $body Fetched HTML, or null if the fetch failed.
 	 * @return array{key: string, label: string, status: string, message: string}
 	 */
 	private function check_structured_data( ?string $body ): array {
@@ -834,9 +835,7 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Same real Open Graph tag presence check OpenGraphScanner::scan() already uses.
-	 *
-	 * @param string|null $body This page's real fetched HTML, or null if the fetch failed.
+	 * @param string|null $body Fetched HTML, or null if the fetch failed.
 	 * @return array{key: string, label: string, status: string, message: string}
 	 */
 	private function check_social_metadata( ?string $body ): array {
@@ -872,12 +871,12 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Builds one row of the `checks` array `get_page_analysis()` returns.
+	 * Builds one row of the `checks` array get_page_analysis() returns.
 	 *
 	 * @param string $key   Stable machine key for this check.
 	 * @param string $label Human-readable check name.
 	 * @param string $status One of 'pass'/'warn'/'fail'.
-	 * @param string $message Real, specific finding for this page - never a generic placeholder.
+	 * @param string $message Specific finding message.
 	 * @return array{key: string, label: string, status: string, message: string}
 	 */
 	private function build_check( string $key, string $label, string $status, string $message ): array {

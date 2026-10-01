@@ -122,6 +122,7 @@ const highlightRobotsLine = (line: string): string => {
  */
 interface RobotsTxtEditorProps {
 	value: string;
+	// eslint-disable-next-line no-unused-vars
 	onChange?: (next: string) => void;
 	placeholder?: string;
 	readOnly?: boolean;
@@ -350,14 +351,15 @@ const CrawlRobotsSitemapSection = () => {
 		loadSitemap();
 		loadOpenCounts();
 		loadLlmsTxt();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const {
 		tableCardProps: blockedPagesProps,
+		fixNotice: blockedFixNotice,
 		error: blockedPagesError,
 		isProPopupOpen,
 		closeProPopup,
+		viewPopup: blockedPagesViewPopup,
 	} = useFindingsTable({
 		description: __(
 			'No AI-bot-specific blocks found - run a scan to check robots.txt against your published pages.',
@@ -368,28 +370,42 @@ const CrawlRobotsSitemapSection = () => {
 
 	const {
 		tableCardProps: robotsTxtProps,
+		fixNotice: robotsFixNotice,
 		error: robotsTxtError,
 		isProPopupOpen: isRobotsTxtProPopupOpen,
 		closeProPopup: closeRobotsTxtProPopup,
+		viewPopup: robotsTxtViewPopup,
 	} = useFindingsTable({
 		description: __(
-			'No robots.txt findings yet - run a scan to check crawler access.',
+			'No robots.txt issues yet - run a scan to check crawler access.',
 			'vulopilot'
 		),
 		scannerIds: ['robots-txt'],
 	});
 
+	/**
+	 * Only its own "Fix" pro-upsell popup is still used (below) - the sitemap findings table
+	 * itself isn't rendered anywhere in this section (see `llmsTxtFindingsProps`, which used to be
+	 * mistakenly fed by this hook's `tableCardProps`).
+	 */
 	const {
-		tableCardProps: sitemapFindingsProps,
-		error: sitemapFindingsError,
 		isProPopupOpen: isSitemapProPopupOpen,
 		closeProPopup: closeSitemapProPopup,
 	} = useFindingsTable({
+		scannerIds: ['sitemap', 'sitemap-validation'],
+	});
+
+	const {
+		tableCardProps: llmsTxtFindingsProps,
+		fixNotice: llmsTxtFixNotice,
+		error: llmsTxtFindingsError,
+		viewPopup: llmsTxtViewPopup,
+	} = useFindingsTable({
 		description: __(
-			'No sitemap findings yet - run a scan to check your XML sitemap.',
+			'No llms.txt findings yet - run a scan to check your llms.txt.',
 			'vulopilot'
 		),
-		scannerIds: ['sitemap', 'sitemap-validation'],
+		scannerIds: ['llms-txt-missing'],
 	});
 
 
@@ -576,7 +592,7 @@ const CrawlRobotsSitemapSection = () => {
 								{robotsTxtError ? (
 									<ModuleGuardComponent
 										icon="error"
-										title={__('Could not load findings', 'vulopilot')}
+										title={__('Could not load issues', 'vulopilot')}
 										desc={robotsTxtError}
 									/>
 								) : (
@@ -586,7 +602,10 @@ const CrawlRobotsSitemapSection = () => {
 											titleIcon="security"
 											desc={__('Whether robots.txt is reachable and not accidentally blocking every crawler.', 'vulopilot')}
 										/>
-										<TableCard {...robotsTxtProps} bulkActions={[]} />
+										<>
+											{robotsFixNotice}
+											<TableCard {...robotsTxtProps} bulkActions={[]} />
+										</>
 									</>
 								)}
 							</div>
@@ -653,14 +672,17 @@ const CrawlRobotsSitemapSection = () => {
 										'Whether robots.txt is reachable and not accidentally blocking every crawler.',
 										'vulopilot'
 									)} />
-								{sitemapFindingsError ? (
+								{llmsTxtFindingsError ? (
 									<ModuleGuardComponent
 										icon="error"
 										title={__('Could not load findings', 'vulopilot')}
-										desc={sitemapFindingsError}
+										desc={llmsTxtFindingsError}
 									/>
 								) : (
-									<TableCard {...sitemapFindingsProps} bulkActions={[]} />
+									<>
+										{llmsTxtFixNotice}
+										<TableCard {...llmsTxtFindingsProps} bulkActions={[]} />
+									</>
 								)}
 							</div>
 						</div>
@@ -778,7 +800,10 @@ const CrawlRobotsSitemapSection = () => {
 										)}
 									</TypographyComponent>
 								</div>
+								<>
+								{blockedFixNotice}
 								<TableCard {...blockedPagesProps} />
+							</>
 							</>
 						)}
 					</CardComponent>
@@ -806,6 +831,10 @@ const CrawlRobotsSitemapSection = () => {
 			>
 				{vulopilotAppLocalizer.khali_dabba ? <ShowProPopup moduleName="one-click-fix" /> : <ShowProPopup />}
 			</PopupComponent>
+
+			{blockedPagesViewPopup}
+			{robotsTxtViewPopup}
+			{llmsTxtViewPopup}
 		</>
 	);
 };

@@ -31,6 +31,7 @@ interface GeoFixTheseFirstCardProps {
 	isLoading: boolean;
 	total: number;
 	onViewAll: () => void;
+	// eslint-disable-next-line no-unused-vars
 	onSelectScanner: (scannerId: string) => void;
 	/** Defaults to "Fix These First" (GEO tab) - AeoTab.tsx passes "What Needs Your Attention" instead, reusing this same real ranking. */
 	title?: string;

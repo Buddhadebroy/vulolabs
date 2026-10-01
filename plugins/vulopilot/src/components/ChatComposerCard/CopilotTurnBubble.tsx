@@ -13,7 +13,8 @@ export interface CopilotTurnBubbleProps {
 	 * A turn's own `runId` currently being rolled back, or null.
 	 */
 	undoingRunId?: number | null;
-	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	 
+	// eslint-disable-next-line no-unused-vars
 	onUndo?: (runId: number) => void;
 }
 

@@ -1,3 +1,4 @@
+/* global vulopilotAppLocalizer */
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { COLOR_PALETTE } from '@zyra/core';
@@ -158,13 +159,17 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 			delta: health - health7d,
 			icon: 'order',
 		},
-		{
-			key: 'commerce',
-			label: __('Commerce Score', 'vulopilot'),
-			score: commerce,
-			delta: commerce - commerce7d,
-			icon: 'shipping',
-		},
+		...(vulopilotAppLocalizer.has_woocommerce
+			? [
+					{
+						key: 'commerce',
+						label: __('Commerce Score', 'vulopilot'),
+						score: commerce,
+						delta: commerce - commerce7d,
+						icon: 'shipping',
+					},
+				]
+			: []),
 		{
 			key: 'performance',
 			label: __('Performance Score', 'vulopilot'),
@@ -192,7 +197,11 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 		<>
 		<DashboardWidget
 			title={__('Website Health Scores', 'vulopilot')}
-			desc={__('Your overall score across visibility, health, commerce, performance, content, and brand.', 'vulopilot')}
+			desc={
+				vulopilotAppLocalizer.has_woocommerce
+					? __('Your overall score across visibility, health, commerce, performance, content, and brand.', 'vulopilot')
+					: __('Your overall score across visibility, health, performance, content, and brand.', 'vulopilot')
+			}
 			icon="analytics"
 			isLoading={isLoading}
 			onHide={onHide}

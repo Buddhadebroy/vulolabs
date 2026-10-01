@@ -65,8 +65,7 @@ class LlmsTxtGenerator {
 			return;
 		}
 
-		// Prefer an admin's saved edits (Settings → GEO's llms_txt_content textarea) over the
-		// auto-generated version.
+		// Prefer an admin's saved edits over the auto-generated version.
 		$file_path = trailingslashit( ABSPATH ) . 'llms.txt';
 
 		if ( ! file_exists( $file_path ) ) {
@@ -84,9 +83,9 @@ class LlmsTxtGenerator {
 	}
 
 	/**
-	 * Writes the effective content straight to a real `/llms.txt` at the site root.
+	 * Writes content to /llms.txt at the site root.
 	 *
-	 * @param string $content Effective llms.txt content to persist.
+	 * @param string $content Content to persist.
 	 * @return bool True if the file was written.
 	 */
 	public function write_file( string $content ): bool {
@@ -101,7 +100,7 @@ class LlmsTxtGenerator {
 	}
 
 	/**
-	 * Bootstraps a real `/llms.txt` on disk the first time it's missing.
+	 * Bootstraps /llms.txt on disk the first time it's missing.
 	 *
 	 * @return void
 	 */

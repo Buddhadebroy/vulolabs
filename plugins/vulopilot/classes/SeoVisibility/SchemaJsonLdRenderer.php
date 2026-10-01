@@ -4,8 +4,7 @@ namespace VuloPilot\SeoVisibility;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * No settings gate - unlike SitemapManager/RobotsTxtManager (which decide whether to
- * generate something site-wide).
+ * Outputs the saved per-post schema as JSON-LD.
  *
  * @class       SchemaJsonLdRenderer class
  * @version     1.0.0
@@ -13,9 +12,6 @@ defined( 'ABSPATH' ) || exit;
  */
 class SchemaJsonLdRenderer {
 
-	/**
-	 * Must match GenerateSchemaAction::META_KEY.
-	 */
 	private const META_KEY = '_vulopilot_schema_json';
 
 	/**

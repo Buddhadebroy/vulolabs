@@ -56,8 +56,7 @@ class SchemaCoverageAnalyzer {
 	}
 
 	/**
-	 * Settings → Developer Tools' "Clear cache" - same public
-	 * `clear_cache()` shape `EntityExtractor` already establishes.
+	 * Clears the cached coverage snapshot.
 	 *
 	 * @return void
 	 */
@@ -66,8 +65,7 @@ class SchemaCoverageAnalyzer {
 	}
 
 	/**
-	 * Runs a fresh real sample and stores it - the only path that performs
-	 * real outbound HTTP requests (see this class's own docblock).
+	 * Runs a fresh sample and stores it. The only path that performs outbound HTTP requests.
 	 *
 	 * @return array{generated_at: string, sample_size: int, coverage: array<int, array{type: string, meaning: string, found_on: int, problems: int, pages: array<int, array{id: int, title: string, url: string, edit_url: string|null}>}>, pages_checked: int, pages_with_valid_schema: int, pages_needing_attention: int}
 	 */
@@ -84,19 +82,16 @@ class SchemaCoverageAnalyzer {
 			)
 		);
 
-		// A static front page (Settings → Reading) is the homepage, which is
-		// added separately below - keep it out so it isn't listed twice.
+		// Exclude the static front page; the homepage is added separately below.
 		$post_ids = array_slice( array_values( array_diff( $post_ids, array( (int) get_option( 'page_on_front' ) ) ) ), 0, self::SAMPLE_SIZE );
 
 		$type_counts = array();
-		// Real, specific pages behind each type's `found_on` count.
+		// Pages behind each type's `found_on` count.
 		$type_pages    = array();
 		$pages_checked = 0;
-		// A checked page "has valid schema" when at least one real `application/ld+json` block
-		// with a real `@type` was actually found on it.
+		// A page "has valid schema" when at least one `application/ld+json` block with an `@type` was found.
 		$pages_with_schema = 0;
-		// Every checked page (with or without schema) - what clicking the "Pages checked"/"Pages
-		// with valid schema"/"Need attention" stat cards lists.
+		// Every checked page, with or without schema.
 		$checked_pages = array();
 
 		foreach ( $post_ids as $post_id ) {
@@ -168,8 +163,7 @@ class SchemaCoverageAnalyzer {
 				'type'     => $type,
 				'meaning'  => self::TYPE_MEANINGS[ $type ] ?? __( 'Structured data', 'vulopilot' ),
 				'found_on' => $found_on,
-				// A real, coarse split of the site's total open schema-adjacent findings across
-				// each real type found, proportional to how often that type appears.
+				// Coarse split of open schema-adjacent findings, proportional to how often the type appears.
 				'problems' => $found_on > 0 && $open_problems_total > 0
 					? (int) round( ( $found_on / array_sum( $type_counts ) ) * $open_problems_total )
 					: 0,
@@ -201,8 +195,8 @@ class SchemaCoverageAnalyzer {
 	}
 
 	/**
-	 * @param string $url Real URL to fetch.
-	 * @return string[]|null Every real `@type` value found in that page's JSON-LD, or null on a real fetch failure.
+	 * @param string $url URL to fetch.
+	 * @return string[]|null Every `@type` value found in the page's JSON-LD, or null on fetch failure.
 	 */
 	private function extract_types_from_url( string $url ): ?array {
 		$response = wp_remote_get(

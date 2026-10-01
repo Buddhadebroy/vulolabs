@@ -12,8 +12,7 @@ use VuloPilot\Dashboard\ActivityLogRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for the shared activity log (`indexnow.submitted`) (Scanning → Instant
- * Indexing's "History" card - the mockup's own "The last 100 IndexNow API requests" copy).
+ * Persists IndexNow submissions to the shared activity log (`indexnow.submitted`).
  *
  * @class       IndexNowLogRepository class
  * @version     1.0.0
@@ -58,8 +57,7 @@ class IndexNowLogRepository {
 	}
 
 	/**
-	 * Newest first, in the shape the IndexNow tab has always read:
-	 * `id`, `url`, `response_code`, `response_status`, `trigger_type`, `created_at`.
+	 * Newest first: `id`, `url`, `response_code`, `response_status`, `trigger_type`, `created_at`.
 	 *
 	 * @return array<int, array<string, mixed>>
 	 */

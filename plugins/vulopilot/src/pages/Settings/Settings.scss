@@ -59,6 +59,11 @@
 	}
 }
 
+.gsc-connect-error {
+	color: #cc1818;
+	text-align: center;
+}
+
 .gsc-inline-action {
 	background: none;
 	border: none;
@@ -83,6 +88,15 @@
 	flex-wrap: wrap;
 	gap: 0.5rem;
 	margin-top: 0.75rem;
+}
+
+.gsc-steps {
+	margin: 0 0 0.75rem 1.25rem;
+	padding: 0;
+
+	li {
+		margin-bottom: 0.25rem;
+	}
 }
 
 .gsc-select-row {

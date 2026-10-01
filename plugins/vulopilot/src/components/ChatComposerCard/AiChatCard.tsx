@@ -28,14 +28,16 @@ export interface AiChatCardProps<TTurn> {
 	emptyDesc?: ReactNode;
 	/** Suggested-prompt pills, rendered right below the empty-state text (only while `turns` is empty). */
 	prompts?: AiChatCardPrompt[];
-	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	 
+	// eslint-disable-next-line no-unused-vars
 	onSelectPrompt?: (title: string) => void;
 	turns: TTurn[];
-	// eslint-disable-next-line no-unused-vars -- named params on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	 
+	// eslint-disable-next-line no-unused-vars
 	renderTurn: (turn: TTurn, index: number) => ReactNode;
 	isSending?: boolean;
 	sendingSpinnerClassName?: string;
-	/** Whether `composer` renders before or after the turns block - GEO's Overview composer puts it first, matching that page's own mockup order. */
+	/** Whether `composer` renders before or after the turns block. */
 	composerPosition?: 'before-turns' | 'after-turns';
 	/** Extra content rendered right before the composer - attachment/context chips, toggleable picker panels, a pending-chip question, etc.. */
 	beforeComposer?: ReactNode;
@@ -44,9 +46,6 @@ export interface AiChatCardProps<TTurn> {
 	note?: ReactNode;
 }
 
-/**
- * Turn rendering stays a `renderTurn` callback rather than being folded in here too.
- */
 const AiChatCard = <TTurn,>({
 	guarded = true,
 	sendingAvatarIcon = 'person',

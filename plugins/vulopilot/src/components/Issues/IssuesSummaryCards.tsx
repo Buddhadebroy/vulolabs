@@ -2,13 +2,14 @@ import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { AnalyticsComponent } from '@zyra/components';
 
-// `'all'` no longer has its own tile (removed) - it's kept as a real state value only.
+// `'all'` has no tile of its own; it's kept only as a state value.
 export type Priority = 'all' | 'high' | 'medium' | 'low';
 
 interface IssuesSummaryCardsProps {
 	priorityCounts: { high: number; medium: number; low: number };
 	isLoading: boolean;
 	activePriority: Priority;
+	// eslint-disable-next-line no-unused-vars
 	onSelectPriority: (priority: Priority) => void;
 }
 
@@ -27,12 +28,11 @@ const IssuesSummaryCards: React.FC<IssuesSummaryCardsProps> = ({
 	activePriority,
 	onSelectPriority,
 }) => {
-	// Reads the real `priority` field carried on each tile rather than reverse-parsing it from the
-	// tile's own translated display text (`item.text`).
 	const handleClick = (item: SummaryTile) => {
 		onSelectPriority(item.priority);
 	};
 
+	// eslint-disable-next-line no-unused-vars
 	const data: (SummaryTile & { onClick?: (item: SummaryTile) => void })[] = [
 		{
 			priority: 'high',
@@ -63,7 +63,6 @@ const IssuesSummaryCards: React.FC<IssuesSummaryCardsProps> = ({
 		},
 	];
 
-	// Real controlled active tile - this component's own `activePriority` prop.
 	const activeIndex = data.findIndex((tile) => tile.priority === activePriority);
 
 	return (

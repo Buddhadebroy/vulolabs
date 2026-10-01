@@ -87,7 +87,7 @@ class IndexNowClient {
 
 	/**
 	 * @param int $status_code Real HTTP status code IndexNow returned.
-	 * @return string Short machine-readable status, backs IndexNowLogRepository's `response_status` column.
+	 * @return string Short machine-readable status.
 	 */
 	private function describe_status_code( int $status_code ): string {
 		if ( in_array( $status_code, array( 200, 202 ), true ) ) {
@@ -102,9 +102,6 @@ class IndexNowClient {
 	}
 
 	/**
-	 * Real, documented IndexNow response codes (mockup's own "Response code
-	 * help" card - this is that same list, not paraphrased).
-	 *
 	 * @param int $status_code Real HTTP status code IndexNow returned.
 	 * @return string
 	 */

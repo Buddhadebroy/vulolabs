@@ -68,8 +68,6 @@ class CrawlerTrafficLogger {
 
 			$requested_url = ServerRequest::get( 'REQUEST_URI' );
 
-			// is_404() is already reliable here - `template_redirect` fires after WP has resolved
-			// the main query, so this is the request's real outcome.
 			( new CrawlerVisitRepository() )->log( $bot_name, $user_agent, $requested_url, is_404() );
 			return;
 		}

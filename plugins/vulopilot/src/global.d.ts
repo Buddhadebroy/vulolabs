@@ -61,17 +61,18 @@ declare global {
 
 	var vulopilotPostSeo: VuloPilotPostSeoLocalizer;
 
-	/* eslint-disable no-unused-vars */
+	 
 	interface Window {
 		VULOPILOT_ROUTES: {
 			tab: string;
 			component: ComponentType<Record<string, unknown>>;
 		}[];
+		// eslint-disable-next-line no-unused-vars
 		registerVuloPilotRoute: (route: {
 			tab: string;
 			component: ComponentType<Record<string, unknown>>;
 		}) => void;
 		vulopilotPostSeo: VuloPilotPostSeoLocalizer;
 	}
-	/* eslint-enable no-unused-vars */
+	 
 }

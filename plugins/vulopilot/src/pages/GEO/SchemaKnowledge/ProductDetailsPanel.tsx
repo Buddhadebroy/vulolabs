@@ -138,11 +138,18 @@ const ProductDetailsPanel = ({
 													)
 										}
 									/>
+									{product.issues.length > 0 && (
+										<ul className="business-name-panel-source-issues">
+											{product.issues.map((issue, index) => (
+												<li key={index}>{issue}</li>
+											))}
+										</ul>
+									)}
 								</div>
 								<ButtonInput
 									buttons={[
 										{
-											text: __('View', 'vulopilot'),
+											text: __('View Page', 'vulopilot'),
 											color: 'border-purple',
 											onClick: () => window.open(product.url, '_blank'),
 										},

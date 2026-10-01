@@ -30,9 +30,7 @@ class PostSeoMetaFields {
 	);
 
 	/**
-	 * Post types the metabox appears on - matches
-	 * AiCopilot\Actions\WriteMetaTitleAction/WriteMetaDescriptionAction's own post-type
-	 * scope.
+	 * Post types the metabox appears on.
 	 *
 	 * @var string[]
 	 */
@@ -72,8 +70,7 @@ class PostSeoMetaFields {
 			register_post_meta( $post_type, self::META_KEYS['social_image_id'], $this->integer_field_args() );
 			register_post_meta( $post_type, self::META_KEYS['schema_type'], $this->string_field_args() );
 
-			// GenerateSchemaAction's own meta key, registered here too so the Schema tab's manual
-			// JSON textarea rides the same native save button as every other field.
+			// Registered so the Schema tab's JSON textarea saves via the same native save button.
 			register_post_meta(
 				$post_type,
 				'_vulopilot_schema_json',
@@ -87,13 +84,32 @@ class PostSeoMetaFields {
 			);
 		}
 
-		// GenerateLandingPageAction's own meta key - 'page'-only (it always creates a `page`, never
-		// a `post`).
+		// 'page'-only meta key.
 		register_post_meta(
 			'page',
 			'_vulopilot_landing_page',
 			$this->boolean_field_args()
 		);
+	}
+
+	/**
+	 * Splits the comma-separated `focus_keyword` value into trimmed, non-empty keywords.
+	 *
+	 * @param string $raw The raw stored/submitted `focus_keyword` value.
+	 * @return string[]
+	 */
+	public static function split_keywords( string $raw ): array {
+		return array_values( array_filter( array_map( 'trim', explode( ',', $raw ) ) ) );
+	}
+
+	/**
+	 * The first keyword, used by single-keyword checks like OnPageAnalyzer.
+	 *
+	 * @param string $raw The raw stored/submitted `focus_keyword` value.
+	 * @return string
+	 */
+	public static function primary_keyword( string $raw ): string {
+		return self::split_keywords( $raw )[0] ?? '';
 	}
 
 	/**

@@ -12,8 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Install class.
  *
- * Creates VuloCart's custom database tables on first install and runs
- * version-gated incremental migrations on upgrade, following the same
+ * Creates VuloCart's custom database tables, following the same
  * dbDelta()-based pattern as VuloPilot\Install.
  *
  * Owns `vulocart_offerings` (Offering is the plugin's always-on core entity)
@@ -34,7 +33,7 @@ defined( 'ABSPATH' ) || exit;
 class Install {
 
     /**
-     * Class constructor - runs migration immediately.
+     * Class constructor - runs the install immediately.
      *
      * Only ever constructed from VuloCart::init_classes() and
      * VuloCart::init_plugin() (both at/after 'init'), so, like
@@ -45,7 +44,7 @@ class Install {
     }
 
     /**
-     * Runs the database migration process.
+     * Runs the database install process.
      *
      * @return void
      */
@@ -63,9 +62,7 @@ class Install {
     }
 
     /**
-     * Creates every VuloCart custom table for a fresh install. Additive-only
-     * from here on - later schema changes belong in do_migration(), never
-     * here.
+     * Creates every VuloCart custom table for a fresh install. Additive-only.
      *
      * @return void
      */
@@ -88,11 +85,8 @@ class Install {
      * extracts the table name via a regex that stops at the first space
      * after `CREATE TABLE`, so `CREATE TABLE IF NOT EXISTS ...` reads as
      * table name `IF` and silently does nothing to the real table. A
-     * real, previously-undetected instance of this exact bug (found while
-     * building modules/Order/Install.php's own 1.1.0 migration -
-     * `dbDelta()` there returned `['IF' => 'Created table IF']` and
-     * touched nothing) - harmless until now only because this table
-     * never needed a post-install schema change before.
+     * real instance of this exact bug: `dbDelta()` returned
+     * `['IF' => 'Created table IF']` and touched nothing.
      *
      * @return void
      */
@@ -242,17 +236,9 @@ class Install {
     }
 
     /**
-     * Runs incremental, version-gated schema changes for upgrades from an
-     * already-installed copy of VuloCart. Additive only, per
-     * .claude/rules/backward-compatibility.md - ADD COLUMN / ADD INDEX /
-     * a whole new CREATE TABLE, never DROP.
-     *
-     * First real step: 1.1.0 adds `vulocart_checkout_sessions` for the
-     * Checkout Engine - dbDelta() is safe to call unconditionally for a
-     * brand-new table (creates it if missing, no-ops if a later request
-     * finds it already there), so this isn't further version-gated
-     * beyond the `do_migration()` vs. `create_database_tables()` branch
-     * `run_migration()` already picks between.
+     * Adds `vulocart_checkout_sessions` for the Checkout Engine - dbDelta()
+     * is safe to call unconditionally for a table (creates it if missing,
+     * no-ops if it's already there).
      *
      * @param string $previous_version The version option value before this run.
      * @return void

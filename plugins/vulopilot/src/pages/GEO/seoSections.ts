@@ -1,11 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import type { FindingsSection } from '../Security/SectionedFindingsTab';
 
-/**
- * Section → scanner_id grouping, mirroring the 6 cards Settings → Scanning → SEO already presents
- * these same checks under (src/components/Settings/ Scanning/Seo.ts) so the findings page and its
- * settings page agree on what "Titles & meta"/"Images"/etc. actually cover.
- */
+/** Section → scanner_id grouping, mirrors Settings → Scanning → SEO's own cards. */
 export const SEO_SECTIONS: FindingsSection[] = [
 	{
 		key: 'titles-meta',
@@ -78,14 +74,15 @@ export const SEO_SECTIONS: FindingsSection[] = [
 		scannerIds: ['canonical-url', 'duplicate-content', 'orphan-pages'],
 	},
 	{
+		// Key stays 'structured-data' to match Seo.php's category_scores map - only the title changed.
 		key: 'structured-data',
-		title: __('Structured Data', 'vulopilot'),
+		title: __('Social Metadata', 'vulopilot'),
 		description: __(
 			'Open Graph and Twitter Card tags - the structured metadata social platforms and some AI crawlers read.',
 			'vulopilot'
 		),
 		emptyMessage: __(
-			'No structured data findings yet - run a scan to check Open Graph and Twitter Card tags.',
+			'No social metadata findings yet - run a scan to check Open Graph and Twitter Card tags.',
 			'vulopilot'
 		),
 		scannerIds: ['open-graph', 'twitter-card'],

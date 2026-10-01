@@ -13,37 +13,29 @@ export interface ChatComposerCardProps<TTurn = unknown> {
 	cardDesc?: ReactNode;
 	cardAction?: ReactNode;
 	cardClassName?: string;
-	/**
-	 * Wraps the body in AiCopilotGuard (the shared "AI Copilot is turned off" fallback).
-	 */
+	/** Wraps the body in AiCopilotGuard (the shared "AI Copilot is turned off" fallback). */
 	guarded?: boolean;
-	/** A custom header rendered above everything else, for cards whose title isn't a plain CardComponent `title` (AutomationComposerCard's own `h2`). */
+	/** A custom header rendered above everything else, for cards whose title isn't a plain CardComponent `title`. */
 	header?: ReactNode;
 	/** A static first turn (e.g. a greeting), rendered before `turns`. */
 	welcome?: ReactNode;
-	/**
-	 * A centered "nothing sent yet" placeholder (icon + heading + subtitle, typically) rendered on
-	 * its own - NOT wrapped in a `ChatMessage` bubble.
-	 */
+	/** A centered "nothing sent yet" placeholder, rendered on its own instead of a `ChatMessage` bubble. */
 	emptyState?: ReactNode;
 	turns?: TTurn[];
-	// eslint-disable-next-line no-unused-vars -- named params on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	 
+	// eslint-disable-next-line no-unused-vars
 	renderTurn?: (turn: TTurn, index: number) => ReactNode;
 	isSending?: boolean;
 	sendingLabel?: string;
 	sendingAvatarIcon?: string;
 	sendingSpinnerClassName?: string;
-	/**
-	 * The fully-built `ChatInput` element.
-	 */
+	/** The fully-built `ChatInput` element. */
 	composer: ReactNode;
 	/** Whether `composer` renders before or after the welcome/turns block. */
 	composerPosition?: 'before-turns' | 'after-turns';
-	/** Extra content rendered right before the composer - e.g. ChatTab's "Try asking me…" label, attachment/context chips, attach/context panels. */
+	/** Extra content rendered right before the composer - e.g. a label, attachment/context chips, attach/context panels. */
 	beforeComposer?: ReactNode;
-	/**
-	 * The fully-built prompt-pills element.
-	 */
+	/** The fully-built prompt-pills element. */
 	prompts?: ReactNode;
 	note?: ReactNode;
 }
@@ -112,7 +104,7 @@ const ChatComposerCard = <TTurn,>({
 
 	// Every real composer here is a `ChatInput` whose own textarea handles Enter-to-send.
 	const wrappedComposer = (
-		// eslint-disable-next-line jsx-a11y/no-static-element-interactions -- pure event-propagation guard, not an interactive element.
+		// pure event-propagation guard, not an interactive element.
 		<div onKeyDown={(e) => e.stopPropagation()}>{composer}</div>
 	);
 

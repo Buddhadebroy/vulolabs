@@ -159,6 +159,7 @@ interface GeoScoreSectionProps {
 	/**
 	 * GeoTab.tsx's own real `goToIssuesTable()` (its `setCategoryFocus` wrapper).
 	 */
+	// eslint-disable-next-line no-unused-vars
 	onSelectSignal?: (topicKey: string) => void;
 }
 

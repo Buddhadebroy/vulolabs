@@ -171,6 +171,7 @@ const GoogleServicesPanel = () => {
 		isLoading,
 		isConnecting,
 		isDisconnecting,
+		connectError,
 		connect: handleConnect,
 		disconnect: handleDisconnect,
 	} = useGoogleServicesConnection( 'settings' );
@@ -235,7 +236,6 @@ const GoogleServicesPanel = () => {
 				nonceHeaders
 			).then( ( response ) => setAdsenseAccounts( response ?? [] ) );
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ status?.connected ] );
 
 	// Real data streams load whenever the selected property changes.
@@ -397,6 +397,7 @@ const GoogleServicesPanel = () => {
 								</li>
 							) ) }
 						</ul>
+						{ connectError && <div className="desc gsc-connect-error">{ connectError }</div> }
 					</CardHeader>
 				) }
 			</>
@@ -496,6 +497,17 @@ const GoogleServicesPanel = () => {
 				isDisconnecting={ isDisconnecting }
 				isExpanded={ 'analytics' === expandedCard }
 			>
+				<ol className="desc gsc-steps">
+					<li>{ __( 'Connect your Google account.', 'vulopilot' ) }</li>
+					<li>{ __( 'Choose the Account, Property and Data Stream for this site.', 'vulopilot' ) }</li>
+					<li>
+						{ __(
+							'Turn on “Install analytics code” - only if no other plugin or theme already adds it, to avoid duplicate tracking.',
+							'vulopilot'
+						) }
+					</li>
+				</ol>
+
 				<div className="gsc-select-row">
 					<SelectInput
 						name="ga4_account"

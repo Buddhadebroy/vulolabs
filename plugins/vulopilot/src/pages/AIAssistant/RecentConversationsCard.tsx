@@ -11,7 +11,7 @@ import { useApiList } from '../../services/useApiList';
 import { ChatMarkdown } from '../../components/ChatMarkdown';
 import { ChatMessage } from '../../components/ChatComposerCard';
 
-/** One row of `GET /copilot/conversations` (Copilot.php) - a real, reloadable conversation thread, not a single logged AI call. */
+/** One row of GET /copilot/conversations (Copilot.php). */
 interface RecentConversationRow {
 	id: number;
 	title: string;
@@ -30,10 +30,7 @@ interface ConversationPreviewResponse {
 	turns: ConversationPreviewTurn[];
 }
 
-/**
- * Relative "2h ago"/"3d ago" formatting - same local pattern already used by
- * RecentContentCard.tsx/RecentActivityCard.tsx.
- */
+/** Relative "2h ago"/"3d ago" formatting. */
 const timeAgo = (dateString: string): string => {
 	const seconds = Math.max(
 		0,
@@ -57,7 +54,8 @@ const timeAgo = (dateString: string): string => {
 
 interface RecentConversationsCardProps {
 	/** Called with a row's real `vulopilot_ai_conversations.id` when clicked. */
-	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	 
+	// eslint-disable-next-line no-unused-vars
 	onSelectConversation: (id: number) => void;
 }
 
@@ -79,10 +77,7 @@ const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 	} | null>(null);
 	const [isLoadingPreview, setIsLoadingPreview] = useState(false);
 
-	/**
-	 * Opens the popup immediately (with a loading state) and fetches the same real `GET
-	 * /copilot/conversations/{id}` useCopilotChat.ts's own loadConversation() reads.
-	 */
+	/** Opens the popup immediately and fetches GET /copilot/conversations/{id}. */
 	const handlePreview = (
 		row: RecentConversationRow,
 		e: React.MouseEvent
@@ -109,7 +104,7 @@ const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 
 	return (
 		<>
-			{/* No own CardComponent wrapper - its title/desc/"View all history" action moved to AIAssistant.tsx's own PopupComponent header/footer (this card's only real caller, already inside a popup of its own), so the two don't double up their own separate header/action chrome. */}
+			{/* No own CardComponent wrapper - header/action chrome lives in AIAssistant.tsx's popup instead. */}
 			{error ? (
 				<ModuleGuardComponent
 					icon="error"

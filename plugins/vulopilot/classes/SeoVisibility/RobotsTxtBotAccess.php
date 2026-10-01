@@ -18,8 +18,7 @@ class RobotsTxtBotAccess {
 	private const CACHE_TTL_SECONDS       = HOUR_IN_SECONDS;
 
 	/**
-	 * Settings → Developer Tools' "Clear cache" - same public
-	 * `clear_cache()` shape `EntityExtractor` already establishes.
+	 * Clears the cached robots.txt groups.
 	 *
 	 * @return void
 	 */

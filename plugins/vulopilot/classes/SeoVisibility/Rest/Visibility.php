@@ -5,8 +5,6 @@ use VuloPilot\BrandVisibility\Rest\BrandIntelligence;
 use VuloPilot\GeoAnalysis\Rest\Geo;
 use VuloPilot\Utill\FindingRepository;
 use VuloPilot\TechnicalSeo\Rest\Seo;
-use VuloPilot\Settings\GoogleAnalyticsClient;
-use VuloPilot\Settings\GoogleServicesConnection;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -94,13 +92,6 @@ class Visibility extends \WP_REST_Controller {
 	private const ALLOWED_PROGRESS_DAYS = array( 7, 30, 90 );
 
 	/**
-	 * Real GA4 traffic-source lookback window for "Visibility by Source".
-	 *
-	 * @var int
-	 */
-	private const TRAFFIC_SOURCE_WINDOW_DAYS = 30;
-
-	/**
 	 * @inheritDoc
 	 */
 	public function register_routes() {
@@ -123,18 +114,6 @@ class Visibility extends \WP_REST_Controller {
 				array(
 					'methods'             => \WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_progress' ),
-					'permission_callback' => array( $this, 'get_score_permissions_check' ),
-				),
-			)
-		);
-
-		register_rest_route(
-			VuloPilot()->rest_namespace,
-			'/' . $this->rest_base . '/traffic-sources',
-			array(
-				array(
-					'methods'             => \WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_traffic_sources' ),
 					'permission_callback' => array( $this, 'get_score_permissions_check' ),
 				),
 			)
@@ -203,19 +182,21 @@ class Visibility extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Same weighting every other real score in this codebase uses.
+	 * Same weighting every other real score in this codebase uses - logarithmic, not linear,
+	 * per-tier penalty (see Dashboard::score_from_breakdown()'s own docblock for why: a linear
+	 * count*weight penalty saturates to 0 after roughly a dozen high-severity findings).
 	 *
 	 * @param array{critical: int, high: int, medium: int, low: int} $breakdown Severity breakdown to score.
 	 * @return int 0-100.
 	 */
 	private function calculate_score( array $breakdown ): int {
 		$score = 100
-			- ( $breakdown['critical'] * 15 )
-			- ( $breakdown['high'] * 8 )
-			- ( $breakdown['medium'] * 3 )
-			- ( $breakdown['low'] * 1 );
+			- ( 15 * log( 1 + $breakdown['critical'] ) )
+			- ( 8 * log( 1 + $breakdown['high'] ) )
+			- ( 3 * log( 1 + $breakdown['medium'] ) )
+			- ( 1 * log( 1 + $breakdown['low'] ) );
 
-		return max( 0, min( 100, $score ) );
+		return (int) round( max( 0, min( 100, $score ) ) );
 	}
 
 	/**
@@ -252,53 +233,5 @@ class Visibility extends \WP_REST_Controller {
 				'trend' => $trend,
 			)
 		);
-	}
-
-	/**
-	 * "Visibility by Source" - real GA4 sessions grouped by `sessionDefaultChannelGroup`
-	 * (GoogleAnalyticsClient::run_channel_group_report()).
-	 *
-	 * @return \WP_REST_Response
-	 */
-	public function get_traffic_sources() {
-		$connection = new GoogleServicesConnection();
-		$status     = $connection->get_status();
-
-		$response = array(
-			'connected'      => false,
-			'window_days'    => self::TRAFFIC_SOURCE_WINDOW_DAYS,
-			'total_sessions' => 0,
-			'sources'        => array(),
-		);
-
-		if ( ! $status['connected'] || '' === $status['ga4_property_id'] ) {
-			return rest_ensure_response( $response );
-		}
-
-		$end_date   = gmdate( 'Y-m-d' );
-		$start_date = gmdate( 'Y-m-d', strtotime( '-' . ( self::TRAFFIC_SOURCE_WINDOW_DAYS - 1 ) . ' days' ) );
-
-		$sessions_by_channel = ( new GoogleAnalyticsClient( $connection ) )->run_channel_group_report( $status['ga4_property_id'], $start_date, $end_date );
-
-		if ( is_wp_error( $sessions_by_channel ) || empty( $sessions_by_channel ) ) {
-			return rest_ensure_response( $response );
-		}
-
-		arsort( $sessions_by_channel );
-
-		$total = array_sum( $sessions_by_channel );
-
-		$response['connected']      = true;
-		$response['total_sessions'] = $total;
-
-		foreach ( $sessions_by_channel as $channel => $sessions ) {
-			$response['sources'][] = array(
-				'label'    => $channel,
-				'sessions' => $sessions,
-				'percent'  => $total > 0 ? (int) round( $sessions / $total * 100 ) : 0,
-			);
-		}
-
-		return rest_ensure_response( $response );
 	}
 }

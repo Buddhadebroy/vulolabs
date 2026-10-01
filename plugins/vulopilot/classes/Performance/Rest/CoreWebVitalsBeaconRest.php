@@ -115,7 +115,7 @@ class CoreWebVitalsBeaconRest extends \WP_REST_Controller {
 	}
 
 	/**
-	 * @param mixed $value Raw request value - real summed Navigation+Resource Timing `transferSize`, in bytes.
+	 * @param mixed $value Raw request value - summed `transferSize`, in bytes.
 	 * @return int|null
 	 */
 	private function sanitize_bytes( $value ): ?int {
@@ -129,9 +129,8 @@ class CoreWebVitalsBeaconRest extends \WP_REST_Controller {
 	}
 
 	/**
-	 * A single sitewide rolling-window counter - global rather than per-visitor since this
-	 * endpoint deliberately has no visitor identifier of any kind to key a per-visitor
-	 * limit on.
+	 * A single sitewide rolling-window counter - this endpoint has no visitor
+	 * identifier to key a per-visitor limit on.
 	 *
 	 * @return bool True if this request may proceed, false if rate-limited.
 	 */

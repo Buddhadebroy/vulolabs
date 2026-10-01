@@ -20,10 +20,7 @@ interface CardHeaderProps {
 	children?: ReactNode;
 }
 
-/**
- * One reusable card: an icon + title/desc header row (`.common-card-header` > `.common-card-icon`
- * + `.common-card-details`).
- */
+/** Reusable card with an icon + title/desc header row. */
 const CardHeader = ({
 	icon,
 	title,

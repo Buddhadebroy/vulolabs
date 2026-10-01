@@ -16,8 +16,7 @@ use VuloPilot\GeoAnalysis\Scanners\GeoCitationOpportunityScanner;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Generates a GeoScore for one post ("Generate GEO Score" / "Generate AI suggestions"
- * capability).
+ * Generates a GeoScore for one post.
  *
  * @class       GeoAnalyzer class
  * @version     1.0.0
@@ -26,8 +25,7 @@ defined( 'ABSPATH' ) || exit;
 class GeoAnalyzer {
 
 	/**
-	 * The 8 GEO scanners scoped to a single post, plus the one sitewide check
-	 * (Trust Signals) that applies identically to every post.
+	 * 8 per-post GEO scanners plus the one sitewide Trust Signals check.
 	 */
 	private const TOTAL_DETERMINISTIC_CHECKS = 9;
 
@@ -38,11 +36,9 @@ class GeoAnalyzer {
 	private ActivityLogRepository $activity_logs;
 
 	/**
-	 * $request_sender is deliberately required, not defaulted.
-	 *
-	 * @param AiRequestSender          $request_sender Sends a prompt through the safety-validate → send → sanitize sequence.
-	 * @param FindingRepository|null     $findings       Defaults to a new instance (injectable for tests).
-	 * @param ActivityLogRepository|null $activity_logs Defaults to a new instance (injectable for tests).
+	 * @param AiRequestSender          $request_sender Sends the AI prompt.
+	 * @param FindingRepository|null     $findings       Defaults to a new instance.
+	 * @param ActivityLogRepository|null $activity_logs Defaults to a new instance.
 	 */
 	public function __construct( AiRequestSender $request_sender, ?FindingRepository $findings = null, ?ActivityLogRepository $activity_logs = null ) {
 		$this->request_sender = $request_sender;
@@ -74,8 +70,7 @@ class GeoAnalyzer {
 		$response                  = $this->request_sender->send( $messages, null, 'geo_analysis' );
 		$ai_scores_and_suggestions = $this->parse_response( $response );
 
-		// Scanning → GEO's "Flag weak entity coverage" - entity_coverage needs AI judgment
-		// ("Splitting 12 checks into two honest categories").
+		// Drop entity_coverage when the "Flag weak entity coverage" setting is off.
 		if ( empty( $settings['ai_visibility_scans']['entity']['enable'] ) ) {
 			unset( $ai_scores_and_suggestions['ai_scores']['entity_coverage'] );
 		}
@@ -100,11 +95,10 @@ class GeoAnalyzer {
 	}
 
 	/**
-	 * Emails or logs when the overall score fell by at least the configured GEO alert
-	 * threshold (needs both visibility alert settings on).
+	 * Emails or logs when the score dropped by at least the configured alert threshold.
 	 *
 	 * @param \WP_Post $post          Post just analyzed.
-	 * @param int      $overall_score The just-computed overall_score.
+	 * @param int      $overall_score Newly computed overall score.
 	 * @return void
 	 */
 	private function maybe_notify_score_drop( \WP_Post $post, int $overall_score ): void {
@@ -169,8 +163,7 @@ class GeoAnalyzer {
 	}
 
 	/**
-	 * Reads back a previously generated score without spending another
-	 * AI call - what the REST controller's GET route returns.
+	 * Reads back a previously generated score without spending another AI call.
 	 *
 	 * @param int $post_id Post to read a score for.
 	 * @return array<string, mixed>|null
@@ -188,8 +181,7 @@ class GeoAnalyzer {
 	}
 
 	/**
-	 * Percentage of 9 deterministic checks that have no open finding for this post (8 per-
-	 * post scanners) or sitewide (Trust Signals).
+	 * Percentage of the 9 deterministic checks with no open finding, for this post.
 	 *
 	 * @param int $post_id Post to score.
 	 * @return int|null 0-100, or null if no 'geo' category finding has ever been recorded.
@@ -228,12 +220,11 @@ class GeoAnalyzer {
 	}
 
 	/**
-	 * The deterministic-score formula itself, extracted so GeoAnalysis::get_pages() can
-	 * compute the same real.
+	 * Extracted so GeoAnalysis::get_pages() can reuse the same formula.
 	 *
-	 * @param int      $per_post_failures             Open findings against this specific post (uncapped - capped below).
-	 * @param bool     $sitewide_trust_signal_failure  Whether the sitewide Trust Signals check is currently open.
-	 * @param int|null $total_checks                   Denominator - defaults to GEO's own 9-check total.
+	 * @param int      $per_post_failures             Open findings against this post.
+	 * @param bool     $sitewide_trust_signal_failure  Whether the sitewide Trust Signals check is open.
+	 * @param int|null $total_checks                   Denominator, defaults to the 9-check total.
 	 * @return int 0-100.
 	 */
 	public static function score_from_failures( int $per_post_failures, bool $sitewide_trust_signal_failure, ?int $total_checks = null ): int {
@@ -248,7 +239,7 @@ class GeoAnalyzer {
 	}
 
 	/**
-	 * The 6 readme.txt AI-Visibility sub-metrics that don't need an AI judgment call.
+	 * The 6 AI-visibility sub-metrics that don't need an AI judgment call.
 	 *
 	 * @param int      $post_id Post to score.
 	 * @param \WP_Post $post    Same post, already loaded by analyze().
@@ -284,10 +275,8 @@ class GeoAnalyzer {
 	}
 
 	/**
-	 * Whether one specific scanner has an open finding against one specific object.
-	 *
 	 * @param string $scanner_id One of the Geo*Scanner::get_id() strings.
-	 * @param string $object_ref Post id (or home_url('/') for the sitewide Trust Signals check).
+	 * @param string $object_ref Post id, or home_url('/') for the sitewide check.
 	 * @return bool
 	 */
 	private function has_open_finding( string $scanner_id, string $object_ref ): bool {
@@ -303,8 +292,7 @@ class GeoAnalyzer {
 	}
 
 	/**
-	 * Coarse recency tiering off `post_modified` - a genuinely different signal from
-	 * GeoEeatSignalsScanner's binary "never edited" check.
+	 * Coarse recency tiering based on post_modified.
 	 *
 	 * @param \WP_Post $post Post being scored.
 	 * @return int 0-100.
@@ -327,8 +315,7 @@ class GeoAnalyzer {
 	}
 
 	/**
-	 * Counts data points and citable claims using GeoCitationOpportunityScanner's regex,
-	 * to measure how much supporting evidence a post has.
+	 * Counts data points and citable claims using GeoCitationOpportunityScanner's regex.
 	 *
 	 * @param \WP_Post $post Post being scored.
 	 * @return int 0-100.
@@ -355,12 +342,11 @@ class GeoAnalyzer {
 
 	/**
 	 * @param \WP_Post             $post                Post being analyzed.
-	 * @param int|null             $deterministic_score Already-known deterministic score, if any - given to the AI as context.
-	 * @param array<string, mixed> $settings            Stored plugin settings - only `ai_visibility_scans.entity` is read here.
+	 * @param int|null             $deterministic_score Already-known deterministic score, given to the AI as context.
+	 * @param array<string, mixed> $settings            Stored plugin settings.
 	 * @return array<int, array{role: string, content: string}>
 	 */
 	private function build_prompt( \WP_Post $post, ?int $deterministic_score, array $settings ): array {
-		// Settings → Scanning → AI Visibility's "Entity clarity" row's own `min_mentions`.
 		$entity_guidance = '';
 		if ( ! empty( $settings['ai_visibility_scans']['entity']['enable'] ) ) {
 			$entity_guidance = sprintf(
@@ -452,8 +438,6 @@ class GeoAnalyzer {
 	}
 
 	/**
-	 * Simple, documented average - not a claim of scientific precision.
-	 *
 	 * @param int|null $deterministic_score 0-100, or null.
 	 * @param array    $ai_scores           8 keys, each 0-100.
 	 * @param array    $sub_scores          6 keys, each 0-100 (calculate_sub_scores()'s return shape).

@@ -12,7 +12,8 @@ import { IssuesFilter } from './NeedsAttentionCard';
 import './AICopilot.scss';
 
 interface RecommendedActionsCardProps {
-	// eslint-disable-next-line no-unused-vars -- named params on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	 
+	// eslint-disable-next-line no-unused-vars
 	onNavigateTab: (tab: string, filter?: IssuesFilter) => void;
 }
 
