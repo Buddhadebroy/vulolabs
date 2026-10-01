@@ -8,18 +8,9 @@ use VuloPilot\Automations\AutomationsRunRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Fetches `/automations`, backing src/pages/Automations/Automations.tsx's table.
- * Submits to `/automations/{id}`, backing its Enable/Disable row action.
- * Submits to `/automations/{id}/run`, backing its "Run now" row action - returns a
- * clear error rather than pretending to work: there is no trigger→action
- * execution engine anywhere in this codebase yet (only the DB schema, this
- * repository, and an unimplemented Contracts\Automations\TriggerInterface),
- * so there is nothing to actually run. This route exists so the button
- * gets an honest, specific failure message instead of a 404.
- *
- * This controller didn't exist at all before - the free plugin's own
- * Automations page called an endpoint with no backing route, so its table
- * could never load any data. Modeled directly on Findings.php's shape.
+ * REST controller for automations: list, enable/disable, and run-now.
+ * Run-now returns an explicit error since trigger→action execution
+ * isn't implemented yet.
  *
  * @class       Automations controller
  * @version     1.0.0
@@ -28,20 +19,8 @@ defined( 'ABSPATH' ) || exit;
 class Automations extends \WP_REST_Controller {
 
     /**
-     * `workflow-automation` (this feature's own Settings → Modules id -
-     * `components/Modules/index.ts`, `ShowProPopup moduleName`) is NOT this
-     * route's own path segment - every real frontend consumer
-     * (BuiltinAutomationCards.tsx, AutomationsAttentionCard.tsx,
-     * AutomationStatusWidget.tsx) calls `getApiLink(vulopilotAppLocalizer,
-     * 'automations')`, and this controller is itself registered under the
-     * `'automations'` key in Rest.php's own controllers array - `$rest_base`
-     * being `workflow-automation` instead of `automations` was a real,
-     * silent typo/mix-up with that unrelated module id, resulting in every
-     * one of those real GET calls 404ing (`/vulopilot/v1/automations` had
-     * no route at all) rather than any of them actually reaching this
-     * class's own `get_items()`. Confirmed live: before this fix,
-     * `/vulopilot/v1/automations` 404s while `/vulopilot/v1/workflow-automation`
-     * (this route, unreachable from the real app) 401s.
+     * Route base. Must stay `automations`, not the `workflow-automation`
+     * module id - the frontend calls `getApiLink(..., 'automations')`.
      *
      * @var string
      */
