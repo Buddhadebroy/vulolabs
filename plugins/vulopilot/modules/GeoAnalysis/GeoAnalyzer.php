@@ -17,22 +17,12 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Generates a GeoScore for one post (GEO-MODULE.md's "Generate GEO Score"
- * / "Generate AI suggestions" capability). Deliberately a plain,
- * concrete orchestrator with no interface - like Scanners\ScanRunner and
- * RuleEngine\RuleEngine, there is exactly one way "analyze this post for
- * GEO" happens in this codebase, so an interface here would have one
- * implementer and add nothing (the same reasoning already applied
- * throughout SCANNERS.md/RULE-ENGINE.md).
+ * / "Generate AI suggestions" capability). A plain, concrete orchestrator
+ * with no interface, like Scanners\ScanRunner and RuleEngine\RuleEngine.
  *
- * This is NOT an AIAction: nothing about the post's own content is
- * mutated, so there is no Approval/Execution/Rollback lifecycle to run
- * (AI-ACTIONS.md's stages 5-7 exist specifically to gate a *mutation*,
- * and a read-only analysis has none). It still reuses the exact same
- * safety-validated AI call path every AIAction goes through
- * (AI\AiRequestSender, extracted from
- * AiCopilot\ActionRunner precisely so this class didn't have to
- * duplicate that sequence) and the exact same FindingRepository every
- * other engine already persists through - no parallel infrastructure.
+ * Not an AIAction - it's read-only, so there is no Approval/Execution/
+ * Rollback lifecycle to run. It reuses AI\AiRequestSender for its AI call
+ * and the shared FindingRepository for persistence.
  *
  * @class       GeoAnalyzer class
  * @version     1.0.0
@@ -125,15 +115,11 @@ class GeoAnalyzer {
     }
 
     /**
-     * Compares this analysis's overall_score against the previously stored
-     * one (if any) and emails/logs when it fell by at least
-     * `visibility_alerts['geo']['threshold']` - gated behind both
-     * `email_on_visibility_alerts` and `visibility_alerts['geo']['enable']`
-     * (Settings → Notifications → Visibility Alerts, default off). Runs
-     * before the new score overwrites the old one in postmeta, since it
-     * needs to read the prior value first; only ever fires on an actual
-     * re-analysis of a post that already had a stored score, never on a
-     * post's first-ever analysis (there is nothing to have "dropped" from).
+     * Compares the overall_score against the previously stored one and
+     * emails/logs when it fell by at least `visibility_alerts['geo']['threshold']`,
+     * gated behind `email_on_visibility_alerts` and `visibility_alerts['geo']['enable']`.
+     * Must run before the new score overwrites the old one in postmeta.
+     * No-op on a post's first-ever analysis.
      *
      * @param \WP_Post $post          Post just analyzed.
      * @param int      $overall_score The just-computed overall_score.
@@ -202,7 +188,7 @@ class GeoAnalyzer {
 
     /**
      * Reads back a previously generated score without spending another
-     * AI call - what the REST controller's GET route returns.
+     * AI call - what the REST controller's fetch route returns.
      *
      * @param int $post_id Post to read a score for.
      * @return array<string, mixed>|null
@@ -262,18 +248,14 @@ class GeoAnalyzer {
     }
 
     /**
-     * The deterministic-score formula itself, extracted so
-     * Controllers\GeoAnalysis::get_pages() can compute the same real,
-     * non-AI score for every published page in bulk (one grouped
-     * `FindingRepository::count_by_column()` query for every post's own
-     * open-finding count, one shared lookup for the sitewide Trust Signals
-     * failure) instead of calculate_deterministic_score()'s own two
-     * queries *per post* - the same score, computed the cheap way for a
-     * whole-site listing rather than a single post's own card.
+     * The deterministic-score formula, extracted so
+     * Controllers\GeoAnalysis::get_pages() can compute the same score in
+     * bulk for every published page without calculate_deterministic_score()'s
+     * per-post queries.
      *
      * @param int      $per_post_failures             Open findings against this specific post (uncapped - capped below).
      * @param bool     $sitewide_trust_signal_failure  Whether the sitewide Trust Signals check is currently open.
-     * @param int|null $total_checks                   Denominator - defaults to GEO's own 9-check total. Controllers\GeoAnalysis::get_pages()/get_top_pages() pass a smaller real count when scoped to a caller-supplied `scanner_ids` subset (e.g. AeoTab.tsx's 5 real AEO scanners), so a page's "% ready" reflects failures against the checks that subset actually runs, not GEO's full 9.
+     * @param int|null $total_checks                   Denominator - defaults to GEO's own 9-check total; callers may pass a smaller count when scoped to a subset of scanner_ids.
      * @return int 0-100.
      */
     public static function score_from_failures( int $per_post_failures, bool $sitewide_trust_signal_failure, ?int $total_checks = null ): int {
@@ -352,17 +334,11 @@ class GeoAnalyzer {
     }
 
     /**
-     * Coarse recency tiering off `post_modified` - a genuinely different
-     * signal from GeoEeatSignalsScanner's binary "never edited" check,
-     * since this scores *how* stale, not just whether. Tier boundaries
-     * scale off Settings → Scanning → AI Visibility's "Content freshness"
-     * row's own `ai_visibility_scans.freshness.stale_months` (the
-     * "flag as stale" point becomes the bottom tier) rather than the
-     * fixed 90/180/365-day boundaries this originally shipped with. This
-     * deterministic sub-score always runs regardless of that row's own
-     * `enable` toggle - unlike StaleContentScanner's own findings-list
-     * check, it's one of 6 fixed inputs to the overall per-post GEO score,
-     * not a standalone, independently-disable-able check.
+     * Coarse recency tiering off `post_modified_gmt`, scored on a 0-100 scale.
+     * Tier boundaries scale off the "Content freshness" setting's
+     * `ai_visibility_scans.freshness.stale_months`. Always runs as one of
+     * the 6 fixed inputs to the per-post GEO score, independent of that
+     * setting's own `enable` toggle.
      *
      * @param \WP_Post $post Post being scored.
      * @return int 0-100.
@@ -385,15 +361,10 @@ class GeoAnalyzer {
     }
 
     /**
-     * Reuses GeoCitationOpportunityScanner's own regex (one source of
-     * truth for "what a data point/citable claim looks like") but counts
-     * matches instead of just checking presence - "Data Point & Evidence
-     * Density" is about how much supporting evidence a piece has, not
-     * only whether it has any. The top-tier threshold is Settings →
-     * Scanning → AI Visibility's "Evidence checks" row's own
-     * `ai_visibility_scans.evidence.min_data_points` (matches per 500
-     * words) rather than a fixed `>= 3`; the middle tier sits at half
-     * that.
+     * Scores evidence density using GeoCitationOpportunityScanner's claim
+     * regex, counting matches per 500 words against the "Evidence checks"
+     * setting's `ai_visibility_scans.evidence.min_data_points` threshold;
+     * the middle tier sits at half that.
      *
      * @param \WP_Post $post Post being scored.
      * @return int 0-100.

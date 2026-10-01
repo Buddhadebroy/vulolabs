@@ -10,16 +10,11 @@ namespace VuloPilot\GeoAnalysis\Rest;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /llms-txt/regenerate backs the "Regenerate" button on Crawl & URLs →
- * Robots & Sitemap (src/pages/GEO/CrawlRobotsSitemapSection.tsx; moved there
- * from Settings → AI Visibility) - returns a fresh
- * GeoAnalysis\LlmsTxtGenerator::generate() output (live pages/posts, not
- * whatever's currently saved in llms_txt_content) so the button can
- * discard a customized version and start over from what the site
- * actually looks like today. This class previously also backed a
- * "Preview" action; that's gone now that llms_txt_content is a plain
- * auto-saving textarea (see Controllers\Settings), which is its own live
- * preview.
+ * Fetches `/llms-txt/regenerate`, backing the "Regenerate" button on
+ * Crawl & URLs → Robots & Sitemap (src/pages/GEO/CrawlRobotsSitemapSection.tsx).
+ * Returns a fresh GeoAnalysis\LlmsTxtGenerator::generate() output from
+ * live pages/posts, discarding whatever is currently saved in
+ * llms_txt_content.
  *
  * @class       LlmsTxt controller
  * @version     1.0.0

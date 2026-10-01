@@ -12,7 +12,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /history backs the AI Copilot page's History tab (HistoryTab.tsx) -
+ * Fetches `/history`, backing the AI Copilot page's History tab (HistoryTab.tsx) -
  * a real, day-groupable activity timeline, distinct from `GET /activity-logs`
  * (ActivityLogs.php, Free, backs Reports > Activity's own flat, unfiltered
  * table): this endpoint scopes to only the event types AI Copilot's own

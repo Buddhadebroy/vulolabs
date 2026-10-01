@@ -6,7 +6,7 @@ use VuloPilot\AiAssistant\AiHistoryRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /ai-history backs src/pages/AIAssistant/AIAssistant.tsx's table.
+ * Fetches `/ai-history`, backing src/pages/AIAssistant/AIAssistant.tsx's table.
  * Read-only - rows are only ever written by AI\AiRequestSender (one per real
  * AI call), never by this controller.
  *

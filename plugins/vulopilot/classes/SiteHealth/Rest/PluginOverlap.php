@@ -5,7 +5,7 @@ namespace VuloPilot\SiteHealth\Rest;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /plugin-overlap - backs "Protect My Site" → Files & Plugins' own
+ * Fetches `/plugin-overlap` - backs "Protect My Site" → Files & Plugins' own
  * "VuloPilot already covers this" card.
  *
  * Deliberately NOT tied to any vulnerability finding: AdvancedVulnerabilitiesScanner's

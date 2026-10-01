@@ -5,9 +5,9 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /findings backs the shared FindingsTable component (Health/SEO/GEO/
+ * Fetches `/findings`, backing the shared FindingsTable component (Health/SEO/GEO/
  * Commerce/Dashboard pages - src/components/FindingsTable.tsx).
- * POST /findings/{id} backs its "Mark resolved" row action.
+ * Submits to `/findings/{id}`, backing its "Mark resolved" row action.
  *
  * Zyra's sendApiResponse() (src/services/useApiList.ts and
  * FindingsTable.tsx's handleResolve) always issues a plain POST
@@ -28,7 +28,7 @@ class Findings extends \WP_REST_Controller {
     protected $rest_base = 'findings';
 
     /**
-     * GET /findings/groups' own `priority` param (one of the Issues table's
+     * The `/findings/groups` route's own `priority` param (one of the Issues table's
      * High/Medium/Low stat tiles) mapped to FindingRepository::get_finding_groups()'s
      * severity->rank scale - same 3-tier collapse get_priority_counts()
      * already applies for those tiles' own counts (critical folds into
@@ -44,7 +44,7 @@ class Findings extends \WP_REST_Controller {
     );
 
     /**
-     * GET /findings' own `priority` param (the "Schema & Knowledge" tab's
+     * The `/findings` route's own `priority` param (the "Schema & Knowledge" tab's
      * Issues section - its Critical/Important/Minor pill bar) mapped to a
      * real `severity` IN(...) filter - same 3-tier collapse
      * PRIORITY_SEVERITY_RANKS above already applies for `get_finding_groups()`,
@@ -248,7 +248,7 @@ class Findings extends \WP_REST_Controller {
     );
 
     /**
-     * GET /findings/attention-summary - real open-findings counts bucketed
+     * Fetches `/findings/attention-summary` - real open-findings counts bucketed
      * into 3 priority tiers, the top 3 issue types sitewide (grouped by
      * scanner_id, most severe first), and one top issue per
      * RECOMMENDATION_BUCKETS bucket - every group/recommendation annotated
@@ -297,7 +297,7 @@ class Findings extends \WP_REST_Controller {
     }
 
     /**
-     * GET /findings/groups - AI Copilot's Issues table (IssuesList.tsx):
+     * Fetches `/findings/groups` - AI Copilot's Issues table (IssuesList.tsx):
      * every open finding grouped by issue type, paginated and optionally
      * scoped to one category and/or one priority tier, each group
      * annotated with its scanner's real `get_label()` and one real

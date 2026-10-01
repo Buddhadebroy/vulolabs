@@ -5,7 +5,7 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /scans lists past scan runs; POST /scans triggers one synchronously
+ * Fetches `/scans` to list past scan runs; submitting to `/scans` triggers one synchronously
  * via VuloPilot()->scan_runner (Scanners\ScanRunner - already wired in
  * VuloPilot::init_classes()). Persistence of the result happens via
  * Services\ScanPersistenceListener's `vulopilot_scan_completed` hook, not

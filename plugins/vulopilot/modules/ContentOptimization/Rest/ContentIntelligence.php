@@ -160,32 +160,18 @@ class ContentIntelligence extends \WP_REST_Controller {
     );
 
     /**
-     * GET /content-intelligence/quality?post_id={id} - real per-post
-     * signals for exactly one real, already-saved post/page, per direct
-     * instruction: "Content Score" used to recompute the same
-     * weighted-severity formula site-wide (`get_score()` above), heavily
-     * overlapping SEO & Visibility's own SEO Score (5 of 6 shared scanner
-     * ids) and inviting "why is my Content Score 87 but SEO Score 67?"
-     * confusion. This route instead answers "how good is THIS piece of
-     * content" for whichever post the caller picks - no aggregate number
-     * that could be compared against SEO Score at all.
+     * Fetches `/content-intelligence/quality?post_id={id}` - per-post
+     * quality signals for one saved post/page, answering "how good is
+     * THIS piece of content" rather than an aggregate score.
      *
-     * Only 3 real dimensions, deliberately - "clarity" and "tone" have no
-     * genuine computed signal anywhere in this codebase, so rather than
-     * inventing one, this route only returns what's real:
+     * Three real dimensions only:
      * - readability: ReadabilityScanner::calculate_flesch_reading_ease()
-     *   run directly against this post's own content (the same real
-     *   formula that scanner already uses, just for one post on demand
-     *   rather than batch-scanned).
-     * - completeness: OnPageAnalyzer's own "basic" check group
-     *   (title/description/content length) against this post's real
-     *   saved fields - the same live checklist the post editor's own
-     *   Checklist.tsx already runs, just fed this post's saved values
-     *   instead of the editor's current unsaved ones. No focus_keyword is
-     *   passed (posts don't persist one outside the editor session), so
-     *   the keyword-dependent checks are skipped, same as
-     *   OnPageAnalyzer::analyze() already does when it's blank.
-     * - structure: that same analyzer's real `has_subheadings` check.
+     *   run against this post's content on demand.
+     * - completeness: OnPageAnalyzer's "basic" check group
+     *   (title/description/content length) against the post's saved
+     *   fields; keyword-dependent checks are skipped since no
+     *   focus_keyword is persisted outside the editor session.
+     * - structure: the same analyzer's `has_subheadings` check.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response
@@ -264,12 +250,10 @@ class ContentIntelligence extends \WP_REST_Controller {
     }
 
     /**
-     * GET /content-intelligence/stats - real Content Created/Words
-     * Generated counts for one period (`date_from`/`date_to`, both
-     * Y-m-d; defaults to the current calendar month when omitted, same
-     * period the mockup's own "This Month" default shows), plus each
-     * metric's real percent change against the immediately preceding
-     * period of equal length.
+     * Fetches `/content-intelligence/stats` - Content Created/Words
+     * Generated counts for one period (`date_from`/`date_to`, both Y-m-d;
+     * defaults to the current calendar month), plus each metric's percent
+     * change against the immediately preceding period of equal length.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response

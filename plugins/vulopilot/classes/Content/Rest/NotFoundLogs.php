@@ -7,7 +7,7 @@ use VuloPilot\Content\RedirectRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /not-found-logs, POST /not-found-logs/{id}/delete (dismiss a log
+ * Fetches `/not-found-logs`, Submits to `/not-found-logs/{id}/delete` (dismiss a log
  * entry), POST /not-found-logs/{id}/convert (turn it into a real redirect)
  * - backs the Redirects page's own "404 Log" table. convert_item() does
  * both steps atomically (create the redirect, then remove the now-handled
@@ -30,7 +30,7 @@ class NotFoundLogs extends \WP_REST_Controller {
     protected $rest_base = 'not-found-logs';
 
     /**
-     * Registers GET /not-found-logs, POST /not-found-logs/{id}/delete, POST /not-found-logs/{id}/convert.
+     * Registers routes for fetching `/not-found-logs` and submitting to `/not-found-logs/{id}/delete` and `/not-found-logs/{id}/convert`.
      *
      * @inheritDoc
      */

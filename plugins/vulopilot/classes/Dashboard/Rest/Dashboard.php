@@ -10,7 +10,7 @@ use VuloPilot\Utill\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /dashboard - the summary object the Dashboard page's widgets read
+ * Fetches `/dashboard` - the summary object the Dashboard page's widgets read
  * (src/dashboard-widgets/registry.ts's DashboardSummary interface). This
  * is one aggregate payload rather than one REST call per widget
  * (performance.md's "prefer a single query" guidance, applied to the

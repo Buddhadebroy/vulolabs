@@ -5,7 +5,7 @@ namespace VuloPilot\Performance\Rest;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /efficiency-checks - backs "Protect My Site" → Performance tab.
+ * Fetches `/efficiency-checks` - backs "Protect My Site" → Performance tab.
  *
  * Unlike every other tab on this page, this data isn't findings read back
  * out of `vulopilot_scan_findings` (that table only ever stores problems,

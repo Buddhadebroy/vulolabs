@@ -8,9 +8,9 @@ use VuloPilot\Automations\AutomationsRunRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /automations backs src/pages/Automations/Automations.tsx's table.
- * POST /automations/{id} backs its Enable/Disable row action.
- * POST /automations/{id}/run backs its "Run now" row action - returns a
+ * Fetches `/automations`, backing src/pages/Automations/Automations.tsx's table.
+ * Submits to `/automations/{id}`, backing its Enable/Disable row action.
+ * Submits to `/automations/{id}/run`, backing its "Run now" row action - returns a
  * clear error rather than pretending to work: there is no trigger→action
  * execution engine anywhere in this codebase yet (only the DB schema, this
  * repository, and an unimplemented Contracts\Automations\TriggerInterface),

@@ -6,8 +6,8 @@ use VuloPilot\AiAssistant\AiCreditsConnection;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /vulocloud-ai-connection, GET /vulocloud-ai-connection/broker-authorize-url -
- * backs src/components/Settings/VuloCloudAiConnectionPanel.tsx
+ * Fetches `/vulocloud-ai-connection` and `/vulocloud-ai-connection/broker-authorize-url` -
+ * backing src/components/Settings/VuloCloudAiConnectionPanel.tsx
  * (Settings → Connections → VuloCloud AI): the "Connect to VuloCloud" /
  * "Disconnect" section. VuloCloud is the only place this site gets AI from -
  * it holds every key - so this only reports whether the site is connected and
