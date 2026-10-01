@@ -1,12 +1,24 @@
 /* global vulopilotAppLocalizer */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
+import InsufficientCreditsNotice from '../../components/AiCredits/InsufficientCreditsNotice';
 import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink } from '@zyra/core';
+import { getApiLink, getApiResponse } from '@zyra/core';
 import { NoticeManager, PopupComponent } from '@zyra/components';
+import { SelectInput } from '@zyra/inputs';
 import { ChatInput, AiChatCard, CopilotTurnBubble } from '../../components/ChatComposerCard';
 import ShowProPopup from '../../components/Popup/Popup';
 import { useAiCredits } from '../../services/useAiCredits';
+
+interface WpRestPost {
+	id: number;
+	title: { rendered: string };
+}
+
+interface PageOption {
+	value: string;
+	label: string;
+}
 
 interface ChatLink {
 	url: string;
@@ -37,7 +49,8 @@ interface PromptChip {
 	/** The clarifying question asked (as a local, non-AI chat turn) once this chip is picked. */
 	ask: string;
 	/** Combines the user's next reply into the real instruction actually sent to the AI. */
-	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	 
+	// eslint-disable-next-line no-unused-vars
 	build: (answer: string) => string;
 }
 
@@ -107,35 +120,6 @@ const PROMPT_CHIPS: PromptChip[] = [
 	},
 ];
 
-/**
- * "AI Content Assistant" - a real chat, `POST /content-assistant/chat`
- * (classes/RestAPI/Controllers/ContentAssistant.php), which sends the
- * conversation through the same real AI request sender
- * (AI\AiRequestSender) AI Actions/GEO scoring already use. VuloCloud answers
- * for real once this site is connected (`AiCreditsConnection::is_connected()`,
- * Settings → Connections); when it isn't, `sendToAi()` below recognizes that exact
- * real "No AI connection is configured." condition and opens
- * `ShowProPopup vulocloud` - the same real free "Connect to VuloCloud/Claim
- * free AI Credits" flow AiCreditsIndicator.tsx's own dropdown already
- * offers - instead of a dead-end NoticeManager error toast. Every other
- * real error (a safety-validator rejection, a provider's own failure)
- * still shows as that toast. The running conversation (`turns`) is kept
- * client-side and
- * sent back as `history` on every call - there's no conversation entity
- * in this codebase to persist it against; every real call is still
- * recorded to `vulopilot_ai_history` server-side regardless (Reports'
- * own AI Usage report already reads that table). Prompt chips prefill
- * the composer only, same harmless pattern as AI Copilot's ChatTab.tsx.
- *
- * A "write a blog"/"create a landing page"/"create a product description"
- * style message doesn't come back as raw generated text: the controller
- * runs the real AIAction (generate-blog/generate-landing-page/
- * generate-product-description - the same ones ContentToolsGrid.tsx's own
- * tiles run), actually creates and saves the WordPress draft, and this
- * response's `link` carries the real edit URL, rendered below as a real
- * clickable `<a>` - never markdown-in-text, since ChatMessage
- * renders `content` as plain text.
- */
 const AiContentAssistantSidebar = () => {
 	const [message, setMessage] = useState('');
 	const [turns, setTurns] = useState<ChatTurn[]>([]);
@@ -143,9 +127,52 @@ const AiContentAssistantSidebar = () => {
 	// Set the moment a chip is picked; cleared once the user's next message
 	// has been folded into that chip's own build() and sent for real.
 	const [pendingChip, setPendingChip] = useState<PromptChip | null>(null);
-	/** True right after a real send failed specifically because no AI service (direct VuloCloud AI or connected VuloCloud account) is configured, OR a chip/send was blocked up front because `creditsStatus` already showed nobody's connected (see `handleChipClick()`/`handleSend()` below) - shows `ShowProPopup vulocloud`, the same real free "Connect to VuloCloud"/"Claim free AI Credits" flow AiCreditsIndicator.tsx's own dropdown already offers, instead of a dead-end error notice. */
 	const [isCloudConnectPromptOpen, setIsCloudConnectPromptOpen] = useState(false);
+	const [pageOptions, setPageOptions] = useState<PageOption[]>([]);
+	const [isLoadingPageOptions, setIsLoadingPageOptions] = useState(false);
 	const { status: creditsStatus } = useAiCredits();
+
+	/**
+	 * "Create meta title" is the one chip whose answer is a real page/post, not free text -
+	 * load a searchable list the moment it's picked (SelectInput filters the typed text against
+	 * `label` itself, so this alone gives real search-as-you-type, same as ContentToolPopup.tsx's
+	 * own `post-picker` field).
+	 */
+	useEffect(() => {
+		if ('meta-title' !== pendingChip?.id) {
+			return;
+		}
+
+		setIsLoadingPageOptions(true);
+
+		Promise.all([
+			getApiResponse<WpRestPost[]>(
+				getApiLink(
+					vulopilotAppLocalizer,
+					'posts?per_page=100&orderby=title&order=asc&_fields=id,title',
+					'wp/v2'
+				),
+				{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
+			),
+			getApiResponse<WpRestPost[]>(
+				getApiLink(
+					vulopilotAppLocalizer,
+					'pages?per_page=100&orderby=title&order=asc&_fields=id,title',
+					'wp/v2'
+				),
+				{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
+			),
+		])
+			.then(([posts, pages]) => {
+				setPageOptions(
+					[...(posts || []), ...(pages || [])].map((post) => ({
+						value: String(post.id),
+						label: post.title.rendered || `#${post.id}`,
+					}))
+				);
+			})
+			.finally(() => setIsLoadingPageOptions(false));
+	}, [pendingChip]);
 
 	const sendToAi = (realMessage: string, displayedTurns: ChatTurn[]) => {
 		setIsSending(true);
@@ -169,11 +196,6 @@ const AiContentAssistantSidebar = () => {
 			.catch((error) => {
 				const message = (error?.response?.data as WpRestErrorBody | undefined)?.message;
 
-				// AiRequestSender's own real "No AI service is
-				// configured." (see ContentAssistant.php's own docblock)
-				// - this exact condition has a real, free fix (connect
-				// VuloCloud), so it gets its own popup instead of just
-				// another error toast.
 				if (message?.includes('No AI connection is configured') && !creditsStatus?.connected) {
 					setIsCloudConnectPromptOpen(true);
 					return;
@@ -195,30 +217,7 @@ const AiContentAssistantSidebar = () => {
 	};
 
 	/**
-	 * Picking a chip doesn't send anything to the AI yet - it asks the real
-	 * follow-up question first (a local, scripted chat turn, not an AI
-	 * response) and waits for the user's next message to answer it. That
-	 * reply gets folded into the chip's own build() into one real, useful
-	 * instruction (e.g. "Write a blog about eco-friendly packaging") -
-	 * what's actually shown as the user's turn and sent to the AI, not the
-	 * bare reply on its own.
-	 *
-	 * Guarded on `pendingChip` the same way `handleSend()` already guards
-	 * on `isSending` - the chip grid stays clickable the whole time (it's
-	 * not disabled/hidden once a question is asked), so without this a
-	 * user clicking the same chip again while its question is still
-	 * unanswered re-ran this and appended a 2nd, identical "assistant"
-	 * turn - confirmed live: 4 clicks on "Write a blog" stacked 4 copies
-	 * of "What should the blog be about?" in the chat. One open question
-	 * at a time is the real, correct behavior; the user must answer (or
-	 * the request must finish) before another chip can ask a new one.
-	 *
-	 * Checked up front, before even asking the clarifying question - per
-	 * direct instruction ("when click work on description then the
-	 * connect popup show, not functionality work until the account is
-	 * connected"): picking a chip with no AI service connected opens
-	 * `ShowProPopup vulocloud` immediately, rather than walking through a
-	 * question the eventual real send would just fail on anyway.
+	 * Picking a chip doesn't send anything to the AI yet.
 	 */
 	const handleChipClick = (chip: PromptChip) => {
 		if (isSending || pendingChip) {
@@ -238,23 +237,24 @@ const AiContentAssistantSidebar = () => {
 		]);
 	};
 
-	const handleSend = () => {
-		const trimmed = message.trim();
-
-		if ('' === trimmed || isSending) {
+	/**
+	 * Shared by both answer paths: typing free text (`handleSend`) and picking a page from the
+	 * search dropdown (`handlePagePicked`) - either way, `answer` is folded into the pending
+	 * chip's own build() the same way.
+	 */
+	const submitAnswer = (answer: string) => {
+		if ('' === answer || isSending) {
 			return;
 		}
 
-		// Same up-front check `handleChipClick()` already makes - this is
-		// the one still needed for a message typed directly into "Ask
-		// Anything…" without going through a chip first.
+		// Same up-front check `handleChipClick()` already makes.
 		if (creditsStatus && !creditsStatus.connected) {
 			setIsCloudConnectPromptOpen(true);
 			return;
 		}
 
 		const history = turns;
-		const realMessage = pendingChip ? pendingChip.build(trimmed) : trimmed;
+		const realMessage = pendingChip ? pendingChip.build(answer) : answer;
 
 		setTurns([...history, { role: 'user', content: realMessage }]);
 		setMessage('');
@@ -262,10 +262,22 @@ const AiContentAssistantSidebar = () => {
 		sendToAi(realMessage, history);
 	};
 
-	// AiChatCard's own onSelectPrompt only hands back a prompt's title (the
-	// shape every real composer's prompt grid shares) - looked back up
-	// against PROMPT_CHIPS here since handleChipClick needs the chip's own
-	// `ask`/`build`, not just its title.
+	const handleSend = () => submitAnswer(message.trim());
+
+	/**
+	 * Selecting a page submits immediately - there's nothing left to type once a real page is
+	 * picked.
+	 */
+	const handlePagePicked = (pageId: string) => {
+		const picked = pageOptions.find((option) => option.value === pageId);
+
+		if (picked) {
+			submitAnswer(picked.label);
+		}
+	};
+
+	// AiChatCard's own onSelectPrompt only hands back a prompt's title (the shape every real
+	// composer's prompt grid shares).
 	const handleSelectPrompt = (title: string) => {
 		const chip = PROMPT_CHIPS.find((c) => c.title === title);
 
@@ -275,11 +287,7 @@ const AiContentAssistantSidebar = () => {
 	};
 
 	/**
-	 * "New Chat" - this composer has no server-side conversation entity to
-	 * reset (see this file's own docblock: `turns` is client-side-only,
-	 * sent back as plain `history` on every call), so starting fresh is
-	 * just clearing everything local: the running turns, whatever's typed,
-	 * and a still-unanswered chip question.
+	 * "New Chat": clears the local turns, the typed text and any unanswered chip question.
 	 */
 	const handleNewChat = () => {
 		setTurns([]);
@@ -288,17 +296,7 @@ const AiContentAssistantSidebar = () => {
 	};
 
 	/**
-	 * "Chat History" - unlike AI Copilot's own per-conversation popup, this
-	 * composer has no `vulopilot_ai_conversations` row to reopen a past
-	 * thread from (this file's own docblock). What IS real: every message
-	 * that actually creates content runs through the same
-	 * `ContentCreationOrchestrator` AI Copilot's own content-creation turns
-	 * do (ContentAssistant.php), which logs a real `vulopilot_ai_action_runs`
-	 * row/activity-log "change" event - exactly what Reports → History's
-	 * own "Change" filter (HistoryTab.tsx, moved there from AI Copilot)
-	 * already lists. So "Chat History" here is a real navigation to that
-	 * existing report rather than a reopen-this-thread popup - there's
-	 * nothing to reopen, but there's real history to see.
+	 * "Chat History" - unlike AI Copilot's own per-conversation popup.
 	 */
 	const handleOpenHistory = () => {
 		window.location.href = '?page=vulopilot#&tab=reports&subtab=history';
@@ -306,6 +304,7 @@ const AiContentAssistantSidebar = () => {
 
 	return (
 		<>
+			<InsufficientCreditsNotice />
 			<AiChatCard
 				emptyDesc={sprintf(
 					/* translators: %s: the real logged-in WP user's own display name */
@@ -326,17 +325,34 @@ const AiContentAssistantSidebar = () => {
 				isSending={isSending}
 				sendingSpinnerClassName="content-assistant-spinner"
 				composer={
-					<ChatInput
-						value={message}
-						onChange={setMessage}
-						onSend={handleSend}
-						disabled={isSending}
-						placeholder={
-							pendingChip
-								? __('Type your answer…', 'vulopilot')
-								: __('Ask Anything…', 'vulopilot')
-						}
-					/>
+					'meta-title' === pendingChip?.id ? (
+						<SelectInput
+							type="single-select"
+							options={pageOptions}
+							value={null}
+							onChange={(value) =>
+								handlePagePicked(String(value ?? ''))
+							}
+							placeholder={
+								isLoadingPageOptions
+									? __('Loading pages…', 'vulopilot')
+									: __('Search for a page…', 'vulopilot')
+							}
+							disabled={isSending || isLoadingPageOptions}
+						/>
+					) : (
+						<ChatInput
+							value={message}
+							onChange={setMessage}
+							onSend={handleSend}
+							disabled={isSending}
+							placeholder={
+								pendingChip
+									? __('Type your answer…', 'vulopilot')
+									: __('Ask Anything…', 'vulopilot')
+							}
+						/>
+					)
 				}
 			/>
 			<PopupComponent

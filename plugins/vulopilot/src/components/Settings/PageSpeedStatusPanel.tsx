@@ -1,11 +1,10 @@
 /* global vulopilotAppLocalizer */
 import { useEffect, useRef, useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import { ButtonInput, TextInput } from '@zyra/inputs';
 import { FormGroupComponent, FormGroupWrapperComponent, NoticeComponent, NoticeManager } from '@zyra/components';
 import CardHeader from '../CardHeader';
-import { formatWpDate } from '../../services/formatWpDate';
 import { useSetting } from '../../contexts/SettingContext';
 
 interface PsiStatus {
@@ -27,30 +26,7 @@ interface TestResult {
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 /**
- * Settings → Connections' own PageSpeed Insights section - the mockup's
- * "Connection Status" pill, "Daily API Usage" bar, "Test Connection"
- * button, and (per direct instruction, when this folder's 5 separate
- * sub-tabs were merged into one "Connections" tab) the real "API Key"/
- * "Daily API Limit" fields and the "how this data is used" notice that
- * used to be rendered separately by InputRenderer against this tab's own
- * `modal` array - now fully self-contained, same "one real component per
- * section" shape ConnectionsPanel.tsx composes GoogleServicesPanel.tsx/
- * SiteVerificationPanel.tsx/VuloCloudAiConnectionPanel.tsx from.
- *
- * Reads real state from `GET /settings/test-pagespeed`
- * (Services\PageSpeedInsightsFetcher::get_status() - no live API call) on
- * mount, and re-reads it after a real `POST /settings/test-pagespeed`
- * (::test_connection(), the same class the daily cron itself uses).
- *
- * The mockup's own "Default Strategy" and "Analysis Location" controls
- * aren't reproduced anywhere in this tab: Google's real PageSpeed Insights
- * API v5 always scores both Mobile AND Desktop together (there's no
- * "default" that changes what gets fetched - see PerformanceScoreCard.tsx,
- * which already shows both), and has no parameter for choosing where the
- * test runs from (only `locale`, for the report's own language - a
- * different thing than the mockup's "closest location improves accuracy"
- * claim). Same "no real backend, don't build a fake control" posture
- * Reports.ts's own docblock already documents for "Report Branding".
+ * Settings → Connections' own PageSpeed Insights section.
  */
 const AUTOSAVE_DEBOUNCE_MS = 1000;
 
@@ -59,7 +35,6 @@ const PageSpeedStatusPanel = () => {
 	const [status, setStatus] = useState<PsiStatus | null>(null);
 	const [isTesting, setIsTesting] = useState(false);
 	const [apiKey, setApiKey] = useState((setting.psi_api_key as string) || '');
-	const [dailyLimit, setDailyLimit] = useState((setting.psi_daily_limit as string) || '');
 	const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const scheduleSave = (key: string, value: string) => {
@@ -79,10 +54,6 @@ const PageSpeedStatusPanel = () => {
 		scheduleSave('psi_api_key', value);
 	};
 
-	const handleDailyLimitChange = (value: string) => {
-		setDailyLimit(value);
-		scheduleSave('psi_daily_limit', value);
-	};
 
 	const loadStatus = () => {
 		getApiResponse<PsiStatus>(getApiLink(vulopilotAppLocalizer, 'settings/test-pagespeed'), nonceHeaders).then(
@@ -108,10 +79,8 @@ const PageSpeedStatusPanel = () => {
 				if (!response) {
 					return;
 				}
-				// Floating notice (NoticeReceiverComponent position="float",
-				// already mounted app-wide by zyra's own HeaderComponent) -
-				// per direct instruction, not the inline <p> this used to
-				// render in the card body.
+				// Floating notice (NoticeReceiverComponent position="float", already mounted app-
+				// wide by zyra's own HeaderComponent).
 				NoticeManager.add({
 					message: response.message,
 					type: response.success ? 'success' : 'error',
@@ -124,10 +93,6 @@ const PageSpeedStatusPanel = () => {
 			.finally(() => setIsTesting(false));
 	};
 
-	const usagePercent =
-		status && status.daily_limit > 0
-			? Math.min(100, Math.round((status.requests_today / status.daily_limit) * 100))
-			: 0;
 
 	return (
 		<FormGroupWrapperComponent>

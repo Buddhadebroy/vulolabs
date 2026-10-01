@@ -16,15 +16,7 @@ use VuloPilot\Utill\Impact;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Create Content's "AI Content Audit" quick action
- * (QuickActionsCard.tsx) - a real, standalone AI action rather than the
- * in-page scroll shortcut this row used to be (it used to jump to
- * RecentContentCard.tsx's own rule-based scanner findings; those findings
- * still exist and are unrelated to this). This one asks the AI to review
- * one existing post/page's real content wholesale - an overall score, a
- * short summary, and a handful of concrete suggestions - and saves that
- * verdict as post meta rather than rewriting anything, since an audit is
- * meant to inform a human, not silently change the page.
+ * Create Content's "AI Content Audit" quick action (QuickActionsCard.tsx).
  *
  * @class       AuditContentAction class
  * @version     1.0.0
@@ -66,17 +58,17 @@ class AuditContentAction extends AbstractBasicAction {
 		$post    = $post_id ? get_post( $post_id ) : null;
 
 		if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page' ), true ) ) {
-			throw new VuloPilotException( esc_html__( 'post_id must refer to an existing post or page.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
+			VuloPilotException::raise( esc_html__( 'post_id must refer to an existing post or page.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
 		}
 
 		if ( mb_strlen( wp_strip_all_tags( $post->post_content ) ) < 50 ) {
-			throw new VuloPilotException( esc_html__( 'This post needs at least some existing content to audit.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
+			VuloPilotException::raise( esc_html__( 'This post needs at least some existing content to audit.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
 		}
 
 		return array(
-			'post_id'      => $post_id,
-			'post_title'   => $post->post_title,
-			'post_content' => $post->post_content,
+			'post_id'        => $post_id,
+			'post_title'     => $post->post_title,
+			'post_content'   => $post->post_content,
 			'previous_audit' => get_post_meta( $post_id, self::META_KEY, true ),
 		);
 	}
@@ -138,8 +130,10 @@ class AuditContentAction extends AbstractBasicAction {
 	 */
 	public function validate_output( array $output, array $input ): void {
 		if ( null === $output['score'] || '' === $output['summary'] ) {
-			throw new VuloPilotException(
-				esc_html__( 'The AI response did not match the expected audit format.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_OUTPUT );  // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- false positive: flags the VuloPilotException::TYPE_* constant token itself, not unescaped output; the message argument is already esc_html()-wrapped.
+			VuloPilotException::raise(
+				esc_html__( 'The AI response did not match the expected audit format.', 'vulopilot' ),
+				VuloPilotException::TYPE_INVALID_ACTION_OUTPUT
+			);
 		}
 	}
 

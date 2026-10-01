@@ -8,40 +8,28 @@ export interface ApiListResult<T> {
 	data: T[];
 	total: number;
 	/**
-	 * `[{value, label, count}, ...]`, one entry per `categoryFilter.options`
-	 * entry (no "All" pill - every list page's pill bar is real categories
-	 * only now) - only populated when a `categoryFilter` config is passed
-	 * in; empty otherwise. Pass straight through to TableCard's
-	 * `categoryCounts` prop to render its status-count pill bar.
+	 * `[{value, label, count}, ...]`, one entry per `categoryFilter.options` entry (no "All" pill
+	 * - every list page's pill bar is real categories only now) - only populated when a
+	 * `categoryFilter` config is passed in; empty otherwise.
 	 */
 	categoryCounts: CategoryCount[];
 	isLoading: boolean;
 	error: string | null;
 	/** `{ silent: true }` reloads in the background - rows stay on screen and no loading state shows (used by live-status polling). */
+	 
 	// eslint-disable-next-line no-unused-vars
 	refetch: (options?: { silent?: boolean }) => void;
 	/**
-	 * Pass straight through to TableCard's `onQueryUpdate` prop - TableCard
-	 * owns its own `{ paged, per_page, filter, ... }` state internally
-	 * (zyra's TableCard.tsx) and only ever hands it back out via this
-	 * callback. Without wiring it here, clicking a page number or a filter
-	 * only updates TableCard's own pagination UI; the underlying `rows`
-	 * prop (this hook's `data`) never changes, since nothing tells this
-	 * hook a new page/filter was requested.
+	 * Pass straight through to TableCard's `onQueryUpdate` prop.
 	 */
-	// Base no-unused-vars doesn't understand TS function-type parameter
-	// positions (no runtime binding to "use"); @typescript-eslint/no-unused-vars
-	// already handles this correctly.
+	// Base no-unused-vars doesn't understand TS function-type parameters; @typescript-eslint's does.
+	 
 	// eslint-disable-next-line no-unused-vars
 	onQueryUpdate: (query: TableCardQuery) => void;
 }
 
 /**
- * The subset of zyra TableCard's internal query state this hook forwards
- * to the REST request. `languageFilter` isn't read (no vulopilot list
- * endpoint has that dimension). `searchValue`/`categoryFilter`/`orderby`/
- * `order` ARE read - every AbstractRepository-backed list endpoint now
- * supports `search`, a status-count-driven category filter, and sorting.
+ * The subset of zyra TableCard's internal query state this hook forwards to the REST request.
  */
 interface TableCardQuery {
 	paged?: number | string;
@@ -54,14 +42,9 @@ interface TableCardQuery {
 }
 
 /**
- * A status-like categorical dimension a list page wants surfaced as a
- * TableCard status-count pill bar (Findings' status, Automation's status,
- * Activity's actor_type, etc.) - `options` is the full real pill list this
- * hook renders (no "All" pill prepended). The REST param this maps
- * `categoryFilter` onto, and the response field its counts are read from,
- * are both `key` (`${key}_counts` in the response body) - see each
- * controller's `get_items()` for the matching backend half of this
- * contract.
+ * A status-like categorical dimension a list page wants surfaced as a TableCard status-count pill
+ * bar (Findings' status, Automation's status, Activity's actor_type, etc.) - `options` is the full
+ * real pill list this hook renders (no "All" pill prepended).
  */
 export interface CategoryFilterConfig {
 	key: string;
@@ -71,12 +54,8 @@ export interface CategoryFilterConfig {
 type ListResponse<T> = T[] | { data?: T[]; total?: number; [key: string]: unknown };
 
 /**
- * Fetches a VuloPilot REST list endpoint (`vulopilot/v1/{endpoint}`) and
- * tracks loading/error/empty state. Every list page (Health, SEO, GEO,
- * WooCommerce, Automation, Reports, AI Assistant, Activity, and
- * Dashboard's own widgets) needs the same fetch → loading → error →
- * empty-or-populated shape, so it lives here once instead of being
- * re-implemented per page.
+ * Fetches a VuloPilot REST list endpoint (`vulopilot/v1/{endpoint}`) and tracks
+ * loading/error/empty state.
  *
  * @param endpoint       REST resource path relative to the vulopilot/v1 namespace, e.g. 'findings'.
  * @param params         Optional static query params (e.g. a fixed category for a
@@ -99,11 +78,7 @@ export const useApiList = <T = Record<string, unknown>>(
 	const [reloadToken, setReloadToken] = useState(0);
 	// Set by a `refetch({ silent: true })` call, consumed by the next fetch.
 	const silentRef = useRef(false);
-	// Matches TableCard's own initial `{ paged: 1, per_page: 10 }` state
-	// (zyra's TableCard.tsx) - TableCard doesn't accept an initial per_page
-	// override from props, so seeding anything else here would just cause
-	// a mismatched first fetch followed by an immediate refetch once
-	// TableCard's own mount-time onQueryUpdate call corrects it.
+	// Matches TableCard's own initial `{ paged: 1, per_page: 10 }` state (zyra's TableCard.tsx).
 	const [tableQuery, setTableQuery] = useState<TableCardQuery>({
 		paged: 1,
 		per_page: 10,
@@ -116,13 +91,8 @@ export const useApiList = <T = Record<string, unknown>>(
 	const mergedParams: Record<string, string | number | undefined> = {
 		...params,
 		page: tableQuery.paged,
-		// A caller-supplied static per_page (every non-TableCard compact
-		// widget list - RecentActivityWidget, NeedsAttentionWidget, etc.)
-		// wins over tableQuery's own per_page, which only ever moves off
-		// its initial default(10) once a real TableCard's pagination UI
-		// calls onQueryUpdate - something none of those static callers do.
-		// Previously tableQuery.per_page always won unconditionally, so
-		// every "show N compact rows" caller silently got 10 instead.
+		// A caller-supplied static per_page (every non-TableCard compact widget list -
+		// RecentActivityWidget, NeedsAttentionWidget, etc.) wins over tableQuery's own per_page.
 		per_page: params.per_page ?? tableQuery.per_page,
 		search: tableQuery.searchValue,
 		orderby: tableQuery.orderby,
@@ -155,14 +125,8 @@ export const useApiList = <T = Record<string, unknown>>(
 		}
 		setError(null);
 
-		// getApiLink() already returns a URL containing its own `?` on
-		// sites with plain permalinks (rest_url() resolves to
-		// `index.php?rest_route=/…`) - appending another `?` here instead
-		// of `&` would fold `per_page=5` etc. into the *value* of the
-		// rest_route query var itself (`rest_route=/vulopilot/v1/reports?per_page=5`),
-		// which WordPress can't match to any registered route and 404s.
-		// Pretty-permalink sites (`/wp-json/…`, no `?` yet) still get a
-		// real `?`.
+		// getApiLink() already returns a URL containing its own `?` on sites with plain permalinks
+		// (rest_url() resolves to `index.php?rest_route=/…`).
 		const baseUrl = getApiLink(vulopilotAppLocalizer, endpoint);
 		const separator = baseUrl.includes('?') ? '&' : '?';
 		const url = baseUrl + (query ? `${separator}${query}` : '');

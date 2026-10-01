@@ -15,10 +15,7 @@ const MODULE_CATALOG_BY_ID = new Map(
 );
 
 /**
- * Fallback preview used when a caller doesn't supply `dummyContent` to
- * `wrap()`. Deliberately generic, not derived from the caller's real
- * content - a locked section shouldn't render its own real data (findings
- * counts, etc.) at all while gated, even faded.
+ * Fallback preview used when a caller doesn't supply `dummyContent` to `wrap()`.
  */
 const DEFAULT_DUMMY_CONTENT = (
 	<div className="content-gate-dummy-content" aria-hidden="true">
@@ -33,18 +30,7 @@ const DEFAULT_DUMMY_CONTENT = (
 );
 
 /**
- * Shared logic behind content-gated cards (originally AiSpeedAssistantCard.tsx) -
- * a hook, not a wrapper component, so any section can reuse the same
- * checks/popup state while still rendering its own `CardComponent`:
- *
- * ```tsx
- * const { wrap } = useContentGate('ai-copilot');
- * return (
- *   <CardComponent title="…" titleIcon="ai" desc="…" isLoading={isLoading}>
- *     {wrap(realContent, dummyContent)}
- *   </CardComponent>
- * );
- * ```
+ * Shared logic behind content-gated cards (originally AiSpeedAssistantCard.tsx).
  */
 export const useContentGate = (
 	moduleId: string | null,
@@ -53,11 +39,7 @@ export const useContentGate = (
 	const [isPopupOpen, setIsPopupOpen] = useState(false);
 	const { status: creditsStatus } = useAiCredits();
 
-	// `creditsStatus` starts null while the first `ai-credits/status` fetch
-	// is in flight - treated as locked (same fail-closed default every
-	// other real-data gate in this codebase already applies) rather than
-	// briefly unlocking, since this drives whether `realContent` itself
-	// gets blurred.
+	// `creditsStatus` starts null while the first `ai-credits/status` fetch is in flight.
 	const isVuloCloudLocked = !creditsStatus?.connected;
 	const isProLocked = !isVuloCloudLocked && !vulopilotAppLocalizer.khali_dabba;
 	const isModuleLocked =
@@ -142,17 +124,10 @@ export const useContentGate = (
 		return (
 			<div className="content-gate">
 				<div className="content-gate-tag">{renderTag()}</div>
-				{/* Module: the caller's own dummy preview, plus the shared
-				 * "This is dummy data" notice (DummyDataNotice) - per direct
-				 * instruction, every module-gated section showing fabricated
-				 * content gets this same notice. */}
+				{/* Module: the caller's own dummy preview, plus the shared * "This is dummy data" notice (DummyDataNotice). */}
 				{dummyContent}
 				<DummyDataNotice />
-				{/* Covers the whole section (tag + dummy content) so a click
-				 * anywhere within it activates - not just on the tag itself.
-				 * Module navigates straight to Settings → Modules,
-				 * highlighted (handleActivate above); no popup for this
-				 * gate. */}
+				{/* Covers the whole section (tag + dummy content) so a click * anywhere within it activates. */}
 				<div
 					className="content-gate-click-overlay"
 					role="button"

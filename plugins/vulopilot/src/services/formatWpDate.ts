@@ -1,32 +1,16 @@
 /* global vulopilotAppLocalizer */
 
 /**
- * Formats a raw date string using this site's own Settings → General →
- * Date Format (`vulopilotAppLocalizer.date_format_js`, already translated into
- * zyra's token syntax by FrontendScripts::convert_date_format_to_js()).
- *
- * `@zyra/table`'s own TableCard renders `type: 'date'` columns with this
- * exact token-replace algorithm internally once given a `format` prop -
- * this duplicates just that piece for the handful of places that show a
- * date outside a TableCard (a ListComponent `value`, a hand-built
- * `<table>`), since zyra doesn't export its cell renderer as a standalone
- * utility.
+ * Formats a raw date string using this site's own Settings → General → Date Format
+ * (`vulopilotAppLocalizer.date_format_js`, already translated into zyra's token syntax by
+ * FrontendScripts::convert_date_format_to_js()).
  *
  * @param value Raw date string (e.g. a MySQL datetime), or null/undefined.
  * @return Formatted date string, or '' if value is empty/unparseable.
  */
 /**
- * A raw value with no explicit UTC/offset marker (a plain MySQL
- * `Y-m-d H:i:s`, or the same with a `T` separator) - every such value this
- * plugin's own REST layer ever returns is UTC (`current_time( 'mysql', true )`,
- * confirmed across ScanPersistenceListener.php/BackupManager.php/
- * AutomationScheduler.php), so it's parsed explicitly as UTC here rather
- * than left to the browser's own `Date` parser, which treats a
- * space-separated "Y-m-d H:i:s" string as *local* time instead (silently
- * disagreeing with this site's own Settings → General → Timezone for any
- * admin not physically in that same zone). A value that already carries
- * its own explicit marker (`Z`, or a `+HH:MM`/`-HH:MM` offset) is trusted
- * as-is - already an unambiguous absolute instant.
+ * A raw value with no explicit UTC/offset marker (a plain MySQL `Y-m-d H:i:s`, or the same with a
+ * `T` separator).
  */
 const UTC_MARKER = /(?:[Zz]|[+-]\d{2}:?\d{2})$/;
 
@@ -41,15 +25,7 @@ const parseAsUtc = (value: string): Date => {
 };
 
 /**
- * Shared by `formatWpDate`/`formatWpTime` below - same token-replace
- * algorithm either way, just a different real format string (Settings →
- * General → Date Format vs. Time Format) and fallback. Shifts the parsed
- * UTC instant by this site's own configured Settings → General → Timezone
- * offset (`vulopilotAppLocalizer.gmt_offset_minutes`) and reads every token off
- * that shifted instant's *UTC* fields - not its local ones - so the
- * result reflects this site's configured timezone specifically, never the
- * viewing browser's own local zone (which is what plain `Date` getters/
- * `toLocaleString()` would otherwise silently substitute).
+ * Shared by `formatWpDate`/`formatWpTime` below - same token-replace algorithm either way.
  */
 const formatWithTokens = (
 	value: string,
@@ -92,11 +68,8 @@ export const formatWpDate = (value?: string | null): string => {
 };
 
 /**
- * Same Settings → General → Date Format, for a calendar-day-only value
- * (`Y-m-d`, e.g. a daily snapshot's `snapshot_date` or a chart's x-axis
- * `date`). Unlike `formatWpDate`, no timezone shift is applied: a date with
- * no time is already the site's own calendar day, and shifting it by the
- * site's offset could land it on the neighbouring day.
+ * Same Settings → General → Date Format, for a calendar-day-only value (`Y-m-d`, e.g. a daily
+ * snapshot's `snapshot_date` or a chart's x-axis `date`).
  */
 export const formatWpDay = (value?: string | null): string => {
 	if (!value) {
@@ -111,12 +84,7 @@ export const formatWpDay = (value?: string | null): string => {
 };
 
 /**
- * Real Settings → General → Time Format (`vulopilotAppLocalizer.time_format_js`,
- * converted server-side by the same `FrontendScripts::convert_date_format_to_js()`
- * `date_format_js` already uses) - for anywhere a row needs just the real
- * configured time, not the full date (HistoryTimeline.tsx's own per-row
- * `rowTime()`, previously a hardcoded `toLocaleTimeString()` that ignored
- * this site's own Time Format setting entirely).
+ * WordPress time format (`time_format_js`), converted server-side like `date_format_js`.
  */
 export const formatWpTime = (value?: string | null): string => {
 	if (!value) {
@@ -127,21 +95,14 @@ export const formatWpTime = (value?: string | null): string => {
 };
 
 /**
- * This site's own current wall-clock date/time (Settings → General →
- * Timezone), for comparisons like "is this timestamp today" - plain
- * `new Date()` reads the *browser's* local date, which can genuinely be a
- * different calendar day than this site's configured timezone right around
- * midnight in either zone.
+ * This site's own current wall-clock date/time (Settings → General → Timezone), for comparisons
+ * like "is this timestamp today".
  */
 export const wpNow = (): Date =>
 	new Date(Date.now() + (vulopilotAppLocalizer.gmt_offset_minutes ?? 0) * 60000);
 
 /**
- * Same-day comparison against `wpNow()` above, both read via UTC getters -
- * `toDateString()` (used by every "Today, …" call site before this) reads
- * the browser's own local calendar date instead, which can disagree with
- * this site's configured timezone the same way raw `Date` getters do
- * elsewhere in this file.
+ * Same-day comparison against `wpNow()` above, both read via UTC getters.
  */
 export const isWpToday = (value: string): boolean => {
 	const utcDate = parseAsUtc(value);

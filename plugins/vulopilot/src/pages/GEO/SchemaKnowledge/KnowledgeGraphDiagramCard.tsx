@@ -10,29 +10,15 @@ interface DiagramNode {
 	found: boolean;
 	/** True only for Products with no WooCommerce active - a real "doesn't apply" state, told apart from a real, fixable "missing" gap. */
 	notApplicable?: boolean;
-	/** The real value shown inside the box once found - a real count ("2 Categories"), a real name ("admin"), or the site's own real URL. Empty when `!found`. */
+	/** The real value shown inside the box once found - a real count ("2 Categories"), a real name ("admin"), or the site's own real URL. */
 	value: string;
-	/** Real, functional "add this" destination - set only for entity types with an actual real place to add one (Category → the real WP admin term-manager screen, Location → the real owner-curated setting, Products → the real WP admin new-product screen). Left unset for types with no real add workflow of their own (Person: auto-detected from real post authorship, nothing to "add" here) and for Website (always real, never missing). */
+	/** Real, functional "add this" destination - set only for entity types with an actual real place to add one (Category → the real WP admin term-manager screen, Location → the real owner-curated setting, Products → the real WP admin new-product screen). */
 	ctaText?: string;
 	ctaHref?: string;
 }
 
 /**
- * Real node list - one entry per entity type this diagram shows, built
- * from `GET /entities`'s own real counts/names/flags (plus the site's own
- * real URL for Website). Shared by both render sites of this same diagram
- * (see `KnowledgeGraphDiagram` below): this card's own full-size
- * rendering, and KnowledgeGraphSection.tsx's "What AI & Search Understand"
- * card, which renders the same real nodes at `compact` size in its own
- * middle pane instead of duplicating this list or re-deriving it from a
- * 2nd fetch.
- *
- * Node set matches a newer reference mockup exactly (Category/Location/
- * Person/Products/Website) - a deliberate, direct-instruction change from
- * an earlier Services/Contact-based set; those 2 real signals still exist
- * (Services has its own count-list tab beside this diagram, Contact
- * details is its own row on BusinessProfileCard.tsx), they're just not
- * graph nodes any more.
+ * Real node list - one entry per entity type this diagram shows.
  */
 export const buildDiagramNodes = (entities: EntitiesResponse): DiagramNode[] => {
 	const siteUrl = vulopilotAppLocalizer.site_url;
@@ -80,8 +66,8 @@ export const buildDiagramNodes = (entities: EntitiesResponse): DiagramNode[] => 
 			key: 'website',
 			label: __('Website', 'vulopilot'),
 			// The site's own real URL - always real, always found
-			// (Services\EntityExtractor::extract_organizations() always
-			// returns a real entry, at minimum the site's own title/URL).
+			// (Services\EntityExtractor::extract_organizations() always returns a real entry, at
+			// minimum the site's own title/URL).
 			found: true,
 			value: entities.organizations[0]?.url || siteUrl,
 		},
@@ -129,30 +115,13 @@ interface KnowledgeGraphDiagramProps {
 }
 
 /**
- * Node/box design matches a newer reference mockup exactly: each satellite
- * is its own real rounded-box "card" (a real type label above, a real
- * value or a real "Not found" + a real, functional "Add …" link inside),
- * connected to the center by a plain dashed line - status now lives on the
- * box itself (found/missing/not-applicable colors), not on the connector,
- * so there's no separate legend to keep in sync any more. Every value
- * shown is real: a real count, a real name, or the site's own real URL -
- * never fabricated, and "Add category"/"Add product"/"Add location" are
- * real, functional deep links (see `buildDiagramNodes()`'s own docblock
- * for exactly where each one goes and why Person/Website never show one).
- *
- * Sized for KnowledgeGraphSection.tsx's own `.kg-understand-graph` pane -
- * its only remaining render site since the standalone card that used to
- * render this at a 2nd, larger size was removed (see this file's own
- * docblock above); `.kg-diagram-wrap`'s own sizing in SeoVisibility.scss
- * is that pane's compact size directly now, not a `--compact` modifier.
+ * Node/box design matches a newer reference mockup exactly.
  */
 export const KnowledgeGraphDiagram = ({ entities }: KnowledgeGraphDiagramProps) => {
 	const businessName = entities.organizations[0]?.name || __('Your business', 'vulopilot');
 	const nodes = buildDiagramNodes(entities);
 
-	// Evenly spaced around the center, starting from the top - a real,
-	// deterministic layout (not hand-placed per node), so it stays correct
-	// if a future node is ever added/removed from the array above.
+	// Evenly spaced around the center, starting from the top.
 	const RADIUS_X = 42;
 	const RADIUS_Y = 40;
 	const nodePositions = nodes.map((node, index) => {

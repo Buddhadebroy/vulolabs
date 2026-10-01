@@ -1,42 +1,69 @@
 import { __ } from '@wordpress/i18n';
+import { Button, Dropdown, Spinner } from '@wordpress/components';
 import { useEffect, useRef, useState } from '@wordpress/element';
+import { dispatch, select } from '@wordpress/data';
+import { parse } from '@wordpress/blocks';
 import { usePostData } from '../usePostData';
-import { analyzePage, fetchOpenFindings, PageAnalysisCheck, PageAnalysisResponse, RawFinding } from '../api';
+import { analyzePage, analyzePost, AnalysisResult, FixResponse, fetchOpenFindings, fixFinding, fixWithAi, PageAnalysisCheck, PageAnalysisResponse, RawFinding } from '../api';
 import { SEO_ISSUE_EDITOR_TARGETS, SeoIssueEditorTab, SeoIssueEditorTarget } from '../../services/seoIssueEditorTarget';
 
 interface PageAnalysisTabProps {
-	/** Either of 2 real deep-link vocabularies this tab now understands: `GEO/PageAnalysisPanel.tsx`'s own SEO check `key` (e.g. 'broken_links', `PAGE_ANALYSIS_CHECK_QUERY_PARAM`), or a GEO/AEO finding's own real numeric id as a string (`GeoAeoPageAnalysisPanel.tsx`/`SeoIssuesByPageTable.tsx`, `FINDING_ID_QUERY_PARAM`) - resolved against whichever of `data.checks`/`geoFindings`/`aeoFindings` actually contains a match, then scrolled to and pulse-highlighted once that section's own fetch has loaded. */
+	/** Either of 2 real deep-link vocabularies this tab now understands. */
 	highlightTarget?: string;
-	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch - lets a row here jump straight to the real General/Advanced/Social/Schema field that fixes it, instead of only scrolling within this same tab. */
+	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch - lets a row here jump straight to the real General/Social/Schema field that fixes it. */
+	// eslint-disable-next-line no-unused-vars
 	onNavigate?: ( tab: SeoIssueEditorTab, target?: string ) => void;
 }
 
 /**
- * This tab's own check `key`s (`Controllers\Seo::get_page_analysis()`) →
- * the scanner id `SEO_ISSUE_EDITOR_TARGETS` already understands - the same
- * translation `GEO/PageAnalysisPanel.tsx`'s own `CHECK_KEY_TO_SCANNER_ID`
- * already establishes for its "Edit"/"Fix with AI" row actions, duplicated
- * here per this codebase's own "duplicate small per-file logic" convention
- * rather than exporting that file's own local map. `title_tag`/`h1_heading`/
- * `headings` have no dedicated scanner of their own but map onto the
- * closest real equivalent scanner's own editor target. `featured_image`/
- * `broken_links`/`orphan_page`/`indexability` have no real editor-sidebar
- * field anywhere in this codebase (confirmed - same gap
- * `SEO_ISSUE_EDITOR_TARGETS`'s own docblock lists) - omitted on purpose,
- * so those rows simply aren't clickable rather than pretending to jump
- * somewhere that doesn't exist.
+ * This tab's own check `key`s (`Seo::get_page_analysis()`) → the scanner id
+ * `SEO_ISSUE_EDITOR_TARGETS` already understands.
  */
 const CHECK_KEY_TO_SCANNER_ID: Record< string, string > = {
-	title_tag: 'seo',
-	meta_description: 'meta-description',
 	h1_heading: 'heading-structure',
-	headings: 'heading-structure',
-	content: 'thin-content',
-	images: 'images',
 	canonical: 'canonical-url',
 	structured_data: 'structured-data',
 	social_metadata: 'open-graph',
+	// No literal single-field fix for "nothing links here" - points at the real Internal
+	// Linking check instead of running the nav-menu proxy fix below.
+	orphan_page: 'internal-linking',
 };
+
+/**
+ * Saved-page checks the live checklist above them already covers, so they are left out of the "SEO
+ * Issues" list.
+ */
+const CHECKS_COVERED_BY_LIVE_CHECKLIST = [ 'title_tag', 'meta_description', 'content', 'headings', 'images' ];
+
+/**
+ * Saved-page checks with a real fix. Social Metadata is left out - its only fix is sitewide, not
+ * per-post. Orphan Page has none here on purpose - it now just navigates to the real Internal
+ * Linking check (`CHECK_KEY_TO_SCANNER_ID` above) instead of running the nav-menu proxy action.
+ */
+const CHECK_KEY_TO_FIX_ACTION: Record< string, string > = {
+	structured_data: 'generate-schema',
+	featured_image: 'set-featured-image-from-content',
+	h1_heading: 'insert-h1-from-title',
+};
+
+/** Fix ids that run a deterministic action, not an AI generation - shown as "Fix" rather than "Fix with AI". */
+const MECHANICAL_FIX_ACTIONS = [ 'set-featured-image-from-content', 'insert-h1-from-title' ];
+
+/** Mechanical fix ids whose result rewrites post_content, same as CONTENT_MUTATING_ACTIONS below for the AI ones. */
+const CONTENT_MUTATING_MECHANICAL_ACTIONS = [ 'insert-h1-from-title' ];
+
+/** GEO/AEO scanners with a mapped fix - `POST /findings/{id}/fix` resolves it from the finding's own scanner. */
+const FIXABLE_FINDING_SCANNER_IDS = [
+	'geo-faq-opportunity',
+	'geo-summary-block',
+	'geo-author-info',
+	'geo-eeat-signals',
+	'geo-trust-signals',
+	'geo-citation-opportunities',
+	'geo-chunking',
+	'geo-semantic-structure',
+	'geo-entity-naming-consistency',
+];
 
 const editorTargetForCheck = ( checkKey: string ): SeoIssueEditorTarget | null => {
 	const scannerId = CHECK_KEY_TO_SCANNER_ID[ checkKey ];
@@ -45,15 +72,8 @@ const editorTargetForCheck = ( checkKey: string ): SeoIssueEditorTarget | null =
 };
 
 /**
- * This tab's own local copy of GeoTab.tsx's/AeoTab.tsx's real scanner-id
- * unions (`GEO_SECTIONS`/`AEO_SECTIONS`) - duplicated rather than imported
- * for the same reason `CHECK_KEY_TO_SCANNER_ID` above is local: those are
- * big dashboard-page files with their own heavy zyra-based imports, and
- * this tab lives in the separate, small post-editor webpack entry (see
- * `../api.ts`'s own top docblock). Each scanner belongs to exactly one of
- * the two sets, matching GeoTab.tsx/AeoTab.tsx's own split: AEO owns the
- * answer-shaped checks (FAQ, AI summary block, FAQ/HowTo schema), GEO owns
- * citation, structure and the remaining authority/freshness signals.
+ * This tab's own local copy of GeoTab.tsx's/AeoTab.tsx's real scanner-id unions
+ * (`GEO_SECTIONS`/`AEO_SECTIONS`).
  */
 const GEO_SCANNER_IDS = [
 	'geo-citation-opportunities',
@@ -73,7 +93,7 @@ const AEO_SCANNER_IDS = [
 	'aeo-schema',
 ];
 
-/** A finding's own `scanner_id` already IS the id `SEO_ISSUE_EDITOR_TARGETS` is keyed by - no `key`-to-scanner-id translation needed here the way `editorTargetForCheck()` above needs one for Page Analysis's own different check-key vocabulary. */
+/** A finding's own `scanner_id` already IS the id `SEO_ISSUE_EDITOR_TARGETS` is keyed by. */
 const editorTargetForFinding = ( finding: RawFinding ): SeoIssueEditorTarget | null =>
 	SEO_ISSUE_EDITOR_TARGETS[ finding.scanner_id ] ?? null;
 
@@ -83,14 +103,14 @@ const STATUS_ICON: Record< PageAnalysisCheck[ 'status' ], string > = {
 	fail: 'dismiss',
 };
 
-/** `PageAnalysisCheck['status']` → this bundle's own `vulopilot-seo-checklist__item--{modifier}` CSS already ships for Checklist.tsx (`--pass`/`--warning`/`--fail`) - 'warn' (this endpoint's own naming) reuses the existing '--warning' rule rather than adding a near-duplicate one. */
+/** `PageAnalysisCheck['status']` → this bundle's own `vulopilot-seo-checklist__item--{modifier}` CSS already ships (`--pass`/`--warning`/`--fail`). */
 const STATUS_MODIFIER: Record< PageAnalysisCheck[ 'status' ], string > = {
 	pass: 'pass',
 	warn: 'warning',
 	fail: 'fail',
 };
 
-/** GEO/AEO findings have no "pass" state (a finding only ever exists for a real open problem - same real gap `GeoAeoPageAnalysisPanel.tsx`'s own docblock documents) - folded onto the same 3-icon/3-color scheme SEO's own checks already use, critical/high reading as the same real "fail" a SEO check would, medium/low/info as "warn". */
+/** GEO/AEO findings have no "pass" state (a finding only ever exists for a real open problem - same real gap `GeoAeoPageAnalysisPanel.tsx`'s own docblock documents). */
 const SEVERITY_TO_STATUS: Record< RawFinding[ 'severity' ], PageAnalysisCheck[ 'status' ] > = {
 	critical: 'fail',
 	high: 'fail',
@@ -99,21 +119,77 @@ const SEVERITY_TO_STATUS: Record< RawFinding[ 'severity' ], PageAnalysisCheck[ '
 	info: 'warn',
 };
 
-/** One shared row shape both this tab's own real SEO checklist (`PageAnalysisCheck`) and GEO's/AEO's own real open findings (`RawFinding`) resolve into, so all 3 sections below share one render path instead of 3 near-duplicate ones. */
+/** What "Fix with AI" runs for a row: an AI action on this post, or the fix for one finding. */
+type RowFix = { kind: 'post'; actionId: string } | { kind: 'finding'; findingId: number };
+
+/** One shared row shape the live checks, the saved SEO checks and GEO's/AEO's open findings all resolve into. */
 interface IssueRow {
 	id: string;
+	/** DOM id, when it differs from `${idPrefix}-${id}` (live checks keep the id the deep links target). */
+	domId?: string;
 	status: PageAnalysisCheck[ 'status' ];
 	label: string;
 	message: string;
 	target: SeoIssueEditorTarget | null;
+	fix?: RowFix;
+	/**
+	 * A second, manual option next to `fix` - jumps to the real WordPress field instead of running
+	 * the automatic action, for checks (like Featured Image) whose fix a site owner may reasonably
+	 * want to do by hand.
+	 */
+	manualFix?: { label: string; onClick: () => void };
 }
 
-const rowFromCheck = ( check: PageAnalysisCheck ): IssueRow => ( {
-	id: check.key,
-	status: check.status,
-	label: check.label,
-	message: check.message,
-	target: editorTargetForCheck( check.key ),
+/**
+ * Opens the Document sidebar and expands WordPress core's own Featured Image panel - the real
+ * manual field, not one of VuloPilot's own tabs, so this doesn't go through `onNavigate`/
+ * `SEO_ISSUE_EDITOR_TARGETS` at all.
+ */
+const jumpToFeaturedImagePanel = () => {
+	( dispatch( 'core/edit-post' ) as any ).openGeneralSidebar( 'edit-post/document' );
+
+	if ( ! ( select( 'core/editor' ) as any ).isEditorPanelOpened( 'featured-image' ) ) {
+		( dispatch( 'core/editor' ) as any ).toggleEditorPanelOpened( 'featured-image' );
+	}
+
+	setTimeout( () => {
+		document
+			.querySelector( '.editor-post-featured-image' )
+			?.scrollIntoView( { behavior: 'smooth', block: 'center' } );
+	}, 100 );
+};
+
+const rowFromCheck = ( check: PageAnalysisCheck ): IssueRow => {
+	const actionId = CHECK_KEY_TO_FIX_ACTION[ check.key ];
+
+	return {
+		id: check.key,
+		status: check.status,
+		label: check.label,
+		message: check.message,
+		target: editorTargetForCheck( check.key ),
+		fix: actionId && 'pass' !== check.status ? { kind: 'post', actionId } : undefined,
+		manualFix:
+			'featured_image' === check.key && 'pass' !== check.status
+				? { label: __( 'Set it myself', 'vulopilot' ), onClick: jumpToFeaturedImagePanel }
+				: undefined,
+	};
+};
+
+const LIVE_STATUS: Record< AnalysisResult[ 'status' ], PageAnalysisCheck[ 'status' ] > = {
+	pass: 'pass',
+	warning: 'warn',
+	fail: 'fail',
+};
+
+const rowFromLive = ( result: AnalysisResult ): IssueRow => ( {
+	id: result.id,
+	domId: `vulopilot-seo-check-${ result.id }`,
+	status: LIVE_STATUS[ result.status ],
+	label: '',
+	message: result.message,
+	target: null,
+	fix: result.fixable && result.action_id && 'pass' !== result.status ? { kind: 'post', actionId: result.action_id } : undefined,
 } );
 
 const rowFromFinding = ( finding: RawFinding ): IssueRow => ( {
@@ -122,29 +198,59 @@ const rowFromFinding = ( finding: RawFinding ): IssueRow => ( {
 	label: finding.title,
 	message: '',
 	target: editorTargetForFinding( finding ),
+	fix: FIXABLE_FINDING_SCANNER_IDS.includes( finding.scanner_id ) ? { kind: 'finding', findingId: finding.id } : undefined,
 } );
+
+/** Live checks about the post body itself - shown in their own "Content" section. */
+const CONTENT_CHECK_IDS = [ 'content_length', 'has_subheadings', 'has_links', 'image_alt', 'keyword_in_content', 'keyword_in_first_paragraph' ];
+
+/** AI actions that rewrite `post_content` (`PostSeoFixRest::CONTENT_MUTATING_ACTIONS`). */
+const CONTENT_MUTATING_ACTIONS = [ 'improve-readability', 'add-subheadings', 'expand-content', 'suggest-internal-links' ];
+
+/**
+ * Loads content the server just saved into the open block editor.
+ */
+const applyContentToEditor = ( content: string ) => {
+	( dispatch( 'core/editor' ) as any ).resetEditorBlocks( parse( content ) );
+};
+
+const notify = ( message: string, status: 'success' | 'error' = 'success' ) => {
+	( dispatch( 'core/notices' ) as any ).createNotice( status, message, { type: 'snackbar', isDismissible: true } );
+};
+
+const STATUS_ORDER: Record< PageAnalysisCheck[ 'status' ], number > = { fail: 0, warn: 1, pass: 2 };
+
+interface FixControls {
+	isPro: boolean;
+	shopUrl: string;
+	fixingId: string | null;
+	// eslint-disable-next-line no-unused-vars
+	onFix: ( row: IssueRow ) => void;
+}
 
 interface IssueListProps {
 	idPrefix: string;
 	rows: IssueRow[];
 	pulsingId: string | null;
+	// eslint-disable-next-line no-unused-vars
 	onNavigate?: ( tab: SeoIssueEditorTab, target?: string ) => void;
+	fixControls: FixControls;
 }
 
-/** Renders one section's own real row list - the exact same clickable-row markup/behavior this tab's SEO section already had, now shared by GEO's/AEO's own sections below it too. */
-function IssueList( { idPrefix, rows, pulsingId, onNavigate }: IssueListProps ) {
+/** Renders one section's own real row list - the exact same clickable-row markup/behavior this tab's SEO section already had. */
+function IssueList( { idPrefix, rows, pulsingId, onNavigate, fixControls }: IssueListProps ) {
 	return (
 		<ul className="vulopilot-seo-checklist__list">
 			{ rows.map( ( row ) => {
-				// Real "go fix this" destination - resolves to null (row stays
-				// inert) whenever this row's own scanner/check has no real
-				// editor-sidebar field anywhere in this codebase.
+				// Real "go fix this" destination - resolves to null (row stays inert) whenever this
+				// row's own scanner/check has no real editor-sidebar field anywhere in this
+				// codebase.
 				const isClickable = Boolean( row.target && onNavigate );
 
 				return (
 					<li
 						key={ row.id }
-						id={ `${ idPrefix }-${ row.id }` }
+						id={ row.domId ?? `${ idPrefix }-${ row.id }` }
 						className={ `vulopilot-seo-checklist__item vulopilot-seo-checklist__item--${ STATUS_MODIFIER[ row.status ] }${ pulsingId === row.id ? ' vulopilot-seo-highlight-pulse' : '' }${ isClickable ? ' vulopilot-seo-checklist__item--clickable' : '' }` }
 						role={ isClickable ? 'button' : undefined }
 						tabIndex={ isClickable ? 0 : undefined }
@@ -166,10 +272,92 @@ function IssueList( { idPrefix, rows, pulsingId, onNavigate }: IssueListProps ) 
 					>
 						<i className={ `dashicons dashicons-${ STATUS_ICON[ row.status ] } vulopilot-seo-checklist__icon` } />
 						<span className="vulopilot-seo-checklist__message">
-							<strong>{ row.label }</strong>
-							{ row.message && <>{ ' - ' }{ row.message }</> }
+							{ row.label && <strong>{ row.label }</strong> }
+							{ row.label && row.message && ' - ' }
+							{ row.message }
 						</span>
-						{ isClickable && (
+						{ row.fix && (
+							fixControls.isPro ? (
+								row.manualFix ? (
+									<Dropdown
+										className="vulopilot-seo-checklist__fix-dropdown"
+										popoverProps={ { placement: 'bottom-end' } }
+										renderToggle={ ( { isOpen, onToggle } ) => (
+											<Button
+												variant="secondary"
+												size="small"
+												isBusy={ fixControls.fixingId === row.id }
+												disabled={ null !== fixControls.fixingId }
+												aria-expanded={ isOpen }
+												onClick={ ( event: { stopPropagation: () => void } ) => {
+													event.stopPropagation();
+													onToggle();
+												} }
+											>
+												{ fixControls.fixingId === row.id ? (
+													<Spinner />
+												) : (
+													<>
+														{ __( 'Fix', 'vulopilot' ) }
+														<i className="dashicons dashicons-arrow-down-alt2" />
+													</>
+												) }
+											</Button>
+										) }
+										renderContent={ ( { onClose } ) => (
+											<div className="vulopilot-seo-checklist__fix-menu">
+												<Button
+													variant="tertiary"
+													size="small"
+													onClick={ ( event: { stopPropagation: () => void } ) => {
+														event.stopPropagation();
+														onClose();
+														fixControls.onFix( row );
+													} }
+												>
+													{ __( 'Fix automatically', 'vulopilot' ) }
+												</Button>
+												<Button
+													variant="tertiary"
+													size="small"
+													onClick={ ( event: { stopPropagation: () => void } ) => {
+														event.stopPropagation();
+														onClose();
+														row.manualFix!.onClick();
+													} }
+												>
+													{ row.manualFix!.label }
+												</Button>
+											</div>
+										) }
+									/>
+								) : (
+									<Button
+										variant="secondary"
+										size="small"
+										isBusy={ fixControls.fixingId === row.id }
+										disabled={ null !== fixControls.fixingId }
+										onClick={ ( event: { stopPropagation: () => void } ) => {
+											event.stopPropagation();
+											fixControls.onFix( row );
+										} }
+									>
+										{ fixControls.fixingId === row.id ? (
+											<Spinner />
+										) : 'post' === row.fix.kind && MECHANICAL_FIX_ACTIONS.includes( row.fix.actionId ) ? (
+											__( 'Fix', 'vulopilot' )
+										) : (
+											__( 'Fix with AI', 'vulopilot' )
+										) }
+									</Button>
+								)
+							) : (
+								<Button variant="tertiary" size="small" href={ fixControls.shopUrl } target="_blank" rel="noreferrer">
+									{ __( 'Upgrade to fix', 'vulopilot' ) }
+								</Button>
+							)
+						) }
+						{ isClickable && ! row.fix && (
 							<i className="dashicons dashicons-arrow-right-alt2 vulopilot-seo-checklist__arrow" />
 						) }
 					</li>
@@ -187,15 +375,24 @@ interface IssueSectionProps {
 	error: string | null;
 	emptyMessage: string;
 	pulsingId: string | null;
+	// eslint-disable-next-line no-unused-vars
 	onNavigate?: ( tab: SeoIssueEditorTab, target?: string ) => void;
+	fixControls: FixControls;
+	/** Worst status across `rows` - drives the header's summary pill (same look the old General-tab groups had). */
+	showSummary?: boolean;
 }
 
-/** One headed section (SEO Issues / GEO Issues / AEO Issues) - a real heading using this bundle's own existing `vulopilot-seo-checklist__header`/`__title` look (Checklist.tsx's General-tab groups already ship this CSS), then that section's own real row list, loading state, error, or "nothing open" message. */
-function IssueSection( { heading, idPrefix, rows, isLoading, error, emptyMessage, pulsingId, onNavigate }: IssueSectionProps ) {
+function IssueSection( { heading, idPrefix, rows, isLoading, error, emptyMessage, pulsingId, onNavigate, fixControls, showSummary }: IssueSectionProps ) {
+	const summary = rows.some( ( row ) => 'fail' === row.status ) ? 'bad' : rows.some( ( row ) => 'warn' === row.status ) ? 'ok' : 'good';
+	const summaryLabel = { good: __( 'All Good', 'vulopilot' ), ok: __( 'Could Be Better', 'vulopilot' ), bad: __( 'Needs Improvement', 'vulopilot' ) }[ summary ];
+
 	return (
 		<div className="vulopilot-seo-checklist">
 			<div className="vulopilot-seo-checklist__header">
 				<span className="title vulopilot-seo-checklist__title">{ heading }</span>
+				{ showSummary && rows.length > 0 && (
+					<span className={ `vulopilot-seo-checklist__summary vulopilot-seo-checklist__summary--${ summary }` }>{ summaryLabel }</span>
+				) }
 			</div>
 			{ isLoading ? (
 				<div className="desc vulopilot-seo-checklist__error">{ __( 'Loading…', 'vulopilot' ) }</div>
@@ -204,62 +401,25 @@ function IssueSection( { heading, idPrefix, rows, isLoading, error, emptyMessage
 			) : 0 === rows.length ? (
 				<div className="desc vulopilot-seo-checklist__error">{ emptyMessage }</div>
 			) : (
-				<IssueList idPrefix={ idPrefix } rows={ rows } pulsingId={ pulsingId } onNavigate={ onNavigate } />
+				<IssueList idPrefix={ idPrefix } rows={ rows } pulsingId={ pulsingId } onNavigate={ onNavigate } fixControls={ fixControls } />
 			) }
 		</div>
 	);
 }
 
 /**
- * The metabox's "Page Analysis" tab - 3 headed sections (SEO Issues / GEO
- * Issues / AEO Issues), all sharing the exact same real click → navigate →
- * highlight experience.
- *
- * "SEO Issues" is unchanged from before this pass: the same real,
- * saved-post-state checklist `GEO/PageAnalysisPanel.tsx`'s own "Page
- * Analysis" panel already renders (`GET seo/analyze-page?post_id=`, Free's
- * `Controllers\Seo::get_page_analysis()`), reused here rather than a second
- * copy: every issue that panel lists (Title Tag, Meta Description, H1
- * Heading, Headings, Content, Images, Featured Image, Broken Links, Orphan
- * Page, Canonical, Structured Data, Social Metadata, Indexability) is
- * therefore genuinely listed here too, and clicking one of that panel's
- * rows deep-links straight to the matching row here
- * (`PAGE_ANALYSIS_CHECK_QUERY_PARAM`, `post-editor/index.tsx`).
- *
- * Deliberately its own tab rather than folded into General's own
- * OnPageAnalyzer-driven checklist: that one re-analyzes LIVE, unsaved
- * editor state on every keystroke (Services\OnPageAnalyzer's own docblock)
- * and only ever covers title/description/content/headings/links/images -
- * this one reflects the last-scanned, saved-post-state truth for the full
- * 13-check set, including checks (Featured Image, Broken Links, Orphan
- * Page, Indexability) OnPageAnalyzer has no way to compute at all (no
- * unsaved-field equivalent for a post thumbnail, a site-wide link graph, or
- * published/noindex state). Fetched once per postId rather than on every
- * keystroke - it isn't live the way General's checklist is.
- *
- * "GEO Issues"/"AEO Issues" are new: unlike SEO, GEO/AEO have no on-demand
- * per-post checklist endpoint anywhere in this codebase (confirmed -
- * `GeoAeoPageAnalysisPanel.tsx`'s own docblock explicitly refuses to
- * fabricate one), so these 2 sections instead show this exact page's own
- * real *open findings* for GEO's/AEO's own scanner ids (`GET /findings`,
- * the same real data `GeoTab.tsx`'s/`AeoTab.tsx`'s own site-wide "Pages &
- * Posts" tables and `GeoAeoPageAnalysisPanel.tsx`'s own per-page side panel
- * already use), fetched once per postId and filtered to this post
- * client-side (`object_ref === postId`) the same way that panel already
- * does - there's no server-side per-post filter for this endpoint. A
- * finding has no "pass" state, so a page with none currently open for that
- * tab shows a real "nothing open" message rather than an empty list.
- *
- * GEO/AEO rows are also now externally deep-linkable, same as SEO's own -
- * `GeoAeoPageAnalysisPanel.tsx`/`SeoIssuesByPageTable.tsx` link here with
- * `?vulopilot_finding_id={id}` (the finding's own real numeric id) for any
- * row whose `scanner_id` has no `SEO_ISSUE_EDITOR_TARGETS` entry (most real
- * GEO/AEO scanner ids), resolved by the deep-link effect further down
- * against `geoFindings`/`aeoFindings` once loaded - see
- * `FINDING_ID_QUERY_PARAM`'s own docblock.
+ * The metabox's "Page Analysis" tab - 3 headed sections (SEO / GEO Issues / AEO Issues).
  */
 export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAnalysisTabProps ) {
-	const { postId } = usePostData();
+	const { postId, title, excerpt, slug, content, meta, setTitle, setExcerpt } = usePostData();
+	const focusKeyword = ( meta[ window.vulopilotPostSeo.metaKeys.focus_keyword ] as string ) || '';
+
+	const [ liveResults, setLiveResults ] = useState< AnalysisResult[] >( [] );
+	const [ isAnalyzingLive, setIsAnalyzingLive ] = useState( true );
+	const [ fixingId, setFixingId ] = useState< string | null >( null );
+	const [ fixError, setFixError ] = useState< string | null >( null );
+	/** Bumped after a fix succeeds so the saved SEO checks and the GEO/AEO findings refetch and the fixed row drops out. */
+	const [ refreshKey, setRefreshKey ] = useState( 0 );
 
 	const [ data, setData ] = useState< PageAnalysisResponse | null >( null );
 	const [ isLoading, setIsLoading ] = useState( true );
@@ -301,11 +461,10 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 		return () => {
 			cancelled = true;
 		};
-	}, [ postId ] );
+	}, [ postId, refreshKey ] );
 
-	// 2 more real, independent requests rather than gating the whole tab
-	// (including the unchanged SEO section above) behind them - same "don't
-	// change existing SEO behavior" posture the top docblock documents.
+	// 2 more real, independent requests rather than gating the whole tab (including the unchanged
+	// SEO section above) behind them.
 	useEffect( () => {
 		let cancelled = false;
 		setIsLoadingGeo( true );
@@ -331,7 +490,7 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 		return () => {
 			cancelled = true;
 		};
-	}, [ postId ] );
+	}, [ postId, refreshKey ] );
 
 	useEffect( () => {
 		let cancelled = false;
@@ -358,17 +517,124 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 		return () => {
 			cancelled = true;
 		};
-	}, [ postId ] );
+	}, [ postId, refreshKey ] );
 
-	// Deep-link highlighting - SEO's own `data.checks` (matched by real
-	// `key`, `PAGE_ANALYSIS_CHECK_QUERY_PARAM`) is tried first, same real
-	// behavior this tab had before GEO/AEO Issues existed; GEO's/AEO's own
-	// findings (matched by real numeric id, `FINDING_ID_QUERY_PARAM` - see
-	// that constant's own docblock) are tried next, once each section's
-	// own independent fetch has actually resolved. A target that's really
-	// a GEO/AEO finding simply doesn't match on an earlier render where
-	// `isLoadingGeo`/`isLoadingAeo` is still true - this effect re-runs as
-	// those settle (see the dependency array) rather than giving up.
+	// The live checklist re-analyzes LIVE, possibly-unsaved editor state on a short debounce (see
+	// PostSeo.php for why that's a POST-with-body, not a stored-post read).
+	useEffect( () => {
+		let cancelled = false;
+		setIsAnalyzingLive( true );
+
+		const timeout = setTimeout( () => {
+			analyzePost( postId, { title, content, excerpt, slug, focus_keyword: focusKeyword } )
+				.then( ( response ) => {
+					if ( ! cancelled ) {
+						setLiveResults( response.results );
+					}
+				} )
+				.catch( () => {
+					// A failed call just leaves the previous checklist
+					// showing - it re-runs on the next edit.
+				} )
+				.finally( () => {
+					if ( ! cancelled ) {
+						setIsAnalyzingLive( false );
+					}
+				} );
+		}, 600 );
+
+		return () => {
+			cancelled = true;
+			clearTimeout( timeout );
+		};
+	}, [ postId, title, excerpt, slug, content, focusKeyword ] );
+
+	const applyPostFix = ( actionId: string, response: FixResponse ) => {
+		if ( ! response.post ) {
+			return;
+		}
+
+		if ( 'write-meta-title' === actionId ) {
+			setTitle( response.post.title );
+		}
+
+		if ( 'write-meta-description' === actionId ) {
+			setExcerpt( response.post.excerpt );
+		}
+
+		if ( response.post.content_changed && response.post.content ) {
+			applyContentToEditor( response.post.content );
+		}
+
+		// Updates the Document sidebar's own Featured Image panel live, without a page reload.
+		if ( 'set-featured-image-from-content' === actionId && response.post.featured_media_id ) {
+			( dispatch( 'core/editor' ) as any ).editPost( { featured_media: response.post.featured_media_id } );
+		}
+	};
+
+	const handleFix = async ( row: IssueRow ) => {
+		if ( ! row.fix ) {
+			return;
+		}
+
+		setFixingId( row.id );
+		setFixError( null );
+
+		try {
+			if ( 'post' === row.fix.kind ) {
+				const rewritesContent =
+					CONTENT_MUTATING_ACTIONS.includes( row.fix.actionId ) ||
+					CONTENT_MUTATING_MECHANICAL_ACTIONS.includes( row.fix.actionId );
+
+				// A content fix works on the SAVED post, then its result is loaded into the editor.
+				if ( rewritesContent && ( select( 'core/editor' ) as any ).isEditedPostDirty() ) {
+					await ( dispatch( 'core/editor' ) as any ).savePost();
+				}
+
+				applyPostFix( row.fix.actionId, await fixWithAi( postId, row.fix.actionId ) );
+				notify(
+					rewritesContent
+						? __( 'Fixed - the updated content is now in the editor.', 'vulopilot' )
+						: __( 'Fixed.', 'vulopilot' )
+				);
+			} else {
+				await fixFinding( row.fix.findingId );
+			}
+
+			setRefreshKey( ( key ) => key + 1 );
+		} catch ( err ) {
+			setFixError( err instanceof Error ? err.message : String( err ) );
+			notify( err instanceof Error ? err.message : String( err ), 'error' );
+		} finally {
+			setFixingId( null );
+		}
+	};
+
+	const fixControls: FixControls = {
+		isPro: window.vulopilotPostSeo.isPro,
+		shopUrl: window.vulopilotPostSeo.shopUrl,
+		fixingId,
+		onFix: handleFix,
+	};
+
+	// "SEO" and "Content" lists, worst first, so nothing is shown twice: the live checks (this
+	// editor's current, possibly unsaved state) are split by what they grade.
+	const bySeverity = ( a: IssueRow, b: IssueRow ) => STATUS_ORDER[ a.status ] - STATUS_ORDER[ b.status ];
+	const contentRows = liveResults
+		.filter( ( result ) => CONTENT_CHECK_IDS.includes( result.id ) )
+		.map( rowFromLive )
+		.sort( bySeverity );
+	const seoRows = [
+		...liveResults.filter( ( result ) => ! CONTENT_CHECK_IDS.includes( result.id ) ).map( rowFromLive ),
+		...( data?.checks ?? [] )
+			.filter( ( check ) => ! CHECKS_COVERED_BY_LIVE_CHECKLIST.includes( check.key ) )
+			.map( rowFromCheck ),
+	].sort( bySeverity );
+
+	// Deep-link highlighting: live checks (by check id, e.g. 'description_length',
+	// `SEO_ISSUE_EDITOR_TARGETS`) and SEO's saved `data.checks` (by `key`,
+	// `PAGE_ANALYSIS_CHECK_QUERY_PARAM`) are tried first; GEO/AEO findings (by numeric id,
+	// `FINDING_ID_QUERY_PARAM`) next, once each section's fetch has resolved.
 	useEffect( () => {
 		if ( ! highlightTarget || hasScrolledRef.current ) {
 			return;
@@ -376,7 +642,9 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 
 		let elementId: string | null = null;
 
-		if ( data?.checks.some( ( check ) => check.key === highlightTarget ) ) {
+		if ( liveResults.some( ( result ) => result.id === highlightTarget ) ) {
+			elementId = `vulopilot-seo-check-${ highlightTarget }`;
+		} else if ( data?.checks.some( ( check ) => check.key === highlightTarget ) ) {
 			elementId = `vulopilot-page-analysis-check-${ highlightTarget }`;
 		} else if (
 			! isLoadingGeo &&
@@ -401,25 +669,7 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 
 		const timeout = setTimeout( () => setPulsingKey( null ), 4000 );
 		return () => clearTimeout( timeout );
-	}, [ highlightTarget, data, geoFindings, aeoFindings, isLoadingGeo, isLoadingAeo ] );
-
-	if ( isLoading ) {
-		return (
-			<div className="vulopilot-seo-tab vulopilot-seo-tab--page-analysis">
-				<div className="desc">{ __( 'Analyzing…', 'vulopilot' ) }</div>
-			</div>
-		);
-	}
-
-	if ( error || ! data ) {
-		return (
-			<div className="vulopilot-seo-tab vulopilot-seo-tab--page-analysis">
-				<div className="desc">
-					{ error || __( 'Could not analyze this page. Please try again.', 'vulopilot' ) }
-				</div>
-			</div>
-		);
-	}
+	}, [ highlightTarget, liveResults, data, geoFindings, aeoFindings, isLoadingGeo, isLoadingAeo ] );
 
 	return (
 		<div className="vulopilot-seo-tab vulopilot-seo-tab--page-analysis">
@@ -427,15 +677,32 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 				{ __( 'This page\'s real SEO/GEO/AEO signals, last checked live.', 'vulopilot' ) }
 			</p>
 
+			{ fixError && <div className="desc vulopilot-seo-checklist__error">{ fixError }</div> }
+
 			<IssueSection
-				heading={ __( 'SEO Issues', 'vulopilot' ) }
+				heading={ __( 'SEO', 'vulopilot' ) }
 				idPrefix="vulopilot-page-analysis-check"
-				rows={ data.checks.map( rowFromCheck ) }
-				isLoading={ false }
-				error={ null }
+				rows={ seoRows }
+				isLoading={ ( isAnalyzingLive && 0 === liveResults.length ) || ( isLoading && ! data ) }
+				error={ error && 0 === seoRows.length ? error : null }
 				emptyMessage={ __( 'No SEO checks to show.', 'vulopilot' ) }
 				pulsingId={ pulsingKey }
 				onNavigate={ onNavigate }
+				fixControls={ fixControls }
+				showSummary
+			/>
+
+			<IssueSection
+				heading={ __( 'Content', 'vulopilot' ) }
+				idPrefix="vulopilot-page-analysis-content"
+				rows={ contentRows }
+				isLoading={ isAnalyzingLive && 0 === liveResults.length }
+				error={ null }
+				emptyMessage={ __( 'No content checks to show.', 'vulopilot' ) }
+				pulsingId={ pulsingKey }
+				onNavigate={ onNavigate }
+				fixControls={ fixControls }
+				showSummary
 			/>
 
 			<IssueSection
@@ -447,6 +714,7 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 				emptyMessage={ __( 'No open GEO findings for this page.', 'vulopilot' ) }
 				pulsingId={ pulsingKey }
 				onNavigate={ onNavigate }
+				fixControls={ fixControls }
 			/>
 
 			<IssueSection
@@ -458,6 +726,7 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 				emptyMessage={ __( 'No open AEO findings for this page.', 'vulopilot' ) }
 				pulsingId={ pulsingKey }
 				onNavigate={ onNavigate }
+				fixControls={ fixControls }
 			/>
 		</div>
 	);

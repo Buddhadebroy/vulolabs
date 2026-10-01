@@ -20,19 +20,7 @@ interface CardHeaderProps {
 	children?: ReactNode;
 }
 
-/**
- * One reusable card: an icon + title/desc header row
- * (`.common-card-header` > `.common-card-icon` + `.common-card-details`),
- * `badge`/`action` rendered inline right after `title` (a status badge, a
- * `ToggleInput`, ...), plus whatever body content the caller passes as
- * `children`, wrapped in `.common-card`. Not scoped to any one feature -
- * "common" is the point: Settings → Connections' own GoogleServicesPanel.tsx,
- * SiteVerificationPanel.tsx, VuloCloudAiConnectionPanel.tsx, and
- * PageSpeedStatusPanel.tsx each hand-rolled this same header shape (under
- * the old `ai-provider-card*` names) before this. Styling lives in
- * Settings.scss's own `.common-card`/`.common-card-header`/
- * `.common-card-icon`/`.common-card-details`/`.common-card-action` rules.
- */
+/** Reusable card with an icon + title/desc header row. */
 const CardHeader = ({
 	icon,
 	title,

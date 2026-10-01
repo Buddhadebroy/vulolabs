@@ -99,7 +99,7 @@ interface CartRepositoryInterface {
      * $days - backs the Settings screen's `cart_expiry_days`
      * (Application\CartCleanupScheduler). Batched (a bounded `LIMIT` per
      * call, looped until nothing more matches) rather than one unbounded
-     * `DELETE`, per performance.md's migration/backfill batching guidance
+     * `DELETE`, per performance.md's batching guidance
      * - a store with a very large abandoned-cart backlog shouldn't be
      * able to time out a single cron run.
      *

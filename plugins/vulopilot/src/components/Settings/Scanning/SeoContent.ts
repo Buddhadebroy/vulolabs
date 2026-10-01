@@ -1,52 +1,12 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Settings → Scanning → SEO & Content - first tab under Scanning
- * (`priority: 0` below).
- *
- * `content_search_scans.{seo,images,links,schema,readability}.enable`
- * (Utill::VULOPILOT_SETTINGS_DEFAULTS) are still real and read by their
- * PHP scanners (SeoScanner/HeadingStructureScanner, LargeImagesScanner,
- * RedirectAnalysisScanner/NotFoundScanner,
- * SchemaScanner/StructuredDataValidationScanner, ReadabilityScanner) but
- * have no admin UI to toggle them - they stay at their `true` default.
- * `broken_link_check_frequency`/`broken_image_check_frequency` are flat
- * rate-limit settings with no UI, read directly by
- * BrokenLinksScanner/BrokenImagesScanner.
- *
- * Granular per-check toggles, no blanket kill switch - same posture
- * Scanning → GEO uses. Each checkbox's option key/value is the field's
- * own settings key, not a shared 'enabled' literal.
- *
- * Real backing per card:
- * - Titles & meta / Images: `flag_orphan_pages`/`thin_content_word_threshold`
- *   gate ThinContentScanner/OrphanPageScanner; `flag_missing_meta_description`
- *   gates MetaDescriptionScanner, `flag_duplicate_titles` gates
- *   DuplicateContentScanner; `flag_missing_alt_text` gates ImagesScanner,
- *   `flag_broken_images` gates BrokenImagesScanner; `flag_missing_featured_image`
- *   gates SeoImagesScanner.
- * - Links & schema: `flag_broken_links` gates BrokenLinksScanner.
- * - Readability: `content_readability_min_score` gates ReadabilityScanner's
- *   own threshold (that scanner's separate on/off switch,
- *   `content_search_scans.readability.enable`, has no admin UI of its own
- *   any more - see this file's own top docblock).
- * - Robots.txt: a real toggle over WordPress core's own virtual
- *   robots.txt (via Services\RobotsTxtManager) - not a from-scratch
- *   generator, plus `flag_ai_crawler_blocked_pages`
- *   (Scanners\Basic\AiCrawlerBlockedPagesScanner,
- *   AI-CRAWLER-ANALYTICS-MODULE.md).
- *
- * "Webmaster Tools"/"Custom Webmaster Tags" (6 `webmaster_*_verification`
- * codes + `webmaster_custom_tags`, Services\WebmasterToolsManager-backed
- * `<meta>` output) live in Settings → Connections → Site Verification
- * (SiteVerificationPanel.tsx) - Baidu/Yandex/Norton/Custom Tags are plain
- * fields there (no "Verify" self-check; only Google/Bing/Pinterest have one).
+ * Settings → Scanning → SEO & Content - first tab under Scanning (`priority: 0` below).
  */
 export default {
 	id: 'seo-content',
-	// First tab under Scanning per direct instruction, now that Content &
-	// Search (previously priority 0) was removed entirely and this tab
-	// absorbed its real settings.
+	// First tab under Scanning, now that Content & Search (previously priority 0) was removed
+	// entirely and this tab absorbed its real settings.
 	priority: 0,
 	headerTitle: __('SEO & Content', 'vulopilot'),
 	settingTitle: __('Titles & meta', 'vulopilot'),
@@ -79,9 +39,8 @@ export default {
             ),
         },
         {
-            // Not a real, independently-writable field here - same
-            // treatment as `kg-health-drop-threshold-note` above, scoped to
-            // `visibility_alerts.brand` instead of `.knowledge_graph`.
+            // Not a real, independently-writable field here - same treatment as `kg-health-drop-
+            // threshold-note` above.
             key: 'brand-drop-threshold-note',
             type: 'notice',
             noticeType: 'info',
@@ -321,7 +280,6 @@ export default {
 			key: 'enable_redirect_manager',
 			type: 'checkbox',
 			look: 'toggle',
-			moduleEnabled: 'redirect-manager',
 			label: __('Enable redirect manager', 'vulopilot'),
 			settingDescription: __(
 				'Create and manage 301 redirects to send visitors from old URLs to new pages.',
@@ -339,7 +297,6 @@ export default {
 			key: 'auto_redirect_on_slug_change',
 			type: 'checkbox',
 			look: 'toggle',
-			moduleEnabled: 'redirect-manager',
 			label: __('Auto-create redirect on slug change', 'vulopilot'),
 			settingDescription: __(
 				'Automatically redirect the previous URL when you change a published post or page slug.',
@@ -362,7 +319,6 @@ export default {
 			key: 'log_404s',
 			type: 'checkbox',
 			look: 'toggle',
-			moduleEnabled: 'redirect-manager',
 			label: __('Log 404s', 'vulopilot'),
 			settingDescription: __(
 				'Record visits to missing pages so you can identify broken URLs and create redirects where needed.',
@@ -370,11 +326,8 @@ export default {
 			),
 			options: [{ key: 'log_404s', label: '', value: 'log_404s' }],
 		},
-		// {
-		// 	key: 'content-section',
-		// 	type: 'section',
-		// 	title: __('Content Intelligence', 'vulopilot'),
-		// },
+		// { key: 'content-section', type: 'section', title: __('Content Intelligence',
+		// 'vulopilot'), },
 		{
 			key: 'seo-section-readability',
 			type: 'section',

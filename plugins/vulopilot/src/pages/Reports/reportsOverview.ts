@@ -6,16 +6,11 @@ import { getApiLink, getApiResponse } from '@zyra/core';
 /** Same 3-preset shape WebsiteProgressChart.tsx already established for this page - no arbitrary calendar range picker. */
 export const DAY_OPTIONS = [7, 30, 90] as const;
 
-export const ADVANCED_REPORTS_MODULE_ID = 'advanced-reports';
 
 /**
- * Fabricated "Recent Reports"/"Report History" rows - same "obviously
- * fake, never mistaken for this site's own real data" reasoning
- * VuloPilotActivityWidget.tsx's own `DUMMY_HEALTH_TIMELINE` documents.
- * Deliberately its own small, self-contained shape (not the real
- * `ReportRow` interface both tables otherwise use) since these never
- * carry a real id/file/format - no download/view action behind them
- * could ever be real, so there's nothing to wire up.
+ * Fabricated "Recent Reports"/"Report History" rows - same "obviously fake, never mistaken for
+ * this site's own real data" reasoning VuloPilotActivityWidget.tsx's own `DUMMY_HEALTH_TIMELINE`
+ * documents.
  */
 export interface DummyReportRow {
 	id: string;
@@ -159,16 +154,18 @@ export interface ReportsOverviewResponse {
 }
 
 /**
- * `GET /reports-overview?days=N` (Controllers\ReportsOverview.php) -
- * shared by every section on the redesigned Reports Overview tab, so
- * changing the day-range preset once (ReportsOverviewHeader.tsx) refetches
- * everything together rather than each section owning its own fetch.
+ * `GET /reports-overview?days=N` (ReportsOverview.php).
  */
-export const useReportsOverview = (days: number) => {
+export const useReportsOverview = (days: number, enabled = true) => {
 	const [data, setData] = useState<ReportsOverviewResponse | null>(null);
-	const [isLoading, setIsLoading] = useState(true);
+	const [isLoading, setIsLoading] = useState(enabled);
 
 	useEffect(() => {
+		if (!enabled) {
+			setIsLoading(false);
+			return;
+		}
+
 		let cancelled = false;
 		setIsLoading(true);
 
@@ -194,7 +191,7 @@ export const useReportsOverview = (days: number) => {
 		return () => {
 			cancelled = true;
 		};
-	}, [days]);
+	}, [days, enabled]);
 
 	return { data, isLoading };
 };

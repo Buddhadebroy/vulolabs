@@ -2,9 +2,8 @@
 /**
  * Server-side render for the `vulopilot/table-of-contents` block.
  *
- * Deliberately declaration-free - WP loads this file via `require`, not
- * `require_once`, so a top-level function/class here would fatal the
- * moment this block appears twice on one page. All real logic lives in
+ * Declaration-free: WP loads this file via `require`, not `require_once`, so a top-level function or
+ * class would fatal if the block appears twice on a page. All logic lives in
  * VuloPilot\Content\TableOfContentsRenderer.
  *
  * @package VuloPilot
@@ -13,4 +12,4 @@
 
 defined( 'ABSPATH' ) || exit;
 
-echo \VuloPilot\Content\TableOfContentsRenderer::render( $attributes, get_the_ID() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped internally by TableOfContentsRenderer.
+echo wp_kses_post( \VuloPilot\Content\TableOfContentsRenderer::render( $attributes, get_the_ID() ) );

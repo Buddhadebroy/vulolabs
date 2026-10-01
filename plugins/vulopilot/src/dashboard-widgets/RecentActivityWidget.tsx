@@ -8,12 +8,7 @@ import DashboardWidget from './DashboardWidget';
 import { WidgetProps } from './types';
 
 /**
- * "Recent activity" - the newest rows of `GET /history`, the exact feed
- * Reports → History shows, and its headline count is that tab's own "All"
- * pill count (`type_counts.all`, read through `useApiList`'s
- * `categoryFilter` plumbing) - so the two numbers can never disagree.
- * Rows come back already enriched (scan label, issue totals, change
- * detail), same as the History tab renders them.
+ * "Recent activity" - the newest rows of `GET /history`, the exact feed Reports → History shows.
  */
 const ALL_COUNT_FILTER = {
 	key: 'type',
@@ -31,10 +26,8 @@ const RecentActivityWidget: React.FC<WidgetProps> = ({
 		ALL_COUNT_FILTER
 	);
 	const total = categoryCounts[0]?.count ?? 0;
-	// Purely local UI state - this compact widget shows no side detail
-	// panel for a selected row, so nothing else reads it; still real and
-	// working (a clicked row visibly highlights via HistoryTimeline's own
-	// real `.selected` class), not a fabricated no-op.
+	// Purely local UI state - this compact widget shows no side detail panel for a selected row, so
+	// nothing else reads it.
 	const [selectedRow, setSelectedRow] = useState<HistoryRow | null>(null);
 	const historyRows = data;
 
@@ -67,15 +60,7 @@ const RecentActivityWidget: React.FC<WidgetProps> = ({
 					onSelectRow={setSelectedRow}
 					isLoadingMore={false}
 					onLoadMore={() => {}}
-					// Real navigation to the full History tab (Reports →
-					// History) - this widget has no side detail panel of
-					// its own for the arrow to open a row into. Carries
-					// this exact row's own real id (the same
-					// `vulopilot_activity_logs.id` HistoryTab.tsx's own
-					// `GET /history` rows are keyed by - confirmed against
-					// Controllers/History.php) so that tab can select and
-					// scroll to the SAME row, not just land on the tab with
-					// whatever it auto-selects by default.
+					// Real navigation to the full History tab (Reports → History).
 					onArrowClick={(row) => {
 						window.open(
 							`${vulopilotAppLocalizer.admin_url}#&tab=reports&subtab=history&vulopilot_history_id=${row.id}`,

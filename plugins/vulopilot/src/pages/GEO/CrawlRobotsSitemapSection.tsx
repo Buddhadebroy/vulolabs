@@ -18,8 +18,6 @@ import { ButtonInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
 import TypographyComponent from '../../components/TypographyComponent';
 import { useFindingsTable } from '../../services/useFindingsTable';
-import { useLastScanTime } from '../../services/useLastScanTime';
-import { useGoogleServicesConnection } from '../../services/useGoogleServicesConnection';
 import ShowProPopup from '../../components/Popup/Popup';
 import './SeoVisibility.scss';
 
@@ -63,21 +61,14 @@ interface SitemapRow extends TableRow, SitemapChild {
 }
 
 /**
- * "Blocked Pages" (AI-CRAWLER-ANALYTICS-MODULE.md), "Robots.txt Issues",
- * and "XML Sitemap Issues" are all registered by modules/Seo/Module.php,
- * same as every other robots.txt-adjacent check - their findings only
- * exist while the SEO module is active, same gate SeoTab.tsx's own
- * isSeoModuleActive() already checks for the identical reason.
+ * "Blocked Pages", "Robots.txt Issues", and "XML Sitemap Issues" are all registered by
+ * modules/Seo/Module.php.
  */
 const isSeoModuleActive = () =>
 	vulopilotAppLocalizer.active_modules?.includes('technical-seo') ?? false;
 
 /**
- * Real sitemap `loc` URL, stripped down to just its own path/name for
- * display - no scheme/host (`http://localhost:8888/wp-sitemap-posts-post.xml`
- * reads as `/wp-sitemap-posts-post`), and no real trailing page-number
- * suffix (`-1`/`-2`/…) or `.xml` extension either. Falls back to the raw
- * `loc` string on a malformed URL rather than throwing.
+ * Real sitemap `loc` URL, stripped down to just its own path/name for display.
  */
 const getSitemapDisplayName = (loc: string): string => {
 	try {
@@ -103,13 +94,7 @@ const escapeHtml = (text: string): string =>
 	text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 /**
- * Real, per-line syntax highlight for the robots.txt editor below - a
- * small regex tokenizer (directive name / value / `#` comment), not a
- * general syntax-highlighting library: robots.txt's own real grammar is
- * just those 2 line shapes, so a full editor dependency isn't warranted
- * for coloring them. Escapes its own output - this HTML only ever backs
- * the read-only highlight layer, never what the user actually types (the
- * real `<textarea>` underneath stays plain text either way).
+ * Real, per-line syntax highlight for the robots.txt editor below.
  */
 const highlightRobotsLine = (line: string): string => {
 	if (/^\s*#/.test(line)) {
@@ -133,38 +118,18 @@ const highlightRobotsLine = (line: string): string => {
 };
 
 /**
- * Line-numbered, syntax-highlighted robots.txt editor - matches the
- * reference mockup's code-editor look (directive names/values/comments
- * colored, a real line-number gutter) via the classic transparent-
- * `<textarea>`-over-a-highlighted-`<pre>` overlay technique (both share
- * the exact same font/line-height/padding, so they line up pixel for
- * pixel) rather than pulling in a code-editor dependency - see
- * `highlightRobotsLine`'s own docblock above for why. The real edit
- * target is always the plain `<textarea>` on top; the `<pre>` underneath
- * is purely decorative (`aria-hidden`) and never receives focus/input.
- *
- * Exported (and `readOnly` added) so InspectorSection.tsx's own JSON-LD
- * blocks can reuse this exact same gutter/box look for real, live schema
- * content - not a new, second code-viewer component. `readOnly` just
- * drops the `<textarea>` overlay entirely (nothing to type into, nothing
- * to overlay) and adds `.rt-editor-readonly` (common.scss) so the box
- * sizes to its own real content instead of the fixed 16rem editable
- * height. `highlightRobotsLine`'s own robots.txt-specific tokenizer still
- * runs either way - a JSON line doesn't match its `directive: value`
- * pattern (JSON keys start with `"`, not a bare letter), so it simply
- * renders unhighlighted rather than mis-colored.
+ * Line-numbered, syntax-highlighted robots.txt editor.
  */
 interface RobotsTxtEditorProps {
 	value: string;
+	// eslint-disable-next-line no-unused-vars
 	onChange?: (next: string) => void;
 	placeholder?: string;
 	readOnly?: boolean;
 }
 
 export const RobotsTxtEditor = ({ value, onChange, placeholder, readOnly = false }: RobotsTxtEditorProps) => {
-	// Gutter/height track the real placeholder's own line count while
-	// empty, so the box doesn't visually collapse to 1 line before any
-	// real content has loaded/been typed.
+	// Gutter/height track the real placeholder's own line count while empty.
 	const lineCount = Math.max((value || placeholder || '').split('\n').length, readOnly ? 1 : 6);
 	const highlighted = value ? value.split('\n').map(highlightRobotsLine).join('\n') : '';
 
@@ -199,60 +164,8 @@ export const RobotsTxtEditor = ({ value, onChange, placeholder, readOnly = false
 };
 
 /**
- * Confirmed unreachable from the UI, same "real, working, just flagged
- * here rather than deleted" status BrokenLinksSection.tsx's own docblocks
- * document for their own unwired pieces (not touched in this pass - none
- * of it is dead in the sense of broken or unused-and-safe-to-delete, just
- * currently not rendered): the "4 real status tiles" bullet below
- * (`robotsStatus`/`sitemapStatus`/`lastScanAt`, all computed but never
- * read into a tile) and the "Quick Actions" bullet's own "Resubmit
- * sitemap"/Search Console link (`handleResubmitSitemap`/
- * `searchConsoleUrl`, both real and callable but with no button/link
- * anywhere that reaches them).
- *
- * "Robots & Sitemap" inner section of the "Crawl & URLs" tab - rebuilt to
- * match the reference mockup wherever real data supports it:
- *   - 4 real status tiles: Robots.txt/Sitemap reachability (live
- *     `GET /robots-sitemap/robots`/`/sitemap`, new this pass - neither
- *     existing scanner returns file content or a structured breakdown,
- *     confirmed before writing Controllers\RobotsSitemap.php), a real
- *     connected Search Console property (useGoogleServicesConnection - no
- *     count next to it: this codebase's only real GSC integration is
- *     `searchAnalytics.query` for keyword rank tracking, never an
- *     index-coverage/"indexed pages" API, so that mockup number has zero
- *     real source and is deliberately omitted rather than faked), and a
- *     real "Last Checked" from the most recent completed
- *     robots-txt/sitemap scan run (useLastScanTime) - no "Next check"
- *     line, since neither scanner has any cadence/cron of its own.
- *   - "Robots.txt Analysis": the real live file content plus real
- *     Allow/Disallow/Sitemap line counts (a genuine full parse, not a
- *     summary standing in for the real thing), and a real violation
- *     badge from this scanner's own open findings.
- *   - "XML Sitemap Overview": real per-child-sitemap rows (URL/type/real
- *     `<lastmod>`/real `<url>` count) - WordPress core's own
- *     `/wp-sitemap.xml` index structurally has this, this plugin just
- *     never read it back before this pass.
- *   - "Blocked by Robots.txt": the real `ai-crawler-blocked-pages`
- *     findings (real post + real bot name per row) already used by the
- *     "Blocked pages" table below, just summarized as a glance card too.
- *   - "Important Crawl Directives": the same real parsed robots.txt
- *     directives, in the mockup's own compact key-value shape.
- *   - "Quick Actions": real links (the real robots.txt/sitemap URLs, the
- *     real connected Search Console property) and real actions ("Test
- *     robots.txt" re-runs the same live fetch; "Resubmit sitemap" calls
- *     the real, already-shipped `POST /indexnow/submit`).
- *   - "llms.txt content": moved here from Settings → AI Visibility, same
- *     real `llms_txt_content` auto-saving option and `GET /llms-txt/regenerate`
- *     action as before (see LlmsTxtGenerator) - just relocated to match the
- *     reference mockup, which places it on this tab. Gated on the real
- *     `enable_llms_txt` flag (still configured on Settings → AI Visibility,
- *     which didn't move) - editing content for a disabled feature would be
- *     dishonest, so this shows a plain link there instead when it's off.
- *
- * "Indexing Directives"/"Crawl Errors" (this file's own former "not
- * tracked yet" placeholder cards) are dropped here - the reference
- * mockup doesn't show them, and this pass already covers substantially
- * more real ground than before.
+ * "Robots & Sitemap" section of the Crawl & URLs tab: robots.txt analysis and editing, sitemap
+ * overview, blocked pages and llms.txt content.
  */
 const CrawlRobotsSitemapSection = () => {
 	const [robots, setRobots] = useState<RobotsResponse | null>(null);
@@ -260,25 +173,14 @@ const CrawlRobotsSitemapSection = () => {
 	const [sitemap, setSitemap] = useState<SitemapResponse | null>(null);
 	const [isLoadingSitemap, setIsLoadingSitemap] = useState(true);
 
-	const { lastScanAt } = useLastScanTime(['robots-txt', 'sitemap', 'sitemap-validation']);
-	const { status: gscStatus } = useGoogleServicesConnection('settings');
 
 	/**
-	 * `useFindingsTable`'s own `tableCardProps.totalRows` counts every
-	 * status (open/resolved/ignored/snoozed) - fine for its own table's
-	 * "Showing X of Y" footer, wrong for a real "still-open right now"
-	 * count, so these two glance stats fetch that real number directly
-	 * rather than reusing (and overcounting from) the table's own total.
+	 * `useFindingsTable`'s own `tableCardProps.totalRows` counts every status
+	 * (open/resolved/ignored/snoozed).
 	 */
-	const [robotsOpenCount, setRobotsOpenCount] = useState(0);
 	const [blockedPagesOpenCount, setBlockedPagesOpenCount] = useState(0);
 
 	const loadOpenCounts = () => {
-		getApiResponse<{ total: number }>(
-			getApiLink(vulopilotAppLocalizer, 'findings?scanner_id=robots-txt&status=open&per_page=1'),
-			nonceHeaders
-		).then((response) => setRobotsOpenCount(response?.total ?? 0));
-
 		getApiResponse<{ total: number }>(
 			getApiLink(vulopilotAppLocalizer, 'findings?scanner_id=ai-crawler-blocked-pages&status=open&per_page=1'),
 			nonceHeaders
@@ -286,27 +188,8 @@ const CrawlRobotsSitemapSection = () => {
 	};
 
 	/**
-	 * `refreshEditorContent` gates whether this fetch is allowed to
-	 * overwrite the editor's local `value` state. On initial mount and on
-	 * an explicit "Test robots.txt" click, it should (that's the whole
-	 * point of the fetch). On the background refetch `persistRobotsContent`
-	 * fires after every auto-save, it must NOT - otherwise the server's
-	 * round-tripped content (possibly normalized differently, e.g. a
-	 * trailing newline WordPress added) replaces what the user is still
-	 * typing, and the cursor jumps to the end. That was the real bug: the
-	 * auto-save refetch was clobbering in-progress edits, which looked
-	 * like a page reload.
-	 *
-	 * `showLoadingState` is the companion fix for a second, related
-	 * symptom: this card's own `isLoading` prop (below) is driven by
-	 * `isLoadingRobots`, so toggling that on every call - including the
-	 * silent post-autosave refetch - flashed the whole card into its
-	 * loading/skeleton state 800ms after every keystroke pause. That
-	 * read as the page re-rendering/refreshing on every edit, when only
-	 * the small `robotsSaveState` indicator next to the editor should
-	 * visibly change. Only the initial mount and an explicit "Test
-	 * robots.txt" click are real "loading" moments; the autosave
-	 * refetch stays silent.
+	 * `refreshEditorContent` gates whether this fetch is allowed to overwrite the editor's local
+	 * `value` state.
 	 */
 	const loadRobots = (refreshEditorContent = true, showLoadingState = true) => {
 		if (showLoadingState) {
@@ -336,24 +219,15 @@ const CrawlRobotsSitemapSection = () => {
 	};
 
 	/**
-	 * Inline, auto-saving robots.txt editor - same real shape "llms.txt
-	 * content" below already established (`llmsTxtContent`/
-	 * `llmsTxtSaveState`/`llmsTxtSaveTimer`), not a popup: edit the real
-	 * live file directly in the card, saved 800ms after the last
-	 * keystroke, with a real Saving…/Saved/Could not save state next to
-	 * it instead of an explicit Save button.
+	 * Inline, auto-saving robots.txt editor - same real shape "llms.txt content" below already
+	 * established (`llmsTxtContent`/ `llmsTxtSaveState`/`llmsTxtSaveTimer`).
 	 */
 	const [robotsEditContent, setRobotsEditContent] = useState('');
-	const [robotsSaveState, setRobotsSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 	const robotsSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const persistRobotsContent = (content: string, notify = false) => {
-		setRobotsSaveState('saving');
-
 		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'robots-sitemap/robots'), { content })
 			.then((response) => {
-				setRobotsSaveState(response ? 'saved' : 'error');
-
 				if (notify) {
 					NoticeManager.add({
 						uniqueKey: 'robots-sitemap-save',
@@ -368,12 +242,8 @@ const CrawlRobotsSitemapSection = () => {
 				}
 
 				if (response) {
-					// Refresh the card's own read-only data (rules/directives
-					// counts, the "Custom" badge) - but explicitly NOT the
-					// editor's own `robotsEditContent`, so the user's cursor
-					// and in-progress text are left untouched mid-save. Also
-					// silent (no card-level loading state): only the small
-					// `robotsSaveState` indicator should visibly change here.
+					// Refresh the card's own read-only data (rules/directives counts, the "Custom"
+					// badge).
 					loadRobots(false, false);
 				}
 			});
@@ -400,22 +270,13 @@ const CrawlRobotsSitemapSection = () => {
 	};
 
 	/**
-	 * "llms.txt content" - moved here from Settings → AI Visibility (the
-	 * mockup places it on this tab instead), same real field/behavior as
-	 * before: `llms_txt_content` is a plain, auto-saving option
-	 * (Controllers\Settings::update_item() writes it straight to a real
-	 * `/llms.txt` on save, see GeoAnalysis\LlmsTxtGenerator::write_file()).
-	 * `enable_llms_txt` still lives on Settings → AI Visibility (its own
-	 * toggle, plus "Auto-regenerate on publish"/"Included content types" -
-	 * none of that moved) - this card just reads that same real flag to
-	 * decide whether editing the content here makes sense right now, same
-	 * `dependent` gate the old textarea field used.
+	 * "llms.txt content" - moved here from Settings → AI Visibility (the mockup places it on this
+	 * tab instead).
 	 */
 	const [llmsTxtContent, setLlmsTxtContent] = useState('');
 	const [isLlmsTxtEnabled, setIsLlmsTxtEnabled] = useState(false);
 	const [isLoadingLlmsTxt, setIsLoadingLlmsTxt] = useState(true);
 	const [isRegeneratingLlmsTxt, setIsRegeneratingLlmsTxt] = useState(false);
-	const [llmsTxtSaveState, setLlmsTxtSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 	const llmsTxtSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const loadLlmsTxt = () => {
@@ -439,11 +300,9 @@ const CrawlRobotsSitemapSection = () => {
 	};
 
 	const persistLlmsTxtContent = (content: string, notify = false) => {
-		setLlmsTxtSaveState('saving');
 		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'settings'), {
 			setting: { llms_txt_content: content },
 		}).then((response) => {
-			setLlmsTxtSaveState(response ? 'saved' : 'error');
 			if (notify) {
 				NoticeManager.add({
 					uniqueKey: 'llms-txt-regenerated',
@@ -492,14 +351,15 @@ const CrawlRobotsSitemapSection = () => {
 		loadSitemap();
 		loadOpenCounts();
 		loadLlmsTxt();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const {
 		tableCardProps: blockedPagesProps,
+		fixNotice: blockedFixNotice,
 		error: blockedPagesError,
 		isProPopupOpen,
 		closeProPopup,
+		viewPopup: blockedPagesViewPopup,
 	} = useFindingsTable({
 		description: __(
 			'No AI-bot-specific blocks found - run a scan to check robots.txt against your published pages.',
@@ -510,74 +370,52 @@ const CrawlRobotsSitemapSection = () => {
 
 	const {
 		tableCardProps: robotsTxtProps,
+		fixNotice: robotsFixNotice,
 		error: robotsTxtError,
 		isProPopupOpen: isRobotsTxtProPopupOpen,
 		closeProPopup: closeRobotsTxtProPopup,
+		viewPopup: robotsTxtViewPopup,
 	} = useFindingsTable({
 		description: __(
-			'No robots.txt findings yet - run a scan to check crawler access.',
+			'No robots.txt issues yet - run a scan to check crawler access.',
 			'vulopilot'
 		),
 		scannerIds: ['robots-txt'],
 	});
 
+	/**
+	 * Only its own "Fix" pro-upsell popup is still used (below) - the sitemap findings table
+	 * itself isn't rendered anywhere in this section (see `llmsTxtFindingsProps`, which used to be
+	 * mistakenly fed by this hook's `tableCardProps`).
+	 */
 	const {
-		tableCardProps: sitemapFindingsProps,
-		error: sitemapFindingsError,
 		isProPopupOpen: isSitemapProPopupOpen,
 		closeProPopup: closeSitemapProPopup,
 	} = useFindingsTable({
-		description: __(
-			'No sitemap findings yet - run a scan to check your XML sitemap.',
-			'vulopilot'
-		),
 		scannerIds: ['sitemap', 'sitemap-validation'],
 	});
 
-	const handleResubmitSitemap = () => {
-		if (!sitemap?.index_url) {
-			return;
-		}
+	const {
+		tableCardProps: llmsTxtFindingsProps,
+		fixNotice: llmsTxtFixNotice,
+		error: llmsTxtFindingsError,
+		viewPopup: llmsTxtViewPopup,
+	} = useFindingsTable({
+		description: __(
+			'No llms.txt findings yet - run a scan to check your llms.txt.',
+			'vulopilot'
+		),
+		scannerIds: ['llms-txt-missing'],
+	});
 
-		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'indexnow/submit'), {
-			urls: [sitemap.index_url],
-		}).then((response: { success?: boolean; message?: string } | undefined) => {
-			NoticeManager.add({
-				uniqueKey: 'robots-sitemap-resubmit',
-				type: response?.success ? 'success' : 'error',
-				position: 'float',
-				message:
-					response?.message ||
-					(response?.success
-						? __('Sitemap submitted to IndexNow.', 'vulopilot')
-						: __(
-							'Could not submit the sitemap - check the IndexNow API key under Settings → Instant Indexing.',
-							'vulopilot'
-						)),
-			});
-		});
-	};
 
-	const searchConsoleUrl = gscStatus?.search_console_site
-		? `https://search.google.com/search-console?resource_id=${encodeURIComponent(gscStatus.search_console_site)}`
-		: `${vulopilotAppLocalizer.site_url}/wp-admin/admin.php?page=vulopilot#&tab=settings&subtab=integrations`;
 
 	const sitemapRows: SitemapRow[] = (sitemap?.sitemaps ?? []).map((child, index) => ({
 		id: `${index}-${child.loc}`,
 		...child,
 	}));
 
-	const robotsStatus: 'valid' | 'attention' | 'unreachable' = !robots?.reachable
-		? 'unreachable'
-		: robotsOpenCount > 0
-			? 'attention'
-			: 'valid';
 
-	const sitemapStatus: 'valid' | 'attention' | 'unreachable' = !sitemap?.reachable || !sitemap?.valid
-		? 'unreachable'
-		: sitemap.total_sitemaps === 0
-			? 'attention'
-			: 'valid';
 
 	if (!isSeoModuleActive()) {
 		return (
@@ -754,7 +592,7 @@ const CrawlRobotsSitemapSection = () => {
 								{robotsTxtError ? (
 									<ModuleGuardComponent
 										icon="error"
-										title={__('Could not load findings', 'vulopilot')}
+										title={__('Could not load issues', 'vulopilot')}
 										desc={robotsTxtError}
 									/>
 								) : (
@@ -764,7 +602,10 @@ const CrawlRobotsSitemapSection = () => {
 											titleIcon="security"
 											desc={__('Whether robots.txt is reachable and not accidentally blocking every crawler.', 'vulopilot')}
 										/>
-										<TableCard {...robotsTxtProps} bulkActions={[]} />
+										<>
+											{robotsFixNotice}
+											<TableCard {...robotsTxtProps} bulkActions={[]} />
+										</>
 									</>
 								)}
 							</div>
@@ -831,14 +672,17 @@ const CrawlRobotsSitemapSection = () => {
 										'Whether robots.txt is reachable and not accidentally blocking every crawler.',
 										'vulopilot'
 									)} />
-								{sitemapFindingsError ? (
+								{llmsTxtFindingsError ? (
 									<ModuleGuardComponent
 										icon="error"
 										title={__('Could not load findings', 'vulopilot')}
-										desc={sitemapFindingsError}
+										desc={llmsTxtFindingsError}
 									/>
 								) : (
-									<TableCard {...sitemapFindingsProps} bulkActions={[]} />
+									<>
+										{llmsTxtFixNotice}
+										<TableCard {...llmsTxtFindingsProps} bulkActions={[]} />
+									</>
 								)}
 							</div>
 						</div>
@@ -956,14 +800,17 @@ const CrawlRobotsSitemapSection = () => {
 										)}
 									</TypographyComponent>
 								</div>
+								<>
+								{blockedFixNotice}
 								<TableCard {...blockedPagesProps} />
+							</>
 							</>
 						)}
 					</CardComponent>
 				</ColumnComponent>
 			</ContainerComponent>
 
-			<PopupComponent open={isProPopupOpen} onClose={closeProPopup} width={31.25} height="auto" >
+			<PopupComponent open={isProPopupOpen} onClose={closeProPopup} width={31.25} height="auto" position="lightbox">
 				{vulopilotAppLocalizer.khali_dabba ? <ShowProPopup moduleName="one-click-fix" /> : <ShowProPopup />}
 			</PopupComponent>
 			<PopupComponent
@@ -984,6 +831,10 @@ const CrawlRobotsSitemapSection = () => {
 			>
 				{vulopilotAppLocalizer.khali_dabba ? <ShowProPopup moduleName="one-click-fix" /> : <ShowProPopup />}
 			</PopupComponent>
+
+			{blockedPagesViewPopup}
+			{robotsTxtViewPopup}
+			{llmsTxtViewPopup}
 		</>
 	);
 };

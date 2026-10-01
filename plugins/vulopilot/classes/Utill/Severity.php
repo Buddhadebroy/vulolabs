@@ -19,24 +19,24 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Severity {
 
-    const CRITICAL = 'critical';
-    const HIGH     = 'high';
-    const MEDIUM   = 'medium';
-    const LOW      = 'low';
-    const INFO     = 'info';
+	const CRITICAL = 'critical';
+	const HIGH     = 'high';
+	const MEDIUM   = 'medium';
+	const LOW      = 'low';
+	const INFO     = 'info';
 
-    /**
-     * @return string[] Every valid severity, in descending order of urgency.
-     */
-    public static function all(): array {
-        return array( self::CRITICAL, self::HIGH, self::MEDIUM, self::LOW, self::INFO );
-    }
+	/**
+	 * @return string[] Every valid severity, in descending order of urgency.
+	 */
+	public static function all(): array {
+		return array( self::CRITICAL, self::HIGH, self::MEDIUM, self::LOW, self::INFO );
+	}
 
-    /**
-     * @param string $severity Value to check.
-     * @return bool
-     */
-    public static function is_valid( string $severity ): bool {
-        return in_array( $severity, self::all(), true );
-    }
+	/**
+	 * @param string $severity Value to check.
+	 * @return bool
+	 */
+	public static function is_valid( string $severity ): bool {
+		return in_array( $severity, self::all(), true );
+	}
 }

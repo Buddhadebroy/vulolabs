@@ -1,44 +1,11 @@
 <?php
 namespace VuloPilot\SeoVisibility;
 
-
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Restyles WordPress core's own native `/wp-sitemap.xml` browser view
- * (`WP_Sitemaps_Stylesheet`, wp-includes/sitemaps) to match the reference
- * mockup - a purple banner header (this plugin's own real brand color,
- * `#7c3aed`, the same `var(--color-primary, #7c3aed)` fallback already
- * used throughout this plugin's own admin styles) instead of core's plain
- * white header, and a real "Last Modified" column on the sitemap INDEX
- * page's own table.
- *
- * Deliberately does NOT build a second, competing sitemap renderer -
- * same "wrap/restyle core's own native sitemap, don't replace it" posture
- * SitemapManager.php's own docblock already establishes for the data side
- * of this same feature. Only 2 real core hooks are used:
- *
- * - `wp_sitemaps_stylesheet_css` - real CSS-only override, applies to
- *   BOTH the index page and every individual child sitemap page (core's
- *   own `get_stylesheet_css()` is shared between both), so the banner/
- *   table restyle is consistent everywhere with one filter.
- * - `wp_sitemaps_stylesheet_index_content` - a full real XSL override,
- *   ONLY for the index page's own table (`/wp-sitemap.xml`, the one
- *   listing child sitemaps the mockup shows) - core's own default XSL
- *   already conditionally renders a real "Last Modified" column
- *   (`<xsl:if test="$has-lastmod">`) but only when EVERY listed sitemap
- *   happens to carry one; this override removes that condition so the
- *   column always renders, with real per-sitemap `<lastmod>` values core
- *   itself already provides (genuinely empty, never a fabricated date,
- *   for the rare sitemap type with none). Individual child sitemap pages
- *   (the per-URL listing, e.g. `/wp-sitemap-posts-post-1.xml`) are left on
- *   core's own default XSL structure - only the CSS restyle above applies
- *   there, since that table already has a real, always-conditional
- *   "Last Modified" column of its own core doesn't need help with.
- *
- * Self-registers its own hooks in the constructor (php-wordpress.md) and
- * is constructed unconditionally in VuloPilot::init_classes(), same shape
- * as SitemapManager.php right next to it.
+ * (`WP_Sitemaps_Stylesheet`, wp-includes/sitemaps) to match the reference mockup.
  *
  * @class       SitemapStylesheet class
  * @version     1.0.0
@@ -46,142 +13,196 @@ defined( 'ABSPATH' ) || exit;
  */
 class SitemapStylesheet {
 
-    /**
-     * This plugin's own real brand purple - the same `#7c3aed` fallback
-     * `var(--color-primary, #7c3aed)` already resolves to throughout this
-     * plugin's own admin CSS (assets/styles/index.css,
-     * src/pages/Content/CreateContent.scss), reused here rather than
-     * Rank Math's own unrelated blue so this page matches the rest of
-     * this plugin's own real brand identity.
-     *
-     * @var string
-     */
-    private const BRAND_COLOR = '#7c3aed';
+	/**
+	 * Compiled file, relative to the plugin folder.
+	 *
+	 * @var string
+	 */
+	private const STYLE_FILE = 'assets/styles/public/vulopilot-sitemap-stylesheet.min.css';
 
-    /**
-     * Light tint of BRAND_COLOR - same real paired `background:
-     * var(--background-primary, #ece2f9f1)` this plugin's own admin CSS
-     * already uses alongside the solid brand purple.
-     *
-     * @var string
-     */
-    private const BRAND_TINT = '#ece2f9';
+	/**
+	 * SitemapStylesheet constructor.
+	 */
+	public function __construct() {
+		add_filter( 'wp_sitemaps_stylesheet_css', array( $this, 'filter_stylesheet_css' ) );
+		add_filter( 'wp_sitemaps_stylesheet_content', array( $this, 'filter_stylesheet_content' ) );
+		add_filter( 'wp_sitemaps_stylesheet_index_content', array( $this, 'filter_index_stylesheet_content' ) );
+	}
 
-    /**
-     * SitemapStylesheet constructor.
-     */
-    public function __construct() {
-        add_filter( 'wp_sitemaps_stylesheet_css', array( $this, 'filter_stylesheet_css' ) );
-        add_filter( 'wp_sitemaps_stylesheet_index_content', array( $this, 'filter_index_stylesheet_content' ) );
-    }
+	/**
+	 * Real CSS-only restyle - applies to core's own existing markup structure
+	 * (`#sitemap__header`/`#sitemap__table`) unchanged.
+	 *
+	 * @param string $css Core's own default CSS for the sitemap.
+	 * @return string
+	 */
+	public function filter_stylesheet_css( $css ) {
+		$path = VuloPilot()->plugin_path . self::STYLE_FILE;
 
-    /**
-     * Real CSS-only restyle - applies to core's own existing markup
-     * structure (`#sitemap__header`/`#sitemap__table`) unchanged, so this
-     * alone can't break core's own XSL templating on either the index or
-     * any child sitemap page.
-     *
-     * @param string $css Core's own default CSS for the sitemap stylesheet.
-     * @return string
-     */
-    public function filter_stylesheet_css( $css ) {
-        $brand = self::BRAND_COLOR;
-        $tint  = self::BRAND_TINT;
+		if ( ! file_exists( $path ) ) {
+			return $css;
+		}
 
-        return $css . "
-			body {
-				font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen-Sans, Ubuntu, Cantarell, \"Helvetica Neue\", sans-serif;
-				background: #fff;
-				color: #444;
-				margin: 0;
-			}
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- reads this plugin's own built stylesheet, not user input.
+		return $css . (string) file_get_contents( $path );
+	}
 
-			#sitemap {
-				max-width: 100%;
-			}
+	/**
+	 * Address of the compiled file for the index page, with the plugin
+	 * version appended. Empty when the file has not been built.
+	 *
+	 * @return string
+	 */
+	private function get_stylesheet_url(): string {
+		if ( ! file_exists( VuloPilot()->plugin_path . self::STYLE_FILE ) ) {
+			return '';
+		}
 
-			#sitemap__header {
-				background: {$brand};
-				color: #fff;
-				padding: 2rem 2.5rem;
-				margin: 0;
-			}
+		wp_register_style(
+			'vulopilot-sitemap-stylesheet',
+			VuloPilot()->plugin_url . self::STYLE_FILE,
+			array(),
+			VuloPilot()->version
+		);
 
-			#sitemap__header h1 {
-				margin: 0 0 0.5rem;
-				font-size: 1.75rem;
-			}
+		$style = wp_styles()->registered['vulopilot-sitemap-stylesheet'];
 
-			#sitemap__header p {
-				margin: 0.25rem 0;
-				color: rgba(255, 255, 255, 0.85);
-			}
+		return add_query_arg( 'ver', $style->ver, $style->src );
+	}
 
-			#sitemap__header a {
-				color: #fff;
-				text-decoration: underline;
-			}
+	/**
+	 * Full real XSL override for a single sitemap page (`post-sitemap.xml` etc.) - same real
+	 * markup as core's own `WP_Sitemaps_Stylesheet::get_sitemap_stylesheet()`, only the
+	 * "generated by" text changes.
+	 *
+	 * @return string
+	 */
+	public function filter_stylesheet_content() {
+		$title       = esc_xml( __( 'XML Sitemap', 'vulopilot' ) );
+		$description = esc_xml( __( 'This XML Sitemap is generated by Vulopilot to make your content more visible for search engines.', 'vulopilot' ) );
+		$learn_more  = sprintf(
+			'<a href="%s">%s</a>',
+			esc_url( __( 'https://www.sitemaps.org/', 'vulopilot' ) ),
+			esc_xml( __( 'Learn more about XML sitemaps.', 'vulopilot' ) )
+		);
 
-			#sitemap__content {
-				max-width: 980px;
-				margin: 0 auto;
-				padding: 1.5rem 2.5rem 2.5rem;
-			}
+		$text = sprintf(
+			/* translators: %s: real count of URLs in this sitemap. */
+			esc_xml( __( 'Number of URLs in this XML Sitemap: %s.', 'vulopilot' ) ),
+			'<xsl:value-of select="count( sitemap:urlset/sitemap:url )" />'
+		);
 
-			#sitemap__table {
-				border: solid 1px {$tint};
-				border-radius: 0.375rem;
-				overflow: hidden;
-				width: 100%;
-			}
+		$lang       = get_language_attributes( 'html' );
+		$url        = esc_xml( __( 'URL', 'vulopilot' ) );
+		$lastmod    = esc_xml( __( 'Last Modified', 'vulopilot' ) );
+		$changefreq = esc_xml( __( 'Change Frequency', 'vulopilot' ) );
+		$priority   = esc_xml( __( 'Priority', 'vulopilot' ) );
+		$css_url    = $this->get_stylesheet_url();
+		$link       = '' !== $css_url
+			? '<xsl:element name="link"><xsl:attribute name="rel">stylesheet</xsl:attribute><xsl:attribute name="href">' . esc_xml( esc_url( $css_url ) ) . '</xsl:attribute></xsl:element>'
+			: '';
 
-			#sitemap__table tr th {
-				background: {$brand};
-				color: #fff;
-				font-weight: 600;
-				padding: 0.625rem;
-			}
-			#sitemap__table tr td{padding: 0.625rem;}
-			#sitemap__table tr:nth-child(odd) td {
-				background-color: {$tint};
-			}
-			#sitemap__table tr a{text-decoration: none;}
+		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<xsl:stylesheet
+		version=\"1.0\"
+		xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"
+		xmlns:sitemap=\"http://www.sitemaps.org/schemas/sitemap/0.9\"
+		exclude-result-prefixes=\"sitemap\"
+		>
+
+	<xsl:output method=\"html\" encoding=\"UTF-8\" indent=\"yes\" />
+
+	<xsl:variable name=\"has-lastmod\"    select=\"count( /sitemap:urlset/sitemap:url/sitemap:lastmod )\"    />
+	<xsl:variable name=\"has-changefreq\" select=\"count( /sitemap:urlset/sitemap:url/sitemap:changefreq )\" />
+	<xsl:variable name=\"has-priority\"   select=\"count( /sitemap:urlset/sitemap:url/sitemap:priority )\"   />
+
+	<xsl:template match=\"/\">
+		<html {$lang}>
+			<head>
+				<title>{$title}</title>
+				{$link}
+			</head>
+			<body>
+				<div id=\"sitemap\">
+					<div id=\"sitemap__header\">
+						<h1>{$title}</h1>
+						<p>{$description}</p>
+						<p>{$learn_more}</p>
+					</div>
+					<div id=\"sitemap__content\">
+						<p class=\"text\">{$text}</p>
+						<table id=\"sitemap__table\">
+							<thead>
+								<tr>
+									<th class=\"loc\">{$url}</th>
+									<xsl:if test=\"\$has-lastmod\">
+										<th class=\"lastmod\">{$lastmod}</th>
+									</xsl:if>
+									<xsl:if test=\"\$has-changefreq\">
+										<th class=\"changefreq\">{$changefreq}</th>
+									</xsl:if>
+									<xsl:if test=\"\$has-priority\">
+										<th class=\"priority\">{$priority}</th>
+									</xsl:if>
+								</tr>
+							</thead>
+							<tbody>
+								<xsl:for-each select=\"sitemap:urlset/sitemap:url\">
+									<tr>
+										<td class=\"loc\"><a href=\"{sitemap:loc}\"><xsl:value-of select=\"sitemap:loc\" /></a></td>
+										<xsl:if test=\"\$has-lastmod\">
+											<td class=\"lastmod\"><xsl:value-of select=\"sitemap:lastmod\" /></td>
+										</xsl:if>
+										<xsl:if test=\"\$has-changefreq\">
+											<td class=\"changefreq\"><xsl:value-of select=\"sitemap:changefreq\" /></td>
+										</xsl:if>
+										<xsl:if test=\"\$has-priority\">
+											<td class=\"priority\"><xsl:value-of select=\"sitemap:priority\" /></td>
+										</xsl:if>
+									</tr>
+								</xsl:for-each>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</body>
+		</html>
+	</xsl:template>
+</xsl:stylesheet>
 
 ";
-    }
+	}
 
-    /**
-     * Full real XSL override for the sitemap INDEX page only (the
-     * top-level `/wp-sitemap.xml` listing child sitemaps) - same real
-     * `sitemap:sitemapindex/sitemap:sitemap` data core's own default
-     * template already reads, just without the `$has-lastmod` guard that
-     * hides the "Last Modified" column whenever even one listed sitemap
-     * happens to lack a real `<lastmod>`.
-     *
-     * @param string $xsl_content Core's own default index XSL content (unused - this returns a full real replacement built from the same real translatable strings core itself would use).
-     * @return string
-     */
-    public function filter_index_stylesheet_content( $xsl_content ) {
-        $title       = esc_xml( __( 'XML Sitemap', 'vulopilot' ) );
-        $description = esc_xml( __( 'This XML Sitemap is generated by WordPress to make your content more visible for search engines.', 'vulopilot' ) );
-        $learn_more  = sprintf(
-            '<a href="%s">%s</a>',
-            esc_url( __( 'https://www.sitemaps.org/', 'vulopilot' ) ),
-            esc_xml( __( 'Learn more about XML sitemaps.', 'vulopilot' ) )
-        );
+	/**
+	 * Full real XSL override for the sitemap INDEX page only (the top-level `/wp-
+	 * sitemap.xml` listing child sitemaps).
+	 *
+	 * @return string
+	 */
+	public function filter_index_stylesheet_content() {
+		$title       = esc_xml( __( 'XML Sitemap', 'vulopilot' ) );
+		$description = esc_xml( __( 'This XML Sitemap is generated by Vulopilot to make your content more visible for search engines.', 'vulopilot' ) );
+		$learn_more  = sprintf(
+			'<a href="%s">%s</a>',
+			esc_url( __( 'https://www.sitemaps.org/', 'vulopilot' ) ),
+			esc_xml( __( 'Learn more about XML sitemaps.', 'vulopilot' ) )
+		);
 
-        $text = sprintf(
-            /* translators: %s: real count of child sitemaps in this index. */
-            esc_xml( __( 'This XML Sitemap Index file contains %s sitemaps.', 'vulopilot' ) ),
-            '<xsl:value-of select="count( sitemap:sitemapindex/sitemap:sitemap )" />'
-        );
+		$text = sprintf(
+			/* translators: %s: real count of child sitemaps in this index. */
+			esc_xml( __( 'This XML Sitemap Index file contains %s sitemaps.', 'vulopilot' ) ),
+			'<xsl:value-of select="count( sitemap:sitemapindex/sitemap:sitemap )" />'
+		);
 
-        $lang    = get_language_attributes( 'html' );
-        $url     = esc_xml( __( 'Sitemap', 'vulopilot' ) );
-        $lastmod = esc_xml( __( 'Last Modified', 'vulopilot' ) );
-        $css     = $this->filter_stylesheet_css( '' );
+		$lang    = get_language_attributes( 'html' );
+		$url     = esc_xml( __( 'Sitemap', 'vulopilot' ) );
+		$lastmod = esc_xml( __( 'Last Modified', 'vulopilot' ) );
+		$css_url = $this->get_stylesheet_url();
+		$link    = '' !== $css_url
+			? '<xsl:element name="link"><xsl:attribute name="rel">stylesheet</xsl:attribute><xsl:attribute name="href">' . esc_xml( esc_url( $css_url ) ) . '</xsl:attribute></xsl:element>'
+			: '';
 
-        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <xsl:stylesheet
 		version=\"1.0\"
 		xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"
@@ -195,9 +216,7 @@ class SitemapStylesheet {
 		<html {$lang}>
 			<head>
 				<title>{$title}</title>
-				<style>
-					{$css}
-				</style>
+				{$link}
 			</head>
 			<body>
 				<div id=\"sitemap\">
@@ -232,5 +251,5 @@ class SitemapStylesheet {
 </xsl:stylesheet>
 
 ";
-    }
+	}
 }

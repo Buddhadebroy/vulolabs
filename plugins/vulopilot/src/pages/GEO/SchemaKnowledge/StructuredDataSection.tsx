@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { scrollToId } from '@zyra/core';
 import {
 	CardComponent,
 	ColumnComponent,
-	ContainerComponent,
 	ModuleGuardComponent,
 	BadgeComponent,
 	ListComponent,
@@ -27,16 +26,9 @@ interface StructuredDataSectionProps {
 }
 
 /**
- * Per real schema.org @type icon - purely cosmetic, every value here is a
- * real, already-used-elsewhere-in-this-codebase adminfont- icon class
- * (confirmed live: search/attachment/error/check/product/location/
- * category/shield/link), not a guessed/invented icon name. Falls back to
- * the same generic 'attachment' icon the rest of this codebase already
- * uses for "content/document" schema types when a @type has no more
- * specific real-world icon (a theme/plugin can emit a @type not in this
- * list at all - the fallback keeps that row rendering, not blank).
+ * Per real schema.org @type icon - purely cosmetic, every value here is a real.
  */
-/** Same 5 schema-related scanners IssuesSection.tsx's own "Schema Problems" table reads - these are the real open problems shown per type below. */
+/** Same 5 schema-related scanners IssuesSection.tsx's own "Schema Problems" table reads. */
 const SCHEMA_ISSUE_SCANNER_IDS = [
 	'schema',
 	'structured-data',
@@ -45,7 +37,7 @@ const SCHEMA_ISSUE_SCANNER_IDS = [
 	'author-schema',
 ];
 
-/** Where a row's click goes: that page's editor (with the scanner's own field highlighted when one is mapped), or the live page for the homepage. */
+/** Where a row's click goes: that page's editor (with the scanner's own field highlighted when one is mapped). */
 const getIssueLink = (page: SchemaCoveragePage, finding: RawFinding): string => {
 	if (!page.id) {
 		return page.url;
@@ -68,12 +60,7 @@ const TYPE_ICONS: Record<string, string> = {
 const getTypeIcon = (type: string): string => TYPE_ICONS[type] ?? 'attachment';
 
 /**
- * Real 3-tier status per row, computed from the same two real numbers the
- * table already shows (`found_on`, `problems` - SchemaCoverageAnalyzer's
- * own honest proportional estimate, see this file's own docblock) - no
- * new/fabricated signal. 0 problems is unambiguous ("Good"); otherwise
- * the tier is the real share of sampled pages of this type the estimate
- * says are affected: under half → "Check", half or more → "Problems".
+ * Three-tier status per row, computed from the `found_on` and `problems` numbers the table shows.
  */
 type CoverageStatus = 'good' | 'check' | 'problems';
 
@@ -95,15 +82,8 @@ const STATUS_CONFIG: Record<
 };
 
 /**
- * Maps this table's own 3-tier status to the real `badge-{severity}` CSS
- * classes zyra's Table.scss actually defines - 'good'/'check'/'problems'
- * aren't themselves real severity values anywhere else in this codebase,
- * so a literal `badge-good` class would render unstyled. In zyra's
- * Table.scss `badge-resolved` is the green bucket (used for "Good"),
- * `badge-medium` orange and `badge-critical` dark red - `badge-high` is
- * red there, not green, so it isn't used for "Good". The row's own real
- * label text (`STATUS_CONFIG` above) still reads "Good"/"Check"/"Problems"
- * - only the *color* is borrowed.
+ * Maps this table's own 3-tier status to the real `badge-{severity}` CSS classes zyra's Table.scss
+ * actually defines.
  */
 const STATUS_SEVERITY_CLASS: Record<CoverageStatus, string> = {
 	good: 'resolved',
@@ -112,27 +92,11 @@ const STATUS_SEVERITY_CLASS: Record<CoverageStatus, string> = {
 };
 
 /**
- * "Structured Data" section of the merged "Schema & Knowledge" tab - the
- * real "Schema Coverage" table moved here unchanged from the standalone
- * Schema tab (`GET`/`POST /schema/coverage`, SchemaCoverageAnalyzer, Free):
- * samples up to 15 recently-modified real pages (plus the real homepage),
- * fetches each one's actual rendered HTML, and extracts real `@type`
- * values from whatever `application/ld+json` blocks are actually there -
- * no AI, no fabricated types or counts. The per-type "problems" figure is
- * an honest proportional estimate (this plugin's own finding data is
- * scoped per-post, not per-schema-@type - see
- * SchemaCoverageAnalyzer::analyze()'s own docblock), labelled as such
- * rather than presented as an exact count.
+ * "Structured Data" section of the merged "Schema & Knowledge" tab.
  *
- * "Inspect a specific page"/Developer Tools moved out to InspectorSection.tsx
- * (now real, see that file's own docblock) rather than staying here as
- * "not built yet" stubs.
- *
- * Schema Coverage's own row "View" action shows real detail - exactly
- * which real sampled page(s)/the homepage carried that row's specific
  * @type (SchemaCoverageAnalyzer::analyze() records `pages` per row, not
  * just a count) - in a persistent side panel (grid 8/4, table left / detail
- * right) rather than a popup lightbox, per direct instruction ("the action
+ * right) rather than a popup lightbox ("the action
  * i want like above table when click inside details show but look intact
  * in Schema Coverage table" - "above table" being IssuesSection.tsx's own
  * table+`IssueDetailPanel` split immediately above this section on the
@@ -145,21 +109,13 @@ const STATUS_SEVERITY_CLASS: Record<CoverageStatus, string> = {
  */
 const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 	const { snapshot, isLoading } = coverage;
-	// The real row the side detail panel is showing - SchemaCoverageAnalyzer
-	// records exactly which sampled post(s)/the homepage actually carried
-	// each @type (`row.pages`), so the panel shows a real list scoped to
-	// that specific type, not a generic, undifferentiated redirect.
+	// The real row the side detail panel is showing.
 	const [selectedRow, setSelectedRow] = useState<SchemaCoverageRow | null>(
 		null
 	);
 
-	// Auto-selects the first real row once a snapshot loads (or after a
-	// re-analyze), so the detail panel always has something real to show
-	// rather than sitting empty until a first click - same convention
-	// IssuesSection.tsx's own `selectedGroup` effect already establishes.
-	// Only runs when the currently-selected type is no longer present
-	// (a fresh snapshot, or the selected type disappeared) - a plain click
-	// selection is left alone across re-renders.
+	// Auto-selects the first real row once a snapshot loads (or after a re-analyze), so the detail
+	// panel always has something real to show.
 	useEffect(() => {
 		if (!snapshot) {
 			return;
@@ -178,7 +134,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 		});
 	}, [snapshot]);
 
-	/** Shared by the row click and the action cell's own "More Details"/"Showing" button - same real toggle the other issues tables in this plugin already use, scrolling the detail panel into view on every select. */
+	/** Shared by the row click and the action cell's own "More Details"/"Showing" button. */
 	const handleSelectRow = (row: SchemaCoverageRow) => {
 		setSelectedRow(row);
 		scrollToId('structured-data-detail-panel');
@@ -268,11 +224,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 										action: {
 											label: __('Action', 'vulopilot'),
 											// `type: 'more-action'` no longer exists in
-											// @zyra/table - `type: 'action'` now covers
-											// that same single-toggle-button case via a
-											// `type: 'button'` action whose label/icon
-											// are functions of `row` (see that type's
-											// own docblock, TableRowActions.tsx).
+											// @zyra/table.
 											type: 'action',
 											actions: [
 												{
@@ -289,13 +241,8 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 														row.type === selectedRow?.type
 															? 'eye'
 															: 'pagination-next-arrow',
-													// The panel is never closed - clicking the
-													// row already showing just keeps it open.
-													// Scrolls the panel into view on every click
-													// (`scrollToId`, same real helper
-													// IssuesList.tsx's own identical toggle
-													// uses) - harmless when it's already open,
-													// necessary when it isn't yet visible.
+													// The panel is never closed - clicking the row
+													// already showing just keeps it open.
 													onClick: handleSelectRow,
 												},
 											],
@@ -315,9 +262,8 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 									totalRows={snapshot.coverage.length}
 									isLoading={isLoading}
 									activeRowId={selectedRow?.type}
-									// A click anywhere on the row now opens the
-									// detail panel too, not just the action
-									// cell's own small "More Details" button.
+									// A click anywhere on the row now opens the detail panel too,
+									// not just the action cell's own small "More Details" button.
 									onRowClick={(row: Record<string, unknown>) =>
 										handleSelectRow(row as unknown as SchemaCoverageRow)
 									}
@@ -350,9 +296,17 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 							<span className="desc">
 								{sprintf(
 									/* translators: 1: how many of the real sampled pages carried this schema type, 2: how many of those had a real problem. */
-									__('Found on %1$d pages · %2$d problems', 'vulopilot'),
-									selectedRow.found_on,
-									selectedRow.problems
+									__('Found on %1$s · %2$s', 'vulopilot'),
+									sprintf(
+										/* translators: %d: number of pages. */
+										_n('%d page', '%d pages', selectedRow.found_on, 'vulopilot'),
+										selectedRow.found_on
+									),
+									sprintf(
+										/* translators: %d: number of problems. */
+										_n('%d problem', '%d problems', selectedRow.problems, 'vulopilot'),
+										selectedRow.problems
+									)
 								)}
 							</span>
 						</div>
@@ -399,7 +353,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 						)}
 
 						<div className="schema-detail-pages-heading">
-							{__('Issues on these pages', 'vulopilot')}
+							{__('Schema issues on these pages', 'vulopilot')}
 						</div>
 
 						{0 === selectedIssues.length ? (
@@ -417,8 +371,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 									title: finding.title,
 									desc: page.title,
 									// Same "click the row → open that page's editor" behaviour as
-									// the GEO/AEO issue tables; the homepage isn't a post, so it
-									// opens the live page instead.
+									// the GEO/AEO issue tables.
 									action: () => {
 										window.location.href = getIssueLink(page, finding);
 									},

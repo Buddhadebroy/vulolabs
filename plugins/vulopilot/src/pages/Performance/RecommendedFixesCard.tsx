@@ -21,14 +21,8 @@ interface ActionResult {
 }
 
 /**
- * Real `POST /performance-actions/{id}` one-click fixes (same 7 actions,
- * same endpoint, `classes/RestAPI/Controllers/PerformanceActions.php` -
- * as QuickActionsCard.tsx on the Overview tab), matched here by keyword
- * against each real `top_issues[].issue` string (a real Google Lighthouse
- * opportunity-audit title, or a plain load-time label -
- * PageSpeedRepository::get_top_issues()'s own docblock) so only fixes
- * relevant to what was actually detected on THIS site's slow pages show
- * up, not the full fixed 7-item list Overview's own card always shows.
+ * One-click fixes via `POST /performance-actions/{id}`, the same actions as the Overview Quick
+ * Actions card.
  */
 const FIX_BY_KEYWORD: { keyword: string; actionId: string; icon: string; label: string }[] = [
 	{ keyword: 'image', actionId: 'optimize-images', icon: 'image', label: __('Optimize Images', 'vulopilot') },
@@ -41,16 +35,8 @@ const FIX_BY_KEYWORD: { keyword: string; actionId: string; icon: string; label: 
 ];
 
 /**
- * "Recommended Fixes" - real, one-click actions tied to what this site's
- * own Slow Pages scan actually found, per direct instruction: replaces
- * "Why these pages matter" (SlowPagesTab.tsx, now removed) - a static,
- * always-identical educational bullet list ("Poor user experience"/"Lower
- * conversions"/"Search ranking impact") that never changed no matter what
- * the real data showed. This card only appears at all when at least one
- * real top issue keyword-matches a real fix; each button triggers the
- * exact same backend action QuickActionsCard.tsx's own "Quick Actions"
- * card uses on the Overview tab, so a fix run from here is a real fix,
- * not a link elsewhere.
+ * "Recommended Fixes" - real, one-click actions tied to what this site's own Slow Pages scan
+ * actually found.
  */
 const RecommendedFixesCard = ({ topIssues }: { topIssues: PageSpeedIssue[] }) => {
 	const [runningActionId, setRunningActionId] = useState<string | null>(null);

@@ -1,118 +1,72 @@
 import { __ } from '@wordpress/i18n';
-import { Button, TextControl, TextareaControl } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
+import { Button, TextControl, TextareaControl, ToggleControl } from '@wordpress/components';
+import { useState } from '@wordpress/element';
+import type { ComponentType } from 'react';
 import { usePostData } from '../usePostData';
 import SnippetPreview from '../SnippetPreview';
-import Checklist from '../Checklist';
-import { analyzePost, AnalysisResult, FixResponse } from '../api';
-
-const GROUP_LABELS: Record< AnalysisResult[ 'group' ], string > = {
-	basic: __( 'Basic SEO', 'vulopilot' ),
-	additional: __( 'Additional', 'vulopilot' ),
-	title_readability: __( 'Title Readability', 'vulopilot' ),
-};
+import { useFieldHighlight } from '../useFieldHighlight';
+import { useFilterSlot } from '../../services/useFilterSlot';
 
 interface GeneralTabProps {
-	/** "All SEO Issues" table's "Fix with AI" deep link - an OnPageAnalyzer check id (e.g. 'description_length') to scroll to and highlight once the checklist below has (re-)computed it. */
+	/** "All SEO Issues" table's "Fix with AI" deep link - currently only ever resolves to 'canonical_url' on this tab (see seoIssueEditorTarget.ts). */
 	highlightTarget?: string;
-	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch - accepted for prop-shape parity with every other tab (`PostSeoPanel.tsx` passes it uniformly to whichever tab is active), unused here since this tab is never itself the target of `PageAnalysisTab.tsx`'s own row clicks. */
+	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch - accepted for prop-shape parity with every other tab, unused here. */
+	// eslint-disable-next-line no-unused-vars
 	onNavigate?: ( tab: string, target?: string ) => void;
 }
 
 /**
- * The metabox's General tab - focus keyword, SEO title (native
- * `post_title`), meta description (native `post_excerpt`), a live snippet
- * preview, and Services\OnPageAnalyzer's checklist. Analysis re-runs on a
- * short debounce against LIVE, possibly-unsaved editor state (see
- * PostSeo.php for why that's a POST-with-body, not a stored-post read).
- *
- * Preview sits first with title/description tucked behind an "Edit
- * Snippet" toggle; Focus Keyword is a single removable pill, not a
- * multi-keyword field - Services\OnPageAnalyzer only ever grades ONE
- * `_vulopilot_focus_keyword` string end to end, and there's no
- * pillar-content concept in this codebase, so a multi-pill input or a
- * "Pillar Content" checkbox would have nothing real backing it, doing
- * nothing.
+ * The metabox's General tab - focus keyword, SEO title (native `post_title`), meta description
+ * (native `post_excerpt`), a live snippet preview.
  */
 export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
-	const { postId, title, excerpt, slug, content, meta, setTitle, setExcerpt, setMeta } = usePostData();
-	const focusKeyword = ( meta[ window.vulopilotPostSeo.metaKeys.focus_keyword ] as string ) || '';
+	const { postId, title, excerpt, slug, meta, setTitle, setExcerpt, setMeta } = usePostData();
+	const { metaKeys, shopUrl } = window.vulopilotPostSeo;
+	const canonicalUrl = ( meta[ metaKeys.canonical_url ] as string ) || '';
+	const noindex = Boolean( meta[ metaKeys.robots_noindex ] );
+	const nofollow = Boolean( meta[ metaKeys.robots_nofollow ] );
+	const isCanonicalHighlighted = useFieldHighlight( highlightTarget, 'canonical_url' );
+	// Stored as one comma-separated string (PostSeoMetaFields::split_keywords()'s own docblock) -
+	// the first is the "primary" keyword every check on the Page Analysis tab scores against,
+	// same primary/additional distinction Rank Math's own focus keyword field uses.
+	const focusKeywordRaw = ( meta[ window.vulopilotPostSeo.metaKeys.focus_keyword ] as string ) || '';
+	const focusKeywords = focusKeywordRaw
+		.split( ',' )
+		.map( ( keyword ) => keyword.trim() )
+		.filter( Boolean );
 
-	const [ results, setResults ] = useState< AnalysisResult[] >( [] );
-	const [ analyzing, setAnalyzing ] = useState( false );
 	const [ isEditingSnippet, setIsEditingSnippet ] = useState( false );
 	const [ isAddingKeyword, setIsAddingKeyword ] = useState( false );
 	const [ keywordDraft, setKeywordDraft ] = useState( '' );
 
-	useEffect( () => {
-		let cancelled = false;
-		setAnalyzing( true );
-
-		const timeout = setTimeout( () => {
-			analyzePost( postId, { title, content, excerpt, slug, focus_keyword: focusKeyword } )
-				.then( ( response ) => {
-					if ( ! cancelled ) {
-						setResults( response.results );
-					}
-				} )
-				.catch( () => {
-					// A failed analysis call just leaves the previous
-					// checklist showing - not worth surfacing as an error,
-					// it re-runs automatically on the next edit.
-				} )
-				.finally( () => {
-					if ( ! cancelled ) {
-						setAnalyzing( false );
-					}
-				} );
-		}, 600 );
-
-		return () => {
-			cancelled = true;
-			clearTimeout( timeout );
-		};
-	}, [ postId, title, excerpt, slug, content, focusKeyword ] );
-
-	const handleFixed = ( actionId: string, response: FixResponse ) => {
-		if ( ! response.post ) {
-			return;
-		}
-
-		if ( 'write-meta-title' === actionId ) {
-			setTitle( response.post.title );
-		}
-
-		if ( 'write-meta-description' === actionId ) {
-			setExcerpt( response.post.excerpt );
-		}
-
-		// improve-readability/add-subheadings rewrite post_content on the
-		// server - deliberately NOT live-synced into the open editor's
-		// block canvas (that would mean re-parsing HTML into blocks under
-		// an actively-edited post, risking clobbering an in-progress edit
-		// or the undo stack). The write already happened and is real;
-		// reloading the editor is what picks it up.
-	};
-
-	const byGroup = ( group: AnalysisResult[ 'group' ] ) => results.filter( ( result ) => result.group === group );
+	/** vulopilot-pro's own "Suggest Titles" button + popup. */
+	// eslint-disable-next-line no-unused-vars
+	const SuggestTitlesButton = useFilterSlot< ComponentType< { postId: number; onApply: ( title: string ) => void } > >(
+		'vulopilot_seo_title_suggestions_button'
+	);
 
 	const startAddingKeyword = () => {
 		setKeywordDraft( '' );
 		setIsAddingKeyword( true );
 	};
 
+	const saveKeywords = ( keywords: string[] ) =>
+		setMeta( { [ window.vulopilotPostSeo.metaKeys.focus_keyword ]: keywords.join( ', ' ) } );
+
 	const commitKeywordDraft = () => {
 		const value = keywordDraft.trim();
 
-		if ( value ) {
-			setMeta( { [ window.vulopilotPostSeo.metaKeys.focus_keyword ]: value } );
+		// Case-insensitive de-dupe - re-typing the same keyword shouldn't add a second pill.
+		if ( value && ! focusKeywords.some( ( keyword ) => keyword.toLowerCase() === value.toLowerCase() ) ) {
+			saveKeywords( [ ...focusKeywords, value ] );
 		}
 
+		setKeywordDraft( '' );
 		setIsAddingKeyword( false );
 	};
 
-	const removeKeyword = () =>
-		setMeta( { [ window.vulopilotPostSeo.metaKeys.focus_keyword ]: '' } );
+	const removeKeyword = ( index: number ) =>
+		saveKeywords( focusKeywords.filter( ( _keyword, i ) => i !== index ) );
 
 	return (
 		<div className="vulopilot-seo-tab vulopilot-seo-tab--general">
@@ -146,6 +100,21 @@ export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
 						onChange={ setTitle }
 					/>
 
+					{ SuggestTitlesButton ? (
+						<SuggestTitlesButton postId={ postId } onApply={ setTitle } />
+					) : (
+						<Button
+							variant="tertiary"
+							size="small"
+							className="vulopilot-seo-suggest-titles-toggle"
+							href={ shopUrl }
+							target="_blank"
+							rel="noreferrer"
+						>
+							{ __( 'Suggest Titles (Upgrade to unlock)', 'vulopilot' ) }
+						</Button>
+					) }
+
 					<TextareaControl
 						label={ __( 'Meta Description', 'vulopilot' ) }
 						help={ __( 'Shown as the description snippet in search results.', 'vulopilot' ) + ` (${ excerpt.length }/160)` }
@@ -158,68 +127,87 @@ export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
 
 			<div className="vulopilot-seo-section-label">{ __( 'Focus Keyword', 'vulopilot' ) }</div>
 			<p className="small desc vulopilot-seo-focus-keyword-help">
-				{ __( 'The main term you want this page to rank for - drives the checks below.', 'vulopilot' ) }
+				{ __( 'The terms you want this page to rank for. The first (primary) keyword drives the checks on the Page Analysis tab - the rest are tracked alongside it.', 'vulopilot' ) }
 			</p>
 
 			<div className="vulopilot-seo-focus-keyword">
-				{ focusKeyword && (
-					<span className="vulopilot-seo-keyword-pill">
-						<i className="dashicons dashicons-star-filled" />
-						{ focusKeyword }
+				{ focusKeywords.map( ( keyword, index ) => (
+					<span
+						key={ `${ keyword }-${ index }` }
+						className={ `vulopilot-seo-keyword-pill${ 0 === index ? ' vulopilot-seo-keyword-pill--primary' : '' }` }
+					>
+						{ 0 === index && <i className="dashicons dashicons-star-filled" /> }
+						{ keyword }
 						<button
 							type="button"
 							className="vulopilot-seo-keyword-pill__remove"
 							aria-label={ __( 'Remove focus keyword', 'vulopilot' ) }
-							onClick={ removeKeyword }
+							onClick={ () => removeKeyword( index ) }
 						>
 							<i className="dashicons dashicons-no-alt" />
 						</button>
 					</span>
-				) }
+				) ) }
 
-				{ ! focusKeyword && isAddingKeyword && (
+				{ isAddingKeyword ? (
 					<TextControl
 						autoFocus
 						value={ keywordDraft }
-						placeholder={ __( 'Add a focus keyword…', 'vulopilot' ) }
+						placeholder={
+							0 === focusKeywords.length
+								? __( 'Add a focus keyword…', 'vulopilot' )
+								: __( 'Add another keyword…', 'vulopilot' )
+						}
 						onChange={ setKeywordDraft }
 						onKeyDown={ ( event ) => {
-							if ( 'Enter' === event.key ) {
+							if ( 'Enter' === event.key || ',' === event.key ) {
 								event.preventDefault();
 								commitKeywordDraft();
+								setIsAddingKeyword( true );
 							}
 
 							if ( 'Escape' === event.key ) {
+								setKeywordDraft( '' );
 								setIsAddingKeyword( false );
 							}
 						} }
 						onBlur={ commitKeywordDraft }
 					/>
-				) }
-
-				{ ! focusKeyword && ! isAddingKeyword && (
+				) : (
 					<Button variant="tertiary" size="small" icon="plus-alt2" onClick={ startAddingKeyword }>
 						{ __( 'Add Focus Keyword', 'vulopilot' ) }
 					</Button>
 				) }
 			</div>
 
-			{ analyzing && 0 === results.length ? (
-				<div className="desc">{ __( 'Analyzing…', 'vulopilot' ) }</div>
-			) : (
-				( [ 'basic', 'additional', 'title_readability' ] as const ).map( ( group ) => (
-					<Checklist
-						key={ group }
-						title={ GROUP_LABELS[ group ] }
-						results={ byGroup( group ) }
-						postId={ postId }
-						isPro={ window.vulopilotPostSeo.isPro }
-						shopUrl={ window.vulopilotPostSeo.shopUrl }
-						onFixed={ handleFixed }
-						highlightId={ highlightTarget }
-					/>
-				) )
-			) }
+			<div className="vulopilot-seo-section-label">{ __( 'Robots & Canonical', 'vulopilot' ) }</div>
+
+			<div
+				id="vulopilot-seo-field-canonical_url"
+				className={ isCanonicalHighlighted ? 'vulopilot-seo-highlight-pulse' : undefined }
+			>
+				<TextControl
+					label={ __( 'Canonical URL', 'vulopilot' ) }
+					help={ __( 'Leave empty to use this page\'s own permalink (the default WordPress already uses).', 'vulopilot' ) }
+					placeholder={ window.location.origin + '/' + slug }
+					value={ canonicalUrl }
+					onChange={ ( value ) => setMeta( { [ metaKeys.canonical_url ]: value } ) }
+				/>
+			</div>
+
+			<ToggleControl
+				label={ __( 'No Index', 'vulopilot' ) }
+				help={ __( 'Tell search engines not to show this page in search results.', 'vulopilot' ) }
+				checked={ noindex }
+				onChange={ ( value ) => setMeta( { [ metaKeys.robots_noindex ]: value } ) }
+			/>
+
+			<ToggleControl
+				label={ __( 'No Follow', 'vulopilot' ) }
+				help={ __( 'Tell search engines not to follow links on this page.', 'vulopilot' ) }
+				checked={ nofollow }
+				onChange={ ( value ) => setMeta( { [ metaKeys.robots_nofollow ]: value } ) }
+			/>
 		</div>
 	);
 }

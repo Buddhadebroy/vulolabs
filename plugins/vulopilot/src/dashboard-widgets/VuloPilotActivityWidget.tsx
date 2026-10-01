@@ -1,6 +1,6 @@
 /* global vulopilotAppLocalizer */
 import React, { useEffect, useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, AnalyticsComponent } from '@zyra/core';
 import { ChartComponent, ModuleGuardComponent, PopupComponent } from '@zyra/components';
 import { ToggleInput } from '@zyra/inputs';
@@ -9,8 +9,7 @@ import DummyDataNotice from '../components/DummyDataNotice';
 import { BlurredProContent } from '../components/UpgradeToProOverlay';
 import ShowProPopup from '../components/Popup/Popup';
 import { useApiList } from '../services/useApiList';
-import { useLastScanTime } from '../services/useLastScanTime';
-import { formatWpDate, formatWpTime, isWpToday } from '../services/formatWpDate';
+import { formatWpDate } from '../services/formatWpDate';
 import { WidgetProps } from './types';
 
 interface CrawlerAnalyticsResponse {
@@ -19,9 +18,6 @@ interface CrawlerAnalyticsResponse {
 	daily_volume: { date: string; total: number }[];
 }
 
-interface ReportRow {
-	created_at: string;
-}
 
 interface HealthSnapshot {
 	snapshot_date: string;
@@ -30,19 +26,15 @@ interface HealthSnapshot {
 
 type PeriodDays = '7' | '30' | '90';
 
-/** Same real `key` field convention `OverviewTab.tsx`'s own identical `ToggleInput` usage already establishes - required so React's list key and each radio's real `id`/`htmlFor` pair are unique. */
+/** Same real `key` field convention `OverviewTab.tsx`'s own identical `ToggleInput` usage already establishes. */
 const PERIOD_OPTIONS = [
 	{ key: '7', value: '7', label: __('7D', 'vulopilot') },
 	{ key: '30', value: '30', label: __('30D', 'vulopilot') },
 	{ key: '90', value: '90', label: __('90D', 'vulopilot') },
 ];
 
-/** Same real day-range options the old `BadgeComponent` toggle used, now expressed as the real `PeriodDays` string values `ToggleInput` needs. */
-const HEALTH_TIMELINE_DAY_OPTIONS: PeriodDays[] = ['7', '30', '90'];
 
-const HEALTH_TIMELINE_MODULE_ID = 'advanced-reports';
-
-/** Fabricated 7-day score trend - same "obviously fake, never mistaken for a real scan result" reasoning Accessibility.tsx's own `DUMMY_ACCESSIBILITY_HISTORY` documents; no real fetch behind this, ever. */
+/** Fabricated 7-day score trend - same "obviously fake, never mistaken for a real scan result" reasoning Accessibility.tsx's own `DUMMY_ACCESSIBILITY_HISTORY` documents. */
 const DUMMY_HEALTH_TIMELINE = [
 	{ day: __('Day 1', 'vulopilot'), score: 58 },
 	{ day: __('Day 2', 'vulopilot'), score: 63 },
@@ -54,25 +46,7 @@ const DUMMY_HEALTH_TIMELINE = [
 ];
 
 /**
- * "VuloPilot activity" - a real 5-tile activity strip. Every tile reads
- * data that already exists elsewhere on this Dashboard/plugin; this widget
- * only re-presents it compactly rather than introducing a new data source
- * per tile:
- *
- * - AI crawler visits: `GET /crawler-traffic/analytics?days=7` (same
- *   endpoint CrawlerAnalyticsSection.tsx uses) - `current_total`/
- *   `previous_total` are a real, already-computed 7-day-vs-previous-7-day
- *   comparison (CrawlerVisitRepository::get_period_comparison()), and
- *   `daily_volume` backs a real sparkline of the last 7 real days.
- * - Automations: `summary.automation_status.enabled` - already on the
- *   shared `/dashboard` payload (Controllers\Dashboard::get_items()).
- * - Last audit: `useLastScanTime()` (sitewide, no scanner/category
- *   filter) - the same real `vulopilot_scans.finished_at` used by every
- *   category page's own header.
- * - Pending approvals: `summary.pending_approvals` - the same real count
- *   NeedsAttentionWidget's "Pending approval" tab already lists.
- * - Latest report: `GET /reports?per_page=1` (same endpoint
- *   LatestReportsWidget already reads), most recent row's `created_at`.
+ * "VuloPilot activity" - a real 5-tile activity strip.
  */
 const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 	summary,
@@ -80,68 +54,36 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 	onHide,
 	isCustomizing,
 }) => {
+	const [healthTimelineDays, setHealthTimelineDays] = useState<PeriodDays>('30');
 	const [crawlerAnalytics, setCrawlerAnalytics] =
 		useState<CrawlerAnalyticsResponse | null>(null);
-	const [isCrawlerLoading, setIsCrawlerLoading] = useState(true);
 
 	useEffect(() => {
 		getApiResponse<CrawlerAnalyticsResponse>(
-			getApiLink(vulopilotAppLocalizer, 'crawler-traffic/analytics?days=7'),
+			getApiLink(
+				vulopilotAppLocalizer,
+				`crawler-traffic/analytics?days=${healthTimelineDays}`
+			),
 			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
-		)
-			.then((response) => {
-				if (response) {
-					setCrawlerAnalytics(response);
-				}
-			})
-			.finally(() => setIsCrawlerLoading(false));
-	}, []);
+		).then((response) => {
+			if (response) {
+				setCrawlerAnalytics(response);
+			}
+		});
+	}, [healthTimelineDays]);
 
-	const { data: reportRows, isLoading: isReportsLoading } =
-		useApiList<ReportRow>(
-			'reports',
-			{ per_page: 1 },
-			undefined,
-			Boolean(vulopilotAppLocalizer.khali_dabba)
-		);
-	const { lastScanAt, isLoading: isLastScanLoading } = useLastScanTime();
 
-	const [healthTimelineDays, setHealthTimelineDays] = useState<PeriodDays>('30');
 	const { data: healthSnapshots } = useApiList<HealthSnapshot>(
 		'site-health-snapshots',
 		{ days: Number(healthTimelineDays) },
 		undefined,
 		Boolean(vulopilotAppLocalizer.khali_dabba)
 	);
-	const isHealthTimelineModuleActive =
-		vulopilotAppLocalizer.active_modules.includes(HEALTH_TIMELINE_MODULE_ID);
+	const isHealthTimelineModuleActive = Boolean(vulopilotAppLocalizer.khali_dabba);
 	const [isHealthTimelineProPopupOpen, setIsHealthTimelineProPopupOpen] = useState(false);
 
 	const crawlerCurrent = crawlerAnalytics?.current_total ?? 0;
-	const crawlerPrevious = crawlerAnalytics?.previous_total ?? 0;
-	const crawlerChangePercent =
-		crawlerPrevious > 0
-			? Math.round(
-				((crawlerCurrent - crawlerPrevious) / crawlerPrevious) *
-				100
-			)
-			: null;
-	const sparklineData = (crawlerAnalytics?.daily_volume ?? []).map(
-		(day) => ({
-			label: day.date,
-			value: day.total,
-		})
-	);
 
-	const formatAuditTime = (dateString: string): string => {
-		return isWpToday(dateString)
-			? sprintf(
-				/* translators: %s: real completion time, e.g. "9:26 AM". */
-				__('Today, %s', 'vulopilot'),
-				formatWpTime(dateString)
-			)
-			: formatWpDate(dateString);
-	};
 
 	return (
 		<>
@@ -231,11 +173,7 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 				height="auto"
 				position="lightbox"
 			>
-				{vulopilotAppLocalizer.khali_dabba ? (
-					<ShowProPopup moduleName={HEALTH_TIMELINE_MODULE_ID} />
-				) : (
-					<ShowProPopup />
-				)}
+				<ShowProPopup />
 			</PopupComponent>
 		</>
 	);

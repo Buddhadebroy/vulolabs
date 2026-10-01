@@ -30,7 +30,7 @@ Adding a setting:
 | `Settings\GoogleSearchConsoleOAuthCallbackHandler` | Handles the OAuth redirect |
 | `Settings\GoogleAnalyticsClient` / `GoogleAnalyticsTracker` | GA4 Data API reads; outputs `gtag.js` through the enqueue API |
 | `Settings\GoogleAdSenseClient` | Read-only AdSense data |
-| `Settings\WebmasterToolsManager` | Outputs verification `<meta>` tags; custom tags are limited to `<meta>` |
+| `Settings\WebmasterToolsManager` | Outputs verification `meta` tags; custom tags are limited to `meta` |
 | `SeoVisibility\TagManagerService` | GTM head script via `wp_add_inline_script()` and the `<noscript>` body fallback |
 | `AiAssistant\VuloCloudAccountConnection`, `AiCreditsConnection` | VuloCloud login and credits |
 | `AiAssistant\ConnectBrokerCallbackHandler` | VuloCloud connect callback |

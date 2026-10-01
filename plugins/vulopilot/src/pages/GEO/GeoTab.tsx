@@ -65,10 +65,8 @@ const GEO_TOPICS: {
 	];
 
 /**
- * GEO = Generative Engine Optimization - how discoverable/citable this
- * site is to AI answer engines (distinct from classic search-engine SEO).
- * Reusing real data already fetched elsewhere on this tab rather than
- * duplicating it (direct instruction):
+ * GEO = Generative Engine Optimization - how discoverable/citable this site is to AI answer
+ * engines (distinct from classic search-engine SEO).
  */
 const GeoTab = () => {
 	const [categoryFocus, setCategoryFocus] = useState<{
@@ -78,16 +76,11 @@ const GeoTab = () => {
 
 	const allGeoScannerIds = GEO_TOPICS.flatMap((topic) => topic.scannerIds);
 
-	/** Set by a real "Analyze" click in the "Pages & Posts" table below - opens `GeoAeoPageAnalysisPanel` as a real sidebar, same real "Analyze"/"Viewing" toggle + side panel SeoTab.tsx's own SEO table already has (see that panel's own docblock for why it shows real findings instead of a fabricated pass/fail checklist). */
+	/** Set by a real "Analyze" click in the "Pages & Posts" table below. */
 	const [analyzingPostId, setAnalyzingPostId] = useState<number | null>(null);
 
 	/**
-	 * Sets a fresh `categoryFocus` (a new `token` even for the same `key`
-	 * twice in a row) - `IssuesSection.tsx`'s own effect both switches its
-	 * active filter to that topic (or resets to unfiltered for the literal
-	 * `'all'`) and scrolls itself into view, so this doesn't also need its
-	 * own `scrollToId()` call the way the old `SectionedFindingsTab`-based
-	 * version did.
+	 * Sets a fresh `categoryFocus` (a new `token` even for the same `key` twice in a row).
 	 */
 	const goToIssuesTable = (key: string = 'all') => {
 		setCategoryFocus({ key, token: Date.now() });
@@ -97,7 +90,7 @@ const GeoTab = () => {
 		<ContainerComponent>
 			<GeoScoreSection onSelectSignal={goToIssuesTable} />
 
-			<ColumnComponent grid={8}>
+			<ColumnComponent grid={analyzingPostId ? 8 : 12}>
 				<IssuesSection
 					id="geo-all-issues-table"
 					scannerIds={allGeoScannerIds}
@@ -113,6 +106,7 @@ const GeoTab = () => {
 					}}
 					onAnalyze={setAnalyzingPostId}
 					activePostId={analyzingPostId}
+					onAnalyzeClose={() => setAnalyzingPostId(null)}
 				/>
 			</ColumnComponent>
 			{analyzingPostId && (

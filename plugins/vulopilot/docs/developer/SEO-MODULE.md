@@ -52,11 +52,11 @@ A scanner id must be listed in `seoSections.ts` to appear in the SEO tab; a scan
 | `Module` | `modules/TechnicalSeo/Module.php` | VuloPilot TechnicalSeo module. |
 | `Seo` | `modules/TechnicalSeo/Rest/Seo.php` | `GET /seo/score` - a real, deterministic SEO Score (no AI, no cost) for the restyled SEO tab's own "SEO Health Score" card. |
 | `AiCrawlerBlockedPagesScanner` | `modules/TechnicalSeo/Scanners/AiCrawlerBlockedPagesScanner.php` | - |
-| `BrokenImagesScanner` | `modules/TechnicalSeo/Scanners/BrokenImagesScanner.php` | BrokenLinksScanner's own sibling for `<img src>` instead of `<a href>` - extracts image sources from the most recently published posts/pages and checks each one for a non-2xx/3xx HTTP response, flagging ones that appear broken. |
+| `BrokenImagesScanner` | `modules/TechnicalSeo/Scanners/BrokenImagesScanner.php` | BrokenLinksScanner's own sibling for `img` instead of `a` - extracts image sources from the most recently published posts/pages and checks each one for a non-2xx/3xx HTTP response, flagging ones that appear broken. |
 | `BrokenLinksScanner` | `modules/TechnicalSeo/Scanners/BrokenLinksScanner.php` | Extracts links from the most recently published posts/pages and checks each one for a non-2xx/3xx HTTP response, flagging ones that appear broken. |
-| `CanonicalUrlScanner` | `modules/TechnicalSeo/Scanners/CanonicalUrlScanner.php` | Flags pages whose rendered HTML has no `<link rel="canonical">` tag. |
+| `CanonicalUrlScanner` | `modules/TechnicalSeo/Scanners/CanonicalUrlScanner.php` | Flags pages whose rendered HTML has no `link` tag. |
 | `DuplicateContentScanner` | `modules/TechnicalSeo/Scanners/DuplicateContentScanner.php` | Flags published posts/pages that share an identical title with at least one other post. |
-| `HeadingStructureScanner` | `modules/TechnicalSeo/Scanners/HeadingStructureScanner.php` | Flags substantial published content (over MIN_WORD_COUNT_TO_CHECK words - a short post genuinely may not need subheadings) with no `<h2>`-`<h6>` tags anywhere in it. |
+| `HeadingStructureScanner` | `modules/TechnicalSeo/Scanners/HeadingStructureScanner.php` | Flags substantial published content (over MIN_WORD_COUNT_TO_CHECK words - a short post genuinely may not need subheadings) with no `h2`-`h6` tags anywhere in it. |
 | `ImagesScanner` | `modules/TechnicalSeo/Scanners/ImagesScanner.php` | Flags image attachments with no alt text set. |
 | `InternalLinkingScanner` | `modules/TechnicalSeo/Scanners/InternalLinkingScanner.php` | Flags published posts/pages whose content contains zero links back to the site's own domain. |
 | `MetaDescriptionScanner` | `modules/TechnicalSeo/Scanners/MetaDescriptionScanner.php` | Flags published posts/pages with no excerpt set. |
@@ -67,7 +67,7 @@ A scanner id must be listed in `seoSections.ts` to appear in the SEO tab; a scan
 | `SeoImagesScanner` | `modules/TechnicalSeo/Scanners/SeoImagesScanner.php` | Flags published posts/pages with no featured image set. |
 | `SeoScanner` | `modules/TechnicalSeo/Scanners/SeoScanner.php` | Flags published post/page titles outside the length search engines reliably display in full (roughly 10-60 characters) - a title with no dedicated meta-description field can't be checked generically (that field's meta key varies b |
 | `SitemapScanner` | `modules/TechnicalSeo/Scanners/SitemapScanner.php` | Flags a site with no reachable XML sitemap. |
-| `StructuredDataValidationScanner` | `modules/TechnicalSeo/Scanners/StructuredDataValidationScanner.php` | Extracts every `<script type="application/ld+json">` block on the homepage and flags any that fail to parse as valid JSON. |
+| `StructuredDataValidationScanner` | `modules/TechnicalSeo/Scanners/StructuredDataValidationScanner.php` | Extracts every JSON-LD script block on the homepage and flags any that fail to parse as valid JSON. |
 | `ThinContentScanner` | `modules/TechnicalSeo/Scanners/ThinContentScanner.php` | Flags published posts/pages under a minimum word count. |
 | `TwitterCardScanner` | `modules/TechnicalSeo/Scanners/TwitterCardScanner.php` | Fetches the homepage and flags a missing `twitter:card` meta tag - without it, X/Twitter falls back to a plain link with no preview image or summary when this site's pages are shared there, independent of whether Open Graph tags ( |
 

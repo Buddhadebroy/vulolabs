@@ -24,13 +24,8 @@ const tileText = ( label: string, sub: string ) => (
 );
 
 /**
- * "Automation status" - a quick 4-tile health overview (Active / Not active /
- * Errors / Custom automations), replacing the old "Your website is being
- * watched" and "This month" cards per the redesigned Automations mockup.
- * Every number is real: `GET /automations`' own `status_counts` and rows
- * (custom = every row that isn't one of the 2 built-ins), and
- * `GET /automation-dashboard-stats?period=month`'s own real failed-run count
- * for "Errors".
+ * "Automation status" - a quick 4-tile health overview (Active / Not active / Errors / Custom
+ * automations).
  */
 const AutomationsStatusCard = ( { refetchSignal }: { refetchSignal: number } ) => {
 	const [ counts, setCounts ] = useState<StatusCounts>( { enabled: 0, disabled: 0 } );

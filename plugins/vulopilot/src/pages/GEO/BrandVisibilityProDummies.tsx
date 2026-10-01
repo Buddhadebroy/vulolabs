@@ -32,7 +32,7 @@ const BlurredDummyContent = ({
 	title: string;
 	titleIcon: string;
 	desc: string;
-	/** `CardComponent`'s own header `action` slot - the "Optimize Knowledge Panel"/"Add competitors"+"Analyze competitors" buttons 2 of the 4 dummies pass; `undefined` for the other 2, which have none. */
+	/** `CardComponent`'s own header `action` slot - the "Optimize Knowledge Panel"/"Add competitors"+"Analyze competitors" buttons 2 of the 4 dummies pass. */
 	action?: ReactNode;
 	/** This dummy's own content class (e.g. `brand-authority-trends-dummy`) - `blur-wrapper-content` is appended automatically. */
 	contentClassName: string;
@@ -108,14 +108,7 @@ export const AuthorityTrendsDummy = ({ onClick }: DummyCardProps) => (
 );
 
 /**
- * Deliberately NOT plausible real post titles ("Hello world!"/"Sample
- * Page" - WordPress's own default posts, present on virtually every
- * install - were tried here first and read as real scan results about
- * this site's own content, the opposite of what a fabricated example
- * should do) - "(Example post N)" so this list can never be mistaken for
- * a real finding regardless of what's actually on the site it renders on.
- * Same reasoning behind OffSiteMentionsDummy's "(Example mention N)"/
- * CompetitorComparisonDummy's "(Example competitor N)" below.
+ * Placeholder titles like "(Example post N)" so the list is never mistaken for real findings.
  */
 const DUMMY_KNOWLEDGE_PANEL_FINDINGS: { title: string }[] = [
 	{ title: __('No author schema found: (Example post 1)', 'vulopilot') },

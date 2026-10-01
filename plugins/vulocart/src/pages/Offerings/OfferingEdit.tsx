@@ -418,7 +418,7 @@ interface OfferingEditProps {
  *
  * Fields beyond title/type/sku/price/currency/status (Domain\Offering\Offering's
  * real columns) are stored in the Offering's existing generic `meta` JSON
- * column - no schema migration needed, same "extensible, type-specific
+ * column - no schema change needed, same "extensible, type-specific
  * attributes" role `meta` already has for Cart/Order.
  *
  * The form is genuinely dynamic per offering type (this plugin's admin-UX

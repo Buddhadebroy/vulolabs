@@ -1,4 +1,3 @@
-/* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import type { ComponentType } from 'react';
 import { __ } from '@wordpress/i18n';
@@ -6,13 +5,11 @@ import { BadgeComponent, CardComponent, PopupComponent } from '@zyra/components'
 import ShowProPopup from '../../components/Popup/Popup';
 import { BlurredProContent } from '../../components/UpgradeToProOverlay';
 import DummyDataNotice from '../../components/DummyDataNotice';
-import { ADVANCED_REPORTS_MODULE_ID } from './reportsOverview';
 import { useFilterSlot } from '../../services/useFilterSlot';
 
 /**
- * Fabricated preview rows - same "obviously fake" reasoning
- * reportsOverview.ts's own `DUMMY_REPORT_ROWS` documents, shaped for this
- * table's own columns (frequency/recipients) rather than a report row's.
+ * Fabricated preview rows - same "obviously fake" reasoning reportsOverview.ts's own
+ * `DUMMY_REPORT_ROWS` documents.
  */
 const DUMMY_SCHEDULE_ROWS = [
 	{
@@ -44,7 +41,6 @@ const ScheduledReportsTable = ({ refreshSignal }: ScheduledReportsTableProps) =>
 	const RealPanel = useFilterSlot<
 		ComponentType<{ refreshSignal?: number }>
 	>('vulopilot_scheduled_reports_panel');
-	const isProInstalled = Boolean(vulopilotAppLocalizer.khali_dabba);
 
 	return (
 		<CardComponent
@@ -91,11 +87,7 @@ const ScheduledReportsTable = ({ refreshSignal }: ScheduledReportsTableProps) =>
 						width={31.25}
 						height="auto"
 					>
-						{isProInstalled ? (
-							<ShowProPopup moduleName={ADVANCED_REPORTS_MODULE_ID} />
-						) : (
-							<ShowProPopup />
-						)}
+						<ShowProPopup />
 					</PopupComponent>
 				</>
 			)}

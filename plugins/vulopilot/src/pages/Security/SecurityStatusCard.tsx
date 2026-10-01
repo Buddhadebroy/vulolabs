@@ -35,7 +35,7 @@ const SecurityDashboardCard = applyFilters(
 	null
 ) as ComponentType<SecurityStatusCardProps> | null;
 
-/** Same real 3-tier band shape `PerformanceScoreCard.tsx`'s own `Rating` interface uses - kept structurally identical so both files' ring colors read from the same kind of map. */
+/** Same real 3-tier band shape `PerformanceScoreCard.tsx`'s own `Rating` interface uses. */
 interface Rating {
 	label: string;
 	className: 'good' | 'needs-improvement' | 'poor';
@@ -53,10 +53,8 @@ const getScoreRating = (score: number): Rating => {
 };
 
 /**
- * Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`) - same real
- * source `PerformanceScoreCard.tsx`'s own `RATING_COLOR` reads. The ring's
- * own `data[].color` needs a literal CSS color, not a palette class name,
- * so this reads the shared source rather than a second hardcoded copy.
+ * Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`) - same real source
+ * `PerformanceScoreCard.tsx`'s own `RATING_COLOR` reads.
  */
 const RATING_COLOR: Record<Rating['className'], string> = {
 	good: COLOR_PALETTE.green,
@@ -64,7 +62,7 @@ const RATING_COLOR: Record<Rating['className'], string> = {
 	poor: COLOR_PALETTE.red,
 };
 
-/** Same 3 tiers as `RATING_COLOR` above, mapped to `TypographyComponent`'s own palette color names instead of a literal hex - for the ring's center number, which (unlike the ring itself) reads a class name through that prop, not a CSS color. */
+/** Same 3 tiers as `RATING_COLOR` above, mapped to `TypographyComponent`'s own palette color names instead of a literal hex. */
 const TEXT_COLOR: Record<Rating['className'], string> = {
 	good: 'green',
 	'needs-improvement': 'orange',
@@ -80,27 +78,13 @@ interface SecurityStatusCardProps {
 	/** Navigates to the Security tab - same handler `VulnerabilityHeroCard`'s own "Review Issues First" button already called. */
 	onNavigateToSecurityTab?: () => void;
 	/** Forwarded to `SecurityMetricsGrid`'s own row clicks - switches the merged issues table below to that row's own section. */
-	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	 
+	// eslint-disable-next-line no-unused-vars
 	onViewSection: (tab: SectionedIssuesTab) => void;
 }
 
 /**
- * "Security Status" card - the real `category_scores.security` ring
- * (same `type="ring"` / `RATING_COLOR[ratingClass(...)]` structure
- * `PerformanceScoreCard.tsx` and `AccessibilityHeroCard.tsx` already
- * share), plus everything the old `VulnerabilityHeroCard.tsx` used to
- * render: the "I found N security issues" headline, the real
- * High/Medium/Low/Total breakdown (`GET /findings/attention-summary`,
- * `Findings.php`'s Free-tier route - the same one AI Copilot's own "Needs
- * your attention" card reads), and the two real actions ("Review Issues
- * First" + "View All N Issues"). Nothing was dropped in the merge - the
- * hero data and the ring just live in one card now instead of two.
- *
- * The severity breakdown is now a real `ListComponent` (one row per tier,
- * trailing count on the right, real icon + palette color per tier) -
- * replacing the older `AnalyticsComponent` tile grid, per direct
- * instruction, so this card matches the row shape every other list in
- * this plugin already uses.
+ * "Security Status" card: the `category_scores.security` ring and per-section rows.
  */
 const SecurityStatusCard = ({
 	onNavigateToSecurityTab,
@@ -111,10 +95,8 @@ const SecurityStatusCard = ({
 	const [summary, setSummary] = useState<AttentionSummary | null>(null);
 	const [isLoadingSummary, setIsLoadingSummary] = useState(true);
 
-	// Same real open-finding count the old SecurityStatusCard already
-	// fetched, still used below for the "protected / needs attention"
-	// verdict line.
-	const { total: openFindings, isLoading: isLoadingFindings } =
+	// Same real open-finding count the old SecurityStatusCard already fetched.
+	const { total: openFindings } =
 		useApiList<FindingRow>('findings', {
 			category: 'security',
 			status: 'open',
@@ -133,8 +115,11 @@ const SecurityStatusCard = ({
 			})
 			.finally(() => setIsLoading(false));
 
+		// Scoped to 'security' - the endpoint is sitewide by default (every category combined),
+		// which used to make this card's "I found N security issues" banner show the site's TOTAL
+		// open-finding count across every category, mislabeled as if it were security-specific.
 		getApiResponse<AttentionSummary>(
-			getApiLink(vulopilotAppLocalizer, 'findings/attention-summary'),
+			getApiLink(vulopilotAppLocalizer, 'findings/attention-summary?category=security'),
 			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
@@ -191,17 +176,7 @@ const SecurityStatusCard = ({
 							<ChartComponent
 								type="ring"
 								height={200}
-								// Top-level `color` - same prop this ring's own
-								// sibling rings elsewhere in this plugin
-								// (OverallScoreWidget.tsx/PerformanceScoreCard.tsx's
-								// own ScoreTile/VitalRow) already set; `type="ring"`
-								// only ever paints its stroke from this prop, never
-								// from `data[].color` (that's `type="pie"`'s own
-								// read) - without it the ring always rendered in
-								// `ChartComponent`'s default brand purple regardless
-								// of score, while the center number above stayed
-								// plain black instead of matching its own real
-								// rating tier.
+								// Top-level `color`, like the sibling rings (OverallScoreWidget, PerformanceScoreCard).
 								color={RATING_COLOR[ratingClass(overallScore)]}
 								centerLabel={
 									<>

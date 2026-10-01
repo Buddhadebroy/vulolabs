@@ -18,10 +18,7 @@ import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
 
 /**
- * `wp_vulopilot_not_found_logs` rows - Services\NotFoundLogger's own real
- * 404 visit log, both missing content pages and theme/plugin/core-file/
- * asset requests (Services\NotFoundLogger::is_system_path()) in one
- * merged, filterable table.
+ * `wp_vulopilot_not_found_logs` rows - NotFoundLogger's own real 404 visit log.
  */
 interface NotFoundLogRow extends TableRow {
 	id: number;
@@ -29,12 +26,11 @@ interface NotFoundLogRow extends TableRow {
 	referrer: string | null;
 	hit_count: number;
 	last_seen_at: string;
-	// AbstractRepository's `SELECT *` comes back through $wpdb (and then
-	// wp_json_encode) as a numeric STRING, not a real number/boolean - a
-	// row's own `"0"` here is truthy in JS, so every read of this field
-	// below goes through isSystemLog() rather than a bare `row.is_system`
-	// check.
+	// AbstractRepository's `SELECT *` comes back through $wpdb (and then wp_json_encode) as a
+	// numeric STRING, not a real number/boolean.
 	is_system: 0 | 1 | '0' | '1';
+	// NotFoundLogs::get_items() computes this - a real PHP bool, not a `$wpdb`-string field.
+	has_redirect: boolean;
 }
 
 /** See NotFoundLogRow.is_system's own comment - `"0"` from the REST API is a truthy string, so this is the only safe way to read it. */
@@ -42,21 +38,7 @@ const isSystemLog = (row: Pick<NotFoundLogRow, 'is_system'>): boolean =>
 	1 === Number(row.is_system);
 
 /**
- * "404s" inner section of the merged "Crawl & URLs" tab - real 404 visit
- * log, extracted out of BrokenLinksSection.tsx's own former "404 Log"
- * card (direct instruction: "Broken Links + Redirects + Crawler Traffic
- * are fragmented... And the Redirect screen also contains a 404
- * log... A cleaner structure would be one main tab: Crawl & URLs [with]
- * Overview | Broken Links | Redirects | 404s | Robots & Sitemap").
- *
- * Fully self-contained - confirmed before extracting it that its own
- * `notFoundLogs` fetch and `POST /not-found-logs/{id}/convert`
- * "convert to redirect" flow never shared any real state with
- * BrokenLinksSection.tsx's own broken-link/image findings (that tab has
- * its own, separate `openRedirectPopup` flow for turning a broken-link
- * FINDING into a redirect - a different real action against a different
- * real endpoint, `POST /redirects`, not this one), so moving this here
- * was a clean cut, not a refactor of shared logic.
+ * "404s" inner section of the merged "Crawl & URLs" tab.
  */
 const NotFoundLogSection = () => {
 	const [convertingLog, setConvertingLog] = useState<NotFoundLogRow | null>(
@@ -65,9 +47,8 @@ const NotFoundLogSection = () => {
 	const [convertTargetUrl, setConvertTargetUrl] = useState('');
 	const [isConverting, setIsConverting] = useState(false);
 
-	// "All/Content/System" status pill bar - same `${key}_counts` contract
-	// Redirects.php's own `is_active_counts` already established
-	// (NotFoundLogs.php's `is_system_counts`).
+	// "All/Content/System" status pill bar - same `${key}_counts` contract Redirects.php's own
+	// `is_active_counts` already established (NotFoundLogs.php's `is_system_counts`).
 	const notFoundLogs = useApiList<NotFoundLogRow>(
 		'not-found-logs',
 		{ orderby: 'last_seen_at' },
@@ -94,10 +75,9 @@ const NotFoundLogSection = () => {
 	};
 
 	const openConvertPopup = (row: NotFoundLogRow) => {
-		if (isSystemLog(row)) {
-			// Belt-and-braces - the row action itself is already disabled
-			// (no onClick reaches here) for a system row, see the "Type"-
-			// gated actions column below.
+		if (isSystemLog(row) || row.has_redirect) {
+			// Belt-and-braces - the row action itself is already disabled (no onClick reaches here)
+			// for a system row or one that already has a matching redirect.
 			return;
 		}
 
@@ -183,10 +163,9 @@ const NotFoundLogSection = () => {
 								},
 								actions: {
 									label: __('Actions', 'vulopilot'),
-									// Real labelled buttons, same `type: 'button'`
-									// convention every other table's own action
-									// column now uses (TableRowActions.tsx) - not
-									// the plain icon-only look.
+									// Real labelled buttons, same `type: 'button'` convention every
+									// other table's own action column now uses
+									// (TableRowActions.tsx).
 									type: 'action',
 									actions: [
 
@@ -201,31 +180,39 @@ const NotFoundLogSection = () => {
 										{
 											type: 'button',
 											color: 'purple',
-											label: (row: Record<string, unknown>) =>
-												isSystemLog(row as unknown as NotFoundLogRow)
-													? __(
-														"no redirect needed",
-														'vulopilot'
-													)
-													: __('Create redirect', 'vulopilot'),
-											icon: (row: Record<string, unknown>) =>
-												isSystemLog(row as unknown as NotFoundLogRow)
-													? 'lock'
-													: 'link',
-											onClick: (row: Record<string, unknown>) => {
+											label: (row: Record<string, unknown>) => {
 												const logRow = row as unknown as NotFoundLogRow;
 
-												if (!isSystemLog(logRow)) {
-													openConvertPopup(logRow);
+												if (isSystemLog(logRow)) {
+													return __(
+														"no redirect needed",
+														'vulopilot'
+													);
 												}
+
+												return logRow.has_redirect
+													? __('Redirect exists', 'vulopilot')
+													: __('Create redirect', 'vulopilot');
 											},
+											icon: (row: Record<string, unknown>) => {
+												const logRow = row as unknown as NotFoundLogRow;
+
+												return isSystemLog(logRow) || logRow.has_redirect
+													? 'lock'
+													: 'link';
+											},
+											onClick: (row: Record<string, unknown>) =>
+												openConvertPopup(row as unknown as NotFoundLogRow),
 										},
 									],
 								},
 							}}
 							rows={notFoundLogs.data.map((row) => ({
 								...row,
-								rowIcon: isSystemLog(row) ? 'lock' : 'link',
+								rowIcon:
+									isSystemLog(row) || row.has_redirect
+										? 'lock'
+										: 'link',
 								descriptionItems: [
 									{
 										icon: 'clock',
@@ -255,17 +242,8 @@ const NotFoundLogSection = () => {
 							}))}
 							ids={notFoundLogs.data.map((row) => row.id)}
 							totalRows={notFoundLogs.total}
-							// `is_system_counts` (NotFoundLogs.php) only ever
-							// reports real per-value buckets (0/1) - 'all'
-							// isn't a real `is_system` value to count rows
-							// by, so the backend has no real count for it and
-							// it comes back as 0, which TableCard's own
-							// `visibleCategories` filter (`count > 0`) then
-							// hides entirely. The real count for "All" is
-							// just every real row regardless of category -
-							// `notFoundLogs.total` already is that, so it's
-							// substituted in here rather than asking the
-							// backend to special-case a non-existent bucket.
+							// `is_system_counts` (NotFoundLogs.php) only ever reports real per-
+							// value buckets (0/1).
 							categoryCounts={notFoundLogs.categoryCounts.map((cat) =>
 								'all' === cat.value
 									? { ...cat, count: notFoundLogs.total }
@@ -273,10 +251,27 @@ const NotFoundLogSection = () => {
 							)}
 							isLoading={notFoundLogs.isLoading}
 							onQueryUpdate={notFoundLogs.onQueryUpdate}
-							emptyMessage={__(
-								'No 404s logged yet - turn on "Log 404s" in Settings → Scanning → SEO to start tracking missing-page visits.',
-								'vulopilot'
-							)}
+							emptyMessage={
+								<>
+									{__(
+										'No 404s logged yet - turn on "Log 404s" in ',
+										'vulopilot'
+									)}
+									<a
+										href={`${vulopilotAppLocalizer.admin_url}#&tab=settings&subtab=seo-content`}
+										style={{
+											color: 'var(--color-primary)',
+											textDecoration: 'underline',
+										}}
+									>
+										{__('Settings → Scanning → SEO', 'vulopilot')}
+									</a>
+									{__(
+										' to start tracking missing-page visits.',
+										'vulopilot'
+									)}
+								</>
+							}
 						/>
 					)}
 				</CardComponent>

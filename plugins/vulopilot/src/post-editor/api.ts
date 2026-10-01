@@ -1,13 +1,3 @@
-/**
- * Thin fetch wrapper for the post-editor metabox's own endpoints -
- * `vulopilotPostSeo` (Services\PostEditorAssets::enqueue_assets()) rather
- * than `vulopilotAppLocalizer`, since the Block Editor screen doesn't guarantee the
- * dashboard's own localized script has run. Native `fetch()` with a manual
- * `X-WP-Nonce` header, the same "raw call + manual nonce" pattern
- * react-frontend.md documents for direct WP/WC REST calls elsewhere in
- * this codebase - chosen over pulling zyra's axios-based helpers into this
- * small, separate Block Editor bundle.
- */
 
 export interface AnalysisResult {
 	id: string;
@@ -18,7 +8,7 @@ export interface AnalysisResult {
 	action_id: string | null;
 }
 
-/** One row of `Controllers\Seo::get_page_analysis()`'s real `checks` array - the same saved-post-state SEO/GEO checklist `GEO/PageAnalysisPanel.tsx`'s own "Page Analysis" panel already renders, reused here verbatim so this tab's own "Page Analysis" list is never a second, possibly-drifting copy of that data. */
+/** One row of `Seo::get_page_analysis()`'s real `checks` array. */
 export interface PageAnalysisCheck {
 	key: string;
 	label: string;
@@ -42,11 +32,15 @@ export interface FixResponse {
 		title: string;
 		excerpt: string;
 		content_changed: boolean;
+		/** The saved post_content after a content-mutating action (empty otherwise). */
+		content?: string;
 		schema_json: string;
+		/** Only set by the 'set-featured-image-from-content' mechanical fix. */
+		featured_media_id?: number | null;
 	};
 }
 
-/** Same real shape `seoIssuesShared.tsx`'s own `RawFinding` (dashboard bundle) already establishes - duplicated here per this file's own top docblock reasoning (a separate, small Block Editor bundle, not pulling in that bundle's zyra-based helpers). */
+/** Same real shape `seoIssuesShared.tsx`'s own `RawFinding` (dashboard bundle) already establishes. */
 export interface RawFinding {
 	id: number;
 	title: string;
@@ -67,22 +61,14 @@ const FINDINGS_PAGE_SIZE = 100;
 const MAX_FINDINGS = 1000;
 
 /**
- * Same real `GET /findings` pagination loop `seoIssuesShared.tsx`'s own
- * `fetchOpenFindingsFor()` already establishes for the dashboard bundle -
- * duplicated here (see this file's own top docblock) so `PageAnalysisTab.tsx`'s
- * own "GEO Issues"/"AEO Issues" sections can fetch real open findings for
- * this tab's own scanner ids without importing that dashboard-only helper.
- * There's no server-side "just this post" filter (`object_ref` isn't a
- * registered query arg - confirmed against `Controllers\Findings`), so
- * callers filter the result to one post client-side, same as
- * `GeoAeoPageAnalysisPanel.tsx`'s own identical fetch-then-filter.
+ * Same real `GET /findings` pagination loop `seoIssuesShared.tsx`'s own `fetchOpenFindingsFor()`
+ * already establishes for the dashboard bundle.
  */
 export async function fetchOpenFindings( scannerIds: string[] ): Promise< RawFinding[] > {
 	const scannerParam = scannerIds.join( ',' );
 	let page = 1;
 	let all: RawFinding[] = [];
 
-	// eslint-disable-next-line no-constant-condition
 	while ( true ) {
 		const response = await request< FindingsResponse >(
 			`findings?scanner_id=${ scannerParam }&status=open&per_page=${ FINDINGS_PAGE_SIZE }&page=${ page }&orderby=id&order=desc`
@@ -140,9 +126,18 @@ export function analyzePost(
 	} );
 }
 
-/** Same real `GET vulopilot/v1/seo/analyze-page?post_id=` `GEO/PageAnalysisPanel.tsx` already calls - this bundle's own `apiUrl`/nonce just point at the same `vulopilot/v1` namespace under a different localized script (see this file's own top docblock). */
 export function analyzePage( postId: number ): Promise< PageAnalysisResponse > {
 	return request( `seo/analyze-page?post_id=${ postId }`, { method: 'GET' } );
+}
+
+/** Same real severity-weighted score `Seo::calculate_score()` uses site-wide, narrowed to this post. */
+export function getPostSeoScore( postId: number ): Promise< { score: number } > {
+	return request( `seo/post-score?post_id=${ postId }`, { method: 'GET' } );
+}
+
+/** Same real `POST /findings/{id}/fix` the dashboard's own "Fix with AI" buttons call. */
+export function fixFinding( findingId: number ): Promise< FixResponse > {
+	return request( `findings/${ findingId }/fix`, { method: 'POST' } );
 }
 
 export function fixWithAi( postId: number, actionId: string ): Promise< FixResponse > {

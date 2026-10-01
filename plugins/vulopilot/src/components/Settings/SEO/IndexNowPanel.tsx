@@ -1,6 +1,5 @@
 /* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
-import type { ReactNode } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
@@ -33,7 +32,7 @@ interface SubmitResult {
 }
 
 
-/** "Products" only ever a real, selectable option once WooCommerce is actually active (`vulopilotAppLocalizer.has_woocommerce`, `FrontendScripts::localize_scripts()`) - a site with no WooCommerce has no `product` post type at all, so offering it here would just be a checkbox for something that can never exist. */
+/** "Products" only ever a real, selectable option once WooCommerce is actually active (`vulopilotAppLocalizer.has_woocommerce`, `FrontendScripts::localize_scripts()`). */
 const POST_TYPE_OPTIONS = [
 	{ value: 'post', label: __('Posts', 'vulopilot') },
 	{ value: 'page', label: __('Pages', 'vulopilot') },
@@ -45,42 +44,10 @@ const POST_TYPE_OPTIONS = [
 	{ value: 'mega_menu', label: __('Mega Menu', 'vulopilot') },
 ];
 
-const RESPONSE_CODE_HELP: { code: string; type: string; desc: string }[] = [
-	{ code: '200 OK', type: 'good', desc: __('URL received.', 'vulopilot') },
-	{
-		code: '202 Accepted',
-		type: 'good',
-		desc: __('URL received; key not yet validated.', 'vulopilot'),
-	},
-	{ code: '400 Bad Request', type: 'warn', desc: __('Invalid format.', 'vulopilot') },
-	{
-		code: '403 Forbidden',
-		type: 'crit',
-		desc: __("Key not found or doesn't match.", 'vulopilot'),
-	},
-	{
-		code: '422 Unprocessable Entity',
-		type: 'crit',
-		desc: __("URL doesn't belong to this site.", 'vulopilot'),
-	},
-	{
-		code: '429 Too Many Requests',
-		type: 'crit',
-		desc: __('Rate limited, try again later.', 'vulopilot'),
-	},
-];
 
 /**
- * Hand-built rather than InputRenderer-driven - same escape hatch
- * VuloCloudAiConnectionPanel.tsx already uses (Settings.tsx's
- * GetForm() special-cases `currentTab === 'indexnow'`). Unlike that one,
- * this tab DOES have two real flat settings fields
- * (`indexnow_api_key`/`indexnow_post_types`) - read via `useSetting()`
- * (LlmsTxtCard.tsx's own precedent for a hand-built component reading/
- * writing the shared SettingContext) - alongside two real actions/logs
- * that don't fit the per-field model at all: manual URL submission
- * (`POST /indexnow/submit`) and submission history (`GET /indexnow/history`),
- * both backed by RestAPI\Controllers\IndexNow.
+ * Hand-built rather than InputRenderer-driven - same escape hatch other panels already use
+ * (Settings.tsx's GetForm() special-cases `currentTab === 'indexnow'`).
  */
 const IndexNowPanel = () => {
 	const { setting, updateSetting } = useSetting();
@@ -92,9 +59,7 @@ const IndexNowPanel = () => {
 	const [isLoadingHistory, setIsLoadingHistory] = useState(true);
 	const [urlsText, setUrlsText] = useState('');
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [submitResults, setSubmitResults] = useState<SubmitResult[]>([]);
 	const [showResponseHelp, setShowResponseHelp] = useState(false);
-	const [isChangingKey, setIsChangingKey] = useState(false);
 
 	const loadHistory = () => {
 		setIsLoadingHistory(true);
@@ -130,32 +95,6 @@ const IndexNowPanel = () => {
 		});
 	};
 
-	const handleChangeKey = () => {
-		setIsChangingKey(true);
-
-		const bytes = new Uint8Array(16);
-		window.crypto.getRandomValues(bytes);
-		const newKey = Array.from(bytes)
-			.map((byte) => byte.toString(16).padStart(2, '0'))
-			.join('');
-
-		updateSetting('indexnow_api_key', newKey);
-
-		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'settings'), {
-			setting: { indexnow_api_key: newKey },
-		})
-			.then((response) => {
-				NoticeManager.add({
-					uniqueKey: 'vulopilot-indexnow-key-changed',
-					type: response ? 'success' : 'error',
-					position: 'float',
-					message: response
-						? __('IndexNow API key changed.', 'vulopilot')
-						: __('Could not change the key. Please try again.', 'vulopilot'),
-				});
-			})
-			.finally(() => setIsChangingKey(false));
-	};
 
 	const handleSubmitUrls = () => {
 		const urls = urlsText
@@ -177,7 +116,6 @@ const IndexNowPanel = () => {
 					?.results;
 
 				if (results) {
-					setSubmitResults(results);
 					setUrlsText('');
 					loadHistory();
 				} else {
@@ -231,12 +169,8 @@ const IndexNowPanel = () => {
 											'vulopilot'
 										)
 							}
-							// Real zyra palette green, same literal hex this
-							// codebase's own other `.is-good`/success-state
-							// rules already mirror it with (no `.scss` source
-							// to `@use` a real token from - see
-							// BrandVisibilityProDummies.tsx's own identical
-							// docblock on this).
+							// zyra palette green, as this codebase's other `.is-good` rules mirror it (no `.scss` source to
+							// `@use` a token from; see BrandVisibilityProDummies.tsx).
 							borderColor={apiKey ? '#16a34a' : undefined}
 							action={
 								<span className={`admin-badge ${apiKey ? 'green' : 'gray'}`}>
@@ -305,20 +239,7 @@ const IndexNowPanel = () => {
 					/>
 				</FormGroupComponent>
 
-				{/* {submitResults.length > 0 && (
-					<FormGroupComponent label={__('Just submitted', 'vulopilot')}>
-						<div>
-							{submitResults.map((result, index) => (
-								<div key={index}>
-									<code>{result.url}</code>
-									{' - '}
-									{result.status_code ?? __('error', 'vulopilot')}{' '}
-									{result.message}
-								</div>
-							))}
-						</div>
-					</FormGroupComponent>
-				)} */}
+				{/* {submitResults.length > 0 && ( <FormGroupComponent label={__('Just submitted', 'vulopilot')}> <div> {submitResults.map((result, index) => ( <div key={index}> <code>{result.url}</code> {' - '} {result.status_code ?? __('error', 'vulopilot')}{' '} {result.message} </div> ))} </div> </FormGroupComponent> )} */}
 			</FormGroupWrapperComponent>
 
 			<CardComponent
@@ -337,15 +258,7 @@ const IndexNowPanel = () => {
 					/>
 				}
 			>
-				{/* {showResponseHelp && (
-					<div className="vulopilot-indexnow-help">
-						{RESPONSE_CODE_HELP.map((row) => (
-							<div key={row.code} className={`vulopilot-indexnow-help__${row.type}`}>
-								<strong>{row.code}</strong> - {row.desc}
-							</div>
-						))}
-					</div>
-				)} */}
+				{/* {showResponseHelp && ( <div className="vulopilot-indexnow-help"> {RESPONSE_CODE_HELP.map((row) => ( <div key={row.code} className={`vulopilot-indexnow-help__${row.type}`}> <strong>{row.code}</strong> - {row.desc} </div> ))} </div> )} */}
 
 				{history.length === 0 ? (
 					<div className="desc">{__('No submissions yet.', 'vulopilot')}</div>
