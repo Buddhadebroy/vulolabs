@@ -833,32 +833,17 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 						type="info"
 						displayPosition="inline-notice"
 						title={__('Needs your review - no automatic fix', 'vulopilot')}
-						message={
-							<>
-								{/* The numbered steps above already say this - skip the redundant paragraph, keep the link. */}
-								{!showRecommendedFix && group.no_fix_reason && (
-									<span className="desc">{group.no_fix_reason}</span>
-								)}
-								{group.no_fix_link && (
-									<span className="small desc">
-										<a
-											href={group.no_fix_link.url}
-											target="_blank"
-											rel="noreferrer"
-											style={{
-												color: 'var(--color-primary)',
-												textDecoration: 'underline',
-											}}
-										>
-											{group.no_fix_link.label}
-										</a>
-									</span>
-								)}
-								<span className="small desc">
-									{__('Check the details above for what to look at.', 'vulopilot')}
-								</span>
-							</>
-						}
+						message={[
+							!showRecommendedFix && group.no_fix_reason
+								? `<span class="desc">${group.no_fix_reason}</span>`
+								: '',
+							group.no_fix_link
+								? `<span class="small desc"><a href="${group.no_fix_link.url}" target="_blank" rel="noreferrer" style="color: var(--color-primary); text-decoration: underline;">${group.no_fix_link.label}</a></span>`
+								: '',
+							`<span class="small desc">${__('Check the details above for what to look at.', 'vulopilot')}</span>`,
+						]
+							.filter(Boolean)
+							.join(' ')}
 					/>
 				)}
 
@@ -868,6 +853,20 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					<ButtonInput
 						position="full-width"
 						buttons={[
+							{
+								text: __('Ignore all', 'vulopilot'),
+								color: 'border-red',
+								rightIcon: 'rejecte',
+								onClick: () =>
+									handleBulkStatus(
+										'ignored',
+										__(
+											'All findings in this group ignored.',
+											'vulopilot'
+										)
+									),
+								disabled: isBusy,
+							},
 							// No automatic fix exists for this issue; don't offer a button that can only fail again.
 							...(isUnfixable || !group.fix_action_id
 								? []
@@ -882,7 +881,8 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 								]),
 							{
 								text: __('Resolve all', 'vulopilot'),
-								color: 'border-purple',
+								color: 'purple-bg',
+								rightIcon: 'resolve',
 								onClick: () =>
 									handleBulkStatus(
 										'resolved',
@@ -893,19 +893,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 									),
 								disabled: isBusy,
 							},
-							{
-								text: __('Ignore all', 'vulopilot'),
-								color: 'border-red',
-								onClick: () =>
-									handleBulkStatus(
-										'ignored',
-										__(
-											'All findings in this group ignored.',
-											'vulopilot'
-										)
-									),
-								disabled: isBusy,
-							},
+							
 						]}
 					/>
 				) : (

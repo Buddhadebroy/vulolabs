@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { CardComponent } from '@zyra/components';
+import { AnalyticsComponent, CardComponent } from '@zyra/components';
 import DummyDataNotice from '../../components/DummyDataNotice';
 import { BlurredProContent } from '../../components/UpgradeToProOverlay';
 
@@ -39,12 +39,25 @@ const OVERVIEW_DUMMY_CARDS: { title: string; icon: string; desc: string; action:
 
 export const AutomationsOverviewDummy = ({ onClick }: AutomationsDummyProps) => (
 	<BlurredProContent contentClassName="automations-overview-dummy" onClick={onClick}>
-		<div className="automation-overview-cards" aria-hidden="true">
-			{OVERVIEW_DUMMY_CARDS.map((card) => (
-				<CardComponent key={card.title} title={card.title} titleIcon={card.icon} desc={card.desc}>
-					<span className="automation-overview-link">{card.action}</span>
-				</CardComponent>
-			))}
+		{/* Same real `AnalyticsComponent variant="dashboard"` shape (zyra Storybook's
+		`Components/AnalyticsComponent/Dashboard` story) `AutomationsStatusCard.tsx`'s own
+		"Automation status" tiles already use - each tile's real headline renders in `number`
+		(no literal count here, so the card's own title fills that slot), its `desc` in `text`,
+		and its real "Explore Library →"-style action link in the `extra` report row, in place of
+		3 separate plain `CardComponent`s. */}
+		<div aria-hidden="true">
+			<AnalyticsComponent
+				variant="dashboard"
+				cols={3}
+				data={OVERVIEW_DUMMY_CARDS.map((card) => ({
+					icon: card.icon,
+					number: card.title,
+					text: card.desc,
+					extra: (
+						<span className="automation-overview-link">{card.action}</span>
+					),
+				}))}
+			/>
 		</div>
 		<CardComponent title={__('Running AI Agents', 'vulopilot')} titleIcon="ai">
 			<div className="automation-agents-grid" aria-hidden="true">

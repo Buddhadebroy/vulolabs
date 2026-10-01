@@ -116,8 +116,8 @@ const EFFICIENCY_TILE_IDS = [
 	'php-acceleration',
 ];
 
-const NOT_TRACKED_BADGE = { text: __('Not tracked yet', 'vulopilot'), color: 'indigo' };
-const OPEN_FALLBACK_BADGE = { text: __('No open findings', 'vulopilot'), color: 'green' };
+const NOT_TRACKED_BADGE = { text: __('Not tracked', 'vulopilot'), color: 'pink' };
+const OPEN_FALLBACK_BADGE = { text: __('No findings', 'vulopilot'), color: 'red' };
 
 /** Same status→color mapping EfficiencySummaryCard.tsx's own `efficiency-check-icon--{status}` styling implies (good=green, attention=orange, not_applicable=neutral). */
 const EFFICIENCY_STATUS_COLOR: Record<string, string> = {

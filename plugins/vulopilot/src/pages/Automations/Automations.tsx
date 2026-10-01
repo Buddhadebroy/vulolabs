@@ -214,7 +214,6 @@ const Automations = () => {
 			/>
 
 			<ContainerComponent general>
-				<ColumnComponent grid={12}>
 					{Overview ? (
 						<Overview
 							onOpenLibrary={openTemplatesLibrary}
@@ -223,7 +222,6 @@ const Automations = () => {
 					) : (
 						<AutomationsOverviewDummy onClick={openProPopup} />
 					)}
-				</ColumnComponent>
 
 				{/* The 2 free built-ins (Automatic website scan/Email visibility
 				report) are superseded once Pro's own WorkflowAutomation module
