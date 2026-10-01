@@ -18,8 +18,11 @@ use VuloPilot\AiCopilot\Repositories\AiConversationRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Reuses VuloPilot()->ai_request_sender (AI\AiRequestSender) exactly like
- * ContentAssistant.php and GeoAnalyzer already do.
+ * REST controller for the AI Copilot chat. Grounded with a live snapshot
+ * of the site's findings/automation counts (build_site_context()) so
+ * answers reason from actual open issues. A "write a blog about X"
+ * request creates a real draft via ContentCreationOrchestrator
+ * (auto-approved); every other kind of change stays advice-only.
  *
  * @class       Copilot controller
  * @version     1.0.0
@@ -394,7 +397,10 @@ class Copilot extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Builds a real chat-style prompt: a system message describing the copilot's role.
+	 * Builds the chat prompt: a system message describing the copilot's
+	 * role, its content-creation capability, and a live site snapshot,
+	 * then the client's recent turns, then the new user message.
+	 * Instructed to respond with strict JSON only (question/ready_action/respond).
 	 *
 	 * @param string            $message     The new user message.
 	 * @param array<int, mixed> $raw_history Client-supplied {role, content} turns, oldest first.
@@ -457,10 +463,12 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, in exactly one of
 	}
 
 	/**
-	 * Resolves the user's "Add context" picks and "Attach" file picks into one real text
-	 * block.
+	 * Resolves the user's "Add context" and "Attach" picks into one text
+	 * block appended to the outgoing user message. Everything is
+	 * re-resolved from the database/media library rather than trusting
+	 * client-supplied labels or content.
 	 *
-	 * @param array<int, mixed> $raw_context_refs           Client-supplied {type, scanner_id|id} refs.
+	 * @param array<int, mixed> $raw_context_refs           Client-supplied {type, scanner_id|id} refs, from the "Add context" picker.
 	 * @param array<int, mixed> $raw_attachments            Client-supplied {id} WP attachment refs, from the "Attach" file picker.
 	 * @return string Empty string if nothing in either list resolved to something real.
 	 */

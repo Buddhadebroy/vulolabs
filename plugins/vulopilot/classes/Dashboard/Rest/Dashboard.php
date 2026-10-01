@@ -10,7 +10,11 @@ use VuloPilot\Utill\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /dashboard - the summary object the Dashboard page's widgets read.
+ * REST controller for `/dashboard`: one aggregate payload for the
+ * Dashboard page's widgets (src/dashboard-widgets/registry.ts's
+ * DashboardSummary), using cheap COUNT/GROUP BY queries. List-shaped
+ * widgets call their own dedicated list endpoints instead of duplicating
+ * data here.
  *
  * @class       Dashboard controller
  * @version     1.0.0

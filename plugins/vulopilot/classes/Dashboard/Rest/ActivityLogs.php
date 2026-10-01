@@ -6,7 +6,7 @@ use VuloPilot\Dashboard\ActivityLogRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /activity-logs backs src/pages/Activity/Activity.tsx's table.
+ * Fetches `/activity-logs`, backing src/pages/Activity/Activity.tsx's table.
  *
  * @class       ActivityLogs controller
  * @version     1.0.0

@@ -7,8 +7,12 @@ use VuloPilot\Utill\VuloPilotException;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `POST /content-assistant/chat` - the conversational turn for "Create Content"'s AI
- * Content Assistant sidebar (src/pages/Content/AiContentAssistantSidebar.tsx).
+ * REST controller for the AI Content Assistant sidebar's chat turn. Each
+ * message goes through one orchestrator AI call that asks a clarifying
+ * question, answers directly, or hands off to the `generate-blog` AIAction
+ * (auto-approved, since the conversation itself is the approval).
+ * Conversation state is just the client's round-tripped `history` array -
+ * no separate slot-filling state machine.
  *
  * @class       ContentAssistant controller
  * @version     1.0.0
@@ -153,8 +157,9 @@ class ContentAssistant extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Builds the orchestrator prompt: a system message describing the content types it can
-	 * create, recent turns, then the new user message.
+	 * Builds the orchestrator prompt: a system message describing the
+	 * content types it can create, the client's recent turns, then the
+	 * new user message. Instructed to respond with strict JSON only.
 	 *
 	 * @param string            $message     The new user message.
 	 * @param array<int, mixed> $raw_history Client-supplied {role, content} turns, oldest first.

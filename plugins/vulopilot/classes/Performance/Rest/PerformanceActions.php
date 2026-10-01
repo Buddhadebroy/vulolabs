@@ -292,7 +292,9 @@ class PerformanceActions extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Deletes the unattached image attachments ImageCleanupScanner counts.
+	 * Deletes unattached, unused image attachments via
+	 * ImageCleanupScanner::get_orphaned_image_ids(), bounded by
+	 * MAX_IMAGES_PER_RUN per click.
 	 *
 	 * @return array{success: bool, message: string}
 	 */
@@ -380,8 +382,10 @@ class PerformanceActions extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real, one-time `.htaccess` write - `insert_with_markers()` is the same core function
-	 * WordPress itself uses to write its own rewrite rules.
+	 * One-time `.htaccess` write via `insert_with_markers()`, inside a
+	 * self-contained marker block so re-running never duplicates existing
+	 * rules. Emits `mod_expires` directives. Returns an honest failure
+	 * when `.htaccess` isn't writable.
 	 *
 	 * @return array{success: bool, message: string}
 	 */

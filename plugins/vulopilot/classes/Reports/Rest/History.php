@@ -10,7 +10,11 @@ use VuloPilot\Utill\ScanRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /history backs the AI Copilot page's History tab (HistoryTab.tsx).
+ * REST controller for the AI Copilot page's History tab: a day-groupable
+ * activity timeline scoped to `scan.completed`/`ai_action.*`/conversation
+ * events, each enriched from its source table. "Automations" is a filter
+ * the client sends but has no backing table yet, so it always returns
+ * zero rows.
  *
  * @class       History controller
  * @version     1.0.0

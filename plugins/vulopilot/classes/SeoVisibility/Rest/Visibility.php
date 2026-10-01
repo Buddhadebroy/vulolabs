@@ -5,11 +5,17 @@ use VuloPilot\BrandVisibility\Rest\BrandIntelligence;
 use VuloPilot\GeoAnalysis\Rest\Geo;
 use VuloPilot\Utill\FindingRepository;
 use VuloPilot\TechnicalSeo\Rest\Seo;
+use VuloPilot\Settings\GoogleAnalyticsClient;
+use VuloPilot\Settings\GoogleServicesConnection;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /visibility/score` / `GET /visibility/progress`.
+ * REST controller for "SEO & Visibility → Overview": a combined score
+ * across Brand/SEO/GEO/Crawl & URLs, read directly from each area's own
+ * controller method so the numbers can never disagree. Only the 7-day-ago
+ * delta per area is computed locally, via `AREA_SCANNER_IDS` kept in sync
+ * manually with each source controller's own scanner-id list.
  *
  * @class       Visibility controller
  * @version     1.0.0
@@ -23,8 +29,11 @@ class Visibility extends \WP_REST_Controller {
 	protected $rest_base = 'visibility';
 
 	/**
-	 * Real scanner ids behind each area's own score, kept in sync manually with
-	 * `Seo::CATEGORY_SCANNER_IDS` (merged).
+	 * Scanner ids behind each area's score, kept in sync manually with
+	 * each source controller's own list (`content-freshness` excluded,
+	 * same reasoning as GEO's own progress trend). Used only for the
+	 * 7-day-ago delta and combined trend - the current score always comes
+	 * from that area's own endpoint.
 	 *
 	 * @var array<string, string[]>
 	 */
@@ -92,6 +101,16 @@ class Visibility extends \WP_REST_Controller {
 	private const ALLOWED_PROGRESS_DAYS = array( 7, 30, 90 );
 
 	/**
+	 * Real GA4 traffic-source lookback window for "Visibility by Source" -
+	 * fixed rather than user-selectable (unlike "Visibility Trend"'s own
+	 * 7/30/90 dropdown above) since this card has no period control of its
+	 * own in the reference layout it matches.
+	 *
+	 * @var int
+	 */
+	private const TRAFFIC_SOURCE_WINDOW_DAYS = 30;
+
+	/**
 	 * @inheritDoc
 	 */
 	public function register_routes() {
@@ -114,6 +133,18 @@ class Visibility extends \WP_REST_Controller {
 				array(
 					'methods'             => \WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_progress' ),
+					'permission_callback' => array( $this, 'get_score_permissions_check' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			VuloPilot()->rest_namespace,
+			'/' . $this->rest_base . '/traffic-sources',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_traffic_sources' ),
 					'permission_callback' => array( $this, 'get_score_permissions_check' ),
 				),
 			)
@@ -233,5 +264,56 @@ class Visibility extends \WP_REST_Controller {
 				'trend' => $trend,
 			)
 		);
+	}
+
+	/**
+	 * "Visibility by Source": GA4 sessions grouped by
+	 * `sessionDefaultChannelGroup` over the last `TRAFFIC_SOURCE_WINDOW_DAYS`
+	 * days. `connected: false` (empty `sources`) covers both "never
+	 * connected" and "GA4 call failed" - the frontend shows the same
+	 * "connect" prompt either way.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public function get_traffic_sources() {
+		$connection = new GoogleServicesConnection();
+		$status     = $connection->get_status();
+
+		$response = array(
+			'connected'      => false,
+			'window_days'    => self::TRAFFIC_SOURCE_WINDOW_DAYS,
+			'total_sessions' => 0,
+			'sources'        => array(),
+		);
+
+		if ( ! $status['connected'] || '' === $status['ga4_property_id'] ) {
+			return rest_ensure_response( $response );
+		}
+
+		$end_date   = gmdate( 'Y-m-d' );
+		$start_date = gmdate( 'Y-m-d', strtotime( '-' . ( self::TRAFFIC_SOURCE_WINDOW_DAYS - 1 ) . ' days' ) );
+
+		$sessions_by_channel = ( new GoogleAnalyticsClient( $connection ) )->run_channel_group_report( $status['ga4_property_id'], $start_date, $end_date );
+
+		if ( is_wp_error( $sessions_by_channel ) || empty( $sessions_by_channel ) ) {
+			return rest_ensure_response( $response );
+		}
+
+		arsort( $sessions_by_channel );
+
+		$total = array_sum( $sessions_by_channel );
+
+		$response['connected']      = true;
+		$response['total_sessions'] = $total;
+
+		foreach ( $sessions_by_channel as $channel => $sessions ) {
+			$response['sources'][] = array(
+				'label'    => $channel,
+				'sessions' => $sessions,
+				'percent'  => $total > 0 ? (int) round( $sessions / $total * 100 ) : 0,
+			);
+		}
+
+		return rest_ensure_response( $response );
 	}
 }

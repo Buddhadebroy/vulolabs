@@ -10,8 +10,11 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for vulopilot_scan_findings, with the category, severity and status filters
- * the admin tables send.
+ * Persistence for vulopilot_scan_findings. category/severity/status back
+ * the admin UI's FindingsTable filters; object_type/object_ref let
+ * callers (GeoAnalyzer, ResolveFindingAction) look up findings for one
+ * specific object - both are needed together since object_ref alone
+ * isn't unique across object types (e.g. post id 12 and attachment id 12).
  *
  * @class       FindingRepository class
  * @version     1.0.0
@@ -51,8 +54,7 @@ class FindingRepository extends RepositoryUtil {
 
 		$params = array( $this->get_table(), $scanner_id );
 
-		// Column names are bound with %i and each optional condition is picked
-		// (never assembled) so the query text stays fixed apart from that choice.
+		// Column/table names are bound with %i rather than interpolated.
 		$type_is_null = null === $object_type || '' === $object_type;
 		$ref_is_null  = null === $object_ref || '' === $object_ref;
 
@@ -86,7 +88,7 @@ class FindingRepository extends RepositoryUtil {
 			)
 		);
 
-		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM %i WHERE {$where} ORDER BY id DESC LIMIT 1", $params ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $sql is built above from {$this->get_table()} (this plugin's own table name) and a fixed set of column/placeholder fragments, never raw user input; it IS passed through $wpdb->prepare() here, the sniff just can't see that since $sql is a variable rather than a literal in the prepare() call.
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM %i WHERE {$where} ORDER BY id DESC LIMIT 1", $params ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $where is a fixed set of %i/%s placeholder fragments, all bound through prepare() above.
 
 		return $row ? $row : null;
 	}

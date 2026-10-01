@@ -8,7 +8,9 @@ use VuloPilot\Automations\AutomationsRunRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /automations backs src/pages/Automations/Automations.tsx's table.
+ * REST controller for automations: list, enable/disable, and run-now.
+ * Run-now returns an explicit error since trigger→action execution
+ * isn't implemented yet.
  *
  * @class       Automations controller
  * @version     1.0.0

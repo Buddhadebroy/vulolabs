@@ -31,7 +31,9 @@ class GeoAnalysis extends \WP_REST_Controller {
 	private const MAX_ZERO_FINDING_FILL = 20;
 
 	/**
-	 * Safety bound on `get_pages()`'s own underlying `WP_Query`.
+	 * Safety bound on `get_pages()`'s `WP_Query` - its sort key is computed,
+	 * not a native post column, so every matching post must be pulled into
+	 * memory, scored, then sorted/paginated in PHP.
 	 */
 	private const MAX_PAGES_QUERY = 1000;
 
@@ -82,8 +84,8 @@ class GeoAnalysis extends \WP_REST_Controller {
 		$requested_limit = absint( $request->get_param( 'limit' ) );
 		$limit           = min( 20, max( 1, $requested_limit ? $requested_limit : 5 ) );
 		$scanner_ids     = $this->parse_scanner_ids( $request );
-		// `scope=all` (Dashboard's own "Key pages at a glance" widget) ranks by open findings of
-		// ANY category, not just GEO.
+		// `scope=all` (Dashboard's "Key pages at a glance" widget) ranks by
+		// open findings of any category, not just GEO.
 		$sitewide = 'all' === $request->get_param( 'scope' );
 		$counts   = ( new FindingRepository() )->count_by_column(
 			'object_ref',
@@ -119,9 +121,13 @@ class GeoAnalysis extends \WP_REST_Controller {
 		$top     = array_slice( $ranked, 0, $limit );
 		$top_ids = array_column( $top, 'post_id' );
 
-		// A site with fewer real published pages than `2 * $limit` (e.g. a fresh dev install with
-		// only 2 pages total, $limit=5) would otherwise show the exact same pages in both "top" and
-		// "bottom".
+		// A site with fewer published pages than `2 * $limit` would otherwise
+		// show the same pages in both "top" and "bottom" - fixed by
+		// excluding whatever's already in `top` before
+		// ranking the worst, so "bottom" only ever shows pages `top`
+		// hasn't already claimed (naturally shorter, even empty, on a very
+		// small site, which TopPagesCard.tsx already handles via its own
+		// `data.bottom.length > 0` check).
 		$remaining = array_values(
 			array_filter(
 				$ranked,
@@ -138,17 +144,24 @@ class GeoAnalysis extends \WP_REST_Controller {
 	}
 
 	/**
-	 * `GET /geo-analysis/pages` - every published page/post with its real open-GEO-finding
-	 * count and a real, deterministic (non-AI) visibility percentage.
+	 * `GET /geo-analysis/pages` - every published page/post with its open
+	 * GEO finding count and a deterministic visibility percentage. Backs
+	 * both the GEO tab's own "Page-by-page analysis" table and
+	 * `IssuesSection.tsx`'s "Pages & Posts" table (merged, Export CSV +
+	 * sortable). The visibility score reuses
+	 * GeoAnalyzer::calculate_deterministic_score()'s bulk-friendly formula.
+	 *
+	 * `open_findings`/`sitewide_trust_signal_failure` both come from one
+	 * shared `count_by_column()` call, avoiding N+1 queries per post.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
 	 */
 	public function get_pages( $request ) {
-		$page        = max( 1, absint( $request->get_param( 'page' ) ) ? absint( $request->get_param( 'page' ) ) : 1 );
-		$per_page    = min( self::MAX_PAGES_QUERY, max( 1, absint( $request->get_param( 'per_page' ) ) ? absint( $request->get_param( 'per_page' ) ) : 10 ) );
+		$page        = max( 1, absint( $request->get_param( 'page' ) ) ?: 1 );
+		$per_page    = min( self::MAX_PAGES_QUERY, max( 1, absint( $request->get_param( 'per_page' ) ) ?: 10 ) );
 		$search      = sanitize_text_field( (string) $request->get_param( 'search' ) );
-		$orderby     = sanitize_key( (string) $request->get_param( 'orderby' ) ) ? sanitize_key( (string) $request->get_param( 'orderby' ) ) : 'open_findings';
+		$orderby     = sanitize_key( (string) $request->get_param( 'orderby' ) ) ?: 'open_findings';
 		$order       = 'asc' === strtolower( (string) $request->get_param( 'order' ) ) ? 'asc' : 'desc';
 		$scanner_ids = $this->parse_scanner_ids( $request );
 
@@ -242,7 +255,10 @@ class GeoAnalysis extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Optional `scanner_ids` request param (comma-separated).
+	 * Optional `scanner_ids` request param (comma-separated) - when present,
+	 * ranks/scores by open findings against that set instead of the
+	 * default `category = geo`. Lets AeoTab.tsx reuse this endpoint with
+	 * its own AEO scanner ids.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return string[] Sanitized scanner ids, empty if the param was absent/empty.

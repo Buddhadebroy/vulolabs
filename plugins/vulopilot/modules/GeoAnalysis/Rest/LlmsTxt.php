@@ -10,8 +10,11 @@ namespace VuloPilot\GeoAnalysis\Rest;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /llms-txt/regenerate returns freshly generated llms.txt content, so the Regenerate
- * button can discard a customized version.
+ * Fetches `/llms-txt/regenerate`, backing the "Regenerate" button on
+ * Crawl & URLs → Robots & Sitemap (src/pages/GEO/CrawlRobotsSitemapSection.tsx).
+ * Returns a fresh GeoAnalysis\LlmsTxtGenerator::generate() output from
+ * live pages/posts, discarding whatever is currently saved in
+ * llms_txt_content.
  *
  * @class       LlmsTxt controller
  * @version     1.0.0

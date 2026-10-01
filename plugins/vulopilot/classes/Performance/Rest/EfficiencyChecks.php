@@ -4,7 +4,11 @@ namespace VuloPilot\Performance\Rest;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /efficiency-checks - backs "Protect My Site" → Performance tab.
+ * REST controller for `/efficiency-checks`, backing "Protect My Site" →
+ * Performance tab. Unlike other tabs, this isn't read from
+ * `vulopilot_scan_findings` (which only stores problems): 4 checks are
+ * computed fresh on every call with no DB writes, reusing `WP_Site_Health`
+ * for two of them and direct response-header checks for the other two.
  *
  * @class       EfficiencyChecks controller
  * @version     1.0.0
@@ -343,7 +347,8 @@ class EfficiencyChecks extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Wraps core's `WP_Site_Health::should_suggest_persistent_object_cache()`.
+	 * Wraps `WP_Site_Health::should_suggest_persistent_object_cache()`'s
+	 * own thresholds rather than re-deriving them.
 	 *
 	 * @return bool
 	 */

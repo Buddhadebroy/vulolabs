@@ -12,7 +12,12 @@ use VuloPilot\Utill\FindingRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /brand-intelligence/score` - Brand Intelligence's composite.
+ * REST controller for Brand Intelligence's deterministic scores: an
+ * overall Brand Score plus Trust/Authority/Entity sub-scores, each scoped
+ * to its own scanner_id list via the same weighting
+ * Controllers\Dashboard::calculate_category_score() uses. `brand_score`
+ * blends Trust + Authority only; `entity_score` is still computed and
+ * returned for KnowledgeGraphSection.tsx's own card.
  *
  * @class       BrandIntelligence controller
  * @version     1.0.0

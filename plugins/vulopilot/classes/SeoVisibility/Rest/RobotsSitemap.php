@@ -4,7 +4,9 @@ namespace VuloPilot\SeoVisibility\Rest;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /robots-sitemap/robots` and `GET /robots-sitemap/sitemap`.
+ * REST controller for live fetch-and-parse of this site's `/robots.txt`
+ * and sitemap index, backing RobotsSitemapSection.tsx's "Robots.txt
+ * Analysis"/"XML Sitemap Overview" cards.
  *
  * @class       RobotsSitemap controller
  * @version     1.0.0
@@ -127,7 +129,9 @@ class RobotsSitemap extends \WP_REST_Controller {
 	}
 
 	/**
-	 * The Robots.txt Analysis card's own "Edit" action - saves a real.
+	 * Saves a persisted override of this site's robots.txt output via
+	 * RobotsTxtManager::save_custom_content(). An empty `content` clears
+	 * the override, reverting to core's default.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
@@ -208,8 +212,10 @@ class RobotsSitemap extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Live-fetches this site's own sitemap index - real `/wp-sitemap.xml` (WordPress
-	 * core's own native sitemap since 5.5) first.
+	 * Live-fetches this site's sitemap index: `/wp-sitemap.xml` first,
+	 * falling back to `/sitemap.xml`. Enumerates child `<sitemap>` entries
+	 * (or a flat `<url>` set), counting each child's URLs (bounded by
+	 * MAX_CHILD_SITEMAPS).
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response

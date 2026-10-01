@@ -13,7 +13,9 @@ use VuloPilot\Utill\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /seo/score` - a deterministic SEO score (no AI) for the SEO tab's score card.
+ * REST controller for the SEO tab: deterministic SEO score, progress trend,
+ * pages needing attention, and per-page analysis. Score uses the same
+ * weighted-severity formula as BrandIntelligence/ContentIntelligence.
  *
  * @class       Seo controller
  * @version     1.0.0

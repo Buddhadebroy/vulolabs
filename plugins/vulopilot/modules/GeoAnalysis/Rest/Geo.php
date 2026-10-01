@@ -13,8 +13,9 @@ use VuloPilot\Utill\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /geo/score` - a real, deterministic GEO Score (no AI, no cost) for the GEO tab's
- * own "GEO Score" card (SEO & Visibility → GEO).
+ * REST controller for the GEO tab: deterministic GEO score (7 signal rows),
+ * progress trend, and content-freshness. Same scoring pattern as
+ * `Controllers\Seo::get_score()`, applied to GeoTab.tsx's GEO scanner ids.
  *
  * @class       Geo controller
  * @version     1.0.0
@@ -28,8 +29,10 @@ class Geo extends \WP_REST_Controller {
 	protected $rest_base = 'geo';
 
 	/**
-	 * Real, always-free GEO scanner ids (`modules/GeoAnalysis/Scanners/`), regrouped 1:1
-	 * against this card's own reference mockup rows.
+	 * GEO scanner ids (`modules/GeoAnalysis/Scanners/`), regrouped against
+	 * this card's 7 rows. Keep in sync manually with GeoTab.tsx's
+	 * `GEO_TOPICS`. `content-freshness` is computed separately in
+	 * `get_content_freshness()` instead of listed here.
 	 *
 	 * @var array<string, string[]>
 	 */
@@ -43,14 +46,15 @@ class Geo extends \WP_REST_Controller {
 	);
 
 	/**
-	 * How far back "since last week" looks for `get_score()`'s own real delta.
+	 * How far back "since last week" looks for `get_score()`'s delta.
 	 *
 	 * @var int
 	 */
 	private const DELTA_LOOKBACK_DAYS = 7;
 
 	/**
-	 * Real per-signal daily score trend length for `get_score()`'s own `signals[*].trend`.
+	 * Per-signal daily score trend length for `get_score()`'s
+	 * `signals[*].trend`, feeding each row's up/down delta arrow.
 	 *
 	 * @var int
 	 */
@@ -171,12 +175,13 @@ class Geo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real `PROGRESS_TREND_DAYS`-point daily score trend for one of this card's own
-	 * finding-based signals.
+	 * `PROGRESS_TREND_DAYS`-point daily score trend for one finding-based
+	 * signal, same reconstruction technique as
+	 * `Controllers\Seo::get_category_trend()`.
 	 *
-	 * @param FindingRepository $findings    Shared repository instance, reused across every signal's own call rather than re-instantiated per signal.
-	 * @param string[]          $scanner_ids This one signal's own scanner ids (one value of `self::SIGNAL_SCANNER_IDS`).
-	 * @return int[] `PROGRESS_TREND_DAYS` real scores, oldest first.
+	 * @param FindingRepository $findings    Shared repository instance.
+	 * @param string[]          $scanner_ids This signal's scanner ids.
+	 * @return int[] Scores, oldest first.
 	 */
 	private function get_signal_trend( FindingRepository $findings, array $scanner_ids ): array {
 		$trend = array();
@@ -194,11 +199,12 @@ class Geo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real most-severe, most-recent still-open finding's own stored `title` across a set
-	 * of scanner ids.
+	 * Most-severe open finding's title across a set of scanner ids, for
+	 * this card's "Main Problem" column. Ranked client-side since
+	 * `find_all()` has no severity ORDER BY.
 	 *
 	 * @param FindingRepository $findings    Repository instance to query.
-	 * @param string[]          $scanner_ids Real scanner ids to look across.
+	 * @param string[]          $scanner_ids Scanner ids to look across.
 	 * @return string|null
 	 */
 	private function get_main_problem( FindingRepository $findings, array $scanner_ids ): ?string {
@@ -223,7 +229,10 @@ class Geo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real, free, deterministic sitewide "Content Freshness".
+	 * Sitewide "Content Freshness" signal: 4-tier recency banding (same
+	 * tiers as `GeoAnalyzer::calculate_content_freshness()`) computed in
+	 * one SQL pass over `post_modified_gmt`. `trend` is always null since
+	 * there's no finding history to reconstruct for it.
 	 *
 	 * @return array{score: int|null, open_count: null, affected_pages: int, main_problem: string|null, trend: null}
 	 */
@@ -295,7 +304,9 @@ class Geo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * "Score Snapshot" - a real daily score trend over `days` (7/30/90).
+	 * "Score Snapshot": daily score trend over `days` (7/30/90), scoped to
+	 * the 6 finding-based signals only - `content-freshness` is excluded
+	 * since it has no finding history to reconstruct.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
