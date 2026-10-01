@@ -11,32 +11,12 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET/POST /settings backs src/pages/Settings/Settings.tsx, now built on
- * zyra's real settings framework (`InputRenderer`/`NavigatorComponent`,
- * `getAvailableSettings`/`getSettingById` from zyra's core module - see the
- * free vulolabs plugin's own `components/Settings/Settings.tsx` for the
- * pattern this mirrors). `InputRenderer` auto-saves each tab's fields as
- * `{ setting, settingName }` - a SUBSET of the full settings object, not
- * the whole thing - so update_item() merges into the existing stored
- * option rather than replacing it wholesale (the previous version's
- * `update_option()` call replaced the *entire* option with only the 2
- * keys it knew about, which would have silently wiped every other tab's
- * values the moment a second tab existed).
- *
- * Reads/writes a single wp_options row (Utill::VULOPILOT_SETTINGS_KEY),
- * not a custom table - see Utill::VULOPILOT_SETTINGS_DEFAULTS's docblock
- * for why. Also backs the Import/Export/Reset tab (a hand-built panel,
- * not an InputRenderer-driven one - see Settings.tsx's own docblock for
- * why those three actions don't fit the auto-save field pattern).
- *
- * No per-field type/sanitization allowlist here - matches the sibling
- * free plugins' own Settings controllers (vulolabs/catalogx/moowoodle,
- * see their own RestAPI/Controllers/Settings.php), which likewise store
- * whatever `{ setting }` the client sends with no server-side field-type
- * validation. The only thing this class still does beyond that baseline
- * is merge into the existing option rather than replace it outright,
- * which is a consequence of the single-flat-option storage above, not a
- * sanitization layer.
+ * REST controller backing src/pages/Settings/Settings.tsx (zyra's
+ * InputRenderer/NavigatorComponent framework). Reads/writes a single
+ * wp_options row (Utill::VULOPILOT_SETTINGS_KEY); update_item() merges
+ * into the existing option rather than replacing it, since each tab only
+ * auto-saves its own subset of fields. No per-field type/sanitization
+ * allowlist, matching sibling free plugins' Settings controllers.
  *
  * @class       Settings controller
  * @version     1.0.0
@@ -508,12 +488,9 @@ class Settings extends \WP_REST_Controller {
     }
 
     /**
-     * "Test Connection" (Settings → Connections → PageSpeed Insights) - a
-     * real, synchronous call through Services\PageSpeedInsightsFetcher::test_connection(),
-     * the same class the daily cron already uses, so this is genuinely
-     * "run today's fetch right now" rather than a separate check. That
-     * method already covers the missing-key and quota-exhausted cases with
-     * their own honest messages, so this callback is a thin passthrough.
+     * "Test Connection" for PageSpeed Insights: a thin passthrough to
+     * Services\PageSpeedInsightsFetcher::test_connection(), the same class
+     * the daily cron uses.
      *
      * @param \WP_REST_Request $request Full details about the request.
      * @return \WP_REST_Response
@@ -535,17 +512,10 @@ class Settings extends \WP_REST_Controller {
     }
 
     /**
-     * "Verify"/"Verify with Bing"/"Verify with Pinterest" (Settings →
-     * Connections → Site Verification) - saves whatever code was
-     * submitted (same "Verify always saves first" shape a real click
-     * needs, since the code field isn't wired through InputRenderer's own
-     * auto-save on this hand-built panel), then does a real, honest
-     * self-check: fetches this site's OWN homepage and confirms the exact
-     * `<meta>` tag Services\WebmasterToolsManager itself outputs on
-     * `wp_head` for this provider actually renders there. This never
-     * calls Google/Bing/Pinterest - see `webmaster_google_verified_at`'s
-     * own docblock (Utill::VULOPILOT_SETTINGS_DEFAULTS) for why that's an
-     * honest, different claim than "your account is verified with them."
+     * "Verify"/"Verify with Bing"/"Verify with Pinterest": saves the
+     * submitted code, then self-checks by fetching this site's own
+     * homepage and confirming the expected `<meta>` tag renders. Never
+     * calls Google/Bing/Pinterest.
      *
      * @param \WP_REST_Request $request Full details about the request.
      * @return \WP_REST_Response

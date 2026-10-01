@@ -18,23 +18,11 @@ use VuloPilot\AiCopilot\Repositories\AiConversationRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Reuses VuloPilot()->ai_request_sender (AI\AiRequestSender)
- * exactly like ContentAssistant.php and GeoAnalyzer already do - same
- * safety-validate → send → sanitize sequence, and every
- * call is automatically recorded to `vulopilot_ai_history` by
- * AI\AiRequestSender itself.
- *
- * Grounded with a real, live snapshot of the site's own findings/automation
- * counts (build_site_context()) so answers like "why is my traffic
- * dropping?" reason from this site's actual open issues rather than generic
- * advice. Shares ContentAssistant.php's own ContentCreationOrchestrator - a
- * message like "write a blog about X" really creates a WordPress draft via
- * the same AiCopilot\ActionRunner propose()→approve() lifecycle
- * (auto-approved, since the conversation itself IS the approval), not just
- * advice about writing one. Every *other* kind of change (an SEO fix, a
- * security setting, anything mutating something that already exists) is
- * still advice-only - build_messages()'s own prompt says so plainly rather
- * than claiming to have done it.
+ * REST controller for the AI Copilot chat. Grounded with a live snapshot
+ * of the site's findings/automation counts (build_site_context()) so
+ * answers reason from actual open issues. A "write a blog about X"
+ * request creates a real draft via ContentCreationOrchestrator
+ * (auto-approved); every other kind of change stays advice-only.
  *
  * @class       Copilot controller
  * @version     1.0.0
@@ -292,17 +280,15 @@ class Copilot extends \WP_REST_Controller {
     }
 
     /**
-     * Saves this turn to a real, reloadable conversation thread
-     * (`vulopilot_ai_conversations`) - separate from, and in addition to,
-     * `vulopilot_ai_history`'s own automatic excerpt-only audit-trail write
-     * (AI\AiRequestSender, untouched by this). Starts a new conversation
-     * when `$conversation_id` is null/0 or no longer owned by this user
-     * (e.g. a stale/tampered id), otherwise appends to the existing one.
+     * Saves this turn to a reloadable conversation thread
+     * (`vulopilot_ai_conversations`), separate from `vulopilot_ai_history`'s
+     * audit-trail write. Starts a new conversation when `$conversation_id`
+     * is null/0 or not owned by this user, otherwise appends.
      *
      * @param int|null             $conversation_id Client-supplied existing conversation id, or null for a new one.
-     * @param string               $user_message    This turn's real, full user message - never the context-appended version sent to the AI service.
-     * @param array<int, mixed>    $client_history   The client's own prior turns, as sent on `history` - only really populated for a conversation started before this feature existed, or a same-request edge case; a fresh conversation's `client_history` is normally empty.
-     * @param array<string, mixed> $assistant_turn   `{role: 'assistant', content, link, run_id}` for this turn's real reply.
+     * @param string               $user_message    This turn's full user message.
+     * @param array<int, mixed>    $client_history   The client's prior turns, as sent on `history`.
+     * @param array<string, mixed> $assistant_turn   `{role: 'assistant', content, link, run_id}` for this turn's reply.
      * @return int The conversation id this turn was saved under.
      */
     private function persist_conversation( ?int $conversation_id, string $user_message, array $client_history, array $assistant_turn ): int {
@@ -357,14 +343,8 @@ class Copilot extends \WP_REST_Controller {
     }
 
     /**
-     * `GET /copilot/conversations` - RecentConversationsCard.tsx's own list
-     * of this admin's most recent real conversation threads.
-     * `?with_excerpt=1` returns the same rows plus a real one-line excerpt
-     * (AiConversationRepository::get_recent_with_excerpt()) - was read by
-     * an inline "Recent conversations" section on AI Copilot's Chat tab,
-     * removed as dead code (never actually rendered); left here rather
-     * than removed too, since it's a real, harmless, independently useful
-     * response shape a future caller could still opt into.
+     * `GET /copilot/conversations` - this admin's recent conversation
+     * threads. `?with_excerpt=1` adds a one-line excerpt per thread.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response
@@ -438,17 +418,10 @@ class Copilot extends \WP_REST_Controller {
     }
 
     /**
-     * Builds a real chat-style prompt: a system message describing the
-     * copilot's role, its one real execution capability (content creation,
-     * via ContentCreationOrchestrator - kept in sync with that class's own
-     * CONTENT_CREATION_ACTIONS by hand, the same way ContentAssistant.php's
-     * own orchestrator prompt already had to be), and a live site snapshot,
-     * then the client's own recent turns, then the new user message.
-     * Instructed to respond with strict JSON only - the same 3-shape
-     * contract ContentAssistant.php's own orchestrator prompt uses,
-     * extended here with a "respond" case that also covers ordinary
-     * grounded Q&A (using the site snapshot), not just "content I can't
-     * save."
+     * Builds the chat prompt: a system message describing the copilot's
+     * role, its content-creation capability, and a live site snapshot,
+     * then the client's recent turns, then the new user message.
+     * Instructed to respond with strict JSON only (question/ready_action/respond).
      *
      * @param string            $message     The new user message.
      * @param array<int, mixed> $raw_history Client-supplied {role, content} turns, oldest first.
@@ -511,14 +484,10 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, in exactly one of
     }
 
     /**
-     * Resolves the user's "Add context" picks and "Attach" file picks into
-     * one real text block, appended to the outgoing user message (not the
-     * always-on system-prompt site snapshot build_site_context() already
-     * provides) - this is per-turn, user-chosen grounding, not a permanent
-     * site-wide fact. Everything is re-resolved from the database/media
-     * library here rather than trusting any label, count, or content the
-     * client already had cached, same "never trust client-supplied facts"
-     * posture the rest of this codebase's AI-grounding code already takes.
+     * Resolves the user's "Add context" and "Attach" picks into one text
+     * block appended to the outgoing user message. Everything is
+     * re-resolved from the database/media library rather than trusting
+     * client-supplied labels or content.
      *
      * @param array<int, mixed> $raw_context_refs           Client-supplied {type, scanner_id|id} refs, from the "Add context" picker.
      * @param array<int, mixed> $raw_attachments            Client-supplied {id} WP attachment refs, from the "Attach" file picker.

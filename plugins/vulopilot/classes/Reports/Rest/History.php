@@ -12,21 +12,11 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Fetches `/history`, backing the AI Copilot page's History tab (HistoryTab.tsx) -
- * a real, day-groupable activity timeline, distinct from `GET /activity-logs`
- * (ActivityLogs.php, Free, backs Reports > Activity's own flat, unfiltered
- * table): this endpoint scopes to only the event types AI Copilot's own
- * History is about (`scan.completed`/`ai_action.*` from
- * `vulopilot_activity_logs`), and enriches each row with real detail joined
- * back to its source table (`vulopilot_scans`/`vulopilot_ai_action_runs`).
- *
- * "Conversations" is a real category too, backed by a THIRD source table
- * (`vulopilot_ai_history`, via AiHistoryRepository::get_conversations()).
- *
- * "Automations" stays a real category filter the client always sends but
- * has no backing: `vulopilot_automations_runs` has no writer in this
- * codebase at all - it honestly returns zero rows rather than fabricating
- * any.
+ * REST controller for the AI Copilot page's History tab: a day-groupable
+ * activity timeline scoped to `scan.completed`/`ai_action.*`/conversation
+ * events, each enriched from its source table. "Automations" is a filter
+ * the client sends but has no backing table yet, so it always returns
+ * zero rows.
  *
  * @class       History controller
  * @version     1.0.0

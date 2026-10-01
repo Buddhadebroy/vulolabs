@@ -11,15 +11,11 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for vulopilot_scan_findings (DATABASE.md). category/severity/
- * status are exactly the filters the admin UI's FindingsTable component
- * (Health/SEO/GEO/Commerce/Dashboard pages) already sends. object_ref
- * was added in GEO-MODULE.md's pass so GeoAnalysis\GeoAnalyzer can read
- * every 'geo'-category finding already known about one specific post
- * without a bespoke query. object_type was added alongside it so
- * AutomationEngine\Actions\ResolveFindingAction can look up the one open
- * finding a Recommendation actually came from (object_ref alone isn't
- * unique across object types - e.g. post id 12 and attachment id 12).
+ * Persistence for vulopilot_scan_findings. category/severity/status back
+ * the admin UI's FindingsTable filters; object_type/object_ref let
+ * callers (GeoAnalyzer, ResolveFindingAction) look up findings for one
+ * specific object - both are needed together since object_ref alone
+ * isn't unique across object types (e.g. post id 12 and attachment id 12).
  *
  * @class       FindingRepository class
  * @version     1.0.0
@@ -45,59 +41,16 @@ class FindingRepository extends RepositoryUtil {
     }
 
     /**
-     * The already-open finding a fresh re-detection of the exact same
-     * problem should refresh instead of duplicating - originally added
-     * specifically for BrokenLinksScanner/BrokenImagesScanner, now called
-     * for every scanner by default (ScanPersistenceListener::NEVER_DEDUPE_ON_RESCAN's
-     * own docblock explains why the allowlist approach was abandoned): a
-     * problem that's still present on the next run (daily cron, or a
-     * manual "Run scan") re-adds the same
-     * `scanner_id`/`object_type`/`object_ref`/`title` every time
-     * (ScanPersistenceListener's own insert loop had no existence check
-     * at all), and any page grouping findings by object then shows one
-     * duplicate child row per rescan for the one still-open problem - up
-     * to 24 duplicate rows for a single object, confirmed live, before
-     * this was generalized. Matches on `title` rather than digging into
-     * the JSON `meta` column - every scanner already bakes whatever
-     * distinguishes this specific finding into its own title (a URL, a
-     * file path, ...), so it's already the natural per-object key without
-     * a JSON comparison in SQL. Scoped to `status = 'open'` only - a
-     * finding a site owner already resolved/ignored should get a
-     * brand-new row if the same problem recurs later, not silently flip a
-     * closed one back open.
-     *
-     * `$object_type`/`$object_ref` are nullable for the purely-sitewide
-     * scanners that have no specific object to key on (e.g. `php-warnings`
-     * - a PHP notice isn't "about" any one post) - those store SQL `NULL`
-     * in both columns (RepositoryUtil::insert() passes `null` straight
-     * through to `$wpdb->insert()`, which stores a real `NULL`, not the
-     * string `''`). A plain `column = %s` comparison is never true against
-     * a `NULL` column regardless of what's bound, so matching on `NULL`
-     * needs its own `IS NULL` branch rather than reusing the `%s`
-     * comparison - confirmed live: without this, `php-warnings` piled up
-     * 10 duplicate open rows for the identical warning message before
-     * this was added, since every rescan's lookup silently matched
-     * nothing and fell through to a fresh insert. `title` alone is still
-     * enough of a natural key for most scanners (see this method's own
-     * docblock above on why `title` already carries whatever distinguishes
-     * one finding from another) - but not all of them: a scanner whose
-     * title bakes in a live, scan-to-scan-fluctuating number (a word
-     * count, a readability score, a byte size) breaks a plain `title`
-     * match the moment that number ticks even slightly, same underlying
-     * symptom as the `NULL`-object case above (confirmed live:
-     * `ThinContentScanner`'s "Thin content (154 words): Sample Page" vs.
-     * "Thin content (155 words): Sample Page" on unrelated later runs of
-     * the identical page, two permanently-orphaned open rows for one real
-     * problem). `$dedupe_key` is that scanner's opt-in fix: when a Finding
-     * supplies one (Finding::get_dedupe_key()), matching uses it INSTEAD
-     * of `title` entirely, so the volatile display text can keep changing
-     * every run without ever affecting dedup. When a Finding doesn't
-     * supply one (the default, `null`, for every scanner not rewritten to
-     * need this), matching falls back to the exact legacy `title = %s`
-     * behavior, scoped to rows that themselves have no `dedupe_key` either
-     * - so a pre-existing title-matched row and a future dedupe_key-keyed
-     * row for the same scanner can never cross-match each other by
-     * accident.
+     * The already-open finding a fresh re-detection of the same problem
+     * should refresh instead of duplicating. Matches on `scanner_id`/
+     * `object_type`/`object_ref`/`title` (or `$dedupe_key` when the
+     * scanner supplies one, since a title containing a scan-to-scan-
+     * fluctuating number like a word count would otherwise never match
+     * itself), scoped to `status = 'open'` only - a resolved/ignored
+     * finding gets a fresh row if the problem recurs, never a silent
+     * reopen. `object_type`/`object_ref` use an `IS NULL` branch for
+     * sitewide scanners with no specific object, since `column = %s`
+     * never matches `NULL`.
      *
      * @param string      $scanner_id  Finding::get_category()'s owning scanner's own get_id().
      * @param string|null $object_type Finding::get_object_type().

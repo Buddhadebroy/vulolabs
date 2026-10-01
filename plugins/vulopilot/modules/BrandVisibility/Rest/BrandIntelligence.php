@@ -12,37 +12,12 @@ use VuloPilot\Utill\FindingRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /brand-intelligence/score` - Brand Intelligence's composite,
- * deterministic scores (no AI, no cost): an overall "Brand Score" plus
- * three named sub-scores (Trust, Authority, Entity), each scoped to its
- * own `scanner_id` list via
- * FindingRepository::get_severity_breakdown_for_scanner_ids() and the
- * exact same weighting Controllers\Dashboard::calculate_category_score()
- * already uses - same cross-scanner-id-list mechanism
- * Controllers\ContentIntelligence's own "Content Score" already
- * establishes, just with 3 named sub-scores instead of 1 flat score
- * (BRAND-INTELLIGENCE-MODULE.md's audit explains the scanner grouping).
- *
- * Every scanner_id here is either brand-new (`organization-schema`,
- * `author-schema`, `about-page-analysis`) or an existing `geo`-category
- * scanner reused rather than duplicated/recategorized
- * (`geo-trust-signals`, `geo-eeat-signals`, `geo-author-info`,
- * `geo-entity-naming-consistency`) - the same "spans categories via an
- * explicit id list, not a category string" reasoning Content Score's own
- * docblock gives.
- *
- * `brand_score` used to blend all 3 sub-scores (Trust + Authority +
- * Entity) together; now just Trust + Authority (direct instruction:
- * "Knowledge Graph and Brand Visibility overlap around 'Entity'... Entity
- * Score therefore has a much stronger conceptual home in Knowledge
- * Graph... Brand Visibility: 'Do people and AI trust/recognise my
- * brand?' [vs] Knowledge Graph: 'Does Google/AI understand who and what
- * my business actually is?'"). `entity_score` itself is still computed
- * and returned here, unchanged - KnowledgeGraphSection.tsx's own new
- * "Entity Understanding" card reads it straight from this same real
- * endpoint/field rather than a second, duplicate calculation; only
- * BrandScoreCard.tsx stopped rendering it as one of ITS OWN 4 tiles (now
- * 3: Brand/Trust/Authority).
+ * REST controller for Brand Intelligence's deterministic scores: an
+ * overall Brand Score plus Trust/Authority/Entity sub-scores, each scoped
+ * to its own scanner_id list via the same weighting
+ * Controllers\Dashboard::calculate_category_score() uses. `brand_score`
+ * blends Trust + Authority only; `entity_score` is still computed and
+ * returned for KnowledgeGraphSection.tsx's own card.
  *
  * @class       BrandIntelligence controller
  * @version     1.0.0

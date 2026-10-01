@@ -8,39 +8,12 @@ use VuloPilot\GeoAnalysis\Rest\Geo;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `POST /content-assistant/chat` - the conversational turn for "Create
- * Content"'s AI Content Assistant sidebar
- * (src/pages/Content/AiContentAssistantSidebar.tsx). Every message goes
- * through one "orchestrator" AI call (build_orchestrator_messages()) that
- * decides, per turn, whether to ask one more clarifying question, answer
- * directly, or hand off to a real AIAction - never a second, separate
- * "chit-chat" code path. Reuses VuloPilot()->ai_request_sender
- * (AI\AiRequestSender, already wired in
- * VuloPilot::init_classes() for AiCopilot\ActionRunner and
- * Geo\GeoAnalyzer) for that call - the same safety-validate → send →
- * sanitize sequence, and every call is automatically recorded to
- * `vulopilot_ai_history` by AI\AiRequestSender itself, so this controller
- * doesn't do any logging of its own.
- *
- * Once the orchestrator decides it has enough information, it hands off
- * to the exact same real AIAction ContentToolsGrid.tsx's own tiles run -
- * `generate-blog`
- * (VuloPilot()->ai_action_runner, AI-ACTIONS.md's propose→approve
- * lifecycle) - auto-approving immediately, since the conversation itself
- * IS the user's approval, the same way clicking a tool tile and
- * submitting its form is. Only this action qualifies: every other
- * AIAction (FAQ, meta title, schema, alt text, …) mutates an *existing*
- * post/attachment this chat has no picker for, so a request that doesn't
- * match it is written directly in the reply instead (the
- * orchestrator's "respond" status) - real generated content, just never
- * claimed to be saved anywhere, since nothing was.
- *
- * There is deliberately no separate slot-filling state machine: the only
- * conversation state is the same plain `history` array the client already
- * round-trips (AiContentAssistantSidebar.tsx's own `turns`) - the
- * orchestrator re-derives "what's already been answered" from that
- * transcript on every call, the same way a human reading the thread back
- * would, rather than this controller tracking parallel structured state.
+ * REST controller for the AI Content Assistant sidebar's chat turn. Each
+ * message goes through one orchestrator AI call that asks a clarifying
+ * question, answers directly, or hands off to the `generate-blog` AIAction
+ * (auto-approved, since the conversation itself is the approval).
+ * Conversation state is just the client's round-tripped `history` array -
+ * no separate slot-filling state machine.
  *
  * @class       ContentAssistant controller
  * @version     1.0.0
@@ -185,14 +158,9 @@ class ContentAssistant extends \WP_REST_Controller {
     }
 
     /**
-     * Builds the one orchestrator prompt every turn goes through: a
-     * system message describing the 3 real content types it can create
-     * (kept in sync with CONTENT_CREATION_ACTIONS and each action's own
-     * validate_input() by hand), the client's own recent turns, then the
-     * new user message. Instructed to respond with strict JSON only -
-     * the same "respond with ONLY raw JSON" structured-output technique
-     * GeoAnalysis\GeoAnalyzer and AiCopilot\Actions\GenerateBlogAction
-     * already use for their own AI calls.
+     * Builds the orchestrator prompt: a system message describing the
+     * content types it can create, the client's recent turns, then the
+     * new user message. Instructed to respond with strict JSON only.
      *
      * @param string            $message     The new user message.
      * @param array<int, mixed> $raw_history Client-supplied {role, content} turns, oldest first.

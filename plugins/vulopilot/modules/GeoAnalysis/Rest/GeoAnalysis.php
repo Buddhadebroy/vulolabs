@@ -33,15 +33,9 @@ class GeoAnalysis extends \WP_REST_Controller {
     private const MAX_ZERO_FINDING_FILL = 20;
 
     /**
-     * Safety bound on `get_pages()`'s own underlying `WP_Query` - its
-     * sort key (`open_findings`/`visibility_score`) is computed, not a
-     * native post column, so it can't be an SQL `ORDER BY`; every matching
-     * post has to be pulled into memory, scored, then sorted/paginated in
-     * PHP. Same "reasonable bound, not truly unlimited" posture this
-     * controller's own MAX_ZERO_FINDING_FILL and
-     * VisibilitySnapshotBuilder::SAMPLE_SIZE already take elsewhere in
-     * this codebase, sized generously for a single site's own published
-     * content rather than a multisite-scale catalog.
+     * Safety bound on `get_pages()`'s `WP_Query` - its sort key is computed,
+     * not a native post column, so every matching post must be pulled into
+     * memory, scored, then sorted/paginated in PHP.
      */
     private const MAX_PAGES_QUERY = 1000;
 
@@ -92,10 +86,8 @@ class GeoAnalysis extends \WP_REST_Controller {
         $requested_limit = absint( $request->get_param( 'limit' ) );
         $limit           = min( 20, max( 1, $requested_limit ? $requested_limit : 5 ) );
         $scanner_ids     = $this->parse_scanner_ids( $request );
-        // `scope=all` (Dashboard's own "Key pages at a glance" widget) ranks
-        // by open findings of ANY category, not just GEO - additive, opt-in
-        // param so every existing GEO-tab/AEO-tab caller (which never sends
-        // it) keeps today's GEO-only ranking unchanged.
+        // `scope=all` (Dashboard's "Key pages at a glance" widget) ranks by
+        // open findings of any category, not just GEO.
         $sitewide        = 'all' === $request->get_param( 'scope' );
         $counts          = ( new FindingRepository() )->count_by_column(
             'object_ref',
@@ -131,13 +123,9 @@ class GeoAnalysis extends \WP_REST_Controller {
         $top     = array_slice( $ranked, 0, $limit );
         $top_ids = array_column( $top, 'post_id' );
 
-        // A site with fewer real published pages than `2 * $limit` (e.g. a
-        // fresh dev install with only 2 pages total, $limit=5) would
-        // otherwise show the exact same pages in both "top" and "bottom" -
-        // confirmed live on GeoTab.tsx's own "Your Best & Worst Pages" card,
-        // the same 2 pages listed as both "AI likes these pages already"
-        // AND "Needs attention". Real redundant data, not a fabrication
-        // issue - fixed by excluding whatever's already in `top` before
+        // A site with fewer published pages than `2 * $limit` would otherwise
+        // show the same pages in both "top" and "bottom" - fixed by
+        // excluding whatever's already in `top` before
         // ranking the worst, so "bottom" only ever shows pages `top`
         // hasn't already claimed (naturally shorter, even empty, on a very
         // small site, which TopPagesCard.tsx already handles via its own
@@ -158,32 +146,15 @@ class GeoAnalysis extends \WP_REST_Controller {
     }
 
     /**
-     * `GET /geo-analysis/pages` - every published page/post with its real
-     * open-GEO-finding count and a real, deterministic (non-AI) visibility
-     * percentage. Originally GEO tab's own standalone "Page-by-page
-     * analysis" table (Export CSV + sortable, unlike get_top_pages()'s own
-     * bounded top/bottom-N lists); now also the row source `IssuesSection.tsx`
-     * uses for its "Pages & Posts" table when its own `pageAnalysis` prop is
-     * set (GeoTab.tsx/AeoTab.tsx), merging that visibility % + Export CSV
-     * into the same table instead of two separate ones showing the same
-     * pages twice - per direct instruction. `status`/`date` (added for that
-     * merge) are the real `post_status`/`post_modified`, same fields
-     * `SeoIssuesByPageTable.tsx` already showed via its own `wp/v2` fetch.
-     * The visibility score is the exact same formula
-     * GeoAnalyzer::calculate_deterministic_score() computes for one post's
-     * own card (GeoAnalyzer::score_from_failures() - see that method's own
-     * docblock for why this endpoint calls the extracted, bulk-friendly
-     * version instead of that private per-post one) - real structural
-     * checks already persisted as scan findings, not an AI-generated
-     * number and not gated behind the opt-in "Generate GEO score" action,
-     * so every page gets a real percentage instead of only the handful
-     * someone has explicitly analyzed.
+     * `GET /geo-analysis/pages` - every published page/post with its open
+     * GEO finding count and a deterministic visibility percentage. Backs
+     * both the GEO tab's own "Page-by-page analysis" table and
+     * `IssuesSection.tsx`'s "Pages & Posts" table (merged, Export CSV +
+     * sortable). The visibility score reuses
+     * GeoAnalyzer::calculate_deterministic_score()'s bulk-friendly formula.
      *
      * `open_findings`/`sitewide_trust_signal_failure` both come from one
-     * shared `count_by_column('object_ref', …)` call - the same grouped
-     * query get_top_pages() already uses, reused here instead of querying
-     * per post (`calculate_deterministic_score()`'s own two-queries-per-post
-     * shape would mean N+1 queries across a whole site's pages).
+     * shared `count_by_column()` call, avoiding N+1 queries per post.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response
@@ -287,15 +258,9 @@ class GeoAnalysis extends \WP_REST_Controller {
 
     /**
      * Optional `scanner_ids` request param (comma-separated) - when present,
-     * both `get_top_pages()` and `get_pages()` rank/score by open findings
-     * against that specific caller-supplied set of scanner ids instead of
-     * the default `category = geo`. AeoTab.tsx's own "Top pages by answer
-     * readiness"/"Page-by-page answer readiness" pass its own 5 real AEO
-     * scanner ids this way, reusing this same real endpoint + deterministic
-     * scoring formula (GeoAnalyzer::score_from_failures(), also given the
-     * matching real denominator - see that method's own docblock) rather
-     * than standing up a parallel "AeoAnalysis" controller that would just
-     * re-run the identical query shape against a different WHERE clause.
+     * ranks/scores by open findings against that set instead of the
+     * default `category = geo`. Lets AeoTab.tsx reuse this endpoint with
+     * its own AEO scanner ids.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return string[] Sanitized scanner ids, empty if the param was absent/empty.

@@ -15,14 +15,9 @@ use VuloPilot\SeoVisibility\OnPageAnalyzer;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /content-intelligence/score` - the composite, deterministic
- * "Content Score" (no AI, no cost). Scoped to a fixed scanner_id list
- * spanning two categories (`content`'s own readability scanner, plus 4
- * existing `seo`-category scanners this module reuses rather than
- * recategorizes - CONTENT-INTELLIGENCE-MODULE.md's audit), using
- * FindingRepository::get_severity_breakdown_for_scanner_ids() and the
- * exact same weighting Controllers\Dashboard::calculate_category_score()
- * already uses, just scoped to this scanner list instead of one category.
+ * REST controller for the composite, deterministic "Content Score",
+ * scoped to a fixed scanner_id list spanning content and seo categories,
+ * using the same weighting as Controllers\Dashboard::calculate_category_score().
  *
  * @class       ContentIntelligence controller
  * @version     1.0.0
@@ -46,14 +41,8 @@ class ContentIntelligence extends \WP_REST_Controller {
     private const SCANNER_IDS = array( 'readability', 'thin-content', 'duplicate-content', 'heading-structure', 'internal-linking', 'orphan-pages' );
 
     /**
-     * Real content-CREATION actions only - same real `{title, body}`
-     * output shape (verified against each action's own
-     * parse_response()/execute()), so a real word count is meaningful for
-     * all three the same way. `generate-faq` is deliberately excluded:
-     * its own execute() appends an FAQ section to an EXISTING post via
-     * wp_update_post() rather than creating new content (see that
-     * action's own docblock) - counting it here would misrepresent "how
-     * much new content was created."
+     * Content-creation actions only. `generate-faq` is excluded since it
+     * appends to an existing post rather than creating new content.
      *
      * @var string[]
      */
@@ -160,18 +149,9 @@ class ContentIntelligence extends \WP_REST_Controller {
     );
 
     /**
-     * Fetches `/content-intelligence/quality?post_id={id}` - per-post
-     * quality signals for one saved post/page, answering "how good is
-     * THIS piece of content" rather than an aggregate score.
-     *
-     * Three real dimensions only:
-     * - readability: ReadabilityScanner::calculate_flesch_reading_ease()
-     *   run against this post's content on demand.
-     * - completeness: OnPageAnalyzer's "basic" check group
-     *   (title/description/content length) against the post's saved
-     *   fields; keyword-dependent checks are skipped since no
-     *   focus_keyword is persisted outside the editor session.
-     * - structure: the same analyzer's `has_subheadings` check.
+     * Per-post quality signals: readability (Flesch reading ease),
+     * completeness (OnPageAnalyzer's basic checks), and structure
+     * (has_subheadings).
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response

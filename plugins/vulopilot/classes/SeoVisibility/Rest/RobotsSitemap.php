@@ -7,18 +7,9 @@ use VuloPilot\TechnicalSeo\Scanners\BrokenLinksScanner;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /robots-sitemap/robots` and `GET /robots-sitemap/sitemap` - real,
- * live fetch-and-parse of this site's OWN actual `/robots.txt` and
- * sitemap index, backing RobotsSitemapSection.tsx's "Robots.txt
+ * REST controller for live fetch-and-parse of this site's `/robots.txt`
+ * and sitemap index, backing RobotsSitemapSection.tsx's "Robots.txt
  * Analysis"/"XML Sitemap Overview" cards.
- *
- * Neither existing scanner (Seo\Scanners\RobotsTxtScanner/SitemapScanner)
- * does this: they only check reachability (and one narrow "blocks every
- * crawler" case for robots.txt) for the findings feed, never return file
- * content or a structured rules/child-sitemap breakdown to the frontend -
- * confirmed by reading both before writing this controller. This is
- * genuinely new, real parsing, not a re-exposure of something that
- * already existed.
  *
  * @class       RobotsSitemap controller
  * @version     1.0.0
@@ -152,14 +143,9 @@ class RobotsSitemap extends \WP_REST_Controller {
     }
 
     /**
-     * The Robots.txt Analysis card's own "Edit" action - saves a real,
-     * persisted override of this site's own robots.txt output
-     * (RobotsTxtManager::save_custom_content(), which replaces WordPress
-     * core's own virtual `robots_txt` filter output outright). An empty
-     * `content` clears the override, reverting to core's own default.
-     * Nothing here is a preview: the very next live `GET .../robots`
-     * (or a real crawler request to `/robots.txt`) reflects exactly what
-     * was just saved.
+     * Saves a persisted override of this site's robots.txt output via
+     * RobotsTxtManager::save_custom_content(). An empty `content` clears
+     * the override, reverting to core's default.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response
@@ -243,13 +229,10 @@ class RobotsSitemap extends \WP_REST_Controller {
     }
 
     /**
-     * Live-fetches this site's own sitemap index - real `/wp-sitemap.xml`
-     * (WordPress core's own native sitemap since 5.5) first, falling back
-     * to `/sitemap.xml`, same discovery order Seo\Scanners\SitemapScanner
-     * already uses. Enumerates every real `<sitemap>` child entry (a real
-     * index) or treats a flat `<url>` set as one real sitemap - for each
-     * real child, a second real request counts its own real `<url>`
-     * entries (bounded, see MAX_CHILD_SITEMAPS's own docblock).
+     * Live-fetches this site's sitemap index: `/wp-sitemap.xml` first,
+     * falling back to `/sitemap.xml`. Enumerates child `<sitemap>` entries
+     * (or a flat `<url>` set), counting each child's URLs (bounded by
+     * MAX_CHILD_SITEMAPS).
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response

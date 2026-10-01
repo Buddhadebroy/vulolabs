@@ -10,19 +10,11 @@ use VuloPilot\Utill\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Fetches `/dashboard` - the summary object the Dashboard page's widgets read
- * (src/dashboard-widgets/registry.ts's DashboardSummary interface). This
- * is one aggregate payload rather than one REST call per widget
- * (performance.md's "prefer a single query" guidance, applied to the
- * frontend's fetch pattern too) - every number here is a cheap,
- * index-backed COUNT/GROUP BY, not a computed-per-request table scan.
- *
- * List-shaped widgets (Recent Activity, Latest Reports, Pending Approval,
- * Automation Status's row list, Health Timeline) deliberately do NOT live
- * in this payload - they call the existing dedicated list endpoints
- * (`/activity-logs`, `/reports`, `/ai-action-runs`, `/automations`,
- * `/site-health-snapshots`) directly, the same endpoints their full list
- * pages already use, rather than duplicating that data here.
+ * REST controller for `/dashboard`: one aggregate payload for the
+ * Dashboard page's widgets (src/dashboard-widgets/registry.ts's
+ * DashboardSummary), using cheap COUNT/GROUP BY queries. List-shaped
+ * widgets call their own dedicated list endpoints instead of duplicating
+ * data here.
  *
  * @class       Dashboard controller
  * @version     1.0.0
@@ -101,15 +93,9 @@ class Dashboard extends \WP_REST_Controller {
     }
 
     /**
-     * "Site snapshot" - real WordPress core counts, every one a plain core
-     * function call (`wp_count_posts()`/`wp_count_comments()`/`count_users()`/
-     * `get_plugins()`/`phpversion()`/`get_bloginfo('version')`), not derived
-     * from scan findings the way every other field on this payload is.
-     * Nothing in this codebase exposed these before this method - added
-     * specifically to back the Dashboard's own "Site snapshot" widget
-     * rather than leave that section fabricated or omitted, since every
-     * number here is genuinely free to compute (no query, no scan, just
-     * core WP state already loaded on every request).
+     * "Site snapshot" - plain WordPress core counts (posts, pages,
+     * comments, users, plugins, versions), unlike every other field on
+     * this payload which derives from scan findings.
      *
      * @return array{posts: int, pages: int, comments: int, users: int, plugins_active: int, plugins_total: int, wp_version: string, php_version: string}
      */
@@ -137,18 +123,9 @@ class Dashboard extends \WP_REST_Controller {
     }
 
     /**
-     * Real AI usage for the current calendar month, read from
-     * `vulopilot_ai_history` - the ledger `AI\AiRequestSender` writes a
-     * row to on every real AI call, already
-     * consumed by the AI Usage Report and Recent Conversations. `ai_jobs_used`
-     * is real; `ai_jobs_quota` stays honestly 0 (meaning "no cap configured"),
-     * since no quota cap exists anywhere yet (AI-ARCHITECTURE.md's "What's not here yet" -
-     * quota enforcement). No widget on the Dashboard/AI Copilot pages reads
-     * these two fields today (the AI Copilot page's own usage widget was
-     * replaced by RecommendedActionsCard - a real-findings summary, not a
-     * usage count), but they stay real rather than a hardcoded stub since
-     * DashboardSummary's own contract (this class's docblock) is "one
-     * aggregate payload, widgets pick the fields they need."
+     * AI usage for the current calendar month, read from
+     * `vulopilot_ai_history`. `ai_jobs_quota` stays 0 ("no cap configured")
+     * since no quota enforcement exists yet.
      *
      * @return array{ai_jobs_used: int, ai_jobs_quota: int}
      */
@@ -163,18 +140,10 @@ class Dashboard extends \WP_REST_Controller {
 
     /**
      * Per-domain widget scores (SEO/Performance/Security/Accessibility/
-     * Commerce). `vulopilot_site_health_snapshots` already has
-     * `seo_score`/`performance_score`/`security_score` columns, but
-     * nothing in this codebase computes or writes them yet
-     * (ScanPersistenceListener::refresh_todays_snapshot() only ever
-     * upserts overall_score) - reading those columns here would silently
-     * always return null, which is indistinguishable from "not
-     * implemented" and would be exactly the kind of fabricated-looking
-     * number this controller's docblock already warns against for AI
-     * usage. Instead each score is computed live, using the identical
-     * weighting calculate_overall_score() uses, just scoped to one
-     * category's open findings - a real, honest derived score computable
-     * from data that already exists.
+     * Commerce). Computed live from open findings using the same
+     * weighting as calculate_overall_score(), rather than reading the
+     * `vulopilot_site_health_snapshots` score columns, which nothing
+     * writes yet.
      *
      * @param FindingRepository $findings Repository to read category breakdowns from.
      * @return array<string, int|null> Category id => 0-100 score, or null where the category doesn't apply to this site (the store platform is inactive).
@@ -191,32 +160,21 @@ class Dashboard extends \WP_REST_Controller {
             ? $this->calculate_category_score( $findings, 'woocommerce' )
             : null;
 
-        // Content Intelligence's "Content Score" - deliberately NOT one of
-        // the single-category loop above: it spans a fixed scanner_id list
-        // across two categories (content's own readability scanner plus 4
-        // reused seo-category scanners), not one category string
-        // (CONTENT-INTELLIGENCE-MODULE.md's audit explains why those seo
-        // scanners aren't recategorized). Same weighting, different scope.
+        // Content Score spans a fixed scanner_id list across two
+        // categories rather than one category string. Same weighting,
+        // different scope.
         $scores['content'] = $this->calculate_content_score( $findings );
 
-        // Brand Intelligence's overall "Brand Score" - same
-        // cross-scanner-id-list scope as 'content' above, spanning 3 new
-        // brand-category scanners plus 4 reused geo-category ones
-        // (Controllers\BrandIntelligence's own docblock explains the
-        // grouping; BRAND-INTELLIGENCE-MODULE.md has the full audit).
+        // Brand Score: same cross-scanner-id-list scope as 'content' above.
         $scores['brand'] = $this->calculate_brand_score( $findings );
 
         return $scores;
     }
 
     /**
-     * Same 8 keys/same weighting as build_category_scores(), but each
-     * score is reconstructed as of a past moment via
-     * get_severity_breakdown_for_category_as_of() instead of counting
-     * today's open findings - what the Dashboard's score-card trend
-     * arrows diff against (this call's result vs. build_category_scores()'s),
-     * since no per-category score snapshot history exists to read a real
-     * delta from directly.
+     * Same keys/weighting as build_category_scores(), but reconstructed
+     * as of a past moment - what the Dashboard's trend arrows diff
+     * against, since no per-category score snapshot history exists.
      *
      * @param FindingRepository $findings Repository to read category breakdowns from.
      * @param string            $as_of    MySQL datetime (UTC) to reconstruct every category's open set as of.
@@ -434,26 +392,12 @@ class Dashboard extends \WP_REST_Controller {
     }
 
     /**
-     * "Overall Health" - the average of every applicable category's own
-     * already-computed, already-displayed 0-100 score (build_category_scores()'s
-     * return value), not an independent raw severity-count formula run
-     * across every open finding sitewide in one combined total.
-     *
-     * That combined-total formula is what this method used to do, and on
-     * any real, actively-scanned site it saturates almost immediately:
-     * confirmed live on this site's own 507 open findings (238 of them
-     * `high`, weighted 8 points each - 1904 points of "damage" alone) blew
-     * straight through the same 100-point budget calculate_category_score()
-     * applies per category, clamping this one stat to 0 while every
-     * category tile right below it (SEO 35, Performance 96, Security 0,
-     * Content 68) still showed real gradation - reading as "this number
-     * isn't syncing" rather than "this site has a lot of open issues," and
-     * guaranteed to keep reading that way on this site (or any similarly
-     * sized one) regardless of how much real progress is made. Averaging
-     * the categories instead keeps this headline inside the same range the
-     * tiles beneath it show, and since each category already clamps itself
-     * to 0-100 before this average runs, one saturated category (Security,
-     * here) can no longer single-handedly floor the whole site's score.
+     * "Overall Health" - the average of each applicable category's own
+     * clamped 0-100 score, not a raw sitewide severity-count formula.
+     * Must stay an average of already-clamped category scores: a
+     * combined-total formula saturates to 0 on any actively-scanned site
+     * long before its categories do, since weighted points accumulate
+     * across the whole site instead of resetting per category.
      *
      * @param array<string, int|null> $category_scores build_category_scores()'s own return value - null entries (e.g. `woocommerce` on a site without the store platform) are excluded from the average rather than counted as 0.
      * @return int 0-100.

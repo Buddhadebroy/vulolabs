@@ -5,26 +5,11 @@ namespace VuloPilot\Performance\Rest;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Fetches `/efficiency-checks` - backs "Protect My Site" → Performance tab.
- *
- * Unlike every other tab on this page, this data isn't findings read back
- * out of `vulopilot_scan_findings` (that table only ever stores problems,
- * never a "this passed" record - Basic\PerformanceScanner/
- * Basic\CacheDetectionScanner still work that way for the *separate*
- * "Improve My Speed" page's own category-'performance' findings list).
- * The Performance tab's own mockup needs every check's live state,
- * good or bad, on every load - the same shape WordPress core's own
- * Tools → Site Health screen already solves for by running its
- * `WP_Site_Health::get_test_*()` methods synchronously per request rather
- * than persisting results. This controller does the same: 4 checks,
- * computed fresh on every call, no DB writes. Two of the four
- * (`persistent_object_cache`'s "is this even worth suggesting" threshold
- * logic, and the general "wrap core, don't reinvent" posture
- * WordPressHealthScanner/ServerHealthScanner already established for
- * this plugin) reuse `WP_Site_Health` itself rather than re-deriving its
- * thresholds; the other two (page/browser caching) are simple enough to
- * check directly against real response headers, same as
- * CacheDetectionScanner already does for its own coarser single check.
+ * REST controller for `/efficiency-checks`, backing "Protect My Site" →
+ * Performance tab. Unlike other tabs, this isn't read from
+ * `vulopilot_scan_findings` (which only stores problems): 4 checks are
+ * computed fresh on every call with no DB writes, reusing `WP_Site_Health`
+ * for two of them and direct response-header checks for the other two.
  *
  * @class       EfficiencyChecks controller
  * @version     1.0.0
@@ -410,12 +395,8 @@ class EfficiencyChecks extends \WP_REST_Controller {
     }
 
     /**
-     * Wraps `WP_Site_Health::should_suggest_persistent_object_cache()` -
-     * core's own real thresholds (multisite, or option/comment/post/user
-     * table row counts) for whether a persistent object cache is even
-     * worth recommending on this specific site, same "wrap core, don't
-     * reinvent" posture ServerHealthScanner/WordPressHealthScanner
-     * already use for their own wrapped tests.
+     * Wraps `WP_Site_Health::should_suggest_persistent_object_cache()`'s
+     * own thresholds rather than re-deriving them.
      *
      * @return bool
      */

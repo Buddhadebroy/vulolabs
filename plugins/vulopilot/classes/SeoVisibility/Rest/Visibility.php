@@ -11,24 +11,11 @@ use VuloPilot\Settings\GoogleServicesConnection;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /visibility/score` / `GET /visibility/progress` - back the "SEO &
- * Visibility → Overview" tab's own real dashboard (OverviewTab.tsx):
- * one combined score across the 4 real free-tier areas already scored
- * elsewhere on this plugin's own dedicated tabs (Brand, SEO, GEO, Crawl &
- * URLs), plus a real combined trend.
- *
- * Deliberately calls each area's own existing controller method directly
- * (`( new Seo() )->get_score()`, etc.) rather than re-deriving each area's
- * own scanner-id list/formula a 6th time - this guarantees the number shown
- * here for "SEO" (for example) can never disagree with the number SEO's
- * own tab shows, since both come from the exact same call. Only the 7-day-
- * ago *delta* per area is computed locally here (via the same
- * `..._as_of()` reconstruction technique every other score endpoint in
- * this codebase already uses), since none of the 4 source endpoints expose
- * a "score as of N days ago" of their own - `AREA_SCANNER_IDS` below is
- * kept in sync manually with each source controller's own scanner-id
- * list, same "kept in sync manually" convention `Controllers\Seo`'s own
- * docblock already documents for a similar cross-file duplication.
+ * REST controller for "SEO & Visibility → Overview": a combined score
+ * across Brand/SEO/GEO/Crawl & URLs, read directly from each area's own
+ * controller method so the numbers can never disagree. Only the 7-day-ago
+ * delta per area is computed locally, via `AREA_SCANNER_IDS` kept in sync
+ * manually with each source controller's own scanner-id list.
  *
  * @class       Visibility controller
  * @version     1.0.0
@@ -42,20 +29,11 @@ class Visibility extends \WP_REST_Controller {
     protected $rest_base = 'visibility';
 
     /**
-     * Real scanner ids behind each area's own score, kept in sync manually
-     * with `Controllers\Seo::CATEGORY_SCANNER_IDS` (merged), `Controllers\Geo::SIGNAL_SCANNER_IDS`
-     * (merged, minus `content-freshness` - that signal is a real sitewide
-     * computation from `post_modified_gmt`, not a finding count, so it has
-     * no "as of N days ago" reconstruction the way a finding does; GEO's
-     * own real `/geo/progress` excludes it from its trend for the identical
-     * reason, see that class's own docblock), `Controllers\BrandIntelligence::TRUST_SCANNER_IDS`/
-     * `AUTHORITY_SCANNER_IDS` (merged), and `Controllers\CrawlerTraffic::get_analytics()`'s
-     * own inline 4-id array. Used ONLY for the 7-day-ago delta reconstruction
-     * and the combined trend below - the *current* score for each area
-     * always comes from that area's own real endpoint (see this class's own
-     * docblock), so a delta computed from a slightly different or stale
-     * copy of this list would still never make the *headline* number
-     * disagree with that area's own tab, only the change arrow's precision.
+     * Scanner ids behind each area's score, kept in sync manually with
+     * each source controller's own list (`content-freshness` excluded,
+     * same reasoning as GEO's own progress trend). Used only for the
+     * 7-day-ago delta and combined trend - the current score always comes
+     * from that area's own endpoint.
      *
      * @var array<string, string[]>
      */
@@ -240,14 +218,9 @@ class Visibility extends \WP_REST_Controller {
     }
 
     /**
-     * "Visibility Trend" - a real daily combined-score trend over `days`
-     * (7/30/90), one real reconstructed score per day
-     * (`FindingRepository::get_severity_breakdown_for_scanner_ids_as_of()`,
-     * same technique every other real score trend in this codebase already
-     * uses) across ALL 4 areas' scanner ids merged into one breakdown -
-     * genuinely cheap (one query per day, same cost as `Controllers\Geo::get_progress()`),
-     * not 4 separate per-area reconstructions per day. No new stored
-     * snapshot table.
+     * "Visibility Trend": daily combined-score trend over `days` (7/30/90),
+     * reconstructed across all 4 areas' scanner ids merged into one
+     * breakdown (one query per day, not 4 per-area reconstructions).
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response
@@ -283,22 +256,11 @@ class Visibility extends \WP_REST_Controller {
     }
 
     /**
-     * "Visibility by Source" - real GA4 sessions grouped by
-     * `sessionDefaultChannelGroup` (GoogleAnalyticsClient::run_channel_group_report()),
-     * a genuine Google Analytics dimension, over the last
-     * `TRAFFIC_SOURCE_WINDOW_DAYS` real days. This plugin tracks zero
-     * human-visitor traffic-source data of its own anywhere
-     * (`vulopilot_crawler_visits` is AI bots only, by explicit design - see
-     * `CrawlerTraffic.php`'s own docblock; Search Console is organic-
-     * search-only by definition) - so unlike "Visibility by Area" (this
-     * same tab's own real category-score donut, a separate concept), this
-     * card only ever has real data to show once a site owner has actually
-     * connected a real GA4 property (Settings → Connections → Google
-     * Services). `connected: false` (empty `sources`) covers both "never
-     * connected" and "connected, but the live GA4 call itself failed" -
-     * the frontend renders the identical honest "connect" prompt either
-     * way rather than a fabricated number or a confusing distinct error
-     * state for a case a site owner can't act on differently anyway.
+     * "Visibility by Source": GA4 sessions grouped by
+     * `sessionDefaultChannelGroup` over the last `TRAFFIC_SOURCE_WINDOW_DAYS`
+     * days. `connected: false` (empty `sources`) covers both "never
+     * connected" and "GA4 call failed" - the frontend shows the same
+     * "connect" prompt either way.
      *
      * @return \WP_REST_Response
      */

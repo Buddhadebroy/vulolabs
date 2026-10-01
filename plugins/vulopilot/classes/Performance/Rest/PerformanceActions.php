@@ -305,13 +305,9 @@ class PerformanceActions extends \WP_REST_Controller {
     }
 
     /**
-     * Deletes the real unattached, unused image attachments
-     * ImageCleanupScanner counts - same protected-id exclusions (featured
-     * images, site icon, custom logo) and same 30-day age gate, since this
-     * re-uses that scanner's own `get_orphaned_image_ids()` rather than
-     * re-implementing the query. Bounded by MAX_IMAGES_PER_RUN per click,
-     * same safety cap `run_optimize_images()` uses, so a media library with
-     * hundreds of orphaned images doesn't time out a single request.
+     * Deletes unattached, unused image attachments via
+     * ImageCleanupScanner::get_orphaned_image_ids(), bounded by
+     * MAX_IMAGES_PER_RUN per click.
      *
      * @return array{success: bool, message: string}
      */
@@ -400,20 +396,10 @@ class PerformanceActions extends \WP_REST_Controller {
     }
 
     /**
-     * Real, one-time `.htaccess` write - `insert_with_markers()` is the
-     * same core function WordPress itself uses to write its own rewrite
-     * rules (`wp-admin/includes/misc.php`), inside a self-contained
-     * "VuloPilot Browser Caching" marker block so re-running this action
-     * never duplicates or clobbers the site's existing rules (including
-     * WordPress's own `# BEGIN WordPress` block just above it). Emits
-     * `mod_expires` directives, not `mod_headers` - Apache's mod_expires
-     * module generates both the `Expires` and `Cache-Control: max-age=…`
-     * response headers on its own once `ExpiresActive On` is set, matching
-     * exactly the two signals `check_browser_caching()`
-     * (Controllers\EfficiencyChecks.php) probes for on a real static
-     * asset request. Returns an honest failure, not a fabricated success,
-     * when `.htaccess` isn't writable - same posture `run_minify_css_js()`
-     * already uses for its own "nothing to do" case.
+     * One-time `.htaccess` write via `insert_with_markers()`, inside a
+     * self-contained marker block so re-running never duplicates existing
+     * rules. Emits `mod_expires` directives. Returns an honest failure
+     * when `.htaccess` isn't writable.
      *
      * @return array{success: bool, message: string}
      */

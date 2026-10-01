@@ -267,22 +267,10 @@ class Redirects extends \WP_REST_Controller {
     }
 
     /**
-     * Real "Broken Redirects" data - nothing in this codebase previously
-     * checked whether a redirect's own `target_url` actually resolves
-     * (BrokenLinksScanner only checks `<a href>`s found in page content,
-     * never this table). Same HEAD-request/timeout/reason shape as
-     * BrokenLinksScanner::check_link() so a redirect's "broken" state
-     * means exactly what a broken link's does elsewhere in this plugin.
-     *
-     * Cached in a single option for `HEALTH_CACHE_SECONDS` (real, honest
-     * "Last checked" timestamp for RedirectsSection.tsx's own stat tile -
-     * there is no scheduler/cron for this, so unlike BrokenLinksScanner
-     * there's no "next run" to report) rather than re-checking every
-     * target on every page load - `force=1` bypasses the cache for an
-     * explicit "Recheck now" action. Bounded to `MAX_HEALTH_CHECKS`
-     * active redirects per call, same reasoning BrokenLinksScanner caps
-     * itself per run: a bulk redirect importer creating hundreds of rows
-     * shouldn't turn one page load into hundreds of serial HTTP requests.
+     * Checks whether each redirect's `target_url` actually resolves, same
+     * HEAD-request shape as BrokenLinksScanner::check_link(). Cached for
+     * `HEALTH_CACHE_SECONDS` (`force=1` bypasses it), bounded to
+     * `MAX_HEALTH_CHECKS` active redirects per call.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response
