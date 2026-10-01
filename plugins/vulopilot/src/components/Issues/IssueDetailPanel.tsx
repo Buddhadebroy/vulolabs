@@ -10,7 +10,8 @@ import {
 	PopupComponent,
 	ClipboardComponent,
 	BadgeComponent,
-	AnalyticsComponent
+	AnalyticsComponent,
+	NoticeComponent
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import ShowProPopup from '../../components/Popup/Popup';
@@ -314,10 +315,9 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		getApiResponse<{ data?: { id: number }[] } | { id: number }[]>(
 			getApiLink(
 				vulopilotAppLocalizer,
-				`findings?scanner_id=${encodeURIComponent(scannerId)}${
-					objectType
-						? `&object_type=${encodeURIComponent(objectType)}`
-						: ''
+				`findings?scanner_id=${encodeURIComponent(scannerId)}${objectType
+					? `&object_type=${encodeURIComponent(objectType)}`
+					: ''
 				}&status=open&per_page=100`
 			),
 			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
@@ -372,7 +372,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	 * counts into one outcome.
 	 */
 	const runBulkFixInBatches = (
-		 
+
 		// eslint-disable-next-line no-unused-vars
 		bulkFixHandler: (batchIds: number[]) => Promise<BatchFixOutcome> | undefined,
 		ids: number[]
@@ -410,12 +410,12 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				// One Undo that reverses every batch that could be undone.
 				const undo: FixOutcome['undo'] = undos.length
 					? () =>
-							Promise.all(undos.map((run) => run())).then((results) => ({
-								success: results.every((result) => result.success),
-								message:
-									results.find((result) => !result.success)?.message ??
-									results[0].message,
-							}))
+						Promise.all(undos.map((run) => run())).then((results) => ({
+							success: results.every((result) => result.success),
+							message:
+								results.find((result) => !result.success)?.message ??
+								results[0].message,
+						}))
 					: undefined;
 
 				const failed = total - succeeded;
@@ -446,19 +446,19 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 							// Nothing was fixable: keep the handler's own message, it says why.
 							? lastMessage
 							: succeeded > 0
-							? sprintf(
-								/* translators: 1: number fixed, 2: how many had no automatic fix available at all. */
-								__(
-									'Fixed %1$d findings - no automatic fix exists yet for the other %2$d.',
+								? sprintf(
+									/* translators: 1: number fixed, 2: how many had no automatic fix available at all. */
+									__(
+										'Fixed %1$d findings - no automatic fix exists yet for the other %2$d.',
+										'vulopilot'
+									),
+									succeeded,
+									noFixCount
+								)
+								: __(
+									'No automatic fix exists yet for these findings.',
 									'vulopilot'
-								),
-								succeeded,
-								noFixCount
-							)
-							: __(
-								'No automatic fix exists yet for these findings.',
-								'vulopilot'
-							);
+								);
 				} else {
 					message = sprintf(
 						/* translators: 1: number fixed, 2: total findings attempted. */
@@ -544,7 +544,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					/>
 				</div>
 
-				<AnalyticsComponent	
+				<AnalyticsComponent
 					variant="small-priority-card"
 					cols={3}
 					data={[
@@ -590,120 +590,120 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					const samplePageLink = getAffectedItemLink(group.sample);
 
 					return (
-					<div className="issue-detail-section">
-						<div className="issue-detail-section-header">
-							{!isProActive && (
-								<i className="adminfont-lock issue-detail-section-lock" />
-							)}
-							<span className="issue-detail-section-title">
-								{showRecommendedFix
-									? __('Recommended fix', 'vulopilot')
-									: showWhatHappened
-										? __('What happened?', 'vulopilot')
-										: __('Example finding', 'vulopilot')}
-							</span>
-							{!isProActive && (
-								<span className="admin-tag pro-tag">
-									<i className="adminfont-pro-tag" />
-									{__('Pro', 'vulopilot')}
+						<div className="issue-detail-section">
+							<div className="issue-detail-section-header">
+								{!isProActive && (
+									<i className="adminfont-lock issue-detail-section-lock" />
+								)}
+								<span className="issue-detail-section-title">
+									{showRecommendedFix
+										? __('Recommended fix', 'vulopilot')
+										: showWhatHappened
+											? __('What happened?', 'vulopilot')
+											: __('Example finding', 'vulopilot')}
 								</span>
-							)}
-						</div>
-						{showRecommendedFix
-							? renderProGatedSection(
-								<ol className="issue-detail-fix-steps">
-									{recommendedFixSteps.map((step, index) => (
-										<li key={index} className="issue-detail-fix-step">
-											<span className="issue-detail-fix-step-number">
-												{index + 1}
-											</span>
-											<span className="issue-detail-fix-step-text">
-												{step}
-											</span>
-										</li>
-									))}
-								</ol>,
-								<span className="desc">
-									{__(
-										'Step-by-step guidance for fixing this specific issue appears here once Pro is active.',
-										'vulopilot'
-									)}
-								</span>,
-								false
-							)
-							: showWhatHappened
+								{!isProActive && (
+									<span className="admin-tag pro-tag">
+										<i className="adminfont-pro-tag" />
+										{__('Pro', 'vulopilot')}
+									</span>
+								)}
+							</div>
+							{showRecommendedFix
 								? renderProGatedSection(
-									<>
-										<div className="desc">{whatHappened}</div>
-										<div className="issue-detail-example-where">
-											<ClipboardComponent
-												text={
-													group.sample.page || __('Site-wide', 'vulopilot')
-												}
-												variant="code"
-												copyButtonLabel={__('Copy', 'vulopilot')}
-												copiedLabel={__('Copied!', 'vulopilot')}
-											/>
-											{samplePageLink && (
-												<a
-													href={samplePageLink}
-													target="_blank"
-													rel="noreferrer"
-													className="issue-detail-example-open-link"
-												>
-													<i className="adminfont-external" />
-													{__('View page', 'vulopilot')}
-												</a>
-											)}
-										</div>
-									</>,
+									<ol className="issue-detail-fix-steps">
+										{recommendedFixSteps.map((step, index) => (
+											<li key={index} className="issue-detail-fix-step">
+												<span className="issue-detail-fix-step-number">
+													{index + 1}
+												</span>
+												<span className="issue-detail-fix-step-text">
+													{step}
+												</span>
+											</li>
+										))}
+									</ol>,
 									<span className="desc">
 										{__(
-											'What this specific check actually found appears here once Pro is active.',
+											'Step-by-step guidance for fixing this specific issue appears here once Pro is active.',
 											'vulopilot'
 										)}
 									</span>,
 									false
 								)
-								: renderProGatedSection(
-									<>
-										<div className="issue-detail-example-title">
-											{group.sample.title}
-										</div>
-										<div className="desc">{group.sample.description}</div>
-										<div className="issue-detail-example-where">
-											<ClipboardComponent
-												text={
-													group.sample.page || __('Site-wide', 'vulopilot')
-												}
-												variant="code"
-												copyButtonLabel={__('Copy', 'vulopilot')}
-												copiedLabel={__('Copied!', 'vulopilot')}
-											/>
-											{samplePageLink && (
-												<a
-													href={samplePageLink}
-													target="_blank"
-													rel="noreferrer"
-													className="issue-detail-example-open-link"
-												>
-													<i className="adminfont-external" />
-													{__('View page', 'vulopilot')}
-												</a>
+								: showWhatHappened
+									? renderProGatedSection(
+										<>
+											<div className="desc">{whatHappened}</div>
+											<div className="issue-detail-example-where">
+												<ClipboardComponent
+													text={
+														group.sample.page || __('Site-wide', 'vulopilot')
+													}
+													variant="code"
+													copyButtonLabel={__('Copy', 'vulopilot')}
+													copiedLabel={__('Copied!', 'vulopilot')}
+												/>
+												{samplePageLink && (
+													<a
+														href={samplePageLink}
+														target="_blank"
+														rel="noreferrer"
+														className="issue-detail-example-open-link"
+													>
+														<i className="adminfont-external" />
+														{__('View page', 'vulopilot')}
+													</a>
+												)}
+											</div>
+										</>,
+										<span className="desc">
+											{__(
+												'What this specific check actually found appears here once Pro is active.',
+												'vulopilot'
 											)}
-										</div>
-									</>,
-									<span className="desc">
-										{__(
-											'A real, representative finding from this group - its title, description, and where it was found - appears here once Pro is active.',
-											'vulopilot'
-										)}
-									</span>,
-									false
-								)}
-					</div>
-				);
-			})()}
+										</span>,
+										false
+									)
+									: renderProGatedSection(
+										<>
+											<div className="issue-detail-example-title">
+												{group.sample.title}
+											</div>
+											<div className="desc">{group.sample.description}</div>
+											<div className="issue-detail-example-where">
+												<ClipboardComponent
+													text={
+														group.sample.page || __('Site-wide', 'vulopilot')
+													}
+													variant="code"
+													copyButtonLabel={__('Copy', 'vulopilot')}
+													copiedLabel={__('Copied!', 'vulopilot')}
+												/>
+												{samplePageLink && (
+													<a
+														href={samplePageLink}
+														target="_blank"
+														rel="noreferrer"
+														className="issue-detail-example-open-link"
+													>
+														<i className="adminfont-external" />
+														{__('View page', 'vulopilot')}
+													</a>
+												)}
+											</div>
+										</>,
+										<span className="desc">
+											{__(
+												'A real, representative finding from this group - its title, description, and where it was found - appears here once Pro is active.',
+												'vulopilot'
+											)}
+										</span>,
+										false
+									)}
+						</div>
+					);
+				})()}
 
 				<div className="issue-detail-section">
 					<div className="issue-detail-section-header">
@@ -829,38 +829,37 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				)}
 
 				{isProActive && !fixNotice && !group.fix_action_id && group.no_fix_reason && (
-					<div className="issue-detail-manual-fix-notice">
-						<div className="issue-detail-manual-fix-notice-icon">
-							<i className="adminfont-info" />
-						</div>
-						<div>
-							<div className="issue-detail-manual-fix-notice-title">
-								{__('Needs your review - no automatic fix', 'vulopilot')}
-							</div>
-							{/* The numbered steps above already say this - skip the redundant paragraph, keep the link. */}
-							{!showRecommendedFix && (
-								<div className="desc">{group.no_fix_reason}</div>
-							)}
-							{group.no_fix_link && (
-								<div className="small desc">
-									<a
-										href={group.no_fix_link.url}
-										target="_blank"
-										rel="noreferrer"
-										style={{
-											color: 'var(--color-primary)',
-											textDecoration: 'underline',
-										}}
-									>
-										{group.no_fix_link.label}
-									</a>
-								</div>
-							)}
-							<div className="small desc">
-								{__('Check the details above for what to look at.', 'vulopilot')}
-							</div>
-						</div>
-					</div>
+					<NoticeComponent
+						type="info"
+						displayPosition="inline-notice"
+						title={__('Needs your review - no automatic fix', 'vulopilot')}
+						message={
+							<>
+								{/* The numbered steps above already say this - skip the redundant paragraph, keep the link. */}
+								{!showRecommendedFix && group.no_fix_reason && (
+									<span className="desc">{group.no_fix_reason}</span>
+								)}
+								{group.no_fix_link && (
+									<span className="small desc">
+										<a
+											href={group.no_fix_link.url}
+											target="_blank"
+											rel="noreferrer"
+											style={{
+												color: 'var(--color-primary)',
+												textDecoration: 'underline',
+											}}
+										>
+											{group.no_fix_link.label}
+										</a>
+									</span>
+								)}
+								<span className="small desc">
+									{__('Check the details above for what to look at.', 'vulopilot')}
+								</span>
+							</>
+						}
+					/>
 				)}
 
 				{isProActive && fixNotice}
@@ -873,14 +872,14 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 							...(isUnfixable || !group.fix_action_id
 								? []
 								: [
-										{
-											text: __('Fix with AI', 'vulopilot'),
-											icon: 'ai',
-											color: 'orange-bg',
-											onClick: handleFix,
-											disabled: isBusy,
-										},
-									]),
+									{
+										text: __('Fix with AI', 'vulopilot'),
+										icon: 'ai',
+										color: 'orange-bg',
+										onClick: handleFix,
+										disabled: isBusy,
+									},
+								]),
 							{
 								text: __('Resolve all', 'vulopilot'),
 								color: 'border-purple',
