@@ -21,6 +21,7 @@ import {
 	CATEGORY_ICONS,
 	CATEGORY_LABELS,
 	formatAffected,
+	getObjectTypeNoun,
 	FindingGroup,
 } from './issuesTypes';
 import { FixOutcome } from '../../services/showFixOutcome';
@@ -78,6 +79,28 @@ const getAffectedItemLink = (
 	// admin_url is `.../admin.php?page=vulopilot` (built for appending `#&tab=...` hashes
 	// elsewhere in this app) - not a base to prefix a *different* admin.php query onto.
 	return `${vulopilotAppLocalizer.site_url}/wp-admin/post.php?post=${encodeURIComponent(row.object_ref)}&action=edit`;
+};
+
+/**
+ * Splits a sample finding's own real `title` - every scanner's `get_title()` writes it as
+ * "{message}: {affected item name}" (e.g. "Image missing alt text: 2.4.4.gif") - into its message
+ * half and its affected-item-name half, for the header's own title/desc swap below. Falls back to
+ * `{ message: title, name: null }` when there's no ": " to split on, so a title that doesn't follow
+ * that shape still renders (as the old plain desc) rather than silently dropping half of it.
+ */
+const splitSampleTitle = (
+	title: string
+): { message: string; name: string | null } => {
+	const separatorIndex = title.lastIndexOf(': ');
+
+	if (-1 === separatorIndex) {
+		return { message: title, name: null };
+	}
+
+	return {
+		message: title.slice(0, separatorIndex),
+		name: title.slice(separatorIndex + 2),
+	};
 };
 
 /** Section label per `object_type`. */
@@ -486,13 +509,28 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 			.finally(() => setIsBusy(false));
 	};
 
+	/**
+	 * Header title/desc swap, per direct instruction: the sample's own affected-item name (e.g.
+	 * "2.4.4.gif") becomes the title, tagged with its real object-type noun ("image"); the sample's
+	 * own message half ("Image missing alt text") becomes the desc, in place of the group's generic
+	 * label ("Images") that used to sit there. Falls back to the old title={group.label}/
+	 * desc={group.sample?.title} shape when there's no sample, or its title isn't the real
+	 * "{message}: {name}" shape `splitSampleTitle()` expects.
+	 */
+	const sampleSplit = group.sample ? splitSampleTitle(group.sample.title) : null;
+	const headerTitle =
+		sampleSplit?.name
+			? `${sampleSplit.name} (${getObjectTypeNoun(1, group.object_type)})`
+			: group.label;
+	const headerDesc = sampleSplit ? sampleSplit.message : group.sample?.title;
+
 	return (
 		<>
 			<CardComponent
 				className="issue-detail-panel"
-				title={group.label}
+				title={headerTitle}
 				titleIcon="error"
-				desc={group.sample?.title}
+				desc={headerDesc}
 			>
 				<div className="issue-detail-badges-row">
 					{group.fixed && <BadgeComponent color="green" text={__('Fixed', 'vulopilot')} />}

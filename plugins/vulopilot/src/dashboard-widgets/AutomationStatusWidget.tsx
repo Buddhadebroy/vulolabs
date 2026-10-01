@@ -126,7 +126,7 @@ const AutomationStatusWidget: React.FC<WidgetProps> = ({
 							tags: (
 								<>
 									<BadgeComponent
-										color={isEnabled ? 'green' : 'gray'}
+										color={isEnabled ? 'green' : 'blue'}
 										text={isEnabled ? __('Enabled', 'vulopilot') : __('Not active', 'vulopilot')}
 									/>
 									<MultiCheckboxInput

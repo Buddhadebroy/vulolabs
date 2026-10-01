@@ -15,17 +15,11 @@ const BUILTIN_TRIGGERS = [ 'free_full_site_scan', 'free_visibility_report' ];
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
-/** Label with its smaller caption underneath - `AnalyticsComponent`'s `text` slot takes any node. */
-const tileText = ( label: string, sub: string ) => (
-	<>
-		{ label }
-		{ sub && <div className="desc">{ sub }</div> }
-	</>
-);
-
 /**
  * "Automation status" - a quick 4-tile health overview (Active / Not active / Errors / Custom
- * automations).
+ * automations), using `AnalyticsComponent`'s own `variant="dashboard"` (zyra Storybook's
+ * `Components/AnalyticsComponent/Dashboard` story) - each tile's smaller caption renders in the
+ * `extra` report row under the number, same as that story, rather than folded into `text` by hand.
  */
 const AutomationsStatusCard = ( { refetchSignal }: { refetchSignal: number } ) => {
 	const [ counts, setCounts ] = useState<StatusCounts>( { enabled: 0, disabled: 0 } );
@@ -80,37 +74,40 @@ const AutomationsStatusCard = ( { refetchSignal }: { refetchSignal: number } ) =
 			desc={ __( 'A quick overview of your automation health.', 'vulopilot' ) }
 		>
 			<AnalyticsComponent
-				variant="small"
+				variant="dashboard"
 				cols={ 2 }
 				data={ [
 					{
 						icon: 'check green',
 						number: isLoading ? dash : counts.enabled,
-						text: tileText(
-							__( 'Active', 'vulopilot' ),
-							isLoading
-								? ''
-								: sprintf(
-										/* translators: %d is the total number of automations (built-in + custom). */
-										_n( 'out of %d automation', 'out of %d automations', total, 'vulopilot' ),
-										total
-									)
+						text: __( 'Active', 'vulopilot' ),
+						extra: isLoading ? '' : (
+							<div>
+								{ sprintf(
+									/* translators: %d is the total number of automations (built-in + custom). */
+									_n( 'out of %d automation', 'out of %d automations', total, 'vulopilot' ),
+									total
+								) }
+							</div>
 						),
 					},
 					{
 						icon: 'clock orange',
 						number: isLoading ? dash : counts.disabled,
-						text: tileText( __( 'Not active', 'vulopilot' ), __( 'needs setup', 'vulopilot' ) ),
+						text: __( 'Not active', 'vulopilot' ),
+						extra: <div>{ __( 'needs setup', 'vulopilot' ) }</div>,
 					},
 					{
 						icon: 'error red',
 						number: isLoading ? dash : errors,
-						text: tileText( __( 'Errors', 'vulopilot' ), __( 'in the last 30 days', 'vulopilot' ) ),
+						text: __( 'Errors', 'vulopilot' ),
+						extra: <div>{ __( 'in the last 30 days', 'vulopilot' ) }</div>,
 					},
 					{
 						icon: 'ai purple',
 						number: isLoading ? dash : custom,
-						text: tileText( __( 'Custom automations', 'vulopilot' ), __( 'created', 'vulopilot' ) ),
+						text: __( 'Custom automations', 'vulopilot' ),
+						extra: <div>{ __( 'created', 'vulopilot' ) }</div>,
 					},
 				] }
 			/>

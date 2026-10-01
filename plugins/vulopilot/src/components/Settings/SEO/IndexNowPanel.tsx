@@ -143,8 +143,8 @@ const IndexNowPanel = () => {
 						options={POST_TYPE_OPTIONS}
 						value={postTypes}
 						modules={[]}
+						selectDeselect
 						onChange={handlePostTypesChange}
-						selectDeselect={true}
 					/>
 				</FormGroupComponent>
 				<FormGroupComponent cols={6}
@@ -173,7 +173,7 @@ const IndexNowPanel = () => {
 							// `@use` a token from; see BrandVisibilityProDummies.tsx).
 							borderColor={apiKey ? '#16a34a' : undefined}
 							action={
-								<span className={`admin-badge ${apiKey ? 'green' : 'gray'}`}>
+								<span className={`admin-badge ${apiKey ? 'green' : 'blue'}`}>
 									{apiKey ? __('Active', 'vulopilot') : __('Inactive', 'vulopilot')}
 								</span>
 							}
@@ -188,7 +188,7 @@ const IndexNowPanel = () => {
 										)}
 									</p>
 								</div>
-								<span className={`admin-badge ${apiKey ? 'green' : 'gray'}`}>
+								<span className={`admin-badge ${apiKey ? 'green' : 'blue'}`}>
 									{apiKey
 										? __('✓ Verified', 'vulopilot')
 										: __('Not set up', 'vulopilot')}
