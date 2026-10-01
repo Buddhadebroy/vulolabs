@@ -8,25 +8,18 @@ import { scrollToId } from '@zyra/core';
 import Brand from './assets/images/brand-logo.png';
 import { searchIndex, SearchItem } from './searchIndex';
 import AiCreditsIndicator from './components/AiCredits/AiCreditsIndicator';
+import InsufficientCreditsNotice from './components/AiCredits/InsufficientCreditsNotice';
 import './routeRegistry';
 import './routes';
 
-// Forces initializeModules() (called in index.tsx, right after this module
-// is imported) to actually fetch active modules from the server on every
-// load - without this, useModules()'s zustand store stays at its initial
-// `modules: []` forever and every moduleEnabled-gated field/module card
-// looks permanently locked, matching the vulolabs/catalogx app.tsx
-// pattern.
+// Forces initializeModules() (called in index.tsx, right after this module is imported) to actually
+// fetch active modules from the server on every load.
 localStorage.setItem('force_vulopilot_context_reload', 'true');
 
 /**
- * Reads the active tab from the URL hash (`?page=vulopilot#&tab=dashboard`)
- * and renders whichever component registered itself for that tab in
- * routes.ts - the same hash-driven tab system the free vulolabs
- * plugin's admin screen uses (see react-frontend.md), rather than
- * react-router path routes, since every VuloPilot admin URL is really
- * `admin.php?page=vulopilot` with WordPress itself only ever serving that
- * one PHP-rendered page.
+ * Reads the active tab from the URL hash (`?page=vulopilot#&tab=dashboard`) and renders the
+ * component registered for it in routes.ts. Uses the hash rather than path routes, since every
+ * admin URL is `admin.php?page=vulopilot`.
  */
 const Route = () => {
 	const location = useLocation();
@@ -76,12 +69,7 @@ const App = () => {
 		const lower = searchValue.toLowerCase();
 
 		const filtered = searchIndex.filter((item) => {
-			// Real dropdown category ('modules'/'settings'/'sections') -
-			// not `item.tab`, each result's own real (and varied)
-			// destination tab, which searchIndex.ts's own `SearchItem.category`
-			// docblock explains was the actual bug here: picking "Settings"/
-			// "Modules" filtered on a field that was never literally
-			// 'settings'/'modules', so it silently matched nothing.
+			// Real dropdown category ('modules'/'settings'/'sections').
 			if (
 				searchAction &&
 				searchAction !== 'all' &&
@@ -100,14 +88,8 @@ const App = () => {
 	};
 
 	/**
-	 * A page-section result's target tab may not be mounted yet at click
-	 * time (the hash change above triggers Route's own async re-render) -
-	 * `scrollToId()` itself is a one-shot `getElementById` + `scrollIntoView`
-	 * with no retry (confirmed reading zyra's source), so it'd silently no-op
-	 * if called synchronously right after switching tabs. Poll briefly for
-	 * the real DOM id that section's own card renders instead of a fixed
-	 * delay, since mount time varies by tab (a heavier tab's first fetch
-	 * takes longer to paint its cards than a lighter one).
+	 * A page-section result's target tab may not be mounted yet at click time (the hash change
+	 * above triggers Route's own async re-render).
 	 */
 	const scrollToSectionWhenReady = (sectionId: string, attempt = 0) => {
 		if (document.getElementById(sectionId)) {
@@ -159,6 +141,7 @@ const App = () => {
 
 	return (
 		<>
+			<InsufficientCreditsNotice />
 			<HeaderComponent
 				brandImg={Brand}
 				results={results}

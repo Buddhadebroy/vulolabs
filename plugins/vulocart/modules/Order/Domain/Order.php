@@ -23,8 +23,7 @@ defined( 'ABSPATH' ) || exit;
  * `$payment_status`/`$fulfillment_status` replaced a single flat `$status`
  * field (PaymentStatus.php's/FulfillmentStatus.php's own docblocks explain
  * why) - the underlying `vulocart_orders` table still has a `status`
- * column (Install.php's migration is additive-only, backward-
- * compatibility.md), kept in sync with `$fulfillment_status` on write for
+ * column, kept in sync with `$fulfillment_status` on write for
  * any external code still reading it directly, but no longer read by this
  * class or anything in this codebase.
  *

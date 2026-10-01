@@ -10,23 +10,8 @@ import FindingsHeroCard from './FindingsHeroCard';
 import BackupProtectionNotice from './BackupProtectionNotice';
 
 /**
- * "Site Health" tab of "Protect My Site" (PROTECT-MY-SITE.md's IA) - 5
- * sections. "WordPress" and "Server" are both thin wrappers around
- * WordPress core's own `WP_Site_Health` tests (WordPressHealthScanner/
- * ServerHealthScanner - see their own docblocks for why wrapping core's
- * existing test suite beat writing new checks from scratch), same
- * "genuinely new backend work, not a UI-only reshuffle" case
- * "Background Tasks"/"Updates"/"Database" aren't - those three already
- * existed as CronScanner/UpdatesScanner/DatabaseScanner before this pass.
- *
- * Starts with FindingsHeroCard - same "hero summary + chart before the
- * detail sections" shape the Security/Performance tabs already use,
- * which this tab (and Files & Plugins) previously didn't have at all -
- * side by side (grid={6}/grid={6}, same row pattern WooCommerceTab.tsx's
- * own AiSalesOptimizerCard/StoreIntelligenceSummaryCard pairing already
- * uses) with SiteHealthStatusCard, a real per-section status row matching
- * the depth of Security's own supporting cards.
- *
+ * "Site Health" tab of "Protect My Site". The WordPress and Server sections wrap core's
+ * `WP_Site_Health` tests.
  */
 const SECTIONS: FindingsSection[] = [
 	{
@@ -137,7 +122,6 @@ const SiteHealthTab = ({ onNavigateToBackups }: SiteHealthTabProps) => {
 							icon="active"
 							label={__('Site Health', 'vulopilot')}
 							scannerIds={ALL_SCANNER_IDS}
-							onReviewFirst={() => goToIssuesTable('important')}
 							onSectionClick={goToIssuesTable}
 						/>
 					</ColumnComponent>

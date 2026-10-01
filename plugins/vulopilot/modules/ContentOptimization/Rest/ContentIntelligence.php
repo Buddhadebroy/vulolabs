@@ -25,107 +25,96 @@ defined( 'ABSPATH' ) || exit;
  */
 class ContentIntelligence extends \WP_REST_Controller {
 
-    /**
-     * @var string
-     */
-    protected $rest_base = 'content-intelligence';
+	/**
+	 * @var string
+	 */
+	protected $rest_base = 'content-intelligence';
 
-    /**
-     * Same scanner list ContentAnalyzer::SCANNER_IDS reads - kept in sync
-     * by convention rather than a cross-class constant reference (the same
-     * tradeoff ScannerFixMap's own docblock already accepts for a handful
-     * of small, stable lists).
-     *
-     * @var string[]
-     */
-    private const SCANNER_IDS = array( 'readability', 'thin-content', 'duplicate-content', 'heading-structure', 'internal-linking', 'orphan-pages' );
+	/**
+	 * Same scanner list ContentAnalyzer::SCANNER_IDS reads.
+	 *
+	 * @var string[]
+	 */
+	private const SCANNER_IDS = array( 'readability', 'thin-content', 'duplicate-content', 'heading-structure', 'internal-linking', 'orphan-pages' );
 
-    /**
-     * Content-creation actions only. `generate-faq` is excluded since it
-     * appends to an existing post rather than creating new content.
-     *
-     * @var string[]
-     */
-    private const CONTENT_CREATION_ACTION_IDS = array( 'generate-blog' );
+	/**
+	 * Content-creation actions only. `generate-faq` is excluded since it
+	 * appends to an existing post rather than creating new content.
+	 *
+	 * @var string[]
+	 */
+	private const CONTENT_CREATION_ACTION_IDS = array( 'generate-blog' );
 
-    /**
-     * @inheritDoc
-     */
-    public function register_routes() {
-        register_rest_route(
-            VuloPilot()->rest_namespace,
-            '/' . $this->rest_base . '/score',
-            array(
-                array(
-                    'methods'             => \WP_REST_Server::READABLE,
-                    'callback'            => array( $this, 'get_score' ),
-                    'permission_callback' => array( $this, 'get_score_permissions_check' ),
-                ),
-            )
-        );
+	/**
+	 * @inheritDoc
+	 */
+	public function register_routes() {
+		register_rest_route(
+			VuloPilot()->rest_namespace,
+			'/' . $this->rest_base . '/score',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_score' ),
+					'permission_callback' => array( $this, 'get_score_permissions_check' ),
+				),
+			)
+		);
 
-        // "Content Quality" card (ContentQualityCard.tsx) - real, per-post
-        // readability/completeness/structure for one selected piece of
-        // content, not a second site-wide score competing with `/score`
-        // above or SEO & Visibility's own SEO Score.
-        register_rest_route(
-            VuloPilot()->rest_namespace,
-            '/' . $this->rest_base . '/quality',
-            array(
-                array(
-                    'methods'             => \WP_REST_Server::READABLE,
-                    'callback'            => array( $this, 'get_quality' ),
-                    'permission_callback' => array( $this, 'get_score_permissions_check' ),
-                ),
-            )
-        );
+		// "Content Quality" card (ContentQualityCard.tsx) - real, per-post
+		// readability/completeness/structure for one selected piece of content.
+		register_rest_route(
+			VuloPilot()->rest_namespace,
+			'/' . $this->rest_base . '/quality',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_quality' ),
+					'permission_callback' => array( $this, 'get_score_permissions_check' ),
+				),
+			)
+		);
 
-        // "Content Stats" card (ContentStatsCard.tsx) - real
-        // Content-Created/Words-Generated counts for one period, plus a
-        // real vs-previous-period percent change, same trend math
-        // Reports\AbstractReportType::calculate_change_percent()/
-        // get_previous_period() already use for the Reports page
-        // (duplicated here as small local methods rather than shared -
-        // this is a REST controller, not a Reports\Types\* report, so it
-        // can't extend that abstract class too).
-        register_rest_route(
-            VuloPilot()->rest_namespace,
-            '/' . $this->rest_base . '/stats',
-            array(
-                array(
-                    'methods'             => \WP_REST_Server::READABLE,
-                    'callback'            => array( $this, 'get_stats' ),
-                    'permission_callback' => array( $this, 'get_score_permissions_check' ),
-                ),
-            )
-        );
-    }
+		// "Content Stats" card (ContentStatsCard.tsx) - real Content-Created/Words-Generated
+		// counts for one period.
+		register_rest_route(
+			VuloPilot()->rest_namespace,
+			'/' . $this->rest_base . '/stats',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_stats' ),
+					'permission_callback' => array( $this, 'get_score_permissions_check' ),
+				),
+			)
+		);
+	}
 
-    /**
-     * Same manage_options gate every other VuloPilot REST route uses.
-     *
-     * @param \WP_REST_Request $request Full request object.
-     * @return bool
-     */
-    public function get_score_permissions_check( $request ) {
-        return current_user_can( 'manage_options' );
-    }
+	/**
+	 * Same manage_options gate every other VuloPilot REST route uses.
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return bool
+	 */
+	public function get_score_permissions_check( $request ) {
+		return current_user_can( 'manage_options' );
+	}
 
-    /**
-     * @return \WP_REST_Response
-     */
-    public function get_score() {
-        $breakdown = ( new FindingRepository() )->get_severity_breakdown_for_scanner_ids( self::SCANNER_IDS );
+	/**
+	 * @return \WP_REST_Response
+	 */
+	public function get_score() {
+		$breakdown = ( new FindingRepository() )->get_severity_breakdown_for_scanner_ids( self::SCANNER_IDS );
 
-        $score = 100
-            - ( $breakdown['critical'] * 15 )
-            - ( $breakdown['high'] * 8 )
-            - ( $breakdown['medium'] * 3 )
-            - ( $breakdown['low'] * 1 );
+		$score = 100
+			- ( 15 * log( 1 + $breakdown['critical'] ) )
+			- ( 8 * log( 1 + $breakdown['high'] ) )
+			- ( 3 * log( 1 + $breakdown['medium'] ) )
+			- ( 1 * log( 1 + $breakdown['low'] ) );
 
-        return rest_ensure_response(
-            array(
-				'score'              => max( 0, min( 100, $score ) ),
+		return rest_ensure_response(
+			array(
+				'score'              => (int) round( max( 0, min( 100, $score ) ) ),
 				'severity_breakdown' => $breakdown,
 			)
         );

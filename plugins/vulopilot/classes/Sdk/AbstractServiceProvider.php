@@ -10,20 +10,7 @@ namespace VuloPilot\Sdk;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Optional base class an extension can use to organize its own internal
- * service wiring - the same plain-array-container-with-lazy-factories
- * shape every plugin bootstrap in this codebase already uses
- * (php-wordpress.md's singleton/container pattern), extracted into a
- * reusable base rather than every extension re-deriving it. This is
- * deliberately NOT a PHP-DI/Symfony container - that would be new
- * dependency-injection tooling the root CLAUDE.md's "Out of scope" section
- * says to flag rather than introduce silently; this is the existing
- * pattern's own logic, just given a name an SDK consumer can extend.
- *
- * Nothing in VuloPilot core resolves anything through this - it exists
- * purely for an extension's own internal use inside its register()/
- * ExtensionInterface implementation, one instance per extension, not a
- * shared application-wide container.
+ * Optional base class an extension can use to organize its own internal service wiring.
  *
  * @class       AbstractServiceProvider class
  * @version     1.0.0

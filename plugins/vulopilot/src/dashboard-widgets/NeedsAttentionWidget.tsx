@@ -12,7 +12,6 @@ import {
 import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
 import { formatWpDate } from '../services/formatWpDate';
-import { getSeverityClass } from '../services/getSeverityClass';
 import { getCategoryTabLink } from '../services/getCategoryTabLink';
 import { formatAffected } from '../components/Issues/issuesTypes';
 import type { FindingGroup } from '../components/Issues/issuesTypes';
@@ -39,28 +38,15 @@ interface ActionRunRow {
 }
 
 /**
- * "Needs your attention" - the three real, honest data sources that used
- * to be three separate cards (Quick fixes, Recent open issues, Pending
- * approval), combined into one tabbed widget instead. Mirrors the
- * Dashboard mockup's own tabbed "Needs your attention" panel rather than
- * three near-duplicate list cards competing for space in the grid.
- *
- * "Open issues" leads (default-active tab, `TabsComponent` has no separate
- * `defaultActiveKey` - whichever entry is first in `tabs` starts active) -
- * the newer "Good morning" Dashboard mockup shows this panel as one flat,
- * mixed-category list of real open findings with severity badges, which is
- * exactly what "Open issues" already is; "Quick fixes" (images-only) moved
- * to 2nd since it's a narrower slice a user reaches for less by default.
- * Both tabs, and "Pending approval", stay real and one click away either
- * way - this only changes which loads pre-selected.
+ * "Needs your attention" - the three real, honest data sources that used to be three separate
+ * cards (Quick fixes, Recent open issues, Pending approval), combined into one tabbed widget
+ * instead.
  */
 const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 	onHide,
 	isCustomizing,
 }) => {
-	// Issue *types*, worst severity first (`GET /findings/groups`) rather
-	// than the 5 newest raw findings: each row reads "what kind of problem,
-	// how many places, how bad" instead of one arbitrary page's own title.
+	// Issue *types*, worst severity first (`GET /findings/groups`).
 	const quickFixes = useApiList<FindingGroup>('findings/groups', {
 		category: 'images',
 		status: 'open',

@@ -39,7 +39,7 @@ interface ProposeResponse {
 		after: string;
 		format: string;
 	};
-	/** Settings → Automation → Approval Settings - true when ActionRunner::propose() itself already approved and executed this run (risk-based/"Do not ask" mode), same as AIActions\ActionRunner::propose()'s own docblock. When true there's nothing left to review - see the propose `.then()` handler below. */
+	/** Settings → Automation → Approval Settings. */
 	auto_approved?: boolean;
 }
 
@@ -56,32 +56,7 @@ interface ContentToolPopupProps {
 }
 
 /**
- * Uses a raw `fetch()` for the propose() call specifically rather than
- * zyra's `sendApiResponse()` - that helper always resolves to `null` on
- * any failure (confirmed by reading its own implementation), discarding
- * the real WP_Error body - but this is the one call in the whole flow
- * where the real per-field validation message ("Please provide a topic of
- * at least 5 characters") or a real provider error ("Invalid API Key") is
- * exactly what the user needs to see, not a generic failure notice.
- *
- * "Product Descriptions" gets one extra, tool-specific convenience: a real
- * WooCommerce product picker (`GET /wc/v3/products`, same graceful-404
- * handling every other WooCommerce probe in this codebase already uses -
- * see RecentContentCard.tsx's own docblock) that prefills the real
- * product_name/key_features fields from an existing product rather than
- * requiring them typed from scratch. It only prefills - the actual
- * generation still runs from whatever's in those two (still-editable)
- * fields, matching GenerateProductDescriptionAction's real input contract
- * exactly (it has no `product_id` concept of its own).
- *
- * The one error this popup treats specially: `ActionRunner::propose()`'s
- * own real "No AI connection is configured." (thrown when no direct
- * VuloCloud AI key nor a connected VuloCloud account exists) shows the same real
- * "Connect to VuloCloud / Claim free AI Credits" action
- * AiCreditsIndicator.tsx's own dropdown already offers
- * (useConnectVuloCloud.ts), instead of a dead-end error notice - every
- * other real error (a per-field validation message, a provider's own
- * "Invalid API Key") still shows as plain text.
+ * Uses a raw `fetch()` for the propose() call specifically rather than zyra's `sendApiResponse()`.
  */
 const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 	tool,
@@ -104,7 +79,6 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 	);
 	const [isBusy, setIsBusy] = useState(false);
 
-	/** Same real "No AI connection is configured." condition AiContentAssistantSidebar.tsx's own sendToAi() checks for - ActionRunner::propose() throws this exact phrase (Rest.php's own docblock), so this offers the same real "Connect to VuloCloud" fix instead of a dead-end error notice. */
 	const { status: creditsStatus } = useAiCredits();
 	// Only offer "Connect" when not already connected - otherwise show the real server error.
 	const isNoProviderError =
@@ -256,13 +230,8 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 				return body as ProposeResponse;
 			})
 			.then((body) => {
-				// Settings → Automation → Approval Settings' risk-based/
-				// "Do not ask" modes can make propose() itself apply this
-				// change immediately - there's no pending run left to show
-				// an Approve/Reject step for, so this is the same real
-				// success notice handleApprove() below shows after a human
-				// clicks Approve, just fired for a change that already
-				// went live without waiting for one.
+				// Settings → Automation → Approval Settings' risk-based/ "Do not ask" modes can
+				// make propose() itself apply this change immediately.
 				if (body.auto_approved) {
 					NoticeManager.add({
 						uniqueKey: `content-tool-approve-${body.run_id}`,
@@ -397,14 +366,7 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 						label: finding.title,
 					}));
 
-		// An empty dropdown with no explanation reads as broken - real for
-		// 'duplicate-finding-picker' especially, since (unlike post/media
-		// pickers on any site with actual content) it's entirely normal for
-		// this to be genuinely empty: DuplicateContentScanner only ever
-		// creates a finding when two or more published posts/pages share
-		// the *exact same* title, which most sites simply never trigger.
-		// Each message names the real, specific reason so it's honest
-		// about what "empty" here actually means, not a generic fallback.
+		// An empty dropdown with no explanation reads as broken.
 		if (!isLoadingOptions && 0 === options.length) {
 			return (
 				<p className="desc content-tool-empty-picker">
@@ -469,11 +431,6 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 						/>
 					)}
 
-					{/* No footer button for the no-provider-error case - the
-					real `VuloCloudInlineNotice` shown in the body below
-					already carries its own "Connect to VuloCloud" button
-					(Popup.tsx's own docblock), same one real component
-					every other caller of this flow now shares. */}
 					{'error' === step && !isNoProviderError && (
 						<ButtonInput
 							buttons={{

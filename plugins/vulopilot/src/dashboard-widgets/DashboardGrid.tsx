@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import { ColumnComponent, BadgeComponent } from '@zyra/components';
 import { DEFAULT_DASHBOARD_WIDGETS } from './registry';
-import { DashboardSummary, WidgetLayoutEntry, WidgetDefinition } from './types';
+import { DashboardSummary, WidgetLayoutEntry } from './types';
 import './DashboardGrid.scss';
 
 interface DashboardGridProps {
@@ -15,17 +15,13 @@ interface DashboardGridProps {
 	isCustomizing: boolean;
 	/**
 	 * Incremented by Dashboard.tsx's "Restore default" header button.
-	 * A signal counter rather than a boolean so every click re-triggers
-	 * the reset effect below even if the value would otherwise be
-	 * unchanged (e.g. two clicks in a row with no other re-render
-	 * between them).
 	 */
 	restoreDefaultSignal?: number;
 	/** Forwarded straight through to every widget's own `onRefreshSummary` (WidgetProps' own docblock) - Dashboard.tsx's own `loadDashboard`. */
 	onRefreshSummary: () => void;
 }
 
-/** What ReactSortable actually needs on every list item - see react-sortablejs's own usage in PanelEditor.tsx (Zyra's builders package) for this exact `list`/`setList` shape. */
+/** What ReactSortable actually needs on every list item. */
 interface SortableEntry extends WidgetLayoutEntry {
 	key: string;
 }
@@ -35,25 +31,8 @@ const WIDGETS_BY_ID = new Map(
 );
 
 /**
- * The drag-and-drop widget grid - fetches the current user's saved
- * layout (`/dashboard-layout`, per-user meta, see
- * Controllers/DashboardLayout.php's docblock for why it's user meta and
- * not a site-wide setting), renders each enabled widget in saved order,
- * and persists a new order back whenever the user drags a widget.
- *
- * Uses `react-sortablejs`'s `ReactSortable` - not a new drag-and-drop
- * dependency: it's already a peer dependency of `@multivendorx/zyra` and
- * is the exact primitive Zyra's own builders package
- * (`PanelEditor.tsx`) uses for its drag-and-drop block canvas, so this
- * follows the dominant drag-and-drop pattern already established in this
- * monorepo rather than introducing a different library.
- *
- * `isCustomizing` (Dashboard.tsx's "Customize dashboard" header toggle)
- * gates whether any of this is reachable at all: when off, widgets render
- * in the same saved order as a plain (non-sortable) grid with no drag
- * handle/hide control and no hidden-widgets chip strip - a normal
- * read-only dashboard. The saved layout itself and the REST calls that
- * read/write it are unaffected either way.
+ * Drag-and-drop widget grid: loads the user's saved layout, renders enabled widgets in order and
+ * saves a new order on drag.
  */
 const DashboardGrid: React.FC<DashboardGridProps> = ({
 	summary,
@@ -71,17 +50,8 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
-				// DashboardLayout.php's get_items() always reconciles
-				// against every registered widget id and returns a
-				// non-empty array on success - an empty/null response
-				// here only ever means the request itself failed
-				// (network error, or a non-admin hitting its
-				// manage_options gate), never "this user has zero
-				// widgets". Falling back to the same default order a
-				// never-customized install starts with keeps the
-				// dashboard usable instead of silently rendering
-				// nothing; any drag/hide the user makes still tries to
-				// persist normally afterwards.
+				// DashboardLayout.php's get_items() always reconciles against every registered
+				// widget id and returns a non-empty array on success.
 				if (response && response.length > 0) {
 					setLayout(response);
 				} else {
@@ -105,10 +75,8 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 		);
 	};
 
-	// `restoreDefaultSignal` starts at 0 and only ever increments from a
-	// real button click (Dashboard.tsx), so skipping the very first run
-	// (mount) is enough to avoid resetting the layout the user just
-	// fetched before they've clicked anything.
+	// `restoreDefaultSignal` starts at 0 and only ever increments from a real button click
+	// (Dashboard.tsx).
 	const isFirstRestoreRender = useRef(true);
 	useEffect(() => {
 		if (isFirstRestoreRender.current) {
@@ -122,7 +90,6 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 				enabled: true,
 			}))
 		);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [restoreDefaultSignal]);
 
 	const handleHide = (id: string) => {
@@ -207,14 +174,8 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 	return (
 		<>
 			{isCustomizing ? (
-				// ReactSortable needs to own the actual sortable DOM node
-				// itself (it takes a ref to it), so it can't render
-				// ContainerComponent as a child the way the read-only
-				// branch below does - `className` is set to the exact
-				// same `container-wrapper general-wrapper` markup
-				// ContainerComponent's own `general` variant renders
-				// (ContainerComponent.tsx), so the grid looks and behaves
-				// identically either way.
+				// ReactSortable needs to own the actual sortable DOM node itself (it takes a ref
+				// to it).
 				<ReactSortable
 					list={visible}
 					setList={handleReorder}

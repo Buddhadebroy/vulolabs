@@ -10,9 +10,8 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Generic CRUD contract so Free's repositories (Utill\RepositoryUtil
- * and its concrete subclasses) are swappable/mockable in tests, per
- * ARCHITECTURE.md.
+ * Generic CRUD contract so Free's repositories (Utill\RepositoryUtil and its concrete
+ * subclasses) are swappable/mockable in tests.
  *
  * @class       RepositoryInterface interface
  * @version     1.0.0

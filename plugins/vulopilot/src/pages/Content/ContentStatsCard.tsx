@@ -26,7 +26,6 @@ const PERIOD_OPTIONS: { key: StatsPeriod; value: StatsPeriod; label: string }[] 
 
 const toYmd = (date: Date): string => date.toISOString().slice(0, 10);
 
-/** Real `date_from`/`date_to` (Y-m-d) for the selected period - same client-side computation style HistoryTab.tsx's own `resolveDateFrom()` already uses, and the same real 7/30/90-day trio every other period toggle in this app now uses (e.g. GeoScoreSection.tsx's own `PERIOD_OPTIONS`). */
 const resolvePeriod = (period: StatsPeriod): { dateFrom: string; dateTo: string } => {
 	const now = new Date();
 	const from = new Date(now);
@@ -35,34 +34,14 @@ const resolvePeriod = (period: StatsPeriod): { dateFrom: string; dateTo: string 
 	return { dateFrom: toYmd(from), dateTo: toYmd(now) };
 };
 
-/** "128.6K" past 1,000, plain otherwise - same abbreviated style the mockup's own "Words Generated" tile uses. */
 const formatAbbreviated = (count: number): string =>
 	count >= 1000
 		? `${(count / 1000).toFixed(1)}K`
 		: count.toLocaleString();
 
 /**
- * "Content Stats" - real Content Created/Words Generated counts (real
- * `GET /content-intelligence/stats`, backed by ActionRunRepository's own
- * real `vulopilot_ai_action_runs` rows for `generate-blog`/
- * `generate-landing-page`/`generate-product-description`, the same 3
- * actions ContentOpenIssuesCard's own docblock precedent already scoped
- * a real feature to) for the selected real period, with a real
- * vs-previous-period percent change - no change badge shown when the
- * previous period had 0 (nothing honest to compare against, rather than
- * a fabricated "+100%").
- *
- * "SEO Score Improved" and "Time Saved" stay honest "Not tracked yet"
- * tiles: no historical Content/SEO score snapshot exists anywhere in
- * this codebase to compute a real delta from (`Dashboard::
- * calculate_content_score()` is a live, unstored calculation - see
- * `classes/RestAPI/Controllers/Dashboard.php`'s own method), and no
- * "time saved by AI content generation" estimate exists anywhere either
- * (the only `estimated_time_minutes` concept in this codebase is
- * RuleEngine\Rules's unrelated "time to manually fix a finding"). Same
- * honest-omission posture this card's own previous version already took,
- * just alongside the 2 tiles that genuinely are trackable now instead of
- * all 4 staying placeholders.
+ * "Content Stats": content created and words generated for the selected period, from `GET
+ * /content-intelligence/stats`, with change against the previous period.
  */
 const ContentStatsCard = () => {
 	const [period, setPeriod] = useState<StatsPeriod>('30');

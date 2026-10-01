@@ -6,31 +6,6 @@ const STATUS_LABELS = { active: __('Active', 'vulopilot'), inactive: __('Inactiv
 
 /**
  * Settings → Scanning → AI Visibility.
- *
- * Redesigned to match a mockup: a 5-row `type: 'expandable-panel'` field
- * (`ai_visibility_scans`) up top - same real zyra component
- * Notifications/VisibilityAlerts.ts's own `visibility_alerts` field
- * already uses for its 3 rows - each row a real, honest scan-category
- * toggle, followed by the tab's pre-existing fields appended below
- * (llms.txt, Crawler Traffic - "Competitor URLs" and "Business"/
- * "Services"/"Locations" used to live here too, both moved out to
- * Settings → Get Started → Business Information per direct
- * instruction - "Competitor URLs" by way of the now-deleted Settings →
- * Scanning → Brand Intelligence tab, which it moved through before
- * landing there for good).
- *
- * "Restore Defaults" is AiVisibilityScansHeader.tsx - a real, scoped
- * reset (`POST /settings/reset-ai-visibility-scans`), not a UI-only
- * component field, since it needs to persist server-side and refresh
- * SettingContext in place. Set as this tab's own top-level `settingAction`
- * (per direct instruction, same as AiCrawlerAlerts.ts's own "Send Test
- * Alert" - see that file's own docblock), not Settings.tsx's GetForm() special-casing this
- * tab id anymore: `settingAction` is NavigatorComponent.tsx's own per-tab
- * header action slot (`renderSettingHeaderInfo()`'s `<SectionComponent
- * rightContent={activeFile.settingAction} />`, rendered once above every
- * tab's own fields using this exact settings object's own `headerTitle`/
- * `headerDescription`), so this now sits right next to "AI Visibility"
- * itself instead of as a bare block above the fields.
  */
 export default {
 	id: 'ai-visibility',
@@ -164,11 +139,8 @@ export default {
 				'vulopilot'
 			),
 		},
-		// "Competitor URLs" (`geo_competitor_urls`) moved out to Settings →
-		// Get Started → Business Information, right below "Tracked
-		// competitors" per direct instruction - see that file's own
-		// docblock (moved there from the now-deleted Settings → Scanning →
-		// Brand Intelligence tab, which it moved through first).
+		// "Competitor URLs" (`geo_competitor_urls`) moved out to Settings → Get Started → Business
+		// Information, right below "Tracked competitors".
 		{
 			key: 'aeo-section-llms-txt',
 			type: 'section',
@@ -210,12 +182,7 @@ export default {
 		},
 		{
 			key: 'llms_include_types',
-			// `type: 'checkbox'` + `selectDeselect: true` - real
-			// InputRenderer-native multicheckbox rendering (a real checkbox
-			// per option, each independently on/off) instead of the former
-			// `choice-toggle` segmented-pill look, same conversion
-			// Sitemap.ts's own "Post types in sitemap"/"Taxonomies in
-			// sitemap" fields already got.
+			// `type: 'checkbox'` + `selectDeselect: true`.
 			type: 'checkbox',
 			selectDeselect: true,
 			label: __('Included content types', 'vulopilot'),
@@ -232,16 +199,8 @@ export default {
 			dependent: { key: 'enable_llms_txt', value: 'enable_llms_txt', set: true },
 		},
 		{
-			// Not a real, independently-writable field here - the actual
-			// enable/threshold live in the real, single nested
-			// `visibility_alerts.geo` setting
-			// (Utill::VULOPILOT_SETTINGS_DEFAULTS), edited on its own
-			// dedicated Notifications tab instead. Same
-			// "real `type: 'notice'` pointing elsewhere rather than a
-			// second control duplicating the same setting" reasoning
-			// AiCrawlerAlerts.ts's own traffic-drop-threshold-note
-			// documents, just in the opposite direction (that one points
-			// off this tab; this one points onto Notifications).
+			// Not a real, independently-writable field here - the actual enable/threshold live in
+			// the real.
 			key: 'aeo-drop-threshold-note',
 			type: 'notice',
 			noticeType: 'info',
@@ -251,12 +210,8 @@ export default {
 			),
 			moduleEnabled: 'geo-analysis',
 		},
-		// "Business"/"Services"/"Locations" (entity_business_type/
-		// entity_service_pages/entity_business_locations, plus the
-		// Knowledge Graph Health drop-threshold notice that followed them)
-		// moved out to Settings → Get Started → Business Information per
-		// direct instruction - see GetStarted/BusinessInformation.ts's
-		// own docblock.
+		// "Business"/"Services"/"Locations" (and the Knowledge Graph Health drop-threshold notice) moved to
+		// Settings → Get Started → Business Information (GetStarted/BusinessInformation.ts).
 		{
 			key: 'crawler-traffic',
 			type: 'section',

@@ -19,41 +19,9 @@ const TAB_META: Record<
 };
 
 /**
- * "Performance" (WP menu slug `performance`) - Overview (OverviewTab.tsx)
- * and a real "Slow Pages" tab (SlowPagesTab.tsx, a real per-page speed
- * report - Repositories\PageSpeedRepository, populated in the background by
- * Services\PageSpeedScanner). Its former sibling tabs are otherwise gone:
- * the standalone "Performance" tab (PerformanceTab.tsx, now deleted) had its
- * full category-'performance' FindingsTable moved down into Overview itself
- * (`#performance-section-findings`) rather than kept on its own tab;
- * "Redirects & 404s" moved to "SEO & Visibility"
- * (`src/pages/GEO/RedirectsTab.tsx`); "Performance Opportunities"
- * (PerformanceOpportunitiesTab.tsx, removed) surfaced the same
- * PageSpeedRepository::get_top_issues() data Slow Pages' own sidebar
- * already shows, as its own tab.
- *
- * Tab bar/body are one `NavigatorComponent` rather than a bare
- * `TabsComponent` - same real settings-navigator component
- * SeoVisibility.tsx's own tab shell already uses, reused here instead of
- * hand-rolling a second `TAB_IDS`-driven tab bar. The page header
- * (`headerIcon`/`headerTitle`/`headerCustomContent`) is folded directly
- * into this one `NavigatorComponent` call - same "one component, no
- * separate `NavigatorHeaderComponent`" shape SeoVisibility.tsx's own
- * conversion already uses - rather than a second, standalone header
- * component above it. `NavigatorComponent` also wraps its own tab body in
- * `ContainerComponent general` internally, so - unlike the old
- * `TabsComponent`, which needed one wrapped around it here - there's no
- * separate wrapper needed any more. Each tab's `hideSettingHeader: true`
- * suppresses `NavigatorComponent`'s own per-tab title/description
- * section, since `OverviewTab`/`SlowPagesTab` already render their own.
- *
- * `activeTab` is still owned here (not left as `NavigatorComponent`'s own
- * uncontrolled tracking) so PerformanceScoreCard's "View Slow Pages"
- * button can jump straight to the Slow Pages tab - fed into
- * `NavigatorComponent`'s own `currentSetting` prop, same "re-syncs its
- * internal active tab whenever `currentSetting` changes, not just on
- * mount" behavior SeoVisibility.tsx's own conversion already relies on
- * for the same kind of cross-tab jump.
+ * "Performance" (WP menu slug `performance`) - Overview (OverviewTab.tsx) and a real "Slow Pages"
+ * tab (SlowPagesTab.tsx, a real per-page speed report - PageSpeedRepository, populated in the
+ * background by Services\PageSpeedScanner).
  */
 const Performance = () => {
 	const subtab = new URLSearchParams(useLocation().hash.substring(1)).get(
@@ -72,15 +40,7 @@ const Performance = () => {
 
 	const [isSlowPagesScanning, setIsSlowPagesScanning] = useState(false);
 
-	// The real per-page speed scan (`POST /page-speed`, PageSpeedScanner) -
-	// a separate job from the generic `categories: ['performance']` scan
-	// the header's own "Run Speed Test" button triggers everywhere else on
-	// this page (that one never runs PageSpeedScanner: it isn't registered
-	// in ScannerRegistry). Runs entirely in the background via WP-Cron
-	// batches (see that class's own docblock for why), so this only
-	// reports that the scan started, same "Scan started - results will
-	// appear here shortly" shape RunAuditWidget.tsx's own "Run AI Audit"
-	// already uses for the same kind of async, no-immediate-result action.
+	// The real per-page speed scan (`POST /page-speed`, PageSpeedScanner).
 	const handleSlowPagesScan = () => {
 		setIsSlowPagesScanning(true);
 
@@ -101,6 +61,7 @@ const Performance = () => {
 							),
 				});
 			})
+			.then(() => window.dispatchEvent(new Event('vulopilot_page_speed_scan_started')))
 			.finally(() => setIsSlowPagesScanning(false));
 	};
 
@@ -130,10 +91,8 @@ const Performance = () => {
 			<NavigatorComponent
 				headerIcon="bar-chart"
 				headerTitle={__('Performance', 'vulopilot')}
-				// headerDescription={__(
-				// 	'Make your website faster and deliver a better experience to your visitors.',
-				// 	'vulopilot'
-				// )}
+				// headerDescription={__( 'Make your website faster and deliver a better experience
+				// to your visitors.', 'vulopilot' )}
 				headerCustomContent={
 					'slow-pages' === activeTab ? (
 						<RunScanHeaderExtra

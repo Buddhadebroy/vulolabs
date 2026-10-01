@@ -1,4 +1,5 @@
 /* global vulopilotAppLocalizer */
+import axios from 'axios';
 import { useCallback, useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
@@ -7,7 +8,7 @@ import { NoticeManager } from '@zyra/components';
 export interface GoogleServicesStatus {
 	connected: boolean;
 	has_client_credentials: boolean;
-	/** Whether "Connect Google Services" will route through the VuloCloud OAuth broker instead - GoogleServicesConnection::get_authorization_url() (PHP) already tries this FIRST, so a build can be broker-only (`has_client_credentials` false) and still have a real, working connect flow. */
+	/** Whether "Connect Google Services" will route through the OAuth broker instead. */
 	has_broker: boolean;
 	search_console_site: string;
 	ga4_account_id: string;
@@ -21,32 +22,15 @@ export interface GoogleServicesStatus {
 }
 
 /**
- * Same real, allow-listed set GoogleServicesConnection.php's own
- * `RETURN_TARGETS` enforces server-side - kept in sync by hand since
- * there's no shared PHP/TS constant here, same as every other route-id
- * string literal this codebase already duplicates across the two sides.
+ * Same real, allow-listed set GoogleServicesConnection.php's own `RETURN_TARGETS` enforces server-
+ * side.
  */
 export type GoogleConnectReturnTo = 'settings' | 'keywords';
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 /**
- * Shared real Google OAuth 2.0 status/connect/disconnect logic -
- * GoogleServicesConnection.php's own frontend counterpart, extracted out
- * of GoogleServicesPanel.tsx (Settings → Connections → Google Services, the
- * full Search Console + Analytics + AdSense picker) so KeywordsTab.tsx's
- * own inline "Connect Google Services" flow (SEO & Visibility → Keywords)
- * can reuse the exact same real handshake - same status shape, same REST
- * routes, same `gsc_status` redirect-flag handling - instead of a second,
- * hand-duplicated copy of this state machine. Neither caller fabricates
- * anything: every call here hits the same real routes
- * Controllers\GoogleServices registers.
- *
- * `returnTo` picks which allow-listed SPA tab Google's redirect
- * (GoogleSearchConsoleOAuthCallbackHandler.php, via
- * GoogleServicesConnection::get_return_to_from_state()) lands back on
- * once the handshake completes - so a connect started from Keywords
- * finishes on Keywords, not Settings.
+ * Shared real Google OAuth 2.0 status/connect/disconnect logic.
  */
 export const useGoogleServicesConnection = (
 	returnTo: GoogleConnectReturnTo = 'settings'
@@ -55,6 +39,7 @@ export const useGoogleServicesConnection = (
 	const [isLoading, setIsLoading] = useState(true);
 	const [isConnecting, setIsConnecting] = useState(false);
 	const [isDisconnecting, setIsDisconnecting] = useState(false);
+	const [connectError, setConnectError] = useState<string | null>(null);
 
 	const refreshStatus = useCallback(
 		() =>
@@ -76,8 +61,7 @@ export const useGoogleServicesConnection = (
 
 		// Google's own OAuth redirect lands back on this exact URL
 		// (GoogleSearchConsoleOAuthCallbackHandler.php builds it) carrying
-		// `gsc_status=connected|error` as a real signal, not a fabricated
-		// success message.
+		// `gsc_status=connected|error` as a real signal.
 		const params = new URLSearchParams(
 			window.location.hash.split('?')[1] || window.location.hash.substring(1)
 		);
@@ -91,51 +75,59 @@ export const useGoogleServicesConnection = (
 				message: __('Connected to Google.', 'vulopilot'),
 			});
 		} else if (gscStatus === 'error') {
+			const message = __(
+				'Could not connect to Google. Please check your Client ID/Secret and try again.',
+				'vulopilot'
+			);
+			setConnectError(message);
 			NoticeManager.add({
 				uniqueKey: 'vulopilot-gsc-connect-failed',
 				type: 'error',
 				position: 'float',
-				message: __(
-					'Could not connect to Google. Please check your Client ID/Secret and try again.',
-					'vulopilot'
-				),
+				message,
 			});
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const connect = useCallback(() => {
 		setIsConnecting(true);
+		setConnectError(null);
 
-		getApiResponse<{ url: string }>(
-			getApiLink(
-				vulopilotAppLocalizer,
-				`google-services/authorize-url?return_to=${returnTo}`
-			),
-			nonceHeaders
-		)
+		// Raw axios (not getApiResponse): a failing broker answers 502 with its own reason, and
+		// getApiResponse would swallow that body.
+		axios
+			.get<{ url?: string }>(
+				getApiLink(
+					vulopilotAppLocalizer,
+					`google-services/authorize-url?return_to=${returnTo}`
+				),
+				nonceHeaders
+			)
 			.then((response) => {
-				if (response?.url) {
-					// Real top-level handoff to Google's own consent
-					// screen - not an XHR, so there's nothing to await
-					// past this point; the redirect back through
-					// admin-post.php replaces this page entirely.
-					window.location.href = response.url;
+				if (response.data?.url) {
+					// Real top-level handoff to Google's own consent screen.
+					window.location.href = response.data.url;
 					return;
 				}
 
+				throw new Error('no-url');
+			})
+			.catch((error) => {
+				const message =
+					error?.response?.data?.message ??
+					__(
+						'Could not start the Google connection. Please try again.',
+						'vulopilot'
+					);
+				setConnectError(message);
 				NoticeManager.add({
 					uniqueKey: 'vulopilot-gsc-authorize-url-failed',
 					type: 'error',
 					position: 'float',
-					message: __(
-						'Could not start the Google connection. Please try again.',
-						'vulopilot'
-					),
+					message,
 				});
 				setIsConnecting(false);
-			})
-			.catch(() => setIsConnecting(false));
+			});
 	}, [returnTo]);
 
 	const disconnect = useCallback(
@@ -167,6 +159,7 @@ export const useGoogleServicesConnection = (
 		isLoading,
 		isConnecting,
 		isDisconnecting,
+		connectError,
 		connect,
 		disconnect,
 		refreshStatus,

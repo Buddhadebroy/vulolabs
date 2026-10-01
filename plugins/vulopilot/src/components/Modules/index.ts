@@ -257,9 +257,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
         },
         {
             /**
-             * Must be the real backend module id - AccessibilityAudits'
-             * folder name kebab-cased. The mockup's own id
-             * ('accessibility-scanner') matches no real module.
+             * Must be the real backend module id - AccessibilityAudits' folder name kebab-cased.
              */
             id: 'accessibility-checks',
             icon: 'accessibility',
@@ -350,9 +348,9 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
         },
 
 		// Commerce Section
-		{ type: 'separator', id: 'woocommerce-analytics', label: __('Commerce', 'vulopilot') },
+		{ type: 'separator', id: 'woo-commerce-analytics', label: __('Commerce', 'vulopilot') },
 		{
-            id: 'woocommerce-analytics',
+            id: 'woo-commerce-analytics',
             icon: 'cart',
             settingsLink: '?page=vulopilot#&tab=commerce',
             name: __('WooCommerce Analytics', 'vulopilot'),

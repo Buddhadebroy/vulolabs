@@ -1,4 +1,6 @@
 /* global vulopilotAppLocalizer */
+import { useState } from 'react';
+import type { MouseEvent } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse, useModules } from '@zyra/core';
 import {
@@ -7,7 +9,8 @@ import {
 	SectionComponent,
 	SettingRowComponent
 } from '@zyra/inputs';
-import { FormGroupComponent, FormGroupWrapperComponent, NoticeComponent, NoticeManager } from '@zyra/components';
+import { FormGroupComponent, FormGroupWrapperComponent, NoticeComponent, NoticeManager, PopupComponent } from '@zyra/components';
+import ShowProPopup from '../../Popup/Popup';
 import { useSetting } from '../../../contexts/SettingContext';
 
 const STATUS_LABELS = { active: __('Active', 'vulopilot'), inactive: __('Inactive', 'vulopilot') };
@@ -83,12 +86,8 @@ const SCAN_ROWS: Row[] = [
 		flatKey: 'enable_rest_api_scanner',
 		icon: 'person pink',
 		label: __('Exposed usernames', 'vulopilot'),
-		// The mockup's own copy here ("risky roles or unnecessary access")
-		// doesn't describe any real scanner this codebase has - the closest
-		// real check is RestApiScanner's anonymous `GET /wp/v2/users`
-		// probe, which is about username enumeration, not role/capability
-		// auditing. Worded to what it actually does rather than the
-		// mockup's literal text.
+		// The mockup's own copy here ("risky roles or unnecessary access") doesn't describe any
+		// real scanner this codebase has.
 		desc: __(
 			'Checks whether a part of WordPress that other plugins and apps talk to automatically (the REST API) is publicly revealing usernames — often the first step in a brute-force login attack.',
 			'vulopilot'
@@ -228,18 +227,16 @@ const ALL_ROWS = [...SCAN_ROWS, ...PROTECTION_ROWS, ...MONITORING_ROWS];
 
 const isChecked = (value: unknown): boolean => Array.isArray(value) && value.length > 0;
 
-const LockTag = () => (
+const LockTag = ({ onOpen }: { onOpen: () => void }) => (
 	<span
 		className="admin-tag module-tag"
 		role="button"
 		tabIndex={0}
-		onClick={() => {
-			window.location.href = `${vulopilotAppLocalizer.admin_url}#&tab=settings&subtab=modules&module=website-security`;
-		}}
+		onClick={onOpen}
 		onKeyDown={(event) => {
 			if ('Enter' === event.key || ' ' === event.key) {
 				event.preventDefault();
-				window.location.href = `${vulopilotAppLocalizer.admin_url}#&tab=settings&subtab=modules&module=website-security`;
+				onOpen();
 			}
 		}}
 	>
@@ -248,27 +245,22 @@ const LockTag = () => (
 	</span>
 );
 
-
-/**
- * Settings → Scanning → Security.
- *
- * Full real replacement for InputRenderer on this tab (Security.ts's own
- * `PanelComponent`) - every field it renders is a genuinely real,
- * already-working setting with its own real PHP consumer; this is a pure
- * UI reshape into the mockup's card style, not new backend work. Three
- * groups:
- *
- * Unlike `ExpandablePanelInput`'s/`SettingRowComponent`'s own usual
- * declarative usage (one field key → one nested settings object or one
- * shared array), every row on this tab is wired by hand (`useSetting()`
- * directly via `handleChange`) because these are independent flat
- * settings, not one nested object or array - see Security.ts's own
- * docblock for why they aren't migrated into a nested shape.
- */
 const SecurityPanel = () => {
 	const { setting, updateSetting } = useSetting();
 	const { modules } = useModules();
 	const hasSecurityMonitoring = modules.includes('website-security');
+	const [isModulePopupOpen, setIsModulePopupOpen] = useState(false);
+	const openModulePopup = () => setIsModulePopupOpen(true);
+
+	// Every row on this tab needs the Website Security module.
+	const handleLockedClick = (event: MouseEvent) => {
+		if (hasSecurityMonitoring) {
+			return;
+		}
+		event.preventDefault();
+		event.stopPropagation();
+		openModulePopup();
+	};
 
 	const buildMethods = (rows: Row[]) =>
 		rows.map((row) => ({
@@ -278,7 +270,7 @@ const SecurityPanel = () => {
 				row.pro && !hasSecurityMonitoring ? (
 					<>
 						{row.label}
-						<LockTag />
+						<LockTag onOpen={openModulePopup} />
 					</>
 				) : (
 					row.label
@@ -309,7 +301,7 @@ const SecurityPanel = () => {
 				title: locked ? (
 					<>
 						{row.label}
-						<LockTag />
+						<LockTag onOpen={openModulePopup} />
 					</>
 				) : (
 					row.label
@@ -382,6 +374,7 @@ const SecurityPanel = () => {
 
 	return (
 		<>
+			<div onClickCapture={handleLockedClick}>
 			<div className="settings-section-group">
 				<div className="settings-left-section">
 					<SectionComponent
@@ -409,22 +402,7 @@ const SecurityPanel = () => {
 					</FormGroupWrapperComponent>
 				</div>
 			</div>
-			{/*
-			 * `.settings-section-group` > `.settings-left-section` (the
-			 * section header) + `.settings-right-section` (a nested
-			 * `FormGroupWrapperComponent` holding that group's own fields)
-			 * - the exact same markup/classes InputRenderer.tsx's own
-			 * `renderForm()` generates automatically when grouping a
-			 * declarative `modal` array by its `type: 'section'` fields
-			 * (`groupBySections`). This tab is hand-built rather than
-			 * InputRenderer-driven (see this file's own docblock - every
-			 * "section" here wraps a real `ExpandablePanelInput` wired to
-			 * live handlers, not a flat FIELD_REGISTRY field), so it
-			 * doesn't get that grouping for free; replicated by hand
-			 * instead of inventing new markup, so a hand-built tab's own
-			 * section cards render identically to a declarative one's
-			 * (e.g. General.ts).
-			 */}
+			{/* * `.settings-section-group` > `.settings-left-section` (the * section header) + `.settings-right-section` (a nested * `FormGroupWrapperComponent` holding that group's own fields) * - the exact same markup/classes InputRenderer.tsx's own * `renderForm()` generates automatically when grouping a * declarative `modal` array by its `type: 'section'` fields * (`groupBySections`). */}
 			<div className="settings-section-group">
 				<div className="settings-left-section">
 					<SectionComponent
@@ -463,7 +441,7 @@ const SecurityPanel = () => {
 							label={
 								<>
 									{__('Scheduled security monitoring', 'vulopilot')}
-									{!hasSecurityMonitoring && <LockTag />}
+									{!hasSecurityMonitoring && <LockTag onOpen={openModulePopup} />}
 								</>
 							}
 							desc={__(
@@ -515,6 +493,16 @@ const SecurityPanel = () => {
 					</FormGroupWrapperComponent>
 				</div>
 			</div>
+			</div>
+			<PopupComponent
+				open={isModulePopupOpen}
+				onClose={() => setIsModulePopupOpen(false)}
+				width={31.25}
+				height="auto"
+				position="lightbox"
+			>
+				<ShowProPopup moduleName="website-security" />
+			</PopupComponent>
 		</>
 	);
 };

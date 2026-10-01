@@ -84,14 +84,8 @@ interface GoogleServiceCardProps {
 }
 
 /**
- * One Search Console/Analytics/AdSense summary card - the mockup's own
- * per-service layout (status badge, Property/account summary line,
- * "Manage Connection"/"Connect AdSense" button, ⋮ menu). All 3 services
- * share ONE real Google OAuth connection (GoogleServicesConnection's own
- * docblock - a single consent screen covering all three read scopes at
- * once), so "Test Connection"/"Reconnect"/"Disconnect" in this card's own
- * ⋮ menu are real, but honestly scoped: disconnecting from any one card
- * disconnects the whole Google account, same as the confirm dialog says.
+ * One Search Console/Analytics/AdSense summary card - the mockup's own per-service layout (status
+ * badge, Property/account summary line, "Manage Connection"/"Connect AdSense" button, ⋮ menu).
  */
 const GoogleServiceCard = ( {
 	icon,
@@ -167,31 +161,6 @@ const GoogleServiceCard = ( {
 
 /**
  * Settings → Connections → Google Services.
- *
- * Moved from the old Settings → Scanning → Google Services tab per direct
- * instruction, alongside AI Providers/Webhooks/External Services - same
- * "folder of sub-tab files" shape Settings/GetStarted/'s own AiProviders.ts
- * establishes. Redesigned to match a mockup: one summary card per service
- * (Search Console/Analytics/AdSense) instead of the previous always-open
- * stacked cards - "Manage Connection" expands the exact same real
- * pickers/toggles that used to always be visible, just collapsed by
- * default now. All real state/handlers below are unchanged from the
- * original panel (same `useGoogleServicesConnection('settings')` hook,
- * same REST calls) - only the layout wrapping them changed.
- *
- * One click, nothing to configure: VuloPilot ships with its own shared
- * Google Cloud OAuth Client (VULOPILOT_GOOGLE_CLIENT_ID/SECRET, see
- * config.php's own docblock) - a site owner never sees or enters a
- * Client ID/Secret. `GoogleServicesConnection::get_authorization_url()`
- * (PHP) actually has 2 real ways to complete this: the embedded shared
- * Client above, OR routing through VuloLabs' own VuloCloud OAuth broker
- * (`status.has_broker` - needs no embedded Client ID/Secret at all, tried
- * FIRST server-side). The button below is only replaced with the honest
- * "not available yet" state when NEITHER is configured for this build
- * (`!status.has_client_credentials && !status.has_broker`) - checking
- * `has_client_credentials` alone was a real bug (fixed per direct report):
- * it showed "not available yet" even on a working broker-only build,
- * since `has_broker` was never read here at all.
  */
 const GoogleServicesPanel = () => {
 	const { setting, updateSetting } = useSetting();
@@ -202,6 +171,7 @@ const GoogleServicesPanel = () => {
 		isLoading,
 		isConnecting,
 		isDisconnecting,
+		connectError,
 		connect: handleConnect,
 		disconnect: handleDisconnect,
 	} = useGoogleServicesConnection( 'settings' );
@@ -266,7 +236,6 @@ const GoogleServicesPanel = () => {
 				nonceHeaders
 			).then( ( response ) => setAdsenseAccounts( response ?? [] ) );
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ status?.connected ] );
 
 	// Real data streams load whenever the selected property changes.
@@ -428,6 +397,7 @@ const GoogleServicesPanel = () => {
 								</li>
 							) ) }
 						</ul>
+						{ connectError && <div className="desc gsc-connect-error">{ connectError }</div> }
 					</CardHeader>
 				) }
 			</>
@@ -527,6 +497,17 @@ const GoogleServicesPanel = () => {
 				isDisconnecting={ isDisconnecting }
 				isExpanded={ 'analytics' === expandedCard }
 			>
+				<ol className="desc gsc-steps">
+					<li>{ __( 'Connect your Google account.', 'vulopilot' ) }</li>
+					<li>{ __( 'Choose the Account, Property and Data Stream for this site.', 'vulopilot' ) }</li>
+					<li>
+						{ __(
+							'Turn on “Install analytics code” - only if no other plugin or theme already adds it, to avoid duplicate tracking.',
+							'vulopilot'
+						) }
+					</li>
+				</ol>
+
 				<div className="gsc-select-row">
 					<SelectInput
 						name="ga4_account"
@@ -623,9 +604,7 @@ const GoogleServicesPanel = () => {
 					) : (
 						<div className="desc">
 							{ __(
-								// Deliberately doesn't promise "ad performance and earnings" -
-								// GoogleAdSenseClient only ever lists real account names,
-								// no real earnings/ad-unit data (that class's own docblock).
+								// Deliberately doesn't promise "ad performance and earnings".
 								'Connect AdSense to link your account. Ad performance and earnings reporting aren’t built yet.',
 								'vulopilot'
 							) }

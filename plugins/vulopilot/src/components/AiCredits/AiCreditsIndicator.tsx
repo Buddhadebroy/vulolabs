@@ -1,27 +1,23 @@
 /* global vulopilotAppLocalizer */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { NoticeComponent, PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import { useAiCredits } from '../../services/useAiCredits';
+import { formatCredits, useAiCredits } from '../../services/useAiCredits';
+import { INSUFFICIENT_CREDITS_EVENT } from './insufficientCredits';
 import { VuloCloudInlineNotice } from '../Popup/Popup';
 import './AiCreditsIndicator.scss';
 
-/**
- * The persistent "⚡ N AI Credits" indicator (architecture plan §21) -
- * mounted once, via zyra's own `HeaderComponent`'s `beforeSearch` prop in
- * app.tsx, which renders it inline in the header's right-section row,
- * immediately before the "Modules & Settings" search box (not through
- * that component's own `utilityList` prop: that prop's `toggleIcon` only
- * ever renders a plain icon-font glyph - see PopupComponent's own real
- * toggle-icon behavior - so it has nowhere to put the live number itself;
- * this component drives its own `PopupComponent` in fully-controlled mode
- * instead, with the credit count as its own custom, always-visible
- * trigger).
- */
+/** The persistent "⚡ N AI Credits" indicator. */
 const AiCreditsIndicator = () => {
 	const { status, isLoading, refresh } = useAiCredits();
 	const [isOpen, setIsOpen] = useState(false);
+
+	useEffect(() => {
+		const onInsufficient = () => refresh();
+		window.addEventListener(INSUFFICIENT_CREDITS_EVENT, onInsufficient);
+		return () => window.removeEventListener(INSUFFICIENT_CREDITS_EVENT, onInsufficient);
+	}, [refresh]);
 
 	if (isLoading || !status) {
 		return null;
@@ -33,9 +29,9 @@ const AiCreditsIndicator = () => {
 				buttons={{
 					text: `⚡ ${status.connected
 							? sprintf(
-								/* translators: %d: real remaining AI Credit balance. */
-								__('%d AI Credits', 'vulopilot'),
-								status.credits
+								/* translators: %s: real remaining AI Credit balance, e.g. "76.550". */
+								__('%s AI Credits', 'vulopilot'),
+								formatCredits(status.credits)
 							)
 							: __('Claim free AI Credits', 'vulopilot')
 						}`,
@@ -56,15 +52,6 @@ const AiCreditsIndicator = () => {
 						onRefresh={refresh}
 					/>
 				) : (
-					// Same one real "Connect to VuloCloud" component every
-					// other real caller of this flow now shares
-					// (Popup.tsx's own docblock) - this already renders its
-					// own title/desc/button, so there's no separate footer
-					// button to duplicate here anymore (the previous footer
-					// button rendered unconditionally, even in the
-					// `status.connected` branch above, where a "Connect to
-					// VuloCloud" action made no sense - a real bug this
-					// consolidation also fixed).
 					<VuloCloudInlineNotice />
 				)}
 			</PopupComponent>
@@ -79,13 +66,8 @@ const AiCreditsBalancePanel = ({
 	status: import('../../services/useAiCredits').AiCreditsStatus;
 	onRefresh: () => void;
 }) => {
-	const exhausted = 0 === status.credits;
-	// Depletion meter - how much of what's ever been earned is still
-	// available, not how much has been used (an all-time-earned account
-	// with nothing spent yet reads as "full", same intuition as "remaining"
-	// being this panel's own headline number). Earned starts at 0 for a
-	// brand-new connection, so this guards the same divide-by-zero every
-	// other real percentage in this codebase already does.
+	const exhausted = status.credits <= 0;
+	// Depletion meter - how much of what's ever been earned is still available.
 	const remainingPercent =
 		status.lifetime_earned > 0
 			? Math.min(100, Math.round((status.credits / status.lifetime_earned) * 100))
@@ -97,7 +79,7 @@ const AiCreditsBalancePanel = ({
 				<i className="adminfont-wallet" />
 			</div>
 			<div className="ai-credits-balance-panel-count">
-				{status.credits}
+				{formatCredits(status.credits)}
 			</div>
 			<div className="ai-credits-balance-panel-label">
 				{__('AI Credits remaining', 'vulopilot')}
@@ -112,16 +94,16 @@ const AiCreditsBalancePanel = ({
 			<div className="ai-credits-balance-panel-stats">
 				<span>
 					{sprintf(
-						/* translators: %d: real lifetime-earned credit count. */
-						__('%d earned', 'vulopilot'),
-						status.lifetime_earned
+						/* translators: %s: real lifetime-earned credit count. */
+						__('%s earned', 'vulopilot'),
+						formatCredits(status.lifetime_earned)
 					)}
 				</span>
 				<span>
 					{sprintf(
-						/* translators: %d: real lifetime-used credit count. */
-						__('%d used', 'vulopilot'),
-						status.lifetime_used
+						/* translators: %s: real lifetime-used credit count. */
+						__('%s used', 'vulopilot'),
+						formatCredits(status.lifetime_used)
 					)}
 				</span>
 			</div>
@@ -131,11 +113,11 @@ const AiCreditsBalancePanel = ({
 					displayPosition="inline-notice"
 					type="warning"
 					title={__(
-						"You've used all your AI Credits.",
+						"You've used all your available AI credits.",
 						'vulopilot'
 					)}
 					message={__(
-						'Free AI: use your credits for manual AI assistance. Pro: unlock automation, AI fixing, and advanced intelligence.',
+						'AI requests are paused until you add more credits. Buy Credits to continue.',
 						'vulopilot'
 					)}
 				/>
@@ -167,7 +149,9 @@ const AiCreditsBalancePanel = ({
 				position="left"
 				buttons={[
 					{
-						text: __('Buy More Credits', 'vulopilot'),
+						text: exhausted
+							? __('Buy Credits', 'vulopilot')
+							: __('Buy More Credits', 'vulopilot'),
 						leftIcon: 'cart',
 						rightIcon: 'arrow-right',
 						color: 'purple-bg',

@@ -40,18 +40,15 @@ export interface SchemaInspectorResult {
 }
 
 /**
- * `POST /schema/inspect` - a real, on-demand single-page JSON-LD check
- * (SchemaPageInspector, real outbound HTTP + extraction, no AI). Same
- * "loading a page never silently spends real work" posture
- * useSchemaCoverage.ts's own `analyze()` already documents.
+ * `POST /schema/inspect` - a real, on-demand single-page JSON-LD check (SchemaPageInspector, real
+ * outbound HTTP + extraction, no AI).
  */
 export const useSchemaInspector = (): {
 	result: SchemaInspectorResult | null;
 	isInspecting: boolean;
 	error: string | null;
-	// Base no-unused-vars doesn't understand TS function-type parameter
-	// positions (no runtime binding to "use") - same known gap
-	// useApiList.ts's own onQueryUpdate type already documents.
+	// Base no-unused-vars doesn't understand TS function-type parameters (same gap as useApiList.ts).
+	 
 	// eslint-disable-next-line no-unused-vars
 	inspect: (url: string) => void;
 } => {

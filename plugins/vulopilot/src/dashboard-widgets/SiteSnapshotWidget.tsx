@@ -2,22 +2,19 @@
 import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { AnalyticsComponent, ListComponent, SectionComponent, CardComponent, TypographyComponent } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
+import { AnalyticsComponent, ListComponent, CardComponent, TypographyComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import AutomationStatusWidget from './AutomationStatusWidget';
 import { useGeoScore } from '../pages/GEO/useGeoScore';
-import { useLastScanTime } from '../services/useLastScanTime';
-import { formatWpDate } from '../services/formatWpDate';
 import type { EntitiesResponse, Entity } from '../pages/GEO/SchemaKnowledge/KnowledgeGraphSection';
 import { WidgetProps } from './types';
 
-/** Same real gate BusinessProfileCard.tsx's own identical check already uses - EntityExtractor returns empty groups when this module is inactive, so a real `''`/`[]` here is a genuine "not set" state, not a broken fetch. */
+/** Same real gate BusinessProfileCard.tsx's own identical check already uses. */
 const isEntityExtractionModuleActive = () =>
 	vulopilotAppLocalizer.active_modules?.includes('knowledge-graph') ?? false;
 
 const NOT_SET = '-';
-/** `score`/`open_count` are `null` for a signal with no real data to compute from yet (GeoSignalScore's own docblock) - shown honestly as "-", never a fabricated 0. */
+/** `score`/`open_count` are `null` for a signal with no real data to compute from yet (GeoSignalScore's own docblock). */
 const formatScore = (score: number | null): string =>
 	null === score
 		? NOT_SET
@@ -27,10 +24,8 @@ const formatCount = (count: number | null): string =>
 	null === count ? NOT_SET : String(count);
 
 /**
- * A public site's homepage screenshot from WordPress.com's mShots service
- * (the same one WP.org uses for plugin/theme previews). It can only reach
- * publicly-reachable sites, so localhost, `.local`/`.test` hosts and private
- * IPs get no screenshot URL at all.
+ * A public site's homepage screenshot from WordPress.com's mShots service (the same one WP.org
+ * uses for plugin/theme previews).
  */
 const getHomeScreenshotUrl = (siteUrl: string): string => {
 	try {
@@ -50,39 +45,8 @@ const getHomeScreenshotUrl = (siteUrl: string): string => {
 };
 
 /**
- * "Site snapshot" - real WordPress core counts (`summary.site_snapshot`,
- * Dashboard controller's own `build_site_snapshot()`), the one section of
- * this payload that isn't derived from scan findings at all: posts, pages,
- * comments, and users are real `wp_count_posts()`/`wp_count_comments()`/
- * `count_users()` results; plugin counts are real `get_plugins()`/
- * `active_plugins` option reads; WP/PHP version are real `get_bloginfo()`/
- * `PHP_VERSION`. `summary` already carries all of that.
- *
- * The Brand/Entity/GEO rows below it are this widget's own real fetches
- * (`GET /entities` - same real EntityExtractor endpoint BusinessProfileCard.tsx
- * uses, gated on the same `knowledge-graph` module; `GET /geo/score` via
- * the shared `useGeoScore()` hook GeoScoreSection.tsx already uses, which
- * works regardless of module state) rather than `summary` - the shared
- * `/dashboard` payload has no brand/entity/GEO-signal fields of its own.
- * "Expertise signals" reads the real `other-geo-signals` bucket (E-E-A-T/
- * author-info/trust-signals - Geo.php's own `SIGNAL_SCANNER_IDS`),
- * "Entity confidence" the real `entity-clarity` signal, "Citation
- * opportunities" the real open-finding count for the `evidence-citations`
- * signal (`geo-citation-opportunities` scanner), and "Content gaps" the
- * same real count for `question-coverage` (`geo-faq-opportunity`) - every
- * value here is a genuine existing scanner/setting, not a second,
- * invented metric.
- *
- * Renders `AutomationStatusWidget` as a sibling card right after its own
- * `<CardComponent>`, both inside the same `<>...</>` this component
- * returns - registry.ts's own `site-snapshot` entry is the only one
- * DashboardGrid.tsx wraps in a `ColumnComponent` for either, per direct
- * instruction to put them in the same column instead of two
- * separately-registered, independently-draggable cells
- * (`automation-status` removed from registry.ts's own `MOCKUP_WIDGETS`
- * accordingly). Same pairing pattern OverallScoreWidget.tsx already
- * established for Vital Pulse/Health timeline - see that file's own
- * docblock.
+ * "Site snapshot" - real WordPress core counts (`summary.site_snapshot`, Dashboard controller's
+ * own `build_site_snapshot()`).
  */
 const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 	summary,
@@ -111,12 +75,6 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 
 	const { score: geoScore } = useGeoScore();
 
-	// Real most recent completed scan, site-wide (same source
-	// RunScanHeaderExtra's own "Last scan" caption already reads) - the
-	// "Last updated" badge in the mockup header, not a fabricated
-	// page-generation timestamp this payload has no field for.
-	const { lastScanAt } = useLastScanTime();
-
 	const brandName = entities?.organizations[0]?.name || NOT_SET;
 	const entityType = entities?.business_type || NOT_SET;
 	const primaryTopics =
@@ -125,11 +83,8 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 			: NOT_SET;
 
 	/**
-	 * Same rows the widget always had, just reorganized into the mockup's
-	 * six real groupings (Company Details/Content/SEO & Visibility/Users &
-	 * Audience/Technology/Products & Services/Additional) instead of two
-	 * arbitrary halves - no group here introduces a value that wasn't
-	 * already one of this widget's own real fields.
+	 * Widget rows organised into six groups (Company Details, Content, SEO & Visibility, Users &
+	 * Audience, Technology, Products & Services).
 	 */
 	const groups: {
 		id: string;

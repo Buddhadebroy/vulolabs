@@ -1,3 +1,4 @@
+/* global vulopilotAppLocalizer */
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { COLOR_PALETTE } from '@zyra/core';
@@ -10,8 +11,6 @@ import {
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import DashboardWidget from './DashboardWidget';
-import { useLastScanTime } from '../services/useLastScanTime';
-import { formatWpDate } from '../services/formatWpDate';
 import { WidgetProps } from './types';
 import { useApiList } from '../services/useApiList';
 import { SEO_SECTIONS } from '../pages/GEO/seoSections';
@@ -22,12 +21,12 @@ type GlanceRow = {
 	key: 'seo' | 'geo' | 'aeo';
 	label: string;
 	subtab: string;
-	/** `scanner_id`/`category` REST params to count real open findings with - see each row's own definition below for why GEO uses `category` while SEO/AEO use an explicit `scanner_id` list. */
+	/** `scanner_id`/`category` REST params to count real open findings with. */
 	params: Record<string, string>;
 };
 const SEO_SCANNER_IDS = SEO_SECTIONS.flatMap((section) => section.scannerIds);
 
-/** Same 3 real "Issues at a glance" rows KeyPagesWidget.tsx used - GEO filters by `category`, SEO/AEO by an explicit `scanner_id` allowlist (see KeyPagesWidget.tsx's own docblock for why). */
+/** Same 3 real "Issues at a glance" rows KeyPagesWidget.tsx used. */
 const GLANCE_ROWS: GlanceRow[] = [
 	{
 		key: 'seo',
@@ -50,31 +49,8 @@ const GLANCE_ROWS: GlanceRow[] = [
 ];
 
 /**
- * "Vital Pulse" - the Dashboard's hero status ring: one real 0-100
- * `overall_score`, colored by its own real rating band via
- * `ratingColorFor()`, with a real "Last scanned" timestamp
- * (`useLastScanTime()`'s own most-recently-completed scan, called with no
- * category filter since this score is a sitewide rollup) below it - per a
- * newer reference mockup.
- *
- * The critical-findings badge that used to sit here ("No critical issues" /
- * "N critical issues") was removed per direct instruction - that count is
- * real findings data, not a Vital Pulse-specific rollup, so it's now a
- * plain link straight to NeedsAttentionWidget's own "Needs your attention"
- * card instead of being duplicated here as a second badge.
- *
- * Now also includes the category score breakdown list (previously
- * ScoreBreakdownWidget.tsx) and a "View full report ›" header link.
- *
- * Renders `VuloPilotActivityWidget` ("Health timeline") as a sibling card
- * right after its own `<DashboardWidget>`, both inside the same `<>...</>`
- * this component returns - registry.ts's own `overall-score` entry is the
- * only one DashboardGrid.tsx wraps in a `ColumnComponent` for either, per
- * direct instruction to put them in the same column instead of two
- * separately-registered, independently-draggable cells (`vulopilot-activity`
- * removed from registry.ts's own `MOCKUP_WIDGETS` accordingly). Each keeps
- * its own full `<DashboardWidget>` card chrome - genuine siblings, not one
- * nested inside the other's card body.
+ * "Vital Pulse" - the Dashboard's hero status ring: one real 0-100 `overall_score`, colored by its
+ * own real rating band via `ratingColorFor()`.
  */
 export const getRating = (score: number): string => {
 	if (score >= 90) {
@@ -89,7 +65,7 @@ export const getRating = (score: number): string => {
 	return __('Needs work', 'vulopilot');
 };
 
-/** Same real 4-tier `getRating()` bands above, mapped to real palette color names - feeds the ring's own stroke color and each row's own score number color. */
+/** Same real 4-tier `getRating()` bands above, mapped to real palette color names. */
 export const ratingColorFor = (score: number): string => {
 	if (score >= 90) {
 		return 'green';
@@ -130,13 +106,6 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 	isCustomizing,
 	onRefreshSummary,
 }) => {
-	// Real most-recent completed scan across every category - same real
-	// `useLastScanTime()` hook CrawlRobotsSitemapSection.tsx's own "Last
-	// Checked" tile already uses, called here with no category filter
-	// since this widget's own score is a sitewide rollup, not scoped to
-	// one category.
-	const { lastScanAt } = useLastScanTime();
-
 	// Fixed cardinality (always exactly 3 rows), so one real `useApiList`
 	// call each rather than a loop - `per_page: 1` since only `total` is used.
 	const seoFindings = useApiList<{ id: number }>('findings', {
@@ -190,13 +159,17 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 			delta: health - health7d,
 			icon: 'order',
 		},
-		{
-			key: 'commerce',
-			label: __('Commerce Score', 'vulopilot'),
-			score: commerce,
-			delta: commerce - commerce7d,
-			icon: 'shipping',
-		},
+		...(vulopilotAppLocalizer.has_woocommerce
+			? [
+					{
+						key: 'commerce',
+						label: __('Commerce Score', 'vulopilot'),
+						score: commerce,
+						delta: commerce - commerce7d,
+						icon: 'shipping',
+					},
+				]
+			: []),
 		{
 			key: 'performance',
 			label: __('Performance Score', 'vulopilot'),
@@ -224,7 +197,11 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 		<>
 		<DashboardWidget
 			title={__('Website Health Scores', 'vulopilot')}
-			desc={__('Your overall score across visibility, health, commerce, performance, content, and brand.', 'vulopilot')}
+			desc={
+				vulopilotAppLocalizer.has_woocommerce
+					? __('Your overall score across visibility, health, commerce, performance, content, and brand.', 'vulopilot')
+					: __('Your overall score across visibility, health, performance, content, and brand.', 'vulopilot')
+			}
 			icon="analytics"
 			isLoading={isLoading}
 			onHide={onHide}

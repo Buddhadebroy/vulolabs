@@ -8,10 +8,7 @@ interface SnippetPreviewProps {
 }
 
 /**
- * A Google-results-style preview. Title/description are truncated with
- * the same thresholds Services\OnPageAnalyzer/WriteMetaTitleAction/
- * WriteMetaDescriptionAction use server-side (60/160 chars) so this
- * matches what those checks actually grade against.
+ * A Google-results-style preview.
  */
 export default function SnippetPreview( { title, description, url, siteName }: SnippetPreviewProps ) {
 	const displayTitle = title || __( '(No title yet)', 'vulopilot' );

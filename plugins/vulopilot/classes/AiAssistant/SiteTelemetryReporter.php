@@ -1,26 +1,12 @@
 <?php
 namespace VuloPilot\AiAssistant;
 
+use VuloPilot\Utill\ServerRequest;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Reports this site's own real WordPress/PHP/theme/plugin details to
- * VuloCloud's generic `POST /connected-sites/ingest` endpoint - the one
- * HTTP surface that fills in the Connected Sites detail page's
- * "Site & Server"/"Plugin & Theme"/"Platform" cards (otherwise left
- * showing "-" forever, since connecting itself never sends this data -
- * see ConnectedSiteIngestController's own doc comment on the VuloCloud
- * side). Deliberately independent of which connection called it - a
- * future second connection type gets its own separate ConnectedSite row
- * with its own site_id/secret, and its own report() call against the
- * exact same payload shape.
- *
- * The "Plugin"/"Version" fields report THIS plugin's own real identity
- * (VULOPILOT_PLUGIN_NAME/VULOPILOT_PLUGIN_VERSION from config.php) -
- * never a hardcoded literal naming a different plugin (e.g.
- * "MultiVendorX"), so this reads correctly for a rebrand/fork that only
- * changes those two constants, and for any future plugin reusing this
- * same generic connect flow with its own values there.
+ * Reports this site's WordPress, PHP, theme and plugin details.
  *
  * @class       SiteTelemetryReporter class
  * @version     1.0.0
@@ -31,13 +17,7 @@ class SiteTelemetryReporter {
 	private const CRON_HOOK = 'vulopilot_site_telemetry_daily';
 
 	/**
-	 * Registers the daily cron report alongside the immediate,
-	 * connect-time report - Services\SecurityScoreSnapshotRecorder's own
-	 * "wp_next_scheduled()-guarded wp_schedule_event() on init" pattern.
-	 * The immediate report itself isn't triggered from here - it's called
-	 * directly by AiCreditsConnection::exchange_broker_code() right after
-	 * its own successful connect, since only it knows the connection just
-	 * became real.
+	 * Registers the daily cron report alongside the immediate, connect-time report.
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'ensure_daily_report_scheduled' ) );
@@ -54,11 +34,8 @@ class SiteTelemetryReporter {
 	}
 
 	/**
-	 * The daily cron callback - reports every currently-connected
-	 * connection this plugin holds. Best-effort: a failed report just
-	 * means the detail page keeps showing stale/blank telemetry until the
-	 * next successful attempt, never surfaced to the site owner as an
-	 * error.
+	 * The daily cron callback - reports every currently-connected connection this plugin
+	 * holds.
 	 *
 	 * @return void
 	 */
@@ -70,20 +47,11 @@ class SiteTelemetryReporter {
 	}
 
 	/**
-	 * Real `POST {VULOPILOT_VULOCLOUD_URL}/connected-sites/ingest` -
-	 * always the server-to-server URL, never
-	 * VULOPILOT_VULOCLOUD_PUBLIC_URL (that's browser-facing only, see
-	 * AiCreditsConnection::get_broker_authorize_url()'s own doc comment).
-	 * Best-effort/fire-and-forget by design: a failed ingest just means
-	 * the detail page keeps showing stale/blank telemetry until the next
-	 * successful attempt (daily cron, or the site owner's next
-	 * reconnect) - never surfaced to the site owner as an error, same
-	 * posture a "usage tracker" ping already takes elsewhere in this
-	 * plugin (Services\CoreWebVitalsBeacon, Services\PageSpeedScanner).
+	 * Sends the daily site telemetry ping.
 	 *
 	 * @param string $site_id This connection's own ConnectedSite id.
 	 * @param string $secret  This connection's own decrypted secret.
-	 * @return bool True if VuloCloud accepted the ping (2xx).
+	 * @return bool True if the ping was accepted (2xx).
 	 */
 	public function report( string $site_id, string $secret ): bool {
 		if ( '' === trim( VULOPILOT_VULOCLOUD_URL ) ) {
@@ -113,10 +81,7 @@ class SiteTelemetryReporter {
 	}
 
 	/**
-	 * The tracker payload itself - field names match
-	 * connected-site-field-mapper.ts's own recognized keys exactly
-	 * (verbatim strings, not valid JS/PHP identifiers, by design on that
-	 * side - see that file's own doc comment).
+	 * The tracker payload itself.
 	 *
 	 * @return array<string, mixed>
 	 */
@@ -133,7 +98,7 @@ class SiteTelemetryReporter {
 			'Multisite'      => is_multisite(),
 			'File Location'  => ABSPATH,
 			'Email'          => get_bloginfo( 'admin_email' ),
-			'Server'         => isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- server-reported environment info, not user input; sanitized regardless.
+			'Server'         => ServerRequest::get( 'SERVER_SOFTWARE' ),
 			'Text Direction' => is_rtl() ? 'rtl' : 'ltr',
 			'Plugin'         => VULOPILOT_PLUGIN_NAME,
 			'Version'        => VULOPILOT_PLUGIN_VERSION,
@@ -141,35 +106,20 @@ class SiteTelemetryReporter {
 			'Theme'          => $theme->get( 'Name' ),
 			'Theme Version'  => $theme->get( 'Version' ),
 			'Platform'       => 'WordPress',
-			// $wpdb->db_version() is the server's raw MySQL/MariaDB protocol
-			// version (e.g. "5.7.44-log") - real and always available,
-			// unlike Commerce/LMS Platform below.
+			// $wpdb->db_version() is the server's raw MySQL/MariaDB protocol version (e.g.
+			// "5.7.44-log").
 			'Database'       => $wpdb->db_version(),
-			// Core since WP 5.5 ('production' unless the host/wp-config.php
-			// explicitly sets WP_ENVIRONMENT_TYPE otherwise) - real, not a
-			// guess, so worth sending even though most sites report the
-			// same default value.
+			// Core since WP 5.5 ('production' unless the host/wp-config.php explicitly sets
+			// WP_ENVIRONMENT_TYPE otherwise).
 			'Environment'    => wp_get_environment_type(),
 			'Hosting Type'   => $this->detect_hosting_type(),
-			// Commerce/LMS Platform, Framework Version and Site Type are
-			// deliberately omitted - this plugin has no generic, honest way
-			// to determine "does this site run a commerce/LMS platform" or
-			// "what's its cart-framework version" (that was MultiVendorX's
-			// own tracker reporting on itself, not something a generic
-			// tracker for a security/management plugin can infer). Sending
-			// a guess here would be worse than leaving the console's own
-			// "-" placeholder. Country is likewise left for the VuloCloud
-			// side to resolve from the request's own IP at ingest time,
-			// not something this site can determine about itself.
+			// Commerce/LMS Platform, Framework Version and Site Type are deliberately omitted.
 		);
 	}
 
 	/**
-	 * Best-effort recognition of a handful of hosts that identify
-	 * themselves via a well-known constant/function in wp-config.php or
-	 * an mu-plugin - never a network call, and '' (shown as "-") rather
-	 * than a guess when none match, same honesty posture the rest of this
-	 * payload follows.
+	 * Best-effort recognition of a handful of hosts that identify themselves via a well-
+	 * known constant/function in wp-config.php or an mu-plugin.
 	 *
 	 * @return string
 	 */

@@ -20,13 +20,7 @@ const isEntityExtractionModuleActive = () =>
 	vulopilotAppLocalizer.active_modules?.includes('knowledge-graph') ?? false;
 
 /**
- * Understanding-language labels for the real `entity_score` gauge -
- * BusinessUnderstandingCard.tsx's own former "Good"/"Needs Work"/"Poor"
- * labels, renamed to match the reference mockup's own "Mostly understood"
- * phrasing (same real 0-100 score, same real thresholds otherwise - only
- * a >=90 "Fully understood" tier is new, since the mockup's own single
- * real example (76) only ever showed the >=70 tier and never a perfect
- * score to infer that top tier's own real wording from).
+ * Understanding-language labels for the real `entity_score` gauge.
  */
 const getRating = (score: number): string => {
 	if (score >= 90) {
@@ -48,33 +42,15 @@ interface ProfileRow {
 	key: string;
 	label: string;
 	found: boolean;
-	/** True only for Products with no WooCommerce active - a real "doesn't apply to this site" state, told apart from `found: false` (a real, fixable gap) so the gauge's own "N details missing" caption below doesn't count a row nobody can actually fill in. */
+	/** True only for Products with no WooCommerce active - a real "doesn't apply to this site" state. */
 	notApplicable?: boolean;
 	value: string;
 	confidence: 'high' | 'medium' | 'n/a';
 }
 
 /**
- * Real "confidence" a site owner should place in each row, disclosed here
- * rather than left implicit:
- * - Business name: always "high" - Services\EntityExtractor::extract_organizations()
- *   always returns a real value (the site's own title, at minimum).
- * - Business type: "high" once set - a real, owner-typed value (Settings →
- *   Get Started → Business Information), never guessed.
- * - People: "medium" - real, but auto-detected from post authorship, not
- *   an explicit "these are our team" declaration.
- * - Services/Locations: "high" once set - real, owner-curated lists
- *   (same settings tab), a deliberate confirmation, not an inference.
- * - Products: "medium" - real WooCommerce data, but auto-detected, not
- *   explicitly confirmed as public-facing "what we sell" copy.
- * - Categories: "high" once present - real taxonomy terms already
- *   attached to at least one published post/product, same deterministic
- *   `hide_empty` read `Services\EntityExtractor::extract_categories()`
- *   already uses.
- * - Contact details: "high" once set - a real, deterministic check of the
- *   site admin's own account email (`get_option('admin_email')`, matched
- *   to a real \WP_User), not the published-page check
- *   (Services\EntityExtractor::find_contact_page()) this row used to read.
+ * Real "confidence" a site owner should place in each row, disclosed here rather than left
+ * implicit: - Business name: always "high".
  */
 const buildRows = (entities: EntitiesResponse): ProfileRow[] => {
 	const businessName = entities.organizations[0]?.name ?? '';
@@ -185,7 +161,7 @@ const CONFIDENCE_LABEL: Record<ProfileRow['confidence'], string> = {
 	'n/a': '-',
 };
 
-/** Same real per-entity-type icon KnowledgeGraphSection.tsx's own "What AI & Search Understand" card already uses for `organizations`/`categories`/`people`/`locations`/`services`/`products` - reused here so the same real entity type reads with the same icon everywhere on this tab, not a second, different icon choice for the identical real data. `business_type`/`contact_details` have no equivalent row there (not one of that card's 6 entity-type groups), so those 2 get their own real closest-fit icon instead. */
+/** Same real per-entity-type icon KnowledgeGraphSection.tsx's own "What AI & Search Understand" card already uses for `organizations`/`categories`/`people`/`locations`/`services`/`products`. */
 const ROW_ICON: Record<string, string> = {
 	business_name: 'global-community blue',
 	business_type: 'module green',
@@ -198,39 +174,21 @@ const ROW_ICON: Record<string, string> = {
 };
 
 /**
- * "Business Information" / "Key Information Found by AI" - 2 real cards
- * (grid 4 + grid 8, one row) matching a newer reference mockup: the same
- * real `entity_score` gauge (`GET /brand-intelligence/score`, unchanged)
- * on its own now, beside a real per-field table of what
- * Services\EntityExtractor actually found (`GET /entities`, the same real
- * endpoint KnowledgeGraphSection.tsx already uses) with a real per-row
- * action - "View" opens `ENTITY_SETTINGS_URL` for every row except
- * "Business name" (which opens `BusinessNameDetailsPanel.tsx`'s own real
- * multi-source cross-check instead - see that file's own docblock for why
- * only this one row gets that), "Add Details" for a genuinely missing
- * field. Formerly one combined card (`BusinessProfileCard`'s own former
- * 3-up layout) - split into 2 to match the mockup's own visual weighting,
- * same real data either way. Nothing here is fabricated - a "Not found"
- * row is a real absence of data, not a placeholder; see `buildRows()`'s
- * own docblock for exactly what each row's "confidence" is based on.
+ * "Business Information" / "Key Information Found by AI".
  */
 const BusinessProfileCard = () => {
 	const [entityScore, setEntityScore] = useState<number | null>(null);
 	const [entities, setEntities] = useState<EntitiesResponse | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
-	// The real "Business Name Details" side panel (BusinessNameDetailsPanel.tsx)
-	// is the only row here with a real multi-source cross-check behind it -
-	// see that file's own docblock for why the other rows don't get an
-	// equivalent panel.
+	// The real "Business Name Details" side panel (BusinessNameDetailsPanel.tsx) is the only row
+	// here with a real multi-source cross-check behind it.
 	const [isNamePanelOpen, setIsNamePanelOpen] = useState(false);
-	// The real "Product Details" side panel (ProductDetailsPanel.tsx) -
-	// same reasoning as `isNamePanelOpen` above, just for the "Products"
-	// row instead of "Business name".
+	// The real "Product Details" side panel (ProductDetailsPanel.tsx).
 	const [isProductsPanelOpen, setIsProductsPanelOpen] = useState(false);
 	const [isCustomSchemaProPopupOpen, setIsCustomSchemaProPopupOpen] = useState(false);
-	/** The "People" row's own real popup - same `PopupComponent` pattern `business_name`/`products` already use, listing every real Administrator + post author (Services\EntityExtractor::extract_people()), each with its own real role and, for whoever the viewing admin can actually edit, a real `get_edit_user_link()` destination. */
+	/** The "People" row's own real popup - same `PopupComponent` pattern `business_name`/`products` already use. */
 	const [isPeopleDropdownOpen, setIsPeopleDropdownOpen] = useState(false);
-	/** The "Categories" row's own real popup - same pattern as `isPeopleDropdownOpen` above, listing every real `category` + (when WooCommerce is active) `product_cat` term (Services\EntityExtractor::extract_categories()), each with its own real taxonomy and, for whoever the viewing admin can actually edit, a real `get_edit_term_link()` destination. */
+	/** The "Categories" row's own real popup - same pattern as `isPeopleDropdownOpen` above. */
 	const [isCategoriesPopupOpen, setIsCategoriesPopupOpen] = useState(false);
 
 	const KnowledgeGraphVisualizationCard = useFilterSlot(
@@ -269,20 +227,10 @@ const BusinessProfileCard = () => {
 	}, []);
 
 	const rows = entities ? buildRows(entities) : [];
-	// Excludes `notApplicable` rows (Products with no WooCommerce active) -
-	// those aren't a real, fixable gap, so counting them here would
-	// overstate how much is actually missing.
+	// Excludes `notApplicable` rows (Products with no WooCommerce active).
 	const missingCount = rows.filter((row) => !row.found && !row.notApplicable).length;
-	// The "Products" row's own real "View" action opens `ProductDetailsPanel`,
-	// which has nothing real to show without at least 1 real product - so
-	// the row itself is dropped from this table entirely (not shown as a
-	// dead "Not found"/"Not applicable" line) whenever there's no real
-	// product to report on, whether that's WooCommerce being off
-	// (`notApplicable`) or WooCommerce being on with zero published
-	// products (`!found`). `missingCount` above still counts a real "0
-	// products" gap toward the donut's own overall completeness caption -
-	// hiding the row here is about this table having nothing real to show,
-	// not about that gap ceasing to be real.
+	// The "Products" row's own real "View" action opens `ProductDetailsPanel`, which has nothing
+	// real to show without at least 1 real product.
 	const visibleRows = rows.filter(
 		(row) => 'products' !== row.key || row.found
 	);
@@ -333,16 +281,9 @@ const BusinessProfileCard = () => {
 									ratingColor(entityScore) as keyof typeof COLOR_PALETTE
 									]
 								}
-								// Same `TypographyComponent` h1/h4 centerLabel shape
-								// every other real score ring in this plugin uses
-								// (OverallScoreWidget.tsx/SeoTab.tsx/
-								// GeoScoreSection.tsx/etc.) - replacing this ring's
-								// own raw `<span>` pair, which read its number/
-								// label colors from `.score-ring-number`/
-								// `.geo-overall-rating.is-*` (SeoVisibility.scss)
-								// instead of the real `ratingColor()` palette name
-								// `TypographyComponent`'s own `color` prop already
-								// resolves everywhere else.
+								// Same `TypographyComponent` h1/h4 centerLabel shape every other
+								// real score ring in this plugin uses
+								// (OverallScoreWidget.tsx/SeoTab.tsx/ GeoScoreSection.tsx/etc.).
 								centerLabel={
 									<>
 										<TypographyComponent
@@ -360,21 +301,8 @@ const BusinessProfileCard = () => {
 									{
 										label: __('Score', 'vulopilot'),
 										value: entityScore,
-										// Same real rating color the ring's own
-										// label above already uses
-										// (`ratingColor()`/`getRating()`) -
-										// resolved through `COLOR_PALETTE` for
-										// the real hex `ratingColor()`'s own
-										// palette name stands for, rather than a
-										// fixed brand purple unrelated to the
-										// actual score. `ChartComponent`'s own
-										// `type="ring"` only ever reads the top-
-										// level `color` prop above for its actual
-										// stroke (not a per-row `color` the way
-										// `type="pie"` does) - kept here too so
-										// this data shape matches the real one
-										// `type="ring"` reads `rows[0][dataKey]`
-										// from either way.
+										// Same real rating color the ring's own label above
+										// already uses (`ratingColor()`/`getRating()`).
 										color: COLOR_PALETTE[
 											ratingColor(entityScore) as keyof typeof COLOR_PALETTE
 										],
@@ -490,11 +418,8 @@ const BusinessProfileCard = () => {
 												}}
 											/>
 										) : 'contact_details' === row.key ? (
-											// Always "View" (never "Add Details") regardless
-											// of `row.found` - same real admin edit-user
-											// screen either way, so a missing email is added
-											// right where it'd otherwise just be reviewed,
-											// per direct instruction for this one row.
+											// Always "View" (never "Add Details") regardless of
+											// `row.found`.
 											entities.contact_email.edit_url && (
 												<ButtonInput
 													buttons={{
@@ -518,14 +443,7 @@ const BusinessProfileCard = () => {
 													icon: row.found
 														? __('eye', 'vulopilot')
 														: __('plus', 'vulopilot'),
-													// Was 'text-purple' - the only 3 rows that fall
-													// through to this default branch (Business type,
-													// Services, Locations) rendered a visibly darker
-													// blue than every other row's own explicit branch
-													// above, all of which use 'text-blue'. Confirmed
-													// live: `btn-text-purple` computed to
-													// rgb(0, 41, 145) here vs `btn-text-blue`'s
-													// rgb(2, 132, 199) elsewhere on this same list.
+													// Was 'text-purple', which rendered darker than the explicit branches above (all 'text-blue').
 													color: 'text-blue',
 													onClick: () =>
 														window.open(ENTITY_SETTINGS_URL, '_self'),
@@ -561,10 +479,6 @@ const BusinessProfileCard = () => {
 							className="mini-card report"
 							items={
 								entities?.people.map((person) => {
-									const roleLabel =
-										'string' === typeof person.meta?.role_label
-											? person.meta.role_label
-											: '';
 
 									const editUrl =
 										'string' === typeof person.meta?.edit_url

@@ -2,11 +2,8 @@ import type { ReactNode } from 'react';
 import { __ } from '@wordpress/i18n';
 import './UpgradeToProOverlay.scss';
 
-/** Every prop defaults to the original upgrade copy, so every
- * existing call site keeps rendering exactly what it did before - passing
- * `icon`/`title`/`desc`/`buttonText` explicitly (see `useContentGate.tsx`'s
- * own "Connect to VuloCloud" gate) is what makes this the same reusable
- * "locked content" card for a different real CTA, not a new component. */
+/** Every prop defaults to the original upgrade copy; passing `icon`/`title`/`desc`/`buttonText`
+ * (see `useContentGate.tsx`'s connect gate) reuses this as a "locked content" card for another CTA. */
 interface OverlayCopy {
 	icon?: string;
 	title?: string;

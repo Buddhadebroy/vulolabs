@@ -1,12 +1,7 @@
 import { applyFilters } from '@wordpress/hooks';
 
 /**
- * The former `tools` context (`components/StatusAndTools/`) is gone -
- * that whole page (System Status/Log/Migration/Developer Tools) was a
- * real route kept reachable-but-unlinked after a past nav redesign
- * (classes/Admin.php's own now-removed `'status-tools'` menu-catalog
- * entry documented this), removed entirely per direct instruction rather
- * than kept around unreachable.
+ * The former `tools` context (`components/StatusAndTools/`) is gone.
  */
 const contexts: Record<string, any> = {
 	settings: require.context('../components/Settings', true, /\.ts$/),
@@ -79,18 +74,8 @@ const importAll = (
 		if (fileName !== 'FolderPriority.ts') {
 			const content = inpContext(key)?.default;
 
-			// Not every `.ts` file under components/Settings/ is a
-			// settings-tab config with a real default export - e.g.
-			// CrawlerAlertRows.ts only has a named export
-			// (`CRAWLER_ALERT_ROWS`, consumed directly by
-			// Notifications/AiCrawlerAlerts.ts) since it's a helper
-			// module, not a tab. Pushing it here as a file node with
-			// `content: undefined` reaches getAvailableSettings()/
-			// getSettingById() downstream, which read real fields (e.g.
-			// `pro_dependent`) off every node's `content` and crash the
-			// whole Settings page on `undefined` - skip it instead, same
-			// as searchIndex.ts's own `buildIndexFromContext()` now does
-			// for the same file.
+			// Not every `.ts` file under components/Settings/ is a settings-tab config with a real
+			// default export.
 			if (content !== undefined) {
 				currentFolder.push({
 					name: fileName!.replace('.ts', ''),
@@ -139,12 +124,9 @@ const getTemplateData = (type: 'settings'): SettingNode[] => {
 };
 
 /**
- * The Modules page's metadata catalog - mirrors the free vulolabs
- * plugin's own `getModuleData()` exactly (a plain `require()`, not a
- * `require.context`, since there's exactly one file to load, not a
- * folder of them). Returns null (not an empty catalog) if the file is
- * ever missing, so `Modules.tsx` can render its own "nothing here yet"
- * state honestly rather than crashing.
+ * The Modules page's metadata catalog - mirrors the free vulolabs plugin's own `getModuleData()`
+ * exactly (a plain `require()`, not a `require.context`, since there's exactly one file to load,
+ * not a folder of them).
  */
 const getModuleData = () => {
 	try {

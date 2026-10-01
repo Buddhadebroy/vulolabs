@@ -11,7 +11,7 @@ export interface BannerCardProps {
 	buttons?: ComponentProps<typeof ButtonInput>['buttons'];
 	/** Shows the top-right close control; the banner hides itself once clicked. */
 	dismissible?: boolean;
-	/** With `dismissible`, remembers the dismissal in this browser's localStorage under this key so the banner stays hidden on later visits. */
+	/** With `dismissible`, persists the dismissal in localStorage under this key. */
 	dismissKey?: string;
 	/** Extra class on the root, for a caller's own sizing/color rules. */
 	className?: string;
@@ -19,12 +19,6 @@ export interface BannerCardProps {
 	image?: string | null;
 }
 
-/**
- * The shared purple promotional banner (`dashboard-banner.jpg` background,
- * title/desc/buttons on the left, illustration on the right) - was
- * Dashboard/GettingStartedCard.tsx's own hand-built markup, now generic so
- * any page can reuse it. Styles are `.getting-started-banner*` (common.scss).
- */
 const BannerCard = ({
 	title,
 	desc,

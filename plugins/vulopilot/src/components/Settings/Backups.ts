@@ -1,31 +1,7 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Settings → Backups. Originally moved into the old "Get Started"/
- * Business Visibility folder from Scanning, now a standalone top-level tab
- * again (that folder is gone now that every one of its sub-tabs moved
- * elsewhere) - same real `id: 'backups'` throughout, so the existing
- * `?...&subtab=backups` deep link still resolves (`getSettingById()`
- * recurses by id alone, with no concept of which folder a tab lives in).
- *
- * Real, always-on core settings (no `moduleEnabled` gate anywhere here;
- * this isn't a Modules-page module). Read by
- * classes/Services/BackupManager.php/BackupScheduler.php.
- * Auto-discovered by templateService.ts's `require.context` over every
- * `.ts` file under `src/components/Settings/` - no manual registration
- * needed, same as every sibling top-level `Settings/*.ts` tab.
- *
- * `backup_storage_destination` (real, plain - 'local'/'s3'/'google_drive',
- * read by Services\BackupStorageManager) is the one field here that's
- * about remote storage, but the actual Amazon S3/Google Drive credentials
- * it depends on are NOT in this `modal` array - a secret access key/OAuth
- * client secret must never round-trip through `GET /settings` the way this
- * tab's other fields safely do. Settings.tsx's own GetForm() appends
- * BackupStoragePanel.tsx (its own dedicated, encrypted
- * `/backup-storage/*` REST surface - Controllers\BackupStorage) right
- * after this tab's InputRenderer output, same "flat setting for the simple
- * bit, dedicated credential storage for the secret bit" split
- * VuloCloudAiConnectionPanel.tsx/Controllers\VuloCloudAiConnection already established.
+ * Settings → Backups.
  */
 export const CLOUD_STORAGE_LOCKED_METHODS = [
 	{

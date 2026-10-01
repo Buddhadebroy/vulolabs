@@ -3,7 +3,6 @@ namespace VuloPilot\Content\Rest;
 
 use VuloPilot\AiCopilot\ContentCreationOrchestrator;
 use VuloPilot\Utill\VuloPilotException;
-use VuloPilot\GeoAnalysis\Rest\Geo;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -21,159 +20,159 @@ defined( 'ABSPATH' ) || exit;
  */
 class ContentAssistant extends \WP_REST_Controller {
 
-    /**
-     * REST base for this controller's routes.
-     *
-     * @var string
-     */
-    protected $rest_base = 'content-assistant';
+	/**
+	 * REST base for this controller's routes.
+	 *
+	 * @var string
+	 */
+	protected $rest_base = 'content-assistant';
 
-    /**
-     * How many prior turns of client-supplied history to include - bounds
-     * the prompt sent to the AI service on a long-running chat.
-     */
-    private const MAX_HISTORY_MESSAGES = 20;
+	/**
+	 * How many prior turns of client-supplied history to include - bounds
+	 * the prompt sent to the AI service on a long-running chat.
+	 */
+	private const MAX_HISTORY_MESSAGES = 20;
 
-    /**
-     * The shared "parse the orchestrator's decision, then really create the
-     * content" logic - see ContentCreationOrchestrator's own docblock for
-     * why this is no longer implemented in this controller directly
-     * (Controllers\Copilot.php's own AI Copilot Chat tab now reuses it too).
-     *
-     * @var ContentCreationOrchestrator
-     */
-    private ContentCreationOrchestrator $orchestrator;
+	/**
+	 * The shared "parse the orchestrator's decision, then really create the content"
+	 * logic.
+	 *
+	 * @var ContentCreationOrchestrator
+	 */
+	private ContentCreationOrchestrator $orchestrator;
 
-    /**
-     * ContentAssistant constructor.
-     */
-    public function __construct() {
-        $this->orchestrator = new ContentCreationOrchestrator();
-    }
+	/**
+	 * ContentAssistant constructor.
+	 */
+	public function __construct() {
+		$this->orchestrator = new ContentCreationOrchestrator();
+	}
 
-    /**
-     * Registers POST /content-assistant/chat.
-     *
-     * @inheritDoc
-     */
-    public function register_routes() {
-        register_rest_route(
-            VuloPilot()->rest_namespace,
-            '/' . $this->rest_base . '/chat',
-            array(
-                array(
-                    'methods'             => \WP_REST_Server::CREATABLE,
-                    'callback'            => array( $this, 'create_item' ),
-                    'permission_callback' => array( $this, 'create_item_permissions_check' ),
-                ),
-            )
-        );
-    }
+	/**
+	 * Registers POST /content-assistant/chat.
+	 *
+	 * @inheritDoc
+	 */
+	public function register_routes() {
+		register_rest_route(
+			VuloPilot()->rest_namespace,
+			'/' . $this->rest_base . '/chat',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'create_item' ),
+					'permission_callback' => array( $this, 'create_item_permissions_check' ),
+				),
+			)
+		);
+	}
 
-    /**
-     * Same manage_options gate every other VuloPilot REST route uses, plus
-     * the real AI Copilot module check every AI surface now shares (see
-     * modules/AiCopilot/Module.php's own docblock) - this is the
-     * server-side half; the client-side half is useAiCopilotEnabled().
-     *
-     * @param \WP_REST_Request $request Full request object.
-     * @return bool|\WP_Error
-     */
-    public function create_item_permissions_check( $request ) {
-        if ( ! current_user_can( 'manage_options' ) ) {
-            return false;
-        }
+	/**
+	 * Same manage_options gate every other VuloPilot REST route uses.
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return bool|\WP_Error
+	 */
+	public function create_item_permissions_check( $request ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
 
-        if ( ! VuloPilot()->modules->is_active( 'ai-copilot' ) ) {
-            return new \WP_Error(
-                'vulopilot_ai_copilot_inactive',
-                __( 'Enable the AI Copilot module to use the AI Content Assistant.', 'vulopilot' ),
-                array( 'status' => 403 )
-            );
-        }
+		if ( ! VuloPilot()->modules->is_active( 'ai-copilot' ) ) {
+			return new \WP_Error(
+				'vulopilot_ai_copilot_inactive',
+				__( 'Enable the AI Copilot module to use the AI Content Assistant.', 'vulopilot' ),
+				array( 'status' => 403 )
+			);
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    /**
-     * Runs one orchestrator turn and acts on its decision.
-     *
-     * @param \WP_REST_Request $request Full request object.
-     * @return \WP_REST_Response|\WP_Error
-     */
-    public function create_item( $request ) {
-        $message = sanitize_textarea_field( (string) $request->get_param( 'message' ) );
+	/**
+	 * Runs one orchestrator turn and acts on its decision.
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function create_item( $request ) {
+		$message = sanitize_textarea_field( (string) $request->get_param( 'message' ) );
 
-        if ( '' === trim( $message ) ) {
-            return new \WP_Error(
-                'vulopilot_empty_message',
-                __( 'Message cannot be empty.', 'vulopilot' ),
-                array( 'status' => 400 )
-            );
-        }
+		if ( '' === trim( $message ) ) {
+			return new \WP_Error(
+				'vulopilot_empty_message',
+				__( 'Message cannot be empty.', 'vulopilot' ),
+				array( 'status' => 400 )
+			);
+		}
 
-        $messages = $this->build_orchestrator_messages( $message, (array) $request->get_param( 'history' ) );
+		$messages = $this->build_orchestrator_messages( $message, (array) $request->get_param( 'history' ) );
 
-        try {
-            $response = VuloPilot()->ai_request_sender->send( $messages, null, 'content_assistant_chat' );
-        } catch ( VuloPilotException $exception ) {
-            if ( VuloPilotException::TYPE_UNSAFE_PROMPT !== $exception->get_type() ) {
-                throw $exception;
-            }
+		try {
+			$response = VuloPilot()->ai_request_sender->send( $messages, null, 'content_assistant_chat' );
+		} catch ( VuloPilotException $exception ) {
+			if ( VuloPilotException::TYPE_INSUFFICIENT_CREDITS === $exception->get_type() ) {
+				return $exception->to_insufficient_credits_error();
+			}
 
-            return new \WP_Error( 'vulopilot_unsafe_prompt', $exception->getMessage(), array( 'status' => 400 ) );
-        } catch ( \RuntimeException $exception ) {
-            return new \WP_Error(
-                'vulopilot_ai_not_connected',
-                sprintf(
-                    /* translators: %s is the exception's own real message, e.g. "No AI connection is configured." */
-                    __( '%s Connect this site to VuloCloud in Settings → Connections.', 'vulopilot' ),
-                    $exception->getMessage()
-                ),
-                array( 'status' => 400 )
-            );
-        } catch ( \Throwable $exception ) {
-            return new \WP_Error( 'vulopilot_ai_request_failed', $exception->getMessage(), array( 'status' => 502 ) );
-        }
+			// Returned, not rethrown, so the \Throwable catch below doesn't fatal.
+			if ( VuloPilotException::TYPE_UNSAFE_PROMPT !== $exception->get_type() ) {
+				return new \WP_Error( 'vulopilot_ai_request_failed', $exception->getMessage(), array( 'status' => 502 ) );
+			}
 
-        $decision = $this->orchestrator->parse_response( $response );
+			return new \WP_Error( 'vulopilot_unsafe_prompt', $exception->getMessage(), array( 'status' => 400 ) );
+		} catch ( \RuntimeException $exception ) {
+			return new \WP_Error(
+				'vulopilot_ai_not_connected',
+				sprintf(
+					/* translators: %s is the exception's own real message, e.g. "No AI connection is configured." */
+					__( '%s Connect this site to VuloCloud in Settings → Connections.', 'vulopilot' ),
+					$exception->getMessage()
+				),
+				array( 'status' => 400 )
+			);
+		} catch ( \Throwable $exception ) {
+			return new \WP_Error( 'vulopilot_ai_request_failed', $exception->getMessage(), array( 'status' => 502 ) );
+		}
 
-        if ( 'ready_action' === $decision['status'] ) {
-            $result = $this->orchestrator->create_content_and_respond( $decision );
+		$decision = $this->orchestrator->parse_response( $response );
 
-            if ( $result instanceof \WP_Error ) {
-                return $result;
-            }
+		if ( 'ready_action' === $decision['status'] ) {
+			$result = $this->orchestrator->create_content_and_respond( $decision );
 
-            return rest_ensure_response( $result );
-        }
+			if ( $result instanceof \WP_Error ) {
+				return $result;
+			}
 
-        return rest_ensure_response(
-            array(
-                'content' => $decision['message'],
-                'link'    => null,
-                'run_id'  => null,
-            )
-        );
-    }
+			return rest_ensure_response( $result );
+		}
 
-    /**
-     * Builds the orchestrator prompt: a system message describing the
-     * content types it can create, the client's recent turns, then the
-     * new user message. Instructed to respond with strict JSON only.
-     *
-     * @param string            $message     The new user message.
-     * @param array<int, mixed> $raw_history Client-supplied {role, content} turns, oldest first.
-     * @return array<int, array{role: string, content: string}>
-     */
-    private function build_orchestrator_messages( string $message, array $raw_history ): array {
-        $messages   = array();
-        $messages[] = array(
-            'role'    => 'system',
-            'content' => sprintf(
-                /* translators: %s is the site's own real name (get_bloginfo('name')). */
-                __(
-                    'You are the intake assistant for the "Content" chat inside the WordPress plugin VuloPilot, on the site "%s". Your job this turn is to move the conversation toward either (a) creating one of 3 specific kinds of real WordPress content, or (b) simply answering the user when that\'s what they actually want.
+		return rest_ensure_response(
+			array(
+				'content' => $decision['message'],
+				'link'    => null,
+				'run_id'  => null,
+			)
+		);
+	}
+
+	/**
+	 * Builds the orchestrator prompt: a system message describing the
+	 * content types it can create, the client's recent turns, then the
+	 * new user message. Instructed to respond with strict JSON only.
+	 *
+	 * @param string            $message     The new user message.
+	 * @param array<int, mixed> $raw_history Client-supplied {role, content} turns, oldest first.
+	 * @return array<int, array{role: string, content: string}>
+	 */
+	private function build_orchestrator_messages( string $message, array $raw_history ): array {
+		$messages   = array();
+		$messages[] = array(
+			'role'    => 'system',
+			'content' => sprintf(
+				/* translators: %s is the site's own real name (get_bloginfo('name')). */
+				__(
+					'You are the intake assistant for the "Content" chat inside the WordPress plugin VuloPilot, on the site "%s". Your job this turn is to move the conversation toward either (a) creating one of 3 specific kinds of real WordPress content, or (b) simply answering the user when that\'s what they actually want.
 
 The 3 kinds of WordPress content you can create. For each, collect the fields in the order listed - a field being listed after the first one does NOT mean it\'s skippable; ask about each one, one at a time, unless the user already stated it somewhere in the conversation:
 1. "generate-blog" - a blog post or article. Collect, in order: topic (what it\'s about), word_count (target word count), tone (e.g. Professional/Friendly/Informative/Casual).
@@ -198,28 +197,28 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, in exactly one of
 {"status":"question","message":"<the single next question, phrased naturally>"}
 {"status":"ready_action","action_id":"generate-blog","input":{...only the fields listed above for that action_id...}}
 {"status":"respond","message":"<a direct answer, or fully-written content for a kind with no matching action above>"}',
-                    'vulopilot'
-                ),
-                get_bloginfo( 'name' )
-            ),
-        );
+					'vulopilot'
+				),
+				get_bloginfo( 'name' )
+			),
+		);
 
-        foreach ( array_slice( $raw_history, -self::MAX_HISTORY_MESSAGES ) as $entry ) {
-            if ( ! is_array( $entry ) || empty( $entry['role'] ) || empty( $entry['content'] ) ) {
-                continue;
-            }
+		foreach ( array_slice( $raw_history, -self::MAX_HISTORY_MESSAGES ) as $entry ) {
+			if ( ! is_array( $entry ) || empty( $entry['role'] ) || empty( $entry['content'] ) ) {
+				continue;
+			}
 
-            $messages[] = array(
-                'role'    => 'user' === $entry['role'] ? 'user' : 'assistant',
-                'content' => sanitize_textarea_field( (string) $entry['content'] ),
-            );
-        }
+			$messages[] = array(
+				'role'    => 'user' === $entry['role'] ? 'user' : 'assistant',
+				'content' => sanitize_textarea_field( (string) $entry['content'] ),
+			);
+		}
 
-        $messages[] = array(
-            'role'    => 'user',
-            'content' => $message,
-        );
+		$messages[] = array(
+			'role'    => 'user',
+			'content' => $message,
+		);
 
-        return $messages;
-    }
+		return $messages;
+	}
 }

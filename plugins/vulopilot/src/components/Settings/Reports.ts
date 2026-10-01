@@ -4,17 +4,6 @@ import SendTestReportButton from './SendTestReportButton';
 
 /**
  * Settings → Reports.
- *
- * `default_report_format`/`default_report_period_days` are real, existing
- * settings (Utill::VULOPILOT_SETTINGS_DEFAULTS) already read by
- * Controllers\Reports::create_item() - this is a restyle of how they're
- * edited, not new settings. Two real changes from the previous plain
- * select/number-input shape:
- *
- * No "Report Branding" section: no real backend for it anywhere in this
- * codebase (no logo/watermark/color setting, nothing `PdfExporter.php`
- * reads) - added only once that's a real, built feature rather than a
- * settings card with nothing behind it.
  */
 export default {
 	id: 'reports',

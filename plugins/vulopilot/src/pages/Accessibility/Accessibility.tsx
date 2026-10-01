@@ -30,10 +30,10 @@ import { ACCESSIBILITY_CHECKS } from './accessibilityChecks';
 const ISSUES_TABLE_ID = 'accessibility-a11y-issues-table';
 const ACCESSIBILITY_MODULE_ID = 'accessibility-checks';
 
-/** Fabricated 7-day score trend - same "obviously fake, never mistaken for a real scan result" reasoning BrandVisibilityProDummies.tsx's own `DUMMY_AUTHORITY_HISTORY` documents; no real fetch behind this, ever. */
+/** Fabricated 7-day score trend for the dummy chart. */
 const DUMMY_ACCESSIBILITY_SCORES = [62, 66, 65, 71, 74, 78, 82];
 
-/** Last 7 days ending today, labeled with the site's own date format ("August 26, 2026") - same `formatWpDate()` every real trend chart's x-axis uses - instead of a generic "Day N". Noon UTC so the site-timezone shift inside `formatWpDate()` can't push a label onto the neighboring day. */
+/** Last 7 days ending today, labeled with the site's own date format ("August 26, 2026"). */
 const DUMMY_ACCESSIBILITY_HISTORY = DUMMY_ACCESSIBILITY_SCORES.map(
 	(score, index) => {
 		const date = new Date();
@@ -48,7 +48,7 @@ const DUMMY_ACCESSIBILITY_HISTORY = DUMMY_ACCESSIBILITY_SCORES.map(
 	}
 );
 
-/** Purely decorative on this dummy card (no real per-period fetch behind it, ever - see `DUMMY_ACCESSIBILITY_HISTORY`'s own docblock) - same real `PERIOD_OPTIONS`/`ToggleInput` "pill" shape SecurityTrendCard.tsx's own real trend chart uses, kept here only so this teaser reads as a faithful preview of what the real, unlocked card looks like. */
+/** Decorative only - no real per-period fetch behind it. */
 type PeriodDays = '7' | '30' | '90';
 const PERIOD_OPTIONS = [
 	{ key: '7', value: '7', label: __('7D', 'vulopilot') },
@@ -57,9 +57,7 @@ const PERIOD_OPTIONS = [
 ];
 
 /**
- * `ACCESSIBILITY_CHECKS` minus its synthetic `'all'` tile -
- * SectionedIssuesTable.tsx already synthesizes its own "All" tab, so
- * passing that tile through too would render two.
+ * `ACCESSIBILITY_CHECKS` minus its synthetic `'all'` tile.
  */
 const ISSUES_TABLE_SECTIONS = ACCESSIBILITY_CHECKS.filter(
 	(check) => 'all' !== check.key
@@ -122,17 +120,8 @@ const AccessibilityHistoryDummy = () => {
 };
 
 /**
- * "Accessibility" top-level page (WP menu slug `accessibility`,
- * `classes/Admin.php`'s `$submenus`). Hero card, "Accessibility Checks"
- * grid, manual-testing panel, then one unified issues table
- * (SectionedIssuesTable.tsx, imported from `../Security/` - shared across
- * several top-level pages) with a built-in "All" tab.
- *
- * Promoted to its own top-level page rather than a Modules-system entry
- * or a "Protect My Site" tab: its checks (page structure, images, forms,
- * keyboard use, readability, WCAG findings) are content-quality concepts,
- * not security ones, and it's core always-on functionality like
- * Performance/SEO & Visibility (no `modules/Accessibility/Module.php`).
+ * "Accessibility" top-level page (WP menu slug `accessibility`, `classes/Admin.php`'s
+ * `$submenus`).
  */
 const Accessibility = () => {
 	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');

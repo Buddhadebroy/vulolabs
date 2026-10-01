@@ -5,7 +5,6 @@ import {
 	ColumnComponent,
 	ContainerComponent,
 	NavigatorHeaderComponent,
-	NoticeComponent,
 	PopupComponent,
 } from '@zyra/components';
 import ShowProPopup from '../../components/Popup/Popup';
@@ -14,13 +13,14 @@ import AutomationsStatusCard from './AutomationsStatusCard';
 import AutomationsResourcesCard from './AutomationsResourcesCard';
 import AutomationsAttentionCard from './AutomationsAttentionCard';
 import BuiltinAutomationCards from './BuiltinAutomationCards';
-import { AutomationsActivityDummy } from './AutomationsProDummies';
+import { AutomationsAiActivityDummy, AutomationsOverviewDummy } from './AutomationsProDummies';
 import { AutomationRow, AutomationTemplate, getAutomationTemplateById } from './automationsTypes';
 import './Automations.scss';
 
 interface ManageAutomationsSectionComponentProps {
 	hasWizard: boolean;
-	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	 
+	// eslint-disable-next-line no-unused-vars
 	onOpenRow: (row: AutomationRow) => void;
 	onRequireProUpsell: () => void;
 	refetchSignal: number;
@@ -43,8 +43,12 @@ interface AutomationGenerateComponentProps {
 	onSaved?: () => void;
 }
 
-interface AutomationsActivityCardComponentProps {
-	onViewHistory: () => void;
+interface AutomationsOverviewComponentProps {
+	onOpenLibrary: () => void;
+	refetchSignal: number;
+}
+
+interface AutomationsActivityComponentProps {
 	refetchSignal: number;
 }
 
@@ -53,20 +57,14 @@ interface AutomationSlotValue {
 	Generate: ComponentType<AutomationGenerateComponentProps>;
 	Templates: ComponentType<AutomationGenerateComponentProps>;
 	Manage: ComponentType<ManageAutomationsSectionComponentProps>;
-	Activity: ComponentType<AutomationsActivityCardComponentProps>;
+	Overview?: ComponentType<AutomationsOverviewComponentProps>;
+	Activity?: ComponentType<AutomationsActivityComponentProps>;
 }
 
 /**
  * "Automate Work" - Free gets exactly 2 fixed, schedule-only automations
- * (`BuiltinAutomationCards.tsx` - "Run Full Site Scan"/"Send Visibility
- * Report", no template picker, no wizard) always shown at the top.
- *
- * Owns the real wizard/"Build with AI" popups' open-signal state and the
- * `vulopilot_automations_panel` filter-slot resolution directly (rather than
- * `ManageAutomationsSection.tsx`, their previous host) since the header's
- * own buttons need to open them too, not just the table's row actions - a
- * single shared instance of each popup, not two independently-triggered
- * ones.
+ * (`BuiltinAutomationCards.tsx` - "Run Full Site Scan"/"Send Visibility Report", no template
+ * picker, no wizard) always shown at the top.
  */
 const Automations = () => {
 	const slot = useFilterSlot<AutomationSlotValue>('vulopilot_automations_panel');
@@ -74,6 +72,7 @@ const Automations = () => {
 	const Generate = slot?.Generate;
 	const Templates = slot?.Templates;
 	const Manage = slot?.Manage;
+	const Overview = slot?.Overview;
 	const Activity = slot?.Activity;
 
 	const [wizardOpenSignal, setWizardOpenSignal] = useState(0);
@@ -139,11 +138,8 @@ const Automations = () => {
 		setWizardOpenSignal((n) => n + 1);
 	};
 
-	// AI Copilot's Chat tab (AIAssistant.tsx's own AutomationsTemplatesCard
-	// preview) deep-links here as `?...#tab=automations&automation_template=<id>`
-	// - the id itself is read once on mount (URL param, never changes for
-	// the life of this page load), same as this page's previous tab-shell
-	// version.
+	// AI Copilot's Chat tab (AIAssistant.tsx's own AutomationsTemplatesCard preview) deep-links
+	// here as `?...#tab=automations&automation_template={id}`.
 	const [initialTemplateId] = useState<string | null>(() =>
 		new URLSearchParams(window.location.hash.substring(1)).get('automation_template')
 	);
@@ -173,16 +169,10 @@ const Automations = () => {
 
 		firedInitialTemplateRef.current = true;
 		openTemplate(template);
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- deliberately re-checks only when Wizard itself resolves (useFilterSlot's own real script-load-order race - see that hook's docblock) or initialTemplateId (set once, stable); openTemplate is redefined every render and the ref guard already makes this safely re-runnable.
+		// deliberately re-checks only when Wizard itself resolves (useFilterSlot's own real script-load-order race - see that hook's docblock) or initialTemplateId (set once, stable); openTemplate is redefined every render and the ref guard already makes this safely re-runnable.
 	}, [Wizard, initialTemplateId]);
 
-	// "View all issues →" (AutomationAttentionCard) and "View automation
-	// history →" (AutomationActivityCard) both jump to the same real
-	// destination - the "Your Automations" table already shows every
-	// automation's own real status/last-run outcome, and the wizard's own
-	// read-only "Open" view already surfaces a filtered run history per
-	// automation; there's no separate unfiltered history view to link to
-	// instead.
+	// "View all issues →" (AutomationAttentionCard) jumps to the automations list.
 	const scrollToTable = () =>
 		document.getElementById('automation-manage')?.scrollIntoView({ behavior: 'smooth' });
 
@@ -216,9 +206,7 @@ const Automations = () => {
 						onClick: openCreateWizard,
 					},
 					{
-						// Preferred/rightmost - same "templates first, from-scratch
-						// second" ordering as above.
-						label:  __('AI-Powered Automations', 'vulopilot'),
+						label:  __('Choose a Template', 'vulopilot'),
 						icon: 'search',
 						onClick: openTemplatesLibrary,
 					},
@@ -226,6 +214,17 @@ const Automations = () => {
 			/>
 
 			<ContainerComponent general>
+				<ColumnComponent grid={12}>
+					{Overview ? (
+						<Overview
+							onOpenLibrary={openTemplatesLibrary}
+							refetchSignal={refetchSignal}
+						/>
+					) : (
+						<AutomationsOverviewDummy onClick={openProPopup} />
+					)}
+				</ColumnComponent>
+
 				<BuiltinAutomationCards
 					refetchSignal={refetchSignal}
 					onChanged={handleSaved}
@@ -241,9 +240,9 @@ const Automations = () => {
 
 				<ColumnComponent grid={7} fullHeight>
 					{Activity ? (
-						<Activity onViewHistory={scrollToTable} refetchSignal={refetchSignal} />
+						<Activity refetchSignal={refetchSignal} />
 					) : (
-						<AutomationsActivityDummy onClick={openProPopup} />
+						<AutomationsAiActivityDummy onClick={openProPopup} />
 					)}
 				</ColumnComponent>
 				<ColumnComponent grid={5} fullHeight>

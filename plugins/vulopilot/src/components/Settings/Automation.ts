@@ -4,41 +4,6 @@ import EnableAutomationModuleAction from './Automation/EnableAutomationModuleAct
 
 /**
  * Settings → Automation ("Advanced Automation Settings").
- *
- * Flattened from the old `Automation/` folder (`Advanced.ts` +
- * `FolderPriority.ts`) back to a single top-level file, same shape
- * Reports.ts/DeveloperTools.ts/Modules.ts already use - per direct
- * instruction ("remove sub tab Advanced"). That folder existed only to
- * hold "Advanced" as its own sub-tab once two other sub-tabs ("How
- * VuloPilot Handles Issues"/"Approval Settings") had already been removed
- * (see the old Advanced.ts's own docblock); with "Advanced" now gone too,
- * a folder with nothing left to group is worse than this plugin's own
- * established single-file-tab pattern - `importAll()`
- * (templateService.ts) only renders a sub-tab strip for a `type: 'folder'`
- * node, so this flat file makes the whole tab a single page, no sub-nav,
- * same as Reports/Developer Tools/Modules already are.
- *
- * `automation_cooldown_minutes`/`automation_max_retries`/
- * `automation_retry_delay_minutes` are the same real setting keys the old
- * Advanced.ts (and before that, AutomationSchedule.ts) already used - no
- * migration of already-saved values needed. Each field's own
- * `moduleEnabled` fixed from `'automation'` (singular - matched no real
- * module id, so these fields never actually detected the module as
- * active) to `'automations'`, Modules/index.ts's own real backend module
- * id (see that file's own docblock: "Automation's folder name
- * kebab-cased, no 'Engine' suffix").
- *
- * The mockup's own per-row icon box + a second "Cooldown duration"-style
- * label above a value+unit-dropdown control isn't a real, existing zyra
- * field shape - there's no compound number+select input in this
- * codebase's FIELD_REGISTRY, and every one of these 3 settings only ever
- * has exactly one real unit (minutes or times; nothing here reads/writes
- * an alternate unit), so a literal dropdown would be a control that can't
- * actually do anything. Kept as real `type: 'number'` fields with the
- * unit folded into the label, same convention this plugin's other
- * duration settings already use (e.g. Settings/Scanning's own frequency
- * fields) - honest and fully functional over visually matching a control
- * with no real second state.
  */
 export default {
 	id: 'automation',

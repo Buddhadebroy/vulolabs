@@ -1,7 +1,6 @@
 <?php
 namespace VuloPilot\Utill;
 
-
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -492,64 +491,62 @@ class Findings extends \WP_REST_Controller {
             array(
 				'success' => true,
 				'id'      => $id,
-            )
-        );
-    }
+			)
+		);
+	}
 
-    /**
-     * Backs FindingsTable.tsx's bulk Resolve/Ignore action - applies the
-     * same status update update_item() does, to every id in one request,
-     * via RepositoryUtil::bulk_update()'s single-row-update loop.
-     *
-     * @param \WP_REST_Request $request Full request object.
-     * @return \WP_REST_Response|\WP_Error
-     */
-    public function bulk_update_items( $request ) {
-        $ids    = array_map( 'absint', (array) $request->get_param( 'ids' ) );
-        $status = sanitize_key( (string) $request->get_param( 'status' ) );
+	/**
+	 * Backs FindingsTable.tsx's bulk Resolve/Ignore action.
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function bulk_update_items( $request ) {
+		$ids    = array_map( 'absint', (array) $request->get_param( 'ids' ) );
+		$status = sanitize_key( (string) $request->get_param( 'status' ) );
 
-        if ( ! in_array( $status, array( 'resolved', 'ignored' ), true ) ) {
-            return new \WP_Error( 'vulopilot_invalid_status', __( 'Invalid bulk finding status.', 'vulopilot' ), array( 'status' => 400 ) );
-        }
+		if ( ! in_array( $status, array( 'resolved', 'ignored' ), true ) ) {
+			return new \WP_Error( 'vulopilot_invalid_status', __( 'Invalid bulk finding status.', 'vulopilot' ), array( 'status' => 400 ) );
+		}
 
-        if ( empty( $ids ) ) {
-            return new \WP_Error( 'vulopilot_no_ids', __( 'No findings selected.', 'vulopilot' ), array( 'status' => 400 ) );
-        }
+		if ( empty( $ids ) ) {
+			return new \WP_Error( 'vulopilot_no_ids', __( 'No findings selected.', 'vulopilot' ), array( 'status' => 400 ) );
+		}
 
-        $repository    = new FindingRepository();
-        $updated_count = $repository->bulk_update(
-            $ids,
-            array(
-                'status'      => $status,
-                'resolved_at' => 'resolved' === $status ? current_time( 'mysql', true ) : null,
-            )
-        );
+		$repository    = new FindingRepository();
+		$updated_count = $repository->bulk_update(
+			$ids,
+			array(
+				'status'      => $status,
+				'resolved_at' => 'resolved' === $status ? current_time( 'mysql', true ) : null,
+			)
+		);
 
-        return rest_ensure_response(
-            array(
-                'success' => true,
-                'updated' => $updated_count,
-            )
-        );
-    }
+		return rest_ensure_response(
+			array(
+				'success' => true,
+				'updated' => $updated_count,
+			)
+		);
+	}
 
-    /**
-     * Backs FindingsTable.tsx's "Snooze" row action (and any other
-     * registered manual action) via Automations\ManualActionRunner.
-     *
-     * @param \WP_REST_Request $request Full request object.
-     * @return \WP_REST_Response|\WP_Error
-     */
-    public function run_manual_action( $request ) {
-        $finding_id = absint( $request->get_param( 'id' ) );
-        $action_id  = sanitize_key( (string) $request->get_param( 'action_id' ) );
+	/**
+	 * Backs FindingsTable.tsx's "Snooze" row action (and any other
+	 * registered manual action) via Automations\ManualActionRunner.
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function run_manual_action( $request ) {
+		$finding_id = absint( $request->get_param( 'id' ) );
+		$action_id  = sanitize_key( (string) $request->get_param( 'action_id' ) );
 
-        try {
-            $result = VuloPilot()->manual_action_runner->run( $finding_id, $action_id );
-        } catch ( \InvalidArgumentException $exception ) {
-            return new \WP_Error( 'vulopilot_manual_action_invalid', $exception->getMessage(), array( 'status' => 404 ) );
-        }
+		try {
+			$result = VuloPilot()->manual_action_runner->run( $finding_id, $action_id );
+		} catch ( \InvalidArgumentException $exception ) {
+			return new \WP_Error( 'vulopilot_manual_action_invalid', $exception->getMessage(), array( 'status' => 404 ) );
+		}
 
-        return rest_ensure_response( $result->to_array() );
-    }
+		return rest_ensure_response( $result->to_array() );
+	}
 }

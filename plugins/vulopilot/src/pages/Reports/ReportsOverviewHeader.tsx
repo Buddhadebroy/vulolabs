@@ -1,33 +1,22 @@
-/* global vulopilotAppLocalizer */
 import { __, sprintf } from '@wordpress/i18n';
 import { PopupComponent, SectionComponent } from '@zyra/components';
 import { ButtonInput, SelectInput } from '@zyra/inputs';
 import { useState } from 'react';
 import type { ComponentType } from 'react';
-import { ADVANCED_REPORTS_MODULE_ID, DAY_OPTIONS } from './reportsOverview';
-import ShowProPopup, { resolveModuleDisplayName } from '../../components/Popup/Popup';
+import { DAY_OPTIONS } from './reportsOverview';
+import ShowProPopup from '../../components/Popup/Popup';
 import { useFilterSlot } from '../../services/useFilterSlot';
 
 interface ReportsOverviewHeaderProps {
 	days: number;
+	// eslint-disable-next-line no-unused-vars
 	onDaysChange: (days: number) => void;
 	onDataChanged: () => void;
 }
 
 /**
- * The reference mockup's page-header row: "Reports" title + description on
- * the left, a "Last N days" range dropdown plus action buttons on the
- * right - a `SectionComponent` (its own `title`/`desc`/`rightContent`
- * props, same plain page-header shape SectionedIssuesTable.tsx's own
- * "Issues" heading already uses), not a `CardComponent` - no card border/
- * background here, just a real section divider.
- *
- * `days` is one of DAY_OPTIONS (7/30/90 - same 3-preset shape
- * WebsiteProgressChart.tsx already uses on this page) rather than an
- * arbitrary calendar range picker; shown as a real dropdown here instead of
- * the badge-toggle row this header used before, to match the mockup. It
- * only scopes `RecentReportsPanel`'s own preview - Report History stays a
- * real, unfiltered, paginated list of every report.
+ * The reference mockup's page-header row: "Reports" title + description on the left, a "Last N
+ * days" range dropdown plus action buttons on the right.
  */
 const ReportsOverviewHeader = ({
 	days,
@@ -38,10 +27,6 @@ const ReportsOverviewHeader = ({
 	const RealActions = useFilterSlot<
 		ComponentType<{ onDataChanged: () => void }>
 	>('vulopilot_reports_header_actions');
-	const isProInstalled = Boolean(vulopilotAppLocalizer.khali_dabba);
-	const proTagText = isProInstalled
-		? resolveModuleDisplayName(ADVANCED_REPORTS_MODULE_ID)
-		: __('PRO', 'vulopilot');
 
 	return (
 		<>
@@ -115,11 +100,7 @@ const ReportsOverviewHeader = ({
 				height="auto"
 				position="lightbox"
 			>
-				{isProInstalled ? (
-					<ShowProPopup moduleName={ADVANCED_REPORTS_MODULE_ID} />
-				) : (
-					<ShowProPopup />
-				)}
+				<ShowProPopup />
 			</PopupComponent>
 		</>
 	);

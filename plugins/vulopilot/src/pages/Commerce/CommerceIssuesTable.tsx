@@ -1,21 +1,27 @@
-/* global vulopilotAppLocalizer */
+import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
+import { scrollToId } from '@zyra/core';
 import {
-	CardComponent,
+	ColumnComponent,
 	ModuleGuardComponent,
-	PopupComponent,
 	SectionComponent,
 	TabsComponent,
 } from '@zyra/components';
 import { TableCard } from '@zyra/table';
-import { useFindingsTable } from '../../services/useFindingsTable';
-import ShowProPopup from '../../components/Popup/Popup';
+import IssueDetailPanel from '../../components/Issues/IssueDetailPanel';
+import {
+	CATEGORY_LABELS,
+	formatAffected,
+	issueIconFor,
+} from '../../components/Issues/issuesTypes';
 import type { FindingGroup } from '../../components/Issues/issuesTypes';
 import {
 	PRODUCT_SCANNER_IDS,
 	CHECKOUT_SCANNER_IDS,
 	STORE_SCANNER_IDS,
 } from './CommerceTab.constants';
+
+const PER_PAGE = 10;
 
 const sumGroupCounts = (groups: FindingGroup[], scannerIds: string[]): number =>
 	groups
@@ -29,87 +35,31 @@ export type CommerceIssueTab =
 	| 'checkout'
 	| 'store';
 
-interface WooCommerceFindingsTableProps {
-	scannerIds?: string[];
-}
-
-/**
- * One tab panel's real findings table - a thin shell around
- * `useFindingsTable` + Zyra's own `<TableCard />`, kept as its own
- * component (rather than inlined straight into the `tabs` array below) so
- * each tab's table only mounts - and only fetches - when TabsComponent
- * actually renders it as the current tab's content (`tabs[activeIndex]`,
- * TabsComponent.tsx's own `currentTab`), same lazy per-tab-switch fetch
- * behavior a dedicated `<FindingsTable>` instance per tab used to give for
- * free before that component was removed in favor of every real table
- * being a real `<TableCard />`.
- */
-const WooCommerceFindingsTable = ({ scannerIds }: WooCommerceFindingsTableProps) => {
-	const { tableCardProps, error, isProPopupOpen, closeProPopup } =
-		useFindingsTable({
-			category: 'woocommerce',
-			scannerIds,
-			description: __(
-				'No WooCommerce findings yet - run a scan to check store settings, product data, and checkout health.',
-				'vulopilot'
-			),
-		});
-
-	return (
-		<>
-			{error ? (
-				<CardComponent
-					title={__('WooCommerce', 'vulopilot')}
-					titleIcon="error"
-					desc={__('Commerce issues found across your store.', 'vulopilot')}
-				>
-					<ModuleGuardComponent
-						icon="error"
-						title={__('Could not load findings', 'vulopilot')}
-						desc={error}
-					/>
-				</CardComponent>
-			) : (
-				<TableCard {...tableCardProps} />
-			)}
-			<PopupComponent
-				open={isProPopupOpen}
-				onClose={closeProPopup}
-				width={31.25}
-				height="auto"
-				position="lightbox"
-			>
-				{vulopilotAppLocalizer.khali_dabba ? (
-					<ShowProPopup moduleName="one-click-fix" />
-				) : (
-					<ShowProPopup />
-				)}
-			</PopupComponent>
-		</>
-	);
-};
-
 interface CommerceIssuesTableProps {
 	groups: FindingGroup[];
 	activeTab: CommerceIssueTab;
-	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+
+	// eslint-disable-next-line no-unused-vars
 	onTabChange: (tab: CommerceIssueTab) => void;
+	/** Re-fetches `groups` (the caller's own `useWooCommerceFindingGroups`) after a Resolve/Ignore/Fix below. */
+	onGroupsChanged?: () => void;
 }
 
 /**
- * "All WooCommerce Issues" - a real category-tab bar on top of a real
- * `<TableCard>` (via `useFindingsTable`'s own `scannerIds` scoping -
- * GEO.tsx's per-section tables already scope the same hook the same way).
- * Tab counts are real `/findings/groups` sums per CommerceTab.constants.ts's
- * scanner_id buckets - "Important" is the one dynamic bucket, built from
- * whichever groups are currently critical/high severity rather than a
- * fixed scanner_id list.
+ * "All WooCommerce Issues" - a real category-tab bar over a real grouped-findings table +
+ * detail panel, same table+detail pattern `IssuesList.tsx`/`SectionedIssuesTable.tsx` already use
+ * elsewhere for `GET /findings/groups` data, instead of the bare info popup `useFindingsTable.tsx`
+ * gives its own flat `GET /findings` rows.
  */
 const CommerceIssuesTable = ({
 	groups,
 	activeTab,
 	onTabChange,
+	onGroupsChanged,
 }: CommerceIssuesTableProps) => {
+	const [selectedGroup, setSelectedGroup] = useState<FindingGroup | null>(null);
+	const [paged, setPaged] = useState(1);
+
 	const importantScannerIds = groups
 		.filter((group) => 'critical' === group.severity || 'high' === group.severity)
 		.map((group) => group.scanner_id);
@@ -146,22 +96,168 @@ const CommerceIssuesTable = ({
 	};
 	const activeIndex = tabs.findIndex((tab) => tab.id === activeTab);
 
+	const activeScannerIds = scannerIdsForTab[activeTab];
+	const tabGroups = activeScannerIds
+		? groups.filter((group) => activeScannerIds.includes(group.scanner_id))
+		: groups;
+
+	const pageRows = tabGroups.slice((paged - 1) * PER_PAGE, paged * PER_PAGE);
+
+	// Keeps the current selection if it's still visible, else falls back to the first row of
+	// this tab - same reasoning IssuesList.tsx's/SectionedIssuesTable.tsx's own fetch effects give.
+	useEffect(() => {
+		setSelectedGroup((current) => {
+			if (
+				current &&
+				tabGroups.some((group) => group.scanner_id === current.scanner_id)
+			) {
+				return (
+					tabGroups.find((group) => group.scanner_id === current.scanner_id) ??
+					current
+				);
+			}
+
+			return tabGroups[0] ?? null;
+		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [groups, activeTab, paged]);
+
+	/** Same toggle the action cell's own "More Details"/"Showing" button below does. */
+	const handleSelectGroup = (group: FindingGroup) => {
+		const isDeselecting = group.scanner_id === selectedGroup?.scanner_id;
+
+		setSelectedGroup(isDeselecting ? null : group);
+
+		if (!isDeselecting) {
+			scrollToId('woocommerce-issues-detail-panel');
+		}
+	};
+
+	const handleActionComplete = () => {
+		onGroupsChanged?.();
+		setSelectedGroup(null);
+	};
+
 	return (
-		<div id="woocommerce-issues-table" className="woocommerce-issues-table">
-			<SectionComponent title={__('All WooCommerce Issues', 'vulopilot')} />
-			<TabsComponent
-				activeIndex={Math.max(activeIndex, 0)}
-				onTabChange={(index) => onTabChange(tabs[index].id)}
-				tabs={tabs.map((tab) => ({
-					label: sprintf('%1$s (%2$d)', tab.label, tab.count),
-					content: (
-						<WooCommerceFindingsTable
-							scannerIds={scannerIdsForTab[tab.id]}
+		<>
+			<ColumnComponent>
+				<div id="woocommerce-issues-table" className="woocommerce-issues-table">
+					<SectionComponent title={__('All WooCommerce Issues', 'vulopilot')} />
+					<TabsComponent
+						activeIndex={Math.max(activeIndex, 0)}
+						onTabChange={(index: number) => {
+							onTabChange(tabs[index].id);
+							setPaged(1);
+						}}
+						tabs={tabs.map((tab) => ({
+							label: sprintf('%1$s (%2$d)', tab.label, tab.count),
+						}))}
+					/>
+				</div>
+			</ColumnComponent>
+
+			<ColumnComponent grid={8}>
+				{0 === tabGroups.length ? (
+					<ModuleGuardComponent
+						icon="check"
+						title={__('Nothing here right now', 'vulopilot')}
+						desc={__(
+							'No WooCommerce findings in this tab right now.',
+							'vulopilot'
+						)}
+					/>
+				) : (
+					<TableCard
+						showMenu={false}
+						hideHeader={true}
+						variant="transparent"
+						activeRowId={selectedGroup?.scanner_id}
+						onRowClick={(row: Record<string, unknown>) => {
+							handleSelectGroup(row as unknown as FindingGroup);
+						}}
+						headers={{
+							issue: {
+								key: 'label',
+								type: 'info',
+								label: __('Issue', 'vulopilot'),
+								width: '65%',
+								iconKey: 'issueIcon',
+								descriptionKey: 'descriptionText',
+								badgesKey: 'issueBadges',
+							},
+							affected: {
+								label: __('Affected', 'vulopilot'),
+								render: (row: FindingGroup) =>
+									formatAffected(row.count, row.object_type),
+							},
+							action: {
+								label: __('Action', 'vulopilot'),
+								type: 'action',
+								actions: [
+									{
+										type: 'button',
+										label: (row) =>
+											(row as unknown as FindingGroup).scanner_id ===
+											selectedGroup?.scanner_id
+												? __('Showing', 'vulopilot')
+												: __('More Details', 'vulopilot'),
+										color: (row) =>
+											(row as unknown as FindingGroup).scanner_id ===
+											selectedGroup?.scanner_id
+												? 'text-green'
+												: 'text-purple',
+										icon: (row) =>
+											(row as unknown as FindingGroup).scanner_id ===
+											selectedGroup?.scanner_id
+												? 'eye'
+												: 'pagination-next-arrow',
+										onClick: (row) => {
+											handleSelectGroup(row as unknown as FindingGroup);
+										},
+									},
+								],
+							},
+						}}
+						rows={pageRows.map((row) => ({
+							...row,
+							issueIcon: issueIconFor(row.category, row.scanner_id),
+							descriptionText:
+								(row.sample?.description?.length ?? 0) > 80
+									? `${row.sample?.description?.slice(0, 80)}...`
+									: row.sample?.description || '',
+							issueBadges: [
+								{
+									text: CATEGORY_LABELS[row.category] ?? row.category,
+									color: 'blue',
+								},
+								{ text: row.severity, color: `badge-${row.severity}` },
+							],
+						}))}
+						ids={pageRows.map((row) => row.scanner_id)}
+						totalRows={tabGroups.length}
+						isLoading={false}
+						onQueryUpdate={(query: { paged?: number | string }) => {
+							setPaged(Number(query.paged) || 1);
+						}}
+						emptyMessage={__(
+							'No WooCommerce findings in this tab right now.',
+							'vulopilot'
+						)}
+					/>
+				)}
+			</ColumnComponent>
+
+			{tabGroups.length > 0 && (
+				<ColumnComponent grid={4}>
+					<div id="woocommerce-issues-detail-panel">
+						<IssueDetailPanel
+							group={selectedGroup}
+							onActionComplete={handleActionComplete}
 						/>
-					),
-				}))}
-			/>
-		</div>
+					</div>
+				</ColumnComponent>
+			)}
+		</>
 	);
 };
 
