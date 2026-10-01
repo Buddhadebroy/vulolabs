@@ -29,20 +29,12 @@ class AiCreditGatewayClient {
 	/**
 	 * @param string               $feature_id e.g. 'seo_title'.
 	 * @param string               $action     e.g. 'generate'.
-	 * @param array<string, mixed> $context    Structured feature input - see
-	 *                                          each AiCopilot\Actions\* class's
-	 *                                          own credit-context mapping in
-	 *                                          AiCopilot\ActionRunner.
-	 * @param string|null          $request_id Idempotency key (a fresh one when null) - resending the same id is never charged twice.
-	 * @return array{success: true, request_id: string, credits_used: float, credits_remaining: float, response: string}|array{success: false, error: string, credits_remaining: float, can_buy_credits: bool, can_upgrade: bool, buy_credits_url: string}|\WP_Error {
-	 *   A \WP_Error only for a genuine connectivity/configuration failure
-	 *   (not connected, network unreachable, malformed response) - every
-	 *   OTHER outcome (including "insufficient credits" and any
-	 *   server-side DomainError, e.g. an unknown feature) comes back as
-	 *   a plain array so AiCopilot\ActionRunner's own credits branch can
-	 *   handle "insufficient_credits" as a real, structured, user-facing
-	 *   outcome (VuloPilot brief §15) rather than an exception.
-	 * }
+	 * @param array<string, mixed> $context    Structured feature input, see ActionRunner's credit-context mapping.
+	 * @param string|null          $request_id Idempotency key; a fresh one is generated when null.
+	 * @return array{success: true, request_id: string, credits_used: float, credits_remaining: float, response: string}|array{success: false, error: string, credits_remaining: float, can_buy_credits: bool, can_upgrade: bool, buy_credits_url: string}|\WP_Error
+	 *   A \WP_Error only for connectivity/configuration failures; other outcomes (including
+	 *   "insufficient credits") come back as a plain array so callers can handle them without
+	 *   an exception.
 	 */
 	public function execute( string $feature_id, string $action, array $context, ?string $request_id = null ) {
 		if ( '' === trim( VULOPILOT_VULOCLOUD_URL ) ) {
@@ -74,8 +66,7 @@ class AiCreditGatewayClient {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			// VuloPilot brief §27 - never destroy local state or deduct credits locally on a
-			// request that couldn't be confirmed.
+			// Never deduct credits locally on a request that couldn't be confirmed.
 			return new \WP_Error(
 				'vulopilot_ai_credits_unreachable',
 				sprintf(

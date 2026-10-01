@@ -24,7 +24,7 @@ interface GroupsResponse {
 }
 
 interface IssuesListProps {
-	/** A real scanner_id/category from NeedsAttentionCard.tsx's own group rows - presets the matching tab and auto-selects that group once loaded. */
+	/** Presets the matching tab and auto-selects that group once loaded. */
 	initialScannerId?: string;
 	initialCategory?: string;
 }
@@ -41,8 +41,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 		initialCategory ? findTabIdForCategory(initialCategory) : 'all'
 	);
 	const [activePriority, setActivePriority] = useState<Priority>('all');
-	// Matches TableCard's own initial `{ paged: 1, per_page: 10 }` state (same reasoning
-	// useApiList.ts's own comment gives).
+	// Matches TableCard's initial { paged: 1, per_page: 10 } state.
 	const [paged, setPaged] = useState(1);
 	const [perPage, setPerPage] = useState(10);
 
@@ -154,9 +153,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 
 	const refetch = () => setReloadToken((n) => n + 1);
 
-	/**
-	 * Same toggle both "More Details" triggers below already did (row click, action-cell button).
-	 */
+	/** Toggles the detail panel open/closed for a group row. */
 	const selectGroup = (group: FindingGroup) => {
 		setSelectedGroup((current) => {
 			if (group.scanner_id === current?.scanner_id) {
@@ -204,7 +201,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 
 	return (
 		<>
-			{/* Real scroll target for AIAssistant.tsx's own "View all issues"/ group-row clicks (NeedsAttentionCard.tsx → `scrollToId('ai-copilot-issues-section')`) - kept INSIDE this grid={8} column rather than as a wrapping element around both of this component's own columns, since a wrapping `<div>` there would put the grid={8}/grid={4} pair inside ITS OWN box instead of the page's shared flex row they're meant to sit side by side in (same real layout bug already fixed once for SchemaKnowledge/IssuesSection.tsx - see that file's own docblock). */}
+			{/* Scroll target for the "View all issues"/group-row navigation. Kept inside this grid={8} column so the grid={8}/grid={4} pair stays in the page's shared flex row. */}
 			<ColumnComponent grid={8}>
 				<div id="ai-copilot-issues-section">
 					<IssuesSummaryCards
@@ -230,8 +227,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 							categoryCounts={tableCategoryCounts}
 							activeCategory={activeTabId}
 							activeRowId={selectedGroup?.scanner_id}
-							// Same toggle the action cell's own "More Details"/"Showing" button
-							// already does.
+							// Toggles the detail panel open/closed.
 							onRowClick={(row: Record<string, unknown>) => {
 								selectGroup(row as unknown as FindingGroup);
 							}}
@@ -286,8 +282,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 							}}
 							rows={data.map((row) => ({
 								...row,
-								// `SCANNER_ICONS[scanner_id]` first, so e.g. Performance's CDN/JavaScript/CSS/Cache rows each get a
-								// distinct icon; `CATEGORY_ICONS[category]` is the fallback (see issuesTypes.ts `issueIconFor()`).
+								// Tries SCANNER_ICONS[scanner_id] first, falls back to CATEGORY_ICONS[category].
 								categoryIcon: issueIconFor(
 									row.category,
 									row.scanner_id
@@ -330,7 +325,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 				</div>
 			</ColumnComponent>
 
-			{/* No right-side detail panel at all while there's genuinely nothing to show detail for - not even the empty "Select an issue" placeholder. */}
+			{/* No detail panel when there's nothing to show. */}
 			{(isLoading || data.length > 0) && (
 				<ColumnComponent grid={4}>
 					<div id="ai-copilot-issue-detail-panel">

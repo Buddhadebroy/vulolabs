@@ -111,8 +111,7 @@ class AiCreditsConnection {
 		$result = $this->post_credits( VULOPILOT_VULOCLOUD_URL, '/plugin/ai/status', $credential['site_id'], $credential['secret'] );
 
 		if ( is_wp_error( $result ) ) {
-			// Offline/unreachable - VuloPilot brief §27: never destroy the
-			// cached balance on a failed sync, just report the real error.
+			// Never destroy the cached balance on a failed sync, just report the error.
 			return new \WP_Error(
 				'vulopilot_ai_credits_unreachable',
 				sprintf(
@@ -193,10 +192,9 @@ class AiCreditsConnection {
 	}
 
 	/**
-	 * Redeems the broker's own single-use exchange `code` (ConnectBrokerCallbackHandler's
-	 * own caller) and, on success.
+	 * Redeems the broker's single-use exchange code and stores the resulting connection.
 	 *
-	 * @param string $code The single-use exchange code from the broker's own return redirect.
+	 * @param string $code Single-use exchange code from the broker's return redirect.
 	 * @return array<string, mixed>|\WP_Error Same shape as get_status().
 	 */
 	public function exchange_broker_code( string $code ) {
@@ -255,9 +253,7 @@ class AiCreditsConnection {
 			)
 		);
 
-		// Immediate first report - without this, the Connected Sites detail page shows
-		// "Syncing…"/blank telemetry until the daily cron eventually fires (SiteTelemetryReporter's
-		// own doc comment).
+		// Immediate first report, so telemetry isn't blank until the daily cron fires.
 		( new SiteTelemetryReporter() )->report( $site_id, $site_secret );
 
 		return $this->get_status();
@@ -305,15 +301,10 @@ class AiCreditsConnection {
 	 * @param string      $site_tone  The `site_tone` setting, or ''.
 	 * @param string      $request_id Idempotency key, stable across retries of this one logical request.
 	 * @param string|null $label      Human task name for the site owner's credit history (e.g. 'Write Meta Title').
-	 * @return array{success: true, request_id: string, response: string, credits_used: float, credits_remaining: float}|\WP_Error {
-	 *   \WP_Error codes:
-	 *   - 'vulopilot_ai_insufficient_credits' (data: credits_remaining, buy_credits_url) - refused
-	 *     BEFORE calling the AI provider; nothing was charged.
-	 *   - 'vulopilot_vulocloud_ai_not_configured' - no AI key is configured for this site's Organization.
-	 *   - 'vulopilot_vulocloud_ai_unreachable'/'vulopilot_vulocloud_ai_busy' - retryable (network, 5xx,
-	 *     429, or this same request still running remotely); safe to retry with the same $request_id.
-	 *   - anything else - a non-retryable gateway failure.
-	 * }
+	 * @return array{success: true, request_id: string, response: string, credits_used: float, credits_remaining: float}|\WP_Error
+	 *   WP_Error codes: 'vulopilot_ai_insufficient_credits' (nothing charged yet),
+	 *   'vulopilot_vulocloud_ai_not_configured', 'vulopilot_vulocloud_ai_unreachable'/'_busy' (safe
+	 *   to retry with the same $request_id), or a non-retryable gateway error.
 	 */
 	public function execute( string $feature, string $prompt, string $site_tone, string $request_id, ?string $label = null ) {
 		if ( '' === trim( VULOPILOT_VULOCLOUD_URL ) ) {
@@ -378,18 +369,14 @@ class AiCreditsConnection {
 			}
 
 			if ( 'CONNECTED_SITE_REVOKED' === $error ) {
-				// VuloCloud no longer recognizes this site's stored credential (e.g. disconnected/
-				// reconnected on the VuloCloud side) - our local option is stale and would otherwise
-				// keep claiming "connected" forever. Clear it so Settings → Connections reflects
-				// reality and offers to reconnect, instead of every AI call failing silently.
+				// Local credential is stale; clear it so Settings → Connections offers to reconnect.
 				delete_option( self::OPTION_KEY );
 
 				return new \WP_Error( 'vulopilot_vulocloud_site_revoked', __( 'This site\'s VuloCloud connection was revoked. Please reconnect under Settings → Connections.', 'vulopilot' ), array( 'status' => $status ) );
 			}
 
 			if ( 409 === $status || 429 === $status || $status >= 500 ) {
-				// Retryable - including 409 "this same requestId is still running": the retry
-				// either replays the finished answer or waits its turn.
+				// Retryable, including 409 "this requestId is still running".
 				return new \WP_Error( 'vulopilot_vulocloud_ai_busy', __( 'VuloCloud could not process this AI request right now.', 'vulopilot' ), array( 'status' => $status ) );
 			}
 
@@ -468,9 +455,7 @@ class AiCreditsConnection {
 	}
 
 	/**
-	 * Shared site-secret-authenticated POST (`/plugin/ai/status`, `/plugin/ai-
-	 * credits/disconnect`) + "completed round trip vs genuine network failure" split -
-	 * authenticated by the site secret alone.
+	 * Shared site-secret-authenticated POST helper for the status/disconnect endpoints.
 	 *
 	 * @param string $base_url The base URL (VULOPILOT_VULOCLOUD_URL).
 	 * @param string $path     e.g. '/plugin/ai/status'.

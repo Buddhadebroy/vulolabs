@@ -127,21 +127,39 @@ const BuiltinAutomationCard = ({
 	isHighlighted,
 }: BuiltinAutomationCardProps) => {
 	const [isRunning, setIsRunning] = useState(false);
+	// Flips immediately on click rather than waiting on the PATCH to finish and the parent's own
+	// refetch to land (2 full round trips) before the switch visually moves - reverted if the PATCH
+	// actually fails. Cleared back to null once a real `row` matching it arrives, so this never
+	// drifts from the server's own truth for longer than the one in-flight request.
+	const [optimisticStatus, setOptimisticStatus] = useState<string | null>(null);
 	const config = parseTriggerConfig(row);
-	const isEnabled = 'enabled' === row.status;
+	const isEnabled = 'enabled' === (optimisticStatus ?? row.status);
 
-	const patch = (data: Record<string, unknown>) => {
+	useEffect(() => {
+		if (optimisticStatus === row.status) {
+			setOptimisticStatus(null);
+		}
+		// Only reacts to the server's own row catching up - never to its own optimisticStatus writes.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [row.status]);
+
+	const patch = (data: Record<string, unknown>, onFailure?: () => void) => {
 		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, `automations/${row.id}`), data).then(
 			(response) => {
 				if (response) {
 					onChanged();
+				} else {
+					onFailure?.();
 				}
 			}
 		);
 	};
 
 	const handleToggle = () => {
-		patch({ status: isEnabled ? 'disabled' : 'enabled' });
+		const nextStatus = isEnabled ? 'disabled' : 'enabled';
+
+		setOptimisticStatus(nextStatus);
+		patch({ status: nextStatus }, () => setOptimisticStatus(row.status));
 	};
 
 	const handleFrequencyChange = (value: string) => {

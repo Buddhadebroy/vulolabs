@@ -6,8 +6,7 @@ use VuloPilot\TechnicalSeo\Scanners\StructuredDataValidationScanner;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real single-page JSON-LD inspection for the "Schema & Knowledge" tab's own Inspector
- * section.
+ * Single-page JSON-LD inspection for the "Schema & Knowledge" tab's Inspector section.
  *
  * @class       SchemaPageInspector class
  * @version     1.0.0
@@ -18,7 +17,7 @@ class SchemaPageInspector {
 	private const REQUEST_TIMEOUT_SECONDS = 8;
 
 	/**
-	 * Fields a real crawler/rich-results consumer expects for each @type.
+	 * Fields a rich-results consumer expects for each @type.
 	 *
 	 * @var array<string, string[]>
 	 */
@@ -33,8 +32,8 @@ class SchemaPageInspector {
 	);
 
 	/**
-	 * @param string $url Real URL to fetch and inspect.
-	 * @return array{url: string, fetched_at: string, types: string[], blocks: array<int, array{index: int, type: string|null, raw: string}>, problems: array<int, array{type: string, block_index: int, field: string, message: string}>, conflicts: array<int, array{type: string, block_indexes: int[]}>, preview: array<string, mixed>|null}|null Null on a real fetch failure.
+	 * @param string $url URL to fetch and inspect.
+	 * @return array{url: string, fetched_at: string, types: string[], blocks: array<int, array{index: int, type: string|null, raw: string}>, problems: array<int, array{type: string, block_index: int, field: string, message: string}>, conflicts: array<int, array{type: string, block_indexes: int[]}>, preview: array<string, mixed>|null}|null Null on fetch failure.
 	 */
 	public function inspect( string $url ): ?array {
 		$response = wp_remote_get(
@@ -69,7 +68,7 @@ class SchemaPageInspector {
 				continue;
 			}
 
-			// Same 3 real shapes SchemaCoverageAnalyzer::extract_types_from_url() already handles.
+			// A JSON-LD block may be one object, a @graph of several, or an array of objects.
 			$is_list    = array_keys( $decoded ) === range( 0, count( $decoded ) - 1 );
 			$candidates = isset( $decoded['@graph'] ) && is_array( $decoded['@graph'] )
 				? $decoded['@graph']
@@ -143,7 +142,7 @@ class SchemaPageInspector {
 
 	/**
 	 * @param string $field e.g. 'offers'.
-	 * @return string e.g. 'Availability' - only the handful of fields this class actually checks need a mapping.
+	 * @return string e.g. 'Availability'.
 	 */
 	private static function humanize_field( string $field ): string {
 		$labels = array(
@@ -161,8 +160,7 @@ class SchemaPageInspector {
 	}
 
 	/**
-	 * Every field individually optional - a missing one is reported as genuinely absent on
-	 * the frontend, never backfilled with a placeholder.
+	 * Every field is optional; a missing one is left null rather than backfilled.
 	 *
 	 * @param string               $type      'Product'|'Article'|'BlogPosting'.
 	 * @param array<string, mixed> $candidate Decoded JSON-LD object.

@@ -60,17 +60,11 @@ export interface Finding extends TableRow {
 	fix_action_id?: string | null;
 }
 
-/**
- * What a registered fix handler resolves to - Free displays this itself (see
- * getFindingFixHandler's own docblock for why the handler can't just show its own notice) rather
- * than caring what actually happened.
- */
-
 export const getFindingFixHandler = () =>
 	applyFilters('vulopilot_finding_fix_handler', null);
 
 /**
- * @return unknown A function(ids: number[]): Promise<FixOutcome>, or null when no fix handler is available.
+ * @return A function(ids: number[]): Promise<FixOutcome>, or null when no fix handler is available.
  */
 const getFindingBulkFixHandler = () =>
 	applyFilters('vulopilot_finding_bulk_fix_handler', null);
@@ -127,7 +121,7 @@ export const useFindingsTable = ({
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
 	const [viewingFinding, setViewingFinding] = useState<Finding | null>(null);
 
-	/** Every finding status, in display order - reused for both the status-count pill bar and (previously) the status dropdown filter it now replaces. */
+	/** Every finding status, in display order, for the status-count pill bar. */
 	const statusOptions = [
 		{ label: __('Open', 'vulopilot'), value: 'open' },
 		{ label: __('Resolved', 'vulopilot'), value: 'resolved' },
@@ -135,10 +129,7 @@ export const useFindingsTable = ({
 		{ label: __('Snoozed', 'vulopilot'), value: 'snoozed' },
 	];
 
-	/**
-	 * Critical/Important/Minor - a display-only relabeling of the same real `high`/`medium`/`low`
-	 * priority buckets `get_finding_groups()`'s own stat tiles already use elsewhere.
-	 */
+	/** Display labels for the high/medium/low priority buckets. */
 	const priorityOptions = [
 		{ label: __('Critical', 'vulopilot'), value: 'high' },
 		{ label: __('Important', 'vulopilot'), value: 'medium' },
@@ -162,8 +153,7 @@ export const useFindingsTable = ({
 		'findings',
 		{
 			category,
-			// Comma-joined, not an array - useApiList's params are plain string|number values (see
-			// its own JSDoc).
+			// Comma-joined, not an array - useApiList's params are plain string|number values.
 			scanner_id: scannerIds?.length ? scannerIds.join(',') : undefined,
 		},
 		pillConfig
@@ -236,10 +226,7 @@ export const useFindingsTable = ({
 	const handleReopen = (row?: Record<string, unknown>) =>
 		handleSetStatus(row, 'open', __('Finding reopened.', 'vulopilot'));
 
-	/**
-	 * "Manual Actions Only": runs through ActionRegistry/ManualActionRunner (`POST
-	 * /findings/{id}/actions/snooze-finding`) rather than a plain PATCH.
-	 */
+	/** Runs through ManualActionRunner rather than a plain status PATCH. */
 	const handleSnooze = (row?: Record<string, unknown>) => {
 		if (!row) {
 			return;
@@ -265,10 +252,7 @@ export const useFindingsTable = ({
 		});
 	};
 
-	/**
-	 * "Fix" - always visible (register a source, don't modify the host - see
-	 * getFindingFixHandler's own docblock above).
-	 */
+	/** "Fix" is always visible; falls back to the Pro upsell popup with no handler registered. */
 	const handleFix = (row?: Record<string, unknown>) => {
 		const findingFixHandler = getFindingFixHandler();
 
@@ -333,8 +317,7 @@ export const useFindingsTable = ({
 					icon: 'clock',
 					onClick: handleSnooze,
 				},
-				// Always visible - Free itself has no AI-action-to-scanner mapping or fix REST call
-				// (see getFindingFixHandler's own docblock above).
+				// Always visible, even with no fix handler registered.
 				{
 					label: __('Fix', 'vulopilot'),
 					icon: 'tools',
@@ -344,9 +327,6 @@ export const useFindingsTable = ({
 		},
 	};
 
-	/**
-	 * "Transparent" TableCard story shape (zyra Storybook, `table-tablecard --transparent`).
-	 */
 	const compactHeaders: Record<string, any> = {
 		title: {
 			key: 'title',
@@ -359,8 +339,6 @@ export const useFindingsTable = ({
 		},
 		action: {
 			label: __('Action', 'vulopilot'),
-			// Native `type: 'action'` + `type: 'button'` actions (TableRowActions.tsx) instead of
-			// a hand-built `BadgeComponent` in `render`.
 			type: 'action',
 			actions: [
 				{
@@ -410,16 +388,12 @@ export const useFindingsTable = ({
 			return {
 				...row,
 				descriptionText,
-				// `defaultHeaders.title`'s own avatar - color baked into the icon string (real zyra
-				// `$color-palette` utility class, see SeoTab.tsx's own `icon: 'name colorword'`
-				// convention).
+				// Color is baked into the icon string (zyra `$color-palette` utility class convention).
 				defaultTitleIcon:
 					row.severity === 'low' || row.severity === 'info'
 						? 'info blue'
 						: 'error red',
 				defaultTitleBadges: [
-					// Same real category tag the compact layout's own `compactTitleBadges` already
-					// shows.
 					...(category
 						? []
 						: [
@@ -430,11 +404,9 @@ export const useFindingsTable = ({
 							]),
 					{ text: row.status, color: `badge-${row.status}` },
 					{ text: row.severity, color: `blue` },
-					// Replaces the now-removed standalone "Detected" date column.
 					{ text: formatWpDate(row.created_at), color: '' },
 				],
-				// `compactHeaders.title`'s own avatar - same real icon, but tinted via a real color
-				// (`iconColorKey`) instead of a baked-in class word.
+				// Same icon as defaultTitleIcon, tinted via iconColorKey instead of a baked-in class word.
 				compactTitleIcon:
 					row.severity === 'low' || row.severity === 'info'
 						? 'info'

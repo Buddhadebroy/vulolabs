@@ -57,24 +57,8 @@ class Scans extends \WP_REST_Controller {
 	/**
 	 * @inheritDoc
 	 *
-	 * `scanner_id` (comma-separated, e.g. `ssl-monitoring` or
-	 * `core-file-integrity,integrity-monitoring`) plus `orderby`/`order` -
-	 * same `parse_comma_separated_list()` shape `create_item()` already uses
-	 * for `category` below, added so a tile that only cares about one
-	 * scanner group's own most recent run (e.g. "last scan time" on a
-	 * summary card) can ask for `?scanner_id=...&status=completed&
-	 * per_page=1&orderby=finished_at&order=desc` instead of paging through
-	 * every scan run to find it client-side.
-	 *
-	 * `category` (comma-separated, e.g. `security,accessibility`) - the
-	 * same real category → scanner-ids mapping `create_item()`'s own
-	 * `ScanRunner::run_category()` already resolves via
-	 * `ScannerRegistry::get_scanners_by_category()`, resolved here instead
-	 * so a category page's own header "Last scan: …" text
-	 * (useRunScan.ts/useLastScanTime.ts) can ask by the same real category
-	 * it scans by, rather than every caller having to know and hardcode
-	 * that category's own raw scanner ids. Merges with any explicit
-	 * `scanner_id` also given, rather than one replacing the other.
+	 * Accepts comma-separated `scanner_id` and/or `category` params (merged together)
+	 * plus `orderby`/`order`, so callers can scope results without paging client-side.
 	 */
 	public function get_items( $request ) {
 		$repository  = new ScanRepository();
@@ -108,29 +92,9 @@ class Scans extends \WP_REST_Controller {
 	/**
 	 * @inheritDoc
 	 *
-	 * `category` (comma-separated, e.g. `security,accessibility`) scopes
-	 * the run to just those categories via ScanRunner::run_category() -
-	 * a category page's own header "Run scan" button passes its own
-	 * category set here instead of always running every registered
-	 * scanner, same `parse_comma_separated_list` shape
-	 * Findings::get_items()'s own `category`/`scanner_id` params already
-	 * use. Takes precedence over `scanner_id` when both are present;
-	 * omitting `category` keeps every existing caller (Dashboard's Run
-	 * Audit widget, Health.tsx's own "Run scan") working exactly as
-	 * before.
-	 *
-	 * Every call into this endpoint is treated as a real, user-initiated
-	 * "Run scan" click (`$force = true` passed to the runner) unless the
-	 * caller explicitly marks itself `trigger_type=scheduled` - this repo
-	 * has no cron path in Free that calls this REST route at all today
-	 * (see ScanRunner's own docblock), so the default matches every
-	 * existing caller (useRunScan.ts always sends `trigger_type: 'manual'`)
-	 * without a param even being required. Without this, a scanner that
-	 * self-rate-limits independently of the shared scan cadence
-	 * (BrokenLinksScanner/BrokenImagesScanner's own `due_to_run()`) would
-	 * silently no-op on a manual click that happened to land inside its
-	 * own configured "daily"/"weekly" window - exactly the "scan starts
-	 * but doesn't detect anything new" bug this fixes.
+	 * Comma-separated `category` scopes the run via ScanRunner::run_category() and takes
+	 * precedence over `scanner_id`. Treated as a forced, user-initiated run unless the
+	 * caller sends `trigger_type=scheduled`, so rate-limited scanners still run on demand.
 	 */
 	public function create_item( $request ) {
 		$force      = 'scheduled' !== sanitize_key( (string) $request->get_param( 'trigger_type' ) );
@@ -174,8 +138,7 @@ class Scans extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Same shape as Findings::parse_comma_separated_list() - a single
-	 * value (no comma) still round-trips correctly as a one-element array.
+	 * Parses a comma-separated request param.
 	 *
 	 * @param mixed $raw_param Raw comma-separated request param.
 	 * @return string[]|null Sanitized values, or null when the param was empty/absent.

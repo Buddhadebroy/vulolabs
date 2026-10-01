@@ -15,8 +15,7 @@ use VuloPilot\AiAssistant\AIResponse;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The existing-content-rewrite pattern: unlike GenerateAltAction's single postmeta value,
- * this replaces a post's entire `post_content`.
+ * Rewrites a post's entire `post_content` for readability.
  *
  * @class       ImproveReadabilityAction class
  * @version     1.0.0

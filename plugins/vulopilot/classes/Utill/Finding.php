@@ -55,8 +55,7 @@ final class Finding {
 	private array $meta;
 
 	/**
-	 * @var string|null A stable identity for this finding, independent of
-	 *                  `$title`'s exact text, used for dedupe matching.
+	 * @var string|null Stable identity for dedupe matching, independent of `$title`'s text.
 	 */
 	private ?string $dedupe_key;
 
@@ -68,25 +67,8 @@ final class Finding {
 	 * @param string|null $object_type What kind of thing this finding is about, if any.
 	 * @param string|null $object_ref  Reference to the specific object, if any.
 	 * @param array       $meta        Arbitrary scanner-specific extra data.
-	 * @param string|null $dedupe_key  A stable per-scanner identity for this
-	 *                                 finding to match on across rescans,
-	 *                                 for a scanner whose `$title` bakes in
-	 *                                 a live, scan-to-scan-fluctuating value
-	 *                                 (a word count, a score, a byte size, a
-	 *                                 count) that would otherwise defeat
-	 *                                 FindingRepository::find_open_duplicate()'s
-	 *                                 exact-`title`-match fallback - see
-	 *                                 that method's own docblock. Left
-	 *                                 `null` (the default) for every scanner
-	 *                                 whose title is already a stable
-	 *                                 identifying value on its own (a URL, a
-	 *                                 file path, a fixed name) or that can
-	 *                                 legitimately emit more than one
-	 *                                 Finding for the same `object_type`/
-	 *                                 `object_ref` in a single `scan()` call
-	 *                                 (dedupe then still falls back to
-	 *                                 matching the full `title`, exactly as
-	 *                                 before this param existed).
+	 * @param string|null $dedupe_key  Stable identity for matching across rescans when `$title`
+	 *                                 contains a fluctuating value (word count, score, etc.).
 	 */
 	public function __construct(
 		string $title,

@@ -13,18 +13,13 @@ export interface ChatComposerCardProps<TTurn = unknown> {
 	cardDesc?: ReactNode;
 	cardAction?: ReactNode;
 	cardClassName?: string;
-	/**
-	 * Wraps the body in AiCopilotGuard (the shared "AI Copilot is turned off" fallback).
-	 */
+	/** Wraps the body in AiCopilotGuard (the shared "AI Copilot is turned off" fallback). */
 	guarded?: boolean;
-	/** A custom header rendered above everything else, for cards whose title isn't a plain CardComponent `title` (AutomationComposerCard's own `h2`). */
+	/** A custom header rendered above everything else, for cards whose title isn't a plain CardComponent `title`. */
 	header?: ReactNode;
 	/** A static first turn (e.g. a greeting), rendered before `turns`. */
 	welcome?: ReactNode;
-	/**
-	 * A centered "nothing sent yet" placeholder (icon + heading + subtitle, typically) rendered on
-	 * its own - NOT wrapped in a `ChatMessage` bubble.
-	 */
+	/** A centered "nothing sent yet" placeholder, rendered on its own instead of a `ChatMessage` bubble. */
 	emptyState?: ReactNode;
 	turns?: TTurn[];
 	 
@@ -34,17 +29,13 @@ export interface ChatComposerCardProps<TTurn = unknown> {
 	sendingLabel?: string;
 	sendingAvatarIcon?: string;
 	sendingSpinnerClassName?: string;
-	/**
-	 * The fully-built `ChatInput` element.
-	 */
+	/** The fully-built `ChatInput` element. */
 	composer: ReactNode;
 	/** Whether `composer` renders before or after the welcome/turns block. */
 	composerPosition?: 'before-turns' | 'after-turns';
-	/** Extra content rendered right before the composer - e.g. ChatTab's "Try asking me…" label, attachment/context chips, attach/context panels. */
+	/** Extra content rendered right before the composer - e.g. a label, attachment/context chips, attach/context panels. */
 	beforeComposer?: ReactNode;
-	/**
-	 * The fully-built prompt-pills element.
-	 */
+	/** The fully-built prompt-pills element. */
 	prompts?: ReactNode;
 	note?: ReactNode;
 }

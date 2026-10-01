@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
 class Install {
 
 	/**
-	 * Class constructor - runs migration immediately.
+	 * Class constructor - runs the install immediately.
 	 */
 	public function __construct() {
 		$this->install();

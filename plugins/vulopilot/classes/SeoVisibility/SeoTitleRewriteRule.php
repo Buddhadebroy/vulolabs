@@ -91,8 +91,7 @@ class SeoTitleRewriteRule extends AbstractBasicRule {
 	 * @inheritDoc
 	 */
 	public function applies_to( Finding $finding ): bool {
-		// 13 more scanners share the 'seo' category alongside the original SeoScanner this rule
-		// was written for.
+		// Matches any scanner's Finding carrying a `title_length` meta key.
 		return 'seo' === $finding->get_category() && array_key_exists( 'title_length', $finding->get_meta() );
 	}
 

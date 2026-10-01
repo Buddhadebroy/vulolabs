@@ -37,7 +37,7 @@ export interface AiChatCardProps<TTurn> {
 	renderTurn: (turn: TTurn, index: number) => ReactNode;
 	isSending?: boolean;
 	sendingSpinnerClassName?: string;
-	/** Whether `composer` renders before or after the turns block - GEO's Overview composer puts it first, matching that page's own mockup order. */
+	/** Whether `composer` renders before or after the turns block. */
 	composerPosition?: 'before-turns' | 'after-turns';
 	/** Extra content rendered right before the composer - attachment/context chips, toggleable picker panels, a pending-chip question, etc.. */
 	beforeComposer?: ReactNode;
@@ -46,9 +46,6 @@ export interface AiChatCardProps<TTurn> {
 	note?: ReactNode;
 }
 
-/**
- * Turn rendering stays a `renderTurn` callback rather than being folded in here too.
- */
 const AiChatCard = <TTurn,>({
 	guarded = true,
 	sendingAvatarIcon = 'person',

@@ -37,8 +37,7 @@ class PageSpeedRepository extends RepositoryUtil {
 	protected array $searchable_columns = array( 'title', 'url' );
 
 	/**
-	 * Score, inclusive, at/above which a page counts as "Good" -
-	 * same real band this codebase's own mockup education copy states.
+	 * Score, inclusive, at/above which a page counts as "Good".
 	 */
 	public const SCORE_GOOD = 80;
 
@@ -49,8 +48,7 @@ class PageSpeedRepository extends RepositoryUtil {
 	public const SCORE_NEEDS_IMPROVEMENT = 50;
 
 	/**
-	 * Score, exclusive upper bound, below which a "Poor"/'slow' page is real enough of an
-	 * outlier to also count as "Very Slow".
+	 * Score, exclusive upper bound, below which a "Poor" page also counts as "Very Slow".
 	 */
 	public const SCORE_VERY_SLOW = 25;
 

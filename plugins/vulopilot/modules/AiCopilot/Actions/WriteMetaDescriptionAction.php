@@ -45,7 +45,7 @@ class WriteMetaDescriptionAction extends AbstractBasicAction {
 	}
 
 	/**
-	 * Impact::LOW - Rewrites `post_excerpt` only (this codebase's meta-description field) - one narrow, easily-reverted field, never `post_content`.
+	 * Impact::LOW - rewrites `post_excerpt` only, never `post_content`.
 	 *
 	 * @inheritDoc
 	 */
@@ -60,8 +60,7 @@ class WriteMetaDescriptionAction extends AbstractBasicAction {
 		$post_id = absint( $input['post_id'] ?? 0 );
 		$post    = $post_id ? get_post( $post_id ) : null;
 
-		// Matches PostSeoMetaFields::POST_TYPES - the metabox's own "Fix with AI" description
-		// button (Checklist.tsx) is the one real caller that can hand this a product id.
+		// Matches PostSeoMetaFields::POST_TYPES.
 		if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true ) ) {
 			VuloPilotException::raise( esc_html__( 'post_id must refer to an existing post, page, or product.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
 		}

@@ -28,12 +28,8 @@ class AiRequestSender {
 	private const MAX_REQUESTS_PER_MINUTE = 20;
 
 	/**
-	 * Total attempts including the first; the delay doubles after each failure. Was 4 (up to
-	 * 1s+2s+4s = 7s of pure backoff on top of the failed attempts themselves) - a chat reply
-	 * already waits on one real, non-streamed AI generation; a doomed request piling on 7
-	 * more seconds of silent waiting before it can even report the honest "VuloCloud is busy"
-	 * made every failure feel far worse than the retry was worth. One retry, half the delay,
-	 * still gives a genuinely transient blip a real second chance.
+	 * Total attempts including the first; the delay doubles after each failure.
+	 * Kept low since a chat reply already waits on one non-streamed AI generation.
 	 */
 	private const MAX_ATTEMPTS = 2;
 
@@ -46,8 +42,7 @@ class AiRequestSender {
 	private const EXCERPT_MAX_LENGTH = 300;
 
 	/**
-	 * Regex patterns matching common API-key shapes - see validate_prompt()'s
-	 * own docblock for why this is deliberately conservative, not exhaustive.
+	 * Regex patterns matching common API-key shapes. Deliberately conservative, not exhaustive.
 	 *
 	 * @var string[]
 	 */
@@ -151,8 +146,7 @@ class AiRequestSender {
 	}
 
 	/**
-	 * Only a TYPE_TRANSIENT_GATEWAY failure is retried - a TYPE_GATEWAY_REQUEST (malformed
-	 * request), TYPE_VULOCLOUD_AI_NOT_CONFIGURED.
+	 * Only a TYPE_TRANSIENT_GATEWAY failure is retried; other exception types are rethrown immediately.
 	 *
 	 * @param array<int, array{role: string, content: string}> $messages Chat-style prompt messages.
 	 * @param string|null                                      $surface    Optional real feature label.
@@ -187,8 +181,7 @@ class AiRequestSender {
 	}
 
 	/**
-	 * A WP transient as a lightweight per-minute counter - the existing WP
-	 * mechanism for "a value that should expire on its own", not a new cache.
+	 * Uses a WP transient as a lightweight per-minute request counter.
 	 *
 	 * @return void
 	 *
@@ -224,8 +217,7 @@ class AiRequestSender {
 	 * @throws VuloPilotException TYPE_INSUFFICIENT_CREDITS, TYPE_VULOCLOUD_AI_NOT_CONFIGURED, TYPE_TRANSIENT_GATEWAY (retried) or TYPE_GATEWAY_REQUEST.
 	 */
 	private function call_gateway( array $messages, ?string $surface, ?string $label, string $request_id ): AIResponse {
-		// Lives in the flat `vulopilot_settings` option (General tab's own
-		// "Site tone" field, autosaved) - see UtillHelper::VULOPILOT_SETTINGS_DEFAULTS.
+		// General tab's "Site tone" field, autosaved to the vulopilot_settings option.
 		$settings = wp_parse_args( (array) get_option( UtillHelper::VULOPILOT_SETTINGS_KEY, array() ), UtillHelper::VULOPILOT_SETTINGS_DEFAULTS );
 
 		$result = $this->credits_connection->execute(

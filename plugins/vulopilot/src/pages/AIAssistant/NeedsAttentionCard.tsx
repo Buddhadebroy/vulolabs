@@ -13,10 +13,7 @@ import {
 import { ButtonInput } from '@zyra/inputs';
 import './AICopilot.scss';
 
-/**
- * Narrow local slice of `/dashboard`'s real aggregate payload (same endpoint
- * OverallScoreWidget.tsx/SecurityStatusCard.tsx already read).
- */
+/** Narrow local slice of /dashboard's aggregate payload. */
 interface DashboardSummary {
 	overall_score: number;
 	open_findings: number;
@@ -41,10 +38,7 @@ interface NeedsAttentionCardProps {
 
 type ScoreTone = 'green' | 'orange' | 'red';
 
-/**
- * One shared 3-band split for both the ring's own descriptive rating and each category row's
- * colored number.
- */
+/** Shared 3-band split used by the ring and each category row's color. */
 const getScoreTone = (score: number): ScoreTone => {
 	if (score >= 75) {
 		return 'green';
@@ -55,7 +49,7 @@ const getScoreTone = (score: number): ScoreTone => {
 	return 'red';
 };
 
-// Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`).
+// Zyra palette hex (@zyra/core's COLOR_PALETTE).
 const TONE_COLOR: Record<ScoreTone, string> = {
 	green: COLOR_PALETTE.green,
 	orange: COLOR_PALETTE.orange,
@@ -104,8 +98,7 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 
 	useEffect(load, []);
 
-	// The Issues table is inline on the page now (appended below the composer), not a separate
-	// 'issues' nav tab.
+	// The Issues table is inline on the page, not a separate 'issues' nav tab.
 	const goToAllIssues = () => onNavigateTab('chat');
 
 	const overallTone = summary ? getScoreTone(summary.overall_score) : 'green';
@@ -161,12 +154,11 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 			) : (
 				<>
 					<div className="overall-score-summary">
-						{/* Same `type="ring"` ChartComponent + TypographyComponent centerLabel structure every other real score ring in this app now uses (OverallScoreWidget.tsx/SeoTab.tsx/ CrawlerAnalyticsSection.tsx/etc.), instead of this card's own now-removed ScoreRingComponent usage. */}
+						{/* Same ring + centerLabel structure used by other score rings in this app. */}
 						<ChartComponent
 							type="ring"
 							height={200}
-							// Top-level `color` - `type="ring"` only ever paints its stroke from
-							// this prop.
+							// type="ring" only paints its stroke from this top-level color prop.
 							color={TONE_COLOR[overallTone]}
 							centerLabel={
 								<>
@@ -199,7 +191,7 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 						</div>
 					</div>
 
-					{/* Same `ListComponent` + "mini-card report" variant this card's own old group rows used (and most other cards across this plugin - TopIssuesToWorkOn.tsx, StoreIntelligenceSummaryCard.tsx, etc. - already reuse it too): icon on the left, `tags` pinned to the right (ListComponent.scss's own `.report .tags`), which is exactly this row's icon+label…score shape without hand-rolling a new row layout. */}
+					{/* Reuses the mini-card report ListComponent variant other cards use. */}
 					<ListComponent
 						className="mini-card report without-border"
 						items={scoreRows.map((row) => {

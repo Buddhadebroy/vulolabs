@@ -201,13 +201,9 @@ class PageSpeedInsightsFetcher {
 	}
 
 	/**
-	 * @param string $api_key  Real PSI API key.
+	 * @param string $api_key  PSI API key.
 	 * @param string $strategy 'mobile' or 'desktop'.
-	 * @return int|null 0-100, or null if the request failed (including
-	 *                  because today's `psi_daily_limit` was already hit -
-	 *                  the daily cron respects the same real quota Test
-	 *                  Connection does, checked here rather than only in
-	 *                  `test_connection()` so cron calls are covered too).
+	 * @return int|null 0-100, or null if the request failed or the daily quota was hit.
 	 */
 	private function fetch_score( string $api_key, string $strategy ): ?int {
 		$settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );

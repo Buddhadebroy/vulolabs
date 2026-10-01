@@ -38,8 +38,7 @@ class History extends \WP_REST_Controller {
 	);
 
 	/**
-	 * See ActivityLogRepository::find_actions_in_window()'s own docblock
-	 * for why this can be tight rather than a same-day heuristic.
+	 * Window for matching an AI action to the conversation turn that triggered it.
 	 */
 	private const RELATED_ACTION_WINDOW_SECONDS = 30;
 
@@ -59,9 +58,7 @@ class History extends \WP_REST_Controller {
 			)
 		);
 
-		// Zyra's sendApiResponse() (src/services/useApiList.ts and every other AI Copilot
-		// delete/apply action this session) always issues a plain POST regardless of semantic
-		// intent.
+		// Zyra's sendApiResponse() always issues a plain POST regardless of semantic intent.
 		register_rest_route(
 			VuloPilot()->rest_namespace,
 			'/' . $this->rest_base . '/(?P<id>\d+)',
@@ -99,8 +96,7 @@ class History extends \WP_REST_Controller {
 		$page         = absint( $request->get_param( 'page' ) );
 		$per_page     = absint( $request->get_param( 'per_page' ) );
 
-		// 'automations' is a real filter pill the client always sends, but has no backing (see
-		// class docblock).
+		// 'automations' is a filter pill the client always sends, but has no backing data.
 		if ( 'automations' === $category ) {
 			return rest_ensure_response(
 				array(
@@ -111,8 +107,7 @@ class History extends \WP_REST_Controller {
 			);
 		}
 
-		// 'conversation' is a real filter pill too now, but a distinct source table
-		// (`vulopilot_ai_history`, not `vulopilot_activity_logs`).
+		// 'conversation' reads from a distinct source table (vulopilot_ai_history).
 		if ( 'conversation' === $category ) {
 			$result = $history_repo->get_conversations(
 				array(
@@ -168,11 +163,8 @@ class History extends \WP_REST_Controller {
 	}
 
 	/**
-	 * The 'all' tab's real timeline: activity_logs (scan + change) and ai_history
-	 * (conversation) merged and ordered together by `created_at`, not one source's rows
-	 * only. A plain UNION ALL of both tables' ids, so pagination and ordering are decided
-	 * in SQL rather than by merging two independently-paginated PHP arrays (which can't be
-	 * kept correctly ordered once a page boundary falls between the two sources).
+	 * The 'all' tab's timeline: activity_logs and ai_history merged via UNION ALL and
+	 * ordered by created_at, so pagination stays correct across both sources.
 	 *
 	 * @param array{search?: string, date_from?: string, date_to?: string, page?: int, per_page?: int, around_id?: int} $args
 	 * @return array{data: array<int, array<string, mixed>>, total: int, pages_loaded: int}
@@ -249,11 +241,8 @@ class History extends \WP_REST_Controller {
 		$pages_loaded = $page;
 		$around_id    = absint( $args['around_id'] ?? 0 );
 
-		// A deep link (`?vulopilot_history_id=`) always points at an activity_logs row
-		// (RecentActivityCard.tsx/RecentActivityWidget.tsx only ever link into scan/change
-		// rows, never a conversation) - find how many rows across BOTH sources are newer,
-		// the same "how many pages down" math get_pages_down_to() does for one table, and jump
-		// straight there with a plain chronological union (no quota - see below).
+		// A deep link always points at an activity_logs row. Count how many rows across
+		// both sources are newer and jump straight to that page.
 		if ( $around_id > 0 ) {
 			$target_created_at = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- the query is prepared.
 				$wpdb->prepare( "SELECT created_at FROM %i WHERE {$log_where} AND id = %d", $log_table, ...array_merge( $log_values, array( $around_id ) ) ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- same runtime-sized-array case as above.
@@ -299,13 +288,8 @@ class History extends \WP_REST_Controller {
 			);
 		}
 
-		// No deep link: reserve a small quota of slots per page for conversations, rather
-		// than a strict global chronological union. A single "Run scan" logs one row per
-		// scanner (two for security-scoped ones - see maybe_log_security_scan_activity()),
-		// so a pure time-ordered merge lets one scan bury every conversation for as many
-		// pages as it took rows - correct by the clock, but it means the 'all' tab can look
-		// like it never has conversations in it. Reserving real estate for the rarer source
-		// keeps both visible together without hiding either one.
+		// Reserve a small per-page quota for conversations, since a single scan can log
+		// many rows and would otherwise bury conversations for pages at a time.
 		$conversation_quota = max( 1, (int) round( $per_page * 0.2 ) );
 
 		$ai_offset  = 0;
@@ -368,9 +352,8 @@ class History extends \WP_REST_Controller {
 	}
 
 	/**
-	 * One page's worth of (ai_take, log_take) under get_combined_timeline()'s quota: up to
-	 * `$conversation_quota` conversation rows, the rest from the log - unless one source is
-	 * exhausted, in which case the other gets the leftover slots.
+	 * One page's worth of (ai_take, log_take) under get_combined_timeline()'s quota. Gives
+	 * leftover slots to whichever source isn't exhausted.
 	 *
 	 * @param int $per_page           Rows per page.
 	 * @param int $conversation_quota This page's conversation reservation, before checking what's left.

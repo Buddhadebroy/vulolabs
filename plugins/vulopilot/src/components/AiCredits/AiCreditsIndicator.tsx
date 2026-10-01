@@ -8,9 +8,7 @@ import { INSUFFICIENT_CREDITS_EVENT } from './insufficientCredits';
 import { VuloCloudInlineNotice } from '../Popup/Popup';
 import './AiCreditsIndicator.scss';
 
-/**
- * The persistent "⚡ N AI Credits" indicator (architecture plan §21).
- */
+/** The persistent "⚡ N AI Credits" indicator. */
 const AiCreditsIndicator = () => {
 	const { status, isLoading, refresh } = useAiCredits();
 	const [isOpen, setIsOpen] = useState(false);

@@ -30,7 +30,7 @@ import './IssueDetailPanel.scss';
 interface BatchFixOutcome extends Omit<FixOutcome, 'noFixAvailable'> {
 	succeeded?: number;
 	total?: number;
-	/** The bulk handler's own real per-batch count - a number, unlike FixOutcome's own `noFixAvailable`, which is this file's final "never fixable" verdict (see runBulkFixInBatches()'s own return statements). */
+	/** Per-batch no-fix count, distinct from FixOutcome's final verdict. */
 	noFixAvailable?: number;
 }
 
@@ -56,12 +56,7 @@ interface FindingRow {
 const MAX_AFFECTED_ITEMS_SHOWN = 20;
 
 /**
- * Where clicking an affected item (in the "Affected items" list) should open. Prefers the live
- * front-end page (`row.page`, already a site-relative path from `Findings::add_page_field()`) so
- * the user sees the actual rendered issue in context - the point for review-only findings like
- * WCAG link text, which isn't visible from the editor. Falls back to WordPress's own
- * `post.php?post={id}&action=edit` screen when there's no page (e.g. site-wide checks) but the
- * row is still a real post/attachment.
+ * Prefers the live front-end page, falls back to the post edit screen.
  *
  * @param row A FindingRow (or FindingGroup.sample, same shape).
  * @return The URL to open, or undefined if this row has no obvious target.
@@ -85,10 +80,7 @@ const getAffectedItemLink = (
 	return `${vulopilotAppLocalizer.site_url}/wp-admin/post.php?post=${encodeURIComponent(row.object_ref)}&action=edit`;
 };
 
-/**
- * Section label per real `object_type` - same noun set formatAffected() already uses for the bare
- * count line.
- */
+/** Section label per `object_type`. */
 const AFFECTED_ITEMS_LABEL: Record<string, string> = {
 	user: __('Affected accounts', 'vulopilot'),
 	post: __('Affected pages', 'vulopilot'),
@@ -102,9 +94,6 @@ const AFFECTED_ITEMS_LABEL: Record<string, string> = {
 	site: __('Affected checks', 'vulopilot'),
 };
 
-/**
- * Same registration FindingsTable.tsx's own bulk "Fix selected" reads.
- */
 const getFindingBulkFixHandler = () =>
 	applyFilters('vulopilot_finding_bulk_fix_handler', null);
 
@@ -123,9 +112,6 @@ interface IssueDetailPanelProps {
 	onActionComplete: (event?: { group: FindingGroup; fixed: boolean }) => void;
 }
 
-/**
- * Performance findings are one exception to "no scanner writes that copy" above.
- */
 const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	group,
 	onActionComplete,
@@ -139,8 +125,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	const [isLoadingAffected, setIsLoadingAffected] = useState(false);
 	// Result of the last action, rendered by Pro's view right above the action buttons.
 	const { show: showPanelNotice, fixNotice, isUnfixable } = useFixNotice(() => group && onActionComplete({ group, fixed: false }));
-	// The panel stays mounted while another issue is selected: clear the previous issue's result,
-	// and ignore a result that arrives after the selection moved on.
+	// Tracks the selected issue so a late-arriving result doesn't apply after selection changes.
 	const activeScannerId = useRef<string | undefined>(group?.scanner_id);
 
 	useEffect(() => {
@@ -166,10 +151,8 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		setIsLoadingAffected(true);
 		setAffectedItems(null);
 
-		// Scoped by object_type too, not just scanner_id - a scanner like WordPressHealthScanner
-		// legitimately reports several unrelated finding types (inactive plugins, REST
-		// availability, HTTPS status, ...) under one scanner_id, and this group's own count/sample
-		// only describe one of them (see FindingRepository::get_finding_groups()'s own docblock).
+		// Scoped by object_type too, not just scanner_id - one scanner can report several
+		// unrelated finding types under the same scanner_id.
 		const objectTypeParam = group.object_type
 			? `&object_type=${encodeURIComponent(group.object_type)}`
 			: '';
@@ -230,12 +213,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		}
 	})();
 
-	/**
-	 * Real, scanner-specific remediation steps - see this file's own top docblock. Two sources,
-	 * tried in order: a performance scanner's own `meta.recommended_fix` (computed per-finding,
-	 * e.g. exact autoloaded option names), then Pro's scanner_id-keyed `no_fix_steps` (written
-	 * once per scanner, covers every other "no automatic fix" category).
-	 */
+	/** Per-finding `meta.recommended_fix` if present, else Pro's per-scanner `no_fix_steps`. */
 	const recommendedFixSteps: string[] = Array.isArray(
 		sampleMeta?.recommended_fix
 	)
@@ -287,7 +265,6 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				<div className="issue-detail-pro-gate-dummy" aria-hidden="true">
 					{dummyContent}
 				</div>
-				{/* Same reasoning as `showTag` above - the action row's own * call (showTag=false) sits directly under "Affected items"' * own gated section. */}
 				{showTag && <DummyDataNotice />}
 				<div
 					className="issue-detail-pro-gate-overlay"
@@ -306,13 +283,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		);
 	};
 
-	/**
-	 * The group response only ever carries a `count` + one sample row, not every individual
-	 * finding id. Scoped by `object_type` too, not just `scanner_id` - same reasoning as the
-	 * "Affected items" fetch above (a scanner can legitimately report several unrelated finding
-	 * types under one scanner_id), otherwise this bulk-updates every open finding for the whole
-	 * scanner, not just this group's.
-	 */
+	/** Fetches every finding id for this group, scoped by object_type like the fetch above. */
 	const fetchGroupIds = (
 		scannerId: string,
 		objectType: string | null
@@ -740,10 +711,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 													'noopener,noreferrer'
 												)
 											: undefined,
-										// Explicit visible link, since `action` alone (the whole row
-										// being clickable) has no visual affordance of its own.
-										// `stopPropagation` avoids double-opening via the row's
-										// own `action` above.
+										// Visible link affordance; stopPropagation avoids double-opening via the row's action.
 										tags: pageLink ? (
 											<a
 												href={pageLink}
@@ -863,11 +831,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					<ButtonInput
 						position="full-width"
 						buttons={[
-							// Known, either from the group data itself (no scanner-to-fix mapping
-							// exists at all - e.g. Performance's cache/CDN/minification checks) or
-							// from the last click (isUnfixable), that this kind of issue has no
-							// automatic fix - keep showing why (fixNotice, above) but stop offering
-							// a button that can only fail the same way again.
+							// No automatic fix exists for this issue; don't offer a button that can only fail again.
 							...(isUnfixable || !group.fix_action_id
 								? []
 								: [

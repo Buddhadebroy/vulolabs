@@ -10,8 +10,7 @@ use VuloPilot\Utill\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /dashboard - the summary object the Dashboard page's widgets read (src/dashboard-
- * widgets/registry.ts's DashboardSummary interface).
+ * GET /dashboard - the summary object the Dashboard page's widgets read.
  *
  * @class       Dashboard controller
  * @version     1.0.0
@@ -70,8 +69,6 @@ class Dashboard extends \WP_REST_Controller {
 				'category_scores'          => $category_scores,
 				'psi_speed_scores'         => $this->build_psi_speed_scores(),
 				'category_scores_7d_ago'   => $this->build_category_scores_as_of( $findings, gmdate( 'Y-m-d H:i:s', strtotime( '-7 days' ) ) ),
-				// Dashboard's "Good / N open findings" hero badges - real counts from findings' own
-				// created_at/resolved_at.
 				'new_findings_this_week'   => $findings->count_created_since( gmdate( 'Y-m-d H:i:s', strtotime( '-7 days' ) ) ),
 				'fixed_findings_this_week' => $findings->count_resolved_since( gmdate( 'Y-m-d H:i:s', strtotime( '-7 days' ) ) ),
 				'quick_fixes'              => $this->count_quick_fixes( $findings ),
@@ -148,13 +145,8 @@ class Dashboard extends \WP_REST_Controller {
 			? $this->calculate_category_score( $findings, 'woocommerce' )
 			: null;
 
-		// Content Intelligence's "Content Score" - deliberately NOT one of the single-category loop
-		// above.
 		$scores['content'] = $this->calculate_content_score( $findings );
-
-		// Brand Intelligence's overall "Brand Score" - same cross-scanner-id-list scope as
-		// 'content' above.
-		$scores['brand'] = $this->calculate_brand_score( $findings );
+		$scores['brand']   = $this->calculate_brand_score( $findings );
 
 		return $scores;
 	}
@@ -205,14 +197,9 @@ class Dashboard extends \WP_REST_Controller {
 	}
 
 	/**
-	 * The weighting formula shared by the overall, category, content and brand scores, so
-	 * past and current breakdowns are scored identically. Logarithmic (not linear) per-tier
-	 * penalty: a linear `count * weight` saturates the whole score to 0 once a single category
-	 * has roughly a dozen high-severity findings, making it useless for distinguishing "a dozen
-	 * problems" from "hundreds of problems" on a real site's first scan. `log(1 + n)` keeps the
-	 * same relative severity ordering (critical worse than high worse than medium/low) but grows
-	 * far more slowly, so the score degrades gracefully across the realistic range instead of
-	 * flooring almost immediately.
+	 * Shared weighting formula for the overall, category, content and brand scores.
+	 * Uses log(1 + n) instead of a linear penalty, so one category with many findings
+	 * doesn't flatten the whole score to 0.
 	 *
 	 * @param array{critical: int, high: int, medium: int, low: int} $breakdown Severity counts to score.
 	 * @return int 0-100.

@@ -16,8 +16,7 @@ defined( 'ABSPATH' ) || exit;
 class RobotsTxtManager {
 
 	/**
-	 * Real, persisted admin-authored robots.txt override - empty/absent means "use
-	 * WordPress core's own virtual output," same as before this option existed.
+	 * Admin-authored robots.txt override; empty/absent falls back to WordPress's default output.
 	 */
 	private const CUSTOM_CONTENT_OPTION = 'vulopilot_custom_robots_txt';
 
@@ -66,7 +65,7 @@ class RobotsTxtManager {
 	}
 
 	/**
-	 * @param string $content Real new override content - '' clears it, reverting to WordPress core's own virtual robots.txt.
+	 * @param string $content New override content; '' clears it.
 	 * @return void
 	 */
 	public function save_custom_content( string $content ): void {

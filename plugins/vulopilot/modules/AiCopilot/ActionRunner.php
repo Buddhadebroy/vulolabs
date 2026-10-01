@@ -47,12 +47,12 @@ class ActionRunner {
 
 
 	/**
-	 * @param ActionRegistry             $registry           Registry to resolve action ids from.
-	 * @param AiRequestSender          $request_sender      Sends a prompt through the safety-validate → send → sanitize sequence.
-	 * @param ActionRunRepository|null   $runs           Defaults to a new instance (injectable for tests).
-	 * @param ActivityLogRepository|null $activity_logs Defaults to a new instance (injectable for tests).
-	 * @param AiCreditGatewayClient|null $credit_gateway Defaults to a new instance (injectable for tests).
-	 * @param AiCreditsConnection|null   $credits_connection Defaults to a new instance (injectable for tests).
+	 * @param ActionRegistry             $registry           Action id registry.
+	 * @param AiRequestSender          $request_sender      Sends prompts through validate → send → sanitize.
+	 * @param ActionRunRepository|null   $runs           Defaults to a new instance.
+	 * @param ActivityLogRepository|null $activity_logs Defaults to a new instance.
+	 * @param AiCreditGatewayClient|null $credit_gateway Defaults to a new instance.
+	 * @param AiCreditsConnection|null   $credits_connection Defaults to a new instance.
 	 */
 	public function __construct(
 		ActionRegistry $registry,
@@ -71,8 +71,7 @@ class ActionRunner {
 	}
 
 	/**
-	 * Stages 1-4: validates input, builds and safety-checks the prompt, sends it through
-	 * the AI request sender, validates and previews the result.
+	 * Validates input, sends the prompt, then validates and previews the result.
 	 *
 	 * @param string               $action_id  e.g. 'generate-alt'.
 	 * @param array<string, mixed> $raw_input Raw input (REST params, or built from a Recommendation).
@@ -132,12 +131,12 @@ class ActionRunner {
 	/**
 	 * Gets the AI completion for a proposed action.
 	 *
-	 * @param string                             $action_id Real, registered action id.
-	 * @param \VuloPilot\Utill\AIActionInterface $action    Same instance get_action_or_fail() already resolved.
-	 * @param array                              $input     validate_input()'s own normalized output.
+	 * @param string                             $action_id Registered action id.
+	 * @param \VuloPilot\Utill\AIActionInterface $action    Resolved action instance.
+	 * @param array                              $input     Normalized input.
 	 * @return \VuloPilot\AiAssistant\AIResponse
 	 *
-	 * @throws VuloPilotException If the site owner's credits can't cover the request, or the AI request fails.
+	 * @throws VuloPilotException If credits can't cover the request, or the AI request fails.
 	 * @throws \RuntimeException  If no AI connection is configured.
 	 */
 	private function send_prompt_or_credits( string $action_id, $action, array $input ): AIResponse {
@@ -175,8 +174,8 @@ class ActionRunner {
 	/**
 	 * Builds the structured context for a credit-metered action.
 	 *
-	 * @param string $action_id Real, registered action id - always one of CREDIT_FEATURE_MAP's own keys.
-	 * @param array  $input     validate_input()'s own normalized output for that same action.
+	 * @param string $action_id Action id, a key of CREDIT_FEATURE_MAP.
+	 * @param array  $input     Normalized input for that action.
 	 * @return array<string, mixed>
 	 */
 	private function build_credit_context( string $action_id, array $input ): array {
@@ -220,8 +219,7 @@ class ActionRunner {
 	}
 
 	/**
-	 * @param string $risk_level One of Impact::LOW/MEDIUM/HIGH - the
-	 *                           proposal's own AIActionInterface::get_risk_level().
+	 * @param string $risk_level One of Impact::LOW/MEDIUM/HIGH.
 	 * @return bool
 	 */
 	private function should_auto_approve( string $risk_level ): bool {
@@ -240,29 +238,12 @@ class ActionRunner {
 	}
 
 	/**
-	 * Stage 6: applies a previously proposed, still-pending action.
+	 * Applies a previously proposed, still-pending action.
 	 *
 	 * @param int    $run_id A propose()-returned run_id.
-	 * @param string $method 'manual' (a human clicked Approve - the only way
-	 *                       this was ever called before Automate Work's
-	 *                       Auto-fix mode and Approval Settings' risk-based/
-	 *                       "Do not ask" modes), 'auto_automation'
-	 *                       (an automation calling this
-	 *                       immediately after propose(), gated on Automate
-	 *                       Work's own automation_mode setting), or
-	 *                       'auto_unattended' (propose() calling this on
-	 *                       itself via should_auto_approve(), gated on
-	 *                       Approval Settings' ai_change_approval_mode
-	 *                       setting) - the latter two both mean no human
-	 *                       was involved at all: `approved_by` is left null
-	 *                       rather than attributing it to whichever user id
-	 *                       happens to own the request context, and
-	 *                       `approval_method` is persisted with its exact
-	 *                       value so History can honestly say *which* of
-	 *                       the two unattended paths actually applied the
-	 *                       change, instead of a single generic "auto"
-	 *                       that would imply automation even when nothing
-	 *                       automated was involved.
+	 * @param string $method 'manual', 'auto_automation', or 'auto_unattended'. For the
+	 *                       latter two, `approved_by` is left null since no human was
+	 *                       involved, and the exact method is persisted for History.
 	 * @return array<string, mixed> ActionExecutionResult::to_array().
 	 *
 	 * @throws \RuntimeException If $run_id doesn't exist or isn't pending approval.
@@ -312,8 +293,7 @@ class ActionRunner {
 	}
 
 	/**
-	 * Stage 5's negative outcome - declines a pending action without
-	 * ever calling execute().
+	 * Declines a pending action without calling execute().
 	 *
 	 * @param int $run_id A propose()-returned run_id.
 	 * @return void
@@ -329,7 +309,7 @@ class ActionRunner {
 	}
 
 	/**
-	 * Stage 7: reverts a previously executed action.
+	 * Reverts a previously executed action.
 	 *
 	 * @param int $run_id A propose()-returned, subsequently approve()'d run_id.
 	 * @return void

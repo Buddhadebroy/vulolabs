@@ -15,10 +15,15 @@ const AiSalesOptimizerCard = ({
 
 	return (
 		<>
-			<span className="admin-tag pro-tag">
-				<i className="adminfont-pro-tag" />
-				{__('Pro', 'vulopilot')}
-			</span>
+			{/* Only shown while this card is still in its locked (`!data`) state below - once the
+			 * WooCommerce Intelligence module is actually active and showing real opportunities,
+			 * the "Pro" label is just noise for a site owner who already has it unlocked. */}
+			{!isLoading && !data && (
+				<span className="admin-tag pro-tag">
+					<i className="adminfont-pro-tag" />
+					{__('Pro', 'vulopilot')}
+				</span>
+			)}
 			<CardComponent
 				id="ai-sales-optimizer-card"
 				className="ai-sales-optimizer-card"

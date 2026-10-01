@@ -40,6 +40,7 @@ export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
 	const [ keywordDraft, setKeywordDraft ] = useState( '' );
 
 	/** vulopilot-pro's own "Suggest Titles" button + popup. */
+	// eslint-disable-next-line no-unused-vars
 	const SuggestTitlesButton = useFilterSlot< ComponentType< { postId: number; onApply: ( title: string ) => void } > >(
 		'vulopilot_seo_title_suggestions_button'
 	);

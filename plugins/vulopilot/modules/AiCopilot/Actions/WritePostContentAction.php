@@ -40,7 +40,7 @@ class WritePostContentAction extends AbstractBasicAction {
 	}
 
 	/**
-	 * Impact::HIGH - Replaces the post's entire `post_content` body wholesale - the widest single-post blast radius this plugin's AI actions have.
+	 * Impact::HIGH - replaces the post's entire `post_content` body wholesale.
 	 *
 	 * @inheritDoc
 	 */

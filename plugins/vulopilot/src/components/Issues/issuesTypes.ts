@@ -9,7 +9,7 @@ export interface FindingSample {
 	object_type: string | null;
 	object_ref: string | null;
 	created_at: string;
-	/** Same "last reconfirmed by a scan" field IssueDetailPanel.tsx's own FindingRow carries - see that interface's own docblock. */
+	/** When this finding was last reconfirmed by a scan. */
 	last_seen_at?: string;
 	/** Resolved page path or 'Site-wide' - added server-side by Findings.php's add_page_field(). */
 	page?: string;
@@ -39,7 +39,7 @@ export interface FindingGroup {
 	no_fix_reason?: string | null;
 	/** The real admin screen no_fix_reason points at, when one exists. */
 	no_fix_link?: { url: string; label: string } | null;
-	/** Step-by-step version of no_fix_reason, when written for this scanner_id - shown as a numbered "Recommended fix" list instead of the plain reason paragraph. */
+	/** Step-by-step version of no_fix_reason, shown as a numbered "Recommended fix" list when present. */
 	no_fix_steps?: string[] | null;
 }
 
@@ -65,11 +65,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
 	'php-warnings': 'Site Health',
 };
 
-/**
- * The Issues table's category tab bar - each tab folds one or more real `category` DB values into
- * one mockup-matching tab (e.g. "SEO & Visibility" covers 'seo'/'images'/'schema'/'links', the
- * same grouping getCategoryTabLink.ts's own CATEGORY_TAB_LINKS already uses for navigation).
- */
+/** The Issues table's category tab bar - each tab folds several `category` DB values into one tab. */
 export const CATEGORY_TABS: { id: string; label: string; categories: string[] }[] = [
 	{ id: 'seo', label: 'SEO & Visibility', categories: ['seo', 'images', 'schema', 'links'] },
 	{ id: 'ai-visibility', label: 'AI Visibility', categories: ['geo', 'brand'] },
@@ -121,10 +117,7 @@ export const SCANNER_ICONS: Record<string, string> = {
 	'slow-pages': 'analytics violet',
 };
 
-/**
- * `SCANNER_ICONS[scanner_id]` first (several real scanners inside one real category otherwise all
- * render the same glyph - see that map's own docblock).
- */
+/** Prefers SCANNER_ICONS[scannerId]; several scanners share a category and would otherwise render the same glyph. */
 export const issueIconFor = (
 	category: string,
 	scannerId: string

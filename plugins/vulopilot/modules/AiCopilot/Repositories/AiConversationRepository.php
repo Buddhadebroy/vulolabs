@@ -43,8 +43,7 @@ class AiConversationRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Lightweight rows for the "Recent conversations" list - `title`/ `updated_at` only,
-	 * never decoding every row's full `turns` blob just to render a list.
+	 * Returns only `title`/`updated_at` - avoids decoding every row's `turns` blob for a list.
 	 *
 	 * @param int $user_id Only this user's own conversations.
 	 * @param int $limit   Max rows to return.
@@ -76,8 +75,7 @@ class AiConversationRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Same real rows get_recent() returns, plus a real `excerpt` - the conversation's own
-	 * first user turn, read from its `turns` JSON blob.
+	 * Same rows as get_recent(), plus an `excerpt` from the first user turn in `turns`.
 	 *
 	 * @param int $user_id Only this user's own conversations.
 	 * @param int $limit   Max rows to return - keep small; each row decodes its own `turns` blob.
@@ -152,8 +150,7 @@ class AiConversationRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * One full conversation, `turns` already decoded - ownership-checked, same as
-	 * append_turns() below.
+	 * One full conversation, `turns` already decoded; ownership-checked.
 	 *
 	 * @param int $id      vulopilot_ai_conversations.id.
 	 * @param int $user_id Must match the row's own `user_id`.
@@ -187,11 +184,10 @@ class AiConversationRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Starts a new conversation - `title` derived here from the real first
-	 * user message rather than trusted from any caller-supplied label.
+	 * Starts a new conversation; `title` is derived from the first message, not caller-supplied.
 	 *
 	 * @param int               $user_id      Owning user.
-	 * @param string            $first_message The conversation's first, real user message.
+	 * @param string            $first_message The conversation's first user message.
 	 * @param array<int, mixed> $turns        Full turns array (already includes the first user turn and its reply).
 	 * @return int New conversation id.
 	 */
@@ -210,8 +206,8 @@ class AiConversationRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Appends to an existing conversation - ownership-checked directly in the UPDATE's own
-	 * WHERE clause (not a separate find_full() call first) so this stays a single query.
+	 * Appends to an existing conversation; ownership is checked in the UPDATE's WHERE
+	 * clause to keep this a single query.
 	 *
 	 * @param int               $id      vulopilot_ai_conversations.id.
 	 * @param int               $user_id Must match the row's own `user_id`.

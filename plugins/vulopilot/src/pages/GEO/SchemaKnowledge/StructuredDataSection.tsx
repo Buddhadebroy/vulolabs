@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { scrollToId } from '@zyra/core';
 import {
 	CardComponent,
@@ -296,9 +296,17 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 							<span className="desc">
 								{sprintf(
 									/* translators: 1: how many of the real sampled pages carried this schema type, 2: how many of those had a real problem. */
-									__('Found on %1$d pages · %2$d problems', 'vulopilot'),
-									selectedRow.found_on,
-									selectedRow.problems
+									__('Found on %1$s · %2$s', 'vulopilot'),
+									sprintf(
+										/* translators: %d: number of pages. */
+										_n('%d page', '%d pages', selectedRow.found_on, 'vulopilot'),
+										selectedRow.found_on
+									),
+									sprintf(
+										/* translators: %d: number of problems. */
+										_n('%d problem', '%d problems', selectedRow.problems, 'vulopilot'),
+										selectedRow.problems
+									)
 								)}
 							</span>
 						</div>
@@ -345,7 +353,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 						)}
 
 						<div className="schema-detail-pages-heading">
-							{__('Issues on these pages', 'vulopilot')}
+							{__('Schema issues on these pages', 'vulopilot')}
 						</div>
 
 						{0 === selectedIssues.length ? (

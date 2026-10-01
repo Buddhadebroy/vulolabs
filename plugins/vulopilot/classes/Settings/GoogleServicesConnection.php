@@ -6,7 +6,7 @@ use VuloPilot\AiAssistant\CredentialEncryption;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real Google OAuth 2.0 connection shared by Search Console, Analytics (GA4), and AdSense.
+ * Google OAuth 2.0 connection shared by Search Console, Analytics (GA4), and AdSense.
  *
  * @class       GoogleServicesConnection class
  * @version     1.0.0
@@ -17,8 +17,7 @@ class GoogleServicesConnection {
 	private const OPTION_KEY = 'vulopilot_google_connection';
 
 	/**
-	 * One combined consent screen for all three services - matching the reference flow's
-	 * own single "Connect Google Services" button.
+	 * One combined consent screen for all three services.
 	 */
 	private const SCOPES = array(
 		'https://www.googleapis.com/auth/webmasters.readonly',
@@ -39,9 +38,7 @@ class GoogleServicesConnection {
 	private const EXPIRY_SAFETY_MARGIN = 60;
 
 	/**
-	 * Every real SPA destination Google's own redirect
-	 * (GoogleSearchConsoleOAuthCallbackHandler::handle_callback()) is allowed to land back
-	 * on.
+	 * SPA destinations the OAuth redirect is allowed to land back on.
 	 */
 	private const RETURN_TARGETS = array( 'settings', 'keywords' );
 
@@ -64,8 +61,7 @@ class GoogleServicesConnection {
 				'adsense_account_id'   => '',
 				'adsense_account_name' => '',
 				'connected_at'         => '',
-				// 'direct' (embedded shared Client) or 'broker' - which path actually issued the
-				// current tokens.
+				// 'direct' or 'broker' - which path issued the current tokens.
 				'via'                  => '',
 			)
 		);
@@ -90,8 +86,7 @@ class GoogleServicesConnection {
 	}
 
 	/**
-	 * Whether VuloLabs has actually configured a real shared Client ID/Secret for this
-	 * build yet (see config.php's own docblock).
+	 * Whether a shared Client ID/Secret is configured for this build.
 	 *
 	 * @return bool
 	 */
@@ -220,8 +215,7 @@ class GoogleServicesConnection {
 	}
 
 	/**
-	 * Real `POST https://oauth2.googleapis.com/token` authorization_code exchange - the
-	 * actual OAuth handshake, not a stub.
+	 * POSTs the authorization_code exchange to Google's token endpoint.
 	 *
 	 * @param string $code The `code` query param Google's redirect carried back.
 	 * @return true|\WP_Error
@@ -308,8 +302,7 @@ class GoogleServicesConnection {
 	}
 
 	/**
-	 * Real `refresh_token` grant - called by `get_valid_access_token()` whenever the
-	 * stored access token is expired (or about to be).
+	 * Runs the refresh_token grant when the stored access token is expired or about to be.
 	 *
 	 * @return bool
 	 */
@@ -407,9 +400,7 @@ class GoogleServicesConnection {
 	}
 
 	/**
-	 * Whether a real refresh token is on file - the one durable signal that this site has
-	 * actually completed the OAuth handshake at least once (an access token alone always
-	 * eventually expires; the refresh token is what makes the connection long-lived).
+	 * Whether a refresh token is on file, the durable signal the OAuth handshake completed.
 	 *
 	 * @return bool
 	 */
@@ -418,7 +409,7 @@ class GoogleServicesConnection {
 	}
 
 	/**
-	 * Real `GET https://www.googleapis.com/webmasters/v3/sites` call.
+	 * GET https://www.googleapis.com/webmasters/v3/sites call.
 	 *
 	 * @return array<int, array{site_url: string, permission_level: string}>|\WP_Error
 	 */
@@ -527,8 +518,6 @@ class GoogleServicesConnection {
 
 		return array(
 			'connected'              => $this->is_connected(),
-			// Whether VuloLabs' own shared Google Cloud OAuth Client is configured for this build
-			// (config.php).
 			'has_client_credentials' => $this->has_client_credentials(),
 			'has_broker'             => $this->has_broker(),
 			'search_console_site'    => $connection['search_console_site'],
@@ -540,8 +529,7 @@ class GoogleServicesConnection {
 			'adsense_account_id'     => $connection['adsense_account_id'],
 			'adsense_account_name'   => $connection['adsense_account_name'],
 			'connected_at'           => $connection['connected_at'],
-			// The exact URL the site owner must register as an "Authorized redirect URI" on their
-			// Google Cloud OAuth Client.
+			// URL to register as the "Authorized redirect URI" on the Google Cloud OAuth Client.
 			'redirect_uri'           => $this->get_redirect_uri(),
 		);
 	}

@@ -15,11 +15,7 @@ interface InfoBannerProps {
 	onDismiss?: () => void;
 }
 
-/**
- * Shared full-width illustrated banner - real `info-banner-bg.png` (the gradient/dot-pattern
- * background) + `info-banner.png` (the right-side server/shield illustration), same asset pair the
- * mockup this replaces `BackupProtectionNotice.tsx`'s own plain `NoticeComponent` with.
- */
+/** Shared full-width illustrated banner with a background pattern and right-side illustration. */
 const InfoBanner: React.FC<InfoBannerProps> = ({
 	icon = 'info',
 	title,

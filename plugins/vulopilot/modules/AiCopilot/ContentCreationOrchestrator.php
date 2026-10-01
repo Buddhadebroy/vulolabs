@@ -13,8 +13,7 @@ use VuloPilot\AiAssistant\AIResponse;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The shared "parse an orchestrator's JSON decision, then really create the content" half
- * of what used to be ContentAssistant.php alone.
+ * Parses an orchestrator's JSON decision and creates the content it describes.
  *
  * @class       ContentCreationOrchestrator class
  * @version     1.0.0

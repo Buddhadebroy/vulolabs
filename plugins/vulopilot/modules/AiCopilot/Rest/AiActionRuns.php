@@ -101,11 +101,8 @@ class AiActionRuns extends \WP_REST_Controller {
 	/**
 	 * @inheritDoc
 	 *
-	 * Also requires the real AI Copilot module (see
-	 * modules/AiCopilot/Module.php's own docblock) - shared by propose/
-	 * approve/reject/rollback, since every one of those is "AI
-	 * functionality" requirement #4 says must not execute while that
-	 * module is off, not just the generation step.
+	 * Also requires the AI Copilot module to be active - shared by propose/approve/
+	 * reject/rollback, not just the generation step.
 	 */
 	public function update_item_permissions_check( $request ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
