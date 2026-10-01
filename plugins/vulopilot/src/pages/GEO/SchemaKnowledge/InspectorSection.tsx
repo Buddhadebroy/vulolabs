@@ -22,14 +22,14 @@ import { RobotsTxtEditor } from '../CrawlRobotsSitemapSection';
 const TYPE_COLOR: Record<string, string> = {
 	post: 'blue',
 	page: 'indigo',
-	product: 'green',
-	homepage: 'orange',
+	product: 'purple',
+	homepage: 'green',
 };
 const TYPE_ICON: Record<string, string> = {
-	post: 'document',
-	page: 'document',
-	product: 'product',
-	homepage: 'home',
+	post: 'blog blue',
+	page: 'document indigo',
+	product: 'product purple',
+	homepage: 'home green',
 };
 
 interface InspectablePage {

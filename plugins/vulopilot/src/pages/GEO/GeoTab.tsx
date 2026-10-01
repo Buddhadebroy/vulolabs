@@ -90,7 +90,7 @@ const GeoTab = () => {
 		<ContainerComponent>
 			<GeoScoreSection onSelectSignal={goToIssuesTable} />
 
-			<ColumnComponent grid={analyzingPostId ? 8 : 12}>
+			<ColumnComponent grid={8}>
 				<IssuesSection
 					id="geo-all-issues-table"
 					scannerIds={allGeoScannerIds}

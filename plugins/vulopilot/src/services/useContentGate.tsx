@@ -96,13 +96,14 @@ export const useContentGate = (
 					<BlurredProContent
 						contentClassName="content-gate-dummy-content"
 						onClick={handleActivate}
-						icon={isVuloCloud ? 'cloud-upload purple' : undefined}
+						icon={isVuloCloud ? 'cloud-upload orange' : undefined}
 						title={isVuloCloud ? __('Connect to VuloCloud', 'vulopilot') : undefined}
 						desc={
 							isVuloCloud
 								? __('Connect your account to see real, live data here.', 'vulopilot')
 								: undefined
 						}
+						buttonColor="orange-bg"
 						buttonText={isVuloCloud ? __('Connect to VuloCloud', 'vulopilot') : undefined}
 					>
 						{isVuloCloud ? realContent : dummyContent}
