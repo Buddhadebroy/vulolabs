@@ -9,6 +9,8 @@ interface OverlayCopy {
 	title?: string;
 	desc?: string;
 	buttonText?: string;
+	/** `admin-btn` modifier for the CTA (e.g. `purple-bg`, `orange-bg`). Defaults to `purple-bg`. */
+	buttonColor?: string;
 }
 
 export const UpgradeToProOverlay = ({
@@ -17,6 +19,7 @@ export const UpgradeToProOverlay = ({
 	title = __('Upgrade to Pro', 'vulopilot'),
 	desc = __('Unlock the full VuloPilot toolkit', 'vulopilot'),
 	buttonText = __('Upgrade to pro', 'vulopilot'),
+	buttonColor = 'purple-bg',
 }: { onClick?: () => void } & OverlayCopy) => (
 	<div
 		className="pro-section-wrapper"
@@ -41,7 +44,7 @@ export const UpgradeToProOverlay = ({
 			<div className="title">{title}</div>
 			<span>{desc}</span>
 			<div
-				className="admin-btn btn-purple-bg"
+				className={`admin-btn btn-${buttonColor}`}
 				role={onClick ? 'button' : undefined}
 				tabIndex={onClick ? 0 : undefined}
 				onKeyDown={(event) => {

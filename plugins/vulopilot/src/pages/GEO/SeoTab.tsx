@@ -282,7 +282,7 @@ const SeoTab = () => {
 			<ColumnComponent grid={6} fullHeight>
 				<SeoProgressCard />
 			</ColumnComponent>
-			<ColumnComponent grid={analyzingPostId ? 8 : 12}>
+			<ColumnComponent grid={8}>
 				{/* SEO's own thin, defaults-only wrapping of the generalized * IssuesSection.tsx. */}
 				<IssuesSection
 					id="seo-all-issues-table"

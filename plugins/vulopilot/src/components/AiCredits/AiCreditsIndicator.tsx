@@ -5,12 +5,30 @@ import { NoticeComponent, PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { formatCredits, useAiCredits } from '../../services/useAiCredits';
 import { INSUFFICIENT_CREDITS_EVENT } from './insufficientCredits';
-import { VuloCloudInlineNotice } from '../Popup/Popup';
+import { useConnectVuloCloud } from '../../services/useConnectVuloCloud';
 import './AiCreditsIndicator.scss';
 
-/** The persistent "⚡ N AI Credits" indicator. */
+/**
+ * The persistent "⚡ N AI Credits" indicator (architecture plan §21).
+ *
+ * Not connected: the button starts the real VuloCloud OAuth connect flow
+ * directly (`useConnectVuloCloud`'s own `handleConnect`) - no popup. It used
+ * to open a `PopupComponent` around `VuloCloudInlineNotice` (a single small
+ * notice card), which only ever needed a fraction of that popup's own fixed
+ * `width={35}`/`height="fit-content"` box - leaving a large empty white
+ * area beneath the real content. There's nothing else for that popup to
+ * show, so this is the "Connect to VuloCloud" action itself, not a second
+ * confirmation step in front of it.
+ *
+ * Connected: the button still opens the real balance panel, now as a real
+ * `position="slide-right-to-left"` anchored panel (zyra's own `PopupPosition`
+ * - same variant panel-style popups elsewhere in this plugin use) instead of
+ * a full-screen dimmed lightbox, since this is a small panel anchored to its
+ * own header button, not a modal dialog.
+ */
 const AiCreditsIndicator = () => {
 	const { status, isLoading, refresh } = useAiCredits();
+	const { isConnecting, handleConnect } = useConnectVuloCloud();
 	const [isOpen, setIsOpen] = useState(false);
 
 	useEffect(() => {
@@ -27,34 +45,37 @@ const AiCreditsIndicator = () => {
 		<div className="ai-credits-indicator">
 			<ButtonInput
 				buttons={{
-					text: `⚡ ${status.connected
-							? sprintf(
-								/* translators: %s: real remaining AI Credit balance, e.g. "76.550". */
-								__('%s AI Credits', 'vulopilot'),
-								formatCredits(status.credits)
-							)
-							: __('Claim free AI Credits', 'vulopilot')
-						}`,
+					text: status.connected
+						? `⚡ ${sprintf(
+							/* translators: %s: real remaining AI Credit balance, e.g. "76.550". */
+							__('%s AI Credits', 'vulopilot'),
+							formatCredits(status.credits)
+						)}`
+						: isConnecting
+							? __('Connecting…', 'vulopilot')
+							: `⚡ ${__('Claim free AI Credits', 'vulopilot')}`,
 					color: 'orange-bg',
-					onClick: () => setIsOpen(!isOpen),
+					disabled: isConnecting,
+					onClick: status.connected
+						? () => setIsOpen(!isOpen)
+						: handleConnect,
 				}}
 			/>
 
-			<PopupComponent
-				width={35}
-				height="fit-content"
-				open={isOpen}
-				onClose={() => setIsOpen(false)}
-			>
-				{status.connected ? (
+			{status.connected && (
+				<PopupComponent
+					width={35}
+					height="fit-content"
+					position="slide-right-to-left"
+					open={isOpen}
+					onClose={() => setIsOpen(false)}
+				>
 					<AiCreditsBalancePanel
 						status={status}
 						onRefresh={refresh}
 					/>
-				) : (
-					<VuloCloudInlineNotice />
-				)}
-			</PopupComponent>
+				</PopupComponent>
+			)}
 		</div>
 	);
 };

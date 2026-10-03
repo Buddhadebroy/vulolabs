@@ -5,6 +5,8 @@ import {
 	ColumnComponent,
 	ModuleGuardComponent,
 	NoticeComponent,
+	FormGroupWrapperComponent,
+	FormGroupComponent
 } from '@zyra/components';
 import { ButtonInput, ToggleInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
@@ -22,14 +24,14 @@ import { RobotsTxtEditor } from '../CrawlRobotsSitemapSection';
 const TYPE_COLOR: Record<string, string> = {
 	post: 'blue',
 	page: 'indigo',
-	product: 'green',
-	homepage: 'orange',
+	product: 'purple',
+	homepage: 'green',
 };
 const TYPE_ICON: Record<string, string> = {
-	post: 'document',
-	page: 'document',
-	product: 'product',
-	homepage: 'home',
+	post: 'blog blue',
+	page: 'document indigo',
+	product: 'product purple',
+	homepage: 'home green',
 };
 
 interface InspectablePage {
@@ -243,17 +245,17 @@ const InspectorSection = ({
 										type: 'button',
 										label: (row) =>
 											(row as unknown as InspectablePage).url ===
-											selectedUrl
+												selectedUrl
 												? __('Inspecting', 'vulopilot')
 												: __('Inspect', 'vulopilot'),
 										color: (row) =>
 											(row as unknown as InspectablePage).url ===
-											selectedUrl
+												selectedUrl
 												? 'text-green'
 												: 'text-purple',
 										icon: (row) =>
 											(row as unknown as InspectablePage).url ===
-											selectedUrl
+												selectedUrl
 												? 'eye'
 												: 'pagination-next-arrow',
 										onClick: (row) =>
@@ -353,204 +355,197 @@ const InspectorSection = ({
 						)}
 
 						{result && (
-							<div className="schema-inspector-result">
-							<ColumnComponent grid={6}>
-								<div className="schema-inspector-result-heading">
-									{__('Detected schema', 'vulopilot')}
-								</div>
-								{0 === result.types.length ? (
-									<div className="desc">
-										{__(
-											'No structured data (JSON-LD) was found on this page.',
-											'vulopilot'
-										)}
-									</div>
-								) : (
-									<ul className="schema-inspector-check-list">
-										{result.types.map((type) => (
-											<li key={type}>
-												<i className="adminfont-check schema-inspector-check-icon--good" />
-												<span>{type}</span>
-											</li>
-										))}
-									</ul>
-								)}
-							</ColumnComponent>
+							<FormGroupWrapperComponent>
+								<FormGroupComponent row label={__('Detected schema', 'vulopilot')}>
+									{0 === result.types.length ? (
+										<div className="desc">
+											{__(
+												'No structured data (JSON-LD) was found on this page.',
+												'vulopilot'
+											)}
+										</div>
+									) : (
+										<ul className="schema-inspector-check-list">
+											{result.types.map((type) => (
+												<li key={type}>
+													<i className="adminfont-check schema-inspector-check-icon--good" />
+													<span>{type}</span>
+												</li>
+											))}
+										</ul>
+									)}
+								</FormGroupComponent>
 
-							<ColumnComponent grid={6}>
-								<div className="schema-inspector-result-heading">
-									{sprintf(
+								<FormGroupComponent
+									label={sprintf(
 										/* translators: %d is how many real problems were found in this page's structured data. */
 										__('Problems found (%d)', 'vulopilot'),
 										result.problems.length
 									)}
-								</div>
-								{0 === result.problems.length ? (
-									<div className="desc">
-										{__(
-											'No missing-field problems detected in this page’s structured data.',
-											'vulopilot'
-										)}
-									</div>
-								) : (
-									<ul className="schema-inspector-check-list">
-										{result.problems.map((problem, index) => (
-											<li key={index}>
-												<i className="adminfont-alarm schema-inspector-check-icon--warn" />
-												<span>{problem.message}</span>
-											</li>
-										))}
-									</ul>
-								)}
-							</ColumnComponent>
-
-						{result.problems.length > 0 && (
-							<button
-								type="button"
-								className="schema-view-pages-link schema-inspector-view-problems"
-								onClick={() => scrollToId('schema-knowledge-issues')}
-							>
-								{__('View problems', 'vulopilot')}
-								<i className="adminfont-arrow-right" />
-							</button>
-						)}
-
-						<div className="schema-inspector-result-heading">
-							{sprintf(
-								/* translators: %d is how many real duplicate/conflicting schema blocks were found on this page. */
-								__('Conflicts detected (%d)', 'vulopilot'),
-								result.conflicts.length
-							)}
-						</div>
-						{0 === result.conflicts.length ? (
-							<div className="desc">
-								{__(
-									'No duplicate or conflicting schema output detected on this page.',
-									'vulopilot'
-								)}
-							</div>
-						) : (
-							<ul className="schema-inspector-check-list">
-								{result.conflicts.map((conflict) => (
-									<li key={conflict.type}>
-										<i className="adminfont-error schema-inspector-check-icon--bad" />
-										<span>
-											{sprintf(
-												/* translators: 1: schema.org @type, e.g. "Product", 2: number of JSON-LD blocks on this page sharing that type. */
-												__(
-													'%1$d separate "%2$s" blocks were found on this page - search engines may only use one.',
-													'vulopilot'
-												),
-												conflict.block_indexes.length,
-												conflict.type
-											)}
-										</span>
-									</li>
-								))}
-							</ul>
-						)}
-
-						{result.preview && (
-							<>
-								<div className="schema-inspector-result-heading">
-									{__('Quick preview', 'vulopilot')}
-								</div>
-								<div className="schema-inspector-preview">
-									<div className="schema-inspector-preview-title">
-										{result.preview.title ||
-											__(
-												'Not found in this page’s structured data',
+								>
+									{0 === result.problems.length ? (
+										<div className="desc">
+											{__(
+												'No missing-field problems detected in this page’s structured data.',
 												'vulopilot'
 											)}
-									</div>
-									<div className="desc">{result.url}</div>
-									{null !== result.preview.rating && (
+										</div>
+									) : (
+										<ul className="schema-inspector-check-list">
+											{result.problems.map((problem, index) => (
+												<li key={index}>
+													<i className="adminfont-alarm schema-inspector-check-icon--warn" />
+													<span>{problem.message}</span>
+												</li>
+											))}
+										</ul>
+									)}
+
+									{result.problems.length > 0 && (
+										<button
+											type="button"
+											className="schema-view-pages-link schema-inspector-view-problems"
+											onClick={() => scrollToId('schema-knowledge-issues')}
+										>
+											{__('View problems', 'vulopilot')}
+											<i className="adminfont-arrow-right" />
+										</button>
+									)}
+								</FormGroupComponent>
+
+								<FormGroupComponent
+									label={sprintf(
+										/* translators: %d is how many real duplicate/conflicting schema blocks were found on this page. */
+										__('Conflicts detected (%d)', 'vulopilot'),
+										result.conflicts.length
+									)}
+								>
+									{0 === result.conflicts.length ? (
 										<div className="desc">
-											{sprintf(
-												/* translators: 1: star rating out of 5, 2: number of ratings. */
-												__('Rating: %1$s (%2$d)', 'vulopilot'),
-												result.preview.rating,
-												result.preview.rating_count ?? 0
+											{__(
+												'No duplicate or conflicting schema output detected on this page.',
+												'vulopilot'
 											)}
 										</div>
+									) : (
+										<ul className="schema-inspector-check-list">
+											{result.conflicts.map((conflict) => (
+												<li key={conflict.type}>
+													<i className="adminfont-error schema-inspector-check-icon--bad" />
+													<span>
+														{sprintf(
+															/* translators: 1: schema.org @type, e.g. "Product", 2: number of JSON-LD blocks on this page sharing that type. */
+															__(
+																'%1$d separate "%2$s" blocks were found on this page - search engines may only use one.',
+																'vulopilot'
+															),
+															conflict.block_indexes.length,
+															conflict.type
+														)}
+													</span>
+												</li>
+											))}
+										</ul>
 									)}
-									<div className="desc">
-										{sprintf(
-											/* translators: %s is either the real detected availability value, or a "not found" note. */
-											__('Availability: %s', 'vulopilot'),
-											result.preview.availability ||
-												__(
-													'Not found in this page’s structured data',
-													'vulopilot'
-												)
-										)}
-									</div>
-									{result.preview.description && (
-										<div className="desc">
-											{result.preview.description}
+								</FormGroupComponent>
+
+								{result.preview && (
+									<FormGroupComponent label={__('Quick preview', 'vulopilot')}>
+										<div className="schema-inspector-preview">
+											<div className="schema-inspector-preview-title">
+												{result.preview.title ||
+													__(
+														'Not found in this page’s structured data',
+														'vulopilot'
+													)}
+											</div>
+											<div className="desc">{result.url}</div>
+											{null !== result.preview.rating && (
+												<div className="desc">
+													{sprintf(
+														/* translators: 1: star rating out of 5, 2: number of ratings. */
+														__('Rating: %1$s (%2$d)', 'vulopilot'),
+														result.preview.rating,
+														result.preview.rating_count ?? 0
+													)}
+												</div>
+											)}
+											<div className="desc">
+												{sprintf(
+													/* translators: %s is either the real detected availability value, or a "not found" note. */
+													__('Availability: %s', 'vulopilot'),
+													result.preview.availability ||
+													__(
+														'Not found in this page’s structured data',
+														'vulopilot'
+													)
+												)}
+											</div>
+											{result.preview.description && (
+												<div className="desc">
+													{result.preview.description}
+												</div>
+											)}
 										</div>
+									</FormGroupComponent>
+								)}
+
+								<FormGroupComponent label={__('Actions', 'vulopilot')}>
+									<div className="schema-inspector-actions">
+										<ButtonInput
+											buttons={{
+												text: __('Open page', 'vulopilot'),
+												icon: 'external',
+												onClick: () =>
+													window.open(result.url, '_blank', 'noreferrer'),
+											}}
+										/>
+										<ButtonInput
+											buttons={{
+												text: __('Validate with Google', 'vulopilot'),
+												icon: 'external',
+												color: 'text-purple',
+												onClick: openRichResultsTest,
+											}}
+										/>
+										<ButtonInput
+											buttons={{
+												text: __('Copy', 'vulopilot'),
+												icon: 'copy',
+												onClick: handleCopy,
+											}}
+										/>
+										<ButtonInput
+											buttons={{
+												text: __('Export', 'vulopilot'),
+												icon: 'export',
+												onClick: handleExport,
+											}}
+										/>
+									</div>
+
+									{copyNotice && (
+										<NoticeComponent
+											uniqueKey="vulopilot-schema-inspect-copy"
+											type="success"
+											displayPosition="inline-notice"
+											message={copyNotice}
+										/>
 									)}
-								</div>
-							</>
+								</FormGroupComponent>
+
+								<FormGroupComponent label={__('JSON-LD', 'vulopilot')}>
+									{result.blocks.map((block) => (
+										<div key={block.index} className="schema-inspector-jsonld-block">
+											<RobotsTxtEditor
+												value={prettyPrint(block.raw)}
+												readOnly
+											/>
+										</div>
+									))}
+								</FormGroupComponent>
+							</FormGroupWrapperComponent>
 						)}
-
-						<div className="schema-inspector-actions">
-							<ButtonInput
-								buttons={{
-									text: __('Open page', 'vulopilot'),
-									icon: 'external',
-									onClick: () =>
-										window.open(result.url, '_blank', 'noreferrer'),
-								}}
-							/>
-							<ButtonInput
-								buttons={{
-									text: __('Validate with Google', 'vulopilot'),
-									icon: 'external',
-									color: 'text-purple',
-									onClick: openRichResultsTest,
-								}}
-							/>
-						</div>
-
-						{copyNotice && (
-							<NoticeComponent
-								uniqueKey="vulopilot-schema-inspect-copy"
-								type="success"
-								displayPosition="inline-notice"
-								message={copyNotice}
-							/>
-						)}
-
-						<div className="schema-inspector-result-heading">
-							{__('JSON-LD', 'vulopilot')}
-						</div>
-						<div className="schema-inspector-jsonld-actions">
-							<ButtonInput
-								buttons={{
-									text: __('Copy', 'vulopilot'),
-									icon: 'copy',
-									onClick: handleCopy,
-								}}
-							/>
-							<ButtonInput
-								buttons={{
-									text: __('Export', 'vulopilot'),
-									icon: 'export',
-									onClick: handleExport,
-								}}
-							/>
-						</div>
-						{result.blocks.map((block) => (
-							<div key={block.index} className="schema-inspector-jsonld-block">
-								<RobotsTxtEditor
-									value={prettyPrint(block.raw)}
-									readOnly
-								/>
-							</div>
-						))}
-					</div>
-				)}
 					</CardComponent>
 				)}
 			</ColumnComponent>

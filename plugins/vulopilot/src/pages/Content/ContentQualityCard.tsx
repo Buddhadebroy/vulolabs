@@ -241,14 +241,9 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 			isLoading={isExternal ? isLoadingQuality : isLoadingOptions}
 			action={
 				isExternal ? (
-					<button
-						type="button"
-						className="page-analysis-panel-close"
-						onClick={onClose}
-						aria-label={__('Close', 'vulopilot')}
-					>
-						<i className="adminfont-close" />
-					</button>
+					<>
+					
+					</>
 				) : !isLoadingOptions && options.length > 0 ? (
 					<div className="content-quality-picker">
 						<TypographyComponent

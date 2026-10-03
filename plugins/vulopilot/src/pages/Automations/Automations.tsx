@@ -214,7 +214,6 @@ const Automations = () => {
 			/>
 
 			<ContainerComponent general>
-				<ColumnComponent grid={12}>
 					{Overview ? (
 						<Overview
 							onOpenLibrary={openTemplatesLibrary}
@@ -223,13 +222,19 @@ const Automations = () => {
 					) : (
 						<AutomationsOverviewDummy onClick={openProPopup} />
 					)}
-				</ColumnComponent>
 
-				<BuiltinAutomationCards
-					refetchSignal={refetchSignal}
-					onChanged={handleSaved}
-					highlightTemplateId={highlightTemplateId}
-				/>
+				{/* The 2 free built-ins (Automatic website scan/Email visibility
+				report) are superseded once Pro's own WorkflowAutomation module
+				gives a real trigger→condition→action builder — showing both
+				would be two separate automation systems on the same page, per
+				direct instruction. */}
+				{!vulopilotAppLocalizer.khali_dabba && (
+					<BuiltinAutomationCards
+						refetchSignal={refetchSignal}
+						onChanged={handleSaved}
+						highlightTemplateId={highlightTemplateId}
+					/>
+				)}
 
 				<ColumnComponent grid={7} fullHeight>
 					<AutomationsStatusCard refetchSignal={refetchSignal} />
@@ -280,7 +285,6 @@ const Automations = () => {
 					onClose={() => setIsProPopupOpen(false)}
 					width={31.25}
 					height="auto"
-					position="lightbox"
 				>
 					{vulopilotAppLocalizer.khali_dabba ? (
 						<ShowProPopup moduleName="workflow-automation" />

@@ -688,7 +688,7 @@ const CrawlRobotsSitemapSection = () => {
 						</div>
 					</CardComponent>
 				</ColumnComponent>
-				<ColumnComponent grid={6}>
+				<ColumnComponent grid={6} fullHeight>
 					<CardComponent
 						title={__('XML Sitemap Overview', 'vulopilot')}
 						titleIcon="link"

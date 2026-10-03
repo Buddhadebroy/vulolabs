@@ -10,7 +10,8 @@ import {
 	PopupComponent,
 	ClipboardComponent,
 	BadgeComponent,
-	AnalyticsComponent
+	AnalyticsComponent,
+	NoticeComponent
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import ShowProPopup from '../../components/Popup/Popup';
@@ -21,6 +22,7 @@ import {
 	CATEGORY_ICONS,
 	CATEGORY_LABELS,
 	formatAffected,
+	getObjectTypeNoun,
 	FindingGroup,
 } from './issuesTypes';
 import { FixOutcome } from '../../services/showFixOutcome';
@@ -78,6 +80,28 @@ const getAffectedItemLink = (
 	// admin_url is `.../admin.php?page=vulopilot` (built for appending `#&tab=...` hashes
 	// elsewhere in this app) - not a base to prefix a *different* admin.php query onto.
 	return `${vulopilotAppLocalizer.site_url}/wp-admin/post.php?post=${encodeURIComponent(row.object_ref)}&action=edit`;
+};
+
+/**
+ * Splits a sample finding's own real `title` - every scanner's `get_title()` writes it as
+ * "{message}: {affected item name}" (e.g. "Image missing alt text: 2.4.4.gif") - into its message
+ * half and its affected-item-name half, for the header's own title/desc swap below. Falls back to
+ * `{ message: title, name: null }` when there's no ": " to split on, so a title that doesn't follow
+ * that shape still renders (as the old plain desc) rather than silently dropping half of it.
+ */
+const splitSampleTitle = (
+	title: string
+): { message: string; name: string | null } => {
+	const separatorIndex = title.lastIndexOf(': ');
+
+	if (-1 === separatorIndex) {
+		return { message: title, name: null };
+	}
+
+	return {
+		message: title.slice(0, separatorIndex),
+		name: title.slice(separatorIndex + 2),
+	};
 };
 
 /** Section label per `object_type`. */
@@ -291,10 +315,9 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		getApiResponse<{ data?: { id: number }[] } | { id: number }[]>(
 			getApiLink(
 				vulopilotAppLocalizer,
-				`findings?scanner_id=${encodeURIComponent(scannerId)}${
-					objectType
-						? `&object_type=${encodeURIComponent(objectType)}`
-						: ''
+				`findings?scanner_id=${encodeURIComponent(scannerId)}${objectType
+					? `&object_type=${encodeURIComponent(objectType)}`
+					: ''
 				}&status=open&per_page=100`
 			),
 			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
@@ -349,7 +372,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	 * counts into one outcome.
 	 */
 	const runBulkFixInBatches = (
-		 
+
 		// eslint-disable-next-line no-unused-vars
 		bulkFixHandler: (batchIds: number[]) => Promise<BatchFixOutcome> | undefined,
 		ids: number[]
@@ -387,12 +410,12 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				// One Undo that reverses every batch that could be undone.
 				const undo: FixOutcome['undo'] = undos.length
 					? () =>
-							Promise.all(undos.map((run) => run())).then((results) => ({
-								success: results.every((result) => result.success),
-								message:
-									results.find((result) => !result.success)?.message ??
-									results[0].message,
-							}))
+						Promise.all(undos.map((run) => run())).then((results) => ({
+							success: results.every((result) => result.success),
+							message:
+								results.find((result) => !result.success)?.message ??
+								results[0].message,
+						}))
 					: undefined;
 
 				const failed = total - succeeded;
@@ -423,19 +446,19 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 							// Nothing was fixable: keep the handler's own message, it says why.
 							? lastMessage
 							: succeeded > 0
-							? sprintf(
-								/* translators: 1: number fixed, 2: how many had no automatic fix available at all. */
-								__(
-									'Fixed %1$d findings - no automatic fix exists yet for the other %2$d.',
+								? sprintf(
+									/* translators: 1: number fixed, 2: how many had no automatic fix available at all. */
+									__(
+										'Fixed %1$d findings - no automatic fix exists yet for the other %2$d.',
+										'vulopilot'
+									),
+									succeeded,
+									noFixCount
+								)
+								: __(
+									'No automatic fix exists yet for these findings.',
 									'vulopilot'
-								),
-								succeeded,
-								noFixCount
-							)
-							: __(
-								'No automatic fix exists yet for these findings.',
-								'vulopilot'
-							);
+								);
 				} else {
 					message = sprintf(
 						/* translators: 1: number fixed, 2: total findings attempted. */
@@ -486,13 +509,28 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 			.finally(() => setIsBusy(false));
 	};
 
+	/**
+	 * Header title/desc swap, per direct instruction: the sample's own affected-item name (e.g.
+	 * "2.4.4.gif") becomes the title, tagged with its real object-type noun ("image"); the sample's
+	 * own message half ("Image missing alt text") becomes the desc, in place of the group's generic
+	 * label ("Images") that used to sit there. Falls back to the old title={group.label}/
+	 * desc={group.sample?.title} shape when there's no sample, or its title isn't the real
+	 * "{message}: {name}" shape `splitSampleTitle()` expects.
+	 */
+	const sampleSplit = group.sample ? splitSampleTitle(group.sample.title) : null;
+	const headerTitle =
+		sampleSplit?.name
+			? `${sampleSplit.name} (${getObjectTypeNoun(1, group.object_type)})`
+			: group.label;
+	const headerDesc = sampleSplit ? sampleSplit.message : group.sample?.title;
+
 	return (
 		<>
 			<CardComponent
 				className="issue-detail-panel"
-				title={group.label}
+				title={headerTitle}
 				titleIcon="error"
-				desc={group.sample?.title}
+				desc={headerDesc}
 			>
 				<div className="issue-detail-badges-row">
 					{group.fixed && <BadgeComponent color="green" text={__('Fixed', 'vulopilot')} />}
@@ -506,7 +544,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					/>
 				</div>
 
-				<AnalyticsComponent	
+				<AnalyticsComponent
 					variant="small-priority-card"
 					cols={3}
 					data={[
@@ -552,120 +590,120 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					const samplePageLink = getAffectedItemLink(group.sample);
 
 					return (
-					<div className="issue-detail-section">
-						<div className="issue-detail-section-header">
-							{!isProActive && (
-								<i className="adminfont-lock issue-detail-section-lock" />
-							)}
-							<span className="issue-detail-section-title">
-								{showRecommendedFix
-									? __('Recommended fix', 'vulopilot')
-									: showWhatHappened
-										? __('What happened?', 'vulopilot')
-										: __('Example finding', 'vulopilot')}
-							</span>
-							{!isProActive && (
-								<span className="admin-tag pro-tag">
-									<i className="adminfont-pro-tag" />
-									{__('Pro', 'vulopilot')}
+						<div className="issue-detail-section">
+							<div className="issue-detail-section-header">
+								{!isProActive && (
+									<i className="adminfont-lock issue-detail-section-lock" />
+								)}
+								<span className="issue-detail-section-title">
+									{showRecommendedFix
+										? __('Recommended fix', 'vulopilot')
+										: showWhatHappened
+											? __('What happened?', 'vulopilot')
+											: __('Example finding', 'vulopilot')}
 								</span>
-							)}
-						</div>
-						{showRecommendedFix
-							? renderProGatedSection(
-								<ol className="issue-detail-fix-steps">
-									{recommendedFixSteps.map((step, index) => (
-										<li key={index} className="issue-detail-fix-step">
-											<span className="issue-detail-fix-step-number">
-												{index + 1}
-											</span>
-											<span className="issue-detail-fix-step-text">
-												{step}
-											</span>
-										</li>
-									))}
-								</ol>,
-								<span className="desc">
-									{__(
-										'Step-by-step guidance for fixing this specific issue appears here once Pro is active.',
-										'vulopilot'
-									)}
-								</span>,
-								false
-							)
-							: showWhatHappened
+								{!isProActive && (
+									<span className="admin-tag pro-tag">
+										<i className="adminfont-pro-tag" />
+										{__('Pro', 'vulopilot')}
+									</span>
+								)}
+							</div>
+							{showRecommendedFix
 								? renderProGatedSection(
-									<>
-										<div className="desc">{whatHappened}</div>
-										<div className="issue-detail-example-where">
-											<ClipboardComponent
-												text={
-													group.sample.page || __('Site-wide', 'vulopilot')
-												}
-												variant="code"
-												copyButtonLabel={__('Copy', 'vulopilot')}
-												copiedLabel={__('Copied!', 'vulopilot')}
-											/>
-											{samplePageLink && (
-												<a
-													href={samplePageLink}
-													target="_blank"
-													rel="noreferrer"
-													className="issue-detail-example-open-link"
-												>
-													<i className="adminfont-external" />
-													{__('View page', 'vulopilot')}
-												</a>
-											)}
-										</div>
-									</>,
+									<ol className="issue-detail-fix-steps">
+										{recommendedFixSteps.map((step, index) => (
+											<li key={index} className="issue-detail-fix-step">
+												<span className="issue-detail-fix-step-number">
+													{index + 1}
+												</span>
+												<span className="issue-detail-fix-step-text">
+													{step}
+												</span>
+											</li>
+										))}
+									</ol>,
 									<span className="desc">
 										{__(
-											'What this specific check actually found appears here once Pro is active.',
+											'Step-by-step guidance for fixing this specific issue appears here once Pro is active.',
 											'vulopilot'
 										)}
 									</span>,
 									false
 								)
-								: renderProGatedSection(
-									<>
-										<div className="issue-detail-example-title">
-											{group.sample.title}
-										</div>
-										<div className="desc">{group.sample.description}</div>
-										<div className="issue-detail-example-where">
-											<ClipboardComponent
-												text={
-													group.sample.page || __('Site-wide', 'vulopilot')
-												}
-												variant="code"
-												copyButtonLabel={__('Copy', 'vulopilot')}
-												copiedLabel={__('Copied!', 'vulopilot')}
-											/>
-											{samplePageLink && (
-												<a
-													href={samplePageLink}
-													target="_blank"
-													rel="noreferrer"
-													className="issue-detail-example-open-link"
-												>
-													<i className="adminfont-external" />
-													{__('View page', 'vulopilot')}
-												</a>
+								: showWhatHappened
+									? renderProGatedSection(
+										<>
+											<div className="desc">{whatHappened}</div>
+											<div className="issue-detail-example-where">
+												<ClipboardComponent
+													text={
+														group.sample.page || __('Site-wide', 'vulopilot')
+													}
+													variant="code"
+													copyButtonLabel={__('Copy', 'vulopilot')}
+													copiedLabel={__('Copied!', 'vulopilot')}
+												/>
+												{samplePageLink && (
+													<a
+														href={samplePageLink}
+														target="_blank"
+														rel="noreferrer"
+														className="issue-detail-example-open-link"
+													>
+														<i className="adminfont-external" />
+														{__('View page', 'vulopilot')}
+													</a>
+												)}
+											</div>
+										</>,
+										<span className="desc">
+											{__(
+												'What this specific check actually found appears here once Pro is active.',
+												'vulopilot'
 											)}
-										</div>
-									</>,
-									<span className="desc">
-										{__(
-											'A real, representative finding from this group - its title, description, and where it was found - appears here once Pro is active.',
-											'vulopilot'
-										)}
-									</span>,
-									false
-								)}
-					</div>
-				);
-			})()}
+										</span>,
+										false
+									)
+									: renderProGatedSection(
+										<>
+											<div className="issue-detail-example-title">
+												{group.sample.title}
+											</div>
+											<div className="desc">{group.sample.description}</div>
+											<div className="issue-detail-example-where">
+												<ClipboardComponent
+													text={
+														group.sample.page || __('Site-wide', 'vulopilot')
+													}
+													variant="code"
+													copyButtonLabel={__('Copy', 'vulopilot')}
+													copiedLabel={__('Copied!', 'vulopilot')}
+												/>
+												{samplePageLink && (
+													<a
+														href={samplePageLink}
+														target="_blank"
+														rel="noreferrer"
+														className="issue-detail-example-open-link"
+													>
+														<i className="adminfont-external" />
+														{__('View page', 'vulopilot')}
+													</a>
+												)}
+											</div>
+										</>,
+										<span className="desc">
+											{__(
+												'A real, representative finding from this group - its title, description, and where it was found - appears here once Pro is active.',
+												'vulopilot'
+											)}
+										</span>,
+										false
+									)}
+						</div>
+					);
+				})()}
 
 				<div className="issue-detail-section">
 					<div className="issue-detail-section-header">
@@ -791,38 +829,22 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				)}
 
 				{isProActive && !fixNotice && !group.fix_action_id && group.no_fix_reason && (
-					<div className="issue-detail-manual-fix-notice">
-						<div className="issue-detail-manual-fix-notice-icon">
-							<i className="adminfont-info" />
-						</div>
-						<div>
-							<div className="issue-detail-manual-fix-notice-title">
-								{__('Needs your review - no automatic fix', 'vulopilot')}
-							</div>
-							{/* The numbered steps above already say this - skip the redundant paragraph, keep the link. */}
-							{!showRecommendedFix && (
-								<div className="desc">{group.no_fix_reason}</div>
-							)}
-							{group.no_fix_link && (
-								<div className="small desc">
-									<a
-										href={group.no_fix_link.url}
-										target="_blank"
-										rel="noreferrer"
-										style={{
-											color: 'var(--color-primary)',
-											textDecoration: 'underline',
-										}}
-									>
-										{group.no_fix_link.label}
-									</a>
-								</div>
-							)}
-							<div className="small desc">
-								{__('Check the details above for what to look at.', 'vulopilot')}
-							</div>
-						</div>
-					</div>
+					<NoticeComponent
+						type="info"
+						displayPosition="inline-notice"
+						title={__('Needs your review - no automatic fix', 'vulopilot')}
+						message={[
+							!showRecommendedFix && group.no_fix_reason
+								? `<span class="desc">${group.no_fix_reason}</span>`
+								: '',
+							group.no_fix_link
+								? `<span class="small desc"><a href="${group.no_fix_link.url}" target="_blank" rel="noreferrer" style="color: var(--color-primary); text-decoration: underline;">${group.no_fix_link.label}</a></span>`
+								: '',
+							`<span class="small desc">${__('Check the details above for what to look at.', 'vulopilot')}</span>`,
+						]
+							.filter(Boolean)
+							.join(' ')}
+					/>
 				)}
 
 				{isProActive && fixNotice}
@@ -831,34 +853,10 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					<ButtonInput
 						position="full-width"
 						buttons={[
-							// No automatic fix exists for this issue; don't offer a button that can only fail again.
-							...(isUnfixable || !group.fix_action_id
-								? []
-								: [
-										{
-											text: __('Fix with AI', 'vulopilot'),
-											icon: 'ai',
-											color: 'orange-bg',
-											onClick: handleFix,
-											disabled: isBusy,
-										},
-									]),
-							{
-								text: __('Resolve all', 'vulopilot'),
-								color: 'border-purple',
-								onClick: () =>
-									handleBulkStatus(
-										'resolved',
-										__(
-											'All findings in this group marked resolved.',
-											'vulopilot'
-										)
-									),
-								disabled: isBusy,
-							},
 							{
 								text: __('Ignore all', 'vulopilot'),
 								color: 'border-red',
+								rightIcon: 'rejecte',
 								onClick: () =>
 									handleBulkStatus(
 										'ignored',
@@ -869,6 +867,33 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 									),
 								disabled: isBusy,
 							},
+							// No automatic fix exists for this issue; don't offer a button that can only fail again.
+							...(isUnfixable || !group.fix_action_id
+								? []
+								: [
+									{
+										text: __('Fix with AI', 'vulopilot'),
+										icon: 'ai',
+										color: 'orange-bg',
+										onClick: handleFix,
+										disabled: isBusy,
+									},
+								]),
+							{
+								text: __('Resolve all', 'vulopilot'),
+								color: 'purple-bg',
+								rightIcon: 'resolve',
+								onClick: () =>
+									handleBulkStatus(
+										'resolved',
+										__(
+											'All findings in this group marked resolved.',
+											'vulopilot'
+										)
+									),
+								disabled: isBusy,
+							},
+							
 						]}
 					/>
 				) : (

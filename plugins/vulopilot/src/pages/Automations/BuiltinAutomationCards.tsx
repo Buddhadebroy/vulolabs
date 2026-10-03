@@ -209,7 +209,7 @@ const BuiltinAutomationCard = ({
 			title={
 				<>
 					{title}
-					<span className={`admin-badge ${isEnabled ? 'green' : 'gray'}`}>
+					<span className={`admin-badge ${isEnabled ? 'green' : 'blue'}`}>
 						{isEnabled ? __('Active', 'vulopilot') : __('Not active', 'vulopilot')}
 					</span>
 				</>
