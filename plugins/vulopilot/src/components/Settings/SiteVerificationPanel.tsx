@@ -5,6 +5,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import { ButtonInput, TextInput, TextAreaInput } from '@zyra/inputs';
 import { NoticeComponent, NoticeManager, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
+import CardHeader from '../CardHeader';
 import { useSetting } from '../../contexts/SettingContext';
 import { formatWpDate } from '../../services/formatWpDate';
 
@@ -16,7 +17,13 @@ interface VerifyResult {
 /** "Stop typing, then save" debounce for the plain text fields. */
 const AUTOSAVE_DEBOUNCE_MS = 1000;
 
-interface WebmasterRowProps {
+const HELPER_TEXT = __('Paste only the value inside content="...".', 'vulopilot');
+
+const StatusBadge = ({ done, doneLabel, todoLabel }: { done: boolean; doneLabel: string; todoLabel: string }) => (
+	<span className={`admin-badge ${done ? 'green' : 'red'}`}>{done ? doneLabel : todoLabel}</span>
+);
+
+interface ProviderCardProps {
 	icon: string;
 	title: string;
 	badge: ReactNode;
@@ -26,31 +33,28 @@ interface WebmasterRowProps {
 	children: ReactNode;
 }
 
-/** One provider: icon + name/status + instructions and link on the left, the code field on the right. */
-const WebmasterRow = ({ icon, title, badge, steps, guideLabel, guideUrl, children }: WebmasterRowProps) => (
-	<div className="webmaster-row">
-		<div className="webmaster-row-info">
-			<i className={`webmaster-row-icon adminfont-${icon}`} />
-			<div className="webmaster-row-text">
-				<div className="webmaster-row-title">
-					<span>{title}</span>
-					{badge}
-				</div>
-				<p className="webmaster-row-steps">{steps}</p>
-				<a className="webmaster-row-link" href={guideUrl} target="_blank" rel="noopener noreferrer">
+/** One provider card - the shared `CardHeader` layout, with the guide link in the description. */
+const ProviderCard = ({ icon, title, badge, steps, guideLabel, guideUrl, children }: ProviderCardProps) => (
+	<CardHeader
+		className="compact"
+		icon={icon}
+		title={title}
+		badge={badge}
+		desc={
+			<>
+				{steps}
+				<br />
+				<a className="link-item" href={guideUrl} target="_blank" rel="noopener noreferrer">
 					{guideLabel} <i className="adminfont-external-link" />
 				</a>
-			</div>
+			</>
+		}
+	>
+		<div className="ai-provider-card-body gsc-service-body">
+			<div className="ai-provider-field site-verification-code-field">{children}</div>
 		</div>
-		<div className="webmaster-row-field">{children}</div>
-	</div>
+	</CardHeader>
 );
-
-const StatusBadge = ({ done, doneLabel, todoLabel }: { done: boolean; doneLabel: string; todoLabel: string }) => (
-	<span className={`admin-badge ${done ? 'green' : 'red'}`}>{done ? doneLabel : todoLabel}</span>
-);
-
-const HELPER_TEXT = __('Paste only the value inside content="...".', 'vulopilot');
 
 /** Baidu/Yandex/Norton - plain code field, saved on a debounce. */
 interface PlainCodeFieldProps {
@@ -93,7 +97,7 @@ const PlainCodeField = ({ fieldKey, icon, title, steps, guideLabel, guideUrl }: 
 	const isAdded = '' !== value.trim();
 
 	return (
-		<WebmasterRow
+		<ProviderCard
 			icon={icon}
 			title={title}
 			steps={steps}
@@ -118,8 +122,8 @@ const PlainCodeField = ({ fieldKey, icon, title, steps, guideLabel, guideUrl }: 
 				}}
 				placeholder={__('Paste your verification code', 'vulopilot')}
 			/>
-			<p className="webmaster-row-helper">{HELPER_TEXT}</p>
-		</WebmasterRow>
+			<span className="desc">{HELPER_TEXT}</span>
+		</ProviderCard>
 	);
 };
 
@@ -175,7 +179,7 @@ const ProviderRow = ({ provider, icon, title, steps, guideLabel, guideUrl }: Pro
 	};
 
 	return (
-		<WebmasterRow
+		<ProviderCard
 			icon={icon}
 			title={title}
 			steps={steps}
@@ -189,7 +193,7 @@ const ProviderRow = ({ provider, icon, title, steps, guideLabel, guideUrl }: Pro
 				/>
 			}
 		>
-			<div className="webmaster-row-input-group">
+			<div className="site-verification-code-row">
 				<TextInput
 					id={`${codeKey}-input`}
 					type="text"
@@ -210,7 +214,7 @@ const ProviderRow = ({ provider, icon, title, steps, guideLabel, guideUrl }: Pro
 					}}
 				/>
 			</div>
-			<p className="webmaster-row-helper">{HELPER_TEXT}</p>
+			<span className="desc">{HELPER_TEXT}</span>
 			{isVerified && (
 				<NoticeComponent
 					displayPosition="inline"
@@ -222,7 +226,7 @@ const ProviderRow = ({ provider, icon, title, steps, guideLabel, guideUrl }: Pro
 					)}
 				/>
 			)}
-		</WebmasterRow>
+		</ProviderCard>
 	);
 };
 
@@ -258,35 +262,33 @@ const CustomTagsField = () => {
 	const isAdded = '' !== value.trim();
 
 	return (
-		<div className="webmaster-row">
-			<div className="webmaster-row-info">
-				<i className="webmaster-row-icon adminfont-shortcode" />
-				<div className="webmaster-row-text">
-					<div className="webmaster-row-title">
-						<span>{__('Custom webmaster tags', 'vulopilot')}</span>
-						<StatusBadge
-							done={isAdded}
-							doneLabel={__('Added', 'vulopilot')}
-							todoLabel={__('Not Added', 'vulopilot')}
-						/>
-					</div>
-					<p className="webmaster-row-steps">
-						{__('Paste complete verification meta tags from other services. Only <meta> tags are kept.', 'vulopilot')}
-					</p>
+		<CardHeader
+			className="compact"
+			icon="shortcode"
+			title={__('Custom webmaster tags', 'vulopilot')}
+			badge={
+				<StatusBadge
+					done={isAdded}
+					doneLabel={__('Added', 'vulopilot')}
+					todoLabel={__('Not Added', 'vulopilot')}
+				/>
+			}
+			desc={__('Paste complete verification meta tags from other services. Only <meta> tags are kept.', 'vulopilot')}
+		>
+			<div className="ai-provider-card-body gsc-service-body">
+				<div className="ai-provider-field site-verification-code-field">
+					<TextAreaInput
+						id="webmaster_custom_tags-input"
+						value={value}
+						onChange={(next) => {
+							const nextValue = String(next);
+							setValue(nextValue);
+							scheduleSave(nextValue);
+						}}
+					/>
 				</div>
 			</div>
-			<div className="webmaster-row-field">
-				<TextAreaInput
-					id="webmaster_custom_tags-input"
-					value={value}
-					onChange={(next) => {
-						const nextValue = String(next);
-						setValue(nextValue);
-						scheduleSave(nextValue);
-					}}
-				/>
-			</div>
-		</div>
+		</CardHeader>
 	);
 };
 
@@ -296,57 +298,55 @@ const CustomTagsField = () => {
 const SiteVerificationPanel = () => {
 	return (
 		<FormGroupWrapperComponent>
-			<div className="webmaster-tools">
-				<ProviderRow
-					provider="google"
-					icon="google"
-					title={__('Google', 'vulopilot')}
-					steps={__('Add your site in Google Search Console. Choose URL prefix → HTML tag.', 'vulopilot')}
-					guideLabel={__('Get Google verification code', 'vulopilot')}
-					guideUrl="https://search.google.com/search-console/welcome"
-				/>
-				<ProviderRow
-					provider="bing"
-					icon="search-discovery"
-					title={__('Bing', 'vulopilot')}
-					steps={__('Add your site in Bing Webmaster Tools and choose HTML meta tag.', 'vulopilot')}
-					guideLabel={__('Get Bing verification code', 'vulopilot')}
-					guideUrl="https://www.bing.com/webmasters"
-				/>
-				<ProviderRow
-					provider="pinterest"
-					icon="pinterest"
-					title={__('Pinterest', 'vulopilot')}
-					steps={__('Go to Settings → Link to Pinterest → Claim website → Add HTML tag.', 'vulopilot')}
-					guideLabel={__('Get Pinterest verification code', 'vulopilot')}
-					guideUrl="https://www.pinterest.com/settings/claim"
-				/>
-				<PlainCodeField
-					fieldKey="webmaster_baidu_verification"
-					icon="search-discovery"
-					title={__('Baidu', 'vulopilot')}
-					steps={__('Add your site in Baidu and choose HTML tag verification.', 'vulopilot')}
-					guideLabel={__('Get Baidu verification code', 'vulopilot')}
-					guideUrl="https://ziyuan.baidu.com/"
-				/>
-				<PlainCodeField
-					fieldKey="webmaster_yandex_verification"
-					icon="search"
-					title={__('Yandex', 'vulopilot')}
-					steps={__('Add your site in Yandex Webmaster and choose Meta tag.', 'vulopilot')}
-					guideLabel={__('Get Yandex verification code', 'vulopilot')}
-					guideUrl="https://webmaster.yandex.com/"
-				/>
-				<PlainCodeField
-					fieldKey="webmaster_norton_verification"
-					icon="security"
-					title={__('Norton Safe Web', 'vulopilot')}
-					steps={__('If Norton provided a verification code, add it here.', 'vulopilot')}
-					guideLabel={__('Open Norton Safe Web', 'vulopilot')}
-					guideUrl="https://safeweb.norton.com/"
-				/>
-				<CustomTagsField />
-			</div>
+			<ProviderRow
+				provider="google"
+				icon="google yellow"
+				title={__('Google', 'vulopilot')}
+				steps={__('Add your site in Google Search Console. Choose URL prefix → HTML tag.', 'vulopilot')}
+				guideLabel={__('Get Google verification code', 'vulopilot')}
+				guideUrl="https://search.google.com/search-console/welcome"
+			/>
+			<ProviderRow
+				provider="bing"
+				icon="search-discovery blue"
+				title={__('Bing', 'vulopilot')}
+				steps={__('Add your site in Bing Webmaster Tools and choose HTML meta tag.', 'vulopilot')}
+				guideLabel={__('Get Bing verification code', 'vulopilot')}
+				guideUrl="https://www.bing.com/webmasters"
+			/>
+			<ProviderRow
+				provider="pinterest"
+				icon="pinterest red"
+				title={__('Pinterest', 'vulopilot')}
+				steps={__('Go to Settings → Link to Pinterest → Claim website → Add HTML tag.', 'vulopilot')}
+				guideLabel={__('Get Pinterest verification code', 'vulopilot')}
+				guideUrl="https://www.pinterest.com/settings/claim"
+			/>
+			<PlainCodeField
+				fieldKey="webmaster_baidu_verification"
+				icon="search-discovery red"
+				title={__('Baidu', 'vulopilot')}
+				steps={__('Add your site in Baidu and choose HTML tag verification.', 'vulopilot')}
+				guideLabel={__('Get Baidu verification code', 'vulopilot')}
+				guideUrl="https://ziyuan.baidu.com/"
+			/>
+			<PlainCodeField
+				fieldKey="webmaster_yandex_verification"
+				icon="search yellow"
+				title={__('Yandex', 'vulopilot')}
+				steps={__('Add your site in Yandex Webmaster and choose Meta tag.', 'vulopilot')}
+				guideLabel={__('Get Yandex verification code', 'vulopilot')}
+				guideUrl="https://webmaster.yandex.com/"
+			/>
+			<PlainCodeField
+				fieldKey="webmaster_norton_verification"
+				icon="security green"
+				title={__('Norton Safe Web', 'vulopilot')}
+				steps={__('If Norton provided a verification code, add it here.', 'vulopilot')}
+				guideLabel={__('Open Norton Safe Web', 'vulopilot')}
+				guideUrl="https://safeweb.norton.com/"
+			/>
+			<CustomTagsField />
 			<FormGroupComponent>
 				<NoticeComponent
 					displayPosition="inline-notice"
