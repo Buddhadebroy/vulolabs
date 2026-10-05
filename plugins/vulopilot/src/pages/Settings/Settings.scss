@@ -298,6 +298,12 @@
 	gap: 0.5rem;
 }
 
+.site-verification-guide-link {
+	display: inline-block;
+	margin-bottom: 0.5rem;
+	font-size: 0.875rem;
+}
+
 .send-test-report-actions {
 	display: flex;
 	align-items: center;
@@ -319,5 +325,87 @@
 
 	.common-card {
 		border-bottom: 0;
+	}
+}
+
+.psi-api-key-masked {
+	-webkit-text-security: disc;
+}
+
+.webmaster-tools {
+	display: flex;
+	flex-direction: column;
+}
+
+.webmaster-row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(16rem, 26rem);
+	gap: 1.5rem;
+	align-items: start;
+	padding: 1rem 0;
+	border-bottom: 1px solid #e5e7eb;
+
+	&:last-child {
+		border-bottom: none;
+	}
+}
+
+.webmaster-row-info {
+	display: flex;
+	gap: 0.75rem;
+	align-items: flex-start;
+}
+
+.webmaster-row-icon {
+	font-size: 1.5rem;
+	line-height: 1;
+	margin-top: 0.25rem;
+}
+
+.webmaster-row-text {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.webmaster-row-title {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-weight: 600;
+}
+
+.webmaster-row-steps {
+	margin: 0;
+	color: #4b5563;
+	font-size: 0.875rem;
+}
+
+.webmaster-row-link {
+	font-size: 0.875rem;
+	text-decoration: underline;
+}
+
+.webmaster-row-field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.375rem;
+}
+
+.webmaster-row-input-group {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.webmaster-row-helper {
+	margin: 0;
+	color: #6b7280;
+	font-size: 0.75rem;
+}
+
+@media (max-width: 782px) {
+	.webmaster-row {
+		grid-template-columns: 1fr;
 	}
 }

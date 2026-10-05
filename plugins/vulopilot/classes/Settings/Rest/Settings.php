@@ -224,7 +224,9 @@ class Settings extends \WP_REST_Controller {
 			$tab_fields = array();
 		}
 
-		$updated = array_merge( $this->get_stored_settings(), $tab_fields );
+		$stored  = $this->get_stored_settings();
+		$updated = array_merge( $stored, $tab_fields );
+		$changed = $updated !== $stored;
 
 		// General tab's own "Site tone" field autosaving a real, human- typed value means it's no
 		// longer SiteToneLearner's own auto-detected phrase.
@@ -232,7 +234,7 @@ class Settings extends \WP_REST_Controller {
 			$updated['site_tone_source'] = 'manual';
 		}
 
-		$sitemap_was_enabled = ! empty( $this->get_stored_settings()['sitemap_enabled'] );
+		$sitemap_was_enabled = ! empty( $stored['sitemap_enabled'] );
 
 		update_option( Utill::VULOPILOT_SETTINGS_KEY, $updated );
 		delete_transient( 'vulopilot_sitemap_conflicting_ids' );
@@ -242,9 +244,11 @@ class Settings extends \WP_REST_Controller {
 			VuloPilot()->sitemap_url_rewriter->request_flush();
 		}
 
+		// InputRenderer autosaves a tab whenever it opens, even with nothing edited, so only
+		// report a save when something actually changed.
 		$response = array(
 			'success' => true,
-			'message' => __( 'Settings saved.', 'vulopilot' ),
+			'message' => $changed ? __( 'Settings saved.', 'vulopilot' ) : '',
 		);
 
 		// Editing llms.txt's content is meant to take effect immediately, not just on the next
@@ -496,6 +500,8 @@ class Settings extends \WP_REST_Controller {
 		$settings    = $this->get_stored_settings();
 
 		$settings[ $setting_key ] = $code;
+		// A new attempt clears any earlier "verified" state until this exact code passes.
+		$settings[ 'webmaster_' . $provider . '_verified_at' ] = '';
 		update_option( Utill::VULOPILOT_SETTINGS_KEY, $settings );
 
 		if ( '' === $code ) {

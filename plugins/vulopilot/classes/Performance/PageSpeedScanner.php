@@ -262,7 +262,7 @@ class PageSpeedScanner {
 				'strategy' => $strategy,
 				'category' => 'performance',
 			),
-			'https://www.googleapis.com/pagespeedonline/v5/runpagespeed'
+			'https://www.googleapis.com/pagespeedonline/v5/runPagespeed'
 		);
 
 		$response = wp_remote_get( $request_url, array( 'timeout' => 30 ) );

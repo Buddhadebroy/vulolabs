@@ -35,6 +35,10 @@ const PageSpeedStatusPanel = () => {
 	const [status, setStatus] = useState<PsiStatus | null>(null);
 	const [isTesting, setIsTesting] = useState(false);
 	const [apiKey, setApiKey] = useState((setting.psi_api_key as string) || '');
+	// The settings context fills in after first render, so pick up the saved value when it arrives.
+	useEffect(() => {
+		setApiKey((setting.psi_api_key as string) || '');
+	}, [setting.psi_api_key]);
 	const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const scheduleSave = (key: string, value: string) => {
@@ -67,14 +71,27 @@ const PageSpeedStatusPanel = () => {
 
 	useEffect(loadStatus, []);
 
+	// The test reads the key stored on the server, so save what's typed first - the debounced
+	// autosave may not have fired yet.
 	const testConnection = () => {
 		setIsTesting(true);
 
-		sendApiResponse<TestResult>(
-			vulopilotAppLocalizer,
-			getApiLink(vulopilotAppLocalizer, 'settings/test-pagespeed'),
-			{}
-		)
+		if (saveTimerRef.current) {
+			clearTimeout(saveTimerRef.current);
+			saveTimerRef.current = null;
+		}
+		updateSetting('psi_api_key', apiKey);
+
+		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, 'settings'), {
+			setting: { psi_api_key: apiKey },
+		})
+			.then(() =>
+				sendApiResponse<TestResult>(
+					vulopilotAppLocalizer,
+					getApiLink(vulopilotAppLocalizer, 'settings/test-pagespeed'),
+					{}
+				)
+			)
 			.then((response) => {
 				if (!response) {
 					return;
@@ -122,9 +139,11 @@ const PageSpeedStatusPanel = () => {
 				}
 			>
 				<div className='ai-provider-card-body'>
+					{/* Plain text with masked display, not type="password": a password box on the page makes Chrome autofill saved logins. */}
 					<TextInput
 						id="psi-api-key-input"
-						type="password"
+						type="text"
+						inputClass="psi-api-key-masked"
 						value={apiKey}
 						onChange={(value) => handleApiKeyChange(String(value))}
 					/>

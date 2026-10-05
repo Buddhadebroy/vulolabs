@@ -19,7 +19,7 @@ class PageSpeedInsightsFetcher {
 
 	private const REQUEST_TIMEOUT_SECONDS = 30;
 
-	private const API_BASE = 'https://www.googleapis.com/pagespeedonline/v5/runpagespeed';
+	private const API_BASE = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed';
 
 	private const USAGE_COUNT_OPTION = 'vulopilot_psi_requests_today';
 
