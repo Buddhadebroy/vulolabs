@@ -85,6 +85,20 @@ const Settings = () => {
 			(field: { key: string }) => field.key
 		);
 
+		// zyra runs a pro field's own change handler before its pro-lock check, so a locked
+		// "Add" button still changes the value; drop those updates while Pro is off.
+		const guardedUpdateSetting = (key: string, value: unknown) => {
+			const field = (settingModal?.modal ?? []).find(
+				(f: { key: string; proSetting?: boolean }) => f.key === key
+			) as { proSetting?: boolean } | undefined;
+
+			if (field?.proSetting && !vulopilotAppLocalizer.khali_dabba) {
+				return;
+			}
+
+			updateSetting(key, value);
+		};
+
 		// Was a synchronous `setSetting()` call made straight in the render body.
 		useEffect(() => {
 			if (currentTab && settingName !== currentTab) {
@@ -138,7 +152,7 @@ const Settings = () => {
 							<InputRenderer
 								settings={settingModal}
 								setting={setting}
-								updateSetting={updateSetting}
+								updateSetting={guardedUpdateSetting}
 								Popup={ShowProPopup}
 								// Per-tab opt-in (General.ts's own `groupBySections: true` is the
 								// first) into InputRenderer's card-grouped layout.

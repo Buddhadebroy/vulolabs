@@ -298,6 +298,12 @@
 	gap: 0.5rem;
 }
 
+.site-verification-guide-link {
+	display: inline-block;
+	margin-bottom: 0.5rem;
+	font-size: 0.875rem;
+}
+
 .send-test-report-actions {
 	display: flex;
 	align-items: center;
@@ -321,3 +327,8 @@
 		border-bottom: 0;
 	}
 }
+
+.psi-api-key-masked {
+	-webkit-text-security: disc;
+}
+
