@@ -176,6 +176,14 @@ class Findings extends \WP_REST_Controller {
         $search      = sanitize_text_field( (string) $request->get_param( 'search' ) );
         $scanner_ids = $this->parse_comma_separated_list( $request->get_param( 'scanner_id' ) );
         $priority    = sanitize_key( (string) $request->get_param( 'priority' ) );
+        // One scanner_id can legitimately report several unrelated `object_type`s as separate
+        // groups (FindingRepository::get_finding_groups()'s own `GROUP BY scanner_id, category,
+        // object_type` - e.g. WordPressHealthScanner's site_health_test findings vs its own
+        // wordpress_inactive_plugins findings, both scanner_id 'wordpress-health') - without this,
+        // a scanner_id-only fetch here silently mixes a DIFFERENT group's findings into whichever
+        // one group a caller actually meant (IssueDetailPanel.tsx's own "Affected items"/bulk
+        // Fix-Resolve-Ignore fetches, both scoped by scanner_id alone until now).
+        $object_type = sanitize_key( (string) $request->get_param( 'object_type' ) );
 
         if ( '' !== $severity && ! Severity::is_valid( $severity ) ) {
             return new \WP_Error( 'vulopilot_invalid_severity', __( 'Invalid severity filter.', 'vulopilot' ), array( 'status' => 400 ) );
@@ -194,15 +202,16 @@ class Findings extends \WP_REST_Controller {
 
         $result                  = $repository->find_all(
             array(
-                'page'       => absint( $request->get_param( 'page' ) ) ?: 1,
-                'per_page'   => absint( $request->get_param( 'per_page' ) ) ?: 20,
-                'category'   => $category,
-                'severity'   => $severity_filter,
-                'status'     => $status,
-                'search'     => $search,
-                'scanner_id' => $scanner_ids ?? '',
-                'orderby'    => sanitize_key( (string) $request->get_param( 'orderby' ) ),
-                'order'      => sanitize_key( (string) $request->get_param( 'order' ) ),
+                'page'        => absint( $request->get_param( 'page' ) ) ?: 1,
+                'per_page'    => absint( $request->get_param( 'per_page' ) ) ?: 20,
+                'category'    => $category,
+                'severity'    => $severity_filter,
+                'status'      => $status,
+                'search'      => $search,
+                'scanner_id'  => $scanner_ids ?? '',
+                'object_type' => $object_type,
+                'orderby'     => sanitize_key( (string) $request->get_param( 'orderby' ) ),
+                'order'       => sanitize_key( (string) $request->get_param( 'order' ) ),
             )
         );
         $result['status_counts'] = $repository->get_status_counts( '' !== $category ? $category : null, $scanner_ids );

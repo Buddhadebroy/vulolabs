@@ -2,7 +2,7 @@
 	"apiVersion": 3,
 	"name": "vulopilot/faq",
 	"title": "FAQ",
-	"category": "widgets",
+	"category": "vulopilot",
 	"icon": "editor-help",
 	"description": "A list of questions and answers that also outputs real FAQPage schema.org structured data for search engines.",
 	"textdomain": "vulopilot",
@@ -19,9 +19,31 @@
 					"answer": { "type": "string" }
 				}
 			}
-		}
+		},
+		"questionColor": { "type": "string" },
+		"questionFontSize": { "type": "string" },
+		"answerColor": { "type": "string" },
+		"answerFontSize": { "type": "string" }
 	},
 	"supports": {
-		"html": false
+		"html": false,
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"border": {
+			"color": true,
+			"radius": true,
+			"style": true,
+			"width": true
+		},
+		"color": {
+			"background": true,
+			"text": false
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true
+		}
 	}
 }

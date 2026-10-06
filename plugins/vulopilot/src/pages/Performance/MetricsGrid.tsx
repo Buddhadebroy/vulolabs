@@ -233,7 +233,14 @@ const MetricsGrid = ({
 			};
 		}
 
-		return SECTION_STATUS_BY_TILE[id]?.badge ?? OPEN_FALLBACK_BADGE;
+		const badge = SECTION_STATUS_BY_TILE[id]?.badge ?? OPEN_FALLBACK_BADGE;
+
+		// Same real "N Open · N {Severity} Severity" text useSectionStatus()'s own `badge` always
+		// builds - just the "N Open" half kept here (just this grid's own tiles, per direct
+		// instruction: one number, not two) rather than in that shared hook, which other real
+		// callers still read as-is. "No Open Findings"/"Not tracked yet" have no " · " to split on,
+		// so they pass through unchanged.
+		return { ...badge, text: badge.text.split(' · ')[0] };
 	};
 
 	/**

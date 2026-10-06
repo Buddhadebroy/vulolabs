@@ -28,17 +28,48 @@ class FaqRenderer {
 		$wrapper_attributes = get_block_wrapper_attributes( array( 'class' => 'vulopilot-faq' ) );
 		$html               = '<div ' . $wrapper_attributes . '>';
 
+		$question_style = self::build_style( $attributes['questionColor'] ?? '', $attributes['questionFontSize'] ?? '' );
+		$answer_style   = self::build_style( $attributes['answerColor'] ?? '', $attributes['answerFontSize'] ?? '' );
+
 		foreach ( $questions as $item ) {
 			$html .= sprintf(
-				'<details class="vulopilot-faq__item"><summary class="vulopilot-faq__question">%1$s</summary><div class="vulopilot-faq__answer">%2$s</div></details>',
+				'<details class="vulopilot-faq__item"><summary class="vulopilot-faq__question"%3$s>%1$s</summary><div class="vulopilot-faq__answer"%4$s>%2$s</div></details>',
 				wp_kses_post( $item['question'] ),
-				wp_kses_post( $item['answer'] )
+				wp_kses_post( $item['answer'] ),
+				$question_style,
+				$answer_style
 			);
 		}
 
 		$html .= '</div>';
 
 		return $html;
+	}
+
+	/**
+	 * Builds a real ` style="..."` fragment (leading space included, so it
+	 * can be interpolated straight after a tag name) from the editor's own
+	 * `questionColor`/`questionFontSize`/`answerColor`/`answerFontSize`
+	 * attributes (index.js's own `PanelColorSettings`/`FontSizePicker`) -
+	 * empty string when neither is set, same as every other optional
+	 * inline style this codebase builds.
+	 *
+	 * @param string $color    Real CSS color, or '' when unset.
+	 * @param string $font_size Real CSS font-size (FontSizePicker's own value - a bare number, a unit'd string, or a `var(--wp--preset--font-size--*)` token), or '' when unset.
+	 * @return string
+	 */
+	private static function build_style( string $color, string $font_size ): string {
+		$declarations = array();
+
+		if ( '' !== trim( $color ) ) {
+			$declarations[] = 'color:' . esc_attr( $color );
+		}
+
+		if ( '' !== trim( $font_size ) ) {
+			$declarations[] = 'font-size:' . esc_attr( $font_size );
+		}
+
+		return empty( $declarations ) ? '' : ' style="' . implode( ';', $declarations ) . '"';
 	}
 
 	/**

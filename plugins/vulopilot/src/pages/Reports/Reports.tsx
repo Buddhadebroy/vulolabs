@@ -5,6 +5,8 @@ import { NavigatorComponent } from '@zyra/components';
 import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import OverviewTab from './OverviewTab';
 import HistoryTab from './HistoryTab';
+import ReportsOverviewActions from './ReportsOverviewActions';
+import { DAY_OPTIONS } from './reportsOverview';
 
 const TAB_IDS = ['overview', 'history'] as const;
 
@@ -35,6 +37,13 @@ const Reports = () => {
 	// No setter needed - unlike AIAssistant.tsx's own `activeTab`, nothing here ever triggers a
 	// cross-tab jump from inside a tab's own content.
 	const [activeTab] = useState<(typeof TAB_IDS)[number]>(initialTab);
+
+	// Lifted up from OverviewTab.tsx so the page header's own `headerCustomContent`
+	// (ReportsOverviewActions.tsx, Overview tab only) and OverviewTab's own cards read the same
+	// real state, not two separate copies of it.
+	const [days, setDays] = useState<number>(DAY_OPTIONS[1]);
+	const [refreshKey, setRefreshKey] = useState(0);
+
 	const settingContent = TAB_IDS.map((tabId) => ({
 		type: 'file' as const,
 		content: {
@@ -48,7 +57,7 @@ const Reports = () => {
 	const getForm = (tabId: string) => {
 		switch (tabId) {
 			case 'overview':
-				return <OverviewTab />;
+				return <OverviewTab days={days} refreshKey={refreshKey} />;
 			case 'history':
 				return <HistoryTab />;
 			default:
@@ -64,7 +73,15 @@ const Reports = () => {
 				currentSetting={activeTab}
 				getForm={getForm}
 				headerCustomContent={
-					<RunScanHeaderExtra settingsSubtab="reports" />
+					'overview' === activeTab ? (
+						<ReportsOverviewActions
+							days={days}
+							onDaysChange={setDays}
+							onDataChanged={() => setRefreshKey((key) => key + 1)}
+						/>
+					) : (
+						<RunScanHeaderExtra settingsSubtab="reports" />
+					)
 				}
 				settingName="Reports"
 				prepareUrl={(subTab: string) =>
