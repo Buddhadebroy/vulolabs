@@ -13,6 +13,7 @@ import {
 	FindingGroup,
 	findTabIdForCategory,
 	formatAffected,
+	groupKey,
 	issueIconFor,
 } from '../../components/Issues/issuesTypes';
 
@@ -116,13 +117,12 @@ const IssuesList: React.FC<IssuesListProps> = ({
 					if (
 						current &&
 						response.data.some(
-							(group) => group.scanner_id === current.scanner_id
+							(group) => groupKey(group) === groupKey(current)
 						)
 					) {
 						return (
 							response.data.find(
-								(group) =>
-									group.scanner_id === current.scanner_id
+								(group) => groupKey(group) === groupKey(current)
 							) ?? current
 						);
 					}
@@ -156,7 +156,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 	/** Toggles the detail panel open/closed for a group row. */
 	const selectGroup = (group: FindingGroup) => {
 		setSelectedGroup((current) => {
-			if (group.scanner_id === current?.scanner_id) {
+			if (current && groupKey(group) === groupKey(current)) {
 				return null;
 			}
 
@@ -226,7 +226,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 							hideHeader={true}
 							categoryCounts={tableCategoryCounts}
 							activeCategory={activeTabId}
-							activeRowId={selectedGroup?.scanner_id}
+							activeRowId={selectedGroup ? groupKey(selectedGroup) : undefined}
 							// Toggles the detail panel open/closed.
 							onRowClick={(row: Record<string, unknown>) => {
 								selectGroup(row as unknown as FindingGroup);
@@ -256,21 +256,21 @@ const IssuesList: React.FC<IssuesListProps> = ({
 										{
 											type: 'button',
 											label: (row) =>
-												(row as unknown as FindingGroup)
-													.scanner_id ===
-													selectedGroup?.scanner_id
+												selectedGroup &&
+												groupKey(row as unknown as FindingGroup) ===
+													groupKey(selectedGroup)
 													? __('Showing', 'vulopilot')
 													: __('More Details', 'vulopilot'),
 											color: (row) =>
-												(row as unknown as FindingGroup)
-													.scanner_id ===
-													selectedGroup?.scanner_id
+												selectedGroup &&
+												groupKey(row as unknown as FindingGroup) ===
+													groupKey(selectedGroup)
 													? 'text-green'
 													: 'text-purple',
 											icon: (row) =>
-												(row as unknown as FindingGroup)
-													.scanner_id ===
-													selectedGroup?.scanner_id
+												selectedGroup &&
+												groupKey(row as unknown as FindingGroup) ===
+													groupKey(selectedGroup)
 													? 'eye'
 													: 'pagination-next-arrow',
 											onClick: (row) => {
@@ -299,7 +299,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 									{ text: row.severity, color: `badge-${row.severity}` },
 								],
 							}))}
-							ids={data.map((row) => row.scanner_id)}
+							ids={data.map((row) => groupKey(row))}
 							totalRows={total}
 							isLoading={isLoading}
 							onQueryUpdate={(query: {

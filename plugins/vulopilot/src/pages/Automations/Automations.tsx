@@ -82,12 +82,19 @@ const Automations = () => {
 	const [viewingRow, setViewingRow] = useState<AutomationRow | null>(null);
 	const [pendingTemplate, setPendingTemplate] = useState<AutomationTemplate | null>(null);
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
+	// Header button row starts collapsed to "Build with AI" + one common "create" button; clicking
+	// that common button expands it into "Create Your Own"/"Choose a Template" (Build with AI
+	// hidden meanwhile), per direct instruction - collapses back to the default pair once either
+	// of those two is actually clicked.
+	const [isCreateMenuExpanded, setIsCreateMenuExpanded] = useState(false);
 
 	const openProPopup = () => setIsProPopupOpen(true);
 
 	const handleSaved = () => setRefetchSignal((n) => n + 1);
 
 	const openCreateWizard = () => {
+		setIsCreateMenuExpanded(false);
+
 		if (!Wizard) {
 			openProPopup();
 			return;
@@ -108,6 +115,8 @@ const Automations = () => {
 	};
 
 	const openTemplatesLibrary = () => {
+		setIsCreateMenuExpanded(false);
+
 		if (!Templates) {
 			openProPopup();
 			return;
@@ -192,25 +201,36 @@ const Automations = () => {
 							'vulopilot'
 						)
 				}
-				buttons={[
-					{
-						label: __('Build with AI', 'vulopilot'),
-						icon: 'automation',
-						color: 'border-purple',
-						onClick: openGenerate,
-					},
-					{
-						label:  __('Create Your Own', 'vulopilot'),
-						icon: 'plus',
-						color: 'border-purple',
-						onClick: openCreateWizard,
-					},
-					{
-						label:  __('Choose a Template', 'vulopilot'),
-						icon: 'search',
-						onClick: openTemplatesLibrary,
-					},
-				]}
+				buttons={
+					isCreateMenuExpanded
+						? [
+							{
+								label: __('Create Your Own', 'vulopilot'),
+								icon: 'plus',
+								color: 'border-purple',
+								onClick: openCreateWizard,
+							},
+							{
+								label: __('Choose a Template', 'vulopilot'),
+								icon: 'search',
+								onClick: openTemplatesLibrary,
+							},
+						]
+						: [							
+							{
+								label: __('Create Automation', 'vulopilot'),
+								icon: 'plus',
+								color: 'border-purple',
+								onClick: () => setIsCreateMenuExpanded(true),
+							},
+							{
+								label: __('Build with AI', 'vulopilot'),
+								icon: 'automation',
+								color: 'orange-bg',
+								onClick: openGenerate,
+							},
+						]
+				}
 			/>
 
 			<ContainerComponent general>

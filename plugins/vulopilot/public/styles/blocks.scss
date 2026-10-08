@@ -1,103 +1,556 @@
 .vulopilot-toc {
-	margin: 1.5em 0;
-	padding: 1em 1.25em;
+	// Section style - the block's own outer box. Each side falls back to the
+	// pre-style-settings default (1.5em 0 / 1em 1.25em) when its own
+	// `--toc-section-*` var isn't set (styleVars.js/TableOfContentsRenderer.php's
+	// `build_style_attribute()` only ever emit a var for an attribute that's
+	// actually been changed from its block.json default).
+	margin: var(--toc-section-margin-top, 1.5em) var(--toc-section-margin-right, 0)
+		var(--toc-section-margin-bottom, 1.5em) var(--toc-section-margin-left, 0);
+	padding: var(--toc-section-padding-top, 1em) var(--toc-section-padding-right, 1.25em)
+		var(--toc-section-padding-bottom, 1em) var(--toc-section-padding-left, 1.25em);
 	border: 1px solid #dcdcde;
 	border-radius: 4px;
-	background: #f6f7f7;
+	background: var(--toc-section-background, #f6f7f7);
 
-	&__title {
-		margin: 0 0 0.5em;
+	&-title {
+		// Title style.
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5em;
+		margin: var(--toc-title-margin-top, 0) var(--toc-title-margin-right, 0)
+			var(--toc-title-margin-bottom, 0.5em) var(--toc-title-margin-left, 0);
+		padding: var(--toc-title-padding-top, 0) var(--toc-title-padding-right, 0)
+			var(--toc-title-padding-bottom, 0) var(--toc-title-padding-left, 0);
 		font-weight: 600;
+		color: var(--toc-title-color, inherit);
+		font-size: var(--toc-title-font-size, inherit);
+		line-height: var(--toc-title-line-height, 1.4);
 	}
 
-	&__empty {
+	&-empty {
 		margin: 0;
 		color: #6b7280;
 		font-style: italic;
 	}
 
-	&__list {
+	&-sample-label {
+		margin: 0.5em 0 0;
+		color: #6b7280;
+		font-style: italic;
+	}
+
+	&-list {
+		// Content style - the heading list itself.
 		margin: 0;
 		padding-left: 1.25em;
-		list-style: disc;
+		list-style: var(--toc-content-list-style, disc);
+		color: var(--toc-content-color, inherit);
+		font-size: var(--toc-content-font-size, inherit);
+		line-height: var(--toc-content-line-height, 1.6);
 	}
 
-	&__item {
-		margin: 0.25em 0;
+	// A nested sub-list sits inside its own parent `<li>`, so it only needs
+	// its own indent (not the flat list's own `&-item--level-N` margin,
+	// which is flat-list-only - see index.js/TableOfContentsRenderer.php's
+	// own nested-vs-flat branch).
+	&-sublist {
+		padding-left: 1.25em;
+		margin: var(--toc-content-gap, 0.25em) 0 0;
+	}
+
+	// Flat-list-only indentation (nested mode gets its real indent from
+	// `&-sublist` above, nesting inside the parent's own `<li>`).
+	&:not(.vulopilot-toc--nested) {
+		@for $level from 2 through 6 {
+			.vulopilot-toc-item--level-#{$level} {
+				margin-left: #{( $level - 2 ) * 1em};
+			}
+		}
+	}
+
+	&-item {
+		margin: var(--toc-content-gap, 0.25em) 0;
 
 		a {
+			display: inline-flex;
+			align-items: baseline;
+			gap: 0.375em;
 			text-decoration: none;
+			color: inherit;
 		}
 
-		a:hover {
+		a:hover,
+		a:focus-visible {
 			text-decoration: underline;
 		}
-	}
 
-	@for $level from 2 through 6 {
-		&__item--level-#{$level} {
-			margin-left: #{( $level - 2 ) * 1em};
+		a:focus-visible {
+			outline: 2px solid currentcolor;
+			outline-offset: 2px;
 		}
 	}
 
-	&__details summary {
+	&-number {
+		flex-shrink: 0;
+		font-variant-numeric: tabular-nums;
+		opacity: 0.75;
+	}
+
+	&-toggle-icon {
+		flex-shrink: 0;
+		transition: transform 0.2s ease;
+	}
+
+	&-details summary {
 		cursor: pointer;
 		font-weight: 600;
+		list-style: none;
 
 		&::-webkit-details-marker {
-			color: #50575e;
+			display: none;
+		}
+
+		&::marker {
+			content: '';
 		}
 	}
 
-	&__details[open] summary {
+	&-details[open] summary {
 		margin-bottom: 0.5em;
 	}
+
+	// Closed by default (points right, matching the mockup's own "collapse
+	// icon aligned to the right"); rotated to point down once expanded.
+	&-details:not([open]) &-toggle-icon {
+		transform: rotate(-90deg);
+	}
 }
 
+@media (prefers-reduced-motion: reduce) {
+	.vulopilot-toc-toggle-icon {
+		transition-duration: 0s !important;
+	}
+}
+
+// Real accordion design - one single canonical style, fully `var(--faq-*, <default>)`-driven so
+// the editor's own Style tab (index.js's own `buildFaqStyleVars()`) and the frontend
+// (FaqRenderer.php's own PHP mirror of that same mapping) always render identically, and two FAQ
+// blocks on the same page can carry independent styles (each block's own inline `style="--faq-…"`
+// attribute only ever affects its own `.vulopilot-faq` instance - these rules never hardcode a
+// value that would leak between instances). `FaqAccordion.js` is the one shared component that
+// builds this same DOM shape for both JS-rendered surfaces (editor canvas, live style preview);
+// FaqRenderer.php mirrors it by hand for the frontend.
 .vulopilot-faq {
-	margin: 1.5em 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--faq-item-gap, 1rem);
+	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
 
-	&__empty {
-		color: #6b7280;
-		font-style: italic;
-	}
+	background: var(--faq-container-background, transparent);
+	padding: var(--faq-container-padding-top, 0) var(--faq-container-padding-right, 0)
+		var(--faq-container-padding-bottom, 0) var(--faq-container-padding-left, 0);
+	border: var(--faq-container-border-width, 0) var(--faq-container-border-style, solid)
+		var(--faq-container-border-color, transparent);
+	border-radius: var(--faq-container-radius, 0);
+	box-shadow: var(--faq-container-shadow, none);
+}
 
-	&__item {
-		border-bottom: 1px solid #dcdcde;
-		padding: 0.75em 0;
-	}
+/* FAQ item */
+.vulopilot-faq__item {
+	background: var(--faq-item-background, #fff);
+	border: var(--faq-item-border-width, 0.0625rem) var(--faq-item-border-style, solid)
+		var(--faq-item-border-color, #e6e9f2);
+	border-radius: var(--faq-item-radius, 0.75rem);
+	box-shadow: var(--faq-item-shadow, none);
+	overflow: hidden;
+	max-width: 100%;
+	box-sizing: border-box;
+	transition:
+		border-color var(--faq-animation-duration, 0.2s) ease,
+		box-shadow var(--faq-animation-duration, 0.2s) ease;
+}
 
-	&__question {
-		cursor: pointer;
-		font-weight: 600;
-	}
+.vulopilot-faq__item:hover {
+	border-color: var(--faq-hover-border-color, #cbd4f5);
+}
 
-	&__answer {
-		margin-top: 0.5em;
-		color: #3c434a;
-	}
+.vulopilot-faq__item[open] {
+	border-color: var(--faq-expanded-border-color, #b8c6f2);
+	box-shadow: var(--faq-expanded-shadow, 0 0.25rem 1rem rgba(0, 41, 145, 0.06));
+}
 
-	&__editor-row {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5em;
-		margin-bottom: 1em;
-		padding: 0.75em;
-		border: 1px dashed #8c8f94;
-		border-radius: 4px;
-	}
+/* Question */
+.vulopilot-faq__question,
+.vulopilot-faq__question--static {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	padding: var(--faq-question-padding-top, 1.25rem) var(--faq-question-padding-right, 1.25rem)
+		var(--faq-question-padding-bottom, 1.25rem) var(--faq-question-padding-left, 1.25rem);
 
-	&__question-input {
-		font-weight: 600;
-		border: none;
-		border-bottom: 1px solid #dcdcde;
-		padding: 0.25em 0;
-	}
+	font-family: var(--faq-question-font-family, inherit);
+	font-size: var(--faq-question-font-size, 1.125rem);
+	font-weight: var(--faq-question-font-weight, 600) !important;
+	line-height: var(--faq-question-line-height, 1.4);
+	letter-spacing: var(--faq-question-letter-spacing, normal);
+	text-align: var(--faq-question-text-align, left);
+	color: var(--faq-question-color, #1f2937);
+	background: var(--faq-question-background, transparent);
+	cursor: pointer;
+	list-style: none;
+	user-select: none;
+	box-sizing: border-box;
+}
 
-	&__answer-input {
-		min-height: 2.5em;
-		border: 1px solid #dcdcde;
-		border-radius: 2px;
-		padding: 0.5em;
+.vulopilot-faq__question-text {
+	flex: 1;
+	margin: 0;
+	font: inherit;
+	color: inherit;
+	text-align: inherit;
+}
+
+.vulopilot-faq__question--static {
+	cursor: default;
+	user-select: text;
+}
+
+.vulopilot-faq__question::-webkit-details-marker {
+	display: none;
+}
+
+.vulopilot-faq__question::marker {
+	content: '';
+}
+
+/* Toggle icon */
+.vulopilot-faq__icon {
+	flex-shrink: 0;
+	order: 2;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	width: var(--faq-icon-size, 1.75rem);
+	height: var(--faq-icon-size, 1.75rem);
+	border-radius: var(--faq-icon-radius, 0.4375rem);
+
+	background: var(--faq-icon-background, #f2f5ff);
+	color: var(--faq-icon-color, var(--color-primary, #002991));
+
+	font-size: 1.25rem;
+	font-weight: 400;
+	line-height: 1;
+
+	transition: background var(--faq-animation-duration, 0.2s) ease,
+		color var(--faq-animation-duration, 0.2s) ease;
+}
+
+.vulopilot-faq--icon-right .vulopilot-faq__icon {
+	margin-left: var(--faq-icon-spacing, 0.813rem);
+	order: 2;
+}
+
+.vulopilot-faq--icon-left .vulopilot-faq__question {
+	flex-direction: row-reverse;
+}
+
+.vulopilot-faq--icon-left .vulopilot-faq__icon {
+	margin-right: var(--faq-icon-spacing, 0.813rem);
+}
+
+.vulopilot-faq__icon-open {
+	display: none;
+}
+
+.vulopilot-faq__item[open] .vulopilot-faq__icon-closed {
+	display: none;
+}
+
+.vulopilot-faq__item[open] .vulopilot-faq__icon-open {
+	display: block;
+}
+
+/* Open state */
+.vulopilot-faq__item[open] .vulopilot-faq__question {
+	color: var(--faq-expanded-question-color, var(--color-primary, #002991));
+	background: var(--faq-expanded-background, transparent);
+}
+
+.vulopilot-faq__item[open] .vulopilot-faq__icon {
+	background: var(--faq-expanded-icon-background, var(--color-primary, #002991));
+	color: var(--faq-expanded-icon-color, #fff);
+}
+
+/* Answer */
+.vulopilot-faq__answer {
+	padding: var(--faq-answer-padding-top, 1.25rem) var(--faq-answer-padding-right, 1.25rem)
+		var(--faq-answer-padding-bottom, 1.25rem) var(--faq-answer-padding-left, 1.25rem);
+	border-top: 0.0625rem solid #eef0f5;
+
+	font-family: var(--faq-answer-font-family, inherit);
+	font-size: var(--faq-answer-font-size, 1rem);
+	font-weight: var(--faq-answer-font-weight, 400);
+	line-height: var(--faq-answer-line-height, 1.6);
+	color: var(--faq-answer-color, #1f2937);
+	background: var(--faq-answer-background, transparent);
+	max-width: 100%;
+	box-sizing: border-box;
+	overflow-wrap: break-word;
+
+	a {
+		color: var(--faq-answer-link-color, var(--color-primary, #002991));
 	}
 }
+
+.vulopilot-faq__item--static .vulopilot-faq__answer {
+	border-top: none;
+}
+
+/* Keyboard accessibility */
+.vulopilot-faq__question:focus-visible {
+	outline: 0.125rem solid var(--faq-focus-color, var(--color-primary, #002991));
+	outline-offset: -0.125rem;
+	border-radius: 0.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.vulopilot-faq__item,
+	.vulopilot-faq__icon {
+		transition-duration: 0s !important;
+	}
+}
+
+.vulopilot-faq--no-animation {
+	.vulopilot-faq__item,
+	.vulopilot-faq__icon {
+		transition-duration: 0s !important;
+	}
+}
+
+/* Tablet */
+@media (max-width: 48.875rem) {
+	.vulopilot-faq {
+		gap: var(--faq-tablet-item-gap, var(--faq-item-gap, 0.75rem));
+	}
+
+	.vulopilot-faq__question,
+	.vulopilot-faq__question--static {
+		font-size: var(--faq-tablet-question-font-size, var(--faq-question-font-size, 1.125rem));
+	}
+
+	.vulopilot-faq__answer {
+		font-size: var(--faq-tablet-answer-font-size, var(--faq-answer-font-size, 1rem));
+	}
+
+	.vulopilot-faq__icon {
+		width: var(--faq-tablet-icon-size, var(--faq-icon-size, 1.75rem));
+		height: var(--faq-tablet-icon-size, var(--faq-icon-size, 1.75rem));
+	}
+}
+
+/* Mobile */
+@media (max-width: 37.5rem) {
+	.vulopilot-faq {
+		gap: var(--faq-mobile-item-gap, var(--faq-tablet-item-gap, 0.5rem));
+	}
+
+	.vulopilot-faq__question,
+	.vulopilot-faq__question--static {
+		padding: 0.9375rem 3rem 0.9375rem 1rem;
+		font-size: var(
+			--faq-mobile-question-font-size,
+			var(--faq-tablet-question-font-size, 0.9375rem)
+		);
+	}
+
+	.vulopilot-faq--icon-left .vulopilot-faq__question {
+		padding: 0.9375rem 1rem 0.9375rem 3rem;
+	}
+
+	.vulopilot-faq__icon {
+		width: var(--faq-mobile-icon-size, var(--faq-tablet-icon-size, 1.625rem));
+		height: var(--faq-mobile-icon-size, var(--faq-tablet-icon-size, 1.625rem));
+	}
+
+	.vulopilot-faq__answer {
+		margin: 0 1rem;
+		padding: 0.75rem 1.75rem 1rem 0;
+		font-size: var(
+			--faq-mobile-answer-font-size,
+			var(--faq-tablet-answer-font-size, 0.875rem)
+		);
+	}
+}
+
+.vulopilot-faq__empty {
+	color: #6b7280;
+	font-style: italic;
+}
+
+
+// Editor-only chrome below - never rendered by FaqRenderer.php, so it can't affect the frontend's
+// own byte-identical copy of the rules above.
+
+// Appearance preset picker (index.js's own Style tab, `APPEARANCE_PRESETS`) - 3 real buttons, each
+// a small illustrative swatch + label, selected state highlighted by a real theme-color border.
+// Purely editor chrome, never rendered by FaqRenderer.php.
+.vulopilot-faq-appearance-options {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.vulopilot-faq-appearance-option {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.375rem;
+	padding: 0.5rem;
+	border: 0.0625rem solid #e2e4e7;
+	border-radius: 0.375rem;
+	background: #fff;
+	cursor: pointer;
+
+	&:hover {
+		border-color: #cbd4f5;
+	}
+
+	&.is-selected {
+		border-color: var(--color-primary, #002991);
+		box-shadow: 0 0 0 0.0625rem var(--color-primary, #002991);
+	}
+}
+
+.vulopilot-faq-appearance-option-swatch {
+	display: block;
+	width: 100%;
+	height: 2rem;
+	border-radius: 0.25rem;
+	background: #f0f1f4;
+
+	&--cards {
+		background: #fff;
+		border: 0.0625rem solid #e6e9f2;
+		box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.08);
+	}
+
+	&--dividers {
+		background: #fff;
+		border-bottom: 0.0625rem solid #e6e9f2;
+		border-radius: 0;
+	}
+
+	&--minimal {
+		background: transparent;
+	}
+}
+
+.vulopilot-faq-appearance-option-label {
+	font-size: 0.75rem;
+	font-weight: 500;
+}
+
+// Content tab's own "Questions & answers" panel (index.js) - a single-open accordion-of-rows,
+// each row a numbered badge + the question text + a chevron, expanding to real Question/Answer
+// fields plus Duplicate/Remove - a sidebar mirror of the same canvas RichText editing, not a
+// second source of truth (both read/write the one real `questions` attribute).
+.vulopilot-faq-qa-count {
+	margin-left: 0.5rem;
+	padding: 0.125rem 0.5rem;
+	border-radius: 1rem;
+	background: #f0f1f4;
+	color: #50575e;
+	font-size: 0.75rem;
+	font-weight: 400;
+}
+
+.vulopilot-faq-qa-item {
+	border: 0.0625rem solid #e2e4e7;
+	border-radius: 0.25rem;
+	margin-bottom: 0.5rem;
+	overflow: hidden;
+
+	&.is-open {
+		border-color: #cbd4f5;
+	}
+}
+
+.vulopilot-faq-qa-item__header {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	width: 100%;
+	padding: 0.625rem 0.75rem;
+	background: #fff;
+	border: none;
+	cursor: pointer;
+	text-align: left;
+}
+
+.vulopilot-faq-qa-item__badge {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.5rem;
+	height: 1.5rem;
+	border-radius: 50%;
+	background: var(--color-primary, #002991);
+	color: #fff;
+	font-size: 0.6875rem;
+	font-weight: 600;
+}
+
+.vulopilot-faq-qa-item__title {
+	flex: 1;
+	font-size: 0.8125rem;
+	font-weight: 500;
+	color: #1f2937;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.vulopilot-faq-qa-item__chevron {
+	flex-shrink: 0;
+	color: #757575;
+}
+
+.vulopilot-faq-qa-item__body {
+	padding: 0 0.75rem 0.75rem;
+	border-top: 0.0625rem solid #f0f1f4;
+
+	> * {
+		margin-top: 0.75rem;
+	}
+}
+
+.vulopilot-faq-qa-item__actions {
+	display: flex;
+	justify-content: space-between;
+}
+
+.vulopilot-faq-qa-add {
+	width: 100%;
+	justify-content: center;
+	margin-top: 0.25rem;
+}
+
+.vulopilot-faq-qa-hint {
+	margin: 0.5rem 0 0;
+	color: #757575;
+	font-size: 0.75rem;
+	font-style: italic;
+}
+
+.vulopilot-faq-sidebar-empty {
+	color: #6b7280;
+	font-style: italic;
+}
+

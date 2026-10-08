@@ -1425,15 +1425,15 @@
 	margin-bottom: 0.25rem;
 }
 
-.schema-inspector-actions {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.625rem;
-}
-
 .schema-inspector-jsonld-actions {
 	display: flex;
 	gap: 0.5rem;
+
+	// Same real breathing room `.rt-editor-actions`'s own `margin-top`
+	// gives its own button-then-editor pairing (CrawlRobotsSitemapSection.tsx's
+	// "Test robots.txt") - without this the buttons sit flush against the
+	// "JSON-LD" label above and the code block right below.
+	margin: 0.625rem 0;
 }
 
 .schema-inspector-jsonld-block {

@@ -7,6 +7,12 @@ defined( 'ABSPATH' ) || exit;
  * Render logic for the `vulopilot/table-of-contents` block, kept out of render.php because
  * WP loads that file with `require`.
  *
+ * Mirrors `index.js`'s own filter/tree/numbering logic by hand (same "one mapping, two renderers"
+ * shape `styleVars.js`'s own docblock already documents for the style attributes) - a real anchor
+ * (`HeadingAnchorResolver::collect()`) is only ever computed here, never in JS (see `headingTree.js`'s
+ * own docblock), so heading `level:text` pairs (`heading_key()`) are what both sides key an
+ * exclusion/identity on.
+ *
  * @class       TableOfContentsRenderer class
  * @version     1.0.0
  * @author      VuloLabs
@@ -14,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
 class TableOfContentsRenderer {
 
 	/**
-	 * @param array<string, mixed> $attributes Real block attributes (title/minLevel/maxLevel/collapsible).
+	 * @param array<string, mixed> $attributes Real block attributes.
 	 * @param int                  $post_id    The post this block instance is rendering on.
 	 * @return string Real HTML, or '' if the post has no matching headings (no empty shell rendered).
 	 */
@@ -23,62 +29,277 @@ class TableOfContentsRenderer {
 			return '';
 		}
 
-		$min_level   = isset( $attributes['minLevel'] ) ? (int) $attributes['minLevel'] : 2;
-		$max_level   = isset( $attributes['maxLevel'] ) ? (int) $attributes['maxLevel'] : 6;
-		$title       = ! empty( $attributes['title'] ) ? (string) $attributes['title'] : __( 'Table of Contents', 'vulopilot' );
-		$collapsible = ! empty( $attributes['collapsible'] );
+		$title          = ! empty( $attributes['title'] ) ? (string) $attributes['title'] : __( 'Table of Contents', 'vulopilot' );
+		$show_title     = ! isset( $attributes['showTitle'] ) || ! empty( $attributes['showTitle'] );
+		$nested         = ! isset( $attributes['nestedList'] ) || ! empty( $attributes['nestedList'] );
+		$collapsible    = ! empty( $attributes['collapsible'] );
+		$initially_open = 'collapsed' !== ( $attributes['collapseInitialState'] ?? 'expanded' );
+		$marker_style   = ! empty( $attributes['contentListStyle'] ) ? (string) $attributes['contentListStyle'] : 'disc';
+		$hierarchical   = 'hierarchical' === $marker_style;
+		$smooth_scroll  = ! isset( $attributes['smoothScroll'] ) || ! empty( $attributes['smoothScroll'] );
+		$scroll_offset  = isset( $attributes['scrollOffset'] ) ? (int) $attributes['scrollOffset'] : 0;
 
-		$headings = array_values(
-			array_filter(
-				HeadingAnchorResolver::collect( $post_id ),
-				static function ( array $heading ) use ( $min_level, $max_level ): bool {
-					return $heading['level'] >= $min_level && $heading['level'] <= $max_level;
-				}
-			)
-		);
+		$headings = self::filter_headings( HeadingAnchorResolver::collect( $post_id ), $attributes );
 
 		if ( empty( $headings ) ) {
 			return '';
 		}
 
-		$list_html          = self::build_list( $headings );
-		$wrapper_attributes = get_block_wrapper_attributes( array( 'class' => 'vulopilot-toc' ) );
+		$list_id   = wp_unique_id( 'vulopilot-toc-list-' );
+		$list_html = $nested
+			? self::build_nested_list( self::build_tree( $headings ), $hierarchical, '', $list_id )
+			: self::build_flat_list( $headings, $hierarchical, $list_id );
+
+		$style = self::build_style_attribute(
+			array_merge(
+				$attributes,
+				// 'hierarchical' isn't a real CSS `list-style-type` - numbers render as literal
+				// text instead (`build_number_prefix()`), so the native marker is hidden either way.
+				array( 'contentListStyle' => $hierarchical ? 'none' : $marker_style )
+			)
+		);
+
+		$wrapper_attributes = get_block_wrapper_attributes(
+			array(
+				'class'              => $nested ? 'vulopilot-toc vulopilot-toc--nested' : 'vulopilot-toc',
+				'style'              => $style,
+				'data-smooth-scroll' => $smooth_scroll ? 'true' : 'false',
+				'data-scroll-offset' => (string) $scroll_offset,
+			)
+		);
+
+		$title_html = '';
+		if ( $show_title ) {
+			$icon_html  = $collapsible ? '<i class="adminfont-keyboard-arrow-down vulopilot-toc-toggle-icon" aria-hidden="true"></i>' : '';
+			$title_html = $collapsible
+				? sprintf(
+					'<summary class="vulopilot-toc-title" aria-controls="%1$s">%2$s%3$s</summary>',
+					esc_attr( $list_id ),
+					esc_html( $title ),
+					$icon_html
+				)
+				: sprintf( '<p class="vulopilot-toc-title">%s</p>', esc_html( $title ) );
+		}
 
 		if ( $collapsible ) {
 			return sprintf(
-				'<nav %1$s aria-label="%2$s"><details class="vulopilot-toc__details" open><summary class="vulopilot-toc__title">%3$s</summary>%4$s</details></nav>',
+				'<nav %1$s aria-label="%2$s"><details class="vulopilot-toc-details"%3$s>%4$s%5$s</details></nav>',
 				$wrapper_attributes,
 				esc_attr( $title ),
-				esc_html( $title ),
+				$initially_open ? ' open' : '',
+				$title_html,
 				$list_html
 			);
 		}
 
 		return sprintf(
-			'<nav %1$s aria-label="%2$s"><p class="vulopilot-toc__title">%3$s</p>%4$s</nav>',
+			'<nav %1$s aria-label="%2$s">%3$s%4$s</nav>',
 			$wrapper_attributes,
 			esc_attr( $title ),
-			esc_html( $title ),
+			$title_html,
 			$list_html
 		);
 	}
 
 	/**
-	 * @param array<int, array{level: int, text: string, anchor: string}> $headings Already level-filtered.
+	 * Same real `level:text` identifier `headingTree.js`'s own `headingKey()` computes - a real
+	 * anchor isn't known on the JS side (see that file's own docblock), so this is what both sides
+	 * key an `excludedHeadings` entry on.
+	 *
+	 * @param array{level: int, text: string} $heading A single real heading.
 	 * @return string
 	 */
-	private static function build_list( array $headings ): string {
-		$items = '';
+	private static function heading_key( array $heading ): string {
+		return $heading['level'] . ':' . wp_strip_all_tags( $heading['text'] );
+	}
+
+	/**
+	 * Real mirror of `headingTree.js`'s own `filterHeadings()`.
+	 *
+	 * @param array<int, array{level: int, text: string, anchor: string}> $headings   Every real heading, unfiltered.
+	 * @param array<string, mixed>                                        $attributes Real block attributes.
+	 * @return array<int, array{level: int, text: string, anchor: string}>
+	 */
+	private static function filter_headings( array $headings, array $attributes ): array {
+		$included_levels = array_map( 'intval', $attributes['includedLevels'] ?? array() );
+		$min_level       = isset( $attributes['minLevel'] ) ? (int) $attributes['minLevel'] : 2;
+		$max_level       = isset( $attributes['maxLevel'] ) ? (int) $attributes['maxLevel'] : 6;
+		$excluded        = array_flip( $attributes['excludedHeadings'] ?? array() );
+
+		return array_values(
+			array_filter(
+				$headings,
+				static function ( array $heading ) use ( $included_levels, $min_level, $max_level, $excluded ): bool {
+					$level_allowed = ! empty( $included_levels )
+						? in_array( $heading['level'], $included_levels, true )
+						: ( $heading['level'] >= $min_level && $heading['level'] <= $max_level );
+
+					return $level_allowed && ! isset( $excluded[ self::heading_key( $heading ) ] );
+				}
+			)
+		);
+	}
+
+	/**
+	 * Real mirror of `headingTree.js`'s own `buildHeadingTree()` - a heading nests under the
+	 * nearest *preceding* heading with a shallower level.
+	 *
+	 * @param array<int, array{level: int, text: string, anchor: string}> $headings Already filtered, document order.
+	 * @return array<int, array<string, mixed>> Each node is `$heading + ['children' => [...]]`.
+	 */
+	private static function build_tree( array $headings ): array {
+		$root  = array(
+			'level'    => 0,
+			'children' => array(),
+		);
+		$stack = array( &$root );
 
 		foreach ( $headings as $heading ) {
+			$node             = $heading;
+			$node['children'] = array();
+
+			$stack_size = count( $stack );
+			while ( $stack_size > 1 && $stack[ $stack_size - 1 ]['level'] >= $heading['level'] ) {
+				array_pop( $stack );
+				--$stack_size;
+			}
+
+			$parent_index                         = $stack_size - 1;
+			$stack[ $parent_index ]['children'][] = $node;
+			$new_child_index                      = count( $stack[ $parent_index ]['children'] ) - 1;
+			$stack[]                              = &$stack[ $parent_index ]['children'][ $new_child_index ];
+		}
+
+		return $root['children'];
+	}
+
+	/**
+	 * Real mirror of `headingTree.js`'s own `assignHierarchicalNumbers()` + list render.
+	 *
+	 * @param array<int, array<string, mixed>> $nodes        `build_tree()` output (or one node's own 'children').
+	 * @param bool                             $hierarchical Whether to compute "1"/"1.1" numbering.
+	 * @param string                           $prefix       Already-resolved parent number, e.g. '1' - '' at the root.
+	 * @param string                           $list_id      Real `id` attribute - only ever passed by the *top-level*
+	 *                                                        call (`render()`); recursive sub-list calls below never
+	 *                                                        pass one, so only the outermost `<ul>` ever gets an id
+	 *                                                        (and the `vulopilot-toc-sublist` modifier class, which
+	 *                                                        also only applies to a nested sub-list, not the root).
+	 * @return string
+	 */
+	private static function build_nested_list( array $nodes, bool $hierarchical, string $prefix = '', string $list_id = '' ): string {
+		if ( empty( $nodes ) ) {
+			return '';
+		}
+
+		$items = '';
+
+		foreach ( $nodes as $index => $node ) {
+			$position      = $index + 1;
+			$number        = $hierarchical ? ( '' !== $prefix ? "{$prefix}.{$position}" : (string) $position ) : '';
+			$number_html   = '' !== $number ? sprintf( '<span class="vulopilot-toc-number">%s</span>', esc_html( $number ) ) : '';
+			$children_html = ! empty( $node['children'] )
+				? self::build_nested_list( $node['children'], $hierarchical, $number )
+				: '';
+
 			$items .= sprintf(
-				'<li class="vulopilot-toc__item vulopilot-toc__item--level-%1$d"><a href="#%2$s">%3$s</a></li>',
+				'<li class="vulopilot-toc-item vulopilot-toc-item--level-%1$d"><a href="#%2$s">%3$s%4$s</a>%5$s</li>',
+				$node['level'],
+				esc_attr( $node['anchor'] ),
+				$number_html,
+				wp_kses_post( $node['text'] ),
+				$children_html
+			);
+		}
+
+		$class        = '' !== $list_id ? 'vulopilot-toc-list' : 'vulopilot-toc-list vulopilot-toc-sublist';
+		$id_attribute = '' !== $list_id ? sprintf( ' id="%s"', esc_attr( $list_id ) ) : '';
+
+		return sprintf( '<ul class="%1$s"%2$s>%3$s</ul>', $class, $id_attribute, $items );
+	}
+
+	/**
+	 * Flat (non-nested) list render - every heading at the same `<li>` depth.
+	 *
+	 * @param array<int, array{level: int, text: string, anchor: string}> $headings     Already level/exclusion-filtered.
+	 * @param bool                                                        $hierarchical Whether to number items sequentially (no real nesting here, so always a flat 1/2/3 count).
+	 * @param string                                                      $list_id      Real `id` attribute for the `<ul>` (`aria-controls` target).
+	 * @return string
+	 */
+	private static function build_flat_list( array $headings, bool $hierarchical, string $list_id = '' ): string {
+		$items = '';
+
+		foreach ( $headings as $index => $heading ) {
+			$number_html = $hierarchical
+				? sprintf( '<span class="vulopilot-toc-number">%d</span>', $index + 1 )
+				: '';
+
+			$items .= sprintf(
+				'<li class="vulopilot-toc-item vulopilot-toc-item--level-%1$d"><a href="#%2$s">%3$s%4$s</a></li>',
 				$heading['level'],
 				esc_attr( $heading['anchor'] ),
+				$number_html,
 				wp_kses_post( $heading['text'] )
 			);
 		}
 
-		return '<ul class="vulopilot-toc__list">' . $items . '</ul>';
+		$id_attribute = '' !== $list_id ? sprintf( ' id="%s"', esc_attr( $list_id ) ) : '';
+
+		return sprintf( '<ul class="vulopilot-toc-list"%1$s>%2$s</ul>', $id_attribute, $items );
+	}
+
+	/**
+	 * Real PHP mirror of `styleVars.js`'s own `buildTocStyleVars()` - same attribute → CSS custom
+	 * property mapping `public/styles/blocks.scss`'s own `.vulopilot-toc` rules read
+	 * (`var(--toc-*, <fallback>)`), so a style set in the editor renders identically on the live
+	 * page. An unset/empty attribute is simply omitted, same as the JS side, so the stylesheet's
+	 * own fallback value applies.
+	 *
+	 * @param array<string, mixed> $attributes Real block attributes.
+	 * @return string A `--name: value;` CSS custom-property declaration list, or '' if nothing is set.
+	 */
+	private static function build_style_attribute( array $attributes ): string {
+		$vars = array();
+
+		$set = static function ( string $name, $value ) use ( &$vars ): void {
+			if ( '' !== $value && null !== $value ) {
+				$vars[ $name ] = $value;
+			}
+		};
+
+		$set_box = static function ( string $prefix, $box ) use ( &$vars, $set ): void {
+			if ( ! is_array( $box ) ) {
+				return;
+			}
+
+			foreach ( array( 'top', 'right', 'bottom', 'left' ) as $side ) {
+				if ( isset( $box[ $side ] ) ) {
+					$set( "{$prefix}-{$side}", $box[ $side ] );
+				}
+			}
+		};
+
+		$set( '--toc-content-font-size', $attributes['contentFontSize'] ?? '' );
+		$set( '--toc-content-color', $attributes['contentColor'] ?? '' );
+		$set( '--toc-content-line-height', $attributes['contentLineHeight'] ?? null );
+		$set( '--toc-content-list-style', $attributes['contentListStyle'] ?? '' );
+		$set( '--toc-content-gap', $attributes['contentGap'] ?? '' );
+
+		$set( '--toc-title-font-size', $attributes['titleFontSize'] ?? '' );
+		$set( '--toc-title-color', $attributes['titleColor'] ?? '' );
+		$set( '--toc-title-line-height', $attributes['titleLineHeight'] ?? null );
+		$set_box( '--toc-title-padding', $attributes['titlePadding'] ?? null );
+		$set_box( '--toc-title-margin', $attributes['titleMargin'] ?? null );
+
+		$set( '--toc-section-background', $attributes['sectionBackground'] ?? '' );
+		$set_box( '--toc-section-padding', $attributes['sectionPadding'] ?? null );
+		$set_box( '--toc-section-margin', $attributes['sectionMargin'] ?? null );
+
+		$declarations = array();
+
+		foreach ( $vars as $name => $value ) {
+			$declarations[] = sprintf( '%s:%s', $name, $value );
+		}
+
+		return implode( ';', $declarations );
 	}
 }

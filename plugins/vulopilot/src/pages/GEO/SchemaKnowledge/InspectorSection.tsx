@@ -2,6 +2,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	CardComponent,
+	ClipboardComponent,
 	ColumnComponent,
 	ModuleGuardComponent,
 	NoticeComponent,
@@ -93,7 +94,6 @@ const InspectorSection = ({
 	const [isLoadingPages, setIsLoadingPages] = useState(true);
 	const [selectedUrl, setSelectedUrl] = useState('');
 	const { result, isInspecting, error, inspect } = useSchemaInspector();
-	const [copyNotice, setCopyNotice] = useState<string | null>(null);
 
 	useEffect(() => {
 		getApiResponse<InspectablePage[]>(
@@ -153,26 +153,15 @@ const InspectorSection = ({
 		},
 	];
 
+	// Real page title (`InspectablePage.title`, same list the left-hand
+	// table already rows from) - falls back to the URL path only if the
+	// selected page somehow isn't in that list, same as `pathOf()`'s own
+	// fallback on an unparseable URL.
+	const selectedPage = pages.find((page) => page.url === selectedUrl);
+
 	const handleSelectPage = (url: string) => {
 		setSelectedUrl(url);
 		inspect(url);
-	};
-
-	const handleCopy = () => {
-		if (!result) {
-			return;
-		}
-		const combined = result.blocks
-			.map((block) => prettyPrint(block.raw))
-			.join('\n\n');
-		navigator.clipboard
-			.writeText(combined)
-			.then(() =>
-				setCopyNotice(__('JSON-LD copied to clipboard.', 'vulopilot'))
-			)
-			.catch(() =>
-				setCopyNotice(__('Could not copy to clipboard.', 'vulopilot'))
-			);
 	};
 
 	const handleExport = () => {
@@ -314,7 +303,7 @@ const InspectorSection = ({
 					</CardComponent>
 				) : (
 					<CardComponent
-						title={pathOf(selectedUrl)}
+						title={selectedPage?.title ?? pathOf(selectedUrl)}
 						titleIcon="search"
 						desc={__(
 							'What search engines actually receive from this page.',
@@ -490,30 +479,25 @@ const InspectorSection = ({
 									</FormGroupComponent>
 								)}
 
-								<FormGroupComponent label={__('Actions', 'vulopilot')}>
-									<div className="schema-inspector-actions">
-										<ButtonInput
-											buttons={{
-												text: __('Open page', 'vulopilot'),
-												icon: 'external',
-												onClick: () =>
-													window.open(result.url, '_blank', 'noreferrer'),
-											}}
-										/>
-										<ButtonInput
-											buttons={{
-												text: __('Validate with Google', 'vulopilot'),
-												icon: 'external',
-												color: 'text-purple',
-												onClick: openRichResultsTest,
-											}}
-										/>
-										<ButtonInput
-											buttons={{
-												text: __('Copy', 'vulopilot'),
-												icon: 'copy',
-												onClick: handleCopy,
-											}}
+								<FormGroupComponent label={__('JSON-LD', 'vulopilot')}>
+									{/* Same "solid action button sitting right above the code
+									block it acts on" shape CrawlRobotsSitemapSection.tsx's own
+									"Test robots.txt" button already establishes for its robots.txt
+									editor - these two act on the JSON-LD below, not the page as a
+									whole, so they sit here rather than in the page-level footer
+									actions below. Copy is a real `ClipboardComponent` (`variant="button"`)
+									instead of a plain `ButtonInput` + hand-rolled notice - it shows its
+									own "Copied!" state on the button itself, no separate notice needed. */}
+									<div className="schema-inspector-jsonld-actions">
+										<ClipboardComponent
+											variant="button"
+											copyButtonLabel={__('Copy', 'vulopilot')}
+											copiedLabel={__('Copied!', 'vulopilot')}
+											onCopy={() =>
+												result.blocks
+													.map((block) => prettyPrint(block.raw))
+													.join('\n\n')
+											}
 										/>
 										<ButtonInput
 											buttons={{
@@ -524,17 +508,6 @@ const InspectorSection = ({
 										/>
 									</div>
 
-									{copyNotice && (
-										<NoticeComponent
-											uniqueKey="vulopilot-schema-inspect-copy"
-											type="success"
-											displayPosition="inline-notice"
-											message={copyNotice}
-										/>
-									)}
-								</FormGroupComponent>
-
-								<FormGroupComponent label={__('JSON-LD', 'vulopilot')}>
 									{result.blocks.map((block) => (
 										<div key={block.index} className="schema-inspector-jsonld-block">
 											<RobotsTxtEditor
@@ -544,6 +517,30 @@ const InspectorSection = ({
 										</div>
 									))}
 								</FormGroupComponent>
+
+								{/* Page-level actions (not JSON-LD-specific) - real full-width
+								stacked buttons at the bottom of the card, same shape
+								IssueDetailPanel.tsx's own "Ignore all"/"Resolve all" footer
+								already establishes (`ButtonInput position="full-width"`,
+								one array of button configs). */}
+								<ButtonInput
+									position="full-width"
+									buttons={[
+										{
+											text: __('Open page', 'vulopilot'),
+											icon: 'external',
+											color: 'border-purple',
+											onClick: () =>
+												window.open(result.url, '_blank', 'noreferrer'),
+										},
+										{
+											text: __('Validate with Google', 'vulopilot'),
+											icon: 'external',
+											color: 'purple-bg',
+											onClick: openRichResultsTest,
+										},
+									]}
+								/>
 							</FormGroupWrapperComponent>
 						)}
 					</CardComponent>

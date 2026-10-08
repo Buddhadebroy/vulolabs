@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { NavigatorComponent } from '@zyra/components';
 import CrawlOverviewSection from './CrawlOverviewSection';
 import BrokenLinksSection from './BrokenLinksSection';
@@ -50,9 +51,41 @@ interface CrawlUrlsTabProps {
  * one tab with 5 real inner tabs.
  */
 const CrawlUrlsTab = ({ initialSection = 'overview' }: CrawlUrlsTabProps) => {
-	// Read once at mount only - `NavigatorComponent` tracks which of its own tabs is active
-	// internally (its own `activeSetting` state).
-	const activeSection: CrawlUrlsSectionId = initialSection;
+	// Same real `currentSetting`/`onNavigate` wiring SiteHealth.tsx's own tab bar already uses - a
+	// real tab-pill click inside `NavigatorComponent` doesn't go through react-router at all, so
+	// without `onNavigate` here the URL never updated on click (it only ever reflected whichever
+	// section this tab first mounted on). `useLocation()` re-reads `location.hash` on every
+	// navigation so this stays in sync with the real URL, not just this component's own state.
+	const location = useLocation();
+	const section = new URLSearchParams(location.hash.substring(1)).get(
+		'section'
+	);
+	const resolvedInitialSection: CrawlUrlsSectionId =
+		section && (SECTION_IDS as readonly string[]).includes(section)
+			? (section as CrawlUrlsSectionId)
+			: initialSection;
+
+	const [activeSection, setActiveSection] = useState<CrawlUrlsSectionId>(
+		resolvedInitialSection
+	);
+
+	const prepareUrl = (sectionId: string) =>
+		`?page=vulopilot#&tab=seo-visibility&subtab=crawl-urls&section=${sectionId}`;
+
+	// Same real `window.history.pushState` + hash-parse pattern SiteHealth.tsx's own
+	// `handleNavigate` already uses for an identical `NavigatorComponent` tab bar.
+	const handleNavigate = (url: string) => {
+		window.history.pushState(null, '', url);
+
+		const hashIndex = url.indexOf('#');
+		const nextSection = new URLSearchParams(
+			hashIndex >= 0 ? url.slice(hashIndex + 1) : ''
+		).get('section');
+
+		if (nextSection && (SECTION_IDS as readonly string[]).includes(nextSection)) {
+			setActiveSection(nextSection as CrawlUrlsSectionId);
+		}
+	};
 
 	const settingContent = SECTION_IDS.map((sectionId) => ({
 		type: 'file' as const,
@@ -88,9 +121,8 @@ const CrawlUrlsTab = ({ initialSection = 'overview' }: CrawlUrlsTabProps) => {
 			settingContent={settingContent}
 			currentSetting={activeSection}
 			getForm={getForm}
-			prepareUrl={(sectionId: string) =>
-				`?page=vulopilot#&tab=seo-visibility&subtab=crawl-urls&section=${sectionId}`
-			}
+			prepareUrl={prepareUrl}
+			onNavigate={handleNavigate}
 			Link={Link}
 			settingName="CrawlUrls"
 			menuIcon

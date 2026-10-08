@@ -12,7 +12,7 @@ import {
 } from '@zyra/components';
 import { TableCard } from '@zyra/table';
 import type { FindingGroup } from '../../components/Issues/issuesTypes';
-import { CATEGORY_LABELS, formatAffected, issueIconFor } from '../../components/Issues/issuesTypes';
+import { CATEGORY_LABELS, formatAffected, groupKey, issueIconFor } from '../../components/Issues/issuesTypes';
 import IssuesSummaryCards, { Priority } from '../../components/Issues/IssuesSummaryCards';
 import IssueDetailPanel from '../../components/Issues/IssueDetailPanel';
 import ProLockedCard from '../../components/ProLockedCard';
@@ -286,11 +286,11 @@ const SectionedIssuesTable = ({
 		setSelectedGroup((current) => {
 			if (
 				current &&
-				pageRows.some((group) => group.scanner_id === current.scanner_id)
+				pageRows.some((group) => groupKey(group) === groupKey(current))
 			) {
 				return (
 					pageRows.find(
-						(group) => group.scanner_id === current.scanner_id
+						(group) => groupKey(group) === groupKey(current)
 					) ?? current
 				);
 			}
@@ -308,7 +308,8 @@ const SectionedIssuesTable = ({
 	 * Shared by the row click and the action cell's own "More Details"/ "Showing" button below.
 	 */
 	const handleSelectGroup = (group: FindingGroup) => {
-		const isDeselecting = group.scanner_id === selectedGroup?.scanner_id;
+		const isDeselecting =
+			selectedGroup !== null && groupKey(group) === groupKey(selectedGroup);
 
 		setSelectedGroup(isDeselecting ? null : group);
 
@@ -385,7 +386,7 @@ const SectionedIssuesTable = ({
 										options: resourceFilterOptions,
 									},
 								]}
-								activeRowId={selectedGroup?.scanner_id}
+								activeRowId={selectedGroup ? groupKey(selectedGroup) : undefined}
 								// Same toggle the action cell's own "More Details"/"Showing"
 								// button already does.
 								onRowClick={(row: Record<string, unknown>) => {
@@ -420,21 +421,21 @@ const SectionedIssuesTable = ({
 												label: (row) =>
 													(row as unknown as FindingGroup).fixed
 														? __('Fixed', 'vulopilot')
-														: (row as unknown as FindingGroup)
-																.scanner_id ===
-															selectedGroup?.scanner_id
+														: selectedGroup &&
+															groupKey(row as unknown as FindingGroup) ===
+																groupKey(selectedGroup)
 															? __('Showing', 'vulopilot')
 															: __('More Details', 'vulopilot'),
 												color: (row) =>
-													(row as unknown as FindingGroup)
-														.scanner_id ===
-													selectedGroup?.scanner_id
+													selectedGroup &&
+													groupKey(row as unknown as FindingGroup) ===
+														groupKey(selectedGroup)
 														? 'text-green'
 														: 'text-purple',
 												icon: (row) =>
-													(row as unknown as FindingGroup)
-														.scanner_id ===
-													selectedGroup?.scanner_id
+													selectedGroup &&
+													groupKey(row as unknown as FindingGroup) ===
+														groupKey(selectedGroup)
 														? 'eye'
 														: 'pagination-next-arrow',
 												onClick: (row) => {
@@ -475,7 +476,7 @@ const SectionedIssuesTable = ({
 										{ text: row.severity, color: `badge-${row.severity}` },
 									],
 								}))}
-								ids={pageRows.map((row) => row.scanner_id)}
+								ids={pageRows.map((row) => groupKey(row))}
 								totalRows={sortedGroups.length}
 								isLoading={isLoading}
 								onQueryUpdate={(query: {

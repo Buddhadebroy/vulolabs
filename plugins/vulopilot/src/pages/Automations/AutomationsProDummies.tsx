@@ -38,49 +38,51 @@ const OVERVIEW_DUMMY_CARDS: { title: string; icon: string; desc: string; action:
 ];
 
 export const AutomationsOverviewDummy = ({ onClick }: AutomationsDummyProps) => (
-	<BlurredProContent contentClassName="automations-overview-dummy" onClick={onClick}>
-		{/* Same real `AnalyticsComponent variant="dashboard"` shape (zyra Storybook's
-		`Components/AnalyticsComponent/Dashboard` story) `AutomationsStatusCard.tsx`'s own
-		"Automation status" tiles already use - each tile's real headline renders in `number`
-		(no literal count here, so the card's own title fills that slot), its `desc` in `text`,
-		and its real "Explore Library →"-style action link in the `extra` report row, in place of
-		3 separate plain `CardComponent`s. */}
-		<div aria-hidden="true">
-			<AnalyticsComponent
-				variant="dashboard"
-				cols={3}
-				data={OVERVIEW_DUMMY_CARDS.map((card) => ({
-					icon: card.icon,
-					number: card.title,
-					text: card.desc,
-					extra: (
-						<span className="automation-overview-link">{card.action}</span>
-					),
-				}))}
-			/>
-		</div>
-		<CardComponent title={__('Running AI Agents', 'vulopilot')} titleIcon="ai">
-			<div className="automation-agents-grid" aria-hidden="true">
-				{AGENT_DUMMY_ROWS.map((agent) => (
-					<div key={agent.name} className="automation-agent">
-						<div className="automation-agent-name">
-							<span className="automation-agent-dot is-green" />
-							{agent.name}
-						</div>
-						<div className="automation-agent-task">{agent.task}</div>
-						<div className="automation-agent-progress">
-							<div className="automation-agent-bar">
-								<span style={{ width: `${agent.progress}%` }} />
-							</div>
-							<span>{`${agent.progress}%`}</span>
-						</div>
-						<div className="automation-agent-status is-green">{__('Working', 'vulopilot')}</div>
-					</div>
-				))}
+	<ColumnComponent>
+		<BlurredProContent contentClassName="automations-overview-dummy" onClick={onClick}>
+			{/* Same real `AnalyticsComponent variant="dashboard"` shape (zyra Storybook's
+			`Components/AnalyticsComponent/Dashboard` story) `AutomationsStatusCard.tsx`'s own
+			"Automation status" tiles already use - each tile's real headline renders in `number`
+			(no literal count here, so the card's own title fills that slot), its `desc` in `text`,
+			and its real "Explore Library →"-style action link in the `extra` report row, in place of
+			3 separate plain `CardComponent`s. */}
+			<div aria-hidden="true">
+				<AnalyticsComponent
+					variant="dashboard"
+					cols={3}
+					data={OVERVIEW_DUMMY_CARDS.map((card) => ({
+						icon: card.icon,
+						number: card.title,
+						text: card.desc,
+						extra: (
+							<span className="automation-overview-link">{card.action}</span>
+						),
+					}))}
+				/>
 			</div>
-		</CardComponent>
-		<DummyDataNotice />
-	</BlurredProContent>
+			<CardComponent title={__('Running AI Agents', 'vulopilot')} titleIcon="ai">
+				<div className="automation-agents-grid" aria-hidden="true">
+					{AGENT_DUMMY_ROWS.map((agent) => (
+						<div key={agent.name} className="automation-agent">
+							<div className="automation-agent-name">
+								<span className="automation-agent-dot is-green" />
+								{agent.name}
+							</div>
+							<div className="automation-agent-task">{agent.task}</div>
+							<div className="automation-agent-progress">
+								<div className="automation-agent-bar">
+									<span style={{ width: `${agent.progress}%` }} />
+								</div>
+								<span>{`${agent.progress}%`}</span>
+							</div>
+							<div className="automation-agent-status is-green">{__('Working', 'vulopilot')}</div>
+						</div>
+					))}
+				</div>
+			</CardComponent>
+			<DummyDataNotice />
+		</BlurredProContent>
+	</ColumnComponent>
 );
 
 const AI_ACTIVITY_DUMMY_ROWS: { title: string; time: string }[] = [

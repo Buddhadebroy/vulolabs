@@ -1,109 +1,22 @@
-import { __, sprintf } from '@wordpress/i18n';
-import { PopupComponent, SectionComponent } from '@zyra/components';
-import { ButtonInput, SelectInput } from '@zyra/inputs';
-import { useState } from 'react';
-import type { ComponentType } from 'react';
-import { DAY_OPTIONS } from './reportsOverview';
-import ShowProPopup from '../../components/Popup/Popup';
-import { useFilterSlot } from '../../services/useFilterSlot';
-
-interface ReportsOverviewHeaderProps {
-	days: number;
-	// eslint-disable-next-line no-unused-vars
-	onDaysChange: (days: number) => void;
-	onDataChanged: () => void;
-}
+import { __ } from '@wordpress/i18n';
+import { SectionComponent } from '@zyra/components';
 
 /**
- * The reference mockup's page-header row: "Reports" title + description on the left, a "Last N
- * days" range dropdown plus action buttons on the right.
+ * The reference mockup's page-header row: "Reports" title + description. The "Last N days" range
+ * dropdown and action buttons that used to sit in this same row's `rightContent` moved up to the
+ * page header itself (ReportsOverviewActions.tsx, rendered by Reports.tsx's own
+ * `headerCustomContent`, Overview tab only) per direct instruction.
  */
-const ReportsOverviewHeader = ({
-	days,
-	onDaysChange,
-	onDataChanged,
-}: ReportsOverviewHeaderProps) => {
-	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
-	const RealActions = useFilterSlot<
-		ComponentType<{ onDataChanged: () => void }>
-	>('vulopilot_reports_header_actions');
-
-	return (
-		<>
-			<SectionComponent
-				icon="bar-chart"
-				title={__('Reports', 'vulopilot')}
-				desc={__(
-					"Create, view, and manage detailed reports about your website's performance.",
-					'vulopilot'
-				)}
-				wrapperClass="without-settings"
-				rightContent={
-					<div className="reports-overview-actions">
-						<SelectInput
-							name="reports_days_range"
-							value={String(days)}
-							options={DAY_OPTIONS.map((option) => ({
-								label: sprintf(
-									/* translators: %d is the number of days. */
-									__('Last %d days', 'vulopilot'),
-									option
-								),
-								value: String(option),
-							}))}
-							onChange={(newValue) => onDaysChange(Number(newValue))}
-							size="10rem"
-						/>
-						{RealActions ? (
-							<RealActions onDataChanged={onDataChanged} />
-						) : (
-							<>
-								<span className="reports-overview-action-with-tag">
-									<ButtonInput
-										buttons={{
-											text: __('Create Report', 'vulopilot'),
-											icon: 'plus',
-											color: 'border-purple',
-											onClick: () => setIsProPopupOpen(true),
-										}}
-									/>
-								</span>
-								<span className="reports-overview-action-with-tag">
-									<ButtonInput
-										buttons={{
-											text: __('Schedule Report', 'vulopilot'),
-											icon: 'calendar',
-											color: 'border-purple',
-											onClick: () => setIsProPopupOpen(true),
-										}}
-									/>
-								</span>
-								<span className="reports-overview-action-with-tag">
-									<ButtonInput
-										buttons={{
-											text: __('Download PDF', 'vulopilot'),
-											icon: 'download',
-											color: 'border-purple',
-											onClick: () => setIsProPopupOpen(true),
-										}}
-									/>
-								</span>
-							</>
-						)}
-					</div>
-				}
-			/>
-			<PopupComponent
-				open={isProPopupOpen}
-				onClose={() => setIsProPopupOpen(false)}
-				width={31.25}
-				height="auto"
-				position="lightbox"
-			>
-				<ShowProPopup />
-			</PopupComponent>
-		</>
-	);
-};
+const ReportsOverviewHeader = () => (
+	<SectionComponent
+		icon="bar-chart"
+		title={__('Reports', 'vulopilot')}
+		desc={__(
+			"Create, view, and manage detailed reports about your website's performance.",
+			'vulopilot'
+		)}
+		wrapperClass="without-settings"
+	/>
+);
 
 export default ReportsOverviewHeader;

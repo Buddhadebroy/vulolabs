@@ -146,3 +146,16 @@ export const getObjectTypeNoun = (count: number, objectType: string | null): str
 
 export const formatAffected = (count: number, objectType: string | null): string =>
 	`${count} ${getObjectTypeNoun(count, objectType)}`;
+
+/**
+ * A single scanner_id can legitimately report several unrelated finding groups
+ * (FindingRepository::get_finding_groups()'s own `GROUP BY scanner_id, category, object_type` -
+ * e.g. WordPressHealthScanner's `site_health_test` findings vs its own `wordpress_inactive_plugins`
+ * findings, both scanner_id 'wordpress-health') - this is the real unique group identity, not bare
+ * `scanner_id` alone. Every row-selection comparison/table row id in this plugin's issue tables
+ * (SectionedIssuesTable.tsx, IssuesList.tsx) uses this instead of `group.scanner_id` directly, so
+ * two such groups never both read as "selected" at once just because they share a scanner_id.
+ */
+export const groupKey = (
+	group: Pick<FindingGroup, 'scanner_id' | 'object_type'>
+): string => (group.object_type ? `${group.scanner_id}::${group.object_type}` : group.scanner_id);
