@@ -8,6 +8,8 @@
 	"textdomain": "vulopilot",
 	"editorScript": "file:./index.js",
 	"render": "file:./render.php",
+	"style": "vulopilot-blocks",
+	"editorStyle": "vulopilot-blocks",
 	"attributes": {
 		"questions": {
 			"type": "array",
@@ -24,39 +26,23 @@
 		"questionFontSize": { "type": "string" },
 		"answerColor": { "type": "string" },
 		"answerFontSize": { "type": "string" },
-		"design": { "type": "string", "default": "classic" }
+
+		"layoutMode": { "type": "string", "default": "accordion" },
+		"allowMultipleOpen": { "type": "boolean", "default": true },
+		"initialOpenIndex": { "type": "number", "default": null },
+		"iconStyle": { "type": "string", "default": "plus-minus" },
+		"iconPosition": { "type": "string", "default": "right" },
+		"animationEnabled": { "type": "boolean", "default": true },
+		"animationDuration": { "type": "number", "default": 250 },
+		"headingLevel": { "type": "number", "default": 0 },
+		"enableSchema": { "type": "boolean", "default": true },
+		"appearance": { "type": "string", "default": "cards" },
+
+		"style": { "type": "object", "default": {} }
 	},
 	"supports": {
 		"html": false,
 		"anchor": true,
-		"align": [ "wide", "full" ],
-		"spacing": {
-			"margin": true,
-			"padding": true,
-			"blockGap": true
-		},
-		"border": {
-			"color": true,
-			"radius": true,
-			"style": true,
-			"width": true
-		},
-		"color": {
-			"background": true,
-			"text": true,
-			"gradient": true,
-			"link": true
-		},
-		"typography": {
-			"fontSize": true,
-			"lineHeight": true,
-			"fontFamily": true,
-			"fontWeight": true,
-			"fontStyle": true,
-			"textAlign": true,
-			"textDecoration": true,
-			"textTransform": true,
-			"letterSpacing": true
-		}
+		"align": [ "wide", "full" ]
 	}
 }

@@ -1,47 +1,150 @@
 import { registerBlockType } from '@wordpress/blocks';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import { useState } from '@wordpress/element';
 import {
 	useBlockProps,
 	RichText,
 	InspectorControls,
-	PanelColorSettings,
+	useSettings,
+	// eslint-disable-next-line camelcase
+	__experimentalBorderControl as BorderControl,
 } from '@wordpress/block-editor';
 import {
 	Button,
+	ButtonGroup,
 	PanelBody,
-	FontSizePicker,
-	RadioControl,
+	TabPanel,
+	TextControl,
+	TextareaControl,
+	ToggleControl,
+	SelectControl,
+	RangeControl,
+	ColorPalette,
+	BaseControl,
+	BoxControl,
+	// eslint-disable-next-line camelcase
+	__experimentalUnitControl as UnitControl,
 } from '@wordpress/components';
 import metadata from './block.json';
+import FaqAccordion from './FaqAccordion';
+import { buildFaqStyleVars } from './faqStyleVars';
+import {
+	DEFAULT_FAQ_STYLE,
+	APPEARANCE_PRESETS,
+	ICON_STYLE_OPTIONS,
+	ICON_POSITION_OPTIONS,
+	LAYOUT_MODE_OPTIONS,
+	HEADING_LEVEL_OPTIONS,
+} from './faqStyleDefaults';
 
-const DESIGNS = [
-	{
-		label: __( 'Classic', 'vulopilot' ),
-		value: 'classic',
-	},
-	{
-		label: __( 'Boxed', 'vulopilot' ),
-		value: 'boxed',
-	},
-	{
-		label: __( 'Minimal', 'vulopilot' ),
-		value: 'minimal',
-	},
-];
+/** One level of `style.<section>` (or `style.<section>.<subsection>`) deep-merged over its own real default, so a partial saved override still renders every other field at its real default. */
+function mergeSection( defaults, saved ) {
+	if ( ! saved ) {
+		return defaults;
+	}
+
+	const merged = { ...defaults, ...saved };
+
+	Object.keys( defaults ).forEach( ( key ) => {
+		if (
+			defaults[ key ] &&
+			'object' === typeof defaults[ key ] &&
+			! Array.isArray( defaults[ key ] )
+		) {
+			merged[ key ] = { ...defaults[ key ], ...( saved[ key ] || {} ) };
+		}
+	} );
+
+	return merged;
+}
+
+function mergeFaqStyle( saved ) {
+	const style = {};
+
+	Object.keys( DEFAULT_FAQ_STYLE ).forEach( ( section ) => {
+		style[ section ] = mergeSection(
+			DEFAULT_FAQ_STYLE[ section ],
+			saved?.[ section ]
+		);
+	} );
+
+	// `responsive` is two levels deep (tablet/mobile each their own section).
+	style.responsive = {
+		tablet: mergeSection(
+			DEFAULT_FAQ_STYLE.responsive.tablet,
+			saved?.responsive?.tablet
+		),
+		mobile: mergeSection(
+			DEFAULT_FAQ_STYLE.responsive.mobile,
+			saved?.responsive?.mobile
+		),
+	};
+
+	return style;
+}
+
+/** A single labeled color field - real theme palette (`useSettings('color.palette')`) plus a custom-color picker, same as every core block's own color controls. */
+function ColorField( { label, value, onChange } ) {
+	const [ themeColors ] = useSettings( 'color.palette' );
+
+	return (
+		<BaseControl label={ label } __nextHasNoMarginBottom>
+			<ColorPalette
+				colors={ themeColors }
+				value={ value }
+				onChange={ onChange }
+				enableAlpha
+				clearable
+			/>
+		</BaseControl>
+	);
+}
+
+/** A single labeled `UnitControl` - this Style tab's own stand-in for every plain size/spacing field (font size, icon size, gap, radius, width…), so they all share one real control shape. */
+function SizeField( { label, value, onChange, placeholder } ) {
+	return (
+		<UnitControl
+			label={ label }
+			value={ value }
+			onChange={ ( next ) => onChange( next ?? '' ) }
+			placeholder={ placeholder }
+			__next40pxDefaultSize
+		/>
+	);
+}
 
 registerBlockType( metadata.name, {
 	edit: ( { attributes, setAttributes } ) => {
 		const {
 			questions,
-			questionColor,
-			questionFontSize,
-			answerColor,
-			answerFontSize,
-			design,
+			layoutMode,
+			allowMultipleOpen,
+			initialOpenIndex,
+			iconStyle,
+			iconPosition,
+			animationEnabled,
+			animationDuration,
+			headingLevel,
+			enableSchema,
+			appearance,
 		} = attributes;
-		const blockProps = useBlockProps( {
-			className: `vulopilot-faq vulopilot-faq--${ design }`,
-		} );
+
+		// The one sidebar "Questions & answers" item shown expanded at a time (image mockup's own
+		// single-open accordion-of-rows look) - `null` once the user collapses every row.
+		const [ openQuestionIndex, setOpenQuestionIndex ] = useState( 0 );
+		const style = mergeFaqStyle( attributes.style );
+		const styleVars = buildFaqStyleVars( attributes );
+		const blockProps = useBlockProps();
+
+		const settings = {
+			layoutMode,
+			allowMultipleOpen,
+			initialOpenIndex,
+			iconStyle,
+			iconPosition,
+			headingLevel,
+			animationEnabled,
+		};
 
 		const updateQuestion = ( index, field, value ) => {
 			const next = questions.slice();
@@ -54,132 +157,616 @@ registerBlockType( metadata.name, {
 				questions: [ ...questions, { question: '', answer: '' } ],
 			} );
 
+		const duplicateRow = ( index ) => {
+			const next = questions.slice();
+			next.splice( index + 1, 0, { ...questions[ index ] } );
+			setAttributes( { questions: next } );
+		};
+
 		const removeRow = ( index ) =>
 			setAttributes( {
 				questions: questions.filter( ( _row, i ) => i !== index ),
 			} );
 
-		const questionStyle = {
-			color: questionColor,
-			fontSize: questionFontSize,
+		const moveRow = ( index, direction ) => {
+			const target = index + direction;
+			if ( target < 0 || target >= questions.length ) {
+				return;
+			}
+			const next = questions.slice();
+			[ next[ index ], next[ target ] ] = [ next[ target ], next[ index ] ];
+			setAttributes( { questions: next } );
 		};
-		const answerStyle = {
-			color: answerColor,
-			fontSize: answerFontSize,
+
+		/** One `style.<path>` write - `path` e.g. `'question.color'` or `'container.padding'`. */
+		const updateStyle = ( path, value ) => {
+			const parts = path.split( '.' );
+			const next = JSON.parse( JSON.stringify( style ) );
+			let cursor = next;
+
+			for ( let i = 0; i < parts.length - 1; i++ ) {
+				cursor = cursor[ parts[ i ] ];
+			}
+
+			cursor[ parts[ parts.length - 1 ] ] = value;
+			setAttributes( { style: next } );
 		};
+
+		/** Writes an `APPEARANCE_PRESETS` entry's own `style` bundle straight into the real `style` attribute (see that file's own docblock for why a preset is a real write, not a CSS-only default). */
+		const applyPreset = ( value ) => {
+			const preset = APPEARANCE_PRESETS.find( ( p ) => p.value === value );
+			if ( ! preset ) {
+				return;
+			}
+			const next = JSON.parse( JSON.stringify( style ) );
+			Object.keys( preset.style ).forEach( ( section ) => {
+				next[ section ] = { ...next[ section ], ...preset.style[ section ] };
+			} );
+			setAttributes( { appearance: value, style: next } );
+		};
+
+		/** The simplified "Colors" panel's 3 fields each fan out to every real `style.*` field that
+		 * color conceptually covers - "Text" to both question/answer text color, "Accent" to the
+		 * icon/link/expanded-state colors, "Background" to the container background behind every
+		 * item (not each item's own background, which the Appearance preset above already owns). */
+		const setTextColor = ( value ) => {
+			const v = value ?? '';
+			const next = JSON.parse( JSON.stringify( style ) );
+			next.question.color = v;
+			next.answer.color = v;
+			setAttributes( { style: next } );
+		};
+
+		const setAccentColor = ( value ) => {
+			const v = value ?? '';
+			const next = JSON.parse( JSON.stringify( style ) );
+			next.icon.color = v;
+			next.answer.linkColor = v;
+			next.states.expandedBorderColor = v;
+			next.states.expandedQuestionColor = v;
+			next.states.expandedIconBackground = v;
+			setAttributes( { style: next } );
+		};
+
+		const setBackgroundColor = ( value ) => {
+			const next = JSON.parse( JSON.stringify( style ) );
+			next.container.background = value ?? '';
+			setAttributes( { style: next } );
+		};
+
+		/**
+		 * Rendered inside the question row, hidden until hover/focus (`.vulopilot-faq__item-controls`'s
+		 * own `opacity` rule in blocks.scss) so the card reads as the real frontend component rather
+		 * than a form - small icon-only buttons, Remove included (`isDestructive` tints it red only
+		 * on its own hover, not permanently), not a separate full-width red button under every item.
+		 */
+		const itemControls = ( item, index ) => (
+			<ButtonGroup className="vulopilot-faq__item-controls">
+				<Button
+					icon="arrow-up-alt2"
+					label={ __( 'Move up', 'vulopilot' ) }
+					size="small"
+					disabled={ 0 === index }
+					onClick={ ( e ) => {
+						e.preventDefault();
+						moveRow( index, -1 );
+					} }
+				/>
+				<Button
+					icon="arrow-down-alt2"
+					label={ __( 'Move down', 'vulopilot' ) }
+					size="small"
+					disabled={ index === questions.length - 1 }
+					onClick={ ( e ) => {
+						e.preventDefault();
+						moveRow( index, 1 );
+					} }
+				/>
+				<Button
+					icon="admin-page"
+					label={ __( 'Duplicate', 'vulopilot' ) }
+					size="small"
+					onClick={ ( e ) => {
+						e.preventDefault();
+						duplicateRow( index );
+					} }
+				/>
+				<Button
+					className="vulopilot-faq__remove"
+					icon="trash"
+					label={ __( 'Remove question', 'vulopilot' ) }
+					isDestructive
+					size="small"
+					onClick={ ( e ) => {
+						e.preventDefault();
+						removeRow( index );
+					} }
+				/>
+			</ButtonGroup>
+		);
 
 		return (
 			<>
+
 				<InspectorControls>
-					<PanelBody
-						title={ __( 'Design', 'vulopilot' ) }
-						initialOpen={ true }
-					>
-						<RadioControl
-							selected={ design }
-							options={ DESIGNS }
-							onChange={ ( value ) =>
-								setAttributes( { design: value } )
-							}
-						/>
-					</PanelBody>
-					<PanelBody
-						title={ __( 'Question Style', 'vulopilot' ) }
-						initialOpen={ false }
-					>
-						<FontSizePicker
-							value={ questionFontSize }
-							onChange={ ( value ) =>
-								setAttributes( { questionFontSize: value } )
-							}
-							__next40pxDefaultSize
-						/>
-					</PanelBody>
-					<PanelColorSettings
-						title={ __( 'Question Color', 'vulopilot' ) }
-						initialOpen={ false }
-						colorSettings={ [
-							{
-								value: questionColor,
-								onChange: ( value ) =>
-									setAttributes( { questionColor: value } ),
-								label: __( 'Text color', 'vulopilot' ),
-							},
+					<TabPanel
+						className="vulopilot-faq-inspector-tabs"
+						tabs={ [
+							{ name: 'content', title: __( 'Content', 'vulopilot' ) },
+							{ name: 'settings', title: __( 'Settings', 'vulopilot' ) },
+							{ name: 'style', title: __( 'Style', 'vulopilot' ) },
 						] }
-					/>
-					<PanelBody
-						title={ __( 'Answer Style', 'vulopilot' ) }
-						initialOpen={ false }
 					>
-						<FontSizePicker
-							value={ answerFontSize }
-							onChange={ ( value ) =>
-								setAttributes( { answerFontSize: value } )
+						{ ( tab ) => {
+							if ( 'content' === tab.name ) {
+								return (
+									<PanelBody
+										title={
+											<>
+												{ __( 'Questions & answers', 'vulopilot' ) }
+												<span className="vulopilot-faq-qa-count">
+													{ sprintf(
+														/* translators: %d: real number of questions currently on this block. */
+														__( '%d items', 'vulopilot' ),
+														questions.length
+													) }
+												</span>
+											</>
+										}
+									>
+										{ 0 === questions.length && (
+											<p className="vulopilot-faq-sidebar-empty">
+												{ __( 'No questions added yet.', 'vulopilot' ) }
+											</p>
+										) }
+										{ questions.map( ( item, index ) => {
+											const isOpen = index === openQuestionIndex;
+
+											return (
+												<div
+													className={ `vulopilot-faq-qa-item${ isOpen ? ' is-open' : '' }` }
+													key={ index }
+												>
+													<button
+														type="button"
+														className="vulopilot-faq-qa-item__header"
+														onClick={ () =>
+															setOpenQuestionIndex( isOpen ? null : index )
+														}
+													>
+														<span className="vulopilot-faq-qa-item__badge">
+															{ String( index + 1 ).padStart( 2, '0' ) }
+														</span>
+														<span className="vulopilot-faq-qa-item__title">
+															{ item.question ||
+																sprintf(
+																	/* translators: %d: real 1-based question number. */
+																	__( 'Question %d', 'vulopilot' ),
+																	index + 1
+																) }
+														</span>
+														<span
+															className="vulopilot-faq-qa-item__chevron"
+															aria-hidden="true"
+														>
+															{ isOpen ? '⌃' : '⌄' }
+														</span>
+													</button>
+													{ isOpen && (
+														<div className="vulopilot-faq-qa-item__body">
+															<TextControl
+																label={ __( 'Question', 'vulopilot' ) }
+																value={ item.question }
+																onChange={ ( value ) =>
+																	updateQuestion( index, 'question', value )
+																}
+																__next40pxDefaultSize
+																__nextHasNoMarginBottom
+															/>
+															<TextareaControl
+																label={ __( 'Answer', 'vulopilot' ) }
+																value={ item.answer }
+																onChange={ ( value ) =>
+																	updateQuestion( index, 'answer', value )
+																}
+																rows={ 3 }
+																__nextHasNoMarginBottom
+															/>
+															<div className="vulopilot-faq-qa-item__actions">
+																<Button
+																	variant="tertiary"
+																	icon="admin-page"
+																	size="small"
+																	onClick={ () => duplicateRow( index ) }
+																>
+																	{ __( 'Duplicate', 'vulopilot' ) }
+																</Button>
+																<Button
+																	variant="tertiary"
+																	isDestructive
+																	icon="trash"
+																	size="small"
+																	onClick={ () => removeRow( index ) }
+																>
+																	{ __( 'Remove', 'vulopilot' ) }
+																</Button>
+															</div>
+														</div>
+													) }
+												</div>
+											);
+										} ) }
+										<Button
+											className="vulopilot-faq-qa-add"
+											variant="secondary"
+											icon="plus-alt2"
+											onClick={ () => {
+												addRow();
+												setOpenQuestionIndex( questions.length );
+											} }
+										>
+											{ __( 'Add question', 'vulopilot' ) }
+										</Button>
+										<p className="vulopilot-faq-qa-hint">
+											{ __(
+												'You can also edit questions directly on the canvas.',
+												'vulopilot'
+											) }
+										</p>
+									</PanelBody>
+								);
 							}
-							__next40pxDefaultSize
-						/>
-					</PanelBody>
-					<PanelColorSettings
-						title={ __( 'Answer Color', 'vulopilot' ) }
-						initialOpen={ false }
-						colorSettings={ [
-							{
-								value: answerColor,
-								onChange: ( value ) =>
-									setAttributes( { answerColor: value } ),
-								label: __( 'Text color', 'vulopilot' ),
-							},
-						] }
-					/>
+
+							if ( 'settings' === tab.name ) {
+								return (
+									<PanelBody title={ __( 'Behavior', 'vulopilot' ) }>
+										<SelectControl
+											label={ __( 'Layout', 'vulopilot' ) }
+											value={ layoutMode }
+											options={ LAYOUT_MODE_OPTIONS }
+											onChange={ ( value ) =>
+												setAttributes( { layoutMode: value } )
+											}
+											__next40pxDefaultSize
+											__nextHasNoMarginBottom
+										/>
+										{ 'accordion' === layoutMode && (
+											<>
+												<ToggleControl
+													label={ __(
+														'Allow multiple answers open',
+														'vulopilot'
+													) }
+													checked={ allowMultipleOpen }
+													onChange={ ( value ) =>
+														setAttributes( {
+															allowMultipleOpen: value,
+														} )
+													}
+													__nextHasNoMarginBottom
+												/>
+												<SelectControl
+													label={ __(
+														'Initially open item',
+														'vulopilot'
+													) }
+													value={ String(
+														null === initialOpenIndex
+															? ''
+															: initialOpenIndex
+													) }
+													options={ [
+														{
+															label: __(
+																'None (all closed)',
+																'vulopilot'
+															),
+															value: '',
+														},
+														...questions.map(
+															( item, index ) => ( {
+																label:
+																	item.question ||
+																	`#${ index + 1 }`,
+																value: String( index ),
+															} )
+														),
+													] }
+													onChange={ ( value ) =>
+														setAttributes( {
+															initialOpenIndex:
+																'' === value
+																	? null
+																	: Number( value ),
+														} )
+													}
+													__next40pxDefaultSize
+													__nextHasNoMarginBottom
+												/>
+												<ToggleControl
+													label={ __(
+														'Open/close animation',
+														'vulopilot'
+													) }
+													checked={ animationEnabled }
+													onChange={ ( value ) =>
+														setAttributes( {
+															animationEnabled: value,
+														} )
+													}
+													__nextHasNoMarginBottom
+												/>
+												{ animationEnabled && (
+													<RangeControl
+														label={ __(
+															'Animation duration (ms)',
+															'vulopilot'
+														) }
+														value={ animationDuration }
+														min={ 0 }
+														max={ 800 }
+														step={ 10 }
+														onChange={ ( value ) =>
+															setAttributes( {
+																animationDuration: value,
+															} )
+														}
+														__nextHasNoMarginBottom
+													/>
+												) }
+											</>
+										) }
+										<SelectControl
+											label={ __( 'Toggle icon', 'vulopilot' ) }
+											value={ iconStyle }
+											options={ ICON_STYLE_OPTIONS }
+											onChange={ ( value ) =>
+												setAttributes( { iconStyle: value } )
+											}
+											__next40pxDefaultSize
+											__nextHasNoMarginBottom
+										/>
+										<SelectControl
+											label={ __( 'Icon position', 'vulopilot' ) }
+											value={ iconPosition }
+											options={ ICON_POSITION_OPTIONS }
+											onChange={ ( value ) =>
+												setAttributes( { iconPosition: value } )
+											}
+											__next40pxDefaultSize
+											__nextHasNoMarginBottom
+										/>
+										<SelectControl
+											label={ __(
+												'Question heading level',
+												'vulopilot'
+											) }
+											value={ String( headingLevel ) }
+											options={ HEADING_LEVEL_OPTIONS.map(
+												( option ) => ( {
+													label: option.label,
+													value: String( option.value ),
+												} )
+											) }
+											onChange={ ( value ) =>
+												setAttributes( {
+													headingLevel: Number( value ),
+												} )
+											}
+											__next40pxDefaultSize
+											__nextHasNoMarginBottom
+										/>
+										<ToggleControl
+											label={ __(
+												'Enable FAQ structured data',
+												'vulopilot'
+											) }
+											help={ __(
+												'Outputs real FAQPage JSON-LD for search engines, generated only from real question/answer rows.',
+												'vulopilot'
+											) }
+											checked={ enableSchema }
+											onChange={ ( value ) =>
+												setAttributes( { enableSchema: value } )
+											}
+											__nextHasNoMarginBottom
+										/>
+									</PanelBody>
+								);
+							}
+
+							return (
+								<>
+									<PanelBody
+										title={ __( 'Appearance', 'vulopilot' ) }
+										initialOpen={ true }
+									>
+										<div className="vulopilot-faq-appearance-options">
+											{ APPEARANCE_PRESETS.map( ( preset ) => (
+												<button
+													key={ preset.value }
+													type="button"
+													className={ `vulopilot-faq-appearance-option${
+														appearance === preset.value
+															? ' is-selected'
+															: ''
+													}` }
+													onClick={ () => applyPreset( preset.value ) }
+												>
+													<span
+														className={ `vulopilot-faq-appearance-option-swatch vulopilot-faq-appearance-option-swatch--${ preset.value }` }
+													/>
+													<span className="vulopilot-faq-appearance-option-label">
+														{ preset.label }
+													</span>
+												</button>
+											) ) }
+										</div>
+									</PanelBody>
+
+									<PanelBody
+										title={ __( 'Typography', 'vulopilot' ) }
+										initialOpen={ true }
+									>
+										<SizeField
+											label={ __( 'Question size', 'vulopilot' ) }
+											value={ style.question.fontSize }
+											onChange={ ( v ) =>
+												updateStyle( 'question.fontSize', v )
+											}
+										/>
+										<SizeField
+											label={ __( 'Answer size', 'vulopilot' ) }
+											value={ style.answer.fontSize }
+											onChange={ ( v ) =>
+												updateStyle( 'answer.fontSize', v )
+											}
+										/>
+									</PanelBody>
+
+									<PanelBody
+										title={ __( 'Colors', 'vulopilot' ) }
+										initialOpen={ true }
+									>
+										<ColorField
+											label={ __( 'Text', 'vulopilot' ) }
+											value={ style.question.color }
+											onChange={ setTextColor }
+										/>
+										<ColorField
+											label={ __( 'Accent', 'vulopilot' ) }
+											value={ style.icon.color }
+											onChange={ setAccentColor }
+										/>
+										<ColorField
+											label={ __( 'Background', 'vulopilot' ) }
+											value={ style.container.background }
+											onChange={ setBackgroundColor }
+										/>
+										<ColorField
+											label={ __( 'Expanded question background', 'vulopilot' ) }
+											value={ style.states.expandedBackground }
+											onChange={ ( v ) =>
+												updateStyle( 'states.expandedBackground', v ?? '' )
+											}
+										/>
+									</PanelBody>
+
+									<PanelBody
+										title={ __( 'Spacing & borders', 'vulopilot' ) }
+										initialOpen={ false }
+									>
+										<SizeField
+											label={ __( 'Item gap', 'vulopilot' ) }
+											value={ style.layout.itemGap }
+											onChange={ ( v ) =>
+												updateStyle( 'layout.itemGap', v )
+											}
+										/>
+										<BoxControl
+											label={ __( 'Padding', 'vulopilot' ) }
+											values={ style.question.padding }
+											onChange={ ( v ) =>
+												updateStyle( 'question.padding', v )
+											}
+										/>
+										<BorderControl
+											label={ __( 'Border', 'vulopilot' ) }
+											value={ style.item.border }
+											onChange={ ( v ) =>
+												updateStyle( 'item.border', v || {} )
+											}
+										/>
+										<SizeField
+											label={ __( 'Corner radius', 'vulopilot' ) }
+											value={ style.item.radius }
+											onChange={ ( v ) =>
+												updateStyle( 'item.radius', v )
+											}
+										/>
+									</PanelBody>
+
+									<PanelBody
+										title={ __( 'Icon settings', 'vulopilot' ) }
+										initialOpen={ false }
+									>
+										<SizeField
+											label={ __( 'Size', 'vulopilot' ) }
+											value={ style.icon.size }
+											onChange={ ( v ) =>
+												updateStyle( 'icon.size', v )
+											}
+										/>
+										<SizeField
+											label={ __(
+												'Spacing from edge',
+												'vulopilot'
+											) }
+											value={ style.icon.spacing }
+											onChange={ ( v ) =>
+												updateStyle( 'icon.spacing', v )
+											}
+										/>
+										<ColorField
+											label={ __( 'Background', 'vulopilot' ) }
+											value={ style.icon.background }
+											onChange={ ( v ) =>
+												updateStyle( 'icon.background', v )
+											}
+										/>
+										<SizeField
+											label={ __( 'Corner radius', 'vulopilot' ) }
+											value={ style.icon.radius }
+											onChange={ ( v ) =>
+												updateStyle( 'icon.radius', v )
+											}
+										/>
+									</PanelBody>
+								</>
+							);
+						} }
+					</TabPanel>
 				</InspectorControls>
-				{ /* Block-wide margin/padding/border/background/font size - real core
-				 * Settings-tab controls `"supports"` in block.json turns on, not
-				 * hand-built here. Question/answer color + font size above are the
-				 * 2 things that support doesn't cover per-element, so those are
-				 * this block's own controls, applied as inline styles below and
-				 * mirrored in FaqRenderer::render() for the front end. */ }
+
 				<div { ...blockProps }>
-					{ questions.length === 0 && (
-						<p className="vulopilot-faq-empty">
-							{ __(
-								'Add a question below to get started.',
-								'vulopilot'
-							) }
-						</p>
-					) }
-					{ questions.map( ( item, index ) => (
-						<div className="vulopilot-faq-editor-row" key={ index }>
+					<FaqAccordion
+						items={ questions }
+						renderQuestion={ ( item, index ) => (
 							<RichText
-								tagName="div"
-								className="vulopilot-faq-question-input"
-								style={ questionStyle }
+								tagName="span"
 								placeholder={ __( 'Question', 'vulopilot' ) }
 								value={ item.question }
 								onChange={ ( value ) =>
 									updateQuestion( index, 'question', value )
 								}
 							/>
+						) }
+						renderAnswer={ ( item, index ) => (
 							<RichText
 								tagName="div"
-								className="vulopilot-faq-answer-input"
-								style={ answerStyle }
 								placeholder={ __( 'Answer', 'vulopilot' ) }
 								value={ item.answer }
 								onChange={ ( value ) =>
 									updateQuestion( index, 'answer', value )
 								}
 							/>
-							<Button
-								variant="secondary"
-								isDestructive
-								onClick={ () => removeRow( index ) }
-							>
-								{ __( 'Remove', 'vulopilot' ) }
-							</Button>
-						</div>
-					) ) }
-					<Button variant="primary" onClick={ addRow }>
-						{ __( 'Add Question', 'vulopilot' ) }
+						) }
+						renderItemControls={ itemControls }
+						settings={ { ...settings, layoutMode: 'expanded' } }
+						styleVars={ styleVars }
+						className="vulopilot-faq--editing"
+						emptyMessage={ __(
+							'Add a question below to get started.',
+							'vulopilot'
+						) }
+					/>
+					<Button
+						className="vulopilot-faq__add"
+						variant="tertiary"
+						icon="plus-alt2"
+						onClick={ addRow }
+					>
+						{ __( 'Add FAQ', 'vulopilot' ) }
 					</Button>
 				</div>
 			</>

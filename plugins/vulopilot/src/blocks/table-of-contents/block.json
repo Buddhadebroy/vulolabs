@@ -7,11 +7,18 @@
 	"description": "Automatically lists this post's headings and links to each one. Always reflects the post's current heading structure - nothing to keep in sync by hand.",
 	"textdomain": "vulopilot",
 	"editorScript": "file:./index.js",
+	"viewScript": "file:./view.js",
 	"render": "file:./render.php",
+	"style": "vulopilot-blocks",
+	"editorStyle": "vulopilot-blocks",
 	"attributes": {
 		"title": {
 			"type": "string",
 			"default": "Table of Contents"
+		},
+		"showTitle": {
+			"type": "boolean",
+			"default": true
 		},
 		"minLevel": {
 			"type": "number",
@@ -21,9 +28,35 @@
 			"type": "number",
 			"default": 6
 		},
+		"includedLevels": {
+			"type": "array",
+			"default": [],
+			"items": { "type": "number" }
+		},
+		"excludedHeadings": {
+			"type": "array",
+			"default": [],
+			"items": { "type": "string" }
+		},
+		"nestedList": {
+			"type": "boolean",
+			"default": true
+		},
 		"collapsible": {
 			"type": "boolean",
 			"default": false
+		},
+		"collapseInitialState": {
+			"type": "string",
+			"default": "expanded"
+		},
+		"smoothScroll": {
+			"type": "boolean",
+			"default": true
+		},
+		"scrollOffset": {
+			"type": "number",
+			"default": 0
 		},
 		"contentFontSize": {
 			"type": "string",

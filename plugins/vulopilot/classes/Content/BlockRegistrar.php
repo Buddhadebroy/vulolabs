@@ -23,10 +23,43 @@ class BlockRegistrar {
 	 * BlockRegistrar constructor.
 	 */
 	public function __construct() {
+		// Priority 0 - must run (and so must have the `vulopilot-blocks` handle already
+		// registered) before `register_blocks()`'s own default-priority `register_block_type()`
+		// calls, since both `faq`/`table-of-contents` block.json files reference that handle by
+		// name in their own `style`/`editorStyle` fields rather than a `file:` path (the compiled
+		// stylesheet lives in `assets/styles/public/`, shared by both blocks, not inside either
+		// block's own folder). Registering it this way - not the plain `wp_enqueue_style()` on
+		// `wp_enqueue_scripts`/`enqueue_block_editor_assets` this used to do - lets WordPress core
+		// itself decide when to print it: on the frontend only when a page's content actually has
+		// one of these blocks (same as the old `has_block()` check), and inside the block editor's
+		// own iframe automatically, which a plain `enqueue_block_editor_assets` enqueue is not
+		// guaranteed to reach.
+		add_action( 'init', array( $this, 'register_stylesheet' ), 0 );
 		add_action( 'init', array( $this, 'register_blocks' ) );
 		add_filter( 'block_categories_all', array( $this, 'register_block_category' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_styles' ) );
-		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_editor_styles' ) );
+	}
+
+	/**
+	 * Registers (does not enqueue) the blocks' shared compiled stylesheet under the
+	 * `vulopilot-blocks` handle `register_blocks()`'s own `block.json` files reference by name,
+	 * so core's own block-asset loader enqueues it, on both the frontend and the block editor's
+	 * iframe, instead of this class trying to do that by hand.
+	 *
+	 * @return void
+	 */
+	public function register_stylesheet(): void {
+		$style_path = VuloPilot()->plugin_path . 'assets/styles/public/vulopilot-blocks.min.css';
+
+		if ( ! file_exists( $style_path ) ) {
+			return;
+		}
+
+		wp_register_style(
+			'vulopilot-blocks',
+			VuloPilot()->plugin_url . 'assets/styles/public/vulopilot-blocks.min.css',
+			array(),
+			VuloPilot()->version
+		);
 	}
 
 	/**
@@ -94,48 +127,5 @@ class BlockRegistrar {
 		foreach ( $this->get_blocks() as $block ) {
 			register_block_type( $block['path'] );
 		}
-	}
-
-	/**
-	 * @return void
-	 */
-	public function enqueue_frontend_styles(): void {
-		if ( ! has_block( 'vulopilot/table-of-contents' ) && ! has_block( 'vulopilot/faq' ) ) {
-			return;
-		}
-
-		$this->enqueue_blocks_stylesheet( 'vulopilot-blocks' );
-	}
-
-	/**
-	 * Unconditional in the editor - the block inserter needs the same `.vulopilot-
-	 * toc`/`.vulopilot-faq` rules to preview correctly regardless of whether either block
-	 * has been inserted into THIS particular post yet.
-	 *
-	 * @return void
-	 */
-	public function enqueue_editor_styles(): void {
-		$this->enqueue_blocks_stylesheet( 'vulopilot-blocks-editor' );
-	}
-
-	/**
-	 * Enqueues the blocks' compiled CSS, when it exists.
-	 *
-	 * @param string $handle Real registered handle for this enqueue call.
-	 * @return void
-	 */
-	private function enqueue_blocks_stylesheet( string $handle ): void {
-		$style_path = VuloPilot()->plugin_path . 'assets/styles/public/vulopilot-blocks.min.css';
-
-		if ( ! file_exists( $style_path ) ) {
-			return;
-		}
-
-		wp_enqueue_style(
-			$handle,
-			VuloPilot()->plugin_url . 'assets/styles/public/vulopilot-blocks.min.css',
-			array(),
-			VuloPilot()->version
-		);
 	}
 }
