@@ -395,12 +395,7 @@
 
 
 // Editor-only chrome below - never rendered by FaqRenderer.php, so it can't affect the frontend's
-// own byte-identical copy of the rules above. `--editing` forces every item open (see
-// FaqAccordion.js's own "expanded" layout branch) so RichText stays reachable without a native
-// `<details>` toggle intercepting the click - see index.js's own Edit/Preview toolbar docblock.
-.vulopilot-faq--editing .vulopilot-faq__item--static {
-	position: relative;
-}
+// own byte-identical copy of the rules above.
 
 // Appearance preset picker (index.js's own Style tab, `APPEARANCE_PRESETS`) - 3 real buttons, each
 // a small illustrative swatch + label, selected state highlighted by a real theme-color border.
@@ -559,26 +554,3 @@
 	font-style: italic;
 }
 
-// Reorder/duplicate/remove - a compact icon-only toolbar, hidden until the item is hovered or one
-// of its own buttons has focus (keyboard users still reach it via Tab, same as any other
-// hover-revealed toolbar), so an untouched FAQ card reads as the real frontend component rather
-// than a row of edit chrome. `.vulopilot-faq__remove`'s `isDestructive` already gives it WP core's
-// own red hover tint - no extra color rule needed here.
-.vulopilot-faq__item-controls {
-	flex-shrink: 0;
-	margin-left: auto;
-	opacity: 0;
-	transition: opacity 0.15s ease;
-}
-
-.vulopilot-faq__question--static:hover .vulopilot-faq__item-controls,
-.vulopilot-faq__item-controls:focus-within {
-	opacity: 1;
-}
-
-// A subtle text-style row below the list, not a bordered button box - `Button`'s own `variant=
-// "tertiary"` already renders as plain text with no border/background until hovered.
-.vulopilot-faq__add {
-	align-self: flex-start;
-	margin-top: 0.5rem;
-}

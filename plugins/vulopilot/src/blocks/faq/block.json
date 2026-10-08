@@ -8,8 +8,6 @@
 	"textdomain": "vulopilot",
 	"editorScript": "file:./index.js",
 	"render": "file:./render.php",
-	"style": "vulopilot-blocks",
-	"editorStyle": "vulopilot-blocks",
 	"attributes": {
 		"questions": {
 			"type": "array",

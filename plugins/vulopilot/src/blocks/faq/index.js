@@ -11,7 +11,6 @@ import {
 } from '@wordpress/block-editor';
 import {
 	Button,
-	ButtonGroup,
 	PanelBody,
 	TabPanel,
 	TextControl,
@@ -168,16 +167,6 @@ registerBlockType( metadata.name, {
 				questions: questions.filter( ( _row, i ) => i !== index ),
 			} );
 
-		const moveRow = ( index, direction ) => {
-			const target = index + direction;
-			if ( target < 0 || target >= questions.length ) {
-				return;
-			}
-			const next = questions.slice();
-			[ next[ index ], next[ target ] ] = [ next[ target ], next[ index ] ];
-			setAttributes( { questions: next } );
-		};
-
 		/** One `style.<path>` write - `path` e.g. `'question.color'` or `'container.padding'`. */
 		const updateStyle = ( path, value ) => {
 			const parts = path.split( '.' );
@@ -233,57 +222,6 @@ registerBlockType( metadata.name, {
 			next.container.background = value ?? '';
 			setAttributes( { style: next } );
 		};
-
-		/**
-		 * Rendered inside the question row, hidden until hover/focus (`.vulopilot-faq__item-controls`'s
-		 * own `opacity` rule in blocks.scss) so the card reads as the real frontend component rather
-		 * than a form - small icon-only buttons, Remove included (`isDestructive` tints it red only
-		 * on its own hover, not permanently), not a separate full-width red button under every item.
-		 */
-		const itemControls = ( item, index ) => (
-			<ButtonGroup className="vulopilot-faq__item-controls">
-				<Button
-					icon="arrow-up-alt2"
-					label={ __( 'Move up', 'vulopilot' ) }
-					size="small"
-					disabled={ 0 === index }
-					onClick={ ( e ) => {
-						e.preventDefault();
-						moveRow( index, -1 );
-					} }
-				/>
-				<Button
-					icon="arrow-down-alt2"
-					label={ __( 'Move down', 'vulopilot' ) }
-					size="small"
-					disabled={ index === questions.length - 1 }
-					onClick={ ( e ) => {
-						e.preventDefault();
-						moveRow( index, 1 );
-					} }
-				/>
-				<Button
-					icon="admin-page"
-					label={ __( 'Duplicate', 'vulopilot' ) }
-					size="small"
-					onClick={ ( e ) => {
-						e.preventDefault();
-						duplicateRow( index );
-					} }
-				/>
-				<Button
-					className="vulopilot-faq__remove"
-					icon="trash"
-					label={ __( 'Remove question', 'vulopilot' ) }
-					isDestructive
-					size="small"
-					onClick={ ( e ) => {
-						e.preventDefault();
-						removeRow( index );
-					} }
-				/>
-			</ButtonGroup>
-		);
 
 		return (
 			<>
@@ -731,43 +669,26 @@ registerBlockType( metadata.name, {
 				<div { ...blockProps }>
 					<FaqAccordion
 						items={ questions }
-						renderQuestion={ ( item, index ) => (
-							<RichText
+						renderQuestion={ ( item ) => (
+							<RichText.Content
 								tagName="span"
-								placeholder={ __( 'Question', 'vulopilot' ) }
 								value={ item.question }
-								onChange={ ( value ) =>
-									updateQuestion( index, 'question', value )
-								}
 							/>
 						) }
-						renderAnswer={ ( item, index ) => (
-							<RichText
+						renderAnswer={ ( item ) => (
+							<RichText.Content
 								tagName="div"
-								placeholder={ __( 'Answer', 'vulopilot' ) }
 								value={ item.answer }
-								onChange={ ( value ) =>
-									updateQuestion( index, 'answer', value )
-								}
 							/>
 						) }
-						renderItemControls={ itemControls }
-						settings={ { ...settings, layoutMode: 'expanded' } }
+						settings={ settings }
 						styleVars={ styleVars }
-						className="vulopilot-faq--editing"
+						groupName="editor-preview"
 						emptyMessage={ __(
-							'Add a question below to get started.',
+							'Add a question from the Content tab in the sidebar to get started.',
 							'vulopilot'
 						) }
 					/>
-					<Button
-						className="vulopilot-faq__add"
-						variant="tertiary"
-						icon="plus-alt2"
-						onClick={ addRow }
-					>
-						{ __( 'Add FAQ', 'vulopilot' ) }
-					</Button>
 				</div>
 			</>
 		);

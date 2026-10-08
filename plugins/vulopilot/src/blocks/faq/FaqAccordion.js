@@ -1,14 +1,16 @@
 /**
- * The one real shared presentation component the editor canvas (index.js, with editable
- * `RichText` content) renders with - FaqRenderer.php's own PHP output can't literally share this
- * component across languages, but it builds the exact same DOM shape/class names by hand (see
- * that file's own docblock) and reads the exact same `--faq-*` CSS custom properties this
- * component's caller supplies via `styleVars`, so editor and frontend never visually drift.
+ * The one real shared presentation component both JS-rendered surfaces of this block use - the
+ * editor canvas (index.js, with editable `RichText` content) and the sidebar's own "Live style
+ * preview" (also index.js, with fixed sample content) - so neither can visually drift from the
+ * other. FaqRenderer.php's own PHP output can't literally share this component across languages,
+ * but it builds the exact same DOM shape/class names by hand (see that file's own docblock) and
+ * reads the exact same `--faq-*` CSS custom properties this component's caller supplies via
+ * `styleVars`.
  *
  * Render-prop shaped (`renderQuestion`/`renderAnswer`) rather than taking plain strings, so the
- * editor can pass real `RichText` fields here without this component needing to know that.
+ * editor can pass real `RichText` fields here while the preview/frontend pass plain read-only
+ * text, without this component needing to know which.
  */
-import { __ } from '@wordpress/i18n';
 
 const ICON_GLYPH = {
 	'plus-minus': { closed: '+', open: '−' },
@@ -21,19 +23,12 @@ export default function FaqAccordion( {
 	renderQuestion,
 	renderAnswer,
 	renderItemControls,
+	renderItemFooter,
 	settings,
 	styleVars,
 	groupName,
 	className = '',
 	emptyMessage,
-	// `layoutMode: 'expanded'` (the editor canvas's own always-"static"/div-based rendering,
-	// needed so RichText stays reachable - a native `<details>`'s own toggle would otherwise
-	// intercept clicks meant for text editing) still collapses/expands per item when these are
-	// given, same real interaction the frontend's native `<details>` gives for free - just driven
-	// by this component's own `isItemOpen`/`onToggleItem` instead of the `<details>` element's own
-	// `open` state. Omit both to keep every item always open (e.g. a read-only summary render).
-	isItemOpen,
-	onToggleItem,
 } ) {
 	const {
 		layoutMode = 'accordion',
@@ -72,14 +67,8 @@ export default function FaqAccordion( {
 		<div className={ wrapperClassName } style={ styleVars }>
 			{ items.map( ( item, index ) => {
 				if ( isExpanded ) {
-					const isOpen = ! onToggleItem || ( isItemOpen && isItemOpen( index ) );
-
 					return (
-						<div
-							className="vulopilot-faq__item vulopilot-faq__item--static"
-							open={ isOpen }
-							key={ index }
-						>
+						<div className="vulopilot-faq__item vulopilot-faq__item--static" key={ index }>
 							<div className="vulopilot-faq__question vulopilot-faq__question--static">
 								{ HeadingTag ? (
 									<HeadingTag className="vulopilot-faq__question-text">
@@ -88,32 +77,12 @@ export default function FaqAccordion( {
 								) : (
 									renderQuestion( item, index )
 								) }
-								{ onToggleItem && (
-									<button
-										type="button"
-										className="vulopilot-faq__icon"
-										aria-expanded={ isOpen }
-										aria-label={ __( 'Toggle answer', 'vulopilot' ) }
-										onClick={ ( e ) => {
-											e.preventDefault();
-											onToggleItem( index );
-										} }
-									>
-										<span className="vulopilot-faq__icon-closed">
-											{ glyph.closed }
-										</span>
-										<span className="vulopilot-faq__icon-open">
-											{ glyph.open }
-										</span>
-									</button>
-								) }
 								{ renderItemControls && renderItemControls( item, index ) }
 							</div>
-							{ isOpen && (
-								<div className="vulopilot-faq__answer">
-									{ renderAnswer( item, index ) }
-								</div>
-							) }
+							<div className="vulopilot-faq__answer">
+								{ renderAnswer( item, index ) }
+							</div>
+							{ renderItemFooter && renderItemFooter( item, index ) }
 						</div>
 					);
 				}

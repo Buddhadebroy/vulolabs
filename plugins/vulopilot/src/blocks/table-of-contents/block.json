@@ -9,8 +9,6 @@
 	"editorScript": "file:./index.js",
 	"viewScript": "file:./view.js",
 	"render": "file:./render.php",
-	"style": "vulopilot-blocks",
-	"editorStyle": "vulopilot-blocks",
 	"attributes": {
 		"title": {
 			"type": "string",
