@@ -23,13 +23,17 @@
 		"questionColor": { "type": "string" },
 		"questionFontSize": { "type": "string" },
 		"answerColor": { "type": "string" },
-		"answerFontSize": { "type": "string" }
+		"answerFontSize": { "type": "string" },
+		"design": { "type": "string", "default": "classic" }
 	},
 	"supports": {
 		"html": false,
+		"anchor": true,
+		"align": [ "wide", "full" ],
 		"spacing": {
 			"margin": true,
-			"padding": true
+			"padding": true,
+			"blockGap": true
 		},
 		"border": {
 			"color": true,
@@ -39,11 +43,20 @@
 		},
 		"color": {
 			"background": true,
-			"text": false
+			"text": true,
+			"gradient": true,
+			"link": true
 		},
 		"typography": {
 			"fontSize": true,
-			"lineHeight": true
+			"lineHeight": true,
+			"fontFamily": true,
+			"fontWeight": true,
+			"fontStyle": true,
+			"textAlign": true,
+			"textDecoration": true,
+			"textTransform": true,
+			"letterSpacing": true
 		}
 	}
 }

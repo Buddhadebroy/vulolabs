@@ -25,7 +25,8 @@ class FaqRenderer {
 			return '';
 		}
 
-		$wrapper_attributes = get_block_wrapper_attributes( array( 'class' => 'vulopilot-faq' ) );
+		$design              = self::sanitize_design( $attributes['design'] ?? 'classic' );
+		$wrapper_attributes = get_block_wrapper_attributes( array( 'class' => 'vulopilot-faq vulopilot-faq--' . $design ) );
 		$html               = '<div ' . $wrapper_attributes . '>';
 
 		$question_style = self::build_style( $attributes['questionColor'] ?? '', $attributes['questionFontSize'] ?? '' );
@@ -33,7 +34,7 @@ class FaqRenderer {
 
 		foreach ( $questions as $item ) {
 			$html .= sprintf(
-				'<details class="vulopilot-faq__item"><summary class="vulopilot-faq__question"%3$s>%1$s</summary><div class="vulopilot-faq__answer"%4$s>%2$s</div></details>',
+				'<details class="vulopilot-faq-item"><summary class="vulopilot-faq-question"%3$s>%1$s</summary><div class="vulopilot-faq-answer"%4$s>%2$s</div></details>',
 				wp_kses_post( $item['question'] ),
 				wp_kses_post( $item['answer'] ),
 				$question_style,
@@ -70,6 +71,20 @@ class FaqRenderer {
 		}
 
 		return empty( $declarations ) ? '' : ' style="' . implode( ';', $declarations ) . '"';
+	}
+
+	/**
+	 * Only the 3 designs index.js's own `RadioControl` offers are ever
+	 * valid as a wrapper class - anything else (a stale attribute from
+	 * before this existed, or a hand-edited post) falls back to `classic`.
+	 *
+	 * @param mixed $design The block's own `design` attribute value.
+	 * @return string One of `classic`, `boxed`, `minimal`.
+	 */
+	private static function sanitize_design( $design ): string {
+		$allowed = array( 'classic', 'boxed', 'minimal' );
+
+		return in_array( $design, $allowed, true ) ? $design : 'classic';
 	}
 
 	/**

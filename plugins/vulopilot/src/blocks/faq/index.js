@@ -6,8 +6,28 @@ import {
 	InspectorControls,
 	PanelColorSettings,
 } from '@wordpress/block-editor';
-import { Button, PanelBody, FontSizePicker } from '@wordpress/components';
+import {
+	Button,
+	PanelBody,
+	FontSizePicker,
+	RadioControl,
+} from '@wordpress/components';
 import metadata from './block.json';
+
+const DESIGNS = [
+	{
+		label: __( 'Classic', 'vulopilot' ),
+		value: 'classic',
+	},
+	{
+		label: __( 'Boxed', 'vulopilot' ),
+		value: 'boxed',
+	},
+	{
+		label: __( 'Minimal', 'vulopilot' ),
+		value: 'minimal',
+	},
+];
 
 registerBlockType( metadata.name, {
 	edit: ( { attributes, setAttributes } ) => {
@@ -17,8 +37,11 @@ registerBlockType( metadata.name, {
 			questionFontSize,
 			answerColor,
 			answerFontSize,
+			design,
 		} = attributes;
-		const blockProps = useBlockProps( { className: 'vulopilot-faq' } );
+		const blockProps = useBlockProps( {
+			className: `vulopilot-faq vulopilot-faq--${ design }`,
+		} );
 
 		const updateQuestion = ( index, field, value ) => {
 			const next = questions.slice();
@@ -48,6 +71,18 @@ registerBlockType( metadata.name, {
 		return (
 			<>
 				<InspectorControls>
+					<PanelBody
+						title={ __( 'Design', 'vulopilot' ) }
+						initialOpen={ true }
+					>
+						<RadioControl
+							selected={ design }
+							options={ DESIGNS }
+							onChange={ ( value ) =>
+								setAttributes( { design: value } )
+							}
+						/>
+					</PanelBody>
 					<PanelBody
 						title={ __( 'Question Style', 'vulopilot' ) }
 						initialOpen={ false }
@@ -105,7 +140,7 @@ registerBlockType( metadata.name, {
 				 * mirrored in FaqRenderer::render() for the front end. */ }
 				<div { ...blockProps }>
 					{ questions.length === 0 && (
-						<p className="vulopilot-faq__empty">
+						<p className="vulopilot-faq-empty">
 							{ __(
 								'Add a question below to get started.',
 								'vulopilot'
@@ -113,10 +148,10 @@ registerBlockType( metadata.name, {
 						</p>
 					) }
 					{ questions.map( ( item, index ) => (
-						<div className="vulopilot-faq__editor-row" key={ index }>
+						<div className="vulopilot-faq-editor-row" key={ index }>
 							<RichText
 								tagName="div"
-								className="vulopilot-faq__question-input"
+								className="vulopilot-faq-question-input"
 								style={ questionStyle }
 								placeholder={ __( 'Question', 'vulopilot' ) }
 								value={ item.question }
@@ -126,7 +161,7 @@ registerBlockType( metadata.name, {
 							/>
 							<RichText
 								tagName="div"
-								className="vulopilot-faq__answer-input"
+								className="vulopilot-faq-answer-input"
 								style={ answerStyle }
 								placeholder={ __( 'Answer', 'vulopilot' ) }
 								value={ item.answer }

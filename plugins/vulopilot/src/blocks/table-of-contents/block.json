@@ -24,6 +24,58 @@
 		"collapsible": {
 			"type": "boolean",
 			"default": false
+		},
+		"contentFontSize": {
+			"type": "string",
+			"default": ""
+		},
+		"contentColor": {
+			"type": "string",
+			"default": ""
+		},
+		"contentLineHeight": {
+			"type": "number",
+			"default": 1.6
+		},
+		"contentListStyle": {
+			"type": "string",
+			"default": "disc"
+		},
+		"contentGap": {
+			"type": "string",
+			"default": "0.25em"
+		},
+		"titleFontSize": {
+			"type": "string",
+			"default": ""
+		},
+		"titleColor": {
+			"type": "string",
+			"default": ""
+		},
+		"titleLineHeight": {
+			"type": "number",
+			"default": 1.4
+		},
+		"titlePadding": {
+			"type": "object",
+			"default": {}
+		},
+		"titleMargin": {
+			"type": "object",
+			"default": { "bottom": "0.5em" }
+		},
+		"sectionBackground": {
+			"type": "string",
+			"default": ""
+		},
+		"sectionPadding": {
+			"type": "object",
+			"default": { "top": "1em", "right": "1.25em", "bottom": "1em", "left": "1.25em" }
+		},
+		"sectionMargin": {
+			"type": "object",
+			"default": { "top": "1.5em", "bottom": "1.5em" }
 		}
 	},
 	"supports": {
