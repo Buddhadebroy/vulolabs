@@ -42,6 +42,7 @@
 				<element value="vulocart"/>
 				<element value="vulomail"/>
 				<element value="vuloform"/>
+				<element value="vulobackup"/>
 			</property>
 		</properties>
 	</rule>

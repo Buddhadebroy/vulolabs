@@ -1,6 +1,6 @@
 # VuloLabs (free-tier base) - Claude Code Guide
 
-This is a **separate git repository**, mounted as a submodule of the parent `vulolabs-pro` monorepo. It holds the free/base-tier plugins `vulopilot` and `vulocart`.
+This is a **separate git repository**, mounted as a submodule of the parent `vulolabs-pro` monorepo. It holds the free/base-tier plugins `vulopilot` and `vulocart`, and the standalone plugins `vulomail`, `vuloform` and `vulobackup`.
 
 **Git boundary**: edits to files here are fine and expected - the Pro plugins are built against this code. But `git add`/`git commit`/`git push` **inside this directory only when explicitly asked**. Committing here is a separate commit in this repo's own history; the parent repo then needs its submodule pointer updated in a second, separate commit - see `DEVELOPER-DOC.md` for the exact recipe. Never run `git submodule update`/`git checkout` here without confirming first.
 
@@ -46,6 +46,17 @@ Both plugins depend on the published package `@multivendorx/zyra` (aliased in `t
 
 - `vulopilot/src/index.tsx`: single mount point, `#admin-main-wrapper`, wrapped in `BrowserRouter`.
 - `vulocart/src/index.tsx`: **three independent mount points** (`#vulocart-admin-root` for the main SPA wrapped in `QueryClientProvider` from `@tanstack/react-query`, plus two standalone `#vulocart-orders-admin-root`/`#vulocart-offerings-admin-root` pages) - not a single SPA the way `vulopilot` is. Don't assume every VuloLabs plugin follows the single-SPA-mount pattern.
+
+## VuloBackup (standalone backup plugin)
+
+`plugins/vulobackup` (`VuloBackup()`, REST `vulobackup/v1`, text domain `vulobackup`) is independent of every other plugin here. Things that are easy to get wrong:
+
+- **No database tables.** Jobs (backups and restores) are `job.json` files inside the storage folder (`Jobs\Store`), so they survive a database restore. Don't move that state into `wp_options` or a table.
+- **Work is done in slices.** Nothing may assume one long request: every step of `Backup\Engine` and `Restore\Engine` keeps a cursor and can stop after any unit of work. `Jobs\Runner` holds a file lock so only one slice runs at a time.
+- **A restore changes nothing until its last two steps.** Files go to staging folders and the database to temporary tables first; keep new restore work on that side of the `overlay`/`commit` steps, and keep the job's `changed` field truthful.
+- **Nothing from a backup is trusted.** Archive entries go through `Security\PathGuard`, SQL lines through `Database\SqlGuard`, manifests through `Backup\Manifest::validate()`. Never `unserialize()` backup data or `extractTo()` onto the live site.
+- **Every route is admin-only.** No public or token-based endpoint, by design.
+- Unit tests: `vendor/bin/phpunit`. Integration tests need a real site: `plugins/vulobackup/tests/integration/README.md`. Docs: `plugins/vulobackup/docs/developer/`.
 
 ## Everything else
 
