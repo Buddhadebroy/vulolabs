@@ -4,8 +4,10 @@ import { useLocation } from 'react-router-dom';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink } from '@zyra/core';
 import {
+	AnalyticsComponent,
 	BadgeComponent,
 	CardComponent,
+	ColumnComponent,
 	ContainerComponent,
 	ModuleGuardComponent,
 	NavigatorHeaderComponent,
@@ -51,6 +53,58 @@ interface TableQuery {
 	categoryFilter?: string;
 	filter?: { date?: { startDate?: Date | string; endDate?: Date | string } };
 }
+
+// The icon the builder shows for each kind of field.
+const FIELD_ICONS: Record<string, string> = {
+	text: 'form-textbox',
+	textarea: 'form-textarea',
+	email: 'form-email',
+	phone: 'form-phone',
+	number: 'arrow-down-up',
+	url: 'form-url',
+	select: 'form-dropdown',
+	radio: 'form-radio',
+	checkboxes: 'form-checkboxes',
+	consent: 'check',
+	date: 'calendar',
+	time: 'clock',
+	file: 'form-attachment',
+	name: 'profile',
+	address: 'form-address',
+	hidden: 'eye-blocked',
+	calculation: 'commission',
+};
+
+/** One answer, shown the way its kind deserves: an address you can click, a yes or no, or plain text. */
+const answer = (type: string, text: string) => {
+	const value = text.trim();
+
+	if ('' === value) {
+		return <span className="vuloform-answer-none">{__('Not answered', 'vuloform')}</span>;
+	}
+
+	if ('email' === type && /^[^\s@]+@[^\s@]+$/.test(value)) {
+		return <a href={`mailto:${value}`}>{value}</a>;
+	}
+
+	if ('phone' === type) {
+		return <a href={`tel:${value.replace(/[^\d+]/g, '')}`}>{value}</a>;
+	}
+
+	if ('url' === type && /^https?:\/\//i.test(value)) {
+		return (
+			<a href={value} target="_blank" rel="noreferrer noopener">
+				{value}
+			</a>
+		);
+	}
+
+	if ('consent' === type) {
+		return <BadgeComponent color="green" text={value} />;
+	}
+
+	return value;
+};
 
 const EVENT_COLORS: Record<string, string> = { handed_off: 'green', delivered: 'green', failed: 'red', retry: 'yellow', skipped: 'yellow' };
 
@@ -242,8 +296,8 @@ const Submissions = () => {
 									text: __('Export CSV', 'vuloform'),
 									icon: 'export',
 									color: 'purple',
-									disabled: 0 === list.total || 0 === formId,
-									tooltip: 0 === formId ? __('Choose one form to export its submissions.', 'vuloform') : undefined,
+									disabled: 0 === list.total,
+									tooltip: 0 === list.total ? __('There is nothing to export.', 'vuloform') : undefined,
 									onClick: () => download('submissions/export', filters, 'submissions.csv'),
 								}}
 							/>
@@ -252,6 +306,20 @@ const Submissions = () => {
 				}
 			/>
 			<ContainerComponent general>
+				{!error && forms && forms.length > 0 && (
+					<ColumnComponent>
+						<AnalyticsComponent
+							variant="small"
+							cols={3}
+							data={[
+								{ icon: 'mail blue', number: counts.unread, text: __('New', 'vuloform') },
+								{ icon: 'check green', number: counts.read, text: __('Read', 'vuloform') },
+								{ icon: 'error red', number: counts.spam, text: __('Spam', 'vuloform') },
+							]}
+						/>
+					</ColumnComponent>
+				)}
+				<ColumnComponent>
 				<CardComponent>
 					{error && <ModuleGuardComponent icon="error" title={__('Could not load submissions', 'vuloform')} desc={error} />}
 					{!error && forms && 0 === forms.length && (
@@ -280,21 +348,38 @@ const Submissions = () => {
 							}
 							format={vuloformAppLocalizer.date_format_js}
 							headers={{
-								...(0 === formId
-									? { form_title: { label: __('Form', 'vuloform') } }
-									: {}),
 								preview: {
 									label: __('Submission', 'vuloform'),
-									render: (row: Row) => (
-										<div className="vuloform-cell">
-											{row.preview.map((item) => (
-												<span key={item.label} className={'unread' === row.status ? 'vuloform-cell-primary' : 'vuloform-cell-secondary'}>
-													<em>{item.label}:</em> {item.text}
+									render: (row: Row) => {
+										const [first, ...rest] = row.preview;
+										const isNew = 'unread' === row.status;
+
+										return (
+											<button type="button" className={`vuloform-sub${isNew ? ' is-new' : ''}`} onClick={() => openDetail(row.id)}>
+												<span className="vuloform-sub-avatar" aria-hidden="true">
+													{first ? first.text.trim().charAt(0).toUpperCase() : '?'}
 												</span>
-											))}
-											{0 === row.preview.length && <span className="vuloform-cell-secondary">{__('(empty)', 'vuloform')}</span>}
-										</div>
-									),
+												<span className="vuloform-sub-text">
+													<span className="vuloform-sub-title">
+														{first ? first.text : __('(empty)', 'vuloform')}
+														{isNew && <span className="vuloform-sub-dot" aria-hidden="true" />}
+													</span>
+													{rest.length > 0 && (
+														<span className="vuloform-sub-line">
+															{rest.map((item) => (
+																<span key={item.label}>
+																	<em>{item.label}</em> {item.text}
+																</span>
+															))}
+														</span>
+													)}
+													<span className="vuloform-sub-meta">
+														{0 === formId && row.form_title ? `${row.form_title} · ` : ''}#{row.id}
+													</span>
+												</span>
+											</button>
+										);
+									},
 								},
 								created_at_display: { label: __('Received', 'vuloform') },
 								status: {
@@ -333,6 +418,7 @@ const Submissions = () => {
 						/>
 					)}
 				</CardComponent>
+				</ColumnComponent>
 			</ContainerComponent>
 			<PopupComponent
 				open={Boolean(detail) && !confirmDelete}
@@ -352,40 +438,57 @@ const Submissions = () => {
 			>
 				{detail && (
 					<div className="vuloform-popup-body">
-						<dl className="vuloform-detail">
-							{detail.fields.map((field) => (
-								<div key={field.key}>
-									<dt>{field.label}</dt>
-									<dd>
-										{field.files.length > 0
-											? field.files.map((file) => (
-													<ButtonInput
+						<div className="vuloform-answers">
+							{detail.fields.map((field) => {
+								const isEmpty = 0 === field.files.length && '' === field.text.trim();
+								const isLong = ['textarea', 'address', 'checkboxes'].includes(field.type) || field.text.length > 80 || field.text.includes('\n');
+
+								return (
+									<div key={field.key} className={`vuloform-answer${isLong ? ' is-long' : ''}${isEmpty ? ' is-empty' : ''}`}>
+										<span className="vuloform-answer-label">
+											<i className={`adminfont-${FIELD_ICONS[field.type] ?? 'form-textbox'}`} aria-hidden="true" />
+											{field.label}
+										</span>
+										<span className="vuloform-answer-value">
+											{field.files.length > 0 &&
+												field.files.map((file) => (
+													<button
+														type="button"
 														key={file.index}
-														buttons={{
-															text: `${file.name} (${file.size})`,
-															icon: 'export',
-															color: 'purple',
-															onClick: () => download(`submissions/${detail.id}/file`, { key: field.key, index: file.index }, file.name),
-														}}
-													/>
-											  ))
-											: field.text || '—'}
-									</dd>
-								</div>
-							))}
-							{detail.page_url && (
-								<div>
-									<dt>{__('Sent from', 'vuloform')}</dt>
-									<dd>{detail.page_url}</dd>
-								</div>
-							)}
-							{detail.ip && (
-								<div>
-									<dt>{__('IP address', 'vuloform')}</dt>
-									<dd>{detail.ip}</dd>
-								</div>
-							)}
-						</dl>
+														className="vuloform-answer-file"
+														onClick={() => download(`submissions/${detail.id}/file`, { key: field.key, index: file.index }, file.name)}
+													>
+														<i className="adminfont-export" aria-hidden="true" />
+														{file.name}
+														<small>{file.size}</small>
+													</button>
+												))}
+											{0 === field.files.length && answer(field.type, field.text)}
+										</span>
+									</div>
+								);
+							})}
+						</div>
+						{(detail.page_url || detail.ip) && (
+							<dl className="vuloform-answer-meta">
+								{detail.page_url && (
+									<div>
+										<dt>{__('Sent from', 'vuloform')}</dt>
+										<dd>
+											<a href={detail.page_url} target="_blank" rel="noreferrer noopener">
+												{detail.page_url}
+											</a>
+										</dd>
+									</div>
+								)}
+								{detail.ip && (
+									<div>
+										<dt>{__('IP address', 'vuloform')}</dt>
+										<dd>{detail.ip}</dd>
+									</div>
+								)}
+							</dl>
+						)}
 						{detail.events.map((event, index) => (
 							<NoticeComponent
 								key={index}

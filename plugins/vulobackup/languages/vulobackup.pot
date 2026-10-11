@@ -1,0 +1,2823 @@
+# Copyright (c) 2026 VuloLabs Inc. All Rights Reserved.
+msgid ""
+msgstr ""
+"Project-Id-Version: VuloBackup 1.0.0\n"
+"Report-Msgid-Bugs-To: https://vulolabs.com/contact/\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-10-10T20:47:52+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.11.0\n"
+"X-Domain: vulobackup\n"
+
+#. Plugin Name of the plugin
+#: vulobackup.php
+#: classes/Rest/Overview.php:281
+msgid "VuloBackup"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: vulobackup.php
+msgid "https://vulolabs.com/vulobackup/"
+msgstr ""
+
+#. Description of the plugin
+#: vulobackup.php
+msgid "Back up your WordPress site. Restore it when it matters. Database and file backups, schedules, retention, remote storage, integrity checks, restore and migration."
+msgstr ""
+
+#. Author of the plugin
+#: vulobackup.php
+msgid "VuloLabs"
+msgstr ""
+
+#. Author URI of the plugin
+#: vulobackup.php
+msgid "https://vulolabs.com/"
+msgstr ""
+
+#: classes/Admin.php:53
+#: assets/js/index.js:1
+msgid "Overview"
+msgstr ""
+
+#: classes/Admin.php:57
+#: classes/Admin.php:134
+#: assets/js/index.js:1
+msgid "Backups"
+msgstr ""
+
+#: classes/Admin.php:61
+#: assets/js/index.js:1
+msgid "Restore"
+msgstr ""
+
+#: classes/Admin.php:65
+#: assets/js/index.js:1
+msgid "Diagnostics"
+msgstr ""
+
+#: classes/Admin.php:69
+#: assets/js/index.js:1
+msgid "Settings"
+msgstr ""
+
+#: classes/Backup/Bundle.php:60
+msgid "The archives of this backup are not on this server (they may be at a remote destination only), so it cannot be downloaded from here."
+msgstr ""
+
+#: classes/Backup/Bundle.php:199
+msgid "This file is not a VuloBackup backup. Upload the .zip file exactly as it was downloaded from VuloBackup."
+msgstr ""
+
+#: classes/Backup/Bundle.php:202
+msgid "This server's PHP has no zip extension, which importing a backup needs."
+msgstr ""
+
+#: classes/Backup/Bundle.php:261
+#: classes/Rest/Backups.php:397
+msgid "There is not enough disk space to import this backup."
+msgstr ""
+
+#: classes/Backup/Bundle.php:270
+msgid "Imported backup"
+msgstr ""
+
+#: classes/Backup/Bundle.php:329
+msgid "The backup file could not be unpacked. It is damaged, or the disk is full."
+msgstr ""
+
+#: classes/Backup/Bundle.php:332
+msgid "Imported from an uploaded backup file."
+msgstr ""
+
+#. translators: 1: backup name, 2: address of the site it came from.
+#: classes/Backup/Bundle.php:337
+msgid "Backup \"%1$s\" from %2$s was imported."
+msgstr ""
+
+#: classes/Backup/Engine.php:92
+#: assets/js/index.js:1
+msgid "Backup started."
+msgstr ""
+
+#. translators: %s: backup name.
+#: classes/Backup/Engine.php:97
+msgid "Backup \"%s\" started."
+msgstr ""
+
+#: classes/Backup/Engine.php:165
+msgid "Backup cancelled."
+msgstr ""
+
+#. translators: %s: backup name.
+#: classes/Backup/Engine.php:170
+msgid "Backup \"%s\" was cancelled."
+msgstr ""
+
+#: classes/Backup/Engine.php:229
+#: classes/Jobs/Store.php:65
+#: classes/Jobs/Store.php:73
+msgid "The backup folder could not be created or is not writable. Check Settings → Storage."
+msgstr ""
+
+#: classes/Backup/Engine.php:236
+msgid "This server's PHP has no zip extension, which file backups need. Ask your host to enable it, or make a database-only backup."
+msgstr ""
+
+#: classes/Backup/Engine.php:241
+msgid "This server's PHP has no zlib extension, which database backups need. Ask your host to enable it."
+msgstr ""
+
+#: classes/Backup/Engine.php:247
+msgid "No database tables were found to back up."
+msgstr ""
+
+#. translators: %s: comma-separated names.
+#: classes/Backup/Engine.php:257
+msgid "Not included, because they are views or have names a backup cannot hold: %s"
+msgstr ""
+
+#: classes/Backup/Engine.php:269
+msgid "None of the chosen folders exist on this site, so there are no files to back up."
+msgstr ""
+
+#: classes/Backup/Engine.php:279
+msgid "Encryption is switched on, but this server's PHP has no sodium extension. Switch encryption off in Settings, or ask your host to enable sodium."
+msgstr ""
+
+#: classes/Backup/Engine.php:283
+msgid "Encryption is switched on, but no password is set. Set one in Settings → Security."
+msgstr ""
+
+#. translators: 1: number of tables done, 2: number of tables.
+#: classes/Backup/Engine.php:306
+msgid "Exporting the database (table %1$d of %2$d)"
+msgstr ""
+
+#. translators: 1: number of tables, 2: number of rows.
+#: classes/Backup/Engine.php:324
+msgid "Database exported: %1$d tables, %2$d rows."
+msgstr ""
+
+#. translators: %s: number of files found so far.
+#: classes/Backup/Engine.php:351
+msgid "Listing files (%s found)"
+msgstr ""
+
+#. translators: 1: number of files, 2: total size.
+#: classes/Backup/Engine.php:379
+msgid "Files listed: %1$s files, %2$s."
+msgstr ""
+
+#: classes/Backup/Engine.php:386
+msgid "Symbolic links, which are never followed"
+msgstr ""
+
+#: classes/Backup/Engine.php:387
+msgid "Files or folders the web server may not read"
+msgstr ""
+
+#: classes/Backup/Engine.php:388
+msgid "Files over the size limit"
+msgstr ""
+
+#: classes/Backup/Engine.php:389
+msgid "Files with names a backup cannot hold"
+msgstr ""
+
+#. translators: 1: what was left out, 2: how many, 3: example paths.
+#: classes/Backup/Engine.php:397
+msgid "%1$s were left out (%2$d). For example: %3$s"
+msgstr ""
+
+#. translators: 1: space needed, 2: space free.
+#: classes/Backup/Engine.php:414
+msgid "There is not enough disk space for this backup: about %1$s is needed and %2$s is free. Delete old backups, exclude large folders in Settings, or move the backup folder to a larger disk."
+msgstr ""
+
+#. translators: 1: files packed, 2: files in total.
+#: classes/Backup/Engine.php:436
+msgid "Packing files (%1$s of %2$s)"
+msgstr ""
+
+#. translators: 1: count, 2: example paths.
+#: classes/Backup/Engine.php:457
+msgid "%1$d files changed or disappeared while the backup ran and are not in it. For example: %2$s"
+msgstr ""
+
+#. translators: 1: number of files, 2: number of archives.
+#: classes/Backup/Engine.php:467
+msgid "Files packed: %1$s files in %2$d archives."
+msgstr ""
+
+#: classes/Backup/Engine.php:491
+msgid "Checking the archives"
+msgstr ""
+
+#. translators: %s: file name.
+#: classes/Backup/Engine.php:501
+#: classes/Backup/Engine.php:621
+msgid "The archive %s is missing."
+msgstr ""
+
+#. translators: %s: file name.
+#: classes/Backup/Engine.php:511
+msgid "The archive %s is damaged or incomplete. The disk may be full or failing."
+msgstr ""
+
+#: classes/Backup/Engine.php:557
+msgid "The database dump is damaged or incomplete. The disk may be full or failing."
+msgstr ""
+
+#: classes/Backup/Engine.php:572
+msgid "Encrypting the archives"
+msgstr ""
+
+#: classes/Backup/Engine.php:607
+msgid "Writing the manifest"
+msgstr ""
+
+#: classes/Backup/Engine.php:681
+msgid "The manifest could not be written."
+msgstr ""
+
+#. translators: %s: total size.
+#: classes/Backup/Engine.php:698
+msgid "Backup written and verified: %s."
+msgstr ""
+
+#: classes/Backup/Engine.php:742
+msgid "This destination was removed before the backup could be sent to it."
+msgstr ""
+
+#. translators: 1: destination name, 2: file number, 3: number of files.
+#: classes/Backup/Engine.php:766
+msgid "Uploading to %1$s (file %2$d of %3$d)"
+msgstr ""
+
+#. translators: 1: destination name, 2: attempt number, 3: error.
+#: classes/Backup/Engine.php:784
+msgid "Upload to %1$s failed (attempt %2$d). %3$s"
+msgstr ""
+
+#. translators: %s: destination name.
+#: classes/Backup/Engine.php:830
+msgid "Uploaded to %s and confirmed."
+msgstr ""
+
+#. translators: 1: backup name, 2: destination name.
+#: classes/Backup/Engine.php:838
+msgid "Backup \"%1$s\" was uploaded to %2$s."
+msgstr ""
+
+#: classes/Backup/Engine.php:877
+msgid "A removed destination"
+msgstr ""
+
+#. translators: 1: destination name, 2: error.
+#: classes/Backup/Engine.php:898
+msgid "The copy to %1$s failed, so this backup is not stored there. %2$s"
+msgstr ""
+
+#. translators: 1: backup name, 2: destination name, 3: error.
+#: classes/Backup/Engine.php:907
+msgid "Backup \"%1$s\" could not be uploaded to %2$s. %3$s"
+msgstr ""
+
+#: classes/Backup/Engine.php:936
+msgid "Local archives removed: this backup is kept at the remote destinations only."
+msgstr ""
+
+#: classes/Backup/Engine.php:966
+msgid "Backup completed."
+msgstr ""
+
+#. translators: %s: backup name.
+#: classes/Backup/Engine.php:972
+msgid "Backup \"%s\" completed on this server, but a remote copy failed."
+msgstr ""
+
+#. translators: 1: backup name, 2: size.
+#: classes/Backup/Engine.php:974
+msgid "Backup \"%1$s\" completed and verified (%2$s)."
+msgstr ""
+
+#: classes/Backup/Engine.php:986
+msgid "A backup could not be copied to remote storage"
+msgstr ""
+
+#. translators: 1: backup name, 2: error.
+#: classes/Backup/Engine.php:1026
+msgid "Backup \"%1$s\" failed. %2$s"
+msgstr ""
+
+#: classes/Backup/Engine.php:1035
+msgid "A scheduled backup failed"
+msgstr ""
+
+#: classes/Backup/Engine.php:1035
+msgid "A backup failed"
+msgstr ""
+
+#: classes/Backup/Engine.php:1196
+msgid "The backup's progress could not be saved. The disk may be full."
+msgstr ""
+
+#: classes/Backup/Manifest.php:61
+msgid "This backup has no manifest, so it cannot be verified or restored."
+msgstr ""
+
+#: classes/Backup/Manifest.php:75
+msgid "The manifest of this backup is damaged or is not a VuloBackup manifest."
+msgstr ""
+
+#: classes/Backup/Manifest.php:82
+#: classes/Database/Importer.php:325
+msgid "This backup was made by a newer version of VuloBackup. Update VuloBackup on this site, then try again."
+msgstr ""
+
+#. translators: 1: backup name, 2: destination name, 3: error.
+#: classes/Backup/Retention.php:118
+msgid "Could not remove old backup \"%1$s\" from %2$s. %3$s"
+msgstr ""
+
+#. translators: 1: backup name, 2: destination name.
+#: classes/Backup/Retention.php:125
+msgid "Removed old backup \"%1$s\" from %2$s."
+msgstr ""
+
+#. translators: %s: backup name.
+#: classes/Backup/Retention.php:140
+msgid "Removed old backup \"%s\" from this server."
+msgstr ""
+
+#: classes/Backup/Retention.php:189
+msgid "That destination is no longer configured, so the copy there could not be removed."
+msgstr ""
+
+#: classes/Backup/Verifier.php:68
+#: classes/Rest/Settings.php:152
+#: assets/js/index.js:1
+msgid "This server"
+msgstr ""
+
+#. translators: %s: destination name.
+#: classes/Backup/Verifier.php:83
+msgid "%s is no longer configured, so the copy there could not be checked."
+msgstr ""
+
+#. translators: 1: destination name, 2: file name, 3: error.
+#: classes/Backup/Verifier.php:94
+msgid "%1$s: %2$s. %3$s"
+msgstr ""
+
+#: classes/Backup/Verifier.php:107
+msgid "No copy of this backup is left, here or at a remote destination."
+msgstr ""
+
+#. translators: %s: file name.
+#: classes/Backup/Verifier.php:125
+msgid "%s is missing."
+msgstr ""
+
+#. translators: %s: file name.
+#: classes/Backup/Verifier.php:130
+msgid "%s is not the size the manifest records; it is damaged or incomplete."
+msgstr ""
+
+#. translators: %s: file name.
+#: classes/Backup/Verifier.php:135
+msgid "%s does not match its recorded checksum; it has been changed or is corrupted."
+msgstr ""
+
+#. translators: 1: backup name, 2: what is wrong.
+#: classes/Backup/Verifier.php:161
+msgid "Backup \"%1$s\" failed its integrity check. %2$s"
+msgstr ""
+
+#. translators: %s: backup name.
+#: classes/Backup/Verifier.php:163
+msgid "Backup \"%s\" passed its integrity check."
+msgstr ""
+
+#: classes/Database/Exporter.php:64
+msgid "The list of database tables could not be read."
+msgstr ""
+
+#. translators: 1: table name, 2: database error.
+#: classes/Database/Exporter.php:227
+msgid "The structure of table %1$s could not be read. %2$s"
+msgstr ""
+
+#. translators: %s: table name.
+#: classes/Database/Exporter.php:240
+msgid "The columns of table %s could not be read."
+msgstr ""
+
+#. translators: 1: table name, 2: database error.
+#: classes/Database/Exporter.php:305
+msgid "Table %1$s could not be read. %2$s"
+msgstr ""
+
+#: classes/Database/Exporter.php:363
+msgid "The database dump could not be written. The disk may be full."
+msgstr ""
+
+#: classes/Database/Exporter.php:386
+msgid "The database dump is shorter than expected; part of it was lost."
+msgstr ""
+
+#: classes/Database/Exporter.php:393
+msgid "The database dump could not be written."
+msgstr ""
+
+#: classes/Database/Importer.php:91
+msgid "The database dump could not be read."
+msgstr ""
+
+#: classes/Database/Importer.php:128
+msgid "The database dump ends before its closing line, so it is incomplete. Nothing on your site was changed."
+msgstr ""
+
+#: classes/Database/Importer.php:148
+msgid "The database was not fully loaded, so it was not switched."
+msgstr ""
+
+#: classes/Database/Importer.php:166
+msgid "The restored database could not be prepared for this site."
+msgstr ""
+
+#: classes/Database/Importer.php:173
+msgid "The database refused to switch to the restored tables. Your site's database was not changed."
+msgstr ""
+
+#. translators: %s: table name.
+#: classes/Database/Importer.php:197
+msgid "A foreign key of table %s could not be restored. The data is complete; only the constraint is missing."
+msgstr ""
+
+#: classes/Database/Importer.php:264
+msgid "The database user of this site may not create, rename or drop tables, which a restore needs. Ask your host to grant those permissions."
+msgstr ""
+
+#: classes/Database/Importer.php:279
+msgid "The database dump contains something a VuloBackup dump never does, so it was refused. Nothing on your site was changed."
+msgstr ""
+
+#: classes/Database/Importer.php:293
+msgid "The database dump has rows for a table it never defined, so it was refused. Nothing on your site was changed."
+msgstr ""
+
+#. translators: %s: table name.
+#: classes/Database/Importer.php:302
+msgid "Rows of table %s could not be loaded. Nothing on your site was changed."
+msgstr ""
+
+#. translators: %s: character set name.
+#: classes/Database/Importer.php:337
+msgid "This backup's database uses the character set %s, which VuloBackup cannot restore safely. Import database.sql.gz with your host's database tool instead."
+msgstr ""
+
+#: classes/Database/Importer.php:360
+msgid "The database dump does not hold the tables and rows its own closing line says it should. It is damaged. Nothing on your site was changed."
+msgstr ""
+
+#: classes/Database/Importer.php:378
+msgid "The database dump has no VuloBackup header, so it was refused. Nothing on your site was changed."
+msgstr ""
+
+#: classes/Database/Importer.php:382
+msgid "The database dump defines the same table twice, so it was refused. Nothing on your site was changed."
+msgstr ""
+
+#. translators: %s: table name.
+#: classes/Database/Importer.php:425
+msgid "Table %s used a text sorting rule this database server does not have; a standard one was used instead."
+msgstr ""
+
+#. translators: 1: table name, 2: database error.
+#: classes/Database/Importer.php:439
+msgid "Table %1$s could not be created. Nothing on your site was changed. %2$s"
+msgstr ""
+
+#. translators: %s: table name.
+#: classes/Database/Importer.php:468
+msgid "Table %s would have a name that is too long with this site's table prefix. Nothing on your site was changed."
+msgstr ""
+
+#: classes/Files/Archiver.php:103
+msgid "The list of files could not be read."
+msgstr ""
+
+#: classes/Files/Archiver.php:219
+msgid "A backup archive could not be written. The disk may be full, or the backup folder is not writable."
+msgstr ""
+
+#: classes/Files/Archiver.php:237
+msgid "A backup archive could not be created. Check that the backup folder is writable and the disk is not full."
+msgstr ""
+
+#: classes/Files/Inventory.php:144
+msgid "The list of files could not be written."
+msgstr ""
+
+#: classes/Files/Inventory.php:157
+msgid "The list of files could not be written. The disk may be full."
+msgstr ""
+
+#: classes/Files/Inventory.php:165
+msgid "This site has more than two million files, which is more than VuloBackup can back up. Exclude some folders in Settings and try again."
+msgstr ""
+
+#: classes/Jobs/Runner.php:59
+msgid "A backup or restore is already running. Wait for it to finish, or cancel it."
+msgstr ""
+
+#: classes/Jobs/Runner.php:67
+msgid "Choose at least one folder to back up."
+msgstr ""
+
+#: classes/Jobs/Runner.php:71
+msgid "Full backup"
+msgstr ""
+
+#: classes/Jobs/Runner.php:72
+msgid "Database backup"
+msgstr ""
+
+#: classes/Jobs/Runner.php:73
+msgid "Files backup"
+msgstr ""
+
+#: classes/Jobs/Runner.php:79
+msgid "Safety backup before restore"
+msgstr ""
+
+#. translators: %s: internal name of the step, e.g. archive.
+#: classes/Jobs/Runner.php:146
+msgid "The server stopped the work several times at the same point (%s). This usually means PHP's time or memory limit is too low for this site. Lower \"Seconds per step\" in Settings, exclude large folders, or ask your host to raise the limits."
+msgstr ""
+
+#: classes/Jobs/Runner.php:183
+msgid "The work stopped making progress and was ended. See the log of this job for the last thing it did."
+msgstr ""
+
+#: classes/Jobs/Runner.php:214
+msgid "This job is in the middle of a step. Try again in a few seconds."
+msgstr ""
+
+#: classes/Jobs/Store.php:95
+#: classes/Rest/Backups.php:380
+msgid "The backup folder is not writable."
+msgstr ""
+
+#. translators: %s: site address.
+#: classes/Logging/Logger.php:238
+msgid "VuloBackup on %s reports a problem."
+msgstr ""
+
+#. translators: %s: admin URL.
+#: classes/Logging/Logger.php:241
+msgid "Details: %s"
+msgstr ""
+
+#: classes/Logging/Logger.php:251
+msgid "A failure notification was handed to WordPress for sending."
+msgstr ""
+
+#: classes/Logging/Logger.php:252
+msgid "WordPress could not send the failure notification email."
+msgstr ""
+
+#: classes/Rest/Backups.php:259
+msgid "This backup is still running. Cancel it first."
+msgstr ""
+
+#: classes/Rest/Backups.php:265
+msgid "This backup is being restored right now."
+msgstr ""
+
+#. translators: %s: errors from the storage services.
+#: classes/Rest/Backups.php:295
+msgid "The copy at a remote destination could not be deleted, so the backup was kept. %s"
+msgstr ""
+
+#. translators: %s: backup name.
+#: classes/Rest/Backups.php:312
+msgid "Backup \"%s\" was deleted by an administrator."
+msgstr ""
+
+#. translators: %s: backup name.
+#: classes/Rest/Backups.php:342
+msgid "Backup \"%s\" was downloaded by an administrator."
+msgstr ""
+
+#: classes/Rest/Backups.php:390
+msgid "The upload did not arrive. The file may be larger than this server accepts in one piece."
+msgstr ""
+
+#: classes/Rest/Backups.php:404
+#: classes/Rest/Backups.php:411
+msgid "The upload could not be continued. Start it again."
+msgstr ""
+
+#: classes/Rest/Backups.php:418
+msgid "The upload could not be saved. The disk may be full."
+msgstr ""
+
+#: classes/Rest/Controller.php:30
+msgid "You are not allowed to manage backups."
+msgstr ""
+
+#: classes/Rest/Controller.php:60
+msgid "That backup no longer exists."
+msgstr ""
+
+#. translators: %s: where the destination is.
+#: classes/Rest/Destinations.php:69
+msgid "Storage destination saved after a successful test: %s."
+msgstr ""
+
+#: classes/Rest/Destinations.php:95
+#: classes/Rest/Destinations.php:113
+#: classes/Storage/Destinations.php:290
+msgid "That destination no longer exists."
+msgstr ""
+
+#: classes/Rest/Destinations.php:109
+msgid "A destination cannot be removed while a backup or restore is running."
+msgstr ""
+
+#: classes/Rest/Destinations.php:116
+msgid "A storage destination was removed. Backups already stored there were left in place."
+msgstr ""
+
+#: classes/Rest/Overview.php:81
+msgid "The backup folder cannot be created or written to, so no backup can be made. Check Settings → Storage."
+msgstr ""
+
+#: classes/Rest/Overview.php:88
+msgid "This site has no backup yet."
+msgstr ""
+
+#: classes/Rest/Overview.php:93
+msgid "The most recent backup is more than 30 days old."
+msgstr ""
+
+#. translators: 1: date, 2: error.
+#: classes/Rest/Overview.php:101
+msgid "The most recent backup, on %1$s, failed. %2$s"
+msgstr ""
+
+#: classes/Rest/Overview.php:108
+msgid "The most recent backup completed with warnings. Open it under Backups to read them."
+msgstr ""
+
+#: classes/Rest/Overview.php:115
+msgid "No schedule is set, so backups are only made when you start one."
+msgstr ""
+
+#: classes/Rest/Overview.php:120
+msgid "WP-Cron is switched off in wp-config.php. Scheduled backups only run if the server calls wp-cron.php itself."
+msgstr ""
+
+#: classes/Rest/Overview.php:127
+msgid "Backups are kept on this server only. If the server is lost, so are they. Add a remote destination under Settings → Storage."
+msgstr ""
+
+#: classes/Rest/Overview.php:134
+msgid "Encryption is switched on but cannot work: the password or PHP's sodium extension is missing. Backups will fail until this is fixed in Settings → Security."
+msgstr ""
+
+#: classes/Rest/Overview.php:189
+#: classes/Rest/Overview.php:288
+#: assets/js/index.js:1
+msgid "Backup folder"
+msgstr ""
+
+#: classes/Rest/Overview.php:191
+msgid "Exists and is writable."
+msgstr ""
+
+#: classes/Rest/Overview.php:191
+msgid "Cannot be created or written to. Choose another folder in Settings → Storage, or fix its permissions."
+msgstr ""
+
+#: classes/Rest/Overview.php:194
+msgid "Backup folder location"
+msgstr ""
+
+#: classes/Rest/Overview.php:197
+msgid "Inside the web root. It has an unguessable name and refuses web requests, and downloads only go through WordPress. A folder outside the web root is safer still, if your host allows one."
+msgstr ""
+
+#: classes/Rest/Overview.php:198
+msgid "Outside the web root."
+msgstr ""
+
+#: classes/Rest/Overview.php:206
+msgid "Backup folder is closed to the web"
+msgstr ""
+
+#: classes/Rest/Overview.php:209
+msgid "A test file in the backup folder could be fetched by its address. Your web server ignores the protection files (this is usual on nginx). Move the backup folder outside the web root in Settings → Storage, or block the folder in the server configuration."
+msgstr ""
+
+#: classes/Rest/Overview.php:210
+msgid "A test file in the folder could not be fetched by its address."
+msgstr ""
+
+#: classes/Rest/Overview.php:210
+msgid "Could not be tested from the server itself."
+msgstr ""
+
+#: classes/Rest/Overview.php:215
+msgid "PHP zip extension"
+msgstr ""
+
+#: classes/Rest/Overview.php:215
+#: classes/Rest/Overview.php:216
+msgid "Available."
+msgstr ""
+
+#: classes/Rest/Overview.php:215
+msgid "Missing. Files cannot be backed up or restored; the database can."
+msgstr ""
+
+#: classes/Rest/Overview.php:216
+msgid "PHP zlib extension"
+msgstr ""
+
+#: classes/Rest/Overview.php:216
+msgid "Missing. The database cannot be backed up."
+msgstr ""
+
+#: classes/Rest/Overview.php:217
+msgid "PHP sodium extension"
+msgstr ""
+
+#: classes/Rest/Overview.php:217
+msgid "Available. Archives can be encrypted."
+msgstr ""
+
+#: classes/Rest/Overview.php:217
+msgid "Missing. Archives cannot be encrypted, and stored passwords use WordPress's slower built-in encryption."
+msgstr ""
+
+#: classes/Rest/Overview.php:222
+msgid "Free disk space"
+msgstr ""
+
+#: classes/Rest/Overview.php:224
+msgid "This host does not report it."
+msgstr ""
+
+#: classes/Rest/Overview.php:232
+msgid "PHP time limit"
+msgstr ""
+
+#: classes/Rest/Overview.php:235
+msgid "No limit."
+msgstr ""
+
+#. translators: 1: PHP's limit in seconds, 2: the plugin's step length in seconds.
+#: classes/Rest/Overview.php:237
+msgid "%1$d seconds. VuloBackup works in steps of %2$d seconds; if backups keep stopping, lower \"Seconds per step\" in Settings."
+msgstr ""
+
+#: classes/Rest/Overview.php:240
+msgid "PHP memory limit"
+msgstr ""
+
+#: classes/Rest/Overview.php:245
+msgid "WP-Cron"
+msgstr ""
+
+#: classes/Rest/Overview.php:248
+msgid "Switched off in wp-config.php. Scheduled backups run only if the server calls wp-cron.php on a timer."
+msgstr ""
+
+#: classes/Rest/Overview.php:249
+msgid "On. It runs when the site is visited, so on a quiet site a scheduled backup starts, and continues, at the next visit."
+msgstr ""
+
+#: classes/Rest/Overview.php:256
+msgid "Schedule check"
+msgstr ""
+
+#. translators: %s: date and time.
+#: classes/Rest/Overview.php:260
+msgid "Next hourly check at %s."
+msgstr ""
+
+#: classes/Rest/Overview.php:261
+msgid "Not scheduled. Deactivate and activate VuloBackup to restore it."
+msgstr ""
+
+#: classes/Rest/Overview.php:269
+msgid "Tables left by a restore"
+msgstr ""
+
+#. translators: %d: number of tables.
+#: classes/Rest/Overview.php:272
+msgid "%d table from an earlier restore is still in the database. It is removed automatically within a few minutes."
+msgid_plural "%d tables from an earlier restore are still in the database. They are removed automatically within a few minutes."
+msgstr[0] ""
+msgstr[1] ""
+
+#: classes/Rest/Overview.php:282
+msgid "Backup format"
+msgstr ""
+
+#: classes/Rest/Overview.php:283
+msgid "WordPress"
+msgstr ""
+
+#: classes/Rest/Overview.php:284
+msgid "PHP"
+msgstr ""
+
+#: classes/Rest/Overview.php:285
+#: assets/js/index.js:1
+msgid "Database"
+msgstr ""
+
+#: classes/Rest/Overview.php:286
+msgid "Database character set"
+msgstr ""
+
+#: classes/Rest/Overview.php:287
+msgid "Table prefix"
+msgstr ""
+
+#: classes/Rest/Overview.php:289
+msgid "Space used by backups"
+msgstr ""
+
+#: classes/Rest/Restores.php:116
+#: classes/Restore/Engine.php:256
+msgid "This backup is of a multisite network and can only be restored to a multisite network."
+msgstr ""
+
+#: classes/Rest/Restores.php:117
+#: classes/Restore/Engine.php:257
+msgid "This backup is of a single site and cannot be restored over a multisite network."
+msgstr ""
+
+#: classes/Rest/Restores.php:121
+msgid "This backup is encrypted, and this server's PHP has no sodium extension to decrypt it."
+msgstr ""
+
+#: classes/Rest/Restores.php:125
+msgid "This server's PHP has no zip extension, so files cannot be restored here; the database can."
+msgstr ""
+
+#. translators: 1: address of the site the backup is from, 2: this site's address.
+#: classes/Rest/Restores.php:133
+msgid "This backup is from %1$s. Its address will be replaced by %2$s throughout the database. Settings of some plugins, licences tied to a domain, and addresses written without the domain may need attention by hand afterwards."
+msgstr ""
+
+#. translators: 1: table prefix of the backup, 2: this site's table prefix.
+#: classes/Rest/Restores.php:142
+msgid "The backup's database tables start with \"%1$s\"; they will be restored with this site's prefix \"%2$s\"."
+msgstr ""
+
+#. translators: 1: WordPress version of the backup, 2: this site's WordPress version.
+#: classes/Rest/Restores.php:151
+msgid "The backup was made on WordPress %1$s, which is newer than this site's %2$s. Update WordPress first, or restore the WordPress files too."
+msgstr ""
+
+#. translators: 1: PHP version of the backup's site, 2: this server's PHP version.
+#: classes/Rest/Restores.php:160
+msgid "The backup's site ran PHP %1$s; this server runs PHP %2$s. Plugins and themes in the backup may need the newer version."
+msgstr ""
+
+#: classes/Rest/Restores.php:167
+msgid "The archives of this backup are at a remote destination and will be downloaded first."
+msgstr ""
+
+#. translators: %s: the word to type.
+#: classes/Rest/Restores.php:217
+msgid "Type %s to confirm that you want to replace this site with the backup."
+msgstr ""
+
+#: classes/Rest/Restores.php:230
+#: classes/Rest/Restores.php:236
+msgid "A backup or restore is running. Wait for it to finish, or cancel it."
+msgstr ""
+
+#: classes/Rest/Settings.php:82
+msgid "The backup folder was changed. Backups in the previous folder stay there and are no longer listed."
+msgstr ""
+
+#: classes/Rest/Settings.php:92
+#: assets/js/index.js:1
+msgid "Settings saved."
+msgstr ""
+
+#: classes/Rest/Settings.php:110
+msgid "This server's PHP has no sodium extension, so archives cannot be encrypted here."
+msgstr ""
+
+#: classes/Rest/Settings.php:114
+msgid "Enter a password."
+msgstr ""
+
+#: classes/Rest/Settings.php:118
+msgid "Use a password of at least 12 characters. It is the only thing protecting the backups."
+msgstr ""
+
+#: classes/Rest/Settings.php:133
+msgid "Archive encryption was switched on."
+msgstr ""
+
+#: classes/Rest/Settings.php:133
+msgid "Archive encryption was switched off."
+msgstr ""
+
+#: classes/Rest/Settings.php:198
+msgid "The notification address is not a valid email address, so it was not saved."
+msgstr ""
+
+#: classes/Rest/Settings.php:206
+msgid "The backup folder cannot be changed while a backup or restore is running."
+msgstr ""
+
+#: classes/Rest/Settings.php:212
+msgid "The folder was not changed."
+msgstr ""
+
+#: classes/Restore/Engine.php:109
+msgid "Restore started."
+msgstr ""
+
+#. translators: %s: backup name.
+#: classes/Restore/Engine.php:114
+msgid "Restore of backup \"%s\" started."
+msgstr ""
+
+#: classes/Restore/Engine.php:181
+msgid "The restore was cancelled while files were being copied. Some files were already replaced; the database was not changed."
+msgstr ""
+
+#: classes/Restore/Engine.php:182
+msgid "The restore was cancelled. Nothing on your site was changed."
+msgstr ""
+
+#: classes/Restore/Engine.php:229
+msgid "The backup to restore no longer exists."
+msgstr ""
+
+#: classes/Restore/Engine.php:251
+msgid "Checking the backup"
+msgstr ""
+
+#: classes/Restore/Engine.php:262
+msgid "This backup does not contain a database."
+msgstr ""
+
+#: classes/Restore/Engine.php:268
+msgid "Nothing was chosen to restore, or the backup does not hold what was chosen."
+msgstr ""
+
+#: classes/Restore/Engine.php:274
+msgid "This server's PHP has no zip extension, which restoring files needs. Ask your host to enable it."
+msgstr ""
+
+#: classes/Restore/Engine.php:279
+msgid "This backup is encrypted, and this server's PHP has no sodium extension to decrypt it. Ask your host to enable sodium."
+msgstr ""
+
+#: classes/Restore/Engine.php:283
+msgid "This backup is encrypted. Enter the password it was made with."
+msgstr ""
+
+#: classes/Restore/Engine.php:330
+msgid "Archives of this backup are missing from this server, and no remote destination holds a copy. It cannot be restored."
+msgstr ""
+
+#. translators: %s: destination name.
+#: classes/Restore/Engine.php:341
+msgid "Downloading the backup from %s"
+msgstr ""
+
+#: classes/Restore/Engine.php:373
+msgid "Archives downloaded from remote storage."
+msgstr ""
+
+#: classes/Restore/Engine.php:390
+msgid "Verifying the backup"
+msgstr ""
+
+#: classes/Restore/Engine.php:396
+msgid "The backup cannot be trusted, so it was not restored."
+msgstr ""
+
+#: classes/Restore/Engine.php:406
+msgid "Every archive matches its checksum."
+msgstr ""
+
+#: classes/Restore/Engine.php:420
+msgid "No safety backup was made, as chosen."
+msgstr ""
+
+#: classes/Restore/Engine.php:425
+msgid "Backing up the site as it is now"
+msgstr ""
+
+#. translators: %s: error.
+#: classes/Restore/Engine.php:459
+msgid "The safety backup of your current site could not be made, so the restore did not go ahead. %s You can restore without a safety backup, but then there is no way back."
+msgstr ""
+
+#. translators: %s: what the safety backup is doing.
+#: classes/Restore/Engine.php:468
+msgid "Safety backup: %s"
+msgstr ""
+
+#: classes/Restore/Engine.php:478
+msgid "Safety backup of the current site completed."
+msgstr ""
+
+#: classes/Restore/Engine.php:492
+msgid "Checking the server"
+msgstr ""
+
+#. translators: 1: space needed, 2: space free.
+#: classes/Restore/Engine.php:513
+msgid "There is not enough disk space to restore the files: %1$s is needed and %2$s is free. The old files are kept until the restore has succeeded, so both must fit."
+msgstr ""
+
+#: classes/Restore/Engine.php:543
+msgid "Decrypting the backup"
+msgstr ""
+
+#. translators: %s: number of files unpacked.
+#: classes/Restore/Engine.php:590
+msgid "Unpacking files (%s so far)"
+msgstr ""
+
+#. translators: %s: number of files.
+#: classes/Restore/Engine.php:616
+msgid "Files unpacked and checked: %s."
+msgstr ""
+
+#. translators: 1: tables loaded so far, 2: tables in the backup.
+#: classes/Restore/Engine.php:638
+msgid "Loading the database (table %1$d of %2$d)"
+msgstr ""
+
+#. translators: 1: number of tables, 2: number of rows.
+#: classes/Restore/Engine.php:664
+msgid "Database loaded into temporary tables and counted: %1$d tables, %2$d rows."
+msgstr ""
+
+#: classes/Restore/Engine.php:713
+msgid "Replacing the old site address"
+msgstr ""
+
+#. translators: 1: old address, 2: new address, 3: number of rows changed.
+#: classes/Restore/Engine.php:742
+msgid "Site address replaced: %1$s became %2$s in %3$d rows."
+msgstr ""
+
+#: classes/Restore/Engine.php:767
+msgid "Copying files into place"
+msgstr ""
+
+#: classes/Restore/Engine.php:793
+msgid "Switching to the restored site"
+msgstr ""
+
+#: classes/Restore/Engine.php:808
+msgid "The folders that had been switched were put back."
+msgstr ""
+
+#: classes/Restore/Engine.php:809
+msgid "Some folders that had been switched could not be put back; the previous ones are beside them with \".vbold\" in their names."
+msgstr ""
+
+#: classes/Restore/Engine.php:824
+msgid "Some tidying up after the database switch could not be finished; it is retried automatically."
+msgstr ""
+
+#: classes/Restore/Engine.php:845
+msgid "Restore completed."
+msgstr ""
+
+#. translators: %s: backup name.
+#: classes/Restore/Engine.php:850
+msgid "Backup \"%s\" was restored."
+msgstr ""
+
+#: classes/Restore/Engine.php:939
+msgid "Nothing on your site was changed."
+msgstr ""
+
+#: classes/Restore/Engine.php:940
+msgid "Some files outside the plugins, themes and uploads folders had already been replaced and stay replaced. The database was not changed."
+msgstr ""
+
+#: classes/Restore/Engine.php:959
+msgid "To go back to how the site was, restore the safety backup made before this restore."
+msgstr ""
+
+#. translators: 1: backup name, 2: error.
+#: classes/Restore/Engine.php:969
+msgid "Restore of backup \"%1$s\" failed. %2$s"
+msgstr ""
+
+#: classes/Restore/Engine.php:992
+msgid "Temporary database tables could not be removed. They are named vbt… and can be dropped."
+msgstr ""
+
+#: classes/Restore/Engine.php:1012
+msgid "Some database tables left by this restore could not be removed yet."
+msgstr ""
+
+#: classes/Restore/Engine.php:1105
+msgid "The restore's progress could not be saved. The disk may be full."
+msgstr ""
+
+#. translators: %s: folder name, e.g. plugins.
+#: classes/Restore/FilesRestorer.php:119
+msgid "The %s folder cannot be replaced: the web server may not rename it, or it is a symbolic link. Fix its permissions, or restore without it."
+msgstr ""
+
+#. translators: %s: folder name.
+#: classes/Restore/FilesRestorer.php:126
+msgid "The web server may not write to the %s folder, so its files cannot be restored."
+msgstr ""
+
+#: classes/Restore/FilesRestorer.php:169
+msgid "An archive of this backup could not be opened. It is damaged. Nothing on your site was changed."
+msgstr ""
+
+#: classes/Restore/FilesRestorer.php:220
+msgid "An archive of this backup holds something a VuloBackup archive never does, so the restore was stopped. Nothing on your site was changed."
+msgstr ""
+
+#: classes/Restore/FilesRestorer.php:244
+msgid "The archives of this backup hold more than its manifest says they should, so the restore was stopped. Nothing on your site was changed."
+msgstr ""
+
+#: classes/Restore/FilesRestorer.php:261
+msgid "A folder for the restored files could not be created. Check the permissions of wp-content. Nothing on your site was changed."
+msgstr ""
+
+#: classes/Restore/FilesRestorer.php:268
+msgid "A file of this backup could not be unpacked. The archive may be damaged or the disk full. Nothing on your site was changed."
+msgstr ""
+
+#: classes/Restore/FilesRestorer.php:278
+msgid "A file of this backup did not unpack to its recorded size. The archive is damaged or the disk is full. Nothing on your site was changed."
+msgstr ""
+
+#: classes/Restore/FilesRestorer.php:308
+msgid "VuloBackup could not carry itself over into the restored plugins folder. Nothing on your site was changed."
+msgstr ""
+
+#: classes/Restore/FilesRestorer.php:359
+msgid "A folder could not be created while restoring files. Some files were already restored; the rest were not."
+msgstr ""
+
+#: classes/Restore/FilesRestorer.php:376
+msgid "A file could not be written while restoring files. Some files were already restored; the rest were not. Check the folder permissions and restore again."
+msgstr ""
+
+#. translators: %s: folder name.
+#: classes/Restore/FilesRestorer.php:419
+msgid "The %s folder could not be moved aside, so the restore was stopped and your site's files were left as they were."
+msgstr ""
+
+#. translators: %s: folder name.
+#: classes/Restore/FilesRestorer.php:432
+msgid "The restored %s folder could not be moved into place, so the restore was stopped and your site's files were left as they were."
+msgstr ""
+
+#. translators: %s: table name.
+#: classes/Restore/Migrator.php:205
+msgid "Table %s could not be read while replacing the site address."
+msgstr ""
+
+#: classes/Restore/Migrator.php:278
+msgid "A table could not be read while replacing the site address. Nothing on your site was changed."
+msgstr ""
+
+#: classes/Restore/Migrator.php:303
+msgid "A row could not be written while replacing the site address. Nothing on your site was changed."
+msgstr ""
+
+#: classes/Schedule/Scheduler.php:60
+msgid "Every five minutes (VuloBackup)"
+msgstr ""
+
+#. translators: %s: error.
+#: classes/Schedule/Scheduler.php:112
+msgid "A scheduled backup could not start. %s"
+msgstr ""
+
+#: classes/Security/Crypto.php:92
+msgid "This backup is encrypted, and this server cannot decrypt it or no password was given."
+msgstr ""
+
+#: classes/Security/Crypto.php:123
+msgid "A backup archive could not be encrypted: the file could not be opened."
+msgstr ""
+
+#: classes/Security/Crypto.php:155
+msgid "A backup archive could not be encrypted. The disk may be full."
+msgstr ""
+
+#: classes/Security/Crypto.php:172
+msgid "An encrypted archive could not be opened."
+msgstr ""
+
+#: classes/Security/Crypto.php:182
+msgid "This file is not a VuloBackup encrypted archive."
+msgstr ""
+
+#: classes/Security/Crypto.php:220
+msgid "The archive could not be decrypted. The password is wrong, or the file is damaged."
+msgstr ""
+
+#: classes/Storage/Destinations.php:206
+msgid "Choose where the backups should be sent."
+msgstr ""
+
+#: classes/Storage/Destinations.php:210
+msgid "There is room for five destinations. Remove one to add another."
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:46
+msgid "Amazon S3 or S3-compatible"
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:56
+msgid "Endpoint"
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:59
+msgid "Leave empty for Amazon S3. For another service, the https:// address it gives you."
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:63
+msgid "Region"
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:68
+msgid "The bucket's region. Services without regions usually accept \"auto\" or \"us-east-1\"."
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:72
+msgid "Bucket"
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:78
+msgid "Access key ID"
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:84
+msgid "Secret access key"
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:91
+#: classes/Storage/Providers/Sftp.php:93
+msgid "Folder"
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:94
+msgid "Optional. A folder inside the bucket to keep this site's backups in."
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:98
+msgid "Path-style addresses"
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:101
+msgid "On for most S3-compatible services. Off puts the bucket name in the host name, as Amazon S3 does. Ignored when the endpoint is empty."
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:144
+msgid "The test file read back from the bucket was not the one that was written."
+msgstr ""
+
+#. translators: %s: error from the storage service.
+#: classes/Storage/Providers/S3.php:151
+msgid "Files can be written but not deleted, so old backups could never be removed. %s"
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:186
+msgid "The storage service did not start the upload."
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:200
+#: classes/Storage/Providers/Sftp.php:177
+msgid "The archive to upload could not be read."
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:239
+msgid "The storage service did not confirm a part of the upload."
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:296
+msgid "The file at the storage service is not the size of the one that was sent."
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:316
+#: classes/Storage/Providers/Sftp.php:295
+msgid "The downloaded archive could not be written."
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:335
+msgid "The download from the storage service was incomplete."
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:394
+msgid "The endpoint must be an https:// address with nothing after the host name."
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:399
+msgid "Enter the bucket's name: 3 to 63 lowercase letters, digits, dots and hyphens."
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:403
+msgid "Enter the bucket's region, for example us-east-1."
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:407
+msgid "Enter the access key ID and the secret access key."
+msgstr ""
+
+#. translators: %s: network error.
+#: classes/Storage/Providers/S3.php:511
+msgid "The storage service could not be reached. %s"
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:538
+msgid "The access key ID is not recognised."
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:539
+msgid "The secret access key is wrong, or the region does not match the bucket."
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:540
+msgid "Access was denied. Check that the key may read, write and delete in this bucket."
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:541
+msgid "There is no bucket with that name."
+msgstr ""
+
+#: classes/Storage/Providers/S3.php:542
+msgid "The file is not at the storage service."
+msgstr ""
+
+#. translators: 1: HTTP status code, 2: error detail from the storage service.
+#: classes/Storage/Providers/S3.php:548
+msgid "The storage service answered with error %1$d. %2$s"
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:50
+msgid "SFTP server"
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:60
+msgid "Server"
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:67
+msgid "Port"
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:73
+msgid "Username"
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:79
+#: assets/js/index.js:1
+msgid "Password"
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:82
+msgid "Leave empty when you sign in with a private key. With a key, this is the key's passphrase."
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:86
+msgid "Private key"
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:89
+msgid "Optional. Paste the whole key, including its BEGIN and END lines."
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:97
+msgid "Where on the server to keep this site's backups. It is created if it does not exist."
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:133
+msgid "The folder does not exist on the server and could not be created."
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:137
+msgid "A test file could not be written to the folder. Check the folder's permissions."
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:147
+msgid "The test file read back from the server was not the one that was written."
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:151
+msgid "Files can be written but not deleted, so old backups could never be removed."
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:196
+msgid "The file could not be written to the SFTP server."
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:207
+msgid "The upload to the SFTP server stopped. The server's disk may be full."
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:265
+msgid "The file is not on the SFTP server."
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:269
+msgid "The file on the SFTP server is not the size of the one that was sent."
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:308
+msgid "The download from the SFTP server was incomplete."
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:347
+msgid "The file could not be deleted from the SFTP server."
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:371
+msgid "Enter the server's host name or IP address, without sftp:// in front."
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:377
+msgid "The port must be a number between 1 and 65535."
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:381
+msgid "Enter a username and either a password or a private key."
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:387
+msgid "Enter the folder on the server to keep backups in."
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:419
+msgid "The SFTP server could not be reached. Check the server name and port."
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:423
+msgid "The SFTP server's identity key is not the one saved for this destination, so nothing was sent. If the server was changed on purpose, open the destination in Settings → Storage and test it again."
+msgstr ""
+
+#: classes/Storage/Providers/Sftp.php:436
+msgid "The SFTP server refused the username, password or key."
+msgstr ""
+
+#. translators: %s: error detail.
+#: classes/Storage/Providers/Sftp.php:489
+msgid "The SFTP connection failed. %s"
+msgstr ""
+
+#: classes/Storage/Vault.php:105
+msgid "Enter the full path of a folder on this server."
+msgstr ""
+
+#: classes/Storage/Vault.php:113
+msgid "Backups cannot be kept inside the plugins, themes or uploads folder, because a restore replaces those folders."
+msgstr ""
+
+#: classes/Storage/Vault.php:119
+msgid "Backups cannot be kept inside WordPress's own folders."
+msgstr ""
+
+#: classes/Storage/Vault.php:124
+msgid "That folder does not exist and could not be created."
+msgstr ""
+
+#: classes/Storage/Vault.php:128
+msgid "That folder is not writable by the web server."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Something went wrong. Please try again."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Plugins"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Every plugin installed on the site."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Themes"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Every theme installed on the site."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Uploads"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The media library: images, documents and other uploaded files."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Must-use plugins"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Plugins in wp-content/mu-plugins, often added by a host."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Other wp-content files"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Everything else in wp-content, such as languages and files plugins keep there."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "WordPress itself"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "wp-admin, wp-includes and the files beside them. WordPress can always be downloaded again, so this is optional."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Full"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Files"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Started by hand"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Scheduled"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Safety backup before a restore"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Imported"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Waiting to start"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Preparing"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Backing up"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Verifying"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Uploading"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Making a safety backup"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Restoring"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Completed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Failed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Cancelled"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Back up now"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What to back up"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Database and files"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Database only"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Files only"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Files to include"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Name (optional)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "For example: Before the redesign"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "This backup will be encrypted with the password set in Settings → Security. Without that password it cannot be restored."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Cancel"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Starting…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Start backup"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The site has been switched to the backup"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The restored database has its own users and sign-ins, so you need to sign in again, with a user name and password from the backup. The result of the restore is under VuloBackup → Restore."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sign in"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Restore completed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Backup completed and verified"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The restore failed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The backup failed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The restore was cancelled"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The backup was cancelled"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Your site now runs from the backup. If you are asked to sign in again, use a user name and password from the backup."
+msgstr ""
+
+#. translators: 1: backup name, 2: size.
+#: assets/js/index.js:1
+msgid "\"%1$s\" is %2$s."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "It finished with warnings; open it to read them."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Dismiss"
+msgstr ""
+
+#. translators: %s: backup name.
+#: assets/js/index.js:1
+msgid "Restoring \"%s\""
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Cancelling…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Keep this page open until the restore has finished. Nothing on the site is replaced until the last step."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "You can leave this page: the backup carries on in the background whenever the site is visited."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Verified"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Not verified"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Warnings"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "This backup cannot be restored"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The whole database: posts, pages, users, orders, settings. Everything added since the backup was made is lost."
+msgstr ""
+
+#. translators: %s: folder name, e.g. Plugins.
+#: assets/js/index.js:1
+msgid "%s: the folder is replaced by the one in the backup. Files added since are removed."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "This backup cannot be restored here"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "This backup has not been verified on this server yet. Its checksums are checked as the first step of the restore, and nothing is changed if they do not match."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The backup"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What you are about to restore."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Name"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Made"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Site"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Another address"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Contains"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Encrypted"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Made on"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What to restore"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Only what you tick is replaced. Everything else on the site is left as it is."
+msgstr ""
+
+#. translators: 1: number of tables, 2: number of rows.
+#: assets/js/index.js:1
+msgid "%1$d tables, %2$d rows. Switched in one step at the very end."
+msgstr ""
+
+#. translators: 1: number of files, 2: size.
+#: assets/js/index.js:1
+msgid "%1$d files, %2$s."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The folder is switched in one step, and switched back if the restore fails."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Copied over the existing files one by one. This cannot be undone if the restore is interrupted, and files that are not in the backup stay."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "This backup is encrypted. It can only be opened with the password it was made with."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Backup password"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Used for this restore only and not kept afterwards."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Safety backup"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A backup of the site as it is now, made before anything is replaced, so the restore itself can be undone."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Back up the current site first"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Kept on this server under Backups. The restore does not start if this backup fails."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Off: there will be no way back to how the site is now."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Confirm"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A restore replaces live data. Read what will happen before you start."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "This will replace"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Nothing is ticked above."
+msgstr ""
+
+#. translators: %s: folder names.
+#: assets/js/index.js:1
+msgid "%s cannot be switched back automatically. If the restore is interrupted while those files are being copied, some will be from the backup and some not."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The site may be unavailable for a moment while it is switched, and you may be signed out: the restored database has the users and passwords of the backup. Keep this page open until the restore has finished."
+msgstr ""
+
+#. translators: %s: the word to type.
+#: assets/js/index.js:1
+msgid "Type %s to confirm"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Back to backups"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Restore this backup"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "OK"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Note"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Check"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Problem"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Info"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Warning"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Error"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load settings"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Manual only"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Daily"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Weekly"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Monthly"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sunday"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Monday"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Tuesday"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Wednesday"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Thursday"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Friday"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Saturday"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Schedule"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "How often backups are made by themselves. When files and the database are due together they are made as one backup."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Posts, pages, users, orders and settings. It changes most often and is small, so back it up most often."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Database schedule"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Plugins, themes, uploads and the other folders chosen under \"What to back up\"."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Files schedule"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Time of day"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "In the site's timezone. Choose an hour when the site is quiet."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Day of the week"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "For weekly backups."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Day of the month"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "For monthly backups. 1 to 28, so that every month has it."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "WordPress runs scheduled tasks when someone visits the site, so a backup starts at the first visit after the time above, not at the exact minute, and on a quiet site it also continues at each visit. For exact times, have your host call wp-cron.php on a timer."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "How many to keep"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Older backups are removed only after a new one has completed and been verified, never because one failed."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "On this server"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The newest backups kept here. 0 keeps every backup."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "backups"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "At each remote destination"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Counted separately for each destination. 0 keeps every backup."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Keep a copy on this server after uploading"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Off: once a backup has been uploaded to every destination and confirmed, its archives are removed from this server to save space. A restore downloads them again."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The next successful backup will remove"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The folders a full or files backup includes. You can change the choice for a single backup when you start it."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Include wp-config.php"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Only with \"WordPress itself\". The file holds your database password and secret keys, so anyone who gets the backup gets them. It is never put back by a restore, on any site."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Left out"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Caches, temporary files and other plugins' backups are always left out. Add your own here."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Also leave out"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "One per line, as folder/path. * matches within a name and ** across folders. Examples: uploads/videos/**   *.zip   plugins/my-plugin/cache/**"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Skip files larger than"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "0 for no limit. Skipped files are listed in the backup's warnings."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Always left out"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Which tables a database backup includes."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Tables"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "\"Every table\" also backs up tables of other software sharing this database. A restore only ever replaces the tables that are in the backup."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "This WordPress site's tables"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Every table in the database"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Security"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "New backups will be encrypted."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "New backups will not be encrypted."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Encrypt backups"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Protects backups wherever they are copied: a download, a storage bucket, an SFTP server. Archives are encrypted with a key made from your password."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Not available on this server"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Encryption needs PHP's sodium extension, which this server does not have. Ask your host to enable it."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Keep the password somewhere safe"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Without it an encrypted backup cannot be restored by anyone, including us: VuloLabs never receives it. It is stored on this site so scheduled backups can run, which means the backups are protected in the places they are copied to, not from someone who already controls this site."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "New password"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Leave empty to keep the current password. Backups made earlier still need the password they were made with."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "At least 12 characters. A long phrase is best."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Stop encrypting new backups"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Change password"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Encrypt new backups"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Encryption is on."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Encryption is off."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Notifications"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Email"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Be told when a backup fails or cannot be copied to remote storage. One email per failed backup."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Email me when a backup fails"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sent with your site's own email. Whether it arrives depends on how the site sends email."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Send to"
+msgstr ""
+
+#. translators: %s: email address.
+#: assets/js/index.js:1
+msgid "Leave empty to use the site administrator's address, %s."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Activity log"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What VuloBackup did and when, shown under Diagnostics. It never holds passwords, keys or the contents of your database."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Keep activity for"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "days"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Advanced"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What a restore does before it replaces anything."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Suggest a safety backup before every restore"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The restore screen starts with \"Back up the current site first\" switched on. The newest two safety backups are kept."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Server limits"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Change these only if backups stop part-way. Diagnostics shows this server's limits."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Seconds per step"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A backup is made in short steps so it fits within PHP's time limit. Lower this if backups keep stopping at the same point."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "seconds"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Archive size"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Files are packed into archives of about this size. Smaller archives need less memory and resume faster after an interrupted upload."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "When VuloBackup is deleted"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Your backups are never deleted with the plugin. This is about its settings only."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The backup folder and everything in it always stays on the server; delete it yourself if you no longer want it."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Settings on uninstall"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Keep settings"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delete settings and stored credentials"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "How often backups are made by themselves, and how many are kept."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The folders and database tables a backup includes, and what is left out."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Storage"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The backup folder on this server, and remote destinations: Amazon S3 or compatible, and SFTP."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load the storage settings"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Every backup is made here first. The folder has a name that cannot be guessed and refuses web requests; backups are only ever downloaded through WordPress, by an administrator."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Leave empty for the default. To move it, enter the full path of a folder the web server can write to, ideally outside the web root."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Use this folder"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Backups already in the current folder stay there and will no longer be listed."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The folder is inside the web root"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The folder is outside the web root"
+msgstr ""
+
+#. translators: %s: folder path.
+#: assets/js/index.js:1
+msgid "In use: %s. It is protected, and Diagnostics checks that the protection works on your server. A folder outside the web root is safer still."
+msgstr ""
+
+#. translators: %s: folder path.
+#: assets/js/index.js:1
+msgid "In use: %s."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Remote storage"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A copy somewhere else is what saves you when the server itself is lost. Each new backup is uploaded to every destination that is switched on, and confirmed to have arrived."
+msgstr ""
+
+#. translators: 1: number of destinations, 2: the most allowed.
+#: assets/js/index.js:1
+msgid "%1$d of %2$d destinations"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add destination"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, DigitalOcean Spaces, MinIO and other services with an S3-compatible API."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Any server you can reach over SFTP: a second host, a NAS, a storage box."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Backups are kept on this server only"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add a destination to keep a copy somewhere else as well."
+msgstr ""
+
+#. translators: %s: date and time.
+#: assets/js/index.js:1
+msgid "checked %s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connected"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Failing"
+msgstr ""
+
+#. translators: %s: destination name.
+#: assets/js/index.js:1
+msgid "Send new backups to %s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Server key fingerprint:"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Remove"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Destination removed. Backups already stored there were left in place."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Change"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Testing…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Test connection"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Only you see this, in the list of backups."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Leave empty to keep the one that is saved."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Test and save"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connection tested and saved."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A small test file is written, read back and deleted. Nothing is saved unless that works."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Encrypt backups with a password."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Email when a backup fails, and how long the activity log is kept."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Safety backups, server limits, and what happens when VuloBackup is deleted."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The last backup, the next one, storage and anything that needs attention."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Back up your WordPress site. Restore it when it matters."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load the overview"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No schedule"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Last backup"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Next scheduled backup"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Backups kept"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Used on this server"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Integrity"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Kept at"
+msgstr ""
+
+#. translators: %s: destination name.
+#: assets/js/index.js:1
+msgid "%s: failed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "All backups"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No backup yet"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Make the first one now. It takes a few minutes on most sites."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Where backups are kept"
+msgstr ""
+
+#. translators: %s: free disk space.
+#: assets/js/index.js:1
+msgid "%s free"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Inside the web root"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Outside the web root"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Off"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Storage settings"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Recent activity"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Nothing has happened yet"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Backups, restores and uploads are listed here as they happen."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Create, verify, download, import and delete backups."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Backup deleted."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Every backup of this site, where it is kept and whether it has been verified."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Import a backup"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load the backups"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Search by name…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Backup"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Status"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Details"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "All"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "There are no backups yet. Select \"Back up now\" to make the first one."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Upload a backup file downloaded from VuloBackup, on this site or another one. It is added to the list; nothing on the site changes until you choose to restore it."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Backup file"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Backup imported. Verify it before restoring it."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Integrity check failed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "From site"
+msgstr ""
+
+#. translators: 1: number of tables, 2: number of rows.
+#: assets/js/index.js:1
+msgid "%1$d tables, %2$d rows"
+msgstr ""
+
+#. translators: 1: number of files, 2: total size.
+#: assets/js/index.js:1
+msgid "%1$d files, %2$s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Last checked"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Identifier"
+msgstr ""
+
+#. translators: %s: destination name.
+#: assets/js/index.js:1
+msgid "Not stored at %s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Archives and checksums (SHA-256)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Log of this backup"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delete this backup?"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A deleted backup cannot be brought back. Choose what to delete."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Keep it"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delete from this server only"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delete everywhere"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delete"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checking…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Verify integrity"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "This backup failed its integrity check. See its details."
+msgstr ""
+
+#. translators: %s: where the backup was checked, e.g. "This server, My bucket".
+#: assets/js/index.js:1
+msgid "Intact. Checked: %s."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Download"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Cancel this backup"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Put a backup back, or move a site here from another address."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Put a backup back, in whole or in part. Nothing on the site is replaced until the backup has been verified and everything is ready."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Choose a backup to restore"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "There is no backup to restore"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Make a backup first, or import one from another site under Backups."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Past restores"
+msgstr ""
+
+#. translators: 1: number of tables, 2: number of files.
+#: assets/js/index.js:1
+msgid "%1$d tables and %2$d files restored"
+msgstr ""
+
+#. translators: 1: old address, 2: number of rows.
+#: assets/js/index.js:1
+msgid "address %1$s replaced in %2$d rows"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What this server can do, and the record of what VuloBackup did."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Check again"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Server checks"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not run the checks"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "System"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Clear log"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What happened"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "When"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Level"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Errors"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Nothing has been recorded yet."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Clear the activity log?"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The record of past backups, restores and uploads is deleted. Your backups are not affected."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Activity log cleared."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Schedule, retention, what is backed up, storage, encryption and notifications."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Search…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Tabs"
+msgstr ""

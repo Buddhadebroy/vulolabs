@@ -153,24 +153,68 @@ class Submissions extends Controller {
 	}
 
 	/**
-	 * Streams the filtered submissions of one form as CSV.
+	 * Streams the filtered submissions as CSV: of one form, or of every form when `form_id` is 0.
 	 *
 	 * @param \WP_REST_Request $request Request.
 	 * @return \WP_Error|void
 	 */
 	public function export( $request ) {
-		$form = VuloForm()->forms->get( absint( $request->get_param( 'form_id' ) ) );
+		// 0 means "All forms": one file, with a Form column and every form's questions as columns.
+		$form_id = absint( $request->get_param( 'form_id' ) );
+		$forms   = array();
 
-		if ( ! $form ) {
-			return $this->not_found();
+		if ( $form_id ) {
+			$form = VuloForm()->forms->get( $form_id );
+
+			if ( ! $form ) {
+				return $this->not_found();
+			}
+
+			$forms[ $form_id ] = $form;
+		} else {
+			$page = 1;
+
+			do {
+				$found = VuloForm()->forms->query(
+					array(
+						'page'     => $page,
+						'per_page' => 100,
+					)
+				);
+
+				foreach ( $found['data'] as $row ) {
+					$form = VuloForm()->forms->get( (int) $row['id'] );
+
+					if ( $form ) {
+						$forms[ (int) $form['id'] ] = $form;
+					}
+				}
+
+				++$page;
+			} while ( 100 === count( $found['data'] ) );
 		}
 
-		$filters = $this->filters( $request, $form['id'] );
-		$columns = Formatter::rows( $form, array() );
+		// A question asked by several forms under the same label is one column.
+		$labels = array();
+
+		foreach ( $forms as $form ) {
+			foreach ( Formatter::rows( $form, array() ) as $row ) {
+				$labels[ $row['label'] ] = true;
+			}
+		}
+
+		$labels  = array_keys( $labels );
+		$filters = $this->filters( $request, $form_id );
+		$name    = $form_id ? $forms[ $form_id ]['title'] : __( 'All forms', 'vuloform' );
+		$heading = array( __( 'ID', 'vuloform' ) );
+
+		if ( ! $form_id ) {
+			$heading[] = __( 'Form', 'vuloform' );
+		}
 
 		nocache_headers();
 		header( 'Content-Type: text/csv; charset=utf-8' );
-		header( 'Content-Disposition: attachment; filename="' . sanitize_file_name( $form['title'] ) . '-' . gmdate( 'Y-m-d' ) . '.csv"' );
+		header( 'Content-Disposition: attachment; filename="' . sanitize_file_name( $name ) . '-' . gmdate( 'Y-m-d' ) . '.csv"' );
 		header( 'X-Content-Type-Options: nosniff' );
 
 		$out = fopen( 'php://output', 'w' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- streaming a download, not writing a file.
@@ -178,7 +222,7 @@ class Submissions extends Controller {
 		// A byte order mark, so spreadsheet programs read the file as UTF-8.
 		fwrite( $out, "\xEF\xBB\xBF" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
 
-		fputcsv( $out, array_merge( array( __( 'ID', 'vuloform' ), __( 'Submitted', 'vuloform' ), __( 'Status', 'vuloform' ) ), array_column( $columns, 'label' ) ), ',', '"', '\\' );
+		fputcsv( $out, array_merge( $heading, array( __( 'Submitted', 'vuloform' ), __( 'Status', 'vuloform' ) ), array_map( array( self::class, 'csv_safe' ), $labels ) ), ',', '"', '\\' );
 
 		$filters['per_page'] = 500;
 		$filters['page']     = 1;
@@ -189,10 +233,30 @@ class Submissions extends Controller {
 			$fetched = count( $result['data'] );
 
 			foreach ( $result['data'] as $submission ) {
-				$line = array( $submission['id'], Utill::format_datetime( $submission['created_at'] ), $submission['status'] );
+				$form = $forms[ (int) $submission['form_id'] ] ?? null;
+
+				// Its form was deleted since; there is nothing to say what its answers mean.
+				if ( ! $form ) {
+					continue;
+				}
+
+				$line = array( $submission['id'] );
+
+				if ( ! $form_id ) {
+					$line[] = self::csv_safe( $form['title'] );
+				}
+
+				$line[]  = Utill::format_datetime( $submission['created_at'] );
+				$line[]  = $submission['status'];
+				$answers = array();
 
 				foreach ( Formatter::rows( $form, $submission['data'] ) as $row ) {
-					$line[] = self::csv_safe( $row['text'] );
+					// Two questions of one form with the same label share the column.
+					$answers[ $row['label'] ] = isset( $answers[ $row['label'] ] ) && '' !== $answers[ $row['label'] ] && '' !== $row['text'] ? $answers[ $row['label'] ] . ' | ' . $row['text'] : ( $answers[ $row['label'] ] ?? '' ) . $row['text'];
+				}
+
+				foreach ( $labels as $label ) {
+					$line[] = self::csv_safe( $answers[ $label ] ?? '' );
 				}
 
 				fputcsv( $out, $line, ',', '"', '\\' );

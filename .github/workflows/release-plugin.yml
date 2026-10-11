@@ -16,6 +16,7 @@ on:
           - vulocart
           - vuloform
           - vulomail
+          - vulobackup
 
       action:
         description: "Release action"
