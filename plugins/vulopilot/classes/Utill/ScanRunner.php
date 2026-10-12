@@ -18,6 +18,30 @@ defined( 'ABSPATH' ) || exit;
  */
 class ScanRunner {
 
+	private const QUEUE_OPTION = 'vulopilot_scan_queue';
+
+	private const BATCH_HOOK = 'vulopilot_scan_process_batch';
+
+	/**
+	 * Elapsed-time budget per batch tick, in seconds - same shape and reasoning as
+	 * BackupManager::BATCH_SECONDS_BUDGET: several registered scanners make their own
+	 * network calls (5-30s timeout each), so running all of them inline within one REST
+	 * request can exceed PHP's own max_execution_time (commonly 30s) and 500 the request
+	 * before every scanner even gets a turn. Scanners are run a few at a time instead,
+	 * across repeated WP-Cron ticks, the same way BackupManager chunks its own file/DB work.
+	 */
+	private const BATCH_SECONDS_BUDGET = 20;
+
+	/**
+	 * Transient-based mutex name - WP-Cron has no built-in protection against the same due
+	 * event firing from more than one overlapping loopback request (observed live: a stray
+	 * second `process_batch()` tick starting before the first had persisted its progress
+	 * re-read the same un-advanced queue and re-ran its first scanner instead of
+	 * continuing where the first tick left off). Held for the same duration as the batch's
+	 * own time budget plus margin.
+	 */
+	private const LOCK_TRANSIENT = 'vulopilot_scan_batch_lock';
+
 	/**
 	 * @var ScannerRegistry
 	 */
@@ -28,6 +52,107 @@ class ScanRunner {
 	 */
 	public function __construct( ScannerRegistry $registry ) {
 		$this->registry = $registry;
+
+		add_action( self::BATCH_HOOK, array( $this, 'process_batch' ) );
+	}
+
+	/**
+	 * Queues the given scanners to run across one or more background batch ticks -
+	 * never blocks the calling request. Mirrors BackupManager::start_backup()'s own
+	 * queue-then-schedule shape.
+	 *
+	 * @param string[] $scanner_ids Scanner ids to run, in order.
+	 * @param bool     $force       See run()'s own docblock.
+	 * @return array{total: int} Real total scanner count now queued.
+	 */
+	public function run_queued( array $scanner_ids, bool $force = false ): array {
+		$scanner_ids = array_values( array_unique( $scanner_ids ) );
+
+		update_option(
+			self::QUEUE_OPTION,
+			array(
+				'scanner_ids' => $scanner_ids,
+				'total'       => count( $scanner_ids ),
+				'force'       => $force,
+			),
+			false
+		);
+
+		if ( ! wp_next_scheduled( self::BATCH_HOOK ) ) {
+			wp_schedule_single_event( time(), self::BATCH_HOOK );
+		}
+
+		return array( 'total' => count( $scanner_ids ) );
+	}
+
+	/**
+	 * Real status of the current (if any) queued run - polled by the frontend instead of
+	 * the REST request blocking until every scanner finishes.
+	 *
+	 * @return array{running: bool, total: int, remaining: int}
+	 */
+	public function get_queue_status(): array {
+		$queue = get_option( self::QUEUE_OPTION, null );
+
+		if ( ! is_array( $queue ) || empty( $queue['scanner_ids'] ) ) {
+			return array(
+				'running'   => false,
+				'total'     => 0,
+				'remaining' => 0,
+			);
+		}
+
+		return array(
+			'running'   => true,
+			'total'     => (int) ( $queue['total'] ?? count( $queue['scanner_ids'] ) ),
+			'remaining' => count( $queue['scanner_ids'] ),
+		);
+	}
+
+	/**
+	 * Runs as many queued scanners as fit in `BATCH_SECONDS_BUDGET`, then either
+	 * reschedules itself or clears the queue once it's drained.
+	 *
+	 * @return void
+	 */
+	public function process_batch(): void {
+		if ( get_transient( self::LOCK_TRANSIENT ) ) {
+			return;
+		}
+
+		set_transient( self::LOCK_TRANSIENT, 1, self::BATCH_SECONDS_BUDGET + 30 );
+
+		$queue = get_option( self::QUEUE_OPTION, null );
+
+		if ( ! is_array( $queue ) || empty( $queue['scanner_ids'] ) ) {
+			delete_transient( self::LOCK_TRANSIENT );
+			return;
+		}
+
+		$scanner_ids = $queue['scanner_ids'];
+		$force       = ! empty( $queue['force'] );
+		$started_at  = microtime( true );
+
+		// Progress is persisted after every scanner, not only once the loop ends - so a
+		// tick that dies partway through (fatal error, process kill) still leaves the
+		// queue advanced past whatever it already ran, instead of re-running it next tick.
+		while ( $scanner_ids && ( microtime( true ) - $started_at ) < self::BATCH_SECONDS_BUDGET ) {
+			$this->run( array_shift( $scanner_ids ), $force );
+
+			$queue['scanner_ids'] = $scanner_ids;
+			update_option( self::QUEUE_OPTION, $queue, false );
+		}
+
+		delete_transient( self::LOCK_TRANSIENT );
+
+		if ( $scanner_ids ) {
+			wp_schedule_single_event( time() + 1, self::BATCH_HOOK );
+			return;
+		}
+
+		delete_option( self::QUEUE_OPTION );
+
+		do_action( 'vulopilot_scan_queue_completed' );
 	}
 
 	/**
