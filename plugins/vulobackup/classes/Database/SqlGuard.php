@@ -129,6 +129,8 @@ class SqlGuard {
 	}
 
 	/**
+	 * Builds the result array returned by the guard.
+	 *
 	 * @param string $type  Line type.
 	 * @param string $table Table the statement is about.
 	 * @return array{type: string, table: string}

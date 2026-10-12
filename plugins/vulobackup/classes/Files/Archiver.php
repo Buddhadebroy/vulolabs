@@ -47,6 +47,8 @@ class Archiver {
 	private $part_bytes;
 
 	/**
+	 * Constructor.
+	 *
 	 * @param array<string, string> $roots      Area roots.
 	 * @param int                   $part_bytes Size of one part, in bytes of files before compression.
 	 */
@@ -56,6 +58,8 @@ class Archiver {
 	}
 
 	/**
+	 * Returns a fresh cursor.
+	 *
 	 * @return array A fresh cursor.
 	 */
 	public static function cursor() {
@@ -74,6 +78,8 @@ class Archiver {
 	}
 
 	/**
+	 * Builds the file name of a part.
+	 *
 	 * @param int $number Part number, from 1.
 	 * @return string File name of a part.
 	 */
@@ -223,6 +229,8 @@ class Archiver {
 	}
 
 	/**
+	 * Adds every named file to a part and closes it.
+	 *
 	 * @param string   $path   The part's file.
 	 * @param string[] $names  `area/path` names.
 	 * @param array    $cursor Cursor.

@@ -196,6 +196,8 @@ class Engine {
 	}
 
 	/**
+	 * Checks whether the job's scope includes a given step.
+	 *
 	 * @param string $step Step.
 	 * @return bool Whether this job runs the step.
 	 */
@@ -848,6 +850,8 @@ class Engine {
 	}
 
 	/**
+	 * Advances the upload cursor to the next destination.
+	 *
 	 * @param array $up Upload cursor.
 	 * @return array The cursor moved to the start of the next destination.
 	 */
@@ -1163,6 +1167,8 @@ class Engine {
 	}
 
 	/**
+	 * Appends a line to the job's log.
+	 *
 	 * @param string $message Line for the job's log.
 	 * @param string $level   Level.
 	 * @return void

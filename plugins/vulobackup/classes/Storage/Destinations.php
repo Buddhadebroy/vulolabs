@@ -37,6 +37,8 @@ class Destinations {
 	private $providers = null;
 
 	/**
+	 * Constructor.
+	 *
 	 * @param Secrets $secrets Encryption for stored credentials.
 	 */
 	public function __construct( Secrets $secrets ) {
@@ -44,6 +46,8 @@ class Destinations {
 	}
 
 	/**
+	 * Returns the registered providers, keyed by id.
+	 *
 	 * @return Provider[] Providers by id.
 	 */
 	public function providers() {
@@ -68,6 +72,8 @@ class Destinations {
 	}
 
 	/**
+	 * Returns a provider by id.
+	 *
 	 * @param string $id Provider id.
 	 * @return Provider|null
 	 */
@@ -128,6 +134,8 @@ class Destinations {
 	}
 
 	/**
+	 * Returns a stored destination by id.
+	 *
 	 * @param string $id Destination id.
 	 * @return array|null
 	 */

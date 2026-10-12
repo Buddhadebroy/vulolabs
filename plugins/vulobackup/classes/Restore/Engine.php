@@ -22,6 +22,8 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Restores a backup, in an order chosen so that the site is only changed at the very end.
  *
+ * Steps, in order:
+ *
  *   check      the backup can be restored here at all
  *   fetch      bring the archives back from remote storage if they are not on this server
  *   verify     every archive matches the checksum in the manifest
@@ -1058,6 +1060,8 @@ class Engine {
 	}
 
 	/**
+	 * Where the readable (decrypted) file of a part is.
+	 *
 	 * @param array $part Part from the manifest.
 	 * @return string Where the readable (decrypted) file of a part is.
 	 */
@@ -1068,6 +1072,8 @@ class Engine {
 	}
 
 	/**
+	 * Builds the files restorer for this job.
+	 *
 	 * @return FilesRestorer
 	 */
 	private function files() {
@@ -1086,6 +1092,8 @@ class Engine {
 	}
 
 	/**
+	 * Appends a line to the job's log.
+	 *
 	 * @param string $message Line for the job's log.
 	 * @param string $level   Level.
 	 * @return void

@@ -17,8 +17,8 @@ use VuloBackup\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * vulobackup/v1/settings - read and update the settings, set the encryption password, and preview
- * what the retention rule would remove.
+ * REST route vulobackup/v1/settings - read and update the settings, set the encryption password,
+ * and preview what the retention rule would remove.
  */
 class Settings extends Controller {
 
