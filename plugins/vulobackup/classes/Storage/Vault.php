@@ -43,6 +43,8 @@ class Vault {
 	private $base = null;
 
 	/**
+	 * Constructor.
+	 *
 	 * @param Settings $settings Settings.
 	 */
 	public function __construct( Settings $settings ) {
@@ -187,6 +189,8 @@ class Vault {
 	}
 
 	/**
+	 * Returns a job's folder.
+	 *
 	 * @param string $kind `backups` or `restores`.
 	 * @param string $id   Job identifier (validated by the caller with PathGuard::is_id()).
 	 * @return string
@@ -196,6 +200,8 @@ class Vault {
 	}
 
 	/**
+	 * Returns the folder for uploads in progress and other short-lived files.
+	 *
 	 * @return string Folder for uploads in progress and other short-lived files.
 	 */
 	public function tmp_dir() {

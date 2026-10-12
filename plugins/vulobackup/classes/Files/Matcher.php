@@ -27,6 +27,8 @@ class Matcher {
 	private $expressions = array();
 
 	/**
+	 * Constructor.
+	 *
 	 * @param string[] $patterns Patterns.
 	 */
 	public function __construct( array $patterns ) {

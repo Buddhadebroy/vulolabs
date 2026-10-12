@@ -40,6 +40,8 @@ class Crypto {
 	private static $keys = array();
 
 	/**
+	 * Checks whether this server can encrypt archives.
+	 *
 	 * @return bool Whether this server can encrypt archives.
 	 */
 	public static function is_available() {
@@ -236,6 +238,8 @@ class Crypto {
 	}
 
 	/**
+	 * Writes bytes to a file handle and confirms the full write.
+	 *
 	 * @param resource $handle File handle.
 	 * @param string   $data   Bytes to write.
 	 * @return bool Whether every byte was written.

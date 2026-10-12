@@ -47,6 +47,8 @@ class Store {
 	private $lock = null;
 
 	/**
+	 * Constructor.
+	 *
 	 * @param Vault $vault Storage folder.
 	 */
 	public function __construct( Vault $vault ) {
@@ -96,6 +98,8 @@ class Store {
 	}
 
 	/**
+	 * Reads a job's record.
+	 *
 	 * @param string $kind KIND_BACKUP or KIND_RESTORE.
 	 * @param string $id   Job identifier.
 	 * @return array|null
@@ -124,6 +128,8 @@ class Store {
 	}
 
 	/**
+	 * Writes a job's record.
+	 *
 	 * @param array $job Job to write.
 	 * @return bool
 	 */
@@ -185,6 +191,8 @@ class Store {
 	}
 
 	/**
+	 * Returns the job's folder.
+	 *
 	 * @param array $job Job.
 	 * @return string The job's folder.
 	 */

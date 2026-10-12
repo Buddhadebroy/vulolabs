@@ -46,6 +46,8 @@ class SerializedReplacer {
 	public $skipped = 0;
 
 	/**
+	 * Constructor.
+	 *
 	 * @param array<string, string> $pairs Old address => new address, each without a trailing
 	 *                                     slash, e.g. `https://old.example/blog` => `https://new.example`.
 	 */
@@ -96,6 +98,8 @@ class SerializedReplacer {
 	}
 
 	/**
+	 * Checks whether there is anything to replace.
+	 *
 	 * @return bool Whether there is anything to replace.
 	 */
 	public function is_active() {

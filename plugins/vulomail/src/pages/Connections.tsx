@@ -296,10 +296,22 @@ const Connections = () => {
 			<PopupComponent
 				open={Boolean(editing)}
 				onClose={() => setEditing(null)}
-				width={36}
+				width={44}
 				height="auto"
 				position="lightbox"
 				className="vulomail-connection-popup"
+				header={{
+					icon: 'sms' === editing?.channel ? 'send' : 'mail',
+					title: editing?.connection
+						? __('Edit connection', 'vulomail')
+						: 'sms' === editing?.channel
+						? __('Add SMS connection', 'vulomail')
+						: __('Add email connection', 'vulomail'),
+					description:
+						'sms' === editing?.channel
+							? __('Connect the SMS gateway your text messages are sent through.', 'vulomail')
+							: __('Connect the email service your site\'s email is sent through.', 'vulomail'),
+				}}
 			>
 				{editing && (
 					<ConnectionForm

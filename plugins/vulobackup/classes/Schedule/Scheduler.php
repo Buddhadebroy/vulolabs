@@ -242,6 +242,8 @@ class Scheduler {
 	}
 
 	/**
+	 * When a scheduled backup of each kind last started.
+	 *
 	 * @return array{last_files: int, last_database: int} When a scheduled backup of each kind last started.
 	 */
 	private static function state() {

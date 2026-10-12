@@ -17,7 +17,7 @@ use VuloBackup\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * vulobackup/v1/restores - preview what a restore would do, start one, follow it, cancel it.
+ * REST route vulobackup/v1/restores - preview what a restore would do, start one, follow it, cancel it.
  *
  * A restore is destructive, so starting one takes more than a click: the request must carry the
  * word the administrator was asked to type, and it is refused while anything else is running.

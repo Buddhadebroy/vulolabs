@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: VuloBackup
- * Plugin URI: https://vulolabs.com/vulobackup/
+ * Plugin URI: https://vulobackup.com/
  * Description: Back up your WordPress site. Restore it when it matters. Database and file backups, schedules, retention, remote storage, integrity checks, restore and migration.
  * Author: VuloLabs
  * Version: 1.0.0
