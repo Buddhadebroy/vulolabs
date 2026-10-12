@@ -138,6 +138,12 @@ interface IssueRow {
 	 * want to do by hand.
 	 */
 	manualFix?: { label: string; onClick: () => void };
+	/**
+	 * Set right after `onFix` resolves, before the re-analysis this tab triggers comes back - so the
+	 * row shows fixed immediately instead of sitting on its old cross/"Fix" state for the length of
+	 * that round trip.
+	 */
+	justFixed?: boolean;
 }
 
 /**
@@ -159,7 +165,7 @@ const jumpToFeaturedImagePanel = () => {
 	}, 100 );
 };
 
-const rowFromCheck = ( check: PageAnalysisCheck ): IssueRow => {
+const rowFromCheck = ( check: PageAnalysisCheck, fixedIds: Set< string > ): IssueRow => {
 	const actionId = CHECK_KEY_TO_FIX_ACTION[ check.key ];
 
 	return {
@@ -173,6 +179,7 @@ const rowFromCheck = ( check: PageAnalysisCheck ): IssueRow => {
 			'featured_image' === check.key && 'pass' !== check.status
 				? { label: __( 'Set it myself', 'vulopilot' ), onClick: jumpToFeaturedImagePanel }
 				: undefined,
+		justFixed: fixedIds.has( check.key ),
 	};
 };
 
@@ -182,7 +189,7 @@ const LIVE_STATUS: Record< AnalysisResult[ 'status' ], PageAnalysisCheck[ 'statu
 	fail: 'fail',
 };
 
-const rowFromLive = ( result: AnalysisResult ): IssueRow => ( {
+const rowFromLive = ( result: AnalysisResult, fixedIds: Set< string > ): IssueRow => ( {
 	id: result.id,
 	domId: `vulopilot-seo-check-${ result.id }`,
 	status: LIVE_STATUS[ result.status ],
@@ -190,15 +197,17 @@ const rowFromLive = ( result: AnalysisResult ): IssueRow => ( {
 	message: result.message,
 	target: null,
 	fix: result.fixable && result.action_id && 'pass' !== result.status ? { kind: 'post', actionId: result.action_id } : undefined,
+	justFixed: fixedIds.has( result.id ),
 } );
 
-const rowFromFinding = ( finding: RawFinding ): IssueRow => ( {
+const rowFromFinding = ( finding: RawFinding, fixedIds: Set< string > ): IssueRow => ( {
 	id: String( finding.id ),
 	status: SEVERITY_TO_STATUS[ finding.severity ],
 	label: finding.title,
 	message: '',
 	target: editorTargetForFinding( finding ),
 	fix: FIXABLE_FINDING_SCANNER_IDS.includes( finding.scanner_id ) ? { kind: 'finding', findingId: finding.id } : undefined,
+	justFixed: fixedIds.has( String( finding.id ) ),
 } );
 
 /** Live checks about the post body itself - shown in their own "Content" section. */
@@ -251,7 +260,7 @@ function IssueList( { idPrefix, rows, pulsingId, onNavigate, fixControls }: Issu
 					<li
 						key={ row.id }
 						id={ row.domId ?? `${ idPrefix }-${ row.id }` }
-						className={ `vulopilot-seo-checklist__item vulopilot-seo-checklist__item--${ STATUS_MODIFIER[ row.status ] }${ pulsingId === row.id ? ' vulopilot-seo-highlight-pulse' : '' }${ isClickable ? ' vulopilot-seo-checklist__item--clickable' : '' }` }
+						className={ `vulopilot-seo-checklist__item vulopilot-seo-checklist__item--${ row.justFixed ? 'pass' : STATUS_MODIFIER[ row.status ] }${ pulsingId === row.id ? ' vulopilot-seo-highlight-pulse' : '' }${ isClickable ? ' vulopilot-seo-checklist__item--clickable' : '' }` }
 						role={ isClickable ? 'button' : undefined }
 						tabIndex={ isClickable ? 0 : undefined }
 						onClick={
@@ -270,14 +279,18 @@ function IssueList( { idPrefix, rows, pulsingId, onNavigate, fixControls }: Issu
 								: undefined
 						}
 					>
-						<i className={ `dashicons dashicons-${ STATUS_ICON[ row.status ] } vulopilot-seo-checklist__icon` } />
+						<i className={ `dashicons dashicons-${ row.justFixed ? 'yes-alt' : STATUS_ICON[ row.status ] } vulopilot-seo-checklist__icon` } />
 						<span className="vulopilot-seo-checklist__message">
 							{ row.label && <strong>{ row.label }</strong> }
 							{ row.label && row.message && ' - ' }
 							{ row.message }
 						</span>
 						{ row.fix && (
-							fixControls.isPro ? (
+							row.justFixed ? (
+								<Button variant="secondary" size="small" disabled>
+									{ __( 'Fixed', 'vulopilot' ) }
+								</Button>
+							) : fixControls.isPro ? (
 								row.manualFix ? (
 									<Dropdown
 										className="vulopilot-seo-checklist__fix-dropdown"
@@ -420,6 +433,8 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 	const [ fixError, setFixError ] = useState< string | null >( null );
 	/** Bumped after a fix succeeds so the saved SEO checks and the GEO/AEO findings refetch and the fixed row drops out. */
 	const [ refreshKey, setRefreshKey ] = useState( 0 );
+	/** Row ids shown as fixed (tick + "Fixed") the instant `onFix` resolves - cleared once the refetch above lands, by which point the real check/finding data agrees. */
+	const [ fixedIds, setFixedIds ] = useState< Set< string > >( new Set() );
 
 	const [ data, setData ] = useState< PageAnalysisResponse | null >( null );
 	const [ isLoading, setIsLoading ] = useState( true );
@@ -445,6 +460,10 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 			.then( ( response ) => {
 				if ( ! cancelled ) {
 					setData( response );
+					// The real re-checked data has landed - drop the optimistic "just fixed" override
+					// so a row that's genuinely still failing (an unrelated edit undid the fix) shows
+					// that, instead of staying stuck on "Fixed".
+					setFixedIds( new Set() );
 				}
 			} )
 			.catch( ( err ) => {
@@ -601,6 +620,7 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 				await fixFinding( row.fix.findingId );
 			}
 
+			setFixedIds( ( current ) => new Set( current ).add( row.id ) );
 			setRefreshKey( ( key ) => key + 1 );
 		} catch ( err ) {
 			setFixError( err instanceof Error ? err.message : String( err ) );
@@ -622,13 +642,13 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 	const bySeverity = ( a: IssueRow, b: IssueRow ) => STATUS_ORDER[ a.status ] - STATUS_ORDER[ b.status ];
 	const contentRows = liveResults
 		.filter( ( result ) => CONTENT_CHECK_IDS.includes( result.id ) )
-		.map( rowFromLive )
+		.map( ( result ) => rowFromLive( result, fixedIds ) )
 		.sort( bySeverity );
 	const seoRows = [
-		...liveResults.filter( ( result ) => ! CONTENT_CHECK_IDS.includes( result.id ) ).map( rowFromLive ),
+		...liveResults.filter( ( result ) => ! CONTENT_CHECK_IDS.includes( result.id ) ).map( ( result ) => rowFromLive( result, fixedIds ) ),
 		...( data?.checks ?? [] )
 			.filter( ( check ) => ! CHECKS_COVERED_BY_LIVE_CHECKLIST.includes( check.key ) )
-			.map( rowFromCheck ),
+			.map( ( check ) => rowFromCheck( check, fixedIds ) ),
 	].sort( bySeverity );
 
 	// Deep-link highlighting: live checks (by check id, e.g. 'description_length',
@@ -708,7 +728,7 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 			<IssueSection
 				heading={ __( 'GEO Issues', 'vulopilot' ) }
 				idPrefix="vulopilot-page-analysis-geo"
-				rows={ geoFindings.map( rowFromFinding ) }
+				rows={ geoFindings.map( ( finding ) => rowFromFinding( finding, fixedIds ) ) }
 				isLoading={ isLoadingGeo }
 				error={ geoError }
 				emptyMessage={ __( 'No open GEO findings for this page.', 'vulopilot' ) }
@@ -720,7 +740,7 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 			<IssueSection
 				heading={ __( 'AEO Issues', 'vulopilot' ) }
 				idPrefix="vulopilot-page-analysis-aeo"
-				rows={ aeoFindings.map( rowFromFinding ) }
+				rows={ aeoFindings.map( ( finding ) => rowFromFinding( finding, fixedIds ) ) }
 				isLoading={ isLoadingAeo }
 				error={ aeoError }
 				emptyMessage={ __( 'No open AEO findings for this page.', 'vulopilot' ) }

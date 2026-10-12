@@ -1,8 +1,38 @@
 /* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { getApiLink, sendApiResponse } from '@zyra/core';
+import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import { NoticeManager } from '@zyra/components';
+
+interface ScanQueueStatus {
+	running: boolean;
+	total: number;
+	remaining: number;
+}
+
+/** How often to re-check `/scans/status` while a queued run is in progress. */
+const POLL_INTERVAL_MS = 1500;
+
+/** `POST /scans` only queues scanners now (ScanRunner::run_queued()) - this polls
+ * `/scans/status` until the background batch runner (ScanRunner::process_batch(), via
+ * WP-Cron) has drained the queue. */
+const pollUntilDone = (onDone: () => void) => {
+	const tick = () => {
+		getApiResponse<ScanQueueStatus>(
+			getApiLink(vulopilotAppLocalizer, 'scans/status'),
+			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
+		).then((status) => {
+			if (!status || !status.running) {
+				onDone();
+				return;
+			}
+
+			setTimeout(tick, POLL_INTERVAL_MS);
+		});
+	};
+
+	setTimeout(tick, POLL_INTERVAL_MS);
+};
 
 interface UseRunScanOptions {
 	/**
@@ -49,30 +79,43 @@ export const useRunScan = ({ categories, onSuccess = defaultOnSuccess }: UseRunS
 							'vulopilot'
 						),
 						message: __(
-							'Scan complete - refreshing…',
+							'Scan started - this can take a minute…',
 							'vulopilot'
 						),
 					});
-					// Real scan results are already in the database by now (the request above only
-					// just resolved after `ScanRunner` finished running).
-					setTimeout(() => onSuccess(), 900);
-				} else {
-					NoticeManager.add({
-						uniqueKey: 'vulopilot-scan-failed',
-						type: 'error',
-						position: 'float',
-						title: __(
-							'Error',
-							'vulopilot'
-						),
-						message: __(
-							'Could not start a scan. Please try again.',
-							'vulopilot'
-						),
+					// The request above only confirms the scan was queued (ScanRunner::run_queued()) -
+					// real results land across background batch ticks, so this polls for completion
+					// instead of assuming they're already in the database.
+					pollUntilDone(() => {
+						setIsScanning(false);
+						NoticeManager.add({
+							uniqueKey: 'vulopilot-scan-done',
+							type: 'success',
+							position: 'float',
+							title: __('Success', 'vulopilot'),
+							message: __('Scan complete - refreshing…', 'vulopilot'),
+						});
+						setTimeout(() => onSuccess(), 900);
 					});
+					return;
 				}
+
+				setIsScanning(false);
+				NoticeManager.add({
+					uniqueKey: 'vulopilot-scan-failed',
+					type: 'error',
+					position: 'float',
+					title: __(
+						'Error',
+						'vulopilot'
+					),
+					message: __(
+						'Could not start a scan. Please try again.',
+						'vulopilot'
+					),
+				});
 			})
-			.finally(() => setIsScanning(false));
+			.catch(() => setIsScanning(false));
 	};
 
 	const runScanButton = {
