@@ -36,6 +36,23 @@ const defaultsFor = (provider?: ProviderDefinition): Values => {
 
 const LINK = /<a\s[^>]*?href="(https?:\/\/[^"]+)"[^>]*>(.*?)<\/a>/gi;
 
+/**
+ * Removes markup from a piece of help text. Tags are removed until none is left (removing one can
+ * join the pieces of another, as in `<scr<b>ipt>`), and then any angle bracket that remains goes too,
+ * so nothing that could start a tag survives. The result is only ever shown as text.
+ */
+const plain = (text: string): string => {
+	let previous = '';
+	let current = text;
+
+	while (current !== previous) {
+		previous = current;
+		current = current.replace(/<[^>]*>/g, '');
+	}
+
+	return current.replace(/[<>]/g, '');
+};
+
 /** Turns help text that may contain links into text and real, safe link elements. No HTML is injected. */
 const withLinks = (text: string): ReactNode[] => {
 	const parts: ReactNode[] = [];
@@ -45,7 +62,7 @@ const withLinks = (text: string): ReactNode[] => {
 		parts.push(text.slice(last, offset));
 		parts.push(
 			<a key={offset} href={href} target="_blank" rel="noopener noreferrer">
-				{label.replace(/<[^>]+>/g, '')}
+				{plain(label)}
 			</a>
 		);
 		last = offset + match.length;
@@ -56,7 +73,7 @@ const withLinks = (text: string): ReactNode[] => {
 	parts.push(text.slice(last));
 
 	// Any other markup in a help text is shown as plain words, never as markup.
-	return parts.map((part) => ('string' === typeof part ? part.replace(/<[^>]+>/g, '') : part));
+	return parts.map((part) => ('string' === typeof part ? plain(part) : part));
 };
 
 /**
@@ -68,7 +85,7 @@ const splitHelp = (help?: string): { note: string; how: ReactNode[] | null } => 
 	const at = text.search(/<a\s/i);
 
 	if (-1 === at) {
-		return { note: text.replace(/<[^>]+>/g, ''), how: null };
+		return { note: plain(text), how: null };
 	}
 
 	return { note: text.slice(0, at).trim(), how: withLinks(text.slice(at)) };
