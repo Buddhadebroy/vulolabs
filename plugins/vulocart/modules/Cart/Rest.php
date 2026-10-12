@@ -17,12 +17,14 @@ defined( 'ABSPATH' ) || exit;
  *
  * Module-level REST controller - self-hooks `rest_api_init` in its own
  * constructor rather than going through the plugin-level `RestAPI\Rest`
- * dispatcher, per rest-api.md's "module-level controllers" tier (same
- * pattern `vulocart-pro`'s Passport\Rest already establishes). A plain
- * class rather than `extends \WP_REST_Controller` - Passport's Rest is
- * the same, and this avoids a real bug hit earlier in this codebase's
- * history: a private helper named `prepare_item_for_response()` fatally
- * collided with `WP_REST_Controller`'s own public method of that name.
+ * dispatcher, per rest-api.md's "module-level controllers" tier. Extends
+ * `\WP_REST_Controller` to match vulopilot's REST convention; the
+ * historical collision this codebase used to avoid by *not* extending it
+ * (a private helper literally named `prepare_item_for_response()` fatally
+ * colliding with the base class's own public method of that name) doesn't
+ * apply here - this class's own response-formatting helper is named
+ * `prepare_cart_for_response()`, which doesn't collide with anything
+ * `\WP_REST_Controller` declares.
  *
  * `/cart`, `/cart/items`, `/cart/items/{id}`, `/cart/totals` - calls only
  * VuloCart()->cart_service, same "controller never touches a repository
@@ -38,7 +40,12 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class Rest {
+class Rest extends \WP_REST_Controller {
+
+    /**
+     * @var string
+     */
+    protected $rest_base = 'cart';
 
     /**
      * Rest constructor.

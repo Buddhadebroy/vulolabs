@@ -132,7 +132,7 @@ const Popup: React.FC< PopupProps > = ( props ) => {
 								icon: 'eye',
 								text: __( 'Enable now', 'vulocart' ),
 								onClick: () => {
-									window.open( `${ vulocartLocalizer.adminUrl }#&tab=modules` );
+									window.open( `${ vulocartLocalizer.adminUrl }#&tab=settings&subtab=modules` );
 								},
 							},
 						] }

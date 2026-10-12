@@ -73,7 +73,6 @@ class Menu {
 
         $tabs = array(
             'dashboard' => __( 'Dashboard', 'vulocart' ),
-            'modules'   => __( 'Modules', 'vulocart' ),
             'settings'  => __( 'Settings', 'vulocart' ),
         );
 
@@ -410,12 +409,17 @@ class Menu {
     }
 
     /**
-     * Renders the mount point the React bundle attaches to.
+     * Renders the mount point the React bundle attaches to. Same id+class
+     * `admin-main-wrapper` vulopilot's own Admin.php uses for its
+     * equivalent root div - zyra's shared `common.scss` keys several
+     * layout rules (full-height page, `#wpcontent` padding/background
+     * reset) off that exact id, so a different id here silently drops
+     * those rules rather than just losing a class hook.
      *
      * @return void
      */
     public function render_admin_page() {
-        echo '<div id="vulocart-admin-root"></div>';
+        echo '<div id="admin-main-wrapper" class="admin-main-wrapper"></div>';
     }
 
     /**

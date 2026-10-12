@@ -2,7 +2,7 @@ import { __ } from '@wordpress/i18n';
 
 /**
  * Static module metadata for zyra's `ModuleGridComponent`
- * (pages/Modules/Modules.tsx) - the *available* module list (name,
+ * (components/Settings/ModulesPanel.tsx) - the *available* module list (name,
  * description, category) is frontend-only config, not fetched from PHP;
  * only which ids are *active* comes from the REST layer
  * (classes/RestAPI/Controllers/Modules.php). `cart`/`order` and the
@@ -23,7 +23,10 @@ import { __ } from '@wordpress/i18n';
  */
 export default {
 	category: false,
-	tab: 'modules',
+	// Modules now lives inside Settings as its own subtab - same
+	// 'settings' value vulopilot's own module catalog config uses after
+	// its identical migration.
+	tab: 'settings',
 	modules: [
 		{
 			id: 'cart',

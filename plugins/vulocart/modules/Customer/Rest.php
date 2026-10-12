@@ -24,11 +24,20 @@ defined( 'ABSPATH' ) || exit;
  * has always meant everywhere else, and this app already has one
  * (WordPress's own).
  *
+ * Extends `\WP_REST_Controller` to match vulopilot's REST convention; this
+ * class's own response-shaping helper is named `prepare_for_response()`,
+ * which doesn't collide with anything `\WP_REST_Controller` declares.
+ *
  * @class       Rest class
  * @version     1.0.0
  * @author      VuloLabs
  */
-class Rest {
+class Rest extends \WP_REST_Controller {
+
+    /**
+     * @var string
+     */
+    protected $rest_base = 'customers';
 
     /**
      * Rest constructor.

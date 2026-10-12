@@ -12,14 +12,26 @@ export default {
 	priority: 1,
 	headerTitle: __( 'Email', 'vulocart' ),
 	headerIcon: 'mail',
+	groupBySections: true,
+	hideSettingHeader: true,
 	submitUrl: 'settings',
 	modal: [
+		{
+			key: 'email-section-notifications',
+			type: 'section',
+			icon: 'mail',
+			title: __( 'Order notifications', 'vulocart' ),
+			desc: __(
+				'Which order emails actually get sent, and who they come from.',
+				'vulocart'
+			),
+		},
 		{
 			key: 'send_order_confirmation_email',
 			type: 'checkbox',
 			look: 'toggle',
 			label: __( 'Send order confirmation email', 'vulocart' ),
-			desc: __(
+			settingDescription: __(
 				'Emails the buyer right after they place an order.',
 				'vulocart'
 			),
@@ -32,7 +44,7 @@ export default {
 			type: 'checkbox',
 			look: 'toggle',
 			label: __( 'Send order status update email', 'vulocart' ),
-			desc: __(
+			settingDescription: __(
 				'Emails the buyer whenever an admin changes their order\'s status.',
 				'vulocart'
 			),
@@ -45,7 +57,7 @@ export default {
 			type: 'email',
 			label: __( 'From address', 'vulocart' ),
 			placeholder: __( 'orders@yourstore.com', 'vulocart' ),
-			desc: __(
+			settingDescription: __(
 				'Address order emails are sent from. Leave blank to use your site\'s default mail sender.',
 				'vulocart'
 			),

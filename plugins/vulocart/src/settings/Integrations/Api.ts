@@ -13,15 +13,27 @@ export default {
 	priority: 2,
 	headerTitle: __( 'API', 'vulocart' ),
 	headerIcon: 'vpn-key',
+	groupBySections: true,
+	hideSettingHeader: true,
 	submitUrl: 'settings',
 	modal: [
+		{
+			key: 'api-section-access',
+			type: 'section',
+			icon: 'vpn-key',
+			title: __( 'Public access', 'vulocart' ),
+			desc: __(
+				'Control external access to this store\'s public-read API.',
+				'vulocart'
+			),
+		},
 		{
 			key: 'enable_public_rest_api',
 			type: 'checkbox',
 			look: 'toggle',
 			label: __( 'Enable public REST API', 'vulocart' ),
-			desc: __(
-				'Whether VuloCart\'s public-read endpoints (e.g. GET /offerings) are reachable at all, independent of the always-on admin-only endpoints.',
+			settingDescription: __(
+				'Lets outside apps read your catalog over the API. Admin endpoints stay on regardless.',
 				'vulocart'
 			),
 			options: [
@@ -33,7 +45,7 @@ export default {
 			type: 'number',
 			label: __( 'Rate limit (requests / minute)', 'vulocart' ),
 			minNumber: 1,
-			desc: __(
+			settingDescription: __(
 				'A per-client request cap, once the REST layer enforces one.',
 				'vulocart'
 			),

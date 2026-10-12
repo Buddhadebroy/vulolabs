@@ -41,14 +41,9 @@ defined( 'ABSPATH' ) || exit;
 class Module {
 
     /**
-     * Container for this module's own class instances.
-     *
-     * @var array
-     */
-    private $container = array();
-
-    /**
-     * Module constructor.
+     * Module constructor. Plain, self-wiring shape vulopilot's own
+     * Module.php files use (no container/magic getter: nothing outside
+     * this module ever reaches into its instance).
      */
     public function __construct() {
         // Eager: registers the `vulocart_activated_module_order` listener
@@ -56,7 +51,7 @@ class Module {
         // Modules::load_active_modules() right after this constructor
         // returns) needs to already be listening for - see Install's own
         // docblock. Nothing here touches cart_service.
-        $this->container['install'] = new Install();
+        new Install();
 
         add_action( 'vulocart_loaded', array( $this, 'wire_services' ) );
     }
@@ -85,30 +80,15 @@ class Module {
             }
         );
 
-        $this->container['service'] = new Application\OrderService(
+        $service = new Application\OrderService(
             VuloCart()->service_container->make( Domain\OrderRepositoryInterface::class ),
             VuloCart()->cart_service,
             VuloCart()->offering_service,
             VuloCart()->event_dispatcher
         );
 
-        VuloCart()->order_service = $this->container['service'];
+        VuloCart()->order_service = $service;
 
-        $this->container['rest'] = new Rest();
-    }
-
-    /**
-     * Magic getter for this module's own container.
-     *
-     * @param string $class_name Container key to retrieve.
-     * @return mixed
-     * @throws \Exception If the requested key does not exist in the container.
-     */
-    public function __get( $class_name ) { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.classFound
-        if ( array_key_exists( $class_name, $this->container ) ) {
-            return $this->container[ $class_name ];
-        }
-
-        throw new \Exception( sprintf( 'Call to unknown class %s.', esc_html( $class_name ) ) );
+        new Rest();
     }
 }

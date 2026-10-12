@@ -13,40 +13,52 @@ export default {
 	priority: 1,
 	headerTitle: __( 'Catalog', 'vulocart' ),
 	headerIcon: 'catalog',
+	groupBySections: true,
+	hideSettingHeader: true,
 	submitUrl: 'settings',
 	modal: [
+		{
+			key: 'catalog-section-defaults',
+			type: 'section',
+			icon: 'catalog',
+			title: __( 'Offering defaults', 'vulocart' ),
+			desc: __(
+				'Preselected values for a newly created offering.',
+				'vulocart'
+			),
+		},
 		{
 			key: 'default_offering_type',
 			type: 'select',
 			label: __( 'Default offering type', 'vulocart' ),
-			desc: __(
+			settingDescription: __(
 				'Offering type preselected when a merchant clicks "Add New" on the Offerings screen.',
 				'vulocart'
 			),
-			// Same raw-type-string-as-label list OfferingType::all() (PHP)
-			// and OfferingEdit.tsx's own OFFERING_TYPE_OPTIONS use - kept as
-			// a hand-maintained flat list rather than a shared constant
+			// Same value set as OfferingType::all() (PHP) and
+			// OfferingEdit.tsx's own OFFERING_TYPE_OPTIONS - kept as a
+			// hand-maintained flat list rather than a shared constant
 			// import, matching how OfferingEdit.tsx already duplicates it.
 			options: [
-				{ label: 'physical', value: 'physical' },
-				{ label: 'digital', value: 'digital' },
-				{ label: 'subscription', value: 'subscription' },
-				{ label: 'course', value: 'course' },
-				{ label: 'service', value: 'service' },
-				{ label: 'membership', value: 'membership' },
-				{ label: 'booking', value: 'booking' },
-				{ label: 'rental', value: 'rental' },
-				{ label: 'bundle', value: 'bundle' },
-				{ label: 'donation', value: 'donation' },
-				{ label: 'gift_card', value: 'gift_card' },
-				{ label: 'license', value: 'license' },
+				{ label: __( 'Physical', 'vulocart' ), value: 'physical' },
+				{ label: __( 'Digital', 'vulocart' ), value: 'digital' },
+				{ label: __( 'Subscription', 'vulocart' ), value: 'subscription' },
+				{ label: __( 'Course', 'vulocart' ), value: 'course' },
+				{ label: __( 'Service', 'vulocart' ), value: 'service' },
+				{ label: __( 'Membership', 'vulocart' ), value: 'membership' },
+				{ label: __( 'Booking', 'vulocart' ), value: 'booking' },
+				{ label: __( 'Rental', 'vulocart' ), value: 'rental' },
+				{ label: __( 'Bundle', 'vulocart' ), value: 'bundle' },
+				{ label: __( 'Donation', 'vulocart' ), value: 'donation' },
+				{ label: __( 'Gift card', 'vulocart' ), value: 'gift_card' },
+				{ label: __( 'License', 'vulocart' ), value: 'license' },
 			],
 		},
 		{
 			key: 'default_catalog_visibility',
 			type: 'select',
 			label: __( 'Default catalog visibility', 'vulocart' ),
-			desc: __(
+			settingDescription: __(
 				'Visibility preselected for a newly created offering.',
 				'vulocart'
 			),
@@ -59,11 +71,21 @@ export default {
 			],
 		},
 		{
+			key: 'catalog-section-inventory',
+			type: 'section',
+			icon: 'database',
+			title: __( 'Inventory', 'vulocart' ),
+			desc: __(
+				'Stock-tracking thresholds that apply across the catalog.',
+				'vulocart'
+			),
+		},
+		{
 			key: 'low_stock_threshold',
 			type: 'number',
 			label: __( 'Low stock threshold', 'vulocart' ),
 			minNumber: 0,
-			desc: __(
+			settingDescription: __(
 				'Quantity at or below which a stock-tracked offering could be flagged as low stock.',
 				'vulocart'
 			),

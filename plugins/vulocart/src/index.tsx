@@ -1,7 +1,6 @@
 /* global vulocartLocalizer */
 import { render } from '@wordpress/element';
 import { BrowserRouter } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { configureZyra, initializeModules } from '@zyra/core';
 import { HeaderComponent } from '@zyra/components';
 import { App } from './app/App';
@@ -20,7 +19,10 @@ import Brand from './assets/images/vulocart-logo.svg';
  * vulopilot's Pro plugin, which only registers
  * `@wordpress/hooks` filters into an already-mounted Free dashboard
  * (react-frontend.md), VuloCart has no existing dashboard to extend, so
- * this mounts directly into `#vulocart-admin-root` (classes/Admin/Menu.php).
+ * this mounts directly into `#admin-main-wrapper` (classes/Admin/Menu.php) -
+ * same id+class vulopilot's own `#admin-main-wrapper` mount point uses, so
+ * zyra's shared layout rules (full-height page, `#wpcontent` padding reset)
+ * apply here the same way they do there.
  *
  * Two further, separate top-level WP admin menus ("Orders", "Offerings")
  * mount the exact same bundle into different root element ids
@@ -86,9 +88,7 @@ localStorage.setItem( 'force_vulocart_context_reload', 'true' );
 configureZyra( vulocartLocalizer );
 initializeModules( 'vulocart', 'free', 'modules' );
 
-const queryClient = new QueryClient();
-
-const adminRoot = document.getElementById( 'vulocart-admin-root' );
+const adminRoot = document.getElementById( 'admin-main-wrapper' );
 const ordersAdminRoot = document.getElementById( 'vulocart-orders-admin-root' );
 const offeringsAdminRoot = document.getElementById( 'vulocart-offerings-admin-root' );
 const customersAdminRoot = document.getElementById( 'vulocart-customers-admin-root' );
@@ -108,18 +108,16 @@ function mount() {
 
 if ( adminRoot ) {
 	render(
-		<QueryClientProvider client={ queryClient }>
-			<BrowserRouter>
-				<App />
-			</BrowserRouter>
-		</QueryClientProvider>,
+		<BrowserRouter>
+			<App />
+		</BrowserRouter>,
 		adminRoot
 	);
 }
 
 if ( ordersAdminRoot ) {
 	render(
-		<QueryClientProvider client={ queryClient }>
+		<>
 			<HeaderComponent
 				brandImg={ Brand }
 				free={ vulocartLocalizer.version }
@@ -130,14 +128,14 @@ if ( ordersAdminRoot ) {
 			<div className="admin-main-wrapper">
 				<Orders action={ urlAction } id={ urlId } filter={ urlFilter } />
 			</div>
-		</QueryClientProvider>,
+		</>,
 		ordersAdminRoot
 	);
 }
 
 if ( offeringsAdminRoot ) {
 	render(
-		<QueryClientProvider client={ queryClient }>
+		<>
 			<HeaderComponent
 				brandImg={ Brand }
 				free={ vulocartLocalizer.version }
@@ -148,14 +146,14 @@ if ( offeringsAdminRoot ) {
 			<div className="admin-main-wrapper">
 				<Offerings action={ urlAction } id={ urlId } view={ urlView } />
 			</div>
-		</QueryClientProvider>,
+		</>,
 		offeringsAdminRoot
 	);
 }
 
 if ( customersAdminRoot ) {
 	render(
-		<QueryClientProvider client={ queryClient }>
+		<>
 			<HeaderComponent
 				brandImg={ Brand }
 				free={ vulocartLocalizer.version }
@@ -166,14 +164,14 @@ if ( customersAdminRoot ) {
 			<div className="admin-main-wrapper">
 				<Customers action={ urlAction } id={ urlId } view={ urlView } />
 			</div>
-		</QueryClientProvider>,
+		</>,
 		customersAdminRoot
 	);
 }
 
 if ( inventoryAdminRoot ) {
 	render(
-		<QueryClientProvider client={ queryClient }>
+		<>
 			<HeaderComponent
 				brandImg={ Brand }
 				free={ vulocartLocalizer.version }
@@ -184,14 +182,14 @@ if ( inventoryAdminRoot ) {
 			<div className="admin-main-wrapper">
 				<InventoryEngine view={ urlView } />
 			</div>
-		</QueryClientProvider>,
+		</>,
 		inventoryAdminRoot
 	);
 }
 
 if ( shippingAdminRoot ) {
 	render(
-		<QueryClientProvider client={ queryClient }>
+		<>
 			<HeaderComponent
 				brandImg={ Brand }
 				free={ vulocartLocalizer.version }
@@ -202,14 +200,14 @@ if ( shippingAdminRoot ) {
 			<div className="admin-main-wrapper">
 				<ShippingEngine view={ urlView } />
 			</div>
-		</QueryClientProvider>,
+		</>,
 		shippingAdminRoot
 	);
 }
 
 if ( aiAdminRoot ) {
 	render(
-		<QueryClientProvider client={ queryClient }>
+		<>
 			<HeaderComponent
 				brandImg={ Brand }
 				free={ vulocartLocalizer.version }
@@ -220,14 +218,14 @@ if ( aiAdminRoot ) {
 			<div className="admin-main-wrapper">
 				<AiEngine view={ urlView } />
 			</div>
-		</QueryClientProvider>,
+		</>,
 		aiAdminRoot
 	);
 }
 
 if ( workflowsAdminRoot ) {
 	render(
-		<QueryClientProvider client={ queryClient }>
+		<>
 			<HeaderComponent
 				brandImg={ Brand }
 				free={ vulocartLocalizer.version }
@@ -238,14 +236,14 @@ if ( workflowsAdminRoot ) {
 			<div className="admin-main-wrapper">
 				<WorkflowsEngine view={ urlView } />
 			</div>
-		</QueryClientProvider>,
+		</>,
 		workflowsAdminRoot
 	);
 }
 
 if ( analyticsAdminRoot ) {
 	render(
-		<QueryClientProvider client={ queryClient }>
+		<>
 			<HeaderComponent
 				brandImg={ Brand }
 				free={ vulocartLocalizer.version }
@@ -256,7 +254,7 @@ if ( analyticsAdminRoot ) {
 			<div className="admin-main-wrapper">
 				<AnalyticsEngine view={ urlView } />
 			</div>
-		</QueryClientProvider>,
+		</>,
 		analyticsAdminRoot
 	);
 }
