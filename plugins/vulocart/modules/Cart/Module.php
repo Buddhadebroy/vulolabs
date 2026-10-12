@@ -35,29 +35,17 @@ defined( 'ABSPATH' ) || exit;
 class Module {
 
     /**
-     * Container for this module's own class instances.
-     *
-     * @var array
-     */
-    private $container = array();
-
-    /**
-     * Module constructor.
+     * Module constructor. Wires this module's own classes directly and
+     * registers its service on the main plugin container
+     * (`VuloCart()->cart_service`) so sibling modules (Order\Module) and
+     * the core plugin can reach it the same way they reach any other core
+     * service - same plain, self-wiring shape vulopilot(-pro)'s own
+     * Module.php files use (no per-module container/magic getter: nothing
+     * outside this module ever reaches into its instance, so there was
+     * never a consumer for one).
      */
     public function __construct() {
-        $this->init_classes();
-    }
-
-    /**
-     * Constructs this module's own classes and registers its service on
-     * the main plugin container (`VuloCart()->cart_service`) so sibling
-     * modules (Order\Module) and the core plugin can reach it the same
-     * way they reach any other core service.
-     *
-     * @return void
-     */
-    public function init_classes() {
-        $this->container['install'] = new Install();
+        new Install();
 
         VuloCart()->service_container->singleton(
             Domain\CartRepositoryInterface::class,
@@ -66,30 +54,15 @@ class Module {
             }
         );
 
-        $this->container['service'] = new Application\CartService(
+        $service = new Application\CartService(
             VuloCart()->service_container->make( Domain\CartRepositoryInterface::class ),
             VuloCart()->offering_service,
             VuloCart()->event_dispatcher
         );
 
-        VuloCart()->cart_service = $this->container['service'];
+        VuloCart()->cart_service = $service;
 
-        $this->container['rest']    = new Rest();
-        $this->container['cleanup'] = new Application\CartCleanupScheduler( $this->container['service'] );
-    }
-
-    /**
-     * Magic getter for this module's own container.
-     *
-     * @param string $class_name Container key to retrieve.
-     * @return mixed
-     * @throws \Exception If the requested key does not exist in the container.
-     */
-    public function __get( $class_name ) { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.classFound
-        if ( array_key_exists( $class_name, $this->container ) ) {
-            return $this->container[ $class_name ];
-        }
-
-        throw new \Exception( sprintf( 'Call to unknown class %s.', esc_html( $class_name ) ) );
+        new Rest();
+        new Application\CartCleanupScheduler( $service );
     }
 }

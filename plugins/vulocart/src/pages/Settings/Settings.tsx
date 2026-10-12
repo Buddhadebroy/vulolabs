@@ -10,6 +10,7 @@ import { CardComponent, NavigatorComponent } from '@zyra/components';
 import { SettingProvider, useSetting } from '../../contexts/SettingContext';
 import { getTemplateData } from '../../services/templateService';
 import Popup from '../../components/Popup/Popup';
+import ModulesPanel from '../../components/Settings/ModulesPanel';
 
 /**
  * Ported from `vulopilot/src/pages/Settings/Settings.tsx`'s flat-option
@@ -81,13 +82,20 @@ const Settings = () => {
 			( field: { key: string } ) => field.key
 		);
 
-		if ( currentTab && settingName !== currentTab ) {
-			const tabFields: Record< string, unknown > = {};
-			fieldKeys.forEach( ( key ) => {
-				tabFields[ key ] = settingsRef.current[ key ];
-			} );
-			setSetting( currentTab, tabFields );
-		}
+		// Was a synchronous `setSetting()` call made straight in the render
+		// body - triggers React's "Cannot update a component while
+		// rendering a different component" warning and a visible
+		// double-render flash when switching tabs. Matches vulopilot's own
+		// Settings.tsx docblock on this exact point.
+		useEffect( () => {
+			if ( currentTab && settingName !== currentTab ) {
+				const tabFields: Record< string, unknown > = {};
+				fieldKeys.forEach( ( key ) => {
+					tabFields[ key ] = settingsRef.current[ key ];
+				} );
+				setSetting( currentTab, tabFields );
+			}
+		}, [ currentTab, settingName ] );
 
 		useEffect( () => {
 			if ( currentTab && settingName === currentTab ) {
@@ -99,6 +107,24 @@ const Settings = () => {
 			return null;
 		}
 
+		// Modules moved inside Settings as its own subtab (settings/Modules.ts)
+		// - same special-cased branch vulopilot's own Settings.tsx uses for its
+		// identically-migrated Modules tab, rather than the generic
+		// PanelComponent escape hatch below (ModulesPanel predates that
+		// mechanism and has its own NavigatorHeaderComponent already).
+		if ( 'modules' === currentTab ) {
+			return <ModulesPanel />;
+		}
+
+		// Pro's escape hatch for a tab that needs a fully custom
+		// component instead of InputRenderer's declarative field schema
+		// (e.g. vulocart-pro's Licensing tab) - same mechanism vulopilot's
+		// own Settings.tsx establishes.
+		if ( settingModal?.PanelComponent ) {
+			const PanelComponent = settingModal.PanelComponent;
+			return <PanelComponent />;
+		}
+
 		return (
 			<>
 				{ settingName === currentTab ? (
@@ -107,6 +133,10 @@ const Settings = () => {
 						setting={ setting }
 						updateSetting={ updateSetting }
 						Popup={ Popup }
+						// Per-tab opt-in (General.ts's own `groupBySections: true` is the
+						// first) into InputRenderer's card-grouped layout - same mechanism
+						// vulopilot's own Settings.tsx uses.
+						groupBySections={ settingModal?.groupBySections }
 					/>
 				) : (
 					<>{ __( 'Loading…', 'vulocart' ) }</>

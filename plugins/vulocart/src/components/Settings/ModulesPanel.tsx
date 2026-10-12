@@ -3,12 +3,19 @@ import { __ } from '@wordpress/i18n';
 import modulesConfig from '../../modules-config';
 
 /**
+ * Settings → Modules subtab - the former standalone `pages/Modules/Modules.tsx`
+ * page, moved here as part of the same migration vulopilot's own
+ * `components/Settings/ModulesPanel.tsx` already made. `hideSettingHeader: true`
+ * on `settings/Modules.ts` means Settings.tsx's generic tab header is
+ * skipped for this tab, so this component still owns its own
+ * `NavigatorHeaderComponent` rather than duplicating one.
+ *
  * Uses `ModuleGridComponent`, which reads active state from zyra's own
  * `useModules()` store (seeded by `initializeModules()` in
  * src/index.tsx) and POSTs `{ id, action }` to `apiLink` on toggle
  * (classes/RestAPI/Controllers/Modules.php).
  */
-const Modules = () => {
+const ModulesPanel = () => {
 	return (
 		<>
 			<NavigatorHeaderComponent
@@ -30,4 +37,4 @@ const Modules = () => {
 	);
 };
 
-export default Modules;
+export default ModulesPanel;

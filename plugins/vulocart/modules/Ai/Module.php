@@ -50,30 +50,17 @@ defined( 'ABSPATH' ) || exit;
 class Module {
 
     /**
-     * Container for this module's own class instances.
-     *
-     * @var array
-     */
-    private $container = array();
-
-    /**
      * Module constructor.
      */
     public function __construct() {
         new Install();
 
-        $this->init_classes();
-    }
+        $registry  = new ProviderRegistry();
+        $configs   = new AiProviderConfigUtil();
+        $usage_log = new AiUsageLogUtil();
+        $client    = new AiClient( $registry, $usage_log );
 
-    /**
-     * @return void
-     */
-    public function init_classes() {
-        $this->container['registry']   = new ProviderRegistry();
-        $this->container['configs']    = new AiProviderConfigUtil();
-        $this->container['usage_log']  = new AiUsageLogUtil();
-        $this->container['client']     = new AiClient( $this->container['registry'], $this->container['usage_log'] );
-        $this->container['rest']       = new Rest( $this->container['registry'], $this->container['configs'], $this->container['usage_log'] );
+        new Rest( $registry, $configs, $usage_log );
 
         // Same `VuloCart()->shipping_service = ...` pattern Shipping\Module
         // uses - makes the client reachable from any Pro module without a
@@ -81,8 +68,8 @@ class Module {
         // `try { VuloCart()->ai_client } catch (\Exception $e) { null }`
         // shape OrderService::resolve_optional_service() already
         // documents for Shipping/Taxes/Payment.
-        VuloCart()->ai_client           = $this->container['client'];
-        VuloCart()->ai_provider_registry = $this->container['registry'];
+        VuloCart()->ai_client            = $client;
+        VuloCart()->ai_provider_registry = $registry;
 
         add_action( 'admin_menu', array( $this, 'register_menu' ) );
     }
@@ -113,20 +100,5 @@ class Module {
      */
     public function render_page() {
         echo '<div id="vulocart-ai-admin-root"></div>';
-    }
-
-    /**
-     * Magic getter for this module's own container.
-     *
-     * @param string $class_name Container key to retrieve.
-     * @return mixed
-     * @throws \Exception If the requested key does not exist in the container.
-     */
-    public function __get( $class_name ) { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.classFound
-        if ( array_key_exists( $class_name, $this->container ) ) {
-            return $this->container[ $class_name ];
-        }
-
-        throw new \Exception( sprintf( 'Call to unknown class %s.', esc_html( $class_name ) ) );
     }
 }

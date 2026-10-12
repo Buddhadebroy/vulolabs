@@ -28,11 +28,21 @@ defined( 'ABSPATH' ) || exit;
  * (rest-api.md) - order management (as opposed to placing/tracking one's
  * own order) is store-owner-only.
  *
+ * Extends `\WP_REST_Controller` to match vulopilot's REST convention; this
+ * class's own response-shaping helpers are named `format_order_item_for_
+ * response()` and `prepare_order_for_response()`, neither of which collides
+ * with anything `\WP_REST_Controller` declares.
+ *
  * @class       Rest class
  * @version     1.0.0
  * @author      VuloLabs
  */
-class Rest {
+class Rest extends \WP_REST_Controller {
+
+    /**
+     * @var string
+     */
+    protected $rest_base = 'orders';
 
     /**
      * Rest constructor.

@@ -52,9 +52,7 @@ export function App() {
 				onQueryUpdate={ () => {} }
 				onResultClick={ () => {} }
 			/>
-			<div id="vulocart-admin-root-inner" className="admin-main-wrapper">
-				<Route />
-			</div>
+			<Route />
 		</>
 	);
 }
