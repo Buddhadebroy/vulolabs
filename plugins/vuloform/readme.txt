@@ -320,6 +320,12 @@ If you add a webhook, submission data for the fields you choose is sent to the a
 
 Emails are handed to your site's mail system, or to the VuloMail plugin if active. Text messages are sent through the SMS connection configured in VuloMail, and your provider's terms apply.
 
+== Source Code ==
+
+The files under `assets/` (admin bundle, public form and embed scripts, block editor script) are compiled with webpack. Their human-readable source - everything under `src/`, plus `webpack.config.js` - is public:
+
+https://github.com/vulolabs/vulolabs/tree/main/plugins/vuloform
+
 == Screenshots ==
 
 1. Drag-and-drop form builder with field library, live form and field settings.

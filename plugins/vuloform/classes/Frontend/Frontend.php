@@ -126,7 +126,7 @@ class Frontend {
 	 */
 	public function handle_post() {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- public form: authenticity is checked with the signed form token in Submissions\Processor, as a nonce can't be used on cached pages.
-		$form_id = isset( $_POST['vf_form_id'] ) ? absint( wp_unslash( $_POST['vf_form_id'] ) ) : 0;
+		$form_id = absint( filter_input( INPUT_POST, 'vf_form_id', FILTER_DEFAULT ) );
 		$form    = VuloForm()->forms->get( $form_id );
 		$back    = wp_get_referer() ? wp_get_referer() : home_url( '/' );
 
@@ -135,10 +135,12 @@ class Frontend {
 			exit;
 		}
 
-		// WordPress slashes $_POST; the REST route hands the processor unslashed values, so this path
-		// must too. Each value is then sanitized for its field type in Processor::clean().
+		// filter_input() reads the request as the browser sent it, before WordPress's own
+		// magic-quotes slashing of $_POST, so the value is already unslashed here - unlike the REST
+		// route, which gets unslashed values from WP_REST_Request for the same reason. Each value is
+		// then sanitized for its field type in Processor::clean().
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$post   = wp_unslash( $_POST );
+		$post   = (array) filter_input_array( INPUT_POST );
 		$result = VuloForm()->processor->handle( $form, $post, $_FILES );
 		// phpcs:enable
 
@@ -192,7 +194,7 @@ class Frontend {
 	 */
 	private function pending_result( $form_id ) {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- an opaque, single-use key that only selects which stored message to show.
-		$key = isset( $_GET['vuloform_result'] ) ? preg_replace( '/[^A-Za-z0-9]/', '', sanitize_text_field( wp_unslash( $_GET['vuloform_result'] ) ) ) : '';
+		$key = preg_replace( '/[^A-Za-z0-9]/', '', sanitize_text_field( (string) filter_input( INPUT_GET, 'vuloform_result', FILTER_DEFAULT ) ) );
 
 		if ( '' === $key ) {
 			return array();

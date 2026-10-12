@@ -167,13 +167,23 @@ registerBlockType( metadata.name, {
 				questions: questions.filter( ( _row, i ) => i !== index ),
 			} );
 
-		/** One `style.<path>` write - `path` e.g. `'question.color'` or `'container.padding'`. */
+		const UNSAFE_KEYS = [ '__proto__', 'prototype', 'constructor' ];
+
+		/** One `style.<path>` write - `path` e.g. `'question.color'` or `'container.padding'`. Every call site passes a fixed string literal (see call sites below), but keys are still checked against `UNSAFE_KEYS` before being used to index into `next`. */
 		const updateStyle = ( path, value ) => {
 			const parts = path.split( '.' );
+
+			if ( parts.some( ( part ) => UNSAFE_KEYS.includes( part ) ) ) {
+				return;
+			}
+
 			const next = JSON.parse( JSON.stringify( style ) );
 			let cursor = next;
 
 			for ( let i = 0; i < parts.length - 1; i++ ) {
+				if ( 'object' !== typeof cursor[ parts[ i ] ] || null === cursor[ parts[ i ] ] ) {
+					cursor[ parts[ i ] ] = {};
+				}
 				cursor = cursor[ parts[ i ] ];
 			}
 

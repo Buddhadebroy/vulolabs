@@ -13,7 +13,7 @@ import {
 	SectionComponent
 } from '@zyra/components';
 import type { NoticeType } from '@zyra/components';
-import { SelectInput } from '@zyra/inputs';
+import { ButtonInput, SelectInput } from '@zyra/inputs';
 import { SEO_ISSUE_QUERY_PARAM } from '../../services/seoIssueEditorTarget';
 
 interface ContentOption {
@@ -240,10 +240,17 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 			}
 			isLoading={isExternal ? isLoadingQuality : isLoadingOptions}
 			action={
-				isExternal ? (
-					<>
-					
-					</>
+				isExternal && onClose ? (
+					<ButtonInput
+						buttons={{
+							text: '',
+							icon: 'close',
+							className: 'icon',
+							color: 'text-gray',
+							tooltip: __('Close', 'vulopilot'),
+							onClick: onClose,
+						}}
+					/>
 				) : !isLoadingOptions && options.length > 0 ? (
 					<div className="content-quality-picker">
 						<TypographyComponent
