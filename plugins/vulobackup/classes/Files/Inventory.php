@@ -70,6 +70,8 @@ class Inventory {
 	private $with_config;
 
 	/**
+	 * Constructor.
+	 *
 	 * @param array<string, string> $roots       Every area's root on this site.
 	 * @param Matcher               $matcher     Exclusions.
 	 * @param string[]              $blocked     Absolute folders never to enter.

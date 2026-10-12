@@ -218,20 +218,20 @@ class FilesTest extends TestCase {
 	 */
 	public function hostile_entries() {
 		return array(
-			'parent folder'        => array( static fn( $zip ) => $zip->addFromString( 'uploads/../evil.txt', 'x' ) ),
-			'far parent folder'    => array( static fn( $zip ) => $zip->addFromString( 'uploads/a/../../../evil.txt', 'x' ) ),
-			'absolute path'        => array( static fn( $zip ) => $zip->addFromString( '/tmp/evil.txt', 'x' ) ),
-			'backslashes'          => array( static fn( $zip ) => $zip->addFromString( 'uploads\\..\\evil.txt', 'x' ) ),
-			'drive letter'         => array( static fn( $zip ) => $zip->addFromString( 'C:/evil.txt', 'x' ) ),
-			'unknown area'         => array( static fn( $zip ) => $zip->addFromString( 'somewhere/evil.txt', 'x' ) ),
-			'area with no file'    => array( static fn( $zip ) => $zip->addFromString( 'uploads', 'x' ) ),
-			'symbolic link'        => array(
+			'parent folder'           => array( static fn( $zip ) => $zip->addFromString( 'uploads/../evil.txt', 'x' ) ),
+			'far parent folder'       => array( static fn( $zip ) => $zip->addFromString( 'uploads/a/../../../evil.txt', 'x' ) ),
+			'absolute path'           => array( static fn( $zip ) => $zip->addFromString( '/tmp/evil.txt', 'x' ) ),
+			'backslashes'             => array( static fn( $zip ) => $zip->addFromString( 'uploads\\..\\evil.txt', 'x' ) ),
+			'drive letter'            => array( static fn( $zip ) => $zip->addFromString( 'C:/evil.txt', 'x' ) ),
+			'unknown area'            => array( static fn( $zip ) => $zip->addFromString( 'somewhere/evil.txt', 'x' ) ),
+			'area with no file'       => array( static fn( $zip ) => $zip->addFromString( 'uploads', 'x' ) ),
+			'symbolic link'           => array(
 				static function ( $zip ) {
 					$zip->addFromString( 'uploads/link', '/etc/passwd' );
 					$zip->setExternalAttributesName( 'uploads/link', \ZipArchive::OPSYS_UNIX, 0120777 << 16 );
 				},
 			),
-			'too many files'       => array(
+			'too many files'          => array(
 				static function ( $zip ) {
 					$zip->addFromString( 'uploads/b.txt', 'x' );
 					$zip->addFromString( 'uploads/c.txt', 'x' );

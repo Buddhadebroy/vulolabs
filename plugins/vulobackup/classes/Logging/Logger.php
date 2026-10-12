@@ -54,6 +54,8 @@ class Logger {
 	private $secrets = array();
 
 	/**
+	 * Constructor.
+	 *
 	 * @param Vault    $vault    Storage folder.
 	 * @param Settings $settings Settings.
 	 */
@@ -168,6 +170,8 @@ class Logger {
 	}
 
 	/**
+	 * Returns the path of the activity log.
+	 *
 	 * @return string Path of the activity log.
 	 */
 	public function file() {

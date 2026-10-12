@@ -37,6 +37,8 @@ class Sftp implements Provider {
 	private $clients = array();
 
 	/**
+	 * Machine name of this provider.
+	 *
 	 * @return string
 	 */
 	public function id() {
@@ -44,6 +46,8 @@ class Sftp implements Provider {
 	}
 
 	/**
+	 * Name shown to the administrator.
+	 *
 	 * @return string
 	 */
 	public function label() {
@@ -51,6 +55,8 @@ class Sftp implements Provider {
 	}
 
 	/**
+	 * The settings an SFTP destination needs.
+	 *
 	 * @return array[]
 	 */
 	public function fields() {
@@ -100,6 +106,8 @@ class Sftp implements Provider {
 	}
 
 	/**
+	 * One line saying where this destination is, without any secret.
+	 *
 	 * @param array $config Field values.
 	 * @return string
 	 */
@@ -108,6 +116,8 @@ class Sftp implements Provider {
 	}
 
 	/**
+	 * Checks a configuration by writing, reading back and deleting a small file.
+	 *
 	 * @param array $config Field values.
 	 * @return array|\WP_Error
 	 */
@@ -155,6 +165,8 @@ class Sftp implements Provider {
 	}
 
 	/**
+	 * Uploads a file, continuing from `$state`.
+	 *
 	 * @param array  $config   Field values.
 	 * @param string $local    File to send.
 	 * @param string $remote   Path relative to the folder.
@@ -229,6 +241,8 @@ class Sftp implements Provider {
 	}
 
 	/**
+	 * Abandons an unfinished upload, releasing anything the destination holds for it.
+	 *
 	 * @param array  $config Field values.
 	 * @param string $remote Path.
 	 * @param array  $state  Progress of the upload.
@@ -241,6 +255,8 @@ class Sftp implements Provider {
 	}
 
 	/**
+	 * Confirms a file is at the destination and has the expected size.
+	 *
 	 * @param array  $config Field values.
 	 * @param string $remote Path.
 	 * @param int    $bytes  Expected size.
@@ -273,6 +289,8 @@ class Sftp implements Provider {
 	}
 
 	/**
+	 * Downloads a file, continuing from `$state`.
+	 *
 	 * @param array  $config   Field values.
 	 * @param string $remote   Path.
 	 * @param string $local    File to write.
@@ -329,6 +347,8 @@ class Sftp implements Provider {
 	}
 
 	/**
+	 * Deletes a file. A file that is already gone is not an error.
+	 *
 	 * @param array  $config Field values.
 	 * @param string $remote Path.
 	 * @return true|\WP_Error
@@ -445,6 +465,8 @@ class Sftp implements Provider {
 	}
 
 	/**
+	 * Returns the server key's SHA-256 fingerprint.
+	 *
 	 * @param Client $client Connection.
 	 * @return string The server key's SHA-256 fingerprint, or '' when the server cannot be reached.
 	 */
@@ -466,6 +488,8 @@ class Sftp implements Provider {
 	}
 
 	/**
+	 * Returns the path on the server for a remote key.
+	 *
 	 * @param array  $config Field values.
 	 * @param string $remote Path relative to the configured folder.
 	 * @return string Path on the server.

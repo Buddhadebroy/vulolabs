@@ -33,6 +33,8 @@ class S3 implements Provider {
 	const PART_BYTES = 8388608;
 
 	/**
+	 * Machine name of this provider.
+	 *
 	 * @return string
 	 */
 	public function id() {
@@ -40,6 +42,8 @@ class S3 implements Provider {
 	}
 
 	/**
+	 * Name shown to the administrator.
+	 *
 	 * @return string
 	 */
 	public function label() {
@@ -47,6 +51,8 @@ class S3 implements Provider {
 	}
 
 	/**
+	 * The settings an S3 destination needs.
+	 *
 	 * @return array[]
 	 */
 	public function fields() {
@@ -104,6 +110,8 @@ class S3 implements Provider {
 	}
 
 	/**
+	 * One line saying where this destination is, without any secret.
+	 *
 	 * @param array $config Field values.
 	 * @return string
 	 */
@@ -114,6 +122,8 @@ class S3 implements Provider {
 	}
 
 	/**
+	 * Checks a configuration by writing, reading back and deleting a small file.
+	 *
 	 * @param array $config Field values.
 	 * @return array|\WP_Error
 	 */
@@ -156,6 +166,8 @@ class S3 implements Provider {
 	}
 
 	/**
+	 * Uploads a file, continuing from `$state`.
+	 *
 	 * @param array  $config   Field values.
 	 * @param string $local    File to send.
 	 * @param string $remote   Key, relative to the folder.
@@ -268,6 +280,8 @@ class S3 implements Provider {
 	}
 
 	/**
+	 * Abandons an unfinished upload, releasing anything the destination holds for it.
+	 *
 	 * @param array  $config Field values.
 	 * @param string $remote Key.
 	 * @param array  $state  Progress of the upload.
@@ -280,6 +294,8 @@ class S3 implements Provider {
 	}
 
 	/**
+	 * Confirms a file is at the destination and has the expected size.
+	 *
 	 * @param array  $config Field values.
 	 * @param string $remote Key.
 	 * @param int    $bytes  Expected size.
@@ -300,6 +316,8 @@ class S3 implements Provider {
 	}
 
 	/**
+	 * Downloads a file, continuing from `$state`.
+	 *
 	 * @param array  $config   Field values.
 	 * @param string $remote   Key.
 	 * @param string $local    File to write.
@@ -351,6 +369,8 @@ class S3 implements Provider {
 	}
 
 	/**
+	 * Deletes a file. A file that is already gone is not an error.
+	 *
 	 * @param array  $config Field values.
 	 * @param string $remote Key.
 	 * @return true|\WP_Error

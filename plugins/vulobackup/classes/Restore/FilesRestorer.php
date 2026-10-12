@@ -59,6 +59,8 @@ class FilesRestorer {
 	private $overlay;
 
 	/**
+	 * Constructor.
+	 *
 	 * @param array<string, string> $roots   Area roots.
 	 * @param string                $token   Restore token.
 	 * @param string                $overlay Working folder inside the restore's own folder.
@@ -90,6 +92,8 @@ class FilesRestorer {
 	}
 
 	/**
+	 * Where an area's live folder is moved to when it is switched.
+	 *
 	 * @param string $area Area.
 	 * @return string Where an area's live folder is moved to when it is switched.
 	 */
@@ -133,6 +137,8 @@ class FilesRestorer {
 	}
 
 	/**
+	 * Returns a fresh cursor for extract().
+	 *
 	 * @return array A fresh cursor for extract().
 	 */
 	public static function cursor() {

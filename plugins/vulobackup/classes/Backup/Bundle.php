@@ -342,6 +342,8 @@ class Bundle {
 	}
 
 	/**
+	 * Packs a number as a zip-format quadword.
+	 *
 	 * @param int $value Number.
 	 * @return string The number as eight little-endian bytes.
 	 */
@@ -350,6 +352,8 @@ class Bundle {
 	}
 
 	/**
+	 * Converts a Unix timestamp to DOS date/time.
+	 *
 	 * @param int $timestamp Unix timestamp.
 	 * @return int[] Time and date in the format zip files use.
 	 */

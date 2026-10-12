@@ -54,6 +54,8 @@ abstract class Controller extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Builds a "not found" error.
+	 *
 	 * @return \WP_Error A "not found" error.
 	 */
 	protected function not_found() {

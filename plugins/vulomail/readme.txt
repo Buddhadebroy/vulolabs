@@ -1,8 +1,8 @@
-=== VuloMail – SMTP, Email Logs & SMS Notifications ===
+=== VuloMail ===
 Contributors: vulolabs
 Tags: smtp, email logs, sms, woocommerce, email
 Requires at least: 6.7
-Tested up to: 7.1.3
+Tested up to: 7.1
 Requires PHP: 8.1
 Stable tag: 1.0.0
 License: GPLv2 or later

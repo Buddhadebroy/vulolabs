@@ -96,6 +96,8 @@ class Utill {
 	}
 
 	/**
+	 * Returns the current UTC time.
+	 *
 	 * @return string The current UTC time as `Y-m-d H:i:s`.
 	 */
 	public static function now() {
@@ -103,6 +105,8 @@ class Utill {
 	}
 
 	/**
+	 * Formats a byte count for display.
+	 *
 	 * @param int|float $bytes Size in bytes.
 	 * @return string Human-readable size, e.g. "12 MB".
 	 */

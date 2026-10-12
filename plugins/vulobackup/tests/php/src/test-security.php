@@ -59,11 +59,11 @@ class SecurityTest extends TestCase {
 	 */
 	private function manifest() {
 		return array(
-			'format'  => 1,
-			'id'      => '20261010-203347-0bf95491',
-			'name'    => 'Full backup',
-			'type'    => 'full',
-			'site'    => array(
+			'format'   => 1,
+			'id'       => '20261010-203347-0bf95491',
+			'name'     => 'Full backup',
+			'type'     => 'full',
+			'site'     => array(
 				'home'      => 'https://shop.example.com',
 				'siteurl'   => 'https://shop.example.com',
 				'prefix'    => 'wp_',
@@ -80,11 +80,11 @@ class SecurityTest extends TestCase {
 				'count'   => 3,
 				'bytes'   => 300,
 				'by_area' => array(
-					'uploads'  => array(
+					'uploads' => array(
 						'files' => 3,
 						'bytes' => 300,
 					),
-					'../etc'   => array(
+					'../etc'  => array(
 						'files' => 1,
 						'bytes' => 1,
 					),
@@ -139,31 +139,31 @@ class SecurityTest extends TestCase {
 		};
 
 		return array(
-			'not an array'            => array( static fn() => 'manifest' ),
-			'no parts'                => array( static fn( $m ) => array_merge( $m, array( 'parts' => array() ) ) ),
-			'newer format'            => array( static fn( $m ) => array_merge( $m, array( 'format' => 99 ) ) ),
-			'unknown type'            => array( static fn( $m ) => array_merge( $m, array( 'type' => 'everything' ) ) ),
-			'part outside the folder' => array( $part( '../../wp-config.php' ) ),
-			'part with a folder'      => array( $part( 'sub/files-001.zip' ) ),
-			'php part'                => array( $part( 'shell.php' ) ),
-			'double extension'        => array( $part( 'files-001.zip.php' ) ),
-			'duplicate part'          => array( $part( 'database.sql.gz' ) ),
+			'not an array'                   => array( static fn() => 'manifest' ),
+			'no parts'                       => array( static fn( $m ) => array_merge( $m, array( 'parts' => array() ) ) ),
+			'newer format'                   => array( static fn( $m ) => array_merge( $m, array( 'format' => 99 ) ) ),
+			'unknown type'                   => array( static fn( $m ) => array_merge( $m, array( 'type' => 'everything' ) ) ),
+			'part outside the folder'        => array( $part( '../../wp-config.php' ) ),
+			'part with a folder'             => array( $part( 'sub/files-001.zip' ) ),
+			'php part'                       => array( $part( 'shell.php' ) ),
+			'double extension'               => array( $part( 'files-001.zip.php' ) ),
+			'duplicate part'                 => array( $part( 'database.sql.gz' ) ),
 			'encrypted name, plain manifest' => array( $part( 'files-001.zip.enc' ) ),
-			'bad checksum'            => array(
+			'bad checksum'                   => array(
 				static function ( $m ) {
 					$m['parts'][0]['sha256'] = 'zz';
 
 					return $m;
 				},
 			),
-			'negative size'           => array(
+			'negative size'                  => array(
 				static function ( $m ) {
 					$m['parts'][0]['bytes'] = -5;
 
 					return $m;
 				},
 			),
-			'encrypted without salt'  => array(
+			'encrypted without salt'         => array(
 				static function ( $m ) {
 					$m['encrypted']        = true;
 					$m['parts'][0]['name'] = 'database.sql.gz.enc';
@@ -197,7 +197,7 @@ class SecurityTest extends TestCase {
 
 		$tampered = array(
 			'wrong password'   => array( $encrypted, 'wrong password' ),
-			'one byte changed' => array( substr_replace( $encrypted, chr( ord( $encrypted[ 5000 ] ) ^ 1 ), 5000, 1 ), 'correct horse battery' ),
+			'one byte changed' => array( substr_replace( $encrypted, chr( ord( $encrypted[5000] ) ^ 1 ), 5000, 1 ), 'correct horse battery' ),
 			'cut short'        => array( substr( $encrypted, 0, Crypto::CHUNK + 500 ), 'correct horse battery' ),
 			'last chunk gone'  => array( substr( $encrypted, 0, strlen( Crypto::MAGIC ) + Crypto::SALT_BYTES + 24 + 2 * ( Crypto::CHUNK + 17 ) ), 'correct horse battery' ),
 			'data appended'    => array( $encrypted . 'extra', 'correct horse battery' ),

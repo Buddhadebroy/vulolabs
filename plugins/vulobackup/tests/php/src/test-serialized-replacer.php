@@ -44,13 +44,13 @@ class SerializedReplacerTest extends TestCase {
 
 	public function test_serialized_data_stays_valid() {
 		$data = array(
-			'url'    => 'http://old.example/page',
-			'count'  => 3,
-			'ratio'  => 1.5,
-			'flag'   => true,
-			'none'   => null,
-			'list'   => array( 'http://old.example/a', 'unrelated', array( 'deep' => 'x http://old.example/z y' ) ),
-			'utf8'   => 'héllo http://old.example/ü 😀',
+			'url'                    => 'http://old.example/page',
+			'count'                  => 3,
+			'ratio'                  => 1.5,
+			'flag'                   => true,
+			'none'                   => null,
+			'list'                   => array( 'http://old.example/a', 'unrelated', array( 'deep' => 'x http://old.example/z y' ) ),
+			'utf8'                   => 'héllo http://old.example/ü 😀',
 			'http://old.example/key' => 'keys are left as they are',
 		);
 
