@@ -5,13 +5,14 @@ import './AICopilot.scss';
 import {
 	ColumnComponent,
 	ContainerComponent,
+	ListComponent,
 	NavigatorHeaderComponent,
 	NoticeManager,
 	PopupComponent,
 	SectionComponent,
 	TooltipComponent,
 } from '@zyra/components';
-import { ButtonInput, FileInput } from '@zyra/inputs';
+import { ButtonInput, FileInput, TextInput } from '@zyra/inputs';
 import { getApiLink, scrollToId, sendApiResponse } from '@zyra/core';
 import ShowProPopup from '../../components/Popup/Popup';
 import { useAiCredits } from '../../services/useAiCredits';
@@ -26,7 +27,9 @@ import {
 	useCopilotChat,
 	CopilotAttachment,
 } from '../../services/useCopilotChat';
-import { ChatInput, AiChatCard, CopilotTurnBubble } from '../../components/ChatComposerCard';
+import { useGuidedCopilotFlow } from '../../services/useGuidedCopilotFlow';
+import { GUIDED_FLOW_ID_BY_PROMPT } from '../../services/copilotGuidedFlows';
+import { ChatInput, AiChatCard, ChatMessage, CopilotTurnBubble } from '../../components/ChatComposerCard';
 
 /** Mirrors Copilot.php's MAX_ATTACHMENTS. */
 const MAX_ATTACHMENTS = 3;
@@ -99,6 +102,20 @@ const AIAssistant = () => {
 	} = useCopilotChat('vulopilot-copilot-chat-error');
 	const [undoingRunId, setUndoingRunId] = useState<number | null>(null);
 
+	/** Starter prompts (and only starter prompts) walk their fixed question tree first - AI is asked only once, right at the end, via this onComplete. */
+	const {
+		activeFlow,
+		activeStep,
+		turns: guidedTurns,
+		findings: guidedFindings,
+		isLoadingFindings,
+		startFlow,
+		answerStep,
+		answerFinding,
+		cancelFlow,
+	} = useGuidedCopilotFlow((message) => send(message, [], [], autoApply));
+	const [otherAnswer, setOtherAnswer] = useState('');
+
 	/**
 	 * RecentConversationsCard.tsx's own click-to-load - the card renders below the composer.
 	 */
@@ -114,11 +131,19 @@ const AIAssistant = () => {
 	const [isAttachPanelOpen, setIsAttachPanelOpen] = useState(false);
 
 	/**
-	 * A starter chip starts the chat straight away - its title is sent as
-	 * the first message, no separate Send click needed.
+	 * A starter chip walks its own fixed question tree first (`useGuidedCopilotFlow`) - no AI call
+	 * until the last step. A free-typed message (not one of these chips) still goes straight to
+	 * the AI as before - this tree only exists for the 9 starter prompts.
 	 */
 	const handleSelectPrompt = (title: string) => {
-		if (isSending) {
+		if (isSending || activeFlow) {
+			return;
+		}
+
+		const prompt = SUGGESTED_PROMPTS.find((candidate) => candidate.title === title);
+
+		if (prompt && GUIDED_FLOW_ID_BY_PROMPT[prompt.id]) {
+			startFlow(GUIDED_FLOW_ID_BY_PROMPT[prompt.id]);
 			return;
 		}
 
@@ -287,6 +312,88 @@ const AIAssistant = () => {
 								isSending={isSending}
 								beforeComposer={
 									<>
+										{activeFlow && (
+											<div className="guided-flow-panel">
+												{guidedTurns.map((turn, index) => (
+													<ChatMessage
+														key={`guided-turn-${index}`}
+														sender={'user' === turn.role ? 'user' : 'ai'}
+													>
+														{turn.content}
+													</ChatMessage>
+												))}
+
+												{activeStep && 'findings' === activeStep.kind ? (
+													isLoadingFindings ? (
+														<p className="desc">
+															{__('Checking your site data…', 'vulopilot')}
+														</p>
+													) : guidedFindings.length > 0 ? (
+														<ListComponent
+															className="chip-grid"
+															items={guidedFindings.map((group) => ({
+																id: group.scanner_id,
+																icon: 'error',
+																title: group.label,
+																action: () => answerFinding(group),
+															}))}
+														/>
+													) : (
+														<p className="desc">
+															{__(
+																'No open findings here right now - moving to the next question.',
+																'vulopilot'
+															)}
+														</p>
+													)
+												) : activeStep ? (
+													<>
+														{activeStep.prefillHint && (
+															<p className="small desc">{activeStep.prefillHint}</p>
+														)}
+														{(activeStep.options?.length ?? 0) > 0 && (
+															<ListComponent
+																className="chip-grid"
+																items={(activeStep.options ?? []).map((option) => ({
+																	id: option.value,
+																	title: option.label,
+																	action: () => answerStep(option),
+																}))}
+															/>
+														)}
+														{(activeStep.allowOther ?? 0 === (activeStep.options?.length ?? 0)) && (
+															<div className="guided-flow-other-row">
+																<TextInput
+																	value={otherAnswer}
+																	onChange={(value: string) => setOtherAnswer(value)}
+																	placeholder={__('Or type your own answer…', 'vulopilot')}
+																/>
+																<ButtonInput
+																	buttons={{
+																		text: __('Answer', 'vulopilot'),
+																		color: 'purple',
+																		disabled: '' === otherAnswer.trim(),
+																		onClick: () => {
+																			answerStep({ value: 'other', label: otherAnswer.trim() });
+																			setOtherAnswer('');
+																		},
+																	}}
+																/>
+															</div>
+														)}
+													</>
+												) : null}
+
+												<ButtonInput
+													buttons={{
+														text: __('Cancel', 'vulopilot'),
+														color: 'gray',
+														onClick: cancelFlow,
+													}}
+												/>
+											</div>
+										)}
+
 										{attachments.length > 0 && (
 											<div className="chat-composer-chips">
 												{attachments.map((attachment) => (
@@ -336,11 +443,12 @@ const AIAssistant = () => {
 										value={chatMessage}
 										onChange={setChatMessage}
 										onSend={handleSend}
-										disabled={isSending}
-										placeholder={__(
-											'Ask VuloPilot anything about your website…',
-											'vulopilot'
-										)}
+										disabled={isSending || !!activeFlow}
+										placeholder={
+											activeFlow
+												? __('Answer the question above to continue…', 'vulopilot')
+												: __('Ask VuloPilot anything about your website…', 'vulopilot')
+										}
 										onAttach={toggleAttachPanel}
 										attachLabel={__('Attach', 'vulopilot')}
 										autoApply={{
