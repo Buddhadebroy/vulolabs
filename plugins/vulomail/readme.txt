@@ -220,3 +220,15 @@ No. Add an email connection and set it as primary to route WordPress emails thro
 = Will uninstalling delete my data? =
 
 Data is kept by default. You can choose Delete everything before deleting the plugin to remove its connections, settings and logs. Deactivation does not delete data.
+
+== Changelog ==
+
+= 1.0.0 =
+* First release.
+* Send WordPress email through SMTP or a provider API, with one-click presets for popular mailboxes.
+* Backup email connection with automatic failover.
+* SMS through Twilio, Vonage, Plivo or Clickatell.
+* SMS alerts for site and WooCommerce order events.
+* Email and SMS logs with search, failure reasons and resend.
+* Test email, test SMS and diagnostics.
+* Privacy controls: masked recipients, optional message storage, log retention.
