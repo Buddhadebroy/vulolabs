@@ -161,7 +161,6 @@ Send each submission to another service the moment it arrives, such as a CRM, sp
 * Background delivery, so visitors never wait
 * Automatic retries after 5 and 30 minutes, with every attempt logged on the submission
 * Safety rules: webhooks must use `https://` and cannot target private networks or your own server
-* **VuloForm Pro** adds ready-made connections to mailing lists and CRMs
 
 = Submissions manager =
 
@@ -266,10 +265,6 @@ Yes, by default. You can switch off **Save submissions on this site** in a form'
 = Can I export form submissions? =
 
 Yes. Use **Export CSV** on the Submissions screen. Your current search, status and date filters are applied.
-
-= Can I send form data to my CRM or other apps? =
-
-Yes. Add a custom webhook connector in the form's **Integrations** settings. VuloForm Pro adds ready-made connections to mailing lists and CRMs.
 
 = Does VuloForm send SMS text messages? =
 
