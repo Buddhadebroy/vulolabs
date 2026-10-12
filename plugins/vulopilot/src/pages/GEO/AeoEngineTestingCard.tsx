@@ -13,12 +13,7 @@ interface AeoEngineTestingCardProps {
 	pages: AeoPageRow[];
 }
 
-/**
- * "Engine Testing" - card shell only. The real single-page citation re-test
- * lives in Pro (AnswerEngineOptimization/src/EngineTestingPanel.tsx) and is
- * plugged in via the `vulopilot_aeo_engine_testing_panel` filter; without it,
- * only inert placeholder controls render.
- */
+/** Card shell only - plugs in via the `vulopilot_aeo_engine_testing_panel` filter, else inert placeholders render. */
 const AeoEngineTestingCard = ({ isActive, pages }: AeoEngineTestingCardProps) => {
 	const Panel = useFilterSlot<ComponentType<{ pages: AeoPageRow[] }>>(
 		'vulopilot_aeo_engine_testing_panel'

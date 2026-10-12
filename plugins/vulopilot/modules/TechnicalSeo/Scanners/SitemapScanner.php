@@ -51,8 +51,16 @@ class SitemapScanner extends ScannerUtil {
 	public function scan(): array {
 		$findings = array();
 
-		if ( $this->url_returns_ok( home_url( '/wp-sitemap.xml' ) ) || $this->url_returns_ok( home_url( '/sitemap.xml' ) ) ) {
-			return $findings;
+		// Trust robots.txt's own declared sitemap ahead of guessing the two common conventions.
+		$candidates = array_merge(
+			$this->get_declared_sitemap_urls(),
+			array( home_url( '/wp-sitemap.xml' ), home_url( '/sitemap.xml' ) )
+		);
+
+		foreach ( $candidates as $url ) {
+			if ( $this->url_returns_ok( $url ) ) {
+				return $findings;
+			}
 		}
 
 		$findings[] = new Finding(
@@ -65,6 +73,38 @@ class SitemapScanner extends ScannerUtil {
 		);
 
 		return $findings;
+	}
+
+	/**
+	 * Real `Sitemap:` directive URL(s) this site's own `/robots.txt` declares.
+	 *
+	 * @return string[]
+	 */
+	private function get_declared_sitemap_urls(): array {
+		$response = wp_remote_get(
+			home_url( '/robots.txt' ),
+			array(
+				'timeout'   => self::REQUEST_TIMEOUT_SECONDS,
+				'sslverify' => false,
+			)
+		);
+
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return array();
+		}
+
+		$lines = preg_split( '/\r\n|\r|\n/', (string) wp_remote_retrieve_body( $response ) );
+		$urls  = array();
+
+		foreach ( $lines ? $lines : array() as $line ) {
+			$line = trim( $line );
+
+			if ( 0 === stripos( $line, 'sitemap:' ) ) {
+				$urls[] = trim( substr( $line, strlen( 'sitemap:' ) ) );
+			}
+		}
+
+		return $urls;
 	}
 
 	/**

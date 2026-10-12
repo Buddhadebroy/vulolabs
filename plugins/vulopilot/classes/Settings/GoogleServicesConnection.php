@@ -16,19 +16,6 @@ class GoogleServicesConnection {
 
 	private const OPTION_KEY = 'vulopilot_google_connection';
 
-	/**
-	 * One combined consent screen for all three services.
-	 */
-	private const SCOPES = array(
-		'https://www.googleapis.com/auth/webmasters.readonly',
-		'https://www.googleapis.com/auth/analytics.readonly',
-		'https://www.googleapis.com/auth/adsense.readonly',
-	);
-
-	private const AUTHORIZE_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
-
-	private const TOKEN_URL = 'https://oauth2.googleapis.com/token';
-
 	private const SITES_URL = 'https://www.googleapis.com/webmasters/v3/sites';
 
 	/**
@@ -61,8 +48,6 @@ class GoogleServicesConnection {
 				'adsense_account_id'   => '',
 				'adsense_account_name' => '',
 				'connected_at'         => '',
-				// 'direct' or 'broker' - which path issued the current tokens.
-				'via'                  => '',
 			)
 		);
 	}
@@ -86,37 +71,14 @@ class GoogleServicesConnection {
 	}
 
 	/**
-	 * Whether a shared Client ID/Secret is configured for this build.
-	 *
-	 * @return bool
-	 */
-	public function has_client_credentials(): bool {
-		return defined( 'VULOPILOT_GOOGLE_CLIENT_ID' ) && '' !== VULOPILOT_GOOGLE_CLIENT_ID
-			&& defined( 'VULOPILOT_GOOGLE_CLIENT_SECRET' ) && '' !== VULOPILOT_GOOGLE_CLIENT_SECRET;
-	}
-
-	/**
-	 * Whether the broker-based Google connect flow is configured.
+	 * Whether the broker-based Google connect flow is configured. This is the only way the
+	 * plugin ever obtains Google OAuth tokens - the Client ID/Secret live solely in VuloCloud.
 	 *
 	 * @return bool
 	 */
 	public function has_broker(): bool {
-		return defined( 'VULOPILOT_GOOGLE_BROKER_URL' ) && '' !== VULOPILOT_GOOGLE_BROKER_URL
-			&& defined( 'VULOPILOT_GOOGLE_APPLICATION_ID' ) && '' !== VULOPILOT_GOOGLE_APPLICATION_ID;
-	}
-
-	/**
-	 * @return string|null
-	 */
-	public function get_client_id(): ?string {
-		return $this->has_client_credentials() ? VULOPILOT_GOOGLE_CLIENT_ID : null;
-	}
-
-	/**
-	 * @return string|null
-	 */
-	private function get_client_secret(): ?string {
-		return $this->has_client_credentials() ? VULOPILOT_GOOGLE_CLIENT_SECRET : null;
+		return defined( 'VULOPILOT_VULOCLOUD_URL' ) && '' !== VULOPILOT_VULOCLOUD_URL
+			&& defined( 'VULOPILOT_APPLICATION_ID' ) && '' !== VULOPILOT_APPLICATION_ID;
 	}
 
 	/**
@@ -124,37 +86,21 @@ class GoogleServicesConnection {
 	 * a nonce and the tab to return to.
 	 *
 	 * @param string $return_to One of self::RETURN_TARGETS; anything else silently falls back to 'settings'.
-	 * @return string|null Null if neither a broker nor embedded client credentials are configured for this build yet.
+	 * @return string|null Null if the broker isn't configured for this build yet.
 	 */
 	public function get_authorization_url( string $return_to = 'settings' ): ?string {
 		if ( ! in_array( $return_to, self::RETURN_TARGETS, true ) ) {
 			$return_to = 'settings';
 		}
 
-		$state = self::encode_state( $return_to );
-
-		if ( $this->has_broker() ) {
-			return ( new GoogleOAuthBrokerClient( VULOPILOT_GOOGLE_BROKER_URL ) )
-				->get_authorize_url( VULOPILOT_GOOGLE_APPLICATION_ID, home_url(), $this->get_redirect_uri(), $state );
-		}
-
-		$client_id = $this->get_client_id();
-
-		if ( ! $client_id ) {
+		if ( ! $this->has_broker() ) {
 			return null;
 		}
 
-		$params = array(
-			'client_id'     => $client_id,
-			'redirect_uri'  => $this->get_redirect_uri(),
-			'response_type' => 'code',
-			'scope'         => implode( ' ', self::SCOPES ),
-			'access_type'   => 'offline',
-			'prompt'        => 'consent',
-			'state'         => $state,
-		);
+		$state = self::encode_state( $return_to );
 
-		return self::AUTHORIZE_URL . '?' . http_build_query( $params );
+		return ( new GoogleOAuthBrokerClient( VULOPILOT_VULOCLOUD_URL ) )
+			->get_authorize_url( VULOPILOT_APPLICATION_ID, home_url(), $this->get_redirect_uri(), $state );
 	}
 
 	/**
@@ -215,71 +161,13 @@ class GoogleServicesConnection {
 	}
 
 	/**
-	 * POSTs the authorization_code exchange to Google's token endpoint.
-	 *
-	 * @param string $code The `code` query param Google's redirect carried back.
-	 * @return true|\WP_Error
-	 */
-	public function exchange_code_for_tokens( string $code ) {
-		$client_id     = $this->get_client_id();
-		$client_secret = $this->get_client_secret();
-
-		if ( ! $client_id || ! $client_secret ) {
-			return new \WP_Error( 'vulopilot_gsc_no_credentials', __( 'No Google OAuth Client ID/Secret saved yet.', 'vulopilot' ), array( 'status' => 400 ) );
-		}
-
-		$response = wp_remote_post(
-			self::TOKEN_URL,
-			array(
-				'timeout' => 15,
-				'body'    => array(
-					'code'          => $code,
-					'client_id'     => $client_id,
-					'client_secret' => $client_secret,
-					'redirect_uri'  => $this->get_redirect_uri(),
-					'grant_type'    => 'authorization_code',
-				),
-			)
-		);
-
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		$body = json_decode( (string) wp_remote_retrieve_body( $response ), true );
-
-		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) || empty( $body['access_token'] ) ) {
-			return new \WP_Error(
-				'vulopilot_gsc_token_exchange_failed',
-				$body['error_description'] ?? $body['error'] ?? __( 'Google did not return an access token.', 'vulopilot' ),
-				array( 'status' => 502 )
-			);
-		}
-
-		$update = array(
-			'access_token_enc' => CredentialEncryption::encrypt( $body['access_token'] ),
-			'token_expires_at' => time() + (int) ( $body['expires_in'] ?? 3600 ),
-			'connected_at'     => current_time( 'mysql' ),
-			'via'              => 'direct',
-		);
-
-		if ( ! empty( $body['refresh_token'] ) ) {
-			$update['refresh_token_enc'] = CredentialEncryption::encrypt( $body['refresh_token'] );
-		}
-
-		$this->save_connection( $update );
-
-		return true;
-	}
-
-	/**
 	 * Exchanges the broker's single-use code for tokens and stores them.
 	 *
 	 * @param string $code The `code` query param the redirect carried back.
 	 * @return true|\WP_Error
 	 */
 	public function exchange_broker_code_for_tokens( string $code ) {
-		$result = ( new GoogleOAuthBrokerClient( VULOPILOT_GOOGLE_BROKER_URL ) )->exchange( home_url(), $code );
+		$result = ( new GoogleOAuthBrokerClient( VULOPILOT_VULOCLOUD_URL ) )->exchange( home_url(), $code );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -316,62 +204,20 @@ class GoogleServicesConnection {
 			return false;
 		}
 
-		if ( 'broker' === $connection['via'] ) {
-			if ( ! $this->has_broker() ) {
-				// Connected via broker, but this build's broker URL was since unset.
-				return false;
-			}
-
-			$result = ( new GoogleOAuthBrokerClient( VULOPILOT_GOOGLE_BROKER_URL ) )->refresh( VULOPILOT_GOOGLE_APPLICATION_ID, home_url(), $refresh_token );
-
-			if ( is_wp_error( $result ) ) {
-				return false;
-			}
-
-			$this->save_connection(
-				array(
-					'access_token_enc' => CredentialEncryption::encrypt( $result['access_token'] ),
-					'token_expires_at' => time() + $result['expires_in'],
-				)
-			);
-
-			return true;
-		}
-
-		$client_id     = $this->get_client_id();
-		$client_secret = $this->get_client_secret();
-
-		if ( ! $client_id || ! $client_secret ) {
+		if ( ! $this->has_broker() ) {
 			return false;
 		}
 
-		$response = wp_remote_post(
-			self::TOKEN_URL,
-			array(
-				'timeout' => 15,
-				'body'    => array(
-					'client_id'     => $client_id,
-					'client_secret' => $client_secret,
-					'refresh_token' => $refresh_token,
-					'grant_type'    => 'refresh_token',
-				),
-			)
-		);
+		$result = ( new GoogleOAuthBrokerClient( VULOPILOT_VULOCLOUD_URL ) )->refresh( VULOPILOT_APPLICATION_ID, home_url(), $refresh_token );
 
-		if ( is_wp_error( $response ) ) {
-			return false;
-		}
-
-		$body = json_decode( (string) wp_remote_retrieve_body( $response ), true );
-
-		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) || empty( $body['access_token'] ) ) {
+		if ( is_wp_error( $result ) ) {
 			return false;
 		}
 
 		$this->save_connection(
 			array(
-				'access_token_enc' => CredentialEncryption::encrypt( $body['access_token'] ),
-				'token_expires_at' => time() + (int) ( $body['expires_in'] ?? 3600 ),
+				'access_token_enc' => CredentialEncryption::encrypt( $result['access_token'] ),
+				'token_expires_at' => time() + $result['expires_in'],
 			)
 		);
 
@@ -505,7 +351,6 @@ class GoogleServicesConnection {
 				'adsense_account_id'   => '',
 				'adsense_account_name' => '',
 				'connected_at'         => '',
-				'via'                  => '',
 			)
 		);
 	}
@@ -518,7 +363,6 @@ class GoogleServicesConnection {
 
 		return array(
 			'connected'              => $this->is_connected(),
-			'has_client_credentials' => $this->has_client_credentials(),
 			'has_broker'             => $this->has_broker(),
 			'search_console_site'    => $connection['search_console_site'],
 			'ga4_account_id'         => $connection['ga4_account_id'],

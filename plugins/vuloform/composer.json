@@ -1,0 +1,47 @@
+{
+    "name": "vulolabs/vuloform",
+    "description": "VuloForm - Drag-and-drop WordPress form builder",
+    "type": "wordpress-plugin",
+    "homepage": "https://vulolabs.com/",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "VuloLabs",
+            "email": "contact@vulolabs.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "VuloForm\\": "classes/"
+        },
+        "classmap": [
+            "classes/"
+        ]
+    },
+    "require": {
+        "php": ">=7.4"
+    },
+    "config": {
+        "platform": {
+            "php": "8.0"
+        },
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "require-dev": {
+        "wp-coding-standards/wpcs": "dev-develop",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+        "phpcompatibility/phpcompatibility-wp": "dev-master",
+        "phpunit/phpunit": "9.6.x-dev",
+        "yoast/phpunit-polyfills": "^4.0@dev",
+        "brain/monkey": "^2.0@dev"
+    },
+    "scripts": {
+        "phpcs": "vendor/bin/phpcs . --standard=../../phpcs.xml.dist -p -s",
+        "phpfix": "vendor/bin/phpcbf . --standard=../../phpcs.xml.dist -p",
+        "phpcs:report": "vendor/bin/phpcs . --standard=../../phpcs.xml.dist --report-file=phpreport.txt",
+        "test": "vendor/bin/phpunit"
+    }
+}

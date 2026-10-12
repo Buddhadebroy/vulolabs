@@ -85,8 +85,8 @@ const QuickActionsCard = () => {
 		document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 	};
 
-	// Content Planner ships in Pro (ContentOptimization's `ContentPlannerPopup`,
-	// registered on this slot); without it the row is a Pro-tagged upsell.
+	// Content Planner is registered on this slot (ContentOptimization's `ContentPlannerPopup`);
+	// without it the row is an upsell tag.
 	const PlannerPopup = useFilterSlot<
 		ComponentType<{ open: boolean; onClose: () => void }>
 	>('vulopilot_content_planner');

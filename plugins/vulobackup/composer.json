@@ -1,0 +1,56 @@
+{
+    "name": "vulolabs/vulobackup",
+    "description": "VuloBackup - WordPress Backup, Restore and Migration",
+    "type": "wordpress-plugin",
+    "homepage": "https://vulolabs.com/",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "VuloLabs",
+            "email": "contact@vulolabs.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "VuloBackup\\": "classes/"
+        },
+        "classmap": [
+            "classes/"
+        ]
+    },
+    "autoload-dev": {
+        "classmap": [
+            "tests/php/src/"
+        ]
+    },
+    "require": {
+        "php": ">=7.4",
+        "phpseclib/phpseclib": "^3.0",
+        "ext-zip": "*",
+        "paragonie/constant_time_encoding": "^2.6"
+    },
+    "config": {
+        "platform": {
+            "php": "8.0"
+        },
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "require-dev": {
+        "wp-coding-standards/wpcs": "dev-develop",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+        "phpcompatibility/phpcompatibility-wp": "dev-master",
+        "phpunit/phpunit": "9.6.x-dev",
+        "yoast/phpunit-polyfills": "^4.0@dev",
+        "brain/monkey": "^2.0@dev"
+    },
+    "scripts": {
+        "phpcs": "vendor/bin/phpcs . --standard=../../phpcs.xml.dist -p -s",
+        "phpfix": "vendor/bin/phpcbf . --standard=../../phpcs.xml.dist -p",
+        "phpcs:report": "vendor/bin/phpcs . --standard=../../phpcs.xml.dist --report-file=phpreport.txt",
+        "test": "vendor/bin/phpunit"
+    },
+    "prefer-stable": true
+}

@@ -1,0 +1,621 @@
+// Layout glue for VuloBackup's own screens. Colours, spacing and type come from zyra's design tokens
+// (the `--*` custom properties its components already define), so the plugin follows the VuloLabs
+// theme rather than declaring its own.
+
+// zyra's shared header always prints a "Pro: Not Installed" badge next to the version. There is no
+// VuloBackup Pro to install, so that badge would only mislead.
+.admin-header .version-tag > :nth-child(2) {
+	display: none;
+}
+
+.vulobackup-inline {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	flex-wrap: wrap;
+}
+
+.vulobackup-detail {
+	display: grid;
+	grid-template-columns: minmax(8rem, max-content) 1fr;
+	gap: 0.5rem 1rem;
+	margin: 0 0 1rem;
+
+	dt {
+		color: var(--sub-text-color);
+	}
+
+	dd {
+		margin: 0;
+		overflow-wrap: anywhere;
+	}
+}
+
+.vulobackup-popup-body {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	padding: 1.25rem 1.5rem;
+}
+
+.vulobackup-form-footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+}
+
+// Tables: two stacked lines per cell keep the row short.
+.vulobackup-cell {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+	min-width: 0;
+}
+
+.vulobackup-primary {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	font-weight: 600;
+	color: var(--text-color);
+}
+
+.vulobackup-secondary {
+	font-size: 0.8125rem;
+	color: var(--sub-text-color);
+	overflow-wrap: anywhere;
+}
+
+.vulobackup-badges {
+	display: flex;
+	gap: 0.375rem;
+	flex-wrap: wrap;
+}
+
+// A running job: what it is doing, how far along, and a way to stop it.
+.vulobackup-job {
+	display: flex;
+	flex-direction: column;
+	gap: 0.625rem;
+	margin-bottom: 1rem;
+	padding: 1rem 1.25rem;
+	border: 0.063rem solid color-mix(in srgb, var(--color-primary) 35%, var(--border-color));
+	border-radius: 0.5rem;
+	background: var(--background-white);
+}
+
+.vulobackup-job-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	flex-wrap: wrap;
+
+	strong {
+		font-size: 1rem;
+	}
+
+	span {
+		color: var(--sub-text-color);
+	}
+}
+
+.vulobackup-bar {
+	height: 0.5rem;
+	border-radius: 0.25rem;
+	background: color-mix(in srgb, var(--text-color) 8%, transparent);
+	overflow: hidden;
+
+	> span {
+		display: block;
+		height: 100%;
+		border-radius: inherit;
+		background: var(--color-primary);
+		transition: width 0.4s ease;
+	}
+}
+
+// Lists inside cards: activity, checks, archives.
+.vulobackup-list {
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+
+	> li {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 0.625rem 0;
+		border-bottom: 0.063rem solid var(--border-color);
+
+		&:last-child {
+			border-bottom: 0;
+		}
+	}
+}
+
+.vulobackup-log {
+	max-height: 16rem;
+	overflow: auto;
+	margin: 0;
+	padding: 0.75rem;
+	border: 0.063rem solid var(--border-color);
+	border-radius: 0.45rem;
+	background: var(--background-color);
+	font-size: 0.8125rem;
+	list-style: none;
+
+	li {
+		padding: 0.125rem 0;
+		overflow-wrap: anywhere;
+	}
+
+	.is-warning {
+		color: #8a5a00;
+	}
+
+	.is-error {
+		color: #b32d2e;
+	}
+
+	time {
+		color: var(--sub-text-color);
+		margin-right: 0.5rem;
+	}
+}
+
+.vulobackup-hash {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.75rem;
+	color: var(--sub-text-color);
+	overflow-wrap: anywhere;
+}
+
+// Choices with a tick box: folders to back up or restore.
+.vulobackup-checks {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+
+	label {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.625rem;
+		padding: 0.625rem 0.75rem;
+		border: 0.063rem solid var(--border-color);
+		border-radius: 0.5rem;
+		background: var(--background-white);
+		cursor: pointer;
+	}
+
+	input[type='checkbox'] {
+		margin: 0.2rem 0 0;
+	}
+
+	strong {
+		display: block;
+		font-weight: 600;
+	}
+
+	span {
+		font-size: 0.8125rem;
+		color: var(--sub-text-color);
+	}
+}
+
+.vulobackup-confirm input {
+	max-width: 14rem;
+	font-weight: 600;
+	letter-spacing: 0.05em;
+}
+
+.vulobackup-control {
+	display: flex;
+	flex-direction: column;
+	gap: 0.3125rem;
+	min-width: 0;
+}
+
+// A short setting on one line: its label, then its control, so the two read as a pair.
+.vulobackup-control.is-inline {
+	display: grid;
+	grid-template-columns: 5.5rem minmax(0, 1fr);
+	align-items: center;
+	gap: 0.25rem 0.625rem;
+
+	.vulobackup-control-desc {
+		grid-column: 2;
+	}
+}
+
+.vulobackup-control-label {
+	font-size: 0.8125rem;
+	font-weight: 600;
+	line-height: 1.3;
+	color: var(--text-color);
+}
+
+.vulobackup-control-desc {
+	font-size: 0.75rem;
+	line-height: 1.4;
+	color: var(--sub-text-color);
+	overflow-wrap: anywhere;
+}
+
+.vulobackup-control-pair {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	align-items: start;
+	gap: 0.75rem;
+}
+
+.vulobackup-switch-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	cursor: pointer;
+}
+
+.vulobackup-switch-text {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+	min-width: 0;
+}
+
+.vulobackup-switch {
+	position: relative;
+	flex: none;
+	width: 2.25rem;
+	height: 1.25rem;
+	padding: 0;
+	border: 0;
+	border-radius: 1rem;
+	background: var(--border-color);
+	cursor: pointer;
+	transition: background 0.15s ease;
+
+	span {
+		position: absolute;
+		top: 0.125rem;
+		left: 0.125rem;
+		width: 1rem;
+		height: 1rem;
+		border-radius: 50%;
+		background: #fff;
+		box-shadow: 0 0.063rem 0.125rem rgb(0 0 0 / 25%);
+		transition: transform 0.15s ease;
+	}
+
+	&.is-on {
+		background: var(--color-primary);
+
+		span {
+			transform: translateX(1rem);
+		}
+	}
+
+	&:focus-visible {
+		outline: 0.125rem solid var(--color-primary);
+		outline-offset: 0.125rem;
+	}
+}
+
+.vulobackup-segmented {
+	display: flex;
+	padding: 0.1875rem;
+	border-radius: 0.5rem;
+	background: color-mix(in srgb, var(--text-color) 6%, transparent);
+
+	button {
+		flex: 1;
+		padding: 0.375rem 0.25rem;
+		border: 0;
+		border-radius: 0.375rem;
+		background: none;
+		font-size: 0.8125rem;
+		color: var(--sub-text-color);
+		cursor: pointer;
+
+		&.is-active {
+			background: var(--background-white);
+			box-shadow: 0 0.063rem 0.125rem rgb(0 0 0 / 15%);
+			font-weight: 600;
+			color: var(--color-primary);
+		}
+
+		&:focus-visible {
+			outline: 0.125rem solid var(--color-primary);
+		}
+	}
+}
+
+// One notification or webhook in the form settings: a line that opens to edit.
+.vulobackup-item {
+	border: 0.063rem solid var(--border-color);
+	border-radius: 0.5rem;
+	background: var(--background-white);
+
+	&.is-open {
+		border-color: color-mix(in srgb, var(--color-primary) 45%, var(--border-color));
+	}
+}
+
+.vulobackup-item-head {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 0.75rem 0.5rem 0;
+}
+
+.vulobackup-item-toggle {
+	display: grid;
+	flex: none;
+	width: 2.5rem;
+	height: 2.5rem;
+	margin-left: 0.5rem;
+	border: 0;
+	border-radius: 0.375rem;
+	background: none;
+	cursor: pointer;
+	place-items: center;
+
+	> i {
+		font-size: 1.25rem;
+		color: var(--color-primary);
+	}
+
+	&:focus-visible {
+		outline: 0.125rem solid var(--color-primary);
+	}
+}
+
+.vulobackup-item.is-off .vulobackup-item-toggle,
+.vulobackup-item.is-off .vulobackup-item-text {
+	opacity: 0.6;
+}
+
+.vulobackup-item-text {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	align-items: flex-start;
+	min-width: 0;
+}
+
+// The name, typed in place. It looks like a heading until it is pointed at or edited.
+.vulobackup-item-head input.vulobackup-item-name {
+	max-width: 100%;
+	min-height: 0;
+	margin: 0 0 0 -0.25rem;
+	padding: 0 0.25rem;
+	border: 0.063rem solid transparent;
+	border-radius: 0.25rem;
+	background: none;
+	box-shadow: none;
+	color: var(--text-color);
+	font: inherit;
+	font-weight: 600;
+	line-height: 1.5;
+	text-overflow: ellipsis;
+
+	&:hover {
+		border-color: var(--border-color);
+	}
+
+	&:focus {
+		border-color: var(--color-primary);
+		background: var(--background-white);
+		outline: none;
+	}
+}
+
+.vulobackup-item-summary {
+	max-width: 100%;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--sub-text-color);
+	font: inherit;
+	font-size: 0.8125rem;
+	text-align: left;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+.vulobackup-item-state {
+	font-size: 0.75rem;
+	color: var(--sub-text-color);
+}
+
+.vulobackup-item-head .is-flipped {
+	display: inline-block;
+	transform: rotate(180deg);
+}
+
+.vulobackup-item-body {
+	border-top: 0.063rem solid var(--border-color);
+	border-radius: 0 0 0.5rem 0.5rem;
+	overflow: hidden;
+}
+
+// Nothing in a list yet.
+.vulobackup-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 2.5rem 1rem;
+	border: 0.063rem dashed var(--border-color);
+	border-radius: 0.5rem;
+	background: var(--background-white);
+	color: var(--sub-text-color);
+	text-align: center;
+
+	i {
+		font-size: 1.75rem;
+		color: var(--color-primary);
+	}
+
+	strong {
+		color: var(--text-color);
+	}
+
+	span {
+		max-width: 34rem;
+	}
+}
+
+.vulobackup-link {
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--color-primary);
+	font: inherit;
+	font-size: 0.8125rem;
+	text-decoration: underline;
+	cursor: pointer;
+
+	&:focus-visible {
+		outline: 0.125rem solid var(--color-primary);
+		outline-offset: 0.125rem;
+	}
+}
+
+// In the settings column a segmented choice is as wide as its options, not the column.
+.settings-input-content > .vulobackup-segmented {
+	display: inline-flex;
+	max-width: 100%;
+
+	button {
+		padding-inline: 0.875rem;
+		white-space: nowrap;
+	}
+}
+
+// What a group is for, with its "Add" button.
+.vulobackup-subhead {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	flex-wrap: wrap;
+
+	p {
+		flex: 1 1 20rem;
+		margin: 0;
+		color: var(--sub-text-color);
+	}
+}
+
+.vulobackup-sections {
+	background: var(--background-white);
+}
+
+.vulobackup-section-action {
+	margin-top: 0.75rem;
+}
+
+.vulobackup-sections .typography-desc {
+	overflow-wrap: anywhere;
+}
+
+// A switch or notice that spans the settings column.
+.vulobackup-wide {
+	width: 100%;
+}
+
+.vulobackup-wide .vulobackup-switch-row {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 0.75rem 1rem;
+	border: 0.063rem solid var(--border-color);
+	border-radius: 0.5rem;
+}
+
+// A short caution inside a section, with a link to where it is resolved.
+.vulobackup-note {
+	margin: 0;
+	padding: 0.75rem 1rem;
+	border: 0.063rem solid #f0c36d;
+	border-radius: 0.5rem;
+	background: #fff8e6;
+	color: #5c3b00;
+
+	a {
+		font-weight: 600;
+		color: var(--color-primary);
+	}
+}
+
+// A quiet text button, for a secondary action beside a section's description.
+.vulobackup-link-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--color-primary);
+	font: inherit;
+	font-size: 0.8125rem;
+	cursor: pointer;
+
+	&.is-danger {
+		color: #d63638;
+	}
+
+	&:hover,
+	&:focus-visible {
+		text-decoration: underline;
+	}
+}
+
+// A titled block inside a settings group, such as Webhooks inside Integrations.
+.vulobackup-subhead h3 {
+	margin: 0 0 0.125rem;
+	font-size: 1rem;
+	font-weight: 600;
+	color: var(--text-color);
+}
+
+.vulobackup-subhead > div {
+	flex: 1 1 20rem;
+	min-width: 0;
+}
+
+.vulobackup-subhead > div p {
+	margin: 0;
+}
+
+// Blocks inside a settings section that take its whole width.
+.vulobackup-wide > .vulobackup-subhead,
+.vulobackup-wide > .vulobackup-item,
+.vulobackup-wide > .vulobackup-checks,
+.vulobackup-wide > .vulobackup-detail,
+.vulobackup-wide > .vulobackup-empty,
+.vulobackup-wide > details {
+	flex: 1 1 100%;
+	width: 100%;
+	min-width: 0;
+}
+
+.vulobackup-item .vulobackup-popup-body {
+	border-top: 0.063rem solid var(--border-color);
+	padding: 0.875rem 1rem;
+}
+
+.vulobackup-item-text > strong {
+	font-weight: 600;
+}
+
+details > summary {
+	cursor: pointer;
+}

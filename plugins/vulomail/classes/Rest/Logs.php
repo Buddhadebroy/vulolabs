@@ -1,0 +1,237 @@
+<?php
+/**
+ * Logs REST controller file.
+ *
+ * @package VuloMail
+ */
+
+namespace VuloMail\Rest;
+
+use VuloMail\Utill;
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * REST controller for vulomail/v1/logs - list, view, delete and resend delivery log entries.
+ */
+class Logs extends Controller {
+
+	/**
+	 * REST base for this controller.
+	 *
+	 * @var string
+	 */
+	protected $rest_base = 'logs';
+
+	/**
+	 * Registers this controller's routes.
+	 *
+	 * @return void
+	 */
+	public function register_routes() {
+		register_rest_route(
+			VuloMail()->rest_namespace,
+			'/' . $this->rest_base,
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_items' ),
+					'permission_callback' => array( $this, 'check_permission' ),
+				),
+				array(
+					'methods'             => \WP_REST_Server::DELETABLE,
+					'callback'            => array( $this, 'delete_items' ),
+					'permission_callback' => array( $this, 'check_permission' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			VuloMail()->rest_namespace,
+			'/' . $this->rest_base . '/(?P<id>\d+)',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_item' ),
+					'permission_callback' => array( $this, 'check_permission' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			VuloMail()->rest_namespace,
+			'/' . $this->rest_base . '/(?P<id>\d+)/resend',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'resend_item' ),
+					'permission_callback' => array( $this, 'check_permission' ),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Lists delivery log entries, filtered and paginated.
+	 *
+	 * @param \WP_REST_Request $request Request.
+	 * @return \WP_REST_Response
+	 */
+	public function get_items( $request ) {
+		$channel = sanitize_key( (string) $request->get_param( 'channel' ) );
+		$status  = sanitize_key( (string) $request->get_param( 'status' ) );
+
+		$result = VuloMail()->logs->query(
+			array(
+				'channel'  => in_array( $channel, array( Utill::CHANNEL_EMAIL, Utill::CHANNEL_SMS ), true ) ? $channel : '',
+				'status'   => in_array( $status, array( 'sent', 'failed' ), true ) ? $status : '',
+				'search'   => sanitize_text_field( (string) $request->get_param( 'search' ) ),
+				'after'    => self::day_boundary( $request->get_param( 'after' ), '00:00:00' ),
+				'before'   => self::day_boundary( $request->get_param( 'before' ), '23:59:59' ),
+				'page'     => absint( $request->get_param( 'page' ) ),
+				'per_page' => absint( $request->get_param( 'per_page' ) ),
+				'orderby'  => sanitize_key( (string) $request->get_param( 'orderby' ) ),
+				'order'    => sanitize_key( (string) $request->get_param( 'order' ) ),
+			)
+		);
+
+		$result['data'] = Utill::with_display_dates( $result['data'] );
+
+		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * Gets one delivery log entry.
+	 *
+	 * @param \WP_REST_Request $request Request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function get_item( $request ) {
+		$row = VuloMail()->logs->get( absint( $request['id'] ) );
+
+		if ( ! $row ) {
+			return new \WP_Error( 'vulomail_log_not_found', __( 'That log entry no longer exists.', 'vulomail' ), array( 'status' => 404 ) );
+		}
+
+		$attempts = json_decode( (string) $row['attempts'], true );
+		$headers  = json_decode( (string) $row['headers'], true );
+
+		$row['created_at_display'] = Utill::format_datetime( (string) $row['created_at'] );
+		$row['attempts']           = is_array( $attempts ) ? $attempts : array();
+		$row['headers']            = is_array( $headers ) ? $headers : array();
+		$row['has_body']           = null !== $row['body'];
+		$row['can_resend']         = $this->can_resend( $row );
+
+		return rest_ensure_response( $row );
+	}
+
+	/**
+	 * Deletes the given ids, or everything when `all` is true.
+	 *
+	 * @param \WP_REST_Request $request Request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function delete_items( $request ) {
+		$input = $request->get_json_params();
+		$input = is_array( $input ) ? $input : array();
+
+		if ( ! empty( $input['all'] ) ) {
+			return rest_ensure_response( array( 'deleted' => VuloMail()->logs->delete_all() ) );
+		}
+
+		$ids = isset( $input['ids'] ) && is_array( $input['ids'] ) ? $input['ids'] : array();
+
+		if ( ! $ids ) {
+			return new \WP_Error( 'vulomail_no_ids', __( 'No log entries were selected.', 'vulomail' ), array( 'status' => 400 ) );
+		}
+
+		return rest_ensure_response( array( 'deleted' => VuloMail()->logs->delete( $ids ) ) );
+	}
+
+	/**
+	 * Sends a logged message again. Only possible when its content was stored and its recipients
+	 * weren't masked.
+	 *
+	 * @param \WP_REST_Request $request Request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function resend_item( $request ) {
+		$row = VuloMail()->logs->get( absint( $request['id'] ) );
+
+		if ( ! $row ) {
+			return new \WP_Error( 'vulomail_log_not_found', __( 'That log entry no longer exists.', 'vulomail' ), array( 'status' => 404 ) );
+		}
+
+		if ( ! $this->can_resend( $row ) ) {
+			return new \WP_Error( 'vulomail_cannot_resend', __( 'This message can\'t be resent because its content or recipients were not stored.', 'vulomail' ), array( 'status' => 400 ) );
+		}
+
+		if ( Utill::CHANNEL_SMS === $row['channel'] ) {
+			$result = vulomail_send_sms( $row['recipients'], $row['body'], array( 'source' => 'vulomail-resend' ) );
+		} else {
+			$headers = json_decode( (string) $row['headers'], true );
+			$headers = is_array( $headers ) ? $headers : array();
+			$send    = array( 'Content-Type: ' . ( 'text/html' === ( $headers['Content-Type'] ?? '' ) ? 'text/html' : 'text/plain' ) . '; charset=UTF-8' );
+
+			if ( ! empty( $headers['Reply-To'] ) ) {
+				$send[] = 'Reply-To: ' . $headers['Reply-To'];
+			}
+
+			$result = vulomail_send_email(
+				array(
+					'to'      => $row['recipients'],
+					'subject' => $row['subject'],
+					'message' => $row['body'],
+					'headers' => $send,
+					'source'  => 'vulomail-resend',
+				)
+			);
+		}
+
+		if ( is_wp_error( $result ) ) {
+			return rest_ensure_response(
+				array(
+					'success' => false,
+					'message' => $result->get_error_message(),
+				)
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'success' => true,
+				'message' => __( 'Message resent.', 'vulomail' ),
+			)
+		);
+	}
+
+	/**
+	 * Turns a calendar day from the date-range filter into a UTC datetime. The day is read in the
+	 * site's own timezone, the same one the log's dates are shown in.
+	 *
+	 * @param mixed  $day  Raw request value, expected as `Y-m-d`.
+	 * @param string $time `H:i:s` within that day.
+	 * @return string UTC `Y-m-d H:i:s`, or '' when the value isn't a date.
+	 */
+	private static function day_boundary( $day, $time ) {
+		$day = is_string( $day ) ? trim( $day ) : '';
+
+		if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $day ) ) {
+			return '';
+		}
+
+		$local = date_create( $day . ' ' . $time, wp_timezone() );
+
+		return $local ? $local->setTimezone( new \DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' ) : '';
+	}
+
+	/**
+	 * Whether a log row's message can be sent again.
+	 *
+	 * @param array $row Log row.
+	 * @return bool
+	 */
+	private function can_resend( array $row ) {
+		return null !== $row['body'] && '' !== $row['recipients'] && false === strpos( $row['recipients'], '•' );
+	}
+}

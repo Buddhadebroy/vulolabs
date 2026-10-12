@@ -21,6 +21,9 @@ class RobotsSitemap extends \WP_REST_Controller {
 
 	private const REQUEST_TIMEOUT_SECONDS = 8;
 
+	/** Bounds how many child sitemaps a single index fetch inspects/counts. */
+	private const MAX_CHILD_SITEMAPS = 50;
+
 
 	/**
 	 * @inheritDoc
@@ -212,36 +215,41 @@ class RobotsSitemap extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Live-fetches this site's sitemap index: `/wp-sitemap.xml` first,
-	 * falling back to `/sitemap.xml`. Enumerates child `<sitemap>` entries
-	 * (or a flat `<url>` set), counting each child's URLs (bounded by
-	 * MAX_CHILD_SITEMAPS).
+	 * Live-fetches the site's real sitemap (robots.txt's declared `Sitemap:`, then
+	 * `/wp-sitemap.xml`, then `/sitemap.xml`) and enumerates its child sitemaps/URLs.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
 	 */
 	public function get_sitemap( $request ) {
-		$index_url = home_url( '/wp-sitemap.xml' );
-		$response  = wp_remote_get(
-			$index_url,
-			array(
-				'timeout'   => self::REQUEST_TIMEOUT_SECONDS,
-				'sslverify' => false,
+		$candidates = array_unique(
+			array_filter(
+				array_merge(
+					$this->get_declared_sitemap_urls(),
+					array( home_url( '/wp-sitemap.xml' ), home_url( '/sitemap.xml' ) )
+				)
 			)
 		);
 
-		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			$index_url = home_url( '/sitemap.xml' );
+		$index_url = '';
+		$response  = null;
+
+		foreach ( $candidates as $candidate_url ) {
+			$index_url = $candidate_url;
 			$response  = wp_remote_get(
-				$index_url,
+				$candidate_url,
 				array(
 					'timeout'   => self::REQUEST_TIMEOUT_SECONDS,
 					'sslverify' => false,
 				)
 			);
+
+			if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
+				break;
+			}
 		}
 
-		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		if ( null === $response || is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return rest_ensure_response(
 				array(
 					'reachable'      => false,
@@ -316,6 +324,86 @@ class RobotsSitemap extends \WP_REST_Controller {
 				'sitemaps'       => $children,
 			)
 		);
+	}
+
+	/**
+	 * Real `Sitemap:` directive URL(s) this site's own `/robots.txt` declares.
+	 *
+	 * @return string[]
+	 */
+	private function get_declared_sitemap_urls(): array {
+		$response = wp_remote_get(
+			home_url( '/robots.txt' ),
+			array(
+				'timeout'   => self::REQUEST_TIMEOUT_SECONDS,
+				'sslverify' => false,
+			)
+		);
+
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return array();
+		}
+
+		$parsed = $this->parse_robots_txt( (string) wp_remote_retrieve_body( $response ) );
+
+		return $parsed['directives']['sitemaps'];
+	}
+
+	/**
+	 * Live-fetches a single child sitemap and counts its real `<url>` entries.
+	 *
+	 * @param string $url Child sitemap's own `loc`.
+	 * @return int|null Null on fetch/parse failure (shown as a real "error" status).
+	 */
+	private function count_sitemap_urls( string $url ): ?int {
+		$response = wp_remote_get(
+			$url,
+			array(
+				'timeout'   => self::REQUEST_TIMEOUT_SECONDS,
+				'sslverify' => false,
+			)
+		);
+
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return null;
+		}
+
+		$xml = $this->parse_xml( (string) wp_remote_retrieve_body( $response ) );
+
+		if ( false === $xml ) {
+			return null;
+		}
+
+		$url_nodes = $xml->xpath( '//*[local-name()="url"]' );
+
+		return $url_nodes ? count( $url_nodes ) : 0;
+	}
+
+	/**
+	 * @param string $loc Child sitemap's own `loc`.
+	 * @return string
+	 */
+	private function infer_sitemap_type( string $loc ): string {
+		$path = (string) wp_parse_url( $loc, PHP_URL_PATH );
+
+		if ( preg_match( '#wp-sitemap-posts-([a-z0-9_-]+?)(?:-\d+)?\.xml$#i', $path, $matches ) ) {
+			return strtolower( $matches[1] );
+		}
+
+		if ( preg_match( '#wp-sitemap-taxonomies-([a-z0-9_-]+?)(?:-\d+)?\.xml$#i', $path, $matches ) ) {
+			return strtolower( $matches[1] );
+		}
+
+		if ( false !== strpos( $path, 'wp-sitemap-users' ) ) {
+			return 'author';
+		}
+
+		// Best-effort: a non-core generator's common `{type}-sitemap(-n).xml` convention.
+		if ( preg_match( '#([a-z0-9_-]+)-sitemap(?:-?\d+)?\.xml$#i', $path, $matches ) ) {
+			return strtolower( $matches[1] );
+		}
+
+		return 'other';
 	}
 
 	/**

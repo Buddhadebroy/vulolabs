@@ -33,9 +33,7 @@ const Settings = () => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const settingsRef = useRef<Record<string, unknown>>({});
-	// Pro adds tabs (Licensing) through a filter when its script loads - which can be after this
-	// page first rendered, and the navigator keeps the tab list it mounted with - so remount it (via
-	// `key`) then, so the tab bar is never missing them.
+	// Remounts the navigator (via `key`) when a filter adds tabs after this page first rendered.
 	const [proTabsTick, setProTabsTick] = useState(0);
 
 	useEffect(() => {
@@ -86,7 +84,7 @@ const Settings = () => {
 		);
 
 		// zyra runs a pro field's own change handler before its pro-lock check, so a locked
-		// "Add" button still changes the value; drop those updates while Pro is off.
+		// "Add" button still changes the value; drop those updates while the feature isn't unlocked.
 		const guardedUpdateSetting = (key: string, value: unknown) => {
 			const field = (settingModal?.modal ?? []).find(
 				(f: { key: string; proSetting?: boolean }) => f.key === key

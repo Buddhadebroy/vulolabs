@@ -252,7 +252,7 @@ export const useFindingsTable = ({
 		});
 	};
 
-	/** "Fix" is always visible; falls back to the Pro upsell popup with no handler registered. */
+	/** "Fix" is always visible; falls back to the upsell popup with no handler registered. */
 	const handleFix = (row?: Record<string, unknown>) => {
 		const findingFixHandler = getFindingFixHandler();
 

@@ -109,10 +109,15 @@ class Schema extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Falls back to a fresh analyze() the first time this is called, so the card never needs a
+	 * manual "Run scan" click before it shows anything.
+	 *
 	 * @return \WP_REST_Response
 	 */
 	public function get_coverage() {
-		return rest_ensure_response( $this->analyzer->get_stored_snapshot() );
+		$snapshot = $this->analyzer->get_stored_snapshot();
+
+		return rest_ensure_response( null !== $snapshot ? $snapshot : $this->analyzer->analyze() );
 	}
 
 	/**

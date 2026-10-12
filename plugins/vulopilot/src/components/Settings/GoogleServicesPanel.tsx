@@ -352,7 +352,7 @@ const GoogleServicesPanel = () => {
 	if ( ! status.connected ) {
 		return (
 			<>
-				{ ! status.has_client_credentials && ! status.has_broker ? (
+				{ ! status.has_broker ? (
 					<CardHeader
 						icon="error red"
 						title={ __( 'Google Connect isn’t available yet', 'vulopilot' ) }

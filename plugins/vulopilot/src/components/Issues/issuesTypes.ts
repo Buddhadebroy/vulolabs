@@ -33,7 +33,7 @@ export interface FindingGroup {
 	fixed?: boolean;
 	/** Finding ids whose fix can still be undone, when the group came from the fixed-issues list. */
 	undo_ids?: number[];
-	/** Set when this scanner has a mapped fix; null/absent when it doesn't or Pro isn't active. */
+	/** Set when this scanner has a mapped fix; null/absent when it doesn't or the feature isn't unlocked. */
 	fix_action_id?: string | null;
 	/** Set when fix_action_id is null - why this scanner's findings need a manual/admin decision instead. */
 	no_fix_reason?: string | null;

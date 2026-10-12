@@ -93,7 +93,7 @@ const SectionedIssuesTable = ({
 	onTabChange,
 }: SectionedIssuesTableProps) => {
 	const [fetchedGroups, setFetchedGroups] = useState<FindingGroup[]>([]);
-	// Fixed issues whose fix can still be undone, so they stay listed after a reload (empty without Pro).
+	// Fixed issues whose fix can still be undone, so they stay listed after a reload (empty when the feature isn't unlocked).
 	const [fixedGroups, setFixedGroups] = useState<FindingGroup[]>([]);
 	// Groups fixed this session: kept listed as Fixed (with Undo in the panel) after the refetch drops them.
 	const [keptGroups, setKeptGroups] = useState<FindingGroup[]>([]);
@@ -119,10 +119,13 @@ const SectionedIssuesTable = ({
 				),
 				nonceHeaders
 			),
-			getApiResponse<{ data: FindingGroup[] }>(
-				getApiLink(vulopilotAppLocalizer, 'findings/fixed-groups'),
-				nonceHeaders
-			).catch(() => null),
+			// Skip this route when the feature isn't unlocked, instead of a guaranteed 404.
+			vulopilotAppLocalizer.khali_dabba
+				? getApiResponse<{ data: FindingGroup[] }>(
+						getApiLink(vulopilotAppLocalizer, 'findings/fixed-groups'),
+						nonceHeaders
+					).catch(() => null)
+				: Promise.resolve(null),
 		])
 			.then(([open, fixed]) => {
 				setFetchedGroups(open?.data ?? []);

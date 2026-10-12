@@ -8,7 +8,7 @@ import { BlurredProContent } from '../../components/UpgradeToProOverlay';
 import { useFilterSlot } from '../../services/useFilterSlot';
 import './SeoVisibility.scss';
 
-/** Inert example rows, clearly not real numbers - the real card is Pro's. */
+/** Inert example rows, clearly not real numbers - the real card comes from the unlocked feature. */
 const DUMMY_SOURCES = [
 	{ label: __('Organic search', 'vulopilot'), sessions: 5491, percent: 44, color: '#3157d5' },
 	{ label: __('Direct', 'vulopilot'), sessions: 2870, percent: 23, color: '#7c52d0' },
@@ -17,11 +17,7 @@ const DUMMY_SOURCES = [
 	{ label: __('AI referrals', 'vulopilot'), sessions: 374, percent: 3, color: '#43a0d0' },
 ];
 
-/**
- * "Traffic by Source": Google Analytics sessions by channel. The real card (and its data)
- * is VuloPilot Pro's, registered on `vulopilot_visibility_by_source_card`; without it this
- * shows a locked, fabricated example. Connecting Google itself is a Settings feature.
- */
+/** Google Analytics sessions by channel - real data plugs in via `vulopilot_visibility_by_source_card`, else a locked example shows. */
 const VisibilityBySourceCard = () => {
 	const ProCard = useFilterSlot('vulopilot_visibility_by_source_card');
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);

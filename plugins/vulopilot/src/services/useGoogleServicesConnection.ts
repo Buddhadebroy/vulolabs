@@ -7,8 +7,7 @@ import { NoticeManager } from '@zyra/components';
 
 export interface GoogleServicesStatus {
 	connected: boolean;
-	has_client_credentials: boolean;
-	/** Whether "Connect Google Services" will route through the OAuth broker instead. */
+	/** Whether VuloCloud's Google OAuth broker is configured; "Connect Google Services" always routes through it. */
 	has_broker: boolean;
 	search_console_site: string;
 	ga4_account_id: string;
@@ -76,7 +75,7 @@ export const useGoogleServicesConnection = (
 			});
 		} else if (gscStatus === 'error') {
 			const message = __(
-				'Could not connect to Google. Please check your Client ID/Secret and try again.',
+				'Could not connect to Google. Please try again.',
 				'vulopilot'
 			);
 			setConnectError(message);

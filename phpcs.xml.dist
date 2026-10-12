@@ -40,6 +40,9 @@
 			<property name="text_domain" type="array">
 				<element value="vulopilot"/>
 				<element value="vulocart"/>
+				<element value="vulomail"/>
+				<element value="vuloform"/>
+				<element value="vulobackup"/>
 			</property>
 		</properties>
 	</rule>

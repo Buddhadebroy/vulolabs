@@ -17,7 +17,7 @@ const AiSalesOptimizerCard = ({
 		<>
 			{/* Only shown while this card is still in its locked (`!data`) state below - once the
 			 * WooCommerce Intelligence module is actually active and showing real opportunities,
-			 * the "Pro" label is just noise for a site owner who already has it unlocked. */}
+			 * the upgrade label is just noise for a site owner who already has it unlocked. */}
 			{!isLoading && !data && (
 				<span className="admin-tag pro-tag">
 					<i className="adminfont-pro-tag" />

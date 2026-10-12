@@ -229,7 +229,7 @@ class Utill {
 		'sitemap_xml_taxonomies'                => array( 'category', 'post_tag', 'product_cat', 'product_tag' ),
 		// Read by SitemapManager - keep the sitemap to URLs meant for search results.
 		'sitemap_skip_single_author'            => array( 'sitemap_skip_single_author' ),
-		// Read by the Pro sitemap health check (SitemapValidationScanner).
+		// Read by the sitemap health check (SitemapValidationScanner).
 		'sitemap_health_enabled'                => array( 'sitemap_health_enabled' ),
 		'sitemap_health_last_run'               => '',
 		'sitemap_health_last_problems'          => 0,

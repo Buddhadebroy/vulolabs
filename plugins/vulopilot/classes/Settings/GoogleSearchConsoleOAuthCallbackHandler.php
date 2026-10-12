@@ -52,9 +52,7 @@ class GoogleSearchConsoleOAuthCallbackHandler {
 			exit;
 		}
 
-		$result = $connection->has_broker()
-			? $connection->exchange_broker_code_for_tokens( $code )
-			: $connection->exchange_code_for_tokens( $code );
+		$result = $connection->exchange_broker_code_for_tokens( $code );
 
 		wp_safe_redirect( $redirect_base . '&gsc_status=' . ( is_wp_error( $result ) ? 'error' : 'connected' ) );
 		exit;

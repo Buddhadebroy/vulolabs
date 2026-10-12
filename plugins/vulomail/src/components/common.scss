@@ -1,0 +1,421 @@
+// Layout glue for VuloMail's own screens. Colours, spacing and type come from zyra's design tokens
+// (the `--*` custom properties its components already define), so the plugin follows the VuloLabs
+// theme rather than declaring its own.
+
+// zyra's shared header always prints a "Pro: Not Installed" badge next to the version. VuloMail has
+// no Pro edition, so that badge would only mislead.
+.admin-header .version-tag > :nth-child(2) {
+	display: none;
+}
+
+.vulomail-inline {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	flex-wrap: wrap;
+}
+
+.vulomail-detail {
+	display: grid;
+	grid-template-columns: minmax(7rem, max-content) 1fr;
+	gap: 0.5rem 1rem;
+	margin: 0 0 1rem;
+
+	dt {
+		color: var(--sub-text-color);
+	}
+
+	dd {
+		margin: 0;
+		overflow-wrap: anywhere;
+	}
+}
+
+.vulomail-message-body {
+	max-height: 18rem;
+	overflow: auto;
+	margin: 0 0 1rem;
+	padding: 0.75rem;
+	border: 0.063rem solid var(--border-color);
+	border-radius: 0.45rem;
+	background: var(--background-color);
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+	font-family: inherit;
+}
+
+.vulomail-popup-body {
+	padding: 1.25rem 1.5rem;
+}
+
+.vulomail-form-footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.5rem;
+	margin-top: 1rem;
+}
+
+
+.vulomail-connections-add {
+	justify-content: flex-end;
+	margin-bottom: 0.75rem;
+}
+
+// Row titles inside zyra's setting rows carry status badges next to the name.
+.setting-row-list .vulomail-row-title {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+}
+
+// Log table: two stacked lines per cell keep the row short.
+.vulomail-log-cell {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+	min-width: 0;
+}
+
+.vulomail-log-primary {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	font-weight: 600;
+	color: var(--text-color);
+	overflow-wrap: anywhere;
+
+	i {
+		color: var(--color-primary);
+	}
+}
+
+.vulomail-log-secondary {
+	font-size: 0.8125rem;
+	color: var(--sub-text-color);
+	overflow-wrap: anywhere;
+}
+
+// The "what to do" line under a diagnostics result.
+.vulomail-check-fix {
+	display: block;
+	margin-top: 0.375rem;
+	color: var(--text-color);
+}
+
+// Day-grouped timeline (Dashboard → Recent failures). Mirrors VuloPilot's "Recent activity" list:
+// a time column, a rail with a dot per entry, an icon tile, then the text and a details link.
+.vulomail-timeline {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+
+	.vulomail-timeline-heading {
+		margin-bottom: 0.625rem;
+		font-size: 1.125rem;
+		font-weight: 500;
+		color: var(--text-color);
+	}
+
+	.vulomail-timeline-row {
+		display: flex;
+		align-items: flex-start;
+		border-radius: 0.5rem;
+		cursor: pointer;
+	}
+
+	.vulomail-timeline-time {
+		flex-shrink: 0;
+		width: 4.75rem;
+		padding-top: 1.25rem;
+		font-size: 0.8125rem;
+		color: var(--sub-text-color);
+	}
+
+	.vulomail-timeline-details {
+		position: relative;
+		display: flex;
+		align-items: center;
+		gap: 0.813rem;
+		width: 100%;
+		min-width: 0;
+		padding: 0.625rem 1rem;
+		border-bottom: 0.063rem solid var(--border-color);
+
+		&:hover {
+			background: var(--background-primary);
+		}
+
+		// The rail.
+		&::after {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 0.063rem;
+			height: 100%;
+			background: #00000028;
+			content: '';
+		}
+
+		// This entry's dot on the rail.
+		&::before {
+			position: absolute;
+			top: 40%;
+			left: -0.25rem;
+			width: 0.5rem;
+			height: 0.5rem;
+			border-radius: 50%;
+			background: #e35047;
+			transform: translateY(-50%);
+			content: '';
+		}
+	}
+
+	.vulomail-timeline-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		width: 2.375rem;
+		height: 2.375rem;
+		border-radius: 0.5rem;
+		font-size: 1.125rem;
+		background: #e350471a;
+		color: #e35047;
+	}
+
+	.vulomail-timeline-text {
+		flex: 1;
+		min-width: 0;
+
+		.desc {
+			margin-top: 0.25rem;
+			overflow-wrap: anywhere;
+		}
+	}
+
+	.vulomail-timeline-title {
+		font-size: 1.125rem;
+		line-height: 1.3;
+		color: var(--text-color);
+		overflow-wrap: anywhere;
+
+		.admin-badge {
+			margin-left: 0.45rem;
+		}
+	}
+
+	.vulomail-timeline-meta {
+		flex-shrink: 0;
+		max-width: 16rem;
+		font-size: 0.8125rem;
+		color: var(--sub-text-color);
+		text-align: right;
+		overflow-wrap: anywhere;
+	}
+
+	.vulomail-timeline-action {
+		flex-shrink: 0;
+		min-width: 8rem;
+	}
+}
+
+// "Requires <plugin>" popup. Same structure and class names as VuloPilot's module-required popup
+// (its Popup.scss), which zyra itself doesn't style.
+.popup-wrapper {
+	.popup-header {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 12rem;
+		background: var(--color-primary);
+
+		i {
+			font-size: 6rem;
+			color: #fff;
+		}
+	}
+
+	.popup-body {
+		padding: 2rem;
+	}
+
+	.module-name {
+		margin: 0;
+		font-size: 1.75rem;
+		text-align: center;
+	}
+
+	.module-desc {
+		padding: 1rem 0;
+		font-size: 1.063rem;
+		text-align: center;
+	}
+}
+
+// An alert's message, shown inside its own row while the alert is switched on.
+// zyra keeps a row's text narrow; a row holding a message box uses the full width instead.
+.setting-row-main:has(.vulomail-alert-message),
+.setting-row-body:has(.vulomail-alert-message),
+.setting-row-body .desc:has(.vulomail-alert-message) {
+	flex: 1;
+	max-width: none;
+}
+
+// Absorbs Chrome's login autofill so it doesn't land in "Connection name"/a secret field
+// (ConnectionForm.tsx) - kept in normal flow rather than display:none, which Chrome's autofill
+// heuristic ignores entirely.
+.vulomail-autofill-trap {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	opacity: 0;
+	pointer-events: none;
+}
+
+// zyra's lightbox popup scrolls as a single box (.popup-content has overflow: auto !important), and
+// its close icon is fixed to the *viewport's* top-right corner - correct for a popup pinned near the
+// top of the screen, but a centred lightbox's actual top-right corner can sit well below that,
+// leaving the icon floating above the modal instead of inside it. Scoped to this one popup
+// (Connections.tsx passes the className) rather than changing zyra's shared behaviour.
+.vulomail-connection-popup .popup-content .close-icon {
+	// absolute would scroll away with the rest of .popup-content's content, same problem as the
+	// header below; sticky keeps it pinned to the popup's corner as the fields scroll past it.
+	position: sticky !important;
+	top: 1.125rem;
+	right: 1.125rem;
+	float: right;
+}
+
+// The connection popup's own header (ConnectionForm.tsx): reuses zyra's .popup-header/.popup-title
+// classes for the padding, border and icon styling PopupComponent would otherwise apply, but renders
+// in the form itself so the "Connection enabled" switch can sit on the same row as the title. Sticky
+// rather than the content area scrolling underneath it, so it stays in view (and above the close icon,
+// now anchored to the popup) while the fields below scroll past.
+.vulomail-connection-header {
+	// zyra's own .popup-header rule (reused here for its padding/border/title styling) also sets
+	// position: relative at equal specificity; !important guarantees this one wins regardless of
+	// stylesheet load order.
+	position: sticky !important;
+	top: 0;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding-right: 3rem; // clears the close icon pinned to the popup's own top-right corner.
+	background: var(--background-color, #fff);
+
+	.popup-title {
+		display: flex;
+		align-items: center;
+		padding-bottom: 0;
+	}
+
+	.vulomail-switch-label {
+		font-size: 0.8125rem;
+		font-weight: 400;
+		color: var(--sub-text-color);
+	}
+}
+
+// A real on/off slider for a single yes/no setting (Switch.tsx) - checked/unchecked colour comes
+// from the theme's own --color-primary/--border-color custom properties, same as the rest of the app.
+.vulomail-switch {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.625rem;
+	cursor: pointer;
+	user-select: none;
+
+	input {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		margin: -1px;
+		padding: 0;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
+	}
+
+	.vulomail-switch-track {
+		position: relative;
+		flex-shrink: 0;
+		width: 2.5rem;
+		height: 1.375rem;
+		border-radius: 999px;
+		background: var(--border-color);
+		transition: background-color 0.15s ease;
+
+		&::after {
+			position: absolute;
+			top: 0.125rem;
+			left: 0.125rem;
+			width: 1.125rem;
+			height: 1.125rem;
+			border-radius: 50%;
+			background: #fff;
+			box-shadow: 0 0.063rem 0.188rem rgba(0, 0, 0, 0.25);
+			transition: transform 0.15s ease;
+			content: '';
+		}
+	}
+
+	.vulomail-switch-label {
+		font-weight: 500;
+		color: var(--text-color);
+	}
+
+	input:checked + .vulomail-switch-track {
+		background: var(--color-primary);
+
+		&::after {
+			transform: translateX(1.125rem);
+		}
+	}
+
+	input:focus-visible + .vulomail-switch-track {
+		outline: 0.125rem solid var(--color-primary);
+		outline-offset: 0.125rem;
+	}
+}
+
+// Briefly marks the card a "Test" button on Connections sent the visitor to (Tools.tsx).
+.vulomail-highlight {
+	animation: vulomail-highlight-flash 2s ease-out;
+}
+
+@keyframes vulomail-highlight-flash {
+	0%,
+	40% {
+		box-shadow: 0 0 0 0.125rem var(--color-primary);
+	}
+
+	100% {
+		box-shadow: 0 0 0 0 transparent;
+	}
+}
+
+.vulomail-alert-message {
+	display: flex;
+	flex-direction: column;
+	gap: 0.375rem;
+	margin-top: 0.75rem;
+
+	label {
+		font-weight: 600;
+		color: var(--text-color);
+	}
+
+	textarea {
+		width: 100%;
+	}
+
+	.vulomail-alert-message-hint {
+		font-size: 0.8125rem;
+		color: var(--sub-text-color);
+	}
+}

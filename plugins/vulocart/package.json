@@ -18,7 +18,7 @@
 	"mainPluginFile": "vulocart.php",
 	"packageManager": "pnpm@10.34.1",
 	"engines": {
-		"node": "^22.22.3"
+		"node": ">=22.22.3"
 	},
 	"scripts": {
 		"build": "pnpm run build:project",
@@ -60,8 +60,8 @@
 		"build:project:bundle": {
 			"command": "wp-scripts build --progress && pnpm run minify && pnpm run move && pnpm run clean",
 			"files": [
-				"src/**/*.{js,jsx,ts,tsx,scss}",
-				"modules/**/*.{js,jsx,ts,tsx,scss}",
+				"src/**/*.{js,jsx,ts,tsx,scss,png,jpg,jpeg,gif,svg,webp}",
+				"modules/**/*.{js,jsx,ts,tsx,scss,png,jpg,jpeg,gif,svg,webp}",
 				"webpack.config.js",
 				"tsconfig.json",
 				"../../packages/js/vulocart-sdk/dist/vulocart-sdk.js"
@@ -81,8 +81,8 @@
 		"watch:build:project:bundle": {
 			"command": "wp-scripts start",
 			"files": [
-				"src/**/*.{js,jsx,ts,tsx,scss}",
-				"modules/**/*.{js,jsx,ts,tsx,scss}",
+				"src/**/*.{js,jsx,ts,tsx,scss,png,jpg,jpeg,gif,svg,webp}",
+				"modules/**/*.{js,jsx,ts,tsx,scss,png,jpg,jpeg,gif,svg,webp}",
 				"webpack.config.js",
 				"tsconfig.json"
 			],

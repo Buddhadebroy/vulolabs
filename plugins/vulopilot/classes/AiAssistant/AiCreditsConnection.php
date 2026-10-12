@@ -175,8 +175,6 @@ class AiCreditsConnection {
 
 		$state = wp_create_nonce( 'vulopilot_connect_broker' );
 
-		$browser_url = '' !== trim( VULOPILOT_VULOCLOUD_PUBLIC_URL ) ? VULOPILOT_VULOCLOUD_PUBLIC_URL : VULOPILOT_VULOCLOUD_URL;
-
 		$params = array(
 			'domain'             => home_url(),
 			'returnUri'          => $this->get_broker_redirect_uri(),
@@ -188,7 +186,7 @@ class AiCreditsConnection {
 			unset( $params['soloOrganizationId'] );
 		}
 
-		return untrailingslashit( $browser_url ) . '/plugin/connect/authorize?' . http_build_query( $params );
+		return untrailingslashit( VULOPILOT_VULOCLOUD_URL ) . '/plugin/connect/authorize?' . http_build_query( $params );
 	}
 
 	/**

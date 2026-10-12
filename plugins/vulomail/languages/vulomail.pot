@@ -1,0 +1,2043 @@
+# Copyright (c) 2026 VuloLabs Inc. All Rights Reserved.
+msgid ""
+msgstr ""
+"Project-Id-Version: VuloMail 1.0.0\n"
+"Report-Msgid-Bugs-To: https://vulolabs.com/contact/\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-10-10T10:50:17+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: vulomail\n"
+
+#. Plugin Name of the plugin
+#: vulomail.php
+msgid "VuloMail"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: vulomail.php
+msgid "https://vulolabs.com/vulomail/"
+msgstr ""
+
+#. Description of the plugin
+#: vulomail.php
+msgid "One plugin. Email and SMS. One delivery control center. Send WordPress email through SMTP or a transactional email API, send SMS through your own gateway, with failover, logs and diagnostics."
+msgstr ""
+
+#. Author of the plugin
+#: vulomail.php
+msgid "VuloLabs"
+msgstr ""
+
+#. Author URI of the plugin
+#: vulomail.php
+msgid "https://vulolabs.com/"
+msgstr ""
+
+#: classes/Admin.php:51
+#: assets/js/index.js:1
+msgid "Dashboard"
+msgstr ""
+
+#: classes/Admin.php:55
+#: assets/js/index.js:1
+msgid "SMS Alerts"
+msgstr ""
+
+#: classes/Admin.php:59
+#: assets/js/index.js:1
+msgid "Logs"
+msgstr ""
+
+#: classes/Admin.php:63
+#: assets/js/index.js:1
+msgid "Tools"
+msgstr ""
+
+#: classes/Admin.php:67
+#: classes/Admin.php:132
+#: assets/js/index.js:1
+msgid "Settings"
+msgstr ""
+
+#: classes/Connections/ConnectionRepository.php:97
+#: assets/js/index.js:1
+msgid "Provider"
+msgstr ""
+
+#: classes/Connections/ConnectionRepository.php:166
+#: classes/Rest/Connections.php:104
+#: classes/Rest/Tools.php:105
+#: classes/Rest/Tools.php:164
+msgid "That connection no longer exists."
+msgstr ""
+
+#: classes/Connections/ConnectionRepository.php:176
+msgid "Unknown provider."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:65
+#: assets/js/index.js:1
+msgid "Diagnostics"
+msgstr ""
+
+#. translators: %s: check id.
+#: classes/Diagnostics/Diagnostics.php:68
+#, php-format
+msgid "The \"%s\" check could not run on this server."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:69
+msgid "This does not affect delivery. If it keeps happening, check the PHP error log for the cause."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:148
+#: assets/js/index.js:1
+msgid "Add a connection"
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:157
+msgid "Email routing"
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:165
+msgid "Email routing is switched off. WordPress sends email with its default mailer."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:166
+msgid "To deliver email through your own provider, switch on \"Send email through VuloMail\" under Settings → Email."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:167
+#: classes/Diagnostics/Diagnostics.php:387
+msgid "Open email settings"
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:176
+msgid "No working email connection is set as primary. WordPress sends email with its default mailer, which many hosts restrict."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:177
+msgid "Add a connection for your email provider (or any SMTP account), complete its fields, and choose it as the primary email connection."
+msgstr ""
+
+#. translators: %s: connection name.
+#. translators: %s: connection names in failover order.
+#: classes/Diagnostics/Diagnostics.php:190
+#: classes/Diagnostics/Diagnostics.php:196
+#, php-format
+msgid "Email is sent through %s."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:191
+msgid "Optional: add a second connection and set it as backup, so email keeps going out if the primary one fails."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:205
+msgid "Sender address"
+msgstr ""
+
+#. translators: %s: email address.
+#: classes/Diagnostics/Diagnostics.php:214
+#, php-format
+msgid "No sender address is set, so email is sent from %s. Most providers only accept a sender you have verified with them."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:215
+msgid "Enter a sender email under Settings → Email. Use an address on your own domain that your email provider has verified."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:216
+msgid "Set the sender"
+msgstr ""
+
+#. translators: %s: email address.
+#: classes/Diagnostics/Diagnostics.php:221
+#, php-format
+msgid "Email is sent from %s."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:230
+msgid "Sender domain DNS"
+msgstr ""
+
+#. translators: %s: domain name.
+#: classes/Diagnostics/Diagnostics.php:270
+#, php-format
+msgid "The DNS records for %s could not be looked up from this server, so SPF and DMARC were not checked."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:271
+msgid "This is a limit of the server, not a delivery problem. Check the domain with any online SPF/DMARC lookup tool instead."
+msgstr ""
+
+#. translators: %s: domain name.
+#: classes/Diagnostics/Diagnostics.php:277
+#, php-format
+msgid "%s publishes SPF and DMARC records. DKIM is set up with your email provider and can't be checked from here."
+msgstr ""
+
+#. translators: %s: domain name.
+#: classes/Diagnostics/Diagnostics.php:284
+#, php-format
+msgid "SPF: add a TXT record on %s that starts with \"v=spf1\" and includes your email provider (the provider's setup guide gives the exact value)."
+msgstr ""
+
+#. translators: %s: DNS host name.
+#: classes/Diagnostics/Diagnostics.php:289
+#, php-format
+msgid "DMARC: add a TXT record on %s, for example \"v=DMARC1; p=none;\"."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:292
+msgid "Records are added where the domain's DNS is managed (your registrar or host). Changes can take a few hours to show here."
+msgstr ""
+
+#. translators: 1: domain name, 2: missing record types.
+#: classes/Diagnostics/Diagnostics.php:299
+#, php-format
+msgid "%1$s has no %2$s record. Mailbox providers such as Gmail and Yahoo may reject or junk email from it."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:335
+msgid "wp_mail() delivery"
+msgstr ""
+
+#. translators: %s: plugin name or file path.
+#: classes/Diagnostics/Diagnostics.php:349
+#, php-format
+msgid "%s replaces WordPress's wp_mail() function with its own, so email does not pass through VuloMail at all."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:350
+msgid "Deactivate that plugin, or switch off its email sending feature, then reload this page."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:351
+#: classes/Diagnostics/Diagnostics.php:744
+#: classes/Diagnostics/Diagnostics.php:863
+msgid "Open Plugins"
+msgstr ""
+
+#. translators: 1: connection name, 2: plugin names.
+#: classes/Diagnostics/Diagnostics.php:366
+#, php-format
+msgid "wp_mail() is handled by VuloMail and sent through %1$s. %2$s also hooks in ahead of VuloMail (the pre_wp_mail filter) and can send or stop a message first."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:367
+msgid "Nothing to do if that plugin only watches email. If messages are missing from the VuloMail log, switch off that plugin's own email sending."
+msgstr ""
+
+#. translators: 1: connection name, 2: provider name.
+#: classes/Diagnostics/Diagnostics.php:376
+#, php-format
+msgid "wp_mail() is handled by VuloMail: email is sent through %1$s (%2$s)."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:382
+msgid "No working email connection is set as primary, so VuloMail is not delivering email."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:383
+msgid "Email routing is switched off, so VuloMail is not delivering email."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:385
+msgid "Add an email connection (SMTP or a provider API) and set it as primary. VuloMail then sends email itself and no longer depends on the server's own mail setup."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:386
+msgid "Switch on \"Send email through VuloMail\" under Settings → Email, and make sure an email connection is set as primary."
+msgstr ""
+
+#. translators: %s: plugin names.
+#: classes/Diagnostics/Diagnostics.php:395
+#, php-format
+msgid "%s hooks into wp_mail() (the pre_wp_mail filter) and may be sending email itself."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:396
+msgid "Send a test email with \"Live routing\" to see whether email goes out. Keep only one plugin in charge of delivery."
+msgstr ""
+
+#. translators: %s: plugin names.
+#: classes/Diagnostics/Diagnostics.php:409
+#, php-format
+msgid "wp_mail() uses WordPress's built-in mailer, which %s reconfigures (the phpmailer_init hook). VuloMail can't tell where that sends email."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:410
+msgid "Send a test email with \"Live routing\" to see whether email goes out."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:418
+msgid "wp_mail() falls back to PHP's mail() function, and that function is disabled on this server. Email from this site is not being sent."
+msgstr ""
+
+#. translators: %s: path of the missing mail program.
+#: classes/Diagnostics/Diagnostics.php:427
+#, php-format
+msgid "wp_mail() falls back to PHP's mail() function, but this server has no mail program to hand messages to (%s was not found). Email from this site is not being sent."
+msgstr ""
+
+#. translators: %s: how PHP mail() hands messages on, e.g. a sendmail path.
+#: classes/Diagnostics/Diagnostics.php:438
+#, php-format
+msgid "wp_mail() uses WordPress's built-in mailer and PHP's mail() function (%s). Email sent this way is not authenticated, so it is often rejected or put in spam, and many hosts limit or block it."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:601
+msgid "WordPress's built-in mailer"
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:615
+msgid "Recent email delivery"
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:616
+msgid "Use \"Send a test email\" on this page and check that it reaches the inbox."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:623
+msgid "The delivery log is switched off, so there is no record of whether recent email went out."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:624
+msgid "Switch on the delivery log under Settings → Logging & Privacy to have this checked from now on."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:625
+#: classes/Diagnostics/Diagnostics.php:874
+msgid "Open logging settings"
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:632
+msgid "No email has been logged yet, so nothing confirms that email is going out."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:639
+msgid "View logs"
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:640
+msgid "Open Logs to see the full error for each attempt. The usual causes are a wrong password or API key, a sender address the provider has not verified, or a host that blocks the SMTP port. Correct the connection, then send a test email."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:643
+msgid "No error message was recorded."
+msgstr ""
+
+#. translators: 1: number of emails, 2: time span such as "5 mins", 3: error message.
+#: classes/Diagnostics/Diagnostics.php:651
+#, php-format
+msgid "The last %1$d emails all failed. Email is not going out. Latest error, %2$s ago: %3$s"
+msgstr ""
+
+#. translators: 1: time span such as "5 mins", 2: error message, 3: failed count, 4: number of emails checked.
+#: classes/Diagnostics/Diagnostics.php:662
+#, php-format
+msgid "The most recent email failed %1$s ago: %2$s (%3$d of the last %4$d failed.)"
+msgstr ""
+
+#. translators: 1: provider name, 2: time span such as "5 mins", 3: failed count, 4: number of emails checked.
+#: classes/Diagnostics/Diagnostics.php:674
+#, php-format
+msgid "The last email was accepted by %1$s %2$s ago, but %3$d of the last %4$d failed."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:675
+msgid "Open Logs and filter by \"Failed\" to see which messages did not go out and why."
+msgstr ""
+
+#. translators: 1: provider name, 2: time span such as "5 mins".
+#: classes/Diagnostics/Diagnostics.php:682
+#, php-format
+msgid "The last email was accepted by %1$s %2$s ago. It is the only one logged so far."
+msgstr ""
+
+#. translators: 1: provider name, 2: time span such as "5 mins", 3: number of emails checked.
+#: classes/Diagnostics/Diagnostics.php:686
+#, php-format
+msgid "The last email was accepted by %1$s %2$s ago, and none of the last %3$d failed."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:722
+msgid "Other email plugins"
+msgstr ""
+
+#. translators: %s: plugin names.
+#: classes/Diagnostics/Diagnostics.php:742
+#, php-format
+msgid "Also active: %s. Two email delivery plugins compete for the same messages, so some may be sent by the other plugin or sent twice."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:743
+msgid "Keep one plugin in charge of email. Deactivate the other one under Plugins, or switch off \"Send email through VuloMail\" if you prefer to keep it."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:748
+msgid "No other email delivery plugin detected."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:757
+msgid "SMS routing"
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:765
+msgid "SMS sending is switched off, so no text messages are sent."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:766
+msgid "Only needed if you want text messages: switch on \"Send SMS through VuloMail\" under Settings → SMS."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:767
+msgid "Open SMS settings"
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:776
+msgid "No working SMS connection is set as primary, so no text messages are sent."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:777
+msgid "Only needed if you want text messages: add a connection for your SMS gateway and choose it as the primary SMS connection."
+msgstr ""
+
+#. translators: %s: connection names in failover order.
+#: classes/Diagnostics/Diagnostics.php:783
+#, php-format
+msgid "SMS is sent through %s."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:806
+#: assets/js/index.js:1
+msgid "Connections"
+msgstr ""
+
+#. translators: %s: connection names.
+#: classes/Diagnostics/Diagnostics.php:809
+#, php-format
+msgid "Incomplete: %s. A required field is empty, or its saved credential can no longer be read (this happens when the site's security salts change). Nothing is sent through an incomplete connection."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:810
+msgid "Edit each connection listed, fill in the empty fields and re-enter its password or API key, then save and send a test."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:811
+msgid "Open connections"
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:821
+msgid "Server"
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:828
+msgid "The PHP OpenSSL extension is missing. Encrypted SMTP and provider API requests need it, and saved credentials can't be encrypted without it."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:829
+msgid "Ask your host to enable the PHP \"openssl\" extension. It is a standard extension that hosts can switch on from their control panel."
+msgstr ""
+
+#. translators: 1: PHP version, 2: WordPress version.
+#: classes/Diagnostics/Diagnostics.php:838
+#, php-format
+msgid "PHP %1$s, WordPress %2$s, OpenSSL available."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:850
+#: assets/js/index.js:1
+msgid "Delivery log"
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:861
+msgid "The log table is missing from the database, so nothing can be logged. Messages are still sent."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:862
+msgid "Deactivate VuloMail and activate it again under Plugins to create the table. Your connections and settings are kept."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:872
+msgid "Logging is switched off. Messages are still sent, but failures leave no record."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:873
+msgid "Switch on \"Keep a log of sent and failed messages\" under Settings → Logging & Privacy to be able to trace a missing message."
+msgstr ""
+
+#. translators: %d: number of days.
+#: classes/Diagnostics/Diagnostics.php:886
+#, php-format
+msgid "Logging is on. Entries are deleted after %d day."
+msgid_plural "Logging is on. Entries are deleted after %d days."
+msgstr[0] ""
+msgstr[1] ""
+
+#: classes/Diagnostics/Diagnostics.php:887
+msgid "Logging is on. Entries are kept until you delete them."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:903
+msgid "Scheduled tasks"
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:905
+msgid "WP-Cron is disabled in wp-config.php (DISABLE_WP_CRON). Old log entries are only cleaned up if something else runs wp-cron.php."
+msgstr ""
+
+#: classes/Diagnostics/Diagnostics.php:906
+msgid "Nothing to do if your host already runs wp-cron.php on a schedule, which is the usual reason for this setting. If it does not, ask the host to add a cron job for it."
+msgstr ""
+
+#: classes/Email/AbstractApiMailer.php:81
+msgid "The attachments are too large to send through this provider."
+msgstr ""
+
+#. translators: 1: HTTP status code, 2: provider error message.
+#: classes/Email/AbstractApiMailer.php:115
+#, php-format
+msgid "The provider rejected the message (HTTP %1$d): %2$s"
+msgstr ""
+
+#: classes/Email/Dispatcher.php:106
+msgid "No email connection is configured."
+msgstr ""
+
+#: classes/Email/Dispatcher.php:157
+msgid "This connection uses a provider that is no longer available."
+msgstr ""
+
+#: classes/Email/Dispatcher.php:159
+msgid "The message has no valid recipient."
+msgstr ""
+
+#: classes/Email/Dispatcher.php:166
+msgid "The email provider adapter failed unexpectedly."
+msgstr ""
+
+#: classes/Email/Mailers/Brevo.php:30
+msgid "Brevo"
+msgstr ""
+
+#: classes/Email/Mailers/Brevo.php:31
+msgid "Brevo (formerly Sendinblue) transactional email API."
+msgstr ""
+
+#: classes/Email/Mailers/Brevo.php:35
+#: classes/Email/Mailers/Mailgun.php:38
+#: classes/Email/Mailers/SendGrid.php:35
+#: classes/Sms/Gateways/Clickatell.php:34
+#: classes/Sms/Gateways/Vonage.php:34
+msgid "API key"
+msgstr ""
+
+#: classes/Email/Mailers/Brevo.php:39
+msgid "A v3 API key from SMTP & API in your Brevo account."
+msgstr ""
+
+#: classes/Email/Mailers/Mailgun.php:33
+msgid "Mailgun"
+msgstr ""
+
+#: classes/Email/Mailers/Mailgun.php:34
+msgid "Mailgun transactional email API."
+msgstr ""
+
+#: classes/Email/Mailers/Mailgun.php:42
+msgid "A sending key for your domain is enough."
+msgstr ""
+
+#: classes/Email/Mailers/Mailgun.php:46
+msgid "Sending domain"
+msgstr ""
+
+#: classes/Email/Mailers/Mailgun.php:49
+msgid "For example mg.example.com"
+msgstr ""
+
+#: classes/Email/Mailers/Mailgun.php:53
+msgid "Region"
+msgstr ""
+
+#: classes/Email/Mailers/Mailgun.php:59
+msgid "US"
+msgstr ""
+
+#: classes/Email/Mailers/Mailgun.php:63
+msgid "EU"
+msgstr ""
+
+#: classes/Email/Mailers/Mailgun.php:82
+msgid "The Mailgun sending domain is not a valid domain name."
+msgstr ""
+
+#: classes/Email/Mailers/Postmark.php:30
+msgid "Postmark"
+msgstr ""
+
+#: classes/Email/Mailers/Postmark.php:31
+msgid "Postmark transactional email API."
+msgstr ""
+
+#: classes/Email/Mailers/Postmark.php:35
+msgid "Server API token"
+msgstr ""
+
+#: classes/Email/Mailers/Postmark.php:42
+msgid "Message stream"
+msgstr ""
+
+#: classes/Email/Mailers/Postmark.php:45
+msgid "The stream ID to send through. \"outbound\" is the default transactional stream."
+msgstr ""
+
+#: classes/Email/Mailers/SendGrid.php:30
+msgid "SendGrid"
+msgstr ""
+
+#: classes/Email/Mailers/SendGrid.php:31
+msgid "Twilio SendGrid transactional email API."
+msgstr ""
+
+#: classes/Email/Mailers/SendGrid.php:39
+msgid "Needs the \"Mail Send\" permission."
+msgstr ""
+
+#: classes/Email/Mailers/Smtp.php:55
+msgid "SMTP"
+msgstr ""
+
+#: classes/Email/Mailers/Smtp.php:56
+msgid "Any SMTP server: your host, Google Workspace, Microsoft 365, Amazon SES, Zoho and others."
+msgstr ""
+
+#: classes/Email/Mailers/Smtp.php:60
+msgid "SMTP host"
+msgstr ""
+
+#: classes/Email/Mailers/Smtp.php:63
+msgid "For example smtp.example.com"
+msgstr ""
+
+#: classes/Email/Mailers/Smtp.php:67
+msgid "Port"
+msgstr ""
+
+#: classes/Email/Mailers/Smtp.php:73
+msgid "Encryption"
+msgstr ""
+
+#: classes/Email/Mailers/Smtp.php:79
+msgid "STARTTLS (port 587)"
+msgstr ""
+
+#: classes/Email/Mailers/Smtp.php:83
+msgid "SSL/TLS (port 465)"
+msgstr ""
+
+#: classes/Email/Mailers/Smtp.php:87
+msgid "None (not recommended)"
+msgstr ""
+
+#: classes/Email/Mailers/Smtp.php:93
+msgid "Use authentication"
+msgstr ""
+
+#: classes/Email/Mailers/Smtp.php:99
+msgid "Username"
+msgstr ""
+
+#: classes/Email/Mailers/Smtp.php:106
+msgid "Password"
+msgstr ""
+
+#: classes/Integrations/functions.php:73
+msgid "An email needs \"to\", \"subject\" and \"message\"."
+msgstr ""
+
+#: classes/Integrations/functions.php:95
+msgid "The email could not be sent."
+msgstr ""
+
+#: classes/Rest/Controller.php:28
+msgid "You are not allowed to manage VuloMail."
+msgstr ""
+
+#: classes/Rest/Logs.php:113
+#: classes/Rest/Logs.php:162
+msgid "That log entry no longer exists."
+msgstr ""
+
+#: classes/Rest/Logs.php:145
+msgid "No log entries were selected."
+msgstr ""
+
+#: classes/Rest/Logs.php:166
+msgid "This message can't be resent because its content or recipients were not stored."
+msgstr ""
+
+#: classes/Rest/Logs.php:203
+msgid "Message resent."
+msgstr ""
+
+#: classes/Rest/Settings.php:105
+msgid "Settings saved."
+msgstr ""
+
+#: classes/Rest/Settings.php:118
+msgid "The sender email is not a valid email address, so it was not saved."
+msgstr ""
+
+#: classes/Rest/Settings.php:130
+msgid "That connection does not exist."
+msgstr ""
+
+#: classes/Rest/Tools.php:66
+msgid "Enter a valid email address to send the test to."
+msgstr ""
+
+#. translators: %s: site name.
+#: classes/Rest/Tools.php:72
+#, php-format
+msgid "VuloMail test email from %s"
+msgstr ""
+
+#: classes/Rest/Tools.php:75
+msgid "This is a test email sent by VuloMail."
+msgstr ""
+
+#: classes/Rest/Tools.php:76
+msgid "If you are reading it, your email connection is working."
+msgstr ""
+
+#. translators: %s: field names.
+#: classes/Rest/Tools.php:112
+#: classes/Rest/Tools.php:171
+#, php-format
+msgid "This connection is incomplete. Missing: %s."
+msgstr ""
+
+#: classes/Rest/Tools.php:144
+msgid "Enter a phone number in international format, for example +14155550123."
+msgstr ""
+
+#. translators: %s: site name.
+#: classes/Rest/Tools.php:149
+#, php-format
+msgid "VuloMail test message from %s. Your SMS connection is working."
+msgstr ""
+
+#: classes/Rest/Tools.php:208
+msgid "Test sent. Check the inbox or phone to confirm it arrived."
+msgstr ""
+
+#: classes/Rest/Tools.php:209
+msgid "The test could not be sent."
+msgstr ""
+
+#: classes/Security/HttpClient.php:35
+msgid "Provider endpoints must use HTTPS."
+msgstr ""
+
+#. translators: 1: HTTP status code, 2: gateway error message.
+#: classes/Sms/AbstractGateway.php:84
+#, php-format
+msgid "The gateway rejected the message (HTTP %1$d): %2$s"
+msgstr ""
+
+#: classes/Sms/Dispatcher.php:122
+msgid "SMS sending is switched off."
+msgstr ""
+
+#: classes/Sms/Dispatcher.php:126
+msgid "The recipient is not a valid phone number. Use international format, or set a default country code."
+msgstr ""
+
+#: classes/Sms/Dispatcher.php:128
+msgid "The message is empty."
+msgstr ""
+
+#: classes/Sms/Dispatcher.php:130
+msgid "The message is too long to send as an SMS."
+msgstr ""
+
+#: classes/Sms/Dispatcher.php:132
+msgid "No SMS connection is configured."
+msgstr ""
+
+#: classes/Sms/Dispatcher.php:184
+msgid "This connection uses a gateway that is no longer available."
+msgstr ""
+
+#: classes/Sms/Dispatcher.php:189
+msgid "The SMS gateway adapter failed unexpectedly."
+msgstr ""
+
+#: classes/Sms/Gateways/Clickatell.php:29
+msgid "Clickatell"
+msgstr ""
+
+#: classes/Sms/Gateways/Clickatell.php:30
+msgid "Clickatell Platform SMS API."
+msgstr ""
+
+#: classes/Sms/Gateways/Clickatell.php:41
+msgid "Sender (optional)"
+msgstr ""
+
+#: classes/Sms/Gateways/Clickatell.php:43
+msgid "Only needed for two-way integrations; leave blank otherwise."
+msgstr ""
+
+#: classes/Sms/Gateways/Plivo.php:29
+msgid "Plivo"
+msgstr ""
+
+#: classes/Sms/Gateways/Plivo.php:30
+msgid "Plivo Message API."
+msgstr ""
+
+#: classes/Sms/Gateways/Plivo.php:34
+msgid "Auth ID"
+msgstr ""
+
+#: classes/Sms/Gateways/Plivo.php:40
+#: classes/Sms/Gateways/Twilio.php:40
+msgid "Auth token"
+msgstr ""
+
+#: classes/Sms/Gateways/Plivo.php:47
+#: classes/Sms/Gateways/Twilio.php:47
+#: classes/Sms/Gateways/Vonage.php:47
+#: assets/js/index.js:1
+msgid "Sender"
+msgstr ""
+
+#: classes/Sms/Gateways/Plivo.php:50
+msgid "A Plivo number or an alphanumeric sender ID."
+msgstr ""
+
+#: classes/Sms/Gateways/Plivo.php:68
+msgid "The Plivo Auth ID is not valid."
+msgstr ""
+
+#: classes/Sms/Gateways/Twilio.php:29
+msgid "Twilio"
+msgstr ""
+
+#: classes/Sms/Gateways/Twilio.php:30
+msgid "Twilio Programmable Messaging."
+msgstr ""
+
+#: classes/Sms/Gateways/Twilio.php:34
+msgid "Account SID"
+msgstr ""
+
+#: classes/Sms/Gateways/Twilio.php:50
+msgid "A Twilio phone number (+14155550123), an alphanumeric sender ID, or a Messaging Service SID (MG…)."
+msgstr ""
+
+#: classes/Sms/Gateways/Twilio.php:68
+msgid "The Twilio Account SID should start with \"AC\" followed by 32 characters."
+msgstr ""
+
+#: classes/Sms/Gateways/Vonage.php:29
+msgid "Vonage"
+msgstr ""
+
+#: classes/Sms/Gateways/Vonage.php:30
+msgid "Vonage (formerly Nexmo) SMS API."
+msgstr ""
+
+#: classes/Sms/Gateways/Vonage.php:40
+msgid "API secret"
+msgstr ""
+
+#: classes/Sms/Gateways/Vonage.php:50
+msgid "A Vonage number or an alphanumeric sender ID (up to 11 characters)."
+msgstr ""
+
+#: classes/Sms/Gateways/Vonage.php:87
+msgid "Unexpected response from Vonage."
+msgstr ""
+
+#: classes/Sms/Triggers.php:96
+msgid "New user registered"
+msgstr ""
+
+#: classes/Sms/Triggers.php:97
+msgid "Text the site admin when someone creates an account."
+msgstr ""
+
+#: classes/Sms/Triggers.php:98
+msgid "New user {username} registered on {site_name}."
+msgstr ""
+
+#: classes/Sms/Triggers.php:102
+msgid "Administrator logged in"
+msgstr ""
+
+#: classes/Sms/Triggers.php:103
+msgid "Text the site admin whenever an administrator account logs in, so an unexpected login is noticed straight away."
+msgstr ""
+
+#: classes/Sms/Triggers.php:104
+msgid "Administrator {username} logged in to {site_name} from {user_ip}."
+msgstr ""
+
+#: classes/Sms/Triggers.php:108
+msgid "New comment"
+msgstr ""
+
+#: classes/Sms/Triggers.php:109
+msgid "Text the site admin when a visitor comments on a post. Comments marked as spam are ignored."
+msgstr ""
+
+#: classes/Sms/Triggers.php:110
+msgid "New comment by {comment_author} on \"{post_title}\" at {site_name}."
+msgstr ""
+
+#: classes/Sms/Triggers.php:114
+msgid "An email failed to send"
+msgstr ""
+
+#: classes/Sms/Triggers.php:115
+msgid "Text the site admin when an email could not be delivered by any connection. At most one text every 15 minutes, however many emails fail."
+msgstr ""
+
+#: classes/Sms/Triggers.php:116
+msgid "An email from {site_name} failed to send: \"{subject}\". {error}"
+msgstr ""
+
+#: classes/Sms/Triggers.php:123
+msgid "New order"
+msgstr ""
+
+#: classes/Sms/Triggers.php:124
+msgid "Text the site admin when a new order is placed."
+msgstr ""
+
+#: classes/Sms/Triggers.php:125
+msgid "New order #{order_number} for {order_total} on {site_name}."
+msgstr ""
+
+#: classes/Sms/Triggers.php:129
+msgid "Order payment failed"
+msgstr ""
+
+#: classes/Sms/Triggers.php:130
+msgid "Text the site admin when an order moves to \"Failed\", usually a declined payment."
+msgstr ""
+
+#: classes/Sms/Triggers.php:131
+msgid "Payment failed for order #{order_number} ({order_total}) on {site_name}."
+msgstr ""
+
+#: classes/Sms/Triggers.php:135
+#: classes/Sms/Triggers.php:193
+msgid "Order cancelled"
+msgstr ""
+
+#: classes/Sms/Triggers.php:136
+msgid "Text the site admin when an order is cancelled."
+msgstr ""
+
+#: classes/Sms/Triggers.php:137
+msgid "Order #{order_number} ({order_total}) on {site_name} was cancelled."
+msgstr ""
+
+#: classes/Sms/Triggers.php:141
+#: classes/Sms/Triggers.php:187
+msgid "Order refunded"
+msgstr ""
+
+#: classes/Sms/Triggers.php:142
+msgid "Text the site admin when a full or partial refund is issued."
+msgstr ""
+
+#: classes/Sms/Triggers.php:143
+msgid "A refund was issued on order #{order_number} at {site_name}."
+msgstr ""
+
+#: classes/Sms/Triggers.php:147
+msgid "Product low in stock"
+msgstr ""
+
+#: classes/Sms/Triggers.php:148
+msgid "Text the site admin when a product reaches its low stock threshold."
+msgstr ""
+
+#: classes/Sms/Triggers.php:149
+msgid "{product_name} is low in stock on {site_name}: {stock_quantity} left."
+msgstr ""
+
+#: classes/Sms/Triggers.php:153
+msgid "Product out of stock"
+msgstr ""
+
+#: classes/Sms/Triggers.php:154
+msgid "Text the site admin when a product sells out."
+msgstr ""
+
+#: classes/Sms/Triggers.php:155
+msgid "{product_name} is out of stock on {site_name}."
+msgstr ""
+
+#: classes/Sms/Triggers.php:159
+msgid "Product backordered"
+msgstr ""
+
+#: classes/Sms/Triggers.php:160
+msgid "Text the site admin when a customer orders a product that is on backorder."
+msgstr ""
+
+#: classes/Sms/Triggers.php:161
+msgid "{product_name} was backordered in order #{order_number} on {site_name}."
+msgstr ""
+
+#: classes/Sms/Triggers.php:165
+msgid "New product review"
+msgstr ""
+
+#: classes/Sms/Triggers.php:166
+msgid "Text the site admin when a customer reviews a product."
+msgstr ""
+
+#: classes/Sms/Triggers.php:167
+msgid "{comment_author} left a {rating}-star review on {product_name} at {site_name}."
+msgstr ""
+
+#: classes/Sms/Triggers.php:175
+msgid "Order confirmed (processing)"
+msgstr ""
+
+#: classes/Sms/Triggers.php:176
+msgid "Text the customer when payment is received and the order is being prepared."
+msgstr ""
+
+#: classes/Sms/Triggers.php:177
+msgid "Hi {customer_name}, thanks for your order #{order_number} at {site_name}. We are getting it ready."
+msgstr ""
+
+#: classes/Sms/Triggers.php:181
+msgid "Order completed"
+msgstr ""
+
+#: classes/Sms/Triggers.php:182
+msgid "Text the customer when their order is marked complete."
+msgstr ""
+
+#: classes/Sms/Triggers.php:183
+msgid "Hi {customer_name}, your order #{order_number} from {site_name} is complete. Thank you!"
+msgstr ""
+
+#: classes/Sms/Triggers.php:188
+msgid "Text the customer when their order is fully refunded."
+msgstr ""
+
+#: classes/Sms/Triggers.php:189
+msgid "Hi {customer_name}, your order #{order_number} at {site_name} has been refunded."
+msgstr ""
+
+#: classes/Sms/Triggers.php:194
+msgid "Text the customer when their order is cancelled."
+msgstr ""
+
+#: classes/Sms/Triggers.php:195
+msgid "Hi {customer_name}, your order #{order_number} at {site_name} has been cancelled."
+msgstr ""
+
+#: classes/Sms/Triggers.php:199
+msgid "Any other order status change"
+msgstr ""
+
+#: classes/Sms/Triggers.php:200
+msgid "Text the customer on every status change that has no alert of its own switched on above, including custom statuses."
+msgstr ""
+
+#: classes/Sms/Triggers.php:201
+msgid "Hi {customer_name}, your order #{order_number} at {site_name} is now {order_status}."
+msgstr ""
+
+#: classes/Sms/Triggers.php:205
+msgid "Note added to an order"
+msgstr ""
+
+#: classes/Sms/Triggers.php:206
+msgid "Text the customer when you add a \"note to customer\" on their order, for example a tracking number."
+msgstr ""
+
+#: classes/Sms/Triggers.php:207
+msgid "Update on your order #{order_number} at {site_name}: {note}"
+msgstr ""
+
+#: classes/Sms/Triggers.php:336
+msgid "an unknown address"
+msgstr ""
+
+#: classes/Utill.php:104
+msgid "Today"
+msgstr ""
+
+#: classes/Utill.php:108
+msgid "Yesterday"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Something went wrong. Please try again."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Text message"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "(no subject)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "SMS"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Email"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "More Details"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "7D"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "30D"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "90D"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Send a test"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Check that email and SMS are going out."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "View the delivery log"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Every message this site has tried to send."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Never miss a sale or a problem"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "New orders, failed payments, refunds and low stock, sent to your phone."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Keep customers informed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Order confirmed, completed, refunded, plus your own notes such as a tracking number."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Watch your site"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Administrator logins, new users and comments, and a text when an email fails to send."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "All"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Failed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sent via backup"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sent"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "OK"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Needs attention"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Problem"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Info"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Send a test email"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Send a test SMS"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Confirms that email leaves this site and reaches an inbox."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Confirms that your gateway accepts and delivers a text message. Your provider may charge for it."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Send to"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Phone number"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "International format, for example +14155550123."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Send through"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "\"Live routing\" follows the same path as every other message, including failover."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Live routing"
+msgstr ""
+
+#. translators: %s: provider name.
+#: assets/js/index.js:1
+#, js-format
+msgid "Accepted by %s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The test was not sent"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sending…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Send test"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Leave unchanged to keep the saved value"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connection name"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Only used to tell your connections apart."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connection enabled"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Cancel"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Saving…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Save connection"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connection saved."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add the email service you want to send through. WordPress keeps sending with its own mailer until you set a connection as primary. A backup takes over if the primary fails."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add an SMS gateway to send text messages. The first one you add becomes the primary; a backup takes over if it fails."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No SMS gateway connected yet, so no text messages are sent."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Message"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Leave empty to use the default. Placeholders:"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "On"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Off"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connect the email and SMS providers you already use. Credentials are encrypted before they are saved and never shown again."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load connections"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Routing updated."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Primary"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Backup"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Disabled"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Incomplete"
+msgstr ""
+
+#. translators: %s: comma-separated field names.
+#: assets/js/index.js:1
+#, js-format
+msgid "Missing: %s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Set as primary"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Set as backup"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Remove as backup"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Test"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Edit"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delete"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "WordPress default mailer"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Built in"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Built into WordPress. Used only as a last resort, if that is switched on under Email."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Built into WordPress. Sends your email until you set one of your connections as primary."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add email connection"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add SMS connection"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Your connection is saved but not in use yet. Choose \"Set as primary\" to start sending email through it."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Edit connection"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add connection"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delete this connection?"
+msgstr ""
+
+#. translators: %s: connection name.
+#: assets/js/index.js:1
+#, js-format
+msgid "\"%s\" and its saved credentials will be removed. Messages will stop going through it straight away."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Keep connection"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delete connection"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connection deleted."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "How outgoing email is routed and who it appears to come from."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Routing"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Whether VuloMail delivers this site's email, and what happens when your connections fail."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Send email through VuloMail"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "When off, WordPress sends email exactly as it would without VuloMail. Your connections are kept."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Fall back to the WordPress default mailer"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "If the primary and backup connections both fail, hand the email to WordPress instead of dropping it."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The name and address your email is sent from."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sender email"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Replaces the WordPress default sender. Use an address your email provider has verified."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sender name"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Replaces the default sender name \"WordPress\"."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Override plugins"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Always use this sender email"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Even when a plugin sets its own From address."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Always use this sender name"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Even when a plugin sets its own From name."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Whether text messages are sent, how phone numbers are read, and where admin alerts go."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sending"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Switch text messages on or off, and set how phone numbers without a country code are read."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Send SMS through VuloMail"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "When off, no text messages are sent, including alerts and messages from other plugins."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Default country code"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Added to phone numbers written without one. Digits only, for example 1 or 44."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Admin phone"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Where alerts addressed to the site admin are sent."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Admin phone number"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Requires WooCommerce"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Install and activate WooCommerce to use these alerts."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Send a text message when something happens on your site. Every alert is off until you switch it on."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Site alerts"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sent to the admin phone number set under Settings → SMS."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Store alerts"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Orders, refunds, stock and reviews. Sent to the admin phone number set under Settings → SMS."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Customer alerts"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sent to the billing phone on the order. Only switch these on if your customers have agreed to receive text messages. A customer gets one text per status change."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Logging & Privacy"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What the delivery log keeps, and for how long."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The log is stored in your own database and never leaves this site."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Keep a log of sent and failed messages"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Records who each message went to, which provider sent it, and any error."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Store message content"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Needed to view or resend a message later. Stored messages can include password reset links and personal details, so leave this off unless you need it."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Mask recipients in the log"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Stores j•••@example.com instead of the full address or number. Masked entries can't be resent."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "days"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Keep entries for"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Older entries are deleted automatically. 0 keeps them until you delete them."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Uninstall"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What happens to your connections, settings and logs when VuloMail is deleted."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Your data on uninstall"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What happens to connections, settings and logs when VuloMail is deleted."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "When VuloMail is deleted"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Keep data"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Reinstalling picks up where you left off."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delete everything"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Removes connections, settings and logs."
+msgstr ""
+
+#. translators: %s: plugin name.
+#: assets/js/index.js:1
+#, js-format
+msgid "Requires %s"
+msgstr ""
+
+#. translators: %s: plugin name.
+#: assets/js/index.js:1
+#, js-format
+msgid "This setting only works when %s is installed and active."
+msgstr ""
+
+#. translators: %s: plugin name.
+#: assets/js/index.js:1
+#, js-format
+msgid "Get %s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delivery totals and connection status."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Active"
+msgstr ""
+
+#. translators: 1: primary connection name, 2: backup connection name.
+#: assets/js/index.js:1
+#, js-format
+msgid "Sending through %1$s, with %2$s as backup."
+msgstr ""
+
+#. translators: %s: connection name.
+#: assets/js/index.js:1
+#, js-format
+msgid "Sending through %s. No backup connection is set."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Not set up"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Switched off"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "How email and SMS from this site are being delivered."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Manage connections"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load the dashboard"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delivery"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Recent failures"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Channels & quick actions"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "SMS alerts"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Email is still using the WordPress default mailer"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add an email connection so messages are sent through a provider you control. Until then nothing about how this site sends email has changed."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Logging is switched off, so the totals below stay at zero."
+msgstr ""
+
+#. translators: 1: email delivery rate, 2: SMS delivery rate.
+#: assets/js/index.js:1
+#, js-format
+msgid "Delivered: %1$s of emails, %2$s of text messages."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Emails sent"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Emails failed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "SMS sent"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "SMS failed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The latest messages that could not be delivered."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "View all logs"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No failed messages"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Nothing has failed to send."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Which connection each channel is sending through, and the most common tasks."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "WordPress is sending email with its default mailer."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No text messages are being sent."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Get a text message the moment something happens, written in your own words."
+msgstr ""
+
+#. translators: 1: alerts switched on, 2: alerts available.
+#: assets/js/index.js:1
+#, js-format
+msgid "%1$d of %2$d on"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Alerts are sent once an SMS connection is set as primary."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Manage SMS alerts"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Set up SMS alerts"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Text messages for site, store and customer events."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load SMS alerts"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Every email and SMS sent from this site."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Every email and text message this site has tried to send."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delete all logs"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delivery rate"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load the log"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Search recipient or subject…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Date range"
+msgstr ""
+
+#. translators: %s: recipient addresses or numbers.
+#: assets/js/index.js:1
+#, js-format
+msgid "To %s"
+msgstr ""
+
+#. translators: %s: provider name.
+#: assets/js/index.js:1
+#, js-format
+msgid "via %s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Status"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "View"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Nothing has been logged yet."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Date"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "To"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "From"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sent with"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sent by"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Attachments"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Provider ID"
+msgstr ""
+
+#. translators: 1: attempt number, 2: provider name.
+#: assets/js/index.js:1
+#, js-format
+msgid "Attempt %1$d: %2$s accepted the message."
+msgstr ""
+
+#. translators: 1: attempt number, 2: provider name, 3: error message.
+#: assets/js/index.js:1
+#, js-format
+msgid "Attempt %1$d: %2$s failed. %3$s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Message content was not stored. Turn on \"Store message content\" under Settings to keep it for new messages and allow resending."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delete entry"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Log entry deleted."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Resend"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delete all logs?"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Every email and SMS log entry will be permanently deleted. This can't be undone."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Keep logs"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "All log entries deleted."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Send a test email or SMS and run diagnostics."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Check that messages are going out, and find out why if they are not."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Run diagnostics again"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Running…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load the tools"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks of this site's delivery setup. Nothing here changes any setting."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Passed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Need attention"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Problems"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Tip:"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What to do:"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connections, sender, SMS, logging, privacy and integrations."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load settings"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Loading…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Emails and text messages sent and failed over the selected period."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Whether email and SMS are set up, which connection each is sending through, and shortcuts to common tasks."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "How many text message alerts are switched on, and what they can do."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Check that email is going out through a connection."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Check that text messages are going out through a connection."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Search…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Every Where"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Tabs"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sections"
+msgstr ""

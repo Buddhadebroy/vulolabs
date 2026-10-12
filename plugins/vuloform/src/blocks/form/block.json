@@ -1,0 +1,21 @@
+{
+	"apiVersion": 3,
+	"name": "vuloform/form",
+	"title": "VuloForm",
+	"category": "widgets",
+	"icon": "feedback",
+	"description": "Show a form you built with VuloForm.",
+	"keywords": [ "form", "contact", "survey" ],
+	"textdomain": "vuloform",
+	"editorScript": "file:./index.js",
+	"attributes": {
+		"formId": {
+			"type": "number",
+			"default": 0
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": [ "wide", "full" ]
+	}
+}

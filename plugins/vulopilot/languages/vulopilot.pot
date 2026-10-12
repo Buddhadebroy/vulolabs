@@ -8,13 +8,14 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-05T12:17:24+00:00\n"
+"POT-Creation-Date: 2026-10-09T12:25:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
 
 #. Plugin Name of the plugin
 #: vulopilot.php
+#: classes/Content/BlockRegistrar.php:48
 msgid "VuloPilot"
 msgstr ""
 
@@ -145,6 +146,7 @@ msgstr ""
 
 #: classes/Admin.php:85
 #: modules/TechnicalSeo/Rest/Seo.php:628
+#: assets/js/block/faq/index.js:1
 #: assets/js/index.js:1
 #: assets/js/index.js:5
 #: assets/js/index.js:9
@@ -196,6 +198,7 @@ msgid "Reports"
 msgstr ""
 
 #: classes/Admin.php:132
+#: assets/js/block/faq/index.js:1
 #: assets/js/index.js:17
 msgid "Settings"
 msgstr ""
@@ -222,7 +225,7 @@ msgstr ""
 
 #. translators: %s: underlying error message.
 #: classes/AiAssistant/AiCreditsConnection.php:119
-#: classes/AiAssistant/AiCreditsConnection.php:350
+#: classes/AiAssistant/AiCreditsConnection.php:348
 #: modules/AiCopilot/Services/AiCreditGatewayClient.php:74
 #, php-format
 msgid "Could not reach VuloCloud: %s"
@@ -233,16 +236,16 @@ msgid "Could not refresh your AI credit balance."
 msgstr ""
 
 #. translators: %d: HTTP status code.
-#: classes/AiAssistant/AiCreditsConnection.php:228
+#: classes/AiAssistant/AiCreditsConnection.php:226
 #, php-format
 msgid "Connect broker returned a non-JSON response (HTTP %d)."
 msgstr ""
 
-#: classes/AiAssistant/AiCreditsConnection.php:237
+#: classes/AiAssistant/AiCreditsConnection.php:235
 msgid "Connect broker could not complete the connection."
 msgstr ""
 
-#: classes/AiAssistant/AiCreditsConnection.php:311
+#: classes/AiAssistant/AiCreditsConnection.php:309
 #: classes/AiAssistant/Rest/VuloCloudAiConnection.php:86
 #: modules/AiCopilot/Services/AiCreditGatewayClient.php:41
 #: assets/js/index.js:1
@@ -250,30 +253,30 @@ msgstr ""
 msgid "VuloCloud isn’t configured for this build yet."
 msgstr ""
 
-#: classes/AiAssistant/AiCreditsConnection.php:317
+#: classes/AiAssistant/AiCreditsConnection.php:315
 msgid "This site is not connected to VuloCloud."
 msgstr ""
 
-#: classes/AiAssistant/AiCreditsConnection.php:361
+#: classes/AiAssistant/AiCreditsConnection.php:359
 #: modules/AiCopilot/Services/AiCreditGatewayClient.php:85
 msgid "VuloCloud returned an unexpected response."
 msgstr ""
 
-#: classes/AiAssistant/AiCreditsConnection.php:368
+#: classes/AiAssistant/AiCreditsConnection.php:366
 msgid "Your Organization hasn’t configured an AI key yet."
 msgstr ""
 
-#: classes/AiAssistant/AiCreditsConnection.php:375
+#: classes/AiAssistant/AiCreditsConnection.php:373
 msgid "This site's VuloCloud connection was revoked. Please reconnect under Settings → Connections."
 msgstr ""
 
-#: classes/AiAssistant/AiCreditsConnection.php:380
-#: classes/AiAssistant/AiCreditsConnection.php:385
+#: classes/AiAssistant/AiCreditsConnection.php:378
+#: classes/AiAssistant/AiCreditsConnection.php:383
 #: modules/AiCopilot/Services/AiCreditGatewayClient.php:109
 msgid "VuloCloud could not process this AI request right now."
 msgstr ""
 
-#: classes/AiAssistant/AiCreditsConnection.php:403
+#: classes/AiAssistant/AiCreditsConnection.php:401
 #: classes/Utill/VuloPilotException.php:185
 #: modules/AiCopilot/ActionRunner.php:168
 #: assets/js/index.js:1
@@ -281,7 +284,7 @@ msgid "You don’t have enough credits to complete this request."
 msgstr ""
 
 #. translators: %d: HTTP status code.
-#: classes/AiAssistant/AiCreditsConnection.php:494
+#: classes/AiAssistant/AiCreditsConnection.php:492
 #, php-format
 msgid "VuloCloud returned a non-JSON response (HTTP %d)."
 msgstr ""
@@ -542,7 +545,7 @@ msgstr ""
 msgid "Could not delete this redirect."
 msgstr ""
 
-#: classes/Content/TableOfContentsRenderer.php:28
+#: classes/Content/TableOfContentsRenderer.php:32
 msgid "Table of Contents"
 msgstr ""
 
@@ -821,8 +824,8 @@ msgid "Slow server response"
 msgstr ""
 
 #: classes/Performance/PageSpeedScanner.php:412
-#: classes/SeoVisibility/Rest/Schema.php:197
-#: classes/SeoVisibility/Rest/Schema.php:199
+#: classes/SeoVisibility/Rest/Schema.php:203
+#: classes/SeoVisibility/Rest/Schema.php:205
 #: classes/SeoVisibility/SchemaCoverageAnalyzer.php:141
 #: modules/KnowledgeGraph/EntityExtractor.php:145
 #: assets/js/index.js:1
@@ -1184,7 +1187,7 @@ msgstr ""
 
 #: classes/Reports/Rest/History.php:641
 #: classes/Reports/Rest/History.php:690
-#: classes/SeoVisibility/Rest/Schema.php:183
+#: classes/SeoVisibility/Rest/Schema.php:189
 #: assets/js/index.js:1
 #: assets/js/index.js:17
 msgid "(no title)"
@@ -1193,9 +1196,9 @@ msgstr ""
 #: classes/Reports/Rest/History.php:702
 #: classes/Reports/Rest/History.php:780
 #: classes/Reports/Rest/History.php:783
-#: classes/Utill/Findings.php:402
-#: classes/Utill/Findings.php:415
-#: classes/Utill/Findings.php:428
+#: classes/Utill/Findings.php:411
+#: classes/Utill/Findings.php:424
+#: classes/Utill/Findings.php:437
 #: assets/js/index.js:1
 #: assets/js/index.js:5
 msgid "Site-wide"
@@ -1662,11 +1665,11 @@ msgstr ""
 msgid "No IndexNow API key yet - reload the Instant Indexing tab once to generate one."
 msgstr ""
 
-#: classes/SeoVisibility/Rest/Schema.php:142
+#: classes/SeoVisibility/Rest/Schema.php:148
 msgid "Provide a URL or post to inspect."
 msgstr ""
 
-#: classes/SeoVisibility/Rest/Schema.php:148
+#: classes/SeoVisibility/Rest/Schema.php:154
 #: assets/js/index.js:5
 msgid "Could not fetch that page. Check the URL and try again."
 msgstr ""
@@ -1748,7 +1751,7 @@ msgstr ""
 
 #: classes/SeoVisibility/SitemapStylesheet.php:82
 #: classes/SeoVisibility/SitemapStylesheet.php:184
-msgid "This XML Sitemap is generated by Vulopilot to make your content more visible for search engines."
+msgid "This XML Sitemap is generated by VuloPilot powered by WordPress to make your content more visible for search engines."
 msgstr ""
 
 #: classes/SeoVisibility/SitemapStylesheet.php:85
@@ -1803,7 +1806,7 @@ msgstr ""
 #: classes/Settings/GoogleAnalyticsClient.php:97
 #: classes/Settings/GoogleAnalyticsClient.php:145
 #: classes/Settings/GoogleAnalyticsClient.php:210
-#: classes/Settings/GoogleServicesConnection.php:420
+#: classes/Settings/GoogleServicesConnection.php:266
 msgid "Not connected to Google."
 msgstr ""
 
@@ -1841,15 +1844,7 @@ msgstr ""
 msgid "Google connect broker returned a non-JSON response (HTTP %d)."
 msgstr ""
 
-#: classes/Settings/GoogleServicesConnection.php:228
-msgid "No Google OAuth Client ID/Secret saved yet."
-msgstr ""
-
-#: classes/Settings/GoogleServicesConnection.php:254
-msgid "Google did not return an access token."
-msgstr ""
-
-#: classes/Settings/GoogleServicesConnection.php:436
+#: classes/Settings/GoogleServicesConnection.php:282
 msgid "Could not fetch your Search Console properties."
 msgstr ""
 
@@ -2357,27 +2352,27 @@ msgstr ""
 msgid "WordPress health check"
 msgstr ""
 
-#: classes/Utill/Findings.php:181
+#: classes/Utill/Findings.php:189
 msgid "Invalid severity filter."
 msgstr ""
 
-#: classes/Utill/Findings.php:469
+#: classes/Utill/Findings.php:478
 msgid "Invalid finding status."
 msgstr ""
 
-#: classes/Utill/Findings.php:475
+#: classes/Utill/Findings.php:484
 msgid "Finding not found."
 msgstr ""
 
-#: classes/Utill/Findings.php:487
+#: classes/Utill/Findings.php:496
 msgid "Could not update this finding."
 msgstr ""
 
-#: classes/Utill/Findings.php:509
+#: classes/Utill/Findings.php:518
 msgid "Invalid bulk finding status."
 msgstr ""
 
-#: classes/Utill/Findings.php:513
+#: classes/Utill/Findings.php:522
 msgid "No findings selected."
 msgstr ""
 
@@ -3490,28 +3485,222 @@ msgid "Without a twitter:card meta tag, links to this site shared on X/Twitter s
 msgstr ""
 
 #: assets/js/block/faq/index.js:1
-msgid "Add a question below to get started."
+msgid "Style"
 msgstr ""
 
 #: assets/js/block/faq/index.js:1
+msgid "Questions & answers"
+msgstr ""
+
+#. translators: %d: real number of questions currently on this block.
+#: assets/js/block/faq/index.js:2
+#, js-format
+msgid "%d items"
+msgstr ""
+
+#: assets/js/block/faq/index.js:2
+msgid "No questions added yet."
+msgstr ""
+
+#. translators: %d: real 1-based question number.
+#: assets/js/block/faq/index.js:3
+#, js-format
+msgid "Question %d"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
 msgid "Question"
 msgstr ""
 
-#: assets/js/block/faq/index.js:1
+#: assets/js/block/faq/index.js:3
 msgid "Answer"
 msgstr ""
 
-#: assets/js/block/faq/index.js:1
+#: assets/js/block/faq/index.js:3
+msgid "Duplicate"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
 #: assets/js/post-editor.js:1
 msgid "Remove"
 msgstr ""
 
-#: assets/js/block/faq/index.js:1
-msgid "Add Question"
+#: assets/js/block/faq/index.js:3
+msgid "Add question"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "You can also edit questions directly on the canvas."
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Behavior"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Layout"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Allow multiple answers open"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Initially open item"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "None (all closed)"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Open/close animation"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Animation duration (ms)"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Toggle icon"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Icon position"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Question heading level"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Enable FAQ structured data"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Outputs real FAQPage JSON-LD for search engines, generated only from real question/answer rows."
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Appearance"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Typography"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Question size"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Answer size"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Colors"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Text"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Accent"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Background"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Expanded question background"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Spacing & borders"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Item gap"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Padding"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Border"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Corner radius"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Icon settings"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Size"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Spacing from edge"
+msgstr ""
+
+#: assets/js/block/faq/index.js:3
+msgid "Add a question from the Content tab in the sidebar to get started."
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Getting started"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Installation"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Basic setup"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Features"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Customization"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Frequently asked questions"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Bullets"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Numbers"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Hierarchical numbers"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "None"
 msgstr ""
 
 #: assets/js/block/table-of-contents/index.js:1
 msgid "Table of Contents Settings"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Show title"
 msgstr ""
 
 #: assets/js/block/table-of-contents/index.js:1
@@ -3520,11 +3709,23 @@ msgid "Title"
 msgstr ""
 
 #: assets/js/block/table-of-contents/index.js:1
-msgid "Minimum heading level"
+msgid "Included heading levels"
 msgstr ""
 
 #: assets/js/block/table-of-contents/index.js:1
-msgid "Maximum heading level"
+msgid "Nested list"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Sub-headings indent under their own parent heading."
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Every heading listed at the same level."
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Marker style"
 msgstr ""
 
 #: assets/js/block/table-of-contents/index.js:1
@@ -3532,7 +3733,79 @@ msgid "Collapsible"
 msgstr ""
 
 #: assets/js/block/table-of-contents/index.js:1
-msgid "No headings found yet - add some Heading blocks to this post."
+msgid "Initial state"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Expanded"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Collapsed"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Smooth scrolling"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Scroll offset (px, for a sticky site header)"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Exclude specific headings"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Content Style"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Font size"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Line height"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Gap between items"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Color"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Text color"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Title Style"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Margin"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Section Style"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Background color"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Add headings to your page to generate its table of contents. The list below is a sample so you can still style this block."
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "No headings match the current level/exclusion settings."
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Sample preview - not saved to this post."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4551,7 +4824,7 @@ msgid "Connected to Google."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Could not connect to Google. Please check your Client ID/Secret and try again."
+msgid "Could not connect to Google. Please try again."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8056,8 +8329,18 @@ msgstr ""
 msgid "Good evening"
 msgstr ""
 
+#. translators: %d is how many real visitor samples have been collected so far.
+#: assets/js/index.js:1
+#, js-format
+msgid "Collecting data (%d)"
+msgstr ""
+
 #: assets/js/index.js:1
 msgid "Server Response Time"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No recent requests"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8242,12 +8525,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Tracking"
-msgstr ""
-
-#. translators: %d is how many real visitor samples have been collected so far.
-#: assets/js/index.js:1
-#, js-format
-msgid "Collecting data (%d)"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8451,6 +8728,7 @@ msgid "Copy"
 msgstr ""
 
 #: assets/js/index.js:1
+#: assets/js/index.js:9
 msgid "Copied!"
 msgstr ""
 
@@ -9495,7 +9773,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 #: assets/js/index.js:5
-#: assets/js/index.js:9
 msgid "Actions"
 msgstr ""
 
@@ -10980,23 +11257,15 @@ msgid "Availability: %s"
 msgstr ""
 
 #: assets/js/index.js:9
+msgid "JSON-LD"
+msgstr ""
+
+#: assets/js/index.js:9
 msgid "Open page"
 msgstr ""
 
 #: assets/js/index.js:9
 msgid "Validate with Google"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "JSON-LD copied to clipboard."
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Could not copy to clipboard."
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "JSON-LD"
 msgstr ""
 
 #: assets/js/index.js:9
@@ -11762,6 +12031,10 @@ msgid "Build a custom automation"
 msgstr ""
 
 #: assets/js/index.js:9
+msgid "Create, view, and manage detailed reports about your website's performance."
+msgstr ""
+
+#: assets/js/index.js:9
 msgid "Full Website Report"
 msgstr ""
 
@@ -11783,28 +12056,6 @@ msgstr ""
 
 #: assets/js/index.js:9
 msgid "Security Report"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Create, view, and manage detailed reports about your website's performance."
-msgstr ""
-
-#. translators: %d is the number of days.
-#: assets/js/index.js:9
-#, js-format
-msgid "Last %d days"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Create Report"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Schedule Report"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Download PDF"
 msgstr ""
 
 #: assets/js/index.js:9
@@ -12104,6 +12355,24 @@ msgstr ""
 
 #: assets/js/index.js:9
 msgid "Scans and AI changes will show up here as VuloPilot works."
+msgstr ""
+
+#. translators: %d is the number of days.
+#: assets/js/index.js:9
+#, js-format
+msgid "Last %d days"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Create Report"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Schedule Report"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Download PDF"
 msgstr ""
 
 #: assets/js/index.js:9
@@ -13286,15 +13555,19 @@ msgid "Two ready-made automations keep your site scanned and reported on. Custom
 msgstr ""
 
 #: assets/js/index.js:17
-msgid "Build with AI"
-msgstr ""
-
-#: assets/js/index.js:17
 msgid "Create Your Own"
 msgstr ""
 
 #: assets/js/index.js:17
 msgid "Choose a Template"
+msgstr ""
+
+#: assets/js/index.js:17
+msgid "Create Automation"
+msgstr ""
+
+#: assets/js/index.js:17
+msgid "Build with AI"
 msgstr ""
 
 #: assets/js/index.js:17

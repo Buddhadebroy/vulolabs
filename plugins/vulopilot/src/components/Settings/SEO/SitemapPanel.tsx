@@ -66,7 +66,7 @@ const SitemapPanel = () => {
 	const isPro = Boolean(vulopilotAppLocalizer.khali_dabba);
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
 
-	/** Pro settings keep their real controls; without Pro, a change opens the upgrade popup instead of saving. */
+	/** Unlocked settings keep their real controls; otherwise a change opens the upgrade popup instead of saving. */
 	const proGuard = (save: () => void) => (isPro ? save() : setIsProPopupOpen(true));
 
 	const lastRun = String(setting.sitemap_health_last_run ?? '');

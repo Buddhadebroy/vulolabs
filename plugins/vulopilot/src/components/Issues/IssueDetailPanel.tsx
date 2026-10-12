@@ -147,14 +147,14 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		null
 	);
 	const [isLoadingAffected, setIsLoadingAffected] = useState(false);
-	// Result of the last action, rendered by Pro's view right above the action buttons.
+	// Result of the last action, rendered right above the action buttons.
 	const { show: showPanelNotice, fixNotice, isUnfixable } = useFixNotice(() => group && onActionComplete({ group, fixed: false }));
 	// Tracks the selected issue so a late-arriving result doesn't apply after selection changes.
 	const activeScannerId = useRef<string | undefined>(group?.scanner_id);
 
 	useEffect(() => {
 		activeScannerId.current = group?.scanner_id;
-		// A fixed issue listed again after a reload gets its Fixed message and Undo back from Pro.
+		// A fixed issue listed again after a reload gets its Fixed message and Undo back.
 		showPanelNotice(
 			group?.fixed && group.undo_ids?.length
 				? (applyFilters('vulopilot_fixed_group_outcome', null, group) as FixOutcome | null) ?? undefined
@@ -237,7 +237,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		}
 	})();
 
-	/** Per-finding `meta.recommended_fix` if present, else Pro's per-scanner `no_fix_steps`. */
+	/** Per-finding `meta.recommended_fix` if present, else the per-scanner `no_fix_steps`. */
 	const recommendedFixSteps: string[] = Array.isArray(
 		sampleMeta?.recommended_fix
 	)

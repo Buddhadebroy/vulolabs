@@ -55,11 +55,9 @@ console.log(`✅ Using Docker network: ${wpEnvNetwork}`);
  * Generate docker-compose.yml
  */
 const content = `
-version: '3.8'
-
 services:
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin:latest
     container_name: ${projectName}-phpmyadmin
 
     environment:
