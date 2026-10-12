@@ -231,12 +231,22 @@ class Forms extends Controller {
 		}
 
 		$form['shortcode'] = '[vuloform id="' . (int) $form['id'] . '"]';
-		// The snippet a site owner pastes into another site's HTML; it is shown as text, never printed here.
+
+		// The snippet a site owner pastes into another site's HTML; it is shown as text, never
+		// printed here, so the <script> markup is built with core's own tag-building function
+		// rather than enqueued - there is no page of ours for wp_enqueue_script() to attach to.
+		$script_tag = wp_get_script_tag(
+			array(
+				'src'   => add_query_arg( 'site', rawurlencode( untrailingslashit( rest_url() ) ), VuloForm()->plugin_url . 'assets/js/public/vuloform-embed.min.js' ),
+				'async' => true,
+			)
+		);
+
 		$form['embed'] = sprintf(
-			'<div data-vuloform="%1$d"><noscript>%2$s</noscript></div>' . "\n" . '<script src="%3$s" async></script>', // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+			'<div data-vuloform="%1$d"><noscript>%2$s</noscript></div>' . "\n" . '%3$s',
 			(int) $form['id'],
 			esc_html__( 'Please enable JavaScript to use this form.', 'vuloform' ),
-			esc_url( add_query_arg( 'site', rawurlencode( untrailingslashit( rest_url() ) ), VuloForm()->plugin_url . 'assets/js/public/vuloform-embed.min.js' ) )
+			trim( $script_tag )
 		);
 
 		return $form;

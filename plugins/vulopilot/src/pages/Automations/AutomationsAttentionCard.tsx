@@ -1,9 +1,8 @@
 /* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
+import { __, sprintf, _n } from '@wordpress/i18n';
+import { getApiLink, getApiResponse } from '@zyra/core';
 import { CardComponent, ListComponent } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
 import type { AutomationRow } from './automationsTypes';
 
 interface AutomationsAttentionCardProps {
@@ -12,10 +11,30 @@ interface AutomationsAttentionCardProps {
 	refetchSignal: number;
 }
 
+/** Cron-based trigger types `with_next_run()` (Automations.php) resolves - any other trigger type never gets a `next_run_at`, so it's excluded from the "missed schedule" check below. */
+const CRON_TRIGGER_TYPES = ['hourly', 'daily', 'weekly', 'monthly'];
+
+interface AttentionGroup {
+	key: string;
+	count: number;
+	title: string;
+	desc: string;
+}
+
+/**
+ * "Needs your attention" - flags only what actually stops an automation from working or needs
+ * the user to act on; a paused automation or an idle agent isn't a problem on its own. Grouped
+ * by flag type (not one row per automation) so "2 automations need setup" stays a single line.
+ *
+ * Only the 3 flags this data can actually support are wired up: setup incomplete (draft status),
+ * run failed (`last_run_status`), and a cron-triggered automation with no scheduled run at all
+ * (`next_run_at` null while enabled - the schedule itself never got (re)registered). Connection
+ * missing, AI credits, and approval-required have no backing signal anywhere in this plugin yet,
+ * so they're deliberately left out rather than shown against data that doesn't exist.
+ */
 const AutomationsAttentionCard = ({ onViewAll, refetchSignal }: AutomationsAttentionCardProps) => {
-	const [failing, setFailing] = useState<AutomationRow[]>([]);
+	const [rows, setRows] = useState<AutomationRow[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
-	const [retryingId, setRetryingId] = useState<number | null>(null);
 
 	// `isLoading` is only true for the first load - a refetch (after a toggle
 	// elsewhere on the page) shouldn't flash this card back into its skeleton.
@@ -26,85 +45,80 @@ const AutomationsAttentionCard = ({ onViewAll, refetchSignal }: AutomationsAtten
 		)
 			.then((response) => {
 				const list = Array.isArray(response) ? response : (response?.data ?? []);
-				setFailing(
-					list.filter(
-						(row) => 'enabled' === row.status && 'failed' === row.last_run_status
-					)
-				);
+				setRows(list);
 			})
 			.finally(() => setIsLoading(false));
 	}, [refetchSignal]);
 
-	const handleRetry = (row: AutomationRow) => {
-		setRetryingId(row.id);
+	const needsSetup = rows.filter((row) => 'draft' === row.status);
+	const runFailed = rows.filter((row) => 'enabled' === row.status && 'failed' === row.last_run_status);
+	const scheduleMissing = rows.filter(
+		(row) =>
+			'enabled' === row.status &&
+			CRON_TRIGGER_TYPES.includes(row.trigger_type) &&
+			! row.next_run_at
+	);
 
-		sendApiResponse(vulopilotAppLocalizer, getApiLink(vulopilotAppLocalizer, `automations/${row.id}/run`), {})
-			.then((response) => {
-				if (response) {
-					setFailing((current) => current.filter((item) => item.id !== row.id));
-				}
-			})
-			.finally(() => setRetryingId(null));
-	};
+	const groups: AttentionGroup[] = [
+		needsSetup.length > 0 && {
+			key: 'needs-setup',
+			count: needsSetup.length,
+			title: sprintf(
+				/* translators: %d: automation count. */
+				_n('%d automation needs setup', '%d automations need setup', needsSetup.length, 'vulopilot'),
+				needsSetup.length
+			),
+			desc: __('Complete the required settings to enable them.', 'vulopilot'),
+		},
+		runFailed.length > 0 && {
+			key: 'run-failed',
+			count: runFailed.length,
+			title: sprintf(
+				/* translators: %d: automation count. */
+				_n('%d automation failed its last run', '%d automations failed their last run', runFailed.length, 'vulopilot'),
+				runFailed.length
+			),
+			desc: __('View the error, or retry from the list below.', 'vulopilot'),
+		},
+		scheduleMissing.length > 0 && {
+			key: 'schedule-missing',
+			count: scheduleMissing.length,
+			title: sprintf(
+				/* translators: %d: automation count. */
+				_n('%d automation has no scheduled run', '%d automations have no scheduled run', scheduleMissing.length, 'vulopilot'),
+				scheduleMissing.length
+			),
+			desc: __('Its schedule never got registered, so it will not fire on its own.', 'vulopilot'),
+		},
+	].filter(Boolean) as AttentionGroup[];
 
 	return (
 		<CardComponent
-			title={
-				<>
-					{__('Needs your attention', 'vulopilot')}
-					{/* {failing.length > 0 && ( <span className="automation-attention-count">{failing.length}</span> )} */}
-				</>
-			}
+			title={__('Needs your attention', 'vulopilot')}
 			titleIcon="error"
-			desc={__('Automations that failed and may need a retry.', 'vulopilot')}
+			desc={__('Resolve these items so your automations can run.', 'vulopilot')}
 			isLoading={isLoading}
-			action={
-				failing.length > 0 ? (
-					<ButtonInput
-						buttons={{
-							color: 'text-purple',
-							text: __('View all issues', 'vulopilot'),
-							icon: 'eye',
-							onClick: onViewAll,
-						}}
-					/>
-				) : undefined
-			}
 		>
-			{!isLoading && 0 === failing.length && (
+			{!isLoading && 0 === groups.length && (
 				<div className="automation-attention-empty">
 					<div className="automation-attention-empty-pill">
 						<i className="adminfont-check" />
-						<p>{__("You're all caught up - nothing needs attention right now.", 'vulopilot')}</p>
+						<p>{__('No action needed. Your automations are ready to run.', 'vulopilot')}</p>
 					</div>
-					<strong>{__('Great job!', 'vulopilot')}</strong>
-					<small>{__('Your automations are running smoothly.', 'vulopilot')}</small>
 				</div>
 			)}
-			{failing.length > 0 && (
+			{groups.length > 0 && (
 				<ListComponent
 					className="mini-card report"
-					items={failing.map((row) => ({
-						id: String(row.id),
+					items={groups.map((group) => ({
+						id: group.key,
 						icon: 'error red',
-						title: sprintf(
-							/* translators: %s is the real automation's own name whose last run failed. */
-							__('%s couldn\'t finish', 'vulopilot'),
-							row.name
-						),
-						desc: __('The last scheduled run didn\'t complete successfully.', 'vulopilot'),
+						title: group.title,
+						desc: group.desc,
 						tags: (
-							<ButtonInput
-								buttons={{
-									text:
-										retryingId === row.id
-											? __('Retrying…', 'vulopilot')
-											: __('Try Again', 'vulopilot'),
-									icon: 'refresh',
-									onClick: () => handleRetry(row),
-									disabled: null !== retryingId,
-								}}
-							/>
+							<button type="button" className="automation-attention-view-all" onClick={onViewAll}>
+								{__('Review automations →', 'vulopilot')}
+							</button>
 						),
 					}))}
 				/>

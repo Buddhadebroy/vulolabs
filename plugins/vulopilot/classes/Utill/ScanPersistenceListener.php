@@ -67,6 +67,7 @@ class ScanPersistenceListener {
 		$this->activity_logs = new ActivityLogRepository();
 
 		add_action( 'vulopilot_scan_completed', array( $this, 'handle_scan_completed' ) );
+		add_action( 'vulopilot_send_critical_alert_email', array( $this, 'send_critical_alert_email' ), 10, 4 );
 	}
 
 	/**
@@ -283,17 +284,38 @@ class ScanPersistenceListener {
 			$headers[] = sprintf( 'From: %s <%s>', $from_name, $settings['email_from_address'] );
 		}
 
-		wp_mail(
-			$recipient,
-			sprintf(
-				/* translators: 1: site name, 2: number of critical findings. */
-				__( '[%1$s] VuloPilot found %2$d critical issue(s)', 'vulopilot' ),
-				get_bloginfo( 'name' ),
-				count( $critical_findings )
-			),
-			$message,
-			$headers
+		// Scheduled instead of sent inline: a scan's POST request has only ~30s to finish, and a
+		// slow or unreachable mail server (SMTP connect timeout inside wp_mail()) would eat that
+		// whole budget and 500 the scan itself. WP-Cron's own (separate) request sends it instead.
+		wp_schedule_single_event(
+			time(),
+			'vulopilot_send_critical_alert_email',
+			array(
+				$recipient,
+				sprintf(
+					/* translators: 1: site name, 2: number of critical findings. */
+					__( '[%1$s] VuloPilot found %2$d critical issue(s)', 'vulopilot' ),
+					get_bloginfo( 'name' ),
+					count( $critical_findings )
+				),
+				$message,
+				$headers,
+			)
 		);
+	}
+
+	/**
+	 * Cron callback for `vulopilot_send_critical_alert_email` - the actual wp_mail() call,
+	 * off the scan request's own thread.
+	 *
+	 * @param string   $recipient
+	 * @param string   $subject
+	 * @param string   $message
+	 * @param string[] $headers
+	 * @return void
+	 */
+	public function send_critical_alert_email( string $recipient, string $subject, string $message, array $headers ): void {
+		wp_mail( $recipient, $subject, $message, $headers );
 	}
 
 	/**

@@ -74,6 +74,10 @@ class Uploads {
 	 * @return array<int, array{name: string, path: string, size: int, type: string}> Stored file records.
 	 */
 	public static function store( array $field, array $files ) {
+		if ( ! function_exists( 'wp_handle_upload' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
 		$base = self::base_dir();
 
 		if ( ! self::protect( $base ) ) {
@@ -91,13 +95,39 @@ class Uploads {
 
 		foreach ( $files as $file ) {
 			$extension = self::safe_extension( $file, $field['allowed_types'] );
-			$relative  = $folder . '/' . strtolower( wp_generate_password( 20, false ) ) . '.' . $extension;
 
-			// phpcs:ignore Generic.PHP.ForbiddenFunctions.Found -- the file was checked with is_uploaded_file() in validate().
-			if ( '' !== $extension && move_uploaded_file( $file['tmp_name'], $base . '/' . $relative ) ) {
+			if ( '' === $extension ) {
+				continue;
+			}
+
+			$name = strtolower( wp_generate_password( 20, false ) ) . '.' . $extension;
+
+			$target_dir = function ( $dirs ) use ( $base, $folder ) {
+				$dirs['path']   = $base . '/' . $folder;
+				$dirs['url']    = '';
+				$dirs['subdir'] = '';
+				return $dirs;
+			};
+
+			add_filter( 'upload_dir', $target_dir );
+
+			$result = wp_handle_upload(
+				$file,
+				array(
+					'test_form'                => false,
+					'unique_filename_callback' => function () use ( $name ) {
+						return $name;
+					},
+					'mimes'                    => array( $extension => Schema::FILE_TYPES[ $extension ][0] ),
+				)
+			);
+
+			remove_filter( 'upload_dir', $target_dir );
+
+			if ( empty( $result['error'] ) && ! empty( $result['file'] ) ) {
 				$stored[] = array(
 					'name' => sanitize_file_name( $file['name'] ),
-					'path' => $relative,
+					'path' => $folder . '/' . wp_basename( $result['file'] ),
 					'size' => (int) $file['size'],
 					'type' => Schema::FILE_TYPES[ $extension ][0],
 				);
