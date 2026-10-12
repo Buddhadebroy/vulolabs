@@ -19,8 +19,8 @@ use VuloBackup\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * vulobackup/v1/backups - create, list, inspect, verify, download, import and delete backups, and
- * the route the admin screen calls to move the running job forward.
+ * REST route vulobackup/v1/backups - create, list, inspect, verify, download, import and delete
+ * backups, and the route the admin screen calls to move the running job forward.
  */
 class Backups extends Controller {
 

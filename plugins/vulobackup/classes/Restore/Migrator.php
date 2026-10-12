@@ -31,6 +31,8 @@ class Migrator {
 	private $db;
 
 	/**
+	 * Constructor.
+	 *
 	 * @param \wpdb|null $db Connection; the site's own by default.
 	 */
 	public function __construct( $db = null ) {
@@ -40,6 +42,8 @@ class Migrator {
 	}
 
 	/**
+	 * Returns a fresh cursor.
+	 *
 	 * @return array A fresh cursor.
 	 */
 	public static function cursor() {

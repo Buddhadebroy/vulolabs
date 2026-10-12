@@ -216,6 +216,8 @@ class Retention {
 	}
 
 	/**
+	 * Checks whether a backup still has any copy at a remote destination.
+	 *
 	 * @param array $job Backup job.
 	 * @return bool Whether any remote destination still holds the backup.
 	 */

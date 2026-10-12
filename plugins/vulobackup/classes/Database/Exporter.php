@@ -40,6 +40,8 @@ class Exporter {
 	private $db;
 
 	/**
+	 * Constructor.
+	 *
 	 * @param \wpdb|null $db Connection; the site's own by default.
 	 */
 	public function __construct( $db = null ) {

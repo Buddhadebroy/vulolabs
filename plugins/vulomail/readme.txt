@@ -1,8 +1,8 @@
-=== VuloMail – SMTP, Email Logs & SMS Notifications ===
+=== VuloMail ===
 Contributors: vulolabs
 Tags: smtp, email logs, sms, woocommerce, email
 Requires at least: 6.7
-Tested up to: 7.1.3
+Tested up to: 7.1
 Requires PHP: 8.1
 Stable tag: 1.0.0
 License: GPLv2 or later
@@ -136,9 +136,24 @@ Native API connections:
 * Sweego, api.sweego.io - [Terms of sale](https://www.sweego.io/general-terms-and-conditions-of-sale) (link unreachable for automated verification, and no privacy policy page found at time of writing - verify both directly with Sweego)
 * Emailit, api.emailit.com - [Terms](https://emailit.com/terms-of-service/) (privacy policy not found at time of writing - verify directly with Emailit)
 
-SMTP connections (including the Gmail, Microsoft, Zoho, Amazon and other presets): your own SMTP server, or the preset's documented host, at the address you enter or that the preset fills in.
+SMTP connections (including the Gmail, Microsoft, Zoho, Amazon and other presets): your own SMTP server, or the preset's documented host, at the address you enter or that the preset fills in. Amazon SES and Amazon WorkMail specifically: [AWS service terms](https://aws.amazon.com/service-terms/), [AWS privacy notice](https://aws.amazon.com/privacy/).
+
+SMS connections: the SMS message (recipient number and text) and your credentials go to whichever gateway the connection uses.
+
+* Twilio, api.twilio.com - [Terms](https://www.twilio.com/en-us/legal/tos), [Privacy](https://www.twilio.com/en-us/legal/privacy)
+* Vonage, rest.nexmo.com - [Legal hub](https://www.vonage.com/legal/) (site blocks automated verification of the terms/privacy sub-pages - check directly)
+* Plivo, api.plivo.com - [Terms](https://www.plivo.com/legal/tos/), [Privacy](https://www.plivo.com/legal/privacy/)
+* Clickatell, platform.clickatell.com - [Legal hub](https://www.clickatell.com/legal/)
 
 The Diagnostics screen looks up the public DNS TXT records (SPF and DMARC) of your sender domain through your server's DNS resolver. No data about your site is sent.
+
+== Source code ==
+
+VuloMail's admin interface is built with React/TypeScript and compiled with webpack into `assets/js/index.js` and `assets/js/vendors.js`. The human-readable, editable source for these bundles - along with the rest of the plugin - is publicly available at:
+
+https://github.com/vulolabs/vulolabs/tree/main/plugins/vulomail
+
+Build instructions: `pnpm install` then `pnpm build` from the repository root (Node.js + pnpm required). See `DEVELOPER-DOC.md` in that repository for full environment setup.
 
 == Installation ==
 

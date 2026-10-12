@@ -16,9 +16,9 @@ use VuloBackup\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * vulobackup/v1/overview, /diagnostics and /logs - the state of backups on this site, what could
- * stop them working, and the record of what was done. Every figure comes from the job records and
- * the server itself; nothing is estimated for show.
+ * REST routes vulobackup/v1/overview, /diagnostics and /logs - the state of backups on this site,
+ * what could stop them working, and the record of what was done. Every figure comes from the job
+ * records and the server itself; nothing is estimated for show.
  */
 class Overview extends Controller {
 

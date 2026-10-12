@@ -10,9 +10,9 @@ namespace VuloBackup\Rest;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * vulobackup/v1/destinations - the remote places backups are copied to. A destination is only
- * saved after a real write, read and delete at the far end has succeeded. Secret values go in but
- * never come back out.
+ * REST route vulobackup/v1/destinations - the remote places backups are copied to. A destination is
+ * only saved after a real write, read and delete at the far end has succeeded. Secret values go in
+ * but never come back out.
  */
 class Destinations extends Controller {
 

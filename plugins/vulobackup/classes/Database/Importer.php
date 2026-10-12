@@ -42,6 +42,8 @@ class Importer {
 	private $resumed = false;
 
 	/**
+	 * Constructor.
+	 *
 	 * @param \wpdb|null $db Connection; the site's own by default.
 	 */
 	public function __construct( $db = null ) {
@@ -51,6 +53,8 @@ class Importer {
 	}
 
 	/**
+	 * Returns a fresh cursor.
+	 *
 	 * @param string $token Short random string unique to this restore, used in temporary table names.
 	 * @return array A fresh cursor.
 	 */
@@ -560,6 +564,8 @@ class Importer {
 	}
 
 	/**
+	 * Checks whether a table exists.
+	 *
 	 * @param string $table Table name.
 	 * @return bool Whether the table exists.
 	 */

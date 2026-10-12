@@ -21,11 +21,15 @@ defined( 'ABSPATH' ) || exit;
 interface Provider {
 
 	/**
+	 * Machine name of this provider.
+	 *
 	 * @return string Machine name, e.g. `s3`.
 	 */
 	public function id();
 
 	/**
+	 * Name shown to the administrator.
+	 *
 	 * @return string Name shown to the administrator.
 	 */
 	public function label();
