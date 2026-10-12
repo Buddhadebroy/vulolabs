@@ -1,4 +1,4 @@
-=== VuloMail ===
+=== VuloMail – SMTP, Email Logs & SMS Notifications ===
 Contributors: vulolabs
 Tags: smtp, email logs, sms, woocommerce, email
 Requires at least: 6.7
@@ -220,3 +220,14 @@ No. Add an email connection and set it as primary to route WordPress emails thro
 = Will uninstalling delete my data? =
 
 Data is kept by default. You can choose Delete everything before deleting the plugin to remove its connections, settings and logs. Deactivation does not delete data.
+
+## Screenshots ##
+
+1. Dashbaord.
+2. SMS Alert.
+3. Mail Logs.
+4. Tools.
+5. Commenction Settings.
+6. Email Settings.
+7. SMS Settings.
+8. Logging and Privacy Settings.
