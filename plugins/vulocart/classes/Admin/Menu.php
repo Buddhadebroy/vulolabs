@@ -580,7 +580,7 @@ class Menu {
      * screens (render_orders_admin_page()/render_offerings_admin_page()) -
      * all three mount the exact same built bundle; src/index.tsx itself
      * decides which app to render based on which root element id is
-     * present in the page (`#vulocart-admin-root` vs
+     * present in the page (`#admin-main-wrapper` vs
      * `#vulocart-orders-admin-root` vs `#vulocart-offerings-admin-root`),
      * so there's no need for a second/third webpack entry/bundle just to
      * give Orders/Offerings their own top-level menus.
