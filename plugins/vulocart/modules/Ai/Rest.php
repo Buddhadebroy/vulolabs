@@ -7,26 +7,17 @@
 
 namespace VuloCart\Ai;
 
-use VuloCart\AI\ProviderRegistry;
 use VuloCart\AI\AiUsageLogUtil;
-use VuloCart\AI\AiProviderConfigUtil;
-use VuloCart\AI\Services\CredentialEncryption;
+use VuloCart\AI\VuloCloudConnection;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Ai module Rest class - BYOK provider settings (list adapters,
- * save/encrypt a key, delete) and the usage log, both `manage_options`-
- * gated. This is the "Frontend/Rest/`src/` pieces slot into this same
- * Module.php" real implementation the module's own original docblock
- * invited.
- *
- * Extends `\WP_REST_Controller` to match vulopilot's REST convention; no
- * collision - this class declares no `prepare_item_for_response()` (or any
- * other base-class method name) at all, let alone a private one.
+ * VuloCart Ai module Rest class - the VuloCloud connection (status, connect
+ * URL, disconnect) and the usage log, all `manage_options`-gated.
  *
  * @class       Rest class
- * @version     1.0.0
+ * @version     2.0.0
  * @author      VuloLabs
  */
 class Rest extends \WP_REST_Controller {
@@ -34,27 +25,21 @@ class Rest extends \WP_REST_Controller {
 	/**
 	 * @var string
 	 */
-	protected $rest_base = 'ai';
+	protected $rest_base = 'vulocloud-ai-connection';
 
 	/**
-	 * @var ProviderRegistry
+	 * @var VuloCloudConnection
 	 */
-	private $registry;
-
-	/**
-	 * @var AiProviderConfigUtil
-	 */
-	private $configs;
+	private $connection;
 
 	/**
 	 * @var AiUsageLogUtil
 	 */
 	private $usage_log;
 
-	public function __construct( ProviderRegistry $registry, AiProviderConfigUtil $configs, AiUsageLogUtil $usage_log ) {
-		$this->registry  = $registry;
-		$this->configs   = $configs;
-		$this->usage_log = $usage_log;
+	public function __construct( VuloCloudConnection $connection, AiUsageLogUtil $usage_log ) {
+		$this->connection = $connection;
+		$this->usage_log  = $usage_log;
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
@@ -67,28 +52,31 @@ class Rest extends \WP_REST_Controller {
 
 		register_rest_route(
 			$namespace,
-			'/ai/providers',
+			'/' . $this->rest_base,
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_providers' ),
+				'callback'            => array( $this, 'get_status' ),
 				'permission_callback' => array( $this, 'admin_permissions_check' ),
 			)
 		);
 
 		register_rest_route(
 			$namespace,
-			'/ai/providers/(?P<id>[a-z]+)',
+			'/' . $this->rest_base . '/broker-authorize-url',
 			array(
-				array(
-					'methods'             => \WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'save_provider' ),
-					'permission_callback' => array( $this, 'admin_permissions_check' ),
-				),
-				array(
-					'methods'             => \WP_REST_Server::DELETABLE,
-					'callback'            => array( $this, 'delete_provider' ),
-					'permission_callback' => array( $this, 'admin_permissions_check' ),
-				),
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_authorize_url' ),
+				'permission_callback' => array( $this, 'admin_permissions_check' ),
+			)
+		);
+
+		register_rest_route(
+			$namespace,
+			'/' . $this->rest_base . '/disconnect',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'disconnect' ),
+				'permission_callback' => array( $this, 'admin_permissions_check' ),
 			)
 		);
 
@@ -111,84 +99,38 @@ class Rest extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Lists every registered adapter (available_models, whether it's
-	 * configured/active) - credentials never leave the server.
-	 *
-	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
 	 */
-	public function get_providers( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
-		$adapters   = $this->registry->get_available_adapters();
-		$configured = $this->registry->get_configured_providers();
-
-		$result = array();
-
-		foreach ( $adapters as $id => $adapter ) {
-			$result[] = array(
-				'id'                => $id,
-				'label'             => $adapter['label'],
-				'available_models'  => $adapter['available_models'],
-				'is_configured'     => isset( $configured[ $id ] ),
-				'model'             => $configured[ $id ]['model'] ?? '',
-				'is_active'         => $configured[ $id ]['is_active'] ?? false,
-			);
-		}
-
-		return rest_ensure_response( $result );
+	public function get_status() {
+		return rest_ensure_response( array( 'vulocloud_status' => $this->connection->get_status() ) );
 	}
 
 	/**
-	 * Saves (encrypts) a provider's own API key/model/active state.
-	 *
-	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public function save_provider( $request ) {
-		$provider_id = sanitize_key( (string) $request->get_param( 'id' ) );
+	public function get_authorize_url() {
+		$url = $this->connection->get_authorize_url();
 
-		if ( ! in_array( $provider_id, $this->registry->get_registered_provider_ids(), true ) ) {
-			return new \WP_Error( 'vulocart_unknown_ai_provider', __( 'Unknown AI provider.', 'vulocart' ), array( 'status' => 404 ) );
+		if ( ! $url ) {
+			return new \WP_Error( 'vulocart_vulocloud_not_configured', __( 'VuloCloud isn’t configured for this build yet.', 'vulocart' ), array( 'status' => 400 ) );
 		}
 
-		$api_key = $request->get_param( 'api_key' ) ? (string) $request->get_param( 'api_key' ) : '';
-		$model   = $request->get_param( 'model' ) ? sanitize_text_field( (string) $request->get_param( 'model' ) ) : '';
-
-		if ( '' === $api_key ) {
-			$existing = $this->configs->find_by_provider( $provider_id );
-
-			if ( ! $existing ) {
-				return new \WP_Error( 'vulocart_missing_ai_api_key', __( 'An API key is required.', 'vulocart' ), array( 'status' => 400 ) );
-			}
-
-			$encrypted = $existing['credentials'];
-		} else {
-			$encrypted = CredentialEncryption::encrypt( $api_key );
-		}
-
-		$is_active = null === $request->get_param( 'is_active' ) ? true : (bool) $request->get_param( 'is_active' );
-
-		$row = $this->configs->upsert( $provider_id, $encrypted, $model, $is_active );
-
-		unset( $row['credentials'] );
-
-		return rest_ensure_response( $row );
+		return rest_ensure_response( array( 'url' => $url ) );
 	}
 
 	/**
-	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
 	 */
-	public function delete_provider( $request ) {
-		$provider_id = sanitize_key( (string) $request->get_param( 'id' ) );
+	public function disconnect() {
+		$this->connection->disconnect();
 
-		return rest_ensure_response( array( 'deleted' => $this->configs->delete( $provider_id ) ) );
+		return rest_ensure_response( array( 'disconnected' => true ) );
 	}
 
 	/**
-	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
 	 */
-	public function get_usage( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
+	public function get_usage() {
 		return rest_ensure_response(
 			array(
 				'summary' => $this->usage_log->get_summary(),

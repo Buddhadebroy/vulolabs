@@ -1,0 +1,169 @@
+$primary: var(--color-primary, #5007aa);
+
+.vulocart-tpl-panel {
+	width: 100%;
+	padding: 0.5rem 0 1.25rem;
+}
+
+.vulocart-tpl-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+	gap: 1rem;
+}
+
+.vulocart-tpl-card {
+	display: flex;
+	flex-direction: column;
+	gap: 0.375rem;
+	padding: 1rem;
+	border: 2px solid #e3e6ef;
+	border-radius: 0.75rem;
+	background: #fff;
+	text-align: left;
+	color: #1f2937;
+	cursor: pointer;
+	transition: border-color 0.15s, box-shadow 0.15s;
+
+	strong {
+		font-size: 1rem;
+	}
+
+	> span {
+		font-size: 0.8125rem;
+		color: #6b7280;
+	}
+
+	&:hover {
+		border-color: color-mix(in srgb, #{$primary} 45%, #e3e6ef);
+	}
+
+	&.is-active {
+		border-color: $primary;
+		box-shadow: 0 0 0 3px color-mix(in srgb, #{$primary} 14%, transparent);
+	}
+
+	&:focus-visible {
+		outline: 0.125rem solid $primary;
+		outline-offset: 0.125rem;
+	}
+}
+
+// Miniature drawing of each layout.
+.vulocart-tpl-preview {
+	display: grid;
+	gap: 0.375rem;
+	height: 8.5rem;
+	padding: 0.625rem;
+	margin-bottom: 0.5rem;
+	border-radius: 0.5rem;
+	background: #f5f6fb;
+	overflow: hidden;
+
+	span {
+		display: flex;
+		flex-direction: column;
+		gap: 0.1875rem;
+		min-width: 0;
+		padding: 0.25rem;
+		border-radius: 0.25rem;
+		background: #fff;
+		box-shadow: 0 0 0 1px #e3e6ef;
+	}
+
+	i {
+		flex: 1;
+		border-radius: 0.125rem;
+		background: #dfe3f0;
+	}
+
+	b,
+	em {
+		display: block;
+		height: 0.25rem;
+		border-radius: 999px;
+		background: #c7ccdf;
+	}
+
+	em {
+		width: 50%;
+		background: color-mix(in srgb, #{$primary} 55%, #fff);
+	}
+
+	&.is-grid {
+		grid-template-columns: repeat(3, 1fr);
+		grid-template-rows: repeat(2, 1fr);
+	}
+
+	&.is-compact {
+		grid-template-columns: repeat(4, 1fr);
+		grid-template-rows: repeat(3, 1fr);
+		gap: 0.25rem;
+
+		b {
+			display: none;
+		}
+	}
+
+	&.is-list {
+		grid-template-columns: 1fr;
+		grid-template-rows: repeat(3, 1fr);
+
+		span {
+			flex-direction: row;
+			align-items: center;
+			gap: 0.375rem;
+		}
+
+		i {
+			flex: none;
+			width: 1.75rem;
+			height: 100%;
+		}
+
+		b {
+			flex: 1;
+		}
+
+		em {
+			flex: none;
+			width: 1.5rem;
+		}
+	}
+
+	&.is-showcase {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 0.5rem;
+
+		span {
+			box-shadow: 0 4px 10px rgba(16, 24, 40, 0.1);
+		}
+	}
+}
+
+.vulocart-tpl-columns {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	margin-top: 1.5rem;
+
+	.vulocart-segmented {
+		width: auto;
+
+		button {
+			min-width: 2.5rem;
+		}
+	}
+}
+
+.vulocart-tpl-label {
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: #374151;
+}
+
+.vulocart-tpl-status {
+	min-height: 1.25rem;
+	margin: 0.75rem 0 0;
+	font-size: 0.8125rem;
+	color: #047857;
+}

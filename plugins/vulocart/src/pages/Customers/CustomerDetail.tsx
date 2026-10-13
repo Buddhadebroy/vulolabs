@@ -2,10 +2,12 @@
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
+import type { ReactNode } from 'react';
 import axios from 'axios';
 import { getApiLink } from '@zyra/core';
 import { CardComponent } from '@zyra/components';
 import './customers-page.scss';
+import { formatWpDate, formatWpDateTime } from '../../services/formatWpDate';
 
 const client = axios.create( {
 	baseURL: `${ vulocartLocalizer.apiUrl }/${ vulocartLocalizer.restUrl }`,
@@ -85,7 +87,9 @@ export function CustomerDetail( { id }: { id: number } ) {
 		client.get< Order[] >( `/customers/${ id }/orders` ).then( ( response ) => setOrders( response.data ) );
 	};
 
-	useEffect( load, [ id ] );
+	useEffect( () => {
+		load();
+	}, [ id ] );
 
 	if ( ! customer ) {
 		return <p>{ __( 'Loading…', 'vulocart' ) }</p>;
@@ -200,7 +204,7 @@ export function CustomerDetail( { id }: { id: number } ) {
 											<td>{ order.total } { order.currency }</td>
 											<td>{ order.payment_status }</td>
 											<td>{ order.fulfillment_status }</td>
-											<td>{ order.created_at }</td>
+											<td>{ formatWpDate( order.created_at ) }</td>
 										</tr>
 									) ) }
 								</tbody>
@@ -208,7 +212,7 @@ export function CustomerDetail( { id }: { id: number } ) {
 						) }
 					</CardComponent>
 
-					{ applyFilters( 'vulocart_customer_detail_sections', null, { id, customer } ) }
+					{ applyFilters( 'vulocart_customer_detail_sections', null, { id, customer } ) as ReactNode }
 				</div>
 
 				<div className="vulocart-customer-detail-side">
@@ -238,7 +242,7 @@ export function CustomerDetail( { id }: { id: number } ) {
 							{ notes.map( ( note ) => (
 								<li key={ note.id }>
 									<p>{ note.note }</p>
-									<span>{ note.created_at }</span>
+									<span>{ formatWpDateTime( note.created_at ) }</span>
 									<a href="#delete" onClick={ ( e ) => { e.preventDefault(); deleteNote( note.id ); } }>{ __( 'Delete', 'vulocart' ) }</a>
 								</li>
 							) ) }

@@ -2,11 +2,13 @@
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
+import type { ReactNode } from 'react';
 import axios from 'axios';
 import { getApiLink } from '@zyra/core';
 import { CardComponent, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
 import { SelectInput, ButtonInput, TextInput } from '@zyra/inputs';
 import './orders-page.scss';
+import { formatWpDateTime } from '../../services/formatWpDate';
 
 /**
  * Order\Domain\FulfillmentStatus::all() (modules/Order/Domain/FulfillmentStatus.php).
@@ -160,7 +162,9 @@ export function OrderEdit( { id }: OrderEditProps ) {
 			.catch( () => setNotFound( true ) );
 	};
 
-	useEffect( loadOrder, [] ); // eslint-disable-line react-hooks/exhaustive-deps -- id is fixed for this page's lifetime (a new id means a new page load, not a re-render).
+	useEffect( () => {
+		loadOrder();
+	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps -- id is fixed for this page's lifetime (a new id means a new page load, not a re-render).
 
 	const handleSave = () => {
 		setIsSaving( true );
@@ -240,7 +244,7 @@ export function OrderEdit( { id }: OrderEditProps ) {
 						</span>
 					</div>
 					<p className="vulocart-order-edit-placed">
-						{ __( 'Placed:', 'vulocart' ) } { order.created_at }
+						{ __( 'Placed:', 'vulocart' ) } { formatWpDateTime( order.created_at ) }
 					</p>
 				</div>
 
@@ -440,7 +444,7 @@ export function OrderEdit( { id }: OrderEditProps ) {
 						</CardComponent>
 					) }
 
-					{ applyFilters( 'vulocart_order_edit_sections', null, { id: order.id } ) }
+					{ applyFilters( 'vulocart_order_edit_sections', null, { id: order.id } ) as ReactNode }
 				</div>
 			</div>
 		</div>

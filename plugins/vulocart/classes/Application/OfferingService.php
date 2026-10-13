@@ -127,6 +127,7 @@ class OfferingService {
 
         $offering->type     = isset( $data['type'] ) ? $data['type'] : $offering->type;
         $offering->title    = isset( $data['title'] ) ? $data['title'] : $offering->title;
+        $offering->sku      = array_key_exists( 'sku', $data ) ? ( '' === $data['sku'] ? null : $data['sku'] ) : $offering->sku;
         $offering->status   = isset( $data['status'] ) ? $data['status'] : $offering->status;
         $offering->price    = array_key_exists( 'price', $data ) ? (float) $data['price'] : $offering->price;
         $offering->currency = isset( $data['currency'] ) ? $data['currency'] : $offering->currency;

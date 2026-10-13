@@ -387,6 +387,7 @@ class Offerings extends \WP_REST_Controller {
             'meta'       => $offering->meta,
             'created_at' => $offering->created_at,
             'updated_at' => $offering->updated_at,
+            'published_at' => $offering->published_at,
         );
     }
 
@@ -497,6 +498,12 @@ class Offerings extends \WP_REST_Controller {
             $data['sku'] = sanitize_text_field( (string) $request->get_param( 'sku' ) );
         }
 
+        $invalid = $this->validate_sku_and_price( $request, 0 );
+
+        if ( $invalid ) {
+            return $invalid;
+        }
+
         if ( null !== $request->get_param( 'status' ) ) {
             $data['status'] = sanitize_key( (string) $request->get_param( 'status' ) );
         }
@@ -578,6 +585,12 @@ class Offerings extends \WP_REST_Controller {
             $data['sku'] = sanitize_text_field( (string) $request->get_param( 'sku' ) );
         }
 
+        $invalid = $this->validate_sku_and_price( $request, $id );
+
+        if ( $invalid ) {
+            return $invalid;
+        }
+
         if ( null !== $request->get_param( 'status' ) ) {
             $data['status'] = sanitize_key( (string) $request->get_param( 'status' ) );
         }
@@ -598,6 +611,36 @@ class Offerings extends \WP_REST_Controller {
         $offering = VuloCart()->offering_service->update_offering( $id, $data );
 
         return rest_ensure_response( $this->prepare_offering_for_response( $offering ) );
+    }
+
+    /**
+     * Rejects a negative price and a SKU another offering already uses.
+     *
+     * @param \WP_REST_Request $request    Full request object.
+     * @param int              $exclude_id Offering being updated (0 when creating).
+     * @return \WP_Error|null Null when both are fine.
+     */
+    private function validate_sku_and_price( $request, $exclude_id ) {
+        global $wpdb;
+
+        if ( null !== $request->get_param( 'price' ) && (float) $request->get_param( 'price' ) < 0 ) {
+            return new \WP_Error( 'vulocart_invalid_price', esc_html__( 'The price cannot be negative.', 'vulocart' ), array( 'status' => 400 ) );
+        }
+
+        $sku = null !== $request->get_param( 'sku' ) ? sanitize_text_field( (string) $request->get_param( 'sku' ) ) : '';
+
+        if ( '' === $sku ) {
+            return null;
+        }
+
+        $table = $wpdb->prefix . 'vulocart_offerings';
+        $taken = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE sku = %s AND id <> %d LIMIT 1", $sku, (int) $exclude_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+        if ( $taken ) {
+            return new \WP_Error( 'vulocart_duplicate_sku', esc_html__( 'Another offering already uses this SKU.', 'vulocart' ), array( 'status' => 409 ) );
+        }
+
+        return null;
     }
 
     /**

@@ -1,11 +1,15 @@
 import { OrdersList } from './OrdersList';
 import { OrderEdit } from './OrderEdit';
 import { OrderAdd } from './OrderAdd';
+import { renderEngineView } from '../../components/EngineScreen/EngineScreen';
+import { ordersExtraViews } from '../Offerings/extraViews';
 
 interface OrdersProps {
 	action: string | null;
 	id: number | null;
 	filter: string | null;
+	/** A Pro page in this menu (`subscriptions`); anything else is the orders list. */
+	view?: string | null;
 }
 
 /**
@@ -21,7 +25,11 @@ interface OrdersProps {
  * which turns it into the right `fulfillment_status`/`payment_status`
  * REST param.
  */
-export function Orders( { action, id, filter }: OrdersProps ) {
+export function Orders( { action, id, filter, view }: OrdersProps ) {
+	if ( view && ordersExtraViews[ view ] ) {
+		return renderEngineView( 'vulocart_orders_view', ordersExtraViews, view );
+	}
+
 	if ( 'edit' === action && null !== id ) {
 		return <OrderEdit id={ id } />;
 	}

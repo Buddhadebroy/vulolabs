@@ -52,7 +52,9 @@ class Menu {
         add_action( 'admin_menu', array( $this, 'add_ai_menu' ) );
         add_action( 'admin_menu', array( $this, 'add_workflows_menu' ) );
         add_action( 'admin_menu', array( $this, 'add_analytics_menu' ) );
+        add_action( 'admin_menu', array( $this, 'add_marketing_menu' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_script' ) );
+        add_filter( 'submenu_file', array( $this, 'highlight_current_submenu' ), 10, 2 );
     }
 
     /**
@@ -68,11 +70,12 @@ class Menu {
             'vulocart',
             array( $this, 'render_admin_page' ),
             'dashicons-cart',
-            57
+            56.8
         );
 
         $tabs = array(
             'dashboard' => __( 'Dashboard', 'vulocart' ),
+            'reviews'   => __( 'Reviews', 'vulocart' ),
             'settings'  => __( 'Settings', 'vulocart' ),
         );
 
@@ -105,15 +108,10 @@ class Menu {
      * top-level menus, and a marketplace platform gives its own marketplace
      * admin.
      *
-     * "All Orders"/"Draft Orders"/"Refunds"/"Add New" are real submenus now
-     * - Order\Domain\FulfillmentStatus::DRAFT and Order\Domain\
-     * PaymentStatus::REFUNDED gave Draft Orders/Refunds a real backing
-     * value to filter on (same `&filter=`/`&action=add` query-string-on-
-     * one-slug technique add_offerings_menu() already uses, not three more
-     * registered WP pages). Returns/Invoices/Shipments still have no
-     * backing domain model (no returns/invoicing/shipping module exists),
-     * so they're still not scaffolded here - same reasoning as before,
-     * just a shorter list now that two of the five have real support.
+     * "All Orders" and "Add New" are the only submenus. Draft and refunded
+     * orders are reached with the status pills on the orders list itself
+     * (`&filter=draft`/`&filter=refunds` still preselect them), not their
+     * own menu items.
      *
      * @return void
      */
@@ -125,7 +123,7 @@ class Menu {
             'vulocart-orders',
             array( $this, 'render_orders_admin_page' ),
             'dashicons-list-view',
-            58
+            56.4
         );
 
         add_submenu_page(
@@ -143,24 +141,6 @@ class Menu {
             __( 'Add New', 'vulocart' ),
             'manage_options',
             'vulocart-orders&action=add',
-            array( $this, 'render_orders_admin_page' )
-        );
-
-        add_submenu_page(
-            'vulocart-orders',
-            __( 'Draft Orders', 'vulocart' ),
-            __( 'Draft Orders', 'vulocart' ),
-            'manage_options',
-            'vulocart-orders&filter=draft',
-            array( $this, 'render_orders_admin_page' )
-        );
-
-        add_submenu_page(
-            'vulocart-orders',
-            __( 'Refunds', 'vulocart' ),
-            __( 'Refunds', 'vulocart' ),
-            'manage_options',
-            'vulocart-orders&filter=refunds',
             array( $this, 'render_orders_admin_page' )
         );
     }
@@ -201,7 +181,7 @@ class Menu {
             'vulocart-offerings',
             array( $this, 'render_offerings_admin_page' ),
             'dashicons-archive',
-            59
+            56.1
         );
 
         add_submenu_page(
@@ -229,8 +209,6 @@ class Menu {
             'tags'           => __( 'Tags', 'vulocart' ),
             'attributes'     => __( 'Attributes', 'vulocart' ),
             'offering-types' => __( 'Offering Types', 'vulocart' ),
-            'inventory'      => __( 'Inventory', 'vulocart' ),
-            'reviews'        => __( 'Reviews', 'vulocart' ),
         );
 
         foreach ( $sub_views as $slug => $label ) {
@@ -269,7 +247,7 @@ class Menu {
             'vulocart-customers',
             array( $this, 'render_customers_admin_page' ),
             'dashicons-groups',
-            60
+            56.5
         );
 
         add_submenu_page(
@@ -309,7 +287,18 @@ class Menu {
             'vulocart-inventory',
             array( $this, 'render_inventory_admin_page' ),
             'dashicons-store',
-            61
+            56.2
+        );
+
+        // Free's own stock-level editor is the menu's first item (same slug as the parent, which relabels
+        // the auto-generated entry); warehouses, purchase orders and the rest are vulocart-pro's.
+        add_submenu_page(
+            'vulocart-inventory',
+            __( 'Stock Levels', 'vulocart' ),
+            __( 'Stock Levels', 'vulocart' ),
+            'manage_options',
+            'vulocart-inventory',
+            array( $this, 'render_inventory_admin_page' )
         );
     }
 
@@ -334,7 +323,7 @@ class Menu {
             'vulocart-shipping',
             array( $this, 'render_shipping_admin_page' ),
             'dashicons-car',
-            62
+            56.3
         );
     }
 
@@ -358,53 +347,66 @@ class Menu {
             'vulocart-ai',
             array( $this, 'render_ai_admin_page' ),
             'dashicons-star-filled',
-            63
+            56.6
         );
     }
 
     /**
-     * Registers Workflows as its own dedicated top-level WP admin menu -
-     * same "Free owns top-level chrome, Pro fills it in" split
-     * `add_ai_menu()`'s own docblock documents. `vulocart-pro`'s own
-     * WorkflowBuilder module registers "Workflows"/"Runs" submenus here;
-     * unlike AI's own Settings sub-page, Free owns no real view of its
-     * own on this menu - every trigger/action this feature reacts to or
-     * performs is Pro (WorkflowBuilder\Module's own docblock).
+     * Registers Workflows as a submenu of VuloCart (it used to be its own top-level menu). The page slug
+     * stays `vulocart-workflows`, so the editor/runs links (`&view=edit|runs&id=`) and bookmarks keep
+     * working. Free owns no view here - the list, editor and run history are `vulocart-pro`'s
+     * WorkflowBuilder module, which plugs into `vulocart_workflows_view`.
      *
      * @return void
      */
     public function add_workflows_menu() {
-        add_menu_page(
+        add_submenu_page(
+            'vulocart',
             __( 'VuloCart Workflows', 'vulocart' ),
             __( 'Workflows', 'vulocart' ),
             'manage_options',
             'vulocart-workflows',
-            array( $this, 'render_workflows_admin_page' ),
-            'dashicons-networking',
-            64
+            array( $this, 'render_workflows_admin_page' )
         );
     }
 
     /**
-     * Registers Analytics as its own dedicated top-level WP admin menu -
-     * same "Free owns top-level chrome, Pro fills it in" split
-     * `add_ai_menu()`/`add_workflows_menu()`'s own docblocks document.
-     * Free owns no view of its own here at all (same as Workflows) -
-     * every real section (Sales/Revenue/Customers/Offerings/Funnels/
-     * Abandonment/Conversion/LTV/Retention/Inventory/AI Insights/
-     * Forecasts) is `vulocart-pro`'s own Analytics module.
+     * Registers Analytics as a submenu of VuloCart (after Dashboard/Settings) - it used to be its own
+     * top-level menu. The page slug stays `vulocart-analytics`, so existing links and bookmarks keep
+     * working, and the "Free owns the chrome, Pro fills it in" split is unchanged: Free owns no view
+     * of its own here, every real section is `vulocart-pro`'s Analytics module, which plugs into
+     * `vulocart_analytics_view`.
      *
      * @return void
      */
     public function add_analytics_menu() {
-        add_menu_page(
+        add_submenu_page(
+            'vulocart',
             __( 'VuloCart Analytics', 'vulocart' ),
             __( 'Analytics', 'vulocart' ),
             'manage_options',
             'vulocart-analytics',
-            array( $this, 'render_analytics_admin_page' ),
-            'dashicons-chart-area',
-            65
+            array( $this, 'render_analytics_admin_page' )
+        );
+    }
+
+    /**
+     * Registers Marketing as its own top-level WP admin menu - same "Free owns top-level chrome, Pro
+     * fills it in" split as `add_ai_menu()`/`add_workflows_menu()`. Free owns no view here; Coupons,
+     * Gift Cards, Subscriptions, Checkout Links, Checkout Builder and Abandoned Checkouts are each
+     * `vulocart-pro`'s own module, which registers its submenu under `vulocart-marketing`.
+     *
+     * @return void
+     */
+    public function add_marketing_menu() {
+        add_menu_page(
+            __( 'VuloCart Marketing', 'vulocart' ),
+            __( 'Marketing', 'vulocart' ),
+            'manage_options',
+            'vulocart-marketing',
+            array( $this, 'render_marketing_admin_page' ),
+            'dashicons-megaphone',
+            56.7
         );
     }
 
@@ -490,6 +492,16 @@ class Menu {
     }
 
     /**
+     * Renders the mount point for the standalone Marketing admin app - see
+     * render_orders_admin_page()'s docblock for why this is a separate root element id.
+     *
+     * @return void
+     */
+    public function render_marketing_admin_page() {
+        echo '<div id="vulocart-marketing-admin-root"></div>';
+    }
+
+    /**
      * Renders the mount point for the standalone Analytics admin app -
      * see render_orders_admin_page()'s docblock for why this is a
      * separate root element id.
@@ -509,6 +521,49 @@ class Menu {
      */
     public function render_workflows_admin_page() {
         echo '<div id="vulocart-workflows-admin-root"></div>';
+    }
+
+    /**
+     * Keeps the right submenu item highlighted on `?page=vulocart-x&view=y`
+     * (and `&action=add`) screens. Every such item is registered with a slug
+     * like `vulocart-offerings&view=collections`, but WordPress matches the
+     * active item against `$_GET['page']` alone - which never equals that
+     * slug - so it falls back to the first item ("All Offerings") and the
+     * page you're on never looks selected. Returns the registered slug that
+     * matches the current `view`/`action`, when one exists.
+     *
+     * @param string|null $submenu_file Submenu file WordPress resolved.
+     * @param string      $parent_file  Parent menu file.
+     * @return string|null
+     */
+    public function highlight_current_submenu( $submenu_file, $parent_file ) {
+        global $submenu;
+
+        $page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page-identity check.
+
+        if ( '' === $page || 0 !== strpos( $page, 'vulocart' ) || empty( $submenu[ $page ] ) ) {
+            return $submenu_file;
+        }
+
+        $candidates = array();
+
+        if ( isset( $_GET['view'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            $candidates[] = $page . '&view=' . sanitize_key( wp_unslash( $_GET['view'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        }
+
+        if ( isset( $_GET['action'] ) && 'add' === sanitize_key( wp_unslash( $_GET['action'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            $candidates[] = $page . '&action=add';
+        }
+
+        $registered = wp_list_pluck( $submenu[ $page ], 2 );
+
+        foreach ( $candidates as $candidate ) {
+            if ( in_array( $candidate, $registered, true ) ) {
+                return $candidate;
+            }
+        }
+
+        return $submenu_file;
     }
 
     /**
@@ -557,7 +612,7 @@ class Menu {
      */
     public function enqueue_admin_script( $hook_suffix ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
         $current_page   = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page-identity check, not a state-changing request.
-        $vulocart_pages = array( 'vulocart', 'vulocart-orders', 'vulocart-offerings', 'vulocart-customers', 'vulocart-inventory', 'vulocart-shipping', 'vulocart-ai', 'vulocart-workflows', 'vulocart-analytics' );
+        $vulocart_pages = array( 'vulocart', 'vulocart-orders', 'vulocart-offerings', 'vulocart-customers', 'vulocart-inventory', 'vulocart-shipping', 'vulocart-ai', 'vulocart-workflows', 'vulocart-analytics', 'vulocart-marketing' );
 
         if ( ! in_array( $current_page, $vulocart_pages, true ) ) {
             return;
@@ -631,6 +686,11 @@ class Menu {
                 'active_plugins' => get_option( 'active_plugins', array() ),
                 'shop_url'       => defined( 'VULOCART_PRO_SHOP_URL' ) ? VULOCART_PRO_SHOP_URL : '',
                 'site_url'       => esc_url_raw( site_url() ),
+                // Settings → General date/time format (PHP `date()` syntax) and timezone as a minute offset from UTC;
+                // services/formatWpDate.ts formats every date the admin shows with them.
+                'date_format'        => get_option( 'date_format' ),
+                'time_format'        => get_option( 'time_format' ),
+                'gmt_offset_minutes' => (int) round( wp_timezone()->getOffset( new \DateTime( 'now', new \DateTimeZone( 'UTC' ) ) ) / 60 ),
             )
         );
     }

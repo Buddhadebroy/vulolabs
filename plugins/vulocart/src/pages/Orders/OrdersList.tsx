@@ -7,6 +7,7 @@ import { ContainerComponent, ColumnComponent, NavigatorHeaderComponent } from '@
 import { TableCard, TableRow, QueryProps, CategoryCount } from '@zyra/table';
 import { downloadCSV } from '../../lib/utils';
 import './orders-page.scss';
+import { formatWpDate } from '../../services/formatWpDate';
 
 /**
  * The 6 statuses Order\Domain\FulfillmentStatus::all() declares
@@ -185,7 +186,7 @@ export function OrdersList( { filter }: OrdersListProps ) {
 		},
 		created_at: {
 			label: __( 'Created', 'vulocart' ),
-			render: ( row?: TableRow ) => ( row?.created_at as string ) || '-',
+			render: ( row?: TableRow ) => formatWpDate( row?.created_at as string ) || '-',
 		},
 		actions: {
 			label: __( 'Actions', 'vulocart' ),

@@ -91,6 +91,9 @@ class Block {
             // whether the block functions at all.
             'offeringsListingEnabled' => ! empty( $settings['enable_offerings_listing'] ),
             'cartCheckoutEnabled'     => ! empty( $settings['enable_cart_checkout'] ),
+            // Layout the public offerings listing renders in; anything unknown falls back to the grid.
+            'listingTemplate'         => in_array( $settings['listing_template'], array( 'grid', 'compact', 'list', 'showcase' ), true ) ? (string) $settings['listing_template'] : 'grid',
+            'listingColumns'          => in_array( (string) $settings['listing_columns'], array( '2', '3', '4', '5' ), true ) ? (int) $settings['listing_columns'] : 4,
             // Cross-links between the storefront blocks - see
             // find_page_url_with_block()'s own docblock for why this is
             // auto-discovered rather than a settings field the merchant

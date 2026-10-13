@@ -65,7 +65,8 @@ class WPDBOfferingRepository implements OfferingRepositoryInterface {
             $row['currency'],
             $row['meta'] ? (array) json_decode( $row['meta'], true ) : array(),
             $row['created_at'],
-            $row['updated_at']
+            $row['updated_at'],
+            isset( $row['published_at'] ) ? $row['published_at'] : null
         );
     }
 
@@ -76,7 +77,14 @@ class WPDBOfferingRepository implements OfferingRepositoryInterface {
      * @return array<string, mixed>
      */
     private function to_row( Offering $offering ) {
+        // The first time an offering is published stamps its published date; it is kept if the offering is
+        // later moved back to draft.
+        if ( 'published' === $offering->status && empty( $offering->published_at ) ) {
+            $offering->published_at = gmdate( 'Y-m-d H:i:s' );
+        }
+
         return array(
+            'published_at' => $offering->published_at,
             'type'     => $offering->type,
             'title'    => $offering->title,
             'slug'     => $offering->slug,

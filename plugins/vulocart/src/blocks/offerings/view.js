@@ -6,6 +6,13 @@ window.addEventListener( 'DOMContentLoaded', () => {
 		const container = document.createElement( 'div' );
 		placeholder.appendChild( container );
 
-		render( <Offerings />, container );
+		// A page can override the site-wide listing template/columns from the block settings.
+		render(
+			<Offerings
+				template={ placeholder.dataset.template || undefined }
+				columns={ placeholder.dataset.columns ? Number( placeholder.dataset.columns ) : undefined }
+			/>,
+			container
+		);
 	} );
 } );

@@ -1,14 +1,24 @@
 /* global vulocartLocalizer */
 import { useEffect, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import axios from 'axios';
-import { getApiLink } from '@zyra/core';
-import { ContainerComponent, ColumnComponent, NavigatorHeaderComponent, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
+import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
+import {
+	CardComponent,
+	ColumnComponent,
+	ContainerComponent,
+	FormGroupComponent,
+	FormGroupWrapperComponent,
+	InformationItemComponent,
+	NavigatorHeaderComponent,
+	NoticeManager,
+	PopupComponent,
+} from '@zyra/components';
 import { TableCard, TableRow } from '@zyra/table';
 import { TextInput, TextAreaInput, SelectInput, ButtonInput } from '@zyra/inputs';
-import './terms-page.scss';
+import ConfirmPopup from '../../components/ConfirmPopup/ConfirmPopup';
 
-interface Term {
+interface Term extends TableRow {
 	id: number;
 	taxonomy: string;
 	name: string;
@@ -19,215 +29,298 @@ interface Term {
 }
 
 interface TermsPageProps {
-	/** REST route segment - 'categories'|'brands'|'collections'. */
+	/** REST segment under the plugin namespace: `categories`, `collections`, `brands`, `tags`. */
 	routeSegment: string;
 	headerTitle: string;
 	headerDescription: string;
 	headerIcon: string;
-	/** Only `categories` supports hierarchy (Domain\Term\Taxonomy's own docblock). */
+	/** Singular label for popup titles and notices, e.g. "Category". */
+	itemLabel: string;
+	/** Only categories nest. */
 	hierarchical?: boolean;
 }
 
-const emptyForm = { id: null as number | null, name: '', description: '', parent_id: '' };
+const DEFAULT_PER_PAGE = 10;
+
+const nonceHeaders = { headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } };
 
 /**
- * Shared list+inline-edit UI for Categories/Brands/Collections - one
- * component, parametrized by `routeSegment`, mirroring
- * `classes/RestAPI/Controllers/Terms.php`'s own "one controller, three
- * taxonomies" design (Domain\Term\Taxonomy's docblock: these are the
- * exact same shape, not three things that happen to look similar).
- * Deliberately no separate "Add New" page like Offerings/Orders have -
- * a term is a lightweight name/slug/description record, not worth a
- * second full-page round trip.
+ * One list-and-edit screen for every taxonomy (Categories, Collections, Brands, Tags), laid out
+ * like VuloPilot's list screens: a header, one card holding a searchable table, Add/Edit in a
+ * popup, and a lightbox confirm before deleting.
  */
-export function TermsPage( { routeSegment, headerTitle, headerDescription, headerIcon, hierarchical }: TermsPageProps ) {
+export function TermsPage( { routeSegment, headerTitle, headerDescription, headerIcon, itemLabel, hierarchical }: TermsPageProps ) {
 	const [ terms, setTerms ] = useState< Term[] >( [] );
-	const [ isLoading, setIsLoading ] = useState( false );
-	const [ form, setForm ] = useState( emptyForm );
+	const [ isLoading, setIsLoading ] = useState( true );
+	const [ searchTerm, setSearchTerm ] = useState( '' );
+	const [ paged, setPaged ] = useState( 1 );
+	const [ perPage, setPerPage ] = useState( DEFAULT_PER_PAGE );
+
+	const [ isFormOpen, setIsFormOpen ] = useState( false );
+	const [ editingId, setEditingId ] = useState< number | null >( null );
+	const [ name, setName ] = useState( '' );
+	const [ description, setDescription ] = useState( '' );
+	const [ parentId, setParentId ] = useState( '' );
 	const [ isSaving, setIsSaving ] = useState( false );
+	const [ deleteTarget, setDeleteTarget ] = useState< Term | null >( null );
 
 	const load = () => {
 		setIsLoading( true );
-		axios
-			.get< Term[] >( getApiLink( vulocartLocalizer, routeSegment ), {
-				headers: { 'X-WP-Nonce': vulocartLocalizer.nonce },
-			} )
-			.then( ( response ) => setTerms( response.data ) )
+
+		getApiResponse< Term[] >( getApiLink( vulocartLocalizer, routeSegment ), nonceHeaders )
+			.then( ( response ) => setTerms( response ?? [] ) )
 			.finally( () => setIsLoading( false ) );
 	};
 
-	useEffect( load, [] );
+	useEffect( load, [ routeSegment ] );
 
-	const resetForm = () => setForm( emptyForm );
+	useEffect( () => {
+		setPaged( 1 );
+	}, [ searchTerm ] );
 
-	const save = () => {
-		if ( ! form.name.trim() ) {
+	const resetForm = () => {
+		setEditingId( null );
+		setName( '' );
+		setDescription( '' );
+		setParentId( '' );
+	};
+
+	const openAddForm = () => {
+		resetForm();
+		setIsFormOpen( true );
+	};
+
+	const openEditForm = ( term: Term ) => {
+		setEditingId( term.id );
+		setName( term.name );
+		setDescription( term.description || '' );
+		setParentId( term.parent_id ? String( term.parent_id ) : '' );
+		setIsFormOpen( true );
+	};
+
+	const closeForm = () => {
+		setIsFormOpen( false );
+		resetForm();
+	};
+
+	const handleSave = () => {
+		if ( ! name.trim() ) {
 			return;
 		}
 
 		setIsSaving( true );
 
-		const payload = {
-			name: form.name,
-			description: form.description || undefined,
-			parent_id: hierarchical && form.parent_id ? Number( form.parent_id ) : undefined,
-		};
+		// POST to `/{id}` is an update (the route accepts any editable method).
+		const endpoint = editingId ? `${ routeSegment }/${ editingId }` : routeSegment;
 
-		const request = form.id
-			? axios.patch( getApiLink( vulocartLocalizer, `${ routeSegment }/${ form.id }` ), payload, {
-					headers: { 'X-WP-Nonce': vulocartLocalizer.nonce },
-			  } )
-			: axios.post( getApiLink( vulocartLocalizer, routeSegment ), payload, {
-					headers: { 'X-WP-Nonce': vulocartLocalizer.nonce },
-			  } );
+		sendApiResponse( vulocartLocalizer, getApiLink( vulocartLocalizer, endpoint ), {
+			name,
+			description: description || undefined,
+			parent_id: hierarchical && parentId ? Number( parentId ) : undefined,
+		} )
+			.then( ( response ) => {
+				NoticeManager.add( {
+					uniqueKey: `vulocart-${ routeSegment }-save`,
+					type: response ? 'success' : 'error',
+					position: 'float',
+					message: response
+						? /* translators: %s: item label, e.g. Category. */ sprintf( __( '%s saved.', 'vulocart' ), itemLabel )
+						: /* translators: %s: item label, e.g. Category. */ sprintf( __( 'Could not save this %s.', 'vulocart' ), itemLabel.toLowerCase() ),
+				} );
 
-		request
-			.then( () => {
-				resetForm();
-				load();
+				if ( response ) {
+					closeForm();
+					load();
+				}
 			} )
 			.finally( () => setIsSaving( false ) );
 	};
 
-	const editTerm = ( term: Term ) => {
-		setForm( {
-			id: term.id,
-			name: term.name,
-			description: term.description || '',
-			parent_id: term.parent_id ? String( term.parent_id ) : '',
-		} );
-	};
-
-	const deleteTerm = ( id: number ) => {
-		if ( ! window.confirm( __( 'Delete this entry? This cannot be undone.', 'vulocart' ) ) ) {
+	const handleConfirmDelete = () => {
+		if ( ! deleteTarget ) {
 			return;
 		}
 
+		const term = deleteTarget;
+		setDeleteTarget( null );
+
 		axios
-			.delete( getApiLink( vulocartLocalizer, `${ routeSegment }/${ id }` ), {
-				headers: { 'X-WP-Nonce': vulocartLocalizer.nonce },
+			.delete( getApiLink( vulocartLocalizer, `${ routeSegment }/${ term.id }` ), nonceHeaders )
+			.then( () => {
+				NoticeManager.add( {
+					uniqueKey: `vulocart-${ routeSegment }-delete`,
+					type: 'success',
+					position: 'float',
+					/* translators: %s: item label, e.g. Category. */
+					message: sprintf( __( '%s deleted.', 'vulocart' ), itemLabel ),
+				} );
+				load();
 			} )
-			.then( load );
+			.catch( () => {
+				NoticeManager.add( {
+					uniqueKey: `vulocart-${ routeSegment }-delete`,
+					type: 'error',
+					position: 'float',
+					/* translators: %s: item label, e.g. Category. */
+					message: sprintf( __( 'Could not delete this %s.', 'vulocart' ), itemLabel.toLowerCase() ),
+				} );
+			} );
 	};
+
+	const parentName = ( term: Term ): string | null =>
+		term.parent_id ? terms.find( ( candidate ) => candidate.id === term.parent_id )?.name ?? null : null;
+
+	const visibleTerms = terms.filter( ( term ) => {
+		const query = searchTerm.trim().toLowerCase();
+
+		return ! query || term.name.toLowerCase().includes( query ) || term.slug.toLowerCase().includes( query );
+	} );
+
+	const pageRows = visibleTerms.slice( ( paged - 1 ) * perPage, paged * perPage );
+
+	const parentOptions = terms
+		.filter( ( term ) => ! term.parent_id && term.id !== editingId )
+		.map( ( term ) => ( { label: term.name, value: String( term.id ) } ) );
 
 	const headers = {
 		name: {
-			label: __( 'Name', 'vulocart' ),
-			render: ( row?: TableRow ) => row?.name as string,
-		},
-		slug: {
-			label: __( 'Slug', 'vulocart' ),
-			render: ( row?: TableRow ) => <code>{ row?.slug as string }</code>,
-		},
-		description: {
-			label: __( 'Description', 'vulocart' ),
-			render: ( row?: TableRow ) => ( row?.description as string ) || '-',
-		},
-		offering_count: {
-			label: __( 'Offerings', 'vulocart' ),
-			isNumeric: true,
-			render: ( row?: TableRow ) => row?.offering_count ?? 0,
+			label: itemLabel,
+			render: ( row: Term ) => {
+				const parent = parentName( row );
+
+				return (
+					<InformationItemComponent
+						title={ row.name }
+						badges={ [
+							{ text: row.slug, className: 'badge-info' },
+							{
+								text: sprintf(
+									/* translators: %d: number of offerings. */
+									_n( '%d Offering', '%d Offerings', row.offering_count ?? 0, 'vulocart' ),
+									row.offering_count ?? 0
+								),
+								className: 'blue',
+							},
+						] }
+						descriptions={ [
+							...( parent ? [ { icon: 'category', label: __( 'Parent', 'vulocart' ), value: parent } ] : [] ),
+							...( row.description ? [ { icon: 'document', label: __( 'Description', 'vulocart' ), value: row.description } ] : [] ),
+						] }
+					/>
+				);
+			},
 		},
 		actions: {
 			label: __( 'Actions', 'vulocart' ),
-			render: ( row?: TableRow ) =>
-				row && (
-					<div style={ { display: 'flex', gap: '8px' } }>
-						<a
-							href="#edit"
-							onClick={ ( event ) => {
-								event.preventDefault();
-								editTerm( row as unknown as Term );
-							} }
-						>
-							{ __( 'Edit', 'vulocart' ) }
-						</a>
-						<a
-							href="#delete"
-							onClick={ ( event ) => {
-								event.preventDefault();
-								deleteTerm( row.id as number );
-							} }
-						>
-							{ __( 'Delete', 'vulocart' ) }
-						</a>
-					</div>
-				),
+			type: 'action',
+			actions: [
+				{
+					label: __( 'Edit', 'vulocart' ),
+					icon: 'edit',
+					type: 'button',
+					color: 'text-blue',
+					onClick: ( row: Record< string, unknown > ) => openEditForm( row as unknown as Term ),
+				},
+				{
+					label: __( 'Delete', 'vulocart' ),
+					icon: 'delete',
+					type: 'button',
+					color: 'text-red',
+					onClick: ( row: Record< string, unknown > ) => setDeleteTarget( row as unknown as Term ),
+				},
+			],
 		},
 	};
-
-	const parentOptions = terms
-		.filter( ( term ) => ! term.parent_id && term.id !== form.id )
-		.map( ( term ) => ( { label: term.name, value: String( term.id ) } ) );
 
 	return (
 		<ContainerComponent general>
 			<ColumnComponent>
 				<NavigatorHeaderComponent headerIcon={ headerIcon } headerTitle={ headerTitle } headerDescription={ headerDescription } />
 
-				<div className="vulocart-terms-grid">
-					<div className="vulocart-terms-form-col">
-						<h2>{ form.id ? __( 'Edit', 'vulocart' ) : __( 'Add New', 'vulocart' ) }</h2>
-						<FormGroupWrapperComponent>
-							<FormGroupComponent label={ __( 'Name', 'vulocart' ) } htmlFor="vulocart-term-name">
-								<TextInput
-									name="name"
-									type="text"
-									value={ form.name }
-									onChange={ ( value ) => setForm( { ...form, name: value as string } ) }
-								/>
-							</FormGroupComponent>
-							<FormGroupComponent label={ __( 'Description', 'vulocart' ) } htmlFor="vulocart-term-description">
-								<TextAreaInput
-									name="description"
-									value={ form.description }
-									onChange={ ( value ) => setForm( { ...form, description: value as string } ) }
-								/>
-							</FormGroupComponent>
-							{ hierarchical && (
-								<FormGroupComponent label={ __( 'Parent', 'vulocart' ) } htmlFor="vulocart-term-parent">
-									<SelectInput
-										name="parent_id"
-										type="single-select"
-										options={ [ { label: __( 'None', 'vulocart' ), value: '' }, ...parentOptions ] }
-										value={ form.parent_id }
-										onChange={ ( value ) => setForm( { ...form, parent_id: value as string } ) }
-									/>
-								</FormGroupComponent>
-							) }
-						</FormGroupWrapperComponent>
-						<ButtonInput
-							buttons={ [
-								{
-									icon: 'save',
-									text: isSaving ? __( 'Saving…', 'vulocart' ) : form.id ? __( 'Update', 'vulocart' ) : __( 'Add', 'vulocart' ),
-									onClick: save,
-									disabled: isSaving,
-								},
-								...( form.id
-									? [
-											{
-												icon: 'close-delete',
-												text: __( 'Cancel', 'vulocart' ),
-												onClick: resetForm,
-											},
-									  ]
-									: [] ),
-							] }
-						/>
-					</div>
+				<CardComponent title={ headerTitle } titleIcon={ headerIcon } desc={ headerDescription }>
+					<TableCard
+						showMenu={ false }
+						variant="transparent"
+						hideHeader={ true }
+						headerHide={ true }
+						headers={ headers }
+						rows={ pageRows }
+						ids={ pageRows.map( ( row ) => row.id ) }
+						totalRows={ visibleTerms.length }
+						isLoading={ isLoading }
+						search={ { placeholder: __( 'Search by name or slug…', 'vulocart' ) } }
+						buttonActions={ [
+							{
+								/* translators: %s: item label, e.g. Category. */
+								label: sprintf( __( 'Add %s', 'vulocart' ), itemLabel ),
+								icon: 'plus',
+								onClick: openAddForm,
+							},
+						] }
+						onQueryUpdate={ ( query: { paged?: number | string; per_page?: number | string; searchValue?: string } ) => {
+							setPaged( Number( query.paged ) || 1 );
+							setPerPage( Number( query.per_page ) || DEFAULT_PER_PAGE );
+							setSearchTerm( query.searchValue ?? '' );
+						} }
+						emptyMessage={ sprintf(
+							/* translators: %s: plural title, e.g. Categories. */
+							__( 'No %s yet - add the first one.', 'vulocart' ),
+							headerTitle.toLowerCase()
+						) }
+					/>
+				</CardComponent>
 
-					<div className="vulocart-terms-list-col">
-						<TableCard
-							title={ headerTitle }
-							headers={ headers }
-							rows={ terms as unknown as TableRow[] }
-							totalRows={ terms.length }
-							isLoading={ isLoading }
-							ids={ terms.map( ( term ) => term.id ) }
+				<PopupComponent
+					open={ isFormOpen }
+					onClose={ closeForm }
+					width={ 28 }
+					height="auto"
+					header={ {
+						title: editingId
+							? /* translators: %s: item label, e.g. Category. */ sprintf( __( 'Edit %s', 'vulocart' ), itemLabel )
+							: /* translators: %s: item label, e.g. Category. */ sprintf( __( 'Add %s', 'vulocart' ), itemLabel ),
+						icon: editingId ? 'edit' : 'plus',
+					} }
+					footer={
+						<ButtonInput
+							buttons={ {
+								text: isSaving ? __( 'Saving…', 'vulocart' ) : __( 'Save', 'vulocart' ),
+								icon: 'save',
+								onClick: handleSave,
+								disabled: isSaving || ! name.trim(),
+							} }
 						/>
-					</div>
-				</div>
+					}
+				>
+					<FormGroupWrapperComponent>
+						<FormGroupComponent label={ __( 'Name', 'vulocart' ) } htmlFor="vulocart-term-name">
+							<TextInput name="name" type="text" value={ name } onChange={ ( value ) => setName( value as string ) } />
+						</FormGroupComponent>
+						<FormGroupComponent label={ __( 'Description', 'vulocart' ) } htmlFor="vulocart-term-description">
+							<TextAreaInput name="description" value={ description } onChange={ ( value ) => setDescription( value as string ) } />
+						</FormGroupComponent>
+						{ hierarchical && (
+							<FormGroupComponent label={ __( 'Parent', 'vulocart' ) } htmlFor="vulocart-term-parent">
+								<SelectInput
+									name="parent_id"
+									type="single-select"
+									options={ [ { label: __( 'None', 'vulocart' ), value: '' }, ...parentOptions ] }
+									value={ parentId }
+									onChange={ ( value ) => setParentId( value as string ) }
+								/>
+							</FormGroupComponent>
+						) }
+					</FormGroupWrapperComponent>
+				</PopupComponent>
+
+				<ConfirmPopup
+					open={ !! deleteTarget }
+					/* translators: %s: item label, e.g. Category. */
+					title={ sprintf( __( 'Delete %s', 'vulocart' ), itemLabel ) }
+					message={ __( 'Delete this entry? This cannot be undone.', 'vulocart' ) }
+					onConfirm={ handleConfirmDelete }
+					onCancel={ () => setDeleteTarget( null ) }
+				/>
 			</ColumnComponent>
 		</ContainerComponent>
 	);

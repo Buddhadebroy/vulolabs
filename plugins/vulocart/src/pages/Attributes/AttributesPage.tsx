@@ -1,103 +1,204 @@
 /* global vulocartLocalizer */
 import { useEffect, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import axios from 'axios';
-import { getApiLink } from '@zyra/core';
-import { ContainerComponent, ColumnComponent, NavigatorHeaderComponent, CardComponent, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
+import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
+import {
+	CardComponent,
+	ColumnComponent,
+	ContainerComponent,
+	FormGroupComponent,
+	FormGroupWrapperComponent,
+	InformationItemComponent,
+	NavigatorHeaderComponent,
+	NoticeManager,
+	PopupComponent,
+} from '@zyra/components';
+import { TableCard, TableRow } from '@zyra/table';
 import { TextInput, ButtonInput } from '@zyra/inputs';
-import '../Terms/terms-page.scss';
+import ConfirmPopup from '../../components/ConfirmPopup/ConfirmPopup';
 
 interface AttributeValue {
 	id: number;
 	value: string;
 }
 
-interface Attribute {
+interface Attribute extends TableRow {
 	id: number;
 	name: string;
 	slug: string;
 	values: AttributeValue[];
 }
 
+const DEFAULT_PER_PAGE = 10;
+
+const nonceHeaders = { headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } };
+
 /**
- * The Offerings menu's "Attributes" admin page - manages attribute
- * *definitions* (name + values, e.g. "Color": Red/Blue/Green), not a
- * variant/SKU matrix (OfferingEdit.tsx's own "Attributes & Variations"
- * section stays an inert placeholder - Attribute.php's own docblock
- * explains why building that on top of this is a separate, later step).
+ * Attributes list, laid out like VuloPilot's list screens: one card with a searchable table, a
+ * popup to add an attribute, a popup to manage its values, and a lightbox confirm before deleting.
  */
 export function AttributesPage() {
 	const [ attributes, setAttributes ] = useState< Attribute[] >( [] );
-	const [ isLoading, setIsLoading ] = useState( false );
-	const [ newAttributeName, setNewAttributeName ] = useState( '' );
-	const [ newValueByAttribute, setNewValueByAttribute ] = useState< Record< number, string > >( {} );
+	const [ isLoading, setIsLoading ] = useState( true );
+	const [ searchTerm, setSearchTerm ] = useState( '' );
+	const [ paged, setPaged ] = useState( 1 );
+	const [ perPage, setPerPage ] = useState( DEFAULT_PER_PAGE );
+
+	const [ isAddOpen, setIsAddOpen ] = useState( false );
+	const [ newName, setNewName ] = useState( '' );
+	const [ isSaving, setIsSaving ] = useState( false );
+
+	/** Id of the attribute whose values are open in the manage popup - re-read from `attributes` so it refreshes after each change. */
+	const [ managingId, setManagingId ] = useState< number | null >( null );
+	const [ newValue, setNewValue ] = useState( '' );
+	const [ deleteTarget, setDeleteTarget ] = useState< Attribute | null >( null );
 
 	const load = () => {
 		setIsLoading( true );
-		axios
-			.get< Attribute[] >( getApiLink( vulocartLocalizer, 'attributes' ), {
-				headers: { 'X-WP-Nonce': vulocartLocalizer.nonce },
-			} )
-			.then( ( response ) => setAttributes( response.data ) )
+
+		getApiResponse< Attribute[] >( getApiLink( vulocartLocalizer, 'attributes' ), nonceHeaders )
+			.then( ( response ) => setAttributes( response ?? [] ) )
 			.finally( () => setIsLoading( false ) );
 	};
 
 	useEffect( load, [] );
 
-	const addAttribute = () => {
-		if ( ! newAttributeName.trim() ) {
-			return;
-		}
+	useEffect( () => {
+		setPaged( 1 );
+	}, [ searchTerm ] );
 
-		axios
-			.post(
-				getApiLink( vulocartLocalizer, 'attributes' ),
-				{ name: newAttributeName },
-				{ headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } }
-			)
-			.then( () => {
-				setNewAttributeName( '' );
-				load();
-			} );
+	const notify = ( key: string, ok: boolean, success: string, failure: string ) =>
+		NoticeManager.add( {
+			uniqueKey: `vulocart-attribute-${ key }`,
+			type: ok ? 'success' : 'error',
+			position: 'float',
+			message: ok ? success : failure,
+		} );
+
+	const closeAdd = () => {
+		setIsAddOpen( false );
+		setNewName( '' );
 	};
 
-	const deleteAttribute = ( id: number ) => {
-		if ( ! window.confirm( __( 'Delete this attribute and all its values? This cannot be undone.', 'vulocart' ) ) ) {
+	const handleAddAttribute = () => {
+		if ( ! newName.trim() ) {
 			return;
 		}
 
-		axios
-			.delete( getApiLink( vulocartLocalizer, `attributes/${ id }` ), {
-				headers: { 'X-WP-Nonce': vulocartLocalizer.nonce },
+		setIsSaving( true );
+
+		sendApiResponse( vulocartLocalizer, getApiLink( vulocartLocalizer, 'attributes' ), { name: newName } )
+			.then( ( response ) => {
+				notify( 'save', !! response, __( 'Attribute saved.', 'vulocart' ), __( 'Could not save this attribute.', 'vulocart' ) );
+
+				if ( response ) {
+					closeAdd();
+					load();
+				}
 			} )
-			.then( load );
+			.finally( () => setIsSaving( false ) );
 	};
 
-	const addValue = ( attributeId: number ) => {
-		const value = ( newValueByAttribute[ attributeId ] || '' ).trim();
+	const handleAddValue = ( attributeId: number ) => {
+		const value = newValue.trim();
 
 		if ( ! value ) {
 			return;
 		}
 
-		axios
-			.post(
-				getApiLink( vulocartLocalizer, `attributes/${ attributeId }/values` ),
-				{ value },
-				{ headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } }
-			)
-			.then( () => {
-				setNewValueByAttribute( { ...newValueByAttribute, [ attributeId ]: '' } );
+		sendApiResponse( vulocartLocalizer, getApiLink( vulocartLocalizer, `attributes/${ attributeId }/values` ), { value } ).then( ( response ) => {
+			if ( response ) {
+				setNewValue( '' );
 				load();
-			} );
+			} else {
+				notify( 'value', false, '', __( 'Could not add this value.', 'vulocart' ) );
+			}
+		} );
 	};
 
-	const deleteValue = ( valueId: number ) => {
+	const handleDeleteValue = ( valueId: number ) => {
+		axios.delete( getApiLink( vulocartLocalizer, `attributes/values/${ valueId }` ), nonceHeaders ).then( load );
+	};
+
+	const handleConfirmDelete = () => {
+		if ( ! deleteTarget ) {
+			return;
+		}
+
+		const attribute = deleteTarget;
+		setDeleteTarget( null );
+
 		axios
-			.delete( getApiLink( vulocartLocalizer, `attributes/values/${ valueId }` ), {
-				headers: { 'X-WP-Nonce': vulocartLocalizer.nonce },
+			.delete( getApiLink( vulocartLocalizer, `attributes/${ attribute.id }` ), nonceHeaders )
+			.then( () => {
+				notify( 'delete', true, __( 'Attribute deleted.', 'vulocart' ), '' );
+				load();
 			} )
-			.then( load );
+			.catch( () => notify( 'delete', false, '', __( 'Could not delete this attribute.', 'vulocart' ) ) );
+	};
+
+	const visibleAttributes = attributes.filter( ( attribute ) => {
+		const query = searchTerm.trim().toLowerCase();
+
+		return (
+			! query ||
+			attribute.name.toLowerCase().includes( query ) ||
+			attribute.values.some( ( value ) => value.value.toLowerCase().includes( query ) )
+		);
+	} );
+
+	const pageRows = visibleAttributes.slice( ( paged - 1 ) * perPage, paged * perPage );
+	const managing = attributes.find( ( attribute ) => attribute.id === managingId ) ?? null;
+
+	const headers = {
+		name: {
+			label: __( 'Attribute', 'vulocart' ),
+			render: ( row: Attribute ) => (
+				<InformationItemComponent
+					title={ row.name }
+					badges={ [
+						{ text: row.slug, className: 'badge-info' },
+						{
+							text: sprintf(
+								/* translators: %d: number of values. */
+								_n( '%d Value', '%d Values', row.values.length, 'vulocart' ),
+								row.values.length
+							),
+							className: 'blue',
+						},
+					] }
+					descriptions={
+						row.values.length
+							? [ { icon: 'tag', label: __( 'Values', 'vulocart' ), value: row.values.map( ( value ) => value.value ).join( ', ' ) } ]
+							: []
+					}
+				/>
+			),
+		},
+		actions: {
+			label: __( 'Actions', 'vulocart' ),
+			type: 'action',
+			actions: [
+				{
+					label: __( 'Manage values', 'vulocart' ),
+					icon: 'edit',
+					type: 'button',
+					color: 'text-blue',
+					onClick: ( row: Record< string, unknown > ) => {
+						setNewValue( '' );
+						setManagingId( ( row as unknown as Attribute ).id );
+					},
+				},
+				{
+					label: __( 'Delete', 'vulocart' ),
+					icon: 'delete',
+					type: 'button',
+					color: 'text-red',
+					onClick: ( row: Record< string, unknown > ) => setDeleteTarget( row as unknown as Attribute ),
+				},
+			],
+		},
 	};
 
 	return (
@@ -106,102 +207,128 @@ export function AttributesPage() {
 				<NavigatorHeaderComponent
 					headerIcon="product-options"
 					headerTitle={ __( 'Attributes', 'vulocart' ) }
-					headerDescription={ __(
-						'Named properties offerings can be described by - e.g. "Color" with values Red/Blue/Green.',
-						'vulocart'
-					) }
+					headerDescription={ __( 'Named properties offerings can be described by - e.g. "Color" with values Red/Blue/Green.', 'vulocart' ) }
 				/>
 
-				<div className="vulocart-terms-grid">
-					<div className="vulocart-terms-form-col">
-						<h2>{ __( 'Add New', 'vulocart' ) }</h2>
-						<FormGroupWrapperComponent>
-							<FormGroupComponent label={ __( 'Name', 'vulocart' ) } htmlFor="vulocart-attribute-name">
-								<TextInput
-									name="name"
-									type="text"
-									placeholder={ __( 'e.g. Color', 'vulocart' ) }
-									value={ newAttributeName }
-									onChange={ ( value ) => setNewAttributeName( value as string ) }
-								/>
-							</FormGroupComponent>
-						</FormGroupWrapperComponent>
+				<CardComponent
+					title={ __( 'Attributes', 'vulocart' ) }
+					titleIcon="product-options"
+					desc={ __( 'Every attribute and the values it can take.', 'vulocart' ) }
+				>
+					<TableCard
+						showMenu={ false }
+						variant="transparent"
+						hideHeader={ true }
+						headerHide={ true }
+						headers={ headers }
+						rows={ pageRows }
+						ids={ pageRows.map( ( row ) => row.id ) }
+						totalRows={ visibleAttributes.length }
+						isLoading={ isLoading }
+						search={ { placeholder: __( 'Search by attribute or value…', 'vulocart' ) } }
+						buttonActions={ [
+							{ label: __( 'Add attribute', 'vulocart' ), icon: 'plus', onClick: () => setIsAddOpen( true ) },
+						] }
+						onQueryUpdate={ ( query: { paged?: number | string; per_page?: number | string; searchValue?: string } ) => {
+							setPaged( Number( query.paged ) || 1 );
+							setPerPage( Number( query.per_page ) || DEFAULT_PER_PAGE );
+							setSearchTerm( query.searchValue ?? '' );
+						} }
+						emptyMessage={ __( 'No attributes yet - add the first one.', 'vulocart' ) }
+					/>
+				</CardComponent>
+
+				<PopupComponent
+					open={ isAddOpen }
+					onClose={ closeAdd }
+					width={ 28 }
+					height="auto"
+					header={ { title: __( 'Add attribute', 'vulocart' ), icon: 'plus' } }
+					footer={
 						<ButtonInput
-							buttons={ [ { icon: 'plus', text: __( 'Add attribute', 'vulocart' ), onClick: addAttribute } ] }
+							buttons={ {
+								text: isSaving ? __( 'Saving…', 'vulocart' ) : __( 'Save', 'vulocart' ),
+								icon: 'save',
+								onClick: handleAddAttribute,
+								disabled: isSaving || ! newName.trim(),
+							} }
 						/>
-					</div>
+					}
+				>
+					<FormGroupWrapperComponent>
+						<FormGroupComponent label={ __( 'Name', 'vulocart' ) } htmlFor="vulocart-attribute-name">
+							<TextInput
+								name="name"
+								type="text"
+								placeholder={ __( 'e.g. Color', 'vulocart' ) }
+								value={ newName }
+								onChange={ ( value ) => setNewName( value as string ) }
+							/>
+						</FormGroupComponent>
+					</FormGroupWrapperComponent>
+				</PopupComponent>
 
-					<div className="vulocart-terms-list-col">
-						{ isLoading && <p>{ __( 'Loading…', 'vulocart' ) }</p> }
-						{ ! isLoading && attributes.length === 0 && <p>{ __( 'No attributes yet.', 'vulocart' ) }</p> }
-
-						{ attributes.map( ( attribute ) => (
-							<div key={ attribute.id } style={ { marginBottom: '16px' } }>
-							<CardComponent title={ attribute.name }>
-								<div style={ { display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' } }>
-									{ attribute.values.length === 0 && (
-										<span style={ { color: '#6b7280', fontSize: '13px' } }>
-											{ __( 'No values yet.', 'vulocart' ) }
-										</span>
-									) }
-									{ attribute.values.map( ( value ) => (
-										<span
-											key={ value.id }
-											style={ {
-												display: 'inline-flex',
-												alignItems: 'center',
-												gap: '6px',
-												border: '1px solid #e5e7eb',
-												borderRadius: '999px',
-												padding: '4px 10px',
-												fontSize: '13px',
+				<PopupComponent
+					open={ !! managing }
+					onClose={ () => setManagingId( null ) }
+					width={ 28 }
+					height="auto"
+					header={ {
+						/* translators: %s: attribute name. */
+						title: sprintf( __( '%s values', 'vulocart' ), managing?.name ?? '' ),
+						icon: 'edit',
+					} }
+					footer={
+						<ButtonInput
+							buttons={ {
+								text: __( 'Add value', 'vulocart' ),
+								icon: 'plus',
+								onClick: () => managing && handleAddValue( managing.id ),
+								disabled: ! newValue.trim(),
+							} }
+						/>
+					}
+				>
+					<FormGroupWrapperComponent>
+						<FormGroupComponent label={ __( 'New value', 'vulocart' ) } htmlFor="vulocart-attribute-value">
+							<TextInput
+								name="value"
+								type="text"
+								placeholder={ __( 'e.g. Red', 'vulocart' ) }
+								value={ newValue }
+								onChange={ ( value ) => setNewValue( value as string ) }
+							/>
+						</FormGroupComponent>
+						<FormGroupComponent label={ __( 'Current values', 'vulocart' ) }>
+							<div className="tag-wrapper">
+								{ managing && managing.values.length === 0 && <span className="desc">{ __( 'No values yet.', 'vulocart' ) }</span> }
+								{ managing?.values.map( ( value ) => (
+									<span key={ value.id } className="admin-badge blue">
+										{ value.value }{ ' ' }
+										<a
+											href="#remove"
+											aria-label={ __( 'Remove value', 'vulocart' ) }
+											onClick={ ( event ) => {
+												event.preventDefault();
+												handleDeleteValue( value.id );
 											} }
 										>
-											{ value.value }
-											<button
-												type="button"
-												aria-label={ __( 'Remove value', 'vulocart' ) }
-												onClick={ () => deleteValue( value.id ) }
-												style={ { border: 'none', background: 'none', cursor: 'pointer', color: '#dc2626' } }
-											>
-												×
-											</button>
-										</span>
-									) ) }
-								</div>
-								<div style={ { display: 'flex', gap: '8px', alignItems: 'center' } }>
-									<input
-										type="text"
-										placeholder={ __( 'Add a value…', 'vulocart' ) }
-										value={ newValueByAttribute[ attribute.id ] || '' }
-										onChange={ ( event ) =>
-											setNewValueByAttribute( { ...newValueByAttribute, [ attribute.id ]: event.target.value } )
-										}
-										onKeyDown={ ( event ) => {
-											if ( 'Enter' === event.key ) {
-												addValue( attribute.id );
-											}
-										} }
-									/>
-									<button type="button" onClick={ () => addValue( attribute.id ) }>
-										{ __( 'Add', 'vulocart' ) }
-									</button>
-									<a
-										href="#delete"
-										style={ { marginLeft: 'auto', color: '#dc2626' } }
-										onClick={ ( event ) => {
-											event.preventDefault();
-											deleteAttribute( attribute.id );
-										} }
-									>
-										{ __( 'Delete attribute', 'vulocart' ) }
-									</a>
-								</div>
-							</CardComponent>
+											×
+										</a>
+									</span>
+								) ) }
 							</div>
-						) ) }
-					</div>
-				</div>
+						</FormGroupComponent>
+					</FormGroupWrapperComponent>
+				</PopupComponent>
+
+				<ConfirmPopup
+					open={ !! deleteTarget }
+					title={ __( 'Delete Attribute', 'vulocart' ) }
+					message={ __( 'Delete this attribute and all its values? This cannot be undone.', 'vulocart' ) }
+					onConfirm={ handleConfirmDelete }
+					onCancel={ () => setDeleteTarget( null ) }
+				/>
 			</ColumnComponent>
 		</ContainerComponent>
 	);

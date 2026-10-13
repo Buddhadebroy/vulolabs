@@ -49,7 +49,9 @@ const Settings = () => {
 			.finally( () => setIsLoading( false ) );
 	};
 
-	useEffect( loadSettings, [] );
+	useEffect( () => {
+		loadSettings();
+	}, [] );
 
 	const GetForm = ( currentTab: string | null ): JSX.Element | null => {
 		// Every hook this function uses must run on every call regardless
@@ -128,6 +130,7 @@ const Settings = () => {
 		return (
 			<>
 				{ settingName === currentTab ? (
+					<>
 					<InputRenderer
 						settings={ settingModal }
 						setting={ setting }
@@ -138,6 +141,10 @@ const Settings = () => {
 						// vulopilot's own Settings.tsx uses.
 						groupBySections={ settingModal?.groupBySections }
 					/>
+					{ /* A section that isn't a field list (e.g. Integrations' VuloCloud AI connection) is
+					      drawn after the declarative ones. */ }
+					{ settingModal?.AfterComponent && <settingModal.AfterComponent /> }
+					</>
 				) : (
 					<>{ __( 'Loading…', 'vulocart' ) }</>
 				) }
@@ -169,7 +176,10 @@ const Settings = () => {
 				appLocalizer={ vulocartLocalizer }
 				Link={ Link }
 				settingName="Settings"
-				className="vulocart-settings"
+				// `admin-settings` is the class zyra scopes the settings spacing under (form-group padding,
+				// section rows) - VuloPilot and VuloMail pass it for the same reason; without it the fields
+				// sit flush against their labels and the row edges.
+				className="admin-settings vulocart-settings"
 				menuIcon
 			/>
 		</SettingProvider>

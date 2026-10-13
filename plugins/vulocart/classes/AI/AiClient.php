@@ -8,30 +8,31 @@
 namespace VuloCart\AI;
 
 use VuloCart\AI\Exceptions\AIProviderException;
-use VuloCart\AI\ValueObjects\AIRequest;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The one entrypoint every AI feature (free or Pro) actually calls -
- * `VuloCart()->ai_client`. Resolves the merchant's own active provider from
- * ProviderRegistry, applies it to every request without each caller
- * re-deriving which provider/model is active, and logs every real attempt
- * (successful or not) via AiUsageLogUtil - same "record failures too, not
- * just successes" reasoning vulopilot's own UsageTrackingProvider docblock
- * documents, since a string of failures is exactly what a merchant needs
- * to see to know their key/quota is broken.
+ * The single entry point every VuloCart AI feature calls -
+ * `VuloCart()->ai_client`. Requests go to the VuloCloud AI gateway via
+ * VuloCloudConnection and run on the connected Organization's key and
+ * credits; callers never see a provider, model or API key. Every call
+ * (successful or not) is logged via AiUsageLogUtil.
+ *
+ * The gateway takes one prompt string, so `$system` and `$user_message`
+ * are joined, and `$temperature`/`$max_tokens` (kept so existing callers
+ * don't change) are not forwarded. Image generation and embeddings have no
+ * gateway endpoint yet and throw.
  *
  * @class       AiClient class
- * @version     1.0.0
+ * @version     2.0.0
  * @author      VuloLabs
  */
 class AiClient {
 
 	/**
-	 * @var ProviderRegistry
+	 * @var VuloCloudConnection
 	 */
-	private $registry;
+	private $connection;
 
 	/**
 	 * @var AiUsageLogUtil
@@ -39,199 +40,117 @@ class AiClient {
 	private $usage_log;
 
 	/**
-	 * @param ProviderRegistry $registry  Resolves the active provider/adapter.
-	 * @param AiUsageLogUtil   $usage_log Logs every real call attempt.
+	 * @param VuloCloudConnection $connection VuloCloud gateway connection.
+	 * @param AiUsageLogUtil      $usage_log  Logs every real call attempt.
 	 */
-	public function __construct( ProviderRegistry $registry, AiUsageLogUtil $usage_log ) {
-		$this->registry  = $registry;
-		$this->usage_log = $usage_log;
+	public function __construct( VuloCloudConnection $connection, AiUsageLogUtil $usage_log ) {
+		$this->connection = $connection;
+		$this->usage_log  = $usage_log;
 	}
 
 	/**
-	 * @return bool Whether a merchant has an active, configured provider at all.
+	 * Whether this site is connected to VuloCloud.
+	 *
+	 * @return bool
 	 */
 	public function is_configured(): bool {
-		return null !== $this->registry->get_active_provider();
+		return $this->connection->is_connected();
 	}
 
 	/**
-	 * A simple prompt+system helper over send() - most Catalog/Checkout/
-	 * Support AI callers just want "system instructions + one user
-	 * message back", not to build an AIRequest by hand.
+	 * Sends a system + user message and returns the reply text.
 	 *
-	 * @param string      $feature      Short dotted usage tag, e.g. 'catalog.description'.
-	 * @param string      $system       System prompt.
-	 * @param string      $user_message User message.
-	 * @param float|null  $temperature  Optional sampling temperature.
-	 * @param int|null    $max_tokens   Optional max tokens.
-	 * @return string The assistant's reply content.
-	 * @throws AIProviderException When no provider is configured, or the call fails.
+	 * @param string          $feature      Short label for the usage log/credit history.
+	 * @param string          $system       System prompt.
+	 * @param string          $user_message User message.
+	 * @param float|int|null  $temperature  Unused; kept for caller compatibility.
+	 * @param int|null        $max_tokens   Unused; kept for caller compatibility.
+	 * @return string
+	 * @throws AIProviderException When not connected, or VuloCloud rejects/fails the request.
 	 */
-	public function prompt( string $feature, string $system, string $user_message, $temperature = null, $max_tokens = null ): string {
-		$active = $this->registry->get_active_provider();
+	public function prompt( string $feature, string $system, string $user_message, $temperature = null, $max_tokens = null ): string { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
+		$prompt = '' === trim( $system )
+			? $user_message
+			: "Instructions:\n" . $system . "\n\nRequest:\n" . $user_message;
 
-		if ( ! $active ) {
-			throw new AIProviderException( __( 'No AI provider is configured. Add an API key under AI > Settings.', 'vulocart' ) );
+		$result = $this->connection->execute( $feature, $prompt, wp_generate_uuid4() );
+
+		if ( is_wp_error( $result ) ) {
+			$this->log( $feature, false, $result->get_error_message() );
+
+			throw new AIProviderException( $result->get_error_message() );
 		}
 
-		$request = new AIRequest(
-			$active['model'],
-			array(
-				array(
-					'role'    => 'system',
-					'content' => $system,
-				),
-				array(
-					'role'    => 'user',
-					'content' => $user_message,
-				),
-			),
-			$temperature,
-			$max_tokens
-		);
+		$this->log( $feature, true );
 
-		try {
-			$response = $active['adapter']->send( $request );
-		} catch ( AIProviderException $e ) {
-			$this->usage_log->insert(
-				array(
-					'provider'      => $active['adapter']->get_id(),
-					'model'         => $active['model'],
-					'feature'       => $feature,
-					'success'       => false,
-					'error_message' => $e->getMessage(),
-				)
-			);
-
-			throw $e;
-		}
-
-		$this->usage_log->insert(
-			array(
-				'provider'           => $response->get_provider(),
-				'model'              => $response->get_model(),
-				'feature'            => $feature,
-				'prompt_tokens'      => $response->get_prompt_tokens(),
-				'completion_tokens'  => $response->get_completion_tokens(),
-				'success'            => true,
-			)
-		);
-
-		return $response->get_content();
+		return $result['response'];
 	}
 
 	/**
-	 * Same as prompt(), but asks the model to answer as strict JSON and
-	 * decodes it - every Catalog AI "generate ___" action uses this so the
-	 * caller gets structured fields back rather than parsing prose.
+	 * Like prompt(), but expects (and returns) a decoded JSON object.
 	 *
-	 * @param string $feature      Short dotted usage tag.
-	 * @param string $system       System prompt - caller is responsible for instructing the model to answer as JSON matching a described shape.
+	 * @param string $feature      Short label for the usage log.
+	 * @param string $system       System prompt.
 	 * @param string $user_message User message.
-	 * @return array<string, mixed>
-	 * @throws AIProviderException When no provider is configured, the call fails, or the response isn't valid JSON.
+	 * @return array
+	 * @throws AIProviderException When the reply isn't valid JSON.
 	 */
 	public function prompt_json( string $feature, string $system, string $user_message ): array {
 		$content = $this->prompt( $feature, $system . "\n\nRespond with ONLY a single valid JSON object, no prose, no markdown code fences.", $user_message );
-
 		$content = trim( $content );
 		$content = preg_replace( '/^```(?:json)?|```$/m', '', $content );
 		$decoded = json_decode( trim( (string) $content ), true );
 
 		if ( ! is_array( $decoded ) ) {
-			throw new AIProviderException( __( 'The AI provider did not return valid JSON.', 'vulocart' ) );
+			throw new AIProviderException( __( 'The AI service did not return valid JSON.', 'vulocart' ) );
 		}
 
 		return $decoded;
 	}
 
 	/**
-	 * @param string $feature Short dotted usage tag.
-	 * @param string $prompt  Image description.
-	 * @return string A fetchable URL for the generated image.
-	 * @throws AIProviderException When no provider is configured, it doesn't support images, or the call fails.
+	 * @param string $feature Short label for the usage log.
+	 * @param string $prompt  Image prompt.
+	 * @return string
+	 * @throws AIProviderException Always - not available through VuloCloud AI yet.
 	 */
-	public function generate_image( string $feature, string $prompt ): string {
-		$active = $this->registry->get_active_provider();
+	public function generate_image( string $feature, string $prompt ): string { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
+		$message = __( 'Image generation is not available through VuloCloud AI yet.', 'vulocart' );
 
-		if ( ! $active ) {
-			throw new AIProviderException( __( 'No AI provider is configured. Add an API key under AI > Settings.', 'vulocart' ) );
-		}
+		$this->log( $feature, false, $message );
 
-		if ( ! $active['adapter']->supports_images() ) {
-			throw new AIProviderException( __( 'The active AI provider does not support image generation.', 'vulocart' ) );
-		}
-
-		try {
-			$url = $active['adapter']->generate_image( $prompt );
-		} catch ( AIProviderException $e ) {
-			$this->usage_log->insert(
-				array(
-					'provider'      => $active['adapter']->get_id(),
-					'model'         => 'image',
-					'feature'       => $feature,
-					'success'       => false,
-					'error_message' => $e->getMessage(),
-				)
-			);
-
-			throw $e;
-		}
-
-		$this->usage_log->insert(
-			array(
-				'provider' => $active['adapter']->get_id(),
-				'model'    => 'image',
-				'feature'  => $feature,
-				'success'  => true,
-			)
-		);
-
-		return $url;
+		throw new AIProviderException( $message );
 	}
 
 	/**
-	 * @param string $feature Short dotted usage tag.
+	 * @param string $feature Short label for the usage log.
 	 * @param string $text    Text to embed.
-	 * @return float[]
-	 * @throws AIProviderException When no provider is configured, it doesn't support embeddings, or the call fails.
+	 * @return array
+	 * @throws AIProviderException Always - not available through VuloCloud AI yet.
 	 */
-	public function embed( string $feature, string $text ): array {
-		$active = $this->registry->get_active_provider();
+	public function embed( string $feature, string $text ): array { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
+		$message = __( 'Embeddings are not available through VuloCloud AI yet.', 'vulocart' );
 
-		if ( ! $active ) {
-			throw new AIProviderException( __( 'No AI provider is configured. Add an API key under AI > Settings.', 'vulocart' ) );
-		}
+		$this->log( $feature, false, $message );
 
-		if ( ! $active['adapter']->supports_embeddings() ) {
-			throw new AIProviderException( __( 'The active AI provider does not support embeddings.', 'vulocart' ) );
-		}
+		throw new AIProviderException( $message );
+	}
 
-		try {
-			$vector = $active['adapter']->embed( $text );
-		} catch ( AIProviderException $e ) {
-			$this->usage_log->insert(
-				array(
-					'provider'      => $active['adapter']->get_id(),
-					'model'         => 'embedding',
-					'feature'       => $feature,
-					'success'       => false,
-					'error_message' => $e->getMessage(),
-				)
-			);
-
-			throw $e;
-		}
-
+	/**
+	 * @param string      $feature Feature label.
+	 * @param bool        $success Whether the call succeeded.
+	 * @param string|null $error   Error message for a failed call.
+	 * @return void
+	 */
+	private function log( string $feature, bool $success, ?string $error = null ): void {
 		$this->usage_log->insert(
 			array(
-				'provider' => $active['adapter']->get_id(),
-				'model'    => 'embedding',
-				'feature'  => $feature,
-				'success'  => true,
+				'provider'      => 'vulocloud',
+				'model'         => '',
+				'feature'       => $feature,
+				'success'       => $success,
+				'error_message' => $error,
 			)
 		);
-
-		return $vector;
 	}
 }

@@ -3,18 +3,12 @@ import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { client, getOrCreateCartToken } from '../shared/cart';
 import type { CartResponse } from '../shared/cart';
+import { OfferingCards } from '../shared/OfferingCards';
+import { isVisibleInListing } from '../shared/offering';
+import type { OfferingSummary } from '../shared/offering';
 import { CheckoutEngine } from '../checkout-engine/CheckoutEngine';
 import '../checkout-engine/mount'; // side-effect only - registers Free's 5 interactive steps AND patches window.vulocartCheckoutEngine.mount()/unmount() (see mount.tsx).
 import './checkout.scss';
-
-interface OfferingSummary {
-	id: number;
-	title: string;
-	type: string;
-	price: number | null;
-	currency: string | null;
-	status: string;
-}
 
 interface ShippingMethod {
 	id: string;
@@ -58,7 +52,7 @@ export function Checkout() {
 			: Promise.resolve( { data: [] as OfferingSummary[] } )
 		)
 			.then( ( offeringsResponse ) => {
-				setOfferings( offeringsResponse.data );
+				setOfferings( offeringsResponse.data.filter( isVisibleInListing ) );
 				return client.get< CartResponse >( '/cart', { headers: { 'X-Cart-Token': token } } );
 			} )
 			.then( ( cartResponse ) => setCart( cartResponse.data ) )
@@ -151,25 +145,15 @@ export function Checkout() {
 				<div className="vulocart-checkout-offerings">
 					<h3>{ __( 'Available Offerings', 'vulocart' ) }</h3>
 					{ 0 === offerings.length && <p>{ __( 'No offerings yet.', 'vulocart' ) }</p> }
-					{ offerings.map( ( offering ) => (
-						<div key={ offering.id } className="vulocart-checkout-offering-row">
-							<div>
-								<strong>
-									{ vulocartFrontendData.offeringsPageUrl ? (
-										<a href={ `${ vulocartFrontendData.offeringsPageUrl }?offering=${ offering.id }` }>{ offering.title }</a>
-									) : (
-										offering.title
-									) }
-								</strong>
-								<div className="vulocart-checkout-offering-price">
-									{ null !== offering.price ? `${ offering.price } ${ offering.currency ?? '' }` : __( 'Price not set', 'vulocart' ) }
-								</div>
-							</div>
+					<OfferingCards
+						offerings={ offerings }
+						hrefFor={ ( id ) => ( vulocartFrontendData.offeringsPageUrl ? `${ vulocartFrontendData.offeringsPageUrl }?offering=${ id }` : '#' ) }
+						renderAction={ ( offering ) => (
 							<button type="button" onClick={ () => addToCart( offering.id ) }>
 								{ __( 'Add to cart', 'vulocart' ) }
 							</button>
-						</div>
-					) ) }
+						) }
+					/>
 				</div>
 			) }
 
