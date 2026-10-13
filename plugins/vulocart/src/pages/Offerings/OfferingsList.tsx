@@ -7,6 +7,8 @@ import { getApiLink } from '@zyra/core';
 import { ContainerComponent, ColumnComponent, NavigatorHeaderComponent } from '@zyra/components';
 import { TableCard, TableRow, QueryProps, CategoryCount } from '@zyra/table';
 import { downloadCSV } from '../../lib/utils';
+import { formatWpDate } from '../../services/formatWpDate';
+import ConfirmPopup from '../../components/ConfirmPopup/ConfirmPopup';
 import './offerings-page.scss';
 
 /**
@@ -254,12 +256,21 @@ export function OfferingsList() {
 	const [ totalRows, setTotalRows ] = useState( 0 );
 	const [ categoryCounts, setCategoryCounts ] = useState< CategoryCount[] >( [] );
 	const [ categoryFilterOptions, setCategoryFilterOptions ] = useState< { label: string; value: string }[] >( [] );
+	const [ deleteTarget, setDeleteTarget ] = useState< QuickEditRow | null >( null );
 	const [ quickEditRow, setQuickEditRow ] = useState< QuickEditRow | null >( null );
 	const [ savedViews, setSavedViews ] = useState< SavedView[] >( loadSavedViews() );
 	const [ activeSavedView, setActiveSavedView ] = useState< string | null >( null );
 	const [ lastQuery, setLastQuery ] = useState< QueryProps >( {} );
 
+	// slug → name for the tags shown under each offering.
+	const [ tagNames, setTagNames ] = useState< Record< string, string > >( {} );
+
 	useEffect( () => {
+		axios
+			.get< CategoryOption[] >( getApiLink( vulocartLocalizer, 'tags' ), { headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } } )
+			.then( ( response ) => setTagNames( Object.fromEntries( response.data.map( ( term ) => [ term.slug, term.name ] ) ) ) )
+			.catch( () => setTagNames( {} ) );
+
 		axios
 			.get< CategoryOption[] >( getApiLink( vulocartLocalizer, 'categories' ), {
 				headers: { 'X-WP-Nonce': vulocartLocalizer.nonce },
@@ -424,29 +435,65 @@ export function OfferingsList() {
 		}
 	};
 
+	const STATUS_BADGE: Record< string, string > = { published: 'badge-active', draft: 'badge-pending', archived: 'badge-inactive' };
+
+	/** What a CSV export holds, in plain columns - the table below merges several of these into one cell. */
+	const csvHeaders = {
+		title: { label: __( 'Title', 'vulocart' ) },
+		type: { label: __( 'Type', 'vulocart' ) },
+		sku: { label: __( 'SKU', 'vulocart' ) },
+		status: { label: __( 'Status', 'vulocart' ) },
+		published_at: { label: __( 'Published', 'vulocart' ) },
+		price: { label: __( 'Price', 'vulocart' ) },
+		currency: { label: __( 'Currency', 'vulocart' ) },
+	};
+
+	// Actions other modules add (vulocart-pro's Duplicate, for one): `{ label, icon, color?, onClick( row ) }` each.
+	const extraActions = (
+		applyFilters( 'vulocart_offering_row_action_items', [] ) as {
+			label: string;
+			icon: string;
+			color?: string;
+			onClick: ( row: Record< string, unknown > ) => void;
+		}[]
+	 ).map( ( action ) => ( { type: 'button' as const, color: 'text-blue', ...action } ) );
+
 	const headers = {
-		title: {
-			label: __( 'Title', 'vulocart' ),
+		offering: {
+			label: __( 'Offering', 'vulocart' ),
 			isSortable: true,
 			required: true,
-			render: ( row?: TableRow ) =>
-				row && (
-					<a href={ `admin.php?page=vulocart-offerings&action=edit&id=${ row.id }` }>
-						{ row.title as string }
-					</a>
-				),
-		},
-		type: {
-			label: __( 'Type', 'vulocart' ),
-		},
-		sku: {
-			label: __( 'SKU', 'vulocart' ),
-			render: ( row?: TableRow ) => ( row?.sku as string ) || '-',
-		},
-		status: {
-			label: __( 'Status', 'vulocart' ),
-			type: 'status' as const,
-			statusClass: ( row: TableRow ) => `${ row.status }`,
+			render: ( row?: TableRow ) => {
+				if ( ! row ) {
+					return null;
+				}
+
+				const meta = ( row.meta ?? {} ) as { tags?: string[] };
+				const tags = Array.isArray( meta.tags ) ? meta.tags : [];
+				const details = [
+					row.sku ? `${ __( 'SKU', 'vulocart' ) }: ${ row.sku }` : '',
+					row.published_at ? `${ __( 'Published', 'vulocart' ) }: ${ formatWpDate( row.published_at as string ) }` : '',
+				].filter( Boolean );
+
+				// Title, then SKU and published date, then the badges (type, status, tags).
+				return (
+					<div className="vulocart-offering-cell">
+						<a className="vulocart-offering-cell-title" href={ `admin.php?page=vulocart-offerings&action=edit&id=${ row.id }` }>
+							{ row.title as string }
+						</a>
+						{ details.length > 0 && <div className="desc">{ details.join( ', ' ) }</div> }
+						<div className="vulocart-offering-cell-tags">
+							<span className="admin-badge badge-info">{ String( row.type ).replace( '_', ' ' ) }</span>
+							<span className={ `admin-badge ${ STATUS_BADGE[ String( row.status ) ] ?? 'badge-info' }` }>{ String( row.status ) }</span>
+							{ tags.map( ( slug ) => (
+								<span key={ slug } className="admin-badge blue">
+									{ tagNames[ slug ] ?? slug }
+								</span>
+							) ) }
+						</div>
+					</div>
+				);
+			},
 		},
 		price: {
 			label: __( 'Price', 'vulocart' ),
@@ -458,65 +505,52 @@ export function OfferingsList() {
 		},
 		actions: {
 			label: __( 'Actions', 'vulocart' ),
-			csvDisplay: false,
-			render: ( row?: TableRow ) =>
-				row && (
-					<div className="vulocart-offering-row-actions">
-						<a
-							className="vulocart-offering-edit-action"
-							aria-label={ __( 'Edit offering', 'vulocart' ) }
-							href={ `admin.php?page=vulocart-offerings&action=edit&id=${ row.id }` }
-						>
-							{ __( 'Edit', 'vulocart' ) }
-						</a>
-						<a
-							className="vulocart-offering-edit-action"
-							aria-label={ __( 'Quick edit offering', 'vulocart' ) }
-							href="#quick-edit"
-							onClick={ ( event ) => {
-								event.preventDefault();
-								setQuickEditRow( row as unknown as QuickEditRow );
-							} }
-						>
-							{ __( 'Quick Edit', 'vulocart' ) }
-						</a>
-						<a
-							className="vulocart-offering-edit-action"
-							aria-label={ __( 'Delete offering', 'vulocart' ) }
-							href="#delete"
-							onClick={ ( event ) => {
-								event.preventDefault();
-								if ( ! window.confirm( __( 'Delete this offering? This cannot be undone.', 'vulocart' ) ) ) {
-									return;
-								}
-								axios
-									.delete( getApiLink( vulocartLocalizer, `offerings/${ row.id }` ), {
-										headers: { 'X-WP-Nonce': vulocartLocalizer.nonce },
-									} )
-									.then( () => doRefreshTableData( lastQuery ) );
-							} }
-						>
-							{ __( 'Delete', 'vulocart' ) }
-						</a>
-						{
-							/**
-							 * `vulocart_offering_row_actions` - the extension point
-							 * vulocart-pro's Passport module registers into
-							 * (modules/Passport/src/index.tsx), same "Pro extends Free
-							 * via @wordpress/hooks filters" pattern react-frontend.md
-							 * documents. Renders nothing
-							 * when Passport isn't active.
-							 */
-							applyFilters( 'vulocart_offering_row_actions', null, row )
-						}
-					</div>
-				),
+			type: 'action' as const,
+			actions: [
+				{
+					label: __( 'Edit', 'vulocart' ),
+					icon: 'edit',
+					type: 'button' as const,
+					color: 'text-blue',
+					onClick: ( row: Record< string, unknown > ) => {
+						window.location.href = `admin.php?page=vulocart-offerings&action=edit&id=${ row.id }`;
+					},
+				},
+				{
+					label: __( 'Quick edit', 'vulocart' ),
+					icon: 'bulk-action',
+					type: 'button' as const,
+					color: 'text-blue',
+					onClick: ( row: Record< string, unknown > ) => setQuickEditRow( row as unknown as QuickEditRow ),
+				},
+				...extraActions,
+				{
+					label: __( 'Delete', 'vulocart' ),
+					icon: 'delete',
+					type: 'button' as const,
+					color: 'text-red',
+					onClick: ( row: Record< string, unknown > ) => setDeleteTarget( row as unknown as QuickEditRow ),
+				},
+			],
 		},
+	};
+
+	const confirmDelete = () => {
+		if ( ! deleteTarget ) {
+			return;
+		}
+
+		const row = deleteTarget;
+		setDeleteTarget( null );
+
+		axios
+			.delete( getApiLink( vulocartLocalizer, `offerings/${ row.id }` ), { headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } } )
+			.then( () => doRefreshTableData( lastQuery ) );
 	};
 
 	const downloadSelectedCSV = ( selectedIds: number[] ) => {
 		const selectedRows = rows.filter( ( row ) => selectedIds.includes( Number( row.id ) ) );
-		downloadCSV( headers, selectedRows, `vulocart-offerings-selected-${ new Date().toISOString().slice( 0, 10 ) }.csv` );
+		downloadCSV( csvHeaders, selectedRows, `vulocart-offerings-selected-${ new Date().toISOString().slice( 0, 10 ) }.csv` );
 	};
 
 	const downloadAllCSV = ( query: QueryProps ) => {
@@ -526,7 +560,7 @@ export function OfferingsList() {
 				params: { ...buildQueryParams( query, false ), per_page: 1000 },
 			} )
 			.then( ( response ) => {
-				downloadCSV( headers, response.data || [], `vulocart-offerings-${ new Date().toISOString().slice( 0, 10 ) }.csv` );
+				downloadCSV( csvHeaders, response.data || [], `vulocart-offerings-${ new Date().toISOString().slice( 0, 10 ) }.csv` );
 			} );
 	};
 
@@ -670,6 +704,14 @@ export function OfferingsList() {
 					onSelectCsvDownloadApply={ downloadSelectedCSV }
 				/>
 			</ColumnComponent>
+
+			<ConfirmPopup
+				open={ !! deleteTarget }
+				title={ __( 'Delete offering', 'vulocart' ) }
+				message={ __( 'Delete this offering? This cannot be undone.', 'vulocart' ) }
+				onConfirm={ confirmDelete }
+				onCancel={ () => setDeleteTarget( null ) }
+			/>
 
 			{ quickEditRow && (
 				<OfferingQuickEdit

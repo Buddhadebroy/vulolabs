@@ -1,4 +1,6 @@
 import { applyFilters } from '@wordpress/hooks';
+import { EngineScreen, renderEngineView } from '../../components/EngineScreen/EngineScreen';
+import { customersExtraViews } from '../Offerings/extraViews';
 import { CustomersList } from './CustomersList';
 import { CustomerDetail } from './CustomerDetail';
 
@@ -24,11 +26,15 @@ export function Customers( { action, id, view }: CustomersProps ) {
 		return <CustomerDetail id={ id } />;
 	}
 
+	if ( view && customersExtraViews[ view ] ) {
+		return renderEngineView( 'vulocart_customers_extra_view', customersExtraViews, view );
+	}
+
 	if ( view ) {
 		const extra = applyFilters( 'vulocart_customers_extra_view', null, { view } );
 
 		if ( extra ) {
-			return <>{ extra }</>;
+			return <EngineScreen>{ extra }</EngineScreen>;
 		}
 	}
 

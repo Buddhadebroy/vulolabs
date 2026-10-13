@@ -3,10 +3,10 @@ import { OfferingEdit } from './OfferingEdit';
 import { TermsPage } from '../Terms/TermsPage';
 import { AttributesPage } from '../Attributes/AttributesPage';
 import { OfferingTypesPage } from '../OfferingTypes/OfferingTypesPage';
-import { InventoryPage } from '../Inventory/InventoryPage';
-import { ReviewsPage } from '../Reviews/ReviewsPage';
 import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
+import { EngineScreen, renderEngineView } from '../../components/EngineScreen/EngineScreen';
+import { movedViews, offeringsExtraViews, storeExtraViews } from './extraViews';
 
 interface OfferingsProps {
 	action: string | null;
@@ -47,6 +47,7 @@ export function Offerings( { action, id, view }: OfferingsProps ) {
 		return (
 			<TermsPage
 				routeSegment="categories"
+				itemLabel={ __( 'Category', 'vulocart' ) }
 				headerTitle={ __( 'Categories', 'vulocart' ) }
 				headerDescription={ __( 'Group offerings into a hierarchy of categories.', 'vulocart' ) }
 				headerIcon="category"
@@ -59,6 +60,7 @@ export function Offerings( { action, id, view }: OfferingsProps ) {
 		return (
 			<TermsPage
 				routeSegment="collections"
+				itemLabel={ __( 'Collection', 'vulocart' ) }
 				headerTitle={ __( 'Collections', 'vulocart' ) }
 				headerDescription={ __( 'Manually-curated groups of offerings, e.g. "Summer Sale" or "Staff Picks".', 'vulocart' ) }
 				headerIcon="folder-open"
@@ -70,6 +72,7 @@ export function Offerings( { action, id, view }: OfferingsProps ) {
 		return (
 			<TermsPage
 				routeSegment="brands"
+				itemLabel={ __( 'Brand', 'vulocart' ) }
 				headerTitle={ __( 'Brands', 'vulocart' ) }
 				headerDescription={ __( 'The manufacturers/brands your offerings come from.', 'vulocart' ) }
 				headerIcon="product"
@@ -81,6 +84,7 @@ export function Offerings( { action, id, view }: OfferingsProps ) {
 		return (
 			<TermsPage
 				routeSegment="tags"
+				itemLabel={ __( 'Tag', 'vulocart' ) }
 				headerTitle={ __( 'Tags', 'vulocart' ) }
 				headerDescription={ __( 'Free-form labels offerings can carry, e.g. "clearance" or "eco-friendly".', 'vulocart' ) }
 				headerIcon="tag"
@@ -96,12 +100,31 @@ export function Offerings( { action, id, view }: OfferingsProps ) {
 		return <OfferingTypesPage />;
 	}
 
-	if ( 'inventory' === view ) {
-		return <InventoryPage />;
+	// Reviews moved to the VuloCart menu; keep old bookmarks working.
+	if ( 'reviews' === view ) {
+		window.location.replace( `${ vulocartLocalizer.adminUrl }admin.php?page=vulocart#&tab=reviews` );
+
+		return null;
 	}
 
-	if ( 'reviews' === view ) {
-		return <ReviewsPage />;
+	// Offering Templates moved to Settings → Commerce; keep old bookmarks working.
+	if ( 'offering-templates' === view ) {
+		window.location.replace( `${ vulocartLocalizer.adminUrl }admin.php?page=vulocart#&tab=settings&subtab=offering-templates` );
+
+		return null;
+	}
+
+	if ( view && movedViews[ view ] ) {
+		window.location.replace( `${ vulocartLocalizer.adminUrl }admin.php?page=${ movedViews[ view ].page }&view=${ movedViews[ view ].view }` );
+
+		return null;
+	}
+
+	// These moved to the Marketing menu; same for their old links.
+	if ( view && storeExtraViews[ view ] ) {
+		window.location.replace( `${ vulocartLocalizer.adminUrl }admin.php?page=vulocart-marketing&view=${ view }` );
+
+		return null;
 	}
 
 	if ( view ) {
@@ -117,10 +140,16 @@ export function Offerings( { action, id, view }: OfferingsProps ) {
 		 * an unmatched/typo'd `view` still falls through to `OfferingsList`
 		 * exactly like it always has, so this is purely additive.
 		 */
+		if ( offeringsExtraViews[ view ] ) {
+			return renderEngineView( 'vulocart_offerings_extra_view', offeringsExtraViews, view );
+		}
+
+		// A view only a third-party module knows about: no header/module metadata to show, so the
+		// module's own page is wrapped in the frame as is.
 		const extra = applyFilters( 'vulocart_offerings_extra_view', null, { view } );
 
 		if ( extra ) {
-			return <>{ extra }</>;
+			return <EngineScreen>{ extra }</EngineScreen>;
 		}
 	}
 

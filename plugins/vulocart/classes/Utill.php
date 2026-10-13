@@ -120,9 +120,10 @@ class Utill {
      * toggle duplicating what module activation on the Modules page
      * already does once MCP/AI ship as their own modules
      * (module-architecture.md), two sources of truth for one on/off
-     * state. src/settings/Mcp.ts's/Ai.ts's own docblocks explain the same
-     * reasoning; only their *configuration* fields (`mcp_api_key`,
-     * `ai_provider`) remain here.
+     * state. src/settings/Integrations/Mcp.ts's own docblock explains the
+     * same reasoning; only its *configuration* field (`mcp_api_key`)
+     * remains here. AI has no stored setting at all - it's a VuloCloud
+     * connection (classes/AI/VuloCloudConnection.php).
      *
      * @var array
      */
@@ -134,6 +135,9 @@ class Utill {
         // Frontend.
         'enable_offerings_listing'      => array( 'enable_offerings_listing' ),
         'enable_cart_checkout'          => array( 'enable_cart_checkout' ),
+        // Storefront listing template (src/blocks/offerings/OfferingsListing.tsx): grid|compact|list|showcase.
+        'listing_template'              => 'grid',
+        'listing_columns'               => '4',
 
         // Catalog.
         'default_offering_type'         => 'physical',
@@ -182,9 +186,6 @@ class Utill {
 
         // MCP.
         'mcp_api_key'                   => '',
-
-        // AI.
-        'ai_provider'                   => 'none',
 
         // Advanced.
         'enable_debug_logging'          => array(),

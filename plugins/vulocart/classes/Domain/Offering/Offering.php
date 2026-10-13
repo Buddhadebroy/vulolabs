@@ -108,6 +108,13 @@ class Offering {
     public $updated_at;
 
     /**
+     * When the offering was first published - null while it has only ever been a draft.
+     *
+     * @var string|null MySQL datetime string (UTC).
+     */
+    public $published_at;
+
+    /**
      * Offering constructor.
      *
      * @param int|null             $id         Null for an offering not yet persisted.
@@ -121,6 +128,7 @@ class Offering {
      * @param array<string, mixed> $meta       Extensible, type-specific attributes.
      * @param string|null          $created_at MySQL datetime string, once persisted.
      * @param string|null          $updated_at MySQL datetime string, once persisted.
+     * @param string|null          $published_at MySQL datetime string (UTC) of the first publish, or null.
      */
     public function __construct(
         $id,
@@ -133,7 +141,8 @@ class Offering {
         $currency = null,
         $meta = array(),
         $created_at = null,
-        $updated_at = null
+        $updated_at = null,
+        $published_at = null
     ) {
         $this->id         = $id;
         $this->type       = $type;
@@ -146,5 +155,6 @@ class Offering {
         $this->meta       = $meta;
         $this->created_at = $created_at;
         $this->updated_at = $updated_at;
+        $this->published_at = $published_at;
     }
 }

@@ -1,38 +1,30 @@
-import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+import { renderEngineView, type EngineView } from '../../components/EngineScreen/EngineScreen';
 
 interface WorkflowsEngineProps {
-	/** `list`|`edit`|`runs` (vulocart-pro's own WorkflowBuilder module) - anything else falls back to the empty state below. */
+	/** `list`|`edit`|`runs` (vulocart-pro's Workflow Builder module) - anything else shows `list`. */
 	view: string | null;
 }
 
-/**
- * Free owns this top-level menu's chrome only - same "Pro fills it in via
- * a filtered router" shape `ShippingEngine.tsx`/`AiEngine.tsx` already
- * establish. Unlike AI's own menu, Free has no view of its own here at
- * all (no BYOK-style config Free itself owns) - every real view is
- * registered by vulocart-pro's WorkflowBuilder module.
- */
+const workflows: EngineView = {
+	title: __( 'Workflows', 'vulocart' ),
+	description: __(
+		'Automate what happens after an order, payment, refund, low-stock alert, new customer, delivered shipment, or AI event.',
+		'vulocart'
+	),
+	icon: 'automation',
+	module: 'workflow-builder',
+	pro: true,
+};
+
+const views: Record< string, EngineView > = { list: workflows, edit: workflows, runs: workflows };
+
+/** Free owns the frame; the Workflow Builder module (vulocart-pro) registers every view into `vulocart_workflows_view`. */
 export function WorkflowsEngine( { view }: WorkflowsEngineProps ) {
-	const resolvedView = view || 'list';
+	const resolvedView = view && views[ view ] ? view : 'list';
 	const id = new URLSearchParams( window.location.search ).get( 'id' );
-	const extra = applyFilters( 'vulocart_workflows_view', null, { view: resolvedView, id: id ? Number( id ) : null } );
 
-	if ( extra ) {
-		return <>{ extra }</>;
-	}
-
-	return (
-		<div className="vulocart-workflows-empty-state">
-			<h1>{ __( 'Workflows', 'vulocart' ) }</h1>
-			<p>
-				{ __(
-					'Automate what happens after an order, payment, refund, low-stock alert, new customer, delivered shipment, or AI event - activate the Workflow Builder module to use this page.',
-					'vulocart'
-				) }
-			</p>
-		</div>
-	);
+	return renderEngineView( 'vulocart_workflows_view', views, resolvedView, { id: id ? Number( id ) : null } );
 }
 
 export default WorkflowsEngine;

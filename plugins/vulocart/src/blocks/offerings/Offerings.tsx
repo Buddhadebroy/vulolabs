@@ -12,7 +12,7 @@ import { OfferingDetail } from './OfferingDetail';
  * (`OfferingsListing.tsx`'s card links) just appends `?offering={id}` to
  * that same page's own URL.
  */
-export function Offerings() {
+export function Offerings( { template, columns }: { template?: string; columns?: number } ) {
 	const params = new URLSearchParams( window.location.search );
 	const offeringId = params.get( 'offering' );
 
@@ -20,5 +20,5 @@ export function Offerings() {
 		return <OfferingDetail id={ Number( offeringId ) } />;
 	}
 
-	return <OfferingsListing />;
+	return <OfferingsListing template={ template } columns={ columns } />;
 }

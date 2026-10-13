@@ -5,6 +5,7 @@ import axios from 'axios';
 import { getApiLink } from '@zyra/core';
 import { ContainerComponent, ColumnComponent, NavigatorHeaderComponent } from '@zyra/components';
 import { TableCard, TableRow, QueryProps, CategoryCount } from '@zyra/table';
+import { formatWpDate } from '../../services/formatWpDate';
 
 interface ReviewRow {
 	id: number;
@@ -131,7 +132,7 @@ export function ReviewsPage() {
 		},
 		created_at: {
 			label: __( 'Submitted', 'vulocart' ),
-			render: ( row?: TableRow ) => ( row?.created_at as string ) || '-',
+			render: ( row?: TableRow ) => formatWpDate( row?.created_at as string ) || '-',
 		},
 		actions: {
 			label: __( 'Actions', 'vulocart' ),

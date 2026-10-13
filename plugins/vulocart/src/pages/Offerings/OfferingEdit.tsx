@@ -2,8 +2,10 @@
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
+import { formatWpDateTime } from '../../services/formatWpDate';
 import axios from 'axios';
 import { getApiLink } from '@zyra/core';
+import { showErrorToast, errorMessageOf } from '../../lib/rest-errors';
 import { CardComponent, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
 import { TextInput, TextAreaInput, SelectInput, ButtonInput, MultiCheckboxInput, FileInput } from '@zyra/inputs';
 import { EmbedCodeSection } from './EmbedCodeSection';
@@ -34,12 +36,12 @@ const OFFERING_TYPE_OPTIONS = [
 	'donation',
 	'gift_card',
 	'license',
-].map( ( type ) => ( { label: type, value: type } ) );
+].map( ( type ) => ( { label: type.replace( '_', ' ' ), value: type } ) );
 
 const OFFERING_STATUS_OPTIONS = [
-	{ label: 'draft', value: 'draft' },
-	{ label: 'published', value: 'published' },
-	{ label: 'archived', value: 'archived' },
+	{ label: __( 'Draft', 'vulocart' ), value: 'draft' },
+	{ label: __( 'Published', 'vulocart' ), value: 'published' },
+	{ label: __( 'Archived', 'vulocart' ), value: 'archived' },
 ];
 
 const STOCK_STATUS_OPTIONS = [
@@ -340,6 +342,7 @@ interface OfferingFormState {
 	fullDescription: string;
 	salePrice: string;
 	stockManagement: boolean;
+	stockQuantity: string;
 	stockStatus: string;
 	weight: string;
 	length: string;
@@ -373,6 +376,7 @@ const EMPTY_FORM: OfferingFormState = {
 	fullDescription: '',
 	salePrice: '',
 	stockManagement: false,
+	stockQuantity: '',
 	stockStatus: 'in_stock',
 	weight: '',
 	length: '',
@@ -397,6 +401,27 @@ const EMPTY_FORM: OfferingFormState = {
 
 interface OfferingEditProps {
 	id: number | null;
+}
+
+/** A choice between a few options that are all worth seeing at once - same control VuloForm uses. */
+// eslint-disable-next-line no-unused-vars -- callback parameter name in a type
+function Segmented( { label, value, options, onChange }: { label: string; value: string; options: { label: string; value: string }[]; onChange: ( value: string ) => void } ) {
+	return (
+		<div className="vulocart-segmented" role="radiogroup" aria-label={ label }>
+			{ options.map( ( option ) => (
+				<button
+					type="button"
+					role="radio"
+					key={ option.value }
+					aria-checked={ option.value === value }
+					className={ option.value === value ? 'is-active' : '' }
+					onClick={ () => onChange( option.value ) }
+				>
+					{ option.label }
+				</button>
+			) ) }
+		</div>
+	);
 }
 
 /**
@@ -530,6 +555,7 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 					fullDescription: meta.full_description || '',
 					salePrice: meta.sale_price !== null && meta.sale_price !== undefined ? String( meta.sale_price ) : '',
 					stockManagement: !! meta.stock_management,
+					stockQuantity: meta.stock_quantity !== null && meta.stock_quantity !== undefined ? String( meta.stock_quantity ) : '',
 					stockStatus: meta.stock_status || 'in_stock',
 					weight: meta.weight || '',
 					length: meta.length || '',
@@ -636,6 +662,7 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 		full_description: formData.fullDescription || undefined,
 		sale_price: formData.salePrice ? Number( formData.salePrice ) : null,
 		stock_management: formData.stockManagement,
+		stock_quantity: formData.stockManagement && '' !== formData.stockQuantity ? Number( formData.stockQuantity ) : null,
 		stock_status: formData.stockStatus,
 		delivery_method: TYPE_TO_DELIVERY_METHOD[ formData.type ] || 'other',
 		weight: formData.weight || undefined,
@@ -672,7 +699,7 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 			title: formData.title,
 			status: formData.status,
 			sku: formData.sku || undefined,
-			price: formData.price ? Number( formData.price ) : undefined,
+			price: formData.price ? Number( formData.price ) : isEditMode ? 0 : undefined,
 			currency: formData.price ? formData.currency : undefined,
 			meta: buildMetaPayload(),
 		};
@@ -694,8 +721,9 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 					window.location.href = `admin.php?page=vulocart-offerings&action=edit&id=${ response.data.id }`;
 				}
 			} )
-			.catch( () => {
+			.catch( ( error ) => {
 				setIsSaving( false );
+				showErrorToast( errorMessageOf( error ) );
 			} );
 	};
 
@@ -817,40 +845,31 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 			) }
 
 			<div className="vulocart-offering-edit-grid">
-				{ /* Left column */ }
-				<div className="vulocart-offering-edit-col vulocart-offering-edit-col--left">
-					<CardComponent
-						title={ __( 'Offering Setup', 'vulocart' ) }
-						desc={ __( 'Choose the type that best describes what you are selling.', 'vulocart' ) }
-					>
-						<SelectInput
-							name="type"
-							type="single-select"
-							options={ OFFERING_TYPE_OPTIONS }
-							value={ formData.type }
-							onChange={ ( value ) => update( { type: value as string } ) }
-						/>
-
-						<h4 className="vulocart-subsection-title">
-							{ `${ __( 'Recommended', 'vulocart' ) } ${ doneCount }/${ recommendedChecklist.length }` }
-						</h4>
-						<ul className="vulocart-recommended-checklist">
-							{ recommendedChecklist.map( ( item ) => (
-								<li key={ item.key } className={ item.done ? 'is-done' : '' }>
-									<i className={ `adminfont-${ item.done ? 'check' : 'radio' }` } />
-									<div>
-										<strong>{ item.label }</strong>
-										<p>{ item.desc }</p>
-									</div>
-								</li>
-							) ) }
-						</ul>
-					</CardComponent>
-				</div>
-
-				{ /* Center column */ }
+				{ /* Main column */ }
 				<div className="vulocart-offering-edit-col vulocart-offering-edit-col--center">
 					<CardComponent
+						titleIcon="product"
+						title={ __( 'Offering type', 'vulocart' ) }
+						desc={ __( 'Choose the type that best describes what you are selling.', 'vulocart' ) }
+					>
+						<div className="vulocart-type-picker" role="radiogroup" aria-label={ __( 'Offering type', 'vulocart' ) }>
+							{ OFFERING_TYPE_OPTIONS.map( ( option ) => (
+								<button
+									type="button"
+									role="radio"
+									key={ option.value }
+									aria-checked={ option.value === formData.type }
+									className={ option.value === formData.type ? 'is-active' : '' }
+									onClick={ () => update( { type: option.value } ) }
+								>
+									{ option.label }
+								</button>
+							) ) }
+						</div>
+					</CardComponent>
+
+					<CardComponent
+						titleIcon="catalog"
 						title={ __( 'Offering Details', 'vulocart' ) }
 						desc={ __( 'Tell customers what you are selling and what it costs.', 'vulocart' ) }
 					>
@@ -930,6 +949,7 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 
 					{ TYPE_FIELD_CONFIG[ formData.type ] && TYPE_FIELD_CONFIG[ formData.type ].length > 0 && (
 						<CardComponent
+							titleIcon="feature"
 							title={ TYPE_DETAILS_CARD_TITLE[ formData.type ] || __( 'Type Details', 'vulocart' ) }
 							desc={ __( 'Fields specific to this offering type.', 'vulocart' ) }
 						>
@@ -950,19 +970,23 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 
 					{ ( STOCK_TRACKED_TYPES.has( formData.type ) || SHIPPABLE_TYPES.has( formData.type ) ) && (
 						<CardComponent
+							titleIcon="store-inventory"
 							title={ __( 'Inventory & Shipping', 'vulocart' ) }
 							action={
 								STOCK_TRACKED_TYPES.has( formData.type ) ? (
-									<div className="vulocart-stock-toggle">
-										{ __( 'Stock management', 'vulocart' ) }
-										<MultiCheckboxInput
-											value={ formData.stockManagement ? [ 'on' ] : [] }
-											look="toggle"
-											modules={ [] }
-											options={ [ { key: 'on', value: 'on' } ] }
-											onChange={ ( val ) => update( { stockManagement: val.includes( 'on' ) } ) }
-										/>
-									</div>
+									<label className="vulocart-switch-row vulocart-stock-toggle" htmlFor="vulocart-stock-switch">
+										<span>{ __( 'Track stock', 'vulocart' ) }</span>
+										<button
+											type="button"
+											role="switch"
+											id="vulocart-stock-switch"
+											aria-checked={ formData.stockManagement }
+											className={ `vulocart-switch${ formData.stockManagement ? ' is-on' : '' }` }
+											onClick={ () => update( { stockManagement: ! formData.stockManagement } ) }
+										>
+											<span aria-hidden="true" />
+										</button>
+									</label>
 								) : undefined
 							}
 						>
@@ -975,6 +999,16 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 											onChange={ ( value ) => update( { sku: value as string } ) }
 										/>
 									</FormGroupComponent>
+									{ formData.stockManagement && (
+										<FormGroupComponent label={ __( 'Stock quantity', 'vulocart' ) } htmlFor="vulocart-offering-stock-quantity">
+											<TextInput
+												name="stockQuantity"
+												type="number"
+												value={ formData.stockQuantity }
+												onChange={ ( value ) => update( { stockQuantity: String( value ) } ) }
+											/>
+										</FormGroupComponent>
+									) }
 									<FormGroupComponent label={ __( 'Stock Status', 'vulocart' ) } htmlFor="vulocart-offering-stock-status">
 										<SelectInput
 											name="stockStatus"
@@ -1041,6 +1075,7 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 					) }
 
 					<CardComponent
+						titleIcon="legal-compliance"
 						title={ __( 'Policies & Related Offerings', 'vulocart' ) }
 						desc={ __( 'Set expectations up front and help customers discover more of what you sell.', 'vulocart' ) }
 					>
@@ -1112,28 +1147,42 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 						</div>
 					</CardComponent>
 
-					{ null !== id && <EmbedCodeSection offeringId={ id } /> }
-
-					{ null !== id && applyFilters( 'vulocart_offering_edit_sections', null, { id, type: formData.type } ) }
+					{ null !== id && (
+						<div className="vulocart-edit-extra-sections">
+							<EmbedCodeSection offeringId={ id } />
+							{ applyFilters( 'vulocart_offering_edit_sections', null, { id, type: formData.type } ) }
+						</div>
+					) }
 				</div>
 
-				{ /* Right column */ }
+				{ /* Side column */ }
 				<div className="vulocart-offering-edit-col vulocart-offering-edit-col--right">
 					<CardComponent
+						titleIcon="eye"
 						title={ __( 'Publishing', 'vulocart' ) }
 						action={
 							<button
 								type="button"
 								className={ `vulocart-featured-star${ formData.featured ? ' is-featured' : '' }` }
 								aria-label={ __( 'Featured offering', 'vulocart' ) }
+								title={ __( 'Featured offering', 'vulocart' ) }
 								onClick={ () => update( { featured: ! formData.featured } ) }
 							>
 								<i className={ `adminfont-${ formData.featured ? 'star' : 'star-o' }` } />
 							</button>
 						}
 					>
-						<div className="vulocart-publishing-row">
-							<span>{ __( 'Catalog Visibility', 'vulocart' ) }</span>
+						<div className="vulocart-side-field">
+							<span className="vulocart-side-label">{ __( 'Status', 'vulocart' ) }</span>
+							<Segmented
+								label={ __( 'Offering status', 'vulocart' ) }
+								value={ formData.status }
+								options={ OFFERING_STATUS_OPTIONS }
+								onChange={ ( value ) => update( { status: value } ) }
+							/>
+						</div>
+						<div className="vulocart-side-field">
+							<span className="vulocart-side-label">{ __( 'Catalog visibility', 'vulocart' ) }</span>
 							<SelectInput
 								name="catalogVisibility"
 								type="single-select"
@@ -1142,25 +1191,35 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 								onChange={ ( value ) => update( { catalogVisibility: value as string } ) }
 							/>
 						</div>
-						<div className="vulocart-publishing-row">
-							<span>{ __( 'Offering Status', 'vulocart' ) }</span>
-							<SelectInput
-								name="status"
-								type="single-select"
-								options={ OFFERING_STATUS_OPTIONS }
-								value={ formData.status }
-								onChange={ ( value ) => update( { status: value as string } ) }
-							/>
-						</div>
 						{ createdAt && (
-							<div className="vulocart-publishing-row">
-								<span>{ __( 'Cataloged at', 'vulocart' ) }</span>
-								<span>{ createdAt }</span>
-							</div>
+							<p className="vulocart-side-meta">
+								{ __( 'Cataloged at', 'vulocart' ) } { formatWpDateTime( createdAt ) }
+							</p>
 						) }
 					</CardComponent>
 
 					<CardComponent
+						titleIcon="check"
+						title={ `${ __( 'Setup progress', 'vulocart' ) } · ${ doneCount }/${ recommendedChecklist.length }` }
+					>
+						<div className="vulocart-progress" aria-hidden="true">
+							<span style={ { width: `${ recommendedChecklist.length ? Math.round( ( doneCount / recommendedChecklist.length ) * 100 ) : 0 }%` } } />
+						</div>
+						<ul className="vulocart-recommended-checklist">
+							{ recommendedChecklist.map( ( item ) => (
+								<li key={ item.key } className={ item.done ? 'is-done' : '' }>
+									<i className={ `adminfont-${ item.done ? 'check' : 'radio' }` } />
+									<div>
+										<strong>{ item.label }</strong>
+										<p>{ item.desc }</p>
+									</div>
+								</li>
+							) ) }
+						</ul>
+					</CardComponent>
+
+					<CardComponent
+						titleIcon="category"
 						title={ __( 'Organization', 'vulocart' ) }
 						desc={ __( 'Where this offering appears in your store, and how it\'s tagged.', 'vulocart' ) }
 					>
@@ -1219,7 +1278,7 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 						) }
 					</CardComponent>
 
-					<CardComponent title={ __( 'Upload image', 'vulocart' ) }>
+					<CardComponent titleIcon="image" title={ __( 'Images', 'vulocart' ) }>
 						<h4 className="vulocart-subsection-title">{ __( 'Featured Image', 'vulocart' ) }</h4>
 						<FileInput
 							name="featuredImage"

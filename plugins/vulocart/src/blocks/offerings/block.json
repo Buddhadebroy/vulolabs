@@ -10,5 +10,15 @@
 	"textdomain": "vulocart",
 	"supports": {
 		"html": false
+	},
+	"attributes": {
+		"template": {
+			"type": "string",
+			"default": ""
+		},
+		"columns": {
+			"type": "string",
+			"default": ""
+		}
 	}
 }

@@ -48,20 +48,6 @@ class Install {
 		$collate = $wpdb->get_charset_collate();
 
 		dbDelta(
-			"CREATE TABLE `{$wpdb->prefix}vulocart_ai_provider_configs` (
-				`id`          bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-				`provider`    varchar(50) NOT NULL,
-				`credentials` longtext NOT NULL,
-				`model`       varchar(100) NOT NULL DEFAULT '',
-				`is_active`   tinyint(1) NOT NULL DEFAULT 0,
-				`created_at`  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-				`updated_at`  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-				PRIMARY KEY (`id`),
-				UNIQUE KEY `idx_provider` (`provider`)
-			) $collate;"
-		);
-
-		dbDelta(
 			"CREATE TABLE `{$wpdb->prefix}vulocart_ai_usage_log` (
 				`id`                 bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 				`provider`           varchar(50) NOT NULL,

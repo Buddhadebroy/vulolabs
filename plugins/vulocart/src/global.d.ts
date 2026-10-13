@@ -26,6 +26,12 @@ interface VuloCartLocalizer {
 	active_plugins: string[];
 	shop_url: string;
 	site_url: string;
+	/** Settings → General date format, PHP `date()` syntax (services/formatWpDate.ts). */
+	date_format: string;
+	/** Settings → General time format, PHP `date()` syntax. */
+	time_format: string;
+	/** Settings → General timezone, as minutes offset from UTC. */
+	gmt_offset_minutes: number;
 }
 
 /**
@@ -58,6 +64,8 @@ interface VuloCartFrontendData {
 	checkoutTermsUrl: string;
 	isLoggedIn: boolean;
 	offeringsListingEnabled: boolean;
+	listingTemplate: 'grid' | 'compact' | 'list' | 'showcase';
+	listingColumns: number;
 	cartCheckoutEnabled: boolean;
 	checkoutPageUrl: string | null;
 	offeringsPageUrl: string | null;

@@ -2,17 +2,18 @@
 import { render } from '@wordpress/element';
 import { BrowserRouter } from 'react-router-dom';
 import { configureZyra, initializeModules } from '@zyra/core';
-import { HeaderComponent } from '@zyra/components';
+import SearchHeader from './components/Header/SearchHeader';
 import { App } from './app/App';
 import Orders from './pages/Orders/Orders';
 import Offerings from './pages/Offerings/Offerings';
 import Customers from './pages/Customers/Customers';
 import InventoryEngine from './pages/InventoryEngine/InventoryEngine';
+import MarketingEngine from './pages/MarketingEngine/MarketingEngine';
 import ShippingEngine from './pages/ShippingEngine/ShippingEngine';
 import AiEngine from './pages/AiEngine/AiEngine';
 import WorkflowsEngine from './pages/WorkflowsEngine/WorkflowsEngine';
 import AnalyticsEngine from './pages/AnalyticsEngine/AnalyticsEngine';
-import Brand from './assets/images/vulocart-logo.svg';
+import { registerRestErrorToasts } from './lib/rest-errors';
 
 /**
  * VuloCart's free plugin owns its own React mount - unlike
@@ -24,9 +25,12 @@ import Brand from './assets/images/vulocart-logo.svg';
  * zyra's shared layout rules (full-height page, `#wpcontent` padding reset)
  * apply here the same way they do there.
  *
- * Two further, separate top-level WP admin menus ("Orders", "Offerings")
- * mount the exact same bundle into different root element ids
- * (`#vulocart-orders-admin-root`, `#vulocart-offerings-admin-root`) - both
+ * Further, separate top-level WP admin menus ("Orders", "Offerings", "Customers",
+ * "Inventory", "Shipping", "AI", "Workflows", "Analytics") mount the exact same
+ * bundle into different root element ids PHP prints
+ * (`#vulocart-orders-admin-root`, `#vulocart-offerings-admin-root`, ...) - which
+ * `standaloneRoot()` renames to `#admin-main-wrapper` at mount, so they get the same
+ * layout rules as the main app - all
  * get their own dedicated space rather than being one more VuloCart tab
  * (Menu.php's `add_orders_menu()`/`add_offerings_menu()` docblocks).
  * Rather than a second/third webpack entry, this file renders a
@@ -86,17 +90,43 @@ import Brand from './assets/images/vulocart-logo.svg';
 localStorage.setItem( 'force_vulocart_context_reload', 'true' );
 
 configureZyra( vulocartLocalizer );
+registerRestErrorToasts();
 initializeModules( 'vulocart', 'free', 'modules' );
 
+/**
+ * Finds a standalone screen's mount point and gives it the identity of the main app's: id
+ * `admin-main-wrapper` and class `admin-main-wrapper`. zyra's shared layout rules key off exactly
+ * that (`#wpcontent:has(#admin-main-wrapper)` removes WordPress's own padding and sets the page
+ * background, `#admin-main-wrapper` makes the page full height, `.admin-main-wrapper` carries the
+ * font and form-control styles), so a root with any other id gets a header pushed in from the edge,
+ * a grey page and unstyled controls. The screens are found by their own ids (Pro modules print the
+ * same ones), then renamed here, so no PHP that prints a root has to change. A page has one screen,
+ * so the id stays unique.
+ *
+ * @param id The root's id as printed by PHP.
+ */
+const standaloneRoot = ( id: string ) => {
+	const root = document.getElementById( id );
+
+	if ( root ) {
+		root.id = 'admin-main-wrapper';
+		root.classList.add( 'admin-main-wrapper' );
+		root.dataset.vulocartScreen = id.replace( /^vulocart-|-admin-root$/g, '' );
+	}
+
+	return root;
+};
+
 const adminRoot = document.getElementById( 'admin-main-wrapper' );
-const ordersAdminRoot = document.getElementById( 'vulocart-orders-admin-root' );
-const offeringsAdminRoot = document.getElementById( 'vulocart-offerings-admin-root' );
-const customersAdminRoot = document.getElementById( 'vulocart-customers-admin-root' );
-const inventoryAdminRoot = document.getElementById( 'vulocart-inventory-admin-root' );
-const shippingAdminRoot = document.getElementById( 'vulocart-shipping-admin-root' );
-const aiAdminRoot = document.getElementById( 'vulocart-ai-admin-root' );
-const workflowsAdminRoot = document.getElementById( 'vulocart-workflows-admin-root' );
-const analyticsAdminRoot = document.getElementById( 'vulocart-analytics-admin-root' );
+const ordersAdminRoot = standaloneRoot( 'vulocart-orders-admin-root' );
+const offeringsAdminRoot = standaloneRoot( 'vulocart-offerings-admin-root' );
+const customersAdminRoot = standaloneRoot( 'vulocart-customers-admin-root' );
+const inventoryAdminRoot = standaloneRoot( 'vulocart-inventory-admin-root' );
+const shippingAdminRoot = standaloneRoot( 'vulocart-shipping-admin-root' );
+const aiAdminRoot = standaloneRoot( 'vulocart-ai-admin-root' );
+const workflowsAdminRoot = standaloneRoot( 'vulocart-workflows-admin-root' );
+const analyticsAdminRoot = standaloneRoot( 'vulocart-analytics-admin-root' );
+const marketingAdminRoot = standaloneRoot( 'vulocart-marketing-admin-root' );
 
 const urlParams = new URLSearchParams( window.location.search );
 const urlAction = urlParams.get( 'action' );
@@ -118,16 +148,8 @@ if ( adminRoot ) {
 if ( ordersAdminRoot ) {
 	render(
 		<>
-			<HeaderComponent
-				brandImg={ Brand }
-				free={ vulocartLocalizer.version }
-				pro={ vulocartLocalizer.pro_version ?? undefined }
-				onQueryUpdate={ () => {} }
-				onResultClick={ () => {} }
-			/>
-			<div className="admin-main-wrapper">
-				<Orders action={ urlAction } id={ urlId } filter={ urlFilter } />
-			</div>
+			<SearchHeader />
+			<Orders action={ urlAction } id={ urlId } filter={ urlFilter } view={ urlView } />
 		</>,
 		ordersAdminRoot
 	);
@@ -136,16 +158,8 @@ if ( ordersAdminRoot ) {
 if ( offeringsAdminRoot ) {
 	render(
 		<>
-			<HeaderComponent
-				brandImg={ Brand }
-				free={ vulocartLocalizer.version }
-				pro={ vulocartLocalizer.pro_version ?? undefined }
-				onQueryUpdate={ () => {} }
-				onResultClick={ () => {} }
-			/>
-			<div className="admin-main-wrapper">
-				<Offerings action={ urlAction } id={ urlId } view={ urlView } />
-			</div>
+			<SearchHeader />
+			<Offerings action={ urlAction } id={ urlId } view={ urlView } />
 		</>,
 		offeringsAdminRoot
 	);
@@ -154,16 +168,8 @@ if ( offeringsAdminRoot ) {
 if ( customersAdminRoot ) {
 	render(
 		<>
-			<HeaderComponent
-				brandImg={ Brand }
-				free={ vulocartLocalizer.version }
-				pro={ vulocartLocalizer.pro_version ?? undefined }
-				onQueryUpdate={ () => {} }
-				onResultClick={ () => {} }
-			/>
-			<div className="admin-main-wrapper">
-				<Customers action={ urlAction } id={ urlId } view={ urlView } />
-			</div>
+			<SearchHeader />
+			<Customers action={ urlAction } id={ urlId } view={ urlView } />
 		</>,
 		customersAdminRoot
 	);
@@ -172,34 +178,28 @@ if ( customersAdminRoot ) {
 if ( inventoryAdminRoot ) {
 	render(
 		<>
-			<HeaderComponent
-				brandImg={ Brand }
-				free={ vulocartLocalizer.version }
-				pro={ vulocartLocalizer.pro_version ?? undefined }
-				onQueryUpdate={ () => {} }
-				onResultClick={ () => {} }
-			/>
-			<div className="admin-main-wrapper">
-				<InventoryEngine view={ urlView } />
-			</div>
+			<SearchHeader />
+			<InventoryEngine view={ urlView } />
 		</>,
 		inventoryAdminRoot
+	);
+}
+
+if ( marketingAdminRoot ) {
+	render(
+		<>
+			<SearchHeader />
+			<MarketingEngine view={ urlView } />
+		</>,
+		marketingAdminRoot
 	);
 }
 
 if ( shippingAdminRoot ) {
 	render(
 		<>
-			<HeaderComponent
-				brandImg={ Brand }
-				free={ vulocartLocalizer.version }
-				pro={ vulocartLocalizer.pro_version ?? undefined }
-				onQueryUpdate={ () => {} }
-				onResultClick={ () => {} }
-			/>
-			<div className="admin-main-wrapper">
-				<ShippingEngine view={ urlView } />
-			</div>
+			<SearchHeader />
+			<ShippingEngine view={ urlView } />
 		</>,
 		shippingAdminRoot
 	);
@@ -208,16 +208,8 @@ if ( shippingAdminRoot ) {
 if ( aiAdminRoot ) {
 	render(
 		<>
-			<HeaderComponent
-				brandImg={ Brand }
-				free={ vulocartLocalizer.version }
-				pro={ vulocartLocalizer.pro_version ?? undefined }
-				onQueryUpdate={ () => {} }
-				onResultClick={ () => {} }
-			/>
-			<div className="admin-main-wrapper">
-				<AiEngine view={ urlView } />
-			</div>
+			<SearchHeader />
+			<AiEngine view={ urlView } />
 		</>,
 		aiAdminRoot
 	);
@@ -226,16 +218,8 @@ if ( aiAdminRoot ) {
 if ( workflowsAdminRoot ) {
 	render(
 		<>
-			<HeaderComponent
-				brandImg={ Brand }
-				free={ vulocartLocalizer.version }
-				pro={ vulocartLocalizer.pro_version ?? undefined }
-				onQueryUpdate={ () => {} }
-				onResultClick={ () => {} }
-			/>
-			<div className="admin-main-wrapper">
-				<WorkflowsEngine view={ urlView } />
-			</div>
+			<SearchHeader />
+			<WorkflowsEngine view={ urlView } />
 		</>,
 		workflowsAdminRoot
 	);
@@ -244,16 +228,8 @@ if ( workflowsAdminRoot ) {
 if ( analyticsAdminRoot ) {
 	render(
 		<>
-			<HeaderComponent
-				brandImg={ Brand }
-				free={ vulocartLocalizer.version }
-				pro={ vulocartLocalizer.pro_version ?? undefined }
-				onQueryUpdate={ () => {} }
-				onResultClick={ () => {} }
-			/>
-			<div className="admin-main-wrapper">
-				<AnalyticsEngine view={ urlView } />
-			</div>
+			<SearchHeader />
+			<AnalyticsEngine view={ urlView } />
 		</>,
 		analyticsAdminRoot
 	);

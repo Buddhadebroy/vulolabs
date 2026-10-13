@@ -113,6 +113,7 @@ class Install {
             `meta`       longtext DEFAULT NULL,
             `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            `published_at` datetime DEFAULT NULL,
             PRIMARY KEY (`id`),
             KEY `idx_type` (`type`),
             KEY `idx_status` (`status`),
@@ -245,5 +246,18 @@ class Install {
      */
     public function do_migration( $previous_version ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
         self::create_checkout_sessions_table();
+
+        // `published_at` on offerings: dbDelta adds the column, then offerings that were already published get
+        // their creation date as the best available publish date. Once per site.
+        if ( ! get_option( 'vulocart_offering_published_at_added' ) ) {
+            global $wpdb;
+
+            self::create_offering_table();
+
+            $table = $wpdb->prefix . Utill::TABLES['offering'];
+            $wpdb->query( "UPDATE {$table} SET published_at = created_at WHERE status = 'published' AND published_at IS NULL" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-time backfill, table name is plugin-defined.
+
+            update_option( 'vulocart_offering_published_at_added', '1' );
+        }
     }
 }
