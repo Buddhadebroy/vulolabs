@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Owns `vulocart_carts`/`vulocart_cart_items` - module-owned data, so
  * these tables are created here rather than in the plugin-level
- * `VuloCart\Install` (which only owns `vulocart_offerings`, the plugin's
+ * `VuloCart\Install` (which only owns `vulocart_products`, the plugin's
  * always-on core entity). Same version-gated activation-hook pattern
  * `vulocart-pro`'s `Passport\Util` already establishes.
  *
@@ -96,7 +96,7 @@ class Install {
         $sql_cart_items = "CREATE TABLE `{$wpdb->prefix}vulocart_cart_items` (
             `id`         bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             `cart_id`    bigint(20) unsigned NOT NULL,
-            `offering_id`   bigint(20) unsigned NOT NULL,
+            `product_id`   bigint(20) unsigned NOT NULL,
             `quantity`   int(10) unsigned NOT NULL DEFAULT 1,
             `unit_price` decimal(19,4) DEFAULT NULL,
             `currency`   varchar(10) DEFAULT NULL,
@@ -105,7 +105,7 @@ class Install {
             `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (`id`),
             KEY `idx_cart_id` (`cart_id`),
-            KEY `idx_offering_id` (`offering_id`)
+            KEY `idx_product_id` (`product_id`)
         ) $collate;";
 
         dbDelta( $sql_cart_items );

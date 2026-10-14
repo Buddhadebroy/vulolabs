@@ -5,12 +5,15 @@ import axios from 'axios';
 import { getApiLink } from '@zyra/core';
 import { ContainerComponent, ColumnComponent, NavigatorHeaderComponent } from '@zyra/components';
 import { TableCard, TableRow, QueryProps, CategoryCount } from '@zyra/table';
+import { downloadCSV } from '../../lib/utils';
 import { formatWpDate } from '../../services/formatWpDate';
+import ConfirmPopup from '../../components/ConfirmPopup/ConfirmPopup';
+import '../Products/products-page.scss';
 
 interface ReviewRow {
 	id: number;
-	offering_id: number;
-	offering_title: string | null;
+	product_id: number;
+	product_title: string | null;
 	customer_name: string | null;
 	customer_email: string | null;
 	rating: number;
@@ -21,13 +24,26 @@ interface ReviewRow {
 }
 
 const STATUS_OPTIONS = [
-	{ label: 'pending', value: 'pending' },
-	{ label: 'approved', value: 'approved' },
-	{ label: 'rejected', value: 'rejected' },
+	{ label: __( 'Pending', 'vulocart' ), value: 'pending' },
+	{ label: __( 'Approved', 'vulocart' ), value: 'approved' },
+	{ label: __( 'Rejected', 'vulocart' ), value: 'rejected' },
 ];
 
+const STATUS_BADGE: Record< string, string > = { approved: 'badge-active', pending: 'badge-pending', rejected: 'badge-inactive' };
+
+const CSV_HEADERS = {
+	product_title: { label: __( 'Product', 'vulocart' ) },
+	customer_name: { label: __( 'From', 'vulocart' ) },
+	customer_email: { label: __( 'Email', 'vulocart' ) },
+	rating: { label: __( 'Rating', 'vulocart' ) },
+	title: { label: __( 'Title', 'vulocart' ) },
+	content: { label: __( 'Review', 'vulocart' ) },
+	status: { label: __( 'Status', 'vulocart' ) },
+	created_at: { label: __( 'Submitted', 'vulocart' ) },
+};
+
 /**
- * The Offerings menu's "Reviews" admin page - moderation queue for
+ * The Products menu's "Reviews" admin page - moderation queue for
  * customer reviews (`GET/PATCH/DELETE /reviews`, admin-only;
  * `POST /reviews` - submission - is public, not used from this page).
  * Same `TableCard` + real per-status `categoryCounts` pattern
@@ -39,8 +55,11 @@ export function ReviewsPage() {
 	const [ rows, setRows ] = useState< TableRow[] >( [] );
 	const [ totalRows, setTotalRows ] = useState( 0 );
 	const [ categoryCounts, setCategoryCounts ] = useState< CategoryCount[] >( [] );
+	const [ lastQuery, setLastQuery ] = useState< QueryProps >( {} );
+	const [ deleteIds, setDeleteIds ] = useState< number[] >( [] );
 
 	const doRefreshTableData = ( query: QueryProps ) => {
+		setLastQuery( query );
 		setIsLoading( true );
 		axios
 			.get( getApiLink( vulocartLocalizer, 'reviews' ), {
@@ -49,6 +68,7 @@ export function ReviewsPage() {
 					page: query.paged || 1,
 					per_page: query.per_page || 20,
 					status: 'all' === query.categoryFilter || ! query.categoryFilter ? '' : query.categoryFilter,
+					search: query.searchValue || '',
 				},
 			} )
 			.then( ( response ) => {
@@ -83,95 +103,112 @@ export function ReviewsPage() {
 				{ status },
 				{ headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } }
 			)
-			.then( () => doRefreshTableData( {} ) );
+			.then( () => doRefreshTableData( lastQuery ) );
 	};
 
-	const remove = ( id: number ) => {
-		if ( ! window.confirm( __( 'Delete this review? This cannot be undone.', 'vulocart' ) ) ) {
+	const headersAuth = { 'X-WP-Nonce': vulocartLocalizer.nonce };
+
+	const confirmDelete = () => {
+		const ids = deleteIds;
+		setDeleteIds( [] );
+
+		Promise.all( ids.map( ( id ) => axios.delete( getApiLink( vulocartLocalizer, `reviews/${ id }` ), { headers: headersAuth } ) ) ).finally( () =>
+			doRefreshTableData( lastQuery )
+		);
+	};
+
+	const handleBulkAction = ( action: string, selectedIds: number[] ) => {
+		if ( ! selectedIds.length ) {
 			return;
 		}
 
+		if ( 'delete' === action ) {
+			setDeleteIds( selectedIds );
+			return;
+		}
+
+		const [ , status ] = action.split( ':' );
+		Promise.all(
+			selectedIds.map( ( id ) => axios.patch( getApiLink( vulocartLocalizer, `reviews/${ id }` ), { status }, { headers: headersAuth } ) )
+		).finally( () => doRefreshTableData( lastQuery ) );
+	};
+
+	const downloadSelectedCSV = ( selectedIds: number[] ) =>
+		downloadCSV( CSV_HEADERS, rows.filter( ( row ) => selectedIds.includes( Number( row.id ) ) ), `vulocart-reviews-selected-${ new Date().toISOString().slice( 0, 10 ) }.csv` );
+
+	const downloadAllCSV = ( query: QueryProps ) => {
 		axios
-			.delete( getApiLink( vulocartLocalizer, `reviews/${ id }` ), {
-				headers: { 'X-WP-Nonce': vulocartLocalizer.nonce },
+			.get( getApiLink( vulocartLocalizer, 'reviews' ), {
+				headers: headersAuth,
+				params: {
+					per_page: 1000,
+					search: query.searchValue || '',
+					status: 'all' === query.categoryFilter || ! query.categoryFilter ? '' : query.categoryFilter,
+				},
 			} )
-			.then( () => doRefreshTableData( {} ) );
+			.then( ( response ) => downloadCSV( CSV_HEADERS, response.data || [], `vulocart-reviews-${ new Date().toISOString().slice( 0, 10 ) }.csv` ) );
 	};
 
 	const headers = {
-		offering_title: {
-			label: __( 'Offering', 'vulocart' ),
-			render: ( row?: TableRow ) =>
-				row && (
-					<a href={ `admin.php?page=vulocart-offerings&action=edit&id=${ row.offering_id }` }>
-						{ ( row.offering_title as string ) || __( '(deleted offering)', 'vulocart' ) }
-					</a>
-				),
-		},
-		rating: {
-			label: __( 'Rating', 'vulocart' ),
-			render: ( row?: TableRow ) => '★'.repeat( ( row?.rating as number ) || 0 ) + '☆'.repeat( 5 - ( ( row?.rating as number ) || 0 ) ),
-		},
-		title: {
+		review: {
 			label: __( 'Review', 'vulocart' ),
-			render: ( row?: TableRow ) => (
-				<div>
-					{ row?.title ? <strong>{ row.title as string }</strong> : null }
-					<div style={ { fontSize: '12px', color: '#6b7280' } }>{ ( row?.content as string )?.slice( 0, 120 ) }</div>
-				</div>
-			),
-		},
-		customer_name: {
-			label: __( 'From', 'vulocart' ),
-			render: ( row?: TableRow ) => ( row?.customer_name as string ) || ( row?.customer_email as string ) || __( 'Anonymous', 'vulocart' ),
-		},
-		status: {
-			label: __( 'Status', 'vulocart' ),
-			type: 'status' as const,
-			statusClass: ( row: TableRow ) => `${ row.status }`,
-		},
-		created_at: {
-			label: __( 'Submitted', 'vulocart' ),
-			render: ( row?: TableRow ) => formatWpDate( row?.created_at as string ) || '-',
+			required: true,
+			render: ( row?: TableRow ) => {
+				if ( ! row ) {
+					return null;
+				}
+
+				const rating = ( row.rating as number ) || 0;
+				const from = ( row.customer_name as string ) || ( row.customer_email as string ) || __( 'Anonymous', 'vulocart' );
+
+				return (
+					<div className="vulocart-product-cell">
+						{ row.title ? <span className="vulocart-product-cell-title">{ row.title as string }</span> : null }
+						<div className="desc">{ ( row.content as string )?.slice( 0, 120 ) }</div>
+						<div className="desc">
+							<a href={ `admin.php?page=vulocart-products&action=edit&id=${ row.product_id }` }>
+								{ ( row.product_title as string ) || __( '(deleted product)', 'vulocart' ) }
+							</a>
+							{ ' · ' }
+							{ from }
+						</div>
+						<div className="vulocart-product-cell-tags">
+							<span className="admin-badge badge-info">{ '★'.repeat( rating ) + '☆'.repeat( 5 - rating ) }</span>
+							<span className={ `admin-badge ${ STATUS_BADGE[ String( row.status ) ] ?? 'badge-info' }` }>{ String( row.status ) }</span>
+							{ row.created_at && <span className="desc">{ formatWpDate( row.created_at as string ) }</span> }
+						</div>
+					</div>
+				);
+			},
 		},
 		actions: {
 			label: __( 'Actions', 'vulocart' ),
-			render: ( row?: TableRow ) =>
-				row && (
-					<div style={ { display: 'flex', gap: '8px' } }>
-						{ 'approved' !== row.status && (
-							<a
-								href="#approve"
-								onClick={ ( event ) => {
-									event.preventDefault();
-									moderate( row.id as number, 'approved' );
-								} }
-							>
-								{ __( 'Approve', 'vulocart' ) }
-							</a>
-						) }
-						{ 'rejected' !== row.status && (
-							<a
-								href="#reject"
-								onClick={ ( event ) => {
-									event.preventDefault();
-									moderate( row.id as number, 'rejected' );
-								} }
-							>
-								{ __( 'Reject', 'vulocart' ) }
-							</a>
-						) }
-						<a
-							href="#delete"
-							onClick={ ( event ) => {
-								event.preventDefault();
-								remove( row.id as number );
-							} }
-						>
-							{ __( 'Delete', 'vulocart' ) }
-						</a>
-					</div>
-				),
+			type: 'action' as const,
+			actions: [
+				{
+					label: __( 'Approve', 'vulocart' ),
+					icon: 'check',
+					type: 'button' as const,
+					color: 'text-blue',
+					hidden: ( row: Record< string, unknown > ) => 'approved' === row.status,
+					onClick: ( row: Record< string, unknown > ) => moderate( row.id as number, 'approved' ),
+				},
+				{
+					label: __( 'Reject', 'vulocart' ),
+					icon: 'close',
+					type: 'button' as const,
+					color: 'text-blue',
+					hidden: ( row: Record< string, unknown > ) => 'rejected' === row.status,
+					onClick: ( row: Record< string, unknown > ) => moderate( row.id as number, 'rejected' ),
+				},
+				{
+					label: __( 'Delete', 'vulocart' ),
+					icon: 'delete',
+					type: 'button' as const,
+					color: 'text-red',
+					onClick: ( row: Record< string, unknown > ) => setDeleteIds( [ row.id as number ] ),
+				},
+			],
 		},
 	};
 
@@ -181,11 +218,10 @@ export function ReviewsPage() {
 				<NavigatorHeaderComponent
 					headerIcon="review"
 					headerTitle={ __( 'Reviews', 'vulocart' ) }
-					headerDescription={ __( 'Customer ratings and comments on your offerings - approve or reject before they show on the storefront.', 'vulocart' ) }
+					headerDescription={ __( 'Customer ratings and comments on your products - approve or reject before they show on the storefront.', 'vulocart' ) }
 				/>
 
 				<TableCard
-					title={ __( 'Reviews', 'vulocart' ) }
 					headers={ headers }
 					rows={ rows }
 					totalRows={ totalRows }
@@ -193,8 +229,28 @@ export function ReviewsPage() {
 					onQueryUpdate={ doRefreshTableData }
 					ids={ rowIds }
 					categoryCounts={ categoryCounts }
+					activeCategory="all"
+					search={ { placeholder: __( 'Search reviews…', 'vulocart' ) } }
+					bulkActions={ [
+						...STATUS_OPTIONS.filter( ( option ) => 'pending' !== option.value ).map( ( option ) => ( {
+							label: __( 'Mark as', 'vulocart' ) + ' ' + option.label.toLowerCase(),
+							value: `status:${ option.value }`,
+						} ) ),
+						{ label: __( 'Delete', 'vulocart' ), value: 'delete' },
+					] }
+					onBulkActionApply={ ( action: string, selectedIds: number[] ) => handleBulkAction( action, selectedIds ) }
+					buttonActions={ [ { label: __( 'Export CSV', 'vulocart' ), icon: 'download', onClickWithQuery: downloadAllCSV } ] }
+					onSelectCsvDownloadApply={ downloadSelectedCSV }
 				/>
 			</ColumnComponent>
+
+			<ConfirmPopup
+				open={ deleteIds.length > 0 }
+				title={ __( 'Delete review', 'vulocart' ) }
+				message={ __( 'Delete the selected review(s)? This cannot be undone.', 'vulocart' ) }
+				onConfirm={ confirmDelete }
+				onCancel={ () => setDeleteIds( [] ) }
+			/>
 		</ContainerComponent>
 	);
 }

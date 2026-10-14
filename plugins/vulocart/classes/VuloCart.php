@@ -118,16 +118,16 @@ final class VuloCart {
         $this->container['util'] = new Utill();
 
         // Dependency-injection seam (vision principle: "storage engine is
-        // replaceable") - OfferingRepositoryInterface is bound to a concrete
-        // WPDBOfferingRepository here, and only here; every other class asks
+        // replaceable") - ProductRepositoryInterface is bound to a concrete
+        // WPDBProductRepository here, and only here; every other class asks
         // the container for the interface instead of `new`ing the concrete
         // class directly, so swapping storage engines later is a one-line
         // change to this binding.
         $this->container['service_container'] = new ServiceContainer();
         $this->container['service_container']->singleton(
-            Domain\Offering\OfferingRepositoryInterface::class,
+            Domain\Product\ProductRepositoryInterface::class,
             function () {
-                return new Infrastructure\Database\WPDBOfferingRepository();
+                return new Infrastructure\Database\WPDBProductRepository();
             }
         );
         $this->container['service_container']->singleton(
@@ -157,13 +157,13 @@ final class VuloCart {
 
         $this->container['event_dispatcher'] = new Events\EventDispatcher();
 
-        $this->container['offering_service'] = new Application\OfferingService(
-            $this->container['service_container']->make( Domain\Offering\OfferingRepositoryInterface::class ),
+        $this->container['product_service'] = new Application\ProductService(
+            $this->container['service_container']->make( Domain\Product\ProductRepositoryInterface::class ),
             $this->container['event_dispatcher']
         );
 
-        // Categories/Brands/Collections/Attributes/Reviews (Offerings menu)
-        // - core, always-loaded infrastructure the same way Offering is, not
+        // Categories/Brands/Collections/Attributes/Reviews (Products menu)
+        // - core, always-loaded infrastructure the same way Product is, not
         // a toggleable module (Install.php's own docblock).
         $this->container['term_service']      = new Application\TermService(
             $this->container['service_container']->make( Domain\Term\TermRepositoryInterface::class ),
@@ -175,13 +175,13 @@ final class VuloCart {
         );
         $this->container['review_service']    = new Application\ReviewService(
             $this->container['service_container']->make( Domain\Review\ReviewRepositoryInterface::class ),
-            $this->container['offering_service'],
+            $this->container['product_service'],
             $this->container['event_dispatcher']
         );
 
         // The Checkout Engine's own orchestration core (Application\
         // CheckoutService's own docblock) - core infrastructure like
-        // Offering/Term/Attribute/Review above, not a toggleable module:
+        // Product/Term/Attribute/Review above, not a toggleable module:
         // every checkout delivery mode (the free block, vulocart-pro's
         // Popup/Embedded/Hosted modes) needs session tracking to exist
         // regardless of which step modules happen to be active.
@@ -251,6 +251,9 @@ final class VuloCart {
         if ( version_compare( $previous_version, $this->container['version'], '<' ) ) {
             new Install();
         }
+
+        // Self-heals a site that is already on the current version but never got the products `published_at` column.
+        Install::ensure_product_published_at();
 
         do_action( 'vulocart_loaded' );
     }

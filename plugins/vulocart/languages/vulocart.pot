@@ -85,17 +85,17 @@ msgid "Refunds"
 msgstr ""
 
 #: classes/Admin/Menu.php:193
-msgid "VuloCart Offerings"
+msgid "VuloCart Products"
 msgstr ""
 
 #: classes/Admin/Menu.php:194
 #: assets/js/index.js:1
-msgid "Offerings"
+msgid "Products"
 msgstr ""
 
 #: classes/Admin/Menu.php:204
 #: classes/Admin/Menu.php:205
-msgid "All Offerings"
+msgid "All Products"
 msgstr ""
 
 #: classes/Admin/Menu.php:221
@@ -125,7 +125,7 @@ msgstr ""
 
 #: classes/Admin/Menu.php:226
 #: assets/js/index.js:1
-msgid "Offering Types"
+msgid "Product Types"
 msgstr ""
 
 #: classes/Admin/Menu.php:227
@@ -217,46 +217,46 @@ msgid "No checkout session exists for this cart token."
 msgstr ""
 
 #: classes/RestAPI/Controllers/Inventory.php:181
-#: classes/RestAPI/Controllers/Offerings.php:336
-#: classes/RestAPI/Controllers/Offerings.php:454
-#: classes/RestAPI/Controllers/Offerings.php:458
-#: classes/RestAPI/Controllers/Offerings.php:542
+#: classes/RestAPI/Controllers/Products.php:336
+#: classes/RestAPI/Controllers/Products.php:454
+#: classes/RestAPI/Controllers/Products.php:458
+#: classes/RestAPI/Controllers/Products.php:542
 #: assets/js/index.js:1
-msgid "No offering exists with this id."
+msgid "No product exists with this id."
 msgstr ""
 
 #: classes/RestAPI/Controllers/Modules.php:99
 msgid "No module id given."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Offerings.php:207
-msgid "At least one offering id is required."
+#: classes/RestAPI/Controllers/Products.php:207
+msgid "At least one product id is required."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Offerings.php:232
+#: classes/RestAPI/Controllers/Products.php:232
 msgid "A status is required."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Offerings.php:256
+#: classes/RestAPI/Controllers/Products.php:256
 msgid "A price or sale price is required."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Offerings.php:285
+#: classes/RestAPI/Controllers/Products.php:285
 msgid "A stock status or quantity is required."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Offerings.php:294
+#: classes/RestAPI/Controllers/Products.php:294
 msgid "Invalid stock status."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Offerings.php:476
-#: classes/RestAPI/Controllers/Offerings.php:555
-msgid "Invalid offering type."
+#: classes/RestAPI/Controllers/Products.php:476
+#: classes/RestAPI/Controllers/Products.php:555
+msgid "Invalid product type."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Offerings.php:486
-#: classes/RestAPI/Controllers/Offerings.php:569
-msgid "An offering title is required."
+#: classes/RestAPI/Controllers/Products.php:486
+#: classes/RestAPI/Controllers/Products.php:569
+msgid "A product title is required."
 msgstr ""
 
 #: classes/RestAPI/Controllers/Reviews.php:200
@@ -279,11 +279,11 @@ msgid "Address"
 msgstr ""
 
 #: modules/Cart/Rest.php:247
-msgid "An offering_id is required."
+msgid "A product_id is required."
 msgstr ""
 
 #: modules/Cart/Rest.php:261
-msgid "Invalid offering."
+msgid "Invalid product."
 msgstr ""
 
 #: modules/Confirmation/Module.php:83
@@ -553,7 +553,7 @@ msgid "No payment methods are currently available."
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
-#: assets/js/block/offerings/view.js:1
+#: assets/js/block/products/view.js:1
 #: assets/js/index.js:1
 #: assets/js/storefront.js:1
 msgid "Loading…"
@@ -588,21 +588,21 @@ msgid "Place Order"
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
-msgid "Available Offerings"
+msgid "Available Products"
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
-#: assets/js/block/offerings/view.js:1
-msgid "No offerings yet."
+#: assets/js/block/products/view.js:1
+msgid "No products yet."
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
-#: assets/js/block/offerings/view.js:1
+#: assets/js/block/products/view.js:1
 msgid "Price not set"
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
-#: assets/js/block/offerings/view.js:1
+#: assets/js/block/products/view.js:1
 msgid "Add to cart"
 msgstr ""
 
@@ -659,52 +659,52 @@ msgstr ""
 msgid "Save this access token to check your order status later:"
 msgstr ""
 
-#: assets/js/block/offerings/index.js:1
-msgid "VuloCart Offerings - renders the catalog listing (or a single offering's detail page, via ?offering=) on the published page."
+#: assets/js/block/products/index.js:1
+msgid "VuloCart Products - renders the catalog listing (or a single product's detail page, via ?product=) on the published page."
 msgstr ""
 
-#: assets/js/block/offerings/view.js:1
+#: assets/js/block/products/view.js:1
 msgid "This catalog is currently unavailable."
 msgstr ""
 
-#: assets/js/block/offerings/view.js:1
+#: assets/js/block/products/view.js:1
 msgid "No image"
 msgstr ""
 
-#: assets/js/block/offerings/view.js:1
+#: assets/js/block/products/view.js:1
 #: assets/js/index.js:1
 msgid "Out of stock"
 msgstr ""
 
-#: assets/js/block/offerings/view.js:1
-msgid "This offering could not be found."
+#: assets/js/block/products/view.js:1
+msgid "This product could not be found."
 msgstr ""
 
-#: assets/js/block/offerings/view.js:1
-msgid "← Back to offerings"
+#: assets/js/block/products/view.js:1
+msgid "← Back to products"
 msgstr ""
 
-#: assets/js/block/offerings/view.js:1
+#: assets/js/block/products/view.js:1
 msgid "Adding…"
 msgstr ""
 
-#: assets/js/block/offerings/view.js:1
+#: assets/js/block/products/view.js:1
 msgid "Ordering is currently unavailable."
 msgstr ""
 
-#: assets/js/block/offerings/view.js:1
+#: assets/js/block/products/view.js:1
 msgid "Added to cart!"
 msgstr ""
 
-#: assets/js/block/offerings/view.js:1
+#: assets/js/block/products/view.js:1
 msgid "Go to checkout →"
 msgstr ""
 
-#: assets/js/block/offerings/view.js:1
+#: assets/js/block/products/view.js:1
 msgid "Details"
 msgstr ""
 
-#: assets/js/block/offerings/view.js:1
+#: assets/js/block/products/view.js:1
 #: assets/js/index.js:1
 msgid "Description"
 msgstr ""
@@ -796,7 +796,7 @@ msgid "Passport"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Give every Offering a Digital Passport - serial number, manufacturer, warranty, and other provenance details."
+msgid "Give every Product a Digital Passport - serial number, manufacturer, warranty, and other provenance details."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -804,15 +804,15 @@ msgid "Suppliers"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Track who each offering is sourced from - manage suppliers and assign one per offering."
+msgid "Track who each product is sourced from - manage suppliers and assign one per product."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Offering Templates"
+msgid "Product Templates"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Save any offering's fields as a reusable preset, and start new offerings from it."
+msgid "Save any product's fields as a reusable preset, and start new products from it."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -820,7 +820,7 @@ msgid "Pricing Rules"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Automatic percentage/fixed discounts scoped to all offerings, one type, one category, or one offering."
+msgid "Automatic percentage/fixed discounts scoped to all products, one type, one category, or one product."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -836,7 +836,7 @@ msgid "Bulk Editor"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "A spreadsheet-style screen for editing price/status/stock across many offerings at once, plus Duplicate Offering."
+msgid "A spreadsheet-style screen for editing price/status/stock across many products at once, plus Duplicate Product."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -844,7 +844,7 @@ msgid "Import CSV"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Bulk-create offerings from a spreadsheet export, with column mapping and a preview."
+msgid "Bulk-create products from a spreadsheet export, with column mapping and a preview."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -916,7 +916,7 @@ msgid "AI"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "AI-generated offering/upsell recommendations."
+msgid "AI-generated product/upsell recommendations."
 msgstr ""
 
 #. translators: %s: Plugin name.
@@ -964,7 +964,7 @@ msgid "Upgrade to Pro"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Total Offerings"
+msgid "Total Products"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1134,7 +1134,7 @@ msgid "Add New Order"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Offering"
+msgid "Product"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1222,7 +1222,7 @@ msgid "SKU"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Edit offering"
+msgid "Edit product"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1230,15 +1230,15 @@ msgid "Edit"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Quick edit offering"
+msgid "Quick edit product"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Delete offering"
+msgid "Delete product"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Delete this offering? This cannot be undone."
+msgid "Delete this product? This cannot be undone."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1246,11 +1246,11 @@ msgid "Delete"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Manage every offering - physical, digital, or service-based - from one place."
+msgid "Manage every product - physical, digital, or service-based - from one place."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Add Offering"
+msgid "Add Product"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1294,19 +1294,19 @@ msgid "Set stock quantity…"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "New price for the selected offerings:"
+msgid "New price for the selected products:"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "New sale price for the selected offerings:"
+msgid "New sale price for the selected products:"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "New stock quantity for the selected offerings:"
+msgid "New stock quantity for the selected products:"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Delete the selected offerings? This cannot be undone."
+msgid "Delete the selected products? This cannot be undone."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1510,7 +1510,7 @@ msgid "Bundle items"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Comma-separated offering ids included in this bundle."
+msgid "Comma-separated product ids included in this bundle."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1578,11 +1578,11 @@ msgid "Gift Card Details"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Offering Name"
+msgid "Product Name"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "A clear, descriptive title that helps customers find your offering"
+msgid "A clear, descriptive title that helps customers find your product"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1598,15 +1598,15 @@ msgid "Track your available quantity and let customers know what is in stock"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Offering Images"
+msgid "Product Images"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "High-quality photos showing your offering from multiple angles"
+msgid "High-quality photos showing your product from multiple angles"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Organize your offering to help customers browse your store"
+msgid "Organize your product to help customers browse your store"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1618,23 +1618,23 @@ msgid "Being upfront about shipping, returns, and cancellations builds trust"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "← Back to Offerings"
+msgid "← Back to Products"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Edit Offering"
+msgid "Edit Product"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Enter your offering details - name, price, stock, and image & publish."
+msgid "Enter your product details - name, price, stock, and image & publish."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Offering updated."
+msgid "Product updated."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Offering Setup"
+msgid "Product Setup"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1646,7 +1646,7 @@ msgid "Recommended"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Offering Details"
+msgid "Product Details"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1654,7 +1654,7 @@ msgid "Tell customers what you are selling and what it costs."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Offering name"
+msgid "Product name"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1678,7 +1678,7 @@ msgid "Add variants Like size or color"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Offering variants are not supported yet - this is planned for a future update."
+msgid "Product variants are not supported yet - this is planned for a future update."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1686,7 +1686,7 @@ msgid "Type Details"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Fields specific to this offering type."
+msgid "Fields specific to this product type."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1726,7 +1726,7 @@ msgid "Height (in)"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Policies & Related Offerings"
+msgid "Policies & Related Products"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1746,11 +1746,11 @@ msgid "Cancellation policy - Can they cancel their order after placing it?"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Recommend alongside this offering"
+msgid "Recommend alongside this product"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "\"You might also like\". Comma-separated offering ids."
+msgid "\"You might also like\". Comma-separated product ids."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1758,7 +1758,7 @@ msgid "Offer as an add-on at checkout"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Suggested at cart. Comma-separated offering ids."
+msgid "Suggested at cart. Comma-separated product ids."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1766,7 +1766,7 @@ msgid "Publishing"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Featured offering"
+msgid "Featured product"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1774,7 +1774,7 @@ msgid "Catalog Visibility"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Offering Status"
+msgid "Product Status"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1786,15 +1786,15 @@ msgid "Organization"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Where this offering appears in your store, and how it's tagged."
+msgid "Where this product appears in your store, and how it's tagged."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No categories yet - add some from Offerings → Categories."
+msgid "No categories yet - add some from Products → Categories."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No tags yet - add some from Offerings → Tags."
+msgid "No tags yet - add some from Products → Tags."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1806,7 +1806,7 @@ msgid "None"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No collections yet - add some from Offerings → Collections."
+msgid "No collections yet - add some from Products → Collections."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1822,7 +1822,7 @@ msgid "Select Featured Image"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Offering gallery"
+msgid "Product gallery"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1846,7 +1846,7 @@ msgid "Add"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Named properties offerings can be described by - e.g. \"Color\" with values Red/Blue/Green."
+msgid "Named properties products can be described by - e.g. \"Color\" with values Red/Blue/Green."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1882,15 +1882,15 @@ msgid "Delete attribute"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "The built-in offering types this plugin supports, and how many offerings currently use each one."
+msgid "The built-in product types this plugin supports, and how many products currently use each one."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Stock levels for every physical, rental, bundle, and gift card offering."
+msgid "Stock levels for every physical, rental, bundle, and gift card product."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No stock-tracked offerings yet."
+msgid "No stock-tracked products yet."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1902,7 +1902,7 @@ msgid "Low stock"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "(deleted offering)"
+msgid "(deleted product)"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1934,23 +1934,23 @@ msgid "Delete this review? This cannot be undone."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Customer ratings and comments on your offerings - approve or reject before they show on the storefront."
+msgid "Customer ratings and comments on your products - approve or reject before they show on the storefront."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Group offerings into a hierarchy of categories."
+msgid "Group products into a hierarchy of categories."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Manually-curated groups of offerings, e.g. \"Summer Sale\" or \"Staff Picks\"."
+msgid "Manually-curated groups of products, e.g. \"Summer Sale\" or \"Staff Picks\"."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "The manufacturers/brands your offerings come from."
+msgid "The manufacturers/brands your products come from."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Free-form labels offerings can carry, e.g. \"clearance\" or \"eco-friendly\"."
+msgid "Free-form labels products can carry, e.g. \"clearance\" or \"eco-friendly\"."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1982,11 +1982,11 @@ msgid "Catalog"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Default offering type"
+msgid "Default product type"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Offering type preselected when a merchant clicks \"Add New\" on the Offerings screen."
+msgid "Product type preselected when a merchant clicks \"Add New\" on the Products screen."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1994,7 +1994,7 @@ msgid "Default catalog visibility"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Visibility preselected for a newly created offering."
+msgid "Visibility preselected for a newly created product."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -2002,7 +2002,7 @@ msgid "Low stock threshold"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Quantity at or below which a stock-tracked offering could be flagged as low stock."
+msgid "Quantity at or below which a stock-tracked product could be flagged as low stock."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -2098,7 +2098,7 @@ msgid "Enable shipping"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Whether shippable offering types (Physical, Rental, Bundle) show shipping fields at all."
+msgid "Whether shippable product types (Physical, Rental, Bundle) show shipping fields at all."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -2106,7 +2106,7 @@ msgid "Default shipping class"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Shipping class preselected for a new shippable offering."
+msgid "Shipping class preselected for a new shippable product."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -2138,7 +2138,7 @@ msgid "Prices already include tax"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Whether an offering's price is tax-inclusive or tax gets added on top at checkout."
+msgid "Whether a product's price is tax-inclusive or tax gets added on top at checkout."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -2146,11 +2146,11 @@ msgid "Frontend"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Show offerings listing"
+msgid "Show products listing"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Show the \"Available Offerings\" catalog-browsing section on the storefront checkout page."
+msgid "Show the \"Available Products\" catalog-browsing section on the storefront checkout page."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -2170,15 +2170,15 @@ msgid "Default currency"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "ISO 4217 code used when a new offering is created without an explicit currency."
+msgid "ISO 4217 code used when a new product is created without an explicit currency."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Default offering status"
+msgid "Default product status"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Status a new offering gets when none is specified."
+msgid "Status a new product gets when none is specified."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -2206,7 +2206,7 @@ msgid "Enable public REST API"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Whether VuloCart's public-read endpoints (e.g. GET /offerings) are reachable at all, independent of the always-on admin-only endpoints."
+msgid "Whether VuloCart's public-read endpoints (e.g. GET /products) are reachable at all, independent of the always-on admin-only endpoints."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -2260,17 +2260,17 @@ msgstr ""
 
 #: assets/js/block/checkout/block.json
 msgctxt "block description"
-msgid "A real, working single-page checkout: browse offerings, adjust cart quantities, and place an order - no payment gateway yet, orders are created as 'pending'."
+msgid "A real, working single-page checkout: browse products, adjust cart quantities, and place an order - no payment gateway yet, orders are created as 'pending'."
 msgstr ""
 
-#: assets/js/block/offerings/block.json
+#: assets/js/block/products/block.json
 msgctxt "block title"
-msgid "VuloCart Offerings"
+msgid "VuloCart Products"
 msgstr ""
 
-#: assets/js/block/offerings/block.json
+#: assets/js/block/products/block.json
 msgctxt "block description"
-msgid "The storefront catalog: a listing grid of published offerings, or a single offering's detail page when the URL's `offering` query param is present."
+msgid "The storefront catalog: a listing grid of published products, or a single product's detail page when the URL's `product` query param is present."
 msgstr ""
 
 #: assets/js/block/order-tracking/block.json

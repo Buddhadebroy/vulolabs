@@ -5,7 +5,7 @@ import { configureZyra, initializeModules } from '@zyra/core';
 import SearchHeader from './components/Header/SearchHeader';
 import { App } from './app/App';
 import Orders from './pages/Orders/Orders';
-import Offerings from './pages/Offerings/Offerings';
+import Products from './pages/Products/Products';
 import Customers from './pages/Customers/Customers';
 import InventoryEngine from './pages/InventoryEngine/InventoryEngine';
 import MarketingEngine from './pages/MarketingEngine/MarketingEngine';
@@ -25,14 +25,14 @@ import { registerRestErrorToasts } from './lib/rest-errors';
  * zyra's shared layout rules (full-height page, `#wpcontent` padding reset)
  * apply here the same way they do there.
  *
- * Further, separate top-level WP admin menus ("Orders", "Offerings", "Customers",
+ * Further, separate top-level WP admin menus ("Orders", "Products", "Customers",
  * "Inventory", "Shipping", "AI", "Workflows", "Analytics") mount the exact same
  * bundle into different root element ids PHP prints
- * (`#vulocart-orders-admin-root`, `#vulocart-offerings-admin-root`, ...) - which
+ * (`#vulocart-orders-admin-root`, `#vulocart-products-admin-root`, ...) - which
  * `standaloneRoot()` renames to `#admin-main-wrapper` at mount, so they get the same
  * layout rules as the main app - all
  * get their own dedicated space rather than being one more VuloCart tab
- * (Menu.php's `add_orders_menu()`/`add_offerings_menu()` docblocks).
+ * (Menu.php's `add_orders_menu()`/`add_products_menu()` docblocks).
  * Rather than a second/third webpack entry, this file renders a
  * different, self-contained tree per root - "never mix multiple modules
  * into one screen" holds either way, since neither screen ever renders
@@ -42,7 +42,7 @@ import { registerRestErrorToasts } from './lib/rest-errors';
  * at mount time - not via client-side routing. Every transition between
  * list/add/edit is a real full-page navigation to a distinct
  * `admin.php?page=...` URL (row/button links use plain `<a href>`/
- * `window.location.href`, see OrdersList.tsx/OfferingsList.tsx), matching
+ * `window.location.href`, see OrdersList.tsx/ProductsList.tsx), matching
  * WooCommerce's own Orders/Products edit screens rather than a SPA route
  * or a popup - so a fresh mount re-reading the URL on every load is
  * exactly the right model, not a shortcut.
@@ -79,7 +79,7 @@ import { registerRestErrorToasts } from './lib/rest-errors';
  * vulocart-pro's own bundle (and every active Pro module's own
  * top-level `addFilter()` calls) has unconditionally already executed.
  * Without this, `render()` (and therefore every `applyFilters(...)` call
- * a page like `Offerings`/`Customers`/`InventoryEngine`/`ShippingEngine`
+ * a page like `Products`/`Customers`/`InventoryEngine`/`ShippingEngine`
  * makes on its very first synchronous render) ran to completion before
  * any Pro-registered filter existed, so every Pro-registered `view`
  * (Suppliers, Groups/Segments, the entire Inventory/Shipping Engine
@@ -119,7 +119,7 @@ const standaloneRoot = ( id: string ) => {
 
 const adminRoot = document.getElementById( 'admin-main-wrapper' );
 const ordersAdminRoot = standaloneRoot( 'vulocart-orders-admin-root' );
-const offeringsAdminRoot = standaloneRoot( 'vulocart-offerings-admin-root' );
+const productsAdminRoot = standaloneRoot( 'vulocart-products-admin-root' );
 const customersAdminRoot = standaloneRoot( 'vulocart-customers-admin-root' );
 const inventoryAdminRoot = standaloneRoot( 'vulocart-inventory-admin-root' );
 const shippingAdminRoot = standaloneRoot( 'vulocart-shipping-admin-root' );
@@ -155,13 +155,13 @@ if ( ordersAdminRoot ) {
 	);
 }
 
-if ( offeringsAdminRoot ) {
+if ( productsAdminRoot ) {
 	render(
 		<>
 			<SearchHeader />
-			<Offerings action={ urlAction } id={ urlId } view={ urlView } />
+			<Products action={ urlAction } id={ urlId } view={ urlView } />
 		</>,
-		offeringsAdminRoot
+		productsAdminRoot
 	);
 }
 

@@ -17,13 +17,13 @@ defined( 'ABSPATH' ) || exit;
  *
  * Registers the same CRUD route shape once per ROUTE_TAXONOMIES entry -
  * `/categories`, `/brands`, `/collections`, `/tags` - each bound to one
- * Domain\Term\Taxonomy constant, backing the Offerings menu's
+ * Domain\Term\Taxonomy constant, backing the Products menu's
  * "Categories"/"Brands"/"Collections"/"Tags" admin pages (`src/pages/Terms/`).
  * One controller class rather than four near-identical ones, mirroring
  * Domain\Term\Taxonomy's own "one shape, one table" reasoning.
  *
  * Listing/reading is public (categories/brands/collections/tags are
- * harmless reference data, same posture as Offerings' own public GET -
+ * harmless reference data, same posture as Products' own public GET -
  * rest-api.md); every mutation is `manage_options`-gated.
  *
  * @class       Terms class
@@ -121,7 +121,7 @@ class Terms extends \WP_REST_Controller {
             'parent_id'      => $term->parent_id,
             'description'    => $term->description,
             'meta'           => $term->meta,
-            'offering_count' => VuloCart()->term_service->count_offerings_for_term( $term ),
+            'product_count' => VuloCart()->term_service->count_products_for_term( $term ),
             'created_at'     => $term->created_at,
             'updated_at'     => $term->updated_at,
         );
@@ -265,7 +265,7 @@ class Terms extends \WP_REST_Controller {
     /**
      * Whitelist-sanitizes a term's `meta` bag - today just a brand's
      * optional logo media reference, same `{id,url}` shape
-     * Offerings' own `sanitize_media_item()` validates.
+     * Products' own `sanitize_media_item()` validates.
      *
      * @param array<string, mixed> $meta Raw posted meta.
      * @return array<string, mixed>

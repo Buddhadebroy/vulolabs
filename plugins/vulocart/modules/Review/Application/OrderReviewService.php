@@ -88,16 +88,16 @@ class OrderReviewService {
         $payment_service = $this->resolve_optional_service( 'payment_service' );
         $payment_status  = $payment_service ? $payment_service->get_initial_payment_status() : 'pending';
 
-        $offering_service = VuloCart()->offering_service;
+        $product_service = VuloCart()->product_service;
 
         $items = array();
 
         foreach ( $cart->items as $item ) {
-            $offering = $offering_service->get_offering( $item->offering_id );
+            $product = $product_service->get_product( $item->product_id );
 
             $items[] = array(
-                'offering_id' => $item->offering_id,
-                'title'       => $offering ? $offering->title : '',
+                'product_id' => $item->product_id,
+                'title'       => $product ? $product->title : '',
                 'quantity'    => $item->quantity,
                 'unit_price'  => $item->unit_price,
                 'currency'    => $item->currency,

@@ -11,19 +11,19 @@ import { getApiLink, getApiResponse } from '@zyra/core';
  * VuloCart has no equivalent of yet. Same
  * `ContainerComponent`/`ColumnComponent` layout, `CardComponent` for
  * each stat, but showing genuinely available data instead of fabricated
- * widgets - total offering count (`GET /offerings`'s `X-WP-Total` header,
- * already returned by Controllers\Offerings::get_items()) and active module
+ * widgets - total product count (`GET /products`'s `X-WP-Total` header,
+ * already returned by Controllers\Products::get_items()) and active module
  * count (the now-fixed `GET /modules`, a flat active-id array).
  */
 const Dashboard = () => {
-	const [ offeringCount, setOfferingCount ] = useState< number | null >( null );
+	const [ productCount, setProductCount ] = useState< number | null >( null );
 	const [ activeModuleCount, setActiveModuleCount ] = useState< number | null >( null );
 
 	useEffect( () => {
-		fetch( getApiLink( vulocartLocalizer, 'offerings' ), {
+		fetch( getApiLink( vulocartLocalizer, 'products' ), {
 			headers: { 'X-WP-Nonce': vulocartLocalizer.nonce },
 		} ).then( ( response ) => {
-			setOfferingCount( Number( response.headers.get( 'X-WP-Total' ) ?? 0 ) );
+			setProductCount( Number( response.headers.get( 'X-WP-Total' ) ?? 0 ) );
 		} );
 
 		getApiResponse< string[] >(
@@ -37,9 +37,9 @@ const Dashboard = () => {
 	return (
 		<ContainerComponent>
 			<ColumnComponent>
-				<CardComponent title={ __( 'Total Offerings', 'vulocart' ) }>
+				<CardComponent title={ __( 'Total Products', 'vulocart' ) }>
 					<p className="vulocart-stat">
-						{ offeringCount === null ? '-' : offeringCount }
+						{ productCount === null ? '-' : productCount }
 					</p>
 				</CardComponent>
 			</ColumnComponent>

@@ -1,0 +1,73 @@
+// Terms screens (Categories, Collections, Brands, Tags): add/edit form on one half, the list on the other.
+// Deliberately plain - cards, inputs and table come from zyra, like VuloPilot's screens; this only lays them out.
+.vulocart-terms-layout {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	gap: 1rem;
+	align-items: start;
+	width: 100%;
+
+	// The form stays in view while a long list scrolls.
+	.vulocart-terms-form {
+		position: sticky;
+		top: 2.5rem;
+	}
+
+	.input-wrapper,
+	.form-select-field {
+		width: 100%;
+	}
+
+	.vulocart-field-hint {
+		margin: 0.25rem 0 0;
+		font-size: 0.75rem;
+		color: #6b7280;
+	}
+
+	.vulocart-field-error {
+		margin: 0.25rem 0 0;
+		font-size: 0.8125rem;
+		color: #b42318;
+	}
+
+	.basic-input.has-error {
+		border-color: #d92d20;
+	}
+
+	.vulocart-terms-form-actions {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		margin-top: 1rem;
+	}
+
+	.vulocart-term-more {
+		padding: 0;
+		border: 0;
+		background: transparent;
+		font-size: 0.8125rem;
+		color: #6b7280;
+		cursor: pointer;
+
+		&:hover {
+			color: #111827;
+			text-decoration: underline;
+		}
+	}
+
+	// A child is shown by indent alone.
+	.vulocart-product-cell {
+		padding-top: 0.125rem;
+		padding-bottom: 0.125rem;
+	}
+}
+
+@media (max-width: 960px) {
+	.vulocart-terms-layout {
+		grid-template-columns: minmax(0, 1fr);
+
+		.vulocart-terms-form {
+			position: static;
+		}
+	}
+}

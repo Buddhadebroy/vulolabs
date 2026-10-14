@@ -9,7 +9,7 @@ interface AiEngineProps {
 const views: Record< string, EngineView > = {
 	catalog: {
 		title: __( 'Catalog AI', 'vulocart' ),
-		description: __( 'Describe a product and Catalog AI drafts a new offering (title, description, price) - nothing is published automatically.', 'vulocart' ),
+		description: __( 'Describe a product and Catalog AI drafts a new product (title, description, price) - nothing is published automatically.', 'vulocart' ),
 		icon: 'ai',
 		module: 'catalog-ai',
 		pro: true,
@@ -30,7 +30,7 @@ const views: Record< string, EngineView > = {
 	},
 	search: {
 		title: __( 'Vector Search', 'vulocart' ),
-		description: __( 'Semantic search over your catalog - finds offerings by meaning, not just exact keyword matches.', 'vulocart' ),
+		description: __( 'Semantic search over your catalog - finds products by meaning, not just exact keyword matches.', 'vulocart' ),
 		icon: 'ai',
 		module: 'vector-search',
 		pro: true,

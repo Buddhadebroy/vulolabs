@@ -7,10 +7,12 @@
 
 namespace VuloCart\Cart\Application;
 
-use VuloCart\Application\OfferingService;
+use VuloCart\Application\ProductService;
+use VuloCart\Application\PriceCatalog;
 use VuloCart\Cart\Domain\Cart;
 use VuloCart\Cart\Domain\CartItem;
 use VuloCart\Cart\Domain\CartRepositoryInterface;
+use VuloCart\Domain\Product\Product;
 use VuloCart\Events\EventDispatcher;
 use VuloCart\Utill;
 
@@ -20,10 +22,10 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Cart module CartService.
  *
  * Where Cart business logic actually lives - Rest calls only this class,
- * mirroring VuloCart\Application\OfferingService's role for Offerings. Depends
- * on the core plugin's OfferingService (not the offering repository directly)
+ * mirroring VuloCart\Application\ProductService's role for Products. Depends
+ * on the core plugin's ProductService (not the product repository directly)
  * so an added line item's price/currency is snapshotted through the same
- * business rules any other Offering consumer goes through.
+ * business rules any other Product consumer goes through.
  *
  * @class       CartService class
  * @version     1.0.0
@@ -39,11 +41,11 @@ class CartService {
     private $repository;
 
     /**
-     * Used to validate an offering exists and to snapshot its current price.
+     * Used to validate a product exists and to snapshot its current price.
      *
-     * @var OfferingService
+     * @var ProductService
      */
-    private $offering_service;
+    private $product_service;
 
     /**
      * Broadcasts what happened after each mutation.
@@ -56,12 +58,12 @@ class CartService {
      * CartService constructor.
      *
      * @param CartRepositoryInterface $repository    Resolved via VuloCart's ServiceContainer, not `new`d directly.
-     * @param OfferingService         $offering_service  Used to validate an offering exists and to snapshot its current price.
+     * @param ProductService         $product_service  Used to validate a product exists and to snapshot its current price.
      * @param EventDispatcher         $events         Broadcasts what happened; never decides what should happen.
      */
-    public function __construct( CartRepositoryInterface $repository, OfferingService $offering_service, EventDispatcher $events ) {
+    public function __construct( CartRepositoryInterface $repository, ProductService $product_service, EventDispatcher $events ) {
         $this->repository       = $repository;
-        $this->offering_service = $offering_service;
+        $this->product_service = $product_service;
         $this->events           = $events;
     }
 
@@ -96,35 +98,53 @@ class CartService {
     }
 
     /**
-     * Adds a quantity of an offering to a cart, or increments an existing
-     * line item for the same offering. Throws if the offering doesn't exist -
+     * Adds a quantity of a product to a cart, or increments an existing
+     * line item for the same product. Throws if the product doesn't exist -
      * the caller (Rest) turns that into a 400 WP_Error rather than
      * silently adding a bogus line item.
      *
-     * @param string $token    Opaque client-held cart identity.
-     * @param int    $offering_id VuloCart\Domain\Offering\Offering id.
-     * @param int    $quantity Quantity to add (must be >= 1).
+     * @param string      $token       Opaque client-held cart identity.
+     * @param int         $product_id VuloCart\Domain\Product\Product id.
+     * @param int         $quantity    Quantity to add (must be >= 1).
+     * @param string|null $price_id    Which of the product's prices to buy; null/'' means its default price.
      * @return Cart
-     * @throws \InvalidArgumentException If no offering with $offering_id exists.
+     * @throws \InvalidArgumentException If no product with $product_id exists, or $price_id is not one of its
+     *                                   prices, or that price cannot be bought (inactive, or its type's plugin is off).
      */
-    public function add_item( $token, $offering_id, $quantity ) {
-        $offering = $this->offering_service->get_offering( $offering_id );
+    public function add_item( $token, $product_id, $quantity, $price_id = null ) {
+        $product = $this->product_service->get_product( $product_id );
 
-        if ( ! $offering ) {
-            throw new \InvalidArgumentException( 'Unknown offering.' );
+        if ( ! $product ) {
+            throw new \InvalidArgumentException( 'Unknown product.' );
+        }
+
+        $price = $product->find_price( $price_id );
+
+        if ( ! $price || ! PriceCatalog::is_purchasable( $price ) ) {
+            throw new \InvalidArgumentException( 'This price is not available.' );
         }
 
         $cart     = $this->get_or_create_cart( $token );
-        $existing = $this->repository->find_item( $cart->id, $offering_id );
+        $existing = null;
+
+        // One line per product *and price* - the same product at two prices is two lines.
+        foreach ( $cart->items as $candidate ) {
+            $candidate_price = isset( $candidate->meta['price_id'] ) ? (string) $candidate->meta['price_id'] : '';
+
+            if ( (int) $candidate->product_id === (int) $product_id && $candidate_price === (string) $price['id'] ) {
+                $existing = $candidate;
+                break;
+            }
+        }
 
         if ( $existing ) {
             $existing->quantity += $quantity;
             $this->repository->update_item( $existing );
         } else {
-            $base_price = null === $offering->price ? 0.0 : $offering->price;
+            $base_price = Product::price_amount( $price );
 
             /**
-             * `vulocart_offering_effective_price` - the one place a line
+             * `vulocart_product_effective_price` - the one place a line
              * item's unit price gets decided before it's snapshotted onto
              * the cart (this same value then rides with the item through
              * checkout/order creation unchanged - this Domain\Cart\CartItem's
@@ -132,22 +152,31 @@ class CartService {
              * reasoning). vulocart-pro's Pricing Rules module hooks this to
              * apply a percentage/fixed discount without CartService knowing
              * Pro exists - same "Pro extends Free via filters" pattern
-             * `vulocart_offering_edit_sections` already establishes on the
+             * `vulocart_product_edit_sections` already establishes on the
              * admin side, just a plain WordPress filter here since this
              * runs in PHP, not React.
              *
-             * @param float    $base_price Offering::$price (or 0.0 if unset).
-             * @param Offering $offering   The offering being added to cart.
+             * @param float    $base_price Product::$price (or 0.0 if unset).
+             * @param Product $product   The product being added to cart.
              */
-            $unit_price = (float) apply_filters( 'vulocart_offering_effective_price', $base_price, $offering );
+            $unit_price = (float) apply_filters( 'vulocart_product_effective_price', $base_price, $product );
 
             $item = new CartItem(
                 null,
                 $cart->id,
-                $offering_id,
+                $product_id,
                 $quantity,
                 $unit_price,
-                $offering->currency ? $offering->currency : $cart->currency
+                $product->currency ? $product->currency : $cart->currency,
+                array(
+                    'price_id'       => (string) $price['id'],
+                    'price_label'    => (string) $price['label'],
+                    'price_type'     => (string) $price['type'],
+                    'interval'       => (string) $price['interval'],
+                    'interval_count' => (int) $price['interval_count'],
+                    'payments'       => $price['payments'],
+                    'trial_days'     => (int) $price['trial_days'],
+                )
             );
 
             $this->repository->insert_item( $item );

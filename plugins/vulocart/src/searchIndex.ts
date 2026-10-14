@@ -6,7 +6,7 @@ import paymentsFields from './components/Settings/paymentsFields';
 /**
  * The header search's index: the VuloCart tabs and menu pages, every Settings tab and the sections and
  * fields on it, and the modules. Built when a search runs, not at load, so settings tabs vulocart-pro adds
- * (Licensing, Offering Templates) are included once its bundle has registered them.
+ * (Licensing, Product Templates) are included once its bundle has registered them.
  */
 export type SearchItem = {
 	id: string;
@@ -43,19 +43,16 @@ const PAGES: { id: string; name: string; desc: string; link: string; icon: strin
 	{ id: 'orders', name: __( 'Orders', 'vulocart' ), desc: __( 'Every order.', 'vulocart' ), link: 'admin.php?page=vulocart-orders', icon: 'store' },
 	{ id: 'orders-add', name: __( 'Add order', 'vulocart' ), desc: __( 'Create an order by hand.', 'vulocart' ), link: 'admin.php?page=vulocart-orders&action=add', icon: 'plus' },
 	{ id: 'subscriptions', name: __( 'Subscriptions', 'vulocart' ), desc: __( 'Recurring billing.', 'vulocart' ), link: 'admin.php?page=vulocart-orders&view=subscriptions', icon: 'subscription' },
-	{ id: 'offerings', name: __( 'Offerings', 'vulocart' ), desc: __( 'Everything you sell.', 'vulocart' ), link: 'admin.php?page=vulocart-offerings', icon: 'catalog' },
-	{ id: 'offerings-add', name: __( 'Add offering', 'vulocart' ), desc: __( 'Create a new offering.', 'vulocart' ), link: 'admin.php?page=vulocart-offerings&action=add', icon: 'plus' },
-	{ id: 'categories', name: __( 'Categories', 'vulocart' ), desc: __( 'Group offerings into categories.', 'vulocart' ), link: 'admin.php?page=vulocart-offerings&view=categories', icon: 'category' },
-	{ id: 'collections', name: __( 'Collections', 'vulocart' ), desc: __( 'Hand-picked groups of offerings.', 'vulocart' ), link: 'admin.php?page=vulocart-offerings&view=collections', icon: 'folder-open' },
-	{ id: 'brands', name: __( 'Brands', 'vulocart' ), desc: __( 'The brands your offerings come from.', 'vulocart' ), link: 'admin.php?page=vulocart-offerings&view=brands', icon: 'product' },
-	{ id: 'tags', name: __( 'Tags', 'vulocart' ), desc: __( 'Free-form labels for offerings.', 'vulocart' ), link: 'admin.php?page=vulocart-offerings&view=tags', icon: 'tag' },
-	{ id: 'attributes', name: __( 'Attributes', 'vulocart' ), desc: __( 'Properties such as colour and size.', 'vulocart' ), link: 'admin.php?page=vulocart-offerings&view=attributes', icon: 'product-options' },
-	{ id: 'bulk-editor', name: __( 'Bulk Editor', 'vulocart' ), desc: __( 'Edit many offerings at once.', 'vulocart' ), link: 'admin.php?page=vulocart-offerings&view=bulk-editor', icon: 'bulk-action' },
-	{ id: 'csv-import', name: __( 'Import CSV', 'vulocart' ), desc: __( 'Create offerings from a spreadsheet.', 'vulocart' ), link: 'admin.php?page=vulocart-offerings&view=csv-import', icon: 'csv' },
-	{ id: 'passports', name: __( 'Passports', 'vulocart' ), desc: __( 'Serialized product passports.', 'vulocart' ), link: 'admin.php?page=vulocart-offerings&view=passports', icon: 'identity-verification' },
+	{ id: 'products', name: __( 'Products', 'vulocart' ), desc: __( 'Everything you sell.', 'vulocart' ), link: 'admin.php?page=vulocart-products', icon: 'catalog' },
+	{ id: 'products-add', name: __( 'Add product', 'vulocart' ), desc: __( 'Create a new product.', 'vulocart' ), link: 'admin.php?page=vulocart-products&action=add', icon: 'plus' },
+	{ id: 'categories', name: __( 'Categories', 'vulocart' ), desc: __( 'Group products into categories.', 'vulocart' ), link: 'admin.php?page=vulocart-products&view=categories', icon: 'category' },
+	{ id: 'collections', name: __( 'Collections', 'vulocart' ), desc: __( 'Hand-picked groups of products.', 'vulocart' ), link: 'admin.php?page=vulocart-products&view=collections', icon: 'folder-open' },
+	{ id: 'brands', name: __( 'Brands', 'vulocart' ), desc: __( 'The brands your products come from.', 'vulocart' ), link: 'admin.php?page=vulocart-products&view=brands', icon: 'product' },
+	{ id: 'tags', name: __( 'Tags', 'vulocart' ), desc: __( 'Free-form labels for products.', 'vulocart' ), link: 'admin.php?page=vulocart-products&view=tags', icon: 'tag' },
+	{ id: 'attributes', name: __( 'Attributes', 'vulocart' ), desc: __( 'Properties such as colour and size.', 'vulocart' ), link: 'admin.php?page=vulocart-products&view=attributes', icon: 'product-options' },
 	{ id: 'customers', name: __( 'Customers', 'vulocart' ), desc: __( 'Everyone who has bought from you.', 'vulocart' ), link: 'admin.php?page=vulocart-customers', icon: 'membership' },
-	{ id: 'inventory', name: __( 'Stock Levels', 'vulocart' ), desc: __( 'Stock for every offering.', 'vulocart' ), link: 'admin.php?page=vulocart-inventory', icon: 'store-inventory' },
-	{ id: 'suppliers', name: __( 'Suppliers', 'vulocart' ), desc: __( 'Who you source offerings from.', 'vulocart' ), link: 'admin.php?page=vulocart-inventory&view=suppliers', icon: 'store' },
+	{ id: 'inventory', name: __( 'Stock Levels', 'vulocart' ), desc: __( 'Stock for every product.', 'vulocart' ), link: 'admin.php?page=vulocart-inventory', icon: 'store-inventory' },
+	{ id: 'suppliers', name: __( 'Suppliers', 'vulocart' ), desc: __( 'Who you source products from.', 'vulocart' ), link: 'admin.php?page=vulocart-inventory&view=suppliers', icon: 'store' },
 	{ id: 'warehouses', name: __( 'Warehouses', 'vulocart' ), desc: __( 'Stock locations.', 'vulocart' ), link: 'admin.php?page=vulocart-inventory&view=warehouses', icon: 'store-inventory' },
 	{ id: 'shipping', name: __( 'Shipping', 'vulocart' ), desc: __( 'Zones, rates, shipments and returns.', 'vulocart' ), link: 'admin.php?page=vulocart-shipping', icon: 'shipping' },
 	{ id: 'marketing-coupons', name: __( 'Coupons', 'vulocart' ), desc: __( 'Discount codes.', 'vulocart' ), link: 'admin.php?page=vulocart-marketing&view=coupons', icon: 'coupon' },

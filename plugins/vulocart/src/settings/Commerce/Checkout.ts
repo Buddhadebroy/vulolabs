@@ -80,6 +80,37 @@ export default {
 			],
 		},
 		{
+			key: 'checkout_styles',
+			type: 'checkbox',
+			label: __( 'Extra checkout styles (Pro)', 'vulocart' ),
+			settingDescription: __(
+				'Open checkout somewhere other than the checkout page: in a popup, a side drawer, embedded in any page, or on a hosted page. Needs VuloCart Pro.',
+				'vulocart'
+			),
+			options: [
+				{ key: 'popup', label: __( 'Popup', 'vulocart' ), value: 'popup' },
+				{ key: 'drawer', label: __( 'Side drawer', 'vulocart' ), value: 'drawer' },
+				{ key: 'embedded', label: __( 'Embedded in a page', 'vulocart' ), value: 'embedded' },
+				{ key: 'hosted', label: __( 'Hosted page', 'vulocart' ), value: 'hosted' },
+			],
+		},
+		{
+			key: 'checkout_features',
+			type: 'checkbox',
+			label: __( 'Checkout extras (Pro)', 'vulocart' ),
+			settingDescription: __(
+				'One-click reorder, shareable checkout links and QR codes, the checkout builder, a buyer note field, and address suggestions. Needs VuloCart Pro.',
+				'vulocart'
+			),
+			options: [
+				{ key: 'one-click', label: __( 'One-click checkout', 'vulocart' ), value: 'one-click' },
+				{ key: 'links', label: __( 'Checkout links & QR codes', 'vulocart' ), value: 'links' },
+				{ key: 'builder', label: __( 'Checkout builder', 'vulocart' ), value: 'builder' },
+				{ key: 'notes', label: __( 'Order notes from the buyer', 'vulocart' ), value: 'notes' },
+				{ key: 'autocomplete', label: __( 'Address autocomplete', 'vulocart' ), value: 'autocomplete' },
+			],
+		},
+		{
 			key: 'guest_checkout_enabled',
 			type: 'checkbox',
 			look: 'toggle',

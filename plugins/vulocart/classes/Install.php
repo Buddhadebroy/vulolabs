@@ -15,12 +15,12 @@ defined( 'ABSPATH' ) || exit;
  * Creates VuloCart's custom database tables, following the same
  * dbDelta()-based pattern as VuloPilot\Install.
  *
- * Owns `vulocart_offerings` (Offering is the plugin's always-on core entity)
- * plus the catalog-taxonomy tables the Offerings menu's Categories/
+ * Owns `vulocart_products` (Product is the plugin's always-on core entity)
+ * plus the catalog-taxonomy tables the Products menu's Categories/
  * Brands/Collections/Attributes/Reviews pages need
  * (`vulocart_terms`, `vulocart_attributes`, `vulocart_attribute_values`,
  * `vulocart_reviews`) - all core, always-loaded infrastructure the same
- * way Offering is, not a toggleable module. Cart and Order's own tables are
+ * way Product is, not a toggleable module. Cart and Order's own tables are
  * created on their own module activation hooks instead
  * (`modules/Cart/Install.php`, `modules/Order/Install.php`), same
  * "module owns its own schema" convention `vulocart-pro`'s Passport
@@ -73,13 +73,13 @@ class Install {
             require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         }
 
-        self::create_offering_table();
+        self::create_product_table();
         self::create_catalog_taxonomy_tables();
         self::create_checkout_sessions_table();
     }
 
     /**
-     * Creates `vulocart_offerings`.
+     * Creates `vulocart_products`.
      *
      * No `IF NOT EXISTS` in the CREATE TABLE statement - `dbDelta()`
      * extracts the table name via a regex that stops at the first space
@@ -90,18 +90,18 @@ class Install {
      *
      * @return void
      */
-    private static function create_offering_table() {
+    private static function create_product_table() {
         global $wpdb;
 
         $collate = $wpdb->get_charset_collate();
 
-        // Vision: "Never use Product internally, instead use Offering" -
-        // one table covers every offering type in Domain\Offering\OfferingType;
+        // Vision: "Never use Product internally, instead use Product" -
+        // one table covers every product type in Domain\Product\ProductType;
         // `type` distinguishes physical/digital/subscription/etc rather
         // than a table-per-type, and `meta`/`passport` are extensible JSON
         // bags rather than fixed columns per type, since the type list is
-        // expected to keep growing (vision: "Future Offering Types").
-        $sql_offerings = "CREATE TABLE `{$wpdb->prefix}" . Utill::TABLES['offering'] . "` (
+        // expected to keep growing (vision: "Future Product Types").
+        $sql_products = "CREATE TABLE `{$wpdb->prefix}" . Utill::TABLES['product'] . "` (
             `id`         bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             `type`       varchar(50) NOT NULL,
             `sku`        varchar(100) DEFAULT NULL,
@@ -121,7 +121,7 @@ class Install {
             KEY `idx_slug` (`slug`)
         ) $collate;";
 
-        dbDelta( $sql_offerings );
+        dbDelta( $sql_products );
     }
 
     /**
@@ -183,7 +183,7 @@ class Install {
 
         $sql_reviews = "CREATE TABLE `{$wpdb->prefix}vulocart_reviews` (
             `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-            `offering_id`       bigint(20) unsigned NOT NULL,
+            `product_id`       bigint(20) unsigned NOT NULL,
             `customer_name`  varchar(200) DEFAULT NULL,
             `customer_email` varchar(200) DEFAULT NULL,
             `rating`         tinyint(1) unsigned NOT NULL DEFAULT 5,
@@ -193,7 +193,7 @@ class Install {
             `created_at`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `updated_at`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (`id`),
-            KEY `idx_offering_id` (`offering_id`),
+            KEY `idx_product_id` (`product_id`),
             KEY `idx_status` (`status`)
         ) $collate;";
 
@@ -247,17 +247,35 @@ class Install {
     public function do_migration( $previous_version ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
         self::create_checkout_sessions_table();
 
-        // `published_at` on offerings: dbDelta adds the column, then offerings that were already published get
-        // their creation date as the best available publish date. Once per site.
-        if ( ! get_option( 'vulocart_offering_published_at_added' ) ) {
-            global $wpdb;
+        self::ensure_product_published_at();
+    }
 
-            self::create_offering_table();
-
-            $table = $wpdb->prefix . Utill::TABLES['offering'];
-            $wpdb->query( "UPDATE {$table} SET published_at = created_at WHERE status = 'published' AND published_at IS NULL" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-time backfill, table name is plugin-defined.
-
-            update_option( 'vulocart_offering_published_at_added', '1' );
+    /**
+     * `published_at` on products: dbDelta adds the column, then products that were already published get
+     * their creation date as the best available publish date. Once per site.
+     *
+     * Also called from VuloCart::init_plugin() on every request until it has run, not only from
+     * `do_migration()`: that only runs when the plugin version goes up, so a site already on the current
+     * version would otherwise never get the column - and every product save would fail on it.
+     *
+     * @return void
+     */
+    public static function ensure_product_published_at() {
+        if ( get_option( 'vulocart_product_published_at_added' ) ) {
+            return;
         }
+
+        global $wpdb;
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
+
+        self::create_product_table();
+
+        $table = $wpdb->prefix . Utill::TABLES['product'];
+        $wpdb->query( "UPDATE {$table} SET published_at = created_at WHERE status = 'published' AND published_at IS NULL" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-time backfill, table name is plugin-defined.
+
+        update_option( 'vulocart_product_published_at_added', '1' );
     }
 }

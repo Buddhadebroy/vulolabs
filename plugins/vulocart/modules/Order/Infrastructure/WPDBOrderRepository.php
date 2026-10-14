@@ -31,7 +31,7 @@ class WPDBOrderRepository implements OrderRepositoryInterface {
 
     /**
      * In-request cache of resolved orders, keyed by id - same pattern
-     * VuloCart\Infrastructure\Database\WPDBOfferingRepository already uses.
+     * VuloCart\Infrastructure\Database\WPDBProductRepository already uses.
      *
      * @var array<int, Order|null>
      */
@@ -106,7 +106,7 @@ class WPDBOrderRepository implements OrderRepositoryInterface {
         return new OrderItem(
             (int) $row['id'],
             (int) $row['order_id'],
-            (int) $row['offering_id'],
+            (int) $row['product_id'],
             $row['title'],
             (int) $row['quantity'],
             (float) $row['unit_price'],
@@ -311,7 +311,7 @@ class WPDBOrderRepository implements OrderRepositoryInterface {
     /**
      * Persists a new order, then stamps its `order_number` from the
      * resulting auto-increment id (e.g. 'VC-000042') - a second update in
-     * the same spirit as WPDBOfferingRepository::insert()'s find-after-insert,
+     * the same spirit as WPDBProductRepository::insert()'s find-after-insert,
      * since the number can't be known before the row exists.
      *
      * @param Order $order An order with $id === null.
@@ -399,7 +399,7 @@ class WPDBOrderRepository implements OrderRepositoryInterface {
             $this->get_order_items_table(),
             array(
                 'order_id'    => $item->order_id,
-                'offering_id' => $item->offering_id,
+                'product_id' => $item->product_id,
                 'title'       => $item->title,
                 'quantity'    => $item->quantity,
                 'unit_price'  => $item->unit_price,

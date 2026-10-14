@@ -101,9 +101,11 @@ class Modules extends \WP_REST_Controller {
             );
         }
 
+        $module_ids = VuloCart()->modules->with_companions( $module_id );
+
         $result = 'activate' === $action
-            ? VuloCart()->modules->activate_modules( array( $module_id ) )
-            : VuloCart()->modules->deactivate_modules( array( $module_id ) );
+            ? VuloCart()->modules->activate_modules( $module_ids )
+            : VuloCart()->modules->deactivate_modules( $module_ids );
 
         return rest_ensure_response( $result );
     }

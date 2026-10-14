@@ -136,7 +136,7 @@ class Install {
         $sql_order_items = "CREATE TABLE `{$wpdb->prefix}vulocart_order_items` (
             `id`         bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             `order_id`   bigint(20) unsigned NOT NULL,
-            `offering_id`   bigint(20) unsigned NOT NULL,
+            `product_id`   bigint(20) unsigned NOT NULL,
             `title`      varchar(255) NOT NULL,
             `quantity`   int(10) unsigned NOT NULL DEFAULT 1,
             `unit_price` decimal(19,4) DEFAULT NULL,
@@ -145,7 +145,7 @@ class Install {
             `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`id`),
             KEY `idx_order_id` (`order_id`),
-            KEY `idx_offering_id` (`offering_id`)
+            KEY `idx_product_id` (`product_id`)
         ) $collate;";
 
         dbDelta( $sql_order_items );

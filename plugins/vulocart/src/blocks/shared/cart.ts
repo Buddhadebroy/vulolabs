@@ -3,8 +3,8 @@ import axios from 'axios';
 
 /**
  * Shared across every public storefront block (`src/blocks/checkout/`,
- * `src/blocks/offerings/`) - extracted so "add to cart" from the
- * Offerings detail page and the Checkout block's own cart review use the
+ * `src/blocks/products/`) - extracted so "add to cart" from the
+ * Products detail page and the Checkout block's own cart review use the
  * exact same client-held cart identity, not two independently-generated
  * tokens that would each see an empty cart. Not under `src/blocks/{name}/`
  * itself, so `tools/webpack/create-config.js`'s block-entry scanner
@@ -36,13 +36,23 @@ export function getOrCreateCartToken(): string {
 
 export interface CartItem {
 	id: number;
-	offering_id: number;
+	product_id: number;
 	title: string;
 	type: string;
 	quantity: number;
 	unit_price: number;
 	currency: string | null;
 	subtotal: number;
+	/** Which price the line was bought at (null for a line from before products had several prices). */
+	price?: {
+		id: string;
+		label: string;
+		type: string;
+		interval: string;
+		interval_count: number;
+		payments: number | null;
+		trial_days: number;
+	} | null;
 }
 
 export interface CartResponse {

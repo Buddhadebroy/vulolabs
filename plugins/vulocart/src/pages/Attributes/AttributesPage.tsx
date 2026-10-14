@@ -53,6 +53,7 @@ export function AttributesPage() {
 	const [ managingId, setManagingId ] = useState< number | null >( null );
 	const [ newValue, setNewValue ] = useState( '' );
 	const [ deleteTarget, setDeleteTarget ] = useState< Attribute | null >( null );
+	const [ bulkDeleteIds, setBulkDeleteIds ] = useState< number[] >( [] );
 
 	const load = () => {
 		setIsLoading( true );
@@ -138,6 +139,15 @@ export function AttributesPage() {
 			.catch( () => notify( 'delete', false, '', __( 'Could not delete this attribute.', 'vulocart' ) ) );
 	};
 
+	const confirmBulkDelete = () => {
+		const ids = bulkDeleteIds;
+		setBulkDeleteIds( [] );
+
+		Promise.all( ids.map( ( id ) => axios.delete( getApiLink( vulocartLocalizer, `attributes/${ id }` ), nonceHeaders ) ) )
+			.then( () => notify( 'delete', true, __( 'Selected attributes deleted.', 'vulocart' ), '' ) )
+			.finally( load );
+	};
+
 	const visibleAttributes = attributes.filter( ( attribute ) => {
 		const query = searchTerm.trim().toLowerCase();
 
@@ -207,14 +217,10 @@ export function AttributesPage() {
 				<NavigatorHeaderComponent
 					headerIcon="product-options"
 					headerTitle={ __( 'Attributes', 'vulocart' ) }
-					headerDescription={ __( 'Named properties offerings can be described by - e.g. "Color" with values Red/Blue/Green.', 'vulocart' ) }
+					headerDescription={ __( 'Named properties products can be described by - e.g. "Color" with values Red/Blue/Green.', 'vulocart' ) }
 				/>
 
-				<CardComponent
-					title={ __( 'Attributes', 'vulocart' ) }
-					titleIcon="product-options"
-					desc={ __( 'Every attribute and the values it can take.', 'vulocart' ) }
-				>
+				<CardComponent>
 					<TableCard
 						showMenu={ false }
 						variant="transparent"
@@ -226,6 +232,8 @@ export function AttributesPage() {
 						totalRows={ visibleAttributes.length }
 						isLoading={ isLoading }
 						search={ { placeholder: __( 'Search by attribute or value…', 'vulocart' ) } }
+						bulkActions={ [ { label: __( 'Delete', 'vulocart' ), value: 'delete' } ] }
+						onBulkActionApply={ ( action: string, ids: number[] ) => 'delete' === action && ids.length && setBulkDeleteIds( ids ) }
 						buttonActions={ [
 							{ label: __( 'Add attribute', 'vulocart' ), icon: 'plus', onClick: () => setIsAddOpen( true ) },
 						] }
@@ -328,6 +336,14 @@ export function AttributesPage() {
 					message={ __( 'Delete this attribute and all its values? This cannot be undone.', 'vulocart' ) }
 					onConfirm={ handleConfirmDelete }
 					onCancel={ () => setDeleteTarget( null ) }
+				/>
+
+				<ConfirmPopup
+					open={ bulkDeleteIds.length > 0 }
+					title={ __( 'Delete selected', 'vulocart' ) }
+					message={ __( 'Delete the selected attributes and their values? This cannot be undone.', 'vulocart' ) }
+					onConfirm={ confirmBulkDelete }
+					onCancel={ () => setBulkDeleteIds( [] ) }
 				/>
 			</ColumnComponent>
 		</ContainerComponent>

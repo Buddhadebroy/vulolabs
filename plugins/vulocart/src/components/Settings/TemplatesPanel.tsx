@@ -11,7 +11,7 @@ type Template = 'grid' | 'compact' | 'list' | 'showcase';
 const TEMPLATES: { id: Template; label: string; desc: string }[] = [
 	{ id: 'grid', label: __( 'Grid', 'vulocart' ), desc: __( 'Image cards in a tidy grid. A good default for most catalogs.', 'vulocart' ) },
 	{ id: 'compact', label: __( 'Compact', 'vulocart' ), desc: __( 'Small tiles, more per row. Best for large catalogs.', 'vulocart' ) },
-	{ id: 'list', label: __( 'List', 'vulocart' ), desc: __( 'One row per offering with a short description.', 'vulocart' ) },
+	{ id: 'list', label: __( 'List', 'vulocart' ), desc: __( 'One row per product with a short description.', 'vulocart' ) },
 	{ id: 'showcase', label: __( 'Showcase', 'vulocart' ), desc: __( 'Large image-first cards with a soft shadow.', 'vulocart' ) },
 ];
 
@@ -40,7 +40,7 @@ function Preview( { template }: { template: Template } ) {
 }
 
 /**
- * Settings → Templates ("Start from a template"): picks how the public offerings catalog looks.
+ * Settings → Templates ("Start from a template"): picks how the public products catalog looks.
  * Saves on every change, like the other settings screens, and the storefront block reads the same
  * two settings (`listing_template`, `listing_columns`) unless a page overrides them in the editor.
  */

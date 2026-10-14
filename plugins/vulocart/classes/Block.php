@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * a block list, so a new block folder under `src/blocks/` is picked up
  * automatically after a build with no PHP change needed here.
  *
- * The vision's "Provide Gutenberg Blocks" list (Catalog, Offering Grid,
+ * The vision's "Provide Gutenberg Blocks" list (Catalog, Product Grid,
  * Checkout, Cart, Search, Buy Button, Recommendations, Collections) will
  * each just be another `src/blocks/{name}/` folder discovered the same
  * way - this class doesn't need to change as more are added.
@@ -89,9 +89,9 @@ class Block {
             // Frontend tab (src/settings/General/Frontend.ts) - whether the
             // checkout block shows its catalog-browsing section at all, and
             // whether the block functions at all.
-            'offeringsListingEnabled' => ! empty( $settings['enable_offerings_listing'] ),
+            'productsListingEnabled' => ! empty( $settings['enable_products_listing'] ),
             'cartCheckoutEnabled'     => ! empty( $settings['enable_cart_checkout'] ),
-            // Layout the public offerings listing renders in; anything unknown falls back to the grid.
+            // Layout the public products listing renders in; anything unknown falls back to the grid.
             'listingTemplate'         => in_array( $settings['listing_template'], array( 'grid', 'compact', 'list', 'showcase' ), true ) ? (string) $settings['listing_template'] : 'grid',
             'listingColumns'          => in_array( (string) $settings['listing_columns'], array( '2', '3', '4', '5' ), true ) ? (int) $settings['listing_columns'] : 4,
             // Cross-links between the storefront blocks - see
@@ -99,7 +99,7 @@ class Block {
             // auto-discovered rather than a settings field the merchant
             // has to fill in by hand.
             'checkoutPageUrl'         => $this->find_page_url_with_block( 'vulocart/checkout' ),
-            'offeringsPageUrl'        => $this->find_page_url_with_block( 'vulocart/offerings' ),
+            'productsPageUrl'        => $this->find_page_url_with_block( 'vulocart/products' ),
         );
 
         echo '<script id="vulocart-frontend-data">window.vulocartFrontendData = ' . wp_json_encode( $config ) . ';</script>' . "\n"; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- a ~2-property inline config object, not a real script asset; every other frontend block's view.js depends on this existing before it runs (see docblock).
@@ -125,8 +125,8 @@ class Block {
     /**
      * Finds the first published page/post containing a given block,
      * returning its permalink - backs `checkoutPageUrl`/
-     * `offeringsPageUrl` in `vulocartFrontendData`, so
-     * `src/blocks/offerings/OfferingDetail.tsx`'s "Go to checkout" link
+     * `productsPageUrl` in `vulocartFrontendData`, so
+     * `src/blocks/products/ProductDetail.tsx`'s "Go to checkout" link
      * and any future cross-link between the storefront blocks don't
      * require the merchant to manually configure a page URL in Settings
      * (this plugin's admin-UX brief already asks for "make settings
@@ -169,7 +169,7 @@ class Block {
      * Clears find_page_url_with_block()'s cache whenever any post/page is
      * saved - cheap and broad rather than trying to detect exactly which
      * save could have added/removed a `vulocart/checkout`/
-     * `vulocart/offerings` block, since `save_post` isn't hot enough
+     * `vulocart/products` block, since `save_post` isn't hot enough
      * (admin-only, infrequent) to make that precision worth the
      * complexity.
      *
@@ -177,7 +177,7 @@ class Block {
      */
     public function clear_block_page_url_cache(): void {
         delete_transient( 'vulocart_page_url_vulocart_checkout' );
-        delete_transient( 'vulocart_page_url_vulocart_offerings' );
+        delete_transient( 'vulocart_page_url_vulocart_products' );
     }
 
     /**

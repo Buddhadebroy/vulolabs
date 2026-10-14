@@ -12,11 +12,11 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart ProductAttribute entity.
  *
- * A named property offerings can be described by (e.g. "Color", "Size")
+ * A named property products can be described by (e.g. "Color", "Size")
  * - deliberately NOT a Domain\Term\Term (Taxonomy's own docblock explains
  * why): an attribute's whole purpose is its list of AttributeValue
  * children, not a flat name/slug/description record a Term already is.
- * No variant/SKU-matrix generation reads this yet - OfferingEdit.tsx's
+ * No variant/SKU-matrix generation reads this yet - ProductEdit.tsx's
  * own "Attributes & Variations" section is still an inert placeholder
  * (documented there as a deliberately-not-faked gap) - this is the
  * attribute *definition* management layer (`src/pages/Attributes/`) that

@@ -2,11 +2,11 @@ import { __ } from '@wordpress/i18n';
 
 /**
  * Same declarative-tab shape as General.ts, backed by
- * `Utill::SETTINGS_DEFAULTS`'s Catalog section. `default_offering_type`/
+ * `Utill::SETTINGS_DEFAULTS`'s Catalog section. `default_product_type`/
  * `default_catalog_visibility` are not yet read anywhere else in this
- * codebase (OfferingEdit.tsx still hardcodes its own initial form state)
+ * codebase (ProductEdit.tsx still hardcodes its own initial form state)
  * - the same "real setting, not yet consumed" gap already documented on
- * `default_offering_status` in General.ts/Utill.php.
+ * `default_product_status` in General.ts/Utill.php.
  */
 export default {
 	id: 'catalog',
@@ -21,24 +21,24 @@ export default {
 			key: 'catalog-section-defaults',
 			type: 'section',
 			icon: 'catalog',
-			title: __( 'Offering defaults', 'vulocart' ),
+			title: __( 'Product defaults', 'vulocart' ),
 			desc: __(
-				'Preselected values for a newly created offering.',
+				'Preselected values for a newly created product.',
 				'vulocart'
 			),
 		},
 		{
-			key: 'default_offering_type',
+			key: 'default_product_type',
 			type: 'select',
-			label: __( 'Default offering type', 'vulocart' ),
+			label: __( 'Default product type', 'vulocart' ),
 			settingDescription: __(
-				'Offering type preselected when a merchant clicks "Add New" on the Offerings screen.',
+				'Product type preselected when a merchant clicks "Add New" on the Products screen.',
 				'vulocart'
 			),
-			// Same value set as OfferingType::all() (PHP) and
-			// OfferingEdit.tsx's own OFFERING_TYPE_OPTIONS - kept as a
+			// Same value set as ProductType::all() (PHP) and
+			// ProductEdit.tsx's own PRODUCT_TYPE_OPTIONS - kept as a
 			// hand-maintained flat list rather than a shared constant
-			// import, matching how OfferingEdit.tsx already duplicates it.
+			// import, matching how ProductEdit.tsx already duplicates it.
 			options: [
 				{ label: __( 'Physical', 'vulocart' ), value: 'physical' },
 				{ label: __( 'Digital', 'vulocart' ), value: 'digital' },
@@ -59,10 +59,10 @@ export default {
 			type: 'select',
 			label: __( 'Default catalog visibility', 'vulocart' ),
 			settingDescription: __(
-				'Visibility preselected for a newly created offering.',
+				'Visibility preselected for a newly created product.',
 				'vulocart'
 			),
-			// Same value set as OfferingEdit.tsx's CATALOG_VISIBILITY_OPTIONS.
+			// Same value set as ProductEdit.tsx's CATALOG_VISIBILITY_OPTIONS.
 			options: [
 				{ label: __( 'Shop and search results', 'vulocart' ), value: 'shop_and_search' },
 				{ label: __( 'Shop only', 'vulocart' ), value: 'shop_only' },
@@ -86,7 +86,7 @@ export default {
 			label: __( 'Low stock threshold', 'vulocart' ),
 			minNumber: 0,
 			settingDescription: __(
-				'Quantity at or below which a stock-tracked offering could be flagged as low stock.',
+				'Quantity at or below which a stock-tracked product could be flagged as low stock.',
 				'vulocart'
 			),
 		},

@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * The vision's lightweight-first tax engine: one flat marketplace-wide
  * rate (the Taxes tab's `default_tax_rate_percent`), not per-region tax
- * rules. When `prices_include_tax` is on, offering prices are treated as
+ * rules. When `prices_include_tax` is on, product prices are treated as
  * already tax-inclusive - calculate() then adds nothing further on top,
  * since re-adding tax on an already-tax-inclusive price would double-charge
  * the buyer; a future receipt/invoice feature is where the *included*
@@ -57,7 +57,7 @@ class TaxService {
     }
 
     /**
-     * Whether offering prices already include tax.
+     * Whether product prices already include tax.
      *
      * @return bool
      */

@@ -12,7 +12,7 @@ import { formatWpDate } from '../../services/formatWpDate';
 /**
  * The 6 statuses Order\Domain\FulfillmentStatus::all() declares
  * (modules/Order/Domain/FulfillmentStatus.php) - duplicated here the same
- * way OfferingEdit.tsx duplicates VuloCart\Domain\Offering\OfferingType's list
+ * way ProductEdit.tsx duplicates VuloCart\Domain\Product\ProductType's list
  * rather than fetching it: small, stable, hand-maintained.
  */
 const FULFILLMENT_STATUS_OPTIONS = [
@@ -247,7 +247,6 @@ export function OrdersList( { filter }: OrdersListProps ) {
 				/>
 
 				<TableCard
-					title={ __( 'Orders', 'vulocart' ) }
 					headers={ headers }
 					rows={ rows }
 					totalRows={ totalRows }

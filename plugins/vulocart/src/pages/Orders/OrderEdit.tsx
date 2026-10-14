@@ -1,4 +1,5 @@
 /* global vulocartLocalizer */
+import { billingText } from '../../lib/priceText';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
@@ -41,6 +42,7 @@ interface OrderItem {
 	unit_price: number;
 	currency: string | null;
 	subtotal: number;
+	price?: { id: string; label: string; type: string; interval: string; interval_count: number; payments: number | null } | null;
 }
 
 /**
@@ -130,7 +132,7 @@ function AddressDisplay( { address }: { address: AddressBag } ) {
  *
  * Card-based layout (its own page wrapper rather than the generic
  * `ContainerComponent`/`ColumnComponent` shell - same opt-out
- * OfferingEdit.tsx makes for the same reason: a custom multi-card layout,
+ * ProductEdit.tsx makes for the same reason: a custom multi-card layout,
  * not a plain form). Billing/shipping address, shipping method+cost, tax,
  * and payment method (Customer/Address/Shipping/Taxes/Payment modules) are
  * real order fields now and rendered when present - still no shipment
@@ -293,7 +295,14 @@ export function OrderEdit( { id }: OrderEditProps ) {
 												<span className="vulocart-order-item-avatar" aria-hidden="true">
 													{ item.title.charAt( 0 ).toUpperCase() }
 												</span>
-												<span>{ item.title }</span>
+												<span>
+													{ item.title }
+													{ item.price && ( item.price.label || billingText( item.price ) ) && (
+														<small style={ { display: 'block', color: '#6b7280', fontSize: '12px' } }>
+															{ [ item.price.label, billingText( item.price ) ].filter( Boolean ).join( ' · ' ) }
+														</small>
+													) }
+												</span>
 											</td>
 											<td>
 												{ item.unit_price } { item.currency }
