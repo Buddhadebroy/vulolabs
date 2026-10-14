@@ -26,6 +26,7 @@ use VuloPilot\Reports\Rest as ReportsRest;
 use VuloPilot\Security\Rest as SecurityRest;
 use VuloPilot\SiteHealth\Rest as SiteHealthRest;
 use VuloPilot\Utill\StoreReadiness;
+use VuloPilot\Migration\Rest as MigrationRest;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -100,6 +101,7 @@ class Rest {
 			'schema_coverage'             => new SeoVisibilityRest\Schema(),
 			'google_services'             => new SettingsRest\GoogleServices(),
 			'ai_credits'                  => new AiAssistantRest\AiCredits(),
+			'migration'                   => new MigrationRest(),
 		);
 
 		$extra_controllers = apply_filters( 'vulopilot_rest_controllers', array() );

@@ -19,6 +19,7 @@ import { SettingProvider, useSetting } from '../../contexts/SettingContext';
 import getTemplateData from '../../services/templateService';
 import ModulesPanel from '../../components/Settings/ModulesPanel';
 import DeveloperToolsPanel from '../../components/Settings/DeveloperToolsPanel';
+import MigrationPanel from '../../components/Settings/MigrationPanel';
 import IndexNowPanel from '../../components/Settings/SEO/IndexNowPanel';
 import ShowProPopup from '../../components/Popup/Popup';
 import { CLOUD_STORAGE_LOCKED_METHODS } from '../../components/Settings/Backups';
@@ -134,6 +135,12 @@ const Settings = () => {
 		// persisted field - same escape hatch as 'indexnow' above.
 		if (currentTab === 'developer-tools') {
 			return <DeveloperToolsPanel />;
+		}
+
+		// Migration tab's source list + run buttons are real actions/results, not
+		// persisted-field settings - same escape hatch as 'developer-tools' above.
+		if (currentTab === 'migration') {
+			return <MigrationPanel />;
 		}
 
 		if (settingModal?.PanelComponent) {
