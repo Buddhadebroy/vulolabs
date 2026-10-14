@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { renderEngineView, type EngineView } from '../../components/EngineScreen/EngineScreen';
 import { InventoryPage } from '../Inventory/InventoryPage';
-import { inventoryExtraViews } from '../Offerings/extraViews';
+import { inventoryExtraViews } from '../Products/extraViews';
 
 interface InventoryEngineProps {
 	/** `warehouses`|`purchase-orders`|`transfers`|`reservations`|`stock-alerts`|`history`|`forecasting` (vulocart-pro's own Inventory module) - anything else shows the first one. */
@@ -42,21 +42,21 @@ const views: Record< string, EngineView > = {
 	},
 	'stock-alerts': {
 		title: __( 'Stock Alerts', 'vulocart' ),
-		description: __( 'Offerings that are low on stock or out of stock.', 'vulocart' ),
+		description: __( 'Products that are low on stock or out of stock.', 'vulocart' ),
 		icon: 'store-inventory',
 		module: moduleId,
 		pro: true,
 	},
 	history: {
 		title: __( 'Inventory History', 'vulocart' ),
-		description: __( 'Every stock-affecting event across every offering and warehouse, most recent first.', 'vulocart' ),
+		description: __( 'Every stock-affecting event across every product and warehouse, most recent first.', 'vulocart' ),
 		icon: 'store-inventory',
 		module: moduleId,
 		pro: true,
 	},
 	forecasting: {
 		title: __( 'Forecasting', 'vulocart' ),
-		description: __( 'Projected days of stock remaining, based on each offering\'s sales rate over the trailing 30 days.', 'vulocart' ),
+		description: __( 'Projected days of stock remaining, based on each product\'s sales rate over the trailing 30 days.', 'vulocart' ),
 		icon: 'store-inventory',
 		module: moduleId,
 		pro: true,

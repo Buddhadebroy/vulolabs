@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Review entity.
  *
- * A customer's rating/comment on one Offering. Submitted publicly (no
+ * A customer's rating/comment on one Product. Submitted publicly (no
  * account required - same "guest-first" posture Cart/Order already take,
  * `customer_email` is informational only, not an authentication check),
  * always created as `ReviewStatus::PENDING` and never shown on the
@@ -32,11 +32,11 @@ class Review {
     public $id;
 
     /**
-     * The Offering this review is about.
+     * The Product this review is about.
      *
      * @var int
      */
-    public $offering_id;
+    public $product_id;
 
     /**
      * Reviewer's display name.
@@ -98,7 +98,7 @@ class Review {
      * Review constructor.
      *
      * @param int|null    $id             Null for a review not yet persisted.
-     * @param int         $offering_id       The Offering this review is about.
+     * @param int         $product_id       The Product this review is about.
      * @param string|null $customer_name  Reviewer's display name.
      * @param string|null $customer_email Reviewer's email.
      * @param int         $rating         1-5.
@@ -110,7 +110,7 @@ class Review {
      */
     public function __construct(
         $id,
-        $offering_id,
+        $product_id,
         $customer_name,
         $customer_email,
         $rating,
@@ -121,7 +121,7 @@ class Review {
         $updated_at = null
     ) {
         $this->id             = $id;
-        $this->offering_id    = $offering_id;
+        $this->product_id    = $product_id;
         $this->customer_name  = $customer_name;
         $this->customer_email = $customer_email;
         $this->rating         = $rating;

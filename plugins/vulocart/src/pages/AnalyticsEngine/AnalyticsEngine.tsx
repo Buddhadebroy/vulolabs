@@ -9,7 +9,7 @@ const views: Record< string, EngineView > = {
 	dashboard: {
 		title: __( 'Analytics', 'vulocart' ),
 		description: __(
-			'Sales, revenue, customers, offerings, funnels, abandonment, conversion, lifetime value, retention and inventory in one place.',
+			'Sales, revenue, customers, products, funnels, abandonment, conversion, lifetime value, retention and inventory in one place.',
 			'vulocart'
 		),
 		icon: 'analytics',

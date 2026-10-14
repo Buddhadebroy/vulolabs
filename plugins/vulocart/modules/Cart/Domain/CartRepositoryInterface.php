@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * The contract Application\CartService depends on - bound to a concrete
  * implementation only in Module::init_classes() (via VuloCart's own
- * ServiceContainer), same seam VuloCart\Domain\Offering\OfferingRepositoryInterface
+ * ServiceContainer), same seam VuloCart\Domain\Product\ProductRepositoryInterface
  * already establishes for the storage-engine-is-replaceable principle.
  *
  * @class       CartRepositoryInterface interface
@@ -40,15 +40,15 @@ interface CartRepositoryInterface {
     public function insert( Cart $cart ): Cart;
 
     /**
-     * Finds the line item for a given offering already in a cart, if any -
+     * Finds the line item for a given product already in a cart, if any -
      * lets Application\CartService increment quantity instead of inserting
-     * a duplicate row for the same offering.
+     * a duplicate row for the same product.
      *
      * @param int $cart_id  Owning cart id.
-     * @param int $offering_id VuloCart\Domain\Offering\Offering id.
+     * @param int $product_id VuloCart\Domain\Product\Product id.
      * @return CartItem|null
      */
-    public function find_item( int $cart_id, int $offering_id ): ?CartItem;
+    public function find_item( int $cart_id, int $product_id ): ?CartItem;
 
     /**
      * Persists a new line item.

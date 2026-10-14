@@ -10,7 +10,7 @@ export default {
 	id: 'templates',
 	priority: 1.5,
 	headerTitle: __( 'Start from a template', 'vulocart' ),
-	headerDescription: __( 'Pick how your offerings catalog looks on the storefront. You can still override it on a single page from the block settings.', 'vulocart' ),
+	headerDescription: __( 'Pick how your products catalog looks on the storefront. You can still override it on a single page from the block settings.', 'vulocart' ),
 	headerIcon: 'catalog',
 	submitUrl: 'settings',
 	modal: [],

@@ -3,3 +3,87 @@
 	font-weight: 700;
 	margin: 0;
 }
+
+// Row action buttons (Edit, Delete, View ...) in every table: icon first, then the label, no box.
+// Zyra draws them label-then-icon with whatever border the surrounding page gives a button, so it is set here once.
+.table-action .table-action-buttons .buttons-wrapper .admin-btn {
+	display: inline-flex;
+	flex-direction: row-reverse;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 0.375rem;
+	width: auto;
+	min-height: 0;
+	padding: 0.25rem 0.375rem !important;
+	border: 0 !important;
+	border-radius: 0.25rem;
+	background: transparent !important;
+	box-shadow: none !important;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	white-space: nowrap;
+
+	i {
+		margin: 0;
+		font-size: 0.875rem;
+	}
+
+	&:hover {
+		background: rgba(80, 7, 170, 0.06) !important;
+	}
+
+	&.btn-text-red:hover {
+		background: rgba(220, 38, 38, 0.08) !important;
+	}
+}
+
+.table-action .table-action-buttons {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+}
+
+// Page headers sit flush with the cards under them: zyra gives the title block its own side margins and padding,
+// which pushed the title and the header buttons inside the table's left and right edges.
+.admin-main-wrapper .container-wrapper.general-wrapper .title-section {
+	margin: 0;
+	padding: 0.75rem 0 0.5rem;
+}
+
+// The table's filter bar (Type, Category, Bulk actions) shrink-wraps its zyra selects to ~64px, which cuts off the
+// placeholder and the chosen value. Give each one a width that fits its content.
+.table-filter .group-field {
+	flex: 0 0 auto;
+	width: 12rem;
+	min-width: 12rem;
+	max-width: 16rem;
+
+	.form-select-field,
+	.form-select-field .select-wrapper,
+	.form-select-field .select-prefix__control {
+		width: 100% !important;
+		min-width: 0 !important;
+		max-width: none !important;
+	}
+}
+
+// Pro pages are drawn inside a frame that already has the page header; zyra's own container margins would inset their
+// cards 20px from the header and add a tall gap above them.
+.vulocart-engine-page .container-wrapper.general-wrapper {
+	margin: 0;
+}
+
+// Table cells on Pro pages: the same quiet look as the Products list.
+.vulocart-engine-page .admin-table td.admin-column {
+	border-bottom: 0;
+}
+
+.admin-table-wrapper .info-item .name {
+	font-size: 0.9rem !important;
+	font-weight: 600 !important;
+}
+
+// The page's generic select spacing made the table's search box taller than everywhere else.
+.vulocart-engine-page .search-field .form-select-field {
+	margin: 0;
+}

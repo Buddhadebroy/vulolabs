@@ -1,11 +1,12 @@
 /* global vulocartFrontendData */
+import { billingText } from '../../lib/priceText';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { client, getOrCreateCartToken } from '../shared/cart';
 import type { CartResponse } from '../shared/cart';
-import { OfferingCards } from '../shared/OfferingCards';
-import { isVisibleInListing } from '../shared/offering';
-import type { OfferingSummary } from '../shared/offering';
+import { ProductCards } from '../shared/ProductCards';
+import { isVisibleInListing } from '../shared/product';
+import type { ProductSummary } from '../shared/product';
 import { CheckoutEngine } from '../checkout-engine/CheckoutEngine';
 import '../checkout-engine/mount'; // side-effect only - registers Free's 5 interactive steps AND patches window.vulocartCheckoutEngine.mount()/unmount() (see mount.tsx).
 import './checkout.scss';
@@ -21,7 +22,7 @@ interface ShippingMethod {
  * hands off to `CheckoutEngine` (`../checkout-engine/`) for everything
  * checkout itself. This file used to hardcode the entire step sequence
  * and every field's markup inline; now it owns only what's genuinely
- * block-specific (rendering the offerings list, mounting into this
+ * block-specific (rendering the products list, mounting into this
  * Gutenberg block's DOM node) and nothing about WHICH checkout steps
  * exist or how they're laid out - that's `CheckoutEngine`'s job, and it
  * has no idea this block exists. `checkoutMode` (single_page/multi_step)
@@ -34,7 +35,7 @@ interface ShippingMethod {
 export function Checkout() {
 	const [ cartToken, setCartToken ] = useState( '' );
 	const [ cart, setCart ] = useState< CartResponse | null >( null );
-	const [ offerings, setOfferings ] = useState< OfferingSummary[] >( [] );
+	const [ products, setProducts ] = useState< ProductSummary[] >( [] );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ hasEnteredCheckout, setHasEnteredCheckout ] = useState( false );
 	const [ shippingEstimate, setShippingEstimate ] = useState< ShippingMethod | null >( null );
@@ -47,12 +48,12 @@ export function Checkout() {
 		const token = getOrCreateCartToken();
 		setCartToken( token );
 
-		( vulocartFrontendData.offeringsListingEnabled
-			? client.get< OfferingSummary[] >( '/offerings', { params: { per_page: 50 } } )
-			: Promise.resolve( { data: [] as OfferingSummary[] } )
+		( vulocartFrontendData.productsListingEnabled
+			? client.get< ProductSummary[] >( '/products', { params: { per_page: 50 } } )
+			: Promise.resolve( { data: [] as ProductSummary[] } )
 		)
-			.then( ( offeringsResponse ) => {
-				setOfferings( offeringsResponse.data.filter( isVisibleInListing ) );
+			.then( ( productsResponse ) => {
+				setProducts( productsResponse.data.filter( isVisibleInListing ) );
 				return client.get< CartResponse >( '/cart', { headers: { 'X-Cart-Token': token } } );
 			} )
 			.then( ( cartResponse ) => setCart( cartResponse.data ) )
@@ -86,9 +87,9 @@ export function Checkout() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- only re-fetch when the cart's item composition (not e.g. isLoading) changes.
 	}, [ cart?.items.length ] );
 
-	const addToCart = ( offeringId: number ) => {
+	const addToCart = ( productId: number ) => {
 		client
-			.post< CartResponse >( '/cart/items', { offering_id: offeringId, quantity: 1 }, { headers: { 'X-Cart-Token': cartToken } } )
+			.post< CartResponse >( '/cart/items', { product_id: productId, quantity: 1 }, { headers: { 'X-Cart-Token': cartToken } } )
 			.then( ( response ) => setCart( response.data ) );
 	};
 
@@ -141,15 +142,15 @@ export function Checkout() {
 
 	return (
 		<div className="vulocart-checkout-cart-view">
-			{ vulocartFrontendData.offeringsListingEnabled && (
-				<div className="vulocart-checkout-offerings">
-					<h3>{ __( 'Available Offerings', 'vulocart' ) }</h3>
-					{ 0 === offerings.length && <p>{ __( 'No offerings yet.', 'vulocart' ) }</p> }
-					<OfferingCards
-						offerings={ offerings }
-						hrefFor={ ( id ) => ( vulocartFrontendData.offeringsPageUrl ? `${ vulocartFrontendData.offeringsPageUrl }?offering=${ id }` : '#' ) }
-						renderAction={ ( offering ) => (
-							<button type="button" onClick={ () => addToCart( offering.id ) }>
+			{ vulocartFrontendData.productsListingEnabled && (
+				<div className="vulocart-checkout-products">
+					<h3>{ __( 'Available Products', 'vulocart' ) }</h3>
+					{ 0 === products.length && <p>{ __( 'No products yet.', 'vulocart' ) }</p> }
+					<ProductCards
+						products={ products }
+						hrefFor={ ( id ) => ( vulocartFrontendData.productsPageUrl ? `${ vulocartFrontendData.productsPageUrl }?product=${ id }` : '#' ) }
+						renderAction={ ( product ) => (
+							<button type="button" onClick={ () => addToCart( product.id ) }>
 								{ __( 'Add to cart', 'vulocart' ) }
 							</button>
 						) }
@@ -164,7 +165,14 @@ export function Checkout() {
 
 				{ cart?.items.map( ( item ) => (
 					<div key={ item.id } className="vulocart-checkout-cart-item">
-						<span>{ item.title }</span>
+						<span>
+							{ item.title }
+							{ item.price && ( item.price.label || billingText( item.price ) ) && (
+								<small style={ { display: 'block', color: '#6b7280', fontSize: '12px' } }>
+									{ [ item.price.label, billingText( item.price ) ].filter( Boolean ).join( ' · ' ) }
+								</small>
+							) }
+						</span>
 						<div className="vulocart-checkout-cart-item-controls">
 							<button type="button" onClick={ () => changeQuantity( item.id, item.quantity - 1 ) }>
 								−

@@ -52,14 +52,14 @@ class Rest {
      */
     public function register_routes(): void {
         $this->controllers = array(
-            'offerings'      => new Controllers\Offerings(),
+            'products'      => new Controllers\Products(),
             'modules'        => new Controllers\Modules(),
             'settings'       => new Controllers\Settings(),
             'terms'          => new Controllers\Terms(),
             'attributes'     => new Controllers\Attributes(),
             'reviews'        => new Controllers\Reviews(),
             'inventory'      => new Controllers\Inventory(),
-            'offering_types' => new Controllers\OfferingTypes(),
+            'product_types' => new Controllers\ProductTypes(),
             'checkout'       => new Controllers\Checkout(),
             'sdk'            => new Controllers\Sdk(),
         );

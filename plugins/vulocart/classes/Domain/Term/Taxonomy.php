@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * shape - the same structural relationship WordPress core's own
  * `wp_terms`/`wp_term_taxonomy` tables have to `category`/`post_tag`/a
  * custom taxonomy, not an invented abstraction: all three are "a named
- * group an Offering can belong to", differing only in whether hierarchy
+ * group a Product can belong to", differing only in whether hierarchy
  * (`Term::$parent_id`, categories only) or a logo (`Term::$meta['logo']`,
  * brands only) apply. Attributes are deliberately NOT a fourth taxonomy
  * here - an attribute's values are a first-class sub-entity with their
@@ -38,14 +38,14 @@ class Taxonomy {
     const CATEGORY = 'category';
 
     /**
-     * The manufacturer/brand a physical or digital offering comes from.
+     * The manufacturer/brand a physical or digital product comes from.
      *
      * @var string
      */
     const BRAND = 'brand';
 
     /**
-     * A manually-curated group of offerings (e.g. "Summer Sale",
+     * A manually-curated group of products (e.g. "Summer Sale",
      * "Staff Picks") - flat, not hierarchical.
      *
      * @var string
@@ -53,11 +53,11 @@ class Taxonomy {
     const COLLECTION = 'collection';
 
     /**
-     * A free-form label an offering can carry (e.g. "clearance",
+     * A free-form label a product can carry (e.g. "clearance",
      * "eco-friendly") - flat, not hierarchical. Promoted from a freetext
      * `meta.tags` string array to a real taxonomy so tags get the same
      * management screen/autocomplete Category/Brand/Collection already
-     * have; existing offerings' freetext tag strings simply become
+     * have; existing products' freetext tag strings simply become
      * dangling slug references until re-saved from a real tag - same
      * tolerance TermService::delete_term()'s own docblock already
      * documents for a deleted category/brand/collection.

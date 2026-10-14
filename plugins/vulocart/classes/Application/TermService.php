@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * Where Category/Brand/Collection business logic lives - backs
  * `classes/RestAPI/Controllers/Terms.php`'s three taxonomy-scoped route
  * sets. Same "controller never touches a repository directly" convention
- * Application\OfferingService/OrderService already establish.
+ * Application\ProductService/OrderService already establish.
  *
  * @class       TermService class
  * @version     1.0.0
@@ -81,11 +81,11 @@ class TermService {
 
     /**
      * Creates a new term and broadcasts `term_created`. Slug is derived
-     * from name (`sanitize_title()`, same as OfferingService::create_offering()
-     * does for Offering::$slug) unless one was explicitly given, and
+     * from name (`sanitize_title()`, same as ProductService::create_product()
+     * does for Product::$slug) unless one was explicitly given, and
      * de-duplicated within the taxonomy by appending `-2`/`-3`/etc - same
      * "never silently overwrite an existing record by slug collision"
-     * rule Offerings' own slug handling follows.
+     * rule Products' own slug handling follows.
      *
      * @param array{taxonomy: string, name: string, slug?: string, parent_id?: int, description?: string, meta?: array<string, mixed>} $data Already-sanitized input.
      * @return Term
@@ -151,9 +151,9 @@ class TermService {
 
     /**
      * Deletes a term and broadcasts `term_deleted`. Does not touch any
-     * offering that currently references this term's slug in its own
+     * product that currently references this term's slug in its own
      * `meta` bag - same "additive, never silently rewrite other records"
-     * posture the rest of this codebase takes; an offering keeps
+     * posture the rest of this codebase takes; a product keeps
      * whatever slug it had, which simply stops resolving to a real term
      * (same class of harmless dangling reference `Modules::
      * load_active_modules()`'s own stored-active-id cleanup already
@@ -179,13 +179,13 @@ class TermService {
     }
 
     /**
-     * Counts offerings referencing a term.
+     * Counts products referencing a term.
      *
-     * @param Term $term The term to count offerings for.
+     * @param Term $term The term to count products for.
      * @return int
      */
-    public function count_offerings_for_term( Term $term ): int {
-        return $this->repository->count_offerings_for_term( $term );
+    public function count_products_for_term( Term $term ): int {
+        return $this->repository->count_products_for_term( $term );
     }
 
     /**

@@ -50,96 +50,19 @@ const MODULES_CATALOG: {
 	category: true,
 	tab: 'settings',
 	modules: [
-		// Checkout Steps
+		// Checkout
 		{
 			type: 'separator',
 			id: 'checkout-steps',
-			label: __( 'Checkout Steps', 'vulocart' ),
+			label: __( 'Checkout', 'vulocart' ),
 		},
-		{
-			id: 'cart',
-			icon: 'cart',
-			name: __( 'Cart', 'vulocart' ),
-			desc: __(
-				'The Cart Engine - add/update/remove line items, headless-ready via a client-held cart token.',
-				'vulocart'
-			),
-			proModule: false,
-			category: 'checkout-steps',
-			freeFeatures: [
-				__( 'Add, update and remove line items', 'vulocart' ),
-				__( 'Client-held cart token for headless use', 'vulocart' ),
-				__( 'REST-first cart API', 'vulocart' ),
-			],
-			proFeatures: [
-				__( 'Saved carts and wishlists (Customer Growth)', 'vulocart' ),
-				__( 'Abandoned checkout tracking', 'vulocart' ),
-			],
-		},
-		{
-			id: 'order',
-			icon: 'store',
-			name: __( 'Order', 'vulocart' ),
-			desc: __(
-				'Turns a Cart into a placed Order - requires the Cart module to be active.',
-				'vulocart'
-			),
-			proModule: false,
-			category: 'checkout-steps',
-			freeFeatures: [
-				__( 'Place an order from a cart', 'vulocart' ),
-				__( 'Order list, add and edit screens', 'vulocart' ),
-				__( 'Order status management', 'vulocart' ),
-			],
-			proFeatures: [
-				__( 'Buyer order notes shown on the order', 'vulocart' ),
-				__( 'Multi-shipment fulfillment and returns (RMA)', 'vulocart' ),
-				__( 'Fraud scoring and review queue', 'vulocart' ),
-			],
-		},
-		{
-			id: 'customer',
-			icon: 'membership',
-			name: __( 'Customer', 'vulocart' ),
-			desc: __(
-				'Checkout wizard Customer step - prefills name/email/phone for a logged-in buyer.',
-				'vulocart'
-			),
-			proModule: false,
-			category: 'checkout-steps',
-			freeFeatures: [
-				__( 'Name, email and phone capture', 'vulocart' ),
-				__( 'Prefill for logged-in buyers', 'vulocart' ),
-			],
-			proFeatures: [
-				__( 'Customer groups and dynamic segments', 'vulocart' ),
-				__( 'Loyalty points, credits and wallet balances', 'vulocart' ),
-			],
-		},
-		{
-			id: 'address',
-			icon: 'form-section',
-			name: __( 'Address', 'vulocart' ),
-			desc: __(
-				'Checkout wizard Address step - billing/shipping address capture and validation.',
-				'vulocart'
-			),
-			proModule: false,
-			category: 'checkout-steps',
-			freeFeatures: [
-				__( 'Billing and shipping address capture', 'vulocart' ),
-				__( 'Field validation', 'vulocart' ),
-			],
-			proFeatures: [
-				__( 'Address autocomplete suggestions', 'vulocart' ),
-			],
-		},
+
 		{
 			id: 'shipping',
 			icon: 'shipping',
 			name: __( 'Shipping', 'vulocart' ),
 			desc: __(
-				'Checkout wizard Shipping step - flat-rate shipping cost, configured on the Shipping settings tab.',
+				'Checkout Shipping step - flat-rate shipping, configured on the Shipping settings tab. With Pro: zone and weight-based rates, packaging, tracked shipments, carriers, returns and local pickup. Switch it off for a store that does not ship.',
 				'vulocart'
 			),
 			proModule: false,
@@ -149,10 +72,15 @@ const MODULES_CATALOG: {
 				__( 'Configured on the Shipping settings tab', 'vulocart' ),
 			],
 			proFeatures: [
-				__( 'Zone and weight-based rates (Shipping Engine)', 'vulocart' ),
-				__( 'Local pickup option', 'vulocart' ),
+				__( 'Zone and weight-based rates', 'vulocart' ),
+				__( 'Packaging presets', 'vulocart' ),
+				__( 'Multi-shipment fulfillment with tracking', 'vulocart' ),
+				__( 'Pluggable carrier and label framework', 'vulocart' ),
+				__( 'Returns (RMA) with automatic refunds', 'vulocart' ),
+				__( 'Local pickup', 'vulocart' ),
 			],
 		},
+
 		{
 			id: 'taxes',
 			icon: 'tax-compliance',
@@ -169,31 +97,13 @@ const MODULES_CATALOG: {
 			],
 			proFeatures: [],
 		},
-		{
-			id: 'payment',
-			icon: 'payment',
-			name: __( 'Payment', 'vulocart' ),
-			desc: __(
-				'Checkout wizard Payment step - manual/offline payment, configured on the Payments settings tab.',
-				'vulocart'
-			),
-			proModule: false,
-			category: 'checkout-steps',
-			freeFeatures: [
-				__( 'Manual / offline payment', 'vulocart' ),
-				__( 'Configured on the Payments settings tab', 'vulocart' ),
-			],
-			proFeatures: [
-				__( 'Card, PayPal and Razorpay gateways', 'vulocart' ),
-				__( 'Gift card and coupon redemption at checkout', 'vulocart' ),
-			],
-		},
+
 		{
 			id: 'review',
 			icon: 'eye',
 			name: __( 'Review', 'vulocart' ),
 			desc: __(
-				'Checkout wizard Review step - a real preview of the final order total before it\'s placed.',
+				'Checkout Review step - a preview of the final order total before it\'s placed.',
 				'vulocart'
 			),
 			proModule: false,
@@ -201,22 +111,6 @@ const MODULES_CATALOG: {
 			freeFeatures: [
 				__( 'Final order total preview', 'vulocart' ),
 				__( 'Totals shown before the order is placed', 'vulocart' ),
-			],
-			proFeatures: [],
-		},
-		{
-			id: 'confirmation',
-			icon: 'save',
-			name: __( 'Confirmation', 'vulocart' ),
-			desc: __(
-				'The checkout wizard\'s post-order confirmation step - requires the Order module to be active.',
-				'vulocart'
-			),
-			proModule: false,
-			category: 'checkout-steps',
-			freeFeatures: [
-				__( 'Post-order confirmation screen', 'vulocart' ),
-				__( 'Order summary for the buyer', 'vulocart' ),
 			],
 			proFeatures: [],
 		},
@@ -248,7 +142,7 @@ const MODULES_CATALOG: {
 			icon: 'price',
 			name: __( 'Pricing Rules', 'vulocart' ),
 			desc: __(
-				'Automatic percentage/fixed discounts scoped to all offerings, one type, one category, or one offering.',
+				'Automatic percentage/fixed discounts scoped to all products, one type, one category, or one product.',
 				'vulocart'
 			),
 			proModule: true,
@@ -256,57 +150,40 @@ const MODULES_CATALOG: {
 			freeFeatures: [],
 			proFeatures: [
 				__( 'Percentage and fixed discounts', 'vulocart' ),
-				__( 'Scope to all, a type, a category or one offering', 'vulocart' ),
-				__( 'Effective-price lookup per offering', 'vulocart' ),
+				__( 'Scope to all, a type, a category or one product', 'vulocart' ),
+				__( 'Effective-price lookup per product', 'vulocart' ),
 			],
 		},
 		{
-			id: 'offering-templates',
+			id: 'product-templates',
 			icon: 'form-section',
-			name: __( 'Offering Templates', 'vulocart' ),
+			name: __( 'Product Templates', 'vulocart' ),
 			desc: __(
-				'Save any offering\'s fields as a reusable preset, and start new offerings from it.',
+				'Save any product\'s fields as a reusable preset, and start new products from it.',
 				'vulocart'
 			),
 			proModule: true,
 			category: 'catalog',
 			freeFeatures: [],
 			proFeatures: [
-				__( 'Save an offering as a reusable preset', 'vulocart' ),
-				__( 'Start new offerings from a template', 'vulocart' ),
+				__( 'Save a product as a reusable preset', 'vulocart' ),
+				__( 'Start new products from a template', 'vulocart' ),
 			],
 		},
 		{
 			id: 'bulk-editor',
 			icon: 'bulk-action',
-			name: __( 'Bulk Editor', 'vulocart' ),
+			name: __( 'Bulk Tools', 'vulocart' ),
 			desc: __(
-				'A spreadsheet-style screen for editing price/status/stock across many offerings at once, plus Duplicate Offering.',
+				'Work on many products at once from the Products list: edit them in bulk and import them from a CSV file.',
 				'vulocart'
 			),
 			proModule: true,
 			category: 'catalog',
 			freeFeatures: [],
 			proFeatures: [
-				__( 'Spreadsheet-style price, status and stock editing', 'vulocart' ),
-				__( 'Duplicate an offering in one click', 'vulocart' ),
-			],
-		},
-		{
-			id: 'csv-import',
-			icon: 'csv',
-			name: __( 'Import CSV', 'vulocart' ),
-			desc: __(
-				'Bulk-create offerings from a spreadsheet export, with column mapping and a preview.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'catalog',
-			freeFeatures: [],
-			proFeatures: [
-				__( 'Bulk-create offerings from a CSV', 'vulocart' ),
-				__( 'Column mapping', 'vulocart' ),
-				__( 'Preview before import', 'vulocart' ),
+				__( 'Bulk edit status, price and stock', 'vulocart' ),
+				__( 'Bulk-create products from a CSV with column mapping and preview', 'vulocart' ),
 			],
 		},
 		{
@@ -314,7 +191,7 @@ const MODULES_CATALOG: {
 			icon: 'store-inventory',
 			name: __( 'Suppliers', 'vulocart' ),
 			desc: __(
-				'Track who each offering is sourced from - manage suppliers and assign one per offering.',
+				'Track who each product is sourced from - manage suppliers and assign one per product.',
 				'vulocart'
 			),
 			proModule: true,
@@ -322,178 +199,28 @@ const MODULES_CATALOG: {
 			freeFeatures: [],
 			proFeatures: [
 				__( 'Supplier directory', 'vulocart' ),
-				__( 'Assign one supplier per offering', 'vulocart' ),
+				__( 'Assign one supplier per product', 'vulocart' ),
 			],
 		},
 		{
 			id: 'passport',
 			icon: 'identity-verification',
-			name: __( 'Passport', 'vulocart' ),
+			name: __( 'Digital Product Passport', 'vulocart' ),
 			desc: __(
-				'Serialized Digital Product Passports - authenticity verification, warranty, service/owner history, certificates, firmware, and a public passport page with QR/NFC sharing and PDF export.',
+				'The EU Digital Product Passport for each product - identifiers, manufacturer, compliance, materials, carbon footprint, durability and repair, and end of life - published on a public page you can share as a QR code.',
 				'vulocart'
 			),
 			proModule: true,
 			category: 'catalog',
 			freeFeatures: [],
 			proFeatures: [
-				__( 'Serialized passports with authenticity verification', 'vulocart' ),
-				__( 'Warranty, service and owner history', 'vulocart' ),
-				__( 'Public passport page with QR/NFC sharing', 'vulocart' ),
-				__( 'PDF export and revocation', 'vulocart' ),
+				__( 'Passport data on every product, with a completeness checklist', 'vulocart' ),
+				__( 'Compliance, materials, footprint, repair and end-of-life details', 'vulocart' ),
+				__( 'Public passport page with a QR code', 'vulocart' ),
+				__( 'Machine-readable JSON for each passport', 'vulocart' ),
 			],
 		},
 
-		// Checkout Experience
-		{
-			type: 'separator',
-			id: 'checkout-experience',
-			label: __( 'Checkout Experience', 'vulocart' ),
-		},
-		{
-			id: 'checkout-templates',
-			icon: 'form-section',
-			name: __( 'Checkout Builder', 'vulocart' ),
-			desc: __(
-				'Enable/disable and reorder checkout steps, saved as named, one-active-at-a-time templates.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'checkout-experience',
-			freeFeatures: [],
-			proFeatures: [
-				__( 'Enable, disable and reorder checkout steps', 'vulocart' ),
-				__( 'Named templates, one active at a time', 'vulocart' ),
-			],
-		},
-		{
-			id: 'order-notes',
-			icon: 'document',
-			name: __( 'Order Notes', 'vulocart' ),
-			desc: __(
-				'Lets a buyer leave a note for their order at checkout, shown on the Order edit page.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'checkout-experience',
-			freeFeatures: [],
-			proFeatures: [
-				__( 'Buyer note field at checkout', 'vulocart' ),
-				__( 'Notes shown on the Order edit page', 'vulocart' ),
-			],
-		},
-		{
-			id: 'one-click-checkout',
-			icon: 'automation',
-			name: __( 'One-Click Checkout', 'vulocart' ),
-			desc: __(
-				'Lets a returning buyer place an order instantly, reusing the address/shipping/payment from their last order under the same email.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'checkout-experience',
-			freeFeatures: [],
-			proFeatures: [
-				__( 'Instant reorder for returning buyers', 'vulocart' ),
-				__( 'Reuses last address, shipping and payment', 'vulocart' ),
-			],
-		},
-		{
-			id: 'address-autocomplete',
-			icon: 'form-section',
-			name: __( 'Address Autocomplete', 'vulocart' ),
-			desc: __(
-				'Suggests full addresses as a shopper types at checkout, via a pluggable lookup provider (none configured out of the box).',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'checkout-experience',
-			freeFeatures: [],
-			proFeatures: [
-				__( 'Address suggestions as the shopper types', 'vulocart' ),
-				__( 'Pluggable lookup provider', 'vulocart' ),
-			],
-		},
-		{
-			id: 'popup-checkout',
-			icon: 'storefront',
-			name: __( 'Popup Checkout', 'vulocart' ),
-			desc: __(
-				'Opens checkout in a modal from any "data-vulocart-checkout-trigger" element on any page, not just the Checkout block.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'checkout-experience',
-			freeFeatures: [],
-			proFeatures: [
-				__( 'Checkout in a modal from any page', 'vulocart' ),
-				__( 'Triggered by a simple data attribute', 'vulocart' ),
-			],
-		},
-		{
-			id: 'drawer-checkout',
-			icon: 'storefront',
-			name: __( 'Drawer Checkout', 'vulocart' ),
-			desc: __(
-				'Opens checkout in a slide-in side panel from any "data-vulocart-drawer-checkout-trigger" element, via the VuloCart SDK.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'checkout-experience',
-			freeFeatures: [],
-			proFeatures: [
-				__( 'Slide-in side-panel checkout', 'vulocart' ),
-				__( 'Triggered by a simple data attribute', 'vulocart' ),
-			],
-		},
-		{
-			id: 'embedded-checkout',
-			icon: 'storefront',
-			name: __( 'Embedded Checkout', 'vulocart' ),
-			desc: __(
-				'Renders checkout inline into any "data-vulocart-embedded-checkout" container on any page - same-site only, see module docs for cross-domain embedding.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'checkout-experience',
-			freeFeatures: [],
-			proFeatures: [
-				__( 'Inline checkout in any container on any page', 'vulocart' ),
-				__( 'Same-site embedding', 'vulocart' ),
-			],
-		},
-		{
-			id: 'hosted-checkout',
-			icon: 'link',
-			name: __( 'Hosted Checkout', 'vulocart' ),
-			desc: __(
-				'A dedicated /checkout/hosted/{cart_token}/ URL a shopper can be redirected to - not a WordPress page, no theme involved.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'checkout-experience',
-			freeFeatures: [],
-			proFeatures: [
-				__( 'Dedicated hosted checkout URL per cart', 'vulocart' ),
-				__( 'Theme-independent page', 'vulocart' ),
-			],
-		},
-		{
-			id: 'checkout-links',
-			icon: 'link',
-			name: __( 'Checkout Links & QR Codes', 'vulocart' ),
-			desc: __(
-				'Shareable payment/checkout links for a fixed set of offerings - a dedicated /pay/ URL, embeddable, or shown as a QR code.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'checkout-experience',
-			freeFeatures: [],
-			proFeatures: [
-				__( 'Shareable /pay/ links for fixed offerings', 'vulocart' ),
-				__( 'QR code and embeddable link', 'vulocart' ),
-			],
-		},
 
 		// Promotions
 		{
@@ -533,6 +260,7 @@ const MODULES_CATALOG: {
 				__( 'Partial or full redemption toward an order', 'vulocart' ),
 			],
 		},
+
 		{
 			id: 'abandoned-checkout',
 			icon: 'cart',
@@ -549,48 +277,12 @@ const MODULES_CATALOG: {
 			],
 		},
 
-		// Payments
+
+		// Customers & Operations
 		{
 			type: 'separator',
-			id: 'payments',
-			label: __( 'Payments', 'vulocart' ),
-		},
-		{
-			id: 'stripe',
-			icon: 'stripe-connect',
-			name: __( 'Stripe', 'vulocart' ),
-			desc: __(
-				'Accept credit/debit cards via Stripe - Payment Intents, saved cards for recurring billing, and partial capture/refund.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'payments',
-			freeFeatures: [],
-			proFeatures: [
-				__( 'Card payments via Payment Intents', 'vulocart' ),
-				__( 'Saved cards for recurring billing', 'vulocart' ),
-				__( 'Partial capture and refund', 'vulocart' ),
-			],
-		},
-		{
-			id: 'paypal',
-			icon: 'paypal-marketplace',
-			name: __( 'PayPal', 'vulocart' ),
-			desc: __( 'Accept payments via PayPal Checkout.', 'vulocart' ),
-			proModule: true,
-			category: 'payments',
-			freeFeatures: [],
-			proFeatures: [ __( 'PayPal Checkout payments', 'vulocart' ) ],
-		},
-		{
-			id: 'razorpay',
-			icon: 'razorpay',
-			name: __( 'Razorpay', 'vulocart' ),
-			desc: __( 'Accept payments via Razorpay Checkout.', 'vulocart' ),
-			proModule: true,
-			category: 'payments',
-			freeFeatures: [],
-			proFeatures: [ __( 'Razorpay Checkout payments', 'vulocart' ) ],
+			id: 'operations',
+			label: __( 'Customers & Operations', 'vulocart' ),
 		},
 		{
 			id: 'subscriptions',
@@ -601,20 +293,13 @@ const MODULES_CATALOG: {
 				'vulocart'
 			),
 			proModule: true,
-			category: 'payments',
+			category: 'operations',
 			freeFeatures: [],
 			proFeatures: [
 				__( 'Automatic renewal charges', 'vulocart' ),
 				__( 'Dunning retries for failed payments', 'vulocart' ),
 				__( 'Customer self-service: update payment method', 'vulocart' ),
 			],
-		},
-
-		// Customers & Operations
-		{
-			type: 'separator',
-			id: 'operations',
-			label: __( 'Customers & Operations', 'vulocart' ),
 		},
 		{
 			id: 'customer-growth',
@@ -639,7 +324,7 @@ const MODULES_CATALOG: {
 			icon: 'store-inventory',
 			name: __( 'Inventory Engine', 'vulocart' ),
 			desc: __(
-				'Warehouses/locations, purchase orders, transfers, reservations, low-stock alerts, batch/serial tracking, a full inventory history ledger, and demand forecasting - stock decrements automatically on paid orders and stays synced with each offering\'s own stock field.',
+				'Warehouses/locations, purchase orders, transfers, reservations, low-stock alerts, batch/serial tracking, a full inventory history ledger, and demand forecasting - stock decrements automatically on paid orders and stays synced with each product\'s own stock field.',
 				'vulocart'
 			),
 			proModule: true,
@@ -651,28 +336,6 @@ const MODULES_CATALOG: {
 				__( 'Reservations and low-stock alerts', 'vulocart' ),
 				__( 'Batch/serial tracking and history ledger', 'vulocart' ),
 				__( 'Demand forecasting', 'vulocart' ),
-			],
-		},
-		{
-			id: 'shipping-engine',
-			icon: 'shipping',
-			name: __( 'Shipping Engine', 'vulocart' ),
-			desc: __(
-				'Zone/weight-based rates on top of the free flat-rate fallback, packaging presets, multi-shipment fulfillment with tracking, a pluggable carrier/label framework, returns (RMA) with automatic refunds, and local pickup.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'operations',
-			freeFeatures: [
-				__( 'Flat-rate fallback (Shipping module)', 'vulocart' ),
-			],
-			proFeatures: [
-				__( 'Zone and weight-based rates', 'vulocart' ),
-				__( 'Packaging presets', 'vulocart' ),
-				__( 'Multi-shipment fulfillment with tracking', 'vulocart' ),
-				__( 'Pluggable carrier and label framework', 'vulocart' ),
-				__( 'Returns (RMA) with automatic refunds', 'vulocart' ),
-				__( 'Local pickup', 'vulocart' ),
 			],
 		},
 
@@ -703,13 +366,13 @@ const MODULES_CATALOG: {
 			icon: 'ai',
 			name: __( 'AI', 'vulocart' ),
 			desc: __(
-				'AI-generated offering/upsell recommendations.',
+				'AI-generated product/upsell recommendations.',
 				'vulocart'
 			),
 			proModule: false,
 			category: 'ai-integrations',
 			freeFeatures: [
-				__( 'AI-generated offering recommendations', 'vulocart' ),
+				__( 'AI-generated product recommendations', 'vulocart' ),
 				__( 'Upsell suggestions', 'vulocart' ),
 				__( 'Provider configured on the AI settings tab', 'vulocart' ),
 			],

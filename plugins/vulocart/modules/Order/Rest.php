@@ -7,6 +7,7 @@
 
 namespace VuloCart\Order;
 
+use VuloCart\Application\PriceCatalog;
 use VuloCart\Order\Domain\Order as OrderEntity;
 use VuloCart\Order\Domain\OrderItem;
 use VuloCart\Utill;
@@ -160,12 +161,13 @@ class Rest extends \WP_REST_Controller {
     private function format_order_item_for_response( OrderItem $item ): array {
         return array(
             'id'          => $item->id,
-            'offering_id' => $item->offering_id,
+            'product_id' => $item->product_id,
             'title'       => $item->title,
             'quantity'    => $item->quantity,
             'unit_price'  => $item->unit_price,
             'currency'    => $item->currency,
             'subtotal'    => round( $item->unit_price * $item->quantity, 2 ),
+            'price'       => PriceCatalog::line_price( $item->meta ),
         );
     }
 
@@ -448,12 +450,12 @@ class Rest extends \WP_REST_Controller {
         $sanitized_items = array();
 
         foreach ( $items as $item ) {
-            if ( ! is_array( $item ) || empty( $item['offering_id'] ) ) {
+            if ( ! is_array( $item ) || empty( $item['product_id'] ) ) {
                 continue;
             }
 
             $sanitized_items[] = array(
-                'offering_id' => absint( $item['offering_id'] ),
+                'product_id' => absint( $item['product_id'] ),
                 'quantity'    => isset( $item['quantity'] ) ? absint( $item['quantity'] ) : 1,
             );
         }

@@ -31,7 +31,7 @@ interface ReviewRepositoryInterface {
     /**
      * Returns a page of reviews, optionally filtered.
      *
-     * @param array{page?: int, per_page?: int, offering_id?: int, status?: string} $args Pagination/filter args.
+     * @param array{page?: int, per_page?: int, product_id?: int, status?: string} $args Pagination/filter args.
      * @return array{data: Review[], total: int}
      */
     public function paginate( array $args = array() ): array;

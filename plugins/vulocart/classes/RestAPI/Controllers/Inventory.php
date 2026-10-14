@@ -7,7 +7,7 @@
 
 namespace VuloCart\RestAPI\Controllers;
 
-use VuloCart\Domain\Offering\Offering;
+use VuloCart\Domain\Product\Product;
 use VuloCart\Utill;
 
 defined( 'ABSPATH' ) || exit;
@@ -15,13 +15,13 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Inventory REST controller.
  *
- * Backs the Offerings menu's "Inventory" admin page
+ * Backs the Products menu's "Inventory" admin page
  * (`src/pages/Inventory/`) - a specialized, admin-only view over the
- * existing `vulocart_offerings` table (Application\OfferingService), not a new
- * domain entity of its own: "inventory" is just "offerings of a
+ * existing `vulocart_products` table (Application\ProductService), not a new
+ * domain entity of its own: "inventory" is just "products of a
  * stock-trackable type, with their stock fields surfaced for quick bulk
  * editing". `manage_options`-gated throughout, same as every other
- * offering-management route.
+ * product-management route.
  *
  * @class       Inventory class
  * @version     1.0.0
@@ -37,10 +37,10 @@ class Inventory extends \WP_REST_Controller {
     protected $rest_base = 'inventory';
 
     /**
-     * Offering types stock tracking is meaningful for - same
-     * hand-maintained list `OfferingEdit.tsx`'s own `STOCK_TRACKED_TYPES`
+     * Product types stock tracking is meaningful for - same
+     * hand-maintained list `ProductEdit.tsx`'s own `STOCK_TRACKED_TYPES`
      * duplicates independently (small, stable, per-type distinction
-     * Domain\Offering\OfferingType's own docblock deliberately keeps out of
+     * Domain\Product\ProductType's own docblock deliberately keeps out of
      * that class).
      *
      * @var string[]
@@ -84,31 +84,31 @@ class Inventory extends \WP_REST_Controller {
     }
 
     /**
-     * Converts a domain Offering into the Inventory REST response shape -
+     * Converts a domain Product into the Inventory REST response shape -
      * only the fields the Inventory list actually needs, not the full
-     * shape `Offerings::prepare_offering_for_response()` returns.
+     * shape `Products::prepare_product_for_response()` returns.
      *
-     * @param Offering $offering     Offering to convert to a REST response shape.
+     * @param Product $product     Product to convert to a REST response shape.
      * @param int      $threshold The Catalog tab's `low_stock_threshold` setting.
      * @return array<string, mixed>
      */
-    private function prepare_inventory_item_for_response( Offering $offering, int $threshold ): array {
-        $quantity = $offering->meta['stock_quantity'] ?? null;
+    private function prepare_inventory_item_for_response( Product $product, int $threshold ): array {
+        $quantity = $product->meta['stock_quantity'] ?? null;
 
         return array(
-            'id'               => $offering->id,
-            'title'            => $offering->title,
-            'type'             => $offering->type,
-            'sku'              => $offering->sku,
-            'stock_management' => ! empty( $offering->meta['stock_management'] ),
-            'stock_status'     => $offering->meta['stock_status'] ?? 'in_stock',
+            'id'               => $product->id,
+            'title'            => $product->title,
+            'type'             => $product->type,
+            'sku'              => $product->sku,
+            'stock_management' => ! empty( $product->meta['stock_management'] ),
+            'stock_status'     => $product->meta['stock_status'] ?? 'in_stock',
             'stock_quantity'   => $quantity,
             'low_stock'        => null !== $quantity && $quantity <= $threshold,
         );
     }
 
     /**
-     * Lists every offering of a stock-trackable type.
+     * Lists every product of a stock-trackable type.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response
@@ -121,13 +121,13 @@ class Inventory extends \WP_REST_Controller {
         $settings  = wp_parse_args( get_option( Utill::SETTINGS_KEY, array() ), Utill::SETTINGS_DEFAULTS );
         $threshold = (int) $settings['low_stock_threshold'];
 
-        // OfferingService/WPDBOfferingRepository don't support filtering by a
+        // ProductService/WPDBProductRepository don't support filtering by a
         // set of types (only one), so this fetches a generously-sized
-        // page of every offering and filters client-of-the-repository
+        // page of every product and filters client-of-the-repository
         // side - acceptable at this plugin's current catalog-size scale,
-        // same tradeoff Terms.php's own `count_offerings_for_term()` accepts
+        // same tradeoff Terms.php's own `count_products_for_term()` accepts
         // for a `LIKE`-based count rather than a maintained join table.
-        $result = VuloCart()->offering_service->list_offerings(
+        $result = VuloCart()->product_service->list_products(
             array(
                 'page'     => 1,
                 'per_page' => 500,
@@ -136,12 +136,12 @@ class Inventory extends \WP_REST_Controller {
 
         $items = array_filter(
             $result['data'],
-            function ( $offering ) use ( $search ) {
-                if ( ! in_array( $offering->type, self::STOCK_TRACKED_TYPES, true ) ) {
+            function ( $product ) use ( $search ) {
+                if ( ! in_array( $product->type, self::STOCK_TRACKED_TYPES, true ) ) {
                     return false;
                 }
 
-                if ( '' !== $search && false === stripos( $offering->title, $search ) && false === stripos( (string) $offering->sku, $search ) ) {
+                if ( '' !== $search && false === stripos( $product->title, $search ) && false === stripos( (string) $product->sku, $search ) ) {
                     return false;
                 }
 
@@ -155,8 +155,8 @@ class Inventory extends \WP_REST_Controller {
 
         $response = rest_ensure_response(
             array_map(
-                function ( $offering ) use ( $threshold ) {
-                    return $this->prepare_inventory_item_for_response( $offering, $threshold );
+                function ( $product ) use ( $threshold ) {
+                    return $this->prepare_inventory_item_for_response( $product, $threshold );
                 },
                 $items
             )
@@ -168,20 +168,20 @@ class Inventory extends \WP_REST_Controller {
     }
 
     /**
-     * Quick-updates one offering's stock fields.
+     * Quick-updates one product's stock fields.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response|\WP_Error
      */
     public function update_item( $request ) {
         $id       = absint( $request->get_param( 'id' ) );
-        $offering = VuloCart()->offering_service->get_offering( $id );
+        $product = VuloCart()->product_service->get_product( $id );
 
-        if ( ! $offering ) {
-            return new \WP_Error( 'vulocart_offering_not_found', esc_html__( 'No offering exists with this id.', 'vulocart' ), array( 'status' => 404 ) );
+        if ( ! $product ) {
+            return new \WP_Error( 'vulocart_product_not_found', esc_html__( 'No product exists with this id.', 'vulocart' ), array( 'status' => 404 ) );
         }
 
-        $meta = $offering->meta;
+        $meta = $product->meta;
 
         if ( null !== $request->get_param( 'stock_quantity' ) ) {
             $meta['stock_quantity'] = max( 0, absint( $request->get_param( 'stock_quantity' ) ) );
@@ -191,11 +191,11 @@ class Inventory extends \WP_REST_Controller {
             $meta['stock_status'] = $request->get_param( 'stock_status' );
         }
 
-        $offering = VuloCart()->offering_service->update_offering( $id, array( 'meta' => $meta ) );
+        $product = VuloCart()->product_service->update_product( $id, array( 'meta' => $meta ) );
 
         $settings  = wp_parse_args( get_option( Utill::SETTINGS_KEY, array() ), Utill::SETTINGS_DEFAULTS );
         $threshold = (int) $settings['low_stock_threshold'];
 
-        return rest_ensure_response( $this->prepare_inventory_item_for_response( $offering, $threshold ) );
+        return rest_ensure_response( $this->prepare_inventory_item_for_response( $product, $threshold ) );
     }
 }

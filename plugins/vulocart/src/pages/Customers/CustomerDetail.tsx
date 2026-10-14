@@ -65,7 +65,7 @@ const EMPTY_ADDRESS = { label: '', full_name: '', address_1: '', city: '', state
  * `vulocart-pro`'s own CustomerGrowth module renders Wishlist/Saved
  * Carts/Groups/Segments/Loyalty-Credits-Wallet/Communication
  * History/Timeline into, same compose-many shape
- * `vulocart_offering_edit_sections` already establishes for the Offering
+ * `vulocart_product_edit_sections` already establishes for the Product
  * edit page.
  */
 export function CustomerDetail( { id }: { id: number } ) {

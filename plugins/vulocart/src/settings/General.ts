@@ -25,7 +25,7 @@ export default {
 			icon: 'setting',
 			title: __( 'Defaults', 'vulocart' ),
 			desc: __(
-				'Fallback values applied when a new offering is created without them explicitly set.',
+				'Fallback values applied when a new product is created without them explicitly set.',
 				'vulocart'
 			),
 		},
@@ -34,16 +34,16 @@ export default {
 			type: 'text',
 			label: __( 'Default currency', 'vulocart' ),
 			settingDescription: __(
-				'ISO 4217 code used when a new offering is created without an explicit currency.',
+				'ISO 4217 code used when a new product is created without an explicit currency.',
 				'vulocart'
 			),
 		},
 		{
-			key: 'default_offering_status',
+			key: 'default_product_status',
 			type: 'select',
-			label: __( 'Default offering status', 'vulocart' ),
+			label: __( 'Default product status', 'vulocart' ),
 			settingDescription: __(
-				'Status a new offering gets when none is specified.',
+				'Status a new product gets when none is specified.',
 				'vulocart'
 			),
 			options: [
@@ -62,16 +62,16 @@ export default {
 			),
 		},
 		{
-			key: 'enable_offerings_listing',
+			key: 'enable_products_listing',
 			type: 'checkbox',
 			look: 'toggle',
-			label: __( 'Show offerings listing', 'vulocart' ),
+			label: __( 'Show products listing', 'vulocart' ),
 			settingDescription: __(
-				'Show the "Available Offerings" catalog-browsing section on the storefront checkout page.',
+				'Show the "Available Products" catalog-browsing section on the storefront checkout page.',
 				'vulocart'
 			),
 			options: [
-				{ key: 'enable_offerings_listing', label: '', value: 'enable_offerings_listing' },
+				{ key: 'enable_products_listing', label: '', value: 'enable_products_listing' },
 			],
 		},
 		{

@@ -14,9 +14,9 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Reviews REST controller.
  *
- * Backs the Offerings menu's "Reviews" admin page
+ * Backs the Products menu's "Reviews" admin page
  * (`src/pages/Reviews/`) and a future public review-submission form on
- * `src/blocks/offerings/OfferingDetail.tsx`. `POST /reviews` (submit) is
+ * `src/blocks/products/ProductDetail.tsx`. `POST /reviews` (submit) is
  * public - same "guest-first" posture Cart/Order's own public routes
  * take (Cart\Rest.php's own docblock) - everything else is
  * `manage_options`-gated moderation, matching Order\Rest's own admin-only
@@ -92,12 +92,12 @@ class Reviews extends \WP_REST_Controller {
      * @return array<string, mixed>
      */
     private function prepare_review_for_response( ReviewEntity $review ): array {
-        $offering = VuloCart()->offering_service->get_offering( $review->offering_id );
+        $product = VuloCart()->product_service->get_product( $review->product_id );
 
         return array(
             'id'             => $review->id,
-            'offering_id'    => $review->offering_id,
-            'offering_title' => $offering ? $offering->title : null,
+            'product_id'    => $review->product_id,
+            'product_title' => $product ? $product->title : null,
             'customer_name'  => $review->customer_name,
             'customer_email' => $review->customer_email,
             'rating'         => $review->rating,
@@ -119,14 +119,14 @@ class Reviews extends \WP_REST_Controller {
         $page        = absint( $request->get_param( 'page' ) ? $request->get_param( 'page' ) : 1 );
         $per_page    = absint( $request->get_param( 'per_page' ) ? $request->get_param( 'per_page' ) : 20 );
         $status      = sanitize_key( (string) $request->get_param( 'status' ) );
-        $offering_id = absint( $request->get_param( 'offering_id' ) );
+        $product_id = absint( $request->get_param( 'product_id' ) );
 
         $result = VuloCart()->review_service->list_reviews(
             array(
                 'page'        => $page,
                 'per_page'    => $per_page,
                 'status'      => $status,
-                'offering_id' => $offering_id,
+                'product_id' => $product_id,
             )
         );
 
@@ -149,7 +149,7 @@ class Reviews extends \WP_REST_Controller {
      */
     public function create_item( $request ) {
         $data = array(
-            'offering_id' => absint( $request->get_param( 'offering_id' ) ),
+            'product_id' => absint( $request->get_param( 'product_id' ) ),
             'rating'      => absint( $request->get_param( 'rating' ) ),
         );
 

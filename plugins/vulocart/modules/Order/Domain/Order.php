@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Order module Order entity.
  *
- * Plain domain object, same shape/rules as VuloCart\Domain\Offering\Offering/
+ * Plain domain object, same shape/rules as VuloCart\Domain\Product\Product/
  * VuloCart\Cart\Domain\Cart. `order_number` is the human-facing identifier
  * (shown to the buyer); `access_token` is the headless equivalent of
  * Cart's `token` - an opaque value only the buyer who placed the order (or

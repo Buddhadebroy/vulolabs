@@ -15,9 +15,9 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Attributes REST controller.
  *
- * Backs the Offerings menu's "Attributes" admin page
+ * Backs the Products menu's "Attributes" admin page
  * (`src/pages/Attributes/`). Listing/reading is public (same posture as
- * Terms.php/Offerings.php's own public GET); every mutation is
+ * Terms.php/Products.php's own public GET); every mutation is
  * `manage_options`-gated.
  *
  * @class       Attributes class

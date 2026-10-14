@@ -7,6 +7,7 @@
 
 namespace VuloCart\Cart;
 
+use VuloCart\Application\PriceCatalog;
 use VuloCart\Cart\Domain\Cart as CartEntity;
 use VuloCart\Cart\Domain\CartItem;
 
@@ -140,25 +141,26 @@ class Rest extends \WP_REST_Controller {
 
     /**
      * Converts a domain CartItem into the REST response shape, including
-     * a display title from its Offering - bounded by cart size (a handful of
-     * items), and OfferingService's own in-request cache-by-id
-     * (performance.md) means this never re-queries the same offering twice.
+     * a display title from its Product - bounded by cart size (a handful of
+     * items), and ProductService's own in-request cache-by-id
+     * (performance.md) means this never re-queries the same product twice.
      *
      * @param CartItem $item Cart item to convert to a REST response shape.
      * @return array<string, mixed>
      */
     private function format_cart_item_for_response( CartItem $item ): array {
-        $offering = VuloCart()->offering_service->get_offering( $item->offering_id );
+        $product = VuloCart()->product_service->get_product( $item->product_id );
 
         return array(
             'id'          => $item->id,
-            'offering_id' => $item->offering_id,
-            'title'       => $offering ? $offering->title : null,
-            'type'        => $offering ? $offering->type : null,
+            'product_id' => $item->product_id,
+            'title'       => $product ? $product->title : null,
+            'type'        => $product ? $product->type : null,
             'quantity'    => $item->quantity,
             'unit_price'  => $item->unit_price,
             'currency'    => $item->currency,
             'subtotal'    => round( $item->unit_price * $item->quantity, 2 ),
+            'price'       => PriceCatalog::line_price( $item->meta ),
         );
     }
 
@@ -240,32 +242,34 @@ class Rest extends \WP_REST_Controller {
     }
 
     /**
-     * Adds a quantity of an offering to a cart.
+     * Adds a quantity of a product to a cart.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response|\WP_Error
      */
     public function add_item( $request ) {
-        $offering_id = absint( $request->get_param( 'offering_id' ) );
+        $product_id = absint( $request->get_param( 'product_id' ) );
 
-        if ( ! $offering_id ) {
+        if ( ! $product_id ) {
             return new \WP_Error(
-                'vulocart_missing_offering_id',
-                esc_html__( 'An offering_id is required.', 'vulocart' ),
+                'vulocart_missing_product_id',
+                esc_html__( 'A product_id is required.', 'vulocart' ),
                 array( 'status' => 400 )
             );
         }
 
+        $price_param    = $request->get_param( 'price_id' );
+        $price_id       = null === $price_param ? null : sanitize_key( (string) $price_param );
         $quantity_param = $request->get_param( 'quantity' );
         $quantity       = null === $quantity_param ? 1 : max( 1, absint( $quantity_param ) );
         $token          = $this->resolve_token( $request );
 
         try {
-            $cart = VuloCart()->cart_service->add_item( $token, $offering_id, $quantity );
+            $cart = VuloCart()->cart_service->add_item( $token, $product_id, $quantity, $price_id );
         } catch ( \InvalidArgumentException $exception ) {
             return new \WP_Error(
-                'vulocart_invalid_offering',
-                esc_html__( 'Invalid offering.', 'vulocart' ),
+                'vulocart_invalid_product',
+                esc_html__( 'Invalid product or price.', 'vulocart' ),
                 array( 'status' => 400 )
             );
         }

@@ -7,7 +7,7 @@ import { ContainerComponent, ColumnComponent, FormGroupWrapperComponent, FormGro
 import { TextInput, ButtonInput, SelectInput } from '@zyra/inputs';
 import './orders-page.scss';
 
-interface OfferingSummary {
+interface ProductSummary {
 	id: number;
 	title: string;
 	price: number | null;
@@ -15,7 +15,7 @@ interface OfferingSummary {
 }
 
 interface DraftLine {
-	offering_id: number;
+	product_id: number;
 	title: string;
 	quantity: number;
 	unit_price: number | null;
@@ -25,17 +25,17 @@ interface DraftLine {
 /**
  * The "Add New" order page (classes/Admin/Menu.php's `add_orders_menu()`
  * submenu) - an admin building an order on a customer's behalf (phone/
- * email order) with no cart involved. Picks from existing Offerings
- * (`GET /offerings`) rather than a free-text line item, since an order's
- * item still needs to reference a real Offering (Rest::create_manual_item(),
+ * email order) with no cart involved. Picks from existing Products
+ * (`GET /products`) rather than a free-text line item, since an order's
+ * item still needs to reference a real Product (Rest::create_manual_item(),
  * modules/Order/Application/OrderService.php's `create_manual_order()`).
  * Saves as a draft order (`FulfillmentStatus::DRAFT`) and redirects to
  * its edit page - same "create then land on the detail page" flow
- * OfferingEdit.tsx's Add path already uses.
+ * ProductEdit.tsx's Add path already uses.
  */
 export function OrderAdd() {
-	const [ offerings, setOfferings ] = useState< OfferingSummary[] >( [] );
-	const [ selectedOfferingId, setSelectedOfferingId ] = useState< string >( '' );
+	const [ products, setProducts ] = useState< ProductSummary[] >( [] );
+	const [ selectedProductId, setSelectedProductId ] = useState< string >( '' );
 	const [ lines, setLines ] = useState< DraftLine[] >( [] );
 	const [ customerEmail, setCustomerEmail ] = useState( '' );
 	const [ customerName, setCustomerName ] = useState( '' );
@@ -44,50 +44,50 @@ export function OrderAdd() {
 
 	useEffect( () => {
 		axios
-			.get< OfferingSummary[] >( getApiLink( vulocartLocalizer, 'offerings' ), {
+			.get< ProductSummary[] >( getApiLink( vulocartLocalizer, 'products' ), {
 				headers: { 'X-WP-Nonce': vulocartLocalizer.nonce },
 				params: { per_page: 100 },
 			} )
-			.then( ( response ) => setOfferings( response.data || [] ) );
+			.then( ( response ) => setProducts( response.data || [] ) );
 	}, [] );
 
 	const addLine = () => {
-		const offering = offerings.find( ( item ) => String( item.id ) === selectedOfferingId );
+		const product = products.find( ( item ) => String( item.id ) === selectedProductId );
 
-		if ( ! offering ) {
+		if ( ! product ) {
 			return;
 		}
 
 		setLines( ( current ) => {
-			const existing = current.find( ( line ) => line.offering_id === offering.id );
+			const existing = current.find( ( line ) => line.product_id === product.id );
 
 			if ( existing ) {
 				return current.map( ( line ) =>
-					line.offering_id === offering.id ? { ...line, quantity: line.quantity + 1 } : line
+					line.product_id === product.id ? { ...line, quantity: line.quantity + 1 } : line
 				);
 			}
 
 			return [
 				...current,
 				{
-					offering_id: offering.id,
-					title: offering.title,
+					product_id: product.id,
+					title: product.title,
 					quantity: 1,
-					unit_price: offering.price,
-					currency: offering.currency,
+					unit_price: product.price,
+					currency: product.currency,
 				},
 			];
 		} );
 	};
 
-	const updateQuantity = ( offeringId: number, quantity: number ) => {
+	const updateQuantity = ( productId: number, quantity: number ) => {
 		if ( quantity <= 0 ) {
-			setLines( ( current ) => current.filter( ( line ) => line.offering_id !== offeringId ) );
+			setLines( ( current ) => current.filter( ( line ) => line.product_id !== productId ) );
 			return;
 		}
 
 		setLines( ( current ) =>
-			current.map( ( line ) => ( line.offering_id === offeringId ? { ...line, quantity } : line ) )
+			current.map( ( line ) => ( line.product_id === productId ? { ...line, quantity } : line ) )
 		);
 	};
 
@@ -107,7 +107,7 @@ export function OrderAdd() {
 			.post(
 				getApiLink( vulocartLocalizer, 'orders/manual' ),
 				{
-					items: lines.map( ( line ) => ( { offering_id: line.offering_id, quantity: line.quantity } ) ),
+					items: lines.map( ( line ) => ( { product_id: line.product_id, quantity: line.quantity } ) ),
 					customer_email: customerEmail || undefined,
 					customer_name: customerName || undefined,
 				},
@@ -135,16 +135,16 @@ export function OrderAdd() {
 					<div className="vulocart-order-edit-main">
 						<h2>{ __( 'Items', 'vulocart' ) }</h2>
 						<FormGroupWrapperComponent>
-							<FormGroupComponent label={ __( 'Offering', 'vulocart' ) } htmlFor="vulocart-order-add-offering">
+							<FormGroupComponent label={ __( 'Product', 'vulocart' ) } htmlFor="vulocart-order-add-product">
 								<SelectInput
-									name="offering_id"
+									name="product_id"
 									type="single-select"
-									options={ offerings.map( ( offering ) => ( {
-										label: offering.title,
-										value: String( offering.id ),
+									options={ products.map( ( product ) => ( {
+										label: product.title,
+										value: String( product.id ),
 									} ) ) }
-									value={ selectedOfferingId }
-									onChange={ ( value ) => setSelectedOfferingId( value as string ) }
+									value={ selectedProductId }
+									onChange={ ( value ) => setSelectedProductId( value as string ) }
 								/>
 							</FormGroupComponent>
 						</FormGroupWrapperComponent>
@@ -157,19 +157,19 @@ export function OrderAdd() {
 						<div className="vulocart-order-detail-items">
 							{ lines.length === 0 && <p>{ __( 'No items added yet.', 'vulocart' ) }</p> }
 							{ lines.map( ( line ) => (
-								<div key={ line.offering_id } className="vulocart-order-detail-item">
+								<div key={ line.product_id } className="vulocart-order-detail-item">
 									<span>{ line.title }</span>
 									<div style={ { display: 'flex', alignItems: 'center', gap: '8px' } }>
 										<button
 											type="button"
-											onClick={ () => updateQuantity( line.offering_id, line.quantity - 1 ) }
+											onClick={ () => updateQuantity( line.product_id, line.quantity - 1 ) }
 										>
 											−
 										</button>
 										<span>{ line.quantity }</span>
 										<button
 											type="button"
-											onClick={ () => updateQuantity( line.offering_id, line.quantity + 1 ) }
+											onClick={ () => updateQuantity( line.product_id, line.quantity + 1 ) }
 										>
 											+
 										</button>

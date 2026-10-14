@@ -26,7 +26,7 @@ export default {
 			icon: 'shipping',
 			title: __( 'Flat rate shipping', 'vulocart' ),
 			desc: __(
-				'A single marketplace-wide shipping charge - distinct from a per-offering shipping class/weight on the Offerings screen.',
+				'A single marketplace-wide shipping charge - distinct from a per-product shipping class/weight on the Products screen.',
 				'vulocart'
 			),
 		},
@@ -36,7 +36,7 @@ export default {
 			look: 'toggle',
 			label: __( 'Enable shipping', 'vulocart' ),
 			settingDescription: __(
-				'Whether shippable offering types (Physical, Rental, Bundle) show shipping fields at all.',
+				'Whether shippable product types (Physical, Rental, Bundle) show shipping fields at all.',
 				'vulocart'
 			),
 			options: [
@@ -48,7 +48,7 @@ export default {
 			type: 'select',
 			label: __( 'Default shipping class', 'vulocart' ),
 			settingDescription: __(
-				'Shipping class preselected for a new shippable offering.',
+				'Shipping class preselected for a new shippable product.',
 				'vulocart'
 			),
 			options: [
@@ -111,7 +111,7 @@ export default {
 			look: 'toggle',
 			label: __( 'Prices already include tax', 'vulocart' ),
 			settingDescription: __(
-				'Whether an offering\'s price is tax-inclusive or tax gets added on top at checkout.',
+				'Whether a product\'s price is tax-inclusive or tax gets added on top at checkout.',
 				'vulocart'
 			),
 			options: [

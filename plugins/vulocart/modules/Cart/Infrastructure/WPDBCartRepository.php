@@ -79,7 +79,7 @@ class WPDBCartRepository implements CartRepositoryInterface {
         return new CartItem(
             (int) $row['id'],
             (int) $row['cart_id'],
-            (int) $row['offering_id'],
+            (int) $row['product_id'],
             (int) $row['quantity'],
             (float) $row['unit_price'],
             $row['currency'],
@@ -152,20 +152,20 @@ class WPDBCartRepository implements CartRepositoryInterface {
     }
 
     /**
-     * Finds the line item for a given offering already in a cart, if any.
+     * Finds the line item for a given product already in a cart, if any.
      *
      * @param int $cart_id  Owning cart id.
-     * @param int $offering_id VuloCart\Domain\Offering\Offering id.
+     * @param int $product_id VuloCart\Domain\Product\Product id.
      * @return CartItem|null
      */
-    public function find_item( int $cart_id, int $offering_id ): ?CartItem {
+    public function find_item( int $cart_id, int $product_id ): ?CartItem {
         global $wpdb;
 
         $row = $wpdb->get_row(
             $wpdb->prepare(
-                "SELECT * FROM {$this->get_cart_items_table()} WHERE cart_id = %d AND offering_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                "SELECT * FROM {$this->get_cart_items_table()} WHERE cart_id = %d AND product_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                 $cart_id,
-                $offering_id
+                $product_id
             ),
             ARRAY_A
         );
@@ -186,7 +186,7 @@ class WPDBCartRepository implements CartRepositoryInterface {
             $this->get_cart_items_table(),
             array(
                 'cart_id'     => $item->cart_id,
-                'offering_id' => $item->offering_id,
+                'product_id' => $item->product_id,
                 'quantity'    => $item->quantity,
                 'unit_price'  => $item->unit_price,
                 'currency'    => $item->currency,
