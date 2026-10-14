@@ -66,7 +66,7 @@ const Settings = () => {
 		// credential fields onto the Payments tab, for instance) append
 		// fields to an existing tab without this plugin knowing that
 		// module exists - same "compose-many, filter-context-routed"
-		// shape `vulocart_offering_edit_sections` already establishes.
+		// shape `vulocart_product_edit_sections` already establishes.
 		// Applied here (at render time), not inside the tab's own static
 		// `src/settings/*.ts` file - those are collected via a
 		// `require.context` that runs eagerly on script load, before a

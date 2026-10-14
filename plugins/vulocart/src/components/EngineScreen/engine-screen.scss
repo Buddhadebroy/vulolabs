@@ -275,3 +275,23 @@ $engine-muted: #6b7280;
 		background: #b91c1c;
 	}
 }
+
+// react-select (zyra SelectInput) renders its own search <input>; keep the generic field rules off it.
+.vulocart-engine-page .form-select-field {
+	width: 100%;
+	margin: 0 0 0.75rem;
+
+	.select-prefix__input-container input,
+	.select-prefix__input {
+		display: inline-block;
+		width: auto;
+		min-height: 0;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		border-radius: 0;
+		background: transparent;
+		box-shadow: none;
+		outline: 0;
+	}
+}

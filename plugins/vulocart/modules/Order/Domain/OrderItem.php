@@ -14,9 +14,9 @@ defined( 'ABSPATH' ) || exit;
  *
  * Plain domain object, same shape/rules as VuloCart\Cart\Domain\CartItem -
  * but `title` is snapshotted here too (CartItem doesn't store one; its
- * Rest layer resolves it live from the Offering on every read), because an
- * Order is a permanent historical record: if the Offering's title changes or
- * the Offering is later deleted, the order still needs to show what the
+ * Rest layer resolves it live from the Product on every read), because an
+ * Order is a permanent historical record: if the Product's title changes or
+ * the Product is later deleted, the order still needs to show what the
  * buyer actually bought.
  *
  * @class       OrderItem class
@@ -40,14 +40,14 @@ class OrderItem {
     public $order_id;
 
     /**
-     * The Offering this line item represents.
+     * The Product this line item represents.
      *
-     * @var int VuloCart\Domain\Offering\Offering id, at the time the order was placed.
+     * @var int VuloCart\Domain\Product\Product id, at the time the order was placed.
      */
-    public $offering_id;
+    public $product_id;
 
     /**
-     * Offering title, snapshotted at order-creation time.
+     * Product title, snapshotted at order-creation time.
      *
      * @var string
      */
@@ -93,8 +93,8 @@ class OrderItem {
      *
      * @param int|null             $id         Null for an item not yet persisted.
      * @param int                  $order_id   Owning order id.
-     * @param int                  $offering_id   VuloCart\Domain\Offering\Offering id, at the time the order was placed.
-     * @param string               $title      Offering title, snapshotted at order-creation time.
+     * @param int                  $product_id   VuloCart\Domain\Product\Product id, at the time the order was placed.
+     * @param string               $title      Product title, snapshotted at order-creation time.
      * @param int                  $quantity   Quantity.
      * @param float                $unit_price Unit price, snapshotted at order-creation time.
      * @param string|null          $currency   Currency code, snapshotted at order-creation time.
@@ -104,7 +104,7 @@ class OrderItem {
     public function __construct(
         $id,
         $order_id,
-        $offering_id,
+        $product_id,
         $title,
         $quantity,
         $unit_price,
@@ -114,7 +114,7 @@ class OrderItem {
     ) {
         $this->id          = $id;
         $this->order_id    = $order_id;
-        $this->offering_id = $offering_id;
+        $this->product_id = $product_id;
         $this->title       = $title;
         $this->quantity    = $quantity;
         $this->unit_price  = $unit_price;

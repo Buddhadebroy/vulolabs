@@ -83,7 +83,7 @@ class Module {
         $service = new Application\OrderService(
             VuloCart()->service_container->make( Domain\OrderRepositoryInterface::class ),
             VuloCart()->cart_service,
-            VuloCart()->offering_service,
+            VuloCart()->product_service,
             VuloCart()->event_dispatcher
         );
 

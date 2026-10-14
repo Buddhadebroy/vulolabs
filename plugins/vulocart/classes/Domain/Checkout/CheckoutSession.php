@@ -81,7 +81,7 @@ class CheckoutSession {
     /**
      * Open bag for anything else worth remembering about this session's
      * progress (e.g. which optional steps were skipped) - same
-     * extensible-JSON pattern `Offering::$meta` already establishes,
+     * extensible-JSON pattern `Product::$meta` already establishes,
      * rather than a new column per future need.
      *
      * @var array<string, mixed>

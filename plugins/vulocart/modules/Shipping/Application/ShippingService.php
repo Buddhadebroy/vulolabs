@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * The free tier's own lightweight shipping engine: one marketplace-wide
  * flat rate (the Shipping tab's `flat_rate_shipping_cost`), not zones or
- * per-offering carrier rates. `get_available_methods()` always returns at
+ * per-product carrier rates. `get_available_methods()` always returns at
  * least one method (a store with shipping "disabled" still ships for
  * free, rather than leaving checkout with no shipping option to select at
  * all) - `enable_shipping` toggles which method that is, not whether

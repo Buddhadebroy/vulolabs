@@ -21,6 +21,8 @@ interface VuloCartLocalizer {
 	adminUrl: string;
 	active_modules: string[];
 	khali_dabba: boolean;
+	/** Product types the merchant switched off (Product Types screen). */
+	disabled_product_types?: string[];
 	version: string;
 	pro_version: string | null;
 	active_plugins: string[];
@@ -49,9 +51,9 @@ interface VuloCartLocalizer {
  * server-side by modules/Order/Rest.php's `create_item()` for
  * `guestCheckoutEnabled`/`requirePhoneNumber` - a client-only check isn't
  * real enforcement against a direct API call).
- * `offeringsListingEnabled`/`cartCheckoutEnabled` are the General/
+ * `productsListingEnabled`/`cartCheckoutEnabled` are the General/
  * Frontend tab (src/settings/General/Frontend.ts) made real, same file.
- * `checkoutPageUrl`/`offeringsPageUrl` are auto-discovered (`Block.php`'s
+ * `checkoutPageUrl`/`productsPageUrl` are auto-discovered (`Block.php`'s
  * `find_page_url_with_block()`), not merchant-configured - null until a
  * published page/post actually contains that block.
  */
@@ -63,12 +65,12 @@ interface VuloCartFrontendData {
 	requirePhoneNumber: boolean;
 	checkoutTermsUrl: string;
 	isLoggedIn: boolean;
-	offeringsListingEnabled: boolean;
+	productsListingEnabled: boolean;
 	listingTemplate: 'grid' | 'compact' | 'list' | 'showcase';
 	listingColumns: number;
 	cartCheckoutEnabled: boolean;
 	checkoutPageUrl: string | null;
-	offeringsPageUrl: string | null;
+	productsPageUrl: string | null;
 	/** `single_page`|`multi_step` - Domain\Checkout\CheckoutMode::free()'s own two values, read by Checkout.tsx to pick which mode it mounts CheckoutEngine in. */
 	checkoutMode: string;
 }

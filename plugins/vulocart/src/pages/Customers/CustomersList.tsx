@@ -5,7 +5,10 @@ import axios from 'axios';
 import { getApiLink } from '@zyra/core';
 import { ContainerComponent, ColumnComponent, NavigatorHeaderComponent } from '@zyra/components';
 import { TableCard, TableRow, QueryProps } from '@zyra/table';
+import { downloadCSV } from '../../lib/utils';
+import { formatWpDate } from '../../services/formatWpDate';
 import './customers-page.scss';
+import '../Products/products-page.scss';
 
 /**
  * Admin customer list - `GET /customers` (modules/Customer/Rest.php,
@@ -48,19 +51,39 @@ export function CustomersList() {
 			} );
 	};
 
+	const csvHeaders = {
+		name: { label: __( 'Name', 'vulocart' ) },
+		email: { label: __( 'Email', 'vulocart' ) },
+		total_orders: { label: __( 'Orders', 'vulocart' ) },
+		total_spent: { label: __( 'Total spent', 'vulocart' ) },
+		last_order_at: { label: __( 'Last order', 'vulocart' ) },
+	};
+
+	const downloadSelectedCSV = ( selectedIds: number[] ) =>
+		downloadCSV( csvHeaders, rows.filter( ( row ) => selectedIds.includes( Number( row.id ) ) ), `vulocart-customers-selected-${ new Date().toISOString().slice( 0, 10 ) }.csv` );
+
+	const downloadAllCSV = ( query: QueryProps ) => {
+		axios
+			.get( getApiLink( vulocartLocalizer, 'customers' ), {
+				headers: { 'X-WP-Nonce': vulocartLocalizer.nonce },
+				params: { search: query.searchValue || '', per_page: 1000 },
+			} )
+			.then( ( response ) => downloadCSV( csvHeaders, response.data || [], `vulocart-customers-${ new Date().toISOString().slice( 0, 10 ) }.csv` ) );
+	};
+
 	const headers = {
 		name: {
 			label: __( 'Customer', 'vulocart' ),
+			required: true,
 			render: ( row?: TableRow ) =>
 				row && (
-					<a href={ `admin.php?page=vulocart-customers&action=view&id=${ row.id }` }>
-						{ ( row.name as string ) || ( row.email as string ) }
-					</a>
+					<div className="vulocart-product-cell">
+						<a className="vulocart-product-cell-title" href={ `admin.php?page=vulocart-customers&action=view&id=${ row.id }` }>
+							{ ( row.name as string ) || ( row.email as string ) }
+						</a>
+						{ row.name && row.email ? <div className="desc">{ row.email as string }</div> : null }
+					</div>
 				),
-		},
-		email: {
-			label: __( 'Email', 'vulocart' ),
-			render: ( row?: TableRow ) => ( row?.email as string ) || '-',
 		},
 		total_orders: {
 			label: __( 'Orders', 'vulocart' ),
@@ -77,16 +100,22 @@ export function CustomersList() {
 		last_order_at: {
 			label: __( 'Last order', 'vulocart' ),
 			isSortable: true,
-			render: ( row?: TableRow ) => ( row?.last_order_at as string ) || '-',
+			render: ( row?: TableRow ) => ( row?.last_order_at ? formatWpDate( row.last_order_at as string ) : '-' ),
 		},
 		actions: {
 			label: __( 'Actions', 'vulocart' ),
-			render: ( row?: TableRow ) =>
-				row && (
-					<a href={ `admin.php?page=vulocart-customers&action=view&id=${ row.id }` }>
-						{ __( 'View', 'vulocart' ) }
-					</a>
-				),
+			type: 'action' as const,
+			actions: [
+				{
+					label: __( 'View', 'vulocart' ),
+					icon: 'eye',
+					type: 'button' as const,
+					color: 'text-blue',
+					onClick: ( row: Record< string, unknown > ) => {
+						window.location.href = `admin.php?page=vulocart-customers&action=view&id=${ row.id }`;
+					},
+				},
+			],
 		},
 	};
 
@@ -94,7 +123,7 @@ export function CustomersList() {
 		<ContainerComponent general>
 			<ColumnComponent>
 				<NavigatorHeaderComponent
-					headerIcon="groups"
+					headerIcon="membership"
 					headerTitle={ __( 'Customers', 'vulocart' ) }
 					headerDescription={ __(
 						'Every shopper who has placed an order - profile, saved addresses, order history, and internal notes in one place.',
@@ -104,7 +133,6 @@ export function CustomersList() {
 				/>
 
 				<TableCard
-					title={ __( 'Customers', 'vulocart' ) }
 					headers={ headers }
 					rows={ rows }
 					totalRows={ totalRows }
@@ -114,6 +142,8 @@ export function CustomersList() {
 					search={ {
 						placeholder: __( 'Search name or email…', 'vulocart' ),
 					} }
+					buttonActions={ [ { label: __( 'Export CSV', 'vulocart' ), icon: 'download', onClickWithQuery: downloadAllCSV } ] }
+					onSelectCsvDownloadApply={ downloadSelectedCSV }
 				/>
 			</ColumnComponent>
 		</ContainerComponent>

@@ -1,0 +1,3866 @@
+
+
+.vulocart-back-link {
+	display: inline-block;
+	margin-bottom: 8px;
+	font-size: 13px;
+	text-decoration: none;
+}
+
+.vulocart-edit-page-title {
+	font-size: 22px;
+	margin: 0 0 4px;
+}
+
+.vulocart-saved-notice {
+	background-color: #ecfdf5;
+	border: 1px solid #10b981;
+	color: #065f46;
+	border-radius: 6px;
+	padding: 10px 14px;
+	margin-bottom: 16px;
+	font-size: 13px;
+}
+
+// --- Add/Edit Product page (WooCommerce/Shopify-style 3-column layout) ---
+
+.vulocart-product-loading {
+	padding: 24px;
+}
+
+.vulocart-product-edit-page {
+	padding: 16px 20px 40px;
+}
+
+.vulocart-product-edit-topbar {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	margin-bottom: 16px;
+}
+
+.vulocart-product-edit-subtitle {
+	margin: 0;
+	font-size: 13px;
+	color: #6b7280;
+}
+
+.vulocart-product-edit-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 2fr) minmax(18rem, 1fr);
+	gap: 1.25rem;
+	align-items: start;
+}
+
+.vulocart-product-edit-col {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	min-width: 0;
+}
+
+.vulocart-field-hint {
+	margin: 4px 0 0;
+	font-size: 12px;
+	color: #6b7280;
+}
+
+.vulocart-subsection-title {
+	font-size: 13px;
+	font-weight: 600;
+	margin: 16px 0 2px;
+}
+
+.vulocart-two-col-fields {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
+}
+
+.vulocart-three-col-fields {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	gap: 16px;
+	margin-top: 12px;
+}
+
+// Left column
+
+.vulocart-recommended-checklist {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+
+	li {
+		display: flex;
+		gap: 8px;
+		padding: 8px 0;
+		border-bottom: 1px solid #f3f4f6;
+
+		&:last-child {
+			border-bottom: none;
+		}
+
+		i {
+			margin-top: 2px;
+			color: #9ca3af;
+		}
+
+		strong {
+			display: block;
+			font-size: 13px;
+		}
+
+		p {
+			margin: 2px 0 0;
+			font-size: 11px;
+			color: #9ca3af;
+		}
+
+		&.is-done i {
+			color: #4f46e5;
+		}
+
+		&.is-done strong {
+			color: #111827;
+		}
+	}
+}
+
+// Center column
+
+.vulocart-variants-notice {
+	margin-top: 10px;
+}
+
+.vulocart-stock-toggle {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 12px;
+	color: #4b5563;
+}
+
+.vulocart-category-checklist {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+// Quick edit popup on the Products list.
+.vulocart-qe {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	max-height: calc(100vh - 14rem);
+	padding: 1.25rem 1.5rem;
+	overflow-y: auto;
+	color: #1f2937;
+
+	.vulocart-qe-grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1rem;
+	}
+
+	.vulocart-qe-field {
+		display: flex;
+		flex-direction: column;
+		gap: 0.3125rem;
+
+		> span {
+			display: flex;
+			align-items: center;
+			gap: 0.375rem;
+			font-size: 0.8125rem;
+			font-weight: 600;
+			color: #374151;
+
+			em {
+				padding: 0 0.4375rem;
+				border-radius: 999px;
+				background: #d1fae5;
+				font-size: 0.6875rem;
+				font-style: normal;
+				color: #065f46;
+			}
+		}
+
+		input,
+		select {
+			width: 100%;
+			min-height: 2.5rem;
+			padding: 0 0.75rem;
+			border: 1px solid #dcdfea;
+			border-radius: 0.375rem;
+			background: #fff;
+			font-size: 0.875rem;
+			box-shadow: none;
+
+			&:focus {
+				border-color: var(--vc-primary, #5007aa);
+				box-shadow: 0 0 0 3px rgba(80, 7, 170, 0.12);
+				outline: 0;
+			}
+
+			&.has-error {
+				border-color: #dc2626;
+			}
+		}
+	}
+
+	.vulocart-qe-note {
+		display: flex;
+		align-items: center;
+		min-height: 2.5rem;
+		margin: 0;
+		font-size: 0.8125rem;
+		color: #9ca3af;
+	}
+
+	.vulocart-qe-error {
+		margin: 0;
+		font-size: 0.75rem;
+		color: #dc2626;
+	}
+
+	.vulocart-qe-segment {
+		display: inline-flex;
+		align-self: flex-start;
+		padding: 0.1875rem;
+		border: 1px solid #e6e8f0;
+		border-radius: 0.5rem;
+		background: #f7f7fb;
+
+		button {
+			margin: 0;
+			padding: 0.4375rem 1.125rem;
+			border: 0;
+			border-radius: 0.375rem;
+			background: transparent;
+			font-size: 0.8125rem;
+			font-weight: 600;
+			color: #6b7280;
+			cursor: pointer;
+
+			&.is-active {
+				background: #fff;
+				box-shadow: 0 1px 3px rgba(20, 20, 43, 0.12);
+			}
+
+			&.is-published {
+				color: #047857;
+			}
+
+			&.is-draft {
+				color: #b45309;
+			}
+
+			&.is-archived {
+				color: #4b5563;
+			}
+		}
+	}
+
+	.vulocart-qe-switch {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		padding: 0.75rem 1rem;
+		border: 1px solid #e6e8f0;
+		border-radius: 0.5rem;
+		background: #fbfbfe;
+
+		div {
+			display: flex;
+			flex-direction: column;
+		}
+
+		small {
+			font-size: 0.75rem;
+			color: #6b7280;
+		}
+
+		.vulocart-switch {
+			position: relative;
+			flex: none;
+			width: 2.5rem;
+			height: 1.375rem;
+			padding: 0;
+			border: 0;
+			border-radius: 999px;
+			background: #d1d5db;
+			cursor: pointer;
+			transition: background 0.15s;
+
+			span {
+				position: absolute;
+				top: 0.1875rem;
+				left: 0.1875rem;
+				width: 1rem;
+				height: 1rem;
+				border-radius: 50%;
+				background: #fff;
+				transition: transform 0.15s;
+			}
+
+			&.is-on {
+				background: var(--vc-primary, #5007aa);
+
+				span {
+					transform: translateX(1.125rem);
+				}
+			}
+		}
+	}
+}
+
+.vulocart-qe-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	width: 100%;
+
+	a {
+		font-size: 0.8125rem;
+		font-weight: 600;
+		text-decoration: none;
+		color: var(--vc-primary, #5007aa);
+	}
+}
+
+.vulocart-saved-views {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 12px;
+	font-size: 12px;
+}
+
+.vulocart-saved-views-label {
+	color: #6b7280;
+}
+
+.vulocart-saved-view-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	border: 1px solid #d1d5db;
+	border-radius: 999px;
+	padding: 3px 6px 3px 10px;
+
+	button {
+		border: none;
+		background: none;
+		cursor: pointer;
+		font-size: 12px;
+		padding: 0;
+	}
+
+	i {
+		cursor: pointer;
+		font-size: 10px;
+		color: #9ca3af;
+
+		&:hover {
+			color: #dc2626;
+		}
+	}
+
+	&.is-active {
+		border-color: #111827;
+		background-color: #f3f4f6;
+		font-weight: 600;
+	}
+}
+
+.vulocart-save-view-button {
+	border: 1px dashed #d1d5db;
+	background-color: #ffffff;
+	border-radius: 999px;
+	padding: 3px 10px;
+	font-size: 12px;
+	cursor: pointer;
+	color: #4b5563;
+
+	&:hover {
+		background-color: #f9fafb;
+	}
+}
+
+.vulocart-embed-code-modes {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin: 12px 0;
+
+	button {
+		border: 1px solid #d1d5db;
+		background: #ffffff;
+		border-radius: 999px;
+		padding: 4px 12px;
+		font-size: 12px;
+		cursor: pointer;
+
+		&.is-active {
+			border-color: #111827;
+			background-color: #f3f4f6;
+			font-weight: 600;
+		}
+	}
+}
+
+.vulocart-embed-code-block {
+	margin-bottom: 16px;
+	border: 1px solid #e5e7eb;
+	border-radius: 6px;
+	overflow: hidden;
+
+	pre {
+		margin: 0;
+		padding: 12px;
+		background: #0f172a;
+		color: #e2e8f0;
+		font-size: 12px;
+		overflow-x: auto;
+		white-space: pre-wrap;
+		word-break: break-word;
+	}
+}
+
+.vulocart-embed-code-block-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px 12px;
+	background: #f9fafb;
+	border-bottom: 1px solid #e5e7eb;
+	font-size: 12px;
+
+	button {
+		border: 1px solid #d1d5db;
+		background: #ffffff;
+		border-radius: 4px;
+		padding: 2px 10px;
+		cursor: pointer;
+	}
+}
+
+// --- Modern product editor (same look as VuloForm: soft cards, segmented controls, switches) ---
+
+.vulocart-product-edit-page {
+	max-width: 80rem;
+	margin: 0 auto;
+
+	// Sticky action bar.
+	.vulocart-product-edit-topbar {
+		position: sticky;
+		top: 32px;
+		z-index: 5;
+		align-items: center;
+		margin: 0 -0.5rem 1.25rem;
+		padding: 0.75rem 0.5rem;
+		background: rgba(246, 247, 252, 0.94);
+		backdrop-filter: blur(6px);
+		border-bottom: 1px solid #e3e6ef;
+	}
+
+	.vulocart-edit-page-title {
+		font-size: 1.5rem;
+		font-weight: 700;
+		letter-spacing: -0.01em;
+		margin: 0.125rem 0;
+	}
+
+	// Cards: rounder, softer, with room to breathe.
+	.card-content {
+		border: 1px solid #e3e6ef;
+		border-radius: 0.75rem;
+		background: #fff;
+		box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+		overflow: hidden;
+
+		.card-header {
+			padding: 0.75rem 1.25rem;
+			min-height: 0;
+			border-bottom: 1px solid #eef0f6;
+
+			.left {
+				gap: 0.625rem;
+				align-items: center;
+
+				i {
+					display: grid;
+					place-items: center;
+					width: 2rem;
+					height: 2rem;
+					border-radius: 0.5rem;
+					background: color-mix(in srgb, var(--color-primary, #5007aa) 10%, transparent);
+					color: var(--color-primary, #5007aa);
+					font-size: 1.125rem;
+				}
+			}
+		}
+
+		.card-body {
+			padding: 1.25rem;
+		}
+
+		.typography-title,
+		.title {
+			font-size: 1rem;
+			font-weight: 600;
+		}
+	}
+}
+
+.vulocart-segmented {
+	display: inline-flex;
+	width: 100%;
+	padding: 0.1875rem;
+	border-radius: 0.5rem;
+	background: #eef0f6;
+
+	button {
+		flex: 1;
+		padding: 0.375rem 0.5rem;
+		border: 0;
+		border-radius: 0.375rem;
+		background: transparent;
+		color: #4b5563;
+		font-size: 0.8125rem;
+		font-weight: 500;
+		cursor: pointer;
+
+		&.is-active {
+			background: #fff;
+			color: var(--color-primary, #5007aa);
+			font-weight: 600;
+			box-shadow: 0 1px 2px rgba(16, 24, 40, 0.12);
+		}
+	}
+}
+
+.vulocart-switch-row {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.625rem;
+	font-size: 0.8125rem;
+	color: #4b5563;
+	cursor: pointer;
+}
+
+.vulocart-switch {
+	position: relative;
+	flex: none;
+	width: 2.5rem;
+	height: 1.375rem;
+	padding: 0;
+	border: 0;
+	border-radius: 999px;
+	background: #cfd3e0;
+	cursor: pointer;
+	transition: background 0.15s;
+
+	span {
+		position: absolute;
+		top: 0.1875rem;
+		left: 0.1875rem;
+		width: 1rem;
+		height: 1rem;
+		border-radius: 50%;
+		background: #fff;
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+		transition: transform 0.15s;
+	}
+
+	&.is-on {
+		background: var(--color-primary, #5007aa);
+
+		span {
+			transform: translateX(1.125rem);
+		}
+	}
+
+	&:focus-visible {
+		outline: 0.125rem solid var(--color-primary, #5007aa);
+		outline-offset: 0.125rem;
+	}
+}
+
+.vulocart-progress {
+	height: 0.375rem;
+	margin-bottom: 1rem;
+	border-radius: 999px;
+	background: #eef0f6;
+	overflow: hidden;
+
+	span {
+		display: block;
+		height: 100%;
+		border-radius: inherit;
+		background: var(--color-primary, #5007aa);
+		transition: width 0.25s;
+	}
+}
+
+@media (max-width: 1100px) {
+	.vulocart-product-edit-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+// Sections plugged in by modules (embed code, Catalog AI, stock, templates, passports, pricing, ...)
+// render plain markup; give each one the same card treatment as the built-in sections.
+.vulocart-edit-extra-sections {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+
+	> * {
+		margin: 0;
+		padding: 1.25rem;
+		border: 1px solid #e3e6ef;
+		border-radius: 0.75rem;
+		background: #fff;
+		box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+		box-sizing: border-box;
+		max-width: none;
+	}
+
+	// An empty wrapper (a module returned nothing) must not leave an empty card behind.
+	> *:empty {
+		display: none;
+	}
+
+	h2,
+	h3,
+	h4 {
+		margin: 0 0 0.75rem;
+		font-size: 1rem;
+		font-weight: 600;
+		color: #1f2937;
+	}
+
+	p {
+		color: #6b7280;
+		font-size: 0.8125rem;
+	}
+
+	input[type='text'],
+	input[type='number'],
+	select,
+	textarea {
+		box-sizing: border-box;
+		min-height: 2.25rem;
+		padding: 0.375rem 0.75rem;
+		border: 1px solid #d1d5db;
+		border-radius: 0.375rem;
+		background: #fff;
+		font-size: 0.875rem;
+	}
+
+	label {
+		display: block;
+		margin-bottom: 0.25rem;
+		font-size: 0.8125rem;
+		font-weight: 500;
+		color: #374151;
+	}
+
+	button {
+		min-height: 2.25rem;
+		padding: 0 1rem;
+		border: 1px solid var(--color-primary, #5007aa);
+		border-radius: 0.375rem;
+		background: #fff;
+		color: var(--color-primary, #5007aa);
+		font-size: 0.8125rem;
+		font-weight: 600;
+		cursor: pointer;
+
+		&:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--color-primary, #5007aa) 8%, #fff);
+		}
+	}
+
+	table {
+		width: 100%;
+		border-collapse: collapse;
+
+		th,
+		td {
+			padding: 0.5rem 0.625rem;
+			border-bottom: 1px solid #eef0f6;
+			text-align: left;
+		}
+	}
+}
+
+// The Product column: title, then SKU and published date, then type / status / tag badges.
+.vulocart-product-cell {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	min-width: 0;
+}
+
+.vulocart-product-cell-title {
+	font-weight: 600;
+}
+
+.vulocart-product-cell-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.375rem;
+}
+
+.vulocart-topbar-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	flex-wrap: wrap;
+}
+
+.vulocart-progress-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.4375rem 0.875rem 0.4375rem 0.5rem;
+	border: 1px solid #e3e6f0;
+	border-radius: 999px;
+	background: #fff;
+	color: #374151;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: border-color 0.15s, box-shadow 0.15s;
+
+	&:hover,
+	&.is-open {
+		border-color: var(--color-primary, #5007aa);
+		box-shadow: 0 0 0 3px rgba(80, 7, 170, 0.08);
+	}
+
+	.adminfont-keyboard-arrow-down {
+		font-size: 0.75rem;
+		color: #9ca3af;
+		transition: transform 0.2s;
+	}
+
+	&.is-open .adminfont-keyboard-arrow-down {
+		transform: rotate(180deg);
+	}
+
+	&.is-complete .vulocart-progress-ring {
+		--ring-color: #16a34a;
+	}
+}
+
+.vulocart-progress-ring {
+	--ring-color: var(--color-primary, #5007aa);
+	position: relative;
+	width: 1.5rem;
+	height: 1.5rem;
+	border-radius: 50%;
+	background: conic-gradient(var(--ring-color) var(--progress, 0%), #e8eaf3 0);
+
+	&::after {
+		content: '';
+		position: absolute;
+		inset: 0.25rem;
+		border-radius: 50%;
+		background: #fff;
+	}
+}
+
+.vulocart-progress-anchor {
+	position: relative;
+}
+
+.vulocart-progress-ring.is-large {
+	width: 2.75rem;
+	height: 2.75rem;
+	flex: none;
+	display: grid;
+	place-items: center;
+
+	&::after {
+		inset: 0.3125rem;
+	}
+
+	b {
+		position: relative;
+		z-index: 1;
+		font-size: 0.6875rem;
+		font-weight: 700;
+		color: #1f1b3e;
+	}
+}
+
+.vulocart-progress-popover {
+	position: absolute;
+	top: calc(100% + 0.5rem);
+	right: 0;
+	z-index: 50;
+	width: 22rem;
+	padding: 1rem;
+	border: 1px solid #e3e6f0;
+	border-radius: 0.875rem;
+	background: #fff;
+	box-shadow: 0 12px 32px rgba(31, 27, 62, 0.16), 0 2px 6px rgba(31, 27, 62, 0.06);
+	animation: vulocart-progress-in 0.15s ease-out;
+
+	header {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin-bottom: 0.75rem;
+		padding-bottom: 0.75rem;
+		border-bottom: 1px solid #f0f1f7;
+
+		> div {
+			flex: 1;
+			min-width: 0;
+		}
+
+		strong {
+			display: block;
+			font-size: 0.875rem;
+			color: #1f1b3e;
+		}
+
+		> div > span {
+			font-size: 0.75rem;
+			color: #6b7280;
+		}
+	}
+
+	.vulocart-recommended-checklist {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+
+		li {
+			display: flex;
+			align-items: center;
+			gap: 0.625rem;
+			padding: 0.4375rem 0.5rem;
+			border-radius: 0.5rem;
+			font-size: 0.8125rem;
+			font-weight: 500;
+			color: #374151;
+
+			&:hover {
+				background: #f7f8fc;
+			}
+
+			> div {
+				flex: 1;
+				min-width: 0;
+			}
+
+			small {
+				display: block;
+				overflow: hidden;
+				margin-top: 0.0625rem;
+				font-size: 0.6875rem;
+				font-weight: 400;
+				color: #9ca3af;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+
+			i {
+				flex: none;
+				display: grid;
+				place-items: center;
+				width: 1.25rem;
+				height: 1.25rem;
+				border-radius: 50%;
+				background: #eef0f6;
+				font-size: 0.625rem;
+				color: #9ca3af;
+			}
+
+			&.is-done {
+				color: #6b7280;
+
+				i {
+					background: #dcfce7;
+					color: #16a34a;
+				}
+
+				> div > span {
+					text-decoration: line-through;
+					text-decoration-color: #c4c8d8;
+				}
+			}
+		}
+	}
+}
+
+.vulocart-progress-close {
+	flex: none;
+	padding: 0.25rem;
+	border: 0;
+	background: transparent;
+	color: #9ca3af;
+	cursor: pointer;
+
+	&:hover {
+		color: #374151;
+	}
+}
+
+@keyframes vulocart-progress-in {
+	from {
+		opacity: 0;
+		transform: translateY(-0.25rem);
+	}
+}
+
+// --- Product editor, modern pass: airy cards, quiet headers, one consistent field style ---
+// Appended last so it wins over the earlier rules above; everything is scoped to the editor page.
+
+.vulocart-product-edit-page {
+	--vc-border: #e6e8f0;
+	--vc-muted: #6b7280;
+	--vc-ink: #1f1b3e;
+	--vc-primary: var(--color-primary, #5007aa);
+	--vc-primary-soft: color-mix(in srgb, var(--vc-primary) 8%, #fff);
+	--vc-radius: 0.5rem;
+
+	padding-top: 0.5rem;
+
+	// ---- Top bar: back chip, bold title, quiet subtitle ----
+	.vulocart-product-edit-topbar {
+		top: 32px;
+		margin: 0 -1rem 1.5rem;
+		padding: 0.875rem 1rem;
+		border-bottom: 1px solid var(--vc-border);
+		background: rgba(247, 248, 252, 0.88);
+		backdrop-filter: blur(10px) saturate(1.2);
+	}
+
+	.vulocart-back-link {
+		display: inline-flex;
+		align-items: center;
+		margin-bottom: 0.375rem;
+		padding: 0.1875rem 0.625rem;
+		border-radius: 999px;
+		background: #fff;
+		border: 1px solid var(--vc-border);
+		color: var(--vc-muted);
+		font-size: 0.75rem;
+		font-weight: 500;
+		transition: color 0.15s, border-color 0.15s;
+
+		&:hover {
+			border-color: var(--vc-primary);
+			color: var(--vc-primary);
+		}
+	}
+
+	.vulocart-edit-page-title {
+		margin: 0;
+		font-size: 1.375rem;
+		font-weight: 700;
+		letter-spacing: -0.015em;
+		color: var(--vc-ink);
+	}
+
+	.vulocart-product-edit-subtitle {
+		margin-top: 0.125rem;
+		font-size: 0.8125rem;
+		color: var(--vc-muted);
+	}
+
+	// ---- Layout ----
+	.vulocart-product-edit-grid {
+		grid-template-columns: minmax(0, 1fr) 21rem;
+		gap: 1.5rem;
+	}
+
+	.vulocart-product-edit-col {
+		gap: 1.25rem;
+	}
+
+	// ---- Cards ----
+	.card-content {
+		border: 1px solid var(--vc-border);
+		border-radius: var(--vc-radius);
+		box-shadow: 0 1px 2px rgba(31, 27, 62, 0.04), 0 8px 24px -12px rgba(31, 27, 62, 0.08);
+		transition: box-shadow 0.2s;
+
+		&:focus-within {
+			box-shadow: 0 1px 2px rgba(31, 27, 62, 0.04), 0 12px 28px -12px rgba(80, 7, 170, 0.18);
+		}
+
+		.card-header {
+			padding: 1.125rem 1.5rem 0.25rem;
+			border-bottom: 0;
+			background: transparent;
+
+			.left {
+				gap: 0.75rem;
+
+				i {
+					width: 2.25rem;
+					height: 2.25rem;
+					border-radius: 0.375rem;
+					background: linear-gradient(135deg, color-mix(in srgb, var(--vc-primary) 16%, #fff), color-mix(in srgb, var(--vc-primary) 6%, #fff));
+					color: var(--vc-primary);
+					font-size: 1.125rem;
+				}
+			}
+
+			.title,
+			.typography-title {
+				font-size: 1rem;
+				font-weight: 700;
+				letter-spacing: -0.01em;
+				color: var(--vc-ink);
+			}
+
+			.desc {
+				margin-top: 0.125rem;
+				font-size: 0.8125rem;
+				color: var(--vc-muted);
+			}
+		}
+
+		.card-body {
+			padding: 1rem 1.5rem 1.5rem;
+		}
+	}
+
+	// ---- Fields: one height, one focus ring ----
+	input[type='text'],
+	input[type='number'],
+	input[type='email'],
+	input[type='url'],
+	textarea,
+	select {
+		border: 1px solid var(--vc-border);
+		border-radius: 0.375rem;
+		background: #fbfbfe;
+		transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+
+		&:hover {
+			border-color: #cfd3e3;
+		}
+
+		&:focus {
+			border-color: var(--vc-primary);
+			background: #fff;
+			box-shadow: 0 0 0 3px color-mix(in srgb, var(--vc-primary) 14%, transparent);
+			outline: 0;
+		}
+	}
+
+	input[type='text'],
+	input[type='number'],
+	input[type='email'],
+	input[type='url'],
+	select {
+		min-height: 2.5rem;
+	}
+
+	// Field headings ("Product name", "Short description", ...): regular weight.
+	label,
+	.form-group label,
+	.form-group-wrapper label,
+	.form-group .label,
+	.form-group .form-label {
+		font-weight: 400;
+		color: #374151;
+	}
+
+	.vulocart-two-col-fields,
+	.vulocart-three-col-fields {
+		gap: 1rem;
+	}
+
+	// ---- Sub-sections inside a card: small caps label with a hairline ----
+	.vulocart-subsection-title {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin: 1.5rem 0 0.75rem;
+		font-size: 0.6875rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--vc-muted);
+
+		&::after {
+			content: '';
+			flex: 1;
+			height: 1px;
+			background: var(--vc-border);
+		}
+
+		&:first-child {
+			margin-top: 0;
+		}
+	}
+
+	.vulocart-field-hint {
+		font-size: 0.75rem;
+		color: #8b91a3;
+	}
+
+	.vulocart-segmented {
+		padding: 0.25rem;
+		border-radius: 0.75rem;
+		background: #eef0f7;
+
+		button {
+			padding: 0.4375rem 0.5rem;
+			border-radius: 0.5rem;
+			transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+
+			&:hover:not(.is-active) {
+				color: var(--vc-ink);
+			}
+
+			&.is-active {
+				box-shadow: 0 1px 3px rgba(31, 27, 62, 0.14);
+			}
+		}
+	}
+
+	// ---- Category / tag / collection pickers as chips ----
+	.vulocart-category-checklist {
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+
+		> * {
+			margin: 0;
+		}
+
+		label {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.375rem;
+			padding: 0.3125rem 0.75rem;
+			border: 1px solid var(--vc-border);
+			border-radius: 999px;
+			background: #fff;
+			font-size: 0.8125rem;
+			font-weight: 500;
+			color: #4b5563;
+			cursor: pointer;
+			transition: border-color 0.15s, background 0.15s, color 0.15s;
+
+			&:hover {
+				border-color: var(--vc-primary);
+				color: var(--vc-primary);
+			}
+
+			&:has(input:checked) {
+				border-color: var(--vc-primary);
+				background: var(--vc-primary-soft);
+				color: var(--vc-primary);
+			}
+		}
+	}
+
+	.vulocart-empty-categories-notice {
+		margin: 0;
+		padding: 0.75rem 1rem;
+		border: 1px dashed var(--vc-border);
+		border-radius: 0.75rem;
+		background: #fbfbfe;
+		font-size: 0.8125rem;
+		color: var(--vc-muted);
+	}
+
+	// ---- Stock toggle in the card header ----
+	.vulocart-stock-toggle {
+		padding: 0.25rem 0.5rem 0.25rem 0.75rem;
+		border: 1px solid var(--vc-border);
+		border-radius: 999px;
+		background: #fbfbfe;
+		font-weight: 600;
+	}
+
+	// ---- Module-provided sections get the same card chrome ----
+	.vulocart-edit-extra-sections {
+		gap: 1.25rem;
+
+		> * {
+			padding: 1.25rem 1.5rem 1.5rem;
+			border-color: var(--vc-border);
+			border-radius: var(--vc-radius);
+			box-shadow: 0 1px 2px rgba(31, 27, 62, 0.04), 0 8px 24px -12px rgba(31, 27, 62, 0.08);
+		}
+
+		h2,
+		h3,
+		h4 {
+			font-size: 1rem;
+			font-weight: 700;
+			color: var(--vc-ink);
+		}
+	}
+
+	// ---- Saved notice ----
+	.vulocart-saved-notice {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		border: 1px solid #bbf7d0;
+		border-radius: 0.75rem;
+		background: #f0fdf4;
+		font-weight: 500;
+	}
+}
+
+@media (max-width: 1100px) {
+	.vulocart-product-edit-page {
+		.vulocart-product-edit-grid {
+			grid-template-columns: minmax(0, 1fr);
+		}
+
+		.vulocart-product-edit-col--right {
+			position: static;
+		}
+	}
+}
+
+// Status tag + edit button + published date, in the top bar beside the progress pill and the save button.
+.vulocart-topbar-status {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.25rem;
+}
+
+.vulocart-status-row {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.vulocart-status-tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4375rem;
+	padding: 0.3125rem 0.75rem;
+	border-radius: 999px;
+	background: #eef0f7;
+	color: #4b5563;
+	font-size: 0.8125rem;
+	font-weight: 600;
+
+	> i {
+		width: 0.5rem;
+		height: 0.5rem;
+		border-radius: 50%;
+		background: #9ca3af;
+	}
+
+	&.is-published {
+		background: #dcfce7;
+		color: #15803d;
+
+		> i {
+			background: #16a34a;
+			box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+		}
+	}
+
+	&.is-draft {
+		background: #fef3c7;
+		color: #b45309;
+
+		> i {
+			background: #f59e0b;
+		}
+	}
+
+	&.is-archived {
+		background: #f1f2f6;
+		color: #6b7280;
+	}
+}
+
+.vulocart-status-edit {
+	display: grid;
+	place-items: center;
+	width: 1.875rem;
+	height: 1.875rem;
+	padding: 0;
+	border: 1px solid #e6e8f0;
+	border-radius: 50%;
+	background: #fff;
+	color: #6b7280;
+	cursor: pointer;
+	transition: border-color 0.15s, color 0.15s, box-shadow 0.15s;
+
+	i {
+		font-size: 0.875rem;
+	}
+
+	&:hover,
+	&[aria-expanded='true'] {
+		border-color: var(--color-primary, #5007aa);
+		color: var(--color-primary, #5007aa);
+		box-shadow: 0 0 0 3px rgba(80, 7, 170, 0.08);
+	}
+}
+
+.vulocart-status-menu {
+	position: absolute;
+	top: calc(100% + 0.5rem);
+	left: 0;
+	z-index: 50;
+	min-width: 12rem;
+	margin: 0;
+	padding: 0.375rem;
+	list-style: none;
+	border: 1px solid #e3e6f0;
+	border-radius: 0.75rem;
+	background: #fff;
+	box-shadow: 0 12px 32px rgba(31, 27, 62, 0.16), 0 2px 6px rgba(31, 27, 62, 0.06);
+	animation: vulocart-progress-in 0.15s ease-out;
+
+	button {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		width: 100%;
+		padding: 0.375rem 0.5rem;
+		border: 0;
+		border-radius: 0.5rem;
+		background: transparent;
+		cursor: pointer;
+
+		&:hover,
+		&.is-active {
+			background: #f7f8fc;
+		}
+
+		> i {
+			color: var(--color-primary, #5007aa);
+		}
+	}
+}
+
+.vulocart-topbar-published {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding-left: 0.25rem;
+	font-size: 0.75rem;
+	font-weight: 500;
+	color: #6b7280;
+	white-space: nowrap;
+
+	i {
+		font-size: 0.875rem;
+		color: #9ca3af;
+	}
+}
+
+// --- Product editor, pass 3: written against zyra's real markup (verified in the browser) ---
+// Card: .card-content > .card-header (.left > i + .details-wrapper > .typography-title + .des) + .card-body
+// Field: .form-group > label.settings-form-label > .typography-title, then .input-wrapper > input.basic-input
+// Chips: .vulocart-category-checklist > input[type=checkbox] + label.checkbox-label
+
+// Doubled class: zyra's own rules are more specific than a single class, so this block has to outrank them.
+.vulocart-product-edit-page.vulocart-product-edit-page {
+	// ---- Card header: icon tile, title, one quiet line, hairline underneath ----
+	.card-content {
+		// Edge-to-edge header and body: the card's own inner padding would inset the header's hairline.
+		padding: 0;
+
+		.card-header {
+			margin: 0;
+			padding: 1rem 1.25rem;
+			border-bottom: 1px solid #eef0f6;
+
+			.left {
+				align-items: center;
+				gap: 0.75rem;
+				min-width: 0;
+
+				> i {
+					flex: none;
+					width: 2.25rem;
+					height: 2.25rem;
+					border-radius: 0.375rem;
+				}
+			}
+
+			.details-wrapper {
+				min-width: 0;
+
+				.typography-title {
+					font-size: 0.9375rem;
+					font-weight: 600;
+					line-height: 1.3;
+					color: var(--vc-ink);
+				}
+
+				.des {
+					margin-top: 0.125rem;
+					font-size: 0.8125rem;
+					line-height: 1.35;
+					color: var(--vc-muted);
+				}
+			}
+		}
+
+		.card-body {
+			padding: 1.25rem;
+		}
+	}
+
+	// ---- Field labels: regular weight, small, sit tight on the field ----
+	.settings-form-label {
+		margin: 0 0 0.375rem;
+		padding: 0;
+
+		.typography-title {
+			font-size: 0.8125rem;
+			font-weight: 500;
+			line-height: 1.4;
+			color: #4b5563;
+		}
+	}
+
+	// Labels inside a FormGroupWrapper render at the page's 16px by default; hold them to the same size.
+	.form-group-wrapper .form-group .settings-form-label .typography-title {
+		display: block;
+		font-size: 0.8125rem;
+		font-weight: 500;
+		color: #4b5563;
+	}
+
+	.form-group {
+		display: flex;
+		flex-direction: column;
+		gap: 0;
+		margin-bottom: 1rem;
+
+		&:last-child {
+			margin-bottom: 0;
+		}
+	}
+
+	// ---- Inputs: a clearly bordered, rounded wrapper; the input itself is flat inside it ----
+	.input-wrapper,
+	.setting-form-input {
+		padding: 0;
+		border: 1px solid #dcdfea;
+		border-radius: 0.375rem;
+		background: #fff;
+		transition: border-color 0.15s, box-shadow 0.15s;
+
+		&:hover {
+			border-color: #c4c9db;
+		}
+
+		&:focus-within {
+			border-color: var(--vc-primary);
+			box-shadow: 0 0 0 3px color-mix(in srgb, var(--vc-primary) 14%, transparent);
+		}
+	}
+
+	.basic-input,
+	.input-wrapper textarea {
+		width: 100%;
+		min-height: 2.5rem;
+		padding: 0 0.875rem;
+		border: 0;
+		border-radius: inherit;
+		background: transparent;
+		box-shadow: none;
+		font-size: 0.875rem;
+		color: var(--vc-ink);
+
+		&:focus {
+			border: 0;
+			box-shadow: none;
+			outline: 0;
+		}
+	}
+
+	.input-wrapper textarea {
+		padding: 0.625rem 0.875rem;
+		line-height: 1.5;
+	}
+
+	// ---- Selects (react-select) match the inputs ----
+	.select-prefix__control {
+		min-height: 2.5rem;
+		border: 1px solid #dcdfea;
+		border-radius: 0.375rem;
+		background: #fff;
+		box-shadow: none;
+		transition: border-color 0.15s, box-shadow 0.15s;
+
+		&:hover {
+			border-color: #c4c9db;
+		}
+
+		&.select-prefix__control--is-focused {
+			border-color: var(--vc-primary);
+			box-shadow: 0 0 0 3px color-mix(in srgb, var(--vc-primary) 14%, transparent);
+		}
+	}
+
+	.select-prefix__single-value,
+	.select-prefix__placeholder {
+		font-size: 0.875rem;
+	}
+
+	.select-prefix__menu {
+		overflow: hidden;
+		border: 1px solid var(--vc-border);
+		border-radius: 0.75rem;
+		box-shadow: 0 12px 32px rgba(31, 27, 62, 0.14);
+	}
+
+	// ---- Category / tag / collection chips (hidden checkbox + styled label) ----
+	// Each option renders its own .toggle-checkbox-header, so the chips flow in .simple-checkbox.
+	.simple-checkbox {
+		display: flex;
+		flex-flow: row wrap;
+		gap: 0.5rem;
+		width: 100%;
+	}
+
+	.toggle-checkbox-header {
+		flex: none;
+		width: auto;
+		min-width: 0;
+	}
+
+	.vulocart-category-checklist {
+		position: relative;
+		display: flex;
+		width: auto;
+
+		input[type='checkbox'] {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			opacity: 0;
+			pointer-events: none;
+		}
+
+		label.checkbox-label {
+			display: inline-flex;
+			align-items: center;
+			margin: 0;
+			padding: 0.3125rem 0.875rem;
+			border: 1px solid #dcdfea;
+			border-radius: 999px;
+			background: #fff;
+			font-size: 0.8125rem;
+			font-weight: 500;
+			color: #4b5563;
+			cursor: pointer;
+			transition: border-color 0.15s, background 0.15s, color 0.15s;
+
+			&::before,
+			&::after {
+				display: none;
+			}
+
+			.label-des {
+				display: none;
+			}
+
+			&:hover {
+				border-color: var(--vc-primary);
+				color: var(--vc-primary);
+			}
+		}
+
+		input[type='checkbox']:checked + label.checkbox-label {
+			border-color: var(--vc-primary);
+			background: var(--vc-primary-soft);
+			color: var(--vc-primary);
+		}
+
+		input[type='checkbox']:focus-visible + label.checkbox-label {
+			outline: 2px solid var(--vc-primary);
+			outline-offset: 2px;
+		}
+	}
+
+	// ---- Two-column rows breathe the same as single fields ----
+	.vulocart-two-col-fields,
+	.vulocart-three-col-fields {
+		gap: 0 1rem;
+		margin-top: 0;
+	}
+
+	// ---- Cards from Pro modules (Catalog AI, Templates, Supplier, ...) use `.title`, not `.typography-title` ----
+	.card-content .card-header .left {
+		.title {
+			font-size: 0.9375rem;
+			font-weight: 600;
+			line-height: 1.3;
+			color: var(--vc-ink);
+		}
+
+		// No icon tile: stack title over description instead of side by side.
+		&:not(:has(> i)):has(> .des) {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.125rem;
+		}
+
+		> .des {
+			font-size: 0.8125rem;
+			color: var(--vc-muted);
+		}
+	}
+
+	// ---- Inline forms inside module panels (stock adjust, serial prefix, ...) ----
+	.vulocart-pro-inventory-inline-form,
+	.vulocart-pro-shipping-inline-form,
+	.vulocart-pro-passports-generate {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem;
+		margin-top: 0.75rem;
+
+		input,
+		select {
+			min-height: 2.25rem;
+			padding: 0 0.75rem;
+			border: 1px solid #dcdfea;
+			border-radius: 0.375rem;
+			background: #fff;
+			font-size: 0.8125rem;
+		}
+
+		button {
+			min-height: 2.25rem;
+			padding: 0 1rem;
+			border: 0;
+			border-radius: 0.375rem;
+			background: var(--vc-primary);
+			color: #fff;
+			font-size: 0.8125rem;
+			font-weight: 600;
+			cursor: pointer;
+
+			&:hover {
+				background: color-mix(in srgb, var(--vc-primary) 88%, #000);
+			}
+		}
+	}
+
+	// Module sections that are plain markup (Passports) get the same header band as the zyra cards.
+	.vulocart-edit-extra-sections > :not(.card-content) {
+		padding: 0 1.25rem 1.25rem;
+		overflow: hidden;
+
+		> h2:first-child {
+			margin: 0 -1.25rem 1rem;
+			padding: 1rem 1.25rem;
+			border-bottom: 1px solid #eef0f6;
+			font-size: 0.9375rem;
+			font-weight: 600;
+			line-height: 1.3;
+			color: var(--vc-ink);
+		}
+	}
+}
+
+// --- Wow pass: live storefront preview + unsaved-changes cue ---
+
+.vulocart-unsaved {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4375rem;
+	padding: 0.3125rem 0.75rem;
+	border-radius: 999px;
+	background: #fff7ed;
+	color: #c2410c;
+	font-size: 0.75rem;
+	font-weight: 600;
+	animation: vulocart-progress-in 0.2s ease-out;
+
+	i {
+		width: 0.5rem;
+		height: 0.5rem;
+		border-radius: 50%;
+		background: #f97316;
+		animation: vulocart-pulse 1.6s ease-in-out infinite;
+	}
+}
+
+@keyframes vulocart-pulse {
+	50% {
+		box-shadow: 0 0 0 5px rgba(249, 115, 22, 0.18);
+	}
+}
+
+.vulocart-preview {
+	overflow: hidden;
+	border: 1px solid #e6e8f0;
+	border-radius: 0.5rem;
+	background: #fff;
+	box-shadow: 0 1px 2px rgba(31, 27, 62, 0.04), 0 14px 30px -14px rgba(80, 7, 170, 0.28);
+}
+
+.vulocart-preview-media {
+	position: relative;
+	aspect-ratio: 4 / 3;
+	background: linear-gradient(135deg, #f3ecff 0%, #e3e9ff 100%);
+
+	img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+}
+
+.vulocart-preview-placeholder {
+	display: grid;
+	height: 100%;
+	place-items: center;
+	color: color-mix(in srgb, var(--color-primary, #5007aa) 40%, #fff);
+	font-size: 3.5rem;
+}
+
+.vulocart-preview-badges {
+	position: absolute;
+	top: 0.75rem;
+	left: 0.75rem;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.375rem;
+}
+
+.vulocart-preview-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.1875rem 0.625rem;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.92);
+	backdrop-filter: blur(6px);
+	color: #1f1b3e;
+	font-size: 0.6875rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+
+	&.is-featured {
+		background: #fef3c7;
+		color: #b45309;
+	}
+}
+
+.vulocart-preview-discount {
+	position: absolute;
+	top: 0.75rem;
+	right: 0.75rem;
+	padding: 0.25rem 0.625rem;
+	border-radius: 999px;
+	background: #dc2626;
+	color: #fff;
+	font-size: 0.75rem;
+	font-weight: 700;
+	box-shadow: 0 4px 10px rgba(220, 38, 38, 0.35);
+}
+
+.vulocart-preview-body {
+	display: flex;
+	flex-direction: column;
+	gap: 0.375rem;
+	padding: 1rem 1.125rem 1.125rem;
+
+	h3 {
+		margin: 0;
+		font-size: 1.0625rem;
+		font-weight: 700;
+		line-height: 1.3;
+		color: #1f1b3e;
+		overflow-wrap: anywhere;
+	}
+
+	p {
+		display: -webkit-box;
+		overflow: hidden;
+		margin: 0;
+		font-size: 0.8125rem;
+		line-height: 1.5;
+		color: #6b7280;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+	}
+}
+
+.vulocart-preview-price {
+	display: flex;
+	align-items: baseline;
+	gap: 0.5rem;
+	margin-top: 0.25rem;
+
+	strong {
+		font-size: 1.375rem;
+		font-weight: 800;
+		letter-spacing: -0.02em;
+		color: var(--color-primary, #5007aa);
+	}
+
+	s {
+		font-size: 0.875rem;
+		color: #9ca3af;
+	}
+
+	span {
+		font-size: 0.875rem;
+		color: #9ca3af;
+	}
+}
+
+.vulocart-preview-stock {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4375rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: #15803d;
+
+	i {
+		width: 0.5rem;
+		height: 0.5rem;
+		border-radius: 50%;
+		background: #16a34a;
+	}
+
+	&.is-out_of_stock {
+		color: #b91c1c;
+
+		i {
+			background: #dc2626;
+		}
+	}
+
+	&.is-backorder {
+		color: #b45309;
+
+		i {
+			background: #f59e0b;
+		}
+	}
+}
+
+.vulocart-preview footer {
+	display: flex;
+	align-items: center;
+	gap: 0.4375rem;
+	padding: 0.625rem 1.125rem;
+	border-top: 1px solid #eef0f6;
+	background: #fafbfe;
+	font-size: 0.6875rem;
+	color: #8b91a3;
+}
+
+// Product Details header, right corner: the featured switch beside the type picker.
+.vulocart-details-actions {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	flex-wrap: wrap;
+	gap: 0.75rem 1.25rem;
+}
+
+// Product Details header controls: two matching tiles (Featured switch, Type picker), same height and border.
+.vulocart-product-edit-page.vulocart-product-edit-page .vulocart-details-actions {
+	flex-wrap: nowrap;
+	gap: 0.625rem;
+
+	.vulocart-featured-tile {
+		display: flex;
+		align-items: center;
+		box-sizing: border-box;
+		height: 3.25rem;
+		border: 1px solid #e3e6ef;
+		border-radius: 0.5rem;
+		background: #fff;
+		transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+	}
+
+	// Featured: star badge, two-line label, switch. Turns amber when on.
+	.vulocart-featured-tile {
+		gap: 0.75rem;
+		min-width: 0;
+		padding: 0 0.875rem 0 0.625rem;
+		cursor: pointer;
+
+		&:hover {
+			border-color: #d3d7e6;
+		}
+
+		&.is-on {
+			border-color: #fcd34d;
+			background: linear-gradient(135deg, #fffbeb, #fff 70%);
+			box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.14);
+		}
+	}
+
+	.vulocart-featured-icon {
+		display: grid;
+		flex: none;
+		place-items: center;
+		width: 2rem;
+		height: 2rem;
+		border-radius: 50%;
+		background: #f1f2f7;
+		color: #a3a9bd;
+		font-size: 1rem;
+		transition: background 0.2s, color 0.2s, transform 0.2s;
+	}
+
+	.vulocart-featured-tile.is-on .vulocart-featured-icon {
+		background: #fef3c7;
+		color: #f59e0b;
+		transform: rotate(-12deg) scale(1.08);
+	}
+
+	.vulocart-featured-text {
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+		line-height: 1.25;
+
+		strong {
+			font-size: 0.8125rem;
+			font-weight: 600;
+			color: #1f1b3e;
+		}
+
+		small {
+			overflow: hidden;
+			font-size: 0.6875rem;
+			color: #8b91a3;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+	}
+}
+
+// The same two tiles, living in the top bar beside the status: shorter, with the type caption inline.
+.vulocart-product-edit-page.vulocart-product-edit-page .vulocart-topbar-controls {
+	.vulocart-featured-tile {
+		height: 2.5rem;
+	}
+
+	.vulocart-featured-tile {
+		gap: 0.625rem;
+		padding: 0 0.75rem 0 0.375rem;
+		white-space: nowrap;
+	}
+
+	.vulocart-featured-icon {
+		width: 1.75rem;
+		height: 1.75rem;
+		font-size: 0.875rem;
+	}
+}
+
+// One line of controls in the top bar: the title column gives way (and truncates) before anything wraps.
+.vulocart-product-edit-page.vulocart-product-edit-page {
+	.vulocart-product-edit-topbar {
+		gap: 1rem;
+
+		> div:first-child {
+			flex: 1 1 8rem;
+			min-width: 0;
+		}
+	}
+
+	.vulocart-edit-page-title {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.vulocart-topbar-actions {
+		flex: none;
+		flex-wrap: nowrap;
+		gap: 0.5rem;
+	}
+
+	.vulocart-topbar-controls {
+		gap: 0.5rem;
+	}
+
+	.vulocart-progress-pill {
+		padding-right: 0.625rem;
+		white-space: nowrap;
+	}
+}
+
+// Product Details header, right side: two soft pills in a row - Feature switch, then Type.
+.vulocart-product-edit-page.vulocart-product-edit-page .vulocart-topbar-controls {
+	gap: 0.625rem;
+
+	.vulocart-featured-tile {
+		height: 2.5rem;
+		border: 1px solid transparent;
+		border-radius: 999px;
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 2px rgba(31, 27, 62, 0.06);
+		transition: transform 0.15s, box-shadow 0.2s, background 0.2s, border-color 0.2s;
+
+		&:hover {
+			transform: translateY(-1px);
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 6px 14px -6px rgba(31, 27, 62, 0.25);
+		}
+	}
+
+	// Feature: neutral pill with a star chip; fills with warm gold when on.
+	.vulocart-featured-tile {
+		gap: 0.625rem;
+		padding: 0 0.625rem 0 0.375rem;
+		background: linear-gradient(180deg, #fff, #f6f6fb);
+		border-color: #e6e8f0;
+
+		&.is-on {
+			border-color: #f6c453;
+			background: linear-gradient(135deg, #fff4cc 0%, #ffe49a 100%);
+			box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2), 0 8px 18px -8px rgba(217, 119, 6, 0.55);
+
+			.vulocart-featured-text strong {
+				color: #92400e;
+			}
+		}
+	}
+
+	.vulocart-featured-icon {
+		width: 1.75rem;
+		height: 1.75rem;
+		background: #eceef6;
+		font-size: 0.9375rem;
+	}
+
+	.vulocart-featured-tile.is-on .vulocart-featured-icon {
+		background: linear-gradient(135deg, #fbbf24, #f59e0b);
+		color: #fff;
+		box-shadow: 0 4px 10px rgba(245, 158, 11, 0.5);
+	}
+
+	.vulocart-featured-text strong {
+		font-size: 0.8125rem;
+		font-weight: 700;
+		color: #1f1b3e;
+	}
+}
+
+.vulocart-product-edit-page.vulocart-product-edit-page .vulocart-topbar-controls {
+
+	// A gold switch inside the gold pill.
+	.vulocart-featured-tile.is-on .vulocart-switch.is-on {
+		background: #d97706;
+	}
+}
+
+// Type picker: the word "Type" outside, a pill button showing the value, a status-style menu underneath.
+.vulocart-product-edit-page.vulocart-product-edit-page .vulocart-topbar-controls {
+	.vulocart-type-picker {
+		position: relative;
+		display: flex;
+		align-items: center;
+		gap: 0.625rem;
+	}
+
+	.vulocart-type-picker .vulocart-type-caption {
+		top: 0;
+		font-size: 0.6875rem;
+		font-weight: 800;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: #8b91a3;
+	}
+
+	.vulocart-type-button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		min-width: 9.5rem;
+		height: 2.5rem;
+		padding: 0 0.875rem 0 1.125rem;
+		border: 1px solid color-mix(in srgb, var(--color-primary, #5007aa) 22%, #fff);
+		border-radius: 999px;
+		background: linear-gradient(180deg, #faf7ff, #f1eaff);
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 2px rgba(31, 27, 62, 0.06);
+		color: var(--color-primary, #5007aa);
+		font-size: 0.875rem;
+		font-weight: 700;
+		text-transform: capitalize;
+		cursor: pointer;
+		transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s;
+
+		&:hover,
+		&.is-open {
+			border-color: var(--color-primary, #5007aa);
+			box-shadow: 0 0 0 3px rgba(80, 7, 170, 0.1);
+		}
+
+		&:hover {
+			transform: translateY(-1px);
+		}
+
+		i {
+			font-size: 0.75rem;
+			transition: transform 0.2s;
+		}
+
+		&.is-open i {
+			transform: rotate(180deg);
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--color-primary, #5007aa);
+			outline-offset: 2px;
+		}
+	}
+}
+
+// The menu reuses .vulocart-status-menu; here it opens right-aligned and lists plain text options.
+.vulocart-type-menu {
+	right: 0;
+	left: auto;
+	min-width: 12rem;
+	max-height: min(30rem, 70vh);
+	overflow-y: auto;
+
+	li button {
+		padding: 0.4375rem 0.75rem;
+		font-size: 0.875rem;
+		font-weight: 500;
+		color: #374151;
+		text-align: left;
+
+		span {
+			text-transform: capitalize;
+		}
+
+		&.is-active {
+			background: var(--vc-primary-soft, #f3edff);
+			font-weight: 700;
+			color: var(--color-primary, #5007aa);
+		}
+	}
+}
+
+// The Type menu hangs below the card header and must not be clipped by the card's rounded-corner clipping.
+.vulocart-product-edit-page.vulocart-product-edit-page .card-content {
+	overflow: visible;
+}
+
+// --- Pricing card: currency-prefixed inputs, live summary ---
+
+.vulocart-product-edit-page.vulocart-product-edit-page {
+
+	.vulocart-price-field {
+		min-width: 0;
+
+		> label {
+			display: flex;
+			align-items: baseline;
+			gap: 0.5rem;
+			margin: 0 0 0.375rem;
+			font-size: 0.8125rem;
+			font-weight: 500;
+			color: #4b5563;
+
+			em {
+				font-size: 0.6875rem;
+				font-style: normal;
+				color: #9ca3af;
+			}
+		}
+	}
+
+	// A bordered shell with the currency symbol baked in; the zyra input inside goes flat.
+	.vulocart-money {
+		position: relative;
+		display: flex;
+		align-items: center;
+		border: 1px solid #dcdfea;
+		border-radius: 0.375rem;
+		background: #fff;
+		transition: border-color 0.15s, box-shadow 0.15s;
+
+		&:hover {
+			border-color: #c4c9db;
+		}
+
+		&:focus-within {
+			border-color: var(--vc-primary);
+			box-shadow: 0 0 0 3px color-mix(in srgb, var(--vc-primary) 14%, transparent);
+		}
+
+		&.has-error {
+			border-color: #f59e0b;
+			box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+		}
+
+		> span {
+			display: grid;
+			flex: none;
+			place-items: center;
+			align-self: stretch;
+			min-width: 2.5rem;
+			border-right: 1px solid #eceef6;
+			border-radius: 0.375rem 0 0 0.375rem;
+			background: #f7f8fc;
+			font-size: 0.9375rem;
+			font-weight: 600;
+			color: #6b7280;
+		}
+
+		.form-group,
+		.input-wrapper,
+		.setting-form-input {
+			flex: 1;
+			min-width: 0;
+			margin: 0;
+			border: 0;
+			box-shadow: none;
+		}
+
+		.basic-input {
+			font-size: 1rem;
+			font-weight: 600;
+		}
+	}
+
+	.vulocart-money-badge {
+		flex: none;
+		margin-right: 0.5rem;
+		padding: 0.125rem 0.5rem;
+		border-radius: 999px;
+		background: #dcfce7;
+		font-size: 0.6875rem;
+		font-weight: 700;
+		color: #15803d;
+	}
+}
+
+@media (max-width: 782px) {
+}
+
+.vulocart-product-edit-page.vulocart-product-edit-page .vulocart-price-field > label {
+	align-items: center;
+	min-height: 1.25rem;
+	line-height: 1.25rem;
+}
+
+// --- Price list (SureCart-style rows) ---
+
+.vulocart-product-edit-page.vulocart-product-edit-page {
+	.vulocart-currency-pill {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+
+		> span {
+			font-size: 0.6875rem;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: #8b91a3;
+		}
+
+		.select-prefix__control {
+			min-width: 6.5rem;
+			min-height: 2.25rem;
+		}
+	}
+
+	.vulocart-prices {
+		position: relative;
+	}
+
+	.vulocart-price-rows {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.vulocart-price-row {
+		border: 1px solid var(--vc-border);
+		border-radius: 0.5rem;
+		background: #fff;
+		transition: border-color 0.15s, box-shadow 0.2s;
+
+		&:hover {
+			border-color: #d3d7e6;
+		}
+
+		&.is-open {
+			border-color: color-mix(in srgb, var(--vc-primary) 35%, #fff);
+			box-shadow: 0 6px 18px -10px rgba(80, 7, 170, 0.25);
+		}
+
+		&.has-problem {
+			border-color: #f59e0b;
+		}
+
+		&.is-off .vulocart-price-row-toggle {
+			opacity: 0.55;
+		}
+	}
+
+	.vulocart-price-row-head {
+		position: relative;
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		padding-right: 0.5rem;
+	}
+
+	.vulocart-price-row-toggle {
+		display: flex;
+		flex: 1;
+		align-items: center;
+		gap: 0.875rem;
+		min-width: 0;
+		padding: 0.875rem 0 0.875rem 1rem;
+		border: 0;
+		background: transparent;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	.vulocart-price-tag {
+		display: inline-block;
+		flex: none;
+		padding: 0.1875rem 0.5rem;
+		border-radius: 0.25rem;
+		background: #e8f0fe;
+		font-size: 0.6875rem;
+		font-weight: 600;
+		line-height: 1.3;
+		color: #1d4ed8;
+		white-space: nowrap;
+
+		&.is-subscription {
+			background: #dcfce7;
+			color: #15803d;
+		}
+
+		&.is-payment-plan {
+			background: #f3e8ff;
+			color: #7e22ce;
+		}
+
+		&.is-unknown {
+			background: #f1f2f6;
+			color: #6b7280;
+			text-transform: capitalize;
+		}
+	}
+
+	.vulocart-price-row-line {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.25rem 0.625rem;
+		min-width: 0;
+
+		strong {
+			font-size: 0.9375rem;
+			font-weight: 600;
+			color: #1f1b3e;
+		}
+
+		em {
+			font-size: 0.8125rem;
+			font-style: normal;
+			color: #8b91a3;
+		}
+	}
+
+	.vulocart-price-row-amount {
+		font-size: 0.9375rem;
+		font-weight: 700;
+		color: var(--vc-primary);
+
+		s {
+			margin-left: 0.375rem;
+			font-size: 0.8125rem;
+			font-weight: 400;
+			color: #9ca3af;
+		}
+	}
+
+	.vulocart-price-row-badges {
+		display: flex;
+		flex: none;
+		gap: 0.375rem;
+	}
+
+	.vulocart-price-default,
+	.vulocart-price-inactive {
+		padding: 0.125rem 0.5rem;
+		border-radius: 999px;
+		font-size: 0.6875rem;
+		font-weight: 700;
+	}
+
+	.vulocart-price-default {
+		background: var(--vc-primary-soft);
+		color: var(--vc-primary);
+	}
+
+	.vulocart-price-inactive {
+		background: #f1f2f6;
+		color: #6b7280;
+	}
+
+	.vulocart-price-row-actions {
+		position: relative;
+		display: flex;
+		flex: none;
+		align-items: center;
+		gap: 0.125rem;
+	}
+
+	.vulocart-price-icon {
+		display: grid;
+		place-items: center;
+		width: 2rem;
+		height: 2rem;
+		padding: 0;
+		border: 0;
+		border-radius: 0.375rem;
+		background: transparent;
+		color: #8b91a3;
+		cursor: pointer;
+
+		&:hover,
+		&[aria-expanded='true'] {
+			background: #f3f4f9;
+			color: #1f1b3e;
+		}
+
+		i {
+			font-size: 1rem;
+			transition: transform 0.2s;
+		}
+
+		.is-flipped {
+			transform: rotate(180deg);
+		}
+	}
+
+	.vulocart-price-menu {
+		right: 0;
+		left: auto;
+		min-width: 11rem;
+
+		button {
+			padding: 0.5rem 0.75rem;
+			font-size: 0.8125rem;
+			font-weight: 500;
+			color: #374151;
+
+			&.is-danger {
+				color: #dc2626;
+
+				&:hover:not(:disabled) {
+					background: #fee2e2;
+				}
+			}
+
+			&:disabled {
+				opacity: 0.4;
+				cursor: not-allowed;
+			}
+		}
+	}
+
+	.vulocart-price-add-menu {
+		top: calc(100% + 0.25rem);
+		right: 0;
+		bottom: auto;
+		left: auto;
+		min-width: 17rem;
+
+		button {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.25rem;
+
+			small {
+				font-size: 0.75rem;
+				font-weight: 400;
+				color: #8b91a3;
+			}
+		}
+	}
+
+	.vulocart-price-row-body {
+		padding: 0.25rem 1rem 1rem;
+		border-top: 1px solid #f0f1f7;
+		animation: vulocart-progress-in 0.15s ease-out;
+	}
+
+	.vulocart-price-edit-grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1rem;
+		margin-top: 1rem;
+	}
+
+	.vulocart-price-field.is-wide {
+		grid-column: 1 / -1;
+	}
+
+	.vulocart-price-problem {
+		margin: 0.875rem 0 0;
+		padding: 0.5rem 0.75rem;
+		border-radius: 0.375rem;
+		background: #fffbeb;
+		font-size: 0.8125rem;
+		font-weight: 500;
+		color: #b45309;
+	}
+
+	.vulocart-price-type-note {
+		margin: 0.75rem 0 0;
+		font-size: 0.75rem;
+		color: #8b91a3;
+	}
+
+	.vulocart-price-add {
+		position: relative;
+		margin-top: 1rem;
+	}
+
+	.vulocart-price-add-button {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem 1rem;
+		border: 1px solid var(--vc-border);
+		border-radius: 0.375rem;
+		background: #fff;
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: #374151;
+		cursor: pointer;
+		transition: border-color 0.15s, color 0.15s, background 0.15s;
+
+		&:hover,
+		&[aria-expanded='true'] {
+			border-color: var(--vc-primary);
+			background: var(--vc-primary-soft);
+			color: var(--vc-primary);
+		}
+	}
+}
+
+// The top bar's "..." menu (Save as template, ...), beside the Update button.
+.vulocart-product-edit-page.vulocart-product-edit-page {
+	.vulocart-more {
+		position: relative;
+		flex: none;
+	}
+
+	.vulocart-more-button {
+		display: grid;
+		place-items: center;
+		width: 2.5rem;
+		height: 2.5rem;
+		padding: 0;
+		border: 1px solid var(--vc-border);
+		border-radius: 0.375rem;
+		background: #fff;
+		color: #4b5563;
+		cursor: pointer;
+		transition: border-color 0.15s, color 0.15s, box-shadow 0.15s;
+
+		&:hover,
+		&[aria-expanded='true'] {
+			border-color: var(--vc-primary);
+			color: var(--vc-primary);
+			box-shadow: 0 0 0 3px rgba(80, 7, 170, 0.1);
+		}
+
+		i {
+			font-size: 1.125rem;
+		}
+	}
+
+	.vulocart-more-menu {
+		right: 0;
+		left: auto;
+		min-width: 13rem;
+
+		button {
+			justify-content: flex-start;
+			gap: 0.625rem;
+			padding: 0.5rem 0.75rem;
+			font-size: 0.875rem;
+			font-weight: 500;
+			color: #374151;
+
+			i {
+				color: var(--vc-primary);
+			}
+		}
+	}
+}
+
+// A line of guidance under the price list for types whose amounts are a list (gift card denominations, donation amounts).
+.vulocart-product-edit-page.vulocart-product-edit-page .vulocart-price-type-hint {
+	margin: 0.75rem 0 0;
+	padding: 0.625rem 0.875rem;
+	border-radius: 0.375rem;
+	background: #f7f4ff;
+	font-size: 0.8125rem;
+	color: #5b4b8a;
+}
+
+// --- Term picker (category / tags / brand / collections / supplier) ---
+
+.vulocart-product-edit-page.vulocart-product-edit-page {
+	.vulocart-term-picker {
+		position: relative;
+
+		& + & {
+			margin-top: 0.875rem;
+			padding-top: 0.875rem;
+			border-top: 1px solid var(--vc-border);
+		}
+	}
+
+	.vulocart-term-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		min-height: 1.5rem;
+		margin-bottom: 0.375rem;
+
+	}
+
+	// Chosen terms and the add button sit on one wrapping line.
+	.vulocart-term-line {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.375rem;
+	}
+
+	.vulocart-term-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.125rem;
+		padding: 0.125rem 0.125rem 0.125rem 0.625rem;
+		border-radius: 0.25rem;
+		background: var(--vc-primary-soft);
+		font-size: 0.8125rem;
+		font-weight: 600;
+		color: var(--vc-primary);
+
+		button {
+			display: grid;
+			place-items: center;
+			width: 1.25rem;
+			height: 1.25rem;
+			padding: 0;
+			border: 0;
+			border-radius: 0.1875rem;
+			background: transparent;
+			font-size: 0.5rem;
+			color: inherit;
+			opacity: 0.6;
+			cursor: pointer;
+
+			&:hover {
+				opacity: 1;
+				background: color-mix(in srgb, var(--vc-primary) 14%, transparent);
+			}
+		}
+	}
+
+	// A quiet text button at the right of the label, not a box in the flow of the chips.
+	.vulocart-term-add,
+	.vulocart-add-link {
+		display: inline-flex !important;
+		flex-direction: row !important;
+		width: auto !important;
+		height: auto !important;
+		min-height: 0;
+		align-items: center;
+		gap: 0.25rem;
+		padding: 0.1875rem 0.625rem;
+		border: 0;
+		border-radius: 0.25rem;
+		background: transparent;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		white-space: nowrap;
+		color: var(--vc-primary);
+		cursor: pointer;
+		transition: background 0.15s;
+
+		i {
+			font-size: 0.5625rem;
+		}
+
+		&:hover {
+			background: var(--vc-primary-soft);
+		}
+	}
+
+	.vulocart-term-hint {
+		margin: 0;
+		font-size: 0.8125rem;
+		color: #9ca3af;
+	}
+
+	// The input and its list, opened under the line.
+	.vulocart-term-pop {
+		margin-top: 0.5rem;
+		border: 1px solid var(--vc-border);
+		border-radius: 0.375rem;
+		background: #fff;
+		box-shadow: 0 6px 18px rgba(20, 20, 43, 0.08);
+		overflow: hidden;
+	}
+
+	.vulocart-term-search {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0 0.5rem 0 0.75rem;
+		border-bottom: 1px solid var(--vc-border);
+
+		> i {
+			font-size: 0.875rem;
+			color: #9ca3af;
+		}
+
+		input {
+			flex: 1;
+			min-width: 0;
+			min-height: 2.5rem;
+			padding: 0;
+			border: 0;
+			background: transparent;
+			box-shadow: none;
+			font-size: 0.875rem;
+
+			&:focus {
+				border: 0;
+				box-shadow: none;
+				outline: 0;
+			}
+		}
+	}
+
+	.vulocart-term-done {
+		padding: 0.1875rem 0.5rem;
+		border: 0;
+		border-radius: 0.25rem;
+		background: transparent;
+		font-size: 0.75rem;
+		font-weight: 600;
+		color: var(--vc-primary);
+		cursor: pointer;
+
+		&:hover {
+			background: var(--vc-primary-soft);
+		}
+	}
+
+	.vulocart-term-list {
+		max-height: 12rem;
+		margin: 0;
+		padding: 0.25rem;
+		overflow-y: auto;
+		list-style: none;
+
+		li {
+			margin: 0;
+		}
+
+		button {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			width: 100%;
+			padding: 0.4375rem 0.625rem;
+			border: 0;
+			border-radius: 0.25rem;
+			background: transparent;
+			font-size: 0.8125rem;
+			text-align: left;
+			color: #374151;
+			cursor: pointer;
+
+			&:hover {
+				background: var(--vc-primary-soft);
+				color: var(--vc-primary);
+			}
+		}
+
+		.is-create button {
+			font-weight: 600;
+			color: var(--vc-primary);
+
+			i {
+				font-size: 0.625rem;
+			}
+		}
+
+		.is-empty {
+			padding: 0.625rem;
+			font-size: 0.8125rem;
+			color: var(--vc-muted);
+		}
+	}
+
+	// Supplier's "saved" note and similar one-liners under a picker.
+	.vulocart-term-empty {
+		margin: 0.375rem 0 0;
+		font-size: 0.75rem;
+		color: var(--vc-muted);
+	}
+}
+
+// --- AI slots and the Search & content card ---
+
+.vulocart-product-edit-page.vulocart-product-edit-page {
+	// An AI button sitting beside its own field (top-right of the field's block).
+	.vulocart-ai-anchor {
+		position: relative;
+		// The form-group wrapper lays its children out in a row; the anchor must take the whole row like the field did.
+		flex: 1 1 100%;
+		width: 100%;
+		min-width: 0;
+
+		> .vulocart-ai-slot {
+			position: absolute;
+			top: -0.125rem;
+			right: 0;
+			z-index: 2;
+		}
+	}
+
+	.vulocart-ai-slot {
+		display: inline-flex;
+	}
+
+	.vulocart-card-actions {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	.vulocart-content-block {
+		& + & {
+			margin-top: 1.5rem;
+			padding-top: 1.25rem;
+			border-top: 1px dashed var(--vc-border);
+		}
+
+		> header {
+			display: flex;
+			align-items: flex-start;
+			justify-content: space-between;
+			gap: 1rem;
+			margin-bottom: 0.875rem;
+
+			h4 {
+				margin: 0;
+				font-size: 0.6875rem;
+				font-weight: 700;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				color: var(--vc-muted);
+			}
+
+			p {
+				margin: 0.125rem 0 0;
+				font-size: 0.8125rem;
+				color: #8b91a3;
+			}
+		}
+	}
+
+	.vulocart-content-field {
+		margin-bottom: 0.875rem;
+
+		> label {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin-bottom: 0.375rem;
+			font-size: 0.8125rem;
+			font-weight: 500;
+			color: #4b5563;
+		}
+	}
+
+	.vulocart-counter {
+		font-size: 0.75rem;
+		font-weight: 600;
+		color: #9ca3af;
+
+		&.is-over {
+			color: #dc2626;
+		}
+	}
+
+	// A search-result lookalike so the title and description are judged as a visitor will see them.
+	.vulocart-serp {
+		padding: 0.875rem 1rem;
+		border: 1px solid var(--vc-border);
+		border-radius: 0.5rem;
+		background: #fff;
+
+		> span {
+			display: block;
+			margin-bottom: 0.375rem;
+			font-size: 0.6875rem;
+			font-weight: 700;
+			letter-spacing: 0.06em;
+			text-transform: uppercase;
+			color: #9ca3af;
+		}
+
+		strong {
+			display: block;
+			overflow: hidden;
+			font-size: 1.125rem;
+			font-weight: 400;
+			line-height: 1.3;
+			color: #1a0dab;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		p {
+			margin: 0.25rem 0 0;
+			font-size: 0.8125rem;
+			line-height: 1.5;
+			color: #4d5156;
+		}
+	}
+
+	.vulocart-rows {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.vulocart-row {
+		display: grid;
+		align-items: start;
+		gap: 0.5rem;
+
+		&.is-spec {
+			grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) 2rem;
+		}
+
+		&.is-faq {
+			grid-template-columns: minmax(0, 1fr) 2rem;
+			padding: 0.75rem;
+			border: 1px solid var(--vc-border);
+			border-radius: 0.5rem;
+			background: #fbfbfe;
+
+			> div {
+				display: flex;
+				flex-direction: column;
+				gap: 0.5rem;
+			}
+		}
+	}
+
+	.vulocart-row-remove {
+		display: grid;
+		place-items: center;
+		width: 2rem;
+		height: 2rem;
+		margin-top: 0.25rem;
+		padding: 0;
+		border: 0;
+		border-radius: 0.375rem;
+		background: transparent;
+		color: #9ca3af;
+		cursor: pointer;
+
+		&:hover {
+			background: #fee2e2;
+			color: #dc2626;
+		}
+	}
+
+	.vulocart-row-add {
+		display: inline-flex;
+		align-items: center;
+		align-self: flex-start;
+		gap: 0.375rem;
+		min-height: 2rem;
+		padding: 0 0.75rem;
+		border: 1px dashed #c4c8d8;
+		border-radius: 0.375rem;
+		background: transparent;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		color: var(--vc-primary);
+		cursor: pointer;
+
+		&:hover {
+			border-color: var(--vc-primary);
+			background: var(--vc-primary-soft);
+		}
+	}
+
+	.vulocart-content-empty {
+		margin: 0;
+		padding: 0.75rem 1rem;
+		border: 1px dashed var(--vc-border);
+		border-radius: 0.5rem;
+		background: #fbfbfe;
+		font-size: 0.8125rem;
+		color: var(--vc-muted);
+	}
+
+	.vulocart-translations {
+		> ul {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5rem;
+			margin: 0;
+			padding: 0;
+			list-style: none;
+		}
+
+		li {
+			display: inline-flex;
+			align-items: center;
+			border: 1px solid var(--vc-border);
+			border-radius: 999px;
+			background: #fff;
+
+			&.is-open {
+				border-color: var(--vc-primary);
+				background: var(--vc-primary-soft);
+			}
+
+			> button:first-child {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				padding: 0.3125rem 0.25rem 0.3125rem 0.75rem;
+				border: 0;
+				background: transparent;
+				font-size: 0.8125rem;
+				color: #374151;
+				cursor: pointer;
+
+				b {
+					padding: 0.0625rem 0.375rem;
+					border-radius: 0.25rem;
+					background: var(--vc-primary);
+					font-size: 0.6875rem;
+					color: #fff;
+				}
+			}
+
+			.vulocart-row-remove {
+				width: 1.5rem;
+				height: 1.5rem;
+				margin: 0 0.25rem 0 0;
+				border-radius: 50%;
+			}
+		}
+	}
+
+	.vulocart-translation-edit {
+		margin-top: 1rem;
+		padding: 1rem;
+		border: 1px solid var(--vc-border);
+		border-radius: 0.5rem;
+		background: #fbfbfe;
+	}
+}
+
+// react-select (zyra SelectInput) renders its own search <input>; the generic field rules above must not
+// box it (border, padding, min-height, focus ring), or the dropdown control looks broken.
+.vulocart-product-edit-page.vulocart-product-edit-page .form-select-field {
+	.select-prefix__input-container input,
+	.select-prefix__input {
+		min-height: 0;
+		height: auto;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		border-radius: 0;
+		background: transparent;
+		box-shadow: none;
+		outline: 0;
+	}
+
+	.select-prefix__control {
+		height: auto;
+		min-height: 2.5rem;
+	}
+}
+
+// Inventory & Shipping: every input in the card is the same height and fills its grid cell; the unit
+// suffix (kg / in / units) sits inside the box.
+.vulocart-product-edit-page.vulocart-product-edit-page {
+	.vulocart-two-col-fields,
+	.vulocart-three-col-fields {
+		align-items: start;
+		margin-bottom: 0.75rem;
+
+		.input-wrapper,
+		.form-select-field {
+			width: 100%;
+		}
+
+		.input-wrapper {
+			display: flex;
+			align-items: stretch;
+
+			.basic-input {
+				flex: 1 1 auto;
+				min-width: 0;
+				height: 2.5rem;
+				margin: 0;
+			}
+
+			.parameter {
+				display: flex;
+				align-items: center;
+				padding: 0 0.75rem;
+				border: 1px solid var(--vc-border);
+				border-left: 0;
+				border-radius: 0 0.375rem 0.375rem 0;
+				background: #f4f5fa;
+				color: #6b7280;
+				font-size: 0.8125rem;
+			}
+
+			.parameter + .basic-input,
+			.basic-input:has(+ .parameter) {
+				border-top-right-radius: 0;
+				border-bottom-right-radius: 0;
+			}
+		}
+	}
+}
+
+.vulocart-product-edit-page .vulocart-field-warning {
+	margin: 0.5rem 0 0.75rem;
+	padding: 0.5rem 0.75rem;
+	border: 1px solid #f5c26b;
+	border-radius: 0.375rem;
+	background: #fff8e8;
+	color: #8a5a00;
+	font-size: 0.8125rem;
+}
+
+.vulocart-product-edit-page .vulocart-field-error {
+	margin: 0.375rem 0 0;
+	color: #b42318;
+	font-size: 0.8125rem;
+	font-weight: 500;
+}
+
+.vulocart-product-edit-page .basic-input.has-error,
+.vulocart-product-edit-page .input-wrapper:has(.has-error) {
+	border-color: #d92d20;
+	box-shadow: 0 0 0 3px rgba(217, 45, 32, 0.12);
+}
+
+// Hierarchical term picker (categories): WordPress-style checkbox tree, never taller than half the screen.
+.vulocart-product-edit-page.vulocart-product-edit-page {
+	.vulocart-term-tree {
+		max-height: 50vh;
+		margin: 0.625rem 0 0;
+		padding: 0.5rem 0.75rem;
+		overflow-y: auto;
+		border: 1px solid var(--vc-border);
+		border-radius: 0.375rem;
+		background: #fff;
+		list-style: none;
+
+		li {
+			margin: 0;
+			padding-top: 0.125rem;
+			padding-bottom: 0.125rem;
+		}
+
+		label {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			margin: 0;
+			padding: 0.25rem 0;
+			font-size: 0.875rem;
+			font-weight: 400;
+			color: #374151;
+			cursor: pointer;
+		}
+
+		input[type='checkbox'] {
+			flex: none;
+			min-height: 0;
+			margin: 0;
+		}
+	}
+
+	.vulocart-term-tree-empty {
+		font-size: 0.8125rem;
+		color: var(--vc-muted);
+	}
+
+	.vulocart-term-add {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		margin-top: 0.625rem;
+
+		input[type='text'],
+		select {
+			width: 100%;
+			max-width: 100%;
+			margin: 0;
+		}
+	}
+
+	.vulocart-term-add-actions {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+}
+
+// Quick-start bar above a new product: one slim row (AI draft, saved preset).
+.vulocart-product-edit-page .vulocart-start-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.75rem 1.25rem;
+	margin: 0 0 1.25rem;
+	padding: 0.75rem 0.75rem 0.75rem 1rem;
+	border: 1px solid var(--vc-border, #e6e8f0);
+	border-radius: 0.5rem;
+	background: #fff;
+
+	.vulocart-start-item {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin: 0;
+		font-size: 0.8125rem;
+		font-weight: 500;
+		color: #4b5563;
+
+		> i {
+			font-size: 0.9375rem;
+			color: var(--vc-primary, #5007aa);
+		}
+
+		input[type='text'],
+		select {
+			min-height: 2.5rem;
+			margin: 0;
+			padding: 0 0.75rem;
+			border: 1px solid transparent;
+			border-radius: 0.375rem;
+			background: #f5f6fa;
+			font-size: 0.8125rem;
+			box-shadow: none;
+
+			&:focus {
+				border-color: var(--vc-primary, #5007aa);
+				background: #fff;
+				outline: 0;
+			}
+		}
+	}
+
+	// The AI box takes the room; the preset picker sits at the end, set off by a divider.
+	.vulocart-start-ai {
+		flex: 1 1 22rem;
+		min-width: 0;
+
+		input[type='text'] {
+			flex: 1;
+			min-width: 0;
+		}
+	}
+
+	.vulocart-pro-template-picker {
+		margin-left: auto;
+		padding-left: 1rem;
+		border-left: 1px solid var(--vc-border, #e6e8f0);
+
+		select {
+			min-width: 9rem;
+		}
+	}
+
+	.vulocart-start-button {
+		flex: none;
+		min-height: 2.5rem;
+		padding: 0 1.125rem;
+		border: 0;
+		border-radius: 0.375rem;
+		background: var(--vc-primary, #5007aa);
+		font-size: 0.8125rem;
+		font-weight: 600;
+		color: #fff;
+		cursor: pointer;
+
+		&:disabled {
+			opacity: 0.5;
+			cursor: default;
+		}
+	}
+
+	.vulocart-start-error {
+		flex-basis: 100%;
+		font-size: 0.75rem;
+		color: #b42318;
+	}
+}
+
+// --- Inventory and Shipping cards ---
+
+.vulocart-product-edit-page.vulocart-product-edit-page {
+	// Two tiles that say, before any field, where this product stands.
+	.vulocart-stat-strip {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0.75rem;
+		margin-bottom: 1.25rem;
+	}
+
+	.vulocart-stat {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		padding: 0.75rem 1rem;
+		border: 1px solid var(--vc-border);
+		border-radius: 0.375rem;
+		background: #fbfbfe;
+	}
+
+	.vulocart-stat-label {
+		font-size: 0.6875rem;
+		font-weight: 600;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--vc-muted);
+	}
+
+	.vulocart-stat-value {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 1.125rem;
+		font-weight: 700;
+		color: #1f2937;
+	}
+
+	.vulocart-stat-dot {
+		width: 0.5rem;
+		height: 0.5rem;
+		border-radius: 50%;
+		background: #16a34a;
+	}
+
+	.vulocart-stat-strip.is-low .vulocart-stat-dot {
+		background: #f59e0b;
+	}
+
+	.vulocart-stat-strip.is-out .vulocart-stat-dot {
+		background: #dc2626;
+	}
+
+	.vulocart-stat-strip.is-backorder .vulocart-stat-dot {
+		background: #3b82f6;
+	}
+
+	// The package's weight and size, summed up in the Shipping card header.
+	.vulocart-package-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		padding: 0.25rem 0.625rem;
+		border-radius: 0.25rem;
+		background: var(--vc-primary-soft);
+		font-size: 0.75rem;
+		font-weight: 600;
+		white-space: nowrap;
+		color: var(--vc-primary);
+	}
+}
+
+// Feature chip beside "Product Details": quiet outline pill until clicked, then filled gold with a filled star.
+.vulocart-product-edit-page.vulocart-product-edit-page .vulocart-title-with-star {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.75rem;
+
+	.vulocart-star {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		height: 1.5rem;
+		min-height: 0;
+		padding: 0 0.625rem 0 0.4375rem;
+		border: 1px solid #e3e6ef;
+		border-radius: 999px;
+		background: #fff;
+		color: #6b7280;
+		font-family: inherit;
+		font-size: 0.6875rem;
+		font-weight: 600;
+		line-height: 1;
+		letter-spacing: 0;
+		text-transform: none;
+		white-space: nowrap;
+		cursor: pointer;
+		transition: color 0.15s, background 0.15s, border-color 0.15s;
+
+		i {
+			width: auto;
+			height: auto;
+			margin: 0;
+			padding: 0;
+			background: transparent;
+			font-size: 0.75rem;
+			line-height: 1;
+			color: #b8bdcd;
+			transition: color 0.15s, transform 0.2s;
+		}
+
+		&:hover {
+			border-color: #f6c453;
+			color: #b45309;
+
+			i {
+				color: #f59e0b;
+			}
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--vc-primary, #5007aa);
+			outline-offset: 2px;
+		}
+
+		&.is-on {
+			border-color: #f6c453;
+			background: #fff7dc;
+			color: #92400e;
+
+			i {
+				color: #f59e0b;
+				transform: rotate(-12deg) scale(1.1);
+			}
+		}
+	}
+}
+
+// Type / Kind pickers: each option carries a one-line description.
+.vulocart-product-edit-page.vulocart-product-edit-page {
+	.vulocart-type-menu--described {
+		min-width: 16rem;
+	}
+
+	.vulocart-type-option {
+		display: flex;
+		flex-direction: column;
+		gap: 0.0625rem;
+		text-align: left;
+
+		strong {
+			font-size: 0.8125rem;
+			font-weight: 600;
+		}
+
+		small {
+			font-size: 0.6875rem;
+			font-weight: 400;
+			text-transform: none;
+			letter-spacing: 0;
+			color: var(--vc-muted);
+		}
+	}
+}
+
+// --- One look for every section heading and its "Add" link ---
+
+.vulocart-product-edit-page.vulocart-product-edit-page {
+	// Section headings inside a card: small, muted, upper-case, always the same.
+	.vulocart-subsection-title,
+	.vulocart-term-head h4,
+	.vulocart-content-block > header h4,
+	.vulocart-section-head h4,
+	.vulocart-price-head h4,
+	.vulocart-pro-pr > header h4,
+	.vulocart-warehouse-head h4 {
+		margin: 0;
+		font-size: 0.6875rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--vc-muted);
+	}
+
+	// A heading with its Add link at the right edge.
+	.vulocart-section-head,
+	.vulocart-price-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		min-height: 1.5rem;
+		margin-bottom: 0.625rem;
+	}
+
+	.vulocart-price-head .vulocart-price-add {
+		position: relative;
+		margin: 0;
+	}
+
+	.vulocart-content-block-actions {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.vulocart-content-block > header {
+		align-items: center;
+	}
+
+	.vulocart-pro-pr > header {
+		align-items: center;
+	}
+}
+
+// --- Phones and small tablets: one column, controls wrap under titles ---
+
+@media (max-width: 782px) {
+	.vulocart-product-edit-page.vulocart-product-edit-page {
+		.vulocart-product-edit-topbar {
+			position: static;
+			flex-direction: column;
+			align-items: stretch;
+			gap: 0.75rem;
+			margin: 0 0 1rem;
+			padding: 0 0 0.75rem;
+			background: transparent;
+			backdrop-filter: none;
+
+			> div:first-child {
+				flex: none;
+			}
+		}
+
+		.vulocart-edit-page-title {
+			white-space: normal;
+		}
+
+		.vulocart-topbar-actions {
+			flex-wrap: wrap;
+			justify-content: flex-start;
+			gap: 0.5rem;
+		}
+
+		// Card headers: the title block first, its controls on their own line underneath.
+		.card-header {
+			flex-wrap: wrap;
+			gap: 0.75rem;
+
+			> .left {
+				flex: 1 1 100%;
+				min-width: 0;
+			}
+
+			> :not(.left) {
+				flex: 1 1 100%;
+				justify-content: flex-start;
+				flex-wrap: wrap;
+			}
+		}
+
+		.vulocart-details-actions,
+		.vulocart-card-actions {
+			flex-wrap: wrap;
+			justify-content: flex-start;
+		}
+
+		.vulocart-two-col-fields,
+		.vulocart-three-col-fields,
+		.vulocart-stat-strip,
+		.vulocart-pro-dpp-grid,
+		.vulocart-pro-pr-form-row {
+			grid-template-columns: minmax(0, 1fr);
+		}
+
+		.vulocart-warehouse-head,
+		.vulocart-section-head,
+		.vulocart-price-head,
+		.vulocart-content-block > header {
+			flex-wrap: wrap;
+		}
+
+		.vulocart-warehouse-adjust {
+			width: 100%;
+			margin-left: 0;
+			justify-content: flex-start;
+		}
+	}
+
+	.vcp-pd .vcp-pd-hero,
+	.vcp-pd .vcp-pd-hero-share {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.vcp-pd .vcp-pd-grid,
+	.vcp-pd .vcp-pd-event-form,
+	.vcp-import .vcp-import-map,
+	.vulocart-qe .vulocart-qe-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.vcp-pd .vcp-pd-event-form input.is-link,
+	.vcp-pd .vcp-pd-event-form button {
+		grid-column: auto;
+	}
+}
+
+// --- "What are you selling?" chooser ---
+
+.vulocart-type-chooser.vulocart-type-chooser {
+	max-width: 70rem;
+
+	header {
+		margin: 0.5rem 0 1.5rem;
+	}
+
+	.vulocart-type-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+		gap: 1rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+
+		li {
+			margin: 0;
+		}
+
+		button {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.375rem;
+			width: 100%;
+			height: 100%;
+			padding: 1.125rem;
+			border: 1px solid #e3e6ef;
+			border-radius: 0.5rem;
+			background: #fff;
+			text-align: left;
+			cursor: pointer;
+			transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+
+			&:hover,
+			&:focus-visible {
+				border-color: var(--vc-primary, #5007aa);
+				box-shadow: 0 6px 18px rgba(80, 7, 170, 0.1);
+				transform: translateY(-1px);
+				outline: 0;
+			}
+
+			strong {
+				font-size: 1rem;
+				color: #1f2937;
+			}
+
+			small {
+				font-size: 0.8125rem;
+				line-height: 1.4;
+				color: #6b7280;
+			}
+
+			em {
+				margin-top: auto;
+				padding-top: 0.5rem;
+				font-size: 0.75rem;
+				font-style: normal;
+				color: #9ca3af;
+			}
+		}
+	}
+
+	.vulocart-type-icon {
+		display: grid;
+		place-items: center;
+		width: 2.5rem;
+		height: 2.5rem;
+		margin-bottom: 0.25rem;
+		border-radius: 0.5rem;
+		background: #f3ecff;
+		font-size: 1.25rem;
+		color: var(--vc-primary, #5007aa);
+	}
+
+	.vulocart-type-skip {
+		margin: 1.5rem 0 0;
+
+		button {
+			padding: 0;
+			border: 0;
+			background: transparent;
+			font-size: 0.8125rem;
+			font-weight: 600;
+			color: var(--vc-primary, #5007aa);
+			cursor: pointer;
+
+			&:hover {
+				text-decoration: underline;
+			}
+		}
+	}
+}
+
+// Breadcrumb above the page title: Products › Edit.
+.vulocart-product-edit-page .vulocart-breadcrumbs {
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
+	margin-bottom: 0.25rem;
+	font-size: 0.8125rem;
+	color: #6b7280;
+
+	a {
+		font-weight: 600;
+		text-decoration: none;
+		color: var(--vc-primary, #5007aa);
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+
+	i {
+		font-size: 0.5rem;
+		color: #9ca3af;
+	}
+}
+
+// Pills under the page title: the type, its kind, and the SKU - one chip each.
+.vulocart-product-edit-page .vulocart-title-meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.375rem;
+	margin-top: 0.375rem;
+
+	.vulocart-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		height: 1.5rem;
+		padding: 0 0.625rem;
+		border: 1px solid transparent;
+		border-radius: 0.375rem;
+		font-size: 0.75rem;
+		font-weight: 600;
+		line-height: 1;
+		white-space: nowrap;
+
+		i {
+			font-size: 0.8125rem;
+		}
+
+		small {
+			font-size: 0.625rem;
+			font-weight: 700;
+			letter-spacing: 0.06em;
+			text-transform: uppercase;
+			color: #9ca3af;
+		}
+
+		&.is-type {
+			background: #f3ecff;
+			color: var(--vc-primary, #5007aa);
+		}
+
+		&.is-kind {
+			border-color: #e3e6ef;
+			background: #fff;
+			color: #4b5563;
+		}
+
+		&.is-sku {
+			border-color: #e3e6ef;
+			background: #f7f7fb;
+			font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+			font-weight: 500;
+			color: #374151;
+		}
+	}
+}
+
+// Breathing room in the page header: breadcrumb, title and chips each get their own line, and the whole block clears the top.
+.vulocart-product-edit-page.vulocart-product-edit-page {
+	.vulocart-product-edit-topbar {
+		align-items: center;
+		padding-top: 1.25rem;
+		padding-bottom: 1rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.vulocart-breadcrumbs {
+		margin-bottom: 0.625rem;
+	}
+
+	.vulocart-edit-page-title {
+		margin: 0 0 0.625rem;
+		line-height: 1.25;
+	}
+
+	.vulocart-title-meta {
+		margin-top: 0;
+	}
+
+	.vulocart-product-edit-subtitle {
+		margin: 0.5rem 0 0;
+	}
+}

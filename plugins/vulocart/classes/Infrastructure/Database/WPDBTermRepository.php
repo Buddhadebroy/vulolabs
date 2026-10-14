@@ -18,12 +18,12 @@ defined( 'ABSPATH' ) || exit;
  *
  * The only class that runs SQL against `vulocart_terms` - implements
  * Domain\Term\TermRepositoryInterface, bound in VuloCart::init_classes().
- * `count_offerings_for_term()` counts live against `vulocart_offerings.meta`
+ * `count_products_for_term()` counts live against `vulocart_products.meta`
  * (a quoted-substring `LIKE` on the term's own slug) rather than a
- * maintained `term_relationships` join table - Offering.meta already stores
+ * maintained `term_relationships` join table - Product.meta already stores
  * `categories`/`brand`/`collections` as plain slug arrays/strings
- * (RestAPI\Controllers\Offerings.php's existing `sanitize_offering_meta()`),
- * so a term's assignment to offerings is derived from that existing data
+ * (RestAPI\Controllers\Products.php's existing `sanitize_product_meta()`),
+ * so a term's assignment to products is derived from that existing data
  * rather than a second, easy-to-drift source of truth.
  *
  * @class       WPDBTermRepository class
@@ -43,14 +43,14 @@ class WPDBTermRepository implements TermRepositoryInterface {
     }
 
     /**
-     * Resolves the fully-prefixed `vulocart_offerings` table name - used by
-     * count_offerings_for_term() only.
+     * Resolves the fully-prefixed `vulocart_products` table name - used by
+     * count_products_for_term() only.
      *
      * @return string
      */
-    private function get_offerings_table() {
+    private function get_products_table() {
         global $wpdb;
-        return $wpdb->prefix . Utill::TABLES['offering'];
+        return $wpdb->prefix . Utill::TABLES['product'];
     }
 
     /**
@@ -209,22 +209,22 @@ class WPDBTermRepository implements TermRepositoryInterface {
     }
 
     /**
-     * Counts offerings whose `meta` bag references this term's slug - see
+     * Counts products whose `meta` bag references this term's slug - see
      * class docblock for why this is a live `LIKE` count rather than a
      * maintained join table. Matches the slug as a quoted JSON string
      * (`"slug"`) so e.g. a "shoe" term never matches an unrelated
      * "shoes" value - safe because two JSON-encoded string values can
      * only share this exact quoted substring if they're equal.
      *
-     * @param Term $term The term to count offerings for.
+     * @param Term $term The term to count products for.
      * @return int
      */
-    public function count_offerings_for_term( Term $term ): int {
+    public function count_products_for_term( Term $term ): int {
         global $wpdb;
 
         return (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$this->get_offerings_table()} WHERE meta LIKE %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                "SELECT COUNT(*) FROM {$this->get_products_table()} WHERE meta LIKE %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                 '%"' . $wpdb->esc_like( $term->slug ) . '"%'
             )
         );

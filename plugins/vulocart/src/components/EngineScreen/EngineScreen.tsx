@@ -50,7 +50,7 @@ const headerChannel: EngineHeaderChannel = ( window as unknown as { vulocartEngi
 
 /**
  * The standard frame for every top-level VuloCart menu that isn't a zyra settings screen
- * (Inventory, Shipping, AI, Workflows, Analytics, and the Pro pages plugged into Offerings/
+ * (Inventory, Shipping, AI, Workflows, Analytics, and the Pro pages plugged into Products/
  * Customers). Same container/column/header trio `TermsPage` uses, plus a
  * `.vulocart-engine-page` scope whose stylesheet gives the plain markup Pro modules render
  * (headings, forms, tables, buttons, badges) the same look as the zyra screens, so a module
@@ -113,6 +113,19 @@ export function renderEngineView(
 	);
 }
 
+/** Modules switched on from Settings → Checkout instead of the Modules screen. */
+const CHECKOUT_SETTING_MODULES = [
+	'popup-checkout',
+	'drawer-checkout',
+	'embedded-checkout',
+	'hosted-checkout',
+	'one-click-checkout',
+	'checkout-links',
+	'checkout-templates',
+	'order-notes',
+	'address-autocomplete',
+];
+
 /**
  * Shown where a module's page would be: tells the user which module powers the page and gives
  * the one action that fixes it - activating a free module in place, or going to the Licensing tab
@@ -123,6 +136,7 @@ export function ModuleRequired( { view }: { view: EngineView } ) {
 	const [ failed, setFailed ] = useState( false );
 	// `khali_dabba` is true when Pro is installed AND its license is active (Utill::is_khali_dabba()).
 	const needsLicense = !! view.pro && ! vulocartLocalizer.khali_dabba;
+	const inCheckoutSettings = CHECKOUT_SETTING_MODULES.includes( view.module );
 	const settingsUrl = `${ vulocartLocalizer.adminUrl }admin.php?page=vulocart#&tab=settings&subtab=`;
 
 	const activate = () => {
@@ -148,12 +162,18 @@ export function ModuleRequired( { view }: { view: EngineView } ) {
 			<h2>
 				{ needsLicense
 					? __( 'This page needs an active VuloCart Pro license', 'vulocart' )
+					: inCheckoutSettings
+					? __( 'Turn this on in Checkout settings', 'vulocart' )
 					: __( 'Turn on the module behind this page', 'vulocart' ) }
 			</h2>
 			<p>{ view.description }</p>
 			{ needsLicense ? (
 				<a className="vulocart-engine-button" href={ `${ settingsUrl }licensing` }>
 					{ __( 'Activate license', 'vulocart' ) }
+				</a>
+			) : inCheckoutSettings ? (
+				<a className="vulocart-engine-button" href={ `${ settingsUrl }checkout` }>
+					{ __( 'Open Checkout settings', 'vulocart' ) }
 				</a>
 			) : (
 				<div>

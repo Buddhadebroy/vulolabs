@@ -1,5 +1,5 @@
 import { renderEngineView } from '../../components/EngineScreen/EngineScreen';
-import { movedViews, storeExtraViews } from '../Offerings/extraViews';
+import { movedViews, storeExtraViews } from '../Products/extraViews';
 
 interface MarketingEngineProps {
 	/** One of the `storeExtraViews` ids (coupons, gift-cards, subscriptions, ...) - anything else shows Coupons. */

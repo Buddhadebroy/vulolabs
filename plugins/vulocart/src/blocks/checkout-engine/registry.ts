@@ -46,7 +46,7 @@ export interface CheckoutStepDefinition {
  * render rather than registering a whole new one - e.g. vulocart-pro's
  * Order Notes adds a textarea inside Review's own summary, it doesn't
  * need its own navigable step. Same "compose, don't replace" reasoning
- * `vulocart_offering_edit_sections` already establishes on the admin
+ * `vulocart_product_edit_sections` already establishes on the admin
  * side, just as a plain function list here instead of a
  * `@wordpress/hooks` filter chain.
  */
@@ -115,7 +115,7 @@ export function isPaymentMethodReady( methodId: string, data: CheckoutRunData ):
  * module-level call (not a `@wordpress/hooks` filter) since step
  * registration only ever needs to run once, before CheckoutEngine.tsx
  * mounts, with no need for multiple registrants to compose/override a
- * single STEP id the way `vulocart_offering_edit_sections` does - step
+ * single STEP id the way `vulocart_product_edit_sections` does - step
  * EXTENSIONS (content injected into an existing step) are the compose-many
  * case instead, via `registerCheckoutStepExtension()`.
  *

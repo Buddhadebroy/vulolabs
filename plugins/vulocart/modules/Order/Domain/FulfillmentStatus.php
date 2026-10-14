@@ -49,7 +49,7 @@ class FulfillmentStatus {
 
     /**
      * Shipped/handed off for delivery - meaningful for shippable
-     * offerings; a purely digital order can skip straight to
+     * products; a purely digital order can skip straight to
      * `COMPLETED`.
      *
      * @var string

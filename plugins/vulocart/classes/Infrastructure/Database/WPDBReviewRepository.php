@@ -44,7 +44,7 @@ class WPDBReviewRepository implements ReviewRepositoryInterface {
     private function hydrate( $row ) {
         return new Review(
             (int) $row['id'],
-            (int) $row['offering_id'],
+            (int) $row['product_id'],
             $row['customer_name'],
             $row['customer_email'],
             (int) $row['rating'],
@@ -76,7 +76,7 @@ class WPDBReviewRepository implements ReviewRepositoryInterface {
     /**
      * Returns a page of reviews, optionally filtered.
      *
-     * @param array{page?: int, per_page?: int, offering_id?: int, status?: string} $args Pagination/filter args.
+     * @param array{page?: int, per_page?: int, product_id?: int, status?: string} $args Pagination/filter args.
      * @return array{data: Review[], total: int}
      */
     public function paginate( array $args = array() ): array {
@@ -90,9 +90,9 @@ class WPDBReviewRepository implements ReviewRepositoryInterface {
         $where_clauses = array();
         $where_values  = array();
 
-        if ( ! empty( $args['offering_id'] ) ) {
-            $where_clauses[] = 'offering_id = %d';
-            $where_values[]  = (int) $args['offering_id'];
+        if ( ! empty( $args['product_id'] ) ) {
+            $where_clauses[] = 'product_id = %d';
+            $where_values[]  = (int) $args['product_id'];
         }
 
         if ( ! empty( $args['status'] ) ) {
@@ -139,7 +139,7 @@ class WPDBReviewRepository implements ReviewRepositoryInterface {
         $wpdb->insert(
             $this->get_table(),
             array(
-                'offering_id'    => $review->offering_id,
+                'product_id'    => $review->product_id,
                 'customer_name'  => $review->customer_name,
                 'customer_email' => $review->customer_email,
                 'rating'         => $review->rating,

@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * The contract Application\TermService depends on - bound to a concrete
  * implementation only in VuloCart::init_classes(), same seam
- * Domain\Offering\OfferingRepositoryInterface already establishes.
+ * Domain\Product\ProductRepositoryInterface already establishes.
  *
  * @class       TermRepositoryInterface interface
  * @version     1.0.0
@@ -74,13 +74,13 @@ interface TermRepositoryInterface {
     public function delete( int $id ): bool;
 
     /**
-     * Counts how many offerings currently reference a term's slug in their
+     * Counts how many products currently reference a term's slug in their
      * own `meta` bag (categories/brand_id/collection_ids - see
      * Application\TermService's own docblock for why this is a live count
-     * over Offering.meta rather than a maintained join table).
+     * over Product.meta rather than a maintained join table).
      *
-     * @param Term $term The term to count offerings for.
+     * @param Term $term The term to count products for.
      * @return int
      */
-    public function count_offerings_for_term( Term $term ): int;
+    public function count_products_for_term( Term $term ): int;
 }

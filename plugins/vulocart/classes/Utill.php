@@ -22,8 +22,8 @@ defined( 'ABSPATH' ) || exit;
 class Utill {
 
     /**
-     * Custom $wpdb table names, keyed by short entity id. Only 'offering'
-     * lives here - Offering is the plugin's always-on core entity. Cart and
+     * Custom $wpdb table names, keyed by short entity id. Only 'product'
+     * lives here - Product is the plugin's always-on core entity. Cart and
      * Order own their own tables directly (`modules/Cart/Install.php`,
      * `modules/Order/Install.php`), not registered in this shared
      * registry, since they're real toggleable modules now - same
@@ -35,7 +35,7 @@ class Utill {
      * @var array
      */
     const TABLES = array(
-        'offering' => 'vulocart_offerings',
+        'product' => 'vulocart_products',
     );
 
     /**
@@ -89,7 +89,7 @@ class Utill {
      * (Notifications\OrderEmails), `cart_expiry_days`
      * (Cart\Application\CartCleanupScheduler's daily cron),
      * `guest_checkout_enabled`/`require_terms_acceptance`/
-     * `checkout_terms_url`/`enable_offerings_listing`/
+     * `checkout_terms_url`/`enable_products_listing`/
      * `enable_cart_checkout` (Block.php's `print_frontend_config()` →
      * src/blocks/checkout/Checkout.tsx, plus Order\Rest::create_item()'s
      * own server-side guest-checkout re-check), and now the whole
@@ -108,7 +108,7 @@ class Utill {
      * `guest_checkout_enabled` already uses. API/MCP/AI still have no
      * backing module in this plugin - the same "real setting, not yet
      * consumed" gap this class already documented for
-     * `default_offering_status` (Application\OfferingService::create_offering()
+     * `default_product_status` (Application\ProductService::create_product()
      * still hardcodes `'draft'`) and VuloPilot\Utill's own
      * `scan_frequency` (inert without its Automation module) - so those
      * three tabs' fields exist to give the Settings UI its full, promised
@@ -130,17 +130,17 @@ class Utill {
     const SETTINGS_DEFAULTS = array(
         // General.
         'default_currency'              => 'USD',
-        'default_offering_status'       => 'draft',
+        'default_product_status'       => 'draft',
 
         // Frontend.
-        'enable_offerings_listing'      => array( 'enable_offerings_listing' ),
+        'enable_products_listing'      => array( 'enable_products_listing' ),
         'enable_cart_checkout'          => array( 'enable_cart_checkout' ),
-        // Storefront listing template (src/blocks/offerings/OfferingsListing.tsx): grid|compact|list|showcase.
+        // Storefront listing template (src/blocks/products/ProductsListing.tsx): grid|compact|list|showcase.
         'listing_template'              => 'grid',
         'listing_columns'               => '4',
 
         // Catalog.
-        'default_offering_type'         => 'physical',
+        'default_product_type'         => 'physical',
         'default_catalog_visibility'    => 'shop_and_search',
         'low_stock_threshold'           => 5,
 
@@ -156,6 +156,12 @@ class Utill {
         // Domain\Checkout\CheckoutMode::free() - which of the two free
         // delivery modes Checkout.tsx mounts CheckoutEngine in.
         'checkout_mode'                 => \VuloCart\Domain\Checkout\CheckoutMode::MULTI_STEP,
+
+        // Extra ways to present checkout (VuloCart Pro): any of popup, drawer, embedded, hosted. Empty until chosen.
+        'checkout_styles'               => array(),
+
+        // Other checkout extras (VuloCart Pro): any of one-click, links, builder, notes, autocomplete.
+        'checkout_features'             => array(),
 
         // Payments.
         'enable_manual_payment'         => array( 'enable_manual_payment' ),
