@@ -1,0 +1,157 @@
+.vulopilot-migration-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 1rem 0;
+	border-top: 1px solid #e5e7eb;
+}
+
+.vulopilot-migration-row-label {
+	font-weight: 600;
+}
+
+.vulopilot-migration-row-hint {
+	color: #6b7280;
+	font-size: 0.8125rem;
+	margin: 0;
+}
+
+.vulopilot-migration-popup-row {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+
+	.vulopilot-migration-row-label {
+		flex-shrink: 0;
+	}
+
+	> div:has(> select),
+	.zyra-select-input {
+		flex: 1;
+	}
+}
+
+.vulopilot-migration-popup-empty {
+	flex: 1;
+	color: #6b7280;
+	font-size: 0.875rem;
+}
+
+// Same progress-row shape @zyra/inputs' TaskExecutorInput uses (the component MultiVendorX's own
+// migration wizard is built on) - a thin underline that fills while running, then locks to
+// completed (green)/failed (red), driven by the real migrate/run REST response rather than a
+// fixed animation duration.
+.sequential-task-executor {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	padding: 0.75rem 0 0;
+
+	.sequential-task {
+		position: relative;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 0.75rem;
+		padding: 0.625rem 0;
+		font-size: 0.95rem;
+		font-weight: 500;
+
+		&::after {
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			width: 0;
+			height: 0.125rem;
+			content: '';
+			background-color: #7c3aed;
+		}
+
+		&.running::after {
+			width: 60%;
+			animation: vulopilot-migration-progress 1.4s ease-in-out infinite alternate;
+		}
+
+		&.completed::after {
+			width: 100%;
+			background-color: #16a34a;
+		}
+
+		&.failed::after {
+			width: 100%;
+			background-color: #dc2626;
+		}
+
+		&.completed {
+			color: #16a34a;
+		}
+
+		&.failed {
+			color: #dc2626;
+		}
+
+		.status-wrapper {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			font-weight: 400;
+			color: #6b7280;
+
+			i {
+				font-size: 1.125rem;
+
+				&.completed-icon {
+					color: #16a34a;
+				}
+
+				&.failed-icon {
+					color: #dc2626;
+				}
+			}
+		}
+	}
+}
+
+@keyframes vulopilot-migration-progress {
+	from {
+		left: 0;
+		width: 10%;
+	}
+
+	to {
+		left: 60%;
+		width: 40%;
+	}
+}
+
+.multivendorx-loader {
+	display: inline-block;
+	width: 1rem;
+	aspect-ratio: 1;
+	--c: no-repeat radial-gradient(farthest-side, #7c3aed 92%, #0000);
+	background:
+		var(--c) 50% 0,
+		var(--c) 50% 100%,
+		var(--c) 100% 50%,
+		var(--c) 0 50%;
+	background-size: 0.3125rem 0.3125rem;
+	animation: vulopilot-migration-loader 1s infinite;
+	position: relative;
+
+	&::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		margin: 0.09375rem;
+		background: repeating-conic-gradient(#0000 0 35deg, #7c3aed 0 90deg);
+		mask: radial-gradient(farthest-side, #0000 calc(100% - 0.09375rem), #000 0);
+		border-radius: 50%;
+	}
+}
+
+@keyframes vulopilot-migration-loader {
+	100% {
+		transform: rotate(0.5turn);
+	}
+}
