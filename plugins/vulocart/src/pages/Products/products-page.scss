@@ -152,9 +152,7 @@
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
-	max-height: calc(100vh - 14rem);
 	padding: 1.25rem 1.5rem;
-	overflow-y: auto;
 	color: #1f2937;
 
 	.vulocart-qe-grid {
@@ -186,9 +184,11 @@
 			}
 		}
 
+		// `max-width: none` - WordPress caps `select` at 25rem, which left dropdowns short of the popup's edge.
 		input,
 		select {
 			width: 100%;
+			max-width: none;
 			min-height: 2.5rem;
 			padding: 0 0.75rem;
 			border: 1px solid #dcdfea;
@@ -206,6 +206,13 @@
 			&.has-error {
 				border-color: #dc2626;
 			}
+		}
+
+		select {
+			padding-right: 2.25rem;
+			background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%236b7280' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 0.875rem center;
+			appearance: none;
+			cursor: pointer;
 		}
 	}
 
@@ -321,6 +328,16 @@
 	justify-content: space-between;
 	gap: 1rem;
 	width: 100%;
+
+	// The note/link takes what's left; the buttons keep their natural width, on one row.
+	> :first-child {
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+
+	> :last-child:not(:first-child) {
+		flex: none;
+	}
 
 	a {
 		font-size: 0.8125rem;
@@ -3862,5 +3879,61 @@
 
 	.vulocart-product-edit-subtitle {
 		margin: 0.5rem 0 0;
+	}
+}
+
+// A Pro block that isn't available yet, inside a product card (ProModuleHint.tsx).
+.vulocart-pro-hint {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-top: 1rem;
+	padding: 0.75rem 1rem;
+	border: 1px dashed #d4cce6;
+	border-radius: 0.5rem;
+	background: #faf8fe;
+
+	> i {
+		flex: none;
+		font-size: 1.125rem;
+		color: #5007aa;
+	}
+}
+
+.vulocart-pro-hint-text {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 0.125rem;
+	min-width: 0;
+	font-size: 0.8125rem;
+	color: #6b7280;
+
+	strong {
+		font-size: 0.875rem;
+		color: #1f2937;
+	}
+}
+
+.vulocart-pro-hint-button {
+	flex: none;
+	padding: 0.4375rem 0.875rem;
+	border: 0;
+	border-radius: 0.375rem;
+	background: #5007aa;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: #fff;
+	text-decoration: none;
+	cursor: pointer;
+
+	&:hover {
+		background: #3f0687;
+		color: #fff;
+	}
+
+	&:disabled {
+		opacity: 0.6;
+		cursor: wait;
 	}
 }

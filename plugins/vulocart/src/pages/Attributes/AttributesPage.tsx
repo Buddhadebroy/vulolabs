@@ -251,6 +251,7 @@ export function AttributesPage() {
 					onClose={ closeAdd }
 					width={ 28 }
 					height="auto"
+					position="lightbox"
 					header={ { title: __( 'Add attribute', 'vulocart' ), icon: 'plus' } }
 					footer={
 						<ButtonInput
@@ -281,6 +282,7 @@ export function AttributesPage() {
 					onClose={ () => setManagingId( null ) }
 					width={ 28 }
 					height="auto"
+					position="lightbox"
 					header={ {
 						/* translators: %s: attribute name. */
 						title: sprintf( __( '%s values', 'vulocart' ), managing?.name ?? '' ),

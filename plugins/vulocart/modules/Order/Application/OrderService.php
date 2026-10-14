@@ -537,6 +537,118 @@ class OrderService {
     }
 
     /**
+     * Fills in or corrects the details an order was placed without - contact, addresses, shipping and payment
+     * method. Only the keys present in $fields change; addresses are sanitised to the stable address shape.
+     *
+     * @param int                  $id     Order id.
+     * @param array<string, mixed> $fields Any of customer_email, customer_name, customer_phone, shipping_method,
+     *                                     payment_method, shipping_address, billing_address.
+     * @return Order|null Null if no order with this id exists.
+     * @throws \InvalidArgumentException If the email is not a valid address.
+     */
+    public function update_details( $id, array $fields ) {
+        $order = $this->repository->find( $id );
+
+        if ( ! $order ) {
+            return null;
+        }
+
+        if ( array_key_exists( 'customer_email', $fields ) ) {
+            $email = sanitize_email( (string) $fields['customer_email'] );
+
+            if ( '' !== (string) $fields['customer_email'] && ! is_email( $email ) ) {
+                throw new \InvalidArgumentException( 'That email address is not valid.' );
+            }
+
+            $order->customer_email = '' === $email ? null : $email;
+        }
+
+        foreach ( array( 'customer_name', 'customer_phone', 'shipping_method', 'payment_method' ) as $key ) {
+            if ( array_key_exists( $key, $fields ) ) {
+                $value        = sanitize_text_field( (string) $fields[ $key ] );
+                $order->$key = '' === $value ? null : $value;
+            }
+        }
+
+        foreach ( array( 'shipping_address', 'billing_address' ) as $key ) {
+            if ( array_key_exists( $key, $fields ) && is_array( $fields[ $key ] ) ) {
+                $bag = array();
+
+                foreach ( array( 'full_name', 'phone', 'address_1', 'address_2', 'city', 'state', 'postcode', 'country' ) as $field ) {
+                    $bag[ $field ] = isset( $fields[ $key ][ $field ] ) ? sanitize_text_field( (string) $fields[ $key ][ $field ] ) : '';
+                }
+
+                $order->$key = $bag;
+            }
+        }
+
+        return $this->repository->update( $order );
+    }
+
+    /**
+     * Emails the customer a payment request and remembers when (in the order's `meta`, newest last).
+     *
+     * @param int $id Order id.
+     * @return Order|null Null if no order with this id exists.
+     * @throws \InvalidArgumentException If the order has no customer email, or is already paid.
+     * @throws \RuntimeException If the mail could not be sent.
+     */
+    public function request_payment( $id ) {
+        $order = $this->repository->find( $id );
+
+        if ( ! $order ) {
+            return null;
+        }
+
+        if ( empty( $order->customer_email ) ) {
+            throw new \InvalidArgumentException( 'Add the customer\'s email address first.' );
+        }
+
+        if ( in_array( $order->payment_status, array( PaymentStatus::PAID, PaymentStatus::REFUNDED ), true ) ) {
+            throw new \InvalidArgumentException( 'This order is already paid.' );
+        }
+
+        if ( ! \VuloCart\Notifications\OrderEmails::send_payment_request( $order ) ) {
+            throw new \RuntimeException( 'The email could not be sent.' );
+        }
+
+        $order->meta                     = is_array( $order->meta ) ? $order->meta : array();
+        $order->meta['payment_requests'] = array_slice( array_merge( (array) ( $order->meta['payment_requests'] ?? array() ), array( current_time( 'mysql' ) ) ), -10 );
+
+        return $this->repository->update( $order );
+    }
+
+    /**
+     * Replaces an order's free-form tags (kept in the order's `meta`).
+     *
+     * @param int      $id   Order id.
+     * @param string[] $tags The tags, in order.
+     * @return Order|null Null if no order with this id exists.
+     */
+    public function set_tags( $id, array $tags ) {
+        $order = $this->repository->find( $id );
+
+        if ( ! $order ) {
+            return null;
+        }
+
+        $clean = array();
+
+        foreach ( $tags as $tag ) {
+            $tag = trim( (string) $tag );
+
+            if ( '' !== $tag && ! in_array( $tag, $clean, true ) ) {
+                $clean[] = mb_substr( $tag, 0, 40 );
+            }
+        }
+
+        $order->meta         = is_array( $order->meta ) ? $order->meta : array();
+        $order->meta['tags'] = array_slice( $clean, 0, 20 );
+
+        return $this->repository->update( $order );
+    }
+
+    /**
      * Transitions an order's payment status and broadcasts
      * `order_payment_status_changed` (plus `order_refunded`, matching the
      * vision's explicit "RefundIssued" event, when the new status is

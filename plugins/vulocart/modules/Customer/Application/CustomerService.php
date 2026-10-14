@@ -230,11 +230,29 @@ class CustomerService {
             $order->customer_user_id
         );
 
-        $customer->total_orders  = $customer->total_orders + 1;
-        $customer->total_spent   = $customer->total_spent + (float) $order->total;
-        $customer->last_order_at = current_time( 'mysql' );
+        $this->customers->refresh_totals( (string) $customer->email );
+    }
 
-        $this->customers->update( $customer );
+    /**
+     * Brings a customer's totals back in line with their orders - called whenever an order's payment or fulfillment
+     * status changes, since a payment, a refund or a cancellation all move the numbers.
+     *
+     * @param object $order `Order\Domain\Order`.
+     * @return void
+     */
+    public function refresh_for_order( $order ): void {
+        if ( ! empty( $order->customer_email ) ) {
+            $this->customers->refresh_totals( (string) $order->customer_email );
+        }
+    }
+
+    /**
+     * Recomputes every customer's totals once, for stores whose numbers were counted the old way.
+     *
+     * @return void
+     */
+    public function refresh_all_totals(): void {
+        $this->customers->refresh_totals( null );
     }
 
     /**

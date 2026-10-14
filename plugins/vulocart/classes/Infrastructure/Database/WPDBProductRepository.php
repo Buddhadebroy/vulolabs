@@ -167,6 +167,22 @@ class WPDBProductRepository implements ProductRepositoryInterface {
             $where_values[]  = '%"' . $wpdb->esc_like( (string) $args['category'] ) . '"%';
         }
 
+        // Built-in list views (the admin's "Views" row): fixed fragments over the `meta` JSON text / price column.
+        $views = array(
+            'featured'     => array( 'meta LIKE %s', '%"featured":true%' ),
+            'out_of_stock' => array( 'meta LIKE %s', '%"stock_status":"out_of_stock"%' ),
+            'hidden'       => array( 'meta LIKE %s', '%"catalog_visibility":"hidden"%' ),
+            'no_price'     => array( 'price IS NULL', null ),
+        );
+
+        if ( ! empty( $args['view'] ) && isset( $views[ $args['view'] ] ) ) {
+            $where_clauses[] = $views[ $args['view'] ][0];
+
+            if ( null !== $views[ $args['view'] ][1] ) {
+                $where_values[] = $views[ $args['view'] ][1];
+            }
+        }
+
         $where_sql = $where_clauses ? ( 'WHERE ' . implode( ' AND ', $where_clauses ) ) : '';
 
         if ( $where_values ) {

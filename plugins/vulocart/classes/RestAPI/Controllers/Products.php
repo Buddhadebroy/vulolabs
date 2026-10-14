@@ -517,6 +517,7 @@ class Products extends \WP_REST_Controller {
         $status   = sanitize_key( (string) $request->get_param( 'status' ) );
         $search   = sanitize_text_field( (string) $request->get_param( 'search' ) );
         $category = sanitize_key( (string) $request->get_param( 'category' ) );
+        $view     = sanitize_key( (string) $request->get_param( 'view' ) );
 
         // Anyone without manage_options is a public storefront request
         // (see get_items_permissions_check()'s docblock) - force
@@ -535,6 +536,7 @@ class Products extends \WP_REST_Controller {
                 'status'   => $status,
                 'search'   => $search,
                 'category' => $category,
+                'view'     => current_user_can( 'manage_options' ) ? $view : '',
             )
         );
 

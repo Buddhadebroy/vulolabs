@@ -18,6 +18,7 @@ import { CardComponent, FormGroupWrapperComponent, FormGroupComponent } from '@z
 import { TextInput, TextAreaInput, SelectInput, ButtonInput, MultiCheckboxInput, FileInput } from '@zyra/inputs';
 import { EmbedCodeSection } from './EmbedCodeSection';
 import { HeaderPicker } from './HeaderPicker';
+import { ProModuleHint } from './ProModuleHint';
 import { TypeChooser } from './TypeChooser';
 import { PRODUCT_TYPE_OPTIONS, TYPE_PROFILES, cardsFor, fieldsFor, profileFor, subtypeFor, type TypeDetailField } from './typeProfiles';
 import './products-page.scss';
@@ -1330,7 +1331,14 @@ export function ProductEdit( { id }: ProductEditProps ) {
 						<PriceList prices={ formData.prices } onChange={ setPrices } symbol={ currencySymbol } money={ formatMoney } />
 						{ PRICE_LIST_HINTS[ formData.type ] && <p className="vulocart-price-type-hint">{ PRICE_LIST_HINTS[ formData.type ] }</p> }
 
-						{ pricingSection }
+						{ pricingSection ??
+							( isEditMode && (
+								<ProModuleHint
+									module="pricing-rules"
+									title={ __( 'Pricing rules', 'vulocart' ) }
+									description={ __( 'Automatic percentage or fixed discounts for this product, its category or the whole store.', 'vulocart' ) }
+								/>
+							) ) }
 					</CardComponent>
 
 					{ cards.variants && (

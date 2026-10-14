@@ -320,6 +320,24 @@ const MODULES_CATALOG: {
 			],
 		},
 		{
+			id: 'order-documents',
+			icon: 'invoice',
+			name: __( 'Order Documents', 'vulocart' ),
+			desc: __(
+				'Invoice, packing slip and credit note for every order - as a PDF or a print-ready page, from the order screen.',
+				'vulocart'
+			),
+			proModule: true,
+			category: 'operations',
+			freeFeatures: [],
+			proFeatures: [
+				__( 'PDF invoice with your store details', 'vulocart' ),
+				__( 'Packing slip without prices', 'vulocart' ),
+				__( 'Credit note for refunded orders', 'vulocart' ),
+				__( 'Print-ready page for each document', 'vulocart' ),
+			],
+		},
+		{
 			id: 'inventory',
 			icon: 'store-inventory',
 			name: __( 'Inventory Engine', 'vulocart' ),
@@ -336,6 +354,40 @@ const MODULES_CATALOG: {
 				__( 'Reservations and low-stock alerts', 'vulocart' ),
 				__( 'Batch/serial tracking and history ledger', 'vulocart' ),
 				__( 'Demand forecasting', 'vulocart' ),
+			],
+		},
+		{
+			id: 'analytics',
+			icon: 'analytics',
+			name: __( 'Analytics', 'vulocart' ),
+			desc: __(
+				'Sales, revenue, customers, products, funnels, abandonment, conversion, lifetime value, retention and forecasts on one dashboard.',
+				'vulocart'
+			),
+			proModule: true,
+			category: 'operations',
+			freeFeatures: [],
+			proFeatures: [
+				__( 'Sales, revenue and customer reports', 'vulocart' ),
+				__( 'Funnels, conversion and abandonment', 'vulocart' ),
+				__( 'Lifetime value, retention and forecasts', 'vulocart' ),
+			],
+		},
+		{
+			id: 'workflow-builder',
+			icon: 'automation',
+			name: __( 'Workflow Builder', 'vulocart' ),
+			desc: __(
+				'Automate what happens after an order, payment, refund, low-stock alert, new customer or delivery - triggers, conditions and actions such as email, webhook and Slack.',
+				'vulocart'
+			),
+			proModule: true,
+			category: 'operations',
+			freeFeatures: [],
+			proFeatures: [
+				__( 'Seven triggers and seven actions', 'vulocart' ),
+				__( 'Conditions, loops and waits', 'vulocart' ),
+				__( 'Run history', 'vulocart' ),
 			],
 		},
 
@@ -377,6 +429,72 @@ const MODULES_CATALOG: {
 				__( 'Provider configured on the AI settings tab', 'vulocart' ),
 			],
 			proFeatures: [],
+		},
+		{
+			id: 'catalog-ai',
+			icon: 'ai',
+			name: __( 'Catalog AI', 'vulocart' ),
+			desc: __(
+				'Describe a product and Catalog AI drafts it - title, description, SEO, specifications, FAQs, translations and pricing suggestions. Needs the AI module and a provider on the AI settings tab.',
+				'vulocart'
+			),
+			proModule: true,
+			category: 'ai-integrations',
+			freeFeatures: [],
+			proFeatures: [
+				__( 'Generate products and descriptions', 'vulocart' ),
+				__( 'SEO, specifications, FAQs and translations', 'vulocart' ),
+				__( 'Pricing and inventory suggestions', 'vulocart' ),
+			],
+		},
+		{
+			id: 'checkout-ai',
+			icon: 'ai',
+			name: __( 'Checkout AI', 'vulocart' ),
+			desc: __(
+				'Scores every checkout for fraud risk and queues the risky ones for review, and suggests products bought together.',
+				'vulocart'
+			),
+			proModule: true,
+			category: 'ai-integrations',
+			freeFeatures: [],
+			proFeatures: [
+				__( 'Real-time fraud scoring', 'vulocart' ),
+				__( 'Review queue for risky orders', 'vulocart' ),
+				__( 'Co-purchase recommendations', 'vulocart' ),
+			],
+		},
+		{
+			id: 'support-ai',
+			icon: 'ai',
+			name: __( 'Support AI', 'vulocart' ),
+			desc: __(
+				'Chat assistants that draft replies from your catalog and order data - one for you in wp-admin and one for shoppers on the storefront.',
+				'vulocart'
+			),
+			proModule: true,
+			category: 'ai-integrations',
+			freeFeatures: [],
+			proFeatures: [
+				__( 'Merchant assistant in wp-admin', 'vulocart' ),
+				__( 'Customer assistant on the storefront', 'vulocart' ),
+			],
+		},
+		{
+			id: 'vector-search',
+			icon: 'ai',
+			name: __( 'Vector Search', 'vulocart' ),
+			desc: __(
+				'Semantic search over your catalog - finds products by meaning, not just exact keywords.',
+				'vulocart'
+			),
+			proModule: true,
+			category: 'ai-integrations',
+			freeFeatures: [],
+			proFeatures: [
+				__( 'Search by meaning', 'vulocart' ),
+				__( 'Built on your AI provider embeddings', 'vulocart' ),
+			],
 		},
 	],
 };

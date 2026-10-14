@@ -33,19 +33,6 @@ export default {
 			),
 		},
 		{
-			key: 'allow_guest_cart',
-			type: 'checkbox',
-			look: 'toggle',
-			label: __( 'Allow guest carts', 'vulocart' ),
-			settingDescription: __(
-				'Let a shopper add items to a cart before creating an account.',
-				'vulocart'
-			),
-			options: [
-				{ key: 'allow_guest_cart', label: '', value: 'allow_guest_cart' },
-			],
-		},
-		{
 			key: 'cart_expiry_days',
 			type: 'number',
 			label: __( 'Cart expiry (days)', 'vulocart' ),

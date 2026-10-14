@@ -128,14 +128,16 @@ const CHECKOUT_SETTING_MODULES = [
 
 /**
  * Shown where a module's page would be: tells the user which module powers the page and gives
- * the one action that fixes it - activating a free module in place, or going to the Licensing tab
- * for a Pro one while no license is active.
+ * the one action that fixes it - activating a free module in place, upgrading when Pro isn't installed,
+ * or going to the Licensing tab for a Pro one while no license is active.
  */
 export function ModuleRequired( { view }: { view: EngineView } ) {
 	const [ busy, setBusy ] = useState( false );
 	const [ failed, setFailed ] = useState( false );
-	// `khali_dabba` is true when Pro is installed AND its license is active (Utill::is_khali_dabba()).
-	const needsLicense = !! view.pro && ! vulocartLocalizer.khali_dabba;
+	// `pro_version` is set only while vulocart-pro is active; `khali_dabba` is true when it is also licensed
+	// (Utill::is_khali_dabba()). No Pro at all is an upgrade, Pro without a license is an activation.
+	const needsUpgrade = !! view.pro && ! vulocartLocalizer.pro_version;
+	const needsLicense = !! view.pro && ! needsUpgrade && ! vulocartLocalizer.khali_dabba;
 	const inCheckoutSettings = CHECKOUT_SETTING_MODULES.includes( view.module );
 	const settingsUrl = `${ vulocartLocalizer.adminUrl }admin.php?page=vulocart#&tab=settings&subtab=`;
 
@@ -158,16 +160,22 @@ export function ModuleRequired( { view }: { view: EngineView } ) {
 
 	return (
 		<div className="vulocart-engine-required">
-			<i className={ `adminfont-${ needsLicense ? 'lock' : view.icon }` } />
+			<i className={ `adminfont-${ needsUpgrade || needsLicense ? 'lock' : view.icon }` } />
 			<h2>
-				{ needsLicense
+				{ needsUpgrade
+					? __( 'This page is part of VuloCart Pro', 'vulocart' )
+					: needsLicense
 					? __( 'This page needs an active VuloCart Pro license', 'vulocart' )
 					: inCheckoutSettings
 					? __( 'Turn this on in Checkout settings', 'vulocart' )
 					: __( 'Turn on the module behind this page', 'vulocart' ) }
 			</h2>
 			<p>{ view.description }</p>
-			{ needsLicense ? (
+			{ needsUpgrade ? (
+				<a className="vulocart-engine-button" href={ vulocartLocalizer.shop_url } target="_blank" rel="noreferrer">
+					{ __( 'Upgrade to Pro', 'vulocart' ) }
+				</a>
+			) : needsLicense ? (
 				<a className="vulocart-engine-button" href={ `${ settingsUrl }licensing` }>
 					{ __( 'Activate license', 'vulocart' ) }
 				</a>

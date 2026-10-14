@@ -354,7 +354,7 @@ class Rest extends \WP_REST_Controller {
         $per_page = absint( $request->get_param( 'per_page' ) ? $request->get_param( 'per_page' ) : 20 );
         $search   = $request->get_param( 'search' ) ? sanitize_text_field( (string) $request->get_param( 'search' ) ) : null;
 
-        $result = VuloCart()->customer_service->list_customers( array( 'page' => $page, 'per_page' => $per_page, 'search' => $search ) );
+        $result = VuloCart()->customer_service->list_customers( array( 'page' => $page, 'per_page' => $per_page, 'search' => $search, 'view' => sanitize_key( (string) $request->get_param( 'view' ) ) ) );
 
         $response = rest_ensure_response( array_map( array( $this, 'prepare_for_response' ), $result['data'] ) );
         $response->header( 'X-WP-Total', (string) $result['total'] );

@@ -105,15 +105,11 @@ class Utill {
      * Taxes/Payment/Review/Confirmation modules). `require_phone_number`
      * (Checkout section) is enforced directly by `Order\Rest::
      * create_item()`, same "client hint, server re-check" pattern
-     * `guest_checkout_enabled` already uses. API/MCP/AI still have no
-     * backing module in this plugin - the same "real setting, not yet
-     * consumed" gap this class already documented for
-     * `default_product_status` (Application\ProductService::create_product()
-     * still hardcodes `'draft'`) and VuloPilot\Utill's own
-     * `scan_frequency` (inert without its Automation module) - so those
-     * three tabs' fields exist to give the Settings UI its full, promised
-     * tab structure honestly rather than silently omitting tabs the
-     * admin-UX brief asked for.
+     * `guest_checkout_enabled` already uses.
+     *
+     * Settings nothing read were removed (default product status/type/visibility, allow_guest_cart,
+     * default_shipping_class, the public REST API toggle and its rate limit) - a stored value stays harmless
+     * in an existing install's option.
      *
      * Deliberately no `enable_mcp_server`/`enable_ai_recommendations` keys
      * (removed after MCP/AI were built) - both were a Settings-tab
@@ -130,7 +126,6 @@ class Utill {
     const SETTINGS_DEFAULTS = array(
         // General.
         'default_currency'              => 'USD',
-        'default_product_status'       => 'draft',
 
         // Frontend.
         'enable_products_listing'      => array( 'enable_products_listing' ),
@@ -140,12 +135,9 @@ class Utill {
         'listing_columns'               => '4',
 
         // Catalog.
-        'default_product_type'         => 'physical',
-        'default_catalog_visibility'    => 'shop_and_search',
         'low_stock_threshold'           => 5,
 
         // Cart.
-        'allow_guest_cart'              => array( 'allow_guest_cart' ),
         'cart_expiry_days'              => 14,
 
         // Checkout.
@@ -173,7 +165,6 @@ class Utill {
 
         // Shipping.
         'enable_shipping'               => array( 'enable_shipping' ),
-        'default_shipping_class'        => 'standard',
         'flat_rate_shipping_cost'       => 0,
 
         // Taxes.
@@ -185,10 +176,6 @@ class Utill {
         'send_order_confirmation_email' => array( 'send_order_confirmation_email' ),
         'send_status_update_email'      => array( 'send_status_update_email' ),
         'notification_from_email'       => '',
-
-        // API.
-        'enable_public_rest_api'        => array( 'enable_public_rest_api' ),
-        'api_rate_limit_per_minute'     => 60,
 
         // MCP.
         'mcp_api_key'                   => '',

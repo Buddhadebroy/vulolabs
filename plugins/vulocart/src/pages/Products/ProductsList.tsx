@@ -12,6 +12,7 @@ import { downloadCSV } from '../../lib/utils';
 import { formatWpDate } from '../../services/formatWpDate';
 import ConfirmPopup from '../../components/ConfirmPopup/ConfirmPopup';
 import './products-page.scss';
+import { ViewsMenu, useViewsConfig } from '../../components/ViewsMenu/ViewsMenu';
 
 /**
  * ProductType::all() (classes/Domain/Product/ProductType.php), same
@@ -76,8 +77,25 @@ interface QuickEditRow {
 
 interface SavedView {
 	name: string;
-	params: { status: string; type: string; category: string; search: string };
+	params: { status: string; type: string; category: string; search: string; view?: string };
 }
+
+const NO_FILTERS = { status: '', type: '', category: '', search: '' };
+
+/**
+ * Built-in views: ready-made shortcuts shown ahead of the merchant's own saved ones. They force their own
+ * filters (type, or a server-side `view` such as featured / out of stock), so they work the same for everyone.
+ */
+const BUILT_IN_VIEWS: { id: string; label: string; hint: string; params: SavedView[ 'params' ] }[] = [
+	{ id: 'featured', label: __( 'Featured', 'vulocart' ), hint: __( 'Products you have starred', 'vulocart' ), params: { ...NO_FILTERS, view: 'featured' } },
+	{ id: 'out_of_stock', label: __( 'Out of stock', 'vulocart' ), hint: __( 'Marked out of stock', 'vulocart' ), params: { ...NO_FILTERS, view: 'out_of_stock' } },
+	{ id: 'no_price', label: __( 'No price', 'vulocart' ), hint: __( 'Cannot be bought yet - no price set', 'vulocart' ), params: { ...NO_FILTERS, view: 'no_price' } },
+	{ id: 'hidden', label: __( 'Hidden', 'vulocart' ), hint: __( 'Not shown in the shop or search', 'vulocart' ), params: { ...NO_FILTERS, view: 'hidden' } },
+	{ id: 'physical', label: __( 'Physical', 'vulocart' ), hint: __( 'Products that ship', 'vulocart' ), params: { ...NO_FILTERS, type: 'physical' } },
+	{ id: 'digital', label: __( 'Digital', 'vulocart' ), hint: __( 'Downloads', 'vulocart' ), params: { ...NO_FILTERS, type: 'digital' } },
+	{ id: 'subscription', label: __( 'Subscriptions', 'vulocart' ), hint: __( 'Recurring products', 'vulocart' ), params: { ...NO_FILTERS, type: 'subscription' } },
+	{ id: 'service', label: __( 'Services', 'vulocart' ), hint: __( 'Services and bookings', 'vulocart' ), params: { ...NO_FILTERS, type: 'service' } },
+];
 
 const SAVED_VIEWS_STORAGE_KEY = 'vulocart_products_saved_views';
 
@@ -295,6 +313,48 @@ function ProductQuickEdit( { row, onClose, onSaved }: { row: QuickEditRow; onClo
 	);
 }
 
+/** Names the current filters as a saved view - a lightbox in place of `window.prompt()`. */
+function SavedViewName( { onClose, onSave }: { onClose: () => void; onSave: ( name: string ) => void } ) {
+	const [ name, setName ] = useState( '' );
+	const trimmed = name.trim();
+
+	return (
+		<PopupComponent
+			open
+			onClose={ onClose }
+			width={ 26 }
+			height="auto"
+			position="lightbox"
+			header={ { icon: 'plus', title: __( 'Save view', 'vulocart' ), description: __( 'Keeps the current status, type, category and search.', 'vulocart' ) } }
+			footer={
+				<ButtonInput
+					buttons={ [
+						{ text: __( 'Cancel', 'vulocart' ), color: 'purple', onClick: onClose },
+						{ text: __( 'Save view', 'vulocart' ), icon: 'check', onClick: () => onSave( trimmed ), disabled: ! trimmed },
+					] }
+				/>
+			}
+		>
+			<div className="vulocart-qe">
+				<label className="vulocart-qe-field">
+					<span>{ __( 'View name', 'vulocart' ) }</span>
+					<input
+						type="text"
+						autoFocus
+						value={ name }
+						onChange={ ( event ) => setName( event.target.value ) }
+						onKeyDown={ ( event ) => {
+							if ( 'Enter' === event.key && trimmed ) {
+								onSave( trimmed );
+							}
+						} }
+					/>
+				</label>
+			</div>
+		</PopupComponent>
+	);
+}
+
 /**
  * Bulk edit: one popup for the selected products. Every field starts as "No change" - only what you fill in is
  * applied, through the same bulk endpoints the list always used (status / price / stock), so nothing else is touched.
@@ -355,7 +415,7 @@ function ProductBulkEdit( { ids, onClose, onDone }: { ids: number[]; onClose: ()
 		<PopupComponent
 			open
 			onClose={ onClose }
-			width={ 30 }
+			width={ 36 }
 			height="auto"
 			position="lightbox"
 			header={ {
@@ -458,8 +518,11 @@ export function ProductsList() {
 	const [ deleteTarget, setDeleteTarget ] = useState< QuickEditRow | null >( null );
 	const [ quickEditRow, setQuickEditRow ] = useState< QuickEditRow | null >( null );
 	const [ bulkEditIds, setBulkEditIds ] = useState< number[] >( [] );
+	const [ bulkDeleteIds, setBulkDeleteIds ] = useState< number[] >( [] );
+	const [ isNamingView, setIsNamingView ] = useState( false );
 	const [ savedViews, setSavedViews ] = useState< SavedView[] >( loadSavedViews() );
 	const [ activeSavedView, setActiveSavedView ] = useState< string | null >( null );
+	const [ viewsConfig, setViewsConfig, restoreViews ] = useViewsConfig( 'vulocart_products_views_config' );
 	const [ lastQuery, setLastQuery ] = useState< QueryProps >( {} );
 
 	// Anything that adds products from outside the table (an import) asks the list to reload.
@@ -495,6 +558,7 @@ export function ProductsList() {
 			type: override ? override.type : query.filter?.type || '',
 			category: override ? override.category : query.filter?.category || '',
 			search: override ? override.search : query.searchValue || '',
+			view: override?.view || '',
 		};
 
 		if ( includePagination ) {
@@ -562,9 +626,7 @@ export function ProductsList() {
 			return;
 		}
 
-		const refresh = () => doRefreshTableData( lastQuery );
-		const [ field, value ] = action.split( ':' );
-		const headers = { 'X-WP-Nonce': vulocartLocalizer.nonce };
+		const [ field ] = action.split( ':' );
 
 		if ( 'edit' === field ) {
 			setBulkEditIds( selectedIds );
@@ -572,15 +634,17 @@ export function ProductsList() {
 		}
 
 		if ( 'delete' === field ) {
-			if (
-				! window.confirm(
-					__( 'Delete the selected products? This cannot be undone.', 'vulocart' )
-				)
-			) {
-				return;
-			}
-			axios.delete( getApiLink( vulocartLocalizer, 'products/bulk-delete' ), { headers, data: { ids: selectedIds } } ).then( refresh );
+			setBulkDeleteIds( selectedIds );
 		}
+	};
+
+	const confirmBulkDelete = () => {
+		const ids = bulkDeleteIds;
+		setBulkDeleteIds( [] );
+
+		axios
+			.delete( getApiLink( vulocartLocalizer, 'products/bulk-delete' ), { headers: { 'X-WP-Nonce': vulocartLocalizer.nonce }, data: { ids } } )
+			.then( () => doRefreshTableData( lastQuery ) );
 	};
 
 	const STATUS_BADGE: Record< string, string > = { published: 'badge-active', draft: 'badge-pending', archived: 'badge-inactive' };
@@ -620,7 +684,7 @@ export function ProductsList() {
 					row.sku ? `${ __( 'SKU', 'vulocart' ) }: ${ row.sku }` : '',
 				].filter( Boolean );
 
-				// Title, then SKU, then the badges (type, status) and the published date.
+				// Title, then SKU, then the published date and the badges (type, status).
 				return (
 					<div className="vulocart-product-cell">
 						<a className="vulocart-product-cell-title" href={ `admin.php?page=vulocart-products&action=edit&id=${ row.id }` }>
@@ -628,11 +692,11 @@ export function ProductsList() {
 						</a>
 						{ details.length > 0 && <div className="desc">{ details.join( ', ' ) }</div> }
 						<div className="vulocart-product-cell-tags">
-							<span className="admin-badge badge-info">{ String( row.type ).replace( '_', ' ' ) }</span>
-							<span className={ `admin-badge ${ STATUS_BADGE[ String( row.status ) ] ?? 'badge-info' }` }>{ String( row.status ) }</span>
 							{ row.published_at && (
 								<span className="desc">{ formatWpDate( row.published_at as string ) }</span>
 							) }
+							<span className="admin-badge badge-info">{ String( row.type ).replace( '_', ' ' ) }</span>
+							<span className={ `admin-badge ${ STATUS_BADGE[ String( row.status ) ] ?? 'badge-info' }` }>{ String( row.status ) }</span>
 						</div>
 					</div>
 				);
@@ -719,17 +783,24 @@ export function ProductsList() {
 			} );
 	};
 
-	const saveCurrentView = () => {
-		const name = window.prompt( __( 'Name this view:', 'vulocart' ) );
-		if ( ! name || ! name.trim() ) {
-			return;
-		}
-
-		const params = buildQueryParams( lastQuery, false ) as unknown as SavedView[ 'params' ];
+	const saveCurrentView = ( name: string ) => {
+		const builtIn = BUILT_IN_VIEWS.find( ( view ) => activeSavedView === `builtin:${ view.id }` );
+		const params = ( builtIn ? builtIn.params : buildQueryParams( lastQuery, false ) ) as unknown as SavedView[ 'params' ];
 		const next = [ ...savedViews.filter( ( view ) => view.name !== name ), { name, params } ];
 		setSavedViews( next );
 		persistSavedViews( next );
 		setActiveSavedView( name );
+		setIsNamingView( false );
+	};
+
+	const applyBuiltInView = ( id: string, params: SavedView[ 'params' ] ) => {
+		setActiveSavedView( `builtin:${ id }` );
+		doRefreshTableData( lastQuery, params );
+	};
+
+	const showAll = () => {
+		setActiveSavedView( null );
+		doRefreshTableData( lastQuery );
 	};
 
 	const applySavedView = ( view: SavedView ) => {
@@ -751,28 +822,35 @@ export function ProductsList() {
 			<ColumnComponent>
 				<NavigatorHeaderComponent
 					headerIcon="product"
+					headerCustomContent={
+						<>
+							<ButtonInput
+								buttons={ [
+														...( applyFilters( 'vulocart_product_list_buttons', [] ) as { label: string; icon?: string; color?: string; onClick: () => void }[] ).map( ( button ) => ( { text: button.label, icon: button.icon, color: button.color, onClick: button.onClick } ) ),
+														{
+															text: __( 'Export', 'vulocart' ),
+															icon: 'download',
+															color: 'purple',
+															onClick: () => downloadAllCSV( lastQuery ),
+														},
+														{
+															text: __( 'Add Product', 'vulocart' ),
+															icon: 'plus',
+															color: '',
+															onClick: () => {
+																window.location.href = 'admin.php?page=vulocart-products&action=add';
+															},
+														},
+													] }
+							/>
+							<ViewsMenu builtIns={ BUILT_IN_VIEWS } config={ viewsConfig } onChange={ ( next ) => { setViewsConfig( next ); if ( activeSavedView?.startsWith( 'builtin:' ) && ( ! next.enabled || next.hidden.includes( activeSavedView.slice( 8 ) ) ) ) { showAll(); } } } onRestore={ restoreViews } />
+						</>
+					}
 					headerTitle={ __( 'Products', 'vulocart' ) }
 					headerDescription={ __(
 						'Manage every product - physical, digital, or service-based - from one place.',
 						'vulocart'
 					) }
-					buttons={ [
-						...( applyFilters( 'vulocart_product_list_buttons', [] ) as { label: string; icon?: string; color?: string; onClick: () => void }[] ),
-						{
-							label: __( 'Export', 'vulocart' ),
-							icon: 'download',
-							color: 'purple',
-							onClick: () => downloadAllCSV( lastQuery ),
-						},
-						{
-							label: __( 'Add Product', 'vulocart' ),
-							icon: 'plus',
-							color: '',
-							onClick: () => {
-								window.location.href = 'admin.php?page=vulocart-products&action=add';
-							},
-						},
-					] }
 				/>
 
 				{
@@ -790,8 +868,22 @@ export function ProductsList() {
 					 * than leaving the controls looking stale/wrong.
 					 */
 				}
-				<div className="vulocart-saved-views">
-					<span className="vulocart-saved-views-label">{ __( 'Saved views:', 'vulocart' ) }</span>
+				<div className="vulocart-saved-views" style={ viewsConfig.enabled ? undefined : { display: "none" } }>
+					{ viewsConfig.enabled ? (
+						<>
+					<span className="vulocart-saved-views-label">{ __( 'Views:', 'vulocart' ) }</span>
+					<span className={ `vulocart-saved-view-chip${ null === activeSavedView ? ' is-active' : '' }` }>
+						<button type="button" onClick={ showAll }>
+							{ __( 'All', 'vulocart' ) }
+						</button>
+					</span>
+					{ BUILT_IN_VIEWS.filter( ( view ) => ! viewsConfig.hidden.includes( view.id ) ).map( ( view ) => (
+						<span key={ view.id } className={ `vulocart-saved-view-chip${ activeSavedView === `builtin:${ view.id }` ? ' is-active' : '' }` }>
+							<button type="button" title={ view.hint } onClick={ () => applyBuiltInView( view.id, view.params ) }>
+								{ view.label }
+							</button>
+						</span>
+					) ) }
 					{ savedViews.map( ( view ) => (
 						<span
 							key={ view.name }
@@ -807,9 +899,11 @@ export function ProductsList() {
 							/>
 						</span>
 					) ) }
-					<button type="button" className="vulocart-save-view-button" onClick={ saveCurrentView }>
+					<button type="button" className="vulocart-save-view-button" onClick={ () => setIsNamingView( true ) }>
 						+ { __( 'Save current filters as a view', 'vulocart' ) }
 					</button>
+						</>
+										) : null }
 				</div>
 
 				<TableCard
@@ -856,6 +950,20 @@ export function ProductsList() {
 				onConfirm={ confirmDelete }
 				onCancel={ () => setDeleteTarget( null ) }
 			/>
+
+			<ConfirmPopup
+				open={ bulkDeleteIds.length > 0 }
+				title={ __( 'Delete products', 'vulocart' ) }
+				message={ sprintf(
+					/* translators: %d: number of products. */
+					_n( 'Delete %d selected product? This cannot be undone.', 'Delete %d selected products? This cannot be undone.', bulkDeleteIds.length, 'vulocart' ),
+					bulkDeleteIds.length
+				) }
+				onConfirm={ confirmBulkDelete }
+				onCancel={ () => setBulkDeleteIds( [] ) }
+			/>
+
+			{ isNamingView && <SavedViewName onClose={ () => setIsNamingView( false ) } onSave={ saveCurrentView } /> }
 
 			{ applyFilters( 'vulocart_product_list_overlay', null ) as ReactNode }
 

@@ -377,6 +377,13 @@ class WPDBOrderRepository implements OrderRepositoryInterface {
                 'authorized_amount'  => $order->authorized_amount,
                 'captured_amount'    => $order->captured_amount,
                 'meta'               => wp_json_encode( $order->meta ),
+                'customer_email'     => $order->customer_email,
+                'customer_name'      => $order->customer_name,
+                'customer_phone'     => $order->customer_phone,
+                'billing_address'    => null === $order->billing_address ? null : wp_json_encode( $order->billing_address ),
+                'shipping_address'   => null === $order->shipping_address ? null : wp_json_encode( $order->shipping_address ),
+                'shipping_method'    => $order->shipping_method,
+                'payment_method'     => $order->payment_method,
             ),
             array( 'id' => $order->id )
         );

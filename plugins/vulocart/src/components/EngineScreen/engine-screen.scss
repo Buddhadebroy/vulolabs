@@ -295,3 +295,33 @@ $engine-muted: #6b7280;
 		outline: 0;
 	}
 }
+
+// Tab bar for an engine page that holds several features (the AI page).
+.vulocart-engine-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem;
+	margin: 0 0 1.25rem;
+	border-bottom: 1px solid $engine-border;
+
+	button {
+		margin: 0 0 -1px;
+		padding: 0.625rem 1.125rem;
+		border: 0;
+		border-bottom: 2px solid transparent;
+		background: transparent;
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: $engine-muted;
+		cursor: pointer;
+
+		&:hover {
+			color: $engine-primary;
+		}
+
+		&.is-active {
+			border-bottom-color: $engine-primary;
+			color: $engine-primary;
+		}
+	}
+}
