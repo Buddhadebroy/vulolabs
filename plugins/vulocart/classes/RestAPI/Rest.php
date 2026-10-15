@@ -59,6 +59,7 @@ class Rest {
             'attributes'     => new Controllers\Attributes(),
             'reviews'        => new Controllers\Reviews(),
             'inventory'      => new Controllers\Inventory(),
+            'dashboard'      => new Controllers\Dashboard(),
             'product_types' => new Controllers\ProductTypes(),
             'checkout'       => new Controllers\Checkout(),
             'sdk'            => new Controllers\Sdk(),

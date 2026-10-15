@@ -1,5 +1,5 @@
 /* global vulocartLocalizer */
-import { useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import axios from 'axios';
 import { getApiLink } from '@zyra/core';
@@ -58,6 +58,18 @@ export function ReviewsPage() {
 	const [ categoryCounts, setCategoryCounts ] = useState< CategoryCount[] >( [] );
 	const [ lastQuery, setLastQuery ] = useState< QueryProps >( {} );
 	const [ deleteIds, setDeleteIds ] = useState< number[] >( [] );
+	const [ productOptions, setProductOptions ] = useState< { label: string; value: string }[] >( [] );
+
+	// Options for the Product filter - every product, by title.
+	useEffect( () => {
+		axios
+			.get< { id: number; title: string }[] >( getApiLink( vulocartLocalizer, 'products' ), {
+				headers: { 'X-WP-Nonce': vulocartLocalizer.nonce },
+				params: { per_page: 100 },
+			} )
+			.then( ( response ) => setProductOptions( ( response.data || [] ).map( ( product ) => ( { label: product.title, value: String( product.id ) } ) ) ) )
+			.catch( () => setProductOptions( [] ) );
+	}, [] );
 
 	const doRefreshTableData = ( query: QueryProps ) => {
 		setLastQuery( query );
@@ -69,6 +81,7 @@ export function ReviewsPage() {
 					page: query.paged || 1,
 					per_page: query.per_page || 20,
 					status: 'all' === query.categoryFilter || ! query.categoryFilter ? '' : query.categoryFilter,
+					product_id: query.filter?.product_id || '',
 					search: query.searchValue || '',
 				},
 			} )
@@ -145,6 +158,7 @@ export function ReviewsPage() {
 					per_page: 1000,
 					search: query.searchValue || '',
 					status: 'all' === query.categoryFilter || ! query.categoryFilter ? '' : query.categoryFilter,
+					product_id: query.filter?.product_id || '',
 				},
 			} )
 			.then( ( response ) => downloadCSV( CSV_HEADERS, response.data || [], `vulocart-reviews-${ new Date().toISOString().slice( 0, 10 ) }.csv` ) );
@@ -236,6 +250,7 @@ export function ReviewsPage() {
 					categoryCounts={ categoryCounts }
 					activeCategory="all"
 					search={ { placeholder: __( 'Search reviews…', 'vulocart' ) } }
+					filters={ [ { key: 'product_id', label: __( 'Product', 'vulocart' ), type: 'select', size: 4, options: productOptions } ] }
 					bulkActions={ [
 						...STATUS_OPTIONS.filter( ( option ) => 'pending' !== option.value ).map( ( option ) => ( {
 							label: __( 'Mark as', 'vulocart' ) + ' ' + option.label.toLowerCase(),

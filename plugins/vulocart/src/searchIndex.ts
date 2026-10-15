@@ -63,7 +63,7 @@ const PAGES: { id: string; name: string; desc: string; link: string; icon: strin
 	{ id: 'marketing-abandoned', name: __( 'Cart Abandoned', 'vulocart' ), desc: __( 'Checkouts that were never completed.', 'vulocart' ), link: 'admin.php?page=vulocart-marketing&view=abandoned-checkouts', icon: 'cart' },
 	{ id: 'ai', name: __( 'AI', 'vulocart' ), desc: __( 'Catalog, checkout, support and search AI.', 'vulocart' ), link: 'admin.php?page=vulocart-ai', icon: 'ai' },
 	{ id: 'workflows', name: __( 'Workflows', 'vulocart' ), desc: __( 'Automations that react to store events.', 'vulocart' ), link: 'admin.php?page=vulocart-workflows', icon: 'automation' },
-	{ id: 'analytics', name: __( 'Analytics', 'vulocart' ), desc: __( 'Sales, customers, funnels and forecasts.', 'vulocart' ), link: 'admin.php?page=vulocart-analytics', icon: 'analytics' },
+	{ id: 'analytics', name: __( 'Analytics', 'vulocart' ), desc: __( 'Sales, customers, funnels and forecasts.', 'vulocart' ), link: 'admin.php?page=vulocart#&tab=dashboard', icon: 'analytics' },
 ];
 
 /** The VuloCart tabs, every settings tab with its fields, and the modules. */

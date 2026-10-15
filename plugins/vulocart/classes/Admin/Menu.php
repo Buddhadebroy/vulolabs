@@ -51,7 +51,7 @@ class Menu {
         add_action( 'admin_menu', array( $this, 'add_shipping_menu' ) );
         add_action( 'admin_menu', array( $this, 'add_ai_menu' ) );
         add_action( 'admin_menu', array( $this, 'add_workflows_menu' ) );
-        add_action( 'admin_menu', array( $this, 'add_analytics_menu' ) );
+        add_action( 'admin_menu', array( $this, 'add_analytics_redirect' ) );
         add_action( 'admin_menu', array( $this, 'add_marketing_menu' ) );
         add_action( 'admin_menu', array( $this, 'order_submenu' ), 999 );
         add_action( 'admin_menu', array( $this, 'order_marketing_submenu' ), 999 );
@@ -121,7 +121,6 @@ class Menu {
             'vulocart-inventory',
             'vulocart-shipping',
             'vulocart#&tab=reviews',
-            'vulocart-analytics',
         );
 
         $last = 'vulocart#&tab=settings';
@@ -448,22 +447,21 @@ class Menu {
     }
 
     /**
-     * Registers Analytics as a submenu of VuloCart (after Dashboard/Settings) - it used to be its own
-     * top-level menu. The page slug stays `vulocart-analytics`, so existing links and bookmarks keep
-     * working, and the "Free owns the chrome, Pro fills it in" split is unchanged: Free owns no view
-     * of its own here, every real section is `vulocart-pro`'s Analytics module, which plugs into
-     * `vulocart_analytics_view`.
+     * Analytics is part of the Dashboard page now (its Pro insights section, src/pages/Dashboard/), not a page of its own. The old slug stays
+     * registered as a hidden page (no parent, so no menu entry) whose `load-` hook sends old links and bookmarks to
+     * the Dashboard; WordPress would otherwise refuse the unknown slug before any `admin_init` redirect could run.
      *
      * @return void
      */
-    public function add_analytics_menu() {
-        add_submenu_page(
-            'vulocart',
-            __( 'VuloCart Analytics', 'vulocart' ),
-            __( 'Analytics', 'vulocart' ),
-            'manage_options',
-            'vulocart-analytics',
-            array( $this, 'render_analytics_admin_page' )
+    public function add_analytics_redirect() {
+        $hook = add_submenu_page( '', __( 'VuloCart Analytics', 'vulocart' ), '', 'manage_options', 'vulocart-analytics', '__return_null' );
+
+        add_action(
+            'load-' . $hook,
+            static function () {
+                wp_safe_redirect( admin_url( 'admin.php?page=vulocart#&tab=dashboard' ) );
+                exit;
+            }
         );
     }
 
@@ -580,17 +578,6 @@ class Menu {
     }
 
     /**
-     * Renders the mount point for the standalone Analytics admin app -
-     * see render_orders_admin_page()'s docblock for why this is a
-     * separate root element id.
-     *
-     * @return void
-     */
-    public function render_analytics_admin_page() {
-        echo '<div id="vulocart-analytics-admin-root"></div>';
-    }
-
-    /**
      * Renders the mount point for the standalone Workflows admin app -
      * see render_orders_admin_page()'s docblock for why this is a
      * separate root element id.
@@ -695,7 +682,7 @@ class Menu {
      */
     public function enqueue_admin_script( $hook_suffix ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
         $current_page   = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page-identity check, not a state-changing request.
-        $vulocart_pages = array( 'vulocart', 'vulocart-orders', 'vulocart-products', 'vulocart-customers', 'vulocart-inventory', 'vulocart-shipping', 'vulocart-ai', 'vulocart-workflows', 'vulocart-analytics', 'vulocart-marketing' );
+        $vulocart_pages = array( 'vulocart', 'vulocart-orders', 'vulocart-products', 'vulocart-customers', 'vulocart-inventory', 'vulocart-shipping', 'vulocart-ai', 'vulocart-workflows', 'vulocart-marketing' );
 
         if ( ! in_array( $current_page, $vulocart_pages, true ) ) {
             return;
@@ -770,6 +757,7 @@ class Menu {
                 'active_plugins' => get_option( 'active_plugins', array() ),
                 'shop_url'       => defined( 'VULOCART_PRO_SHOP_URL' ) ? VULOCART_PRO_SHOP_URL : '',
                 'site_url'       => esc_url_raw( site_url() ),
+                'user_display_name' => wp_get_current_user()->display_name,
                 // Settings → General date/time format (PHP `date()` syntax) and timezone as a minute offset from UTC;
                 // services/formatWpDate.ts formats every date the admin shows with them.
                 'date_format'        => get_option( 'date_format' ),

@@ -28,6 +28,8 @@ interface VuloCartLocalizer {
 	active_plugins: string[];
 	shop_url: string;
 	site_url: string;
+	/** Display name of the signed-in user (Dashboard greeting). */
+	user_display_name?: string;
 	/** Settings → General date format, PHP `date()` syntax (services/formatWpDate.ts). */
 	date_format: string;
 	/** Settings → General time format, PHP `date()` syntax. */
