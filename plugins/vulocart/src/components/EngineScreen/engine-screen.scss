@@ -45,7 +45,7 @@ $engine-muted: #6b7280;
 	}
 
 	// Not zyra's table: its action links keep their own colours (blue Edit, red Delete), as on Products.
-	a:not(.admin-table-wrapper a) {
+	a:where(:not(.admin-table-wrapper a)) {
 		color: $engine-primary;
 		text-decoration: none;
 
@@ -56,7 +56,7 @@ $engine-muted: #6b7280;
 
 	// Plain tables a module renders itself. zyra's own table (`.admin-table-wrapper`, the lists) already has its look
 	// - the same as Products - so these rules must not restyle it (uppercase headers, a second border).
-	table:not(.admin-table-wrapper table) {
+	table:where(:not(.admin-table-wrapper table)) {
 		width: 100%;
 		border-collapse: separate;
 		border-spacing: 0;
@@ -131,7 +131,9 @@ $engine-muted: #6b7280;
 		margin: 0 0.375rem 0 0;
 	}
 
-	button,
+	// Not the buttons inside zyra's table (its row actions are blue/red text buttons, as on Products). `:where()` keeps the
+	// exclusion at zero specificity, so it doesn't outrank the tab and pill styles below.
+	button:where(:not(.admin-table-wrapper button)),
 	.vulocart-engine-button {
 		display: inline-flex;
 		align-items: center;
@@ -160,7 +162,7 @@ $engine-muted: #6b7280;
 	}
 
 	// Secondary buttons: row actions, filter/period pills.
-	td button,
+	td button:where(:not(.admin-table-wrapper button)),
 	[class*='filters'] button,
 	[class*='period'] button,
 	button.vulocart-engine-link {
@@ -188,7 +190,7 @@ $engine-muted: #6b7280;
 	}
 
 	// Module-made badges (`vulocart-ai-badge`, ...) - not zyra's `admin-badge`, which has its own colours.
-	[class*='-badge']:not(.admin-badge) {
+	[class*='-badge']:where(:not(.admin-badge)) {
 		display: inline-flex;
 		align-items: center;
 		margin-left: 0.5rem;
