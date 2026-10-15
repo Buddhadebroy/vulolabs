@@ -96,16 +96,20 @@ $engine-muted: #6b7280;
 		margin: 0 0 0.25rem;
 	}
 
-	input[type='text'],
-	input[type='number'],
-	input[type='email'],
-	input[type='password'],
-	input[type='date'],
-	input[type='datetime-local'],
-	input[type='url'],
-	input[type='search'],
-	select,
-	textarea {
+	// Form fields a module renders - not the search/filter inputs in zyra's table toolbar, which keep the compact look
+	// they have on Products (these rules made them taller, with the text stuck to the top).
+	:is(
+			input[type='text'],
+			input[type='number'],
+			input[type='email'],
+			input[type='password'],
+			input[type='date'],
+			input[type='datetime-local'],
+			input[type='url'],
+			input[type='search'],
+			select,
+			textarea
+		):where(:not(.admin-table-wrapper *)) {
 		display: block;
 		width: 100%;
 		max-width: 100%;
