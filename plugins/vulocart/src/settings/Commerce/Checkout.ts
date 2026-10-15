@@ -91,7 +91,7 @@ export default {
 			),
 			options: [
 				{ key: 'one-click', label: __( 'One-click checkout', 'vulocart' ), value: 'one-click' },
-				{ key: 'links', label: __( 'Checkout links & QR codes', 'vulocart' ), value: 'links' },
+				{ key: 'links', label: __( 'Payment links & QR codes', 'vulocart' ), value: 'links' },
 				{ key: 'builder', label: __( 'Checkout builder', 'vulocart' ), value: 'builder' },
 				{ key: 'notes', label: __( 'Order notes from the buyer', 'vulocart' ), value: 'notes' },
 				{ key: 'autocomplete', label: __( 'Address autocomplete', 'vulocart' ), value: 'autocomplete' },

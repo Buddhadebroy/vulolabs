@@ -316,4 +316,16 @@ class WPDBCustomerRepository {
              WHERE {$where}"
         );
     }
+
+    /**
+     * Removes one customer row.
+     *
+     * @param int $id Customer id.
+     * @return bool True if a customer was found and removed.
+     */
+    public function delete( int $id ): bool {
+        global $wpdb;
+
+        return (bool) $wpdb->delete( $this->get_table(), array( 'id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    }
 }

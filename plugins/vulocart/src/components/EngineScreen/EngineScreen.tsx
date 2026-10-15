@@ -21,6 +21,8 @@ export interface EngineView {
 interface EngineScreenProps {
 	/** A view's own header. Omit when the view renders one itself. */
 	view?: EngineView;
+	/** Shown in the header's top-right, before any button a page put there (e.g. a status badge). */
+	headerExtra?: ReactNode;
 	children: ReactNode;
 }
 
@@ -56,7 +58,7 @@ const headerChannel: EngineHeaderChannel = ( window as unknown as { vulocartEngi
  * (headings, forms, tables, buttons, badges) the same look as the zyra screens, so a module
  * doesn't have to restyle itself.
  */
-export function EngineScreen( { view, children }: EngineScreenProps ) {
+export function EngineScreen( { view, headerExtra, children }: EngineScreenProps ) {
 	const [ headerAction, setHeaderAction ] = useState< ReactNode >( headerChannel.node );
 
 	useEffect( () => {
@@ -78,7 +80,7 @@ export function EngineScreen( { view, children }: EngineScreenProps ) {
 							headerIcon={ view.icon }
 							headerTitle={ view.title }
 							headerDescription={ view.description }
-							headerCustomContent={ headerAction }
+							headerCustomContent={ headerExtra ? <>{ headerExtra }{ headerAction }</> : headerAction }
 						/>
 				) }
 				<div className={ `vulocart-engine-page${ view ? ' has-header' : '' }` }>{ children }</div>
@@ -151,7 +153,15 @@ export function ModuleRequired( { view }: { view: EngineView } ) {
 				{ id: view.module, action: 'activate' },
 				{ headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } }
 			)
-			.then( () => window.location.reload() )
+			// The response is the active list after the loader ran; a module it dropped (not
+			// available, `is_compatible()` false) isn't in it, and reloading would just show this card again.
+			.then( ( { data } ) => {
+				if ( ! Array.isArray( data ) || ! data.includes( view.module ) ) {
+					throw new Error( 'not activated' );
+				}
+
+				window.location.reload();
+			} )
 			.catch( () => {
 				setBusy( false );
 				setFailed( true );

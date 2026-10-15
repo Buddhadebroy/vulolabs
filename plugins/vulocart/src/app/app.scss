@@ -78,6 +78,25 @@
 	border-bottom: 0;
 }
 
+// zyra sizes header cells (`width: 100%`) and body cells (`flex: 1 0 0`) with different rules, caps the Actions
+// heading at 6rem while the Actions cell beside buttons grows, and pads the two differently - so every column drifts
+// out from under its heading. Same share and padding for both rows; the fixed narrow columns (checkbox, id, drag,
+// expand) already match and keep zyra's sizes. `body` outranks zyra's styles, which are injected after this sheet.
+body .admin-table-wrapper .table-wrapper .admin-table {
+	.admin-table-header .header-row .header-col,
+	.admin-table-body .admin-row .admin-column {
+		&:not(.select):not(.id):not(.drag):not(.expand) {
+			flex: 1 1 0;
+			width: auto;
+			min-width: 0;
+			max-width: none;
+			box-sizing: border-box;
+			padding-left: 0.85rem;
+			padding-right: 0.85rem;
+		}
+	}
+}
+
 .admin-table-wrapper .info-item .name {
 	font-size: 0.9rem !important;
 	font-weight: 600 !important;

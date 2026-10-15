@@ -107,6 +107,16 @@ class Rest extends \WP_REST_Controller {
 
         register_rest_route(
             VuloCart()->rest_namespace,
+            '/orders/bulk-delete',
+            array(
+                'methods'             => \WP_REST_Server::DELETABLE,
+                'callback'            => array( $this, 'bulk_delete' ),
+                'permission_callback' => array( $this, 'admin_permissions_check' ),
+            )
+        );
+
+        register_rest_route(
+            VuloCart()->rest_namespace,
             '/orders/bulk-payment-status',
             array(
                 'methods'             => \WP_REST_Server::EDITABLE,
@@ -127,6 +137,11 @@ class Rest extends \WP_REST_Controller {
                 array(
                     'methods'             => \WP_REST_Server::EDITABLE,
                     'callback'            => array( $this, 'update_item' ),
+                    'permission_callback' => array( $this, 'admin_permissions_check' ),
+                ),
+                array(
+                    'methods'             => \WP_REST_Server::DELETABLE,
+                    'callback'            => array( $this, 'delete_item' ),
                     'permission_callback' => array( $this, 'admin_permissions_check' ),
                 ),
             )
@@ -756,5 +771,35 @@ class Rest extends \WP_REST_Controller {
         }
 
         return rest_ensure_response( array( 'updated' => $updated ) );
+    }
+
+    /**
+     * Permanently deletes one order.
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response|\WP_Error
+     */
+    public function delete_item( $request ) {
+        if ( ! VuloCart()->order_service->delete_order( absint( $request->get_param( 'id' ) ) ) ) {
+            return new \WP_Error( 'vulocart_order_not_found', esc_html__( 'Order not found.', 'vulocart' ), array( 'status' => 404 ) );
+        }
+
+        return rest_ensure_response( array( 'deleted' => true ) );
+    }
+
+    /**
+     * Permanently deletes several orders.
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response|\WP_Error
+     */
+    public function bulk_delete( $request ) {
+        $ids = $request->get_param( 'ids' );
+
+        if ( ! is_array( $ids ) || empty( $ids ) ) {
+            return new \WP_Error( 'vulocart_missing_order_ids', esc_html__( 'No order ids were provided.', 'vulocart' ), array( 'status' => 400 ) );
+        }
+
+        return rest_ensure_response( array( 'deleted' => VuloCart()->order_service->bulk_delete( array_map( 'absint', $ids ) ) ) );
     }
 }

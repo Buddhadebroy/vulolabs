@@ -108,6 +108,16 @@ class Rest extends \WP_REST_Controller {
 
         register_rest_route(
             VuloCart()->rest_namespace,
+            '/customers/bulk-delete',
+            array(
+                'methods'             => \WP_REST_Server::DELETABLE,
+                'callback'            => array( $this, 'bulk_delete' ),
+                'permission_callback' => array( $this, 'admin_permissions_check' ),
+            )
+        );
+
+        register_rest_route(
+            VuloCart()->rest_namespace,
             '/customers/(?P<id>\d+)',
             array(
                 array(
@@ -118,6 +128,11 @@ class Rest extends \WP_REST_Controller {
                 array(
                     'methods'             => \WP_REST_Server::EDITABLE,
                     'callback'            => array( $this, 'update_item' ),
+                    'permission_callback' => array( $this, 'admin_permissions_check' ),
+                ),
+                array(
+                    'methods'             => \WP_REST_Server::DELETABLE,
+                    'callback'            => array( $this, 'delete_item' ),
                     'permission_callback' => array( $this, 'admin_permissions_check' ),
                 ),
             )
@@ -524,5 +539,35 @@ class Rest extends \WP_REST_Controller {
         $deleted = VuloCart()->customer_service->delete_note( absint( $request->get_param( 'note_id' ) ), absint( $request->get_param( 'id' ) ) );
 
         return rest_ensure_response( array( 'deleted' => $deleted ) );
+    }
+
+    /**
+     * Permanently deletes one customer (their orders are kept).
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response|\WP_Error
+     */
+    public function delete_item( $request ) {
+        if ( ! VuloCart()->customer_service->delete_customer( absint( $request->get_param( 'id' ) ) ) ) {
+            return new \WP_Error( 'vulocart_customer_not_found', esc_html__( 'Customer not found.', 'vulocart' ), array( 'status' => 404 ) );
+        }
+
+        return rest_ensure_response( array( 'deleted' => true ) );
+    }
+
+    /**
+     * Permanently deletes several customers.
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response|\WP_Error
+     */
+    public function bulk_delete( $request ) {
+        $ids = $request->get_param( 'ids' );
+
+        if ( ! is_array( $ids ) || empty( $ids ) ) {
+            return new \WP_Error( 'vulocart_missing_customer_ids', esc_html__( 'No customer ids were provided.', 'vulocart' ), array( 'status' => 400 ) );
+        }
+
+        return rest_ensure_response( array( 'deleted' => VuloCart()->customer_service->bulk_delete( array_map( 'absint', $ids ) ) ) );
     }
 }

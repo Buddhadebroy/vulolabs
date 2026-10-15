@@ -424,4 +424,18 @@ class WPDBOrderRepository implements OrderRepositoryInterface {
 
         return $this->hydrate_item( $row );
     }
+
+    /**
+     * Permanently removes an order and its line items.
+     *
+     * @param int $id Order id.
+     * @return bool True if an order was found and removed.
+     */
+    public function delete( int $id ): bool {
+        global $wpdb;
+
+        $wpdb->delete( $this->get_order_items_table(), array( 'order_id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+        return (bool) $wpdb->delete( $this->get_orders_table(), array( 'id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    }
 }

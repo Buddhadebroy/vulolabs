@@ -264,7 +264,7 @@ const MODULES_CATALOG: {
 		{
 			id: 'abandoned-checkout',
 			icon: 'cart',
-			name: __( 'Abandoned Checkout', 'vulocart' ),
+			name: __( 'Cart Abandoned', 'vulocart' ),
 			desc: __(
 				'A list of checkout sessions that were started but never completed.',
 				'vulocart'

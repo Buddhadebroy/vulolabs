@@ -10,6 +10,7 @@ import { downloadCSV } from '../../lib/utils';
 import './orders-page.scss';
 import '../Products/products-page.scss';
 import { formatWpDate } from '../../services/formatWpDate';
+import ConfirmPopup from '../../components/ConfirmPopup/ConfirmPopup';
 
 /**
  * The 6 statuses Order\Domain\FulfillmentStatus::all() declares
@@ -176,6 +177,7 @@ export function OrdersList( { filter }: OrdersListProps ) {
 	const [ totalRows, setTotalRows ] = useState( 0 );
 	const [ categoryCounts, setCategoryCounts ] = useState< CategoryCount[] >( [] );
 	const [ statusOrder, setStatusOrder ] = useState< OrderRow | null >( null );
+	const [ deleteIds, setDeleteIds ] = useState< number[] >( [] );
 	const lastQuery = useRef< QueryProps >( {} );
 
 	const buildQueryParams = ( query: QueryProps, includePagination: boolean = true ) => {
@@ -248,6 +250,12 @@ export function OrdersList( { filter }: OrdersListProps ) {
 		}
 
 		const [ field, status ] = action.split( ':' );
+
+		if ( 'delete' === field ) {
+			setDeleteIds( selectedIds );
+			return;
+		}
+
 		const endpoint = 'payment' === field ? 'orders/bulk-payment-status' : 'orders/bulk-fulfillment-status';
 
 		axios
@@ -257,6 +265,19 @@ export function OrdersList( { filter }: OrdersListProps ) {
 				{ headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } }
 			)
 			.then( () => doRefreshTableData( lastQuery.current ) );
+	};
+
+	const confirmDelete = () => {
+		const ids = deleteIds;
+		setDeleteIds( [] );
+
+		const headers = { 'X-WP-Nonce': vulocartLocalizer.nonce };
+		const request =
+			1 === ids.length
+				? axios.delete( getApiLink( vulocartLocalizer, `orders/${ ids[ 0 ] }` ), { headers } )
+				: axios.delete( getApiLink( vulocartLocalizer, 'orders/bulk-delete' ), { headers, data: { ids } } );
+
+		request.then( () => doRefreshTableData( lastQuery.current ) );
 	};
 
 	/** What a CSV export holds, in plain columns - the table below merges several of these into one cell. */
@@ -350,6 +371,13 @@ export function OrdersList( { filter }: OrdersListProps ) {
 					type: 'button' as const,
 					color: 'text-blue',
 					onClick: ( row: Record< string, unknown > ) => setStatusOrder( row as unknown as OrderRow ),
+				},
+				{
+					label: __( 'Delete', 'vulocart' ),
+					icon: 'delete',
+					type: 'button' as const,
+					color: 'text-red',
+					onClick: ( row: Record< string, unknown > ) => setDeleteIds( [ Number( row.id ) ] ),
 				},
 			],
 		},
@@ -446,6 +474,7 @@ export function OrdersList( { filter }: OrdersListProps ) {
 							label: __( 'Payment:', 'vulocart' ) + ' ' + option.label,
 							value: `payment:${ option.value }`,
 						} ) ),
+						{ label: __( 'Delete', 'vulocart' ), value: 'delete:confirm' },
 					] }
 					onBulkActionApply={ ( action: string, selectedIds: number[] ) =>
 						handleBulkAction( action, selectedIds )
@@ -457,6 +486,23 @@ export function OrdersList( { filter }: OrdersListProps ) {
 			{ statusOrder && (
 				<OrderStatusPopup order={ statusOrder } onClose={ () => setStatusOrder( null ) } onSaved={ () => doRefreshTableData( lastQuery.current ) } />
 			) }
+
+			<ConfirmPopup
+				open={ deleteIds.length > 0 }
+				title={ 1 === deleteIds.length ? __( 'Delete order', 'vulocart' ) : __( 'Delete orders', 'vulocart' ) }
+				message={ sprintf(
+					/* translators: %d: number of orders. */
+					_n(
+						'Permanently delete this order and its items? This cannot be undone.',
+						'Permanently delete %d orders and their items? This cannot be undone.',
+						deleteIds.length,
+						'vulocart'
+					),
+					deleteIds.length
+				) }
+				onConfirm={ confirmDelete }
+				onCancel={ () => setDeleteIds( [] ) }
+			/>
 		</ContainerComponent>
 	);
 }

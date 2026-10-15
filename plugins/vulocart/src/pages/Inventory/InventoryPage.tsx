@@ -1,5 +1,6 @@
 /* global vulocartLocalizer */
 import { useEffect, useState } from '@wordpress/element';
+import type { ReactNode } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import axios from 'axios';
 import { getApiLink } from '@zyra/core';
@@ -147,7 +148,7 @@ function StockAdjust( { item, onClose, onSaved }: { item: InventoryItem; onClose
  * and an "Adjust stock" popup instead of editable cells (the installed zyra build never enters cell edit mode).
  *
  * `embedded` renders just the tiles and table, for the Inventory page's Stock Levels tab (the page supplies the
- * header and container); the Export button then sits in the table toolbar instead of the header.
+ * header and container); the Export button then goes into that page's header.
  *
  * The REST list is fetched in full and the tabs, search, filter and paging all run on the loaded rows, so counts
  * always match what the table can show.
@@ -264,6 +265,21 @@ export function InventoryPage( { embedded = false }: { embedded?: boolean } ) {
 	const today = () => new Date().toISOString().slice( 0, 10 );
 	const exportAll = () => downloadCSV( csvHeaders, matching as unknown as Record< string, unknown >[], `vulocart-inventory-${ today() }.csv` );
 
+	// Embedded, the header belongs to the Inventory page's frame (EngineScreen): Export goes into its top-right
+	// through the same channel Pro's pages use, like the Products list's header, and is removed with the tab.
+	useEffect( () => {
+		// eslint-disable-next-line no-unused-vars -- a parameter name in a type, not a variable.
+		const channel = embedded ? ( window as unknown as { vulocartEngineHeader?: { set: ( node: ReactNode ) => void } } ).vulocartEngineHeader : undefined;
+
+		if ( ! channel ) {
+			return undefined;
+		}
+
+		channel.set( <ButtonInput buttons={ [ { text: __( 'Export', 'vulocart' ), icon: 'download', color: 'purple', onClick: exportAll } ] } /> );
+
+		return () => channel.set( null );
+	} );
+
 	const headers = {
 		product: {
 			label: __( 'Product', 'vulocart' ),
@@ -369,7 +385,6 @@ export function InventoryPage( { embedded = false }: { embedded?: boolean } ) {
 					value: `stock_status:${ option.value }`,
 				} ) ) }
 				onBulkActionApply={ applyBulk }
-				{ ...( embedded ? { buttonActions: [ { label: __( 'Export CSV', 'vulocart' ), icon: 'download', onClick: exportAll } ] } : {} ) }
 				onSelectCsvDownloadApply={ ( ids: number[] ) =>
 					downloadCSV( csvHeaders, items.filter( ( item ) => ids.includes( item.id ) ) as unknown as Record< string, unknown >[], `vulocart-inventory-selected-${ today() }.csv` )
 				}

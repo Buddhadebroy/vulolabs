@@ -438,4 +438,49 @@ class CustomerService {
             'last_order_at'       => $customer->last_order_at,
         );
     }
+
+    /**
+     * Permanently deletes a customer with their saved addresses and notes. Their orders are kept - they are the
+     * store's sales records and carry the customer's name and email themselves. `vulocart_customer_deleted` lets a
+     * module that keeps its own rows per customer (groups, wishlists, ...) remove them.
+     *
+     * @param int $id Customer id.
+     * @return bool True if the customer existed and was deleted.
+     */
+    public function delete_customer( int $id ): bool {
+        $customer = $this->customers->find( $id );
+
+        if ( ! $customer ) {
+            return false;
+        }
+
+        $this->addresses->delete_for_customer( $id );
+        $this->notes->delete_for_customer( $id );
+
+        if ( ! $this->customers->delete( $id ) ) {
+            return false;
+        }
+
+        do_action( 'vulocart_customer_deleted', array( 'customer' => $customer ) );
+
+        return true;
+    }
+
+    /**
+     * Deletes several customers through the same single-customer path.
+     *
+     * @param int[] $ids Customer ids.
+     * @return int Number of customers actually deleted.
+     */
+    public function bulk_delete( array $ids ): int {
+        $deleted = 0;
+
+        foreach ( $ids as $id ) {
+            if ( $this->delete_customer( (int) $id ) ) {
+                ++$deleted;
+            }
+        }
+
+        return $deleted;
+    }
 }

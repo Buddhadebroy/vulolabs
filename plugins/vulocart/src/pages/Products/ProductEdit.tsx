@@ -1674,8 +1674,9 @@ export function ProductEdit( { id }: ProductEditProps ) {
 
 					{ null !== id && (
 						<div className="vulocart-edit-extra-sections">
-							<EmbedCodeSection productId={ id } />
 							{ applyFilters( 'vulocart_product_edit_sections', null, { id, type: formData.type, subtype: subtype.value, shippable: cards.shipping } ) }
+							{ /* Last, after the modules' sections (Digital Product Passport, ...). */ }
+							<EmbedCodeSection productId={ id } />
 						</div>
 					) }
 
@@ -1683,13 +1684,13 @@ export function ProductEdit( { id }: ProductEditProps ) {
 					{ null === id && (
 						<div className="vulocart-edit-extra-sections">
 							{ [
+								...( applyFilters( 'vulocart_product_pending_sections', [], { type: formData.type, subtype: subtype.value, shippable: cards.shipping } ) as { key: string; title: string; desc: string; icon?: string }[] ),
 								{
 									key: 'embed',
 									title: __( 'Embed code', 'vulocart' ),
 									desc: __( 'Sell this product anywhere - a landing page, a Next.js app, plain HTML - with the VuloCart SDK.', 'vulocart' ),
 									icon: 'code',
 								},
-								...( applyFilters( 'vulocart_product_pending_sections', [], { type: formData.type, subtype: subtype.value, shippable: cards.shipping } ) as { key: string; title: string; desc: string; icon?: string }[] ),
 							].map( ( section ) => (
 								<CardComponent key={ section.key } titleIcon={ section.icon } title={ section.title } desc={ section.desc }>
 									<p className="vulocart-field-hint vulocart-locked-note">

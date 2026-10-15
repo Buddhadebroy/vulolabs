@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import axios from 'axios';
 import { getApiLink } from '@zyra/core';
 import { ContainerComponent, ColumnComponent, NavigatorHeaderComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import { TableCard, TableRow, QueryProps, CategoryCount } from '@zyra/table';
 import { downloadCSV } from '../../lib/utils';
 import { formatWpDate } from '../../services/formatWpDate';
@@ -219,6 +220,10 @@ export function ReviewsPage() {
 					headerIcon="review"
 					headerTitle={ __( 'Reviews', 'vulocart' ) }
 					headerDescription={ __( 'Customer ratings and comments on your products - approve or reject before they show on the storefront.', 'vulocart' ) }
+					// Export in the header, like the Products list; it follows the table's current search and status.
+					headerCustomContent={
+						<ButtonInput buttons={ [ { text: __( 'Export', 'vulocart' ), icon: 'download', color: 'purple', onClick: () => downloadAllCSV( lastQuery ) } ] } />
+					}
 				/>
 
 				<TableCard
@@ -239,7 +244,6 @@ export function ReviewsPage() {
 						{ label: __( 'Delete', 'vulocart' ), value: 'delete' },
 					] }
 					onBulkActionApply={ ( action: string, selectedIds: number[] ) => handleBulkAction( action, selectedIds ) }
-					buttonActions={ [ { label: __( 'Export CSV', 'vulocart' ), icon: 'download', onClickWithQuery: downloadAllCSV } ] }
 					onSelectCsvDownloadApply={ downloadSelectedCSV }
 				/>
 			</ColumnComponent>

@@ -765,4 +765,41 @@ class OrderService {
 
         return $updated;
     }
+
+    /**
+     * Permanently deletes an order and its line items. `order_deleted` is broadcast with the order as it was, so
+     * the customer's totals are recounted and any module keeping its own rows for the order can tidy up.
+     *
+     * @param int $id Order id.
+     * @return bool True if the order existed and was deleted.
+     */
+    public function delete_order( $id ): bool {
+        $order = $this->repository->find( (int) $id );
+
+        if ( ! $order || ! $this->repository->delete( (int) $id ) ) {
+            return false;
+        }
+
+        $this->events->dispatch( 'order_deleted', array( 'order' => $order ) );
+
+        return true;
+    }
+
+    /**
+     * Deletes many orders through the same single-order path.
+     *
+     * @param int[] $ids Order ids.
+     * @return int Number of orders actually deleted.
+     */
+    public function bulk_delete( array $ids ): int {
+        $deleted = 0;
+
+        foreach ( $ids as $id ) {
+            if ( $this->delete_order( (int) $id ) ) {
+                ++$deleted;
+            }
+        }
+
+        return $deleted;
+    }
 }

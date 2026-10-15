@@ -60,6 +60,7 @@ class Module {
         add_action( 'vulocart_order_created', array( $this, 'maybe_record_order' ) );
         add_action( 'vulocart_order_payment_status_changed', array( $this, 'maybe_refresh_totals' ) );
         add_action( 'vulocart_order_fulfillment_status_changed', array( $this, 'maybe_refresh_totals' ) );
+        add_action( 'vulocart_order_deleted', array( $this, 'maybe_refresh_totals' ) );
         add_action( 'init', array( $this, 'maybe_backfill_totals' ) );
     }
 

@@ -8,6 +8,7 @@ import { ButtonInput } from '@zyra/inputs';
 import { TableCard, TableRow, QueryProps } from '@zyra/table';
 import { downloadCSV } from '../../lib/utils';
 import { formatWpDate } from '../../services/formatWpDate';
+import ConfirmPopup from '../../components/ConfirmPopup/ConfirmPopup';
 import './customers-page.scss';
 import { ViewsMenu, useViewsConfig } from '../../components/ViewsMenu/ViewsMenu';
 import '../Products/products-page.scss';
@@ -175,6 +176,7 @@ export function CustomersList() {
 	const [ rows, setRows ] = useState< TableRow[] >( [] );
 	const [ totalRows, setTotalRows ] = useState( 0 );
 	const [ editing, setEditing ] = useState< CustomerRow | null >( null );
+	const [ deleteIds, setDeleteIds ] = useState< number[] >( [] );
 	const lastQuery = useRef< QueryProps >( {} );
 	const [ activeView, setActiveView ] = useState( '' );
 	const [ viewsConfig, setViewsConfig, restoreViews ] = useViewsConfig( 'vulocart_customers_views_config' );
@@ -347,8 +349,29 @@ export function CustomersList() {
 					color: 'text-blue',
 					onClick: ( row: Record< string, unknown > ) => setEditing( row as unknown as CustomerRow ),
 				},
+				{
+					label: __( 'Delete', 'vulocart' ),
+					icon: 'delete',
+					type: 'button' as const,
+					color: 'text-red',
+					onClick: ( row: Record< string, unknown > ) => setDeleteIds( [ Number( row.id ) ] ),
+				},
 			],
 		},
+	};
+
+	// Deletes the profile, saved addresses and notes; the customer's orders stay (CustomerService::delete_customer()).
+	const confirmDelete = () => {
+		const ids = deleteIds;
+		setDeleteIds( [] );
+
+		const headers = { 'X-WP-Nonce': vulocartLocalizer.nonce };
+		const request =
+			1 === ids.length
+				? axios.delete( getApiLink( vulocartLocalizer, `customers/${ ids[ 0 ] }` ), { headers } )
+				: axios.delete( getApiLink( vulocartLocalizer, 'customers/bulk-delete' ), { headers, data: { ids } } );
+
+		request.then( () => doRefreshTableData( lastQuery.current ) );
 	};
 
 	return (
@@ -417,9 +440,28 @@ export function CustomersList() {
 					search={ {
 						placeholder: __( 'Search name or email…', 'vulocart' ),
 					} }
+					bulkActions={ [ { label: __( 'Delete', 'vulocart' ), value: 'delete' } ] }
+					onBulkActionApply={ ( action: string, selectedIds: number[] ) => 'delete' === action && selectedIds.length && setDeleteIds( selectedIds ) }
 					onSelectCsvDownloadApply={ downloadSelectedCSV }
 				/>
 			</ColumnComponent>
+
+			<ConfirmPopup
+				open={ deleteIds.length > 0 }
+				title={ 1 === deleteIds.length ? __( 'Delete customer', 'vulocart' ) : __( 'Delete customers', 'vulocart' ) }
+				message={ sprintf(
+					/* translators: %d: number of customers. */
+					_n(
+						'Permanently delete this customer with their saved addresses and notes? Their orders are kept. This cannot be undone.',
+						'Permanently delete %d customers with their saved addresses and notes? Their orders are kept. This cannot be undone.',
+						deleteIds.length,
+						'vulocart'
+					),
+					deleteIds.length
+				) }
+				onConfirm={ confirmDelete }
+				onCancel={ () => setDeleteIds( [] ) }
+			/>
 
 			{ editing && <CustomerQuickEdit customer={ editing } onClose={ () => setEditing( null ) } onSaved={ () => doRefreshTableData( lastQuery.current ) } /> }
 			{ isNamingView && <SavedViewName onClose={ () => setIsNamingView( false ) } onSave={ saveCurrentView } /> }
