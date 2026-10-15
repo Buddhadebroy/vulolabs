@@ -90,4 +90,12 @@ interface OrderRepositoryInterface {
      * @return OrderItem The same item, with $id (and timestamps) populated.
      */
     public function insert_item( OrderItem $item ): OrderItem;
+
+    /**
+     * Permanently removes an order and its line items.
+     *
+     * @param int $id Order id.
+     * @return bool True if an order was found and removed.
+     */
+    public function delete( int $id ): bool;
 }

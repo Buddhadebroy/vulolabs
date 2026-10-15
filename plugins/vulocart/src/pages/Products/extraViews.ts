@@ -9,39 +9,11 @@ import type { EngineView } from '../../components/EngineScreen/EngineScreen';
 export const productsExtraViews: Record< string, EngineView > = {};
 
 /**
- * Pro pages that aren't about products - promotions, subscriptions and checkout setup. They live in the
- * Marketing menu (MarketingEngine.tsx), filled in by vulocart-pro through `vulocart_marketing_view`.
+ * Pro pages that aren't about products - promotions, cart recovery and checkout setup. They live in the
+ * Marketing menu (MarketingEngine.tsx), one submenu each, filled in by vulocart-pro through `vulocart_marketing_view`.
  * Listed here so the Products router can send old `vulocart-products&view=` links to their new home.
  */
 export const storeExtraViews: Record< string, EngineView > = {
-	'pricing-rules': {
-		title: __( 'Pricing Rules', 'vulocart' ),
-		description: __( 'Automatic discounts applied when a product is added to cart. When more than one rule matches, the lowest resulting price wins.', 'vulocart' ),
-		icon: 'price',
-		module: 'pricing-rules',
-		pro: true,
-	},
-	'abandoned-checkouts': {
-		title: __( 'Abandoned Checkouts', 'vulocart' ),
-		description: __( 'Checkout sessions that were started but never resulted in an order.', 'vulocart' ),
-		icon: 'cart',
-		module: 'abandoned-checkout',
-		pro: true,
-	},
-	'checkout-links': {
-		title: __( 'Checkout Links', 'vulocart' ),
-		description: __( 'Shareable payment/checkout links for a fixed set of products - share the URL directly, embed it, or show it as a QR code.', 'vulocart' ),
-		icon: 'link',
-		module: 'checkout-links',
-		pro: true,
-	},
-	'checkout-builder': {
-		title: __( 'Checkout Builder', 'vulocart' ),
-		description: __( 'Choose which checkout steps are active and in what order.', 'vulocart' ),
-		icon: 'credit-card',
-		module: 'checkout-templates',
-		pro: true,
-	},
 	coupons: {
 		title: __( 'Coupons', 'vulocart' ),
 		description: __( 'Discount codes a shopper can enter at checkout.', 'vulocart' ),
@@ -49,11 +21,32 @@ export const storeExtraViews: Record< string, EngineView > = {
 		module: 'coupons',
 		pro: true,
 	},
+	'pricing-rules': {
+		title: __( 'Pricing Rules', 'vulocart' ),
+		description: __( 'Automatic discounts applied when a product is added to cart. When more than one rule matches, the lowest resulting price wins.', 'vulocart' ),
+		icon: 'price',
+		module: 'pricing-rules',
+		pro: true,
+	},
 	'gift-cards': {
 		title: __( 'Gift Cards', 'vulocart' ),
 		description: __( 'Stored-value codes a shopper can redeem, partially or fully, toward their order total.', 'vulocart' ),
 		icon: 'gift-card',
 		module: 'gift-cards',
+		pro: true,
+	},
+	'abandoned-checkouts': {
+		title: __( 'Cart Abandoned', 'vulocart' ),
+		description: __( 'Checkout sessions that were started but never resulted in an order.', 'vulocart' ),
+		icon: 'cart',
+		module: 'abandoned-checkout',
+		pro: true,
+	},
+	'checkout-links': {
+		title: __( 'Payment Links', 'vulocart' ),
+		description: __( 'Sell without a store visit: a link that opens checkout with your chosen products already in the cart. Share it anywhere or print it as a QR code.', 'vulocart' ),
+		icon: 'link',
+		module: 'checkout-links',
 		pro: true,
 	},
 };
@@ -70,6 +63,11 @@ export const ordersExtraViews: Record< string, EngineView > = {
 		module: 'subscriptions',
 		pro: true,
 	},
+};
+
+/** Pages that moved into Settings: old `page=...&view=` links open this Settings sub-tab instead. */
+export const settingsViews: Record< string, string > = {
+	'checkout-builder': 'checkout-builder',
 };
 
 /** Views that moved to another menu: old `page=...&view=` links are sent to the new page and view. */

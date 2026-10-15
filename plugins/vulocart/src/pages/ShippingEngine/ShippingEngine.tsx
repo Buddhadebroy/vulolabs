@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
-import { renderEngineView, type EngineView } from '../../components/EngineScreen/EngineScreen';
+import type { EngineView } from '../../components/EngineScreen/EngineScreen';
+import { EngineTabs } from '../../components/EngineScreen/EngineTabs';
 
 interface ShippingEngineProps {
 	/** `zones`|`packaging`|`shipments`|`returns`|`pickup` (vulocart-pro's Shipping Engine module) - anything else shows `zones`. */
@@ -46,9 +47,16 @@ const views: Record< string, EngineView > = {
 	},
 };
 
-/** Free owns the frame; the Shipping Engine module (vulocart-pro) registers every view into `vulocart_shipping_view`. */
+const pageHeader: EngineView = {
+	title: __( 'Shipping', 'vulocart' ),
+	description: __( 'Zones and rates, packaging, shipments, returns and local pickup.', 'vulocart' ),
+	icon: 'shipping',
+	module: moduleId,
+};
+
+/** One Shipping page with a tab per area; the Shipping Engine module (vulocart-pro) registers each into `vulocart_shipping_view`. */
 export function ShippingEngine( { view }: ShippingEngineProps ) {
-	return renderEngineView( 'vulocart_shipping_view', views, view && views[ view ] ? view : 'zones' );
+	return <EngineTabs header={ pageHeader } views={ views } filterName="vulocart_shipping_view" view={ view } />;
 }
 
 export default ShippingEngine;

@@ -39,19 +39,6 @@ export default {
 			),
 		},
 		{
-			key: 'default_product_status',
-			type: 'select',
-			label: __( 'Default product status', 'vulocart' ),
-			settingDescription: __(
-				'Status a new product gets when none is specified.',
-				'vulocart'
-			),
-			options: [
-				{ label: __( 'Draft', 'vulocart' ), value: 'draft' },
-				{ label: __( 'Published', 'vulocart' ), value: 'published' },
-			],
-		},
-		{
 			key: 'general-section-checkout-block',
 			type: 'section',
 			icon: 'storefront',

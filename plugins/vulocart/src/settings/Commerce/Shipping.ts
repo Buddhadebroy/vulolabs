@@ -44,22 +44,6 @@ export default {
 			],
 		},
 		{
-			key: 'default_shipping_class',
-			type: 'select',
-			label: __( 'Default shipping class', 'vulocart' ),
-			settingDescription: __(
-				'Shipping class preselected for a new shippable product.',
-				'vulocart'
-			),
-			options: [
-				{ label: __( 'Standard', 'vulocart' ), value: 'standard' },
-				{ label: __( 'Fragile', 'vulocart' ), value: 'fragile' },
-				{ label: __( 'Oversized', 'vulocart' ), value: 'oversized' },
-				{ label: __( 'Free shipping', 'vulocart' ), value: 'free_shipping' },
-			],
-			dependent: { key: 'enable_shipping', set: true },
-		},
-		{
 			key: 'flat_rate_shipping_cost',
 			type: 'number',
 			label: __( 'Flat rate shipping cost', 'vulocart' ),

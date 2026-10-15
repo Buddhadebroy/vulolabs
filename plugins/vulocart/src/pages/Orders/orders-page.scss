@@ -209,3 +209,790 @@
 		margin: 0 0 2px;
 	}
 }
+
+// The Order cell in the orders list: avatar, then number + date, customer, and status badges.
+.vulocart-order-cell {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+	min-width: 0;
+	padding: 0.25rem 0;
+}
+
+.vulocart-order-avatar {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 2.25rem;
+	height: 2.25rem;
+	border-radius: 50%;
+	background: #efe7fb;
+	font-size: 0.875rem;
+	font-weight: 700;
+	color: #5007aa;
+}
+
+.vulocart-order-main {
+	display: flex;
+	flex-direction: column;
+	gap: 0.3125rem;
+	min-width: 0;
+}
+
+.vulocart-order-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0.25rem 0.625rem;
+}
+
+.vulocart-order-customer {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0 0.5rem;
+	font-size: 0.8125rem;
+	color: #374151;
+
+	strong {
+		font-weight: 600;
+	}
+}
+
+// Order statuses beyond the product page's draft/published/archived tag colours.
+.vulocart-status-tag {
+	&.is-info {
+		background: #dbeafe;
+		color: #1e40af;
+
+		> i {
+			background: #3b82f6;
+		}
+	}
+
+	&.is-danger {
+		background: #fee2e2;
+		color: #991b1b;
+
+		> i {
+			background: #ef4444;
+		}
+	}
+}
+
+.vulocart-product-edit-page.vulocart-order-edit-page .vulocart-topbar-actions {
+	gap: 1.25rem;
+}
+
+// Order details: facts grids, customer block, timeline, tags.
+.vulocart-order-summary-row--balance {
+	margin-top: 4px;
+	padding-top: 6px;
+	border-top: 1px dashed #e5e7eb;
+}
+
+.vulocart-order-facts {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+	gap: 0.75rem 1.25rem;
+
+	> div {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		align-items: flex-start;
+		font-size: 0.8125rem;
+	}
+
+	small {
+		font-size: 0.625rem;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: #9ca3af;
+	}
+
+	&.is-stacked {
+		grid-template-columns: 1fr;
+		margin-top: 0.75rem;
+		gap: 0.5rem;
+
+		> div {
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: baseline;
+			gap: 1rem;
+		}
+	}
+}
+
+.vulocart-order-customer-head {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+
+	p {
+		margin: 0 0 0.25rem;
+	}
+}
+
+.vulocart-order-avatar {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: 50%;
+	background: #efe7fb;
+	font-size: 1rem;
+	font-weight: 700;
+	color: #5007aa;
+}
+
+.vulocart-order-customer-stats {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 0.5rem;
+	margin-top: 0.875rem;
+	padding-top: 0.875rem;
+	border-top: 1px solid #f0f1f6;
+
+	> div {
+		display: flex;
+		flex-direction: column;
+		gap: 0.125rem;
+		min-width: 0;
+	}
+
+	strong {
+		overflow: hidden;
+		font-size: 0.9375rem;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	small {
+		font-size: 0.6875rem;
+		color: #6b7280;
+	}
+}
+
+.vulocart-order-address-block {
+	& + & {
+		margin-top: 0.75rem;
+		padding-top: 0.75rem;
+		border-top: 1px solid #f0f1f6;
+	}
+
+	small {
+		display: block;
+		margin-bottom: 0.25rem;
+		font-size: 0.625rem;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: #9ca3af;
+	}
+
+	.vulocart-field-hint {
+		margin: 0;
+	}
+}
+
+.vulocart-order-timeline {
+	position: relative;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+
+	&::before {
+		position: absolute;
+		top: 0.5rem;
+		bottom: 0.5rem;
+		left: 0.3125rem;
+		width: 2px;
+		background: #eceef5;
+		content: '';
+	}
+
+	li {
+		position: relative;
+		display: flex;
+		align-items: flex-start;
+		gap: 0.75rem;
+		padding: 0.5rem 0;
+		font-size: 0.8125rem;
+
+		> i {
+			z-index: 1;
+			flex: none;
+			width: 0.75rem;
+			height: 0.75rem;
+			margin-top: 0.25rem;
+			border: 2px solid #fff;
+			border-radius: 50%;
+			background: #9ca3af;
+			box-shadow: 0 0 0 1px #d9dce8;
+		}
+
+		&.is-payment > i {
+			background: #10b981;
+		}
+
+		&.is-shipment > i {
+			background: #3b82f6;
+		}
+
+		&.is-placed > i {
+			background: var(--color-primary, #5007aa);
+		}
+
+		> div {
+			display: flex;
+			flex: 1;
+			flex-direction: column;
+			min-width: 0;
+
+			strong {
+				font-weight: 600;
+
+				em {
+					margin-left: 0.5rem;
+					font-style: normal;
+					font-weight: 500;
+					color: #6b7280;
+				}
+			}
+
+			span {
+				font-size: 0.75rem;
+				color: #6b7280;
+			}
+		}
+
+		time {
+			flex: none;
+			font-size: 0.75rem;
+			color: #9ca3af;
+		}
+	}
+}
+
+.vulocart-order-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.375rem;
+	margin-bottom: 0.5rem;
+}
+
+.vulocart-order-tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding: 0.125rem 0.25rem 0.125rem 0.625rem;
+	border-radius: 999px;
+	background: #f3ecff;
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: #5007aa;
+
+	button {
+		padding: 0 0.25rem;
+		border: 0;
+		background: transparent;
+		font-size: 0.875rem;
+		line-height: 1;
+		color: inherit;
+		cursor: pointer;
+	}
+}
+
+.vulocart-order-tag-input {
+	width: 100%;
+}
+
+.vulocart-order-addresses {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.75rem;
+	margin-top: 0.875rem;
+	padding-top: 0.875rem;
+	border-top: 1px solid #f0f1f6;
+
+	.vulocart-order-address-block + .vulocart-order-address-block {
+		margin-top: 0;
+		padding-top: 0;
+		border-top: 0;
+	}
+
+	> .vulocart-field-hint {
+		grid-column: 1 / -1;
+		margin: 0;
+	}
+}
+
+// Missing values: a small action link, not a dash.
+.vulocart-order-missing {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-decoration: none;
+	color: var(--color-primary, #5007aa);
+
+	i {
+		font-size: 0.625rem;
+	}
+
+	&:hover {
+		text-decoration: underline;
+	}
+
+	&.is-plain {
+		color: #9ca3af;
+	}
+}
+
+// Compact card chrome for the order screen (same look as the product page, tighter).
+.vulocart-product-edit-page.vulocart-product-edit-page.vulocart-order-edit-page {
+	.card-content {
+		.card-header {
+			padding: 0.75rem 1.125rem 0.125rem;
+
+			.left {
+				gap: 0.5rem;
+
+				i {
+					width: 1.75rem;
+					height: 1.75rem;
+					font-size: 0.9375rem;
+				}
+			}
+
+			.title,
+			.typography-title {
+				font-size: 0.9375rem;
+			}
+
+			.desc {
+				font-size: 0.75rem;
+			}
+		}
+
+		.card-body {
+			padding: 0.5rem 1.125rem 0.875rem;
+		}
+	}
+
+	.vulocart-product-edit-grid {
+		grid-template-columns: minmax(0, 1fr) 19rem;
+		gap: 1rem;
+	}
+
+	.vulocart-product-edit-col {
+		gap: 0.875rem;
+	}
+
+	.vulocart-order-items-table {
+		th {
+			padding: 0.375rem 0.5rem;
+			font-size: 0.6875rem;
+			letter-spacing: 0.04em;
+			text-transform: uppercase;
+		}
+
+		td {
+			padding: 0.5rem;
+		}
+	}
+
+	.vulocart-order-summary-rows {
+		margin-top: 0.5rem;
+		padding-top: 0.5rem;
+	}
+
+	.vulocart-order-summary-row {
+		padding: 0.1875rem 0;
+		font-size: 0.8125rem;
+
+		> span:first-child {
+			color: #6b7280;
+		}
+	}
+
+	.vulocart-order-timeline li {
+		padding: 0.3125rem 0;
+	}
+}
+
+.vulocart-order-documents {
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+
+	li {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.4375rem 0;
+		border-bottom: 1px solid #f0f1f6;
+		font-size: 0.8125rem;
+
+		&:last-child {
+			border-bottom: 0;
+		}
+
+		i {
+			color: #9ca3af;
+		}
+
+		span {
+			flex: 1;
+			font-weight: 600;
+		}
+
+		a {
+			padding: 0.125rem 0.5rem;
+			border: 1px solid #e3e6ef;
+			border-radius: 0.375rem;
+			font-size: 0.75rem;
+			font-weight: 600;
+			text-decoration: none;
+
+			&:hover {
+				border-color: var(--color-primary, #5007aa);
+			}
+		}
+	}
+}
+
+// Refund lives at the foot of the Items card.
+.vulocart-order-refund {
+	margin-top: 0.75rem;
+	padding-top: 0.75rem;
+	border-top: 1px dashed #e5e7eb;
+
+	.vulocart-order-refund-head {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.5rem;
+		margin-bottom: 0.5rem;
+		font-size: 0.8125rem;
+
+		span {
+			font-size: 0.75rem;
+			color: #6b7280;
+		}
+	}
+}
+
+// --- Add order page ---
+
+.vulocart-order-add-search {
+	position: relative;
+	display: flex;
+	align-items: center;
+
+	i {
+		position: absolute;
+		left: 0.625rem;
+		font-size: 0.875rem;
+		color: #9ca3af;
+		pointer-events: none;
+	}
+
+	input {
+		width: 100%;
+		padding-left: 2rem;
+	}
+}
+
+.vulocart-order-add-results {
+	margin: 0.375rem 0 0;
+	padding: 0.25rem;
+	list-style: none;
+	border: 1px solid #e6e8f0;
+	border-radius: 0.5rem;
+	background: #fff;
+
+	&.is-floating {
+		position: absolute;
+		right: 0;
+		left: 0;
+		z-index: 20;
+		box-shadow: 0 12px 32px rgba(31, 27, 62, 0.14);
+	}
+
+	li.vulocart-field-hint {
+		margin: 0;
+		padding: 0.5rem;
+	}
+
+	button {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		width: 100%;
+		padding: 0.4375rem 0.5rem;
+		border: 0;
+		border-radius: 0.375rem;
+		background: transparent;
+		font-size: 0.8125rem;
+		text-align: left;
+		cursor: pointer;
+
+		&:hover {
+			background: #f7f8fc;
+		}
+
+		span {
+			display: flex;
+			flex: 1;
+			flex-direction: column;
+			min-width: 0;
+		}
+
+		small {
+			font-size: 0.6875rem;
+			color: #9ca3af;
+		}
+
+		em {
+			font-style: normal;
+			font-weight: 600;
+			color: #4b5563;
+		}
+
+		i {
+			color: var(--color-primary, #5007aa);
+		}
+	}
+}
+
+.vulocart-order-add-customer {
+	position: relative;
+}
+
+.vulocart-order-add-or {
+	margin: 0.625rem 0;
+	font-size: 0.6875rem;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-align: center;
+	text-transform: uppercase;
+	color: #9ca3af;
+}
+
+.vulocart-order-add-table {
+	margin-top: 0.75rem;
+}
+
+.vulocart-order-add-sku {
+	display: block;
+	font-size: 0.6875rem;
+	color: #9ca3af;
+}
+
+.vulocart-order-add-stepper {
+	display: inline-flex;
+	align-items: center;
+	border: 1px solid #e3e6ef;
+	border-radius: 0.375rem;
+
+	button {
+		width: 1.5rem;
+		height: 1.5rem;
+		border: 0;
+		background: transparent;
+		cursor: pointer;
+	}
+
+	span {
+		min-width: 1.5rem;
+		font-weight: 600;
+		text-align: center;
+	}
+}
+
+.vulocart-order-add-remove {
+	border: 0;
+	background: transparent;
+	font-size: 1.125rem;
+	line-height: 1;
+	color: #9ca3af;
+	cursor: pointer;
+
+	&:hover {
+		color: #b91c1c;
+	}
+}
+
+.vulocart-order-customer-head .vulocart-order-add-remove {
+	margin-left: auto;
+}
+
+.vulocart-order-add-next {
+	margin: 0;
+	padding-left: 1.125rem;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	color: #6b7280;
+}
+
+// Items fill the whole left column: the card, its table and its totals all stretch to the edge.
+.vulocart-product-edit-page.vulocart-order-edit-page {
+	.vulocart-product-edit-col--center {
+		width: 100%;
+
+		> .card-content {
+			width: 100%;
+		}
+	}
+
+	.vulocart-order-items-table {
+		width: 100%;
+		table-layout: auto;
+
+		th:first-child,
+		td:first-child {
+			width: 100%;
+		}
+
+		th:not(:first-child),
+		td:not(:first-child) {
+			width: 1%;
+			white-space: nowrap;
+		}
+	}
+
+	.vulocart-order-summary-rows {
+		width: 100%;
+	}
+}
+
+// Inline "+ Add" editors.
+.vulocart-order-missing {
+	border: 0;
+	background: none;
+	cursor: pointer;
+}
+
+.vulocart-order-inline {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.375rem;
+
+	input,
+	select {
+		min-width: 0;
+		min-height: 1.75rem;
+		width: 11rem;
+		font-size: 0.75rem;
+	}
+}
+
+.vulocart-order-inline-save,
+.vulocart-order-inline-cancel {
+	padding: 0.25rem 0.625rem;
+	border: 1px solid var(--color-primary, #5007aa);
+	border-radius: 0.375rem;
+	background: var(--color-primary, #5007aa);
+	font-size: 0.6875rem;
+	font-weight: 600;
+	color: #fff;
+	cursor: pointer;
+
+	&:disabled {
+		opacity: 0.6;
+	}
+}
+
+.vulocart-order-inline-cancel {
+	border-color: #e3e6ef;
+	background: #fff;
+	color: #4b5563;
+}
+
+.vulocart-order-inline-address {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.vulocart-order-inline-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.375rem 0.5rem;
+
+	label {
+		display: flex;
+		flex-direction: column;
+		gap: 0.125rem;
+		font-size: 0.625rem;
+		font-weight: 600;
+		color: #6b7280;
+	}
+
+	input {
+		min-width: 0;
+		min-height: 1.75rem;
+		font-size: 0.75rem;
+	}
+}
+
+// Unpaid order: ask the customer to pay.
+.vulocart-order-ask {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.375rem;
+	margin-top: 0.5rem;
+	padding: 0.75rem;
+	border: 1px dashed #d9c8f2;
+	border-radius: 0.5rem;
+	background: #faf6ff;
+
+	strong {
+		font-size: 0.8125rem;
+	}
+
+	p {
+		margin: 0;
+		font-size: 0.75rem;
+		color: #6b7280;
+	}
+
+	small {
+		font-size: 0.6875rem;
+		color: #9ca3af;
+	}
+}
+
+// Fulfillment ahead of payment.
+.vulocart-order-warning {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin: 0 0 0.875rem;
+	padding: 0.5rem 0.75rem;
+	border: 1px solid #fcd9a0;
+	border-radius: 0.5rem;
+	background: #fff8eb;
+	font-size: 0.8125rem;
+	color: #92400e;
+
+	a {
+		margin-left: auto;
+		font-weight: 600;
+		color: inherit;
+	}
+}
+

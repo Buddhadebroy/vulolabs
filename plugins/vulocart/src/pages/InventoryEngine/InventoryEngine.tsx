@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
-import { renderEngineView, type EngineView } from '../../components/EngineScreen/EngineScreen';
+import type { EngineView } from '../../components/EngineScreen/EngineScreen';
+import { EngineTabs } from '../../components/EngineScreen/EngineTabs';
 import { InventoryPage } from '../Inventory/InventoryPage';
 import { inventoryExtraViews } from '../Products/extraViews';
 
@@ -11,7 +12,12 @@ interface InventoryEngineProps {
 const moduleId = 'inventory';
 
 const views: Record< string, EngineView > = {
-	...inventoryExtraViews,
+	stock: {
+		title: __( 'Stock Levels', 'vulocart' ),
+		description: __( 'Stock for every physical, rental, bundle and gift card product.', 'vulocart' ),
+		icon: 'store-inventory',
+		module: moduleId,
+	},
 	warehouses: {
 		title: __( 'Warehouses', 'vulocart' ),
 		description: __( 'Every stock location this store fulfills from - orders decrement from the default warehouse.', 'vulocart' ),
@@ -19,6 +25,7 @@ const views: Record< string, EngineView > = {
 		module: moduleId,
 		pro: true,
 	},
+	...inventoryExtraViews,
 	'purchase-orders': {
 		title: __( 'Purchase Orders', 'vulocart' ),
 		description: __( 'Order stock from suppliers and receive it into a warehouse.', 'vulocart' ),
@@ -63,18 +70,20 @@ const views: Record< string, EngineView > = {
 	},
 };
 
+const pageHeader: EngineView = {
+	title: __( 'Inventory', 'vulocart' ),
+	description: __( 'Stock levels, warehouses, suppliers, purchase orders, transfers and forecasting.', 'vulocart' ),
+	icon: 'store-inventory',
+	module: moduleId,
+};
+
 /**
- * Free owns this top-level menu's frame only - every real view is registered by vulocart-pro's
- * Inventory module into `vulocart_inventory_view`. With no module (or no license) the view shows
- * the "module required" state instead of an empty page.
+ * One Inventory page with a tab per area. Free owns the frame and the Stock Levels tab; every other tab is
+ * registered by vulocart-pro's Inventory and Suppliers modules into `vulocart_inventory_view`. With no
+ * module (or no license) a tab shows the "module required" state instead of an empty page.
  */
 export function InventoryEngine( { view }: InventoryEngineProps ) {
-	// Free's own simple stock-level editor; every other view is a vulocart-pro page.
-	if ( ! view || 'stock' === view ) {
-		return <InventoryPage />;
-	}
-
-	return renderEngineView( 'vulocart_inventory_view', views, views[ view ] ? view : 'warehouses' );
+	return <EngineTabs header={ pageHeader } views={ views } filterName="vulocart_inventory_view" view={ view } own={ { stock: <InventoryPage embedded /> } } />;
 }
 
 export default InventoryEngine;

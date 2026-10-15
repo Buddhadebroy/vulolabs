@@ -51,8 +51,10 @@ class Menu {
         add_action( 'admin_menu', array( $this, 'add_shipping_menu' ) );
         add_action( 'admin_menu', array( $this, 'add_ai_menu' ) );
         add_action( 'admin_menu', array( $this, 'add_workflows_menu' ) );
-        add_action( 'admin_menu', array( $this, 'add_analytics_menu' ) );
+        add_action( 'admin_menu', array( $this, 'add_analytics_redirect' ) );
         add_action( 'admin_menu', array( $this, 'add_marketing_menu' ) );
+        add_action( 'admin_menu', array( $this, 'order_submenu' ), 999 );
+        add_action( 'admin_menu', array( $this, 'order_marketing_submenu' ), 999 );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_script' ) );
         add_filter( 'submenu_file', array( $this, 'highlight_current_submenu' ), 10, 2 );
     }
@@ -96,6 +98,92 @@ class Menu {
         // this the same way rather than avoiding it (Admin.php's own
         // `remove_submenu_page( 'vulopilot', 'vulopilot' )`).
         remove_submenu_page( 'vulocart', 'vulocart' );
+    }
+
+    /**
+     * Puts the VuloCart submenu in its intended order. The entries are registered by separate methods (and Pro
+     * adds more), so registration order alone cannot give this order; this runs after all of them.
+     * Anything not listed (an entry a Pro module adds) sits just before Settings.
+     *
+     * @return void
+     */
+    public function order_submenu() {
+        global $submenu;
+
+        if ( empty( $submenu['vulocart'] ) ) {
+            return;
+        }
+
+        $order = array(
+            'vulocart#&tab=dashboard',
+            'vulocart-ai',
+            'vulocart-workflows',
+            'vulocart-inventory',
+            'vulocart-shipping',
+            'vulocart#&tab=reviews',
+        );
+
+        $last = 'vulocart#&tab=settings';
+        $rank = static function ( $item ) use ( $order, $last ) {
+            $position = array_search( $item[2], $order, true );
+
+            if ( false !== $position ) {
+                return $position;
+            }
+
+            return $last === $item[2] ? 1000 : 500;
+        };
+
+        $items = array_values( $submenu['vulocart'] );
+
+        usort(
+            $items,
+            static function ( $a, $b ) use ( $rank ) {
+                return $rank( $a ) <=> $rank( $b );
+            }
+        );
+
+        $submenu['vulocart'] = $items; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- reordering core's own menu array is the supported way to order submenus.
+    }
+
+    /**
+     * Tidies the Marketing submenu, whose entries are all added by vulocart-pro modules. Drops the item
+     * add_menu_page() generates from the menu title ("Marketing", which only showed Coupons a second time)
+     * and puts the rest in order: promotions, then recovery, then checkout tools. An entry not listed sits last.
+     *
+     * @return void
+     */
+    public function order_marketing_submenu() {
+        global $submenu;
+
+        if ( empty( $submenu['vulocart-marketing'] ) ) {
+            return;
+        }
+
+        $order = array( 'coupons', 'pricing-rules', 'gift-cards', 'abandoned-checkouts', 'checkout-links' );
+        $rank  = static function ( $item ) use ( $order ) {
+            $position = array_search( str_replace( 'vulocart-marketing&view=', '', $item[2] ), $order, true );
+
+            return false === $position ? 500 : $position;
+        };
+
+        $items = array_values(
+            array_filter(
+                $submenu['vulocart-marketing'],
+                static function ( $item ) {
+                    return 'vulocart-marketing' !== $item[2];
+                }
+            )
+        );
+
+        usort(
+            $items,
+            static function ( $a, $b ) use ( $rank ) {
+                return $rank( $a ) <=> $rank( $b );
+            }
+        );
+
+        $submenu['vulocart-marketing'] = $items; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- see order_submenu().
     }
 
     /**
@@ -277,25 +365,16 @@ class Menu {
      * this top-level menu is for the warehouse-aware engine sitting above
      * it, not a replacement.
      *
+     * Inventory is one submenu of VuloCart; stock levels, warehouses, suppliers, purchase orders and the rest are
+     * tabs on that page (`&view=`), filled in by `vulocart-pro` through `vulocart_inventory_view`.
+     *
      * @return void
      */
     public function add_inventory_menu() {
-        add_menu_page(
+        add_submenu_page(
+            'vulocart',
             __( 'VuloCart Inventory', 'vulocart' ),
             __( 'Inventory', 'vulocart' ),
-            'manage_options',
-            'vulocart-inventory',
-            array( $this, 'render_inventory_admin_page' ),
-            'dashicons-store',
-            56.2
-        );
-
-        // Free's own stock-level editor is the menu's first item (same slug as the parent, which relabels
-        // the auto-generated entry); warehouses, purchase orders and the rest are vulocart-pro's.
-        add_submenu_page(
-            'vulocart-inventory',
-            __( 'Stock Levels', 'vulocart' ),
-            __( 'Stock Levels', 'vulocart' ),
             'manage_options',
             'vulocart-inventory',
             array( $this, 'render_inventory_admin_page' )
@@ -313,41 +392,38 @@ class Menu {
      * `ShippingService::get_available_methods()` via the
      * `vulocart_shipping_methods` filter rather than replacing it.
      *
+     * Shipping is one submenu of VuloCart; zones, packaging, shipments, returns and pickup are tabs on that
+     * page (`&view=`), filled in by `vulocart-pro`'s ShippingEngine module through `vulocart_shipping_view`.
+     *
      * @return void
      */
     public function add_shipping_menu() {
-        add_menu_page(
+        add_submenu_page(
+            'vulocart',
             __( 'VuloCart Shipping', 'vulocart' ),
             __( 'Shipping', 'vulocart' ),
             'manage_options',
             'vulocart-shipping',
-            array( $this, 'render_shipping_admin_page' ),
-            'dashicons-car',
-            56.3
+            array( $this, 'render_shipping_admin_page' )
         );
     }
 
     /**
-     * Registers AI as its own dedicated top-level WP admin menu - same
-     * "Free owns top-level chrome, Pro fills it in" split
-     * `add_inventory_menu()`'s own docblock documents. Free's own `Ai`
-     * module owns the "Settings" sub-page (BYOK provider key
-     * configuration, `Ai\Module::register_menu()`); `vulocart-pro`'s
-     * CatalogAi/CheckoutAi/SupportAi/VectorSearch modules each register
-     * their own submenu here the same way ShippingEngine registers
-     * Zones/Packaging/Shipments/Returns/Pickup under `add_shipping_menu()`.
+     * Registers AI as a single submenu of VuloCart (it used to be its own top-level menu with a submenu per
+     * feature). The page slug stays `vulocart-ai`, so `&view=catalog|checkout|support|search` links and
+     * bookmarks keep working - those are now tabs on this one page. Free owns the frame; each tab is
+     * `vulocart-pro`'s CatalogAi/CheckoutAi/SupportAi/VectorSearch module, plugged into `vulocart_ai_view`.
      *
      * @return void
      */
     public function add_ai_menu() {
-        add_menu_page(
+        add_submenu_page(
+            'vulocart',
             __( 'VuloCart AI', 'vulocart' ),
             __( 'AI', 'vulocart' ),
             'manage_options',
             'vulocart-ai',
-            array( $this, 'render_ai_admin_page' ),
-            'dashicons-star-filled',
-            56.6
+            array( $this, 'render_ai_admin_page' )
         );
     }
 
@@ -371,30 +447,30 @@ class Menu {
     }
 
     /**
-     * Registers Analytics as a submenu of VuloCart (after Dashboard/Settings) - it used to be its own
-     * top-level menu. The page slug stays `vulocart-analytics`, so existing links and bookmarks keep
-     * working, and the "Free owns the chrome, Pro fills it in" split is unchanged: Free owns no view
-     * of its own here, every real section is `vulocart-pro`'s Analytics module, which plugs into
-     * `vulocart_analytics_view`.
+     * Analytics is part of the Dashboard page now (its Pro insights section, src/pages/Dashboard/), not a page of its own. The old slug stays
+     * registered as a hidden page (no parent, so no menu entry) whose `load-` hook sends old links and bookmarks to
+     * the Dashboard; WordPress would otherwise refuse the unknown slug before any `admin_init` redirect could run.
      *
      * @return void
      */
-    public function add_analytics_menu() {
-        add_submenu_page(
-            'vulocart',
-            __( 'VuloCart Analytics', 'vulocart' ),
-            __( 'Analytics', 'vulocart' ),
-            'manage_options',
-            'vulocart-analytics',
-            array( $this, 'render_analytics_admin_page' )
+    public function add_analytics_redirect() {
+        $hook = add_submenu_page( '', __( 'VuloCart Analytics', 'vulocart' ), '', 'manage_options', 'vulocart-analytics', '__return_null' );
+
+        add_action(
+            'load-' . $hook,
+            static function () {
+                wp_safe_redirect( admin_url( 'admin.php?page=vulocart#&tab=dashboard' ) );
+                exit;
+            }
         );
     }
 
     /**
      * Registers Marketing as its own top-level WP admin menu - same "Free owns top-level chrome, Pro
      * fills it in" split as `add_ai_menu()`/`add_workflows_menu()`. Free owns no view here; Coupons,
-     * Gift Cards, Subscriptions, Checkout Links, Checkout Builder and Abandoned Checkouts are each
-     * `vulocart-pro`'s own module, which registers its submenu under `vulocart-marketing`.
+     * Pricing Rules, Gift Cards, Cart Abandoned, Checkout Links and Checkout Builder are each
+     * `vulocart-pro`'s own module, which registers its submenu under `vulocart-marketing`
+     * (ordered by order_marketing_submenu()).
      *
      * @return void
      */
@@ -502,17 +578,6 @@ class Menu {
     }
 
     /**
-     * Renders the mount point for the standalone Analytics admin app -
-     * see render_orders_admin_page()'s docblock for why this is a
-     * separate root element id.
-     *
-     * @return void
-     */
-    public function render_analytics_admin_page() {
-        echo '<div id="vulocart-analytics-admin-root"></div>';
-    }
-
-    /**
      * Renders the mount point for the standalone Workflows admin app -
      * see render_orders_admin_page()'s docblock for why this is a
      * separate root element id.
@@ -561,6 +626,11 @@ class Menu {
             if ( in_array( $candidate, $registered, true ) ) {
                 return $candidate;
             }
+        }
+
+        // Marketing has no item for its bare page (order_marketing_submenu() drops it); that page shows Coupons.
+        if ( 'vulocart-marketing' === $page && ! in_array( $page, $registered, true ) && in_array( 'vulocart-marketing&view=coupons', $registered, true ) ) {
+            return 'vulocart-marketing&view=coupons';
         }
 
         return $submenu_file;
@@ -612,7 +682,7 @@ class Menu {
      */
     public function enqueue_admin_script( $hook_suffix ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
         $current_page   = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page-identity check, not a state-changing request.
-        $vulocart_pages = array( 'vulocart', 'vulocart-orders', 'vulocart-products', 'vulocart-customers', 'vulocart-inventory', 'vulocart-shipping', 'vulocart-ai', 'vulocart-workflows', 'vulocart-analytics', 'vulocart-marketing' );
+        $vulocart_pages = array( 'vulocart', 'vulocart-orders', 'vulocart-products', 'vulocart-customers', 'vulocart-inventory', 'vulocart-shipping', 'vulocart-ai', 'vulocart-workflows', 'vulocart-marketing' );
 
         if ( ! in_array( $current_page, $vulocart_pages, true ) ) {
             return;
@@ -687,6 +757,7 @@ class Menu {
                 'active_plugins' => get_option( 'active_plugins', array() ),
                 'shop_url'       => defined( 'VULOCART_PRO_SHOP_URL' ) ? VULOCART_PRO_SHOP_URL : '',
                 'site_url'       => esc_url_raw( site_url() ),
+                'user_display_name' => wp_get_current_user()->display_name,
                 // Settings → General date/time format (PHP `date()` syntax) and timezone as a minute offset from UTC;
                 // services/formatWpDate.ts formats every date the admin shows with them.
                 'date_format'        => get_option( 'date_format' ),

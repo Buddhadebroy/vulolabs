@@ -12,7 +12,6 @@ import MarketingEngine from './pages/MarketingEngine/MarketingEngine';
 import ShippingEngine from './pages/ShippingEngine/ShippingEngine';
 import AiEngine from './pages/AiEngine/AiEngine';
 import WorkflowsEngine from './pages/WorkflowsEngine/WorkflowsEngine';
-import AnalyticsEngine from './pages/AnalyticsEngine/AnalyticsEngine';
 import { registerRestErrorToasts } from './lib/rest-errors';
 
 /**
@@ -125,7 +124,6 @@ const inventoryAdminRoot = standaloneRoot( 'vulocart-inventory-admin-root' );
 const shippingAdminRoot = standaloneRoot( 'vulocart-shipping-admin-root' );
 const aiAdminRoot = standaloneRoot( 'vulocart-ai-admin-root' );
 const workflowsAdminRoot = standaloneRoot( 'vulocart-workflows-admin-root' );
-const analyticsAdminRoot = standaloneRoot( 'vulocart-analytics-admin-root' );
 const marketingAdminRoot = standaloneRoot( 'vulocart-marketing-admin-root' );
 
 const urlParams = new URLSearchParams( window.location.search );
@@ -222,16 +220,6 @@ if ( workflowsAdminRoot ) {
 			<WorkflowsEngine view={ urlView } />
 		</>,
 		workflowsAdminRoot
-	);
-}
-
-if ( analyticsAdminRoot ) {
-	render(
-		<>
-			<SearchHeader />
-			<AnalyticsEngine view={ urlView } />
-		</>,
-		analyticsAdminRoot
 	);
 }
 

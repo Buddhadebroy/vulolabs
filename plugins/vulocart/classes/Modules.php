@@ -303,6 +303,7 @@ class Modules {
             array(
                 'shipping'    => array( 'shipping-engine' ),
                 'bulk-editor' => array( 'csv-import' ),
+                'mcp'         => array( 'mcp-server' ),
             )
         );
 

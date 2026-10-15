@@ -18,6 +18,7 @@ import { CardComponent, FormGroupWrapperComponent, FormGroupComponent } from '@z
 import { TextInput, TextAreaInput, SelectInput, ButtonInput, MultiCheckboxInput, FileInput } from '@zyra/inputs';
 import { EmbedCodeSection } from './EmbedCodeSection';
 import { HeaderPicker } from './HeaderPicker';
+import { ProModuleHint } from './ProModuleHint';
 import { TypeChooser } from './TypeChooser';
 import { PRODUCT_TYPE_OPTIONS, TYPE_PROFILES, cardsFor, fieldsFor, profileFor, subtypeFor, type TypeDetailField } from './typeProfiles';
 import './products-page.scss';
@@ -1330,7 +1331,14 @@ export function ProductEdit( { id }: ProductEditProps ) {
 						<PriceList prices={ formData.prices } onChange={ setPrices } symbol={ currencySymbol } money={ formatMoney } />
 						{ PRICE_LIST_HINTS[ formData.type ] && <p className="vulocart-price-type-hint">{ PRICE_LIST_HINTS[ formData.type ] }</p> }
 
-						{ pricingSection }
+						{ pricingSection ??
+							( isEditMode && (
+								<ProModuleHint
+									module="pricing-rules"
+									title={ __( 'Pricing rules', 'vulocart' ) }
+									description={ __( 'Automatic percentage or fixed discounts for this product, its category or the whole store.', 'vulocart' ) }
+								/>
+							) ) }
 					</CardComponent>
 
 					{ cards.variants && (
@@ -1666,8 +1674,9 @@ export function ProductEdit( { id }: ProductEditProps ) {
 
 					{ null !== id && (
 						<div className="vulocart-edit-extra-sections">
-							<EmbedCodeSection productId={ id } />
 							{ applyFilters( 'vulocart_product_edit_sections', null, { id, type: formData.type, subtype: subtype.value, shippable: cards.shipping } ) }
+							{ /* Last, after the modules' sections (Digital Product Passport, ...). */ }
+							<EmbedCodeSection productId={ id } />
 						</div>
 					) }
 
@@ -1675,13 +1684,13 @@ export function ProductEdit( { id }: ProductEditProps ) {
 					{ null === id && (
 						<div className="vulocart-edit-extra-sections">
 							{ [
+								...( applyFilters( 'vulocart_product_pending_sections', [], { type: formData.type, subtype: subtype.value, shippable: cards.shipping } ) as { key: string; title: string; desc: string; icon?: string }[] ),
 								{
 									key: 'embed',
 									title: __( 'Embed code', 'vulocart' ),
 									desc: __( 'Sell this product anywhere - a landing page, a Next.js app, plain HTML - with the VuloCart SDK.', 'vulocart' ),
 									icon: 'code',
 								},
-								...( applyFilters( 'vulocart_product_pending_sections', [], { type: formData.type, subtype: subtype.value, shippable: cards.shipping } ) as { key: string; title: string; desc: string; icon?: string }[] ),
 							].map( ( section ) => (
 								<CardComponent key={ section.key } titleIcon={ section.icon } title={ section.title } desc={ section.desc }>
 									<p className="vulocart-field-hint vulocart-locked-note">

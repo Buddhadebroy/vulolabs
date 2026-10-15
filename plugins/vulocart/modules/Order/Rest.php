@@ -107,6 +107,16 @@ class Rest extends \WP_REST_Controller {
 
         register_rest_route(
             VuloCart()->rest_namespace,
+            '/orders/bulk-delete',
+            array(
+                'methods'             => \WP_REST_Server::DELETABLE,
+                'callback'            => array( $this, 'bulk_delete' ),
+                'permission_callback' => array( $this, 'admin_permissions_check' ),
+            )
+        );
+
+        register_rest_route(
+            VuloCart()->rest_namespace,
             '/orders/bulk-payment-status',
             array(
                 'methods'             => \WP_REST_Server::EDITABLE,
@@ -129,6 +139,31 @@ class Rest extends \WP_REST_Controller {
                     'callback'            => array( $this, 'update_item' ),
                     'permission_callback' => array( $this, 'admin_permissions_check' ),
                 ),
+                array(
+                    'methods'             => \WP_REST_Server::DELETABLE,
+                    'callback'            => array( $this, 'delete_item' ),
+                    'permission_callback' => array( $this, 'admin_permissions_check' ),
+                ),
+            )
+        );
+
+        register_rest_route(
+            VuloCart()->rest_namespace,
+            '/orders/(?P<id>\d+)/request-payment',
+            array(
+                'methods'             => \WP_REST_Server::CREATABLE,
+                'callback'            => array( $this, 'request_payment' ),
+                'permission_callback' => array( $this, 'admin_permissions_check' ),
+            )
+        );
+
+        register_rest_route(
+            VuloCart()->rest_namespace,
+            '/orders/(?P<id>\d+)/timeline',
+            array(
+                'methods'             => \WP_REST_Server::READABLE,
+                'callback'            => array( $this, 'get_timeline' ),
+                'permission_callback' => array( $this, 'admin_permissions_check' ),
             )
         );
 
@@ -208,6 +243,10 @@ class Rest extends \WP_REST_Controller {
             'shipping_address'   => $order->shipping_address,
             'item_count'         => array_sum( array_map( fn( $item ) => $item->quantity, $order->items ) ),
             'items'              => array_map( array( $this, 'format_order_item_for_response' ), $order->items ),
+            'discount_total'     => max( 0, round( (float) $order->subtotal + (float) $order->shipping_cost + (float) $order->tax_amount - (float) $order->total, 2 ) ),
+            'payment_requests'   => isset( $order->meta['payment_requests'] ) && is_array( $order->meta['payment_requests'] ) ? array_values( $order->meta['payment_requests'] ) : array(),
+            'tags'               => isset( $order->meta['tags'] ) && is_array( $order->meta['tags'] ) ? array_values( $order->meta['tags'] ) : array(),
+            'customer'           => $this->customer_summary( $order ),
             'created_at'         => $order->created_at,
             'updated_at'         => $order->updated_at,
         );
@@ -514,7 +553,149 @@ class Rest extends \WP_REST_Controller {
             return new \WP_Error( 'vulocart_order_not_found', esc_html__( 'Order not found.', 'vulocart' ), array( 'status' => 404 ) );
         }
 
+        $detail_keys = array( 'customer_email', 'customer_name', 'customer_phone', 'shipping_method', 'payment_method', 'shipping_address', 'billing_address' );
+        $details     = array();
+
+        foreach ( $detail_keys as $key ) {
+            if ( null !== $request->get_param( $key ) ) {
+                $details[ $key ] = $request->get_param( $key );
+            }
+        }
+
+        if ( $details ) {
+            try {
+                $order = VuloCart()->order_service->update_details( $id, $details ) ?? $order;
+            } catch ( \InvalidArgumentException $exception ) {
+                return new \WP_Error( 'vulocart_invalid_order_details', esc_html( $exception->getMessage() ), array( 'status' => 400 ) );
+            }
+        }
+
+        if ( is_array( $request->get_param( 'tags' ) ) ) {
+            $order = VuloCart()->order_service->set_tags( $id, array_map( 'sanitize_text_field', array_map( 'strval', $request->get_param( 'tags' ) ) ) ) ?? $order;
+        }
+
         return rest_ensure_response( $this->prepare_order_for_response( $order ) );
+    }
+
+    /**
+     * The order's customer as the order screen needs it - account type and lifetime numbers - or null when no
+     * customer record exists for the order's email (the Customer module is off, or a guest never checked out).
+     *
+     * @param OrderEntity $order The order.
+     * @return array<string, mixed>|null
+     */
+    private function customer_summary( OrderEntity $order ) {
+        if ( empty( $order->customer_email ) ) {
+            return null;
+        }
+
+        try {
+            $customer = VuloCart()->customer_service->get_by_email( (string) $order->customer_email );
+        } catch ( \Exception $exception ) {
+            return null;
+        }
+
+        if ( ! $customer ) {
+            return null;
+        }
+
+        return array(
+            'id'            => $customer->id,
+            'is_registered' => ! empty( $customer->wp_user_id ),
+            'total_orders'  => $customer->total_orders,
+            'total_spent'   => $customer->total_spent,
+            'last_order_at' => $customer->last_order_at,
+            'since'         => $customer->created_at,
+        );
+    }
+
+    /**
+     * Emails the customer a request to pay - admin only.
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response|\WP_Error
+     */
+    public function request_payment( $request ) {
+        try {
+            $order = VuloCart()->order_service->request_payment( absint( $request->get_param( 'id' ) ) );
+        } catch ( \InvalidArgumentException $exception ) {
+            return new \WP_Error( 'vulocart_payment_request_invalid', esc_html( $exception->getMessage() ), array( 'status' => 400 ) );
+        } catch ( \RuntimeException $exception ) {
+            return new \WP_Error( 'vulocart_payment_request_failed', esc_html( $exception->getMessage() ), array( 'status' => 500 ) );
+        }
+
+        if ( ! $order ) {
+            return new \WP_Error( 'vulocart_order_not_found', esc_html__( 'Order not found.', 'vulocart' ), array( 'status' => 404 ) );
+        }
+
+        return rest_ensure_response( $this->prepare_order_for_response( $order ) );
+    }
+
+    /**
+     * Everything that has happened to an order, oldest first: it was placed, each payment-ledger event, and
+     * whatever other modules add through `vulocart_order_timeline` (shipments, for one). Each event is
+     * `{ type, title, detail, at, amount?, currency? }`.
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response|\WP_Error
+     */
+    public function get_timeline( $request ) {
+        $id    = absint( $request->get_param( 'id' ) );
+        $order = VuloCart()->order_service->get_order( $id );
+
+        if ( ! $order ) {
+            return new \WP_Error( 'vulocart_order_not_found', esc_html__( 'Order not found.', 'vulocart' ), array( 'status' => 404 ) );
+        }
+
+        $events = array(
+            array(
+                'type'   => 'placed',
+                'title'  => __( 'Order placed', 'vulocart' ),
+                'detail' => '',
+                'at'     => $order->created_at,
+            ),
+        );
+
+        foreach ( (array) ( $order->meta['payment_requests'] ?? array() ) as $requested_at ) {
+            $events[] = array(
+                'type'   => 'payment',
+                'title'  => __( 'Payment requested', 'vulocart' ),
+                'detail' => (string) $order->customer_email,
+                'at'     => $requested_at,
+            );
+        }
+
+        try {
+            $transactions = VuloCart()->payment_service->get_transaction_history( $id );
+        } catch ( \Exception $exception ) {
+            $transactions = array(); // The Payment module is off - there is no ledger to read.
+        }
+
+        foreach ( $transactions as $transaction ) {
+            $events[] = array(
+                'type'     => 'payment',
+                'title'    => ucfirst( (string) $transaction['type'] ),
+                'detail'   => trim( (string) $transaction['gateway'] . ' · ' . (string) $transaction['status'], ' ·' ),
+                'at'       => $transaction['created_at'],
+                'amount'   => (float) $transaction['amount'],
+                'currency' => $transaction['currency'],
+            );
+        }
+
+        /**
+         * Lets other modules add events to an order's timeline.
+         *
+         * @param array<int, array<string, mixed>> $events   Events so far.
+         * @param int                              $order_id The order.
+         */
+        $events = (array) apply_filters( 'vulocart_order_timeline', $events, $id );
+
+        usort(
+            $events,
+            static fn( $a, $b ) => strcmp( (string) ( $a['at'] ?? '' ), (string) ( $b['at'] ?? '' ) )
+        );
+
+        return rest_ensure_response( array_values( $events ) );
     }
 
     /**
@@ -590,5 +771,35 @@ class Rest extends \WP_REST_Controller {
         }
 
         return rest_ensure_response( array( 'updated' => $updated ) );
+    }
+
+    /**
+     * Permanently deletes one order.
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response|\WP_Error
+     */
+    public function delete_item( $request ) {
+        if ( ! VuloCart()->order_service->delete_order( absint( $request->get_param( 'id' ) ) ) ) {
+            return new \WP_Error( 'vulocart_order_not_found', esc_html__( 'Order not found.', 'vulocart' ), array( 'status' => 404 ) );
+        }
+
+        return rest_ensure_response( array( 'deleted' => true ) );
+    }
+
+    /**
+     * Permanently deletes several orders.
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response|\WP_Error
+     */
+    public function bulk_delete( $request ) {
+        $ids = $request->get_param( 'ids' );
+
+        if ( ! is_array( $ids ) || empty( $ids ) ) {
+            return new \WP_Error( 'vulocart_missing_order_ids', esc_html__( 'No order ids were provided.', 'vulocart' ), array( 'status' => 400 ) );
+        }
+
+        return rest_ensure_response( array( 'deleted' => VuloCart()->order_service->bulk_delete( array_map( 'absint', $ids ) ) ) );
     }
 }

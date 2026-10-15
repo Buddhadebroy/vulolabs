@@ -58,6 +58,35 @@ class Module {
 
         add_filter( 'vulocart_checkout_steps', array( $this, 'register_checkout_step' ) );
         add_action( 'vulocart_order_created', array( $this, 'maybe_record_order' ) );
+        add_action( 'vulocart_order_payment_status_changed', array( $this, 'maybe_refresh_totals' ) );
+        add_action( 'vulocart_order_fulfillment_status_changed', array( $this, 'maybe_refresh_totals' ) );
+        add_action( 'vulocart_order_deleted', array( $this, 'maybe_refresh_totals' ) );
+        add_action( 'init', array( $this, 'maybe_backfill_totals' ) );
+    }
+
+    /**
+     * Keeps a customer's totals in step with a status change on one of their orders.
+     *
+     * @param array{order: object} $payload Order\Domain\Order under the 'order' key.
+     * @return void
+     */
+    public function maybe_refresh_totals( $payload ) {
+        $this->service->refresh_for_order( $payload['order'] );
+    }
+
+    /**
+     * One-time pass: totals used to be added up when an order was placed (paid or not, never reduced), so recompute
+     * them from the orders themselves.
+     *
+     * @return void
+     */
+    public function maybe_backfill_totals() {
+        if ( get_option( 'vulocart_customer_totals_derived' ) ) {
+            return;
+        }
+
+        $this->service->refresh_all_totals();
+        update_option( 'vulocart_customer_totals_derived', 1 );
     }
 
     /**
