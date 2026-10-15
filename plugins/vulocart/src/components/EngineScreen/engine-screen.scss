@@ -44,7 +44,8 @@ $engine-muted: #6b7280;
 		margin: 0 0 1rem;
 	}
 
-	a {
+	// Not zyra's table: its action links keep their own colours (blue Edit, red Delete), as on Products.
+	a:not(.admin-table-wrapper a) {
 		color: $engine-primary;
 		text-decoration: none;
 
@@ -53,7 +54,9 @@ $engine-muted: #6b7280;
 		}
 	}
 
-	table {
+	// Plain tables a module renders itself. zyra's own table (`.admin-table-wrapper`, the lists) already has its look
+	// - the same as Products - so these rules must not restyle it (uppercase headers, a second border).
+	table:not(.admin-table-wrapper table) {
 		width: 100%;
 		border-collapse: separate;
 		border-spacing: 0;
@@ -184,7 +187,8 @@ $engine-muted: #6b7280;
 		margin-bottom: 1rem;
 	}
 
-	[class*='-badge'] {
+	// Module-made badges (`vulocart-ai-badge`, ...) - not zyra's `admin-badge`, which has its own colours.
+	[class*='-badge']:not(.admin-badge) {
 		display: inline-flex;
 		align-items: center;
 		margin-left: 0.5rem;
