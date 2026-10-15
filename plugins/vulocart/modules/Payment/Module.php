@@ -30,34 +30,22 @@ defined( 'ABSPATH' ) || exit;
 class Module {
 
     /**
-     * Container for this module's own class instances.
-     *
-     * @var array
-     */
-    private $container = array();
-
-    /**
-     * Module constructor.
+     * Module constructor. Wires this module's own classes directly and
+     * registers its service on the main plugin container
+     * (`VuloCart()->payment_service`) - plain, self-wiring shape
+     * vulopilot's own Module.php files use (no container/magic getter:
+     * nothing outside this module ever reaches into its instance).
      */
     public function __construct() {
-        $this->init_classes();
-    }
+        new Install();
 
-    /**
-     * Constructs this module's own classes and registers its service on
-     * the main plugin container (`VuloCart()->payment_service`).
-     *
-     * @return void
-     */
-    public function init_classes() {
-        $this->container['install'] = new Install();
-        $this->container['ledger']  = new Infrastructure\WPDBTransactionLedger();
-        $this->container['registry'] = new Application\GatewayRegistry();
-        $this->container['service']  = new Application\PaymentService( $this->container['registry'], $this->container['ledger'] );
+        $ledger   = new Infrastructure\WPDBTransactionLedger();
+        $registry = new Application\GatewayRegistry();
+        $service  = new Application\PaymentService( $registry, $ledger );
 
-        VuloCart()->payment_service = $this->container['service'];
+        VuloCart()->payment_service = $service;
 
-        $this->container['rest'] = new Rest();
+        new Rest();
 
         add_filter( 'vulocart_checkout_steps', array( $this, 'register_checkout_step' ) );
         add_filter( 'vulocart_payment_gateways', array( $this, 'register_offline_gateways' ) );
@@ -93,20 +81,5 @@ class Module {
         );
 
         return $steps;
-    }
-
-    /**
-     * Magic getter for this module's own container.
-     *
-     * @param string $class_name Container key to retrieve.
-     * @return mixed
-     * @throws \Exception If the requested key does not exist in the container.
-     */
-    public function __get( $class_name ) { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.classFound
-        if ( array_key_exists( $class_name, $this->container ) ) {
-            return $this->container[ $class_name ];
-        }
-
-        throw new \Exception( sprintf( 'Call to unknown class %s.', esc_html( $class_name ) ) );
     }
 }

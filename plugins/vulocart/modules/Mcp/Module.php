@@ -38,40 +38,9 @@ defined( 'ABSPATH' ) || exit;
 class Module {
 
     /**
-     * Container for this module's own class instances - empty today,
-     * kept for shape-parity with every other module's Module.php so
-     * adding real classes later doesn't require restructuring this file.
-     *
-     * @var array
+     * Nothing to construct yet - see class docblock. Plain constructor,
+     * same shape vulopilot's own Module.php files use (no container/magic
+     * getter: nothing outside this module ever reaches into its instance).
      */
-    private $container = array();
-
-    /**
-     * Module constructor.
-     */
-    public function __construct() {
-        $this->init_classes();
-    }
-
-    /**
-     * Nothing to construct yet - see class docblock.
-     *
-     * @return void
-     */
-    public function init_classes() {}
-
-    /**
-     * Magic getter for this module's own container.
-     *
-     * @param string $class_name Container key to retrieve.
-     * @return mixed
-     * @throws \Exception If the requested key does not exist in the container.
-     */
-    public function __get( $class_name ) { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.classFound
-        if ( array_key_exists( $class_name, $this->container ) ) {
-            return $this->container[ $class_name ];
-        }
-
-        throw new \Exception( sprintf( 'Call to unknown class %s.', esc_html( $class_name ) ) );
-    }
+    public function __construct() {}
 }

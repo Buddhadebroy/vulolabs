@@ -274,49 +274,158 @@
 	pointer-events: none;
 }
 
-// zyra's lightbox popup scrolls as a single box (.popup-content has overflow: auto !important), and
-// its close icon is fixed to the *viewport's* top-right corner - correct for a popup pinned near the
-// top of the screen, but a centred lightbox's actual top-right corner can sit well below that,
-// leaving the icon floating above the modal instead of inside it. Scoped to this one popup
-// (Connections.tsx passes the className) rather than changing zyra's shared behaviour.
-.vulomail-connection-popup .popup-content .close-icon {
-	// absolute would scroll away with the rest of .popup-content's content, same problem as the
-	// header below; sticky keeps it pinned to the popup's corner as the fields scroll past it.
-	position: sticky !important;
-	top: 1.125rem;
-	right: 1.125rem;
-	float: right;
+// The connection popup (Connections.tsx, ConnectionForm.tsx). zyra scrolls a whole lightbox, header
+// included; here the header and the buttons stay in place and only the fields scroll between them.
+.vulomail-connection-popup .popup-content {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden !important;
+
+	.popup-header {
+		flex: none;
+	}
+
+	.popup-body {
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 auto;
+		min-height: 0;
+	}
 }
 
-// The connection popup's own header (ConnectionForm.tsx): reuses zyra's .popup-header/.popup-title
-// classes for the padding, border and icon styling PopupComponent would otherwise apply, but renders
-// in the form itself so the "Connection enabled" switch can sit on the same row as the title. Sticky
-// rather than the content area scrolling underneath it, so it stays in view (and above the close icon,
-// now anchored to the popup) while the fields below scroll past.
-.vulomail-connection-header {
-	// zyra's own .popup-header rule (reused here for its padding/border/title styling) also sets
-	// position: relative at equal specificity; !important guarantees this one wins regardless of
-	// stylesheet load order.
-	position: sticky !important;
-	top: 0;
-	z-index: 1;
+.vulomail-connection-form {
 	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
+.vulomail-connection-scroll {
+	flex: 1 1 auto;
+	min-height: 0;
+	padding: 1.25rem 1.5rem;
+	overflow-y: auto;
+}
+
+.vulomail-connection-footer {
+	display: flex;
+	flex: none;
 	align-items: center;
 	justify-content: space-between;
 	gap: 1rem;
-	padding-right: 3rem; // clears the close icon pinned to the popup's own top-right corner.
-	background: var(--background-color, #fff);
+	padding: 0.875rem 1.5rem;
+	border-top: 0.063rem solid var(--border-color);
+	background: var(--background-white);
 
-	.popup-title {
-		display: flex;
-		align-items: center;
-		padding-bottom: 0;
+	> span {
+		flex: 1 1 0;
+		min-width: 0;
+		font-size: 0.8125rem;
+		color: var(--sub-text-color);
 	}
+
+	> :last-child {
+		flex: none;
+	}
+}
+
+// A card of settings, one row each: what it is on the left, its control on the right.
+.vulomail-fields {
+	border: 0.063rem solid var(--border-color);
+	border-radius: 0.625rem;
+	background: var(--background-white);
+}
+
+.vulomail-fields-title {
+	margin: 1.25rem 0 0.5rem;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	color: var(--sub-text-color);
+	text-transform: uppercase;
+}
+
+.vulomail-field-row {
+	display: grid;
+	grid-template-columns: minmax(9rem, 36%) 1fr;
+	gap: 0.5rem 1.25rem;
+	align-items: center;
+	padding: 0.75rem 1rem;
+	border-bottom: 0.063rem solid var(--border-color);
+
+	&:first-child {
+		border-radius: 0.625rem 0.625rem 0 0;
+	}
+
+	&:last-child {
+		border-bottom: 0;
+		border-radius: 0 0 0.625rem 0.625rem;
+	}
+
+	&:nth-child(even) {
+		background: color-mix(in srgb, var(--text-color) 2.5%, transparent);
+	}
+}
+
+.vulomail-field-text {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+	min-width: 0;
+
+	label {
+		font-weight: 600;
+		color: var(--text-color);
+	}
+
+	span {
+		font-size: 0.8125rem;
+		line-height: 1.4;
+		color: var(--sub-text-color);
+	}
+}
+
+.vulomail-field-control {
+	min-width: 0;
 
 	.vulomail-switch-label {
 		font-size: 0.8125rem;
 		font-weight: 400;
 		color: var(--sub-text-color);
+	}
+}
+
+// Where to get the value, with its link: directly under the input it is for.
+.vulomail-field-how {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.375rem;
+	margin-top: 0.375rem;
+	font-size: 0.8125rem;
+	line-height: 1.4;
+	color: var(--sub-text-color);
+
+	> i {
+		flex: none;
+		margin-top: 0.125rem;
+		color: var(--color-primary);
+	}
+
+	a {
+		font-weight: 600;
+		color: var(--color-primary);
+		text-decoration: none;
+
+		&:hover,
+		&:focus-visible {
+			text-decoration: underline;
+		}
+	}
+}
+
+@media (max-width: 600px) {
+	.vulomail-field-row {
+		grid-template-columns: 1fr;
 	}
 }
 

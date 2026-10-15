@@ -19,8 +19,8 @@ defined( 'ABSPATH' ) || exit;
  * ("Payment Status", "Fulfillment Status") couldn't be honestly rendered
  * as two separate cells before this split. Values match
  * `src/settings/Payments.ts`'s `default_payment_status` options exactly,
- * for the same reason `Domain\Offering\OfferingType`'s list and
- * `OfferingEdit.tsx`'s duplicate of it are kept in sync by convention.
+ * for the same reason `Domain\Product\ProductType`'s list and
+ * `ProductEdit.tsx`'s duplicate of it are kept in sync by convention.
  *
  * @class       PaymentStatus class
  * @version     1.0.0

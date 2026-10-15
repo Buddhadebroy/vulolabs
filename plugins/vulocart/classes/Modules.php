@@ -63,6 +63,12 @@ class Modules {
     private $container = array();
 
     /**
+     * Modules the cart and checkout cannot work without. They have no card on the Modules screen and cannot be
+     * switched off. Shipping, Taxes and Review are real options - a store may not need them - so they keep a card.
+     */
+    const CORE_MODULE_IDS = array( 'cart', 'order', 'customer', 'address', 'payment', 'confirmation' );
+
+    /**
      * Modules constructor.
      */
     public function __construct() {}
@@ -175,6 +181,16 @@ class Modules {
         }
 
         $active_modules = $this->get_active_modules();
+
+        // Cart, checkout and its steps are the store itself, not options: they are always on.
+        $missing_core = array_diff( self::CORE_MODULE_IDS, $active_modules );
+
+        if ( $missing_core ) {
+            $active_modules       = array_values( array_merge( $active_modules, $missing_core ) );
+            $this->active_modules = $active_modules;
+            update_option( Utill::ACTIVE_MODULES_DB_KEY, $active_modules );
+        }
+
         $all_modules    = $this->get_all_modules();
 
         $validated_active = array();
@@ -269,6 +285,29 @@ class Modules {
         }
 
         return $available;
+    }
+
+    /**
+     * Modules that switch on and off together with another one. A single Modules-screen card stands for the pair
+     * (the free module plus the Pro module that extends it), so toggling the card toggles both. An id that is not
+     * available - Pro not installed or not licensed - is simply dropped by the loader.
+     *
+     * Filter `vulocart_module_companions` lets a plugin add to the map.
+     *
+     * @param string $module_id The module the merchant toggled.
+     * @return string[] That module plus its companions.
+     */
+    public function with_companions( string $module_id ): array {
+        $map = apply_filters(
+            'vulocart_module_companions',
+            array(
+                'shipping'    => array( 'shipping-engine' ),
+                'bulk-editor' => array( 'csv-import' ),
+                'mcp'         => array( 'mcp-server' ),
+            )
+        );
+
+        return array_values( array_unique( array_merge( array( $module_id ), (array) ( $map[ $module_id ] ?? array() ) ) ) );
     }
 
     /**

@@ -12,12 +12,12 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Term entity.
  *
- * Plain domain object - same shape/rules as Domain\Offering\Offering. Backs
+ * Plain domain object - same shape/rules as Domain\Product\Product. Backs
  * Categories/Brands/Collections (Taxonomy's own docblock explains why
  * one shape covers all three). `$parent_id` is only meaningful for
  * `Taxonomy::CATEGORY` (a brand/collection is always flat); `$meta` is
  * where taxonomy-specific extras live (e.g. a brand's logo media item),
- * same extensible-JSON-bag pattern `Offering::$meta` already uses, rather
+ * same extensible-JSON-bag pattern `Product::$meta` already uses, rather
  * than adding columns only one taxonomy would ever populate.
  *
  * @class       Term class

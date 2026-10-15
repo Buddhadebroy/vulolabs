@@ -41,6 +41,18 @@ class Scans extends \WP_REST_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			VuloPilot()->rest_namespace,
+			'/' . $this->rest_base . '/status',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_status' ),
+					'permission_callback' => array( $this, 'get_items_permissions_check' ),
+				),
+			)
+		);
 	}
 
 	/**
@@ -95,49 +107,56 @@ class Scans extends \WP_REST_Controller {
 	/**
 	 * @inheritDoc
 	 *
-	 * Comma-separated `category` scopes the run via ScanRunner::run_category() and takes
-	 * precedence over `scanner_id`. Treated as a forced, user-initiated run unless the
-	 * caller sends `trigger_type=scheduled`, so rate-limited scanners still run on demand.
+	 * Comma-separated `category` scopes the run and takes precedence over `scanner_id`.
+	 * Treated as a forced, user-initiated run unless the caller sends
+	 * `trigger_type=scheduled`, so rate-limited scanners still run on demand.
+	 *
+	 * Never runs scanners inline: there are ~85 registered scanners today, several making
+	 * their own network calls, so running them all within this one request can take far
+	 * longer than PHP's own max_execution_time (commonly 30s) and 500 the request before
+	 * most scanners even get a turn. `ScanRunner::run_queued()` instead queues them for
+	 * background batch ticks (same shape as BackupManager's own batch queue) and this
+	 * returns immediately - the frontend polls `/scans/status` for completion.
 	 */
 	public function create_item( $request ) {
 		$force      = 'scheduled' !== sanitize_key( (string) $request->get_param( 'trigger_type' ) );
 		$categories = $this->parse_comma_separated_list( $request->get_param( 'category' ) );
+		$registry   = VuloPilot()->scanner_registry;
 
 		if ( $categories ) {
-			$results = array();
+			$scanner_ids = array();
 
 			foreach ( $categories as $category ) {
-				$results += VuloPilot()->scan_runner->run_category( $category, $force );
+				$scanner_ids = array_merge( $scanner_ids, array_keys( $registry->get_scanners_by_category( $category ) ) );
 			}
 		} else {
 			$scanner_id = sanitize_key( (string) $request->get_param( 'scanner_id' ) );
 
-			if ( '' === $scanner_id || 'all' === $scanner_id ) {
-				$results = VuloPilot()->scan_runner->run_all( $force );
-			} else {
-				$results = array( $scanner_id => VuloPilot()->scan_runner->run( $scanner_id, $force ) );
-			}
+			$scanner_ids = ( '' === $scanner_id || 'all' === $scanner_id )
+				? array_keys( $registry->get_all_scanners() )
+				: array( $scanner_id );
 		}
 
-		$failed = array_filter(
-			$results,
-			static fn( $result ) => null === $result || \VuloPilot\Utill\ScanResult::STATUS_FAILED === $result->get_status()
-		);
-
-		if ( count( $failed ) === count( $results ) && count( $results ) > 0 ) {
-			return new \WP_Error(
-				'vulopilot_scan_failed',
-				__( 'The scan could not be completed.', 'vulopilot' ),
-				array( 'status' => 500 )
-			);
-		}
+		$queued = VuloPilot()->scan_runner->run_queued( $scanner_ids, $force );
 
 		return rest_ensure_response(
 			array(
-				'success'     => true,
-				'scanner_ids' => array_keys( $results ),
+				'success' => true,
+				'queued'  => true,
+				'total'   => $queued['total'],
 			)
 		);
+	}
+
+	/**
+	 * Real status of the current (if any) queued scan run - the frontend polls this
+	 * instead of waiting on `create_item()` to block until every scanner finishes.
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response
+	 */
+	public function get_status( $request ) {
+		return rest_ensure_response( VuloPilot()->scan_runner->get_queue_status() );
 	}
 
 	/**

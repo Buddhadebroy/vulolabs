@@ -71,3 +71,33 @@
 		}
 	}
 }
+
+// Lightbox popups: header, scrolling body, footer - whatever their heights. zyra pins the footer to the popup's bottom
+// edge (`position: fixed`), which laid it over the last ~60px of the body, and caps the body at a fixed 70vh, so a tall
+// form pushed the footer (Save) out of view. As a flex column the body takes the room the header and footer leave and
+// is the only part that scrolls; the footer always stays in view.
+.popup .popup-content[data-position='lightbox'] {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden !important;
+
+	.popup-header,
+	.popup-footer {
+		flex: none;
+	}
+
+	.popup-body {
+		flex: 1 1 auto;
+		min-height: 0;
+		height: auto;
+		max-height: none;
+		margin-bottom: 0;
+		overflow-y: auto;
+	}
+
+	.popup-footer {
+		position: static;
+		width: auto;
+		border-radius: 0 0 0.45rem 0.45rem;
+	}
+}

@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-09T12:25:36+00:00\n"
+"POT-Creation-Date: 2026-10-14T12:19:44+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
@@ -557,6 +557,22 @@ msgstr ""
 msgid "No valid widgets in the submitted layout."
 msgstr ""
 
+#: classes/Migration/AllInOneSeoMigrator.php:37
+msgid "All in One SEO"
+msgstr ""
+
+#: classes/Migration/RankMathMigrator.php:32
+msgid "Rank Math SEO"
+msgstr ""
+
+#: classes/Migration/Rest.php:109
+msgid "Unknown migration source."
+msgstr ""
+
+#: classes/Migration/YoastSeoMigrator.php:32
+msgid "Yoast SEO"
+msgstr ""
+
 #: classes/Performance/CacheDetectionScanner.php:45
 msgid "Cache Issues"
 msgstr ""
@@ -824,11 +840,12 @@ msgid "Slow server response"
 msgstr ""
 
 #: classes/Performance/PageSpeedScanner.php:412
-#: classes/SeoVisibility/Rest/Schema.php:203
-#: classes/SeoVisibility/Rest/Schema.php:205
+#: classes/SeoVisibility/Rest/Schema.php:202
+#: classes/SeoVisibility/Rest/Schema.php:204
 #: classes/SeoVisibility/SchemaCoverageAnalyzer.php:141
 #: modules/KnowledgeGraph/EntityExtractor.php:145
 #: assets/js/index.js:1
+#: assets/js/index.js:9
 msgid "Homepage"
 msgstr ""
 
@@ -1187,7 +1204,7 @@ msgstr ""
 
 #: classes/Reports/Rest/History.php:641
 #: classes/Reports/Rest/History.php:690
-#: classes/SeoVisibility/Rest/Schema.php:189
+#: classes/SeoVisibility/Rest/Schema.php:188
 #: assets/js/index.js:1
 #: assets/js/index.js:17
 msgid "(no title)"
@@ -1665,11 +1682,11 @@ msgstr ""
 msgid "No IndexNow API key yet - reload the Instant Indexing tab once to generate one."
 msgstr ""
 
-#: classes/SeoVisibility/Rest/Schema.php:148
+#: classes/SeoVisibility/Rest/Schema.php:147
 msgid "Provide a URL or post to inspect."
 msgstr ""
 
-#: classes/SeoVisibility/Rest/Schema.php:154
+#: classes/SeoVisibility/Rest/Schema.php:153
 #: assets/js/index.js:5
 msgid "Could not fetch that page. Check the URL and try again."
 msgstr ""
@@ -2377,26 +2394,22 @@ msgid "No findings selected."
 msgstr ""
 
 #. translators: 1: scanner id, 2: number of findings.
-#: classes/Utill/ScanPersistenceListener.php:175
-#: classes/Utill/ScanPersistenceListener.php:211
+#: classes/Utill/ScanPersistenceListener.php:176
+#: classes/Utill/ScanPersistenceListener.php:212
 #, php-format
 msgid "Scan \"%1$s\" completed with %2$d finding(s)."
 msgstr ""
 
 #. translators: %d is the number of critical findings.
-#: classes/Utill/ScanPersistenceListener.php:266
+#: classes/Utill/ScanPersistenceListener.php:267
 #, php-format
 msgid "VuloPilot found %d critical issue(s)."
 msgstr ""
 
 #. translators: 1: site name, 2: number of critical findings.
-#: classes/Utill/ScanPersistenceListener.php:290
+#: classes/Utill/ScanPersistenceListener.php:297
 #, php-format
 msgid "[%1$s] VuloPilot found %2$d critical issue(s)"
-msgstr ""
-
-#: classes/Utill/Scans.php:130
-msgid "The scan could not be completed."
 msgstr ""
 
 #: classes/Utill/UnresolvedCriticalFindingRule.php:33
@@ -3437,12 +3450,12 @@ msgstr ""
 msgid "Search engines display roughly %1$d–%2$d characters of a title before truncating."
 msgstr ""
 
-#: modules/TechnicalSeo/Scanners/SitemapScanner.php:59
+#: modules/TechnicalSeo/Scanners/SitemapScanner.php:67
 #: assets/js/index.js:1
 msgid "No XML sitemap found"
 msgstr ""
 
-#: modules/TechnicalSeo/Scanners/SitemapScanner.php:62
+#: modules/TechnicalSeo/Scanners/SitemapScanner.php:70
 msgid "Neither /wp-sitemap.xml nor /sitemap.xml returned a successful response. A sitemap helps search engines discover and crawl every page on the site."
 msgstr ""
 
@@ -3513,6 +3526,7 @@ msgid "Question"
 msgstr ""
 
 #: assets/js/block/faq/index.js:3
+#: assets/js/index.js:17
 msgid "Answer"
 msgstr ""
 
@@ -4389,6 +4403,7 @@ msgid "Cancel"
 msgstr ""
 
 #: assets/js/index.js:1
+#: assets/js/index.js:9
 msgid "Confirm"
 msgstr ""
 
@@ -4607,6 +4622,7 @@ msgid "Tell VuloPilot about your business so it can build a more complete Knowle
 msgstr ""
 
 #: assets/js/index.js:1
+#: assets/js/index.js:9
 msgid "Business"
 msgstr ""
 
@@ -4632,6 +4648,7 @@ msgid "e.g. Software Company, Online Store, Consulting Agency."
 msgstr ""
 
 #: assets/js/index.js:1
+#: assets/js/index.js:9
 msgid "Service pages"
 msgstr ""
 
@@ -5063,6 +5080,70 @@ msgid "Enter verification codes for third-party webmaster tools. Each one is ren
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Migration"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Import SEO data from another SEO plugin into VuloPilot."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "SEO migration"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Run Migration Wizard"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Seamlessly transfer your SEO data from your previous SEO plugin (i.e. Yoast SEO, Rank Math, All in One SEO) using this migration tool."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Get a hands-on feel of your SEO data in minutes."
+msgstr ""
+
+#. translators: 1: plugin name, 2: number of posts found.
+#: assets/js/index.js:1
+#, js-format
+msgid "%1$s (%2$d posts found)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No SEO plugin data found currently"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Importing…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Import"
+msgstr ""
+
+#. translators: %s: source plugin name.
+#: assets/js/index.js:1
+#, js-format
+msgid "Importing from %s…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Migration failed. Please try again."
+msgstr ""
+
+#. translators: 1: number of posts migrated, 2: number of posts skipped.
+#: assets/js/index.js:1
+#, js-format
+msgid "%1$d imported, %2$d skipped."
+msgstr ""
+
+#. translators: 1: number of posts migrated, 2: source plugin name.
+#: assets/js/index.js:1
+#, js-format
+msgid "Imported %1$d post(s) from %2$s."
+msgstr ""
+
+#: assets/js/index.js:1
 #: assets/js/index.js:17
 msgid "Modules"
 msgstr ""
@@ -5430,6 +5511,7 @@ msgid "Best for data analysis in spreadsheets."
 msgstr ""
 
 #: assets/js/index.js:1
+#: assets/js/index.js:9
 msgid "Both"
 msgstr ""
 
@@ -6606,6 +6688,7 @@ msgstr ""
 
 #: assets/js/index.js:1
 #: assets/js/index.js:5
+#: assets/js/index.js:9
 msgid "Redirects"
 msgstr ""
 
@@ -7169,6 +7252,10 @@ msgid "Success"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Scan started - this can take a minute…"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Scan complete - refreshing…"
 msgstr ""
 
@@ -7634,6 +7721,7 @@ msgid "Could not analyze this page. Please try again."
 msgstr ""
 
 #: assets/js/index.js:1
+#: assets/js/index.js:17
 msgid "Close"
 msgstr ""
 
@@ -8690,6 +8778,7 @@ msgstr ""
 
 #: assets/js/index.js:1
 #: assets/js/index.js:5
+#: assets/js/post-editor.js:1
 msgid "Fixed"
 msgstr ""
 
@@ -8746,6 +8835,14 @@ msgid "A real, representative finding from this group - its title, description, 
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Why this needs manual intervention"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Check the details above for what to look at."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Affected items"
 msgstr ""
 
@@ -8779,14 +8876,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Detailed examples, the full affected list, and AI-assisted fixes are included in Pro."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Needs your review - no automatic fix"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Check the details above for what to look at."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9006,10 +9095,12 @@ msgid "Could not load Slow Pages"
 msgstr ""
 
 #: assets/js/index.js:1
+#: assets/js/index.js:9
 msgid "Desktop"
 msgstr ""
 
 #: assets/js/index.js:1
+#: assets/js/index.js:9
 msgid "Mobile"
 msgstr ""
 
@@ -11706,42 +11797,52 @@ msgstr ""
 msgid "Learn more about automations and get started quickly."
 msgstr ""
 
-#: assets/js/index.js:9
-msgid "Automations that failed and may need a retry."
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "View all issues"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "You're all caught up - nothing needs attention right now."
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Great job!"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Your automations are running smoothly."
-msgstr ""
-
-#. translators: %s is the real automation's own name whose last run failed.
+#. translators: %d: automation count.
 #: assets/js/index.js:9
 #, js-format
-msgid "%s couldn't finish"
+msgid "%d automation needs setup"
+msgid_plural "%d automations need setup"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:9
+msgid "Complete the required settings to enable them."
+msgstr ""
+
+#. translators: %d: automation count.
+#: assets/js/index.js:9
+#, js-format
+msgid "%d automation failed its last run"
+msgid_plural "%d automations failed their last run"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:9
+msgid "View the error, or retry from the list below."
+msgstr ""
+
+#. translators: %d: automation count.
+#: assets/js/index.js:9
+#, js-format
+msgid "%d automation has no scheduled run"
+msgid_plural "%d automations have no scheduled run"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:9
+msgid "Its schedule never got registered, so it will not fire on its own."
 msgstr ""
 
 #: assets/js/index.js:9
-msgid "The last scheduled run didn't complete successfully."
+msgid "Resolve these items so your automations can run."
 msgstr ""
 
 #: assets/js/index.js:9
-msgid "Retrying…"
+msgid "No action needed. Your automations are ready to run."
 msgstr ""
 
 #: assets/js/index.js:9
-msgid "Try Again"
+msgid "Review automations →"
 msgstr ""
 
 #: assets/js/index.js:9
@@ -12394,6 +12495,10 @@ msgid "%d open issues found"
 msgstr ""
 
 #: assets/js/index.js:9
+msgid "View all issues"
+msgstr ""
+
+#: assets/js/index.js:9
 msgid "Could not load recent conversations"
 msgstr ""
 
@@ -12447,7 +12552,155 @@ msgid "Improve my homepage"
 msgstr ""
 
 #: assets/js/index.js:9
+msgid "a prioritised homepage improvement plan, with proposed changes to review"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "What would you like your homepage to do better?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Bring more enquiries"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Increase sales"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Explain my business clearly"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Help me decide"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "What is the main action you want visitors to take?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Contact us"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Buy a product"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Book a call"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Sign up"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Who are you trying to reach?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Suggested from your business profile - confirm or edit."
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "I found these opportunities on your homepage. Which would you like to work on first?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Would you like to review my suggested changes?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Preview changes"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Show me how to edit it"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Choose another issue"
+msgstr ""
+
+#: assets/js/index.js:9
 msgid "Why is traffic dropping?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "evidence-backed findings and next checks - say clearly when a cause is suspected rather than confirmed"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "When did you first notice fewer visitors?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "This week"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "This month"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Choose a date"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "I'm not sure"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Where are you seeing the drop?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Google search"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "All website traffic"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "A specific page"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Did anything change around that time?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Website redesign"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Content or URL changes"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Plugin updates"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Nothing I know of"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Would you like me to check the whole website or specific pages?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Whole website"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Choose pages"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "These pages show the biggest decline. Which should we investigate first?"
 msgstr ""
 
 #: assets/js/index.js:9
@@ -12455,7 +12708,147 @@ msgid "Fix my Core Web Vitals"
 msgstr ""
 
 #: assets/js/index.js:9
+msgid "a page-specific diagnosis and fix path - distinguish immediate test results from field data that takes time to reflect improvements"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Which pages would you like to check?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Product pages"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Choose a URL"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Find pages that need attention"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Where are visitors experiencing problems?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "The scan found these performance issues. Which should we tackle first?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "How would you like to handle this fix?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Review a supported fix"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Show step-by-step instructions"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Prepare notes for my developer"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Would you like me to run another test after the change?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Test again"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Do this later"
+msgstr ""
+
+#: assets/js/index.js:9
 msgid "Generate schema"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "validated structured data that matches the visible page content, without duplicate or conflicting entries"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Which page would you like to add structured data to?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Search existing pages"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Paste a URL"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "What does this page mainly describe?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Suggested from the page content - confirm or edit."
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Article"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Product"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Service"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Event"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Can you confirm these details?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Shown from the page itself - only the details that type needs and that are missing are asked for."
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Looks right"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "I need to edit something"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "This page already has structured data. What would you like to do?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Review existing markup"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Resolve a conflict"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Keep existing markup"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Your structured data is ready to review. How would you like to use it?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Add through a supported integration"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Copy the code"
 msgstr ""
 
 #: assets/js/index.js:9
@@ -12463,7 +12856,179 @@ msgid "Improve checkout"
 msgstr ""
 
 #: assets/js/index.js:9
+msgid "a diagnosis and a controlled fix plan - any live test order or payment needs an explicit user action"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "What is happening at checkout?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Customers cannot place orders"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Payment fails"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Checkout is slow"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Customers leave before paying"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Review my checkout"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Which customers are affected?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Everyone"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Mobile users"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Guest customers"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "A particular country"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Which payment method is affected?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "What do customers see when it happens?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Enter error message"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Upload a screenshot"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "No error appears"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "When did this start?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "After an update"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "After changing settings"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "I found these possible issues. Which would you like help resolving?"
+msgstr ""
+
+#: assets/js/index.js:9
 msgid "Optimize WooCommerce"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "a scoped store improvement plan - route any checkout-specific problem into the checkout flow instead"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "What would you like to improve in your store?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Product visibility"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Product content"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Store speed"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Shopping experience"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Run a store review"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Where should we focus?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "All products"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "A category"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Specific products"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Recommend a starting point"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "What matters most right now?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Help shoppers find products"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Help shoppers choose"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Make shopping easier"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Find technical problems"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "These are the main opportunities I found. Which should we start with?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Would you like to preview changes to one product first?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Preview one product"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Review selected products"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Show instructions"
 msgstr ""
 
 #: assets/js/index.js:9
@@ -12472,11 +13037,203 @@ msgid "Write a blog"
 msgstr ""
 
 #: assets/js/index.js:9
+msgid "an editable article draft with a suggested title and description - treat tone and length as optional controls, not compulsory questions"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "What would you like to write about?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Suggest topics for my website"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Who is this article for?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Suggested from your saved audience - confirm or edit."
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "What should readers get from it?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Learn something"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Solve a problem"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Compare options"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Understand my product"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Do you have any details or sources I should include?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Add key points"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Add links"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Add product information"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Skip"
+msgstr ""
+
+#: assets/js/index.js:9
 msgid "Find security issues"
 msgstr ""
 
 #: assets/js/index.js:9
+msgid "findings with severity, affected areas and recommended next steps - never present a clean scan as a guarantee of security"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Are you checking as a precaution, or have you noticed something unusual?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Routine check"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Suspicious activity"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Website warning"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Unexpected changes"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "What have you noticed?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Unknown users"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Changed files or content"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Browser warning"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "When did you first notice it?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "The scan found these issues. Would you like to review the most urgent first?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "How would you like to address this issue?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Get instructions"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Prepare a developer report"
+msgstr ""
+
+#: assets/js/index.js:9
 msgid "Make my site GEO ready"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Let's check how clearly your website explains your business to AI tools."
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "a practical improvement plan for AI discoverability and understanding - never promise inclusion in AI answers"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "What would you like AI tools to understand about your business?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "What we do"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Our products or services"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Our expertise"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Our location"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "All of these"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Does this description of your business look right?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Shown from your saved or detected business description."
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "What questions would you want potential customers to find you through?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Suggested relevant questions - pick any, or add your own."
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Which pages should we focus on?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Articles"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Recommend pages"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "I found these gaps. Which would you like to improve first?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Would you like to review the suggested improvements?"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Choose another finding"
 msgstr ""
 
 #: assets/js/index.js:9
@@ -13574,6 +14331,12 @@ msgstr ""
 msgid "Could not reach VuloPilot. Please try again."
 msgstr ""
 
+#. translators: %s: what the final step should produce, e.g. "a prioritised homepage improvement plan".
+#: assets/js/index.js:17
+#, js-format
+msgid "Please put together %s."
+msgstr ""
+
 #: assets/js/index.js:17
 msgid "Ask a question or pick a suggested prompt. VuloPilot checks your live site data - scans, traffic, security, and store health - and answers with real recommendations. Ask for a blog post and it writes one and saves it as a real draft, logged to History with a real Undo. Everything else - SEO, performance, security, and other fixes - is advice only for now."
 msgstr ""
@@ -13603,6 +14366,18 @@ msgid "Ask me anything about your website, performance, security, content and mo
 msgstr ""
 
 #: assets/js/index.js:17
+msgid "Checking your site data…"
+msgstr ""
+
+#: assets/js/index.js:17
+msgid "No open findings here right now - moving to the next question."
+msgstr ""
+
+#: assets/js/index.js:17
+msgid "Or type your own answer…"
+msgstr ""
+
+#: assets/js/index.js:17
 msgid "Attach a .txt/.csv file to read, or a .jpg/.png/.gif/.webp image for the AI to actually see - uploaded to your Media Library first."
 msgstr ""
 
@@ -13612,6 +14387,10 @@ msgstr ""
 
 #: assets/js/index.js:17
 msgid "That file wasn't uploaded - use the Upload File button so it's saved to the Media Library and readable by the AI."
+msgstr ""
+
+#: assets/js/index.js:17
+msgid "Answer the question above to continue…"
 msgstr ""
 
 #: assets/js/index.js:17
@@ -13803,10 +14582,6 @@ msgid "Tell search engines not to follow links on this page."
 msgstr ""
 
 #: assets/js/post-editor.js:1
-msgid "Set it myself"
-msgstr ""
-
-#: assets/js/post-editor.js:1
 msgid "Fix automatically"
 msgstr ""
 
@@ -13904,6 +14679,10 @@ msgstr ""
 
 #: assets/js/post-editor.js:1
 msgid "Fixed."
+msgstr ""
+
+#: assets/js/post-editor.js:1
+msgid "Set it myself"
 msgstr ""
 
 #: assets/js/post-editor.js:1

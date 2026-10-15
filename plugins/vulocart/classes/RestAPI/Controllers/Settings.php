@@ -117,6 +117,13 @@ class Settings extends \WP_REST_Controller {
 
         update_option( Utill::SETTINGS_KEY, $updated );
 
+        /**
+         * Fires after the settings were saved, so a plugin can react (VuloCart Pro keeps its modules in step with them).
+         *
+         * @param array $updated The full stored settings.
+         */
+        do_action( 'vulocart_settings_updated', $updated );
+
         return rest_ensure_response(
             array(
                 'success' => true,

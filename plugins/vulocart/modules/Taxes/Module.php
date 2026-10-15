@@ -33,45 +33,17 @@ defined( 'ABSPATH' ) || exit;
 class Module {
 
     /**
-     * Container for this module's own class instances.
-     *
-     * @var array
-     */
-    private $container = array();
-
-    /**
-     * Module constructor.
+     * Module constructor. Wires this module's own classes directly and
+     * registers its service on the main plugin container
+     * (`VuloCart()->tax_service`) - plain, self-wiring shape vulopilot's
+     * own Module.php files use (no container/magic getter: nothing
+     * outside this module ever reaches into its instance).
      */
     public function __construct() {
-        $this->init_classes();
-    }
+        $service = new Application\TaxService();
 
-    /**
-     * Constructs this module's own classes and registers its service on
-     * the main plugin container (`VuloCart()->tax_service`).
-     *
-     * @return void
-     */
-    public function init_classes() {
-        $this->container['service'] = new Application\TaxService();
+        VuloCart()->tax_service = $service;
 
-        VuloCart()->tax_service = $this->container['service'];
-
-        $this->container['rest'] = new Rest();
-    }
-
-    /**
-     * Magic getter for this module's own container.
-     *
-     * @param string $class_name Container key to retrieve.
-     * @return mixed
-     * @throws \Exception If the requested key does not exist in the container.
-     */
-    public function __get( $class_name ) { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.classFound
-        if ( array_key_exists( $class_name, $this->container ) ) {
-            return $this->container[ $class_name ];
-        }
-
-        throw new \Exception( sprintf( 'Call to unknown class %s.', esc_html( $class_name ) ) );
+        new Rest();
     }
 }

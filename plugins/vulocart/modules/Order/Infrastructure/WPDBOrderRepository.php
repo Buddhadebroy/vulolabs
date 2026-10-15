@@ -31,7 +31,7 @@ class WPDBOrderRepository implements OrderRepositoryInterface {
 
     /**
      * In-request cache of resolved orders, keyed by id - same pattern
-     * VuloCart\Infrastructure\Database\WPDBOfferingRepository already uses.
+     * VuloCart\Infrastructure\Database\WPDBProductRepository already uses.
      *
      * @var array<int, Order|null>
      */
@@ -106,7 +106,7 @@ class WPDBOrderRepository implements OrderRepositoryInterface {
         return new OrderItem(
             (int) $row['id'],
             (int) $row['order_id'],
-            (int) $row['offering_id'],
+            (int) $row['product_id'],
             $row['title'],
             (int) $row['quantity'],
             (float) $row['unit_price'],
@@ -311,7 +311,7 @@ class WPDBOrderRepository implements OrderRepositoryInterface {
     /**
      * Persists a new order, then stamps its `order_number` from the
      * resulting auto-increment id (e.g. 'VC-000042') - a second update in
-     * the same spirit as WPDBOfferingRepository::insert()'s find-after-insert,
+     * the same spirit as WPDBProductRepository::insert()'s find-after-insert,
      * since the number can't be known before the row exists.
      *
      * @param Order $order An order with $id === null.
@@ -377,6 +377,13 @@ class WPDBOrderRepository implements OrderRepositoryInterface {
                 'authorized_amount'  => $order->authorized_amount,
                 'captured_amount'    => $order->captured_amount,
                 'meta'               => wp_json_encode( $order->meta ),
+                'customer_email'     => $order->customer_email,
+                'customer_name'      => $order->customer_name,
+                'customer_phone'     => $order->customer_phone,
+                'billing_address'    => null === $order->billing_address ? null : wp_json_encode( $order->billing_address ),
+                'shipping_address'   => null === $order->shipping_address ? null : wp_json_encode( $order->shipping_address ),
+                'shipping_method'    => $order->shipping_method,
+                'payment_method'     => $order->payment_method,
             ),
             array( 'id' => $order->id )
         );
@@ -399,7 +406,7 @@ class WPDBOrderRepository implements OrderRepositoryInterface {
             $this->get_order_items_table(),
             array(
                 'order_id'    => $item->order_id,
-                'offering_id' => $item->offering_id,
+                'product_id' => $item->product_id,
                 'title'       => $item->title,
                 'quantity'    => $item->quantity,
                 'unit_price'  => $item->unit_price,
@@ -416,5 +423,19 @@ class WPDBOrderRepository implements OrderRepositoryInterface {
         );
 
         return $this->hydrate_item( $row );
+    }
+
+    /**
+     * Permanently removes an order and its line items.
+     *
+     * @param int $id Order id.
+     * @return bool True if an order was found and removed.
+     */
+    public function delete( int $id ): bool {
+        global $wpdb;
+
+        $wpdb->delete( $this->get_order_items_table(), array( 'order_id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+        return (bool) $wpdb->delete( $this->get_orders_table(), array( 'id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     }
 }

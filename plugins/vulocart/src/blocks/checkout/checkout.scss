@@ -10,12 +10,12 @@
 	flex-wrap: wrap;
 }
 
-.vulocart-checkout-offerings,
+.vulocart-checkout-products,
 .vulocart-checkout-cart {
 	flex: 1 1 320px;
 }
 
-.vulocart-checkout-offering-row {
+.vulocart-checkout-product-row {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -25,7 +25,7 @@
 	margin-bottom: 8px;
 }
 
-.vulocart-checkout-offering-price {
+.vulocart-checkout-product-price {
 	font-size: 12px;
 	color: #6b7280;
 }

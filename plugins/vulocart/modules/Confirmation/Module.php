@@ -32,17 +32,12 @@ defined( 'ABSPATH' ) || exit;
 class Module {
 
     /**
-     * Container for this module's own class instances.
-     *
-     * @var array
-     */
-    private $container = array();
-
-    /**
      * Module constructor.
      */
     public function __construct() {
-        $this->init_classes();
+        new Rest();
+
+        add_filter( 'vulocart_checkout_steps', array( $this, 'register_checkout_step' ) );
     }
 
     /**
@@ -53,17 +48,6 @@ class Module {
      */
     public static function is_compatible(): bool {
         return VuloCart()->modules->is_active( 'order' );
-    }
-
-    /**
-     * Constructs this module's own classes.
-     *
-     * @return void
-     */
-    public function init_classes() {
-        $this->container['rest'] = new Rest();
-
-        add_filter( 'vulocart_checkout_steps', array( $this, 'register_checkout_step' ) );
     }
 
     /**
@@ -86,20 +70,5 @@ class Module {
         );
 
         return $steps;
-    }
-
-    /**
-     * Magic getter for this module's own container.
-     *
-     * @param string $class_name Container key to retrieve.
-     * @return mixed
-     * @throws \Exception If the requested key does not exist in the container.
-     */
-    public function __get( $class_name ) { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.classFound
-        if ( array_key_exists( $class_name, $this->container ) ) {
-            return $this->container[ $class_name ];
-        }
-
-        throw new \Exception( sprintf( 'Call to unknown class %s.', esc_html( $class_name ) ) );
     }
 }

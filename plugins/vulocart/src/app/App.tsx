@@ -1,8 +1,7 @@
 /* global vulocartLocalizer */
 import { useEffect, useState } from '@wordpress/element';
 import { useLocation } from 'react-router-dom';
-import { HeaderComponent } from '@zyra/components';
-import Brand from '../assets/images/vulocart-logo.svg';
+import SearchHeader from '../components/Header/SearchHeader';
 import '../routeRegistry';
 import '../routes';
 import './app.scss';
@@ -35,6 +34,18 @@ const Route = () => {
 	const route = routes.find( ( r ) => r.tab === tab );
 	const Component = route?.component;
 
+	// The submenu entries are hash tabs (`vulocart#&tab=x`), which WordPress can't match on the server,
+	// so mark the one for the open tab here.
+	useEffect( () => {
+		document.querySelectorAll( '#toplevel_page_vulocart .wp-submenu li' ).forEach( ( item ) => {
+			const link = item.querySelector( 'a' );
+			const isCurrent = !! link?.getAttribute( 'href' )?.endsWith( `#&tab=${ tab }` );
+
+			item.classList.toggle( 'current', isCurrent );
+			link?.classList.toggle( 'current', isCurrent );
+		} );
+	}, [ tab ] );
+
 	if ( ! Component ) {
 		return null;
 	}
@@ -45,16 +56,8 @@ const Route = () => {
 export function App() {
 	return (
 		<>
-			<HeaderComponent
-				brandImg={ Brand }
-				free={ vulocartLocalizer.version }
-				pro={ vulocartLocalizer.pro_version ?? undefined }
-				onQueryUpdate={ () => {} }
-				onResultClick={ () => {} }
-			/>
-			<div id="vulocart-admin-root-inner" className="admin-main-wrapper">
-				<Route />
-			</div>
+			<SearchHeader />
+			<Route />
 		</>
 	);
 }

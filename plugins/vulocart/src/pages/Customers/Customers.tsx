@@ -1,4 +1,6 @@
 import { applyFilters } from '@wordpress/hooks';
+import { EngineScreen, renderEngineView } from '../../components/EngineScreen/EngineScreen';
+import { customersExtraViews } from '../Products/extraViews';
 import { CustomersList } from './CustomersList';
 import { CustomerDetail } from './CustomerDetail';
 
@@ -13,10 +15,10 @@ interface CustomersProps {
  * Branches between the list, the customer-detail page, and any Pro-
  * registered extra view, based on the `action`/`id`/`view` query params
  * `src/index.tsx` parses from `location.search` on mount - same query-
- * string-driven navigation `Orders.tsx`/`Offerings.tsx` already establish.
+ * string-driven navigation `Orders.tsx`/`Products.tsx` already establish.
  * `vulocart_customers_extra_view` is the exact same "Pro extends Free via
- * a filtered router" shape `vulocart_offerings_extra_view` establishes
- * for the Offerings screen (Offerings.tsx's own docblock) - vulocart-pro's
+ * a filtered router" shape `vulocart_products_extra_view` establishes
+ * for the Products screen (Products.tsx's own docblock) - vulocart-pro's
  * CustomerGrowth module registers `view=groups`/`view=segments` into it.
  */
 export function Customers( { action, id, view }: CustomersProps ) {
@@ -24,11 +26,15 @@ export function Customers( { action, id, view }: CustomersProps ) {
 		return <CustomerDetail id={ id } />;
 	}
 
+	if ( view && customersExtraViews[ view ] ) {
+		return renderEngineView( 'vulocart_customers_extra_view', customersExtraViews, view );
+	}
+
 	if ( view ) {
 		const extra = applyFilters( 'vulocart_customers_extra_view', null, { view } );
 
 		if ( extra ) {
-			return <>{ extra }</>;
+			return <EngineScreen>{ extra }</EngineScreen>;
 		}
 	}
 

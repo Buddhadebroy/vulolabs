@@ -1,37 +1,147 @@
 /* global vulocartLocalizer */
-import { useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { useRef, useState } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import axios from 'axios';
 import { getApiLink } from '@zyra/core';
-import { ContainerComponent, ColumnComponent, NavigatorHeaderComponent } from '@zyra/components';
+import { ContainerComponent, ColumnComponent, NavigatorHeaderComponent, PopupComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import { TableCard, TableRow, QueryProps, CategoryCount } from '@zyra/table';
 import { downloadCSV } from '../../lib/utils';
 import './orders-page.scss';
+import '../Products/products-page.scss';
+import { formatWpDate } from '../../services/formatWpDate';
+import ConfirmPopup from '../../components/ConfirmPopup/ConfirmPopup';
 
 /**
  * The 6 statuses Order\Domain\FulfillmentStatus::all() declares
  * (modules/Order/Domain/FulfillmentStatus.php) - duplicated here the same
- * way OfferingEdit.tsx duplicates VuloCart\Domain\Offering\OfferingType's list
+ * way ProductEdit.tsx duplicates VuloCart\Domain\Product\ProductType's list
  * rather than fetching it: small, stable, hand-maintained.
  */
 const FULFILLMENT_STATUS_OPTIONS = [
-	{ label: 'draft', value: 'draft' },
-	{ label: 'pending', value: 'pending' },
-	{ label: 'processing', value: 'processing' },
-	{ label: 'shipped', value: 'shipped' },
-	{ label: 'completed', value: 'completed' },
-	{ label: 'cancelled', value: 'cancelled' },
+	{ label: __( 'Draft', 'vulocart' ), value: 'draft' },
+	{ label: __( 'Pending', 'vulocart' ), value: 'pending' },
+	{ label: __( 'Processing', 'vulocart' ), value: 'processing' },
+	{ label: __( 'Shipped', 'vulocart' ), value: 'shipped' },
+	{ label: __( 'Completed', 'vulocart' ), value: 'completed' },
+	{ label: __( 'Cancelled', 'vulocart' ), value: 'cancelled' },
 ];
 
 /**
  * Order\Domain\PaymentStatus::all() (modules/Order/Domain/PaymentStatus.php).
  */
 const PAYMENT_STATUS_OPTIONS = [
-	{ label: 'pending', value: 'pending' },
-	{ label: 'paid', value: 'paid' },
-	{ label: 'failed', value: 'failed' },
-	{ label: 'refunded', value: 'refunded' },
+	{ label: __( 'Pending', 'vulocart' ), value: 'pending' },
+	{ label: __( 'Paid', 'vulocart' ), value: 'paid' },
+	{ label: __( 'Failed', 'vulocart' ), value: 'failed' },
+	{ label: __( 'Refunded', 'vulocart' ), value: 'refunded' },
 ];
+
+
+const FULFILLMENT_BADGE: Record< string, string > = {
+	draft: 'badge-pending',
+	pending: 'badge-pending',
+	processing: 'badge-info',
+	shipped: 'badge-info',
+	completed: 'badge-active',
+	cancelled: 'badge-inactive',
+};
+
+const PAYMENT_BADGE: Record< string, string > = { pending: 'badge-pending', paid: 'badge-active', failed: 'badge-inactive', refunded: 'badge-info' };
+
+const optionLabel = ( options: { label: string; value: string }[], value: string ) => options.find( ( option ) => option.value === value )?.label ?? value;
+
+const formatMoney = ( row: TableRow ) => ( null !== row.total && undefined !== row.total ? `${ row.total } ${ row.currency ?? '' }`.trim() : '-' );
+
+interface OrderRow {
+	id: number;
+	order_number: string;
+	payment_status: string;
+	fulfillment_status: string;
+}
+
+/**
+ * "Update status" - fulfillment and payment status for one order in a popup over the list, the same shape as the
+ * Products list's quick edit. Uses the bulk status endpoints with a single id; only what changed is sent.
+ */
+function OrderStatusPopup( { order, onClose, onSaved }: { order: OrderRow; onClose: () => void; onSaved: () => void } ) {
+	const [ fulfillment, setFulfillment ] = useState( order.fulfillment_status );
+	const [ payment, setPayment ] = useState( order.payment_status );
+	const [ isSaving, setIsSaving ] = useState( false );
+	const [ error, setError ] = useState( '' );
+
+	const changed = fulfillment !== order.fulfillment_status || payment !== order.payment_status;
+
+	const save = () => {
+		const headers = { 'X-WP-Nonce': vulocartLocalizer.nonce };
+		const calls: Promise< unknown >[] = [];
+
+		if ( fulfillment !== order.fulfillment_status ) {
+			calls.push( axios.patch( getApiLink( vulocartLocalizer, 'orders/bulk-fulfillment-status' ), { ids: [ order.id ], status: fulfillment }, { headers } ) );
+		}
+
+		if ( payment !== order.payment_status ) {
+			calls.push( axios.patch( getApiLink( vulocartLocalizer, 'orders/bulk-payment-status' ), { ids: [ order.id ], status: payment }, { headers } ) );
+		}
+
+		setIsSaving( true );
+		setError( '' );
+
+		Promise.all( calls )
+			.then( () => {
+				onSaved();
+				onClose();
+			} )
+			.catch( ( reason ) => setError( reason?.response?.data?.message || __( 'Could not update this order.', 'vulocart' ) ) )
+			.finally( () => setIsSaving( false ) );
+	};
+
+	return (
+		<PopupComponent
+			open
+			onClose={ onClose }
+			width={ 30 }
+			height="auto"
+			position="lightbox"
+			header={ { icon: 'cart', title: `${ __( 'Update order', 'vulocart' ) } #${ order.order_number }` } }
+			footer={
+				<div className="vulocart-qe-footer">
+					<a href={ `admin.php?page=vulocart-orders&action=edit&id=${ order.id }` }>
+						{ __( 'Open full order', 'vulocart' ) } <i className="adminfont-pagination-next-arrow" aria-hidden="true" />
+					</a>
+					<ButtonInput
+						buttons={ [
+							{ text: __( 'Cancel', 'vulocart' ), color: 'purple', onClick: onClose },
+							{ text: isSaving ? __( 'Saving…', 'vulocart' ) : __( 'Save changes', 'vulocart' ), icon: 'check', onClick: save, disabled: isSaving || ! changed },
+						] }
+					/>
+				</div>
+			}
+		>
+			<div className="vulocart-qe">
+				<label className="vulocart-qe-field">
+					<span>{ __( 'Fulfillment', 'vulocart' ) }</span>
+					<select value={ fulfillment } onChange={ ( event ) => setFulfillment( event.target.value ) }>
+						{ FULFILLMENT_STATUS_OPTIONS.map( ( option ) => (
+							<option key={ option.value } value={ option.value }>{ option.label }</option>
+						) ) }
+					</select>
+				</label>
+
+				<label className="vulocart-qe-field">
+					<span>{ __( 'Payment', 'vulocart' ) }</span>
+					<select value={ payment } onChange={ ( event ) => setPayment( event.target.value ) }>
+						{ PAYMENT_STATUS_OPTIONS.map( ( option ) => (
+							<option key={ option.value } value={ option.value }>{ option.label }</option>
+						) ) }
+					</select>
+				</label>
+
+				{ error && <p className="vulocart-qe-error" role="alert">{ error }</p> }
+			</div>
+		</PopupComponent>
+	);
+}
 
 interface OrdersListProps {
 	/**
@@ -66,6 +176,9 @@ export function OrdersList( { filter }: OrdersListProps ) {
 	const [ rows, setRows ] = useState< TableRow[] >( [] );
 	const [ totalRows, setTotalRows ] = useState( 0 );
 	const [ categoryCounts, setCategoryCounts ] = useState< CategoryCount[] >( [] );
+	const [ statusOrder, setStatusOrder ] = useState< OrderRow | null >( null );
+	const [ deleteIds, setDeleteIds ] = useState< number[] >( [] );
+	const lastQuery = useRef< QueryProps >( {} );
 
 	const buildQueryParams = ( query: QueryProps, includePagination: boolean = true ) => {
 		const category = query.categoryFilter ?? ( 'draft' === filter ? 'draft' : 'refunds' === filter ? 'refunded' : 'all' );
@@ -95,6 +208,7 @@ export function OrdersList( { filter }: OrdersListProps ) {
 	};
 
 	const doRefreshTableData = ( query: QueryProps ) => {
+		lastQuery.current = query;
 		setIsLoading( true );
 		axios
 			.get( getApiLink( vulocartLocalizer, 'orders' ), {
@@ -136,6 +250,12 @@ export function OrdersList( { filter }: OrdersListProps ) {
 		}
 
 		const [ field, status ] = action.split( ':' );
+
+		if ( 'delete' === field ) {
+			setDeleteIds( selectedIds );
+			return;
+		}
+
 		const endpoint = 'payment' === field ? 'orders/bulk-payment-status' : 'orders/bulk-fulfillment-status';
 
 		axios
@@ -144,68 +264,128 @@ export function OrdersList( { filter }: OrdersListProps ) {
 				{ ids: selectedIds, status },
 				{ headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } }
 			)
-			.then( () => doRefreshTableData( {} ) );
+			.then( () => doRefreshTableData( lastQuery.current ) );
+	};
+
+	const confirmDelete = () => {
+		const ids = deleteIds;
+		setDeleteIds( [] );
+
+		const headers = { 'X-WP-Nonce': vulocartLocalizer.nonce };
+		const request =
+			1 === ids.length
+				? axios.delete( getApiLink( vulocartLocalizer, `orders/${ ids[ 0 ] }` ), { headers } )
+				: axios.delete( getApiLink( vulocartLocalizer, 'orders/bulk-delete' ), { headers, data: { ids } } );
+
+		request.then( () => doRefreshTableData( lastQuery.current ) );
+	};
+
+	/** What a CSV export holds, in plain columns - the table below merges several of these into one cell. */
+	const csvHeaders = {
+		order_number: { label: __( 'Order', 'vulocart' ) },
+		customer_name: { label: __( 'Customer', 'vulocart' ) },
+		customer_email: { label: __( 'Email', 'vulocart' ) },
+		item_count: { label: __( 'Items', 'vulocart' ) },
+		payment_status: { label: __( 'Payment status', 'vulocart' ) },
+		fulfillment_status: { label: __( 'Fulfillment status', 'vulocart' ) },
+		total: { label: __( 'Total', 'vulocart' ) },
+		currency: { label: __( 'Currency', 'vulocart' ) },
+		created_at: { label: __( 'Created', 'vulocart' ) },
 	};
 
 	const headers = {
 		order_number: {
 			label: __( 'Order', 'vulocart' ),
-			isSortable: true,
-			render: ( row?: TableRow ) =>
-				row && (
-					<a href={ `admin.php?page=vulocart-orders&action=edit&id=${ row.id }` }>
-						{ row.order_number as string }
-					</a>
-				),
-		},
-		customer_email: {
-			label: __( 'Customer', 'vulocart' ),
-			render: ( row?: TableRow ) => ( row?.customer_name as string ) || ( row?.customer_email as string ) || '-',
-		},
-		item_count: {
-			label: __( 'Items', 'vulocart' ),
-			isNumeric: true,
-			render: ( row?: TableRow ) => ( row?.item_count as number ) ?? 0,
-		},
-		payment_status: {
-			label: __( 'Payment Status', 'vulocart' ),
-			type: 'status' as const,
-			statusClass: ( row: TableRow ) => `${ row.payment_status }`,
-		},
-		fulfillment_status: {
-			label: __( 'Fulfillment Status', 'vulocart' ),
-			type: 'status' as const,
-			statusClass: ( row: TableRow ) => `${ row.fulfillment_status }`,
+			required: true,
+			render: ( row?: TableRow ) => {
+				if ( ! row ) {
+					return null;
+				}
+
+				const name = ( row.customer_name as string ) || '';
+				const email = ( row.customer_email as string ) || '';
+				const who = name || email;
+
+				// Left: who the order is for, as an avatar. Right: order number and date on one line, the customer's
+				// name and email under it, then the badges - each says what it is, so "Pending" can't be mistaken.
+				return (
+					<div className="vulocart-order-cell">
+						<span className="vulocart-order-avatar" aria-hidden="true">
+							{ ( who.trim().charAt( 0 ) || '#' ).toUpperCase() }
+						</span>
+						<div className="vulocart-order-main">
+							<div className="vulocart-order-head">
+								<a className="vulocart-product-cell-title" href={ `admin.php?page=vulocart-orders&action=edit&id=${ row.id }` }>
+									#{ row.order_number as string }
+								</a>
+								{ row.created_at && <span className="desc">{ formatWpDate( row.created_at as string ) }</span> }
+							</div>
+							{ who && (
+								<div className="vulocart-order-customer">
+									<strong>{ who }</strong>
+									{ name && email ? <span className="desc">{ email }</span> : null }
+								</div>
+							) }
+							<div className="vulocart-product-cell-tags">
+								<span className={ `admin-badge ${ FULFILLMENT_BADGE[ String( row.fulfillment_status ) ] ?? 'badge-info' }` }>
+									{ optionLabel( FULFILLMENT_STATUS_OPTIONS, String( row.fulfillment_status ) ) }
+								</span>
+								<span className={ `admin-badge ${ PAYMENT_BADGE[ String( row.payment_status ) ] ?? 'badge-info' }` }>
+									{ __( 'Payment:', 'vulocart' ) } { optionLabel( PAYMENT_STATUS_OPTIONS, String( row.payment_status ) ).toLowerCase() }
+								</span>
+							</div>
+						</div>
+					</div>
+				);
+			},
 		},
 		total: {
 			label: __( 'Total', 'vulocart' ),
 			isNumeric: true,
 			render: ( row?: TableRow ) =>
-				row?.total !== null && row?.total !== undefined ? `${ row.total } ${ row.currency ?? '' }` : '-',
-		},
-		created_at: {
-			label: __( 'Created', 'vulocart' ),
-			render: ( row?: TableRow ) => ( row?.created_at as string ) || '-',
+				row && (
+					<div className="vulocart-product-cell">
+						<span className="vulocart-product-cell-title">{ formatMoney( row ) }</span>
+						<span className="desc">
+							{ sprintf( /* translators: %d: number of items. */ _n( '%d item', '%d items', Number( row.item_count ) || 0, 'vulocart' ), Number( row.item_count ) || 0 ) }
+						</span>
+					</div>
+				),
 		},
 		actions: {
 			label: __( 'Actions', 'vulocart' ),
-			csvDisplay: false,
-			render: ( row?: TableRow ) =>
-				row && (
-					<a
-						className="vulocart-order-status-action"
-						aria-label={ __( 'View order', 'vulocart' ) }
-						href={ `admin.php?page=vulocart-orders&action=edit&id=${ row.id }` }
-					>
-						{ __( 'View', 'vulocart' ) }
-					</a>
-				),
+			type: 'action' as const,
+			actions: [
+				{
+					label: __( 'View', 'vulocart' ),
+					icon: 'eye',
+					type: 'button' as const,
+					color: 'text-blue',
+					onClick: ( row: Record< string, unknown > ) => {
+						window.location.href = `admin.php?page=vulocart-orders&action=edit&id=${ row.id }`;
+					},
+				},
+				{
+					label: __( 'Update status', 'vulocart' ),
+					icon: 'bulk-action',
+					type: 'button' as const,
+					color: 'text-blue',
+					onClick: ( row: Record< string, unknown > ) => setStatusOrder( row as unknown as OrderRow ),
+				},
+				{
+					label: __( 'Delete', 'vulocart' ),
+					icon: 'delete',
+					type: 'button' as const,
+					color: 'text-red',
+					onClick: ( row: Record< string, unknown > ) => setDeleteIds( [ Number( row.id ) ] ),
+				},
+			],
 		},
 	};
 
 	const downloadSelectedCSV = ( selectedIds: number[] ) => {
 		const selectedRows = rows.filter( ( row ) => selectedIds.includes( Number( row.id ) ) );
-		downloadCSV( headers, selectedRows, `vulocart-orders-selected-${ new Date().toISOString().slice( 0, 10 ) }.csv` );
+		downloadCSV( csvHeaders, selectedRows, `vulocart-orders-selected-${ new Date().toISOString().slice( 0, 10 ) }.csv` );
 	};
 
 	const downloadAllCSV = ( query: QueryProps ) => {
@@ -216,7 +396,7 @@ export function OrdersList( { filter }: OrdersListProps ) {
 			} )
 			.then( ( response ) => {
 				downloadCSV(
-					headers,
+					csvHeaders,
 					response.data || [],
 					`vulocart-orders-${ new Date().toISOString().slice( 0, 10 ) }.csv`
 				);
@@ -235,7 +415,13 @@ export function OrdersList( { filter }: OrdersListProps ) {
 					) }
 					buttons={ [
 						{
-							label: __( 'Add New', 'vulocart' ),
+							label: __( 'Export', 'vulocart' ),
+							icon: 'download',
+							color: 'purple',
+							onClick: () => downloadAllCSV( lastQuery.current ),
+						},
+						{
+							label: __( 'Add Order', 'vulocart' ),
 							icon: 'plus',
 							color: '',
 							onClick: () => {
@@ -246,7 +432,6 @@ export function OrdersList( { filter }: OrdersListProps ) {
 				/>
 
 				<TableCard
-					title={ __( 'Orders', 'vulocart' ) }
 					headers={ headers }
 					rows={ rows }
 					totalRows={ totalRows }
@@ -289,20 +474,35 @@ export function OrdersList( { filter }: OrdersListProps ) {
 							label: __( 'Payment:', 'vulocart' ) + ' ' + option.label,
 							value: `payment:${ option.value }`,
 						} ) ),
+						{ label: __( 'Delete', 'vulocart' ), value: 'delete:confirm' },
 					] }
 					onBulkActionApply={ ( action: string, selectedIds: number[] ) =>
 						handleBulkAction( action, selectedIds )
 					}
-					buttonActions={ [
-						{
-							label: __( 'Export CSV', 'vulocart' ),
-							icon: 'download',
-							onClickWithQuery: downloadAllCSV,
-						},
-					] }
 					onSelectCsvDownloadApply={ downloadSelectedCSV }
 				/>
 			</ColumnComponent>
+
+			{ statusOrder && (
+				<OrderStatusPopup order={ statusOrder } onClose={ () => setStatusOrder( null ) } onSaved={ () => doRefreshTableData( lastQuery.current ) } />
+			) }
+
+			<ConfirmPopup
+				open={ deleteIds.length > 0 }
+				title={ 1 === deleteIds.length ? __( 'Delete order', 'vulocart' ) : __( 'Delete orders', 'vulocart' ) }
+				message={ sprintf(
+					/* translators: %d: number of orders. */
+					_n(
+						'Permanently delete this order and its items? This cannot be undone.',
+						'Permanently delete %d orders and their items? This cannot be undone.',
+						deleteIds.length,
+						'vulocart'
+					),
+					deleteIds.length
+				) }
+				onConfirm={ confirmDelete }
+				onCancel={ () => setDeleteIds( [] ) }
+			/>
 		</ContainerComponent>
 	);
 }

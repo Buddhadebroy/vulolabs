@@ -711,6 +711,25 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					);
 				})()}
 
+				{isProActive && !fixNotice && !group.fix_action_id && group.no_fix_reason && (
+					<NoticeComponent
+						type="info"
+						displayPosition="inline-notice"
+						title={__('Why this needs manual intervention', 'vulopilot')}
+						message={[
+							!showRecommendedFix && group.no_fix_reason
+								? `<span class="desc">${group.no_fix_reason}</span>`
+								: '',
+							group.no_fix_link
+								? `<span class="small desc"><a href="${group.no_fix_link.url}" target="_blank" rel="noreferrer" style="color: var(--color-primary); text-decoration: underline;">${group.no_fix_link.label}</a></span>`
+								: '',
+							`<span class="small desc">${__('Check the details above for what to look at.', 'vulopilot')}</span>`,
+						]
+							.filter(Boolean)
+							.join(' ')}
+					/>
+				)}
+
 				<div className="issue-detail-section">
 					<div className="issue-detail-section-header">
 						{!isProActive && (
@@ -836,25 +855,6 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 								)}
 						</span>
 					</div>
-				)}
-
-				{isProActive && !fixNotice && !group.fix_action_id && group.no_fix_reason && (
-					<NoticeComponent
-						type="info"
-						displayPosition="inline-notice"
-						title={__('Needs your review - no automatic fix', 'vulopilot')}
-						message={[
-							!showRecommendedFix && group.no_fix_reason
-								? `<span class="desc">${group.no_fix_reason}</span>`
-								: '',
-							group.no_fix_link
-								? `<span class="small desc"><a href="${group.no_fix_link.url}" target="_blank" rel="noreferrer" style="color: var(--color-primary); text-decoration: underline;">${group.no_fix_link.label}</a></span>`
-								: '',
-							`<span class="small desc">${__('Check the details above for what to look at.', 'vulopilot')}</span>`,
-						]
-							.filter(Boolean)
-							.join(' ')}
-					/>
 				)}
 
 				{isProActive && fixNotice}

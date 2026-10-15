@@ -224,4 +224,49 @@ class OrderEmails {
 
         wp_mail( $order->customer_email, $subject, $body, $this->get_mail_headers( $settings ) );
     }
+
+    /**
+     * Emails the customer a request to pay what is still owed on an order: what they bought, the amount due and,
+     * when bank transfer is switched on, the transfer instructions. Static so the admin REST route can call it
+     * without a second instance of this class (the constructor registers the order listeners).
+     *
+     * @param object $order Order\Domain\Order.
+     * @return bool Whether the mail was handed to wp_mail() successfully.
+     */
+    public static function send_payment_request( $order ): bool {
+        if ( empty( $order->customer_email ) ) {
+            return false;
+        }
+
+        $settings = wp_parse_args( get_option( Utill::SETTINGS_KEY, array() ), Utill::SETTINGS_DEFAULTS );
+        $headers  = empty( $settings['notification_from_email'] ) ? array() : array( 'From: ' . sanitize_email( $settings['notification_from_email'] ) );
+
+        $lines = array();
+
+        foreach ( $order->items as $item ) {
+            $lines[] = sprintf( '- %1$s x %2$d', $item->title, $item->quantity );
+        }
+
+        $body = sprintf(
+            /* translators: 1: customer name, 2: order number, 3: amount due with currency. */
+            __( "Hi %1\$s,\n\nThis is a request for payment on order %2\$s.\n\nAmount due: %3\$s\n\n", 'vulocart' ),
+            $order->customer_name ? $order->customer_name : __( 'there', 'vulocart' ),
+            $order->order_number,
+            number_format_i18n( (float) $order->total, 2 ) . ' ' . $order->currency
+        ) . implode( "\n", $lines ) . "\n\n";
+
+        if ( ! empty( $settings['enable_bank_transfer'] ) && ! empty( $settings['bank_transfer_instructions'] ) ) {
+            $body .= __( 'How to pay (bank transfer):', 'vulocart' ) . "\n" . $settings['bank_transfer_instructions'] . "\n\n";
+        }
+
+        $body .= __( 'Reply to this email if you have any questions.', 'vulocart' ) . "\n" . get_bloginfo( 'name' );
+
+        return wp_mail(
+            $order->customer_email,
+            /* translators: %s: order number. */
+            sprintf( __( 'Payment request for order %s', 'vulocart' ), $order->order_number ),
+            $body,
+            $headers
+        );
+    }
 }

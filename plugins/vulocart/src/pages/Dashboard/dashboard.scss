@@ -1,0 +1,864 @@
+// VuloCart → Dashboard (Dashboard.tsx). Compact by design: one screen shows what needs doing, the headline
+// numbers, the sales trend and the latest orders. The vulocart-pro Analytics module renders its insights card with
+// the `vulocart-dash-*` classes at the bottom of this file.
+
+$dash-primary: #5007aa;
+$dash-border: #e6e8f0;
+$dash-text: #1f2937;
+$dash-muted: #6b7280;
+
+.vulocart-dash-header-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+// Segmented control: date range in the header, Revenue/Orders on the chart.
+.vulocart-dash-range {
+	display: inline-flex;
+	align-items: center;
+	padding: 0.1875rem;
+	border: 1px solid $dash-border;
+	border-radius: 0.5rem;
+	background: #f7f7fb;
+
+	button {
+		min-height: 0;
+		margin: 0;
+		padding: 0.375rem 0.75rem;
+		border: 0;
+		border-radius: 0.375rem;
+		background: transparent;
+		font-size: 0.9375rem;
+		font-weight: 600;
+		color: $dash-muted;
+		cursor: pointer;
+
+		&:hover {
+			color: $dash-text;
+		}
+
+		&.is-active {
+			background: #fff;
+			color: $dash-primary;
+			box-shadow: 0 1px 3px rgba(20, 20, 43, 0.12);
+		}
+	}
+
+	&:not(.is-small) button {
+		min-height: 2rem;
+	}
+
+	&.is-small button {
+		padding: 0.1875rem 0.5rem;
+		font-size: 0.875rem;
+	}
+}
+
+.vulocart-dash {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	width: 100%;
+	transition: opacity 0.15s ease;
+
+	&.is-loading {
+		opacity: 0.6;
+	}
+
+	a {
+		text-decoration: none;
+	}
+}
+
+// ---- Needs attention: one slim row of links ----
+.vulocart-dash-todo-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem 0.625rem;
+	padding: 0.625rem 1rem;
+	border: 1px solid $dash-border;
+	border-radius: 0.75rem;
+	background: #fff;
+}
+
+.vulocart-dash-todo-label {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	margin-right: 0.25rem;
+	font-size: 0.9375rem;
+	font-weight: 600;
+	color: $dash-text;
+
+	i {
+		color: $dash-primary;
+	}
+}
+
+.vulocart-dash-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding: 0.25rem 0.625rem;
+	border-radius: 999px;
+	font-size: 0.875rem;
+	font-weight: 600;
+
+	i {
+		font-size: 0.9375rem;
+	}
+
+	&.is-warn {
+		background: #fffbeb;
+		color: #b45309;
+	}
+
+	&.is-bad {
+		background: #fef2f2;
+		color: #b91c1c;
+	}
+
+	&.is-info {
+		background: #eff6ff;
+		color: #1d4ed8;
+	}
+
+	&.is-good {
+		background: #ecfdf5;
+		color: #047857;
+	}
+}
+
+a.vulocart-dash-chip:hover {
+	filter: brightness(0.95);
+}
+
+// ---- First-order checklist: a single line ----
+.vulocart-dash-setup {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem 1.5rem;
+	padding: 0.625rem 1rem;
+	border: 1px solid #e6e1f5;
+	border-radius: 0.625rem;
+	background: linear-gradient(135deg, #faf7ff 0%, #ffffff 70%);
+
+	> strong {
+		font-size: 0.9375rem;
+		color: $dash-text;
+	}
+}
+
+.vulocart-dash-steps {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 1.25rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+
+	li {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin: 0;
+
+		> i {
+			display: grid;
+			place-items: center;
+			width: 1.5rem;
+			height: 1.5rem;
+			border-radius: 50%;
+			background: #f3ecff;
+			color: $dash-primary;
+			font-size: 0.9375rem;
+		}
+
+		a {
+			font-size: 0.9375rem;
+			font-weight: 600;
+			color: $dash-text;
+
+			&:hover {
+				color: $dash-primary;
+			}
+		}
+
+		&.is-done {
+			> i {
+				background: #dcfce7;
+				color: #15803d;
+			}
+
+			a {
+				color: $dash-muted;
+				text-decoration: line-through;
+			}
+		}
+	}
+}
+
+// ---- KPI strip: four numbers in one card ----
+.vulocart-dash-kpis {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	border: 1px solid $dash-border;
+	border-radius: 0.75rem;
+	background: #fff;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+
+	@media (max-width: 960px) {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	@media (max-width: 480px) {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.vulocart-dash-kpi {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	min-width: 0;
+	padding: 0.875rem 1.25rem;
+	border-left: 1px solid #eef0f6;
+
+	&:first-child {
+		border-left: 0;
+	}
+
+	@media (max-width: 960px) {
+		&:nth-child(odd) {
+			border-left: 0;
+		}
+
+		&:nth-child(n + 3) {
+			border-top: 1px solid #eef0f6;
+		}
+	}
+
+	@media (max-width: 480px) {
+		border-left: 0;
+
+		&:not(:first-child) {
+			border-top: 1px solid #eef0f6;
+		}
+	}
+}
+
+.vulocart-dash-kpi-label {
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: $dash-muted;
+}
+
+.vulocart-dash-kpi-line {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	min-width: 0;
+}
+
+.vulocart-dash-kpi-value {
+	overflow: hidden;
+	font-size: 1.625rem;
+	font-weight: 700;
+	line-height: 1.3;
+	color: $dash-text;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.vulocart-dash-kpi-hint {
+	overflow: hidden;
+	font-size: 0.8125rem;
+	color: #9ca3af;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.vulocart-dash-trend {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	gap: 0.125rem;
+	padding: 0.0625rem 0.375rem;
+	border-radius: 999px;
+	font-size: 0.8125rem;
+	font-weight: 700;
+
+	i {
+		font-size: 0.75rem;
+	}
+
+	&.is-up {
+		background: #ecfdf5;
+		color: #047857;
+	}
+
+	&.is-down {
+		background: #fef2f2;
+		color: #b91c1c;
+	}
+
+	&.is-new {
+		background: #eff6ff;
+		color: #1d4ed8;
+	}
+}
+
+// ---- Layout ----
+.vulocart-dash-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 2fr) minmax(17rem, 1fr);
+	align-items: stretch;
+	gap: 1rem;
+
+	@media (max-width: 1100px) {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.vulocart-dash-main,
+.vulocart-dash-side {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	min-width: 0;
+}
+
+// The last card of each column takes the leftover height, so both columns end on the same line.
+.vulocart-dash-main > :last-child,
+.vulocart-dash-side > :last-child {
+	flex: 1;
+}
+
+// ---- Card ----
+.vulocart-dash-card {
+	display: flex;
+	flex-direction: column;
+	border: 1px solid $dash-border;
+	border-radius: 0.75rem;
+	background: #fff;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+.vulocart-dash-card-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	min-height: 2.75rem;
+	padding: 0.5rem 1.25rem;
+	border-bottom: 1px solid #eef0f6;
+}
+
+.vulocart-dash-card-title {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 1rem;
+	font-weight: 600;
+	color: $dash-text;
+
+	i {
+		color: $dash-primary;
+	}
+
+	small {
+		font-size: 0.875rem;
+		font-weight: 400;
+		color: $dash-muted;
+	}
+}
+
+.vulocart-dash .vulocart-dash-card-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: $dash-primary;
+
+	i {
+		font-size: 0.8125rem;
+	}
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+.vulocart-dash-card-body {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	padding: 0.625rem 1.25rem 0.875rem;
+
+	> * {
+		width: 100%;
+	}
+}
+
+.vulocart-dash-empty {
+	display: flex;
+	flex: 1;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.75rem 0.5rem;
+	font-size: 0.9375rem;
+	color: $dash-muted;
+	text-align: center;
+
+	i {
+		font-size: 1.25rem;
+		color: #c4b5fd;
+	}
+}
+
+.vulocart-dash-skeleton {
+	height: 5rem;
+	border-radius: 0.5rem;
+	background: linear-gradient(90deg, #f3f4f8 25%, #eceef4 37%, #f3f4f8 63%);
+	background-size: 400% 100%;
+	animation: vulocart-dash-shimmer 1.4s ease infinite;
+
+	&.is-chart {
+		height: 9rem;
+	}
+}
+
+@keyframes vulocart-dash-shimmer {
+	0% {
+		background-position: 100% 50%;
+	}
+
+	100% {
+		background-position: 0 50%;
+	}
+}
+
+// ---- Status pills ----
+.vulocart-dash-pill {
+	display: inline-flex;
+	align-items: center;
+	padding: 0.0625rem 0.5rem;
+	border-radius: 999px;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	white-space: nowrap;
+
+	&.is-good {
+		background: #ecfdf5;
+		color: #047857;
+	}
+
+	&.is-warn {
+		background: #fffbeb;
+		color: #b45309;
+	}
+
+	&.is-bad {
+		background: #fef2f2;
+		color: #b91c1c;
+	}
+
+	&.is-info {
+		background: #eff6ff;
+		color: #1d4ed8;
+	}
+
+	&.is-muted {
+		background: #f3f4f6;
+		color: #4b5563;
+	}
+}
+
+// ---- Sales chart ----
+.vulocart-dash-chart {
+	display: flex;
+	flex-direction: column;
+	gap: 0.375rem;
+}
+
+.vulocart-dash-chart-readout {
+	display: flex;
+	align-items: baseline;
+	gap: 0.5rem;
+	min-height: 1.5rem;
+
+	strong {
+		font-size: 1.1875rem;
+		color: $dash-text;
+	}
+
+	span {
+		font-size: 0.875rem;
+		color: $dash-muted;
+	}
+}
+
+.vulocart-dash-bars {
+	display: flex;
+	align-items: stretch;
+	gap: 2px;
+	height: 7.5rem;
+	padding-bottom: 1px;
+	border-bottom: 1px solid #e5e7eb;
+	background-image: linear-gradient(#f1f2f6 1px, transparent 1px);
+	background-size: 100% 33.34%;
+}
+
+.vulocart-dash-bar {
+	display: flex;
+	flex: 1;
+	align-items: flex-end;
+	min-width: 0;
+	cursor: default;
+
+	i {
+		display: block;
+		width: 100%;
+		border-radius: 3px 3px 0 0;
+		background: #b794f4;
+		transition: background 0.1s ease;
+	}
+
+	&.is-zero i {
+		background: #e5e7eb;
+	}
+
+	&.is-hover i {
+		background: $dash-primary;
+	}
+}
+
+.vulocart-dash-axis {
+	display: flex;
+	justify-content: space-between;
+	font-size: 0.8125rem;
+	color: #9ca3af;
+}
+
+// ---- Lists ----
+.vulocart-dash-orders,
+.vulocart-dash-rank,
+.vulocart-dash-stock {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+
+	> li {
+		margin: 0;
+		border-top: 1px solid #f1f2f6;
+
+		&:first-child {
+			border-top: 0;
+		}
+	}
+}
+
+.vulocart-dash-orders > li {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto 5.5rem;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.5rem 0;
+
+	@media (max-width: 600px) {
+		grid-template-columns: minmax(0, 1fr) auto;
+
+		.vulocart-dash-order-badges {
+			grid-column: 1 / -1;
+			grid-row: 2;
+		}
+	}
+}
+
+.vulocart-dash-order-main,
+.vulocart-dash-rank-main,
+.vulocart-dash-stock a {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+
+	strong {
+		overflow: hidden;
+		font-size: 0.9375rem;
+		color: $dash-text;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	span {
+		overflow: hidden;
+		font-size: 0.8125rem;
+		color: $dash-muted;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	&:hover strong {
+		color: $dash-primary;
+	}
+}
+
+.vulocart-dash-order-badges {
+	display: flex;
+	gap: 0.25rem;
+}
+
+.vulocart-dash-order-total {
+	font-size: 0.9375rem;
+	color: $dash-text;
+	text-align: right;
+}
+
+.vulocart-dash-rank > li {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	padding: 0.5rem 0;
+}
+
+.vulocart-dash-rank-no {
+	display: grid;
+	flex: none;
+	place-items: center;
+	width: 1.25rem;
+	height: 1.25rem;
+	border-radius: 50%;
+	background: #f3f4f8;
+	font-size: 0.8125rem;
+	font-weight: 700;
+	color: $dash-muted;
+}
+
+.vulocart-dash-rank > li:first-child .vulocart-dash-rank-no {
+	background: #f3ecff;
+	color: $dash-primary;
+}
+
+.vulocart-dash-rank-main {
+	flex: 1;
+}
+
+.vulocart-dash-rank-value {
+	font-size: 0.9375rem;
+	font-weight: 700;
+	color: $dash-text;
+}
+
+.vulocart-dash-stock > li {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	padding: 0.5rem 0;
+}
+
+// ---- Insights card (rendered by vulocart-pro's Analytics module) ----
+.vulocart-dash-mini {
+	display: grid;
+	grid-template-columns: repeat(6, minmax(0, 1fr));
+	gap: 0.5rem;
+
+	@media (max-width: 1100px) {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	@media (max-width: 600px) {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+.vulocart-dash-mini-item {
+	display: flex;
+	flex-direction: column;
+	gap: 0.0625rem;
+	min-width: 0;
+	padding: 0.625rem 0.875rem;
+	border-radius: 0.5rem;
+	background: #f8f9fc;
+
+	span {
+		overflow: hidden;
+		font-size: 0.8125rem;
+		color: $dash-muted;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	strong {
+		font-size: 1.125rem;
+		line-height: 1.3;
+		color: $dash-text;
+	}
+
+	&.is-bad strong {
+		color: #b91c1c;
+	}
+}
+
+.vulocart-dash-cols {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 0;
+	margin-top: 1rem;
+	padding-top: 1rem;
+	border-top: 1px solid #eef0f6;
+
+	> div {
+		padding: 0 1.25rem;
+		border-left: 1px solid #eef0f6;
+
+		&:first-child {
+			padding-left: 0;
+			border-left: 0;
+		}
+
+		&:last-child {
+			padding-right: 0;
+		}
+
+		@media (max-width: 960px) {
+			padding: 0.75rem 0 0;
+			border-left: 0;
+		}
+	}
+
+	@media (max-width: 960px) {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.vulocart-dash-col-title {
+	margin: 0 0 0.5rem;
+	font-size: 0.8125rem;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: $dash-muted;
+}
+
+// Funnel: carts → checkouts → orders, bar widths relative to carts.
+.vulocart-dash-funnel {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+
+	li {
+		display: grid;
+		grid-template-columns: 7.5rem minmax(0, 1fr) 2.25rem;
+		align-items: center;
+		gap: 0.5rem;
+		margin: 0;
+		font-size: 0.875rem;
+		color: #4b5563;
+	}
+
+	strong {
+		text-align: right;
+		color: $dash-text;
+	}
+}
+
+.vulocart-dash-funnel-bar {
+	display: block;
+	height: 0.5rem;
+	overflow: hidden;
+	border-radius: 999px;
+	background: #eef0f6;
+
+	i {
+		display: block;
+		height: 100%;
+		border-radius: inherit;
+		background: #8b5cf6;
+	}
+}
+
+.vulocart-dash-lines {
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+
+	li {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		margin: 0;
+		padding: 0.3125rem 0;
+		border-top: 1px solid #f1f2f6;
+		font-size: 0.875rem;
+		color: #4b5563;
+
+		&:first-child {
+			border-top: 0;
+		}
+
+		span {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		strong {
+			flex: none;
+			color: $dash-text;
+		}
+	}
+}
+
+.vulocart-dash-ai {
+	margin: 0.75rem 0 0;
+	padding: 0.625rem 0.75rem;
+	border-radius: 0.5rem;
+	background: #faf7ff;
+	font-size: 0.9375rem;
+	line-height: 1.5;
+	color: #374151;
+}
+
+.vulocart-dash-card-head .vulocart-dash-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	min-height: 0;
+	margin: 0;
+	padding: 0.25rem 0.625rem;
+	border: 1px solid #dcdfea;
+	border-radius: 0.375rem;
+	background: #fff;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: $dash-primary;
+	cursor: pointer;
+
+	&:hover:not(:disabled) {
+		border-color: $dash-primary;
+	}
+
+	&:disabled {
+		opacity: 0.55;
+		cursor: not-allowed;
+	}
+}
+
+.vulocart-dash-note {
+	margin: 0.5rem 0 0;
+	font-size: 0.875rem;
+	color: $dash-muted;
+}

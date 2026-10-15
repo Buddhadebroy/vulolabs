@@ -84,4 +84,16 @@ class WPDBNoteRepository {
 
         return false !== $wpdb->delete( $this->get_table(), array( 'id' => $id, 'customer_id' => $customer_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     }
+
+    /**
+     * Removes every internal note of one customer (used when the customer is deleted).
+     *
+     * @param int $customer_id Customer id.
+     * @return void
+     */
+    public function delete_for_customer( int $customer_id ): void {
+        global $wpdb;
+
+        $wpdb->delete( $this->get_table(), array( 'customer_id' => $customer_id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    }
 }

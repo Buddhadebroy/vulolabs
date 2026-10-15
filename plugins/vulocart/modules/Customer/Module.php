@@ -29,42 +29,64 @@ defined( 'ABSPATH' ) || exit;
 class Module {
 
     /**
-     * Container for this module's own class instances.
+     * This module's own customer service - promoted to an instance
+     * property because `maybe_record_order()` (the
+     * `vulocart_order_created` listener) reaches it outside the
+     * constructor.
      *
-     * @var array
+     * @var Application\CustomerService
      */
-    private $container = array();
+    private $service;
 
     /**
-     * Module constructor.
+     * Module constructor. Constructs this module's own classes and
+     * registers its service on the main plugin container
+     * (`VuloCart()->customer_service`).
      */
     public function __construct() {
-        $this->init_classes();
-    }
+        new Install();
 
-    /**
-     * Constructs this module's own classes and registers its service on
-     * the main plugin container (`VuloCart()->customer_service`).
-     *
-     * @return void
-     */
-    public function init_classes() {
-        $this->container['install']   = new Install();
-        $this->container['customers'] = new Infrastructure\WPDBCustomerRepository();
-        $this->container['addresses'] = new Infrastructure\WPDBAddressRepository();
-        $this->container['notes']     = new Infrastructure\WPDBNoteRepository();
-        $this->container['service']   = new Application\CustomerService(
-            $this->container['customers'],
-            $this->container['addresses'],
-            $this->container['notes']
-        );
+        $customers = new Infrastructure\WPDBCustomerRepository();
+        $addresses = new Infrastructure\WPDBAddressRepository();
+        $notes     = new Infrastructure\WPDBNoteRepository();
 
-        VuloCart()->customer_service = $this->container['service'];
+        $this->service = new Application\CustomerService( $customers, $addresses, $notes );
 
-        $this->container['rest'] = new Rest();
+        VuloCart()->customer_service = $this->service;
+
+        new Rest();
 
         add_filter( 'vulocart_checkout_steps', array( $this, 'register_checkout_step' ) );
         add_action( 'vulocart_order_created', array( $this, 'maybe_record_order' ) );
+        add_action( 'vulocart_order_payment_status_changed', array( $this, 'maybe_refresh_totals' ) );
+        add_action( 'vulocart_order_fulfillment_status_changed', array( $this, 'maybe_refresh_totals' ) );
+        add_action( 'vulocart_order_deleted', array( $this, 'maybe_refresh_totals' ) );
+        add_action( 'init', array( $this, 'maybe_backfill_totals' ) );
+    }
+
+    /**
+     * Keeps a customer's totals in step with a status change on one of their orders.
+     *
+     * @param array{order: object} $payload Order\Domain\Order under the 'order' key.
+     * @return void
+     */
+    public function maybe_refresh_totals( $payload ) {
+        $this->service->refresh_for_order( $payload['order'] );
+    }
+
+    /**
+     * One-time pass: totals used to be added up when an order was placed (paid or not, never reduced), so recompute
+     * them from the orders themselves.
+     *
+     * @return void
+     */
+    public function maybe_backfill_totals() {
+        if ( get_option( 'vulocart_customer_totals_derived' ) ) {
+            return;
+        }
+
+        $this->service->refresh_all_totals();
+        update_option( 'vulocart_customer_totals_derived', 1 );
     }
 
     /**
@@ -74,7 +96,7 @@ class Module {
      * @return void
      */
     public function maybe_record_order( $payload ) {
-        $this->container['service']->record_order( $payload['order'] );
+        $this->service->record_order( $payload['order'] );
     }
 
     /**
@@ -93,20 +115,5 @@ class Module {
         );
 
         return $steps;
-    }
-
-    /**
-     * Magic getter for this module's own container.
-     *
-     * @param string $class_name Container key to retrieve.
-     * @return mixed
-     * @throws \Exception If the requested key does not exist in the container.
-     */
-    public function __get( $class_name ) { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.classFound
-        if ( array_key_exists( $class_name, $this->container ) ) {
-            return $this->container[ $class_name ];
-        }
-
-        throw new \Exception( sprintf( 'Call to unknown class %s.', esc_html( $class_name ) ) );
     }
 }

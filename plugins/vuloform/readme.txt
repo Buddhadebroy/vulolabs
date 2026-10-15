@@ -161,7 +161,6 @@ Send each submission to another service the moment it arrives, such as a CRM, sp
 * Background delivery, so visitors never wait
 * Automatic retries after 5 and 30 minutes, with every attempt logged on the submission
 * Safety rules: webhooks must use `https://` and cannot target private networks or your own server
-* **VuloForm Pro** adds ready-made connections to mailing lists and CRMs
 
 = Submissions manager =
 
@@ -267,10 +266,6 @@ Yes, by default. You can switch off **Save submissions on this site** in a form'
 
 Yes. Use **Export CSV** on the Submissions screen. Your current search, status and date filters are applied.
 
-= Can I send form data to my CRM or other apps? =
-
-Yes. Add a custom webhook connector in the form's **Integrations** settings. VuloForm Pro adds ready-made connections to mailing lists and CRMs.
-
 = Does VuloForm send SMS text messages? =
 
 Yes, through the VuloMail plugin with an SMS connection. Your SMS provider charges for each message.
@@ -324,6 +319,12 @@ If you add a webhook, submission data for the fields you choose is sent to the a
 = Email and SMS (optional) =
 
 Emails are handed to your site's mail system, or to the VuloMail plugin if active. Text messages are sent through the SMS connection configured in VuloMail, and your provider's terms apply.
+
+== Source Code ==
+
+The files under `assets/` (admin bundle, public form and embed scripts, block editor script) are compiled with webpack. Their human-readable source - everything under `src/`, plus `webpack.config.js` - is public:
+
+https://github.com/vulolabs/vulolabs/tree/main/plugins/vuloform
 
 == Screenshots ==
 

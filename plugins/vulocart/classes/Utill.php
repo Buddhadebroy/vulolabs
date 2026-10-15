@@ -22,8 +22,8 @@ defined( 'ABSPATH' ) || exit;
 class Utill {
 
     /**
-     * Custom $wpdb table names, keyed by short entity id. Only 'offering'
-     * lives here - Offering is the plugin's always-on core entity. Cart and
+     * Custom $wpdb table names, keyed by short entity id. Only 'product'
+     * lives here - Product is the plugin's always-on core entity. Cart and
      * Order own their own tables directly (`modules/Cart/Install.php`,
      * `modules/Order/Install.php`), not registered in this shared
      * registry, since they're real toggleable modules now - same
@@ -35,7 +35,7 @@ class Utill {
      * @var array
      */
     const TABLES = array(
-        'offering' => 'vulocart_offerings',
+        'product' => 'vulocart_products',
     );
 
     /**
@@ -89,7 +89,7 @@ class Utill {
      * (Notifications\OrderEmails), `cart_expiry_days`
      * (Cart\Application\CartCleanupScheduler's daily cron),
      * `guest_checkout_enabled`/`require_terms_acceptance`/
-     * `checkout_terms_url`/`enable_offerings_listing`/
+     * `checkout_terms_url`/`enable_products_listing`/
      * `enable_cart_checkout` (Block.php's `print_frontend_config()` →
      * src/blocks/checkout/Checkout.tsx, plus Order\Rest::create_item()'s
      * own server-side guest-checkout re-check), and now the whole
@@ -105,43 +105,39 @@ class Utill {
      * Taxes/Payment/Review/Confirmation modules). `require_phone_number`
      * (Checkout section) is enforced directly by `Order\Rest::
      * create_item()`, same "client hint, server re-check" pattern
-     * `guest_checkout_enabled` already uses. API/MCP/AI still have no
-     * backing module in this plugin - the same "real setting, not yet
-     * consumed" gap this class already documented for
-     * `default_offering_status` (Application\OfferingService::create_offering()
-     * still hardcodes `'draft'`) and VuloPilot\Utill's own
-     * `scan_frequency` (inert without its Automation module) - so those
-     * three tabs' fields exist to give the Settings UI its full, promised
-     * tab structure honestly rather than silently omitting tabs the
-     * admin-UX brief asked for.
+     * `guest_checkout_enabled` already uses.
+     *
+     * Settings nothing read were removed (default product status/type/visibility, allow_guest_cart,
+     * default_shipping_class, the public REST API toggle and its rate limit) - a stored value stays harmless
+     * in an existing install's option.
      *
      * Deliberately no `enable_mcp_server`/`enable_ai_recommendations` keys
      * (removed after MCP/AI were built) - both were a Settings-tab
      * toggle duplicating what module activation on the Modules page
      * already does once MCP/AI ship as their own modules
      * (module-architecture.md), two sources of truth for one on/off
-     * state. src/settings/Mcp.ts's/Ai.ts's own docblocks explain the same
-     * reasoning; only their *configuration* fields (`mcp_api_key`,
-     * `ai_provider`) remain here.
+     * state. src/settings/Integrations/Mcp.ts's own docblock explains the
+     * same reasoning; only its *configuration* field (`mcp_api_key`)
+     * remains here. AI has no stored setting at all - it's a VuloCloud
+     * connection (classes/AI/VuloCloudConnection.php).
      *
      * @var array
      */
     const SETTINGS_DEFAULTS = array(
         // General.
         'default_currency'              => 'USD',
-        'default_offering_status'       => 'draft',
 
         // Frontend.
-        'enable_offerings_listing'      => array( 'enable_offerings_listing' ),
+        'enable_products_listing'      => array( 'enable_products_listing' ),
         'enable_cart_checkout'          => array( 'enable_cart_checkout' ),
+        // Storefront listing template (src/blocks/products/ProductsListing.tsx): grid|compact|list|showcase.
+        'listing_template'              => 'grid',
+        'listing_columns'               => '4',
 
         // Catalog.
-        'default_offering_type'         => 'physical',
-        'default_catalog_visibility'    => 'shop_and_search',
         'low_stock_threshold'           => 5,
 
         // Cart.
-        'allow_guest_cart'              => array( 'allow_guest_cart' ),
         'cart_expiry_days'              => 14,
 
         // Checkout.
@@ -153,6 +149,12 @@ class Utill {
         // delivery modes Checkout.tsx mounts CheckoutEngine in.
         'checkout_mode'                 => \VuloCart\Domain\Checkout\CheckoutMode::MULTI_STEP,
 
+        // Extra ways to present checkout (VuloCart Pro): any of popup, drawer, embedded, hosted. Empty until chosen.
+        'checkout_styles'               => array(),
+
+        // Other checkout extras (VuloCart Pro): any of one-click, links, builder, notes, autocomplete.
+        'checkout_features'             => array(),
+
         // Payments.
         'enable_manual_payment'         => array( 'enable_manual_payment' ),
         'default_payment_status'        => 'pending',
@@ -163,7 +165,6 @@ class Utill {
 
         // Shipping.
         'enable_shipping'               => array( 'enable_shipping' ),
-        'default_shipping_class'        => 'standard',
         'flat_rate_shipping_cost'       => 0,
 
         // Taxes.
@@ -176,15 +177,8 @@ class Utill {
         'send_status_update_email'      => array( 'send_status_update_email' ),
         'notification_from_email'       => '',
 
-        // API.
-        'enable_public_rest_api'        => array( 'enable_public_rest_api' ),
-        'api_rate_limit_per_minute'     => 60,
-
         // MCP.
         'mcp_api_key'                   => '',
-
-        // AI.
-        'ai_provider'                   => 'none',
 
         // Advanced.
         'enable_debug_logging'          => array(),

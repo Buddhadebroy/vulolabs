@@ -16,17 +16,26 @@ defined( 'ABSPATH' ) || exit;
  * docblock. Backs the checkout wizard's Shipping step (which method is
  * available, and what it costs, before the buyer commits to placing the
  * order). Optional `cart_token`/`country`/`state` query params resolve a
- * `$context` (cart weight, summed from each line item's own Offering
+ * `$context` (cart weight, summed from each line item's own Product
  * `meta.weight`, plus the shipping address) purely so
  * `vulocart_shipping_methods` (ShippingService's own docblock) has
  * something to match a zone/weight rate against - this controller has no
  * opinion on what that filter does with it.
  *
+ * Extends `\WP_REST_Controller` to match vulopilot's REST convention; no
+ * collision - this class declares no `prepare_item_for_response()` (or any
+ * other base-class method name) at all, let alone a private one.
+ *
  * @class       Rest class
  * @version     1.0.0
  * @author      VuloLabs
  */
-class Rest {
+class Rest extends \WP_REST_Controller {
+
+    /**
+     * @var string
+     */
+    protected $rest_base = 'shipping';
 
     /**
      * Rest constructor.
@@ -97,11 +106,11 @@ class Rest {
                 $subtotal = 0.0;
 
                 foreach ( $cart->items as $item ) {
-                    $offering = VuloCart()->offering_service->get_offering( $item->offering_id );
+                    $product = VuloCart()->product_service->get_product( $item->product_id );
                     $subtotal += (float) $item->unit_price * (int) $item->quantity;
 
-                    if ( $offering && ! empty( $offering->meta['weight'] ) ) {
-                        $weight += (float) $offering->meta['weight'] * (int) $item->quantity;
+                    if ( $product && ! empty( $product->meta['weight'] ) ) {
+                        $weight += (float) $product->meta['weight'] * (int) $item->quantity;
                     }
                 }
 

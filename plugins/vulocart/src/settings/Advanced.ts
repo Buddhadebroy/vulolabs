@@ -17,14 +17,26 @@ export default {
 	priority: 4,
 	headerTitle: __( 'Advanced', 'vulocart' ),
 	headerIcon: 'tools',
+	groupBySections: true,
+	hideSettingHeader: true,
 	submitUrl: 'settings',
 	modal: [
+		{
+			key: 'advanced-section-debugging',
+			type: 'section',
+			icon: 'tools',
+			title: __( 'Debugging', 'vulocart' ),
+			desc: __(
+				'Diagnostic logging for troubleshooting - leave off in normal operation.',
+				'vulocart'
+			),
+		},
 		{
 			key: 'enable_debug_logging',
 			type: 'checkbox',
 			look: 'toggle',
 			label: __( 'Enable debug logging', 'vulocart' ),
-			desc: __(
+			settingDescription: __(
 				'Writes module-loading failures to the server error log. Leave off unless you\'re actively debugging.',
 				'vulocart'
 			),

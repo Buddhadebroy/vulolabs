@@ -34,11 +34,11 @@ class ReviewService {
     private $repository;
 
     /**
-     * Used to check that a review's offering_id references a real offering.
+     * Used to check that a review's product_id references a real product.
      *
-     * @var OfferingService
+     * @var ProductService
      */
-    private $offering_service;
+    private $product_service;
 
     /**
      * Broadcasts what happened after each mutation.
@@ -51,12 +51,12 @@ class ReviewService {
      * ReviewService constructor.
      *
      * @param ReviewRepositoryInterface $repository    Resolved via ServiceContainer, not `new`d directly.
-     * @param OfferingService           $offering_service  Used to check that a review's offering_id references a real offering.
+     * @param ProductService           $product_service  Used to check that a review's product_id references a real product.
      * @param EventDispatcher           $events         Broadcasts what happened; never decides what should happen.
      */
-    public function __construct( ReviewRepositoryInterface $repository, OfferingService $offering_service, EventDispatcher $events ) {
+    public function __construct( ReviewRepositoryInterface $repository, ProductService $product_service, EventDispatcher $events ) {
         $this->repository       = $repository;
-        $this->offering_service = $offering_service;
+        $this->product_service = $product_service;
         $this->events           = $events;
     }
 
@@ -73,7 +73,7 @@ class ReviewService {
     /**
      * Returns a page of reviews, optionally filtered.
      *
-     * @param array{page?: int, per_page?: int, offering_id?: int, status?: string} $args Pagination/filter args, already sanitized by the caller.
+     * @param array{page?: int, per_page?: int, product_id?: int, status?: string} $args Pagination/filter args, already sanitized by the caller.
      * @return array{data: Review[], total: int}
      */
     public function list_reviews( $args = array() ) {
@@ -95,13 +95,13 @@ class ReviewService {
      * caller sends, so a review only ever appears on the storefront after
      * an admin explicitly approves it (moderate_review()).
      *
-     * @param array{offering_id: int, customer_name?: string, customer_email?: string, rating: int, title?: string, content?: string} $data Already-sanitized input.
+     * @param array{product_id: int, customer_name?: string, customer_email?: string, rating: int, title?: string, content?: string} $data Already-sanitized input.
      * @return Review
-     * @throws \InvalidArgumentException If $data['offering_id'] doesn't reference a real offering, or $data['rating'] isn't 1-5.
+     * @throws \InvalidArgumentException If $data['product_id'] doesn't reference a real product, or $data['rating'] isn't 1-5.
      */
     public function submit_review( array $data ): Review {
-        if ( ! $this->offering_service->get_offering( $data['offering_id'] ) ) {
-            throw new \InvalidArgumentException( 'Unknown offering.' );
+        if ( ! $this->product_service->get_product( $data['product_id'] ) ) {
+            throw new \InvalidArgumentException( 'Unknown product.' );
         }
 
         $rating = (int) $data['rating'];
@@ -112,7 +112,7 @@ class ReviewService {
 
         $review = new Review(
             null,
-            $data['offering_id'],
+            $data['product_id'],
             isset( $data['customer_name'] ) ? $data['customer_name'] : null,
             isset( $data['customer_email'] ) ? $data['customer_email'] : null,
             $rating,

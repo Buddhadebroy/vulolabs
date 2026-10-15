@@ -1,38 +1,62 @@
-import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+import type { EngineView } from '../../components/EngineScreen/EngineScreen';
+import { EngineTabs } from '../../components/EngineScreen/EngineTabs';
 
 interface ShippingEngineProps {
-	/** `zones`|`packaging`|`shipments`|`returns`|`pickup` (vulocart-pro's own ShippingEngine module) - anything else falls back to the empty state below. */
+	/** `zones`|`packaging`|`shipments`|`returns`|`pickup` (vulocart-pro's Shipping Engine module) - anything else shows `zones`. */
 	view: string | null;
 }
 
-/**
- * Free owns this top-level menu's chrome only (Menu.php's own
- * `add_shipping_menu()` docblock) - same "Pro fills it in via a filtered
- * router" shape `InventoryEngine.tsx` already establishes for the
- * Inventory menu. Free's own flat-rate Shipping module has no admin
- * screen of its own (it's a Settings-tab toggle, not a page) - every real
- * view here is registered by vulocart-pro's ShippingEngine module.
- */
+const moduleId = 'shipping-engine';
+
+const views: Record< string, EngineView > = {
+	zones: {
+		title: __( 'Zones & Rates', 'vulocart' ),
+		description: __( 'Zone-matched rates layer on top of the free flat-rate/free-shipping fallback - they never replace it.', 'vulocart' ),
+		icon: 'shipping',
+		module: moduleId,
+		pro: true,
+	},
+	packaging: {
+		title: __( 'Packaging', 'vulocart' ),
+		description: __( 'Box and envelope presets used to size shipments and quote rates.', 'vulocart' ),
+		icon: 'shipping',
+		module: moduleId,
+		pro: true,
+	},
+	shipments: {
+		title: __( 'Shipments', 'vulocart' ),
+		description: __( 'Every shipment across every order. Create a new one from the order\'s own edit page.', 'vulocart' ),
+		icon: 'shipping',
+		module: moduleId,
+		pro: true,
+	},
+	returns: {
+		title: __( 'Returns', 'vulocart' ),
+		description: __( 'Request, approve or reject, receive the item, then refund.', 'vulocart' ),
+		icon: 'shipping',
+		module: moduleId,
+		pro: true,
+	},
+	pickup: {
+		title: __( 'Pickup', 'vulocart' ),
+		description: __( 'Orders fulfilled by local pickup instead of shipping.', 'vulocart' ),
+		icon: 'shipping',
+		module: moduleId,
+		pro: true,
+	},
+};
+
+const pageHeader: EngineView = {
+	title: __( 'Shipping', 'vulocart' ),
+	description: __( 'Zones and rates, packaging, shipments, returns and local pickup.', 'vulocart' ),
+	icon: 'shipping',
+	module: moduleId,
+};
+
+/** One Shipping page with a tab per area; the Shipping Engine module (vulocart-pro) registers each into `vulocart_shipping_view`. */
 export function ShippingEngine( { view }: ShippingEngineProps ) {
-	const resolvedView = view || 'zones';
-	const extra = applyFilters( 'vulocart_shipping_view', null, { view: resolvedView } );
-
-	if ( extra ) {
-		return <>{ extra }</>;
-	}
-
-	return (
-		<div className="vulocart-shipping-empty-state">
-			<h1>{ __( 'Shipping', 'vulocart' ) }</h1>
-			<p>
-				{ __(
-					'Zones, rates, packaging, shipments, labels, returns, and local pickup live in the Shipping Engine module - activate it from Modules to use this page.',
-					'vulocart'
-				) }
-			</p>
-		</div>
-	);
+	return <EngineTabs header={ pageHeader } views={ views } filterName="vulocart_shipping_view" view={ view } />;
 }
 
 export default ShippingEngine;

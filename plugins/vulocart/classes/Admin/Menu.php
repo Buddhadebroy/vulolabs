@@ -27,8 +27,8 @@ defined( 'ABSPATH' ) || exit;
  * react-frontend.md), VuloCart has no separate Free/Pro dashboard split
  * yet, so this plugin owns its own single mount point directly.
  *
- * Orders and Offerings are deliberately NOT among these tabs - see
- * add_orders_menu()'s/add_offerings_menu()'s docblocks for why both get
+ * Orders and Products are deliberately NOT among these tabs - see
+ * add_orders_menu()'s/add_products_menu()'s docblocks for why both get
  * their own top-level WP admin menu instead, matching how WooCommerce
  * gives "Products"/"Orders" their own top-level menus rather than burying
  * them in a settings-style tab set.
@@ -45,14 +45,18 @@ class Menu {
     public function __construct() {
         add_action( 'admin_menu', array( $this, 'add_menu' ) );
         add_action( 'admin_menu', array( $this, 'add_orders_menu' ) );
-        add_action( 'admin_menu', array( $this, 'add_offerings_menu' ) );
+        add_action( 'admin_menu', array( $this, 'add_products_menu' ) );
         add_action( 'admin_menu', array( $this, 'add_customers_menu' ) );
         add_action( 'admin_menu', array( $this, 'add_inventory_menu' ) );
         add_action( 'admin_menu', array( $this, 'add_shipping_menu' ) );
         add_action( 'admin_menu', array( $this, 'add_ai_menu' ) );
         add_action( 'admin_menu', array( $this, 'add_workflows_menu' ) );
-        add_action( 'admin_menu', array( $this, 'add_analytics_menu' ) );
+        add_action( 'admin_menu', array( $this, 'add_analytics_redirect' ) );
+        add_action( 'admin_menu', array( $this, 'add_marketing_menu' ) );
+        add_action( 'admin_menu', array( $this, 'order_submenu' ), 999 );
+        add_action( 'admin_menu', array( $this, 'order_marketing_submenu' ), 999 );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_script' ) );
+        add_filter( 'submenu_file', array( $this, 'highlight_current_submenu' ), 10, 2 );
     }
 
     /**
@@ -68,12 +72,12 @@ class Menu {
             'vulocart',
             array( $this, 'render_admin_page' ),
             'dashicons-cart',
-            57
+            56.8
         );
 
         $tabs = array(
             'dashboard' => __( 'Dashboard', 'vulocart' ),
-            'modules'   => __( 'Modules', 'vulocart' ),
+            'reviews'   => __( 'Reviews', 'vulocart' ),
             'settings'  => __( 'Settings', 'vulocart' ),
         );
 
@@ -97,6 +101,92 @@ class Menu {
     }
 
     /**
+     * Puts the VuloCart submenu in its intended order. The entries are registered by separate methods (and Pro
+     * adds more), so registration order alone cannot give this order; this runs after all of them.
+     * Anything not listed (an entry a Pro module adds) sits just before Settings.
+     *
+     * @return void
+     */
+    public function order_submenu() {
+        global $submenu;
+
+        if ( empty( $submenu['vulocart'] ) ) {
+            return;
+        }
+
+        $order = array(
+            'vulocart#&tab=dashboard',
+            'vulocart-ai',
+            'vulocart-workflows',
+            'vulocart-inventory',
+            'vulocart-shipping',
+            'vulocart#&tab=reviews',
+        );
+
+        $last = 'vulocart#&tab=settings';
+        $rank = static function ( $item ) use ( $order, $last ) {
+            $position = array_search( $item[2], $order, true );
+
+            if ( false !== $position ) {
+                return $position;
+            }
+
+            return $last === $item[2] ? 1000 : 500;
+        };
+
+        $items = array_values( $submenu['vulocart'] );
+
+        usort(
+            $items,
+            static function ( $a, $b ) use ( $rank ) {
+                return $rank( $a ) <=> $rank( $b );
+            }
+        );
+
+        $submenu['vulocart'] = $items; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- reordering core's own menu array is the supported way to order submenus.
+    }
+
+    /**
+     * Tidies the Marketing submenu, whose entries are all added by vulocart-pro modules. Drops the item
+     * add_menu_page() generates from the menu title ("Marketing", which only showed Coupons a second time)
+     * and puts the rest in order: promotions, then recovery, then checkout tools. An entry not listed sits last.
+     *
+     * @return void
+     */
+    public function order_marketing_submenu() {
+        global $submenu;
+
+        if ( empty( $submenu['vulocart-marketing'] ) ) {
+            return;
+        }
+
+        $order = array( 'coupons', 'pricing-rules', 'gift-cards', 'abandoned-checkouts', 'checkout-links' );
+        $rank  = static function ( $item ) use ( $order ) {
+            $position = array_search( str_replace( 'vulocart-marketing&view=', '', $item[2] ), $order, true );
+
+            return false === $position ? 500 : $position;
+        };
+
+        $items = array_values(
+            array_filter(
+                $submenu['vulocart-marketing'],
+                static function ( $item ) {
+                    return 'vulocart-marketing' !== $item[2];
+                }
+            )
+        );
+
+        usort(
+            $items,
+            static function ( $a, $b ) use ( $rank ) {
+                return $rank( $a ) <=> $rank( $b );
+            }
+        );
+
+        $submenu['vulocart-marketing'] = $items; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- see order_submenu().
+    }
+
+    /**
      * Registers Orders as its own dedicated top-level WP admin menu,
      * separate from the "VuloCart" menu above. Order management is
      * explicitly called out (per this plugin's admin-UX brief) as
@@ -106,15 +196,10 @@ class Menu {
      * top-level menus, and a marketplace platform gives its own marketplace
      * admin.
      *
-     * "All Orders"/"Draft Orders"/"Refunds"/"Add New" are real submenus now
-     * - Order\Domain\FulfillmentStatus::DRAFT and Order\Domain\
-     * PaymentStatus::REFUNDED gave Draft Orders/Refunds a real backing
-     * value to filter on (same `&filter=`/`&action=add` query-string-on-
-     * one-slug technique add_offerings_menu() already uses, not three more
-     * registered WP pages). Returns/Invoices/Shipments still have no
-     * backing domain model (no returns/invoicing/shipping module exists),
-     * so they're still not scaffolded here - same reasoning as before,
-     * just a shorter list now that two of the five have real support.
+     * "All Orders" and "Add New" are the only submenus. Draft and refunded
+     * orders are reached with the status pills on the orders list itself
+     * (`&filter=draft`/`&filter=refunds` still preselect them), not their
+     * own menu items.
      *
      * @return void
      */
@@ -126,7 +211,7 @@ class Menu {
             'vulocart-orders',
             array( $this, 'render_orders_admin_page' ),
             'dashicons-list-view',
-            58
+            56.4
         );
 
         add_submenu_page(
@@ -146,46 +231,28 @@ class Menu {
             'vulocart-orders&action=add',
             array( $this, 'render_orders_admin_page' )
         );
-
-        add_submenu_page(
-            'vulocart-orders',
-            __( 'Draft Orders', 'vulocart' ),
-            __( 'Draft Orders', 'vulocart' ),
-            'manage_options',
-            'vulocart-orders&filter=draft',
-            array( $this, 'render_orders_admin_page' )
-        );
-
-        add_submenu_page(
-            'vulocart-orders',
-            __( 'Refunds', 'vulocart' ),
-            __( 'Refunds', 'vulocart' ),
-            'manage_options',
-            'vulocart-orders&filter=refunds',
-            array( $this, 'render_orders_admin_page' )
-        );
     }
 
     /**
-     * Registers Offerings as its own dedicated top-level WP admin menu,
+     * Registers Products as its own dedicated top-level WP admin menu,
      * separate from the "VuloCart" menu - same treatment as
      * add_orders_menu(), and for the same reason (this plugin's admin-UX
      * brief calls for WooCommerce/Shopify-style dedicated top-level spaces,
      * not one more settings-style tab).
      *
-     * "All Offerings" and "Add New" both point at the same
-     * `vulocart-offerings` slug (the `&action=add` suffix on the second is
+     * "All Products" and "Add New" both point at the same
+     * `vulocart-products` slug (the `&action=add` suffix on the second is
      * a query-string addition, not a distinct WP page - same technique
      * WooCommerce itself uses so `admin.php?page=wc-orders`,
      * `...&action=new`, and `...&action=edit&id=123` are all one
      * registered admin page differentiated by query args the client reads,
      * rather than three separate `add_menu_page()`-registered screens).
-     * Categories/Collections/Brands/Tags/Attributes/Offering Types/Inventory/
+     * Categories/Collections/Brands/Tags/Attributes/Product Types/Inventory/
      * Reviews use the same one-slug-many-query-strings technique via
      * `&view=`, now that each has a real backing REST controller
      * (classes/RestAPI/Controllers/Terms.php/Attributes.php/Reviews.php/
-     * Inventory.php/OfferingTypes.php) and admin page (`src/pages/Terms/`,
-     * `src/pages/Attributes/`, etc.) - `src/pages/Offerings/Offerings.tsx`
+     * Inventory.php/ProductTypes.php) and admin page (`src/pages/Terms/`,
+     * `src/pages/Attributes/`, etc.) - `src/pages/Products/Products.tsx`
      * is what actually branches on `action`/`id`/`view` to decide which
      * one renders. Returns is the one item from this plugin's admin-UX
      * brief still not scaffolded - a genuine RMA workflow (request →
@@ -194,33 +261,33 @@ class Menu {
      *
      * @return void
      */
-    public function add_offerings_menu() {
+    public function add_products_menu() {
         add_menu_page(
-            __( 'VuloCart Offerings', 'vulocart' ),
-            __( 'Offerings', 'vulocart' ),
+            __( 'VuloCart Products', 'vulocart' ),
+            __( 'Products', 'vulocart' ),
             'manage_options',
-            'vulocart-offerings',
-            array( $this, 'render_offerings_admin_page' ),
+            'vulocart-products',
+            array( $this, 'render_products_admin_page' ),
             'dashicons-archive',
-            59
+            56.1
         );
 
         add_submenu_page(
-            'vulocart-offerings',
-            __( 'All Offerings', 'vulocart' ),
-            __( 'All Offerings', 'vulocart' ),
+            'vulocart-products',
+            __( 'All Products', 'vulocart' ),
+            __( 'All Products', 'vulocart' ),
             'manage_options',
-            'vulocart-offerings',
-            array( $this, 'render_offerings_admin_page' )
+            'vulocart-products',
+            array( $this, 'render_products_admin_page' )
         );
 
         add_submenu_page(
-            'vulocart-offerings',
+            'vulocart-products',
             __( 'Add New', 'vulocart' ),
             __( 'Add New', 'vulocart' ),
             'manage_options',
-            'vulocart-offerings&action=add',
-            array( $this, 'render_offerings_admin_page' )
+            'vulocart-products&action=add',
+            array( $this, 'render_products_admin_page' )
         );
 
         $sub_views = array(
@@ -229,19 +296,17 @@ class Menu {
             'brands'         => __( 'Brands', 'vulocart' ),
             'tags'           => __( 'Tags', 'vulocart' ),
             'attributes'     => __( 'Attributes', 'vulocart' ),
-            'offering-types' => __( 'Offering Types', 'vulocart' ),
-            'inventory'      => __( 'Inventory', 'vulocart' ),
-            'reviews'        => __( 'Reviews', 'vulocart' ),
+            'product-types' => __( 'Product Types', 'vulocart' ),
         );
 
         foreach ( $sub_views as $slug => $label ) {
             add_submenu_page(
-                'vulocart-offerings',
+                'vulocart-products',
                 $label,
                 $label,
                 'manage_options',
-                'vulocart-offerings&view=' . $slug,
-                array( $this, 'render_offerings_admin_page' )
+                'vulocart-products&view=' . $slug,
+                array( $this, 'render_products_admin_page' )
             );
         }
     }
@@ -249,12 +314,12 @@ class Menu {
     /**
      * Registers Customers as its own dedicated top-level WP admin menu -
      * same "deserves first-class space, not a settings-style tab"
-     * treatment `add_orders_menu()`/`add_offerings_menu()`'s own
+     * treatment `add_orders_menu()`/`add_products_menu()`'s own
      * docblocks establish, now that `Customer\Domain\Customer` is a real
      * persistent entity (`Customer\Install.php`) rather than an
      * Order-row snapshot with nothing to list on its own. `Pro modules
      * extend this screen's own detail view the same "compose via filter"
-     * way they extend the Offerings edit page
+     * way they extend the Products edit page
      * (`vulocart_customer_detail_sections`, `src/pages/Customers/
      * CustomerDetail.tsx`) - Wishlist/Saved Carts/Groups/Segments/
      * Loyalty-Credits-Wallet/Communication History all live in
@@ -270,7 +335,7 @@ class Menu {
             'vulocart-customers',
             array( $this, 'render_customers_admin_page' ),
             'dashicons-groups',
-            60
+            56.5
         );
 
         add_submenu_page(
@@ -286,7 +351,7 @@ class Menu {
     /**
      * Registers Inventory as its own dedicated top-level WP admin menu -
      * same "deserves first-class space, not a settings-style tab"
-     * treatment `add_orders_menu()`/`add_offerings_menu()`/
+     * treatment `add_orders_menu()`/`add_products_menu()`/
      * `add_customers_menu()`'s own docblocks establish. Unlike Customers,
      * this plugin owns no Inventory-engine entity of its own - Warehouses/
      * Purchase Orders/Transfers/Reservations/Batch & Serial Tracking/
@@ -294,23 +359,25 @@ class Menu {
      * "Free owns top-level chrome, Pro fills it in via a filtered router"
      * split `add_customers_menu()`'s own docblock documents for
      * CustomerGrowth. This is distinct from the existing
-     * `vulocart-offerings&view=inventory` sub-page (a simple bulk stock-
-     * quantity/status editor scoped to one offering at a time,
+     * `vulocart-products&view=inventory` sub-page (a simple bulk stock-
+     * quantity/status editor scoped to one product at a time,
      * RestAPI\Controllers\Inventory.php) - that page is left untouched;
      * this top-level menu is for the warehouse-aware engine sitting above
      * it, not a replacement.
      *
+     * Inventory is one submenu of VuloCart; stock levels, warehouses, suppliers, purchase orders and the rest are
+     * tabs on that page (`&view=`), filled in by `vulocart-pro` through `vulocart_inventory_view`.
+     *
      * @return void
      */
     public function add_inventory_menu() {
-        add_menu_page(
+        add_submenu_page(
+            'vulocart',
             __( 'VuloCart Inventory', 'vulocart' ),
             __( 'Inventory', 'vulocart' ),
             'manage_options',
             'vulocart-inventory',
-            array( $this, 'render_inventory_admin_page' ),
-            'dashicons-store',
-            61
+            array( $this, 'render_inventory_admin_page' )
         );
     }
 
@@ -325,97 +392,112 @@ class Menu {
      * `ShippingService::get_available_methods()` via the
      * `vulocart_shipping_methods` filter rather than replacing it.
      *
+     * Shipping is one submenu of VuloCart; zones, packaging, shipments, returns and pickup are tabs on that
+     * page (`&view=`), filled in by `vulocart-pro`'s ShippingEngine module through `vulocart_shipping_view`.
+     *
      * @return void
      */
     public function add_shipping_menu() {
-        add_menu_page(
+        add_submenu_page(
+            'vulocart',
             __( 'VuloCart Shipping', 'vulocart' ),
             __( 'Shipping', 'vulocart' ),
             'manage_options',
             'vulocart-shipping',
-            array( $this, 'render_shipping_admin_page' ),
-            'dashicons-car',
-            62
+            array( $this, 'render_shipping_admin_page' )
         );
     }
 
     /**
-     * Registers AI as its own dedicated top-level WP admin menu - same
-     * "Free owns top-level chrome, Pro fills it in" split
-     * `add_inventory_menu()`'s own docblock documents. Free's own `Ai`
-     * module owns the "Settings" sub-page (BYOK provider key
-     * configuration, `Ai\Module::register_menu()`); `vulocart-pro`'s
-     * CatalogAi/CheckoutAi/SupportAi/VectorSearch modules each register
-     * their own submenu here the same way ShippingEngine registers
-     * Zones/Packaging/Shipments/Returns/Pickup under `add_shipping_menu()`.
+     * Registers AI as a single submenu of VuloCart (it used to be its own top-level menu with a submenu per
+     * feature). The page slug stays `vulocart-ai`, so `&view=catalog|checkout|support|search` links and
+     * bookmarks keep working - those are now tabs on this one page. Free owns the frame; each tab is
+     * `vulocart-pro`'s CatalogAi/CheckoutAi/SupportAi/VectorSearch module, plugged into `vulocart_ai_view`.
      *
      * @return void
      */
     public function add_ai_menu() {
-        add_menu_page(
+        add_submenu_page(
+            'vulocart',
             __( 'VuloCart AI', 'vulocart' ),
             __( 'AI', 'vulocart' ),
             'manage_options',
             'vulocart-ai',
-            array( $this, 'render_ai_admin_page' ),
-            'dashicons-star-filled',
-            63
+            array( $this, 'render_ai_admin_page' )
         );
     }
 
     /**
-     * Registers Workflows as its own dedicated top-level WP admin menu -
-     * same "Free owns top-level chrome, Pro fills it in" split
-     * `add_ai_menu()`'s own docblock documents. `vulocart-pro`'s own
-     * WorkflowBuilder module registers "Workflows"/"Runs" submenus here;
-     * unlike AI's own Settings sub-page, Free owns no real view of its
-     * own on this menu - every trigger/action this feature reacts to or
-     * performs is Pro (WorkflowBuilder\Module's own docblock).
+     * Registers Workflows as a submenu of VuloCart (it used to be its own top-level menu). The page slug
+     * stays `vulocart-workflows`, so the editor/runs links (`&view=edit|runs&id=`) and bookmarks keep
+     * working. Free owns no view here - the list, editor and run history are `vulocart-pro`'s
+     * WorkflowBuilder module, which plugs into `vulocart_workflows_view`.
      *
      * @return void
      */
     public function add_workflows_menu() {
-        add_menu_page(
+        add_submenu_page(
+            'vulocart',
             __( 'VuloCart Workflows', 'vulocart' ),
             __( 'Workflows', 'vulocart' ),
             'manage_options',
             'vulocart-workflows',
-            array( $this, 'render_workflows_admin_page' ),
-            'dashicons-networking',
-            64
+            array( $this, 'render_workflows_admin_page' )
         );
     }
 
     /**
-     * Registers Analytics as its own dedicated top-level WP admin menu -
-     * same "Free owns top-level chrome, Pro fills it in" split
-     * `add_ai_menu()`/`add_workflows_menu()`'s own docblocks document.
-     * Free owns no view of its own here at all (same as Workflows) -
-     * every real section (Sales/Revenue/Customers/Offerings/Funnels/
-     * Abandonment/Conversion/LTV/Retention/Inventory/AI Insights/
-     * Forecasts) is `vulocart-pro`'s own Analytics module.
+     * Analytics is part of the Dashboard page now (its Pro insights section, src/pages/Dashboard/), not a page of its own. The old slug stays
+     * registered as a hidden page (no parent, so no menu entry) whose `load-` hook sends old links and bookmarks to
+     * the Dashboard; WordPress would otherwise refuse the unknown slug before any `admin_init` redirect could run.
      *
      * @return void
      */
-    public function add_analytics_menu() {
-        add_menu_page(
-            __( 'VuloCart Analytics', 'vulocart' ),
-            __( 'Analytics', 'vulocart' ),
-            'manage_options',
-            'vulocart-analytics',
-            array( $this, 'render_analytics_admin_page' ),
-            'dashicons-chart-area',
-            65
+    public function add_analytics_redirect() {
+        $hook = add_submenu_page( '', __( 'VuloCart Analytics', 'vulocart' ), '', 'manage_options', 'vulocart-analytics', '__return_null' );
+
+        add_action(
+            'load-' . $hook,
+            static function () {
+                wp_safe_redirect( admin_url( 'admin.php?page=vulocart#&tab=dashboard' ) );
+                exit;
+            }
         );
     }
 
     /**
-     * Renders the mount point the React bundle attaches to.
+     * Registers Marketing as its own top-level WP admin menu - same "Free owns top-level chrome, Pro
+     * fills it in" split as `add_ai_menu()`/`add_workflows_menu()`. Free owns no view here; Coupons,
+     * Pricing Rules, Gift Cards, Cart Abandoned, Checkout Links and Checkout Builder are each
+     * `vulocart-pro`'s own module, which registers its submenu under `vulocart-marketing`
+     * (ordered by order_marketing_submenu()).
+     *
+     * @return void
+     */
+    public function add_marketing_menu() {
+        add_menu_page(
+            __( 'VuloCart Marketing', 'vulocart' ),
+            __( 'Marketing', 'vulocart' ),
+            'manage_options',
+            'vulocart-marketing',
+            array( $this, 'render_marketing_admin_page' ),
+            'dashicons-megaphone',
+            56.7
+        );
+    }
+
+    /**
+     * Renders the mount point the React bundle attaches to. Same id+class
+     * `admin-main-wrapper` vulopilot's own Admin.php uses for its
+     * equivalent root div - zyra's shared `common.scss` keys several
+     * layout rules (full-height page, `#wpcontent` padding/background
+     * reset) off that exact id, so a different id here silently drops
+     * those rules rather than just losing a class hook.
      *
      * @return void
      */
     public function render_admin_page() {
-        echo '<div id="vulocart-admin-root"></div>';
+        echo '<div id="admin-main-wrapper" class="admin-main-wrapper"></div>';
     }
 
     /**
@@ -431,14 +513,14 @@ class Menu {
     }
 
     /**
-     * Renders the mount point for the standalone Offerings admin app - see
+     * Renders the mount point for the standalone Products admin app - see
      * render_orders_admin_page()'s docblock for why this is a separate
      * root element id rather than reusing render_admin_page()'s.
      *
      * @return void
      */
-    public function render_offerings_admin_page() {
-        echo '<div id="vulocart-offerings-admin-root"></div>';
+    public function render_products_admin_page() {
+        echo '<div id="vulocart-products-admin-root"></div>';
     }
 
     /**
@@ -486,14 +568,13 @@ class Menu {
     }
 
     /**
-     * Renders the mount point for the standalone Analytics admin app -
-     * see render_orders_admin_page()'s docblock for why this is a
-     * separate root element id.
+     * Renders the mount point for the standalone Marketing admin app - see
+     * render_orders_admin_page()'s docblock for why this is a separate root element id.
      *
      * @return void
      */
-    public function render_analytics_admin_page() {
-        echo '<div id="vulocart-analytics-admin-root"></div>';
+    public function render_marketing_admin_page() {
+        echo '<div id="vulocart-marketing-admin-root"></div>';
     }
 
     /**
@@ -508,6 +589,54 @@ class Menu {
     }
 
     /**
+     * Keeps the right submenu item highlighted on `?page=vulocart-x&view=y`
+     * (and `&action=add`) screens. Every such item is registered with a slug
+     * like `vulocart-products&view=collections`, but WordPress matches the
+     * active item against `$_GET['page']` alone - which never equals that
+     * slug - so it falls back to the first item ("All Products") and the
+     * page you're on never looks selected. Returns the registered slug that
+     * matches the current `view`/`action`, when one exists.
+     *
+     * @param string|null $submenu_file Submenu file WordPress resolved.
+     * @param string      $parent_file  Parent menu file.
+     * @return string|null
+     */
+    public function highlight_current_submenu( $submenu_file, $parent_file ) {
+        global $submenu;
+
+        $page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page-identity check.
+
+        if ( '' === $page || 0 !== strpos( $page, 'vulocart' ) || empty( $submenu[ $page ] ) ) {
+            return $submenu_file;
+        }
+
+        $candidates = array();
+
+        if ( isset( $_GET['view'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            $candidates[] = $page . '&view=' . sanitize_key( wp_unslash( $_GET['view'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        }
+
+        if ( isset( $_GET['action'] ) && 'add' === sanitize_key( wp_unslash( $_GET['action'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            $candidates[] = $page . '&action=add';
+        }
+
+        $registered = wp_list_pluck( $submenu[ $page ], 2 );
+
+        foreach ( $candidates as $candidate ) {
+            if ( in_array( $candidate, $registered, true ) ) {
+                return $candidate;
+            }
+        }
+
+        // Marketing has no item for its bare page (order_marketing_submenu() drops it); that page shows Coupons.
+        if ( 'vulocart-marketing' === $page && ! in_array( $page, $registered, true ) && in_array( 'vulocart-marketing&view=coupons', $registered, true ) ) {
+            return 'vulocart-marketing&view=coupons';
+        }
+
+        return $submenu_file;
+    }
+
+    /**
      * Enqueues the React admin bundle on VuloCart's own screen only, and
      * localizes `vulocartLocalizer` - a plugin-own global, deliberately
      * not reusing `appLocalizer` (a different plugin's shape). Shape is
@@ -517,33 +646,33 @@ class Menu {
      * those exact property names (verified against the zyra package's
      * real build output, not assumed).
      *
-     * Runs on VuloCart's own screen and both standalone Orders/Offerings
-     * screens (render_orders_admin_page()/render_offerings_admin_page()) -
+     * Runs on VuloCart's own screen and both standalone Orders/Products
+     * screens (render_orders_admin_page()/render_products_admin_page()) -
      * all three mount the exact same built bundle; src/index.tsx itself
      * decides which app to render based on which root element id is
-     * present in the page (`#vulocart-admin-root` vs
-     * `#vulocart-orders-admin-root` vs `#vulocart-offerings-admin-root`),
+     * present in the page (`#admin-main-wrapper` vs
+     * `#vulocart-orders-admin-root` vs `#vulocart-products-admin-root`),
      * so there's no need for a second/third webpack entry/bundle just to
-     * give Orders/Offerings their own top-level menus.
+     * give Orders/Products their own top-level menus.
      *
      * Gated on `$_GET['page']`, NOT `$hook_suffix` - a query string like
-     * `&action=add` on the Offerings top-level page itself doesn't change
+     * `&action=add` on the Products top-level page itself doesn't change
      * either one (same page, same hook), but a Pro module's own
-     * `add_submenu_page( 'vulocart-offerings', ..., 'vulocart-offerings&view=xyz',
+     * `add_submenu_page( 'vulocart-products', ..., 'vulocart-products&view=xyz',
      * ... )` (Suppliers/CheckoutLinks/Subscriptions/Passport/etc. - every
-     * "Pro extends the Offerings menu" registration in this codebase) is a
+     * "Pro extends the Products menu" registration in this codebase) is a
      * genuinely SEPARATE submenu-page registration, and WordPress's own
      * `get_plugin_page_hookname()` hashes that entire literal
-     * `'vulocart-offerings&view=xyz'` string into a hook suffix like
-     * `admin_page_vulocart-offerings&view=xyz` - never
-     * `toplevel_page_vulocart-offerings`. An `in_array( $hook_suffix, ... )`
+     * `'vulocart-products&view=xyz'` string into a hook suffix like
+     * `admin_page_vulocart-products&view=xyz` - never
+     * `toplevel_page_vulocart-products`. An `in_array( $hook_suffix, ... )`
      * check here silently never matches any of those pages, so this
-     * bundle (and therefore the entire React app, `#vulocart-offerings-admin-root`
+     * bundle (and therefore the entire React app, `#vulocart-products-admin-root`
      * included) never loads on them - a real bug that shipped invisibly
      * because nothing in this codebase's own test coverage ever loaded
      * these admin screens in an actual browser, only their REST endpoints
      * directly. `$_GET['page']` has no such problem: WordPress always
-     * parses it as the plain `vulocart-offerings` string regardless of
+     * parses it as the plain `vulocart-products` string regardless of
      * what a submenu's own registered slug looked like, since query
      * strings are parsed independently of how the menu system computed
      * its internal hook name.
@@ -553,15 +682,15 @@ class Menu {
      */
     public function enqueue_admin_script( $hook_suffix ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
         $current_page   = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page-identity check, not a state-changing request.
-        $vulocart_pages = array( 'vulocart', 'vulocart-orders', 'vulocart-offerings', 'vulocart-customers', 'vulocart-inventory', 'vulocart-shipping', 'vulocart-ai', 'vulocart-workflows', 'vulocart-analytics' );
+        $vulocart_pages = array( 'vulocart', 'vulocart-orders', 'vulocart-products', 'vulocart-customers', 'vulocart-inventory', 'vulocart-shipping', 'vulocart-ai', 'vulocart-workflows', 'vulocart-marketing' );
 
         if ( ! in_array( $current_page, $vulocart_pages, true ) ) {
             return;
         }
 
         // Registers `wp.media()` (media-views/media-editor + the attachment
-        // browser markup) - the Offering edit page's Featured Image/Gallery
-        // fields (zyra's `FileInput`, OfferingEdit.tsx) call `wp.media()`
+        // browser markup) - the Product edit page's Featured Image/Gallery
+        // fields (zyra's `FileInput`, ProductEdit.tsx) call `wp.media()`
         // directly, same real WordPress media-library integration every
         // other admin screen with an image picker uses; without this call
         // registered, `wp.media` is simply undefined on the page.
@@ -622,11 +751,18 @@ class Menu {
                 'adminUrl'       => esc_url_raw( admin_url() ),
                 'active_modules' => VuloCart()->modules->get_active_modules(),
                 'khali_dabba'    => VuloCart()->util->is_khali_dabba(),
+                'disabled_product_types' => \VuloCart\RestAPI\Controllers\ProductTypes::disabled_types(),
                 'version'        => VuloCart()->version,
                 'pro_version'    => defined( 'VULOCART_PRO_PLUGIN_VERSION' ) ? VULOCART_PRO_PLUGIN_VERSION : null,
                 'active_plugins' => get_option( 'active_plugins', array() ),
                 'shop_url'       => defined( 'VULOCART_PRO_SHOP_URL' ) ? VULOCART_PRO_SHOP_URL : '',
                 'site_url'       => esc_url_raw( site_url() ),
+                'user_display_name' => wp_get_current_user()->display_name,
+                // Settings → General date/time format (PHP `date()` syntax) and timezone as a minute offset from UTC;
+                // services/formatWpDate.ts formats every date the admin shows with them.
+                'date_format'        => get_option( 'date_format' ),
+                'time_format'        => get_option( 'time_format' ),
+                'gmt_offset_minutes' => (int) round( wp_timezone()->getOffset( new \DateTime( 'now', new \DateTimeZone( 'UTC' ) ) ) / 60 ),
             )
         );
     }

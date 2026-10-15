@@ -23,11 +23,20 @@ defined( 'ABSPATH' ) || exit;
  * route's `permission_callback`. Order-scoped capture/refund/cancel stay
  * `manage_options`-gated, same as every other order-management route.
  *
+ * Extends `\WP_REST_Controller` to match vulopilot's REST convention; no
+ * collision - this class declares no `prepare_item_for_response()` (or any
+ * other base-class method name) at all, let alone a private one.
+ *
  * @class       Rest class
  * @version     1.0.0
  * @author      VuloLabs
  */
-class Rest {
+class Rest extends \WP_REST_Controller {
+
+    /**
+     * @var string
+     */
+    protected $rest_base = 'payment';
 
     /**
      * Rest constructor.

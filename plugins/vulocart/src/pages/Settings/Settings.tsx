@@ -10,6 +10,7 @@ import { CardComponent, NavigatorComponent } from '@zyra/components';
 import { SettingProvider, useSetting } from '../../contexts/SettingContext';
 import { getTemplateData } from '../../services/templateService';
 import Popup from '../../components/Popup/Popup';
+import ModulesPanel from '../../components/Settings/ModulesPanel';
 
 /**
  * Ported from `vulopilot/src/pages/Settings/Settings.tsx`'s flat-option
@@ -48,7 +49,9 @@ const Settings = () => {
 			.finally( () => setIsLoading( false ) );
 	};
 
-	useEffect( loadSettings, [] );
+	useEffect( () => {
+		loadSettings();
+	}, [] );
 
 	const GetForm = ( currentTab: string | null ): JSX.Element | null => {
 		// Every hook this function uses must run on every call regardless
@@ -63,7 +66,7 @@ const Settings = () => {
 		// credential fields onto the Payments tab, for instance) append
 		// fields to an existing tab without this plugin knowing that
 		// module exists - same "compose-many, filter-context-routed"
-		// shape `vulocart_offering_edit_sections` already establishes.
+		// shape `vulocart_product_edit_sections` already establishes.
 		// Applied here (at render time), not inside the tab's own static
 		// `src/settings/*.ts` file - those are collected via a
 		// `require.context` that runs eagerly on script load, before a
@@ -81,13 +84,20 @@ const Settings = () => {
 			( field: { key: string } ) => field.key
 		);
 
-		if ( currentTab && settingName !== currentTab ) {
-			const tabFields: Record< string, unknown > = {};
-			fieldKeys.forEach( ( key ) => {
-				tabFields[ key ] = settingsRef.current[ key ];
-			} );
-			setSetting( currentTab, tabFields );
-		}
+		// Was a synchronous `setSetting()` call made straight in the render
+		// body - triggers React's "Cannot update a component while
+		// rendering a different component" warning and a visible
+		// double-render flash when switching tabs. Matches vulopilot's own
+		// Settings.tsx docblock on this exact point.
+		useEffect( () => {
+			if ( currentTab && settingName !== currentTab ) {
+				const tabFields: Record< string, unknown > = {};
+				fieldKeys.forEach( ( key ) => {
+					tabFields[ key ] = settingsRef.current[ key ];
+				} );
+				setSetting( currentTab, tabFields );
+			}
+		}, [ currentTab, settingName ] );
 
 		useEffect( () => {
 			if ( currentTab && settingName === currentTab ) {
@@ -99,15 +109,42 @@ const Settings = () => {
 			return null;
 		}
 
+		// Modules moved inside Settings as its own subtab (settings/Modules.ts)
+		// - same special-cased branch vulopilot's own Settings.tsx uses for its
+		// identically-migrated Modules tab, rather than the generic
+		// PanelComponent escape hatch below (ModulesPanel predates that
+		// mechanism and has its own NavigatorHeaderComponent already).
+		if ( 'modules' === currentTab ) {
+			return <ModulesPanel />;
+		}
+
+		// Pro's escape hatch for a tab that needs a fully custom
+		// component instead of InputRenderer's declarative field schema
+		// (e.g. vulocart-pro's Licensing tab) - same mechanism vulopilot's
+		// own Settings.tsx establishes.
+		if ( settingModal?.PanelComponent ) {
+			const PanelComponent = settingModal.PanelComponent;
+			return <PanelComponent />;
+		}
+
 		return (
 			<>
 				{ settingName === currentTab ? (
+					<>
 					<InputRenderer
 						settings={ settingModal }
 						setting={ setting }
 						updateSetting={ updateSetting }
 						Popup={ Popup }
+						// Per-tab opt-in (General.ts's own `groupBySections: true` is the
+						// first) into InputRenderer's card-grouped layout - same mechanism
+						// vulopilot's own Settings.tsx uses.
+						groupBySections={ settingModal?.groupBySections }
 					/>
+					{ /* A section that isn't a field list (e.g. Integrations' VuloCloud AI connection) is
+					      drawn after the declarative ones. */ }
+					{ settingModal?.AfterComponent && <settingModal.AfterComponent /> }
+					</>
 				) : (
 					<>{ __( 'Loading…', 'vulocart' ) }</>
 				) }
@@ -139,7 +176,10 @@ const Settings = () => {
 				appLocalizer={ vulocartLocalizer }
 				Link={ Link }
 				settingName="Settings"
-				className="vulocart-settings"
+				// `admin-settings` is the class zyra scopes the settings spacing under (form-group padding,
+				// section rows) - VuloPilot and VuloMail pass it for the same reason; without it the fields
+				// sit flush against their labels and the row edges.
+				className="admin-settings vulocart-settings"
 				menuIcon
 			/>
 		</SettingProvider>

@@ -1,0 +1,98 @@
+.vulocart-views-menu {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+}
+
+// The header's custom-content slot: no extra width or padding around the dots.
+.title-custom-section:has(> .vulocart-views-menu) {
+	flex: none;
+	width: auto;
+	margin: 0;
+	padding: 0;
+}
+
+.vulocart-views-menu-button {
+	display: grid;
+	place-items: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	padding: 0;
+	border: 1px solid #e3e6ef;
+	border-radius: 50%;
+	background: #fff;
+	color: #6b7280;
+	cursor: pointer;
+
+	&:hover,
+	&[aria-expanded='true'] {
+		border-color: var(--color-primary, #5007aa);
+		color: var(--color-primary, #5007aa);
+	}
+}
+
+.vulocart-views-menu-panel {
+	position: absolute;
+	top: calc(100% + 0.375rem);
+	right: 0;
+	z-index: 40;
+	min-width: 13rem;
+	padding: 0.375rem;
+	border: 1px solid #e3e6f0;
+	border-radius: 0.75rem;
+	background: #fff;
+	box-shadow: 0 12px 32px rgba(31, 27, 62, 0.16), 0 2px 6px rgba(31, 27, 62, 0.06);
+}
+
+.vulocart-views-menu-label {
+	padding: 0.5rem 0.5rem 0.125rem;
+	font-size: 0.625rem;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: #9ca3af;
+}
+
+.vulocart-views-menu-row {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.3125rem 0.5rem;
+	border-radius: 0.375rem;
+	font-size: 0.8125rem;
+	cursor: pointer;
+
+	&:hover {
+		background: #f7f8fc;
+	}
+
+	&.is-main {
+		font-weight: 600;
+	}
+
+	&.is-disabled {
+		opacity: 0.5;
+		cursor: default;
+	}
+}
+
+.vulocart-views-menu-restore {
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
+	width: 100%;
+	margin-top: 0.375rem;
+	padding: 0.4375rem 0.5rem;
+	border: 0;
+	border-top: 1px solid #f0f1f6;
+	background: transparent;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: var(--color-primary, #5007aa);
+	cursor: pointer;
+
+	&:disabled {
+		color: #9ca3af;
+		cursor: default;
+	}
+}

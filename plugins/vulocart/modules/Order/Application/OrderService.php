@@ -7,7 +7,7 @@
 
 namespace VuloCart\Order\Application;
 
-use VuloCart\Application\OfferingService;
+use VuloCart\Application\ProductService;
 use VuloCart\Cart\Application\CartService;
 use VuloCart\Events\EventDispatcher;
 use VuloCart\Order\Domain\FulfillmentStatus;
@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Where Order business logic actually lives - Rest calls only this class.
  * Depends on the Cart module's own CartService (to read + clear the
- * source cart) and the core plugin's OfferingService (to snapshot each line
+ * source cart) and the core plugin's ProductService (to snapshot each line
  * item's title at order-creation time) - a real, deliberate cross-module
  * dependency: Order genuinely cannot function without Cart, which is why
  * Module::is_compatible() gates this module's own availability on Cart
@@ -55,9 +55,9 @@ class OrderService {
     /**
      * Used to snapshot each line item's title at order-creation time.
      *
-     * @var OfferingService
+     * @var ProductService
      */
-    private $offering_service;
+    private $product_service;
 
     /**
      * Broadcasts what happened after each mutation.
@@ -71,18 +71,18 @@ class OrderService {
      *
      * @param OrderRepositoryInterface $repository    Resolved via VuloCart's ServiceContainer, not `new`d directly.
      * @param CartService              $cart_service   Used to read a cart's current items and clear it once converted.
-     * @param OfferingService          $offering_service  Used to snapshot each line item's title at order-creation time.
+     * @param ProductService          $product_service  Used to snapshot each line item's title at order-creation time.
      * @param EventDispatcher          $events         Broadcasts what happened; never decides what should happen.
      */
     public function __construct(
         OrderRepositoryInterface $repository,
         CartService $cart_service,
-        OfferingService $offering_service,
+        ProductService $product_service,
         EventDispatcher $events
     ) {
         $this->repository       = $repository;
         $this->cart_service     = $cart_service;
-        $this->offering_service = $offering_service;
+        $this->product_service = $product_service;
         $this->events           = $events;
     }
 
@@ -164,7 +164,7 @@ class OrderService {
 
     /**
      * Builds `ShippingService::calculate_cost()`'s own optional
-     * `$context` - same cart-weight-summed-from-Offering-meta shape
+     * `$context` - same cart-weight-summed-from-Product-meta shape
      * `Shipping\Rest::build_context()` computes for the pre-order
      * `GET /shipping/methods` call, just resolved from the cart/address
      * this method already has in hand rather than a fresh REST request.
@@ -184,10 +184,10 @@ class OrderService {
         $weight = 0.0;
 
         foreach ( $cart->items as $cart_item ) {
-            $offering = $this->offering_service->get_offering( $cart_item->offering_id );
+            $product = $this->product_service->get_product( $cart_item->product_id );
 
-            if ( $offering && ! empty( $offering->meta['weight'] ) ) {
-                $weight += (float) $offering->meta['weight'] * (int) $cart_item->quantity;
+            if ( $product && ! empty( $product->meta['weight'] ) ) {
+                $weight += (float) $product->meta['weight'] * (int) $cart_item->quantity;
             }
         }
 
@@ -296,17 +296,18 @@ class OrderService {
         $order = $this->repository->insert( $order );
 
         foreach ( $cart->items as $cart_item ) {
-            $offering = $this->offering_service->get_offering( $cart_item->offering_id );
+            $product = $this->product_service->get_product( $cart_item->product_id );
 
             $this->repository->insert_item(
                 new OrderItem(
                     null,
                     $order->id,
-                    $cart_item->offering_id,
-                    $offering ? $offering->title : '',
+                    $cart_item->product_id,
+                    $product ? $product->title : '',
                     $cart_item->quantity,
                     $cart_item->unit_price,
-                    $cart_item->currency
+                    $cart_item->currency,
+                    $cart_item->meta
                 )
             );
         }
@@ -408,19 +409,19 @@ class OrderService {
 
     /**
      * Creates a draft order directly from a merchant-picked list of
-     * offerings - no cart involved. Backs the admin grid's "Add New" page
+     * products - no cart involved. Backs the admin grid's "Add New" page
      * (OrderAdd.tsx) and the "Draft Orders" submenu
      * (`FulfillmentStatus::DRAFT`) - an admin building an order on a
      * customer's behalf (phone/email order) before it's actually placed.
      * Same item-snapshotting shape as create_from_cart(), just sourced
-     * from a plain `{offering_id, quantity}[]` array instead of a Cart.
+     * from a plain `{product_id, quantity}[]` array instead of a Cart.
      *
-     * @param array{offering_id: int, quantity: int}[] $items          Offerings and quantities to snapshot onto the order.
+     * @param array{product_id: int, quantity: int}[] $items          Products and quantities to snapshot onto the order.
      * @param string|null                              $customer_email Buyer's email, if given.
      * @param string|null                              $customer_name  Buyer's display name, if given.
      * @param string|null                              $payment_method Chosen payment method id, if this order is already paid (a recurring-billing engine's own renewal order, for instance) - left null for a genuine draft with nothing charged yet.
      * @return Order
-     * @throws \InvalidArgumentException If $items is empty or references no valid offering.
+     * @throws \InvalidArgumentException If $items is empty or references no valid product.
      */
     public function create_manual_order( array $items, $customer_email = null, $customer_name = null, $payment_method = null ) {
         if ( empty( $items ) ) {
@@ -432,19 +433,19 @@ class OrderService {
         $currency  = null;
 
         foreach ( $items as $item ) {
-            $offering = $this->offering_service->get_offering( absint( $item['offering_id'] ) );
+            $product = $this->product_service->get_product( absint( $item['product_id'] ) );
 
-            if ( ! $offering ) {
+            if ( ! $product ) {
                 continue;
             }
 
             $quantity   = max( 1, absint( $item['quantity'] ) );
-            $unit_price = null === $offering->price ? 0.0 : $offering->price;
-            $currency   = $currency ?? $offering->currency;
+            $unit_price = null === $product->price ? 0.0 : $product->price;
+            $currency   = $currency ?? $product->currency;
 
             $snapshots[] = array(
-                'offering_id' => $offering->id,
-                'title'       => $offering->title,
+                'product_id' => $product->id,
+                'title'       => $product->title,
                 'quantity'    => $quantity,
                 'unit_price'  => $unit_price,
                 'currency'    => $currency,
@@ -454,7 +455,7 @@ class OrderService {
         }
 
         if ( empty( $snapshots ) ) {
-            throw new \InvalidArgumentException( 'None of the given items reference a valid offering.' );
+            throw new \InvalidArgumentException( 'None of the given items reference a valid product.' );
         }
 
         $order = new Order(
@@ -491,7 +492,7 @@ class OrderService {
                 new OrderItem(
                     null,
                     $order->id,
-                    $snapshot['offering_id'],
+                    $snapshot['product_id'],
                     $snapshot['title'],
                     $snapshot['quantity'],
                     $snapshot['unit_price'],
@@ -533,6 +534,118 @@ class OrderService {
         $this->events->dispatch( 'order_fulfillment_status_changed', array( 'order' => $order ) );
 
         return $order;
+    }
+
+    /**
+     * Fills in or corrects the details an order was placed without - contact, addresses, shipping and payment
+     * method. Only the keys present in $fields change; addresses are sanitised to the stable address shape.
+     *
+     * @param int                  $id     Order id.
+     * @param array<string, mixed> $fields Any of customer_email, customer_name, customer_phone, shipping_method,
+     *                                     payment_method, shipping_address, billing_address.
+     * @return Order|null Null if no order with this id exists.
+     * @throws \InvalidArgumentException If the email is not a valid address.
+     */
+    public function update_details( $id, array $fields ) {
+        $order = $this->repository->find( $id );
+
+        if ( ! $order ) {
+            return null;
+        }
+
+        if ( array_key_exists( 'customer_email', $fields ) ) {
+            $email = sanitize_email( (string) $fields['customer_email'] );
+
+            if ( '' !== (string) $fields['customer_email'] && ! is_email( $email ) ) {
+                throw new \InvalidArgumentException( 'That email address is not valid.' );
+            }
+
+            $order->customer_email = '' === $email ? null : $email;
+        }
+
+        foreach ( array( 'customer_name', 'customer_phone', 'shipping_method', 'payment_method' ) as $key ) {
+            if ( array_key_exists( $key, $fields ) ) {
+                $value        = sanitize_text_field( (string) $fields[ $key ] );
+                $order->$key = '' === $value ? null : $value;
+            }
+        }
+
+        foreach ( array( 'shipping_address', 'billing_address' ) as $key ) {
+            if ( array_key_exists( $key, $fields ) && is_array( $fields[ $key ] ) ) {
+                $bag = array();
+
+                foreach ( array( 'full_name', 'phone', 'address_1', 'address_2', 'city', 'state', 'postcode', 'country' ) as $field ) {
+                    $bag[ $field ] = isset( $fields[ $key ][ $field ] ) ? sanitize_text_field( (string) $fields[ $key ][ $field ] ) : '';
+                }
+
+                $order->$key = $bag;
+            }
+        }
+
+        return $this->repository->update( $order );
+    }
+
+    /**
+     * Emails the customer a payment request and remembers when (in the order's `meta`, newest last).
+     *
+     * @param int $id Order id.
+     * @return Order|null Null if no order with this id exists.
+     * @throws \InvalidArgumentException If the order has no customer email, or is already paid.
+     * @throws \RuntimeException If the mail could not be sent.
+     */
+    public function request_payment( $id ) {
+        $order = $this->repository->find( $id );
+
+        if ( ! $order ) {
+            return null;
+        }
+
+        if ( empty( $order->customer_email ) ) {
+            throw new \InvalidArgumentException( 'Add the customer\'s email address first.' );
+        }
+
+        if ( in_array( $order->payment_status, array( PaymentStatus::PAID, PaymentStatus::REFUNDED ), true ) ) {
+            throw new \InvalidArgumentException( 'This order is already paid.' );
+        }
+
+        if ( ! \VuloCart\Notifications\OrderEmails::send_payment_request( $order ) ) {
+            throw new \RuntimeException( 'The email could not be sent.' );
+        }
+
+        $order->meta                     = is_array( $order->meta ) ? $order->meta : array();
+        $order->meta['payment_requests'] = array_slice( array_merge( (array) ( $order->meta['payment_requests'] ?? array() ), array( current_time( 'mysql' ) ) ), -10 );
+
+        return $this->repository->update( $order );
+    }
+
+    /**
+     * Replaces an order's free-form tags (kept in the order's `meta`).
+     *
+     * @param int      $id   Order id.
+     * @param string[] $tags The tags, in order.
+     * @return Order|null Null if no order with this id exists.
+     */
+    public function set_tags( $id, array $tags ) {
+        $order = $this->repository->find( $id );
+
+        if ( ! $order ) {
+            return null;
+        }
+
+        $clean = array();
+
+        foreach ( $tags as $tag ) {
+            $tag = trim( (string) $tag );
+
+            if ( '' !== $tag && ! in_array( $tag, $clean, true ) ) {
+                $clean[] = mb_substr( $tag, 0, 40 );
+            }
+        }
+
+        $order->meta         = is_array( $order->meta ) ? $order->meta : array();
+        $order->meta['tags'] = array_slice( $clean, 0, 20 );
+
+        return $this->repository->update( $order );
     }
 
     /**
@@ -651,5 +764,42 @@ class OrderService {
         }
 
         return $updated;
+    }
+
+    /**
+     * Permanently deletes an order and its line items. `order_deleted` is broadcast with the order as it was, so
+     * the customer's totals are recounted and any module keeping its own rows for the order can tidy up.
+     *
+     * @param int $id Order id.
+     * @return bool True if the order existed and was deleted.
+     */
+    public function delete_order( $id ): bool {
+        $order = $this->repository->find( (int) $id );
+
+        if ( ! $order || ! $this->repository->delete( (int) $id ) ) {
+            return false;
+        }
+
+        $this->events->dispatch( 'order_deleted', array( 'order' => $order ) );
+
+        return true;
+    }
+
+    /**
+     * Deletes many orders through the same single-order path.
+     *
+     * @param int[] $ids Order ids.
+     * @return int Number of orders actually deleted.
+     */
+    public function bulk_delete( array $ids ): int {
+        $deleted = 0;
+
+        foreach ( $ids as $id ) {
+            if ( $this->delete_order( (int) $id ) ) {
+                ++$deleted;
+            }
+        }
+
+        return $deleted;
     }
 }

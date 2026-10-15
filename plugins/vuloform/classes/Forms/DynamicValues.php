@@ -96,7 +96,7 @@ class DynamicValues {
 		switch ( $source ) {
 			case 'query':
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- reading a public URL parameter to pre-fill a field, not acting on it.
-				$value = isset( $_GET[ $name ] ) ? wp_unslash( $_GET[ $name ] ) : '';
+				$value = filter_input( INPUT_GET, $name, FILTER_DEFAULT );
 
 				return is_scalar( $value ) ? sanitize_text_field( (string) $value ) : '';
 

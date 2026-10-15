@@ -45,7 +45,7 @@ Both plugins depend on the published package `@multivendorx/zyra` (aliased in `t
 ## React mounting
 
 - `vulopilot/src/index.tsx`: single mount point, `#admin-main-wrapper`, wrapped in `BrowserRouter`.
-- `vulocart/src/index.tsx`: **three independent mount points** (`#vulocart-admin-root` for the main SPA wrapped in `QueryClientProvider` from `@tanstack/react-query`, plus two standalone `#vulocart-orders-admin-root`/`#vulocart-offerings-admin-root` pages) - not a single SPA the way `vulopilot` is. Don't assume every VuloLabs plugin follows the single-SPA-mount pattern.
+- `vulocart/src/index.tsx`: **several independent mount points** - the main SPA at `#admin-main-wrapper` (same id+class vulopilot's own mount point uses, so zyra's shared layout CSS applies identically), plus standalone `#vulocart-orders-admin-root`/`#vulocart-offerings-admin-root`/`#vulocart-customers-admin-root`/`#vulocart-inventory-admin-root`/`#vulocart-shipping-admin-root`/`#vulocart-ai-admin-root`/`#vulocart-workflows-admin-root`/`#vulocart-analytics-admin-root` pages - not a single SPA the way `vulopilot` is (a deliberate "keep multi-page, align conventions only" call, not an oversight). No `@tanstack/react-query` here - it was wired in but unused, and has been removed. Don't assume every VuloLabs plugin follows the single-SPA-mount pattern.
 
 ## VuloBackup (standalone backup plugin)
 
