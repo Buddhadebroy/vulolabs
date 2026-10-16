@@ -89,6 +89,15 @@ class RedirectManager {
 			return;
 		}
 
+		// Trashing a post renames its slug internally (appends '__trashed') to free it up for
+		// reuse, which fires this same 'post_updated' hook with a "slug change" that isn't one -
+		// without this guard, get_permalink($post_after) on an already-trashed post returns a
+		// '?page_id=' fallback URL, which would overwrite TrashedPostRedirector's own
+		// home-page redirect for the same path with that useless self-reference.
+		if ( 'trash' === $post_after->post_status ) {
+			return;
+		}
+
 		if ( ! is_post_type_viewable( $post_after->post_type ) ) {
 			return;
 		}

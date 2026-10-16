@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-16T07:37:32+00:00\n"
+"POT-Creation-Date: 2026-10-16T10:03:43+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
@@ -547,6 +547,12 @@ msgstr ""
 
 #: classes/Content/TableOfContentsRenderer.php:32
 msgid "Table of Contents"
+msgstr ""
+
+#. translators: 1: deleted page/post title, 2: its old URL path, 3: Redirects tab URL.
+#: classes/Content/TrashedPostRedirector.php:109
+#, php-format
+msgid "<strong>%1$s</strong> has been deleted. VuloPilot doesn't redirect it automatically - if %2$s is still linked to elsewhere or indexed by search engines, you can <a href=\"%3$s\">add a redirect for it</a>."
 msgstr ""
 
 #: classes/Dashboard/Rest/DashboardLayout.php:79
@@ -10187,10 +10193,12 @@ msgid "Created"
 msgstr ""
 
 #: assets/js/index.js:1
+#: assets/js/index.js:5
 msgid "Deactivate"
 msgstr ""
 
 #: assets/js/index.js:1
+#: assets/js/index.js:5
 msgid "Activate"
 msgstr ""
 
@@ -10241,6 +10249,20 @@ msgstr ""
 
 #: assets/js/index.js:5
 msgid "Every real redirect rule you've set up, searchable and filterable."
+msgstr ""
+
+#. translators: %d: number of redirects that failed to update.
+#: assets/js/index.js:5
+#, js-format
+msgid "%d redirect(s) could not be updated."
+msgstr ""
+
+#: assets/js/index.js:5
+msgid "Selected redirects activated."
+msgstr ""
+
+#: assets/js/index.js:5
+msgid "Selected redirects deactivated."
 msgstr ""
 
 #: assets/js/index.js:5
@@ -10305,6 +10327,26 @@ msgstr ""
 
 #: assets/js/index.js:5
 msgid "Redirect deleted."
+msgstr ""
+
+#: assets/js/index.js:5
+msgid "Delete Redirects"
+msgstr ""
+
+#. translators: %d: number of selected redirects.
+#: assets/js/index.js:5
+#, js-format
+msgid "Delete %d selected redirect(s)? This cannot be undone."
+msgstr ""
+
+#. translators: %d: number of redirects that failed to delete.
+#: assets/js/index.js:5
+#, js-format
+msgid "%d redirect(s) could not be deleted."
+msgstr ""
+
+#: assets/js/index.js:5
+msgid "Selected redirects deleted."
 msgstr ""
 
 #: assets/js/index.js:5
