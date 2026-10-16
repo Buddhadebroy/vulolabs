@@ -42,7 +42,7 @@ class RedirectManager {
 		$source_path = RedirectRepository::normalize_path( $path );
 
 		$repository = new RedirectRepository();
-		$redirect   = $repository->find_by_source_path( $source_path );
+		$redirect   = $repository->find_matching( $source_path );
 
 		if ( ! $redirect || empty( $redirect['is_active'] ) ) {
 			return;
