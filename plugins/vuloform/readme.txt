@@ -1,8 +1,8 @@
-=== VuloForm ===
+=== VuloForm – Drag & Drop Contact Form Builder, Multi-Step Forms & Conditional Logic ===
 Contributors: vulolabs
 Tags: contact form, form builder, multi-step form, conditional logic, webhooks
 Requires at least: 6.7
-Tested up to: 7.1
+Tested up to: 7.1.3
 Requires PHP: 8.1
 Stable tag: 1.0.0
 License: GPLv2 or later
@@ -328,14 +328,16 @@ https://github.com/vulolabs/vulolabs/tree/main/plugins/vuloform
 
 == Screenshots ==
 
-1. Drag-and-drop form builder with field library, live form and field settings.
-2. Ready-made form templates: contact, lead generation, survey, event registration and more.
-3. Conditional logic settings to show, hide or require fields.
-4. Multi-step form with Next and Back buttons and a step indicator.
-5. Calculation field for quote and order forms.
-6. Form settings: notifications, confirmation, appearance, spam protection and integrations.
-7. Submissions manager with search, date filter, statuses and CSV export.
-8. Share tab with block, shortcode, embed code and form export.
+1. Form list.
+2. Form configuration.
+3. Form delivery.
+4. Email customization.
+5. Form appearence.
+6. Integration.
+7. Form share.
+8. Form protection.
+9. Spam protection.
+10. Website Activity Timeline.
 
 == Changelog ==
 
