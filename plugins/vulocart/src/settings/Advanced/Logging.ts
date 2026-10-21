@@ -4,13 +4,12 @@ import { __ } from '@wordpress/i18n';
  * Backed by the Advanced section of `Utill::SETTINGS_DEFAULTS`. `enable_debug_logging` is read by `Utill::log()`,
  * which records the exceptions Modules::load_active_modules() catches when a module's constructor fails.
  *
- * This is a standalone top-level file, not part of a folder. Priority 4 sorts it after the folders (General=1,
- * Commerce=2, Integrations=3; see each folder's FolderPriority.ts).
+ * First sub-tab of Settings → Advanced; the debug log itself is the next sub-tab (DebugLog.ts).
  */
 export default {
 	id: 'advanced',
-	priority: 8,
-	headerTitle: __( 'Advanced', 'vulocart' ),
+	priority: 1,
+	headerTitle: __( 'Logging', 'vulocart' ),
 	headerIcon: 'tools',
 	groupBySections: true,
 	hideSettingHeader: true,
@@ -32,7 +31,7 @@ export default {
 			look: 'toggle',
 			label: __( 'Enable debug logging', 'vulocart' ),
 			settingDescription: __(
-				'Writes module-loading failures to the server error log. Leave off unless you\'re actively debugging.',
+				'Records problems such as a module that failed to load in the debug log below. Leave off unless you are fixing a problem.',
 				'vulocart'
 			),
 			options: [

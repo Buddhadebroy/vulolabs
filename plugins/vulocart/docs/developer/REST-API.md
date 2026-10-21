@@ -123,6 +123,16 @@ Checkout steps and checkout sessions. Public: a shopper has no WordPress session
 | GET | `/checkout/sessions/{token}` | Public | Fetches a session by cart token |
 | PUT / PATCH | `/checkout/sessions/{token}` | Public | Records step progress on a session |
 
+## Debug log
+
+Reads and clears the log shown in Settings → Advanced.
+
+| Method | Route | Access | What it does |
+|---|---|---|---|
+| GET | `/logs` | Admin | Returns the last log lines (`logcount`, default 100), oldest first |
+| DELETE | `/logs` | Admin | Empties the log |
+| GET | `/logs/download` | Admin | Sends the whole log file as a download and ends the request |
+
 ## SDK config
 
 Bootstrap call of `@vulocart/sdk`.

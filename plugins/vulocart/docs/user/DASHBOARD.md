@@ -41,7 +41,7 @@ With VuloCart Pro and the Analytics module switched on, a **Store insights** sec
 
 | Setting | Where | Effect |
 |---|---|---|
-| Default currency | Settings → General | Currency used for the figures |
+| Store currency | Settings → General | Currency used for the figures |
 | Low stock threshold | Settings → General | A product at or below it counts as "low" |
 
 ## Related

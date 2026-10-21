@@ -37,10 +37,10 @@ Other options the plugin uses:
 | `checkout_mode` | `multi_step` | Checkout (`multi_step`, `single_page`) |
 | `checkout_delivery` | `page` | Checkout (`page`; Pro: `popup`, `drawer`, `hosted`, `one_click`) |
 | `checkout_steps` | all five | Checkout (Customer and Payment cannot be turned off) |
-| `checkout_fields` | `name`, `phone`, `address_2` | Checkout |
+| `checkout_phone` | `optional` | Checkout (`hidden`, `optional`, `required`; `required` is also checked on the server) |
+| `checkout_fields` | `name`, `address_2` | Checkout |
 | `checkout_extras` | none | Checkout (Pro: `order_notes`, `address_autocomplete`) |
 | `guest_checkout_enabled` | on | Checkout |
-| `require_phone_number` | off | Checkout |
 | `require_terms_acceptance`, `checkout_terms_url` | off, empty | Checkout |
 | `enable_manual_payment`, `default_payment_status`, `enable_bank_transfer`, `bank_transfer_instructions`, `enable_cash_on_delivery`, `payment_capture_mode` | see [PAYMENT-FRAMEWORK](PAYMENT-FRAMEWORK.md#settings) | Payments |
 | `flat_rate_shipping_cost` | 0 | Shipping & Tax → Shipping rates |
@@ -54,7 +54,7 @@ Pro gateways add their own keys, prefixed `vulocart_pro_{gateway}_…`.
 
 ## Describing the screens
 
-Each tab is one file under `src/settings/` (`General.ts`, `Checkout.ts`, `Payments.ts`, `Integrations.ts`, `Advanced.ts`, `Modules.ts`, and the folder `Shipping_and_Tax/`). A file default-exports an object:
+Each tab is one file under `src/settings/` (`General.ts`, `Checkout.ts`, `Payments.ts`, `Integrations.ts`, `Modules.ts`, and the folders `Shipping_and_Tax/` and `Advanced/`). A file default-exports an object:
 
 - `id`, `priority` (sort order), `headerTitle`, `headerIcon`, optional `submitUrl`
 - `modal`: the list of fields. A field has a `key`, a `type` (`text`, `number`, `select`, `checkbox`, `choice-toggle`, `textarea`, `email`, `password`, `section`, ...), a `label`, a `settingDescription`, `options`, and optionally `dependent` (show only when another key is set), `proSetting`, `moduleEnabled` (locked until that module is active) and `dependentPlugin`.
@@ -70,7 +70,7 @@ A tab that is not a plain field list sets `PanelComponent` (Payments, Modules, T
 | 4 | Payments | `Payments.ts` |
 | 5 | Shipping & Tax (Shipping rates, Zones, Packaging, Tax) | `Shipping_and_Tax/` |
 | 7 | Integrations (Email, MCP, VuloCloud AI) | `Integrations.ts` |
-| 8 | Advanced | `Advanced.ts` |
+| 8 | Advanced (Logging, Debug log) | `Advanced/` |
 | 9 | Modules | `Modules.ts` |
 | 90 | Licensing (Pro) | `Licensing.ts` |
 

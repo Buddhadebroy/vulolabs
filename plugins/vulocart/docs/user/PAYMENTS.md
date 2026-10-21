@@ -14,8 +14,8 @@ The Payments tab is a list of methods. Each has an **Enable** switch and a **Con
 
 | Method | How it works | Order starts as |
 |---|---|---|
-| **Manual payment** | You and the buyer arrange payment outside the store (cash, an invoice, a phone call). Switched on by default | The status you choose under *Default status* (Pending by default) |
-| **Bank transfer** | The buyer sends money directly. You enter **Instructions** (account number, bank name, reference format) which are shown on the order confirmation screen | Pending until you mark it paid |
+| **Manual payment** | You and the buyer arrange payment outside the store (cash, an invoice, a phone call). Switched on by default | The status you choose under *Payment status of new orders* (Pending by default) |
+| **Bank transfer** | The buyer sends money directly. You enter **Payment instructions** (account number, bank name, reference format) which are shown on the order confirmation screen | Pending until you mark it paid |
 | **Cash on delivery** | The buyer pays in cash when the order arrives | Pending |
 
 ### Manual payment settings
@@ -23,14 +23,14 @@ The Payments tab is a list of methods. Each has an **Enable** switch and a **Con
 | Setting | What it does |
 |---|---|
 | **Enable manual payment** | Offer the method at checkout |
-| **Default status** | Payment status a new manual-payment order starts at: Pending, Paid, Failed or Refunded |
+| **Payment status of new orders** | Payment status a new manual-payment order starts at: Pending, Paid, Failed or Refunded |
 
-### Capture (online gateways)
+### Card charging (online gateways)
 
 | Setting | What it does |
 |---|---|
-| **Capture mode: Immediate** | The card is charged at checkout |
-| **Capture mode: Manual** | The card is only authorized. You capture the payment later from the order screen. Offline methods are not affected |
+| **Charge the card: At checkout** | The card is charged at checkout |
+| **Charge the card: Later, when I capture it** | The card is only authorized. You capture the payment later from the order screen. Offline methods are not affected |
 
 ## Confirming a payment you received
 

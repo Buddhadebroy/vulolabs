@@ -63,7 +63,7 @@ export default {
 			look: 'toggle',
 			label: __( 'Charge tax on shipping', 'vulocart' ),
 			settingDescription: __(
-				'Applies the standard class\'s rates that are marked "shipping". Only once you have entered tax rates.',
+				'Also tax the shipping charge, using the rates marked "Applies to shipping". Needs tax rates to be entered below.',
 				'vulocart'
 			),
 			options: [

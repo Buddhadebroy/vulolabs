@@ -21,7 +21,6 @@ import { EmbedCodeSection } from './EmbedCodeSection';
 import { HeaderPicker } from './HeaderPicker';
 import { ProModuleHint } from './ProModuleHint';
 import { TypeChooser } from './TypeChooser';
-import { CollapsibleCards } from './CollapsibleCards';
 import { TYPE_PROFILES, cardsFor, fieldsFor, profileFor, subtypeFor, type TypeDetailField } from './typeProfiles';
 import './products-page.scss';
 
@@ -1262,7 +1261,6 @@ export function ProductEdit( { id }: ProductEditProps ) {
 				<div className="vulocart-saved-notice">{ __( 'Product updated.', 'vulocart' ) }</div>
 			) }
 
-			<CollapsibleCards />
 
 			<div className="vulocart-product-edit-grid">
 				{ /* Main column */ }

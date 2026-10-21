@@ -1,17 +1,11 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Settings → Checkout (a top-level tab: it is the only checkout page, so no folder). Merged from the former standalone `Cart.ts` +
- * `Checkout.ts` pair - cart and checkout are one continuous buyer flow,
- * and neither tab had enough fields to earn its own place in the tab bar.
- * Backed by `Utill::SETTINGS_DEFAULTS`'s Cart and Checkout sections -
- * field keys are unchanged, so no PHP-side change was needed to merge
- * these two tabs into one. See the former Cart.ts/Checkout.ts for the
- * per-field enforcement notes (`cart_expiry_days` via
- * `Cart\Application\CartCleanupScheduler`, `guest_checkout_enabled` via
- * both the checkout wizard's Customer step and `Order\Rest::create_item()`,
- * `require_terms_acceptance`/`checkout_terms_url` rendering a real
- * storefront terms checkbox).
+ * Settings → Checkout. Four sections, in the order a store owner thinks about them: where checkout opens and how it
+ * is laid out, what the shopper is asked for, who may buy and what they must accept, and how long a cart is kept.
+ * Backed by the Cart and Checkout sections of `Utill::SETTINGS_DEFAULTS`. Guest checkout, the phone number and terms
+ * acceptance are checked again on the server by `Order\Rest::create_item()`; `cart_expiry_days` is applied by
+ * `Cart\Application\CartCleanupScheduler`.
  */
 export default {
 	id: 'checkout',
@@ -23,58 +17,18 @@ export default {
 	submitUrl: 'settings',
 	modal: [
 		{
-			key: 'checkout-section-cart',
-			type: 'section',
-			icon: 'cart',
-			title: __( 'Cart behavior', 'vulocart' ),
-			desc: __(
-				'Who can start a cart, and how long an abandoned one sticks around.',
-				'vulocart'
-			),
-		},
-		{
-			key: 'cart_expiry_days',
-			type: 'number',
-			label: __( 'Cart expiry (days)', 'vulocart' ),
-			minNumber: 1,
-			maxNumber: 365,
-			settingDescription: __(
-				'How long an abandoned cart is kept before it could be cleared out.',
-				'vulocart'
-			),
-		},
-		{
-			key: 'checkout-section-flow',
+			key: 'checkout-section-opening',
 			type: 'section',
 			icon: 'credit-card',
-			title: __( 'Checkout flow', 'vulocart' ),
-			desc: __(
-				'How the storefront checkout lays out its steps, and what it requires before an order can be placed.',
-				'vulocart'
-			),
-		},
-		{
-			key: 'checkout_mode',
-			type: 'select',
-			label: __( 'Checkout layout', 'vulocart' ),
-			settingDescription: __(
-				'Which layout the storefront checkout shows your steps in. A checkout block can override this for its own page.',
-				'vulocart'
-			),
-			options: [
-				{ label: __( 'Multi-step (one step at a time)', 'vulocart' ), value: 'multi_step' },
-				{ label: __( 'Single page (every step at once)', 'vulocart' ), value: 'single_page' },
-			],
+			title: __( 'How checkout opens', 'vulocart' ),
+			desc: __( 'Where shoppers land when they press "Proceed to checkout" or "Buy now", and how the steps are laid out there.', 'vulocart' ),
 		},
 		{
 			key: 'checkout_delivery',
 			// A toggle group, not a select: zyra only locks a single option (Pro tag, "module off" tag, popup) in this type.
 			type: 'choice-toggle',
-			label: __( 'Checkout opens as', 'vulocart' ),
-			settingDescription: __(
-				'Where "Proceed to checkout" and "Buy now" lead. Styles beyond the checkout page are part of VuloCart Pro.',
-				'vulocart'
-			),
+			label: __( 'Open checkout as', 'vulocart' ),
+			settingDescription: __( 'A page of its own by default. Popup, side drawer, hosted page and one-click need VuloCart Pro.', 'vulocart' ),
 			options: [
 				{ key: 'page', label: __( 'Checkout page', 'vulocart' ), value: 'page' },
 				{ key: 'popup', label: __( 'Popup', 'vulocart' ), value: 'popup', proSetting: true, moduleEnabled: 'popup-checkout' },
@@ -84,13 +38,27 @@ export default {
 			],
 		},
 		{
+			key: 'checkout_mode',
+			type: 'select',
+			label: __( 'Layout', 'vulocart' ),
+			settingDescription: __( 'Show the steps one at a time, or all together on one page. A checkout block can choose its own layout.', 'vulocart' ),
+			options: [
+				{ label: __( 'One step at a time', 'vulocart' ), value: 'multi_step' },
+				{ label: __( 'Everything on one page', 'vulocart' ), value: 'single_page' },
+			],
+		},
+		{
+			key: 'checkout-section-form',
+			type: 'section',
+			icon: 'form-section',
+			title: __( 'What shoppers fill in', 'vulocart' ),
+			desc: __( 'The steps they go through and the details you ask for. A checkout block can override these for its own page.', 'vulocart' ),
+		},
+		{
 			key: 'checkout_steps',
 			type: 'checkbox',
-			label: __( 'Steps shown', 'vulocart' ),
-			settingDescription: __(
-				'Turn off the steps your checkout can skip. Customer and Payment are always shown. A checkout block can pick its own steps and their order.',
-				'vulocart'
-			),
+			label: __( 'Steps', 'vulocart' ),
+			settingDescription: __( 'Untick the steps you can skip. Customer and Payment are always part of checkout.', 'vulocart' ),
 			options: [
 				{ key: 'customer', label: __( 'Customer', 'vulocart' ), value: 'customer', disabled: true },
 				{ key: 'address', label: __( 'Address', 'vulocart' ), value: 'address' },
@@ -100,91 +68,81 @@ export default {
 			],
 		},
 		{
+			key: 'checkout_phone',
+			type: 'select',
+			label: __( 'Phone number', 'vulocart' ),
+			settingDescription: __( 'Whether the Customer step asks for a phone number, and whether the shopper must give one.', 'vulocart' ),
+			options: [
+				{ label: __( 'Do not ask', 'vulocart' ), value: 'hidden' },
+				{ label: __( 'Ask, but optional', 'vulocart' ), value: 'optional' },
+				{ label: __( 'Required', 'vulocart' ), value: 'required' },
+			],
+		},
+		{
 			key: 'checkout_fields',
 			type: 'checkbox',
-			label: __( 'Optional fields', 'vulocart' ),
-			settingDescription: __(
-				'Fields the buyer can fill in. A phone number is still asked for when "Require phone number" is on. A checkout block can switch these per page.',
-				'vulocart'
-			),
+			label: __( 'Other details to ask for', 'vulocart' ),
+			settingDescription: __( 'Extra, optional fields on the Customer and Address steps.', 'vulocart' ),
 			options: [
 				{ key: 'name', label: __( 'Name', 'vulocart' ), value: 'name' },
-				{ key: 'phone', label: __( 'Phone number', 'vulocart' ), value: 'phone' },
 				{ key: 'address_2', label: __( 'Apartment, suite, etc.', 'vulocart' ), value: 'address_2' },
 			],
 		},
 		{
 			key: 'checkout_extras',
 			type: 'checkbox',
-			label: __( 'Extras', 'vulocart' ),
-			settingDescription: __(
-				'Optional extras on the checkout. Order notes lets buyers leave a message with their order; address lookup suggests full addresses as they type.',
-				'vulocart'
-			),
+			label: __( 'Extras (Pro)', 'vulocart' ),
+			settingDescription: __( 'Order notes lets shoppers leave a message with their order. Address lookup suggests full addresses as they type.', 'vulocart' ),
 			options: [
 				{ key: 'order_notes', label: __( 'Order notes', 'vulocart' ), value: 'order_notes', proSetting: true },
 				{ key: 'address_autocomplete', label: __( 'Address lookup', 'vulocart' ), value: 'address_autocomplete', proSetting: true },
 			],
 		},
 		{
+			key: 'checkout-section-buying',
+			type: 'section',
+			icon: 'identity-verification',
+			title: __( 'Who can buy', 'vulocart' ),
+			desc: __( 'Whether shoppers need an account, and what they must accept before an order is placed.', 'vulocart' ),
+		},
+		{
 			key: 'guest_checkout_enabled',
 			type: 'checkbox',
 			look: 'toggle',
-			label: __( 'Enable guest checkout', 'vulocart' ),
-			settingDescription: __(
-				'Allow an order to be placed with just an email address, no account required.',
-				'vulocart'
-			),
-			options: [
-				{ key: 'guest_checkout_enabled', label: '', value: 'guest_checkout_enabled' },
-			],
-		},
-		{
-			key: 'require_phone_number',
-			type: 'checkbox',
-			look: 'toggle',
-			label: __( 'Require phone number', 'vulocart' ),
-			settingDescription: __(
-				'Require a phone number on the Customer step before checkout can continue.',
-				'vulocart'
-			),
-			options: [
-				{ key: 'require_phone_number', label: '', value: 'require_phone_number' },
-			],
-		},
-		{
-			key: 'checkout-section-terms',
-			type: 'section',
-			icon: 'form-section',
-			title: __( 'Terms & conditions', 'vulocart' ),
-			desc: __(
-				'Require the buyer to accept your terms before an order can be placed.',
-				'vulocart'
-			),
+			label: __( 'Allow guest checkout', 'vulocart' ),
+			settingDescription: __( 'Shoppers can order with just an email address. Turn off to require an account.', 'vulocart' ),
+			options: [ { key: 'guest_checkout_enabled', label: '', value: 'guest_checkout_enabled' } ],
 		},
 		{
 			key: 'require_terms_acceptance',
 			type: 'checkbox',
 			look: 'toggle',
-			label: __( 'Require terms acceptance', 'vulocart' ),
-			settingDescription: __(
-				'Require the buyer to accept your terms before placing an order.',
-				'vulocart'
-			),
-			options: [
-				{ key: 'require_terms_acceptance', label: '', value: 'require_terms_acceptance' },
-			],
+			label: __( 'Ask shoppers to accept your terms', 'vulocart' ),
+			settingDescription: __( 'A checkbox the shopper must tick before placing an order.', 'vulocart' ),
+			options: [ { key: 'require_terms_acceptance', label: '', value: 'require_terms_acceptance' } ],
 		},
 		{
 			key: 'checkout_terms_url',
 			type: 'text',
-			label: __( 'Terms & conditions URL', 'vulocart' ),
+			label: __( 'Terms & conditions page', 'vulocart' ),
 			placeholder: __( 'https://yourstore.com/terms', 'vulocart' ),
-			settingDescription: __(
-				'Linked from the checkout terms-acceptance checkbox on the storefront.',
-				'vulocart'
-			),
+			settingDescription: __( 'The checkbox links to this address.', 'vulocart' ),
 			dependent: { key: 'require_terms_acceptance', set: true },
+		},
+		{
+			key: 'checkout-section-cart',
+			type: 'section',
+			icon: 'cart',
+			title: __( 'Carts', 'vulocart' ),
+			desc: __( 'How long a cart is kept when the shopper does not finish.', 'vulocart' ),
+		},
+		{
+			key: 'cart_expiry_days',
+			type: 'number',
+			label: __( 'Keep abandoned carts for (days)', 'vulocart' ),
+			minNumber: 1,
+			maxNumber: 365,
+			settingDescription: __( 'After this many days without activity a cart is deleted.', 'vulocart' ),
 		},
 	],
 };

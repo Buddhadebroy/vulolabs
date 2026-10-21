@@ -1,4 +1,4 @@
-import { render } from '@wordpress/element';
+import { render } from '../../lib/render';
 import { CheckoutEngine } from './CheckoutEngine';
 import type { CartResponse } from '../shared/cart';
 import './steps'; // side-effect only - registers Free's 5 interactive steps, same as Checkout.tsx's own import.

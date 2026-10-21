@@ -1,5 +1,5 @@
 /* global vulocartLocalizer */
-import { render } from '@wordpress/element';
+import { render } from './lib/render';
 import { BrowserRouter } from 'react-router-dom';
 import { configureZyra, initializeModules } from '@zyra/core';
 import SearchHeader from './components/Header/SearchHeader';

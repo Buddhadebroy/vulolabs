@@ -68,7 +68,7 @@ class Block {
             // enforcement against a direct API call).
             'guestCheckoutEnabled'    => ! empty( $settings['guest_checkout_enabled'] ),
             'requireTermsAcceptance'  => ! empty( $settings['require_terms_acceptance'] ),
-            'requirePhoneNumber'      => ! empty( $settings['require_phone_number'] ),
+            'requirePhoneNumber'      => 'required' === $settings['checkout_phone'],
             'checkoutTermsUrl'        => (string) $settings['checkout_terms_url'],
             // Domain\Checkout\CheckoutMode::free() - read by
             // src/blocks/checkout-engine/CheckoutEngine.tsx to decide
@@ -82,7 +82,7 @@ class Block {
             // What the checkout shows by default (Settings → Checkout); a checkout block can override both for its page.
             'checkoutExtras'        => $this->checkout_list( $settings['checkout_extras'], array( 'order_notes', 'address_autocomplete' ), array() ),
             'checkoutSteps'           => $this->checkout_list( $settings['checkout_steps'], array( 'customer', 'address', 'shipping', 'payment', 'review' ), array( 'customer', 'payment' ) ),
-            'checkoutFields'          => $this->checkout_list( $settings['checkout_fields'], array( 'name', 'phone', 'address_2' ), array() ),
+            'checkoutFields'          => $this->checkout_list( array_merge( (array) $settings['checkout_fields'], 'hidden' === $settings['checkout_phone'] ? array() : array( 'phone' ) ), array( 'name', 'phone', 'address_2' ), array() ),
             'homeUrl'                 => esc_url_raw( home_url( '/' ) ),
             // Only the signed-in shopper's own address, so one-click checkout can offer it as the default.
             'userEmail'               => is_user_logged_in() ? (string) wp_get_current_user()->user_email : '',
