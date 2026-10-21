@@ -62,6 +62,10 @@ You can change how it works under **Settings → Checkout**.
 
 A checkout block can also override the layout, steps and fields for its own page (select the block and turn on *Customize*).
 
+## Checkout on any website
+
+You are not limited to your WordPress pages. The JavaScript SDK puts a Buy button, a cart and a full checkout on **any website**, WordPress or not. See [SELL-ANYWHERE](SELL-ANYWHERE.md).
+
 ## Track an order
 
 A guest enters the **order number** and the **access token** they received to see their order's status. Both are needed; the number alone is not enough. Customers get both in their order confirmation email.

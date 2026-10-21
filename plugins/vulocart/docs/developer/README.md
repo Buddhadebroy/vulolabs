@@ -15,6 +15,7 @@ Code-level documentation for developers who extend or maintain the free plugin. 
 | Catalog | [CATALOG](CATALOG.md) | Products, product types, prices, categories, brands, collections, tags, attributes |
 | Checkout | [CHECKOUT-ENGINE](CHECKOUT-ENGINE.md) | Step discovery and rendering, sessions, placing an order, delivery styles |
 | Payments | [PAYMENT-FRAMEWORK](PAYMENT-FRAMEWORK.md) | Gateway interface, charge paths, statuses, webhooks, writing a gateway |
+| Anywhere | [SDK](SDK.md) | The JavaScript SDK: checkout on any website, widgets, limits |
 | Storefront | [STOREFRONT-BLOCKS](STOREFRONT-BLOCKS.md) | Server-rendered blocks, React blocks, patterns, permalinks |
 | Settings | [SETTINGS-SYSTEM](SETTINGS-SYSTEM.md) | Storage, keys, how screens are described and saved |
 | AI | [AI-ARCHITECTURE](AI-ARCHITECTURE.md) | VuloCloud connection, `AiClient`, usage log |
