@@ -10,15 +10,9 @@ namespace VuloCart\Order\Domain;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Order module FulfillmentStatus.
- *
- * The other of the two independent dimensions an Order now tracks - see
- * PaymentStatus's own docblock for why this replaced the old single flat
- * `OrderStatus` enum. `DRAFT` is new: an order an admin created manually
- * (`Application\OrderService::create_manual_order()`) that hasn't been
- * placed/sent to the customer yet - the admin-UX brief's "Draft Orders"
- * submenu filters on this value (`classes/Admin/Menu.php`'s
- * `add_orders_menu()`).
+ * Fulfillment status of an order: the other of the two independent statuses an order tracks (see PaymentStatus).
+ * `DRAFT` is an order an admin created manually (OrderService::create_manual_order()) that has not been placed with
+ * the customer yet; the Orders menu filters on it.
  *
  * @class       FulfillmentStatus class
  * @version     1.0.0

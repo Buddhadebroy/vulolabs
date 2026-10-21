@@ -6,8 +6,19 @@ import './steps'; // side-effect only - registers Free's 5 interactive steps, sa
 export interface MountCheckoutEngineOptions {
 	cartToken: string;
 	cart: CartResponse | null;
-	mode: 'single_page' | 'multi_step';
+	/** Omit it to follow Settings → Commerce → Checkout → Checkout layout; pass it only to force one layout. */
+	mode?: 'single_page' | 'multi_step';
 	onBackToCart?: () => void;
+	/** Steps/fields to show instead of the site's Settings → Checkout choice. */
+	options?: { steps?: string[]; fields?: string[] };
+}
+
+/**
+ * The layout the store owner picked in Settings (`vulocartFrontendData.checkoutMode`), for every place the engine is
+ * mounted - the Checkout page, vulocart-pro's popup / embedded / hosted modes - unless the caller forces one.
+ */
+function configuredMode(): 'single_page' | 'multi_step' {
+	return 'single_page' === window.vulocartFrontendData?.checkoutMode ? 'single_page' : 'multi_step';
 }
 
 /**
@@ -32,8 +43,9 @@ export function mountCheckoutEngine( container: HTMLElement, options: MountCheck
 		<CheckoutEngine
 			cartToken={ options.cartToken }
 			cart={ options.cart }
-			mode={ options.mode }
+			mode={ options.mode ?? configuredMode() }
 			onBackToCart={ options.onBackToCart || ( () => undefined ) }
+			options={ options.options }
 		/>,
 		container
 	);

@@ -325,6 +325,7 @@ export const TYPE_PROFILES: TypeProfile[] = [
 
 export const PRODUCT_TYPE_OPTIONS = TYPE_PROFILES.map( ( profile ) => ( { label: profile.label, value: profile.value } ) );
 
+/** Returns the profile (cards and fields) of a product type, falling back to the first profile. */
 export function profileFor( type: string ): TypeProfile {
 	return TYPE_PROFILES.find( ( profile ) => profile.value === type ) ?? TYPE_PROFILES[ 0 ];
 }
@@ -336,10 +337,12 @@ export function subtypeFor( type: string, subtype: string ): Subtype {
 	return profile.subtypes.find( ( candidate ) => candidate.value === subtype ) ?? profile.subtypes[ 0 ];
 }
 
+/** Returns which cards the product form shows for a type and subtype. */
 export function cardsFor( type: string, subtype: string ): CardNeeds {
 	return { ...profileFor( type ).cards, ...( subtypeFor( type, subtype ).cards ?? {} ) };
 }
 
+/** Returns the type-specific fields shown for the active subtype. */
 export function fieldsFor( type: string, subtype: string ): TypeDetailField[] {
 	const active = subtypeFor( type, subtype ).value;
 

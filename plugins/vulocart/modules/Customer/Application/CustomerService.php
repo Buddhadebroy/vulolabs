@@ -247,15 +247,6 @@ class CustomerService {
     }
 
     /**
-     * Recomputes every customer's totals once, for stores whose numbers were counted the old way.
-     *
-     * @return void
-     */
-    public function refresh_all_totals(): void {
-        $this->customers->refresh_totals( null );
-    }
-
-    /**
      * Updates a customer's own editable profile fields.
      *
      * @param int                   $id   Customer id.

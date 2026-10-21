@@ -1,0 +1,276 @@
+$primary: var(--color-primary, #5007aa);
+
+.vulocart-taxrates {
+	width: 100%;
+
+	select,
+	input[type='text'],
+	input[type='number'] {
+		box-sizing: border-box;
+		min-height: 2.25rem;
+		padding: 0 0.625rem;
+		border: 1px solid #d9dce8;
+		border-radius: 0.375rem;
+		background: #fff;
+		font: inherit;
+		font-size: 0.875rem;
+
+		&:focus {
+			border-color: $primary;
+			outline: 0;
+			box-shadow: 0 0 0 2px color-mix(in srgb, #{$primary} 18%, transparent);
+		}
+	}
+}
+
+.vulocart-taxrates-preset {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.625rem;
+
+	select {
+		min-width: 14rem;
+	}
+}
+
+.vulocart-taxrates-toolbar {
+	display: grid;
+	gap: 0.75rem;
+	padding-bottom: 1rem;
+}
+
+.vulocart-taxrates-classhead {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 0.75rem 0;
+	border-top: 1px solid #e3e6ef;
+
+	h4 {
+		margin: 0 0 0.125rem;
+		font-size: 0.9375rem;
+	}
+
+	p {
+		margin: 0;
+		max-width: 30rem;
+		color: #6b7280;
+		font-size: 0.8125rem;
+	}
+}
+
+.vulocart-taxrates-flat {
+	display: grid;
+	gap: 0.375rem;
+	max-width: 22rem;
+	margin-top: 1rem;
+	color: #374151;
+	font-size: 0.875rem;
+	font-weight: 600;
+
+	small {
+		color: #6b7280;
+		font-size: 0.75rem;
+		font-weight: 400;
+	}
+}
+
+.vulocart-taxrates-note {
+	margin: 0;
+	color: #6b7280;
+	font-size: 0.8125rem;
+}
+
+.vulocart-taxrates-classes {
+	display: grid;
+	gap: 0.875rem;
+}
+
+.vulocart-taxrates-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+
+	button {
+		padding: 0.375rem 0.875rem;
+		border: 1px solid #d9dce8;
+		border-radius: 999px;
+		background: #fff;
+		color: #374151;
+		font: inherit;
+		font-size: 0.875rem;
+		cursor: pointer;
+
+		&.is-active {
+			border-color: $primary;
+			background: color-mix(in srgb, #{$primary} 10%, #fff);
+			color: $primary;
+			font-weight: 600;
+		}
+	}
+}
+
+.vulocart-taxrates-newclass {
+	display: flex;
+	gap: 0.625rem;
+
+	input {
+		flex: 1;
+		max-width: 20rem;
+	}
+}
+
+.vulocart-taxrates-card {
+	margin-top: 1.25rem;
+	border: 1px solid #e3e6ef;
+	border-radius: 0.5rem;
+	background: #fff;
+
+	> header {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 1.125rem 1.25rem;
+		border-bottom: 1px solid #e3e6ef;
+
+		h3 {
+			margin: 0 0 0.125rem;
+			font-size: 1.0625rem;
+		}
+
+		p {
+			margin: 0;
+			max-width: 44rem;
+			color: #6b7280;
+			font-size: 0.8125rem;
+		}
+	}
+}
+
+.vulocart-taxrates-actions {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.vulocart-taxrates-empty {
+	margin: 0;
+	padding: 1rem 0;
+	color: #6b7280;
+}
+
+.vulocart-taxrates-scroll {
+	overflow-x: auto;
+	margin: 0 1rem 1rem;
+
+	table {
+		width: 100%;
+		min-width: 40rem;
+		table-layout: fixed;
+		border-collapse: collapse;
+	}
+
+	th {
+		padding: 0.5rem 0.25rem;
+		color: #6b7280;
+		font-size: 0.6875rem;
+		font-weight: 600;
+		text-align: left;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		white-space: nowrap;
+	}
+
+	td {
+		padding: 0.375rem 0.25rem;
+		border-top: 1px solid #eef0f6;
+	}
+
+	// Every control fills its cell; the column widths below decide the layout.
+	select,
+	input[type='text'],
+	input[type='number'] {
+		width: 100%;
+		min-width: 0;
+		min-height: 2rem;
+		padding: 0 0.375rem;
+		font-size: 0.8125rem;
+	}
+
+	th:nth-child(1) { width: auto; }
+	th:nth-child(2) { width: 8rem; }
+	th:nth-child(3) { width: 5rem; }
+	th:nth-child(4) { width: 4.25rem; }
+	th:nth-child(5) { width: 6rem; }
+	th:nth-child(6) { width: 4rem; }
+	th:nth-child(7) { width: 3.5rem; }
+	th:nth-child(8) { width: 2.5rem; }
+
+	td:nth-child(7) {
+		text-align: center;
+	}
+}
+
+.vulocart-taxrates-remove {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2rem;
+	height: 2rem;
+	padding: 0;
+	border: 0;
+	border-radius: 0.375rem;
+	background: transparent;
+	color: #dc2626;
+	font-size: 1.125rem;
+	cursor: pointer;
+
+	&:hover {
+		background: #fee2e2;
+	}
+}
+
+// Same inset the declarative fields get inside a settings section's right column, and nothing wider than it.
+.vulocart-taxrates-body {
+	box-sizing: border-box;
+	min-width: 0;
+	max-width: 100%;
+	padding: 1rem 1rem 1rem 1rem;
+}
+
+.vulocart-taxrates .settings-right-section {
+	min-width: 0;
+}
+
+// The rows use zyra's own field-row layout; only the inset around them and the table are ours.
+.vulocart-taxrates-body {
+	padding: 0;
+
+	.form-group.row {
+		padding-left: 0;
+	}
+}
+
+.vulocart-taxrates-body .vulocart-taxrates-empty {
+	padding: 0 1rem 1rem;
+}
+
+.vulocart-taxrates-link {
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: $primary;
+	font: inherit;
+	font-size: 0.8125rem;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.vulocart-taxrates-remove i {
+	font-size: 1.25rem;
+	line-height: 1;
+}

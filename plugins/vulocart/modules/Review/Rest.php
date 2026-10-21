@@ -10,15 +10,8 @@ namespace VuloCart\Review;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Review module Rest class.
- *
- * Module-level REST controller, public - same reasoning as Cart\Rest's own
- * docblock. `POST /review/summary` backs the checkout wizard's final
- * Review step.
- *
- * Extends `\WP_REST_Controller` to match vulopilot's REST convention; no
- * collision - this class declares no `prepare_item_for_response()` (or any
- * other base-class method name) at all, let alone a private one.
+ * Review REST controller. Public like the other checkout routes. `POST /review/summary` backs the checkout's Review
+ * step.
  *
  * @class       Rest class
  * @version     1.0.0

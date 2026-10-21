@@ -25,15 +25,9 @@ defined( 'ABSPATH' ) || exit;
 class Install {
 
     /**
-     * Version-gate option - checked so the dbDelta() calls below only
-     * actually run once (on first activation, or after a future schema
-     * bump), not on every request this module happens to be active.
-     * `vulocart_activated_module_cart` fires on every
-     * Modules::load_active_modules() pass while the module is active, not
-     * only the very first one (module-architecture.md), so an unguarded
-     * dbDelta() call here would re-run its schema introspection on every
-     * single request - this option is what makes it idempotent instead
-     * (performance.md).
+     * Option that stores the schema version, so the dbDelta() calls only run on first activation or after a schema
+     * change. `vulocart_activated_module_cart` fires on every request while the module is active, so an unguarded
+     * dbDelta() would run on every request.
      *
      * @var string
      */

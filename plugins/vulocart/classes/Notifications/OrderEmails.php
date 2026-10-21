@@ -12,30 +12,15 @@ use VuloCart\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart OrderEmails.
+ * Sends the order emails: a confirmation when an order is created, and a status update when its payment or
+ * fulfillment status changes.
  *
- * A pure listener on the events modules/Order/Application/OrderService.php
- * already broadcasts via Events\EventDispatcher - this class holds no
- * order business logic itself (php-wordpress.md's "hooks are transport,
- * not logic" rule), it only reacts once OrderService has already decided
- * an order was created or changed status. Registered unconditionally from
- * VuloCart::init_classes() rather than gated on the Order module being
- * active - safe either way, since `vulocart_order_created`/
- * `vulocart_order_payment_status_changed`/
- * `vulocart_order_fulfillment_status_changed` only ever fire when the
- * Order module itself is active and dispatching them. Order used to have
- * one flat `status`; now that it's split into `payment_status`/
- * `fulfillment_status` (PaymentStatus.php's/FulfillmentStatus.php's own
- * docblocks), this class listens to both change events and sends an
- * appropriately-worded email for whichever one fired, both still gated
- * behind the same `send_status_update_email` setting.
+ * It only listens to the events the Order module dispatches (`vulocart_order_created`,
+ * `vulocart_order_payment_status_changed`, `vulocart_order_fulfillment_status_changed`) and holds no order logic. It
+ * is registered whether or not the Order module is active; the events simply never fire without it.
  *
- * The Settings screen's Email tab (src/settings/Email.ts) controls both
- * whether each email actually sends (`send_order_confirmation_email`/
- * `send_status_update_email`) and the From address used
- * (`notification_from_email`) - read fresh on every send rather than
- * cached, since this class has no other lifecycle hook to invalidate a
- * cached copy on save.
+ * Settings → Email controls whether each email is sent (`send_order_confirmation_email`, `send_status_update_email`)
+ * and the From address (`notification_from_email`). They are read on every send, not cached.
  *
  * @class       OrderEmails class
  * @version     1.0.0

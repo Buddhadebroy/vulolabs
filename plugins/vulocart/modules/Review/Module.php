@@ -10,21 +10,11 @@ namespace VuloCart\Review;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Review Module.
+ * Review module: the "Review your order" step of the checkout.
  *
- * The checkout wizard's final "Review your order" step - deliberately its
- * own namespace (`VuloCart\Review`, distinct from the existing product
- * star-rating feature at `VuloCart\Domain\Review`/
- * `VuloCart\Application\ReviewService`, exposed as
- * `VuloCart()->review_service`) to avoid colliding with that unrelated,
- * already-shipped concept. This module registers itself as
- * `VuloCart()->order_review_service`.
- *
- * Same toggleable-addon pattern as VuloCart\Cart\Module. No own table -
- * `build_summary()` is a pure read: it recomputes exactly what
- * `Order\Application\OrderService::create_from_cart()` would charge,
- * without persisting anything, so the wizard's Review step can show the
- * real final total before the buyer commits to "Place Order".
+ * Not the same as product reviews (see ProductReviews). Registers `VuloCart()->order_review_service`, which works out
+ * the final totals (items, shipping and tax) without saving anything, so the shopper sees the real total before
+ * pressing "Place order".
  *
  * @class       Module class
  * @version     1.0.0
@@ -33,11 +23,7 @@ defined( 'ABSPATH' ) || exit;
 class Module {
 
     /**
-     * Module constructor. Wires this module's own classes directly and
-     * registers its service on the main plugin container
-     * (`VuloCart()->order_review_service`) - plain, self-wiring shape
-     * vulopilot's own Module.php files use (no container/magic getter:
-     * nothing outside this module ever reaches into its instance).
+     * Creates the order review service (`VuloCart()->order_review_service`), its route and the checkout's Review step.
      */
     public function __construct() {
         $service = new Application\OrderReviewService();

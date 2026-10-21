@@ -1,0 +1,34 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"category": "widgets",
+	"textdomain": "vulocart",
+	"style": "vulocart-storefront",
+	"editorScript": "vulocart-storefront-editor",
+	"name": "vulocart/product-price",
+	"title": "Product Price",
+	"description": "The price, with the original price struck through when on sale.",
+	"icon": "money",
+	"ancestor": [
+		"vulocart/product-template",
+		"vulocart/product-details"
+	],
+	"usesContext": [
+		"vulocart/product",
+		"vulocart/query"
+	],
+	"supports": {
+		"html": false,
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"color": {
+			"text": true
+		},
+		"typography": {
+			"fontSize": true,
+			"fontWeight": true
+		}
+	}
+}

@@ -12,15 +12,17 @@ import { defaultPrice, getPriceTypes, newPriceId, toEditablePrices, toPayloadPri
 import type { EditablePrice } from './prices';
 import type { ReactNode } from 'react';
 import axios from 'axios';
+import TaxFields from './TaxFields';
 import { getApiLink } from '@zyra/core';
-import { showErrorToast, errorMessageOf } from '../../lib/rest-errors';
+import { showErrorToast, showToast, errorMessageOf } from '../../lib/rest-errors';
 import { CardComponent, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
 import { TextInput, TextAreaInput, SelectInput, ButtonInput, MultiCheckboxInput, FileInput } from '@zyra/inputs';
 import { EmbedCodeSection } from './EmbedCodeSection';
 import { HeaderPicker } from './HeaderPicker';
 import { ProModuleHint } from './ProModuleHint';
 import { TypeChooser } from './TypeChooser';
-import { PRODUCT_TYPE_OPTIONS, TYPE_PROFILES, cardsFor, fieldsFor, profileFor, subtypeFor, type TypeDetailField } from './typeProfiles';
+import { CollapsibleCards } from './CollapsibleCards';
+import { TYPE_PROFILES, cardsFor, fieldsFor, profileFor, subtypeFor, type TypeDetailField } from './typeProfiles';
 import './products-page.scss';
 
 const PRODUCT_STATUS_OPTIONS = [
@@ -169,6 +171,9 @@ interface ProductFormState {
 	width: string;
 	height: string;
 	shippingClass: string;
+	taxStatus: string;
+	taxClass: string;
+	taxCode: string;
 	shippingPolicy: string;
 	refundPolicy: string;
 	cancellationPolicy: string;
@@ -213,6 +218,9 @@ const EMPTY_FORM: ProductFormState = {
 	width: '',
 	height: '',
 	shippingClass: '',
+	taxStatus: 'taxable',
+	taxClass: 'standard',
+	taxCode: '',
 	shippingPolicy: '',
 	refundPolicy: '',
 	cancellationPolicy: '',
@@ -241,61 +249,31 @@ interface ProductEditProps {
 }
 
 /**
- * A dedicated full page for creating/editing one product. Real,
- * bookmarkable URL (`admin.php?page=vulocart-products&action=edit&id=123`),
- * not a modal - same navigation model as this session's earlier Products/
- * Orders split (see Products.tsx's docblock).
+ * Full page for creating or editing one product, at the bookmarkable URL
+ * `admin.php?page=products&action=edit&id=123`.
  *
- * Deliberately kept to as few cards as the content allows, rather than one
- * card per WooCommerce/Shopify meta-box: left is a single "Product Setup"
- * card (type + recommended checklist); center is "Product Details" (name/
- * description/pricing/attributes), an optional per-type "Type Details"
- * card, an optional combined "Inventory & Shipping" card, and "Policies &
- * Related Products"; right is "Publishing", a combined "Organization"
- * card (category, tags, brand, collections - all real DB-backed taxonomy
- * terms, see Domain\Term\Taxonomy), and "Upload image". Subsections within a card
- * use a plain `<h4>` (`.vulocart-subsection-title`) rather than a new
- * `CardComponent`, so grouping related fields doesn't cost another box.
+ * Layout: the left column has "Product Setup" (type and a recommended checklist); the center has "Product Details"
+ * (name, description, pricing, attributes), an optional per-type "Type Details" card, an optional "Inventory &
+ * Shipping" card and "Policies & Related Products"; the right has "Publishing", "Organization" (category, tags,
+ * brand, collections, all taxonomy terms; see Domain\Term\Taxonomy) and "Upload image". Sub-sections inside a card
+ * use a plain `<h4>` (`.vulocart-subsection-title`).
  *
- * Fields beyond title/type/sku/price/currency/status (Domain\Product\Product's
- * real columns) are stored in the Product's existing generic `meta` JSON
- * column - no schema change needed, same "extensible, type-specific
- * attributes" role `meta` already has for Cart/Order.
+ * Fields other than title, type, sku, price, currency and status (the real columns of Domain\Product\Product) are
+ * stored in the generic `meta` JSON column.
  *
- * The form is genuinely dynamic per product type (this plugin's admin-UX
- * brief's 11-type list - Physical/Digital/Subscription/Course/Service/
- * Membership/Booking/Rental/Bundle/Donation/Gift Card): "Inventory &
- * Shipping" only renders for types that actually track stock or ship a
- * package (STOCK_TRACKED_TYPES/SHIPPABLE_TYPES below, each gating its own
- * subsection independently), and every non-physical type gets its own
- * "Type Details" card driven by TYPE_FIELD_CONFIG - e.g. a Subscription
- * shows billing interval/trial period, a Course shows lesson count/skill
- * level, a Gift Card shows denominations/expiry. Delivery nature (physical/
- * downloadable/digital_service/other) is derived straight from `type`
- * (TYPE_TO_DELIVERY_METHOD) rather than a separate manual picker.
+ * The form changes with the product type: "Inventory & Shipping" renders only for types that track stock or ship a
+ * package (STOCK_TRACKED_TYPES, SHIPPABLE_TYPES, each gating its own sub-section), and every non-physical type has a
+ * "Type Details" card driven by TYPE_FIELD_CONFIG (a Subscription shows billing interval and trial period, a Course
+ * shows lesson count and skill level, a Gift Card shows denominations and expiry). The delivery nature is derived
+ * from `type` (TYPE_TO_DELIVERY_METHOD).
  *
- * One thing is deliberately NOT built as a fully real feature here:
- * "Related products"/"Offer as an add-on" (stored as simple comma-separated id
- * lists in meta, since there's no product-picker/search component yet -
- * real storage, simplified input). "Attributes & Variations" *is* real -
- * `vulocart_product_variants_section` (a narrower cousin of
- * `vulocart_product_edit_sections`, replacing this specific subsection's
- * content in place rather than appending elsewhere) lets vulocart-pro's
- * Variants module render a real matrix editor there; the inert
- * "not supported yet" button/notice below is only what free-tier users
- * without that module active still see.
+ * "Related products" and "Offer as an add-on" are stored as comma-separated id lists in `meta`, because there is no
+ * product picker yet. "Attributes & Variations" is replaced by the Variants module of vulocart-pro through
+ * `vulocart_product_variants_section`; free-tier sites without that module see a notice.
  *
- * `vulocart_product_edit_sections` - a `@wordpress/hooks` filter applied
- * at the end of the center column, alongside this page's own cards
- * ("Product Details", "Policies & Related Products", ...) - so a Pro
- * module's card renders as one more meta box in the same grid, not a
- * separate block bolted on elsewhere. Same "Pro extends Free via filters"
- * pattern `vulocart_product_row_actions` already establishes on
- * ProductsList.tsx, just for the edit page instead of the list. Only
- * fires once the product has a real id (`isEditMode`) - there's nothing
- * for a Pro section to attach to before the product itself has been
- * saved once.
- * `vulocart-pro`'s Passport module is the first (only) registrant today.
+ * `vulocart_product_edit_sections` is a `@wordpress/hooks` filter applied at the end of the center column, so a Pro
+ * module's card appears as one more card in the same grid. It only runs once the product has an id (`isEditMode`).
+ * The Passport module of vulocart-pro registers a card there.
  */
 export function ProductEdit( { id }: ProductEditProps ) {
 	const isEditMode = null !== id;
@@ -310,6 +288,11 @@ export function ProductEdit( { id }: ProductEditProps ) {
 		}
 
 		const wanted = new URLSearchParams( window.location.search ).get( 'type' );
+
+		// The step can be turned off for good (Settings → General, or "Don't show this again" on the screen itself).
+		if ( ! vulocartLocalizer.ask_product_type ) {
+			return true;
+		}
 
 		return !! wanted && TYPE_PROFILES.some( ( entry ) => entry.value === wanted );
 	} );
@@ -427,6 +410,8 @@ export function ProductEdit( { id }: ProductEditProps ) {
 		};
 	}, [ showProgress ] );
 	const [ publishedAt, setPublishedAt ] = useState< string | null >( null );
+	/** The product's page on the storefront. */
+	const [ permalink, setPermalink ] = useState( '' );
 	const [ showVariantsNotice, setShowVariantsNotice ] = useState( false );
 	const [ categoryOptions, setCategoryOptions ] = useState< { key: string; value: string; label: string; id?: number; depth?: number }[] >( [] );
 	const [ tagOptions, setTagOptions ] = useState< { key: string; value: string; label: string }[] >( [] );
@@ -435,6 +420,22 @@ export function ProductEdit( { id }: ProductEditProps ) {
 
 	const update = ( patch: Partial< ProductFormState > ) =>
 		setFormData( ( prev ) => ( { ...prev, ...patch } ) );
+
+	// A new product opens as Physical; when the store has that type switched off, start on the first one it has on.
+	useEffect( () => {
+		const off: string[] = vulocartLocalizer.disabled_product_types ?? [];
+
+		if ( isEditMode || ! off.includes( EMPTY_FORM.type ) ) {
+			return;
+		}
+
+		const next = TYPE_PROFILES.find( ( entry ) => 'license' !== entry.value && ! off.includes( entry.value ) );
+
+		if ( next ) {
+			update( { type: next.value, subtype: next.subtypes[ 0 ].value } );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- once, on open.
+	}, [] );
 
 	/**
 	 * Edits the price list. The single `price` / `salePrice` the rest of this page reads (preview, checklist,
@@ -609,6 +610,9 @@ export function ProductEdit( { id }: ProductEditProps ) {
 					width: meta.width || '',
 					height: meta.height || '',
 					shippingClass: meta.shipping_class || '',
+					taxStatus: meta.tax_status || 'taxable',
+					taxClass: meta.tax_class || 'standard',
+					taxCode: meta.tax_code || '',
 					shippingPolicy: meta.shipping_policy || '',
 					refundPolicy: meta.refund_policy || '',
 					cancellationPolicy: meta.cancellation_policy || '',
@@ -633,6 +637,7 @@ export function ProductEdit( { id }: ProductEditProps ) {
 					inventoryPrediction: meta.inventory_prediction && 'object' === typeof meta.inventory_prediction ? meta.inventory_prediction : null,
 				} );
 				setPublishedAt( product.published_at || null );
+				setPermalink( ( product as { permalink?: string } ).permalink ?? '' );
 				setIsLoadingInitial( false );
 			} )
 			.catch( () => {
@@ -698,16 +703,10 @@ export function ProductEdit( { id }: ProductEditProps ) {
 	const progressPercent = recommendedChecklist.length ? Math.round( ( doneCount / recommendedChecklist.length ) * 100 ) : 0;
 
 	/**
-	 * `vulocart_product_variants_section` - a narrower filter than
-	 * `vulocart_product_edit_sections` (which only ever appends at the
-	 * end of the center column): this one replaces the "Attributes &
-	 * Variations" subsection's own inert button/notice in place, so a Pro
-	 * module like vulocart-pro's Variants can render a real matrix editor
-	 * exactly where that notice used to live rather than as a
-	 * disconnected extra card. Null (no registrant, or add-mode with no
-	 * id yet) falls back to the existing inert notice - same
-	 * "no Pro module means render nothing" default every filter in this
-	 * file already has.
+	 * `vulocart_product_variants_section`: a narrower filter than `vulocart_product_edit_sections` (which only
+	 * appends at the end of the center column). It replaces the "Attributes & Variations" sub-section in place, so a
+	 * Pro module such as Variants can render a matrix editor exactly there. When there is no registrant, or the
+	 * product has no id yet, the notice below is shown.
 	 */
 	const variantsSection =
 		null !== id ? applyFilters( 'vulocart_product_variants_section', null, { id, type: formData.type } ) : null;
@@ -817,6 +816,9 @@ export function ProductEdit( { id }: ProductEditProps ) {
 		width: formData.width || undefined,
 		height: formData.height || undefined,
 		shipping_class: formData.shippingClass || undefined,
+		tax_status: 'none' === formData.taxStatus ? 'none' : undefined,
+		tax_class: 'standard' !== formData.taxClass ? formData.taxClass : undefined,
+		tax_code: formData.taxCode || undefined,
 		shipping_policy: formData.shippingPolicy || undefined,
 		refund_policy: formData.refundPolicy || undefined,
 		cancellation_policy: formData.cancellationPolicy || undefined,
@@ -929,7 +931,7 @@ export function ProductEdit( { id }: ProductEditProps ) {
 					setIsSaving( false );
 					setSavedNotice( true );
 				} else {
-					window.location.href = `admin.php?page=vulocart-products&action=edit&id=${ response.data.id }`;
+					window.location.href = `admin.php?page=products&action=edit&id=${ response.data.id }`;
 				}
 			} )
 			.catch( ( error ) => {
@@ -983,6 +985,19 @@ export function ProductEdit( { id }: ProductEditProps ) {
 		);
 	};
 
+	// Back to the type screen. If the step had been switched off for good, this also switches it back on.
+	const bringBackTypeStep = () => {
+		if ( ! vulocartLocalizer.ask_product_type ) {
+			vulocartLocalizer.ask_product_type = true;
+			axios
+				.post( getApiLink( vulocartLocalizer, 'settings' ), { ask_product_type: [ 'ask_product_type' ] }, { headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } } )
+				.then( () => showToast( 'success', __( 'The "What are you selling?" step is back on.', 'vulocart' ) ) )
+				.catch( () => undefined );
+		}
+
+		setTypeChosen( false );
+	};
+
 	if ( ! typeChosen ) {
 		return (
 			<TypeChooser
@@ -990,7 +1005,13 @@ export function ProductEdit( { id }: ProductEditProps ) {
 					update( { type, subtype: profileFor( type ).subtypes[ 0 ].value } );
 					setTypeChosen( true );
 				} }
-				onSkip={ () => setTypeChosen( true ) }
+				onSkip={ ( type ) => {
+					if ( type !== formData.type ) {
+						update( { type, subtype: profileFor( type ).subtypes[ 0 ].value } );
+					}
+
+					setTypeChosen( true );
+				} }
 			/>
 		);
 	}
@@ -1002,9 +1023,11 @@ export function ProductEdit( { id }: ProductEditProps ) {
 	if ( notFound ) {
 		return (
 			<div className="vulocart-product-edit-page">
-				<a className="vulocart-back-link" href="admin.php?page=vulocart-products">
-					{ __( '← Back to Products', 'vulocart' ) }
-				</a>
+				<nav className="vulocart-breadcrumbs" aria-label={ __( 'Breadcrumb', 'vulocart' ) }>
+					<a href="admin.php?page=products">{ __( 'Products', 'vulocart' ) }</a>
+					<i className="adminfont-pagination-next-arrow" aria-hidden="true" />
+					<span aria-current="page">{ __( 'Edit Product', 'vulocart' ) }</span>
+				</nav>
 				<p>{ __( 'No product exists with this id.', 'vulocart' ) }</p>
 			</div>
 		);
@@ -1015,7 +1038,7 @@ export function ProductEdit( { id }: ProductEditProps ) {
 			<div className="vulocart-product-edit-topbar">
 				<div>
 					<nav className="vulocart-breadcrumbs" aria-label={ __( 'Breadcrumb', 'vulocart' ) }>
-						<a href="admin.php?page=vulocart-products">{ __( 'Products', 'vulocart' ) }</a>
+						<a href="admin.php?page=products">{ __( 'Products', 'vulocart' ) }</a>
 						<i className="adminfont-pagination-next-arrow" aria-hidden="true" />
 						<span aria-current="page">{ isEditMode ? __( 'Edit Product', 'vulocart' ) : __( 'Add Product', 'vulocart' ) }</span>
 					</nav>
@@ -1040,8 +1063,22 @@ export function ProductEdit( { id }: ProductEditProps ) {
 								{ formData.sku }
 							</span>
 						) : null }
+						{ isEditMode && permalink && (
+							<a className="vulocart-view-link" href={ permalink } target="_blank" rel="noopener noreferrer">
+								{ 'published' === formData.status ? __( 'View product', 'vulocart' ) : __( 'Preview product', 'vulocart' ) }
+								<span aria-hidden="true">↗</span>
+							</a>
+						) }
 					</div>
 					{ ! isEditMode && <p className="vulocart-product-edit-subtitle">{ subtype.hint }</p> }
+					{ ! isEditMode && (
+						<button type="button" className="vulocart-change-type" onClick={ bringBackTypeStep }>
+							<i className="adminfont-pagination-prev-arrow" aria-hidden="true" />
+							{ vulocartLocalizer.ask_product_type
+								? __( 'Change product type', 'vulocart' )
+								: __( 'Show the "What are you selling?" step again', 'vulocart' ) }
+						</button>
+					) }
 				</div>
 
 				<div className="vulocart-topbar-actions">
@@ -1224,6 +1261,8 @@ export function ProductEdit( { id }: ProductEditProps ) {
 			{ savedNotice && (
 				<div className="vulocart-saved-notice">{ __( 'Product updated.', 'vulocart' ) }</div>
 			) }
+
+			<CollapsibleCards />
 
 			<div className="vulocart-product-edit-grid">
 				{ /* Main column */ }
@@ -1674,6 +1713,7 @@ export function ProductEdit( { id }: ProductEditProps ) {
 
 					{ null !== id && (
 						<div className="vulocart-edit-extra-sections">
+							{ vulocartLocalizer.active_modules.includes( 'taxes' ) && <TaxFields status={ formData.taxStatus } taxClass={ formData.taxClass } taxCode={ formData.taxCode } onChange={ ( patch ) => update( patch ) } /> }
 							{ applyFilters( 'vulocart_product_edit_sections', null, { id, type: formData.type, subtype: subtype.value, shippable: cards.shipping } ) }
 							{ /* Last, after the modules' sections (Digital Product Passport, ...). */ }
 							<EmbedCodeSection productId={ id } />
@@ -1753,38 +1793,60 @@ export function ProductEdit( { id }: ProductEditProps ) {
 					</aside>
 
 					<CardComponent titleIcon="image" title={ __( 'Images', 'vulocart' ) }>
-						<h4 className="vulocart-subsection-title">{ __( 'Featured Image', 'vulocart' ) }</h4>
-						<FileInput
-							name="featuredImage"
-							accept=".jpg,.jpeg,.png,.gif,.webp"
-							imageSrc={ formData.featuredImage?.url || '' }
-							imageWidth={ 120 }
-							imageHeight={ 120 }
-							openUploader={ __( 'Select Featured Image', 'vulocart' ) }
-							onChange={ ( value ) => {
-								const file = Array.isArray( value ) ? value[ 0 ] : value;
-								update( { featuredImage: file && file.url ? { id: file.id || 0, url: file.url } : null } );
-							} }
-						/>
+						{ /* One list: the first picture is the featured one; any picture can be made featured. */ }
+						{ ( () => {
+							const images: MediaItem[] = [ ...( formData.featuredImage ? [ formData.featuredImage ] : [] ), ...formData.gallery ];
+							const setImages = ( list: MediaItem[] ) => update( { featuredImage: list[ 0 ] ?? null, gallery: list.slice( 1 ) } );
 
-						<h4 className="vulocart-subsection-title">{ __( 'Product gallery', 'vulocart' ) }</h4>
-						<FileInput
-							name="gallery"
-							multiple
-							accept=".jpg,.jpeg,.png,.gif,.webp"
-							imageSrc={ formData.gallery.map( ( item ) => item.url ) }
-							imageWidth={ 90 }
-							imageHeight={ 90 }
-							openUploader={ __( 'Add Gallery Image', 'vulocart' ) }
-							onChange={ ( value ) => {
-								const files = Array.isArray( value ) ? value : [ value ];
-								update( {
-									gallery: files
-										.filter( ( file ) => file && file.url )
-										.map( ( file ) => ( { id: file.id || 0, url: file.url } ) ),
-								} );
-							} }
-						/>
+							return (
+								<div className="vulocart-images">
+									{ images.length > 0 && (
+										<ul className="vulocart-image-grid">
+											{ images.map( ( item, index ) => (
+												<li key={ `${ item.id }-${ item.url }` } className={ 0 === index ? 'is-featured' : undefined }>
+													<img src={ item.url } alt="" />
+													{ 0 === index && (
+														<span className="vulocart-image-badge">
+															<i className="adminfont-star" aria-hidden="true" />
+															{ __( 'Featured', 'vulocart' ) }
+														</span>
+													) }
+													<div className="vulocart-image-actions">
+														{ 0 !== index && (
+															<button type="button" title={ __( 'Make this the featured image', 'vulocart' ) } onClick={ () => setImages( [ item, ...images.filter( ( _, at ) => at !== index ) ] ) }>
+																<i className="adminfont-star" aria-hidden="true" />
+																{ __( 'Feature', 'vulocart' ) }
+															</button>
+														) }
+														<button type="button" className="is-remove" aria-label={ __( 'Remove image', 'vulocart' ) } onClick={ () => setImages( images.filter( ( _, at ) => at !== index ) ) }>
+															<i className="adminfont-close" aria-hidden="true" />
+														</button>
+													</div>
+												</li>
+											) ) }
+										</ul>
+									) }
+									<FileInput
+										name="images"
+										multiple
+										accept=".jpg,.jpeg,.png,.gif,.webp"
+										imageSrc={ [] }
+										imageWidth={ 90 }
+										imageHeight={ 90 }
+										openUploader={ images.length ? __( 'Add images', 'vulocart' ) : __( 'Add product images', 'vulocart' ) }
+										onChange={ ( value ) => {
+											const files = ( Array.isArray( value ) ? value : [ value ] ).filter( ( file ) => file && file.url ).map( ( file ) => ( { id: file.id || 0, url: file.url } ) );
+											const fresh = files.filter( ( file ) => ! images.some( ( item ) => item.url === file.url ) );
+
+											if ( fresh.length ) {
+												setImages( [ ...images, ...fresh ] );
+											}
+										} }
+									/>
+									<p className="vulocart-field-hint">{ __( 'The featured image shows on product cards and at the top of the product page.', 'vulocart' ) }</p>
+								</div>
+							);
+						} )() }
 					</CardComponent>
 
 					<CardComponent

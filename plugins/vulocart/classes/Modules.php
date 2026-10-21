@@ -10,22 +10,14 @@ namespace VuloCart;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Modules class.
+ * Module loader: finds, activates and boots the plugin's modules.
  *
- * The folder-scan/reflection module loader module-architecture.md
- * documents - mirrors VuloPilot\Modules exactly
- * (same discovery mechanism, same activate/deactivate/is_available/
- * is_active API), so vulocart-pro and any third-party plugin extend
- * VuloCart the same way a Pro/catalogx-pro module extends its own free
- * plugin: a folder under `modules/` containing `Module.php`, registered via the
- * `vulocart_module_sources` filter, never instantiated directly.
+ * A module is a folder under `modules/` that contains a `Module.php`. vulocart-pro and third-party plugins add their
+ * own `modules/` folder through the `vulocart_module_sources` filter. Modules are never instantiated directly; this
+ * class creates the active ones.
  *
- * Distinct from Scanners\ScannerRegistry/RuleEngine\RuleRegistry/etc. -
- * those are a single class implementing one small interface (a plain
- * class-name filter is enough); a module is a whole package (potentially
- * `Module.php` + `Frontend.php`/`Rest.php`/`Admin.php`/`src/`), which is
- * why it needs the heavier folder-scan discovery this class provides
- * instead.
+ * A module is a whole package (`Module.php` plus `Rest.php`, `Install.php`, `src/` and so on), which is why modules
+ * use folder scanning rather than a plain class-name filter like the smaller extension points.
  *
  * @class       Modules class
  * @version     1.0.0
@@ -64,9 +56,11 @@ class Modules {
 
     /**
      * Modules the cart and checkout cannot work without. They have no card on the Modules screen and cannot be
-     * switched off. Shipping, Taxes and Review are real options - a store may not need them - so they keep a card.
+     * switched off. Review is one of them: whether the checkout shows its Review step is a setting (Settings →
+     * Checkout → Steps shown), not a module. Shipping and Taxes are real options - a store may not need them - so
+     * they keep a card.
      */
-    const CORE_MODULE_IDS = array( 'cart', 'order', 'customer', 'address', 'payment', 'confirmation' );
+    const CORE_MODULE_IDS = array( 'cart', 'order', 'customer', 'address', 'payment', 'confirmation', 'review' );
 
     /**
      * Modules constructor.
@@ -165,13 +159,10 @@ class Modules {
     }
 
     /**
-     * Instantiates every currently-active, available module - the actual
-     * "boot" step. Silently drops (and persists the drop of) any stored
-     * active-module id that no longer resolves to a real, available
-     * module, e.g. after a folder rename or a Pro deactivation
-     * (backward-compatibility.md's module-rename caveat is about the
-     * *id* silently no longer matching anything, not about this cleanup
-     * step, which is deliberate here).
+     * Instantiates every active, available module: the boot step. Active module ids that no longer resolve to a real,
+     * available module (a renamed folder, a deactivated Pro plugin) are dropped from the stored list.
+     *
+     * Core modules are always added,.
      *
      * @return void
      */
@@ -189,6 +180,25 @@ class Modules {
             $active_modules       = array_values( array_merge( $active_modules, $missing_core ) );
             $this->active_modules = $active_modules;
             update_option( Utill::ACTIVE_MODULES_DB_KEY, $active_modules );
+        }
+
+        // A card stands for its module plus the companions that extend it (Shipping → Shipment, Taxes → Stripe Tax and
+        // business tax IDs): keep them on together, so a store that switched the card on before the companion existed,
+        // or before Pro was licensed, gets the whole feature.
+        $with_companions = array();
+
+        $companion_map = $this->get_companion_map();
+
+        foreach ( $active_modules as $module_id ) {
+            $with_companions = array_merge( $with_companions, array( $module_id ), (array) ( $companion_map[ $module_id ] ?? array() ) );
+        }
+
+        $with_companions = array_values( array_unique( $with_companions ) );
+
+        if ( $with_companions !== $active_modules ) {
+            $active_modules       = $with_companions;
+            $this->active_modules = $with_companions;
+            update_option( Utill::ACTIVE_MODULES_DB_KEY, $with_companions );
         }
 
         $all_modules    = $this->get_all_modules();
@@ -238,10 +248,11 @@ class Modules {
     /**
      * Checks whether a discovered module is still usable.
      *
+     * A module can define a static `is_compatible()` method; when it returns false the module is not available (for
+     * example Order is unavailable while Cart is off).
+     *
      * @param array $module One get_all_modules() entry.
      * @return bool False if the module's file vanished, or its own static
-     *              `is_compatible()` (module-architecture.md's optional
-     *              gate) says no.
      */
     private function is_module_available( $module ) {
         if ( ! file_exists( $module['module_file'] ) ) {
@@ -288,24 +299,48 @@ class Modules {
     }
 
     /**
-     * Modules that switch on and off together with another one. A single Modules-screen card stands for the pair
-     * (the free module plus the Pro module that extends it), so toggling the card toggles both. An id that is not
-     * available - Pro not installed or not licensed - is simply dropped by the loader.
+     * The companions map: card module => the modules that switch on and off with it. A single Modules-screen card
+     * stands for the whole group (the free module plus the Pro modules that extend it, or one feature area made of
+     * several modules), so toggling the card toggles all of them. An id that is not available - Pro not installed or
+     * not licensed - is simply dropped by the loader.
      *
      * Filter `vulocart_module_companions` lets a plugin add to the map.
      *
-     * @param string $module_id The module the merchant toggled.
-     * @return string[] That module plus its companions.
+     * @return array<string, string[]>
      */
-    public function with_companions( string $module_id ): array {
-        $map = apply_filters(
+    public function get_companion_map(): array {
+        return (array) apply_filters(
             'vulocart_module_companions',
             array(
-                'shipping'    => array( 'shipping-engine' ),
-                'bulk-editor' => array( 'csv-import' ),
+                'shipping'    => array( 'fulfillment' ),
+                'taxes'       => array( 'stripe-tax', 'tax-ids' ),
+                'bulk-editor' => array( 'csv-import', 'product-templates' ),
                 'mcp'         => array( 'mcp-server' ),
+                'coupons'     => array( 'gift-cards', 'pricing-rules', 'abandoned-checkout', 'checkout-links' ),
+                'inventory'   => array( 'suppliers' ),
+                'ai'          => array( 'catalog-ai', 'checkout-ai', 'support-ai', 'vector-search' ),
             )
         );
+    }
+
+    /**
+     * Modules that switch on and off together with another one, as a whole group.
+     *
+     * Asking for a companion (e.g. an old "Gift Cards" prompt) returns the whole group, so activating it turns on the
+     * card that owns it rather than one module of the group.
+     *
+     * @param string $module_id The module the merchant toggled.
+     * @return string[] That module plus its companions (or its card and all of that card's companions).
+     */
+    public function with_companions( string $module_id ): array {
+        $map = $this->get_companion_map();
+
+        foreach ( $map as $card => $companions ) {
+            if ( in_array( $module_id, (array) $companions, true ) ) {
+                $module_id = $card;
+                break;
+            }
+        }
 
         return array_values( array_unique( array_merge( array( $module_id ), (array) ( $map[ $module_id ] ?? array() ) ) ) );
     }

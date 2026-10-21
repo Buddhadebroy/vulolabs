@@ -10,16 +10,11 @@ namespace VuloCart\Domain\Checkout;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart CheckoutMode class.
- *
- * How the same pluggable step sequence (Application\CheckoutStepRegistry)
- * gets rendered/delivered - deliberately a separate axis from the steps
- * themselves: every mode here renders whatever steps the registry reports
- * for the active checkout template, just arranged/mounted differently.
- * SINGLE_PAGE/MULTI_STEP are free; the rest are vulocart-pro delivery
- * modes (POPUP/EMBEDDED/HOSTED wrap the same UI in a different mount
- * context, ONE_CLICK skips straight to order placement using a returning
- * customer's saved defaults).
+ * How the same pluggable step sequence is rendered or delivered. It is a separate axis from the steps themselves:
+ * every mode renders whatever steps `GET /checkout/steps` reports, arranged or mounted differently. SINGLE_PAGE and
+ * MULTI_STEP are free; the rest are vulocart-pro delivery modes (POPUP, DRAWER, EMBEDDED and HOSTED wrap the same UI
+ * in a different mount context, ONE_CLICK skips straight to order placement using a returning customer's saved
+ * defaults).
  *
  * @class       CheckoutMode class
  * @version     1.0.0
@@ -36,6 +31,9 @@ class CheckoutMode {
     /** vulocart-pro: the same engine mounted in a modal/overlay rather than inline in page content. */
     const POPUP = 'popup';
 
+    /** vulocart-pro: the same engine in a panel that slides in from the side. */
+    const DRAWER = 'drawer';
+
     /** vulocart-pro: the same engine mounted via a standalone script into any container div, on any page (WP or not). */
     const EMBEDDED = 'embedded';
 
@@ -51,7 +49,7 @@ class CheckoutMode {
      * @return string[]
      */
     public static function all(): array {
-        return array( self::SINGLE_PAGE, self::MULTI_STEP, self::POPUP, self::EMBEDDED, self::HOSTED, self::ONE_CLICK );
+        return array( self::SINGLE_PAGE, self::MULTI_STEP, self::POPUP, self::DRAWER, self::EMBEDDED, self::HOSTED, self::ONE_CLICK );
     }
 
     /**

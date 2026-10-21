@@ -3144,9 +3144,33 @@
 		outline: 0;
 	}
 
+	// react-select pads its value container and input container, and WP gives text inputs `line-height: 2`;
+	// together that made the dropdown taller than the 2.5rem text inputs beside it.
 	.select-prefix__control {
-		height: auto;
-		min-height: 2.5rem;
+		box-sizing: border-box;
+		// zyra pins `.basic-input` to 2rem with !important, so the text inputs render 2rem + 1px borders; match that.
+		height: calc(2rem + 2px);
+		min-height: calc(2rem + 2px);
+	}
+
+	.select-prefix__value-container {
+		padding-top: 0;
+		padding-bottom: 0;
+	}
+
+	.select-prefix__input-container {
+		margin: 0;
+		padding: 0;
+	}
+
+	.select-prefix__input-container input,
+	.select-prefix__input {
+		line-height: 1.5;
+	}
+
+	.select-prefix__indicator {
+		padding-top: 0;
+		padding-bottom: 0;
 	}
 }
 
@@ -3684,6 +3708,11 @@
 
 .vulocart-type-chooser.vulocart-type-chooser {
 	max-width: 70rem;
+	// Room above the breadcrumb, as above the edit page's top bar. On the breadcrumb itself, so no page-level padding
+	// rule can zero it.
+	.vulocart-breadcrumbs {
+		margin-top: 1.5rem;
+	}
 
 	header {
 		margin: 0.5rem 0 1.5rem;
@@ -3701,7 +3730,9 @@
 			margin: 0;
 		}
 
-		button {
+		button,
+		.vulocart-type-card-off {
+			box-sizing: border-box;
 			display: flex;
 			flex-direction: column;
 			align-items: flex-start;
@@ -3716,12 +3747,55 @@
 			cursor: pointer;
 			transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
 
-			&:hover,
-			&:focus-visible {
+			&:hover:not(:disabled),
+			&:focus-visible:not(:disabled) {
 				border-color: var(--vc-primary, #5007aa);
 				box-shadow: 0 6px 18px rgba(80, 7, 170, 0.1);
 				transform: translateY(-1px);
 				outline: 0;
+			}
+
+			// A type the store has not enabled: shown, but not pickable.
+			&:disabled,
+			&.vulocart-type-card-off {
+				background: #f6f7fb;
+				cursor: default;
+
+				.vulocart-type-icon,
+				strong,
+				small {
+					opacity: 0.5;
+				}
+			}
+
+			.vulocart-type-enable {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.375rem;
+				margin-top: auto;
+				padding-top: 0.5rem;
+				font-size: 0.8125rem;
+				font-weight: 600;
+				color: var(--vc-primary, #5007aa);
+				text-decoration: none;
+
+				i {
+					font-size: 0.5rem;
+				}
+
+				&:hover {
+					text-decoration: underline;
+				}
+			}
+
+			.vulocart-type-off {
+				margin-top: 0.5rem;
+				padding: 0.125rem 0.5rem;
+				border-radius: 999px;
+				background: #eceef5;
+				color: #6b7280;
+				font-size: 0.6875rem;
+				font-weight: 600;
 			}
 
 			strong {
@@ -3757,22 +3831,71 @@
 		color: var(--vc-primary, #5007aa);
 	}
 
+	// The way out of the chooser: a real button, with the "don't ask again" option beside it.
 	.vulocart-type-skip {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.75rem 1.5rem;
 		margin: 1.5rem 0 0;
+		padding: 1rem 1.25rem;
+		border: 1px dashed #cfd3e6;
+		border-radius: 0.5rem;
+		background: #fafbff;
 
-		button {
-			padding: 0;
+		.vulocart-type-skip-button {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.5rem;
+			padding: 0.625rem 1.125rem;
 			border: 0;
-			background: transparent;
-			font-size: 0.8125rem;
+			border-radius: 0.375rem;
+			background: var(--vc-primary, #5007aa);
+			color: #fff;
+			font-size: 0.875rem;
 			font-weight: 600;
-			color: var(--vc-primary, #5007aa);
 			cursor: pointer;
+			transition: filter 0.15s, box-shadow 0.15s;
 
-			&:hover {
-				text-decoration: underline;
+			&:hover,
+			&:focus-visible {
+				filter: brightness(1.12);
+				box-shadow: 0 4px 12px rgba(80, 7, 170, 0.25);
+				outline: 0;
 			}
 		}
+
+		.vulocart-type-skip-remember {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.5rem;
+			color: #4b5563;
+			font-size: 0.8125rem;
+			cursor: pointer;
+		}
+	}
+}
+
+// "Change product type" link under the new-product title.
+.vulocart-product-edit-page .vulocart-change-type {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	margin-top: 0.5rem;
+	padding: 0;
+	border: 0;
+	background: none;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: var(--vc-primary, #5007aa);
+	cursor: pointer;
+
+	i {
+		font-size: 0.5rem;
+	}
+
+	&:hover {
+		text-decoration: underline;
 	}
 }
 
@@ -3936,4 +4059,177 @@
 		opacity: 0.6;
 		cursor: wait;
 	}
+}
+
+// --- Edit page: calmer, easier to scan ---
+
+// Cards fold up from their header: the body goes, the title stays.
+.vulocart-product-edit-page .card-content.is-foldable {
+	> .card-header {
+		cursor: pointer;
+
+		// The chevron: points down when open, right when folded.
+		&::after {
+			content: '';
+			flex: none;
+			align-self: center;
+			width: 0.5rem;
+			height: 0.5rem;
+			margin: 0 0.25rem 0 0.75rem;
+			border-right: 2px solid #9ca3af;
+			border-bottom: 2px solid #9ca3af;
+			transform: rotate(45deg);
+			transition: transform 0.2s;
+		}
+
+		&:hover::after {
+			border-color: var(--vc-primary, #5007aa);
+		}
+	}
+
+	&.is-collapsed {
+		> :not(.card-header) {
+			display: none;
+		}
+
+		> .card-header {
+			margin-bottom: 0;
+
+			.right {
+				display: none;
+			}
+
+			&::after {
+				transform: rotate(-45deg);
+			}
+		}
+	}
+}
+
+// View product link beside the pills.
+.vulocart-product-edit-page .vulocart-view-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	margin-left: 0.25rem;
+	color: var(--vc-primary, #5007aa);
+	font-size: 0.8125rem;
+	font-weight: 600;
+	text-decoration: none;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+// One quiet card style for the whole form: hairline border, soft corners, no heavy shadow, roomy header.
+.vulocart-product-edit-page .vulocart-product-edit-col {
+	gap: 1.25rem;
+
+	.card-content {
+		border: 1px solid #e6e8f0;
+		border-radius: 0.875rem;
+		background: #fff;
+		box-shadow: none;
+	}
+
+	.card-header {
+		margin-bottom: 0.75rem;
+
+		.typography-title {
+			font-size: 1rem;
+			font-weight: 600;
+		}
+
+		.des {
+			margin-top: 0.125rem;
+			color: #6b7280;
+			font-size: 0.8125rem;
+		}
+	}
+}
+
+// Images: one grid, the featured one marked.
+.vulocart-image-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+	gap: 0.625rem;
+	margin: 0 0 0.75rem;
+	padding: 0;
+	list-style: none;
+
+	li {
+		position: relative;
+		margin: 0;
+		overflow: hidden;
+		border: 1px solid #e6e8f0;
+		border-radius: 0.625rem;
+		aspect-ratio: 1 / 1;
+		background: #f6f7fb;
+
+		&.is-featured {
+			grid-column: span 2;
+			grid-row: span 2;
+			border-color: var(--vc-primary, #5007aa);
+			box-shadow: 0 0 0 1px var(--vc-primary, #5007aa);
+		}
+
+		img {
+			display: block;
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+	}
+}
+
+.vulocart-image-badge {
+	position: absolute;
+	top: 0.375rem;
+	left: 0.375rem;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.125rem 0.5rem;
+	border-radius: 999px;
+	background: #fef3c7;
+	color: #92400e;
+	font-size: 0.6875rem;
+	font-weight: 700;
+}
+
+.vulocart-image-actions {
+	position: absolute;
+	inset: auto 0 0 0;
+	display: flex;
+	justify-content: space-between;
+	gap: 0.25rem;
+	padding: 0.375rem;
+	background: linear-gradient(transparent, rgba(0, 0, 0, 0.55));
+	opacity: 0;
+	transition: opacity 0.15s;
+
+	button {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+		padding: 0.1875rem 0.5rem;
+		border: 0;
+		border-radius: 999px;
+		background: #fff;
+		color: #1f2937;
+		font-size: 0.6875rem;
+		font-weight: 600;
+		cursor: pointer;
+
+		&.is-remove {
+			margin-left: auto;
+			padding: 0.1875rem 0.4rem;
+		}
+	}
+}
+
+.vulocart-image-grid li:hover .vulocart-image-actions,
+.vulocart-image-grid li:focus-within .vulocart-image-actions {
+	opacity: 1;
 }

@@ -4,7 +4,13 @@
 	"title": "VuloCart Checkout",
 	"category": "widgets",
 	"icon": "cart",
-	"description": "A real, working single-page checkout: browse products, adjust cart quantities, and place an order - no payment gateway yet, orders are created as 'pending'.",
+	"description": "A real, working checkout: contact, address, shipping and payment, then the order. Choose the layout, steps and fields for this page, or follow Settings → Checkout.",
+	"attributes": {
+		"customize": { "type": "boolean", "default": false },
+		"layout": { "type": "string", "default": "" },
+		"steps": { "type": "array", "items": { "type": "string" }, "default": [ "customer", "address", "shipping", "payment", "review" ] },
+		"fields": { "type": "array", "items": { "type": "string" }, "default": [ "name", "phone", "address_2" ] }
+	},
 	"editorScript": "file:./index.js",
 	"viewScript": "file:./view.js",
 	"textdomain": "vulocart",

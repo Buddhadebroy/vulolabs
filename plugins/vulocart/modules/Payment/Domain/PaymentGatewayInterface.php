@@ -10,28 +10,18 @@ namespace VuloCart\Payment\Domain;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Payment module PaymentGatewayInterface.
+ * The one contract every payment method implements: the three offline gateways of this plugin and the Stripe, PayPal
+ * and Razorpay gateways of vulocart-pro. `PaymentService` and `GatewayRegistry` never know which concrete class they
+ * hold.
  *
- * The Payment Framework's one contract - every payment method this app
- * ever offers (the three offline ones this plugin ships, plus Stripe/
- * PayPal/Razorpay in `vulocart-pro`) is a class implementing this
- * interface and nothing more; `PaymentService`/`GatewayRegistry` never
- * know which concrete class they're holding. Deliberately has no
- * `use VuloCart\Order\...`/`use VuloCart\Cart\...` anywhere in this
- * file or any of its implementations - a gateway only ever sees a
- * `PaymentContext`/gateway_transaction_id/`\WP_REST_Request`, never a
- * Cart or Order object directly, so the payment layer stays reusable
- * outside this app's own checkout flow (a Subscriptions billing cycle
- * calls `authorize()` the same way an order-creation request does).
+ * A gateway never sees a Cart or Order object, only a `PaymentContext`, a gateway transaction id or the webhook
+ * `\WP_REST_Request`, so the payment layer can be reused outside checkout (a subscription renewal calls `authorize()`
+ * the same way an order does).
  *
- * `authorize()` also serves as this framework's "create/confirm a
- * payment intent" step (Phase 5's "Support payment intents" requirement)
- * - a gateway that needs client-side confirmation (Stripe/PayPal/
- * Razorpay) returns `PaymentResult::REQUIRES_ACTION` with a
- * `client_secret` the storefront's own JS SDK widget uses to finish the
- * job directly with the gateway; `handle_webhook()` is how this codebase
- * later learns the outcome. A gateway with nothing to confirm client-side
- * (the three offline ones) just returns a final status immediately.
+ * `authorize()` is also the "create or confirm a payment intent" step. A gateway that needs the shopper to finish in
+ * the browser (Stripe, PayPal, Razorpay) returns `PaymentResult::REQUIRES_ACTION` with a `client_secret` for its
+ * JavaScript widget, and `handle_webhook()` reports the final result later. A gateway with nothing to confirm (the
+ * offline ones) returns a final status at once.
  *
  * @class       PaymentGatewayInterface interface
  * @version     1.0.0

@@ -12,15 +12,8 @@ use VuloCart\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Cart module CartCleanupScheduler.
- *
- * Wires the Settings screen's Cart tab `cart_expiry_days` (previously a
- * "saved, not yet consumed" value - src/settings/Cart.ts's own docblock
- * used to say so) to real behavior: a daily `wp_cron` event that deletes
- * carts nobody has touched in that many days. Hooks self-register in this
- * class's constructor, matching php-wordpress.md's convention - Module.php
- * constructs this once, in the same pass that wires every other Cart
- * service.
+ * Deletes expired carts. A daily `wp_cron` event removes carts nobody has touched for the number of days set in
+ * Settings → Cart (`cart_expiry_days`). The hooks are registered in the constructor, which Module.php calls once.
  *
  * @class       CartCleanupScheduler class
  * @version     1.0.0

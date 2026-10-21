@@ -37,6 +37,9 @@ class Rest extends \WP_REST_Controller {
 	 */
 	private $usage_log;
 
+	/**
+	 * Receives the VuloCloud connection and usage log, and registers the AI routes on rest_api_init.
+	 */
 	public function __construct( VuloCloudConnection $connection, AiUsageLogUtil $usage_log ) {
 		$this->connection = $connection;
 		$this->usage_log  = $usage_log;
@@ -45,6 +48,8 @@ class Rest extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Registers the AI routes: connection status, authorize URL, disconnect and usage.
+	 *
 	 * @return void
 	 */
 	public function register_routes(): void {
@@ -92,6 +97,8 @@ class Rest extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Only administrators (manage_options) may use the AI connection routes.
+	 *
 	 * @return bool
 	 */
 	public function admin_permissions_check() {
@@ -99,6 +106,8 @@ class Rest extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Returns whether this site is connected to VuloCloud and how many credits remain.
+	 *
 	 * @return \WP_REST_Response
 	 */
 	public function get_status() {
@@ -106,6 +115,9 @@ class Rest extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Returns the VuloCloud URL the admin should visit to connect this site, or an error when the build has no
+	 * VuloCloud URL.
+	 *
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function get_authorize_url() {
@@ -119,6 +131,8 @@ class Rest extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Removes the VuloCloud connection from this site.
+	 *
 	 * @return \WP_REST_Response
 	 */
 	public function disconnect() {
@@ -128,6 +142,8 @@ class Rest extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Returns the AI usage totals and the 50 most recent AI requests.
+	 *
 	 * @return \WP_REST_Response
 	 */
 	public function get_usage() {

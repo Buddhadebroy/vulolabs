@@ -1,0 +1,34 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"category": "widgets",
+	"textdomain": "vulocart",
+	"style": "vulocart-storefront",
+	"editorScript": "vulocart-storefront-editor",
+	"name": "vulocart/product-add-to-cart",
+	"title": "Add to Cart",
+	"description": "Adds the product to the cart in one tap, or opens its page when a choice is needed.",
+	"icon": "cart",
+	"ancestor": [
+		"vulocart/product-template"
+	],
+	"attributes": {
+		"fullWidth": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"usesContext": [
+		"vulocart/product",
+		"vulocart/query"
+	],
+	"supports": {
+		"html": false,
+		"spacing": {
+			"margin": true
+		},
+		"__experimentalBorder": {
+			"radius": true
+		}
+	}
+}

@@ -19,7 +19,7 @@ interface OrdersProps {
  * `add_orders_menu()`/ProductsList.tsx's sibling docblock for why this is
  * query-string-driven rather than a client-side route or a popup: every
  * transition here is a real browser navigation to a distinct
- * `admin.php?page=vulocart-orders...` URL, matching WooCommerce's own
+ * `admin.php?page=orders...` URL, matching WooCommerce's own
  * order edit screen. `filter` (`draft`/`refunds`) backs the "Draft
  * Orders"/"Refunds" submenus - passed straight through to OrdersList,
  * which turns it into the right `fulfillment_status`/`payment_status`

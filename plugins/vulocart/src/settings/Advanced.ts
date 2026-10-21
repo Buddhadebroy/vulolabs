@@ -1,20 +1,15 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Backed by `Utill::SETTINGS_DEFAULTS`'s Advanced section.
- * `enable_debug_logging` is genuinely read by `Utill::log()` - the sole
- * catch-and-record path for a broken module's constructor
- * (Modules::load_active_modules()) - mirrors
- * VuloPilot\Utill::log()'s identical gate/precedent exactly.
+ * Backed by the Advanced section of `Utill::SETTINGS_DEFAULTS`. `enable_debug_logging` is read by `Utill::log()`,
+ * which records the exceptions Modules::load_active_modules() catches when a module's constructor fails.
  *
- * Deliberately kept as a standalone top-level file (not folded into a
- * folder) - priority 4 sorts it after the three folders
- * (General=1/Commerce=2/Integrations=3, see each folder's own
- * FolderPriority.ts) at the top-level nav.
+ * This is a standalone top-level file, not part of a folder. Priority 4 sorts it after the folders (General=1,
+ * Commerce=2, Integrations=3; see each folder's FolderPriority.ts).
  */
 export default {
 	id: 'advanced',
-	priority: 4,
+	priority: 8,
 	headerTitle: __( 'Advanced', 'vulocart' ),
 	headerIcon: 'tools',
 	groupBySections: true,

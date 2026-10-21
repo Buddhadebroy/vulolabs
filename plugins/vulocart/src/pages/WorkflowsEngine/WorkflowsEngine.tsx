@@ -17,7 +17,10 @@ const workflows: EngineView = {
 	pro: true,
 };
 
-const views: Record< string, EngineView > = { list: workflows, edit: workflows, runs: workflows };
+// Edit and run history are detail pages: they draw their own breadcrumb header, like the product edit page.
+const detail: EngineView = { ...workflows, bare: true };
+
+const views: Record< string, EngineView > = { list: workflows, edit: detail, runs: detail };
 
 /** Free owns the frame; the Workflow Builder module (vulocart-pro) registers every view into `vulocart_workflows_view`. */
 export function WorkflowsEngine( { view }: WorkflowsEngineProps ) {

@@ -12,22 +12,11 @@ use VuloCart\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Settings REST controller.
+ * `GET` / `POST /vulocart/v1/settings`: reads and saves the settings shown on src/pages/Settings/Settings.tsx.
  *
- * `GET`/`POST /vulocart/v1/settings` backs src/pages/Settings/Settings.tsx,
- * built on zyra's real settings framework (`InputRenderer`/
- * `NavigatorComponent`, `getAvailableSettings`/`getSettingById` from
- * `@zyra/core`) - mirrors `VuloPilot\RestAPI\Controllers\Settings`'s
- * flat-option shape (a single `wp_options` row, `Utill::SETTINGS_KEY`),
- * not a per-tab-namespaced `admin_settings` variant, since
- * VuloCart has exactly one settings tab so far.
- *
- * `update_item()` **merges** the `{ setting, settingName }` subset
- * `InputRenderer` actually auto-saves into the existing option rather
- * than replacing it wholesale - with only one tab today a wholesale
- * replace would happen to be equivalent, but merging is what stays
- * correct the moment a second tab exists, and matches every sibling
- * Settings controller's own documented reasoning for doing the same.
+ * Settings are stored as one flat option (`Utill::SETTINGS_KEY`). `update_item()` merges the submitted `{ setting,
+ * settingName }` subset into the stored option instead of replacing it, because the settings screens save one field
+ * at a time.
  *
  * @class       Settings class
  * @version     1.0.0
@@ -83,7 +72,15 @@ class Settings extends \WP_REST_Controller {
      * @return \WP_REST_Response
      */
     public function get_items( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
-        return rest_ensure_response( $this->get_stored_settings() );
+        $settings = $this->get_stored_settings();
+
+        // Customer and Payment are always part of checkout; a stored list (disabled boxes are never posted back) may
+        // lack them, which would draw those two boxes unticked.
+        if ( isset( $settings['checkout_steps'] ) && is_array( $settings['checkout_steps'] ) ) {
+            $settings['checkout_steps'] = array_values( array_unique( array_merge( array( 'customer' ), $settings['checkout_steps'], array( 'payment' ) ) ) );
+        }
+
+        return rest_ensure_response( $settings );
     }
 
     /**

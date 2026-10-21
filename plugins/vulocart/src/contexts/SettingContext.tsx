@@ -1,13 +1,8 @@
 import React, { createContext, useReducer, useContext, ReactNode } from 'react';
 
 /**
- * Same tiny reducer-backed context every plugin in this workspace that
- * uses zyra's InputRenderer/NavigatorComponent settings framework carries
- * its own copy of (see vulopilot/src/contexts/SettingContext.tsx) - it's
- * generic, per-tab local
- * state, not something zyra itself exports, so each consuming plugin
- * owns its own instance rather than importing a shared one that doesn't
- * exist.
+ * Small reducer-backed context that holds the settings state of the Settings screens, and the setters used by
+ * InputRenderer and the settings panels.
  */
 type SettingState = {
 	settingName: string;
@@ -62,6 +57,7 @@ type SettingProviderProps = {
 	children: ReactNode;
 };
 
+/** Holds the settings state of the admin app and provides setters to every settings screen below it. */
 const SettingProvider: React.FC< SettingProviderProps > = ( { children } ) => {
 	const [ state, dispatch ] = useReducer( settingReducer, initialState );
 
@@ -94,6 +90,7 @@ const SettingProvider: React.FC< SettingProviderProps > = ( { children } ) => {
 	);
 };
 
+/** Returns the settings state and setters; must be used inside a SettingProvider. */
 const useSetting = (): SettingContextType => {
 	const context = useContext( SettingContext );
 	if ( ! context ) {

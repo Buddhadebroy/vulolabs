@@ -10,21 +10,12 @@ namespace VuloCart;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Install class.
+ * Creates the plugin's core database tables with dbDelta().
  *
- * Creates VuloCart's custom database tables, following the same
- * dbDelta()-based pattern as VuloPilot\Install.
- *
- * Owns `vulocart_products` (Product is the plugin's always-on core entity)
- * plus the catalog-taxonomy tables the Products menu's Categories/
- * Brands/Collections/Attributes/Reviews pages need
- * (`vulocart_terms`, `vulocart_attributes`, `vulocart_attribute_values`,
- * `vulocart_reviews`) - all core, always-loaded infrastructure the same
- * way Product is, not a toggleable module. Cart and Order's own tables are
- * created on their own module activation hooks instead
- * (`modules/Cart/Install.php`, `modules/Order/Install.php`), same
- * "module owns its own schema" convention `vulocart-pro`'s Passport
- * module already establishes, not from this plugin-level class.
+ * Owns `vulocart_products` plus the catalog tables used by the Products menu: `vulocart_terms` (categories, brands,
+ * collections, tags), `vulocart_attributes`, `vulocart_attribute_values`, `vulocart_reviews` and
+ * `vulocart_checkout_sessions`. Tables that belong to a module (cart, orders, customers, payments, taxes, AI) are
+ * created by that module's own Install.php when the module is activated.
  *
  * @class       Install class
  * @version     1.0.0
@@ -33,11 +24,8 @@ defined( 'ABSPATH' ) || exit;
 class Install {
 
     /**
-     * Class constructor - runs the install immediately.
-     *
-     * Only ever constructed from VuloCart::init_classes() and
-     * VuloCart::init_plugin() (both at/after 'init'), so, like
-     * VuloPilot\Install, running synchronously here is safe.
+     * Class constructor - runs the install immediately. It is only constructed from VuloCart::init_plugin() and
+     * VuloCart::init_classes(), both at or after `init`, so running synchronously is safe.
      */
     public function __construct() {
         $this->run_migration();
@@ -49,13 +37,7 @@ class Install {
      * @return void
      */
     public function run_migration() {
-        $previous_version = get_option( Utill::OTHER_SETTINGS['plugin_db_version'], false );
-
-        if ( ! $previous_version ) {
-            $this->create_database_tables();
-        } else {
-            $this->do_migration( $previous_version );
-        }
+        $this->create_database_tables();
 
         update_option( Utill::OTHER_SETTINGS['plugin_db_version'], VULOCART_PLUGIN_VERSION );
         do_action( 'vulocart_after_installed' );
@@ -81,12 +63,9 @@ class Install {
     /**
      * Creates `vulocart_products`.
      *
-     * No `IF NOT EXISTS` in the CREATE TABLE statement - `dbDelta()`
-     * extracts the table name via a regex that stops at the first space
-     * after `CREATE TABLE`, so `CREATE TABLE IF NOT EXISTS ...` reads as
-     * table name `IF` and silently does nothing to the real table. A
-     * real instance of this exact bug: `dbDelta()` returned
-     * `['IF' => 'Created table IF']` and touched nothing.
+     * The CREATE TABLE statement must not use `IF NOT EXISTS`: dbDelta() reads the table name up to the first space
+     * after `CREATE TABLE`, so `CREATE TABLE IF NOT EXISTS ...` is read as a table called `IF` and nothing happens to
+     * the real table.
      *
      * @return void
      */
@@ -95,12 +74,9 @@ class Install {
 
         $collate = $wpdb->get_charset_collate();
 
-        // Vision: "Never use Product internally, instead use Product" -
-        // one table covers every product type in Domain\Product\ProductType;
-        // `type` distinguishes physical/digital/subscription/etc rather
-        // than a table-per-type, and `meta`/`passport` are extensible JSON
-        // bags rather than fixed columns per type, since the type list is
-        // expected to keep growing (vision: "Future Product Types").
+        // One table covers every product type in Domain\Product\ProductType: the `type` column tells physical,
+        // digital, subscription and so on apart, and `meta` / `passport` are JSON columns rather than fixed columns
+        // per type, because the list of types is expected to grow.
         $sql_products = "CREATE TABLE `{$wpdb->prefix}" . Utill::TABLES['product'] . "` (
             `id`         bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             `type`       varchar(50) NOT NULL,
@@ -234,48 +210,5 @@ class Install {
         ) $collate;";
 
         dbDelta( $sql_checkout_sessions );
-    }
-
-    /**
-     * Adds `vulocart_checkout_sessions` for the Checkout Engine - dbDelta()
-     * is safe to call unconditionally for a table (creates it if missing,
-     * no-ops if it's already there).
-     *
-     * @param string $previous_version The version option value before this run.
-     * @return void
-     */
-    public function do_migration( $previous_version ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
-        self::create_checkout_sessions_table();
-
-        self::ensure_product_published_at();
-    }
-
-    /**
-     * `published_at` on products: dbDelta adds the column, then products that were already published get
-     * their creation date as the best available publish date. Once per site.
-     *
-     * Also called from VuloCart::init_plugin() on every request until it has run, not only from
-     * `do_migration()`: that only runs when the plugin version goes up, so a site already on the current
-     * version would otherwise never get the column - and every product save would fail on it.
-     *
-     * @return void
-     */
-    public static function ensure_product_published_at() {
-        if ( get_option( 'vulocart_product_published_at_added' ) ) {
-            return;
-        }
-
-        global $wpdb;
-
-        if ( ! function_exists( 'dbDelta' ) ) {
-            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-        }
-
-        self::create_product_table();
-
-        $table = $wpdb->prefix . Utill::TABLES['product'];
-        $wpdb->query( "UPDATE {$table} SET published_at = created_at WHERE status = 'published' AND published_at IS NULL" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-time backfill, table name is plugin-defined.
-
-        update_option( 'vulocart_product_published_at_added', '1' );
     }
 }

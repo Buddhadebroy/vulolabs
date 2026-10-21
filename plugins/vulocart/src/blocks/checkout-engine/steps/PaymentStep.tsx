@@ -1,7 +1,8 @@
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { client } from '../../shared/cart';
-import { registerCheckoutStep, getPaymentMethodRenderer, isPaymentMethodReady } from '../registry';
+import { registerCheckoutStep, getPaymentMethodRenderer, getCheckoutStepExtensions, isPaymentMethodReady } from '../registry';
+import { formatMoney } from '../../shared/money';
 import type { CheckoutStepContext } from '../registry';
 
 interface PaymentMethod {
@@ -19,8 +20,11 @@ registerCheckoutStep( {
 
 type Props = CheckoutStepContext;
 
+/**
+ * Payment step: lists the enabled payment methods and, for online gateways, renders the gateway's own payment widget.
+ */
 function PaymentStepView( props: Props ) {
-	const { data, update, mode, goNext, goBack, isFirstStep } = props;
+	const { data, update, mode, goNext, goBack, isFirstStep, isLastStep, summary, onPlaceOrder } = props;
 	const [ methods, setMethods ] = useState< PaymentMethod[] >( [] );
 	const [ isLoading, setIsLoading ] = useState( true );
 
@@ -78,21 +82,34 @@ function PaymentStepView( props: Props ) {
 				</div>
 			) }
 
-			{ 'multi_step' === mode && (
+			{ /* Payment is the last step, where the order is placed. The extras of the 'review' step extension point (order
+			     notes, coupon and gift card from vulocart-pro) are shown here. */ }
+			{ isLastStep &&
+				getCheckoutStepExtensions( 'review' ).map( ( extension, index ) => (
+					<div key={ index } className="vulocart-checkout-step-extension">
+						{ extension( props ) }
+					</div>
+				) ) }
+
+			{ ( 'multi_step' === mode || isLastStep ) && (
 				<div className="vulocart-checkout-step-actions">
-					{ ! isFirstStep && (
-						<button type="button" onClick={ goBack }>
+					{ 'multi_step' === mode && ! isFirstStep && (
+						<button type="button" className="is-secondary" onClick={ goBack }>
 							{ __( 'Back', 'vulocart' ) }
 						</button>
 					) }
-					{ ! selectedRenderer && (
-						<button type="button" className="is-primary" disabled={ methods.length > 0 && ! selected } onClick={ goNext }>
-							{ __( 'Continue', 'vulocart' ) }
-						</button>
-					) }
-					{ selectedRenderer && ready && (
-						<button type="button" className="is-primary" onClick={ goNext }>
-							{ __( 'Continue', 'vulocart' ) }
+					{ ( ! selectedRenderer || ready ) && (
+						<button
+							type="button"
+							className="is-primary wp-element-button"
+							disabled={ isLastStep ? ! summary || ! selected : methods.length > 0 && ! selected }
+							onClick={ isLastStep ? onPlaceOrder : goNext }
+						>
+							{ isLastStep
+								? summary
+									? `${ __( 'Place order', 'vulocart' ) } · ${ formatMoney( summary.total, summary.currency ) }`
+									: __( 'Place order', 'vulocart' )
+								: __( 'Continue', 'vulocart' ) }
 						</button>
 					) }
 				</div>

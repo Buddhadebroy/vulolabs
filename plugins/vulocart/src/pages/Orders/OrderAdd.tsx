@@ -34,6 +34,7 @@ interface CustomerSummary {
 	total_orders?: number;
 }
 
+/** Request headers carrying the WordPress REST nonce. */
 const headers = () => ( { 'X-WP-Nonce': vulocartLocalizer.nonce } );
 
 /**
@@ -199,7 +200,7 @@ export function OrderAdd() {
 			)
 			.then( ( response ) => {
 				const go = () => {
-					window.location.href = `admin.php?page=vulocart-orders&action=edit&id=${ response.data.id }`;
+					window.location.href = `admin.php?page=orders&action=edit&id=${ response.data.id }`;
 				};
 
 				if ( 0 === tags.length ) {
@@ -221,7 +222,7 @@ export function OrderAdd() {
 			<div className="vulocart-product-edit-topbar">
 				<div>
 					<nav className="vulocart-breadcrumbs" aria-label={ __( 'Breadcrumb', 'vulocart' ) }>
-						<a href="admin.php?page=vulocart-orders">{ __( 'Orders', 'vulocart' ) }</a>
+						<a href="admin.php?page=orders">{ __( 'Orders', 'vulocart' ) }</a>
 						<i className="adminfont-pagination-next-arrow" aria-hidden="true" />
 						<span aria-current="page">{ __( 'Add Order', 'vulocart' ) }</span>
 					</nav>
@@ -275,7 +276,7 @@ export function OrderAdd() {
 						{ productsLoaded && 0 === products.length ? (
 							<p className="vulocart-field-hint">
 								{ __( 'Your catalogue is empty.', 'vulocart' ) }{ ' ' }
-								<a className="vulocart-order-missing" href="admin.php?page=vulocart-products&action=add">
+								<a className="vulocart-order-missing" href="admin.php?page=products&action=add">
 									<i className="adminfont-plus" aria-hidden="true" />
 									{ __( 'Add a product', 'vulocart' ) }
 								</a>

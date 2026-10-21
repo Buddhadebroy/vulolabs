@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * classes/AI/Services/CredentialEncryption.php) and `vulocart_ai_usage_log`
  * (insert-only call log, classes/AI/AiUsageLogUtil.php). Same
  * version-gated dbDelta shape as vulocart-pro's own module Install
- * classes (ShippingEngine\Install's own docblock).
+ * classes (Fulfillment\Install's own docblock).
  *
  * @class       Install class
  * @version     1.0.0
@@ -27,11 +27,17 @@ class Install {
 
 	const TABLE_SCHEMA_VERSION = '1.0.0';
 
+	/**
+	 * Creates the AI usage log table when the AI module is switched on.
+	 */
 	public function __construct() {
 		add_action( 'vulocart_activated_module_ai', array( $this, 'maybe_create_tables' ) );
 	}
 
 	/**
+	 * Creates or upgrades the AI usage log table, skipping the work when the stored schema version is already
+	 * current.
+	 *
 	 * @return void
 	 */
 	public function maybe_create_tables(): void {

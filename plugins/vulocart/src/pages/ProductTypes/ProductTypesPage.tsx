@@ -19,6 +19,8 @@ interface ProductTypeInfo {
 	description: string;
 	product_count: number;
 	enabled: boolean;
+	/** Every type but Physical needs VuloCart Pro. */
+	pro_only: boolean;
 	/** Set when the type only works with a vulocart-pro module. */
 	pro: ProLink | null;
 	/** Pro pages that add to this type (Pro is not needed to sell it). */
@@ -33,6 +35,7 @@ const TYPE_ICONS: Record< string, string > = {
 	gift_card: 'gift-card',
 };
 
+/** Turns a type id such as `gift_card` into a readable label ("Gift Card"). */
 const humanize = ( type: string ): string =>
 	type
 		.split( '_' )
@@ -90,7 +93,7 @@ export function ProductTypesPage() {
 				<CardComponent isLoading={ isLoading }>
 					<div className="vulocart-type-grid">
 						{ types.map( ( row ) => {
-							const locked = !! row.pro && ! proActive;
+							const locked = ( row.pro_only || !! row.pro ) && ! proActive;
 							const manageUrl = row.pro ? `${ adminUrl }admin.php?page=${ row.pro.page }&view=${ row.pro.view }` : '';
 
 							return (
@@ -109,12 +112,14 @@ export function ProductTypesPage() {
 												) }
 											</span>
 										</div>
+										{ row.pro_only && (
 										<span className="vulocart-type-pro">
 											<svg viewBox="0 0 16 16" width="11" height="11" aria-hidden="true" focusable="false">
 												<path fill="currentColor" d="M1.5 5.5 4.6 8 8 3l3.4 5 3.1-2.5-1.2 7H2.7l-1.2-7Z" />
 											</svg>
 											{ __( 'Pro', 'vulocart' ) }
 										</span>
+										) }
 										{ locked ? (
 											<i className="adminfont-lock vulocart-type-lock" aria-label={ __( 'Needs VuloCart Pro', 'vulocart' ) } />
 										) : (
@@ -141,7 +146,7 @@ export function ProductTypesPage() {
 
 									<div className="vulocart-type-links vulocart-type-pro-links">
 										<span className="vulocart-type-links-label">{ __( 'Pro tools', 'vulocart' ) }</span>
-										{ locked ? (
+										{ ! proActive ? (
 											<a href={ `${ adminUrl }admin.php?page=vulocart#&tab=settings&subtab=licensing` }>{ __( 'Activate license', 'vulocart' ) }</a>
 										) : (
 											<>

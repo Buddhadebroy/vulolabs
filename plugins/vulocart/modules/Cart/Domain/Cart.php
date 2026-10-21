@@ -10,14 +10,9 @@ namespace VuloCart\Cart\Domain;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Cart module Cart entity.
- *
- * Plain domain object. `token` (not a WordPress user id or PHP session) is
- * the cart's identity - the vision's "headless" requirement means a cart
- * must be addressable by a client that has no WordPress session at all (a
- * Next.js app, a mobile app, an MCP client), so identity has to travel as
- * an opaque string the caller stores itself, not a cookie/session VuloCart
- * owns.
+ * Plain domain object. The cart is identified by an opaque `token`, not by a WordPress user id or PHP session, so a
+ * client with no WordPress session (a Next.js app, a mobile app, an MCP client) can address it. The caller stores the
+ * token itself.
  *
  * @class       Cart class
  * @version     1.0.0

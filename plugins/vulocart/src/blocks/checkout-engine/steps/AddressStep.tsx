@@ -3,6 +3,9 @@ import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { registerCheckoutStep, getCheckoutStepExtensions } from '../registry';
 import type { CheckoutStepContext } from '../registry';
+import { getCountries, getStates } from '../../shared/geo';
+import { SelectField, TextField } from '../Field';
+import { hasCheckoutField } from '../options';
 
 export interface AddressFields {
 	full_name: string;
@@ -28,54 +31,47 @@ export const EMPTY_ADDRESS: AddressFields = {
 
 const REQUIRED_ADDRESS_FIELDS: ( keyof AddressFields )[] = [ 'full_name', 'address_1', 'city', 'state', 'postcode', 'country' ];
 
+/**
+ * Renders the shared address form fields (country, state, city, postal code and so on) for either the billing or the
+ * shipping address.
+ */
 export function renderAddressFields( value: AddressFields, onChange: ( next: AddressFields ) => void ) {
+	const states = getStates( value.country );
+
 	return (
 		<div className="vulocart-checkout-field-group">
-			<input
-				type="text"
-				placeholder={ __( 'Full name', 'vulocart' ) }
-				value={ value.full_name }
-				onChange={ ( event ) => onChange( { ...value, full_name: event.target.value } ) }
-			/>
-			<input
-				type="text"
-				placeholder={ __( 'Address line 1', 'vulocart' ) }
-				value={ value.address_1 }
-				onChange={ ( event ) => onChange( { ...value, address_1: event.target.value } ) }
-			/>
-			<input
-				type="text"
-				placeholder={ __( 'Address line 2 (optional)', 'vulocart' ) }
-				value={ value.address_2 }
-				onChange={ ( event ) => onChange( { ...value, address_2: event.target.value } ) }
-			/>
-			<div className="vulocart-checkout-field-row">
-				<input
-					type="text"
-					placeholder={ __( 'City', 'vulocart' ) }
-					value={ value.city }
-					onChange={ ( event ) => onChange( { ...value, city: event.target.value } ) }
-				/>
-				<input
-					type="text"
-					placeholder={ __( 'State / region', 'vulocart' ) }
-					value={ value.state }
-					onChange={ ( event ) => onChange( { ...value, state: event.target.value } ) }
-				/>
-			</div>
-			<div className="vulocart-checkout-field-row">
-				<input
-					type="text"
-					placeholder={ __( 'Postcode', 'vulocart' ) }
-					value={ value.postcode }
-					onChange={ ( event ) => onChange( { ...value, postcode: event.target.value } ) }
-				/>
-				<input
-					type="text"
-					placeholder={ __( 'Country', 'vulocart' ) }
-					value={ value.country }
-					onChange={ ( event ) => onChange( { ...value, country: event.target.value } ) }
-				/>
+			<SelectField
+				label={ __( 'Country / region', 'vulocart' ) }
+				autoComplete="country"
+				value={ value.country }
+				// Changing country invalidates the region, so clear it.
+				onChange={ ( country ) => onChange( { ...value, country, state: '' } ) }
+			>
+				<option value="">{ __( 'Select a country…', 'vulocart' ) }</option>
+				{ getCountries().map( ( country ) => (
+					<option key={ country.value } value={ country.value }>
+						{ country.label }
+					</option>
+				) ) }
+			</SelectField>
+			<TextField label={ __( 'Full name', 'vulocart' ) } autoComplete="name" value={ value.full_name } onChange={ ( full_name ) => onChange( { ...value, full_name } ) } />
+			<TextField label={ __( 'Address', 'vulocart' ) } autoComplete="address-line1" value={ value.address_1 } onChange={ ( address_1 ) => onChange( { ...value, address_1 } ) } />
+			{ hasCheckoutField( 'address_2' ) && <TextField label={ __( 'Apartment, suite, etc. (optional)', 'vulocart' ) } autoComplete="address-line2" value={ value.address_2 } onChange={ ( address_2 ) => onChange( { ...value, address_2 } ) } /> }
+			<div className="vulocart-checkout-field-row is-thirds">
+				<TextField label={ __( 'City', 'vulocart' ) } autoComplete="address-level2" value={ value.city } onChange={ ( city ) => onChange( { ...value, city } ) } />
+				{ states ? (
+					<SelectField label={ __( 'State / region', 'vulocart' ) } autoComplete="address-level1" value={ value.state } onChange={ ( state ) => onChange( { ...value, state } ) }>
+						<option value="" />
+						{ states.map( ( state ) => (
+							<option key={ state.value } value={ state.value }>
+								{ state.label }
+							</option>
+						) ) }
+					</SelectField>
+				) : (
+					<TextField label={ __( 'State / region', 'vulocart' ) } autoComplete="address-level1" value={ value.state } onChange={ ( state ) => onChange( { ...value, state } ) } />
+				) }
+				<TextField label={ __( 'Postcode', 'vulocart' ) } autoComplete="postal-code" value={ value.postcode } onChange={ ( postcode ) => onChange( { ...value, postcode } ) } />
 			</div>
 		</div>
 	);
@@ -96,6 +92,10 @@ registerCheckoutStep( {
 
 type Props = CheckoutStepContext;
 
+/**
+ * Address step: collects the billing address and, when needed, a separate shipping address, and validates them before
+ * continuing.
+ */
 function AddressStepView( props: Props ) {
 	const { data, update, mode, goNext, goBack, isFirstStep } = props;
 	const [ error, setError ] = useState< string | null >( null );
@@ -183,11 +183,11 @@ function AddressStepView( props: Props ) {
 			{ 'multi_step' === mode && (
 				<div className="vulocart-checkout-step-actions">
 					{ ! isFirstStep && (
-						<button type="button" onClick={ goBack }>
+						<button type="button" className="is-secondary" onClick={ goBack }>
 							{ __( 'Back', 'vulocart' ) }
 						</button>
 					) }
-					<button type="button" className="is-primary" onClick={ continueToNext }>
+					<button type="button" className="is-primary wp-element-button" onClick={ continueToNext }>
 						{ __( 'Continue', 'vulocart' ) }
 					</button>
 				</div>

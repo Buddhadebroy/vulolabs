@@ -45,9 +45,8 @@ const DEFAULT_PER_PAGE = 10;
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } };
 
 /**
- * One list-and-edit screen for every taxonomy (Categories, Collections, Brands, Tags), laid out
- * like VuloPilot's list screens: a header, one card holding a searchable table, Add/Edit in a
- * popup, and a lightbox confirm before deleting.
+ * One list-and-edit screen for every taxonomy (Categories, Collections, Brands, Tags): a header, one card holding a
+ * searchable table, Add/Edit in a popup, and a confirmation lightbox before deleting.
  */
 export function TermsPage( { routeSegment, headerTitle, headerDescription, headerIcon, itemLabel, hierarchical }: TermsPageProps ) {
 	const [ terms, setTerms ] = useState< Term[] >( [] );

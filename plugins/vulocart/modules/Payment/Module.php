@@ -10,18 +10,11 @@ namespace VuloCart\Payment;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Payment Module.
+ * Payment module: the payment framework and the built-in offline gateways.
  *
- * Now the Payment Framework's own home, not just a settings-reader: owns
- * `vulocart_payment_transactions` (Install.php), registers this plugin's
- * own three offline `PaymentGatewayInterface` implementations
- * (Gateways/) onto the `vulocart_payment_gateways` filter
- * `Application\GatewayRegistry` collects from, and wires
- * `Application\PaymentService` up with that registry plus its own
- * transaction ledger. `vulocart-pro`'s Stripe/PayPal/Razorpay modules
- * hook the same filter with zero dependency on this class beyond the
- * filter name - same "module contributes to a filter this plugin's core
- * collects" shape `vulocart_checkout_steps` already establishes.
+ * Owns the `vulocart_payment_transactions` ledger, registers the offline gateways (manual, bank transfer, cash on
+ * delivery) on the `vulocart_payment_gateways` filter, and creates the payment service that charges, captures, voids and
+ * refunds through them. Online gateways (Stripe, PayPal, Razorpay in vulocart-pro) add themselves to the same filter.
  *
  * @class       Module class
  * @version     1.0.0
@@ -30,11 +23,8 @@ defined( 'ABSPATH' ) || exit;
 class Module {
 
     /**
-     * Module constructor. Wires this module's own classes directly and
-     * registers its service on the main plugin container
-     * (`VuloCart()->payment_service`) - plain, self-wiring shape
-     * vulopilot's own Module.php files use (no container/magic getter:
-     * nothing outside this module ever reaches into its instance).
+     * Creates the transaction ledger table and the payment service (`VuloCart()->payment_service`), registers the
+     * payment routes, the Payment checkout step and the offline gateways.
      */
     public function __construct() {
         new Install();

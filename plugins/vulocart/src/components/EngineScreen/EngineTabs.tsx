@@ -1,5 +1,5 @@
 import { applyFilters } from '@wordpress/hooks';
-import { useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import type { ReactNode } from 'react';
 import { EngineScreen, ModuleRequired, type EngineView } from './EngineScreen';
 
@@ -33,6 +33,21 @@ export function EngineTabs( { header, views, filterName, view, own = {} }: Engin
 		url.searchParams.set( 'view', key );
 		window.history.replaceState( null, '', url.toString() );
 	};
+
+	// A link inside a tab (`openInventoryTab()`) asks for another tab without a page load.
+	useEffect( () => {
+		const onRequest = ( event: Event ) => {
+			const key = ( event as CustomEvent< string > ).detail;
+
+			if ( views[ key ] ) {
+				select( key );
+			}
+		};
+
+		window.addEventListener( 'vulocart-engine-tab', onRequest );
+
+		return () => window.removeEventListener( 'vulocart-engine-tab', onRequest );
+	} );
 
 	const content = active in own ? own[ active ] : ( applyFilters( filterName, null, { view: active } ) as ReactNode );
 

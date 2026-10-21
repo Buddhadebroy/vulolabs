@@ -13,14 +13,8 @@ import Popup from '../../components/Popup/Popup';
 import ModulesPanel from '../../components/Settings/ModulesPanel';
 
 /**
- * Ported from `vulopilot/src/pages/Settings/Settings.tsx`'s flat-option
- * structure (not a per-tab-namespaced one, which doesn't
- * apply - VuloCart has one flat `wp_options` row, Utill::SETTINGS_KEY).
- * `getTemplateData()` now comes from `../../services/templateService.ts`,
- * a `require.context` scan of `src/settings/*.ts` - the plugin's admin-UX
- * brief calls for 12 real tabs (General/Catalog/Cart/Checkout/Payments/
- * Shipping/Taxes/Email/API/MCP/AI/Advanced), so the one-file direct-import
- * shortcut this page used to take no longer applies.
+ * Settings screen. Settings are one flat option (`Utill::SETTINGS_KEY`). `getTemplateData()`
+ * (services/templateService.ts) scans `src/settings/*.ts` for the tabs.
  */
 const Settings = () => {
 	const [ isLoading, setIsLoading ] = useState( true );
@@ -54,10 +48,8 @@ const Settings = () => {
 	}, [] );
 
 	const GetForm = ( currentTab: string | null ): JSX.Element | null => {
-		// Every hook this function uses must run on every call regardless
-		// of currentTab - matches vulopilot's own Settings.tsx docblock on
-		// this exact point (an early return before a hook call would make
-		// the number of hooks React sees differ between renders).
+		// Every hook must run on every call, whatever the current tab is: an early return before a hook would change
+		// the number of hooks React sees between renders.
 		const { setting, settingName, setSetting, updateSetting } = useSetting();
 
 		const rawSettingModal = currentTab ? getSettingById( settingsArray, currentTab ) : null;
@@ -84,11 +76,9 @@ const Settings = () => {
 			( field: { key: string } ) => field.key
 		);
 
-		// Was a synchronous `setSetting()` call made straight in the render
-		// body - triggers React's "Cannot update a component while
-		// rendering a different component" warning and a visible
-		// double-render flash when switching tabs. Matches vulopilot's own
-		// Settings.tsx docblock on this exact point.
+		// When the tab changes, an effect copies that tab's stored values into the settings state. It is an effect
+		// and not a `setSetting()` call in the render body, which would trigger React's "Cannot update a component
+		// while rendering a different component" warning and a visible double render when switching tabs.
 		useEffect( () => {
 			if ( currentTab && settingName !== currentTab ) {
 				const tabFields: Record< string, unknown > = {};
@@ -109,20 +99,17 @@ const Settings = () => {
 			return null;
 		}
 
-		// Modules moved inside Settings as its own subtab (settings/Modules.ts)
-		// - same special-cased branch vulopilot's own Settings.tsx uses for its
-		// identically-migrated Modules tab, rather than the generic
-		// PanelComponent escape hatch below (ModulesPanel predates that
-		// mechanism and has its own NavigatorHeaderComponent already).
+		// Modules is a sub-tab of Settings (settings/Modules.ts) and is handled here on its own. ModulesPanel draws
+		// its own `NavigatorHeaderComponent`, so it does not use the generic PanelComponent below.
 		if ( 'modules' === currentTab ) {
 			return <ModulesPanel />;
 		}
 
-		// Pro's escape hatch for a tab that needs a fully custom
-		// component instead of InputRenderer's declarative field schema
-		// (e.g. vulocart-pro's Licensing tab) - same mechanism vulopilot's
-		// own Settings.tsx establishes.
-		if ( settingModal?.PanelComponent ) {
+		// A tab can supply a fully custom component instead of InputRenderer's declarative field schema (for example
+		// the Licensing tab of vulocart-pro). A panel with no fields of its own (Pro filters may still add some,
+		// which the panel draws itself); a panel that declares its own `modal` fields (Tax) is drawn after them,
+		// below.
+		if ( settingModal?.PanelComponent && ! rawSettingModal?.modal?.length ) {
 			const PanelComponent = settingModal.PanelComponent;
 			return <PanelComponent />;
 		}
@@ -136,14 +123,14 @@ const Settings = () => {
 						setting={ setting }
 						updateSetting={ updateSetting }
 						Popup={ Popup }
-						// Per-tab opt-in (General.ts's own `groupBySections: true` is the
-						// first) into InputRenderer's card-grouped layout - same mechanism
-						// vulopilot's own Settings.tsx uses.
+						// A tab can opt in to InputRenderer's card-grouped layout with `groupBySections: true`
+						// (General.ts is the first).
 						groupBySections={ settingModal?.groupBySections }
 					/>
 					{ /* A section that isn't a field list (e.g. Integrations' VuloCloud AI connection) is
 					      drawn after the declarative ones. */ }
 					{ settingModal?.AfterComponent && <settingModal.AfterComponent /> }
+					{ settingModal?.PanelComponent && <settingModal.PanelComponent /> }
 					</>
 				) : (
 					<>{ __( 'Loading…', 'vulocart' ) }</>
@@ -176,9 +163,8 @@ const Settings = () => {
 				appLocalizer={ vulocartLocalizer }
 				Link={ Link }
 				settingName="Settings"
-				// `admin-settings` is the class zyra scopes the settings spacing under (form-group padding,
-				// section rows) - VuloPilot and VuloMail pass it for the same reason; without it the fields
-				// sit flush against their labels and the row edges.
+				// `admin-settings` is the class zyra scopes the settings spacing under (form-group padding, section
+				// rows). Without it the fields sit flush against their labels and the row edges.
 				className="admin-settings vulocart-settings"
 				menuIcon
 			/>

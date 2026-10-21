@@ -12,11 +12,11 @@ use VuloCart\AI\Services\CredentialEncryption;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * This site's connection to the VuloCloud AI gateway - same broker flow as
- * VuloPilot's `AiCreditsConnection`: a passwordless connect that yields a
- * ConnectedSite id + secret (stored encrypted), after which prompts are
- * sent to VuloCloud and run on the connected Organization's AI key against
- * its credits. Nothing about the AI provider or key lives on this site.
+ * This site's connection to the VuloCloud AI gateway.
+ *
+ * A passwordless connect flow gives the site a ConnectedSite id and secret (the secret is stored encrypted). After
+ * that, prompts are sent to VuloCloud and run on the connected Organization's AI key and credits. No AI provider or
+ * key is stored on this site.
  *
  * @class       VuloCloudConnection class
  * @version     1.0.0
@@ -29,6 +29,8 @@ class VuloCloudConnection {
 	const NONCE_ACTION = 'vulocart_connect_broker';
 
 	/**
+	 * Reads the stored connection record (site id, encrypted secret, credits) with defaults filled in.
+	 *
 	 * @return array<string, mixed>
 	 */
 	private function get_connection(): array {
@@ -46,6 +48,8 @@ class VuloCloudConnection {
 	}
 
 	/**
+	 * Merges the given fields into the stored connection record.
+	 *
 	 * @param array<string, mixed> $data Partial fields to merge into the stored connection.
 	 * @return void
 	 */
@@ -54,6 +58,8 @@ class VuloCloudConnection {
 	}
 
 	/**
+	 * Whether this build knows the VuloCloud URL it should talk to.
+	 *
 	 * @return bool
 	 */
 	private function is_build_configured(): bool {
@@ -137,6 +143,8 @@ class VuloCloudConnection {
 	}
 
 	/**
+	 * Returns the admin-post URL VuloCloud sends the browser back to once the connection is approved.
+	 *
 	 * @return string
 	 */
 	public function get_redirect_uri(): string {

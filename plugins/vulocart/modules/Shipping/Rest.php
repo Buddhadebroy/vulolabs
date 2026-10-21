@@ -10,21 +10,12 @@ namespace VuloCart\Shipping;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Shipping module Rest class.
+ * Shipping REST controller. Public like the other checkout routes, because a guest at checkout has no WordPress
+ * session.
  *
- * Module-level REST controller, public - same reasoning as Cart\Rest's own
- * docblock. Backs the checkout wizard's Shipping step (which method is
- * available, and what it costs, before the buyer commits to placing the
- * order). Optional `cart_token`/`country`/`state` query params resolve a
- * `$context` (cart weight, summed from each line item's own Product
- * `meta.weight`, plus the shipping address) purely so
- * `vulocart_shipping_methods` (ShippingService's own docblock) has
- * something to match a zone/weight rate against - this controller has no
- * opinion on what that filter does with it.
- *
- * Extends `\WP_REST_Controller` to match vulopilot's REST convention; no
- * collision - this class declares no `prepare_item_for_response()` (or any
- * other base-class method name) at all, let alone a private one.
+ * Backs the Shipping step: which methods are available and what each costs. The optional `cart_token`, `country` and
+ * `state` parameters build a context (cart weight, from each product's `meta.weight`, and the shipping address) that
+ * the `vulocart_shipping_methods` filter can use to match zone or weight rates.
  *
  * @class       Rest class
  * @version     1.0.0

@@ -23,6 +23,7 @@ interface VuloCartLocalizer {
 	khali_dabba: boolean;
 	/** Product types the merchant switched off (Product Types screen). */
 	disabled_product_types?: string[];
+	ask_product_type?: boolean;
 	version: string;
 	pro_version: string | null;
 	active_plugins: string[];
@@ -53,9 +54,7 @@ interface VuloCartLocalizer {
  * server-side by modules/Order/Rest.php's `create_item()` for
  * `guestCheckoutEnabled`/`requirePhoneNumber` - a client-only check isn't
  * real enforcement against a direct API call).
- * `productsListingEnabled`/`cartCheckoutEnabled` are the General/
- * Frontend tab (src/settings/General/Frontend.ts) made real, same file.
- * `checkoutPageUrl`/`productsPageUrl` are auto-discovered (`Block.php`'s
+ * `checkoutPageUrl`/`shopPageUrl` are auto-discovered (`Block.php`'s
  * `find_page_url_with_block()`), not merchant-configured - null until a
  * published page/post actually contains that block.
  */
@@ -67,14 +66,25 @@ interface VuloCartFrontendData {
 	requirePhoneNumber: boolean;
 	checkoutTermsUrl: string;
 	isLoggedIn: boolean;
-	productsListingEnabled: boolean;
 	listingTemplate: 'grid' | 'compact' | 'list' | 'showcase';
 	listingColumns: number;
-	cartCheckoutEnabled: boolean;
 	checkoutPageUrl: string | null;
-	productsPageUrl: string | null;
+	/** The page holding the `vulocart/cart` block, when one exists. */
+	cartPageUrl: string | null;
+	/** The shop page (the page holding the Product Collection block). */
+	shopPageUrl: string | null;
 	/** `single_page`|`multi_step` - Domain\Checkout\CheckoutMode::free()'s own two values, read by Checkout.tsx to pick which mode it mounts CheckoutEngine in. */
 	checkoutMode: string;
+	/** `page` or a vulocart-pro style: popup, drawer, hosted, one_click. */
+	checkoutDelivery: string;
+	/** The checkout steps Settings → Checkout turned on, in order (Customer and Payment always). */
+	checkoutSteps: string[];
+	/** The optional checkout fields turned on: name, phone, address_2. */
+	checkoutFields: string[];
+	homeUrl: string;
+	userEmail: string;
+	/** The WordPress session: a signed-in user's details with a sign-out link, or just a login link for a guest. */
+	currentUser: { name?: string; email?: string; avatar?: string; logoutUrl?: string; loginUrl?: string } | null;
 }
 
 declare global {

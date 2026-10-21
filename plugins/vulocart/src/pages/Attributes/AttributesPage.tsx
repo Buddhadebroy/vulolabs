@@ -4,7 +4,6 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import axios from 'axios';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
-	CardComponent,
 	ColumnComponent,
 	ContainerComponent,
 	FormGroupComponent,
@@ -35,8 +34,8 @@ const DEFAULT_PER_PAGE = 10;
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } };
 
 /**
- * Attributes list, laid out like VuloPilot's list screens: one card with a searchable table, a
- * popup to add an attribute, a popup to manage its values, and a lightbox confirm before deleting.
+ * Attributes list: one card with a searchable table, a popup to add an attribute, a popup to manage its values, and a
+ * confirmation lightbox before deleting.
  */
 export function AttributesPage() {
 	const [ attributes, setAttributes ] = useState< Attribute[] >( [] );
@@ -218,14 +217,11 @@ export function AttributesPage() {
 					headerIcon="product-options"
 					headerTitle={ __( 'Attributes', 'vulocart' ) }
 					headerDescription={ __( 'Named properties products can be described by - e.g. "Color" with values Red/Blue/Green.', 'vulocart' ) }
+					headerCustomContent={ <ButtonInput buttons={ [ { text: __( 'Add attribute', 'vulocart' ), icon: 'plus', color: '', onClick: () => setIsAddOpen( true ) } ] } /> }
 				/>
 
-				<CardComponent>
-					<TableCard
+				<TableCard
 						showMenu={ false }
-						variant="transparent"
-						hideHeader={ true }
-						headerHide={ true }
 						headers={ headers }
 						rows={ pageRows }
 						ids={ pageRows.map( ( row ) => row.id ) }
@@ -234,17 +230,13 @@ export function AttributesPage() {
 						search={ { placeholder: __( 'Search by attribute or value…', 'vulocart' ) } }
 						bulkActions={ [ { label: __( 'Delete', 'vulocart' ), value: 'delete' } ] }
 						onBulkActionApply={ ( action: string, ids: number[] ) => 'delete' === action && ids.length && setBulkDeleteIds( ids ) }
-						buttonActions={ [
-							{ label: __( 'Add attribute', 'vulocart' ), icon: 'plus', onClick: () => setIsAddOpen( true ) },
-						] }
 						onQueryUpdate={ ( query: { paged?: number | string; per_page?: number | string; searchValue?: string } ) => {
 							setPaged( Number( query.paged ) || 1 );
 							setPerPage( Number( query.per_page ) || DEFAULT_PER_PAGE );
 							setSearchTerm( query.searchValue ?? '' );
 						} }
 						emptyMessage={ __( 'No attributes yet - add the first one.', 'vulocart' ) }
-					/>
-				</CardComponent>
+				/>
 
 				<PopupComponent
 					open={ isAddOpen }
