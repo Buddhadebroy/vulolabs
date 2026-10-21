@@ -43,6 +43,13 @@ class Storefront {
 		'product-breadcrumbs',
 		'product-gallery',
 		'product-purchase',
+		'product-stock',
+		'product-trust',
+		'product-facts',
+		'product-content',
+		'product-specs',
+		'product-faqs',
+		'product-extras',
 		'product-description',
 		'cart',
 		'cart-link',
@@ -152,6 +159,13 @@ class Storefront {
 			'product-breadcrumbs' => 'render_breadcrumbs',
 			'product-gallery'     => 'render_gallery',
 			'product-purchase'    => 'render_purchase',
+			'product-stock'       => 'render_stock',
+			'product-trust'       => 'render_trust',
+			'product-facts'       => 'render_facts',
+			'product-content'     => 'render_content',
+			'product-specs'       => 'render_specs',
+			'product-faqs'        => 'render_faqs',
+			'product-extras'      => 'render_extras',
 			'product-description' => 'render_description',
 			'cart'                => 'render_cart',
 			'cart-link'           => 'render_cart_link',
@@ -161,8 +175,31 @@ class Storefront {
 			register_block_type( $dir . $name, array( 'render_callback' => array( $this, $callbacks[ $name ] ) ) );
 		}
 
+		add_filter( 'render_block_core/post-title', array( $this, 'hide_title_on_product' ), 10, 1 );
 		$this->register_patterns();
 		$this->register_template();
+	}
+
+	/**
+	 * A product page prints the product's own title, so the shop page's heading steps aside (otherwise the page has
+	 * two h1 elements).
+	 *
+	 * @param string $html The rendered Post Title block.
+	 * @return string
+	 */
+	public function hide_title_on_product( $html ) {
+		return is_singular() && '' !== $this->param( 'product' ) && $this->page_has_details() ? '' : $html;
+	}
+
+	/**
+	 * Whether the current page holds the product details block.
+	 *
+	 * @return bool
+	 */
+	private function page_has_details() {
+		$post = get_post();
+
+		return $post && has_block( 'vulocart/product-details', $post );
 	}
 
 	/**
@@ -841,17 +878,6 @@ class Storefront {
 
 		$out = '';
 
-		if ( $product['sold_out'] ) {
-			$out .= '<p class="vulocart-stock is-out">' . esc_html__( 'Sold out', 'vulocart' ) . '</p>';
-		} elseif ( null !== $product['stock_qty'] ) {
-			if ( $product['stock_qty'] > 0 && $product['stock_qty'] <= 5 ) {
-				/* translators: %d: units left. */
-				$out .= '<p class="vulocart-stock is-low">' . esc_html( sprintf( __( 'Only %d left', 'vulocart' ), $product['stock_qty'] ) ) . '</p>';
-			} else {
-				$out .= '<p class="vulocart-stock is-in">' . esc_html__( 'In stock', 'vulocart' ) . '</p>';
-			}
-		}
-
 		if ( count( $product['prices'] ) > 1 && ! $product['sold_out'] ) {
 			$out .= '<fieldset class="vulocart-price-options"><legend class="screen-reader-text">' . esc_html__( 'Choose a price', 'vulocart' ) . '</legend>';
 			foreach ( $product['prices'] as $index => $price ) {
@@ -898,23 +924,277 @@ class Storefront {
 			$has_buy_now = $buy_now;
 		}
 
-		$facts = array();
-		if ( $product['sku'] ) {
-			$facts[ __( 'SKU', 'vulocart' ) ] = $product['sku'];
-		}
-		$facts[ __( 'Type', 'vulocart' ) ] = ucfirst( str_replace( '_', ' ', $product['type'] ) );
-
-		$out .= '<dl class="vulocart-facts">';
-		foreach ( $facts as $label => $value ) {
-			$out .= '<div><dt>' . esc_html( $label ) . '</dt><dd>' . esc_html( $value ) . '</dd></div>';
-		}
-		$out .= '</dl>';
-
 		return sprintf( '<div %s>%s</div>', get_block_wrapper_attributes( array( 'class' => 'vulocart-purchase' . ( ! empty( $has_buy_now ) ? ' has-buy-now' : '' ) ) ), $out ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
 	}
 
 	/**
-	 * Description: the long description, details, specifications and FAQs as clear sections.
+	 * Stock: the savings pill and the availability line.
+	 *
+	 * @param array<string, mixed> $attributes Block attributes.
+	 * @param string               $content    Unused.
+	 * @param \WP_Block            $block      Block instance.
+	 * @return string
+	 */
+	public function render_stock( $attributes, $content, $block ) {
+		$product = $this->product_of( $block );
+
+		if ( ! $product ) {
+			return '';
+		}
+
+		$out = '';
+
+		if ( $product['on_sale'] && $product['discount'] > 0 ) {
+			/* translators: %d: discount percentage. */
+			$out .= '<p class="vulocart-savings">' . esc_html( sprintf( __( 'You save %d%% on the regular price', 'vulocart' ), $product['discount'] ) ) . '</p>';
+		}
+
+		if ( $product['sold_out'] ) {
+			$out .= '<p class="vulocart-stock is-out">' . esc_html__( 'Sold out', 'vulocart' ) . '</p>';
+		} elseif ( null !== $product['stock_qty'] ) {
+			if ( $product['stock_qty'] > 0 && $product['stock_qty'] <= 5 ) {
+				/* translators: %d: units left. */
+				$out .= '<p class="vulocart-stock is-low">' . esc_html( sprintf( __( 'Only %d left', 'vulocart' ), $product['stock_qty'] ) ) . '</p>';
+			} else {
+				$out .= '<p class="vulocart-stock is-in">' . esc_html__( 'In stock', 'vulocart' ) . '</p>';
+			}
+		}
+
+		return '' === $out ? '' : sprintf( '<div %s>%s</div>', get_block_wrapper_attributes( array( 'class' => 'vulocart-stock-block' ) ), $out ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
+	}
+
+	/**
+	 * Reassurance list: the first line of each policy the merchant wrote, plus a secure-checkout note.
+	 *
+	 * @param array<string, mixed> $attributes Block attributes.
+	 * @param string               $content    Unused.
+	 * @param \WP_Block            $block      Block instance.
+	 * @return string
+	 */
+	public function render_trust( $attributes, $content, $block ) {
+		$product = $this->product_of( $block );
+
+		if ( ! $product ) {
+			return '';
+		}
+
+		// Reassurance under the button, from what the merchant wrote: the first line of each policy.
+		$first = static function ( $text ) {
+			$text = trim( wp_strip_all_tags( (string) $text ) );
+			$cut  = preg_split( '/(?<=[.!?])\s/', $text );
+
+			return $cut ? (string) $cut[0] : $text;
+		};
+		$icon  = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+		$trust = '';
+		foreach ( array( 'shipping', 'refund', 'cancellation' ) as $policy ) {
+			if ( '' !== $product['policies'][ $policy ] ) {
+				$trust .= '<li>' . $icon . '<span>' . esc_html( $first( $product['policies'][ $policy ] ) ) . '</span></li>';
+			}
+		}
+		$trust .= '<li>' . $icon . '<span>' . esc_html__( 'Secure checkout', 'vulocart' ) . '</span></li>';
+		return sprintf( '<ul %s>%s</ul>', get_block_wrapper_attributes( array( 'class' => 'vulocart-trust' ) ), $trust ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
+	}
+
+	/**
+	 * Facts: SKU, brand, collection and type as a tidy list.
+	 *
+	 * @param array<string, mixed> $attributes Block attributes.
+	 * @param string               $content    Unused.
+	 * @param \WP_Block            $block      Block instance.
+	 * @return string
+	 */
+	public function render_facts( $attributes, $content, $block ) {
+		$product = $this->product_of( $block );
+
+		if ( ! $product ) {
+			return '';
+		}
+
+		$facts = array();
+		if ( $product['sku'] ) {
+			$facts[ __( 'SKU', 'vulocart' ) ] = $product['sku'];
+		}
+		if ( $product['brand'] ) {
+			$facts[ __( 'Brand', 'vulocart' ) ] = $product['brand'];
+		}
+		if ( $product['collections'] ) {
+			$facts[ __( 'Collection', 'vulocart' ) ] = implode( ', ', $product['collections'] );
+		}
+		$facts[ __( 'Type', 'vulocart' ) ] = ucfirst( str_replace( '_', ' ', $product['type'] ) );
+
+		$out = '<dl ' . get_block_wrapper_attributes( array( 'class' => 'vulocart-facts' ) ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		foreach ( $facts as $label => $value ) {
+			$out .= '<div><dt>' . esc_html( $label ) . '</dt><dd>' . esc_html( $value ) . '</dd></div>';
+		}
+
+		return $out . '</dl>';
+	}
+
+	/**
+	 * The product page's reading sections, ready-made and escaped, keyed by what they are.
+	 *
+	 * @param array<string, mixed> $product The product as the storefront sees it.
+	 * @return array<string, string> Section key => `<section>` HTML.
+	 */
+	private function product_sections( $product ) {
+		$table = static function ( $rows ) {
+			$html = '<table class="vulocart-spec-table"><tbody>';
+			foreach ( $rows as $row ) {
+				$html .= '<tr><th scope="row">' . esc_html( $row['key'] ) . '</th><td>' . esc_html( $row['value'] ) . '</td></tr>';
+			}
+
+			return $html . '</tbody></table>';
+		};
+
+		$sections = array();
+
+		if ( '' !== trim( $product['description'] ) ) {
+			$sections['content'] = '<section class="vulocart-section"><h2>' . esc_html__( 'Description', 'vulocart' ) . '</h2><div class="vulocart-prose">' . wp_kses_post( wpautop( $product['description'] ) ) . '</div></section>';
+		}
+
+		if ( $product['details'] ) {
+			$sections['details'] = '<section class="vulocart-section is-side"><h2>' . esc_html__( 'Details', 'vulocart' ) . '</h2>' . $table( $product['details'] ) . '</section>';
+		}
+
+		$specs = $product['specs'];
+		if ( '' !== $product['weight'] ) {
+			$specs[] = array(
+				'key'   => __( 'Weight', 'vulocart' ),
+				'value' => $product['weight'],
+			);
+		}
+		if ( $product['dimensions'] ) {
+			$specs[] = array(
+				'key'   => __( 'Dimensions (L × W × H)', 'vulocart' ),
+				'value' => implode( ' × ', $product['dimensions'] ),
+			);
+		}
+
+		if ( $specs ) {
+			$sections['specifications'] = '<section class="vulocart-section is-side"><h2>' . esc_html__( 'Specifications', 'vulocart' ) . '</h2>' . $table( $specs ) . '</section>';
+		}
+
+		if ( $product['faqs'] ) {
+			$faqs = '';
+			foreach ( $product['faqs'] as $faq ) {
+				$faqs .= '<details><summary>' . esc_html( $faq['q'] ) . '</summary><p>' . esc_html( $faq['a'] ) . '</p></details>';
+			}
+			$sections['faqs'] = '<section class="vulocart-section"><h2>' . esc_html__( 'Questions & answers', 'vulocart' ) . '</h2><div class="vulocart-faqs">' . $faqs . '</div></section>';
+		}
+
+		$policy_rows = array();
+		$policy_name = array(
+			'shipping'     => __( 'Shipping', 'vulocart' ),
+			'refund'       => __( 'Returns & refunds', 'vulocart' ),
+			'cancellation' => __( 'Cancellation', 'vulocart' ),
+		);
+		foreach ( $policy_name as $key => $label ) {
+			if ( '' !== $product['policies'][ $key ] ) {
+				$policy_rows[] = array(
+					'key'   => $label,
+					'value' => $product['policies'][ $key ],
+				);
+			}
+		}
+		if ( $policy_rows ) {
+			$sections['policies'] = '<section class="vulocart-section is-side"><h2>' . esc_html__( 'Shipping & returns', 'vulocart' ) . '</h2>' . $table( $policy_rows ) . '</section>';
+		}
+
+		/**
+		 * Extra sections on the product page (vulocart-pro adds the Digital Product Passport). Each entry is ready-made,
+		 * escaped HTML for one `<section class="vulocart-section is-side">`.
+		 *
+		 * @param string[] $extra   Sections.
+		 * @param array    $product The product as the storefront sees it.
+		 */
+		$sections['extras'] = implode( '', (array) apply_filters( 'vulocart_storefront_product_sections', array(), $product ) );
+
+		return $sections;
+	}
+
+	/**
+	 * Prints one section of the product page as its own block.
+	 *
+	 * @param string    $key   Section key from product_sections().
+	 * @param string    $class Wrapper class.
+	 * @param \WP_Block $block Block instance.
+	 * @return string
+	 */
+	private function render_section( $key, $class, $block ) {
+		$product = $this->product_of( $block );
+
+		if ( ! $product ) {
+			return '';
+		}
+
+		$sections = $this->product_sections( $product );
+
+		if ( empty( $sections[ $key ] ) ) {
+			return '';
+		}
+
+		return sprintf( '<div %s>%s</div>', get_block_wrapper_attributes( array( 'class' => $class ) ), $sections[ $key ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
+	}
+
+	/**
+	 * Content: the long description.
+	 *
+	 * @param array<string, mixed> $attributes Block attributes.
+	 * @param string               $content    Unused.
+	 * @param \WP_Block            $block      Block instance.
+	 * @return string
+	 */
+	public function render_content( $attributes, $content, $block ) {
+		return $this->render_section( 'content', 'vulocart-description-part', $block );
+	}
+
+	/**
+	 * Specs: details, specifications or shipping & returns as a card, chosen by the `source` attribute.
+	 *
+	 * @param array<string, mixed> $attributes Block attributes.
+	 * @param string               $content    Unused.
+	 * @param \WP_Block            $block      Block instance.
+	 * @return string
+	 */
+	public function render_specs( $attributes, $content, $block ) {
+		$map    = array(
+			'details'        => 'details',
+			'specifications' => 'specifications',
+			'policies'       => 'policies',
+		);
+		$source = isset( $attributes['source'], $map[ $attributes['source'] ] ) ? $map[ $attributes['source'] ] : 'specifications';
+
+		return $this->render_section( $source, 'vulocart-description-part is-card', $block );
+	}
+
+	/**
+	 * FAQs: the product's questions and answers.
+	 *
+	 * @param array<string, mixed> $attributes Block attributes.
+	 * @param string               $content    Unused.
+	 * @param \WP_Block            $block      Block instance.
+	 * @return string
+	 */
+	public function render_faqs( $attributes, $content, $block ) {
+		return $this->render_section( 'faqs', 'vulocart-description-part', $block );
+	}
+
+	/**
+	 * Extras: sections other plugins add to the product page (the Digital Product Passport).
+	 *
+	 * @param array<string, mixed> $attributes Block attributes.
+	 * @param string               $content    Unused.
+	 * @param \WP_Block            $block      Block instance.
+	 * @return string
+	 */
+	public function render_extras( $attributes, $content, $block ) {
+		return $this->render_section( 'extras', 'vulocart-description-part is-cards', $block );
+	}
+
+	/**
+	 * Description (legacy, one block for everything): kept so product pages built before the sections became
+	 * separate blocks keep working. New layouts use Content, Specs, FAQs and Extras.
 	 *
 	 * @param array<string, mixed> $attributes Block attributes.
 	 * @param string               $content    Unused.
@@ -928,40 +1208,26 @@ class Storefront {
 			return '';
 		}
 
-		$table = static function ( $rows ) {
-			$html = '<table class="vulocart-spec-table"><tbody>';
-			foreach ( $rows as $row ) {
-				$html .= '<tr><th scope="row">' . esc_html( $row['key'] ) . '</th><td>' . esc_html( $row['value'] ) . '</td></tr>';
-			}
-
-			return $html . '</tbody></table>';
-		};
-
-		$sections = '';
-
-		if ( '' !== trim( $product['description'] ) ) {
-			$sections .= '<section class="vulocart-section"><h2>' . esc_html__( 'Description', 'vulocart' ) . '</h2><div class="vulocart-prose">' . wp_kses_post( wpautop( $product['description'] ) ) . '</div></section>';
-		}
-
-		if ( $product['details'] ) {
-			$sections .= '<section class="vulocart-section"><h2>' . esc_html__( 'Details', 'vulocart' ) . '</h2>' . $table( $product['details'] ) . '</section>';
-		}
-
-		if ( $product['specs'] ) {
-			$sections .= '<section class="vulocart-section"><h2>' . esc_html__( 'Specifications', 'vulocart' ) . '</h2>' . $table( $product['specs'] ) . '</section>';
-		}
-
-		if ( $product['faqs'] ) {
-			$faqs = '';
-			foreach ( $product['faqs'] as $faq ) {
-				$faqs .= '<details><summary>' . esc_html( $faq['q'] ) . '</summary><p>' . esc_html( $faq['a'] ) . '</p></details>';
-			}
-			$sections .= '<section class="vulocart-section"><h2>' . esc_html__( 'Questions & answers', 'vulocart' ) . '</h2><div class="vulocart-faqs">' . $faqs . '</div></section>';
-		}
+		$sections = implode( '', $this->product_sections( $product ) );
 
 		if ( '' === $sections ) {
 			return '';
 		}
+
+		// Reading sections in a wide column, fact cards in a narrow one; each column stacks without gaps.
+		$main = '';
+		$side = '';
+		if ( preg_match_all( '#<section class="vulocart-section([^"]*)".*?</section>#s', $sections, $found, PREG_SET_ORDER ) ) {
+			foreach ( $found as $match ) {
+				if ( false !== strpos( $match[1], 'is-side' ) ) {
+					$side .= $match[0];
+				} else {
+					$main .= $match[0];
+				}
+			}
+		}
+
+		$sections = '<div class="vulocart-description__main">' . $main . '</div>' . ( '' !== $side ? '<div class="vulocart-description__side">' . $side . '</div>' : '' );
 
 		return sprintf( '<div %s>%s</div>', get_block_wrapper_attributes( array( 'class' => 'vulocart-description' ) ), $sections ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
 	}
@@ -1005,6 +1271,15 @@ class Storefront {
 			esc_url( $cart ? $cart : home_url( '/' ) ),
 			esc_attr__( 'View cart', 'vulocart' )
 		);
+	}
+
+	/**
+	 * The page the shop lives on, for product links.
+	 *
+	 * @return string Empty when there is none.
+	 */
+	public function shop_url() {
+		return $this->page_url_with( array( 'vulocart/product-collection', 'vulocart/products' ) );
 	}
 
 	/**
@@ -1092,11 +1367,35 @@ class Storefront {
 
 <!-- wp:vulocart/product-summary {"words":45} /-->
 
-<!-- wp:vulocart/product-purchase /--></div>
+<!-- wp:group {"className":"vulocart-buybox","layout":{"type":"flow"}} -->
+<div class="wp-block-group vulocart-buybox"><!-- wp:vulocart/product-stock /-->
+
+<!-- wp:vulocart/product-purchase /-->
+
+<!-- wp:vulocart/product-trust /-->
+
+<!-- wp:vulocart/product-facts /--></div>
+<!-- /wp:group --></div>
 <!-- /wp:column --></div>
 <!-- /wp:columns -->
 
-<!-- wp:vulocart/product-description /-->
+<!-- wp:columns {"className":"vulocart-details-more"} -->
+<div class="wp-block-columns vulocart-details-more"><!-- wp:column {"width":"62%"} -->
+<div class="wp-block-column" style="flex-basis:62%"><!-- wp:vulocart/product-content /-->
+
+<!-- wp:vulocart/product-faqs /--></div>
+<!-- /wp:column -->
+
+<!-- wp:column {"width":"38%"} -->
+<div class="wp-block-column" style="flex-basis:38%"><!-- wp:vulocart/product-specs {"source":"details"} /-->
+
+<!-- wp:vulocart/product-specs {"source":"specifications"} /-->
+
+<!-- wp:vulocart/product-specs {"source":"policies"} /-->
+
+<!-- wp:vulocart/product-extras /--></div>
+<!-- /wp:column --></div>
+<!-- /wp:columns -->
 <!-- /wp:vulocart/product-details -->
 MARKUP;
 	}

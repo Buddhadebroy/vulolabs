@@ -489,6 +489,7 @@ class Products extends \WP_REST_Controller {
             'type'       => $product->type,
             'title'      => $product->title,
             'slug'       => $product->slug,
+            'permalink'  => \VuloCart\Storefront\Permalinks::product_url( (int) $product->id, (string) $product->slug, \VuloCart()->storefront->shop_url() ? \VuloCart()->storefront->shop_url() : home_url( '/' ) ),
             'sku'        => $product->sku,
             'status'     => $product->status,
             'price'      => $product->price,
@@ -588,6 +589,14 @@ class Products extends \WP_REST_Controller {
                 'vulocart_invalid_product_type',
                 esc_html__( 'Invalid product type.', 'vulocart' ),
                 array( 'status' => 400 )
+            );
+        }
+
+        if ( in_array( $type, \VuloCart\RestAPI\Controllers\ProductTypes::locked_types(), true ) ) {
+            return new \WP_Error(
+                'vulocart_product_type_needs_pro',
+                esc_html__( 'This product type needs VuloCart Pro.', 'vulocart' ),
+                array( 'status' => 403 )
             );
         }
 

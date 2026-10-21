@@ -23,6 +23,7 @@ interface VuloCartLocalizer {
 	khali_dabba: boolean;
 	/** Product types the merchant switched off (Product Types screen). */
 	disabled_product_types?: string[];
+	ask_product_type?: boolean;
 	version: string;
 	pro_version: string | null;
 	active_plugins: string[];

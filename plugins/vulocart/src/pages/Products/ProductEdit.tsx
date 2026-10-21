@@ -14,13 +14,14 @@ import type { ReactNode } from 'react';
 import axios from 'axios';
 import TaxFields from './TaxFields';
 import { getApiLink } from '@zyra/core';
-import { showErrorToast, errorMessageOf } from '../../lib/rest-errors';
+import { showErrorToast, showToast, errorMessageOf } from '../../lib/rest-errors';
 import { CardComponent, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
 import { TextInput, TextAreaInput, SelectInput, ButtonInput, MultiCheckboxInput, FileInput } from '@zyra/inputs';
 import { EmbedCodeSection } from './EmbedCodeSection';
 import { HeaderPicker } from './HeaderPicker';
 import { ProModuleHint } from './ProModuleHint';
 import { TypeChooser } from './TypeChooser';
+import { CollapsibleCards } from './CollapsibleCards';
 import { PRODUCT_TYPE_OPTIONS, TYPE_PROFILES, cardsFor, fieldsFor, profileFor, subtypeFor, type TypeDetailField } from './typeProfiles';
 import './products-page.scss';
 
@@ -318,6 +319,11 @@ export function ProductEdit( { id }: ProductEditProps ) {
 
 		const wanted = new URLSearchParams( window.location.search ).get( 'type' );
 
+		// The step can be turned off for good (Settings → General, or "Don't show this again" on the screen itself).
+		if ( ! vulocartLocalizer.ask_product_type ) {
+			return true;
+		}
+
 		return !! wanted && TYPE_PROFILES.some( ( entry ) => entry.value === wanted );
 	} );
 	const [ notFound, setNotFound ] = useState( false );
@@ -434,6 +440,8 @@ export function ProductEdit( { id }: ProductEditProps ) {
 		};
 	}, [ showProgress ] );
 	const [ publishedAt, setPublishedAt ] = useState< string | null >( null );
+	/** The product's page on the storefront. */
+	const [ permalink, setPermalink ] = useState( '' );
 	const [ showVariantsNotice, setShowVariantsNotice ] = useState( false );
 	const [ categoryOptions, setCategoryOptions ] = useState< { key: string; value: string; label: string; id?: number; depth?: number }[] >( [] );
 	const [ tagOptions, setTagOptions ] = useState< { key: string; value: string; label: string }[] >( [] );
@@ -442,6 +450,22 @@ export function ProductEdit( { id }: ProductEditProps ) {
 
 	const update = ( patch: Partial< ProductFormState > ) =>
 		setFormData( ( prev ) => ( { ...prev, ...patch } ) );
+
+	// A new product opens as Physical; when the store has that type switched off, start on the first one it has on.
+	useEffect( () => {
+		const off: string[] = vulocartLocalizer.disabled_product_types ?? [];
+
+		if ( isEditMode || ! off.includes( EMPTY_FORM.type ) ) {
+			return;
+		}
+
+		const next = TYPE_PROFILES.find( ( entry ) => 'license' !== entry.value && ! off.includes( entry.value ) );
+
+		if ( next ) {
+			update( { type: next.value, subtype: next.subtypes[ 0 ].value } );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- once, on open.
+	}, [] );
 
 	/**
 	 * Edits the price list. The single `price` / `salePrice` the rest of this page reads (preview, checklist,
@@ -643,6 +667,7 @@ export function ProductEdit( { id }: ProductEditProps ) {
 					inventoryPrediction: meta.inventory_prediction && 'object' === typeof meta.inventory_prediction ? meta.inventory_prediction : null,
 				} );
 				setPublishedAt( product.published_at || null );
+				setPermalink( ( product as { permalink?: string } ).permalink ?? '' );
 				setIsLoadingInitial( false );
 			} )
 			.catch( () => {
@@ -996,6 +1021,19 @@ export function ProductEdit( { id }: ProductEditProps ) {
 		);
 	};
 
+	// Back to the type screen. If the step had been switched off for good, this also switches it back on.
+	const bringBackTypeStep = () => {
+		if ( ! vulocartLocalizer.ask_product_type ) {
+			vulocartLocalizer.ask_product_type = true;
+			axios
+				.post( getApiLink( vulocartLocalizer, 'settings' ), { ask_product_type: [ 'ask_product_type' ] }, { headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } } )
+				.then( () => showToast( 'success', __( 'The "What are you selling?" step is back on.', 'vulocart' ) ) )
+				.catch( () => undefined );
+		}
+
+		setTypeChosen( false );
+	};
+
 	if ( ! typeChosen ) {
 		return (
 			<TypeChooser
@@ -1003,7 +1041,13 @@ export function ProductEdit( { id }: ProductEditProps ) {
 					update( { type, subtype: profileFor( type ).subtypes[ 0 ].value } );
 					setTypeChosen( true );
 				} }
-				onSkip={ () => setTypeChosen( true ) }
+				onSkip={ ( type ) => {
+					if ( type !== formData.type ) {
+						update( { type, subtype: profileFor( type ).subtypes[ 0 ].value } );
+					}
+
+					setTypeChosen( true );
+				} }
 			/>
 		);
 	}
@@ -1055,8 +1099,22 @@ export function ProductEdit( { id }: ProductEditProps ) {
 								{ formData.sku }
 							</span>
 						) : null }
+						{ isEditMode && permalink && (
+							<a className="vulocart-view-link" href={ permalink } target="_blank" rel="noopener noreferrer">
+								{ 'published' === formData.status ? __( 'View product', 'vulocart' ) : __( 'Preview product', 'vulocart' ) }
+								<span aria-hidden="true">↗</span>
+							</a>
+						) }
 					</div>
 					{ ! isEditMode && <p className="vulocart-product-edit-subtitle">{ subtype.hint }</p> }
+					{ ! isEditMode && (
+						<button type="button" className="vulocart-change-type" onClick={ bringBackTypeStep }>
+							<i className="adminfont-pagination-prev-arrow" aria-hidden="true" />
+							{ vulocartLocalizer.ask_product_type
+								? __( 'Change product type', 'vulocart' )
+								: __( 'Show the "What are you selling?" step again', 'vulocart' ) }
+						</button>
+					) }
 				</div>
 
 				<div className="vulocart-topbar-actions">
@@ -1239,6 +1297,8 @@ export function ProductEdit( { id }: ProductEditProps ) {
 			{ savedNotice && (
 				<div className="vulocart-saved-notice">{ __( 'Product updated.', 'vulocart' ) }</div>
 			) }
+
+			<CollapsibleCards />
 
 			<div className="vulocart-product-edit-grid">
 				{ /* Main column */ }
@@ -1769,38 +1829,60 @@ export function ProductEdit( { id }: ProductEditProps ) {
 					</aside>
 
 					<CardComponent titleIcon="image" title={ __( 'Images', 'vulocart' ) }>
-						<h4 className="vulocart-subsection-title">{ __( 'Featured Image', 'vulocart' ) }</h4>
-						<FileInput
-							name="featuredImage"
-							accept=".jpg,.jpeg,.png,.gif,.webp"
-							imageSrc={ formData.featuredImage?.url || '' }
-							imageWidth={ 120 }
-							imageHeight={ 120 }
-							openUploader={ __( 'Select Featured Image', 'vulocart' ) }
-							onChange={ ( value ) => {
-								const file = Array.isArray( value ) ? value[ 0 ] : value;
-								update( { featuredImage: file && file.url ? { id: file.id || 0, url: file.url } : null } );
-							} }
-						/>
+						{ /* One list: the first picture is the featured one; any picture can be made featured. */ }
+						{ ( () => {
+							const images: MediaItem[] = [ ...( formData.featuredImage ? [ formData.featuredImage ] : [] ), ...formData.gallery ];
+							const setImages = ( list: MediaItem[] ) => update( { featuredImage: list[ 0 ] ?? null, gallery: list.slice( 1 ) } );
 
-						<h4 className="vulocart-subsection-title">{ __( 'Product gallery', 'vulocart' ) }</h4>
-						<FileInput
-							name="gallery"
-							multiple
-							accept=".jpg,.jpeg,.png,.gif,.webp"
-							imageSrc={ formData.gallery.map( ( item ) => item.url ) }
-							imageWidth={ 90 }
-							imageHeight={ 90 }
-							openUploader={ __( 'Add Gallery Image', 'vulocart' ) }
-							onChange={ ( value ) => {
-								const files = Array.isArray( value ) ? value : [ value ];
-								update( {
-									gallery: files
-										.filter( ( file ) => file && file.url )
-										.map( ( file ) => ( { id: file.id || 0, url: file.url } ) ),
-								} );
-							} }
-						/>
+							return (
+								<div className="vulocart-images">
+									{ images.length > 0 && (
+										<ul className="vulocart-image-grid">
+											{ images.map( ( item, index ) => (
+												<li key={ `${ item.id }-${ item.url }` } className={ 0 === index ? 'is-featured' : undefined }>
+													<img src={ item.url } alt="" />
+													{ 0 === index && (
+														<span className="vulocart-image-badge">
+															<i className="adminfont-star" aria-hidden="true" />
+															{ __( 'Featured', 'vulocart' ) }
+														</span>
+													) }
+													<div className="vulocart-image-actions">
+														{ 0 !== index && (
+															<button type="button" title={ __( 'Make this the featured image', 'vulocart' ) } onClick={ () => setImages( [ item, ...images.filter( ( _, at ) => at !== index ) ] ) }>
+																<i className="adminfont-star" aria-hidden="true" />
+																{ __( 'Feature', 'vulocart' ) }
+															</button>
+														) }
+														<button type="button" className="is-remove" aria-label={ __( 'Remove image', 'vulocart' ) } onClick={ () => setImages( images.filter( ( _, at ) => at !== index ) ) }>
+															<i className="adminfont-close" aria-hidden="true" />
+														</button>
+													</div>
+												</li>
+											) ) }
+										</ul>
+									) }
+									<FileInput
+										name="images"
+										multiple
+										accept=".jpg,.jpeg,.png,.gif,.webp"
+										imageSrc={ [] }
+										imageWidth={ 90 }
+										imageHeight={ 90 }
+										openUploader={ images.length ? __( 'Add images', 'vulocart' ) : __( 'Add product images', 'vulocart' ) }
+										onChange={ ( value ) => {
+											const files = ( Array.isArray( value ) ? value : [ value ] ).filter( ( file ) => file && file.url ).map( ( file ) => ( { id: file.id || 0, url: file.url } ) );
+											const fresh = files.filter( ( file ) => ! images.some( ( item ) => item.url === file.url ) );
+
+											if ( fresh.length ) {
+												setImages( [ ...images, ...fresh ] );
+											}
+										} }
+									/>
+									<p className="vulocart-field-hint">{ __( 'The featured image shows on product cards and at the top of the product page.', 'vulocart' ) }</p>
+								</div>
+							);
+						} )() }
 					</CardComponent>
 
 					<CardComponent

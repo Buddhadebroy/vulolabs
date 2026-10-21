@@ -63,6 +63,13 @@ class ProductTypes extends \WP_REST_Controller {
     );
 
     /**
+     * The only type the free plugin sells; every other type needs VuloCart Pro.
+     *
+     * @var string[]
+     */
+    const FREE_TYPES = array( 'physical' );
+
+    /**
      * Option holding the types a merchant has switched off (everything else is on).
      */
     const DISABLED_OPTION = 'vulocart_disabled_product_types';
@@ -145,6 +152,29 @@ class ProductTypes extends \WP_REST_Controller {
         $stored = get_option( self::DISABLED_OPTION, array() );
 
         return is_array( $stored ) ? array_values( array_intersect( ProductType::all(), $stored ) ) : array();
+    }
+
+    /**
+     * Whether a type needs VuloCart Pro.
+     *
+     * @param string $type Product type.
+     * @return bool
+     */
+    public static function is_pro_type( string $type ): bool {
+        return ! in_array( $type, self::FREE_TYPES, true );
+    }
+
+    /**
+     * The types that cannot be offered right now: the Pro-only ones while Pro is not active and licensed.
+     *
+     * @return string[]
+     */
+    public static function locked_types(): array {
+        if ( VuloCart()->util->is_khali_dabba() ) {
+            return array();
+        }
+
+        return array_values( array_filter( ProductType::all(), array( __CLASS__, 'is_pro_type' ) ) );
     }
 
     /**
@@ -232,6 +262,7 @@ class ProductTypes extends \WP_REST_Controller {
                     'description'    => self::DESCRIPTIONS[ $type ] ?? '',
                     'product_count' => isset( $counts[ $type ] ) ? $counts[ $type ] : 0,
                     'enabled'        => ! in_array( $type, $disabled, true ),
+                    'pro_only'       => self::is_pro_type( $type ),
                     'pro'            => self::PRO_REQUIRED[ $type ] ?? null,
                     'pro_extras'     => self::pro_extras( $type ),
                     'settings'       => self::SETTINGS[ $type ] ?? null,

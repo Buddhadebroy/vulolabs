@@ -133,6 +133,8 @@ class Utill {
 
         // Catalog.
         'low_stock_threshold'           => 5,
+        // Adding a product starts on the "What are you selling?" screen; off = pick the type on the product page.
+        'ask_product_type'              => array( 'ask_product_type' ),
 
         // Cart.
         'cart_expiry_days'              => 14,

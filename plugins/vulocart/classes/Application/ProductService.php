@@ -96,7 +96,7 @@ class ProductService {
             null,
             $data['type'],
             $data['title'],
-            sanitize_title( $data['title'] ),
+            $this->unique_slug( sanitize_title( $data['title'] ) ),
             isset( $data['sku'] ) ? $data['sku'] : null,
             isset( $data['status'] ) ? $data['status'] : 'draft',
             isset( $data['price'] ) ? (float) $data['price'] : null,
@@ -109,6 +109,32 @@ class ProductService {
         $this->events->dispatch( 'product_created', array( 'product' => $product ) );
 
         return $product;
+    }
+
+    /**
+     * A slug no other product has: `blue-bottle`, then `blue-bottle-2`, `blue-bottle-3`...
+     *
+     * @param string $slug Wanted slug.
+     * @return string
+     */
+    private function unique_slug( $slug ) {
+        global $wpdb;
+
+        $slug  = '' !== $slug ? $slug : 'product';
+        $table = $wpdb->prefix . \VuloCart\Utill::TABLES['product'];
+        $try   = $slug;
+
+        for ( $n = 2; $n < 500; $n++ ) {
+            $taken = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE slug = %s", $try ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- plugin table.
+
+            if ( ! (int) $taken ) {
+                break;
+            }
+
+            $try = $slug . '-' . $n;
+        }
+
+        return $try;
     }
 
     /**

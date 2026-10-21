@@ -357,13 +357,37 @@
 										[ 'vulocart/product-title', { level: 1, isLink: false } ],
 										[ 'vulocart/product-price' ],
 										[ 'vulocart/product-summary', { words: 45 } ],
-										[ 'vulocart/product-purchase' ],
+										[
+											'core/group',
+											{ className: 'vulocart-buybox' },
+											[
+												[ 'vulocart/product-stock' ],
+												[ 'vulocart/product-purchase' ],
+												[ 'vulocart/product-trust' ],
+												[ 'vulocart/product-facts' ],
+											],
+										],
 									],
 									'vulocart-details-info'
 								),
 							],
 						],
-						[ 'vulocart/product-description' ],
+						[
+							'core/columns',
+							{ className: 'vulocart-details-more' },
+							[
+								column( '62%', [ [ 'vulocart/product-content' ], [ 'vulocart/product-faqs' ] ] ),
+								column(
+									'38%',
+									[
+										[ 'vulocart/product-specs', { source: 'details' } ],
+										[ 'vulocart/product-specs', { source: 'specifications' } ],
+										[ 'vulocart/product-specs', { source: 'policies' } ],
+										[ 'vulocart/product-extras' ],
+									]
+								),
+							],
+						],
 					],
 				} )
 			);
@@ -411,15 +435,104 @@
 			return el(
 				'div',
 				blockProps,
-				el( 'p', { className: 'vulocart-stock is-in' }, __( 'In stock', 'vulocart' ) ),
 				el(
 					'div',
 					{ className: 'vulocart-purchase__row' },
 					el( 'div', { className: 'vulocart-qty' }, el( 'button', { type: 'button', tabIndex: -1 }, '−' ), el( 'input', { value: '1', readOnly: true } ), el( 'button', { type: 'button', tabIndex: -1 }, '+' ) ),
 					el( 'div', { className: 'vulocart-add' }, el( 'span', { className: 'wp-element-button vulocart-add__button' }, __( 'Add to cart', 'vulocart' ) ) )
-				),
-				el( 'dl', { className: 'vulocart-facts' }, el( 'div', null, el( 'dt', null, __( 'SKU', 'vulocart' ) ), el( 'dd', null, 'SKU-1234' ) ), el( 'div', null, el( 'dt', null, __( 'Type', 'vulocart' ) ), el( 'dd', null, __( 'Physical', 'vulocart' ) ) ) )
+				)
 			);
+		},
+		save: noSave,
+	} );
+
+	registerBlockType( 'vulocart/product-stock', {
+		edit: function () {
+			var blockProps = useBlockProps( { className: 'vulocart-stock-block' } );
+
+			return el( 'div', blockProps, el( 'p', { className: 'vulocart-savings' }, __( 'You save 20% on the regular price', 'vulocart' ) ), el( 'p', { className: 'vulocart-stock is-in' }, __( 'In stock', 'vulocart' ) ) );
+		},
+		save: noSave,
+	} );
+
+	registerBlockType( 'vulocart/product-trust', {
+		edit: function () {
+			var blockProps = useBlockProps( { className: 'vulocart-trust' } );
+
+			return el( 'ul', blockProps, el( 'li', null, el( 'span', null, __( 'Ships within 2 business days.', 'vulocart' ) ) ), el( 'li', null, el( 'span', null, __( 'Secure checkout', 'vulocart' ) ) ) );
+		},
+		save: noSave,
+	} );
+
+	registerBlockType( 'vulocart/product-facts', {
+		edit: function () {
+			var blockProps = useBlockProps( { className: 'vulocart-facts' } );
+
+			return el( 'dl', blockProps, el( 'div', null, el( 'dt', null, __( 'SKU', 'vulocart' ) ), el( 'dd', null, 'SKU-1234' ) ), el( 'div', null, el( 'dt', null, __( 'Type', 'vulocart' ) ), el( 'dd', null, __( 'Physical', 'vulocart' ) ) ) );
+		},
+		save: noSave,
+	} );
+
+	registerBlockType( 'vulocart/product-content', {
+		edit: function () {
+			var blockProps = useBlockProps( { className: 'vulocart-description-part' } );
+
+			return el( 'div', blockProps, el( 'section', { className: 'vulocart-section' }, el( 'h2', null, __( 'Description', 'vulocart' ) ), el( 'div', { className: 'vulocart-prose' }, el( 'p', null, __( 'The full product description appears here.', 'vulocart' ) ) ) ) );
+		},
+		save: noSave,
+	} );
+
+	registerBlockType( 'vulocart/product-specs', {
+		edit: function ( props ) {
+			var source = props.attributes.source || 'specifications';
+			var titles = { details: __( 'Details', 'vulocart' ), specifications: __( 'Specifications', 'vulocart' ), policies: __( 'Shipping & returns', 'vulocart' ) };
+			var blockProps = useBlockProps( { className: 'vulocart-description-part is-card' } );
+
+			return el(
+				'div',
+				blockProps,
+				el(
+					wp.blockEditor.InspectorControls,
+					null,
+					el(
+						wp.components.PanelBody,
+						{ title: __( 'Specs', 'vulocart' ) },
+						el( wp.components.SelectControl, {
+							label: __( 'Show', 'vulocart' ),
+							value: source,
+							options: [
+								{ value: 'details', label: titles.details },
+								{ value: 'specifications', label: titles.specifications },
+								{ value: 'policies', label: titles.policies },
+							],
+							onChange: function ( value ) {
+								props.setAttributes( { source: value } );
+							},
+							__nextHasNoMarginBottom: true,
+							__next40pxDefaultSize: true,
+						} )
+					)
+				),
+				el( 'section', { className: 'vulocart-section is-side' }, el( 'h2', null, titles[ source ] ), el( 'table', { className: 'vulocart-spec-table' }, el( 'tbody', null, el( 'tr', null, el( 'th', null, __( 'Material', 'vulocart' ) ), el( 'td', null, '—' ) ) ) ) )
+			);
+		},
+		save: noSave,
+	} );
+
+	registerBlockType( 'vulocart/product-faqs', {
+		edit: function () {
+			var blockProps = useBlockProps( { className: 'vulocart-description-part' } );
+
+			return el( 'div', blockProps, el( 'section', { className: 'vulocart-section' }, el( 'h2', null, __( 'Questions & answers', 'vulocart' ) ), el( 'div', { className: 'vulocart-faqs' }, el( 'details', null, el( 'summary', null, __( 'A common question', 'vulocart' ) ) ) ) ) );
+		},
+		save: noSave,
+	} );
+
+	registerBlockType( 'vulocart/product-extras', {
+		edit: function () {
+			var blockProps = useBlockProps( { className: 'vulocart-description-part is-cards' } );
+
+			return el( 'div', blockProps, el( 'p', { className: 'vulocart-muted' }, __( 'Sections added by extensions, such as the Digital Product Passport, appear here.', 'vulocart' ) ) );
 		},
 		save: noSave,
 	} );

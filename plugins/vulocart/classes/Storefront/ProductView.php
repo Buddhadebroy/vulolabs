@@ -167,7 +167,7 @@ class ProductView {
 			'id'        => (int) $product->id,
 			'type'      => (string) $product->type,
 			'title'     => (string) $product->title,
-			'url'       => add_query_arg( 'product', (int) $product->id, $base_url ),
+			'url'       => Permalinks::product_url( (int) $product->id, (string) $product->slug, $base_url ),
 			'summary'   => isset( $meta['short_description'] ) ? wp_strip_all_tags( (string) $meta['short_description'] ) : '',
 			'image_id'  => $image && ! empty( $image['id'] ) ? (int) $image['id'] : 0,
 			'image_url' => $image && ! empty( $image['url'] ) ? (string) $image['url'] : '',
@@ -353,6 +353,20 @@ class ProductView {
 				'prices'      => $prices,
 				'sku'         => (string) $product->sku,
 				'stock_qty'   => $quantity,
+				'brand'       => ! empty( $meta['brand'] ) ? ucwords( str_replace( '-', ' ', (string) $meta['brand'] ) ) : '',
+				'collections' => isset( $meta['collections'] ) && is_array( $meta['collections'] ) ? array_map(
+					static function ( $slug ) {
+						return ucwords( str_replace( '-', ' ', (string) $slug ) );
+					},
+					$meta['collections']
+				) : array(),
+				'policies'    => array(
+					'shipping'     => isset( $meta['shipping_policy'] ) ? (string) $meta['shipping_policy'] : '',
+					'refund'       => isset( $meta['refund_policy'] ) ? (string) $meta['refund_policy'] : '',
+					'cancellation' => isset( $meta['cancellation_policy'] ) ? (string) $meta['cancellation_policy'] : '',
+				),
+				'weight'      => isset( $meta['weight'] ) ? (string) $meta['weight'] : '',
+				'dimensions'  => array_filter( array( isset( $meta['length'] ) ? (string) $meta['length'] : '', isset( $meta['width'] ) ? (string) $meta['width'] : '', isset( $meta['height'] ) ? (string) $meta['height'] : '' ) ),
 				'backorder'   => isset( $meta['stock_status'] ) && 'backorder' === $meta['stock_status'],
 			)
 		);

@@ -40,6 +40,19 @@ export default {
 			),
 		},
 		{
+			key: 'ask_product_type',
+			type: 'checkbox',
+			look: 'toggle',
+			label: __( 'Ask what you\'re selling first', 'vulocart' ),
+			settingDescription: __(
+				'When you add a product, start on the "What are you selling?" screen. Turn off to skip it and pick the product type on the product page instead.',
+				'vulocart'
+			),
+			options: [
+				{ key: 'ask_product_type', label: '', value: 'ask_product_type' },
+			],
+		},
+		{
 			key: 'general-section-inventory',
 			type: 'section',
 			icon: 'database',
