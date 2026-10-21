@@ -66,6 +66,7 @@ registerBlockType( 'vulocart/products', {
 					className="vulocart-products-block"
 					data-template={ attributes.template || undefined }
 					data-columns={ attributes.columns || undefined }
+					data-mode={ attributes.mode || undefined }
 				></div>
 			</div>
 		);

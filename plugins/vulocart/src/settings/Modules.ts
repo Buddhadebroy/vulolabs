@@ -13,7 +13,7 @@ export default {
 	// Last among this plugin's own first-party tabs - after Advanced's 4 -
 	// same "tucked at the end" placement vulopilot's own Modules.ts (10,
 	// its own highest/last priority) uses.
-	priority: 5,
+	priority: 9,
 	headerTitle: __( 'Modules', 'vulocart' ),
 	headerDescription: __(
 		'Enable or disable VuloCart features. Turning a module on activates its settings and REST routes; turning it off hides them.',

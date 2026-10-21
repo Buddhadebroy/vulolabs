@@ -3144,9 +3144,33 @@
 		outline: 0;
 	}
 
+	// react-select pads its value container and input container, and WP gives text inputs `line-height: 2`;
+	// together that made the dropdown taller than the 2.5rem text inputs beside it.
 	.select-prefix__control {
-		height: auto;
-		min-height: 2.5rem;
+		box-sizing: border-box;
+		// zyra pins `.basic-input` to 2rem with !important, so the text inputs render 2rem + 1px borders; match that.
+		height: calc(2rem + 2px);
+		min-height: calc(2rem + 2px);
+	}
+
+	.select-prefix__value-container {
+		padding-top: 0;
+		padding-bottom: 0;
+	}
+
+	.select-prefix__input-container {
+		margin: 0;
+		padding: 0;
+	}
+
+	.select-prefix__input-container input,
+	.select-prefix__input {
+		line-height: 1.5;
+	}
+
+	.select-prefix__indicator {
+		padding-top: 0;
+		padding-bottom: 0;
 	}
 }
 
@@ -3684,6 +3708,11 @@
 
 .vulocart-type-chooser.vulocart-type-chooser {
 	max-width: 70rem;
+	// Room above the breadcrumb, as above the edit page's top bar. On the breadcrumb itself, so no page-level padding
+	// rule can zero it.
+	.vulocart-breadcrumbs {
+		margin-top: 1.5rem;
+	}
 
 	header {
 		margin: 0.5rem 0 1.5rem;

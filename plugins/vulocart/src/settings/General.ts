@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { listingPreview } from '../lib/listingPreviews';
 
 /**
  * Settings → General. Merged from the former `General/General.ts` +
@@ -39,39 +40,82 @@ export default {
 			),
 		},
 		{
-			key: 'general-section-checkout-block',
+			key: 'general-section-inventory',
 			type: 'section',
-			icon: 'storefront',
-			title: __( 'Checkout block', 'vulocart' ),
+			icon: 'database',
+			title: __( 'Inventory', 'vulocart' ),
 			desc: __(
-				'What the storefront checkout block shows and whether it accepts orders at all.',
+				'Stock-tracking thresholds that apply across the catalog.',
 				'vulocart'
 			),
 		},
 		{
-			key: 'enable_products_listing',
-			type: 'checkbox',
-			look: 'toggle',
-			label: __( 'Show products listing', 'vulocart' ),
+			key: 'low_stock_threshold',
+			type: 'number',
+			label: __( 'Low stock threshold', 'vulocart' ),
+			minNumber: 0,
 			settingDescription: __(
-				'Show the "Available Products" catalog-browsing section on the storefront checkout page.',
+				'Quantity at or below which a stock-tracked product could be flagged as low stock.',
 				'vulocart'
 			),
+		},
+		{
+			key: 'general-section-listing',
+			type: 'section',
+			icon: 'catalog',
+			title: __( 'Product listing', 'vulocart' ),
+			desc: __(
+				'How your products catalog looks on the storefront. A single page can still override it from the block settings.',
+				'vulocart'
+			),
+		},
+		{
+			key: 'listing_template',
+			type: 'choice-toggle',
 			options: [
-				{ key: 'enable_products_listing', label: '', value: 'enable_products_listing' },
+				{
+					key: 'grid',
+					label: __( 'Grid', 'vulocart' ),
+					desc: __( 'Image cards in a tidy grid. A good default for most catalogs.', 'vulocart' ),
+					img: listingPreview( 'grid' ),
+					value: 'grid',
+				},
+				{
+					key: 'compact',
+					label: __( 'Compact', 'vulocart' ),
+					desc: __( 'Small tiles, more per row. Best for large catalogs.', 'vulocart' ),
+					img: listingPreview( 'compact' ),
+					value: 'compact',
+				},
+				{
+					key: 'list',
+					label: __( 'List', 'vulocart' ),
+					desc: __( 'One row per product with a short description.', 'vulocart' ),
+					img: listingPreview( 'list' ),
+					value: 'list',
+				},
+				{
+					key: 'showcase',
+					label: __( 'Showcase', 'vulocart' ),
+					desc: __( 'Large image-first cards with a soft shadow.', 'vulocart' ),
+					img: listingPreview( 'showcase' ),
+					value: 'showcase',
+				},
 			],
 		},
 		{
-			key: 'enable_cart_checkout',
-			type: 'checkbox',
-			look: 'toggle',
-			label: __( 'Enable cart & checkout', 'vulocart' ),
+			key: 'listing_columns',
+			type: 'choice-toggle',
+			label: __( 'Columns on wide screens', 'vulocart' ),
 			settingDescription: __(
-				'Turn off to take the storefront checkout page offline temporarily - visitors see an "unavailable" notice instead of the cart/checkout flow.',
+				'How many products sit side by side. Smaller screens show fewer automatically; the List layout ignores this.',
 				'vulocart'
 			),
 			options: [
-				{ key: 'enable_cart_checkout', label: '', value: 'enable_cart_checkout' },
+				{ key: '2', label: '2', value: '2' },
+				{ key: '3', label: '3', value: '3' },
+				{ key: '4', label: '4', value: '4' },
+				{ key: '5', label: '5', value: '5' },
 			],
 		},
 	],

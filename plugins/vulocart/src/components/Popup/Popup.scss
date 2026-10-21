@@ -59,6 +59,43 @@
 		}
 	}
 
+	.popup-details {
+		padding: 1rem 0 1rem 2rem;
+
+		.heading-text {
+			font-size: 1.25rem;
+			font-weight: 600;
+		}
+
+		ul {
+			max-height: calc(75vh - 18rem);
+			margin: 0.5rem 0 0;
+			padding-right: 2rem;
+			overflow: auto;
+			list-style: none;
+
+			li {
+				margin: 0 0 0.75rem;
+
+				.title {
+					padding: 0.3125rem 0;
+					font-size: 1.063rem;
+					font-weight: 600;
+
+					i {
+						padding-right: 0.45rem;
+						color: var(--color-primary);
+						font-size: 1.25rem;
+					}
+				}
+
+				.desc {
+					color: #6b7280;
+				}
+			}
+		}
+	}
+
 	.admin-btn {
 		font-size: 1.063rem;
 		font-weight: 500;

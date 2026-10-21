@@ -1,0 +1,58 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"category": "widgets",
+	"textdomain": "vulocart",
+	"style": "vulocart-storefront",
+	"editorScript": "vulocart-storefront-editor",
+	"name": "vulocart/product-collection",
+	"title": "Product Collection",
+	"description": "Query your catalog and lay products out as a grid or list. Add, remove or reorder the blocks inside to design the card.",
+	"icon": "grid-view",
+	"keywords": [
+		"shop",
+		"catalog",
+		"products",
+		"store"
+	],
+	"attributes": {
+		"perPage": {
+			"type": "number",
+			"default": 12
+		},
+		"columns": {
+			"type": "number",
+			"default": 0
+		},
+		"layout": {
+			"type": "string",
+			"default": ""
+		},
+		"orderBy": {
+			"type": "string",
+			"default": "newest"
+		},
+		"category": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": [
+			"wide",
+			"full"
+		],
+		"spacing": {
+			"margin": true,
+			"padding": true,
+			"blockGap": true
+		},
+		"color": {
+			"background": true,
+			"text": true,
+			"link": true
+		}
+	},
+	"viewScript": "vulocart-storefront-view"
+}

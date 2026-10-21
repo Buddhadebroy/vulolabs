@@ -17,15 +17,14 @@ defined( 'ABSPATH' ) || exit;
  * The free tier's own lightweight shipping engine: one marketplace-wide
  * flat rate (the Shipping tab's `flat_rate_shipping_cost`), not zones or
  * per-product carrier rates. `get_available_methods()` always returns at
- * least one method (a store with shipping "disabled" still ships for
- * free, rather than leaving checkout with no shipping option to select at
- * all) - `enable_shipping` toggles which method that is, not whether
- * shipping is offered.
+ * least one method (a flat rate of 0 is "Free shipping", rather than
+ * leaving checkout with no shipping option to select at all). The module
+ * being active is what turns shipping on - there is no separate setting.
  *
  * `$context` (`shipping_address`/`cart_weight`/`cart_subtotal`, all
  * optional) exists purely so `vulocart_shipping_methods` has something to
  * compute zone/weight-based rates from - this class itself never reads
- * it. `vulocart-pro`'s own ShippingEngine module is what actually adds
+ * it. `vulocart-pro`'s own Fulfillment module is what actually adds
  * zone-matched rates here (same `vulocart_payment_gateways`-style "Free
  * defines the extension point, Pro fills it in" split
  * `Payment\Application\GatewayRegistry`'s own docblock establishes), so a
@@ -60,7 +59,8 @@ class ShippingService {
     public function get_available_methods( array $context = array() ): array {
         $settings = $this->get_settings();
 
-        if ( empty( $settings['enable_shipping'] ) ) {
+        // The module being active is what turns shipping on; a flat rate of 0 is free shipping.
+        if ( (float) $settings['flat_rate_shipping_cost'] <= 0 ) {
             $methods = array(
                 array(
                     'id'    => 'free',
@@ -79,7 +79,7 @@ class ShippingService {
         }
 
         /**
-         * Lets vulocart-pro's own ShippingEngine module add zone/weight-
+         * Lets vulocart-pro's own Fulfillment module add zone/weight-
          * matched (and, where a carrier is registered, live-quoted) rates
          * alongside the flat-rate/free fallback above - see this class's
          * own docblock.

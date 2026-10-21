@@ -11,10 +11,29 @@ import type { CartResponse } from '../shared/cart';
  */
 export type CheckoutRunData = Record< string, unknown >;
 
+/** `POST /review/summary` - the authoritative price breakdown (shipping, tax and any discount included). */
+export interface CheckoutSummary {
+	currency: string | null;
+	items: { title: string; quantity: number; subtotal: number; currency: string | null }[];
+	shipping_method: string | null;
+	shipping_cost: number;
+	payment_method: string | null;
+	subtotal: number;
+	tax_amount: number;
+	/** Each tax on its own line ("VAT 20%"), so a stacked tax (CGST + SGST) reads as two. */
+	tax_lines?: { name: string; rate: number; amount: number }[];
+	/** With tax-inclusive prices: the part of the total that is tax. */
+	tax_included?: number;
+	prices_include_tax?: boolean;
+	total: number;
+}
+
 export interface CheckoutStepContext {
 	cartToken: string;
 	cart: CartResponse | null;
 	data: CheckoutRunData;
+	/** The live price breakdown the engine keeps current (null until the first response); the order summary shows it. */
+	summary?: CheckoutSummary | null;
 	update: ( patch: CheckoutRunData ) => void;
 	/** Lets a step decide whether to render its own Back/Continue controls - single-page mode shows every step at once with no per-step navigation, only Review's own "Place Order". */
 	mode: 'single_page' | 'multi_step';

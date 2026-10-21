@@ -39,6 +39,8 @@ export interface CartItem {
 	product_id: number;
 	title: string;
 	type: string;
+	/** Small product photo, null when it has none. */
+	image?: string | null;
 	quantity: number;
 	unit_price: number;
 	currency: string | null;

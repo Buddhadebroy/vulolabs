@@ -1,11 +1,11 @@
 /* global vulocartLocalizer */
-import { useRef, useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import axios from 'axios';
 import { getApiLink } from '@zyra/core';
 import { ContainerComponent, ColumnComponent, NavigatorHeaderComponent, PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import { TableCard, TableRow, QueryProps } from '@zyra/table';
+import { TableCard, TableRow, QueryProps, CategoryCount } from '@zyra/table';
 import { downloadCSV } from '../../lib/utils';
 import { formatWpDate } from '../../services/formatWpDate';
 import ConfirmPopup from '../../components/ConfirmPopup/ConfirmPopup';
@@ -133,7 +133,7 @@ function CustomerQuickEdit( { customer, onClose, onSaved }: { customer: Customer
 			header={ { icon: 'membership', title: __( 'Quick edit', 'vulocart' ), description: customer.email } }
 			footer={
 				<div className="vulocart-qe-footer">
-					<a href={ `admin.php?page=vulocart-customers&action=view&id=${ customer.id }` }>
+					<a href={ `admin.php?page=customers&action=view&id=${ customer.id }` }>
 						{ __( 'Open full profile', 'vulocart' ) } <i className="adminfont-pagination-next-arrow" aria-hidden="true" />
 					</a>
 					<ButtonInput
@@ -163,9 +163,9 @@ function CustomerQuickEdit( { customer, onClose, onSaved }: { customer: Customer
 /**
  * Admin customer list - `GET /customers` (modules/Customer/Rest.php,
  * manage_options-gated), same `NavigatorHeaderComponent` + `TableCard`
- * pattern `OrdersList.tsx` already establishes. No category tabs (a
- * customer has no fulfillment/payment-status-like dimension to filter
- * by) - just search across email/name and sortable totals, both backed
+ * pattern `OrdersList.tsx` already establishes. The built-in views (New,
+ * Repeat buyers, ...) are the status pills with counts, like Products and
+ * Orders; saved views sit in the row above the table. Search across email/name and sortable totals, both backed
  * by real columns on the `Customer` entity (`total_orders`/
  * `total_spent`/`last_order_at`), not computed per-row on the client.
  * The API has no sorting, so no column offers it.
@@ -184,6 +184,7 @@ export function CustomersList() {
 	const [ activeSaved, setActiveSaved ] = useState< string | null >( null );
 	const [ isNamingView, setIsNamingView ] = useState( false );
 	const [ searchOverride, setSearchOverride ] = useState< string | null >( null );
+	const [ categoryCounts, setCategoryCounts ] = useState< CategoryCount[] >( [] );
 	const viewRef = useRef( '' );
 	const searchRef = useRef< string | null >( null );
 
@@ -192,6 +193,19 @@ export function CustomersList() {
 		if ( null !== searchRef.current && ( query.searchValue || '' ) !== ( lastQuery.current.searchValue || '' ) ) {
 			searchRef.current = null;
 			setSearchOverride( null );
+		}
+
+		// A status pill is a built-in view; picking one clears any saved view.
+		if ( query.categoryFilter ) {
+			const picked = 'all' === query.categoryFilter ? '' : query.categoryFilter;
+
+			if ( picked !== viewRef.current ) {
+				viewRef.current = picked;
+				searchRef.current = null;
+				setActiveView( picked );
+				setActiveSaved( null );
+				setSearchOverride( null );
+			}
 		}
 
 		lastQuery.current = query;
@@ -250,6 +264,22 @@ export function CustomersList() {
 		doRefreshTableData( lastQuery.current );
 	};
 
+	// Counts for the view pills: one cheap request per visible view, reading X-WP-Total (same approach as Products).
+	const visibleViews = BUILT_IN_VIEWS.filter( ( view ) => '' === view.id || ! viewsConfig.hidden.includes( view.id ) );
+	const loadCounts = () =>
+		Promise.all(
+			visibleViews.map( ( view ) =>
+				axios
+					.get( getApiLink( vulocartLocalizer, 'customers' ), { headers: { 'X-WP-Nonce': vulocartLocalizer.nonce }, params: { view: view.id, per_page: 1 } } )
+					.then( ( response ) => Number( response.headers[ 'x-wp-total' ] ) || 0 )
+					.catch( () => 0 )
+			)
+		).then( ( counts ) => setCategoryCounts( visibleViews.map( ( view, index ) => ( { value: view.id || 'all', label: view.label, count: counts[ index ] } ) ) ) );
+
+	useEffect( () => {
+		loadCounts();
+	}, [ JSON.stringify( viewsConfig.hidden ) ] );
+
 	const saveCurrentView = ( name: string ) => {
 		const params = { view: viewRef.current, search: null !== searchRef.current ? searchRef.current : lastQuery.current.searchValue || '' };
 		const next = [ ...savedViews.filter( ( view ) => view.name !== name ), { name, params } ];
@@ -289,7 +319,7 @@ export function CustomersList() {
 							{ ( who.trim().charAt( 0 ) || '#' ).toUpperCase() }
 						</span>
 						<div className="vulocart-cust-main">
-							<a className="vulocart-product-cell-title" href={ `admin.php?page=vulocart-customers&action=view&id=${ row.id }` }>
+							<a className="vulocart-product-cell-title" href={ `admin.php?page=customers&action=view&id=${ row.id }` }>
 								{ who }
 							</a>
 							{ row.name && row.email ? <div className="desc">{ row.email as string }</div> : null }
@@ -339,7 +369,7 @@ export function CustomersList() {
 					type: 'button' as const,
 					color: 'text-blue',
 					onClick: ( row: Record< string, unknown > ) => {
-						window.location.href = `admin.php?page=vulocart-customers&action=view&id=${ row.id }`;
+						window.location.href = `admin.php?page=customers&action=view&id=${ row.id }`;
 					},
 				},
 				{
@@ -371,7 +401,10 @@ export function CustomersList() {
 				? axios.delete( getApiLink( vulocartLocalizer, `customers/${ ids[ 0 ] }` ), { headers } )
 				: axios.delete( getApiLink( vulocartLocalizer, 'customers/bulk-delete' ), { headers, data: { ids } } );
 
-		request.then( () => doRefreshTableData( lastQuery.current ) );
+		request.then( () => {
+			doRefreshTableData( lastQuery.current );
+			loadCounts();
+		} );
 	};
 
 	return (
@@ -404,14 +437,6 @@ export function CustomersList() {
 				<div className="vulocart-saved-views" style={ viewsConfig.enabled ? undefined : { display: "none" } }>
 					{ viewsConfig.enabled ? (
 						<>
-					<span className="vulocart-saved-views-label">{ __( 'Views:', 'vulocart' ) }</span>
-					{ BUILT_IN_VIEWS.filter( ( view ) => '' === view.id || ! viewsConfig.hidden.includes( view.id ) ).map( ( view ) => (
-						<span key={ view.id || 'all' } className={ `vulocart-saved-view-chip${ activeView === view.id && ! activeSaved ? ' is-active' : '' }` }>
-							<button type="button" title={ view.hint } onClick={ () => chooseView( view.id ) }>
-								{ view.label }
-							</button>
-						</span>
-					) ) }
 					{ savedViews.map( ( view ) => (
 						<span key={ view.name } className={ `vulocart-saved-view-chip${ activeSaved === view.name ? ' is-active' : '' }` }>
 							<button type="button" onClick={ () => chooseView( view.params.view, view ) }>
@@ -437,6 +462,8 @@ export function CustomersList() {
 					isLoading={ isLoading }
 					onQueryUpdate={ doRefreshTableData }
 					ids={ rowIds }
+					categoryCounts={ categoryCounts }
+					activeCategory={ activeSaved ? 'all' : activeView || 'all' }
 					search={ {
 						placeholder: __( 'Search name or email…', 'vulocart' ),
 					} }

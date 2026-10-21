@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Commerce → Checkout. Merged from the former standalone `Cart.ts` +
+ * Settings → Checkout (a top-level tab: it is the only checkout page, so no folder). Merged from the former standalone `Cart.ts` +
  * `Checkout.ts` pair - cart and checkout are one continuous buyer flow,
  * and neither tab had enough fields to earn its own place in the tab bar.
  * Backed by `Utill::SETTINGS_DEFAULTS`'s Cart and Checkout sections -
@@ -15,9 +15,9 @@ import { __ } from '@wordpress/i18n';
  */
 export default {
 	id: 'checkout',
-	priority: 2,
+	priority: 3,
 	headerTitle: __( 'Checkout', 'vulocart' ),
-	headerIcon: 'credit-card',
+	headerIcon: 'cart',
 	groupBySections: true,
 	hideSettingHeader: true,
 	submitUrl: 'settings',
@@ -58,7 +58,7 @@ export default {
 			type: 'select',
 			label: __( 'Checkout layout', 'vulocart' ),
 			settingDescription: __(
-				'Which layout the storefront checkout shows your steps in.',
+				'Which layout the storefront checkout shows your steps in. A checkout block can override this for its own page.',
 				'vulocart'
 			),
 			options: [
@@ -67,34 +67,63 @@ export default {
 			],
 		},
 		{
-			key: 'checkout_styles',
-			type: 'checkbox',
-			label: __( 'Extra checkout styles (Pro)', 'vulocart' ),
+			key: 'checkout_delivery',
+			// A toggle group, not a select: zyra only locks a single option (Pro tag, "module off" tag, popup) in this type.
+			type: 'choice-toggle',
+			label: __( 'Checkout opens as', 'vulocart' ),
 			settingDescription: __(
-				'Open checkout somewhere other than the checkout page: in a popup, a side drawer, embedded in any page, or on a hosted page. Needs VuloCart Pro.',
+				'Where "Proceed to checkout" and "Buy now" lead. Styles beyond the checkout page are part of VuloCart Pro.',
 				'vulocart'
 			),
 			options: [
-				{ key: 'popup', label: __( 'Popup', 'vulocart' ), value: 'popup' },
-				{ key: 'drawer', label: __( 'Side drawer', 'vulocart' ), value: 'drawer' },
-				{ key: 'embedded', label: __( 'Embedded in a page', 'vulocart' ), value: 'embedded' },
-				{ key: 'hosted', label: __( 'Hosted page', 'vulocart' ), value: 'hosted' },
+				{ key: 'page', label: __( 'Checkout page', 'vulocart' ), value: 'page' },
+				{ key: 'popup', label: __( 'Popup', 'vulocart' ), value: 'popup', proSetting: true, moduleEnabled: 'popup-checkout' },
+				{ key: 'drawer', label: __( 'Side drawer', 'vulocart' ), value: 'drawer', proSetting: true, moduleEnabled: 'drawer-checkout' },
+				{ key: 'hosted', label: __( 'Hosted page', 'vulocart' ), value: 'hosted', proSetting: true, moduleEnabled: 'hosted-checkout' },
+				{ key: 'one_click', label: __( 'One-click', 'vulocart' ), value: 'one_click', proSetting: true, moduleEnabled: 'one-click-checkout' },
 			],
 		},
 		{
-			key: 'checkout_features',
+			key: 'checkout_steps',
 			type: 'checkbox',
-			label: __( 'Checkout extras (Pro)', 'vulocart' ),
+			label: __( 'Steps shown', 'vulocart' ),
 			settingDescription: __(
-				'One-click reorder, shareable checkout links and QR codes, the checkout builder, a buyer note field, and address suggestions. Needs VuloCart Pro.',
+				'Turn off the steps your checkout can skip. Customer and Payment are always shown. A checkout block can pick its own steps and their order.',
 				'vulocart'
 			),
 			options: [
-				{ key: 'one-click', label: __( 'One-click checkout', 'vulocart' ), value: 'one-click' },
-				{ key: 'links', label: __( 'Payment links & QR codes', 'vulocart' ), value: 'links' },
-				{ key: 'builder', label: __( 'Checkout builder', 'vulocart' ), value: 'builder' },
-				{ key: 'notes', label: __( 'Order notes from the buyer', 'vulocart' ), value: 'notes' },
-				{ key: 'autocomplete', label: __( 'Address autocomplete', 'vulocart' ), value: 'autocomplete' },
+				{ key: 'customer', label: __( 'Customer', 'vulocart' ), value: 'customer', disabled: true },
+				{ key: 'address', label: __( 'Address', 'vulocart' ), value: 'address' },
+				{ key: 'shipping', label: __( 'Shipping', 'vulocart' ), value: 'shipping' },
+				{ key: 'payment', label: __( 'Payment', 'vulocart' ), value: 'payment', disabled: true },
+				{ key: 'review', label: __( 'Review', 'vulocart' ), value: 'review' },
+			],
+		},
+		{
+			key: 'checkout_fields',
+			type: 'checkbox',
+			label: __( 'Optional fields', 'vulocart' ),
+			settingDescription: __(
+				'Fields the buyer can fill in. A phone number is still asked for when "Require phone number" is on. A checkout block can switch these per page.',
+				'vulocart'
+			),
+			options: [
+				{ key: 'name', label: __( 'Name', 'vulocart' ), value: 'name' },
+				{ key: 'phone', label: __( 'Phone number', 'vulocart' ), value: 'phone' },
+				{ key: 'address_2', label: __( 'Apartment, suite, etc.', 'vulocart' ), value: 'address_2' },
+			],
+		},
+		{
+			key: 'checkout_extras',
+			type: 'checkbox',
+			label: __( 'Extras', 'vulocart' ),
+			settingDescription: __(
+				'Optional extras on the checkout. Order notes lets buyers leave a message with their order; address lookup suggests full addresses as they type.',
+				'vulocart'
+			),
+			options: [
+				{ key: 'order_notes', label: __( 'Order notes', 'vulocart' ), value: 'order_notes', proSetting: true },
+				{ key: 'address_autocomplete', label: __( 'Address lookup', 'vulocart' ), value: 'address_autocomplete', proSetting: true },
 			],
 		},
 		{

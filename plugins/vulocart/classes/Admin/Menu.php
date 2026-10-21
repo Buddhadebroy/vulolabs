@@ -43,6 +43,7 @@ class Menu {
      * Menu constructor.
      */
     public function __construct() {
+        add_action( 'init', array( $this, 'redirect_legacy_pages' ) );
         add_action( 'admin_menu', array( $this, 'add_menu' ) );
         add_action( 'admin_menu', array( $this, 'add_orders_menu' ) );
         add_action( 'admin_menu', array( $this, 'add_products_menu' ) );
@@ -116,10 +117,10 @@ class Menu {
 
         $order = array(
             'vulocart#&tab=dashboard',
-            'vulocart-ai',
-            'vulocart-workflows',
-            'vulocart-inventory',
-            'vulocart-shipping',
+            'ai',
+            'workflows',
+            'inventory',
+            'shipping',
             'vulocart#&tab=reviews',
         );
 
@@ -156,22 +157,22 @@ class Menu {
     public function order_marketing_submenu() {
         global $submenu;
 
-        if ( empty( $submenu['vulocart-marketing'] ) ) {
+        if ( empty( $submenu['marketing'] ) ) {
             return;
         }
 
         $order = array( 'coupons', 'pricing-rules', 'gift-cards', 'abandoned-checkouts', 'checkout-links' );
         $rank  = static function ( $item ) use ( $order ) {
-            $position = array_search( str_replace( 'vulocart-marketing&view=', '', $item[2] ), $order, true );
+            $position = array_search( str_replace( 'marketing&view=', '', $item[2] ), $order, true );
 
             return false === $position ? 500 : $position;
         };
 
         $items = array_values(
             array_filter(
-                $submenu['vulocart-marketing'],
+                $submenu['marketing'],
                 static function ( $item ) {
-                    return 'vulocart-marketing' !== $item[2];
+                    return 'marketing' !== $item[2];
                 }
             )
         );
@@ -183,7 +184,7 @@ class Menu {
             }
         );
 
-        $submenu['vulocart-marketing'] = $items; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- see order_submenu().
+        $submenu['marketing'] = $items; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- see order_submenu().
     }
 
     /**
@@ -208,27 +209,27 @@ class Menu {
             __( 'VuloCart Orders', 'vulocart' ),
             __( 'Orders', 'vulocart' ),
             'manage_options',
-            'vulocart-orders',
+            'orders',
             array( $this, 'render_orders_admin_page' ),
             'dashicons-list-view',
             56.4
         );
 
         add_submenu_page(
-            'vulocart-orders',
+            'orders',
             __( 'All Orders', 'vulocart' ),
             __( 'All Orders', 'vulocart' ),
             'manage_options',
-            'vulocart-orders',
+            'orders',
             array( $this, 'render_orders_admin_page' )
         );
 
         add_submenu_page(
-            'vulocart-orders',
+            'orders',
             __( 'Add New', 'vulocart' ),
             __( 'Add New', 'vulocart' ),
             'manage_options',
-            'vulocart-orders&action=add',
+            'orders&action=add',
             array( $this, 'render_orders_admin_page' )
         );
     }
@@ -241,7 +242,7 @@ class Menu {
      * not one more settings-style tab).
      *
      * "All Products" and "Add New" both point at the same
-     * `vulocart-products` slug (the `&action=add` suffix on the second is
+     * `products` slug (the `&action=add` suffix on the second is
      * a query-string addition, not a distinct WP page - same technique
      * WooCommerce itself uses so `admin.php?page=wc-orders`,
      * `...&action=new`, and `...&action=edit&id=123` are all one
@@ -266,27 +267,27 @@ class Menu {
             __( 'VuloCart Products', 'vulocart' ),
             __( 'Products', 'vulocart' ),
             'manage_options',
-            'vulocart-products',
+            'products',
             array( $this, 'render_products_admin_page' ),
             'dashicons-archive',
             56.1
         );
 
         add_submenu_page(
-            'vulocart-products',
+            'products',
             __( 'All Products', 'vulocart' ),
             __( 'All Products', 'vulocart' ),
             'manage_options',
-            'vulocart-products',
+            'products',
             array( $this, 'render_products_admin_page' )
         );
 
         add_submenu_page(
-            'vulocart-products',
+            'products',
             __( 'Add New', 'vulocart' ),
             __( 'Add New', 'vulocart' ),
             'manage_options',
-            'vulocart-products&action=add',
+            'products&action=add',
             array( $this, 'render_products_admin_page' )
         );
 
@@ -301,14 +302,44 @@ class Menu {
 
         foreach ( $sub_views as $slug => $label ) {
             add_submenu_page(
-                'vulocart-products',
+                'products',
                 $label,
                 $label,
                 'manage_options',
-                'vulocart-products&view=' . $slug,
+                'products&view=' . $slug,
                 array( $this, 'render_products_admin_page' )
             );
         }
+    }
+
+    /**
+     * Sends an old `?page=vulocart-products` style link (bookmarks, emails, saved searches) to the same screen under its
+     * current slug, keeping the rest of the query string (`view`, `action`, `id`, ...).
+     *
+     * @return void
+     */
+    public function redirect_legacy_pages() {
+        if ( ! is_admin() ) {
+            return;
+        }
+
+        $page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page-identity check.
+
+        if ( 0 !== strpos( $page, 'vulocart-' ) ) {
+            return;
+        }
+
+        $current = substr( $page, strlen( 'vulocart-' ) );
+
+        if ( ! in_array( $current, array( 'products', 'orders', 'customers', 'inventory', 'shipping', 'ai', 'workflows', 'marketing', 'analytics' ), true ) ) {
+            return;
+        }
+
+        $query         = map_deep( wp_unslash( $_GET ), 'sanitize_text_field' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- a redirect that only renames the page slug.
+        $query['page'] = $current;
+
+        wp_safe_redirect( add_query_arg( $query, admin_url( 'admin.php' ) ) );
+        exit;
     }
 
     /**
@@ -332,18 +363,18 @@ class Menu {
             __( 'VuloCart Customers', 'vulocart' ),
             __( 'Customers', 'vulocart' ),
             'manage_options',
-            'vulocart-customers',
+            'customers',
             array( $this, 'render_customers_admin_page' ),
             'dashicons-groups',
             56.5
         );
 
         add_submenu_page(
-            'vulocart-customers',
+            'customers',
             __( 'All Customers', 'vulocart' ),
             __( 'All Customers', 'vulocart' ),
             'manage_options',
-            'vulocart-customers',
+            'customers',
             array( $this, 'render_customers_admin_page' )
         );
     }
@@ -359,7 +390,7 @@ class Menu {
      * "Free owns top-level chrome, Pro fills it in via a filtered router"
      * split `add_customers_menu()`'s own docblock documents for
      * CustomerGrowth. This is distinct from the existing
-     * `vulocart-products&view=inventory` sub-page (a simple bulk stock-
+     * `products&view=inventory` sub-page (a simple bulk stock-
      * quantity/status editor scoped to one product at a time,
      * RestAPI\Controllers\Inventory.php) - that page is left untouched;
      * this top-level menu is for the warehouse-aware engine sitting above
@@ -376,41 +407,41 @@ class Menu {
             __( 'VuloCart Inventory', 'vulocart' ),
             __( 'Inventory', 'vulocart' ),
             'manage_options',
-            'vulocart-inventory',
+            'inventory',
             array( $this, 'render_inventory_admin_page' )
         );
     }
 
     /**
-     * Registers Shipping as its own dedicated top-level WP admin menu -
+     * Registers Fulfillment (page slug `shipping`) as its own dedicated top-level WP admin menu -
      * same "Free owns top-level chrome, Pro fills it in" split
      * `add_inventory_menu()`'s own docblock documents. Distinct from the
      * free Shipping module's own checkout-step settings (Settings tab,
-     * `enable_shipping`/`flat_rate_shipping_cost`) - this menu is for
-     * `vulocart-pro`'s own ShippingEngine module (Zones/Rates/Packaging/
+     * `flat_rate_shipping_cost`) - this menu is for
+     * `vulocart-pro`'s own Fulfillment module (Zones/Rates/Packaging/
      * Shipments/Labels/Returns/Pickup), which extends
      * `ShippingService::get_available_methods()` via the
      * `vulocart_shipping_methods` filter rather than replacing it.
      *
-     * Shipping is one submenu of VuloCart; zones, packaging, shipments, returns and pickup are tabs on that
-     * page (`&view=`), filled in by `vulocart-pro`'s ShippingEngine module through `vulocart_shipping_view`.
+     * Fulfillment is one submenu of VuloCart; shipments, returns and pickup are tabs on that page (`&view=`). Zones,
+     * rates and packaging are configuration, so they live in Settings → Shipping, filled in by `vulocart-pro`'s Fulfillment module through `vulocart_fulfillment_view`.
      *
      * @return void
      */
     public function add_shipping_menu() {
         add_submenu_page(
             'vulocart',
-            __( 'VuloCart Shipping', 'vulocart' ),
-            __( 'Shipping', 'vulocart' ),
+            __( 'VuloCart Shipment', 'vulocart' ),
+            __( 'Shipment', 'vulocart' ),
             'manage_options',
-            'vulocart-shipping',
+            'shipping',
             array( $this, 'render_shipping_admin_page' )
         );
     }
 
     /**
      * Registers AI as a single submenu of VuloCart (it used to be its own top-level menu with a submenu per
-     * feature). The page slug stays `vulocart-ai`, so `&view=catalog|checkout|support|search` links and
+     * feature). The page slug stays `ai`, so `&view=catalog|checkout|support|search` links and
      * bookmarks keep working - those are now tabs on this one page. Free owns the frame; each tab is
      * `vulocart-pro`'s CatalogAi/CheckoutAi/SupportAi/VectorSearch module, plugged into `vulocart_ai_view`.
      *
@@ -422,14 +453,14 @@ class Menu {
             __( 'VuloCart AI', 'vulocart' ),
             __( 'AI', 'vulocart' ),
             'manage_options',
-            'vulocart-ai',
+            'ai',
             array( $this, 'render_ai_admin_page' )
         );
     }
 
     /**
      * Registers Workflows as a submenu of VuloCart (it used to be its own top-level menu). The page slug
-     * stays `vulocart-workflows`, so the editor/runs links (`&view=edit|runs&id=`) and bookmarks keep
+     * stays `workflows`, so the editor/runs links (`&view=edit|runs&id=`) and bookmarks keep
      * working. Free owns no view here - the list, editor and run history are `vulocart-pro`'s
      * WorkflowBuilder module, which plugs into `vulocart_workflows_view`.
      *
@@ -441,7 +472,7 @@ class Menu {
             __( 'VuloCart Workflows', 'vulocart' ),
             __( 'Workflows', 'vulocart' ),
             'manage_options',
-            'vulocart-workflows',
+            'workflows',
             array( $this, 'render_workflows_admin_page' )
         );
     }
@@ -454,7 +485,7 @@ class Menu {
      * @return void
      */
     public function add_analytics_redirect() {
-        $hook = add_submenu_page( '', __( 'VuloCart Analytics', 'vulocart' ), '', 'manage_options', 'vulocart-analytics', '__return_null' );
+        $hook = add_submenu_page( '', __( 'VuloCart Analytics', 'vulocart' ), '', 'manage_options', 'analytics', '__return_null' );
 
         add_action(
             'load-' . $hook,
@@ -469,7 +500,7 @@ class Menu {
      * Registers Marketing as its own top-level WP admin menu - same "Free owns top-level chrome, Pro
      * fills it in" split as `add_ai_menu()`/`add_workflows_menu()`. Free owns no view here; Coupons,
      * Pricing Rules, Gift Cards, Cart Abandoned, Checkout Links and Checkout Builder are each
-     * `vulocart-pro`'s own module, which registers its submenu under `vulocart-marketing`
+     * `vulocart-pro`'s own module, which registers its submenu under `marketing`
      * (ordered by order_marketing_submenu()).
      *
      * @return void
@@ -479,7 +510,7 @@ class Menu {
             __( 'VuloCart Marketing', 'vulocart' ),
             __( 'Marketing', 'vulocart' ),
             'manage_options',
-            'vulocart-marketing',
+            'marketing',
             array( $this, 'render_marketing_admin_page' ),
             'dashicons-megaphone',
             56.7
@@ -591,7 +622,7 @@ class Menu {
     /**
      * Keeps the right submenu item highlighted on `?page=vulocart-x&view=y`
      * (and `&action=add`) screens. Every such item is registered with a slug
-     * like `vulocart-products&view=collections`, but WordPress matches the
+     * like `products&view=collections`, but WordPress matches the
      * active item against `$_GET['page']` alone - which never equals that
      * slug - so it falls back to the first item ("All Products") and the
      * page you're on never looks selected. Returns the registered slug that
@@ -606,7 +637,7 @@ class Menu {
 
         $page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page-identity check.
 
-        if ( '' === $page || 0 !== strpos( $page, 'vulocart' ) || empty( $submenu[ $page ] ) ) {
+        if ( ! in_array( $page, array( 'products', 'orders', 'customers', 'inventory', 'shipping', 'ai', 'workflows', 'marketing' ), true ) || empty( $submenu[ $page ] ) ) {
             return $submenu_file;
         }
 
@@ -629,8 +660,8 @@ class Menu {
         }
 
         // Marketing has no item for its bare page (order_marketing_submenu() drops it); that page shows Coupons.
-        if ( 'vulocart-marketing' === $page && ! in_array( $page, $registered, true ) && in_array( 'vulocart-marketing&view=coupons', $registered, true ) ) {
-            return 'vulocart-marketing&view=coupons';
+        if ( 'marketing' === $page && ! in_array( $page, $registered, true ) && in_array( 'marketing&view=coupons', $registered, true ) ) {
+            return 'marketing&view=coupons';
         }
 
         return $submenu_file;
@@ -658,21 +689,21 @@ class Menu {
      * Gated on `$_GET['page']`, NOT `$hook_suffix` - a query string like
      * `&action=add` on the Products top-level page itself doesn't change
      * either one (same page, same hook), but a Pro module's own
-     * `add_submenu_page( 'vulocart-products', ..., 'vulocart-products&view=xyz',
+     * `add_submenu_page( 'products', ..., 'products&view=xyz',
      * ... )` (Suppliers/CheckoutLinks/Subscriptions/Passport/etc. - every
      * "Pro extends the Products menu" registration in this codebase) is a
      * genuinely SEPARATE submenu-page registration, and WordPress's own
      * `get_plugin_page_hookname()` hashes that entire literal
-     * `'vulocart-products&view=xyz'` string into a hook suffix like
-     * `admin_page_vulocart-products&view=xyz` - never
-     * `toplevel_page_vulocart-products`. An `in_array( $hook_suffix, ... )`
+     * `'products&view=xyz'` string into a hook suffix like
+     * `admin_page_products&view=xyz` - never
+     * `toplevel_page_products`. An `in_array( $hook_suffix, ... )`
      * check here silently never matches any of those pages, so this
      * bundle (and therefore the entire React app, `#vulocart-products-admin-root`
      * included) never loads on them - a real bug that shipped invisibly
      * because nothing in this codebase's own test coverage ever loaded
      * these admin screens in an actual browser, only their REST endpoints
      * directly. `$_GET['page']` has no such problem: WordPress always
-     * parses it as the plain `vulocart-products` string regardless of
+     * parses it as the plain `products` string regardless of
      * what a submenu's own registered slug looked like, since query
      * strings are parsed independently of how the menu system computed
      * its internal hook name.
@@ -682,7 +713,7 @@ class Menu {
      */
     public function enqueue_admin_script( $hook_suffix ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
         $current_page   = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page-identity check, not a state-changing request.
-        $vulocart_pages = array( 'vulocart', 'vulocart-orders', 'vulocart-products', 'vulocart-customers', 'vulocart-inventory', 'vulocart-shipping', 'vulocart-ai', 'vulocart-workflows', 'vulocart-marketing' );
+        $vulocart_pages = array( 'vulocart', 'orders', 'products', 'customers', 'inventory', 'shipping', 'ai', 'workflows', 'marketing' );
 
         if ( ! in_array( $current_page, $vulocart_pages, true ) ) {
             return;

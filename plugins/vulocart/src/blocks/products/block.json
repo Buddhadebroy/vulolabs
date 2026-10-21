@@ -19,6 +19,10 @@
 		"columns": {
 			"type": "string",
 			"default": ""
+		},
+		"mode": {
+			"type": "string",
+			"default": ""
 		}
 	}
 }

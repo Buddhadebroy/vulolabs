@@ -83,7 +83,15 @@ class Settings extends \WP_REST_Controller {
      * @return \WP_REST_Response
      */
     public function get_items( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
-        return rest_ensure_response( $this->get_stored_settings() );
+        $settings = $this->get_stored_settings();
+
+        // Customer and Payment are always part of checkout; a stored list (disabled boxes are never posted back) may
+        // lack them, which would draw those two boxes unticked.
+        if ( isset( $settings['checkout_steps'] ) && is_array( $settings['checkout_steps'] ) ) {
+            $settings['checkout_steps'] = array_values( array_unique( array_merge( array( 'customer' ), $settings['checkout_steps'], array( 'payment' ) ) ) );
+        }
+
+        return rest_ensure_response( $settings );
     }
 
     /**

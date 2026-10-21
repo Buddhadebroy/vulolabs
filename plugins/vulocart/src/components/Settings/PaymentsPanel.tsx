@@ -15,6 +15,7 @@ import {
 } from '@zyra/components';
 import { ButtonInput, MultiCheckboxInput, SelectInput, TextAreaInput, TextInput } from '@zyra/inputs';
 import paymentsFields, { type PaymentField } from './paymentsFields';
+import './payments-panel.scss';
 
 type Values = Record< string, unknown >;
 
@@ -264,12 +265,27 @@ const PaymentsPanel = () => {
 					/>
 				}
 			>
-				<FormGroupWrapperComponent>
+				<div className="vulocart-pay-form">
 					{ editing &&
-						configFields( editing ).map( ( field ) =>
-							renderField( field, draft[ field.key ], ( next ) => setDraft( ( current ) => ( { ...current, [ field.key ]: next } ) ) )
-						) }
-				</FormGroupWrapperComponent>
+						configFields( editing ).map( ( field ) => {
+							const onChange = ( next: unknown ) => setDraft( ( current ) => ( { ...current, [ field.key ]: next } ) );
+
+							// A switch (e.g. sandbox mode) reads as a row: the text on the left, the switch on the right.
+							if ( isToggle( field ) ) {
+								return (
+									<div className="vulocart-pay-form-switch" key={ field.key }>
+										<div>
+											<div className="vulocart-pay-form-label">{ field.label }</div>
+											{ field.settingDescription && <div className="settings-metabox-description">{ field.settingDescription }</div> }
+										</div>
+										{ renderControl( field, draft[ field.key ], onChange ) }
+									</div>
+								);
+							}
+
+							return renderField( field, draft[ field.key ], onChange );
+						} ) }
+				</div>
 			</PopupComponent>
 		</>
 	);

@@ -9,9 +9,11 @@ import { TYPE_PROFILES } from './typeProfiles';
 export function TypeChooser( { onChoose, onSkip }: { onChoose: ( type: string ) => void; onSkip: () => void } ) {
 	return (
 		<div className="vulocart-product-edit-page vulocart-type-chooser">
-			<a className="vulocart-back-link" href="admin.php?page=vulocart-products">
-				{ __( '← Back to Products', 'vulocart' ) }
-			</a>
+			<nav className="vulocart-breadcrumbs" aria-label={ __( 'Breadcrumb', 'vulocart' ) }>
+				<a href="admin.php?page=products">{ __( 'Products', 'vulocart' ) }</a>
+				<i className="adminfont-pagination-next-arrow" aria-hidden="true" />
+				<span aria-current="page">{ __( 'Add Product', 'vulocart' ) }</span>
+			</nav>
 
 			<header>
 				<h1 className="vulocart-edit-page-title">{ __( 'What are you selling?', 'vulocart' ) }</h1>

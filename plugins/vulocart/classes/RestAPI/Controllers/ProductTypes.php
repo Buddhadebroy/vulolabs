@@ -76,13 +76,13 @@ class ProductTypes extends \WP_REST_Controller {
         'subscription' => array(
             'module' => 'subscriptions',
             'label'  => 'Subscriptions',
-            'page'   => 'vulocart-orders',
+            'page'   => 'orders',
             'view'   => 'subscriptions',
         ),
         'gift_card'    => array(
             'module' => 'gift-cards',
             'label'  => 'Gift Cards',
-            'page'   => 'vulocart-products',
+            'page'   => 'products',
             'view'   => 'gift-cards',
         ),
     );
@@ -95,19 +95,19 @@ class ProductTypes extends \WP_REST_Controller {
      */
     const PRO_EXTRAS = array(
         'physical'   => array(
-            array( 'label' => 'Warehouses', 'page' => 'vulocart-inventory', 'view' => 'warehouses' ),
-            array( 'label' => 'Shipping zones', 'page' => 'vulocart-shipping', 'view' => 'zones' ),
+            array( 'label' => 'Warehouses', 'page' => 'inventory', 'view' => 'warehouses' ),
+            array( 'label' => 'Shipping zones', 'page' => 'shipping', 'view' => 'zones' ),
         ),
         'rental'     => array(
-            array( 'label' => 'Warehouses', 'page' => 'vulocart-inventory', 'view' => 'warehouses' ),
-            array( 'label' => 'Shipping zones', 'page' => 'vulocart-shipping', 'view' => 'zones' ),
+            array( 'label' => 'Warehouses', 'page' => 'inventory', 'view' => 'warehouses' ),
+            array( 'label' => 'Shipping zones', 'page' => 'shipping', 'view' => 'zones' ),
         ),
         'bundle'     => array(
-            array( 'label' => 'Warehouses', 'page' => 'vulocart-inventory', 'view' => 'warehouses' ),
-            array( 'label' => 'Shipping zones', 'page' => 'vulocart-shipping', 'view' => 'zones' ),
+            array( 'label' => 'Warehouses', 'page' => 'inventory', 'view' => 'warehouses' ),
+            array( 'label' => 'Shipping zones', 'page' => 'shipping', 'view' => 'zones' ),
         ),
         'membership' => array(
-            array( 'label' => 'Customer groups', 'page' => 'vulocart-customers', 'view' => 'groups' ),
+            array( 'label' => 'Customer groups', 'page' => 'customers', 'view' => 'groups' ),
         ),
     );
 
@@ -132,7 +132,7 @@ class ProductTypes extends \WP_REST_Controller {
     private static function pro_extras( string $type ): array {
         return array_merge(
             self::PRO_EXTRAS[ $type ] ?? array(),
-            array( array( 'label' => 'Pricing rules', 'page' => 'vulocart-products', 'view' => 'pricing-rules' ) )
+            array( array( 'label' => 'Pricing rules', 'page' => 'products', 'view' => 'pricing-rules' ) )
         );
     }
 

@@ -243,7 +243,19 @@ class OrderService {
             : 0.0;
 
         $tax_service = $this->resolve_optional_service( 'tax_service' );
-        $tax_amount  = $tax_service ? $tax_service->calculate( $totals['subtotal'] ) : 0.0;
+        $tax         = $tax_service
+            ? $tax_service->calculate_cart(
+                $cart,
+                $shipping_address,
+                $billing_address,
+                (float) $shipping_cost,
+                array(
+                    'cart_token'     => $cart_token,
+                    'customer_email' => $customer_email,
+                )
+            )
+            : array( 'amount' => 0.0 );
+        $tax_amount  = (float) $tax['amount'];
 
         $payment_service        = $this->resolve_optional_service( 'payment_service' );
         $initial_payment_status = $payment_service ? $payment_service->get_initial_payment_status() : PaymentStatus::PENDING;

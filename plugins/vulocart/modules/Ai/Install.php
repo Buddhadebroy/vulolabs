@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * classes/AI/Services/CredentialEncryption.php) and `vulocart_ai_usage_log`
  * (insert-only call log, classes/AI/AiUsageLogUtil.php). Same
  * version-gated dbDelta shape as vulocart-pro's own module Install
- * classes (ShippingEngine\Install's own docblock).
+ * classes (Fulfillment\Install's own docblock).
  *
  * @class       Install class
  * @version     1.0.0

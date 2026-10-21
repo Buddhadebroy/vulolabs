@@ -25,6 +25,8 @@ export interface ModuleCatalogEntry {
 	proModule: boolean;
 	category: string;
 	icon?: string;
+	/** Where this module is configured or used - zyra shows it as the card's Settings link. */
+	settingsLink?: string;
 	freeFeatures?: string[];
 	proFeatures?: string[];
 }
@@ -59,17 +61,18 @@ const MODULES_CATALOG: {
 
 		{
 			id: 'shipping',
+			settingsLink: '?page=vulocart#&tab=settings&subtab=shipping',
 			icon: 'shipping',
 			name: __( 'Shipping', 'vulocart' ),
 			desc: __(
-				'Checkout Shipping step - flat-rate shipping, configured on the Shipping settings tab. With Pro: zone and weight-based rates, packaging, tracked shipments, carriers, returns and local pickup. Switch it off for a store that does not ship.',
+				'Checkout Shipping step - flat-rate shipping, configured under Shipping & Tax. With Pro, the same card also turns on zone and weight-based rates, packaging, the Shipment page (tracked shipments, carriers, returns, local pickup). Switch it off for a store that does not ship.',
 				'vulocart'
 			),
 			proModule: false,
 			category: 'checkout-steps',
 			freeFeatures: [
 				__( 'Flat-rate shipping cost', 'vulocart' ),
-				__( 'Configured on the Shipping settings tab', 'vulocart' ),
+				__( 'Configured under Shipping & Tax', 'vulocart' ),
 			],
 			proFeatures: [
 				__( 'Zone and weight-based rates', 'vulocart' ),
@@ -81,38 +84,46 @@ const MODULES_CATALOG: {
 			],
 		},
 
+
 		{
 			id: 'taxes',
+			settingsLink: '?page=vulocart#&tab=settings&subtab=taxes',
 			icon: 'tax-compliance',
 			name: __( 'Taxes', 'vulocart' ),
 			desc: __(
-				'Adds tax calculation to order totals, using a flat rate configured on the Taxes settings tab.',
+				'Charges tax by where the order is going and what each product is: rates per country, state and postcode, tax classes, tax on shipping, tax-inclusive prices, and ready-made sets (EU VAT, UK VAT, India GST and more). Set it up under Shipping & Tax.',
 				'vulocart'
 			),
 			proModule: false,
 			category: 'checkout-steps',
 			freeFeatures: [
-				__( 'Flat tax rate on order totals', 'vulocart' ),
-				__( 'Configured on the Taxes settings tab', 'vulocart' ),
+				__( 'Rates by country, state and postcode', 'vulocart' ),
+				__( 'Tax classes (standard, reduced, zero, your own)', 'vulocart' ),
+				__( 'Stacked taxes such as CGST + SGST', 'vulocart' ),
+				__( 'Tax-inclusive or tax-exclusive prices', 'vulocart' ),
 			],
-			proFeatures: [],
+			proFeatures: [
+				__( 'Automatic rates with Stripe Tax', 'vulocart' ),
+				__( 'EU VAT reverse charge and GSTIN capture for business buyers', 'vulocart' ),
+			],
 		},
 
 		{
-			id: 'review',
-			icon: 'eye',
-			name: __( 'Review', 'vulocart' ),
+			id: 'checkout-links',
+			settingsLink: '?page=marketing&view=checkout-links',
+			icon: 'link',
+			name: __( 'Payment links & QR codes', 'vulocart' ),
 			desc: __(
-				'Checkout Review step - a preview of the final order total before it\'s placed.',
+				'Create shareable checkout links and QR codes for a product or a custom cart, to sell in chat, email or in person.',
 				'vulocart'
 			),
-			proModule: false,
-			category: 'checkout-steps',
-			freeFeatures: [
-				__( 'Final order total preview', 'vulocart' ),
-				__( 'Totals shown before the order is placed', 'vulocart' ),
+			proModule: true,
+			category: 'promotions',
+			freeFeatures: [],
+			proFeatures: [
+				__( 'Shareable checkout links', 'vulocart' ),
+				__( 'QR codes for in-person sales', 'vulocart' ),
 			],
-			proFeatures: [],
 		},
 
 		// Catalog
@@ -123,6 +134,7 @@ const MODULES_CATALOG: {
 		},
 		{
 			id: 'variants',
+			settingsLink: '?page=products',
 			icon: 'catalog',
 			name: __( 'Variants', 'vulocart' ),
 			desc: __(
@@ -139,6 +151,7 @@ const MODULES_CATALOG: {
 		},
 		{
 			id: 'pricing-rules',
+			settingsLink: '?page=marketing&view=pricing-rules',
 			icon: 'price',
 			name: __( 'Pricing Rules', 'vulocart' ),
 			desc: __(
@@ -156,6 +169,7 @@ const MODULES_CATALOG: {
 		},
 		{
 			id: 'product-templates',
+			settingsLink: '?page=products&view=product-templates',
 			icon: 'form-section',
 			name: __( 'Product Templates', 'vulocart' ),
 			desc: __(
@@ -172,6 +186,7 @@ const MODULES_CATALOG: {
 		},
 		{
 			id: 'bulk-editor',
+			settingsLink: '?page=products',
 			icon: 'bulk-action',
 			name: __( 'Bulk Tools', 'vulocart' ),
 			desc: __(
@@ -188,6 +203,7 @@ const MODULES_CATALOG: {
 		},
 		{
 			id: 'suppliers',
+			settingsLink: '?page=inventory&view=suppliers',
 			icon: 'store-inventory',
 			name: __( 'Suppliers', 'vulocart' ),
 			desc: __(
@@ -204,6 +220,7 @@ const MODULES_CATALOG: {
 		},
 		{
 			id: 'passport',
+			settingsLink: '?page=products',
 			icon: 'identity-verification',
 			name: __( 'Digital Product Passport', 'vulocart' ),
 			desc: __(
@@ -230,6 +247,7 @@ const MODULES_CATALOG: {
 		},
 		{
 			id: 'coupons',
+			settingsLink: '?page=marketing&view=coupons',
 			icon: 'coupon',
 			name: __( 'Coupons', 'vulocart' ),
 			desc: __(
@@ -246,6 +264,7 @@ const MODULES_CATALOG: {
 		},
 		{
 			id: 'gift-cards',
+			settingsLink: '?page=marketing&view=gift-cards',
 			icon: 'gift-card',
 			name: __( 'Gift Cards', 'vulocart' ),
 			desc: __(
@@ -263,6 +282,7 @@ const MODULES_CATALOG: {
 
 		{
 			id: 'abandoned-checkout',
+			settingsLink: '?page=marketing&view=abandoned-checkouts',
 			icon: 'cart',
 			name: __( 'Cart Abandoned', 'vulocart' ),
 			desc: __(
@@ -286,6 +306,7 @@ const MODULES_CATALOG: {
 		},
 		{
 			id: 'subscriptions',
+			settingsLink: '?page=orders&view=subscriptions',
 			icon: 'subscription',
 			name: __( 'Subscriptions', 'vulocart' ),
 			desc: __(
@@ -303,6 +324,7 @@ const MODULES_CATALOG: {
 		},
 		{
 			id: 'customer-growth',
+			settingsLink: '?page=customers&view=segments',
 			icon: 'cohort',
 			name: __( 'Customer Growth', 'vulocart' ),
 			desc: __(
@@ -321,6 +343,7 @@ const MODULES_CATALOG: {
 		},
 		{
 			id: 'order-documents',
+			settingsLink: '?page=orders',
 			icon: 'invoice',
 			name: __( 'Order Documents', 'vulocart' ),
 			desc: __(
@@ -339,6 +362,7 @@ const MODULES_CATALOG: {
 		},
 		{
 			id: 'inventory',
+			settingsLink: '?page=inventory',
 			icon: 'store-inventory',
 			name: __( 'Inventory Engine', 'vulocart' ),
 			desc: __(
@@ -358,6 +382,7 @@ const MODULES_CATALOG: {
 		},
 		{
 			id: 'analytics',
+			settingsLink: '?page=vulocart#&tab=dashboard',
 			icon: 'analytics',
 			name: __( 'Analytics', 'vulocart' ),
 			desc: __(
@@ -375,6 +400,7 @@ const MODULES_CATALOG: {
 		},
 		{
 			id: 'workflow-builder',
+			settingsLink: '?page=workflows',
 			icon: 'automation',
 			name: __( 'Workflow Builder', 'vulocart' ),
 			desc: __(
@@ -399,6 +425,7 @@ const MODULES_CATALOG: {
 		},
 		{
 			id: 'mcp',
+			settingsLink: '?page=vulocart#&tab=settings&subtab=integrations',
 			icon: 'centralized-connections',
 			name: __( 'MCP', 'vulocart' ),
 			desc: __(
@@ -415,6 +442,7 @@ const MODULES_CATALOG: {
 		},
 		{
 			id: 'ai',
+			settingsLink: '?page=vulocart#&tab=settings&subtab=integrations',
 			icon: 'ai',
 			name: __( 'AI', 'vulocart' ),
 			desc: __(
@@ -432,6 +460,7 @@ const MODULES_CATALOG: {
 		},
 		{
 			id: 'catalog-ai',
+			settingsLink: '?page=ai',
 			icon: 'ai',
 			name: __( 'Catalog AI', 'vulocart' ),
 			desc: __(
@@ -449,6 +478,7 @@ const MODULES_CATALOG: {
 		},
 		{
 			id: 'checkout-ai',
+			settingsLink: '?page=ai',
 			icon: 'ai',
 			name: __( 'Checkout AI', 'vulocart' ),
 			desc: __(
@@ -466,6 +496,7 @@ const MODULES_CATALOG: {
 		},
 		{
 			id: 'support-ai',
+			settingsLink: '?page=ai',
 			icon: 'ai',
 			name: __( 'Support AI', 'vulocart' ),
 			desc: __(
@@ -482,6 +513,7 @@ const MODULES_CATALOG: {
 		},
 		{
 			id: 'vector-search',
+			settingsLink: '?page=ai',
 			icon: 'ai',
 			name: __( 'Vector Search', 'vulocart' ),
 			desc: __(

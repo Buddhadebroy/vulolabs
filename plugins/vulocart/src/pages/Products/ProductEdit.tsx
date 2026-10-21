@@ -12,6 +12,7 @@ import { defaultPrice, getPriceTypes, newPriceId, toEditablePrices, toPayloadPri
 import type { EditablePrice } from './prices';
 import type { ReactNode } from 'react';
 import axios from 'axios';
+import TaxFields from './TaxFields';
 import { getApiLink } from '@zyra/core';
 import { showErrorToast, errorMessageOf } from '../../lib/rest-errors';
 import { CardComponent, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
@@ -169,6 +170,9 @@ interface ProductFormState {
 	width: string;
 	height: string;
 	shippingClass: string;
+	taxStatus: string;
+	taxClass: string;
+	taxCode: string;
 	shippingPolicy: string;
 	refundPolicy: string;
 	cancellationPolicy: string;
@@ -213,6 +217,9 @@ const EMPTY_FORM: ProductFormState = {
 	width: '',
 	height: '',
 	shippingClass: '',
+	taxStatus: 'taxable',
+	taxClass: 'standard',
+	taxCode: '',
 	shippingPolicy: '',
 	refundPolicy: '',
 	cancellationPolicy: '',
@@ -242,7 +249,7 @@ interface ProductEditProps {
 
 /**
  * A dedicated full page for creating/editing one product. Real,
- * bookmarkable URL (`admin.php?page=vulocart-products&action=edit&id=123`),
+ * bookmarkable URL (`admin.php?page=products&action=edit&id=123`),
  * not a modal - same navigation model as this session's earlier Products/
  * Orders split (see Products.tsx's docblock).
  *
@@ -609,6 +616,9 @@ export function ProductEdit( { id }: ProductEditProps ) {
 					width: meta.width || '',
 					height: meta.height || '',
 					shippingClass: meta.shipping_class || '',
+					taxStatus: meta.tax_status || 'taxable',
+					taxClass: meta.tax_class || 'standard',
+					taxCode: meta.tax_code || '',
 					shippingPolicy: meta.shipping_policy || '',
 					refundPolicy: meta.refund_policy || '',
 					cancellationPolicy: meta.cancellation_policy || '',
@@ -817,6 +827,9 @@ export function ProductEdit( { id }: ProductEditProps ) {
 		width: formData.width || undefined,
 		height: formData.height || undefined,
 		shipping_class: formData.shippingClass || undefined,
+		tax_status: 'none' === formData.taxStatus ? 'none' : undefined,
+		tax_class: 'standard' !== formData.taxClass ? formData.taxClass : undefined,
+		tax_code: formData.taxCode || undefined,
 		shipping_policy: formData.shippingPolicy || undefined,
 		refund_policy: formData.refundPolicy || undefined,
 		cancellation_policy: formData.cancellationPolicy || undefined,
@@ -929,7 +942,7 @@ export function ProductEdit( { id }: ProductEditProps ) {
 					setIsSaving( false );
 					setSavedNotice( true );
 				} else {
-					window.location.href = `admin.php?page=vulocart-products&action=edit&id=${ response.data.id }`;
+					window.location.href = `admin.php?page=products&action=edit&id=${ response.data.id }`;
 				}
 			} )
 			.catch( ( error ) => {
@@ -1002,9 +1015,11 @@ export function ProductEdit( { id }: ProductEditProps ) {
 	if ( notFound ) {
 		return (
 			<div className="vulocart-product-edit-page">
-				<a className="vulocart-back-link" href="admin.php?page=vulocart-products">
-					{ __( '← Back to Products', 'vulocart' ) }
-				</a>
+				<nav className="vulocart-breadcrumbs" aria-label={ __( 'Breadcrumb', 'vulocart' ) }>
+					<a href="admin.php?page=products">{ __( 'Products', 'vulocart' ) }</a>
+					<i className="adminfont-pagination-next-arrow" aria-hidden="true" />
+					<span aria-current="page">{ __( 'Edit Product', 'vulocart' ) }</span>
+				</nav>
 				<p>{ __( 'No product exists with this id.', 'vulocart' ) }</p>
 			</div>
 		);
@@ -1015,7 +1030,7 @@ export function ProductEdit( { id }: ProductEditProps ) {
 			<div className="vulocart-product-edit-topbar">
 				<div>
 					<nav className="vulocart-breadcrumbs" aria-label={ __( 'Breadcrumb', 'vulocart' ) }>
-						<a href="admin.php?page=vulocart-products">{ __( 'Products', 'vulocart' ) }</a>
+						<a href="admin.php?page=products">{ __( 'Products', 'vulocart' ) }</a>
 						<i className="adminfont-pagination-next-arrow" aria-hidden="true" />
 						<span aria-current="page">{ isEditMode ? __( 'Edit Product', 'vulocart' ) : __( 'Add Product', 'vulocart' ) }</span>
 					</nav>
@@ -1674,6 +1689,7 @@ export function ProductEdit( { id }: ProductEditProps ) {
 
 					{ null !== id && (
 						<div className="vulocart-edit-extra-sections">
+							{ vulocartLocalizer.active_modules.includes( 'taxes' ) && <TaxFields status={ formData.taxStatus } taxClass={ formData.taxClass } taxCode={ formData.taxCode } onChange={ ( patch ) => update( patch ) } /> }
 							{ applyFilters( 'vulocart_product_edit_sections', null, { id, type: formData.type, subtype: subtype.value, shippable: cards.shipping } ) }
 							{ /* Last, after the modules' sections (Digital Product Passport, ...). */ }
 							<EmbedCodeSection productId={ id } />

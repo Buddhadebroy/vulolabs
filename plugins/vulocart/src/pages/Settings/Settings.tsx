@@ -122,7 +122,9 @@ const Settings = () => {
 		// component instead of InputRenderer's declarative field schema
 		// (e.g. vulocart-pro's Licensing tab) - same mechanism vulopilot's
 		// own Settings.tsx establishes.
-		if ( settingModal?.PanelComponent ) {
+		// A panel with no fields of its own (Pro filters may still append some for it - the panel draws those itself);
+		// one that declares its own `modal` fields (Tax) is drawn after them, below.
+		if ( settingModal?.PanelComponent && ! rawSettingModal?.modal?.length ) {
 			const PanelComponent = settingModal.PanelComponent;
 			return <PanelComponent />;
 		}
@@ -144,6 +146,7 @@ const Settings = () => {
 					{ /* A section that isn't a field list (e.g. Integrations' VuloCloud AI connection) is
 					      drawn after the declarative ones. */ }
 					{ settingModal?.AfterComponent && <settingModal.AfterComponent /> }
+					{ settingModal?.PanelComponent && <settingModal.PanelComponent /> }
 					</>
 				) : (
 					<>{ __( 'Loading…', 'vulocart' ) }</>

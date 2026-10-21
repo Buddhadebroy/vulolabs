@@ -12,12 +12,18 @@ import { ProductDetail } from './ProductDetail';
  * (`ProductsListing.tsx`'s card links) just appends `?product={id}` to
  * that same page's own URL.
  */
-export function Products( { template, columns }: { template?: string; columns?: number } ) {
+export function Products( { template, columns, detailOnly = false }: { template?: string; columns?: number; detailOnly?: boolean } ) {
 	const params = new URLSearchParams( window.location.search );
 	const productId = params.get( 'product' );
 
 	if ( productId ) {
 		return <ProductDetail id={ Number( productId ) } />;
+	}
+
+	// The block-based shop (`vulocart/product-collection`) draws the listing on the server; this block then only
+	// takes over for a product's page.
+	if ( detailOnly ) {
+		return null;
 	}
 
 	return <ProductsListing template={ template } columns={ columns } />;

@@ -2,6 +2,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { client } from '../../shared/cart';
 import { registerCheckoutStep } from '../registry';
+import { formatMoney } from '../../shared/money';
 
 interface ShippingMethod {
 	id: string;
@@ -74,7 +75,7 @@ function ShippingStepView( { data, update, currency, mode, goNext, goBack, isFir
 						{ method.label }
 					</span>
 					<span>
-						{ method.cost } { currency }
+						{ 0 === Number( method.cost ) ? __( 'Free', 'vulocart' ) : formatMoney( method.cost, currency ) }
 					</span>
 				</label>
 			) ) }
@@ -82,11 +83,11 @@ function ShippingStepView( { data, update, currency, mode, goNext, goBack, isFir
 			{ 'multi_step' === mode && (
 				<div className="vulocart-checkout-step-actions">
 					{ ! isFirstStep && (
-						<button type="button" onClick={ goBack }>
+						<button type="button" className="is-secondary" onClick={ goBack }>
 							{ __( 'Back', 'vulocart' ) }
 						</button>
 					) }
-					<button type="button" className="is-primary" disabled={ ! selected } onClick={ goNext }>
+					<button type="button" className="is-primary wp-element-button" disabled={ ! selected } onClick={ goNext }>
 						{ __( 'Continue', 'vulocart' ) }
 					</button>
 				</div>

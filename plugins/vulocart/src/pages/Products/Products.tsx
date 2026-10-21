@@ -23,12 +23,12 @@ interface ProductsProps {
  * see Menu.php's `add_products_menu()` docblock for why this is
  * query-string-driven rather than a client-side route: every transition
  * here is a real browser navigation to a distinct
- * `admin.php?page=vulocart-products...` URL, matching WooCommerce's own
+ * `admin.php?page=products...` URL, matching WooCommerce's own
  * Products/Orders admin screens. Any `view` this file doesn't recognize
  * falls through to `vulocart_products_extra_view` before finally
  * defaulting to `ProductsList` - vulocart-pro's own Suppliers/Pricing
  * Rules/Product Templates/Bulk Editor/CSV Import admin pages register
- * their own `add_submenu_page()` entries under this same `vulocart-products`
+ * their own `add_submenu_page()` entries under this same `products`
  * parent slug (License\LicenseManager's own `register_menu()` already
  * establishes that Pro plugins registering submenu pages under a Free
  * top-level slug is a proven, working pattern in this codebase) with
@@ -107,13 +107,6 @@ export function Products( { action, id, view }: ProductsProps ) {
 		return null;
 	}
 
-	// Product Templates moved to Settings → Commerce; keep old bookmarks working.
-	if ( 'product-templates' === view ) {
-		window.location.replace( `${ vulocartLocalizer.adminUrl }admin.php?page=vulocart#&tab=settings&subtab=product-templates` );
-
-		return null;
-	}
-
 	if ( view && movedViews[ view ] ) {
 		window.location.replace( `${ vulocartLocalizer.adminUrl }admin.php?page=${ movedViews[ view ].page }&view=${ movedViews[ view ].view }` );
 
@@ -122,7 +115,7 @@ export function Products( { action, id, view }: ProductsProps ) {
 
 	// These moved to the Marketing menu; same for their old links.
 	if ( view && storeExtraViews[ view ] ) {
-		window.location.replace( `${ vulocartLocalizer.adminUrl }admin.php?page=vulocart-marketing&view=${ view }` );
+		window.location.replace( `${ vulocartLocalizer.adminUrl }admin.php?page=marketing&view=${ view }` );
 
 		return null;
 	}

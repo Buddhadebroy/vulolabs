@@ -11,6 +11,7 @@ window.addEventListener( 'DOMContentLoaded', () => {
 			<Products
 				template={ placeholder.dataset.template || undefined }
 				columns={ placeholder.dataset.columns ? Number( placeholder.dataset.columns ) : undefined }
+				detailOnly={ 'detail' === placeholder.dataset.mode }
 			/>,
 			container
 		);

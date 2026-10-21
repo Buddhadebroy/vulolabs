@@ -106,7 +106,7 @@ function OrderStatusPopup( { order, onClose, onSaved }: { order: OrderRow; onClo
 			header={ { icon: 'cart', title: `${ __( 'Update order', 'vulocart' ) } #${ order.order_number }` } }
 			footer={
 				<div className="vulocart-qe-footer">
-					<a href={ `admin.php?page=vulocart-orders&action=edit&id=${ order.id }` }>
+					<a href={ `admin.php?page=orders&action=edit&id=${ order.id }` }>
 						{ __( 'Open full order', 'vulocart' ) } <i className="adminfont-pagination-next-arrow" aria-hidden="true" />
 					</a>
 					<ButtonInput
@@ -157,7 +157,7 @@ interface OrdersListProps {
  * Admin order list - `GET /orders` (modules/Order/Rest.php, manage_options-
  * gated) rendered on the same `NavigatorHeaderComponent` + `TableCard`
  * pattern this plugin's other admin screens use. "View" is a real
- * navigation to `admin.php?page=vulocart-orders&action=edit&id={id}`
+ * navigation to `admin.php?page=orders&action=edit&id={id}`
  * (plain `<a href>`, full page load) rather than a popup - matching the
  * real WooCommerce order edit screen, per this plugin's admin-UX brief.
  * Orders.tsx is what routes between this component and OrderEdit.tsx/
@@ -315,7 +315,7 @@ export function OrdersList( { filter }: OrdersListProps ) {
 						</span>
 						<div className="vulocart-order-main">
 							<div className="vulocart-order-head">
-								<a className="vulocart-product-cell-title" href={ `admin.php?page=vulocart-orders&action=edit&id=${ row.id }` }>
+								<a className="vulocart-product-cell-title" href={ `admin.php?page=orders&action=edit&id=${ row.id }` }>
 									#{ row.order_number as string }
 								</a>
 								{ row.created_at && <span className="desc">{ formatWpDate( row.created_at as string ) }</span> }
@@ -362,7 +362,7 @@ export function OrdersList( { filter }: OrdersListProps ) {
 					type: 'button' as const,
 					color: 'text-blue',
 					onClick: ( row: Record< string, unknown > ) => {
-						window.location.href = `admin.php?page=vulocart-orders&action=edit&id=${ row.id }`;
+						window.location.href = `admin.php?page=orders&action=edit&id=${ row.id }`;
 					},
 				},
 				{
@@ -425,7 +425,7 @@ export function OrdersList( { filter }: OrdersListProps ) {
 							icon: 'plus',
 							color: '',
 							onClick: () => {
-								window.location.href = 'admin.php?page=vulocart-orders&action=add';
+								window.location.href = 'admin.php?page=orders&action=add';
 							},
 						},
 					] }

@@ -1,8 +1,8 @@
 import { __ } from '@wordpress/i18n';
-import PaymentsPanel from '../../components/Settings/PaymentsPanel';
+import PaymentsPanel from '../components/Settings/PaymentsPanel';
 
 /**
- * Commerce → Payments. The whole tab is the payment-methods panel
+ * Settings → Payments. The whole tab is the payment-methods panel
  * (`PanelComponent`, Settings.tsx's escape hatch for a tab that isn't a flat field list) - a list of
  * methods with Enable/Configure, like VuloMail's Connections. Its fields live in
  * `components/Settings/paymentsFields.ts`, and `vulocart-pro`'s gateways still append theirs through
@@ -10,7 +10,7 @@ import PaymentsPanel from '../../components/Settings/PaymentsPanel';
  */
 export default {
 	id: 'payments',
-	priority: 3,
+	priority: 4,
 	headerTitle: __( 'Payments', 'vulocart' ),
 	headerIcon: 'payment',
 	hideSettingHeader: true,

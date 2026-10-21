@@ -181,7 +181,7 @@ export function ReviewsPage() {
 						{ row.title ? <span className="vulocart-product-cell-title">{ row.title as string }</span> : null }
 						<div className="desc">{ ( row.content as string )?.slice( 0, 120 ) }</div>
 						<div className="desc">
-							<a href={ `admin.php?page=vulocart-products&action=edit&id=${ row.product_id }` }>
+							<a href={ `admin.php?page=products&action=edit&id=${ row.product_id }` }>
 								{ ( row.product_title as string ) || __( '(deleted product)', 'vulocart' ) }
 							</a>
 							{ ' · ' }

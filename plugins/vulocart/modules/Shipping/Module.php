@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Same toggleable-addon pattern as VuloCart\Cart\Module. No own table, no
  * cross-module dependency - reads the Shipping tab's own settings
- * (`enable_shipping`/`flat_rate_shipping_cost`, `src/settings/Commerce/
+ * (`flat_rate_shipping_cost`, `src/settings/Commerce/
  * Shipping.ts`) and turns them into a real, calculable shipping cost:
  * `Order\Application\OrderService::create_from_cart()` resolves this
  * module's own service (when active) to compute `Order::$shipping_cost`

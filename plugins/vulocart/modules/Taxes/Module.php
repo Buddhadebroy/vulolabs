@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Same toggleable-addon pattern as VuloCart\Cart\Module. No own table, no
  * cross-module dependency - reads the Taxes tab's own settings
- * (`enable_tax_calculation`/`default_tax_rate_percent`/
+ * (`default_tax_rate_percent`/
  * `prices_include_tax`, `src/settings/Commerce/Taxes.ts`) and turns them
  * into a real, calculable tax amount: `Order\Application\OrderService::
  * create_from_cart()` resolves this module's own service (when active) to
@@ -40,7 +40,9 @@ class Module {
      * outside this module ever reaches into its instance).
      */
     public function __construct() {
-        $service = new Application\TaxService();
+        new Install();
+
+        $service = new Application\TaxService( new Application\RateRepository() );
 
         VuloCart()->tax_service = $service;
 

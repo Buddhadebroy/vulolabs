@@ -1,176 +1,972 @@
+// The Checkout Engine. Follows the active theme first: text, font and background are inherited, tints are mixed from
+// the text colour, and themeTokens.ts copies the theme's own button colours and corner radius into --vc-accent /
+// --vc-on-accent / --vc-ctl (the primary buttons also carry `wp-element-button`, so the theme's button styles apply
+// as-is). Everything below is the fallback for a theme that defines none of that: our own look, written with low
+// specificity (:where) wherever a theme rule should be able to win.
+// Container queries (not media queries) switch the layout, because the engine also renders inside narrow popups
+// and drawers (vulocart-pro's delivery modes), where the viewport says nothing about the space it has.
+
 .vulocart-checkout-engine {
-	max-width: 480px;
+	// Corner radii derive from one control radius: the theme's button radius when themeTokens.ts finds one, else ours.
+	--vc-radius: min(calc(var(--vc-ctl, 0.75rem) * 1.5), 1.25rem);
+	--vc-radius-input: min(var(--vc-ctl, 0.75rem), 0.75rem);
+	--vc-radius-btn: var(--vc-ctl, 999px);
+	--vc-line: color-mix(in srgb, currentColor 14%, transparent);
+	--vc-line-strong: color-mix(in srgb, currentColor 32%, transparent);
+	--vc-soft: color-mix(in srgb, currentColor 5%, transparent);
+	--vc-muted: color-mix(in srgb, currentColor 62%, transparent);
+	--vc-accent: var(--wp--preset--color--contrast, #111);
+	--vc-on-accent: var(--wp--preset--color--base, #fff);
+	--vc-danger: #dc2626;
+
+	container-type: inline-size;
+	margin-block: 1.5rem 4rem;
+	font-size: 1rem;
+	line-height: 1.5;
 }
 
-.vulocart-checkout-engine-stepper {
+.vulocart-checkout-layout {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 1.5rem;
+	align-items: start;
+}
+
+@container (min-width: 54rem) {
+	.vulocart-checkout-layout {
+		grid-template-columns: minmax(0, 1fr) 24rem;
+		gap: clamp(2rem, 5cqi, 3.5rem);
+	}
+
+	.vulocart-checkout-summary {
+		position: sticky;
+		top: 2rem;
+	}
+}
+
+// ---------------------------------------------------------------- Secure note + stepper
+
+.vulocart-checkout-secure {
 	display: flex;
-	gap: 4px;
-	margin-bottom: 20px;
-	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.375rem;
+	margin: 0 0 1rem;
+	color: var(--vc-muted);
+	font-size: 0.8125rem;
+	font-weight: 500;
+}
+
+// A connected progress track: a dot per step on a line that fills up to the active one. On a narrow container only
+// the active label shows, so five steps still fit a phone.
+.vulocart-checkout-engine-stepper {
+	display: grid;
+	grid-template-columns: repeat(var(--vc-steps, 4), minmax(0, 1fr));
+	margin: 0 0 1.5rem;
+	padding: 0;
+	list-style: none;
 }
 
 .vulocart-checkout-engine-stepper-item {
+	position: relative;
 	display: flex;
+	flex-direction: column;
 	align-items: center;
-	gap: 6px;
-	font-size: 12px;
-	color: #9ca3af;
+	gap: 0.5rem;
+	margin: 0;
+	color: var(--vc-muted);
+	font-size: 0.8125rem;
+	text-align: center;
+
+	// The line to the previous dot.
+	&:not(:first-child)::before {
+		content: '';
+		position: absolute;
+		top: 0.8125rem;
+		right: 50%;
+		width: 100%;
+		height: 2px;
+		background: var(--vc-line);
+	}
+
+	&.is-done::before,
+	&.is-active::before {
+		background: var(--vc-accent);
+	}
 
 	&.is-active {
-		font-weight: 700;
-		color: #111827;
+		color: inherit;
+		font-weight: 600;
+	}
+
+	&.is-done {
+		color: inherit;
 	}
 }
 
 .vulocart-checkout-engine-stepper-badge {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 20px;
-	height: 20px;
+	position: relative;
+	z-index: 1;
+	display: inline-grid;
+	place-items: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	border: 2px solid var(--vc-line-strong);
 	border-radius: 50%;
-	background: #e5e7eb;
-	color: #6b7280;
-	font-size: 11px;
+	background: var(--wp--preset--color--base, Canvas);
+	color: var(--vc-muted);
+	font-size: 0.75rem;
+	font-weight: 600;
 
 	.is-active & {
-		background: #111827;
-		color: #ffffff;
+		border-color: var(--vc-accent);
+		background: var(--vc-accent);
+		color: var(--vc-on-accent);
+	}
+
+	.is-done & {
+		border-color: var(--vc-accent);
+		background: var(--vc-accent);
+		color: var(--vc-on-accent);
 	}
 }
 
-.vulocart-checkout-engine-stepper-sep {
-	margin: 0 4px;
-	color: #d1d5db;
-}
-
-.vulocart-checkout-engine-error {
-	color: #dc2626;
-}
-
-.vulocart-checkout-engine-missing-step {
-	color: #dc2626;
-	font-style: italic;
-}
-
-.vulocart-checkout-engine-step {
-	margin-bottom: 24px;
-
-	h3 {
-		margin: 0 0 12px;
+@container (max-width: 34rem) {
+	.vulocart-checkout-engine-stepper-item:not(.is-active) {
+		font-size: 0;
 	}
 }
 
-.vulocart-checkout-field-group {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-}
+// ------------------------------------------------------------------ Account
 
-.vulocart-checkout-field-row {
-	display: flex;
-	gap: 8px;
-
-	input {
-		flex: 1;
-	}
-}
-
-.vulocart-checkout-checkbox-row {
+// The signed-in WordPress user, in place of the email field, with sign out; a guest gets a quiet login hint.
+.vulocart-checkout-account {
 	display: flex;
 	align-items: center;
-	gap: 6px;
-	margin-top: 16px;
-	font-size: 13px;
+	gap: 0.875rem;
+	margin: 0 0 1rem;
+	padding: 0.75rem 1rem;
+	border: 1px solid var(--vc-line);
+	border-radius: var(--vc-radius-input);
+	background: var(--vc-soft);
 
-	input {
-		width: auto;
+	a {
+		margin-inline-start: auto;
+		color: inherit;
+		font-size: 0.875rem;
+		font-weight: 600;
+		text-underline-offset: 0.2em;
+		white-space: nowrap;
 	}
+}
+
+.vulocart-checkout-account-avatar {
+	display: grid;
+	flex: none;
+	place-items: center;
+	width: 2.5rem;
+	height: 2.5rem;
+	overflow: hidden;
+	border-radius: 50%;
+	background: var(--vc-accent);
+	color: var(--vc-on-accent);
+	font-weight: 600;
+
+	img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+}
+
+.vulocart-checkout-account-who {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	line-height: 1.3;
+
+	strong,
+	small {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	small {
+		color: var(--vc-muted);
+		font-size: 0.8125rem;
+	}
+}
+
+.vulocart-checkout-login-hint {
+	margin: 0 0 1rem;
+	color: var(--vc-muted);
+	font-size: 0.875rem;
+
+	a {
+		color: inherit;
+		font-weight: 600;
+		text-underline-offset: 0.2em;
+	}
+}
+
+// ------------------------------------------------------------------ Steps
+
+.vulocart-checkout-engine-step {
+	margin: 0 0 1rem;
+	padding: clamp(1.125rem, 3cqi, 1.75rem);
+	border: 1px solid var(--vc-line);
+	border-radius: var(--vc-radius);
+	box-shadow: 0 1px 2px color-mix(in srgb, currentColor 6%, transparent);
+
+	h3 {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin: 0 0 1.25rem;
+		font-size: 1.125rem;
+		font-weight: 700;
+		letter-spacing: -0.01em;
+	}
+}
+
+.vulocart-checkout-engine-step-number {
+	display: inline-grid;
+	place-items: center;
+	flex: none;
+	width: 1.75rem;
+	height: 1.75rem;
+	border-radius: 50%;
+	background: var(--vc-accent);
+	color: var(--vc-on-accent);
+	font-size: 0.8125rem;
+	font-weight: 600;
 }
 
 .vulocart-checkout-step h4 {
-	margin: 20px 0 8px;
+	margin: 1.5rem 0 0.75rem;
+	font-size: 0.9375rem;
+	font-weight: 600;
 
 	&:first-child {
 		margin-top: 0;
 	}
 }
 
-.vulocart-checkout-step-error {
-	color: #dc2626;
-	margin-top: 8px;
+.vulocart-checkout-engine-missing-step {
+	color: var(--vc-danger);
+	font-style: italic;
 }
 
-.vulocart-checkout-step-actions {
-	display: flex;
-	gap: 8px;
-	margin-top: 16px;
+// ------------------------------------------------------------------ Fields
 
-	.is-primary {
-		font-weight: 700;
-		padding: 10px 18px;
+.vulocart-checkout-engine {
+	input:where([type='text'], [type='email'], [type='tel'], [type='number'], [type='password'], [type='search'], :not([type])),
+	select,
+	textarea {
+		box-sizing: border-box;
+		width: 100%;
+		min-height: 3rem;
+		margin: 0;
+		padding: 0 1rem;
+		border: 1px solid var(--vc-line);
+		border-radius: var(--vc-radius-input);
+		background: var(--wp--preset--color--base, Canvas);
+		color: inherit;
+		font: inherit;
+		font-size: 1rem;
+		transition: border-color 0.15s, box-shadow 0.15s;
+
+		&::placeholder {
+			color: var(--vc-muted);
+		}
+
+		&:hover {
+			border-color: var(--vc-line-strong);
+		}
+
+		&:focus-visible {
+			border-color: var(--vc-accent);
+			box-shadow: 0 0 0 3px color-mix(in srgb, var(--vc-accent) 18%, transparent);
+			outline: 0;
+		}
+	}
+
+	textarea {
+		padding-block: 0.75rem;
 	}
 }
 
-.vulocart-checkout-option-row {
+.vulocart-checkout-field-group {
+	display: grid;
+	gap: 0.75rem;
+}
+
+// Floating-label field (Field.tsx): the label rests inside the input and lifts once it has a value or focus.
+.vulocart-field {
+	position: relative;
+	display: block;
+
+	input,
+	select {
+		min-height: 3.5rem;
+		padding-top: 1.25rem;
+		padding-bottom: 0.25rem;
+	}
+
+	span {
+		position: absolute;
+		top: 50%;
+		left: 1rem;
+		right: 2.5rem;
+		overflow: hidden;
+		color: var(--vc-muted);
+		font-size: 1rem;
+		line-height: 1.2;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		pointer-events: none;
+		transform: translateY(-50%);
+		transition: top 0.15s, font-size 0.15s, transform 0.15s;
+	}
+
+	input:focus ~ span,
+	input:not(:placeholder-shown) ~ span,
+	&.is-select span {
+		top: 0.5rem;
+		font-size: 0.75rem;
+		transform: none;
+	}
+
+	input:focus ~ span,
+	select:focus ~ span {
+		color: var(--vc-accent);
+	}
+
+	input::placeholder {
+		color: transparent;
+	}
+}
+
+.vulocart-checkout-field-row.is-thirds {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@container (max-width: 38rem) {
+	.vulocart-checkout-field-row.is-thirds {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+
+		> :last-child {
+			grid-column: 1 / -1;
+		}
+	}
+}
+
+.vulocart-checkout-field-row {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.75rem;
+
+	// A field plus a button (a coupon code and its Apply).
+	&:has(> button) {
+		grid-template-columns: minmax(0, 1fr) auto;
+	}
+}
+
+@container (max-width: 26rem) {
+	.vulocart-checkout-field-row:not(:has(> button), .is-thirds) {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.vulocart-checkout-checkbox-row {
 	display: flex;
-	justify-content: space-between;
-	border: 1px solid #e5e7eb;
-	border-radius: 6px;
-	padding: 10px 14px;
-	margin-bottom: 8px;
+	align-items: center;
+	gap: 0.625rem;
+	margin-top: 1rem;
+	font-size: 0.875rem;
 	cursor: pointer;
 
+	input {
+		flex: none;
+		width: 1.125rem;
+		height: 1.125rem;
+		min-height: 0;
+		margin: 0;
+		accent-color: var(--vc-accent);
+	}
+}
+
+.vulocart-checkout-step-extension {
+	margin-top: 1.25rem;
+}
+
+// Choice cards: shipping and payment methods.
+.vulocart-checkout-option-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	margin: 0 0 0.625rem;
+	padding: 0.875rem 1rem;
+	border: 1px solid var(--vc-line);
+	border-radius: var(--vc-radius-input);
+	font-size: 0.9375rem;
+	cursor: pointer;
+	transition: border-color 0.15s, background-color 0.15s;
+
+	&:hover {
+		border-color: var(--vc-line-strong);
+	}
+
+	&:has(input:checked) {
+		border-color: var(--vc-accent);
+		background: var(--vc-soft);
+		box-shadow: 0 0 0 1px var(--vc-accent);
+	}
+
+	&:has(input:focus-visible) {
+		outline: 2px solid currentColor;
+		outline-offset: 2px;
+	}
+
+	> span:first-child {
+		display: flex;
+		align-items: center;
+	}
+
 	&.vulocart-checkout-option-row-block {
-		display: block;
+		justify-content: flex-start;
 	}
 
 	input {
-		margin-right: 8px;
+		flex: none;
+		appearance: none;
+		width: 1.25rem;
+		height: 1.25rem;
+		min-height: 0;
+		margin: 0 0.75rem 0 0;
+		border: 2px solid var(--vc-line-strong);
+		border-radius: 50%;
+		background: transparent;
+		transition: border-color 0.15s, box-shadow 0.15s;
+
+		&:checked {
+			border-color: var(--vc-accent);
+			box-shadow: inset 0 0 0 3px var(--wp--preset--color--base, Canvas);
+			background: var(--vc-accent);
+		}
+
+		&:focus-visible {
+			outline: 0;
+		}
+	}
+
+	> span:last-child:not(:first-child) {
+		font-weight: 600;
+		font-variant-numeric: tabular-nums;
 	}
 }
 
-.vulocart-checkout-review-line {
+.vulocart-checkout-payment-widget {
+	margin-top: 1rem;
+}
+
+// ----------------------------------------------------------------- Buttons
+
+// Layout and behaviour are ours; the primary button's colours, radius and type come from the theme's own
+// `.wp-element-button` styles when it has them. Our look for it sits in :where() (zero specificity) so any theme
+// rule wins, and is what shows when the theme has none.
+.vulocart-checkout-step-actions {
 	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	margin-top: 1.5rem;
+
+	button {
+		min-height: 3.25rem;
+		transition: background-color 0.15s, opacity 0.15s, transform 0.1s;
+		cursor: pointer;
+
+		&:active:not(:disabled) {
+			transform: scale(0.98);
+		}
+
+		&.is-primary {
+			flex: 1 1 12rem;
+			white-space: nowrap;
+		}
+
+		&:disabled {
+			opacity: 0.45;
+			cursor: not-allowed;
+		}
+
+		&:focus-visible {
+			outline: 2px solid currentColor;
+			outline-offset: 2px;
+		}
+	}
+
+	:where(button) {
+		padding: 0 1.5rem;
+		border: 1px solid var(--vc-line-strong);
+		border-radius: var(--vc-radius-btn);
+		background: transparent;
+		color: inherit;
+		font: inherit;
+		font-size: 1rem;
+		font-weight: 600;
+	}
+
+	:where(button.is-primary) {
+		border-color: transparent;
+		background: var(--vc-accent);
+		color: var(--vc-on-accent);
+	}
+
+	:where(button.is-primary:hover:not(:disabled)) {
+		background: color-mix(in srgb, var(--vc-accent) 86%, transparent);
+	}
+
+	:where(button:not(.is-primary):hover:not(:disabled)) {
+		background: var(--vc-soft);
+	}
+}
+
+// Narrow container (a phone, a drawer): the actions dock to the bottom edge so the next step is always one thumb
+// away, with the form scrolling behind a frosted bar.
+@container (max-width: 34rem) {
+	.vulocart-checkout-step-actions {
+		position: sticky;
+		bottom: 0;
+		z-index: 5;
+		margin: 1.25rem calc(-1 * clamp(1.125rem, 3cqi, 1.75rem)) calc(-1 * clamp(1.125rem, 3cqi, 1.75rem));
+		padding: 0.875rem clamp(1.125rem, 3cqi, 1.75rem) calc(0.875rem + env(safe-area-inset-bottom, 0px));
+		border-top: 1px solid var(--vc-line);
+		border-radius: 0 0 var(--vc-radius) var(--vc-radius);
+		background: color-mix(in srgb, var(--wp--preset--color--base, Canvas) 92%, transparent);
+		backdrop-filter: blur(10px);
+	}
+}
+
+// A button that sits inside a step's own field row (vulocart-pro's coupon Apply).
+.vulocart-checkout-field-row > button {
+	min-height: 3.5rem;
+	padding: 0 1.25rem;
+	border: 1px solid var(--vc-line-strong);
+	border-radius: var(--vc-radius-input);
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	font-weight: 600;
+	cursor: pointer;
+
+	&:hover:not(:disabled) {
+		background: var(--vc-soft);
+	}
+}
+
+// ------------------------------------------------------------------ Errors
+
+.vulocart-checkout-engine-error,
+.vulocart-checkout-step-error {
+	margin: 1rem 0 0;
+	padding: 0.75rem 1rem;
+	border-radius: 0.75rem;
+	background: color-mix(in srgb, var(--vc-danger) 9%, transparent);
+	color: var(--vc-danger);
+	font-size: 0.875rem;
+}
+
+.vulocart-checkout-engine-busy {
+	margin: 0 0 1rem;
+	color: var(--vc-muted);
+}
+
+// ------------------------------------------------------------------ Review
+
+.vulocart-checkout-review-recap {
+	display: grid;
+	gap: 0.75rem;
+	margin: 0;
+	padding: 1rem 1.125rem;
+	border-radius: 0.875rem;
+	background: var(--vc-soft);
+	font-size: 0.9375rem;
+
+	&:empty {
+		display: none;
+	}
+
+	> div {
+		display: grid;
+		gap: 0.125rem;
+		margin: 0;
+	}
+
+	dt {
+		color: var(--vc-muted);
+		font-size: 0.8125rem;
+	}
+
+	dd {
+		margin: 0;
+		overflow-wrap: anywhere;
+	}
+}
+
+// ----------------------------------------------------------- Order summary
+
+.vulocart-checkout-summary {
+	box-sizing: border-box;
+	border: 1px solid var(--vc-line);
+	border-radius: var(--vc-radius);
+	background: var(--vc-soft);
+	// Narrow: above the steps, folded behind its toggle.
+	order: -1;
+}
+
+@container (min-width: 54rem) {
+	.vulocart-checkout-summary {
+		order: 0;
+	}
+}
+
+.vulocart-checkout-summary-head {
+	display: flex;
+	align-items: baseline;
 	justify-content: space-between;
-	padding: 6px 0;
-	border-bottom: 1px solid #f3f4f6;
-	font-size: 13px;
+	gap: 1rem;
+
+	h2 {
+		display: none;
+		margin: 0;
+		font-size: 1.125rem;
+		font-weight: 700;
+	}
 }
 
-.vulocart-checkout-review-meta {
-	font-size: 13px;
-	margin: 10px 0;
-	color: #6b7280;
+.vulocart-checkout-summary-toggle {
+	display: flex;
+	flex: 1;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	margin: 0;
+	padding: 1rem 1.25rem;
+	border: 0;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	font-size: 0.9375rem;
+	text-align: start;
+	cursor: pointer;
+
+	span {
+		text-decoration: underline;
+		text-underline-offset: 0.2em;
+	}
 }
 
-.vulocart-checkout-review-totals {
-	border-top: 1px solid #e5e7eb;
-	padding-top: 8px;
-	margin-top: 8px;
+.vulocart-checkout-summary-edit {
+	display: none;
+	color: inherit;
+	font-size: 0.875rem;
+	text-underline-offset: 0.2em;
 }
 
-.vulocart-checkout-review-total {
-	font-weight: 700;
-	border-bottom: none;
+.vulocart-checkout-summary-body {
+	display: none;
+	padding: 0 1.25rem 1.25rem;
 }
+
+.vulocart-checkout-summary.is-open .vulocart-checkout-summary-body {
+	display: block;
+}
+
+@container (min-width: 54rem) {
+	.vulocart-checkout-summary-head {
+		padding: 1.5rem 1.5rem 0;
+
+		h2 {
+			display: block;
+		}
+	}
+
+	.vulocart-checkout-summary-toggle {
+		display: none;
+	}
+
+	.vulocart-checkout-summary-edit {
+		display: inline;
+	}
+
+	.vulocart-checkout-summary-body {
+		display: block;
+		padding: 1.25rem 1.5rem 1.5rem;
+	}
+}
+
+.vulocart-checkout-summary-items {
+	display: grid;
+	gap: 1rem;
+	margin: 0 0 1.25rem;
+	padding: 0;
+	list-style: none;
+
+	li {
+		display: grid;
+		grid-template-columns: 3.5rem minmax(0, 1fr) auto;
+		align-items: center;
+		gap: 0.875rem;
+		margin: 0;
+		font-size: 0.9375rem;
+	}
+
+	strong {
+		font-weight: 600;
+		font-variant-numeric: tabular-nums;
+	}
+}
+
+.vulocart-checkout-summary-thumb {
+	position: relative;
+	display: block;
+	width: 3.5rem;
+	height: 3.5rem;
+	border-radius: 0.75rem;
+	background: var(--vc-soft);
+	box-shadow: inset 0 0 0 1px var(--vc-line);
+
+	img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		border-radius: inherit;
+		object-fit: cover;
+	}
+
+	em {
+		position: absolute;
+		inset: -0.4375rem -0.4375rem auto auto;
+		min-width: 1.25rem;
+		padding: 0 0.3125rem;
+		border-radius: 999px;
+		background: var(--vc-accent);
+		color: var(--vc-on-accent);
+		font-size: 0.6875rem;
+		font-style: normal;
+		font-weight: 600;
+		line-height: 1.25rem;
+		text-align: center;
+	}
+}
+
+.vulocart-checkout-summary-name {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	font-weight: 500;
+
+	small {
+		color: var(--vc-muted);
+		font-size: 0.8125rem;
+		font-weight: 400;
+	}
+}
+
+.vulocart-checkout-summary-rows {
+	display: grid;
+	gap: 0.625rem;
+	margin: 0;
+	padding-top: 1.125rem;
+	border-top: 1px solid var(--vc-line);
+	font-size: 0.9375rem;
+	font-variant-numeric: tabular-nums;
+
+	> div {
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+		margin: 0;
+	}
+
+	dt {
+		color: var(--vc-muted);
+	}
+
+	dd {
+		margin: 0;
+		text-align: end;
+	}
+
+	.is-discount dd {
+		color: #15803d;
+	}
+
+	.is-included {
+		margin-top: -0.25rem;
+		font-size: 0.8125rem;
+
+		dt,
+		dd {
+			color: var(--vc-muted);
+		}
+	}
+
+	.is-total {
+		margin-top: 0.375rem;
+		padding-top: 0.875rem;
+		border-top: 1px solid var(--vc-line);
+		font-size: 1.1875rem;
+		font-weight: 700;
+
+		dt {
+			color: inherit;
+		}
+	}
+}
+
+// ------------------------------------------------------------ Confirmation
 
 .vulocart-checkout-confirmation {
-	border: 1px solid #16a34a;
-	border-radius: 8px;
-	padding: 20px;
-	background: #f0fdf4;
+	display: grid;
+	justify-items: center;
+	gap: 0.5rem;
+	max-width: 36rem;
+	margin: 0 auto;
+	padding: clamp(1.75rem, 6cqi, 3rem) clamp(1.25rem, 5cqi, 2.5rem);
+	border: 1px solid var(--vc-line);
+	border-radius: var(--vc-radius);
+	text-align: center;
 
 	h3 {
-		margin: 0 0 8px;
+		margin: 0.5rem 0 0;
+		font-size: 1.5rem;
+		letter-spacing: -0.01em;
+	}
+}
+
+.vulocart-checkout-confirmation-icon {
+	display: grid;
+	place-items: center;
+	width: 4rem;
+	height: 4rem;
+	border-radius: 50%;
+	background: color-mix(in srgb, #16a34a 15%, transparent);
+	color: #15803d;
+}
+
+.vulocart-checkout-confirmation-lede {
+	margin: 0;
+	color: var(--vc-muted);
+}
+
+.vulocart-checkout-confirmation-facts {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 1rem;
+	width: 100%;
+	margin: 1rem 0 0;
+	padding: 1rem;
+	border-radius: 0.875rem;
+	background: var(--vc-soft);
+
+	dt {
+		color: var(--vc-muted);
+		font-size: 0.8125rem;
+	}
+
+	dd {
+		margin: 0.125rem 0 0;
+		font-size: 1.125rem;
+		font-weight: 700;
+		overflow-wrap: anywhere;
 	}
 }
 
 .vulocart-checkout-confirmation-token {
-	font-size: 13px;
-	color: #4b5563;
+	display: grid;
+	gap: 0.5rem;
+	width: 100%;
+	margin-top: 0.5rem;
+	color: var(--vc-muted);
+	font-size: 0.8125rem;
 }
 
-.vulocart-checkout-step-extension {
-	margin-top: 16px;
+.vulocart-checkout-confirmation-code {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	padding: 0.5rem 0.5rem 0.5rem 0.875rem;
+	border: 1px solid var(--vc-line);
+	border-radius: 0.75rem;
+	color: initial;
+
+	code {
+		overflow-wrap: anywhere;
+		background: none;
+		color: inherit;
+		font-size: 0.8125rem;
+	}
+}
+
+.vulocart-checkout-copy {
+	flex: none;
+	padding: 0.375rem 0.875rem;
+	border: 1px solid var(--vc-line-strong);
+	border-radius: 999px;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	cursor: pointer;
+
+	&:hover {
+		background: var(--vc-soft);
+	}
+}
+
+.vulocart-checkout-confirmation-continue {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 3rem;
+	margin-top: 1rem;
+	padding: 0 1.75rem;
+	border-radius: 999px;
+	background: var(--vc-accent);
+	color: var(--vc-on-accent);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+// A text-style button (e.g. "Buying for a business?") and the small status line under a field.
+.vulocart-checkout-link-button {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	font-size: 0.875rem;
+	text-decoration: underline;
+	text-underline-offset: 0.2em;
+	cursor: pointer;
+}
+
+.vulocart-checkout-hint {
+	margin: 0;
+	color: var(--vc-muted);
+	font-size: 0.8125rem;
+
+	&.is-ok {
+		color: #15803d;
+	}
+
+	&.is-bad {
+		color: var(--vc-danger);
+	}
 }

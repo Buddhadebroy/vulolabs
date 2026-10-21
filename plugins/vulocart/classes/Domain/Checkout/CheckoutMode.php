@@ -36,6 +36,9 @@ class CheckoutMode {
     /** vulocart-pro: the same engine mounted in a modal/overlay rather than inline in page content. */
     const POPUP = 'popup';
 
+    /** vulocart-pro: the same engine in a panel that slides in from the side. */
+    const DRAWER = 'drawer';
+
     /** vulocart-pro: the same engine mounted via a standalone script into any container div, on any page (WP or not). */
     const EMBEDDED = 'embedded';
 
@@ -51,7 +54,7 @@ class CheckoutMode {
      * @return string[]
      */
     public static function all(): array {
-        return array( self::SINGLE_PAGE, self::MULTI_STEP, self::POPUP, self::EMBEDDED, self::HOSTED, self::ONE_CLICK );
+        return array( self::SINGLE_PAGE, self::MULTI_STEP, self::POPUP, self::DRAWER, self::EMBEDDED, self::HOSTED, self::ONE_CLICK );
     }
 
     /**

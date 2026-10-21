@@ -397,7 +397,7 @@ function StatusPicker( { caption, value, options, onSelect, locked }: { caption:
  * brief), replacing the popup this page used to open from the list.
  * Fetches `GET /orders/{id}` (modules/Order/Rest.php's `get_item()`,
  * admin-only) on mount, since a direct page load/bookmark/back-button
- * visit to `admin.php?page=vulocart-orders&action=edit&id=123` has no
+ * visit to `admin.php?page=orders&action=edit&id=123` has no
  * in-memory row to seed from.
  *
  * Payment Status and Fulfillment Status are two independent fields now
@@ -612,7 +612,7 @@ export function OrderEdit( { id }: OrderEditProps ) {
 	if ( notFound ) {
 		return (
 			<div className="vulocart-product-edit-page vulocart-order-edit-page">
-				<a className="vulocart-back-link" href="admin.php?page=vulocart-orders">
+				<a className="vulocart-back-link" href="admin.php?page=orders">
 					{ __( '← Back to Orders', 'vulocart' ) }
 				</a>
 				<p>{ __( 'No order exists with this id.', 'vulocart' ) }</p>
@@ -628,7 +628,7 @@ export function OrderEdit( { id }: OrderEditProps ) {
 		);
 	}
 
-	const profileUrl = order.customer?.id ? `admin.php?page=vulocart-customers&action=view&id=${ order.customer.id }` : undefined;
+	const profileUrl = order.customer?.id ? `admin.php?page=customers&action=view&id=${ order.customer.id }` : undefined;
 
 	const paidAmount = 'paid' === order.payment_status || 'refunded' === order.payment_status ? Number( order.total ) : 0;
 	const balanceDue = Math.max( 0, Number( order.total ) - paidAmount );
@@ -642,7 +642,7 @@ export function OrderEdit( { id }: OrderEditProps ) {
 			<div className="vulocart-product-edit-topbar">
 				<div>
 					<nav className="vulocart-breadcrumbs" aria-label={ __( 'Breadcrumb', 'vulocart' ) }>
-						<a href="admin.php?page=vulocart-orders">{ __( 'Orders', 'vulocart' ) }</a>
+						<a href="admin.php?page=orders">{ __( 'Orders', 'vulocart' ) }</a>
 						<i className="adminfont-pagination-next-arrow" aria-hidden="true" />
 						<span aria-current="page">{ __( 'Edit Order', 'vulocart' ) }</span>
 					</nav>
@@ -944,7 +944,7 @@ export function OrderEdit( { id }: OrderEditProps ) {
 							<div>
 								<p className="vulocart-order-customer-name">
 									{ order.customer?.id ? (
-										<a href={ `admin.php?page=vulocart-customers&action=view&id=${ order.customer.id }` }>{ order.customer_name || order.customer_email }</a>
+										<a href={ `admin.php?page=customers&action=view&id=${ order.customer.id }` }>{ order.customer_name || order.customer_email }</a>
 									) : (
 										order.customer_name || __( 'Guest Customer', 'vulocart' )
 									) }

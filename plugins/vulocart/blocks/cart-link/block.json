@@ -1,0 +1,24 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"category": "widgets",
+	"textdomain": "vulocart",
+	"style": "vulocart-storefront",
+	"editorScript": "vulocart-storefront-editor",
+	"viewScript": "vulocart-storefront-cart",
+	"name": "vulocart/cart-link",
+	"title": "Cart Link",
+	"description": "A bag icon with the number of items in the cart - place it in a header or navigation.",
+	"icon": "cart",
+	"supports": {
+		"html": false,
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"color": {
+			"text": true,
+			"background": true
+		}
+	}
+}

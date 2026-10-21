@@ -1,7 +1,8 @@
 /* global vulocartLocalizer */
 import { useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import axios from 'axios';
+import MODULES_CATALOG, { isModuleCatalogEntry } from '../../modules-config';
 
 interface ProModuleHintProps {
 	/** Module id (`Modules::camel_to_kebab()` of the folder), e.g. `pricing-rules`. */
@@ -19,6 +20,7 @@ export function ProModuleHint( { module, title, description }: ProModuleHintProp
 	const [ busy, setBusy ] = useState( false );
 	const [ failed, setFailed ] = useState( false );
 
+	const moduleName = MODULES_CATALOG.modules.filter( isModuleCatalogEntry ).find( ( entry ) => entry.id === module )?.name;
 	const hasPro = !! vulocartLocalizer.pro_version;
 	const licensed = !! vulocartLocalizer.khali_dabba;
 	const settingsUrl = `${ vulocartLocalizer.adminUrl }admin.php?page=vulocart#&tab=settings&subtab=`;
@@ -57,7 +59,7 @@ export function ProModuleHint( { module, title, description }: ProModuleHintProp
 	} else {
 		action = (
 			<button type="button" className="vulocart-pro-hint-button" disabled={ busy } onClick={ activate }>
-				{ busy ? __( 'Turning on…', 'vulocart' ) : __( 'Turn on', 'vulocart' ) }
+				{ busy ? __( 'Turning on…', 'vulocart' ) : moduleName ? sprintf( /* translators: %s: module name. */ __( 'Turn on %s', 'vulocart' ), moduleName ) : __( 'Turn on', 'vulocart' ) }
 			</button>
 		);
 	}
@@ -67,7 +69,7 @@ export function ProModuleHint( { module, title, description }: ProModuleHintProp
 			<i className="adminfont-lock" aria-hidden="true" />
 			<div className="vulocart-pro-hint-text">
 				<strong>{ title }</strong>
-				<span>{ failed ? __( 'Could not turn this on. Try again from Settings → Modules.', 'vulocart' ) : description }</span>
+				<span>{ failed ? moduleName ? sprintf( /* translators: %s: module name. */ __( 'Could not turn on the %s module. Try again from Settings → Modules.', 'vulocart' ), moduleName ) : __( 'Could not turn this on. Try again from Settings → Modules.', 'vulocart' ) : description }</span>
 			</div>
 			{ action }
 		</div>

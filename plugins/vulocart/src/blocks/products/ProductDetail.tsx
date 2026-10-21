@@ -22,11 +22,7 @@ interface ProductDetailProps {
  * "Add to cart" posts to the same `/cart/items` endpoint and shares the
  * same client-held cart token (`../shared/cart.ts`) as
  * `src/blocks/checkout/Checkout.tsx` - an item added here shows up in
- * that block's cart review, and vice versa. Gated on
- * `vulocartFrontendData.cartCheckoutEnabled` (the Frontend tab's "Enable
- * cart & checkout" toggle) the same way Checkout.tsx's whole flow is -
- * off means "Add to cart" is replaced with a plain notice rather than a
- * button nobody can complete a purchase from anyway.
+ * that block's cart review, and vice versa.
  */
 export function ProductDetail( { id }: ProductDetailProps ) {
 	const [ product, setProduct ] = useState< ProductSummary | null >( null );
@@ -240,11 +236,7 @@ export function ProductDetail( { id }: ProductDetailProps ) {
 						<p style={ { color: '#374151' } }>{ product.meta.short_description }</p>
 					) }
 
-					{ ! vulocartFrontendData.cartCheckoutEnabled ? (
-						<p style={ { color: '#6b7280' } }>
-							{ __( 'Ordering is currently unavailable.', 'vulocart' ) }
-						</p>
-					) : outOfStock ? null : (
+					{ outOfStock ? null : (
 						<div style={ { display: 'flex', alignItems: 'center', gap: '10px', margin: '16px 0' } }>
 							<div style={ { display: 'flex', alignItems: 'center', gap: '8px' } }>
 								<button

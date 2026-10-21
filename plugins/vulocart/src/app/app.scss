@@ -1,53 +1,23 @@
+@import './design-system';
+
 .vulocart-stat {
 	font-size: 28px;
 	font-weight: 700;
 	margin: 0;
 }
 
-// Row action buttons (Edit, Delete, View ...) in every table: icon first, then the label, no box.
-// Zyra draws them label-then-icon with whatever border the surrounding page gives a button, so it is set here once.
-.table-action .table-action-buttons .buttons-wrapper .admin-btn {
-	display: inline-flex;
-	flex-direction: row-reverse;
-	align-items: center;
-	justify-content: flex-end;
-	gap: 0.375rem;
-	width: auto;
-	min-height: 0;
-	padding: 0.25rem 0.375rem !important;
-	border: 0 !important;
-	border-radius: 0.25rem;
-	background: transparent !important;
-	box-shadow: none !important;
-	font-size: 0.8125rem;
-	font-weight: 600;
-	white-space: nowrap;
-
-	i {
-		margin: 0;
-		font-size: 0.875rem;
-	}
-
-	&:hover {
-		background: rgba(80, 7, 170, 0.06) !important;
-	}
-
-	&.btn-text-red:hover {
-		background: rgba(220, 38, 38, 0.08) !important;
-	}
-}
-
-.table-action .table-action-buttons {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.25rem;
+// zyra gives every page container a 1.5rem (!important) top margin, which left a tall empty band above the page
+// header. The page background already provides the breathing room, so the header starts right under the top bar.
+.admin-main-wrapper .container-wrapper.general-wrapper {
+	margin-top: 0 !important;
 }
 
 // Page headers sit flush with the cards under them: zyra gives the title block its own side margins and padding,
 // which pushed the title and the header buttons inside the table's left and right edges.
 .admin-main-wrapper .container-wrapper.general-wrapper .title-section {
 	margin: 0;
-	padding: 0.75rem 0 0.5rem;
+	// 1rem on top, like the Edit Product page's top bar, so every page title starts at the same height.
+	padding: 1rem 0 0.5rem;
 }
 
 // The table's filter bar (Type, Category, Bulk actions) shrink-wraps its zyra selects to ~64px, which cuts off the
@@ -64,6 +34,38 @@
 		width: 100% !important;
 		min-width: 0 !important;
 		max-width: none !important;
+	}
+}
+
+// react-select (zyra SelectInput) pads its value/input containers and inherits WP's `line-height: 2` on its search
+// input, which made every dropdown taller than the text inputs beside it. Neutralise that once for all pages; each
+// page sets the control's own height.
+.form-select-field {
+	// zyra pins text inputs to 2rem (!important), so dropdowns match: 2rem + the 1px borders of the input wrapper.
+	.select-prefix__control {
+		box-sizing: border-box;
+		min-height: calc(2rem + 2px);
+	}
+
+	.select-prefix__value-container {
+		padding-top: 0;
+		padding-bottom: 0;
+	}
+
+	.select-prefix__input-container {
+		margin: 0;
+		padding: 0;
+	}
+
+	.select-prefix__input-container input,
+	.select-prefix__input {
+		min-height: 0;
+		line-height: 1.5;
+	}
+
+	.select-prefix__indicator {
+		padding-top: 0;
+		padding-bottom: 0;
 	}
 }
 
@@ -105,4 +107,100 @@ body .admin-table-wrapper .table-wrapper .admin-table {
 // The page's generic select spacing made the table's search box taller than everywhere else.
 .vulocart-engine-page .search-field .form-select-field {
 	margin: 0;
+}
+
+// Row actions in every zyra table (Products, Orders, Customers, every Pro list...): borderless icon + label buttons at
+// a readable size - the first (Edit/View) in the brand colour, the rest neutral, destructive ones red. The one place
+// this look is defined; pages just pass zyra's normal `type: 'action'` list.
+body .admin-table-wrapper .table-wrapper .admin-table .admin-column.action .table-action,
+body .admin-table-wrapper .table-action {
+	.table-action-buttons {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: flex-start;
+		gap: 0.125rem;
+	}
+
+	.table-action-buttons .buttons-wrapper {
+		width: auto;
+		margin: 0;
+	}
+
+	.table-action-buttons .admin-btn {
+		display: inline-flex;
+		flex-direction: row-reverse; // zyra puts the icon after the label; show it before.
+		align-items: center;
+		gap: 0.375rem;
+		width: auto;
+		min-width: 0;
+		height: 2rem;
+		margin: 0;
+		padding: 0 0.625rem;
+		border: 1px solid transparent;
+		border-radius: 0.375rem;
+		background: transparent;
+		box-shadow: none;
+		font-size: 0.875rem;
+		font-weight: 500;
+		line-height: 1;
+		white-space: nowrap;
+		color: #374151;
+		transition: background 0.15s, color 0.15s;
+
+		i {
+			margin: 0;
+			font-size: 1rem;
+			line-height: 1;
+			color: #6b7280;
+		}
+
+		&:hover,
+		&:focus-visible {
+			background: #f4f5fa;
+			color: #1f2937;
+			outline: 0;
+		}
+
+		&.btn-text-red {
+			color: #dc2626;
+
+			i {
+				color: inherit;
+			}
+
+			&:hover,
+			&:focus-visible {
+				background: #fef2f2;
+				color: #b91c1c;
+			}
+		}
+
+		&.btn-text-green {
+			color: #15803d;
+
+			i {
+				color: inherit;
+			}
+
+			&:hover,
+			&:focus-visible {
+				background: #f0fdf4;
+			}
+		}
+	}
+
+	.table-action-buttons .buttons-wrapper:first-child .admin-btn:not(.btn-text-red):not(.btn-text-green) {
+		color: #5007aa;
+
+		i {
+			color: inherit;
+		}
+
+		&:hover,
+		&:focus-visible {
+			background: #f3ecfb;
+			color: #3d0585;
+		}
+	}
 }

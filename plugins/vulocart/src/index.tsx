@@ -9,7 +9,7 @@ import Products from './pages/Products/Products';
 import Customers from './pages/Customers/Customers';
 import InventoryEngine from './pages/InventoryEngine/InventoryEngine';
 import MarketingEngine from './pages/MarketingEngine/MarketingEngine';
-import ShippingEngine from './pages/ShippingEngine/ShippingEngine';
+import FulfillmentEngine from './pages/FulfillmentEngine/FulfillmentEngine';
 import AiEngine from './pages/AiEngine/AiEngine';
 import WorkflowsEngine from './pages/WorkflowsEngine/WorkflowsEngine';
 import { registerRestErrorToasts } from './lib/rest-errors';
@@ -78,10 +78,10 @@ import { registerRestErrorToasts } from './lib/rest-errors';
  * vulocart-pro's own bundle (and every active Pro module's own
  * top-level `addFilter()` calls) has unconditionally already executed.
  * Without this, `render()` (and therefore every `applyFilters(...)` call
- * a page like `Products`/`Customers`/`InventoryEngine`/`ShippingEngine`
+ * a page like `Products`/`Customers`/`InventoryEngine`/`FulfillmentEngine`
  * makes on its very first synchronous render) ran to completion before
  * any Pro-registered filter existed, so every Pro-registered `view`
- * (Suppliers, Groups/Segments, the entire Inventory/Shipping Engine
+ * (Suppliers, Groups/Segments, the entire Inventory/Fulfillment
  * screens, ...) silently fell through to `previousValue` and never
  * rendered - and nothing here subscribes to "a hook was registered," so
  * a first render that missed a filter never got a second chance.
@@ -197,7 +197,7 @@ if ( shippingAdminRoot ) {
 	render(
 		<>
 			<SearchHeader />
-			<ShippingEngine view={ urlView } />
+			<FulfillmentEngine view={ urlView } />
 		</>,
 		shippingAdminRoot
 	);

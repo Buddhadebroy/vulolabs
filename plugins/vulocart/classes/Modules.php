@@ -34,6 +34,16 @@ defined( 'ABSPATH' ) || exit;
 class Modules {
 
     /**
+     * Module ids that changed with their folder name: old id => new id. `load_active_modules()` moves a stored id
+     * across, so the module stays on.
+     *
+     * @var array<string, string>
+     */
+    const RENAMED_MODULE_IDS = array(
+        'shipping-engine' => 'fulfillment',
+    );
+
+    /**
      * Every discovered module, keyed by its kebab-case id (or
      * `{namespace}_{id}` if two sources both register the same id).
      *
@@ -64,9 +74,11 @@ class Modules {
 
     /**
      * Modules the cart and checkout cannot work without. They have no card on the Modules screen and cannot be
-     * switched off. Shipping, Taxes and Review are real options - a store may not need them - so they keep a card.
+     * switched off. Review is one of them: whether the checkout shows its Review step is a setting (Settings →
+     * Checkout → Steps shown), not a module. Shipping and Taxes are real options - a store may not need them - so
+     * they keep a card.
      */
-    const CORE_MODULE_IDS = array( 'cart', 'order', 'customer', 'address', 'payment', 'confirmation' );
+    const CORE_MODULE_IDS = array( 'cart', 'order', 'customer', 'address', 'payment', 'confirmation', 'review' );
 
     /**
      * Modules constructor.
@@ -182,6 +194,15 @@ class Modules {
 
         $active_modules = $this->get_active_modules();
 
+        // A module whose folder was renamed keeps its on/off state: its stored id moves to the new one.
+        $renamed = array_values( array_unique( array_map( static fn( $id ) => self::RENAMED_MODULE_IDS[ $id ] ?? $id, $active_modules ) ) );
+
+        if ( $renamed !== $active_modules ) {
+            $active_modules       = $renamed;
+            $this->active_modules = $renamed;
+            update_option( Utill::ACTIVE_MODULES_DB_KEY, $renamed );
+        }
+
         // Cart, checkout and its steps are the store itself, not options: they are always on.
         $missing_core = array_diff( self::CORE_MODULE_IDS, $active_modules );
 
@@ -189,6 +210,23 @@ class Modules {
             $active_modules       = array_values( array_merge( $active_modules, $missing_core ) );
             $this->active_modules = $active_modules;
             update_option( Utill::ACTIVE_MODULES_DB_KEY, $active_modules );
+        }
+
+        // A card stands for its module plus the companions that extend it (Shipping → Shipment, Taxes → Stripe Tax and
+        // business tax IDs): keep them on together, so a store that switched the card on before the companion existed,
+        // or before Pro was licensed, gets the whole feature.
+        $with_companions = array();
+
+        foreach ( $active_modules as $module_id ) {
+            $with_companions = array_merge( $with_companions, $this->with_companions( $module_id ) );
+        }
+
+        $with_companions = array_values( array_unique( $with_companions ) );
+
+        if ( $with_companions !== $active_modules ) {
+            $active_modules       = $with_companions;
+            $this->active_modules = $with_companions;
+            update_option( Utill::ACTIVE_MODULES_DB_KEY, $with_companions );
         }
 
         $all_modules    = $this->get_all_modules();
@@ -301,7 +339,8 @@ class Modules {
         $map = apply_filters(
             'vulocart_module_companions',
             array(
-                'shipping'    => array( 'shipping-engine' ),
+                'shipping'    => array( 'fulfillment' ),
+                'taxes'       => array( 'stripe-tax', 'tax-ids' ),
                 'bulk-editor' => array( 'csv-import' ),
                 'mcp'         => array( 'mcp-server' ),
             )

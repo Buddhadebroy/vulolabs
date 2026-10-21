@@ -16,7 +16,7 @@ import VuloCloudAiPanel from '../components/Settings/VuloCloudAiPanel';
  */
 export default {
 	id: 'integrations',
-	priority: 3,
+	priority: 7,
 	headerTitle: __( 'Integrations', 'vulocart' ),
 	headerIcon: 'centralized-connections',
 	groupBySections: true,

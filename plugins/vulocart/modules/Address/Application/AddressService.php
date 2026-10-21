@@ -31,7 +31,7 @@ class AddressService {
      *
      * @var string[]
      */
-    const FIELDS = array( 'full_name', 'phone', 'address_1', 'address_2', 'city', 'state', 'postcode', 'country' );
+    const FIELDS = array( 'full_name', 'phone', 'address_1', 'address_2', 'city', 'state', 'postcode', 'country', 'company', 'tax_id' );
 
     /**
      * Fields validate() treats as required - `address_2` (apartment/suite,

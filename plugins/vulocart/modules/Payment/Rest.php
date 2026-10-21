@@ -172,9 +172,20 @@ class Rest extends \WP_REST_Controller {
             unset( $e );
         }
 
+        // Tax depends on where the order is going, so the checkout sends the addresses along with the intent request.
         $tax_amount = 0.0;
         try {
-            $tax_amount = VuloCart()->tax_service->calculate( $totals['subtotal'] );
+            $tax        = VuloCart()->tax_service->calculate_cart(
+                $cart,
+                $this->clean_address( $request->get_param( 'shipping_address' ) ),
+                $this->clean_address( $request->get_param( 'billing_address' ) ),
+                (float) $shipping_cost,
+                array(
+                    'cart_token'     => $cart_token,
+                    'customer_email' => $request->get_param( 'customer_email' ) ? sanitize_email( (string) $request->get_param( 'customer_email' ) ) : null,
+                )
+            );
+            $tax_amount = (float) $tax['amount'];
         } catch ( \Exception $e ) {
             unset( $e );
         }
@@ -314,5 +325,27 @@ class Rest extends \WP_REST_Controller {
         $order_id = absint( $request->get_param( 'id' ) );
 
         return rest_ensure_response( VuloCart()->payment_service->get_transaction_history( $order_id ) );
+    }
+
+    /**
+     * An address from the request, reduced to the fields tax and shipping read, or null when there is none.
+     *
+     * @param mixed $address Raw request value.
+     * @return array<string, string>|null
+     */
+    private function clean_address( $address ) {
+        if ( ! is_array( $address ) ) {
+            return null;
+        }
+
+        $clean = array();
+
+        foreach ( array( 'country', 'state', 'postcode', 'city', 'tax_id' ) as $key ) {
+            if ( isset( $address[ $key ] ) ) {
+                $clean[ $key ] = sanitize_text_field( (string) $address[ $key ] );
+            }
+        }
+
+        return $clean;
     }
 }

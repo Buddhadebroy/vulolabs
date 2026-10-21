@@ -89,8 +89,7 @@ class Utill {
      * (Notifications\OrderEmails), `cart_expiry_days`
      * (Cart\Application\CartCleanupScheduler's daily cron),
      * `guest_checkout_enabled`/`require_terms_acceptance`/
-     * `checkout_terms_url`/`enable_products_listing`/
-     * `enable_cart_checkout` (Block.php's `print_frontend_config()` →
+     * `checkout_terms_url` (Block.php's `print_frontend_config()` →
      * src/blocks/checkout/Checkout.tsx, plus Order\Rest::create_item()'s
      * own server-side guest-checkout re-check), and now the whole
      * Payments/Shipping/Taxes section are all actually read by business
@@ -128,8 +127,6 @@ class Utill {
         'default_currency'              => 'USD',
 
         // Frontend.
-        'enable_products_listing'      => array( 'enable_products_listing' ),
-        'enable_cart_checkout'          => array( 'enable_cart_checkout' ),
         // Storefront listing template (src/blocks/products/ProductsListing.tsx): grid|compact|list|showcase.
         'listing_template'              => 'grid',
         'listing_columns'               => '4',
@@ -152,8 +149,18 @@ class Utill {
         // Extra ways to present checkout (VuloCart Pro): any of popup, drawer, embedded, hosted. Empty until chosen.
         'checkout_styles'               => array(),
 
-        // Other checkout extras (VuloCart Pro): any of one-click, links, builder, notes, autocomplete.
-        'checkout_features'             => array(),
+        // Where "Proceed to checkout" / "Buy now" lead: page, or (VuloCart Pro) popup, drawer, hosted, one_click.
+        'checkout_delivery'             => 'page',
+
+        // The steps the checkout shows, in their natural order. Customer and Payment are always kept.
+        'checkout_steps'                => array( 'customer', 'address', 'shipping', 'payment', 'review' ),
+        'checkout_extras'             => array(),
+
+        // The optional fields the checkout shows: the buyer's name, a phone number, the address's second line.
+        'checkout_fields'               => array( 'name', 'phone', 'address_2' ),
+
+        // Other checkout extras (VuloCart Pro): any of one-click, links, notes, autocomplete.
+        'checkout_extras'             => array(),
 
         // Payments.
         'enable_manual_payment'         => array( 'enable_manual_payment' ),
@@ -164,13 +171,16 @@ class Utill {
         'payment_capture_mode'          => 'immediate',
 
         // Shipping.
-        'enable_shipping'               => array( 'enable_shipping' ),
         'flat_rate_shipping_cost'       => 0,
 
         // Taxes.
-        'enable_tax_calculation'        => array(),
         'default_tax_rate_percent'      => 0,
         'prices_include_tax'            => array(),
+        // Where tax is worked out for: the `shipping` or `billing` address, or the `store`'s own. Shipping can be taxed too.
+        'tax_based_on'                  => 'shipping',
+        'tax_shipping'                  => array( 'tax_shipping' ),
+        'store_country'                 => '',
+        'store_state'                   => '',
 
         // Email.
         'send_order_confirmation_email' => array( 'send_order_confirmation_email' ),

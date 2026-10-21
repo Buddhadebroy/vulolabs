@@ -1,0 +1,332 @@
+
+// Inventory dashboard: tiles on top, then a two-column grid of panels (stock health, needs attention, and the
+// panels vulocart-pro adds: forecast, recent activity).
+.vulocart-inv-overview {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 1rem;
+	align-items: start;
+
+	.vulocart-inv-tiles {
+		grid-column: 1 / -1;
+		margin-bottom: 0;
+	}
+
+	@media (max-width: 960px) {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.vulocart-inv-panel {
+	padding: 1rem 1.25rem;
+	border: 1px solid #e6e8f0;
+	border-radius: 0.75rem;
+	background: #fff;
+	min-width: 0;
+
+	&.is-wide {
+		grid-column: 1 / -1;
+	}
+
+	p {
+		margin: 0;
+	}
+}
+
+.vulocart-inv-panel-head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0.75rem;
+	margin-bottom: 0.875rem;
+
+	h3 {
+		margin: 0;
+		font-size: 0.9375rem;
+		font-weight: 600;
+		color: #1f2937;
+	}
+
+	a {
+		font-size: 0.8125rem;
+	}
+}
+
+.vulocart-inv-panel-sub {
+	font-size: 0.75rem;
+	color: #9ca3af;
+}
+
+.vulocart-inv-empty {
+	padding: 1.25rem 0;
+	font-size: 0.8125rem;
+	text-align: center;
+	color: #9ca3af;
+}
+
+.vulocart-inv-health {
+	display: flex;
+	height: 0.625rem;
+	gap: 2px;
+	overflow: hidden;
+	border-radius: 999px;
+	background: #f1f2f7;
+
+	span {
+		min-width: 4px;
+
+		&.is-good {
+			background: #16a34a;
+		}
+
+		&.is-warn {
+			background: #f59e0b;
+		}
+
+		&.is-info {
+			background: #3b82f6;
+		}
+
+		&.is-bad {
+			background: #dc2626;
+		}
+	}
+}
+
+.vulocart-inv-legend {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 1.25rem;
+	margin: 0.875rem 0 0;
+	padding: 0;
+	list-style: none;
+	font-size: 0.8125rem;
+	color: #6b7280;
+
+	li {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		margin: 0;
+	}
+
+	strong {
+		color: #1f2937;
+	}
+
+	i {
+		width: 0.625rem;
+		height: 0.625rem;
+		border-radius: 50%;
+
+		&.is-good {
+			background: #16a34a;
+		}
+
+		&.is-warn {
+			background: #f59e0b;
+		}
+
+		&.is-info {
+			background: #3b82f6;
+		}
+
+		&.is-bad {
+			background: #dc2626;
+		}
+	}
+}
+
+// Rows in a panel: label on the left, a badge or figure on the right.
+.vulocart-inv-attention,
+.vulocart-inv-rows {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+
+	li {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		margin: 0;
+		padding: 0.625rem 0;
+		border-top: 1px solid #f0f1f6;
+		font-size: 0.8125rem;
+
+		&:first-child {
+			border-top: 0;
+			padding-top: 0;
+		}
+
+		&:last-child {
+			padding-bottom: 0;
+		}
+
+		> a,
+		> span:first-child {
+			min-width: 0;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+	}
+
+	.vulocart-inv-more {
+		justify-content: center;
+		color: #9ca3af;
+	}
+}
+
+.vulocart-inv-row-sub {
+	display: block;
+	font-size: 0.75rem;
+	color: #9ca3af;
+}
+
+// ---- Modern pass: icon tiles and tone-coloured panels, in step with the Dashboard cards ----
+.vulocart-inv-tile,
+.vulocart-inv-panel {
+	--tone: #5007aa;
+	--tone-bg: #f1e9ff;
+
+	&.is-good {
+		--tone: #12803d;
+		--tone-bg: #e3f7ea;
+	}
+
+	&.is-warn {
+		--tone: #b45309;
+		--tone-bg: #fef0d4;
+	}
+
+	&.is-bad {
+		--tone: #dc2626;
+		--tone-bg: #fdecec;
+	}
+}
+
+.vulocart-inv-icon {
+	display: inline-grid;
+	flex: none;
+	place-items: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	border-radius: 0.5rem;
+	background: var(--tone-bg);
+	color: var(--tone);
+
+	i {
+		font-size: 0.9375rem;
+		color: inherit;
+	}
+}
+
+.vulocart-inv-overview .vulocart-inv-tiles {
+	gap: 1rem;
+}
+
+.vulocart-inv-tile {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-template-areas:
+		'icon label'
+		'value value'
+		'hint hint';
+	align-items: center;
+	gap: 0.125rem 0.625rem;
+	padding: 1rem 1.25rem;
+	border-radius: 0.5rem;
+
+	&::before {
+		display: none;
+	}
+
+	.vulocart-inv-icon {
+		grid-area: icon;
+	}
+
+	.vulocart-inv-tile-label {
+		grid-area: label;
+		font-size: 0.8125rem;
+		font-weight: 500;
+		letter-spacing: 0;
+		text-transform: none;
+		color: #4b5068;
+	}
+
+	.vulocart-inv-tile-value {
+		grid-area: value;
+		margin-top: 0.5rem;
+		font-size: 1.625rem;
+		letter-spacing: -0.02em;
+	}
+
+	.vulocart-inv-tile-hint {
+		grid-area: hint;
+	}
+
+	&.is-bad .vulocart-inv-tile-value {
+		color: #b42323;
+	}
+}
+
+.vulocart-inv-overview {
+	gap: 1rem;
+	align-items: stretch;
+}
+
+.vulocart-inv-panel {
+	padding: 1.25rem;
+	border-radius: 0.5rem;
+}
+
+.vulocart-inv-panel-head {
+	align-items: center;
+	margin-bottom: 1rem;
+
+	h3 {
+		display: flex;
+		align-items: center;
+		gap: 0.625rem;
+	}
+}
+
+.vulocart-inv-empty {
+	&.is-good {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		padding: 0.875rem 1rem;
+		border-radius: 0.5rem;
+		background: #f0fbf4;
+		color: #166534;
+
+		i {
+			color: #16a34a;
+		}
+	}
+}
+
+.vulocart-inv-forecast .vulocart-inv-muted {
+	font-size: 0.75rem;
+	color: #9ca3af;
+}
+
+.vulocart-inv-health {
+	height: 0.75rem;
+}
+
+.vulocart-engine-page .vulocart-inv-legend {
+	margin: 1rem 0 0;
+}
+
+.vulocart-inv-panel-head h3 {
+	white-space: nowrap;
+}
+
+.vulocart-inv-panel-head .vulocart-inv-panel-sub {
+	min-width: 0;
+	text-align: right;
+}

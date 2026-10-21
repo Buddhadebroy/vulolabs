@@ -2,6 +2,7 @@
 import React from 'react';
 import { ButtonInput } from '@zyra/inputs';
 import { __, sprintf } from '@wordpress/i18n';
+import MODULES_CATALOG, { isModuleCatalogEntry } from '../../modules-config';
 import './Popup.scss';
 
 interface PopupProps {
@@ -31,7 +32,14 @@ const ICON_OVERRIDES: Record< string, string > = {
 	mcp: 'centralized-connections',
 };
 
+const CATALOG_BY_ID = new Map( MODULES_CATALOG.modules.filter( isModuleCatalogEntry ).map( ( module ) => [ module.id, module ] ) );
+
 const formatModuleName = ( name: string ): string => {
+	// The name Settings → Modules shows for it, so the popup and the card always agree.
+	if ( CATALOG_BY_ID.get( name ) ) {
+		return CATALOG_BY_ID.get( name )!.name;
+	}
+
 	if ( ACRONYM_LABELS[ name ] ) {
 		return ACRONYM_LABELS[ name ];
 	}
@@ -54,6 +62,9 @@ const formatModuleName = ( name: string ): string => {
  * upgrade CTA, not a fabricated feature list, since this plugin has no
  * central Pro-feature catalog to draw one from honestly.
  */
+/** What the Pro popup lists: every module that ships in vulocart-pro, in the order the Modules screen shows them. */
+const PRO_MODULES = MODULES_CATALOG.modules.filter( isModuleCatalogEntry ).filter( ( module ) => module.proModule );
+
 const Popup: React.FC< PopupProps > = ( props ) => {
 	if ( props.plugin ) {
 		return (
@@ -100,7 +111,7 @@ const Popup: React.FC< PopupProps > = ( props ) => {
 	}
 
 	if ( props.moduleName ) {
-		const iconName = ICON_OVERRIDES[ props.moduleName ] ?? props.moduleName;
+		const iconName = ICON_OVERRIDES[ props.moduleName ] ?? CATALOG_BY_ID.get( props.moduleName )?.icon ?? props.moduleName;
 
 		return (
 			<div className="popup-wrapper">
@@ -119,7 +130,7 @@ const Popup: React.FC< PopupProps > = ( props ) => {
 						{ sprintf(
 							/* translators: %s: Module name. */
 							__(
-								'This setting is only usable once the %s module is active.',
+								'This feature is currently unavailable. To activate it, please enable the %s module.',
 								'vulocart'
 							),
 							formatModuleName( props.moduleName )
@@ -130,9 +141,10 @@ const Popup: React.FC< PopupProps > = ( props ) => {
 						buttons={ [
 							{
 								icon: 'eye',
-								text: __( 'Enable now', 'vulocart' ),
+								text: __( 'Enable Now', 'vulocart' ),
 								onClick: () => {
-									window.open( `${ vulocartLocalizer.adminUrl }#&tab=settings&subtab=modules` );
+									// Same admin page, just a different hash tab.
+									window.open( `${ vulocartLocalizer.adminUrl }admin.php?page=vulocart#&tab=settings&subtab=modules&module=${ props.moduleName }`, '_self' );
 								},
 							},
 						] }
@@ -145,22 +157,28 @@ const Popup: React.FC< PopupProps > = ( props ) => {
 	return (
 		<div className="popup-wrapper">
 			<div className="top-section">
-				<div className="heading">{ __( 'Unlock VuloCart Pro', 'vulocart' ) }</div>
+				<div className="heading">{ __( 'Unlock the full VuloCart toolkit', 'vulocart' ) }</div>
 				<div className="description">
-					{ __(
-						'This feature is part of VuloCart Pro.',
-						'vulocart'
-					) }
+					{ __( 'Sell your way: popup, drawer and one-click checkout, subscriptions, coupons, advanced shipping and tax, AI tools, and more.', 'vulocart' ) }
 				</div>
-				<a
-					className="admin-btn"
-					href={ vulocartLocalizer.shop_url }
-					target="_blank"
-					rel="noreferrer"
-				>
+				<a className="admin-btn" href={ vulocartLocalizer.shop_url } target="_blank" rel="noreferrer">
 					{ __( 'Upgrade to Pro', 'vulocart' ) }
 					<i className="adminfont-arrow-right arrow-icon"></i>
 				</a>
+			</div>
+			<div className="popup-details">
+				<div className="heading-text">{ __( 'What you unlock with Pro', 'vulocart' ) }</div>
+				<ul>
+					{ PRO_MODULES.map( ( module ) => (
+						<li key={ module.id }>
+							<div className="title">
+								<i className={ `adminfont-${ module.icon ?? module.id }` } />
+								{ module.name }
+							</div>
+							<div className="desc">{ module.desc.split( '. ' )[ 0 ].replace( /\.$/, '' ) }.</div>
+						</li>
+					) ) }
+				</ul>
 			</div>
 		</div>
 	);

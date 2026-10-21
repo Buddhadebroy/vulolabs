@@ -802,7 +802,7 @@ class Products extends \WP_REST_Controller {
         // vulocart-pro's CatalogAi module (`generate_seo()`), but the
         // allowlist itself has to live here regardless of which module
         // ends up writing to it - the same reason `weight` isn't
-        // allowlisted only when ShippingEngine happens to be active.
+        // allowlisted only when Fulfillment happens to be active.
         $text_fields = array( 'weight', 'length', 'width', 'height', 'shipping_class', 'related_products', 'addon_products', 'seo_title' );
 
         foreach ( $text_fields as $key ) {
@@ -813,6 +813,20 @@ class Products extends \WP_REST_Controller {
 
         if ( isset( $meta['subtype'] ) && isset( self::SUBTYPES[ $type ] ) && in_array( $meta['subtype'], self::SUBTYPES[ $type ], true ) ) {
             $sanitized['subtype'] = $meta['subtype'];
+        }
+
+        // Tax: whether the product is taxed at all, and which tax class's rates apply (Taxes module).
+        if ( isset( $meta['tax_status'] ) && 'none' === $meta['tax_status'] ) {
+            $sanitized['tax_status'] = 'none';
+        }
+
+        // A tax provider's own product code (Stripe Tax's `txcd_...`), when one is in use.
+        if ( isset( $meta['tax_code'] ) && '' !== $meta['tax_code'] ) {
+            $sanitized['tax_code'] = sanitize_key( (string) $meta['tax_code'] );
+        }
+
+        if ( isset( $meta['tax_class'] ) && '' !== $meta['tax_class'] ) {
+            $sanitized['tax_class'] = sanitize_key( (string) $meta['tax_class'] );
         }
 
         $textarea_fields = array( 'short_description', 'full_description', 'shipping_policy', 'refund_policy', 'cancellation_policy', 'seo_description' );

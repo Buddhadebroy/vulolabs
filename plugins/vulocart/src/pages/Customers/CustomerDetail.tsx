@@ -173,9 +173,11 @@ export function CustomerDetail( { id }: { id: number } ) {
 	if ( notFound ) {
 		return (
 			<div className="vulocart-product-edit-page">
-				<a className="vulocart-back-link" href="admin.php?page=vulocart-customers">
-					{ __( '← Back to Customers', 'vulocart' ) }
-				</a>
+				<nav className="vulocart-breadcrumbs" aria-label={ __( 'Breadcrumb', 'vulocart' ) }>
+					<a href="admin.php?page=customers">{ __( 'Customers', 'vulocart' ) }</a>
+					<i className="adminfont-pagination-next-arrow" aria-hidden="true" />
+					<span aria-current="page">{ __( 'Customer', 'vulocart' ) }</span>
+				</nav>
 				<p>{ __( 'No customer exists with this id.', 'vulocart' ) }</p>
 			</div>
 		);
@@ -254,7 +256,7 @@ export function CustomerDetail( { id }: { id: number } ) {
 			<div className="vulocart-product-edit-topbar">
 				<div>
 					<nav className="vulocart-breadcrumbs" aria-label={ __( 'Breadcrumb', 'vulocart' ) }>
-						<a href="admin.php?page=vulocart-customers">{ __( 'Customers', 'vulocart' ) }</a>
+						<a href="admin.php?page=customers">{ __( 'Customers', 'vulocart' ) }</a>
 						<i className="adminfont-pagination-next-arrow" aria-hidden="true" />
 						<span aria-current="page">{ __( 'Customer', 'vulocart' ) }</span>
 					</nav>
@@ -335,7 +337,7 @@ export function CustomerDetail( { id }: { id: number } ) {
 								<tbody>
 									{ orders.map( ( order ) => (
 										<tr key={ order.id }>
-											<td><a href={ `admin.php?page=vulocart-orders&action=edit&id=${ order.id }` }>#{ order.order_number }</a></td>
+											<td><a href={ `admin.php?page=orders&action=edit&id=${ order.id }` }>#{ order.order_number }</a></td>
 											<td><strong>{ money( order.total ) }</strong> { order.currency }</td>
 											<td><span className={ `admin-badge ${ PAYMENT_BADGE[ order.payment_status ] ?? 'badge-info' }` }>{ capitalize( order.payment_status ) }</span></td>
 											<td><span className={ `admin-badge ${ FULFILLMENT_BADGE[ order.fulfillment_status ] ?? 'badge-info' }` }>{ capitalize( order.fulfillment_status ) }</span></td>

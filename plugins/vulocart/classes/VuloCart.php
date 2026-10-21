@@ -245,6 +245,7 @@ final class VuloCart {
         $this->container['rest']         = new RestAPI\Rest();
         $this->container['cors']         = new RestAPI\Cors();
         $this->container['block']        = new Block();
+        $this->container['storefront']   = new Storefront\Storefront();
         $this->container['order_emails'] = new Notifications\OrderEmails();
 
         $previous_version = get_option( Utill::OTHER_SETTINGS['plugin_db_version'], '' );

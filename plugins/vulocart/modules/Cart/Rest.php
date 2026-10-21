@@ -140,6 +140,26 @@ class Rest extends \WP_REST_Controller {
     }
 
     /**
+     * A small photo of a product for the cart, or null when it has none (or its file is gone).
+     *
+     * @param \VuloCart\Domain\Product\Product $product Product.
+     * @return string|null
+     */
+    private function product_image_url( $product ): ?string {
+        $meta = is_array( $product->meta ) ? $product->meta : array();
+        $id   = isset( $meta['featured_image']['id'] ) ? (int) $meta['featured_image']['id'] : 0;
+        $file = $id ? get_attached_file( $id ) : '';
+
+        if ( ! $id || ! $file || ! file_exists( $file ) ) {
+            return null;
+        }
+
+        $url = wp_get_attachment_image_url( $id, 'thumbnail' );
+
+        return $url ? $url : null;
+    }
+
+    /**
      * Converts a domain CartItem into the REST response shape, including
      * a display title from its Product - bounded by cart size (a handful of
      * items), and ProductService's own in-request cache-by-id
@@ -156,6 +176,7 @@ class Rest extends \WP_REST_Controller {
             'product_id' => $item->product_id,
             'title'       => $product ? $product->title : null,
             'type'        => $product ? $product->type : null,
+            'image'       => $product ? $this->product_image_url( $product ) : null,
             'quantity'    => $item->quantity,
             'unit_price'  => $item->unit_price,
             'currency'    => $item->currency,

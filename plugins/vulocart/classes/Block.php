@@ -84,13 +84,20 @@ class Block {
             // single-page vs. multi-step layout; the engine itself has no
             // idea this setting (or WordPress) exists, only Checkout.tsx
             // reads it and passes `mode` down as a prop.
-            'checkoutMode'            => (string) $settings['checkout_mode'],
+            'checkoutMode'            => $this->resolve_checkout_mode( (string) $settings['checkout_mode'] ),
+            // Where "Proceed to checkout" / "Buy now" lead: the Checkout page (`page`), or one of vulocart-pro's
+            // delivery styles (popup, drawer, hosted page, one-click). Pro answers the filter; Free alone is `page`.
+            'checkoutDelivery'        => $this->resolve_checkout_delivery(),
+            // What the checkout shows by default (Settings → Checkout); a checkout block can override both for its page.
+            'checkoutExtras'        => $this->checkout_list( $settings['checkout_extras'], array( 'order_notes', 'address_autocomplete' ), array() ),
+            'checkoutSteps'           => $this->checkout_list( $settings['checkout_steps'], array( 'customer', 'address', 'shipping', 'payment', 'review' ), array( 'customer', 'payment' ) ),
+            'checkoutFields'          => $this->checkout_list( $settings['checkout_fields'], array( 'name', 'phone', 'address_2' ), array() ),
+            'homeUrl'                 => esc_url_raw( home_url( '/' ) ),
+            // Only the signed-in shopper's own address, so one-click checkout can offer it as the default.
+            'userEmail'               => is_user_logged_in() ? (string) wp_get_current_user()->user_email : '',
             'isLoggedIn'              => is_user_logged_in(),
-            // Frontend tab (src/settings/General/Frontend.ts) - whether the
-            // checkout block shows its catalog-browsing section at all, and
-            // whether the block functions at all.
-            'productsListingEnabled' => ! empty( $settings['enable_products_listing'] ),
-            'cartCheckoutEnabled'     => ! empty( $settings['enable_cart_checkout'] ),
+            // The WordPress session, so the checkout can say who is signed in and offer sign out / log in (returning to this page).
+            'currentUser'             => $this->current_user_payload(),
             // Layout the public products listing renders in; anything unknown falls back to the grid.
             'listingTemplate'         => in_array( $settings['listing_template'], array( 'grid', 'compact', 'list', 'showcase' ), true ) ? (string) $settings['listing_template'] : 'grid',
             'listingColumns'          => in_array( (string) $settings['listing_columns'], array( '2', '3', '4', '5' ), true ) ? (int) $settings['listing_columns'] : 4,
@@ -99,7 +106,10 @@ class Block {
             // auto-discovered rather than a settings field the merchant
             // has to fill in by hand.
             'checkoutPageUrl'         => $this->find_page_url_with_block( 'vulocart/checkout' ),
-            'productsPageUrl'        => $this->find_page_url_with_block( 'vulocart/products' ),
+            // The shop is the legacy `vulocart/products` block or the block-based Product Collection.
+            'productsPageUrl'        => $this->find_page_url_with_block( 'vulocart/products' ) ? $this->find_page_url_with_block( 'vulocart/products' ) : $this->find_page_url_with_block( 'vulocart/product-collection' ),
+            'cartPageUrl'            => $this->find_page_url_with_block( 'vulocart/cart' ),
+            'shopPageUrl'            => $this->find_page_url_with_block( 'vulocart/product-collection' ) ? $this->find_page_url_with_block( 'vulocart/product-collection' ) : $this->find_page_url_with_block( 'vulocart/products' ),
         );
 
         echo '<script id="vulocart-frontend-data">window.vulocartFrontendData = ' . wp_json_encode( $config ) . ';</script>' . "\n"; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- a ~2-property inline config object, not a real script asset; every other frontend block's view.js depends on this existing before it runs (see docblock).
@@ -120,6 +130,98 @@ class Block {
          * checkout block.
          */
         do_action( 'vulocart_frontend_config_printed' );
+    }
+
+    /**
+     * The signed-in WordPress user as the storefront needs them, or null for a guest. The logout link returns to the
+     * page it was clicked on; the login link does the same, so a shopper lands back in their checkout.
+     *
+     * @return array<string, string>|null
+     */
+    private function current_user_payload(): ?array {
+        $here = is_singular() ? (string) get_permalink( get_queried_object_id() ) : home_url( '/' );
+
+        if ( ! is_user_logged_in() ) {
+            return array(
+                'loginUrl' => esc_url_raw( wp_specialchars_decode( wp_login_url( $here ) ) ),
+            );
+        }
+
+        $user = wp_get_current_user();
+
+        return array(
+            'name'      => (string) $user->display_name,
+            'email'     => (string) $user->user_email,
+            'avatar'    => (string) get_avatar_url( $user->ID, array( 'size' => 80 ) ),
+            'logoutUrl' => esc_url_raw( wp_specialchars_decode( wp_logout_url( $here ) ) ),
+        );
+    }
+
+    /**
+     * The checkout layout to render: the Settings → Checkout layout value, unless something more specific overrides
+     * it (a checkout block can force its own layout). Anything that is not one of the
+     * free layouts falls back to the setting.
+     *
+     * @param string $configured The Settings value.
+     * @return string `single_page` or `multi_step`.
+     */
+    private function resolve_checkout_mode( string $configured ): string {
+        /**
+         * Filters the checkout layout (`single_page` or `multi_step`).
+         *
+         * @param string $configured The layout chosen in Settings → Commerce → Checkout.
+         */
+        $mode = (string) apply_filters( 'vulocart_checkout_mode', $configured );
+
+        return in_array( $mode, \VuloCart\Domain\Checkout\CheckoutMode::free(), true ) ? $mode : \VuloCart\Domain\Checkout\CheckoutMode::MULTI_STEP;
+    }
+
+    /**
+     * How the shopper reaches checkout from the cart or a product page.
+     *
+     * @return string One of page|popup|drawer|hosted|one_click.
+     */
+    public function resolve_checkout_delivery(): string {
+        $settings   = wp_parse_args( get_option( Utill::SETTINGS_KEY, array() ), Utill::SETTINGS_DEFAULTS );
+        $configured = (string) $settings['checkout_delivery'];
+
+        // A delivery style only takes effect when the module that draws it is switched on.
+        $modules = array(
+            'popup'     => 'popup-checkout',
+            'drawer'    => 'drawer-checkout',
+            'hosted'    => 'hosted-checkout',
+            'one_click' => 'one-click-checkout',
+        );
+
+        if ( ! isset( $modules[ $configured ] ) || ! VuloCart()->modules->is_active( $modules[ $configured ] ) ) {
+            $configured = 'page';
+        }
+
+        /**
+         * Filters the checkout delivery style.
+         *
+         * @param string $delivery The style chosen in Settings → Checkout (`page` unless its module is on).
+         */
+        $delivery = (string) apply_filters( 'vulocart_checkout_delivery', $configured );
+
+        return in_array( $delivery, array( 'popup', 'drawer', 'hosted', 'one_click' ), true ) ? $delivery : 'page';
+    }
+
+    /**
+     * A saved checkout list (steps, fields) cleaned to known values, keeping the natural order, and always including
+     * the `$required` ones. Anything unsaved or malformed is every known value.
+     *
+     * @param mixed         $saved    The stored setting.
+     * @param array<string> $known    Every valid value, in natural order.
+     * @param array<string> $required Values that cannot be turned off.
+     * @return array<string>
+     */
+    private function checkout_list( $saved, array $known, array $required ): array {
+        if ( ! is_array( $saved ) ) {
+            return $known;
+        }
+
+        return array_values( array_filter( $known, fn( $value ) => in_array( $value, $saved, true ) || in_array( $value, $required, true ) ) );
     }
 
     /**
@@ -154,7 +256,7 @@ class Block {
         $post_id = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-time lookup, result cached in a transient immediately below.
             $wpdb->prepare(
                 "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type IN ('page', 'post') AND post_content LIKE %s ORDER BY ID ASC LIMIT 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $wpdb->posts, not user input.
-                '%<!-- wp:' . $wpdb->esc_like( $block_name ) . '%'
+                '%<!-- wp:' . $wpdb->esc_like( $block_name ) . ' %'
             )
         );
 
@@ -276,10 +378,8 @@ class Block {
      * (`assets/js/storefront.js`) - see that file's own docblock for why
      * this exists as an independent entry from the `vulocart/checkout`
      * block's own view script, and why that independence matters for
-     * vulocart-pro's Popup/Embedded delivery modes specifically. Gated on
-     * `enable_cart_checkout` (the same "is checkout even usable at all"
-     * setting `print_frontend_config()`'s own `cartCheckoutEnabled` flag
-     * already reads) rather than `has_block()` - unlike a block's own
+     * vulocart-pro's Popup/Embedded delivery modes specifically. Not gated on
+     * `has_block()` - unlike a block's own
      * view script, this has nothing to do with which blocks are on THIS
      * page, so a page-content check would be the wrong gate entirely.
      *
@@ -288,8 +388,13 @@ class Block {
     public function enqueue_storefront_bootstrap(): void {
         $settings = wp_parse_args( get_option( Utill::SETTINGS_KEY, array() ), Utill::SETTINGS_DEFAULTS );
 
-        if ( empty( $settings['enable_cart_checkout'] ) ) {
-            return;
+
+        // The checkout engine's stylesheet: the engine runs on the Checkout page and, through vulocart-pro's popup,
+        // drawer and embedded modes, on any page - the same reach as the bootstrap script below.
+        $engine_css = VuloCart()->plugin_path . 'assets/styles/block/checkout/view.css';
+
+        if ( file_exists( $engine_css ) ) {
+            wp_enqueue_style( 'vulocart-checkout-engine', VuloCart()->plugin_url . 'assets/styles/block/checkout/view.css', array(), (string) filemtime( $engine_css ) );
         }
 
         $asset_file = VuloCart()->plugin_path . 'assets/js/storefront.asset.php';

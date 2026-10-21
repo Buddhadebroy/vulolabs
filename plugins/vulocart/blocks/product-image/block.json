@@ -1,0 +1,42 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"category": "widgets",
+	"textdomain": "vulocart",
+	"style": "vulocart-storefront",
+	"editorScript": "vulocart-storefront-editor",
+	"name": "vulocart/product-image",
+	"title": "Product Image",
+	"description": "The product photo, linking to its page, with sale and sold-out badges.",
+	"icon": "format-image",
+	"ancestor": [
+		"vulocart/product-template"
+	],
+	"attributes": {
+		"aspectRatio": {
+			"type": "string",
+			"default": "1 / 1"
+		},
+		"scale": {
+			"type": "string",
+			"default": "cover"
+		},
+		"showBadge": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"usesContext": [
+		"vulocart/product",
+		"vulocart/query"
+	],
+	"supports": {
+		"html": false,
+		"spacing": {
+			"margin": true
+		},
+		"__experimentalBorder": {
+			"radius": true
+		}
+	}
+}

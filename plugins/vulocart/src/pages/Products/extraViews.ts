@@ -6,12 +6,20 @@ import type { EngineView } from '../../components/EngineScreen/EngineScreen';
  * into `vulocart_products_extra_view` (and Customers' `vulocart_customers_extra_view`). Free
  * only knows the ids and copy; the pages themselves come from the modules.
  */
-export const productsExtraViews: Record< string, EngineView > = {};
+export const productsExtraViews: Record< string, EngineView > = {
+	'product-templates': {
+		title: __( 'Product templates', 'vulocart' ),
+		description: __( 'Presets that pre-fill a new product - pick one when you add a product.', 'vulocart' ),
+		icon: 'form-section',
+		module: 'product-templates',
+		pro: true,
+	},
+};
 
 /**
  * Pro pages that aren't about products - promotions, cart recovery and checkout setup. They live in the
  * Marketing menu (MarketingEngine.tsx), one submenu each, filled in by vulocart-pro through `vulocart_marketing_view`.
- * Listed here so the Products router can send old `vulocart-products&view=` links to their new home.
+ * Listed here so the Products router can send old `products&view=` links to their new home.
  */
 export const storeExtraViews: Record< string, EngineView > = {
 	coupons: {
@@ -67,14 +75,14 @@ export const ordersExtraViews: Record< string, EngineView > = {
 
 /** Pages that moved into Settings: old `page=...&view=` links open this Settings sub-tab instead. */
 export const settingsViews: Record< string, string > = {
-	'checkout-builder': 'checkout-builder',
+	'checkout-builder': 'checkout',
 };
 
 /** Views that moved to another menu: old `page=...&view=` links are sent to the new page and view. */
 export const movedViews: Record< string, { page: string; view: string } > = {
-	subscriptions: { page: 'vulocart-orders', view: 'subscriptions' },
-	suppliers: { page: 'vulocart-inventory', view: 'suppliers' },
-	inventory: { page: 'vulocart-inventory', view: 'stock' },
+	subscriptions: { page: 'orders', view: 'subscriptions' },
+	suppliers: { page: 'inventory', view: 'suppliers' },
+	inventory: { page: 'inventory', view: 'stock' },
 };
 
 export const customersExtraViews: Record< string, EngineView > = {

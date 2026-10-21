@@ -202,7 +202,7 @@ function ProductQuickEdit( { row, onClose, onSaved }: { row: QuickEditRow; onClo
 			header={ { icon: 'edit', title: __( 'Quick edit', 'vulocart' ) } }
 			footer={
 				<div className="vulocart-qe-footer">
-					<a href={ `admin.php?page=vulocart-products&action=edit&id=${ row.id }` }>
+					<a href={ `admin.php?page=products&action=edit&id=${ row.id }` }>
 						{ __( 'Open full editor', 'vulocart' ) } <i className="adminfont-pagination-next-arrow" aria-hidden="true" />
 					</a>
 					<ButtonInput
@@ -495,7 +495,7 @@ function ProductBulkEdit( { ids, onClose, onDone }: { ids: number[]; onClose: ()
  * The listing half of Products - DB (vulocart_products) → WPDBProductRepository
  * → ProductService → REST (`GET /products`) → this zyra `TableCard`. "Add
  * Product" and per-row "Edit" are real navigations to
- * `admin.php?page=vulocart-products&action=add`/`...&action=edit&id={id}`
+ * `admin.php?page=products&action=add`/`...&action=edit&id={id}`
  * (plain `<a href>`, full page load) rather than a popup - matching
  * WooCommerce's real Products/Orders admin screens, per this plugin's
  * admin-UX brief ("when edit click this open to another page like
@@ -668,7 +668,7 @@ export function ProductsList() {
 			color?: string;
 			onClick: ( row: Record< string, unknown > ) => void;
 		}[]
-	 ).map( ( action ) => ( { type: 'button' as const, color: 'text-blue', ...action } ) );
+	).map( ( action ) => ( { type: 'button' as const, color: 'text-blue', ...action } ) );
 
 	const headers = {
 		product: {
@@ -687,7 +687,7 @@ export function ProductsList() {
 				// Title, then SKU, then the published date and the badges (type, status).
 				return (
 					<div className="vulocart-product-cell">
-						<a className="vulocart-product-cell-title" href={ `admin.php?page=vulocart-products&action=edit&id=${ row.id }` }>
+						<a className="vulocart-product-cell-title" href={ `admin.php?page=products&action=edit&id=${ row.id }` }>
 							{ row.title as string }
 						</a>
 						{ details.length > 0 && <div className="desc">{ details.join( ', ' ) }</div> }
@@ -720,7 +720,7 @@ export function ProductsList() {
 					type: 'button' as const,
 					color: 'text-blue',
 					onClick: ( row: Record< string, unknown > ) => {
-						window.location.href = `admin.php?page=vulocart-products&action=edit&id=${ row.id }`;
+						window.location.href = `admin.php?page=products&action=edit&id=${ row.id }`;
 					},
 				},
 				{
@@ -838,7 +838,7 @@ export function ProductsList() {
 															icon: 'plus',
 															color: '',
 															onClick: () => {
-																window.location.href = 'admin.php?page=vulocart-products&action=add';
+																window.location.href = 'admin.php?page=products&action=add';
 															},
 														},
 													] }
