@@ -87,6 +87,10 @@ The server also re-checks guest checkout, phone number and terms acceptance acco
 
 Setting `checkout_delivery` (Settings → Checkout → Checkout opens as) is `page` by default. vulocart-pro adds `popup`, `drawer`, `hosted` and `one_click`. `Block::resolve_checkout_delivery()` returns the value that is actually usable (a Pro choice falls back to `page` when its module is not active), and `vulocartFrontendData` carries it to the storefront scripts. The filter `vulocart_checkout_delivery` can change the result.
 
+## Checkout on any website
+
+The engine above runs on pages of this WordPress site. For any other website the [JavaScript SDK](SDK.md) provides a framework-free embedded checkout over the same REST endpoints, so anyone can host the checkout anywhere.
+
 ## Extending the checkout
 
 | I want to | Do this |

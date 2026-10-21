@@ -26,6 +26,7 @@ Looking for code-level detail? See [../developer](../developer/README.md). Using
 | Sales | [ORDERS](ORDERS.md) | Take, track, fulfil and refund orders |
 | People | [CUSTOMERS](CUSTOMERS.md) | See who buys, their addresses and your notes |
 | Feedback | [REVIEWS](REVIEWS.md) | Approve or reject product reviews |
+| Checkout | [SELL-ANYWHERE](SELL-ANYWHERE.md) | Put a Buy button, cart and checkout on any website with JavaScript |
 | Setup | [SETTINGS](SETTINGS.md) | Find any setting |
 | Setup | [MODULES](MODULES.md) | Switch features on and off |
 | AI | [AI](AI.md) | Connect VuloCloud and see your AI usage |
