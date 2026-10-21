@@ -10,17 +10,11 @@ namespace VuloCart\Events;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart EventDispatcher.
+ * Broadcasts what happened (`vulocart_product_created`, `vulocart_order_created`, ...) as WordPress actions.
  *
- * The vision: "Everything emits events" (ProductCreated, CartUpdated, ...).
- * WordPress's own action hook system is used here purely as *transport* -
- * this class doesn't decide what happened or hold business logic itself,
- * it only broadcasts what Application\ProductService (or a future
- * Application service) already decided. A hook callback listening to
- * `vulocart_product_created` is expected to *react* (send a webhook, update
- * a cache), never to *contain* the logic that decided the product should be
- * created - keeping "business logic must never exist inside WordPress
- * hooks" true even though hooks are the delivery mechanism.
+ * WordPress hooks are only the transport: this class decides nothing. The application services decide what happened
+ * and then call it. A listener should react (send a webhook, clear a cache), never contain the logic that decided the
+ * event.
  *
  * @class       EventDispatcher class
  * @version     1.0.0

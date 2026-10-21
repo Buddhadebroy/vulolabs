@@ -10,22 +10,12 @@ namespace VuloCart\Payment;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Payment module Rest class.
+ * Payment REST controller.
  *
- * Module-level REST controller. `GET /payment/methods` and
- * `POST /payment/intent` are public - same "cart token is the access
- * control" reasoning `Cart\Rest`/`Order\Rest`'s own docblocks explain, a
- * guest at checkout has no WordPress session. `POST /payments/webhook/
- * {gateway}` is also public (`__return_true`) by necessity - the caller
- * is the payment gateway's own server, which never holds a WordPress
- * nonce or cart token; `PaymentGatewayInterface::handle_webhook()`'s own
- * signature verification is the real access control there, not this
- * route's `permission_callback`. Order-scoped capture/refund/cancel stay
- * `manage_options`-gated, same as every other order-management route.
- *
- * Extends `\WP_REST_Controller` to match vulopilot's REST convention; no
- * collision - this class declares no `prepare_item_for_response()` (or any
- * other base-class method name) at all, let alone a private one.
+ * `GET /payment/methods` and `POST /payment/intent` are public: a guest at checkout has no WordPress session. `POST
+ * /payments/webhook/{gateway}` is public too, because the caller is the gateway's own server; the gateway's signature
+ * check in `handle_webhook()` is the real access control. Capturing, cancelling and refunding an order's payment
+ * require `manage_options`.
  *
  * @class       Rest class
  * @version     1.0.0

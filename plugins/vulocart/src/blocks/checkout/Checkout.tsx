@@ -27,6 +27,10 @@ export interface CheckoutBlockSettings {
 	fields?: string[];
 }
 
+/**
+ * The checkout block: loads the shopper's cart and renders the checkout engine with the chosen layout, steps and
+ * optional fields.
+ */
 export function Checkout( { layout, steps, fields }: CheckoutBlockSettings = {} ) {
 	const [ cartToken, setCartToken ] = useState( '' );
 	const [ cart, setCart ] = useState< CartResponse | null >( null );

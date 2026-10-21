@@ -11,6 +11,7 @@ const SHAPES: Record< Layout, { cols: number; rows: number; list?: boolean } > =
 	showcase: { cols: 2, rows: 1 },
 };
 
+/** Draws the small SVG thumbnail of a product listing layout. */
 function draw( layout: Layout ): string {
 	const { cols, rows, list } = SHAPES[ layout ];
 	const width = 200;
@@ -45,4 +46,5 @@ function draw( layout: Layout ): string {
 	return `data:image/svg+xml;utf8,${ encodeURIComponent( svg ) }`;
 }
 
+/** Returns the SVG thumbnail for a listing layout, used in the layout picker. */
 export const listingPreview = ( layout: Layout ): string => draw( layout );

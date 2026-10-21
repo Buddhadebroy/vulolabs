@@ -32,25 +32,18 @@ class Install {
     const TABLE_SCHEMA_VERSION_OPTION = 'vulocart_order_table_version';
 
     /**
-     * Current schema version - bump this alongside a new dbDelta() call in
-     * maybe_create_tables() when the tables need an additive change.
+     * Current schema version. Bump it together with a new dbDelta() call in maybe_create_tables() when the tables
+     * need an additive change.
      *
-     * No `IF NOT EXISTS` in either CREATE TABLE statement below -
-     * `dbDelta()` extracts the table name via a regex that stops at the
-     * first space after `CREATE TABLE`, so `CREATE TABLE IF NOT EXISTS
-     * \`wp_x\`` reads as table name `IF` and silently does nothing to the
-     * real table.
+     * The CREATE TABLE statements must not use `IF NOT EXISTS`: dbDelta() reads the table name up to the first space
+     * after `CREATE TABLE`, so `CREATE TABLE IF NOT EXISTS `wp_x`` would be read as a table called `IF` and nothing
+     * would happen to the real table.
      *
-     * 1.1.0 (Customer/Address/Shipping/Taxes/Payment modules): adds
-     * `customer_phone`, `customer_user_id`, `billing_address`,
-     * `shipping_address`, `shipping_method`, `shipping_cost`,
-     * `tax_amount`, `payment_method` to `vulocart_orders` - additive only,
-     * `dbDelta()` adds the missing columns to the existing table rather
-     * than recreating it.
+     * 1.1.0 added `customer_phone`, `customer_user_id`, `billing_address`, `shipping_address`, `shipping_method`, `shipping_cost`, `tax_amount` and `payment_method` to `vulocart_orders`.
      *
-     * 1.2.0 (Payment Framework, Phase 5): adds `gateway_transaction_id`,
-     * `authorized_amount`, `captured_amount` to `vulocart_orders` -
-     * additive only, same reasoning as 1.1.0.
+     * 1.2.0 added `gateway_transaction_id`, `authorized_amount` and `captured_amount`.
+     *
+     * Both were additive: dbDelta() adds the missing columns to the existing table.
      *
      * @var string
      */
@@ -82,17 +75,12 @@ class Install {
 
         $collate = $wpdb->get_charset_collate();
 
-        // Vision: "Order Created" event, own tables. `order_number` is
-        // stamped after insert (Infrastructure\WPDBOrderRepository::insert()
-        // explains why); `access_token` is the guest order-tracking
-        // credential, this module's equivalent of Cart's own `token`.
-        // `order_items` has no `updated_at` - unlike cart items, an
-        // order's line items are an immutable historical record once
-        // placed.
+        // `order_number` is set after the insert (see Infrastructure\WPDBOrderRepository::insert()); `access_token`
+        // is the guest order-tracking credential, the order's equivalent of a cart's `token`. `order_items` has no
+        // `updated_at`: line items are an immutable record once the order is placed.
         //
-        // `status` is kept alongside `payment_status`/`fulfillment_status`
-        // (Order.php's docblock explains the split) but is no longer read
-        // by this codebase beyond that column existing.
+        // `status` is kept next to `payment_status` and `fulfillment_status` (see Order.php) for older code that
+        // reads it, but nothing in this plugin reads it.
         $sql_orders = "CREATE TABLE `{$wpdb->prefix}vulocart_orders` (
             `id`                 bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             `order_number`       varchar(32) NOT NULL,

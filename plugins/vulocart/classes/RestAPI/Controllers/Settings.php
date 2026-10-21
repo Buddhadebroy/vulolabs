@@ -12,22 +12,11 @@ use VuloCart\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Settings REST controller.
+ * `GET` / `POST /vulocart/v1/settings`: reads and saves the settings shown on src/pages/Settings/Settings.tsx.
  *
- * `GET`/`POST /vulocart/v1/settings` backs src/pages/Settings/Settings.tsx,
- * built on zyra's real settings framework (`InputRenderer`/
- * `NavigatorComponent`, `getAvailableSettings`/`getSettingById` from
- * `@zyra/core`) - mirrors `VuloPilot\RestAPI\Controllers\Settings`'s
- * flat-option shape (a single `wp_options` row, `Utill::SETTINGS_KEY`),
- * not a per-tab-namespaced `admin_settings` variant, since
- * VuloCart has exactly one settings tab so far.
- *
- * `update_item()` **merges** the `{ setting, settingName }` subset
- * `InputRenderer` actually auto-saves into the existing option rather
- * than replacing it wholesale - with only one tab today a wholesale
- * replace would happen to be equivalent, but merging is what stays
- * correct the moment a second tab exists, and matches every sibling
- * Settings controller's own documented reasoning for doing the same.
+ * Settings are stored as one flat option (`Utill::SETTINGS_KEY`). `update_item()` merges the submitted `{ setting,
+ * settingName }` subset into the stored option instead of replacing it, because the settings screens save one field
+ * at a time.
  *
  * @class       Settings class
  * @version     1.0.0

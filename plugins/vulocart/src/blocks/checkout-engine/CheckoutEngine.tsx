@@ -28,22 +28,16 @@ interface CheckoutEngineProps {
 }
 
 /**
- * The Checkout Engine's renderer - replaces the old Checkout.tsx's own
- * hardcoded `CheckoutStep` union/step-by-step JSX entirely. Discovers
- * which steps exist from the server (`GET /checkout/steps`,
- * RestAPI\Controllers\Checkout.php) instead of assuming a fixed list, and
- * resolves each one to a component via registry.ts's client-side
- * registry - a step this file has never heard of (a future vulocart-pro
- * one) renders correctly as long as something registered it before this
- * component mounted.
+ * The Checkout Engine's renderer. It asks the server which steps exist (`GET /checkout/steps`,
+ * RestAPI\Controllers\Checkout.php) and resolves each step to a component through the client-side registry in
+ * registry.ts, so a step it has never heard of (for example one from vulocart-pro) renders as long as something
+ * registered it before this component mounted.
  *
- * `single_page` renders every step's own fields stacked on one page with
- * a single "Place Order" action at the end; `multi_step` shows one at a
- * time with a stepper - the same registered steps and step components
- * back both, only the layout differs. Neither mode, nor this component
- * itself, has any WordPress-page concept anywhere in it - Checkout.tsx
- * (the Gutenberg block) is just today's one caller; a future Popup/
- * Embedded/Hosted delivery mode mounts this exact component the same way.
+ * `single_page` stacks every step's fields on one page with a single "Place Order" action at the end; `multi_step`
+ * shows one step at a time with a stepper. The same steps back both modes; only the layout differs.
+ *
+ * Nothing here depends on a WordPress page. The Gutenberg checkout block (Checkout.tsx) is one caller; the Popup,
+ * Embedded and Hosted checkout modes of vulocart-pro mount this same component.
  */
 export function CheckoutEngine( { cartToken, cart, mode, onBackToCart, options }: CheckoutEngineProps ) {
 	// Before any step renders: the steps and address fields read these.

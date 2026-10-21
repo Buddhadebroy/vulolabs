@@ -3,6 +3,7 @@ import { useEffect } from '@wordpress/element';
 const COLUMNS = '.vulocart-product-edit-col';
 const STORE = 'vulocart_collapsed_cards';
 
+/** Reads the titles of the cards the user folded from localStorage. */
 const read = (): string[] => {
 	try {
 		return JSON.parse( window.localStorage.getItem( STORE ) ?? '[]' );
@@ -11,6 +12,7 @@ const read = (): string[] => {
 	}
 };
 
+/** Remembers which cards are folded; failures are ignored because it is only a convenience. */
 const write = ( titles: string[] ) => {
 	try {
 		window.localStorage.setItem( STORE, JSON.stringify( titles ) );
@@ -19,6 +21,7 @@ const write = ( titles: string[] ) => {
 	}
 };
 
+/** Reads a card's title text from its header. */
 const titleOf = ( card: Element ): string => {
 	const title = card.querySelector( '.card-header .typography-title' );
 

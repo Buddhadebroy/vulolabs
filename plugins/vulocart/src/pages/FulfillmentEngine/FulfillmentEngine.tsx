@@ -41,7 +41,7 @@ const pageHeader: EngineView = {
 	module: moduleId,
 };
 
-/** Configuration that used to be a tab here and now lives in Settings: old `&view=` links open that Settings sub-tab. */
+/** Shipping configuration lives in Settings; old `&view=` links for it open that Settings sub-tab. */
 const SETTINGS_VIEWS: Record< string, string > = { zones: 'shipping-zones', packaging: 'shipping-packaging' };
 
 /** One Fulfillment page with a tab per area; the Fulfillment module (vulocart-pro) registers each into `vulocart_fulfillment_view`. */

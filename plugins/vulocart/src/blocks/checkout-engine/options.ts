@@ -27,6 +27,7 @@ export function setCheckoutOptions( override?: Partial< CheckoutOptions > ): voi
 	current = { ...siteOptions(), ...override };
 }
 
+/** Whether the checkout currently shows the given optional field (name, phone or address_2). */
 export const hasCheckoutField = ( field: string ): boolean => current.fields.includes( field );
 
 /**

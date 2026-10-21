@@ -34,6 +34,7 @@ interface CustomerSummary {
 	total_orders?: number;
 }
 
+/** Request headers carrying the WordPress REST nonce. */
 const headers = () => ( { 'X-WP-Nonce': vulocartLocalizer.nonce } );
 
 /**

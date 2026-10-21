@@ -34,8 +34,8 @@ const DEFAULT_PER_PAGE = 10;
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } };
 
 /**
- * Attributes list, laid out like VuloPilot's list screens: one card with a searchable table, a
- * popup to add an attribute, a popup to manage its values, and a lightbox confirm before deleting.
+ * Attributes list: one card with a searchable table, a popup to add an attribute, a popup to manage its values, and a
+ * confirmation lightbox before deleting.
  */
 export function AttributesPage() {
 	const [ attributes, setAttributes ] = useState< Attribute[] >( [] );

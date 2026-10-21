@@ -69,6 +69,7 @@ const ADDRESS_FIELDS: { key: keyof typeof EMPTY_ADDRESS; label: string }[] = [
 
 const FULFILLMENT_BADGE: Record< string, string > = { draft: 'badge-pending', pending: 'badge-pending', processing: 'badge-info', shipped: 'badge-info', completed: 'badge-active', cancelled: 'badge-inactive' };
 const PAYMENT_BADGE: Record< string, string > = { pending: 'badge-pending', paid: 'badge-active', failed: 'badge-inactive', refunded: 'badge-info' };
+/** Upper-cases the first letter of a word. */
 const capitalize = ( value: string ) => value.charAt( 0 ).toUpperCase() + value.slice( 1 );
 
 /** "Today", "Yesterday" or "12 days ago" for a stored UTC timestamp. */
@@ -86,6 +87,7 @@ const daysAgo = ( timestamp: string ) => {
 	return 1 === days ? __( 'Yesterday', 'vulocart' ) : sprintf( /* translators: %d: number of days. */ __( '%d days ago', 'vulocart' ), days );
 };
 
+/** Formats a number with two decimals; empty values count as 0.00. */
 const money = ( value: number | null | undefined ) => Number( value || 0 ).toFixed( 2 );
 
 /**

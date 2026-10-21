@@ -105,10 +105,12 @@ export type PaymentMethodRenderer = ( context: CheckoutStepContext ) => ReactNod
 
 const paymentMethodRenderers = new Map< string, PaymentMethodRenderer >();
 
+/** Registers the storefront widget for an online payment method id. */
 export function registerPaymentMethodRenderer( methodId: string, renderer: PaymentMethodRenderer ): void {
 	paymentMethodRenderers.set( methodId, renderer );
 }
 
+/** Returns the registered widget for a payment method id, if any. */
 export function getPaymentMethodRenderer( methodId: string ): PaymentMethodRenderer | undefined {
 	return paymentMethodRenderers.get( methodId );
 }
@@ -158,26 +160,32 @@ const registry = new Map< string, CheckoutStepDefinition >();
 const extensions = new Map< string, CheckoutStepExtension[] >();
 const orderPlacedHandlers: OrderPlacedHandler[] = [];
 
+/** Registers the component that renders a checkout step id. */
 export function registerCheckoutStep( definition: CheckoutStepDefinition ): void {
 	registry.set( definition.id, definition );
 }
 
+/** Returns the definition registered for a step id, if any. */
 export function getCheckoutStep( id: string ): CheckoutStepDefinition | undefined {
 	return registry.get( id );
 }
 
+/** Adds extra content (for example an order note field) to an existing checkout step. */
 export function registerCheckoutStepExtension( stepId: string, extension: CheckoutStepExtension ): void {
 	extensions.set( stepId, [ ...( extensions.get( stepId ) || [] ), extension ] );
 }
 
+/** Returns the extensions registered for a checkout step. */
 export function getCheckoutStepExtensions( stepId: string ): CheckoutStepExtension[] {
 	return extensions.get( stepId ) || [];
 }
 
+/** Registers a callback that runs after an order is placed successfully. */
 export function registerOrderPlacedHandler( handler: OrderPlacedHandler ): void {
 	orderPlacedHandlers.push( handler );
 }
 
+/** Returns every registered order-placed callback. */
 export function getOrderPlacedHandlers(): OrderPlacedHandler[] {
 	return orderPlacedHandlers;
 }

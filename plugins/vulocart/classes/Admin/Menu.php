@@ -10,28 +10,16 @@ namespace VuloCart\Admin;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Admin Menu class.
+ * Registers VuloCart's admin menus and mounts the React admin app.
  *
- * Registers VuloCart's top-level admin page and its tabs, and mounts the
- * React admin console there. Tab structure mirrors
- * `VuloPilot\Admin` exactly: real `add_submenu_page()`
- * sidebar entries, each pointing to `vulocart#&tab={tab}` with a
- * `'__return_null'` callback - the hash fragment never reaches the
- * server, so every one of these entries actually loads the same
- * `render_admin_page()` output; the client-side route registry
- * (src/routeRegistry.ts/routes.ts, App.tsx) is what makes the tab differ,
- * reading `tab` from `location.hash` the same way
- * `vulopilot/src/app.tsx`'s own `Route` component does. Unlike the
- * vulopilot/vulopilot-pro relationship (Pro extends Free's
- * already-mounted dashboard via `@wordpress/hooks` filters,
- * react-frontend.md), VuloCart has no separate Free/Pro dashboard split
- * yet, so this plugin owns its own single mount point directly.
+ * The main "VuloCart" menu has one submenu entry per tab (Dashboard, Reviews, Settings), each pointing to
+ * `vulocart#&tab={tab}`. The part after `#` never reaches the server, so every entry loads the same page
+ * (render_admin_page()); the client-side route registry (src/routeRegistry.ts, src/routes.ts, App.tsx) reads `tab`
+ * from `location.hash` to decide what to show.
  *
- * Orders and Products are deliberately NOT among these tabs - see
- * add_orders_menu()'s/add_products_menu()'s docblocks for why both get
- * their own top-level WP admin menu instead, matching how WooCommerce
- * gives "Products"/"Orders" their own top-level menus rather than burying
- * them in a settings-style tab set.
+ * Orders, Products, Customers and Marketing have their own top-level menus. Inventory, Shipping, AI and Workflows are
+ * submenus of the "VuloCart" menu with their own page slugs (they are separate screens, not tabs). Analytics has no
+ * menu entry of its own: it redirects to the dashboard. See the add_*_menu() methods below.
  *
  * @class       Menu class
  * @version     1.0.0
@@ -96,11 +84,8 @@ class Menu {
             );
         }
 
-        // add_menu_page() always auto-generates a first submenu item that
-        // reuses the parent slug/title ("VuloCart"), duplicating the
-        // explicit "Dashboard" tab above. vulopilot strips
-        // this the same way rather than avoiding it (Admin.php's own
-        // `remove_submenu_page( 'vulopilot', 'vulopilot' )`).
+        // add_menu_page() always adds a first submenu item that repeats the parent title ("VuloCart") and duplicates
+        // the explicit "Dashboard" tab, so it is removed.
         remove_submenu_page( 'vulocart', 'vulocart' );
     }
 
@@ -191,19 +176,10 @@ class Menu {
     }
 
     /**
-     * Registers Orders as its own dedicated top-level WP admin menu,
-     * separate from the "VuloCart" menu above. Order management is
-     * explicitly called out (per this plugin's admin-UX brief) as
-     * deserving its own first-class space rather than being one more tab
-     * next to Dashboard/Modules/Settings - the same treatment WooCommerce
-     * gives "WooCommerce" (settings) vs. "Products"/"Orders" as separate
-     * top-level menus, and a marketplace platform gives its own marketplace
-     * admin.
+     * Registers Orders as its own top-level admin menu, separate from the "VuloCart" menu.
      *
-     * "All Orders" and "Add New" are the only submenus. Draft and refunded
-     * orders are reached with the status pills on the orders list itself
-     * (`&filter=draft`/`&filter=refunds` still preselect them), not their
-     * own menu items.
+     * "All Orders" and "Add New" are the only submenus. Draft and refunded orders are reached with the status pills
+     * on the orders list itself (`&filter=draft` / `&filter=refunds` still preselect them), not their own menu items.
      *
      * @return void
      */
@@ -238,30 +214,12 @@ class Menu {
     }
 
     /**
-     * Registers Products as its own dedicated top-level WP admin menu,
-     * separate from the "VuloCart" menu - same treatment as
-     * add_orders_menu(), and for the same reason (this plugin's admin-UX
-     * brief calls for WooCommerce/Shopify-style dedicated top-level spaces,
-     * not one more settings-style tab).
+     * Registers Products as its own top-level admin menu, separate from the "VuloCart" menu.
      *
-     * "All Products" and "Add New" both point at the same
-     * `products` slug (the `&action=add` suffix on the second is
-     * a query-string addition, not a distinct WP page - same technique
-     * WooCommerce itself uses so `admin.php?page=wc-orders`,
-     * `...&action=new`, and `...&action=edit&id=123` are all one
-     * registered admin page differentiated by query args the client reads,
-     * rather than three separate `add_menu_page()`-registered screens).
-     * Categories/Collections/Brands/Tags/Attributes/Product Types/Inventory/
-     * Reviews use the same one-slug-many-query-strings technique via
-     * `&view=`, now that each has a real backing REST controller
-     * (classes/RestAPI/Controllers/Terms.php/Attributes.php/Reviews.php/
-     * Inventory.php/ProductTypes.php) and admin page (`src/pages/Terms/`,
-     * `src/pages/Attributes/`, etc.) - `src/pages/Products/Products.tsx`
-     * is what actually branches on `action`/`id`/`view` to decide which
-     * one renders. Returns is the one item from this plugin's admin-UX
-     * brief still not scaffolded - a genuine RMA workflow (request →
-     * approve/reject → item returned → refund issued) is a distinct,
-     * larger domain model from a review or a term, not built in this pass.
+     * "All Products" and "Add New" use the same `products` page slug; `&action=add` is only a query-string addition.
+     * Categories, Collections, Brands, Tags, Attributes, Product Types, Inventory and Reviews work the same way
+     * through `&view=`. `src/pages/Products/Products.tsx` reads `action`, `id` and `view` to decide which screen to
+     * render.
      *
      * @return void
      */
@@ -346,18 +304,12 @@ class Menu {
     }
 
     /**
-     * Registers Customers as its own dedicated top-level WP admin menu -
-     * same "deserves first-class space, not a settings-style tab"
-     * treatment `add_orders_menu()`/`add_products_menu()`'s own
-     * docblocks establish, now that `Customer\Domain\Customer` is a real
-     * persistent entity (`Customer\Install.php`) rather than an
-     * Order-row snapshot with nothing to list on its own. `Pro modules
-     * extend this screen's own detail view the same "compose via filter"
-     * way they extend the Products edit page
-     * (`vulocart_customer_detail_sections`, `src/pages/Customers/
-     * CustomerDetail.tsx`) - Wishlist/Saved Carts/Groups/Segments/
-     * Loyalty-Credits-Wallet/Communication History all live in
-     * `vulocart-pro`'s own CustomerGrowth module, not here.
+     * Registers Customers as its own top-level admin menu, separate from the "VuloCart" menu, now that a customer is
+     * a stored entity (`Customer\Install.php`).
+     *
+     * Pro modules extend the customer detail view through the `vulocart_customer_detail_sections` filter
+     * (`src/pages/Customers/CustomerDetail.tsx`). Wishlist, saved carts, groups, segments, loyalty and communication
+     * history live in vulocart-pro's CustomerGrowth module.
      *
      * @return void
      */
@@ -443,10 +395,9 @@ class Menu {
     }
 
     /**
-     * Registers AI as a single submenu of VuloCart (it used to be its own top-level menu with a submenu per
-     * feature). The page slug stays `ai`, so `&view=catalog|checkout|support|search` links and
-     * bookmarks keep working - those are now tabs on this one page. Free owns the frame; each tab is
-     * `vulocart-pro`'s CatalogAi/CheckoutAi/SupportAi/VectorSearch module, plugged into `vulocart_ai_view`.
+     * Registers AI as a single submenu of VuloCart. The page slug is `ai`, and
+     * `&view=catalog|checkout|support|search` selects a tab on the same page. The free plugin owns the frame; each
+     * tab is a vulocart-pro module (CatalogAi, CheckoutAi, SupportAi, VectorSearch) plugged into `vulocart_ai_view`.
      *
      * @return void
      */
@@ -462,10 +413,9 @@ class Menu {
     }
 
     /**
-     * Registers Workflows as a submenu of VuloCart (it used to be its own top-level menu). The page slug
-     * stays `workflows`, so the editor/runs links (`&view=edit|runs&id=`) and bookmarks keep
-     * working. Free owns no view here - the list, editor and run history are `vulocart-pro`'s
-     * WorkflowBuilder module, which plugs into `vulocart_workflows_view`.
+     * Registers Workflows as a submenu of VuloCart. The page slug is `workflows`, and the editor and run links use
+     * `&view=edit|runs&id=`. The free plugin has no view of its own here: the list, editor and run history belong to
+     * vulocart-pro's WorkflowBuilder module, which plugs into `vulocart_workflows_view`.
      *
      * @return void
      */
@@ -500,11 +450,9 @@ class Menu {
     }
 
     /**
-     * Registers Marketing as its own top-level WP admin menu - same "Free owns top-level chrome, Pro
-     * fills it in" split as `add_ai_menu()`/`add_workflows_menu()`. Free owns no view here; Coupons,
-     * Pricing Rules, Gift Cards, Cart Abandoned, Checkout Links and Checkout Builder are each
-     * `vulocart-pro`'s own module, which registers its submenu under `marketing`
-     * (ordered by order_marketing_submenu()).
+     * Registers Marketing as its own top-level admin menu. The free plugin owns the frame only; Coupons, Pricing
+     * Rules, Gift Cards, Abandoned Checkout and Checkout Links are vulocart-pro modules that register their submenus
+     * under `marketing` (ordered by order_marketing_submenu()).
      *
      * @return void
      */
@@ -521,12 +469,9 @@ class Menu {
     }
 
     /**
-     * Renders the mount point the React bundle attaches to. Same id+class
-     * `admin-main-wrapper` vulopilot's own Admin.php uses for its
-     * equivalent root div - zyra's shared `common.scss` keys several
-     * layout rules (full-height page, `#wpcontent` padding/background
-     * reset) off that exact id, so a different id here silently drops
-     * those rules rather than just losing a class hook.
+     * Renders the mount point the React bundle attaches to. The element needs the id and class `admin-main-wrapper`,
+     * because the shared admin stylesheet applies its full-height page and `#wpcontent` reset rules to exactly that
+     * id.
      *
      * @return void
      */
@@ -671,45 +616,17 @@ class Menu {
     }
 
     /**
-     * Enqueues the React admin bundle on VuloCart's own screen only, and
-     * localizes `vulocartLocalizer` - a plugin-own global, deliberately
-     * not reusing `appLocalizer` (a different plugin's shape). Shape is
-     * also what zyra's `configureZyra()` expects: `apiUrl` is the bare
-     * REST root and `restUrl` is the namespace, since zyra's own
-     * `getApiLink()` composes `${apiUrl}/${restUrl}/${endpoint}` under
-     * those exact property names (verified against the zyra package's
-     * real build output, not assumed).
+     * Enqueues the React admin bundle on VuloCart's own screens only, and localizes `vulocartLocalizer`, a plugin-own
+     * global (not `appLocalizer`). Its shape is what zyra's `configureZyra()` expects: `apiUrl` is the bare REST root
+     * and `restUrl` is the namespace, because zyra builds links as `${apiUrl}/${restUrl}/${endpoint}`.
      *
-     * Runs on VuloCart's own screen and both standalone Orders/Products
-     * screens (render_orders_admin_page()/render_products_admin_page()) -
-     * all three mount the exact same built bundle; src/index.tsx itself
-     * decides which app to render based on which root element id is
-     * present in the page (`#admin-main-wrapper` vs
-     * `#vulocart-orders-admin-root` vs `#vulocart-products-admin-root`),
-     * so there's no need for a second/third webpack entry/bundle just to
-     * give Orders/Products their own top-level menus.
+     * Every top-level screen (main, Orders, Products, Customers and so on) loads the same bundle; src/index.tsx
+     * decides which app to render from the root element id present in the page.
      *
-     * Gated on `$_GET['page']`, NOT `$hook_suffix` - a query string like
-     * `&action=add` on the Products top-level page itself doesn't change
-     * either one (same page, same hook), but a Pro module's own
-     * `add_submenu_page( 'products', ..., 'products&view=xyz',
-     * ... )` (Suppliers/CheckoutLinks/Subscriptions/Passport/etc. - every
-     * "Pro extends the Products menu" registration in this codebase) is a
-     * genuinely SEPARATE submenu-page registration, and WordPress's own
-     * `get_plugin_page_hookname()` hashes that entire literal
-     * `'products&view=xyz'` string into a hook suffix like
-     * `admin_page_products&view=xyz` - never
-     * `toplevel_page_products`. An `in_array( $hook_suffix, ... )`
-     * check here silently never matches any of those pages, so this
-     * bundle (and therefore the entire React app, `#vulocart-products-admin-root`
-     * included) never loads on them - a real bug that shipped invisibly
-     * because nothing in this codebase's own test coverage ever loaded
-     * these admin screens in an actual browser, only their REST endpoints
-     * directly. `$_GET['page']` has no such problem: WordPress always
-     * parses it as the plain `products` string regardless of
-     * what a submenu's own registered slug looked like, since query
-     * strings are parsed independently of how the menu system computed
-     * its internal hook name.
+     * The check uses `$_GET['page']`, not `$hook_suffix`. A Pro module registers its pages as separate submenu pages
+     * (for example `products&view=suppliers`), and WordPress turns that whole string into a hook suffix like
+     * `admin_page_products&view=suppliers`, never `toplevel_page_products`, so a hook suffix check would never match
+     * those pages and the app would not load on them. `$_GET['page']` is always the plain page slug.
      *
      * @param string $hook_suffix Current admin page hook suffix - unused, see above.
      * @return void
@@ -738,14 +655,9 @@ class Menu {
 
         $asset = require $asset_file;
 
-        // webpack's splitChunks (tools/webpack/create-config.js) pulls every
-        // node_modules dependency this entry uses (react-router-dom, zyra,
-        // @tanstack/react-query, axios, clsx) into a separate vendors.js
-        // file - index.js's own webpack runtime expects that chunk's
-        // modules to already be registered on the page before it runs.
-        // Confirmed the hard way: without enqueuing this, index.js loads
-        // and executes with no thrown error, but never renders anything
-        // (its own module registry lookups just come back empty).
+        // webpack's splitChunks puts every node_modules dependency the entry uses (react-router-dom, zyra,
+        // @tanstack/react-query, axios, clsx) into a separate vendors.js. index.js expects that chunk to be
+        // registered first; without it, index.js runs without an error but renders nothing.
         $vendors_asset_file = VuloCart()->plugin_path . 'assets/js/vendors.asset.php';
         $vendors_asset      = file_exists( $vendors_asset_file ) ? require $vendors_asset_file : array(
             'dependencies' => array(),

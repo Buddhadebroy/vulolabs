@@ -10,29 +10,13 @@ namespace VuloCart\Order;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Order Module.
+ * Order module: orders and their line items.
  *
- * Same toggleable-addon pattern as VuloCart\Cart\Module - but Order has a
- * real, hard dependency Cart doesn't: an order is built from a cart, so it
- * needs `VuloCart()->cart_service` to already exist. Two things make that
- * safe without assuming any particular module discovery/activation order:
+ * An order is built from a cart, so this module is only available while the Cart module is active (see is_compatible()).
+ * It registers the order service (`VuloCart()->order_service`), the order REST routes and the order tables.
  *
- * 1. is_compatible() vetoes this module's own availability
- *    (module-architecture.md's optional gate, checked by
- *    Modules::is_module_available()) whenever the 'cart' module isn't
- *    active - so Order is simply never instantiated at all if Cart isn't,
- *    rather than failing at the point it tries to use a service that was
- *    never wired.
- * 2. Even when 'cart' *is* active, this module's own constructor only
- *    registers Install() (see its own docblock for why that part must
- *    stay eager) and defers the actual service-wiring
- *    (wire_services()) to the `vulocart_loaded` action - which
- *    `VuloCart::init_classes()` only fires *after*
- *    `Modules::load_active_modules()`'s entire loop has finished
- *    constructing every active module for this request, Cart included.
- *    That guarantees `VuloCart()->cart_service` exists by the time
- *    wire_services() actually runs, regardless of whether Cart or Order
- *    happened to be discovered/instantiated first within that loop.
+ * The service is created on `vulocart_loaded`, after every active module has been loaded, so `cart_service` is
+ * guaranteed to exist whatever order the modules were loaded in.
  *
  * @class       Module class
  * @version     1.0.0
@@ -41,9 +25,8 @@ defined( 'ABSPATH' ) || exit;
 class Module {
 
     /**
-     * Module constructor. Plain, self-wiring shape vulopilot's own
-     * Module.php files use (no container/magic getter: nothing outside
-     * this module ever reaches into its instance).
+     * Creates the order tables now; the order service itself is created later on `vulocart_loaded` (see
+     * wire_services()).
      */
     public function __construct() {
         // Eager: registers the `vulocart_activated_module_order` listener

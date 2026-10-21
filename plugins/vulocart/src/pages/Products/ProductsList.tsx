@@ -117,6 +117,9 @@ function loadSavedViews(): SavedView[] {
 	}
 }
 
+/**
+ * Saves the product list's saved filters in this browser; silently skipped when storage is unavailable.
+ */
 function persistSavedViews( views: SavedView[] ) {
 	try {
 		window.localStorage.setItem( SAVED_VIEWS_STORAGE_KEY, JSON.stringify( views ) );
@@ -492,21 +495,14 @@ function ProductBulkEdit( { ids, onClose, onDone }: { ids: number[]; onClose: ()
 }
 
 /**
- * The listing half of Products - DB (vulocart_products) → WPDBProductRepository
- * → ProductService → REST (`GET /products`) → this zyra `TableCard`. "Add
- * Product" and per-row "Edit" are real navigations to
- * `admin.php?page=products&action=add`/`...&action=edit&id={id}`
- * (plain `<a href>`, full page load) rather than a popup - matching
- * WooCommerce's real Products/Orders admin screens, per this plugin's
- * admin-UX brief ("when edit click this open to another page like
- * woocommerce orders edit page"). Products.tsx is what routes between
- * this component and ProductEdit.tsx based on the URL's `action`/`id`.
+ * Product list: `GET /products` (ProductService, WPDBProductRepository, `vulocart_products`) shown in a zyra
+ * `TableCard`. "Add Product" and each row's "Edit" are plain links to `admin.php?page=products&action=add` /
+ * `...&action=edit&id={id}` (a full page load, not a popup). Products.tsx routes between this component and
+ * ProductEdit.tsx from the URL's `action`, `id` and `view`.
  *
- * Status (draft/published/archived) is the `categoryCounts`/`activeCategory`
- * tab axis, same "saved-view-style tabs from real per-status counts"
- * pattern OrdersList.tsx already establishes for fulfillment status; Type
- * and Category are `TableCard`'s own `filters`. Bulk actions are Edit (a popup for
- * status, price / sale price and stock - see `ProductBulkEdit`) and Delete.
+ * Status (draft, published, archived) is the tab axis, with real per-status counts; Type and Category are `TableCard`
+ * filters. Bulk actions are Edit (a popup for status, price / sale price and stock; see `ProductBulkEdit`) and
+ * Delete.
  */
 export function ProductsList() {
 	const [ isLoading, setIsLoading ] = useState( false );

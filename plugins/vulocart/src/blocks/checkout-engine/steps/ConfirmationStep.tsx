@@ -11,6 +11,7 @@ interface OrderConfirmation {
 	currency: string | null;
 }
 
+/** Button that copies the order tracking token to the clipboard and briefly confirms it. */
 function CopyToken( { token }: { token: string } ) {
 	const [ copied, setCopied ] = useState( false );
 

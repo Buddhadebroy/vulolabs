@@ -26,8 +26,10 @@ const STATUS_BADGE: Record< string, string > = { in_stock: 'badge-active', out_o
 
 const DEFAULT_PER_PAGE = 20;
 
+/** Returns the display label of a stock status value. */
 const statusLabel = ( value: string ) => STOCK_STATUS_OPTIONS.find( ( option ) => option.value === value )?.label ?? value;
 
+/** Saves a new stock quantity or stock status for one product. */
 const patchStock = ( id: number, body: { stock_quantity?: number; stock_status?: string } ) =>
 	axios.patch< InventoryItem >( getApiLink( vulocartLocalizer, `inventory/${ id }` ), body, { headers: authHeaders() } );
 

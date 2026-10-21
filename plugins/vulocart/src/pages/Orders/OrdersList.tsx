@@ -49,8 +49,10 @@ const FULFILLMENT_BADGE: Record< string, string > = {
 
 const PAYMENT_BADGE: Record< string, string > = { pending: 'badge-pending', paid: 'badge-active', failed: 'badge-inactive', refunded: 'badge-info' };
 
+/** Returns the label of the option with the given value. */
 const optionLabel = ( options: { label: string; value: string }[], value: string ) => options.find( ( option ) => option.value === value )?.label ?? value;
 
+/** Formats an order row's total followed by its currency. */
 const formatMoney = ( row: TableRow ) => ( null !== row.total && undefined !== row.total ? `${ row.total } ${ row.currency ?? '' }`.trim() : '-' );
 
 interface OrderRow {
@@ -154,21 +156,12 @@ interface OrdersListProps {
 }
 
 /**
- * Admin order list - `GET /orders` (modules/Order/Rest.php, manage_options-
- * gated) rendered on the same `NavigatorHeaderComponent` + `TableCard`
- * pattern this plugin's other admin screens use. "View" is a real
- * navigation to `admin.php?page=orders&action=edit&id={id}`
- * (plain `<a href>`, full page load) rather than a popup - matching the
- * real WooCommerce order edit screen, per this plugin's admin-UX brief.
- * Orders.tsx is what routes between this component and OrderEdit.tsx/
- * OrderAdd.tsx based on the URL's `action`/`id`/`filter`.
+ * Admin order list: `GET /orders` (admin only) shown in a `NavigatorHeaderComponent` and `TableCard`. "View" is a
+ * plain link to `admin.php?page=orders&action=edit&id={id}` (a full page load). Orders.tsx routes between this
+ * component and OrderEdit.tsx / OrderAdd.tsx from the URL's `action`, `id` and `filter`.
  *
- * Payment Status and Fulfillment Status are two independent columns/
- * filters (PaymentStatus.php's/FulfillmentStatus.php's own docblocks
- * explain why an old single flat `status` couldn't render this way
- * honestly). The "saved view" tabs (TableCard's `categoryCounts`) use
- * real per-status counts from `GET /orders`'s `X-WP-Count-{status}`
- * response headers, not guessed/hardcoded numbers.
+ * Payment Status and Fulfillment Status are independent columns and filters. The status tabs use the real per-status
+ * counts from the `X-WP-Count-{status}` headers of `GET /orders`.
  */
 export function OrdersList( { filter }: OrdersListProps ) {
 	const [ isLoading, setIsLoading ] = useState( false );

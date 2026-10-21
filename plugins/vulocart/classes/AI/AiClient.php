@@ -40,6 +40,8 @@ class AiClient {
 	private $usage_log;
 
 	/**
+	 * Receives the VuloCloud connection used to send AI requests and the usage log that records every call.
+	 *
 	 * @param VuloCloudConnection $connection VuloCloud gateway connection.
 	 * @param AiUsageLogUtil      $usage_log  Logs every real call attempt.
 	 */
@@ -109,6 +111,9 @@ class AiClient {
 	}
 
 	/**
+	 * Image generation is not offered through VuloCloud AI yet; logs the failed attempt and always throws
+	 * AIProviderException.
+	 *
 	 * @param string $feature Short label for the usage log.
 	 * @param string $prompt  Image prompt.
 	 * @return string
@@ -123,6 +128,9 @@ class AiClient {
 	}
 
 	/**
+	 * Embeddings are not offered through VuloCloud AI yet; logs the failed attempt and always throws
+	 * AIProviderException.
+	 *
 	 * @param string $feature Short label for the usage log.
 	 * @param string $text    Text to embed.
 	 * @return array
@@ -137,6 +145,8 @@ class AiClient {
 	}
 
 	/**
+	 * Writes one row to the AI usage log for a request: which feature made it and whether it succeeded.
+	 *
 	 * @param string      $feature Feature label.
 	 * @param bool        $success Whether the call succeeded.
 	 * @param string|null $error   Error message for a failed call.

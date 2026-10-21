@@ -1,22 +1,14 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Static module metadata for zyra's `ModuleGridComponent`
- * (components/Settings/ModulesPanel.tsx) - same shape as vulopilot's
- * `components/Modules/index.ts`. The *available* module list is
- * frontend-only config; only which ids are *active* comes from the REST
- * layer (classes/RestAPI/Controllers/Modules.php).
+ * Static module metadata for zyra's `ModuleGridComponent` (components/Settings/ModulesPanel.tsx). The list of
+ * available modules is frontend-only config; only which ids are active comes from the REST layer
+ * (classes/RestAPI/Controllers/Modules.php).
  *
- * - `proModule: true` entries ship in `vulocart-pro` and are gated behind
- *   `ZyraVariable.khali_dabba`.
- * - `freeFeatures` lists what the module gives you in this plugin;
- *   `proFeatures` what `vulocart-pro` adds on top (or, for a Pro-only
- *   module, everything it does). Keep both honest - a feature belongs
- *   here only if the code ships it.
- * - `{ type: 'separator' }` rows are the category pills, not modules; a
- *   module's `category` must match its separator's `id`.
- * - A module id must equal the kebab-cased `modules/{Name}` folder name,
- *   or the loader drops it (see CLAUDE.md "Module/addon system").
+ * - `proModule: true` entries ship in vulocart-pro and are locked unless Pro is active and licensed (`ZyraVariable.khali_dabba`).
+ * - `freeFeatures` lists what the module gives you in this plugin; `proFeatures` what vulocart-pro adds on top (or, for a Pro-only module, everything it does). A feature belongs here only if the code ships it.
+ * - `{ type: 'separator' }` rows are the category pills, not modules; a module's `category` must match its separator's `id`.
+ * - A module id must equal the kebab-cased `modules/{Name}` folder name, otherwise the loader drops it.
  */
 export interface ModuleCatalogEntry {
 	id: string;

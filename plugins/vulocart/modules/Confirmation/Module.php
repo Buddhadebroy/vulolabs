@@ -10,20 +10,10 @@ namespace VuloCart\Confirmation;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Confirmation Module.
+ * Confirmation module: the "Thank you" step shown after an order is placed.
  *
- * The checkout wizard's final "Thank you" step. Thin by design: no own
- * table, no own Application service - `Rest.php` delegates straight to
- * `VuloCart()->order_service->track_order()`, the same lookup
- * `Order\Rest::track_item()` already exposes at `GET /orders/track`. This
- * module exists as its own route/namespace anyway (`GET /confirmation/
- * {order_number}`) rather than reusing that route directly, so the
- * checkout wizard's own confirmation step and the separate, longer-lived
- * "track my order" feature (`src/blocks/order-tracking/`) stay two
- * decoupled call sites even though they resolve the same underlying data
- * today - a future confirmation-specific addition (e.g. "what's next"
- * copy, estimated next steps) has its own route to grow into without
- * changing order-tracking's.
+ * Has no tables or service of its own. `GET /confirmation/{order_number}` returns the same order data as order tracking,
+ * so the confirmation step and the separate order-tracking block can change independently.
  *
  * @class       Module class
  * @version     1.0.0
@@ -32,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
 class Module {
 
     /**
-     * Module constructor.
+     * Registers the confirmation route and the checkout's Confirmation step.
      */
     public function __construct() {
         new Rest();
@@ -51,12 +41,9 @@ class Module {
     }
 
     /**
-     * Registers this module's own step - see Customer/Module.php's own
-     * docblock on register_checkout_step() for what this mechanism is.
-     * `order = 100` deliberately leaves a wide gap after Review's `50` -
-     * confirmation is the terminal state after an order is placed, not
-     * something a step-reordering Checkout Builder (vulocart-pro) should
-     * ever let a merchant slot in the middle of the sequence.
+     * Registers this module's own checkout step. `order = 100` leaves a wide gap after Review's `50`: confirmation is
+     * the terminal state after an order is placed, not a step that anything should slot into the middle of the
+     * sequence.
      *
      * @param array<int, array<string, mixed>> $steps Already-registered step descriptors.
      * @return array<int, array<string, mixed>>

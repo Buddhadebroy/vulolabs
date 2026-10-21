@@ -12,19 +12,13 @@ use VuloCart\Domain\Product\ProductType;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart ProductTypes REST controller.
+ * Product Types REST controller: backs the "Product Types" page of the Products menu (`src/pages/ProductTypes/`).
  *
- * Backs the Products menu's "Product Types" admin page
- * (`src/pages/ProductTypes/`) - deliberately read-only. Unlike
- * Categories/Brands/Collections/Attributes, a product *type* isn't a
- * merchant-managed record: it's a closed, PHP-registered set
- * (Domain\Product\ProductType's own docblock - "this class is only the closed
- * set of known `type` values") that drives real per-type behavior
- * elsewhere (ProductEdit.tsx's `TYPE_FIELD_CONFIG`,
- * classes/RestAPI/Controllers/Products.php's `TYPE_DETAIL_FIELDS`).
- * WooCommerce doesn't let you create a custom product type from wp-admin
- * either, for the identical reason - this page is a reference/dashboard
- * view (real per-type product counts), not a type builder.
+ * A product type is not a merchant-created record. The list is a closed, PHP-registered set
+ * (Domain\Product\ProductType) that drives per-type behaviour in the editor (`TYPE_FIELD_CONFIG`) and in
+ * Controllers\Products (`TYPE_DETAIL_FIELDS`). The page shows the real number of products per type and lets an admin
+ * switch a type off, which only stops it being offered when creating a product; the option
+ * `vulocart_disabled_product_types` stores the switched-off types.
  *
  * @class       ProductTypes class
  * @version     1.0.0

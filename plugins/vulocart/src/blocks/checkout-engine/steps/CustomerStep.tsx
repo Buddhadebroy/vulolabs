@@ -31,6 +31,10 @@ interface Props {
 	isFirstStep: boolean;
 }
 
+/**
+ * Customer step: collects the contact details (email, and optionally name and phone), prefilled from the signed-in
+ * account.
+ */
 function CustomerStepView( { data, update, mode, goNext, goBack, isFirstStep }: Props ) {
 	const [ error, setError ] = useState< string | null >( null );
 	const [ hasPrefilled, setHasPrefilled ] = useState( false );

@@ -105,11 +105,9 @@ class PaymentContext {
     public $save_payment_method;
 
     /**
-     * A previously-saved payment method reference (from a prior result's
-     * own `$raw['saved_payment_method_ref']`, vision: recurring/off-
-     * session charges) - when set, the gateway charges this reference
-     * directly instead of expecting fresh client-collected payment data
-     * in `$payment_data`.
+     * Reference to a previously saved payment method (the `saved_payment_method_ref` of an earlier result), used for
+     * recurring and off-session charges. When set, the gateway charges it directly instead of expecting new payment
+     * data in `$payment_data`.
      *
      * @var string|null
      */

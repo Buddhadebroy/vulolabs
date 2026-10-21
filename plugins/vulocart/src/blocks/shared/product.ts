@@ -83,6 +83,7 @@ export function purchasablePrices( product: ProductSummary ): StorePrice[] {
 		.sort( ( a, b ) => Number( b.is_default ) - Number( a.is_default ) );
 }
 
+/** Formats an amount followed by its currency code, for example "19.99 USD". */
 export function formatAmount( amount: number, currency: string | null ): string {
 	return `${ amount } ${ currency ?? '' }`.trim();
 }

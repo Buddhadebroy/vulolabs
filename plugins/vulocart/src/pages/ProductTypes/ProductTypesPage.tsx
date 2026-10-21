@@ -35,6 +35,7 @@ const TYPE_ICONS: Record< string, string > = {
 	gift_card: 'gift-card',
 };
 
+/** Turns a type id such as `gift_card` into a readable label ("Gift Card"). */
 const humanize = ( type: string ): string =>
 	type
 		.split( '_' )

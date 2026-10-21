@@ -15,26 +15,14 @@ use VuloCart\AI\VuloCloudConnection;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Ai module class.
+ * AI module: connects the store to VuloCloud AI and records AI usage.
  *
- * Same toggleable-addon shape as VuloCart\Cart\Module/VuloCart\Order\Module
- * (module-architecture.md). AI is served by VuloCloud: the site connects to
- * its VuloCloud account once (Settings → Integrations) and requests run
- * on the connected Organization's key and credits - there is no provider or
- * API key to configure here. This module's real effect:
+ * AI requests run on the VuloCloud account the site is connected to (Settings → Integrations); there is no provider or
+ * API key to enter in the store. Turning the module on:
  *
- * 1. Making "AI" a real, toggleable entry on the Modules page - activating
- *    it is what makes `AiClient` resolvable at all (the same
- *    `VuloCart()->ai_client` magic-property pattern `Shipping\Module`/
- *    `Taxes\Module` use for their own services), so
- *    `Order\Application\OrderService::resolve_optional_service()`'s
- *    "gracefully absent" pattern is how a Pro AI feature module reaches it.
- * 2. Registering the connection routes (Rest.php) and the connect-broker
- *    callback.
- * 3. Owning `vulocart_ai_usage_log` (Install.php).
- *
- * `vulocart-pro`'s CatalogAi/CheckoutAi/SupportAi/VectorSearch modules are
- * the Pro-gated features built on top of this.
+ * 1. makes `VuloCart()->ai_client` available to the AI features of vulocart-pro (Catalog AI, Checkout AI, Support AI, Vector Search);
+ * 2. registers the connection routes and the connect callback;
+ * 3. creates the `vulocart_ai_usage_log` table (see Install.php).
  *
  * @class       Module class
  * @version     2.0.0
@@ -43,7 +31,8 @@ defined( 'ABSPATH' ) || exit;
 class Module {
 
 	/**
-	 * Module constructor.
+	 * Creates the usage log table, the VuloCloud connection and its callback handler, the AI routes and
+	 * `VuloCart()->ai_client`.
 	 */
 	public function __construct() {
 		new Install();

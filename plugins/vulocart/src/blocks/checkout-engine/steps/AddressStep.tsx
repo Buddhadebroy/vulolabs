@@ -31,6 +31,10 @@ export const EMPTY_ADDRESS: AddressFields = {
 
 const REQUIRED_ADDRESS_FIELDS: ( keyof AddressFields )[] = [ 'full_name', 'address_1', 'city', 'state', 'postcode', 'country' ];
 
+/**
+ * Renders the shared address form fields (country, state, city, postal code and so on) for either the billing or the
+ * shipping address.
+ */
 export function renderAddressFields( value: AddressFields, onChange: ( next: AddressFields ) => void ) {
 	const states = getStates( value.country );
 
@@ -88,6 +92,10 @@ registerCheckoutStep( {
 
 type Props = CheckoutStepContext;
 
+/**
+ * Address step: collects the billing address and, when needed, a separate shipping address, and validates them before
+ * continuing.
+ */
 function AddressStepView( props: Props ) {
 	const { data, update, mode, goNext, goBack, isFirstStep } = props;
 	const [ error, setError ] = useState< string | null >( null );

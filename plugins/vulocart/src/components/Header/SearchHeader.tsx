@@ -6,9 +6,9 @@ import Brand from '../../assets/images/vulocart-logo.svg';
 import { buildSearchIndex, type SearchItem } from '../../searchIndex';
 
 /**
- * The header every VuloCart screen shows - brand, version and the search box at its top right, same
- * as VuloPilot's. Results cover tabs and menu pages, settings (sections and fields) and modules. A tab
- * result switches tab in place when you are already in the VuloCart app; anything else navigates.
+ * The header every VuloCart screen shows: brand, version and a search box at the top right. Results cover tabs and
+ * menu pages, settings (sections and fields) and modules. A tab result switches the tab in place when you are already
+ * in the VuloCart app; anything else navigates.
  */
 export function SearchHeader() {
 	const [ results, setResults ] = useState< SearchItem[] >( [] );

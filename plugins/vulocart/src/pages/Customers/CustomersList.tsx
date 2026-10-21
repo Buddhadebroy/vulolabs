@@ -43,6 +43,9 @@ function loadSavedViews(): SavedView[] {
 	}
 }
 
+/**
+ * Saves the customer list's saved filters in this browser; silently skipped when storage is unavailable.
+ */
 function persistSavedViews( views: SavedView[] ) {
 	try {
 		window.localStorage.setItem( SAVED_VIEWS_STORAGE_KEY, JSON.stringify( views ) );

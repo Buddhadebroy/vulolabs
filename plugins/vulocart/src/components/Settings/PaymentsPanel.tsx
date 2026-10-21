@@ -29,6 +29,7 @@ interface Group {
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } };
 
+/** Whether a payment field is an on/off toggle that enables a payment method. */
 const isToggle = ( field: PaymentField ) => 'checkbox' === field.type && 'toggle' === field.look;
 
 /** Splits the flat field list into its `section` groups. */
@@ -52,6 +53,7 @@ const toGroups = ( fields: PaymentField[] ): Group[] => {
 	return groups;
 };
 
+/** Whether a stored setting value counts as switched on. */
 const isOn = ( value: unknown ) => Array.isArray( value ) ? value.length > 0 : !! value && 'false' !== value && '0' !== value;
 
 /**

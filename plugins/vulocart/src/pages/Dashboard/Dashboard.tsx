@@ -78,6 +78,7 @@ const STATUS_LABELS: Record< string, string > = {
 	cancelled: __( 'Cancelled', 'vulocart' ),
 };
 
+/** Reads the chosen reporting range (in days) from localStorage, defaulting to 30. */
 const readRange = (): number => {
 	try {
 		const stored = Number( window.localStorage.getItem( RANGE_KEY ) );
@@ -87,6 +88,7 @@ const readRange = (): number => {
 	}
 };
 
+/** Returns "Good morning", "Good afternoon" or "Good evening" for the current hour. */
 const greeting = (): string => {
 	const hour = new Date().getHours();
 
@@ -97,6 +99,10 @@ const greeting = (): string => {
 	return hour < 18 ? __( 'Good afternoon', 'vulocart' ) : __( 'Good evening', 'vulocart' );
 };
 
+/**
+ * Formats an amount as currency (optionally compact, such as 1.2K); falls back to a plain number for an unknown
+ * currency.
+ */
 const money = ( amount: number, currency: string, compact = false ): string => {
 	try {
 		return new Intl.NumberFormat( undefined, {
@@ -119,6 +125,7 @@ const delta = ( now: number, before: number ): number | null => {
 	return Math.round( ( ( now - before ) / before ) * 100 );
 };
 
+/** Formats a date as a short label such as "Mar 4". */
 const shortDate = ( date: string ): string =>
 	new Date( `${ date }T00:00:00` ).toLocaleDateString( undefined, { month: 'short', day: 'numeric' } );
 
@@ -138,6 +145,7 @@ function Delta( { change, inverse = false }: { change: number | null; inverse?: 
 	);
 }
 
+/** Dashboard card with a title, icon, optional action link and note around its content. */
 function Card( {
 	title,
 	icon,
@@ -185,6 +193,7 @@ function Card( {
 	);
 }
 
+/** Placeholder shown inside a dashboard card when there is no data yet. */
 function Empty( { icon, text }: { icon: string; text: string } ) {
 	return (
 		<div className="vd-empty">

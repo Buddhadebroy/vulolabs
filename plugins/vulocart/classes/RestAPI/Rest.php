@@ -10,18 +10,12 @@ namespace VuloCart\RestAPI;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Rest class.
+ * Plugin-level REST dispatcher: creates the core controllers and calls `register_routes()` on each at
+ * `rest_api_init`.
  *
- * Plugin-level REST dispatcher - mirrors rest-api.md's documented two-tier
- * pattern: this builds a container of controllers and loops
- * `register_routes()` on `rest_api_init`. Module-scoped controllers (e.g.
- * `modules/Cart/Rest.php`, `modules/Order/Rest.php`, and vulocart-pro's
- * Passport module) self-hook `rest_api_init` independently instead of
- * registering here - see rest-api.md's "module-level controllers" tier.
- *
- * `vulocart_rest_controllers` is the extension point for anything that'd
- * rather add itself to this central dispatcher than self-hook
- * independently - same posture VuloPilot\RestAPI\Rest already uses.
+ * Module controllers (for example `modules/Cart/Rest.php`, `modules/Order/Rest.php` and the vulocart-pro modules)
+ * register themselves instead. The `vulocart_rest_controllers` filter lets anything else add a controller to this
+ * dispatcher.
  *
  * @class       Rest class
  * @version     1.0.0

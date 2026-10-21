@@ -1,5 +1,5 @@
-// Terms screens (Categories, Collections, Brands, Tags): add/edit form on one half, the list on the other.
-// Deliberately plain - cards, inputs and table come from zyra, like VuloPilot's screens; this only lays them out.
+// Terms screens (Categories, Collections, Brands, Tags): add/edit form on one half, the list on the other. Plain on
+// purpose: cards, inputs and table come from zyra; this only lays them out.
 .vulocart-terms-layout {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);

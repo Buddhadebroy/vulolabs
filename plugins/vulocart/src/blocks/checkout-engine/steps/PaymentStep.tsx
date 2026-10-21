@@ -20,6 +20,9 @@ registerCheckoutStep( {
 
 type Props = CheckoutStepContext;
 
+/**
+ * Payment step: lists the enabled payment methods and, for online gateways, renders the gateway's own payment widget.
+ */
 function PaymentStepView( props: Props ) {
 	const { data, update, mode, goNext, goBack, isFirstStep, isLastStep, summary, onPlaceOrder } = props;
 	const [ methods, setMethods ] = useState< PaymentMethod[] >( [] );
@@ -79,8 +82,8 @@ function PaymentStepView( props: Props ) {
 				</div>
 			) }
 
-			{ /* Payment is the last step (the separate Review step folded in): the extras that used to live there - order
-			     notes, coupon, gift card (vulocart-pro) - sit here, and this is where the order is placed. */ }
+			{ /* Payment is the last step, where the order is placed. The extras of the 'review' step extension point (order
+			     notes, coupon and gift card from vulocart-pro) are shown here. */ }
 			{ isLastStep &&
 				getCheckoutStepExtensions( 'review' ).map( ( extension, index ) => (
 					<div key={ index } className="vulocart-checkout-step-extension">

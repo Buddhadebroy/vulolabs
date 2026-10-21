@@ -19,18 +19,13 @@ use VuloCart\Order\Domain\PaymentStatus;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Order module OrderService.
+ * Where order business logic lives; the REST controller calls only this class. It depends on the Cart module's
+ * CartService (to read and clear the source cart) and on the core ProductService (to snapshot each line item's title
+ * when the order is created).
  *
- * Where Order business logic actually lives - Rest calls only this class.
- * Depends on the Cart module's own CartService (to read + clear the
- * source cart) and the core plugin's ProductService (to snapshot each line
- * item's title at order-creation time) - a real, deliberate cross-module
- * dependency: Order genuinely cannot function without Cart, which is why
- * Module::is_compatible() gates this module's own availability on Cart
- * being active, and Module's own constructor defers building this class
- * until `vulocart_loaded` (after every module in this pass - including
- * Cart - has already been constructed), rather than assuming any
- * particular module discovery/activation order.
+ * Order cannot work without Cart. Module::is_compatible() makes the module unavailable while Cart is off, and
+ * Module's constructor builds this class on `vulocart_loaded`, after every module has been constructed, so the load
+ * order of modules does not matter.
  *
  * @class       OrderService class
  * @version     1.0.0
@@ -328,12 +323,9 @@ class OrderService {
 
         $order = $this->repository->find( $order->id );
 
-        // Real gateway charge, now that the order (and its own id/total)
-        // actually exists - see Payment\Application\PaymentService's own
-        // docblock for the inline-vs-intent-first split this branches on.
-        // Left at $initial_payment_status (the Payments tab's own
-        // fallback default) when the Payment module isn't active at all,
-        // exactly this method's pre-Payment-Framework behavior.
+        // Charge the gateway now that the order, its id and its total exist (see Payment\Application\PaymentService
+        // for the inline versus intent-first flows this branches on). When the Payment module is not active, the
+        // status stays at $initial_payment_status, the default from Settings → Payments.
         if ( $payment_service && ( $payment_intent_id || $payment_method ) ) {
             $result = $payment_intent_id
                 ? $payment_service->finalize_intent_for_order( $order->id, (string) $payment_intent_id )
@@ -661,12 +653,9 @@ class OrderService {
     }
 
     /**
-     * Transitions an order's payment status and broadcasts
-     * `order_payment_status_changed` (plus `order_refunded`, matching the
-     * vision's explicit "RefundIssued" event, when the new status is
-     * 'refunded'). Prefer refund_order() when transitioning to 'refunded'
-     * with a specific amount - this method alone doesn't touch
-     * `refunded_amount`.
+     * Changes an order's payment status and broadcasts `order_payment_status_changed` (plus `order_refunded` when the
+     * new status is 'refunded'). Prefer refund_order() when refunding a specific amount: this method alone does not
+     * touch `refunded_amount`.
      *
      * @param int    $id     Order id.
      * @param string $status One of PaymentStatus's constants.

@@ -151,8 +151,10 @@ const STATUS_TAG_CLASS: Record< string, string > = {
 	refunded: 'is-archived',
 };
 
+/** Formats a number with two decimals; empty values count as 0.00. */
 const money = ( value: number | string | null | undefined ) => Number( value || 0 ).toFixed( 2 );
 
+/** Builds the link to a Settings sub-tab. */
 const settingsUrl = ( subtab: string ) => `${ vulocartLocalizer.adminUrl }admin.php?page=vulocart#&tab=settings&subtab=${ subtab }`;
 
 /** An empty field: a link that goes where it can be filled in, instead of a bare dash. */
@@ -306,6 +308,7 @@ function InlineAddress( { label, prefill, prefillLabel, onSave }: { label: strin
 	);
 }
 
+/** Upper-cases the first letter of a status to use as its label. */
 const labelOf = ( status: string ) => status.charAt( 0 ).toUpperCase() + status.slice( 1 );
 
 /**
@@ -392,33 +395,19 @@ function StatusPicker( { caption, value, options, onSelect, locked }: { caption:
 }
 
 /**
- * A dedicated full page for viewing/updating one order - the real
- * WooCommerce order-edit-screen pattern (per this plugin's admin-UX
- * brief), replacing the popup this page used to open from the list.
- * Fetches `GET /orders/{id}` (modules/Order/Rest.php's `get_item()`,
- * admin-only) on mount, since a direct page load/bookmark/back-button
- * visit to `admin.php?page=orders&action=edit&id=123` has no
- * in-memory row to seed from.
+ * Full page for viewing and updating one order, at `admin.php?page=orders&action=edit&id=123`. It loads `GET
+ * /orders/{id}` (admin only) on mount, because a bookmark or back-button visit has no row to start from.
  *
- * Payment Status and Fulfillment Status are two independent fields now
- * (PaymentStatus.php's/FulfillmentStatus.php's own docblocks) - both save
- * together via one `PATCH /orders/{id}` call. Refunding is a separate
- * action (not just another payment-status option) since a real refund
- * needs an amount recorded (`refunded_amount`), not just a status flip -
- * `POST /orders/{id}/refund`.
+ * Payment Status and Fulfillment Status are two independent fields and are saved together with one `PATCH
+ * /orders/{id}`. Refunding is a separate action (`POST /orders/{id}/refund`), because a refund records an amount
+ * (`refunded_amount`) and is not just a status change.
  *
- * Saving stays on the page and shows an inline "Order updated." notice,
- * mirroring WooCommerce's own "Update" behavior (it never redirects you
- * away from the order you're looking at).
+ * Saving stays on the page and shows an inline "Order updated." notice.
  *
- * Card-based layout (its own page wrapper rather than the generic
- * `ContainerComponent`/`ColumnComponent` shell - same opt-out
- * ProductEdit.tsx makes for the same reason: a custom multi-card layout,
- * not a plain form). Billing/shipping address, shipping method+cost, tax,
- * and payment method (Customer/Address/Shipping/Taxes/Payment modules) are
- * real order fields now and rendered when present - still no shipment
- * tracking, order notes, or commission fields, since none of those exist
- * in the Order domain.
+ * The page has its own card layout (not the generic `ContainerComponent` / `ColumnComponent` shell, like
+ * ProductEdit.tsx). It shows the billing and shipping address, shipping method and cost, tax and payment method when
+ * present. Pro modules add their own sections (such as shipments) through the `vulocart_order_edit_main_sections`
+ * filter.
  */
 export function OrderEdit( { id }: OrderEditProps ) {
 	const [ order, setOrder ] = useState< OrderDetail | null >( null );

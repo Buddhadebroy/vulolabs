@@ -1,10 +1,8 @@
 import type { ComponentType } from 'react';
 
 /**
- * Mirrors `vulopilot/src/routeRegistry.ts` exactly: a global array + register function pages
- * push themselves onto, read back by App.tsx's `Route` component keyed
- * on `location.hash`'s `tab` param - see App.tsx's own docblock for why
- * this replaces react-router path routes for tab-switching.
+ * Registry of the admin tabs: a global array plus a register function. Pages add themselves to it, and the `Route`
+ * component in App.tsx reads it back, keyed on the `tab` parameter of `location.hash`.
  */
 declare global {
 	interface Window {

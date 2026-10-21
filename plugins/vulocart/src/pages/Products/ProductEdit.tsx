@@ -249,61 +249,31 @@ interface ProductEditProps {
 }
 
 /**
- * A dedicated full page for creating/editing one product. Real,
- * bookmarkable URL (`admin.php?page=products&action=edit&id=123`),
- * not a modal - same navigation model as this session's earlier Products/
- * Orders split (see Products.tsx's docblock).
+ * Full page for creating or editing one product, at the bookmarkable URL
+ * `admin.php?page=products&action=edit&id=123`.
  *
- * Deliberately kept to as few cards as the content allows, rather than one
- * card per WooCommerce/Shopify meta-box: left is a single "Product Setup"
- * card (type + recommended checklist); center is "Product Details" (name/
- * description/pricing/attributes), an optional per-type "Type Details"
- * card, an optional combined "Inventory & Shipping" card, and "Policies &
- * Related Products"; right is "Publishing", a combined "Organization"
- * card (category, tags, brand, collections - all real DB-backed taxonomy
- * terms, see Domain\Term\Taxonomy), and "Upload image". Subsections within a card
- * use a plain `<h4>` (`.vulocart-subsection-title`) rather than a new
- * `CardComponent`, so grouping related fields doesn't cost another box.
+ * Layout: the left column has "Product Setup" (type and a recommended checklist); the center has "Product Details"
+ * (name, description, pricing, attributes), an optional per-type "Type Details" card, an optional "Inventory &
+ * Shipping" card and "Policies & Related Products"; the right has "Publishing", "Organization" (category, tags,
+ * brand, collections, all taxonomy terms; see Domain\Term\Taxonomy) and "Upload image". Sub-sections inside a card
+ * use a plain `<h4>` (`.vulocart-subsection-title`).
  *
- * Fields beyond title/type/sku/price/currency/status (Domain\Product\Product's
- * real columns) are stored in the Product's existing generic `meta` JSON
- * column - no schema change needed, same "extensible, type-specific
- * attributes" role `meta` already has for Cart/Order.
+ * Fields other than title, type, sku, price, currency and status (the real columns of Domain\Product\Product) are
+ * stored in the generic `meta` JSON column.
  *
- * The form is genuinely dynamic per product type (this plugin's admin-UX
- * brief's 11-type list - Physical/Digital/Subscription/Course/Service/
- * Membership/Booking/Rental/Bundle/Donation/Gift Card): "Inventory &
- * Shipping" only renders for types that actually track stock or ship a
- * package (STOCK_TRACKED_TYPES/SHIPPABLE_TYPES below, each gating its own
- * subsection independently), and every non-physical type gets its own
- * "Type Details" card driven by TYPE_FIELD_CONFIG - e.g. a Subscription
- * shows billing interval/trial period, a Course shows lesson count/skill
- * level, a Gift Card shows denominations/expiry. Delivery nature (physical/
- * downloadable/digital_service/other) is derived straight from `type`
- * (TYPE_TO_DELIVERY_METHOD) rather than a separate manual picker.
+ * The form changes with the product type: "Inventory & Shipping" renders only for types that track stock or ship a
+ * package (STOCK_TRACKED_TYPES, SHIPPABLE_TYPES, each gating its own sub-section), and every non-physical type has a
+ * "Type Details" card driven by TYPE_FIELD_CONFIG (a Subscription shows billing interval and trial period, a Course
+ * shows lesson count and skill level, a Gift Card shows denominations and expiry). The delivery nature is derived
+ * from `type` (TYPE_TO_DELIVERY_METHOD).
  *
- * One thing is deliberately NOT built as a fully real feature here:
- * "Related products"/"Offer as an add-on" (stored as simple comma-separated id
- * lists in meta, since there's no product-picker/search component yet -
- * real storage, simplified input). "Attributes & Variations" *is* real -
- * `vulocart_product_variants_section` (a narrower cousin of
- * `vulocart_product_edit_sections`, replacing this specific subsection's
- * content in place rather than appending elsewhere) lets vulocart-pro's
- * Variants module render a real matrix editor there; the inert
- * "not supported yet" button/notice below is only what free-tier users
- * without that module active still see.
+ * "Related products" and "Offer as an add-on" are stored as comma-separated id lists in `meta`, because there is no
+ * product picker yet. "Attributes & Variations" is replaced by the Variants module of vulocart-pro through
+ * `vulocart_product_variants_section`; free-tier sites without that module see a notice.
  *
- * `vulocart_product_edit_sections` - a `@wordpress/hooks` filter applied
- * at the end of the center column, alongside this page's own cards
- * ("Product Details", "Policies & Related Products", ...) - so a Pro
- * module's card renders as one more meta box in the same grid, not a
- * separate block bolted on elsewhere. Same "Pro extends Free via filters"
- * pattern `vulocart_product_row_actions` already establishes on
- * ProductsList.tsx, just for the edit page instead of the list. Only
- * fires once the product has a real id (`isEditMode`) - there's nothing
- * for a Pro section to attach to before the product itself has been
- * saved once.
- * `vulocart-pro`'s Passport module is the first (only) registrant today.
+ * `vulocart_product_edit_sections` is a `@wordpress/hooks` filter applied at the end of the center column, so a Pro
+ * module's card appears as one more card in the same grid. It only runs once the product has an id (`isEditMode`).
+ * The Passport module of vulocart-pro registers a card there.
  */
 export function ProductEdit( { id }: ProductEditProps ) {
 	const isEditMode = null !== id;
@@ -733,16 +703,10 @@ export function ProductEdit( { id }: ProductEditProps ) {
 	const progressPercent = recommendedChecklist.length ? Math.round( ( doneCount / recommendedChecklist.length ) * 100 ) : 0;
 
 	/**
-	 * `vulocart_product_variants_section` - a narrower filter than
-	 * `vulocart_product_edit_sections` (which only ever appends at the
-	 * end of the center column): this one replaces the "Attributes &
-	 * Variations" subsection's own inert button/notice in place, so a Pro
-	 * module like vulocart-pro's Variants can render a real matrix editor
-	 * exactly where that notice used to live rather than as a
-	 * disconnected extra card. Null (no registrant, or add-mode with no
-	 * id yet) falls back to the existing inert notice - same
-	 * "no Pro module means render nothing" default every filter in this
-	 * file already has.
+	 * `vulocart_product_variants_section`: a narrower filter than `vulocart_product_edit_sections` (which only
+	 * appends at the end of the center column). It replaces the "Attributes & Variations" sub-section in place, so a
+	 * Pro module such as Variants can render a matrix editor exactly there. When there is no registrant, or the
+	 * product has no id yet, the notice below is shown.
 	 */
 	const variantsSection =
 		null !== id ? applyFilters( 'vulocart_product_variants_section', null, { id, type: formData.type } ) : null;

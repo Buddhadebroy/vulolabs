@@ -25,7 +25,7 @@ defined( 'ABSPATH' ) || exit;
 class Module {
 
     /**
-     * Module constructor: builds the review service and adds the REST controller.
+     * Builds the review service (`VuloCart()->review_service`) and adds the reviews REST controller.
      */
     public function __construct() {
         $container = VuloCart()->service_container;

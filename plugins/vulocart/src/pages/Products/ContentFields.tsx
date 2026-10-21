@@ -80,6 +80,7 @@ export function SeoFields( {
 	);
 }
 
+/** Editor for the product's specification rows (name and value). */
 export function SpecsEditor( { rows, onChange }: { rows: SpecRow[]; onChange: ( rows: SpecRow[] ) => void } ) {
 	return (
 		<div className="vulocart-rows">
@@ -106,6 +107,7 @@ export function SpecsEditor( { rows, onChange }: { rows: SpecRow[]; onChange: ( 
 	);
 }
 
+/** Editor for the product's question and answer rows. */
 export function FaqEditor( { rows, onChange }: { rows: FaqRow[]; onChange: ( rows: FaqRow[] ) => void } ) {
 	return (
 		<div className="vulocart-rows">

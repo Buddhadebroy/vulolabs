@@ -10,17 +10,12 @@ namespace VuloCart\Customer;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Customer Module.
+ * Customer module: customer records, addresses and notes.
  *
- * Now owns a real persistent Customer entity (`Install.php`,
- * `Domain\Customer`'s own docblock) - every order dispatches
- * `vulocart_order_created`, this module listens and finds-or-creates the
- * customer, advancing their running totals
- * (`Application\CustomerService::record_order()`). Still no hard
- * cross-module dependency to defer on: this listener is optional (a
- * plain `add_action`, silently a no-op if Order somehow never fires it),
- * so this module still wires everything synchronously in its own
- * constructor, same as before.
+ * Every order dispatches `vulocart_order_created`; this module then finds or creates the customer and updates their
+ * order count and lifetime spend. It also adds the Customer step to the checkout, refreshes the totals when an order's
+ * payment or fulfillment status changes or the order is deleted, and fills in the totals of customers that were created
+ * before they were tracked.
  *
  * @class       Module class
  * @version     1.0.0
@@ -39,9 +34,8 @@ class Module {
     private $service;
 
     /**
-     * Module constructor. Constructs this module's own classes and
-     * registers its service on the main plugin container
-     * (`VuloCart()->customer_service`).
+     * Creates the customer service (`VuloCart()->customer_service`) and routes, adds the Customer checkout step, and
+     * keeps customer order totals up to date as orders change.
      */
     public function __construct() {
         new Install();
@@ -75,8 +69,8 @@ class Module {
     }
 
     /**
-     * One-time pass: totals used to be added up when an order was placed (paid or not, never reduced), so recompute
-     * them from the orders themselves.
+     * One-time pass: recomputes every customer's totals from their orders. Earlier versions added an order to the
+     * totals when it was placed (paid or not) and never subtracted it.
      *
      * @return void
      */

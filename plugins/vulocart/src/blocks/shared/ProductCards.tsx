@@ -17,6 +17,7 @@ interface ProductCardsProps {
 	renderAction?: ( product: ProductSummary ) => ReactNode;
 }
 
+/** Default link for a product card: the current page's URL with `?product=<id>` added. */
 const defaultHref = ( id: number ) => {
 	const url = new URL( window.location.href );
 	url.searchParams.set( 'product', String( id ) );

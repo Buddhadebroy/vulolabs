@@ -10,15 +10,11 @@ namespace VuloCart\Shipping;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Shipping Module.
+ * Shipping module: shipping methods and shipping cost at checkout.
  *
- * Same toggleable-addon pattern as VuloCart\Cart\Module. No own table, no
- * cross-module dependency - reads the Shipping tab's own settings
- * (`flat_rate_shipping_cost`, `src/settings/Commerce/
- * Shipping.ts`) and turns them into a real, calculable shipping cost:
- * `Order\Application\OrderService::create_from_cart()` resolves this
- * module's own service (when active) to compute `Order::$shipping_cost`
- * server-side, never trusting a client-sent figure.
+ * Offers the flat rate set in Settings → Shipping (a rate of 0 shows as free shipping) and adds the Shipping step to the
+ * checkout. The cost is always calculated on the server when the order is created. vulocart-pro's Fulfillment module
+ * adds zone-based rates to the same list.
  *
  * @class       Module class
  * @version     1.0.0
@@ -27,11 +23,7 @@ defined( 'ABSPATH' ) || exit;
 class Module {
 
     /**
-     * Module constructor. Wires this module's own classes directly and
-     * registers its service on the main plugin container
-     * (`VuloCart()->shipping_service`) - plain, self-wiring shape
-     * vulopilot's own Module.php files use (no container/magic getter:
-     * nothing outside this module ever reaches into its instance).
+     * Creates the shipping service (`VuloCart()->shipping_service`), its route and the checkout's Shipping step.
      */
     public function __construct() {
         $service = new Application\ShippingService();

@@ -8,10 +8,9 @@ interface MarketingEngineProps {
 }
 
 /**
- * Free owns this menu's frame only; each page is registered by a vulocart-pro module into
- * `vulocart_marketing_view` (Coupons, Pricing Rules, Gift Cards, Cart Abandoned, Checkout Links), one Marketing
- * submenu each. Checkout Builder moved to Settings → Commerce; its old link redirects there. Without the module active the frame shows its "module
- * required" state.
+ * The Marketing menu. The free plugin owns the frame only; each page is registered by a vulocart-pro module into
+ * `vulocart_marketing_view` (Coupons, Pricing Rules, Gift Cards, Abandoned Checkout, Checkout Links), one Marketing
+ * submenu each. Without the module active the frame shows its "module required" state.
  */
 export function MarketingEngine( { view }: MarketingEngineProps ) {
 	if ( view && settingsViews[ view ] ) {

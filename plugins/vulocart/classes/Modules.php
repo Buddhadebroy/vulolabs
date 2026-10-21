@@ -10,22 +10,14 @@ namespace VuloCart;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Modules class.
+ * Module loader: finds, activates and boots the plugin's modules.
  *
- * The folder-scan/reflection module loader module-architecture.md
- * documents - mirrors VuloPilot\Modules exactly
- * (same discovery mechanism, same activate/deactivate/is_available/
- * is_active API), so vulocart-pro and any third-party plugin extend
- * VuloCart the same way a Pro/catalogx-pro module extends its own free
- * plugin: a folder under `modules/` containing `Module.php`, registered via the
- * `vulocart_module_sources` filter, never instantiated directly.
+ * A module is a folder under `modules/` that contains a `Module.php`. vulocart-pro and third-party plugins add their
+ * own `modules/` folder through the `vulocart_module_sources` filter. Modules are never instantiated directly; this
+ * class creates the active ones.
  *
- * Distinct from Scanners\ScannerRegistry/RuleEngine\RuleRegistry/etc. -
- * those are a single class implementing one small interface (a plain
- * class-name filter is enough); a module is a whole package (potentially
- * `Module.php` + `Frontend.php`/`Rest.php`/`Admin.php`/`src/`), which is
- * why it needs the heavier folder-scan discovery this class provides
- * instead.
+ * A module is a whole package (`Module.php` plus `Rest.php`, `Install.php`, `src/` and so on), which is why modules
+ * use folder scanning rather than a plain class-name filter like the smaller extension points.
  *
  * @class       Modules class
  * @version     1.0.0
@@ -178,13 +170,10 @@ class Modules {
     }
 
     /**
-     * Instantiates every currently-active, available module - the actual
-     * "boot" step. Silently drops (and persists the drop of) any stored
-     * active-module id that no longer resolves to a real, available
-     * module, e.g. after a folder rename or a Pro deactivation
-     * (backward-compatibility.md's module-rename caveat is about the
-     * *id* silently no longer matching anything, not about this cleanup
-     * step, which is deliberate here).
+     * Instantiates every active, available module: the boot step. Active module ids that no longer resolve to a real,
+     * available module (a renamed folder, a deactivated Pro plugin) are dropped from the stored list.
+     *
+     * Core modules are always added, and a module that was renamed keeps its on/off state (see RENAMED_MODULE_IDS).
      *
      * @return void
      */
@@ -213,8 +202,8 @@ class Modules {
             update_option( Utill::ACTIVE_MODULES_DB_KEY, $active_modules );
         }
 
-        // Marketing, Product tools, Inventory and AI used to be several cards. A store that had only some of their
-        // modules on keeps that feature: its card goes on (and with it, the companions, below).
+        // The Marketing, Product tools, Inventory and AI cards each cover several modules. A store that has only some
+        // of those modules on keeps the feature: its card is switched on (and with it the companion modules, below).
         foreach ( array( 'coupons', 'bulk-editor', 'inventory', 'ai' ) as $card ) {
             $companions = (array) ( $this->get_companion_map()[ $card ] ?? array() );
 
@@ -291,10 +280,11 @@ class Modules {
     /**
      * Checks whether a discovered module is still usable.
      *
+     * A module can define a static `is_compatible()` method; when it returns false the module is not available (for
+     * example Order is unavailable while Cart is off).
+     *
      * @param array $module One get_all_modules() entry.
      * @return bool False if the module's file vanished, or its own static
-     *              `is_compatible()` (module-architecture.md's optional
-     *              gate) says no.
      */
     private function is_module_available( $module ) {
         if ( ! file_exists( $module['module_file'] ) ) {

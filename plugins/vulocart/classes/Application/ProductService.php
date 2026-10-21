@@ -14,16 +14,9 @@ use VuloCart\Events\EventDispatcher;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart ProductService.
- *
- * Where Product business logic actually lives - per the vision's "business
- * logic must never exist inside React components" and "must never exist
- * inside WordPress hooks", RestAPI\Controllers\Products calls only this
- * class, and this class is the only thing that talks to
- * ProductRepositoryInterface. Any future GraphQL resolver or MCP tool
- * (`create_product()`, per the vision's MCP tool list) calls this same
- * service too, rather than re-implementing creation/listing logic against
- * the repository directly.
+ * Where product business logic lives. RestAPI\Controllers\Products calls only this class, and this class is the only
+ * one that talks to ProductRepositoryInterface. Anything else that creates or lists products (an MCP tool, a future
+ * GraphQL resolver) should use this service too, instead of the repository.
  *
  * @class       ProductService class
  * @version     1.0.0

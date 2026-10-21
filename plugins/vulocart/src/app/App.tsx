@@ -7,16 +7,12 @@ import '../routes';
 import './app.scss';
 
 /**
- * Tab structure mirrors `VuloPilot\Admin`'s real
- * pattern exactly (not react-router path routes): the tabs are real WP
- * admin sidebar submenu entries (classes/Admin/Menu.php's
- * `add_submenu_page()` calls, each pointing to `vulocart#&tab={tab}`),
- * and this `Route` sub-component reads `tab` from `location.hash` (via
- * `BrowserRouter`'s `useLocation()`, still needed just for that - src/
- * index.tsx) to render whichever component registered itself for that
- * tab in routes.ts. Clicking a submenu entry only changes the hash (same
- * pathname+query as the currently-loaded page), so it's a same-document
- * navigation, not a full reload.
+ * Root of the admin app.
+ *
+ * Tabs are admin sidebar submenu entries (`add_submenu_page()` in classes/Admin/Menu.php), each pointing to
+ * `vulocart#&tab={tab}`. The `Route` component reads `tab` from `location.hash` (through `useLocation()` of
+ * `BrowserRouter`; see src/index.tsx) and renders the component registered for that tab in routes.ts. Clicking a
+ * submenu entry only changes the hash, so it is a same-document navigation and not a page reload.
  */
 const Route = () => {
 	const location = useLocation();
@@ -53,6 +49,7 @@ const Route = () => {
 	return <Component />;
 };
 
+/** Root component of the admin app: the search header and the router that picks the screen. */
 export function App() {
 	return (
 		<>

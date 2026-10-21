@@ -20,6 +20,7 @@ export type SearchItem = {
 	icon?: string;
 };
 
+/** Returns a value if it is a string, otherwise an empty string. */
 const text = ( value: unknown ): string => ( 'string' === typeof value ? value : '' );
 
 interface SettingTab {
@@ -35,6 +36,7 @@ interface SettingNode {
 	content: unknown;
 }
 
+/** Flattens the nested settings folders into a single list of tabs for search. */
 const flattenTabs = ( nodes: SettingNode[] ): SettingTab[] =>
 	nodes.flatMap( ( node ) => ( 'folder' === node.type ? flattenTabs( node.content as SettingNode[] ) : [ node.content as SettingTab ] ) );
 

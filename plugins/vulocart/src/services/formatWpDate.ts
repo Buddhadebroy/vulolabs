@@ -18,6 +18,7 @@
 const MONTHS = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ];
 const DAYS = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ];
 
+/** Left-pads a number with a zero to two digits. */
 const pad = ( value: number ): string => String( value ).padStart( 2, '0' );
 
 /** `Y-m-d H:i:s`, `Y-m-dTH:i:s`, or a date alone, as a Date whose UTC fields hold exactly those numbers. */
@@ -30,6 +31,7 @@ const parseNaive = ( value: string ): Date => {
 	return new Date( Date.UTC( year, ( month || 1 ) - 1, date || 1, hours, minutes, seconds ) );
 };
 
+/** Returns the English ordinal suffix (st, nd, rd, th) for a day of the month. */
 const ordinal = ( day: number ): string => {
 	if ( day >= 11 && day <= 13 ) {
 		return 'th';
@@ -89,10 +91,16 @@ const phpDate = ( format: string, date: Date ): string => {
 	return result;
 };
 
+/** The site's date format from Settings → General, defaulting to `F j, Y`. */
 const dateFormat = (): string => vulocartLocalizer.date_format || 'F j, Y';
+/** The site's time format from Settings → General, defaulting to `g:i a`. */
 const timeFormat = (): string => vulocartLocalizer.time_format || 'g:i a';
+/** The site's offset from UTC in minutes. */
 const offsetMinutes = (): number => vulocartLocalizer.gmt_offset_minutes ?? 0;
 
+/**
+ * Formats a stored date with a PHP date format string, optionally shifting it from UTC to the site's timezone.
+ */
 const format = ( value: string | null | undefined, phpFormat: string, shiftToSite: boolean ): string => {
 	if ( ! value || value.startsWith( '0000' ) ) {
 		return '';

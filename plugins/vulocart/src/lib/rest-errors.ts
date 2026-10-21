@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
  */
 const TOAST_MS = 6000;
 
+/** Extracts the server's message from a failed VuloCart REST request; null for any other error. */
 const messageOf = ( reason: unknown ): string | null => {
 	const error = reason as {
 		isAxiosError?: boolean;
@@ -31,6 +32,7 @@ const messageOf = ( reason: unknown ): string | null => {
 	return error.response?.data?.message || error.message || __( 'The request failed.', 'vulocart' );
 };
 
+/** Shows a short success or error message in the corner of the screen. */
 export function showToast( type: 'success' | 'error', message: string ) {
 	const toast = document.createElement( 'div' );
 	toast.className = `vulocart-toast is-${ type }`;
@@ -40,6 +42,7 @@ export function showToast( type: 'success' | 'error', message: string ) {
 	window.setTimeout( () => toast.remove(), TOAST_MS );
 }
 
+/** Shows an error toast. */
 export function showErrorToast( message: string ) {
 	showToast( 'error', message );
 }
@@ -49,6 +52,10 @@ export function errorMessageOf( error: unknown ): string {
 	return messageOf( error ) ?? __( 'The request failed.', 'vulocart' );
 }
 
+/**
+ * Starts showing a toast for every unhandled failed VuloCart REST request, and exposes `window.vulocartToast` for Pro
+ * screens.
+ */
 export function registerRestErrorToasts() {
 	// vulocart-pro ships its own copy of zyra, so its NoticeManager is not the one this page listens to: its list pages
 	// (save / delete / validation messages) toast through this instead.

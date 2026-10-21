@@ -17,6 +17,10 @@ export const client = axios.create( {
 	baseURL: `${ vulocartFrontendData.apiUrl }/${ vulocartFrontendData.restUrl }`,
 } );
 
+/**
+ * Returns the shopper's cart token from localStorage, creating and saving a new one on first use. The token identifies
+ * the guest cart on the server.
+ */
 export function getOrCreateCartToken(): string {
 	const existing = window.localStorage.getItem( CART_TOKEN_STORAGE_KEY );
 

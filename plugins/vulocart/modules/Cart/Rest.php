@@ -14,28 +14,12 @@ use VuloCart\Cart\Domain\CartItem;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Cart module Rest class.
+ * Cart REST controller: `/cart`, `/cart/items`, `/cart/items/{id}` and `/cart/totals`. It calls only
+ * `VuloCart()->cart_service`.
  *
- * Module-level REST controller - self-hooks `rest_api_init` in its own
- * constructor rather than going through the plugin-level `RestAPI\Rest`
- * dispatcher, per rest-api.md's "module-level controllers" tier. Extends
- * `\WP_REST_Controller` to match vulopilot's REST convention; the
- * historical collision this codebase used to avoid by *not* extending it
- * (a private helper literally named `prepare_item_for_response()` fatally
- * colliding with the base class's own public method of that name) doesn't
- * apply here - this class's own response-formatting helper is named
- * `prepare_cart_for_response()`, which doesn't collide with anything
- * `\WP_REST_Controller` declares.
- *
- * `/cart`, `/cart/items`, `/cart/items/{id}`, `/cart/totals` - calls only
- * VuloCart()->cart_service, same "controller never touches a repository
- * directly" convention every other REST class in this codebase follows.
- *
- * Deliberately public (no `manage_options`/nonce requirement) - a cart has
- * to be reachable by a client with no WordPress session at all (a
- * headless storefront, a mobile app, an MCP client per the vision's
- * headless requirement), so the cart *token* is the access control here,
- * the same way a session id is for any other cart implementation.
+ * The routes are public (no `manage_options` and no nonce), because a cart must work for a client with no WordPress
+ * session: a headless storefront, a mobile app or an MCP client. The cart token is the access control, in the same
+ * way as a session id.
  *
  * @class       Rest class
  * @version     1.0.0

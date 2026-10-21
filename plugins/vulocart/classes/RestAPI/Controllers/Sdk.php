@@ -12,26 +12,12 @@ use VuloCart\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Sdk REST controller.
+ * `GET /vulocart/v1/sdk/config`: the first call `@vulocart/sdk` makes to learn how the store is set up.
  *
- * `@vulocart/sdk`'s bootstrap call - the cross-domain replacement for
- * `wp_localize_script()`/`vulocartFrontendData` (Block.php's own
- * docblock on that mechanism), which only ever reaches a page THIS
- * WordPress install rendered. A page the SDK runs on (a merchant's own
- * landing page, a Next.js app, plain HTML anywhere) never gets that
- * inline `<script>` config block, so it has to ask for its own config
- * over REST instead - this is that one call, and it's the first thing
- * `@vulocart/sdk`'s `init()` does.
- *
- * Per-feature flags (not just one blanket `proActive` bool) so the SDK
- * can offer Buy Button/Embedded Cart/basic Embedded Checkout on every
- * install, and independently light up whichever Pro delivery modes are
- * actually licensed+active on THIS site - reusing the exact same
- * `Modules::is_active()` check every other Pro-gated surface in this
- * codebase already relies on (a Pro module's source path is only ever
- * registered with this plugin's loader once its own license is active,
- * CLAUDE.md's own "Licensing" paragraph), so this endpoint introduces no
- * new cross-plugin coupling.
+ * A page the SDK runs on may be on another domain (a landing page, a Next.js app, plain HTML) and never receives the
+ * config that WordPress prints inline for its own pages, so it asks for it over REST instead. The response has one
+ * flag per feature, so the SDK offers the Buy Button, Embedded Cart and basic Embedded Checkout on every install and
+ * turns on each Pro delivery mode only when that module is active.
  *
  * @class       Sdk class
  * @version     1.0.0

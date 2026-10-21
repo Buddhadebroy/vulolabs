@@ -14,12 +14,9 @@ use VuloCart\Domain\Product\ProductType;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Products REST controller.
+ * Products REST controller: list (paginated), read, create, update, delete, duplicate and bulk-edit products.
  *
- * `GET /vulocart/v1/products` (paginated) and `POST /vulocart/v1/products`.
- * Calls VuloCart()->product_service only - never
- * Infrastructure\Database\WPDBProductRepository directly (rest-api.md +
- * this plugin's own Application-layer convention).
+ * It calls only `VuloCart()->product_service`, never the repository.
  *
  * @class       Products class
  * @version     1.0.0
@@ -35,21 +32,13 @@ class Products extends \WP_REST_Controller {
     protected $rest_base = 'products';
 
     /**
-     * The type-specific fields ProductEdit.tsx's "Type Details" card shows
-     * per product type - a real, per-type functionality layer on top of
-     * the generic fields every type already has (title/price/description/
-     * etc.), matching how WooCommerce's simple/variable/grouped/external
-     * product types each expose different meta-box fields. Keyed by
-     * ProductType constant, each value maps a field name to how it's
-     * sanitized: 'text' (sanitize_text_field), 'int' (absint-able,
-     * nullable), 'float' (nullable), 'bool', or 'key' (sanitize_key,
-     * for a small fixed option set the frontend's own SelectInput
-     * enumerates). Types with no entry here (physical, license) have no
-     * type-specific fields - physical's "type-specific" behavior is
-     * already the existing Stock/Shipping sections, and license has no
-     * dedicated fields yet (kept only for backward compatibility with any
-     * product created before this plugin's admin-UX brief specified its own
-     * 11-type list, which doesn't include license).
+     * The type-specific fields shown in the "Type Details" card of ProductEdit.tsx, on top of the fields every type
+     * has (title, price, description and so on).
+     *
+     * Keyed by ProductType constant. Each value maps a field name to how it is sanitized: 'text'
+     * (sanitize_text_field), 'int' (absint-able, nullable), 'float' (nullable), 'bool' or 'key' (sanitize_key, for a
+     * small fixed set of options). Types with no entry (physical, license) have no type-specific fields; physical
+     * products use the Stock and Shipping sections.
      *
      * @var array<string, array<string, string>>
      */

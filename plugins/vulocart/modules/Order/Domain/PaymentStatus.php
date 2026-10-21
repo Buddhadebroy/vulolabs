@@ -10,17 +10,9 @@ namespace VuloCart\Order\Domain;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Order module PaymentStatus.
- *
- * One of the two independent dimensions an Order now tracks - the other
- * being FulfillmentStatus. Previously a single flat `OrderStatus` enum
- * conflated "has this been paid?" and "has this been shipped/completed?"
- * into one value, which is why the admin-UX brief's Orders columns
- * ("Payment Status", "Fulfillment Status") couldn't be honestly rendered
- * as two separate cells before this split. Values match
- * `src/settings/Payments.ts`'s `default_payment_status` options exactly,
- * for the same reason `Domain\Product\ProductType`'s list and
- * `ProductEdit.tsx`'s duplicate of it are kept in sync by convention.
+ * Payment status of an order: one of the two independent statuses an order tracks (the other is FulfillmentStatus),
+ * so "has it been paid?" and "has it been shipped?" are separate columns. The values match the options of
+ * `default_payment_status` in `src/settings/Payments.ts`; keep the two in sync.
  *
  * @class       PaymentStatus class
  * @version     1.0.0

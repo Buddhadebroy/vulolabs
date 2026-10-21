@@ -25,6 +25,9 @@ export interface Option {
 
 let countries: Option[] | null = null;
 
+/**
+ * Returns the list of countries (code and localized name) for address dropdowns; built once and cached.
+ */
 export function getCountries(): Option[] {
 	if ( ! countries ) {
 		let names: Intl.DisplayNames | null = null;

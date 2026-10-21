@@ -10,20 +10,11 @@ namespace VuloCart;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Block class.
+ * Discovers and registers every Gutenberg block VuloCart ships.
  *
- * Discovers and registers every Gutenberg block VuloCart ships:
- * `tools/webpack/create-config.js` builds each `src/blocks/{name}/` folder into
- * `assets/js/block/{name}/` (block.json copied alongside the built JS via
- * `CopyWebpackPlugin` - coding-standards.md's build section), and this
- * class `glob()`s that *built* directory at runtime rather than hardcoding
- * a block list, so a new block folder under `src/blocks/` is picked up
- * automatically after a build with no PHP change needed here.
- *
- * The vision's "Provide Gutenberg Blocks" list (Catalog, Product Grid,
- * Checkout, Cart, Search, Buy Button, Recommendations, Collections) will
- * each just be another `src/blocks/{name}/` folder discovered the same
- * way - this class doesn't need to change as more are added.
+ * Each `src/blocks/{name}/` folder is built into `assets/js/block/{name}/` (with its block.json copied alongside).
+ * This class `glob()`s that built directory at runtime instead of listing blocks by hand, so a new block folder is
+ * picked up after a build with no PHP change.
  *
  * @class       Block class
  * @version     1.0.0
@@ -225,20 +216,12 @@ class Block {
     }
 
     /**
-     * Finds the first published page/post containing a given block,
-     * returning its permalink - backs `checkoutPageUrl`/
-     * `productsPageUrl` in `vulocartFrontendData`, so
-     * `src/blocks/products/ProductDetail.tsx`'s "Go to checkout" link
-     * and any future cross-link between the storefront blocks don't
-     * require the merchant to manually configure a page URL in Settings
-     * (this plugin's admin-UX brief already asks for "make settings
-     * compact" - a block-editor "which page is checkout?" picker control
-     * would be its own real feature; a merchant only ever needs to add
-     * the block to a page once for this to resolve correctly). Cached in
-     * a transient, cleared on every `save_post` (clear_block_page_url_cache())
-     * rather than tracked precisely per-post, since this only needs to be
-     * roughly fresh (a page's block content changing is a rare, admin-only
-     * action) and a wrong stale URL for at most one save cycle is harmless.
+     * Finds the first published page or post that contains a given block and returns its permalink. Backs
+     * `checkoutPageUrl` and `productsPageUrl` in `vulocartFrontendData`, so storefront blocks can link to each other
+     * (for example the "Go to checkout" link) without the merchant entering a page URL in Settings.
+     *
+     * The result is cached in a transient and cleared on every `save_post` (clear_block_page_url_cache()). It only
+     * needs to be roughly fresh: a page's blocks rarely change, and a stale URL for one save is harmless.
      *
      * @param string $block_name Registered block name, e.g. 'vulocart/checkout'.
      * @return string|null Permalink, or null if no published page/post has this block.
@@ -327,23 +310,12 @@ class Block {
     }
 
     /**
-     * Makes every block's `viewScript` depend on the shared `vendors.js`
-     * chunk webpack's `splitChunks` produces (`tools/webpack/
-     * create-config.js`, coding-standards.md's build section) - the same
-     * chunk `classes/Admin/Menu.php` already has to explicitly enqueue
-     * ahead of `index.js` for the wp-admin bundle, for the identical
-     * reason: any npm dependency a block's view.js imports that isn't a
-     * WordPress-provided external (e.g. `axios`, used by
-     * `src/blocks/checkout/Checkout.tsx`) lands in `vendors.js`, not the
-     * view script itself, and `DependencyExtractionWebpackPlugin`'s
-     * generated `.asset.php` only ever lists WordPress script handles -
-     * it has no way to know about this internal chunk. Without this,
-     * `register_block_type()`'s automatic script registration (which only
-     * reads that `.asset.php`) enqueues the view script with a dependency
-     * list missing `vendors.js` entirely, so the view script's own
-     * `import axios from 'axios'` fails at runtime with nothing on the
-     * page ever visibly erroring (confirmed the hard way: no console
-     * error, just a silently unmounted block).
+     * Makes every block's `viewScript` depend on the shared `vendors.js` chunk that webpack's `splitChunks` produces.
+     * Any npm dependency a block's view.js imports that WordPress does not provide (for example `axios` in
+     * `src/blocks/checkout/Checkout.tsx`) ends up in `vendors.js`, and the generated `.asset.php` only lists
+     * WordPress script handles, so `register_block_type()` would enqueue the view script without it. The block would
+     * then silently fail to mount, with no error in the console. The admin bundle needs the same chunk (see
+     * Admin\Menu::enqueue_admin_script()).
      *
      * @return void
      */

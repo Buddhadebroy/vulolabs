@@ -10,25 +10,12 @@ namespace VuloCart\RestAPI;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Cors class.
+ * Adds CORS headers to the plugin's own REST namespace (`vulocart/v1`) so `@vulocart/sdk` can run on a domain other
+ * than this WordPress site (a landing page, a separate app, plain HTML). Core WordPress routes are not affected.
  *
- * Phase 4 (Embedded Commerce) exists specifically so `@vulocart/sdk` can
- * run on a domain that is NOT this WordPress site - a merchant's landing
- * page, a separate React/Next.js app, plain HTML anywhere. Every other
- * REST caller in this codebase so far (the Gutenberg checkout block, the
- * wp-admin SPA) has been same-origin, so nothing before this class ever
- * needed to touch CORS. Scoped to VuloCart's OWN `vulocart/v1` namespace
- * only - this does not open up core WordPress REST routes or
- * `vulopilot/v1` (that plugin has no embeddable SDK and no reason to be
- * cross-origin).
- *
- * Origin policy is wide open (`Access-Control-Allow-Origin: *`) rather
- * than a merchant-configured allowlist - a deliberate choice matching the
- * SDK's own "just drop a script tag anywhere" promise: every route this
- * reaches is already a route this codebase treats as public/guest-safe
- * (Cart/Order/Checkout's own docblocks: cart-token or order access-token
- * authentication, never a nonce, so cross-origin doesn't add a NEW trust
- * boundary here the way it would for an admin-nonce-authenticated route).
+ * Any origin is allowed (`Access-Control-Allow-Origin: *`). The routes the SDK uses are public and guest-safe: they
+ * are authenticated by a cart token or an order access token, never by a nonce, so cross-origin calls add no new
+ * trust boundary.
  *
  * @class       Cors class
  * @version     1.0.0

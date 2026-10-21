@@ -19,6 +19,7 @@ interface StoreType {
 /** Only a type switched off in Product Types can be enabled from there. */
 const canEnable = ( reason: string ) => reason === __( 'Turned off for this store', 'vulocart' );
 
+/** Why a product type cannot be chosen (for example its module is off), or null when it can. */
 const reasonOff = ( row: StoreType | undefined ): string | null => {
 	if ( ! row ) {
 		return null;

@@ -37,6 +37,7 @@ interface Props {
 	isFirstStep: boolean;
 }
 
+/** Shipping step: lists the available shipping methods for the cart and records the shopper's choice. */
 function ShippingStepView( { data, update, currency, mode, goNext, goBack, isFirstStep }: Props ) {
 	const [ methods, setMethods ] = useState< ShippingMethod[] >( [] );
 	const [ isLoading, setIsLoading ] = useState( true );

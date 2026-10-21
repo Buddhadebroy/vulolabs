@@ -14,6 +14,7 @@ export interface InventoryItem {
 	low_stock: boolean;
 }
 
+/** Request headers carrying the WordPress REST nonce. */
 export const authHeaders = () => ( { 'X-WP-Nonce': vulocartLocalizer.nonce } );
 
 /** Every page of the stock list (the screens filter, sort and page it on the client, so counts match what they show). */
