@@ -71,8 +71,8 @@ registerCheckoutStep( {
 						<CopyToken token={ confirmation.access_token } />
 					</span>
 				</div>
-				{ ( vulocartFrontendData.shopPageUrl || vulocartFrontendData.productsPageUrl ) && (
-					<a className="vulocart-checkout-confirmation-continue" href={ vulocartFrontendData.shopPageUrl || vulocartFrontendData.productsPageUrl || '#' }>
+				{ vulocartFrontendData.shopPageUrl && (
+					<a className="vulocart-checkout-confirmation-continue" href={ vulocartFrontendData.shopPageUrl }>
 						{ __( 'Continue shopping', 'vulocart' ) }
 					</a>
 				) }

@@ -6,7 +6,7 @@ import { ProductTypesPage } from '../ProductTypes/ProductTypesPage';
 import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { EngineScreen, renderEngineView } from '../../components/EngineScreen/EngineScreen';
-import { movedViews, productsExtraViews, storeExtraViews } from './extraViews';
+import { productsExtraViews } from './extraViews';
 
 interface ProductsProps {
 	action: string | null;
@@ -103,19 +103,6 @@ export function Products( { action, id, view }: ProductsProps ) {
 	// Reviews moved to the VuloCart menu; keep old bookmarks working.
 	if ( 'reviews' === view ) {
 		window.location.replace( `${ vulocartLocalizer.adminUrl }admin.php?page=vulocart#&tab=reviews` );
-
-		return null;
-	}
-
-	if ( view && movedViews[ view ] ) {
-		window.location.replace( `${ vulocartLocalizer.adminUrl }admin.php?page=${ movedViews[ view ].page }&view=${ movedViews[ view ].view }` );
-
-		return null;
-	}
-
-	// These moved to the Marketing menu; same for their old links.
-	if ( view && storeExtraViews[ view ] ) {
-		window.location.replace( `${ vulocartLocalizer.adminUrl }admin.php?page=marketing&view=${ view }` );
 
 		return null;
 	}

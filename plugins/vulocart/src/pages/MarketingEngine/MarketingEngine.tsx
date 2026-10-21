@@ -1,6 +1,5 @@
-/* global vulocartLocalizer */
 import { renderEngineView } from '../../components/EngineScreen/EngineScreen';
-import { movedViews, settingsViews, storeExtraViews } from '../Products/extraViews';
+import { storeExtraViews } from '../Products/extraViews';
 
 interface MarketingEngineProps {
 	/** One of the `storeExtraViews` ids (coupons, gift-cards, abandoned-checkouts, ...) - anything else shows Coupons. */
@@ -13,18 +12,6 @@ interface MarketingEngineProps {
  * submenu each. Without the module active the frame shows its "module required" state.
  */
 export function MarketingEngine( { view }: MarketingEngineProps ) {
-	if ( view && settingsViews[ view ] ) {
-		window.location.replace( `${ vulocartLocalizer.adminUrl }admin.php?page=vulocart#&tab=settings&subtab=${ settingsViews[ view ] }` );
-
-		return null;
-	}
-
-	if ( view && movedViews[ view ] ) {
-		window.location.replace( `${ vulocartLocalizer.adminUrl }admin.php?page=${ movedViews[ view ].page }&view=${ movedViews[ view ].view }` );
-
-		return null;
-	}
-
 	return renderEngineView( 'vulocart_marketing_view', storeExtraViews, view && storeExtraViews[ view ] ? view : 'coupons' );
 }
 

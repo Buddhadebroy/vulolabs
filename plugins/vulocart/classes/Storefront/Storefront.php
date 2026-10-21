@@ -50,7 +50,6 @@ class Storefront {
 		'product-specs',
 		'product-faqs',
 		'product-extras',
-		'product-description',
 		'cart',
 		'cart-link',
 	);
@@ -166,7 +165,6 @@ class Storefront {
 			'product-specs'       => 'render_specs',
 			'product-faqs'        => 'render_faqs',
 			'product-extras'      => 'render_extras',
-			'product-description' => 'render_description',
 			'cart'                => 'render_cart',
 			'cart-link'           => 'render_cart_link',
 		);
@@ -216,14 +214,19 @@ class Storefront {
 	}
 
 	/**
-	 * Reads one shopper query value.
+	 * Reads one shopper query value. A product addressed by its pretty URL is read from Permalinks, which resolved the slug.
 	 *
 	 * @param string $key Query var.
 	 * @return string
 	 */
 	private function param( $key ) {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- public, read-only catalog filters; nothing is changed.
-		return isset( $_GET[ $key ] ) && is_scalar( $_GET[ $key ] ) ? sanitize_text_field( wp_unslash( (string) $_GET[ $key ] ) ) : '';
+		if ( 'product' === $key && null !== Permalinks::resolved_product_id() ) {
+			return (string) Permalinks::resolved_product_id();
+		}
+
+		$value = filter_input( INPUT_GET, $key, FILTER_UNSAFE_RAW );
+
+		return is_string( $value ) ? sanitize_text_field( $value ) : '';
 	}
 
 	/**
@@ -1193,46 +1196,6 @@ class Storefront {
 	}
 
 	/**
-	 * Description (legacy, one block for everything): kept so product pages built before the sections became
-	 * separate blocks keep working. New layouts use Content, Specs, FAQs and Extras.
-	 *
-	 * @param array<string, mixed> $attributes Block attributes.
-	 * @param string               $content    Unused.
-	 * @param \WP_Block            $block      Block instance.
-	 * @return string
-	 */
-	public function render_description( $attributes, $content, $block ) {
-		$product = $this->product_of( $block );
-
-		if ( ! $product ) {
-			return '';
-		}
-
-		$sections = implode( '', $this->product_sections( $product ) );
-
-		if ( '' === $sections ) {
-			return '';
-		}
-
-		// Reading sections in a wide column, fact cards in a narrow one; each column stacks without gaps.
-		$main = '';
-		$side = '';
-		if ( preg_match_all( '#<section class="vulocart-section([^"]*)".*?</section>#s', $sections, $found, PREG_SET_ORDER ) ) {
-			foreach ( $found as $match ) {
-				if ( false !== strpos( $match[1], 'is-side' ) ) {
-					$side .= $match[0];
-				} else {
-					$main .= $match[0];
-				}
-			}
-		}
-
-		$sections = '<div class="vulocart-description__main">' . $main . '</div>' . ( '' !== $side ? '<div class="vulocart-description__side">' . $side . '</div>' : '' );
-
-		return sprintf( '<div %s>%s</div>', get_block_wrapper_attributes( array( 'class' => 'vulocart-description' ) ), $sections ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
-	}
-
-	/**
 	 * Cart: the shell the cart script fills in (the cart lives under a token in the shopper's browser, so the
 	 * server cannot print it).
 	 *
@@ -1242,7 +1205,7 @@ class Storefront {
 	 * @return string
 	 */
 	public function render_cart( $attributes, $content, $block ) {
-		$shop     = $this->page_url_with( array( 'vulocart/product-collection', 'vulocart/products' ) );
+		$shop     = $this->page_url_with( array( 'vulocart/product-collection' ) );
 		$checkout = $this->page_url_with( array( 'vulocart/checkout' ) );
 
 		return sprintf(
@@ -1279,7 +1242,7 @@ class Storefront {
 	 * @return string Empty when there is none.
 	 */
 	public function shop_url() {
-		return $this->page_url_with( array( 'vulocart/product-collection', 'vulocart/products' ) );
+		return $this->page_url_with( array( 'vulocart/product-collection' ) );
 	}
 
 	/**

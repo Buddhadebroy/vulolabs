@@ -68,7 +68,7 @@ export function Checkout( { layout, steps, fields }: CheckoutBlockSettings = {} 
 	}
 
 	if ( ! cart || 0 === cart.items.length ) {
-		const shopUrl = vulocartFrontendData.shopPageUrl || vulocartFrontendData.productsPageUrl;
+		const shopUrl = vulocartFrontendData.shopPageUrl;
 
 		return (
 			<div className="vulocart-checkout-empty">

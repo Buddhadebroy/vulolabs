@@ -31,7 +31,6 @@ class Menu {
      * Menu constructor.
      */
     public function __construct() {
-        add_action( 'init', array( $this, 'redirect_legacy_pages' ) );
         add_action( 'admin_menu', array( $this, 'add_menu' ) );
         add_action( 'admin_menu', array( $this, 'add_orders_menu' ) );
         add_action( 'admin_menu', array( $this, 'add_products_menu' ) );
@@ -40,7 +39,6 @@ class Menu {
         add_action( 'admin_menu', array( $this, 'add_shipping_menu' ) );
         add_action( 'admin_menu', array( $this, 'add_ai_menu' ) );
         add_action( 'admin_menu', array( $this, 'add_workflows_menu' ) );
-        add_action( 'admin_menu', array( $this, 'add_analytics_redirect' ) );
         add_action( 'admin_menu', array( $this, 'add_marketing_menu' ) );
         add_action( 'admin_menu', array( $this, 'order_submenu' ), 999 );
         add_action( 'admin_menu', array( $this, 'order_marketing_submenu' ), 999 );
@@ -274,36 +272,6 @@ class Menu {
     }
 
     /**
-     * Sends an old `?page=vulocart-products` style link (bookmarks, emails, saved searches) to the same screen under its
-     * current slug, keeping the rest of the query string (`view`, `action`, `id`, ...).
-     *
-     * @return void
-     */
-    public function redirect_legacy_pages() {
-        if ( ! is_admin() ) {
-            return;
-        }
-
-        $page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page-identity check.
-
-        if ( 0 !== strpos( $page, 'vulocart-' ) ) {
-            return;
-        }
-
-        $current = substr( $page, strlen( 'vulocart-' ) );
-
-        if ( ! in_array( $current, array( 'products', 'orders', 'customers', 'inventory', 'shipping', 'ai', 'workflows', 'marketing', 'analytics' ), true ) ) {
-            return;
-        }
-
-        $query         = map_deep( wp_unslash( $_GET ), 'sanitize_text_field' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- a redirect that only renames the page slug.
-        $query['page'] = $current;
-
-        wp_safe_redirect( add_query_arg( $query, admin_url( 'admin.php' ) ) );
-        exit;
-    }
-
-    /**
      * Registers Customers as its own top-level admin menu, separate from the "VuloCart" menu, now that a customer is
      * a stored entity (`Customer\Install.php`).
      *
@@ -431,25 +399,6 @@ class Menu {
     }
 
     /**
-     * Analytics is part of the Dashboard page now (its Pro insights section, src/pages/Dashboard/), not a page of its own. The old slug stays
-     * registered as a hidden page (no parent, so no menu entry) whose `load-` hook sends old links and bookmarks to
-     * the Dashboard; WordPress would otherwise refuse the unknown slug before any `admin_init` redirect could run.
-     *
-     * @return void
-     */
-    public function add_analytics_redirect() {
-        $hook = add_submenu_page( '', __( 'VuloCart Analytics', 'vulocart' ), '', 'manage_options', 'analytics', '__return_null' );
-
-        add_action(
-            'load-' . $hook,
-            static function () {
-                wp_safe_redirect( admin_url( 'admin.php?page=vulocart#&tab=dashboard' ) );
-                exit;
-            }
-        );
-    }
-
-    /**
      * Registers Marketing as its own top-level admin menu. The free plugin owns the frame only; Coupons, Pricing
      * Rules, Gift Cards, Abandoned Checkout and Checkout Links are vulocart-pro modules that register their submenus
      * under `marketing` (ordered by order_marketing_submenu()).
@@ -571,7 +520,7 @@ class Menu {
      * Keeps the right submenu item highlighted on `?page=vulocart-x&view=y`
      * (and `&action=add`) screens. Every such item is registered with a slug
      * like `products&view=collections`, but WordPress matches the
-     * active item against `$_GET['page']` alone - which never equals that
+     * active item against the `page` query value alone - which never equals that
      * slug - so it falls back to the first item ("All Products") and the
      * page you're on never looks selected. Returns the registered slug that
      * matches the current `view`/`action`, when one exists.
@@ -583,7 +532,7 @@ class Menu {
     public function highlight_current_submenu( $submenu_file, $parent_file ) {
         global $submenu;
 
-        $page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page-identity check.
+        $page = sanitize_key( (string) filter_input( INPUT_GET, 'page', FILTER_UNSAFE_RAW ) );
 
         if ( ! in_array( $page, array( 'products', 'orders', 'customers', 'inventory', 'shipping', 'ai', 'workflows', 'marketing' ), true ) || empty( $submenu[ $page ] ) ) {
             return $submenu_file;
@@ -591,11 +540,13 @@ class Menu {
 
         $candidates = array();
 
-        if ( isset( $_GET['view'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-            $candidates[] = $page . '&view=' . sanitize_key( wp_unslash( $_GET['view'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $view = sanitize_key( (string) filter_input( INPUT_GET, 'view', FILTER_UNSAFE_RAW ) );
+
+        if ( '' !== $view ) {
+            $candidates[] = $page . '&view=' . $view;
         }
 
-        if ( isset( $_GET['action'] ) && 'add' === sanitize_key( wp_unslash( $_GET['action'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        if ( 'add' === sanitize_key( (string) filter_input( INPUT_GET, 'action', FILTER_UNSAFE_RAW ) ) ) {
             $candidates[] = $page . '&action=add';
         }
 
@@ -623,16 +574,16 @@ class Menu {
      * Every top-level screen (main, Orders, Products, Customers and so on) loads the same bundle; src/index.tsx
      * decides which app to render from the root element id present in the page.
      *
-     * The check uses `$_GET['page']`, not `$hook_suffix`. A Pro module registers its pages as separate submenu pages
+     * The check reads the `page` query value, not `$hook_suffix`. A Pro module registers its pages as separate submenu pages
      * (for example `products&view=suppliers`), and WordPress turns that whole string into a hook suffix like
      * `admin_page_products&view=suppliers`, never `toplevel_page_products`, so a hook suffix check would never match
-     * those pages and the app would not load on them. `$_GET['page']` is always the plain page slug.
+     * those pages and the app would not load on them. The `page` value is always the plain page slug.
      *
      * @param string $hook_suffix Current admin page hook suffix - unused, see above.
      * @return void
      */
     public function enqueue_admin_script( $hook_suffix ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
-        $current_page   = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page-identity check, not a state-changing request.
+        $current_page   = sanitize_key( (string) filter_input( INPUT_GET, 'page', FILTER_UNSAFE_RAW ) );
         $vulocart_pages = array( 'vulocart', 'orders', 'products', 'customers', 'inventory', 'shipping', 'ai', 'workflows', 'marketing' );
 
         if ( ! in_array( $current_page, $vulocart_pages, true ) ) {

@@ -537,19 +537,6 @@
 		save: noSave,
 	} );
 
-	registerBlockType( 'vulocart/product-description', {
-		edit: function () {
-			var blockProps = useBlockProps( { className: 'vulocart-description' } );
-
-			return el(
-				'div',
-				blockProps,
-				el( 'section', { className: 'vulocart-section' }, el( 'h2', null, __( 'Description', 'vulocart' ) ), el( 'div', { className: 'vulocart-prose' }, el( 'p', null, __( 'The full product description appears here.', 'vulocart' ) ) ) ),
-				el( 'section', { className: 'vulocart-section' }, el( 'h2', null, __( 'Specifications', 'vulocart' ) ), el( 'table', { className: 'vulocart-spec-table' }, el( 'tbody', null, el( 'tr', null, el( 'th', null, __( 'Material', 'vulocart' ) ), el( 'td', null, '—' ) ) ) ) )
-			);
-		},
-		save: noSave,
-	} );
 	registerBlockType( 'vulocart/cart', {
 		edit: function () {
 			var blockProps = useBlockProps( { className: 'vulocart-cart is-ready' } );

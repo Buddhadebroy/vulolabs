@@ -4,8 +4,8 @@ What a shopper sees. There are two sets of blocks.
 
 | Set | Folder | Rendered | Blocks |
 |---|---|---|---|
-| Server-rendered | `blocks/` | PHP, by `Storefront\Storefront` | 24 product, cart and cart-link blocks |
-| React | `src/blocks/` | JavaScript, discovered by `Block.php` | `vulocart/products`, `vulocart/checkout`, `vulocart/order-tracking` |
+| Server-rendered | `blocks/` | PHP, by `Storefront\Storefront` | 23 product, cart and cart-link blocks |
+| React | `src/blocks/` | JavaScript, discovered by `Block.php` | `vulocart/checkout`, `vulocart/order-tracking` |
 
 ## Server-rendered blocks
 
@@ -46,7 +46,6 @@ What a shopper sees. There are two sets of blocks.
 | `vulocart/product-content` | The long description |
 | `vulocart/product-specs` | Details, specifications or shipping and returns as a card |
 | `vulocart/product-faqs` | Questions and answers |
-| `vulocart/product-description` | Description, details, specifications and questions in one block (legacy; new layouts use Content, Specs, FAQs and Extras) |
 | `vulocart/product-extras` | Sections added by extensions, such as the Digital Product Passport. Filled through the `vulocart_storefront_product_sections` filter |
 
 ### Cart blocks
@@ -76,7 +75,6 @@ The plain form keeps working whichever is chosen and redirects to the pretty add
 
 `Block.php` globs `assets/js/block/*/block.json`, so a new `src/blocks/{name}/` folder is picked up after a build with no PHP change.
 
-- **`vulocart/products`** (`template`, `columns`, `mode`): the older React catalog.
 - **`vulocart/checkout`** (`customize`, `layout`, `steps`, `fields`): the checkout. The block can override the site's layout, steps and optional fields for its page. See [CHECKOUT-ENGINE](CHECKOUT-ENGINE.md).
 - **`vulocart/order-tracking`**: a guest enters the order number and access token and sees the status (`GET /orders/track`).
 

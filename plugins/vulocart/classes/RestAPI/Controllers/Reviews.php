@@ -15,8 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Reviews REST controller.
  *
  * Backs the Products menu's "Reviews" admin page
- * (`src/pages/Reviews/`) and a future public review-submission form on
- * `src/blocks/products/ProductDetail.tsx`. `POST /reviews` (submit) is
+ * (`src/pages/Reviews/`). `POST /reviews` (submit) is
  * public - same "guest-first" posture Cart/Order's own public routes
  * take (Cart\Rest.php's own docblock) - everything else is
  * `manage_options`-gated moderation, matching Order\Rest's own admin-only

@@ -19,7 +19,6 @@ export const productsExtraViews: Record< string, EngineView > = {
 /**
  * Pro pages that aren't about products - promotions, cart recovery and checkout setup. They live in the
  * Marketing menu (MarketingEngine.tsx), one submenu each, filled in by vulocart-pro through `vulocart_marketing_view`.
- * Listed here so the Products router can send old `products&view=` links to their new home.
  */
 export const storeExtraViews: Record< string, EngineView > = {
 	coupons: {
@@ -71,18 +70,6 @@ export const ordersExtraViews: Record< string, EngineView > = {
 		module: 'subscriptions',
 		pro: true,
 	},
-};
-
-/** Pages that moved into Settings: old `page=...&view=` links open this Settings sub-tab instead. */
-export const settingsViews: Record< string, string > = {
-	'checkout-builder': 'checkout',
-};
-
-/** Views that moved to another menu: old `page=...&view=` links are sent to the new page and view. */
-export const movedViews: Record< string, { page: string; view: string } > = {
-	subscriptions: { page: 'orders', view: 'subscriptions' },
-	suppliers: { page: 'inventory', view: 'suppliers' },
-	inventory: { page: 'inventory', view: 'stock' },
 };
 
 export const customersExtraViews: Record< string, EngineView > = {

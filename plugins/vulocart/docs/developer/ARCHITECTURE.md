@@ -135,7 +135,7 @@ The complete list is in [REST-API](REST-API.md).
 Two systems exist side by side:
 
 1. **Server-rendered blocks** in `blocks/` (product collection, product page, cart, ...), registered by `Storefront\Storefront`. They need no JavaScript to show products and are themed from the active theme's design tokens. See [STOREFRONT-BLOCKS](STOREFRONT-BLOCKS.md).
-2. **React blocks** in `src/blocks/` (`vulocart/products`, `vulocart/checkout`, `vulocart/order-tracking`), discovered by `Block.php` from the built folder. The checkout is the [checkout engine](CHECKOUT-ENGINE.md).
+2. **React blocks** in `src/blocks/` (`vulocart/checkout`, `vulocart/order-tracking`), discovered by `Block.php` from the built folder. The checkout is the [checkout engine](CHECKOUT-ENGINE.md).
 
 `Block::print_frontend_config()` prints `vulocartFrontendData` on every frontend page (checkout settings, current user, page URLs).
 

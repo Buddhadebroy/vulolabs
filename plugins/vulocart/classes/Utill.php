@@ -76,7 +76,7 @@ class Utill {
         'default_currency'              => 'USD',
 
         // Frontend.
-        // Storefront listing template (src/blocks/products/ProductsListing.tsx): grid|compact|list|showcase.
+        // Storefront listing template (Storefront::render_collection()): grid|compact|list|showcase.
         'listing_template'              => 'grid',
         'listing_columns'               => '4',
 

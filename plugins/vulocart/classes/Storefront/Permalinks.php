@@ -23,6 +23,13 @@ class Permalinks {
 	const QUERY_VAR = 'vulocart_product';
 
 	/**
+	 * The product id resolved from a pretty address on this request, or null.
+	 *
+	 * @var int|null
+	 */
+	private static $resolved_product_id = null;
+
+	/**
 	 * Hooks everything up.
 	 */
 	public function __construct() {
@@ -138,7 +145,16 @@ class Permalinks {
 			$wpdb->prepare( "SELECT id FROM {$table} WHERE slug = %s ORDER BY id ASC LIMIT 1", sanitize_title( (string) $wp->query_vars[ self::QUERY_VAR ] ) ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- plugin table name.
 		);
 
-		$_GET['product'] = (string) $id; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read by the storefront blocks on this request only.
+		self::$resolved_product_id = $id;
+	}
+
+	/**
+	 * The product id resolved from a pretty address on this request.
+	 *
+	 * @return int|null Null when the address was not a pretty product address.
+	 */
+	public static function resolved_product_id() {
+		return self::$resolved_product_id;
 	}
 
 	/**
@@ -147,11 +163,13 @@ class Permalinks {
 	 * @return void
 	 */
 	public function redirect_plain_links() {
-		if ( 'plain' === self::settings()['structure'] || ! isset( $_GET['product'] ) || ! is_scalar( $_GET['product'] ) || ! ctype_digit( (string) $_GET['product'] ) || get_query_var( self::QUERY_VAR ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$product_id = filter_input( INPUT_GET, 'product', FILTER_VALIDATE_INT, array( 'options' => array( 'min_range' => 1 ) ) );
+
+		if ( 'plain' === self::settings()['structure'] || ! $product_id || get_query_var( self::QUERY_VAR ) ) {
 			return;
 		}
 
-		$product = \VuloCart()->product_service->get_product( (int) $_GET['product'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$product = \VuloCart()->product_service->get_product( $product_id );
 
 		if ( ! $product || '' === (string) $product->slug ) {
 			return;
@@ -197,9 +215,11 @@ class Permalinks {
 		add_settings_section( 'vulocart-permalinks', __( 'VuloCart product page', 'vulocart' ), '__return_false', 'permalink' );
 		add_settings_field( 'vulocart_product_permalink', __( 'Product permalink', 'vulocart' ), array( $this, 'render_field' ), 'permalink', 'vulocart-permalinks' );
 
-		if ( isset( $_POST['vulocart_permalink_structure'] ) && check_admin_referer( 'update-permalink' ) && current_user_can( 'manage_options' ) ) {
-			$structure = sanitize_key( wp_unslash( $_POST['vulocart_permalink_structure'] ) );
-			$base      = isset( $_POST['vulocart_permalink_base'] ) ? trim( sanitize_title_with_dashes( wp_unslash( $_POST['vulocart_permalink_base'] ) ), '/' ) : '';
+		$posted_structure = filter_input( INPUT_POST, 'vulocart_permalink_structure', FILTER_UNSAFE_RAW );
+
+		if ( is_string( $posted_structure ) && check_admin_referer( 'update-permalink' ) && current_user_can( 'manage_options' ) ) {
+			$structure = sanitize_key( $posted_structure );
+			$base      = trim( sanitize_title_with_dashes( (string) filter_input( INPUT_POST, 'vulocart_permalink_base', FILTER_UNSAFE_RAW ) ), '/' );
 
 			update_option(
 				self::OPTION,

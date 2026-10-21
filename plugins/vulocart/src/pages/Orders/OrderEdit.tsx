@@ -7,7 +7,7 @@ import type { ReactNode } from 'react';
 import axios from 'axios';
 import { getApiLink } from '@zyra/core';
 import { CardComponent, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
-import { SelectInput, ButtonInput, TextInput } from '@zyra/inputs';
+import { ButtonInput, TextInput } from '@zyra/inputs';
 import { showErrorToast, errorMessageOf } from '../../lib/rest-errors';
 import './orders-page.scss';
 import '../Products/products-page.scss';

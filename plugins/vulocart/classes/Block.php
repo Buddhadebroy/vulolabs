@@ -97,10 +97,8 @@ class Block {
             // auto-discovered rather than a settings field the merchant
             // has to fill in by hand.
             'checkoutPageUrl'         => $this->find_page_url_with_block( 'vulocart/checkout' ),
-            // The shop is the legacy `vulocart/products` block or the block-based Product Collection.
-            'productsPageUrl'        => $this->find_page_url_with_block( 'vulocart/products' ) ? $this->find_page_url_with_block( 'vulocart/products' ) : $this->find_page_url_with_block( 'vulocart/product-collection' ),
             'cartPageUrl'            => $this->find_page_url_with_block( 'vulocart/cart' ),
-            'shopPageUrl'            => $this->find_page_url_with_block( 'vulocart/product-collection' ) ? $this->find_page_url_with_block( 'vulocart/product-collection' ) : $this->find_page_url_with_block( 'vulocart/products' ),
+            'shopPageUrl'            => $this->find_page_url_with_block( 'vulocart/product-collection' ),
         );
 
         echo '<script id="vulocart-frontend-data">window.vulocartFrontendData = ' . wp_json_encode( $config ) . ';</script>' . "\n"; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- a ~2-property inline config object, not a real script asset; every other frontend block's view.js depends on this existing before it runs (see docblock).
@@ -217,7 +215,7 @@ class Block {
 
     /**
      * Finds the first published page or post that contains a given block and returns its permalink. Backs
-     * `checkoutPageUrl` and `productsPageUrl` in `vulocartFrontendData`, so storefront blocks can link to each other
+     * `checkoutPageUrl` and `shopPageUrl` in `vulocartFrontendData`, so storefront blocks can link to each other
      * (for example the "Go to checkout" link) without the merchant entering a page URL in Settings.
      *
      * The result is cached in a transient and cleared on every `save_post` (clear_block_page_url_cache()). It only
@@ -254,7 +252,7 @@ class Block {
      * Clears find_page_url_with_block()'s cache whenever any post/page is
      * saved - cheap and broad rather than trying to detect exactly which
      * save could have added/removed a `vulocart/checkout`/
-     * `vulocart/products` block, since `save_post` isn't hot enough
+     * `vulocart/product-collection` block, since `save_post` isn't hot enough
      * (admin-only, infrequent) to make that precision worth the
      * complexity.
      *
