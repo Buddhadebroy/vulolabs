@@ -1,4 +1,4 @@
-import { render } from '@wordpress/element';
+import { render } from '../../lib/render';
 import { Checkout } from './Checkout';
 
 /** A list the block saved as `a,b,c`; `null` when the attribute is missing (follow the site's Settings). */

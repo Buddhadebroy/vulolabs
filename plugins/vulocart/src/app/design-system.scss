@@ -244,9 +244,31 @@
 		color: #4b5563;
 	}
 
-	// Settings has no `.container-wrapper` around it, so it misses the 40px the other screens get below the top bar.
+	// Settings has no `.container-wrapper` around it, so it gets the same header rhythm the other screens get from
+	// app.scss: the title starts 1rem under the top bar, with a half-rem under it, and the breadcrumb is set in the
+	// same quiet small type as the description.
 	.settings-wrapper.admin-settings {
-		padding-top: 2.5rem;
+		padding-top: 0;
+
+		// Only the vertical spacing changes: zyra's own left and right margins on the header stay, which is what
+		// lines the title up with the tabs and cards below it.
+		.title-section {
+			margin-bottom: 0;
+			padding: 1rem 0 0.5rem;
+		}
+
+		.breadcrumbs {
+			padding-top: 0.25rem;
+			font-weight: 400;
+			font-size: 0.8125rem;
+			line-height: 1.5;
+			color: var(--vc-muted);
+
+			a {
+				font-weight: 500;
+				color: var(--vc-primary);
+			}
+		}
 	}
 
 	// ---- Edit screens (product, order, customer, workflow): one root padding, one card chrome, one rhythm ----
@@ -558,9 +580,22 @@
 
 	.toggle-option {
 		width: auto;
+	}
+
+	// zyra draws a choice-toggle as one joined strip: only the first label gets rounded left corners, only the last
+	// gets rounded right ones, and the labels carry the border. Here every option is its own card, so each label gets
+	// the full border and all four rounded corners, and the selected one just changes its border colour.
+	.toggle-option label,
+	.toggle-option:first-child label,
+	.toggle-option:last-child label {
 		border: 1px solid #e3e6ef;
 		border-radius: 0.75rem;
 		overflow: hidden;
+	}
+
+	.toggle-option input:checked + label {
+		border: 1px solid var(--vc-primary);
+		box-shadow: 0 0 0 1px var(--vc-primary);
 	}
 
 	.toggle-option label,
@@ -605,4 +640,23 @@
 	box-sizing: border-box;
 	min-width: 0;
 	padding: 1rem 1rem 1rem 1.5rem;
+}
+
+
+// Settings → Advanced → Debug log: the viewer takes the full width of the page.
+.admin-main-wrapper.admin-main-wrapper .vulocart-debug-log {
+	width: 100%;
+	padding: 1.25rem 0 0;
+
+	&__desc {
+		margin: 0 0 1rem;
+		font-size: 0.8125rem;
+		color: var(--vc-muted);
+	}
+
+	.section-log-container,
+	.log-container-wrapper {
+		width: 100%;
+		max-width: none;
+	}
 }

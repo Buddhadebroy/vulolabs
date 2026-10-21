@@ -33,7 +33,7 @@ export default {
 			label: __( 'Flat rate shipping cost', 'vulocart' ),
 			minNumber: 0,
 			settingDescription: __(
-				'A single flat shipping charge added to every order. Leave it at 0 for free shipping. Switch the whole Shipping module off under Modules to stop offering shipping.',
+				'A single shipping charge added to every order. Leave it at 0 for free shipping.',
 				'vulocart'
 			),
 		},

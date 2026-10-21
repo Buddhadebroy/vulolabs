@@ -28,7 +28,7 @@ Some badges help you spot problems: **Marked out of stock**, **No price** (canno
 ## Add a product
 
 1. Go to **Products → Add New**.
-2. On the **What are you selling?** screen pick a type (Physical, Digital, Subscription, Course, Service, Membership, Booking, Rental, Bundle, Donation, Gift card). Some types ask for a kind, for example Physical → *Standard*, *With options*, *Pre-order* or *Made to order*. You can turn this screen off under Settings → General ("Ask what you're selling first"); then you pick the type on the product page.
+2. On the **What are you selling?** screen pick a type (Physical, Digital, Subscription, Course, Service, Membership, Booking, Rental, Bundle, Donation, Gift card). Some types ask for a kind, for example Physical → *Standard*, *With options*, *Pre-order* or *Made to order*. You can turn this screen off under Settings → General ("Start with What are you selling?"); then you pick the type on the product page.
 3. Fill in the cards below and press **Save**. The **Setup progress** box tells you what is still missing and shows **Ready to publish** when the basics are done.
 4. Set the status to **Published** (**Change status**) when you want it in the shop.
 
@@ -50,7 +50,6 @@ Some badges help you spot problems: **Marked out of stock**, **No price** (canno
 
 A card only appears if you cannot sell that kind of product without it. A donation never asks for a shipping policy.
 
-You can fold any card by clicking its title. Which cards are folded is remembered in your browser.
 
 ### Checks before saving
 
@@ -76,8 +75,8 @@ Under **Products → Product Types** you can switch off types you never sell, so
 
 | Setting | Where | What it does |
 |---|---|---|
-| Default currency | Settings → General | Currency for new products (ISO code such as USD, EUR, GBP, INR) |
-| Ask what you're selling first | Settings → General | Start new products on the type screen |
+| Store currency | Settings → General | Currency for new products (ISO code such as USD, EUR, GBP, INR) |
+| Start with "What are you selling?" | Settings → General | Start new products on the type screen |
 | Low stock threshold | Settings → General | Quantity at or below which a product counts as low stock |
 | Product listing and columns | Settings → General | How the shop shows products: Grid, Compact, List or Showcase, and 2 to 5 columns |
 

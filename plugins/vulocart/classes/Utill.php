@@ -92,7 +92,8 @@ class Utill {
         'guest_checkout_enabled'        => array( 'guest_checkout_enabled' ),
         'require_terms_acceptance'      => array(),
         'checkout_terms_url'            => '',
-        'require_phone_number'          => array(),
+        // Whether the checkout asks for a phone number: hidden, optional or required.
+        'checkout_phone'                => 'optional',
         // Domain\Checkout\CheckoutMode::free() - which of the two free
         // delivery modes Checkout.tsx mounts CheckoutEngine in.
         'checkout_mode'                 => \VuloCart\Domain\Checkout\CheckoutMode::MULTI_STEP,
@@ -105,13 +106,11 @@ class Utill {
 
         // The steps the checkout shows, in their natural order. Customer and Payment are always kept.
         'checkout_steps'                => array( 'customer', 'address', 'shipping', 'payment', 'review' ),
-        'checkout_extras'             => array(),
+        // The optional fields the checkout shows: the buyer's name and the address's second line.
+        'checkout_fields'               => array( 'name', 'address_2' ),
 
-        // The optional fields the checkout shows: the buyer's name, a phone number, the address's second line.
-        'checkout_fields'               => array( 'name', 'phone', 'address_2' ),
-
-        // Other checkout extras (VuloCart Pro): any of one-click, links, notes, autocomplete.
-        'checkout_extras'             => array(),
+        // Checkout extras (VuloCart Pro): any of order_notes, address_autocomplete.
+        'checkout_extras'               => array(),
 
         // Payments.
         'enable_manual_payment'         => array( 'enable_manual_payment' ),
@@ -146,21 +145,14 @@ class Utill {
     );
 
     /**
-     * Records an unexpected exception to the PHP error log, when the Advanced tab's "Enable debug logging" is on.
-     * Used by Modules::load_active_modules() so one broken module does not take the whole site down.
+     * Records an unexpected exception in the VuloCart debug log (Settings → Advanced), when "Enable debug logging" is
+     * on. Used by Modules::load_active_modules() so one broken module does not take the whole site down.
      *
      * @param \Throwable $exception The exception to record.
      * @return void
      */
     public function log( \Throwable $exception ): void {
-        $settings = wp_parse_args( get_option( self::SETTINGS_KEY, array() ), self::SETTINGS_DEFAULTS );
-
-        if ( empty( $settings['enable_debug_logging'] ) ) {
-            return;
-        }
-
-        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- gated behind the opt-in Advanced tab setting "Enable debug logging".
-        error_log( sprintf( '[VuloCart] %s', $exception->getMessage() ) );
+        Logger::write( sprintf( '%s in %s:%d', $exception->getMessage(), $exception->getFile(), $exception->getLine() ) );
     }
 
     /**

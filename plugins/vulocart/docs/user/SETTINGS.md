@@ -10,12 +10,12 @@ You can also find any setting from the **search box** in the header: it searches
 
 | Tab | What it covers | Guide |
 |---|---|---|
-| **General** | Default currency, "Ask what you're selling first", low stock threshold, product listing layout | below |
-| **Checkout** | Cart expiry, checkout layout, steps, fields, guest checkout, phone, terms | [CHECKOUT](CHECKOUT.md) |
+| **General** | Store currency, "Start with What are you selling?", low stock threshold, product listing layout | below |
+| **Checkout** | How checkout opens, steps and fields, phone number, guest checkout, terms, carts | [CHECKOUT](CHECKOUT.md) |
 | **Payments** | Manual payment, bank transfer, cash on delivery, capture mode | [PAYMENTS](PAYMENTS.md) |
 | **Shipping & Tax** | Flat rate shipping, tax rates, tax classes, tax settings (Pro adds Zones and Packaging) | [SHIPPING-AND-TAX](SHIPPING-AND-TAX.md) |
 | **Integrations** | Order emails, MCP, VuloCloud AI | below |
-| **Advanced** | Debug logging | below |
+| **Advanced** | Logging switch and the Debug log | below |
 | **Modules** | Switch features on and off | [MODULES](MODULES.md) |
 | **Licensing** | Activate VuloCart Pro (only when Pro is installed) | Pro guide |
 
@@ -25,8 +25,8 @@ You can also find any setting from the **search box** in the header: it searches
 
 | Setting | What it does |
 |---|---|
-| **Default currency** | The ISO 4217 code (USD, EUR, GBP, INR…) used when a new product is created without a currency |
-| **Ask what you're selling first** | When you add a product, start on the "What are you selling?" screen. Turn off to pick the type on the product page |
+| **Store currency** | The ISO 4217 code (USD, EUR, GBP, INR…) used when a new product is created without a currency |
+| **Start with "What are you selling?"** | When you add a product, start on the "What are you selling?" screen. Turn off to pick the type on the product page |
 
 ### Inventory
 
@@ -47,8 +47,8 @@ You can also find any setting from the **search box** in the header: it searches
 
 | Setting | What it does |
 |---|---|
-| **Send order confirmation email** | Emails the buyer right after they place an order |
-| **Send order status update email** | Emails the buyer whenever you change their order's status |
+| **Order confirmation email** | Emails the buyer right after they place an order |
+| **Order status update email** | Emails the buyer whenever you change their order's status |
 | **From address** | The address order emails come from. Leave blank to use your site's default mail sender |
 
 ### MCP
@@ -63,9 +63,15 @@ Connect your site to VuloCloud to use AI features. See [AI](AI.md).
 
 ## Advanced
 
+Two sub-tabs.
+
+**Logging**
+
 | Setting | What it does |
 |---|---|
-| **Enable debug logging** | Writes module-loading failures to the server error log. Leave it off unless you are fixing a problem |
+| **Enable debug logging** | Records problems, such as a module that failed to load, in a log file. Leave it off unless you are fixing a problem |
+
+**Debug log** shows the last entries across the full width of the page, with **Download**, **Copy** and **Clear** buttons. The file is kept in `wp-content/uploads/vulocart-logs/` and is not reachable from the web.
 
 ## Related
 

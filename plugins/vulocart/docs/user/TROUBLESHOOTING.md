@@ -54,4 +54,4 @@ Settings save automatically as you change a field. If a message says it could no
 
 ## Finding out what went wrong
 
-Turn on **Settings → Advanced → Enable debug logging**, repeat the problem and read your server's PHP error log. Turn it off again afterwards.
+Turn on **Settings → Advanced → Enable debug logging**, repeat the problem and read the **Debug log** shown on the same screen (use **Refresh** to see new entries). Turn logging off again afterwards.

@@ -21,31 +21,35 @@ export default {
 	submitUrl: 'settings',
 	modal: [
 		{
-			key: 'general-section-defaults',
+			key: 'general-section-store',
 			type: 'section',
 			icon: 'setting',
-			title: __( 'Defaults', 'vulocart' ),
-			desc: __(
-				'Fallback values applied when a new product is created without them explicitly set.',
-				'vulocart'
-			),
+			title: __( 'Store', 'vulocart' ),
+			desc: __( 'The basics every product and order uses.', 'vulocart' ),
 		},
 		{
 			key: 'default_currency',
 			type: 'text',
-			label: __( 'Default currency', 'vulocart' ),
+			label: __( 'Store currency', 'vulocart' ),
 			settingDescription: __(
-				'ISO 4217 code used when a new product is created without an explicit currency.',
+				'The three-letter currency code, for example USD, EUR, GBP or INR. New products are priced in it.',
 				'vulocart'
 			),
+		},
+		{
+			key: 'general-section-products',
+			type: 'section',
+			icon: 'product',
+			title: __( 'Adding products', 'vulocart' ),
+			desc: __( 'How the Add Product screen starts.', 'vulocart' ),
 		},
 		{
 			key: 'ask_product_type',
 			type: 'checkbox',
 			look: 'toggle',
-			label: __( 'Ask what you\'re selling first', 'vulocart' ),
+			label: __( 'Start with "What are you selling?"', 'vulocart' ),
 			settingDescription: __(
-				'When you add a product, start on the "What are you selling?" screen. Turn off to skip it and pick the product type on the product page instead.',
+				'Adding a product opens a screen to pick its type first. Turn off to go straight to the product page and pick the type there.',
 				'vulocart'
 			),
 			options: [
@@ -57,10 +61,7 @@ export default {
 			type: 'section',
 			icon: 'database',
 			title: __( 'Inventory', 'vulocart' ),
-			desc: __(
-				'Stock-tracking thresholds that apply across the catalog.',
-				'vulocart'
-			),
+			desc: __( 'When a product counts as running low.', 'vulocart' ),
 		},
 		{
 			key: 'low_stock_threshold',
@@ -68,7 +69,7 @@ export default {
 			label: __( 'Low stock threshold', 'vulocart' ),
 			minNumber: 0,
 			settingDescription: __(
-				'Quantity at or below which a stock-tracked product could be flagged as low stock.',
+				'A product with this many units or fewer is shown as low stock on the Dashboard and in Inventory.',
 				'vulocart'
 			),
 		},

@@ -376,11 +376,11 @@ class Rest extends \WP_REST_Controller {
         $customer_phone = $request->get_param( 'customer_phone' ) ? sanitize_text_field( (string) $request->get_param( 'customer_phone' ) ) : null;
         $user_id        = get_current_user_id();
 
-        // Checkout tab's `require_phone_number` - same "client hint,
+        // Checkout tab's `checkout_phone` set to `required` - same "client hint,
         // server re-check" pattern `guest_checkout_enabled` above already
         // uses, so a direct API call can't skip a field the wizard's own
         // Customer step marks required.
-        if ( ! empty( $settings['require_phone_number'] ) && ! $customer_phone ) {
+        if ( 'required' === $settings['checkout_phone'] && ! $customer_phone ) {
             return new \WP_Error(
                 'vulocart_missing_phone_number',
                 esc_html__( 'A phone number is required.', 'vulocart' ),

@@ -48,17 +48,36 @@ You can change how it works under **Settings → Checkout**.
 
 ### Settings explained
 
+The Checkout tab has four sections.
+
+**How checkout opens**
+
 | Setting | What it does | Why you might change it |
 |---|---|---|
-| **Cart expiry (days)** | How long an abandoned cart is kept before it is cleared (default 14) | Keep carts longer for slow-moving products |
-| **Checkout layout** | *Multi-step* shows one step at a time; *Single page* shows every step at once | Single page is faster for short checkouts |
-| **Checkout opens as** | Where "Proceed to checkout" and "Buy now" lead: *Checkout page* by default. Pro adds *Popup*, *Side drawer*, *Hosted page* and *One-click* | Keep shoppers on the product page with a popup |
-| **Steps shown** | Turn off steps you can skip: Address, Shipping, Review. Customer and Payment are always shown | A digital store does not need Address or Shipping |
-| **Optional fields** | Name, Phone number, Apartment/suite | Ask for less |
-| **Extras** | Order notes, Address lookup (Pro) | Let buyers leave a message; suggest addresses while they type |
-| **Enable guest checkout** | Allow an order with just an email address, no account | Turn off to require an account |
-| **Require phone number** | The Customer step requires a phone number | Couriers that need to call |
-| **Require terms acceptance** and **Terms & conditions URL** | The buyer must tick that they accept your terms, linked to the URL | Legal requirement |
+| **Open checkout as** | Where "Proceed to checkout" and "Buy now" lead: *Checkout page* by default. Pro adds *Popup*, *Side drawer*, *Hosted page* and *One-click* | Keep shoppers on the product page with a popup |
+| **Layout** | *One step at a time* or *Everything on one page* | One page is faster for short checkouts |
+
+**What shoppers fill in**
+
+| Setting | What it does | Why you might change it |
+|---|---|---|
+| **Steps** | Untick the steps you can skip: Address, Shipping, Review. Customer and Payment are always part of checkout | A digital store does not need Address or Shipping |
+| **Phone number** | *Do not ask*, *Ask, but optional* or *Required* | Couriers that need to call |
+| **Other details to ask for** | Name, Apartment/suite | Ask for less |
+| **Extras (Pro)** | Order notes, Address lookup | Let buyers leave a message; suggest addresses while they type |
+
+**Who can buy**
+
+| Setting | What it does | Why you might change it |
+|---|---|---|
+| **Allow guest checkout** | Shoppers can order with just an email address | Turn off to require an account |
+| **Ask shoppers to accept your terms** and **Terms & conditions page** | A checkbox the shopper must tick, linked to your terms page | Legal requirement |
+
+**Carts**
+
+| Setting | What it does | Why you might change it |
+|---|---|---|
+| **Keep abandoned carts for (days)** | After this many days without activity a cart is deleted (default 14) | Keep carts longer for slow-moving products |
 
 A checkout block can also override the layout, steps and fields for its own page (select the block and turn on *Customize*).
 

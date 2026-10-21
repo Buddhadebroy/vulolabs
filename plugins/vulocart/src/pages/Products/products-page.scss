@@ -4063,49 +4063,6 @@
 
 // --- Edit page: calmer, easier to scan ---
 
-// Cards fold up from their header: the body goes, the title stays.
-.vulocart-product-edit-page .card-content.is-foldable {
-	> .card-header {
-		cursor: pointer;
-
-		// The chevron: points down when open, right when folded.
-		&::after {
-			content: '';
-			flex: none;
-			align-self: center;
-			width: 0.5rem;
-			height: 0.5rem;
-			margin: 0 0.25rem 0 0.75rem;
-			border-right: 2px solid #9ca3af;
-			border-bottom: 2px solid #9ca3af;
-			transform: rotate(45deg);
-			transition: transform 0.2s;
-		}
-
-		&:hover::after {
-			border-color: var(--vc-primary, #5007aa);
-		}
-	}
-
-	&.is-collapsed {
-		> :not(.card-header) {
-			display: none;
-		}
-
-		> .card-header {
-			margin-bottom: 0;
-
-			.right {
-				display: none;
-			}
-
-			&::after {
-				transform: rotate(-45deg);
-			}
-		}
-	}
-}
-
 // View product link beside the pills.
 .vulocart-product-edit-page .vulocart-view-link {
 	display: inline-flex;

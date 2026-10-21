@@ -64,7 +64,7 @@ A gateway never sees a cart or an order object. This keeps the payment layer reu
 
 ## Capture mode
 
-Settings → Payments → Capture mode: **Immediate** charges at checkout; **Manual** only authorizes, so the merchant captures later from the order screen (`POST /orders/{id}/capture-payment`). Offline gateways are not affected.
+Settings → Payments → Charge the card (`payment_capture_mode`): **At checkout** (`immediate`) charges at checkout; **Later, when I capture it** (`manual`) only authorizes, so the merchant captures later from the order screen (`POST /orders/{id}/capture-payment`). Offline gateways are not affected.
 
 ## Admin actions
 
