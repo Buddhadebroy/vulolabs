@@ -1,3 +1,4 @@
+/* global vulocartLocalizer */
 import { __ } from '@wordpress/i18n';
 import { getTemplateData } from './services/templateService';
 import MODULES_CATALOG, { isModuleCatalogEntry } from './modules-config';
@@ -37,9 +38,9 @@ interface SettingNode {
 const flattenTabs = ( nodes: SettingNode[] ): SettingTab[] =>
 	nodes.flatMap( ( node ) => ( 'folder' === node.type ? flattenTabs( node.content as SettingNode[] ) : [ node.content as SettingTab ] ) );
 
-const PAGES: { id: string; name: string; desc: string; link: string; icon: string }[] = [
+const PAGES: { id: string; name: string; desc: string; link: string; icon: string; module?: string }[] = [
 	{ id: 'dashboard', name: __( 'Dashboard', 'vulocart' ), desc: __( 'Sales and store overview.', 'vulocart' ), link: '&tab=dashboard', icon: 'analytics' },
-	{ id: 'reviews', name: __( 'Reviews', 'vulocart' ), desc: __( 'Approve or reject customer reviews.', 'vulocart' ), link: '&tab=reviews', icon: 'review' },
+	{ id: 'reviews', name: __( 'Reviews', 'vulocart' ), desc: __( 'Approve or reject customer reviews.', 'vulocart' ), link: '&tab=reviews', icon: 'review', module: 'product-reviews' },
 	{ id: 'orders', name: __( 'Orders', 'vulocart' ), desc: __( 'Every order.', 'vulocart' ), link: 'admin.php?page=orders', icon: 'store' },
 	{ id: 'orders-add', name: __( 'Add order', 'vulocart' ), desc: __( 'Create an order by hand.', 'vulocart' ), link: 'admin.php?page=orders&action=add', icon: 'plus' },
 	{ id: 'subscriptions', name: __( 'Subscriptions', 'vulocart' ), desc: __( 'Recurring billing.', 'vulocart' ), link: 'admin.php?page=orders&view=subscriptions', icon: 'subscription' },
@@ -68,7 +69,7 @@ const PAGES: { id: string; name: string; desc: string; link: string; icon: strin
 
 /** The VuloCart tabs, every settings tab with its fields, and the modules. */
 export const buildSearchIndex = (): SearchItem[] => {
-	const pages: SearchItem[] = PAGES.map( ( page ) => ( { ...page, id: `page-${ page.id }`, category: 'pages' as const } ) );
+	const pages: SearchItem[] = PAGES.filter( ( page ) => ! page.module || vulocartLocalizer.active_modules.includes( page.module ) ).map( ( page ) => ( { ...page, id: `page-${ page.id }`, category: 'pages' as const } ) );
 
 	const settings: SearchItem[] = flattenTabs( getTemplateData( 'settings' ) as SettingNode[] ).flatMap( ( tab ) => {
 		const link = `&tab=settings&subtab=${ tab.id }`;

@@ -57,7 +57,6 @@ class Rest {
             'settings'       => new Controllers\Settings(),
             'terms'          => new Controllers\Terms(),
             'attributes'     => new Controllers\Attributes(),
-            'reviews'        => new Controllers\Reviews(),
             'inventory'      => new Controllers\Inventory(),
             'dashboard'      => new Controllers\Dashboard(),
             'product_types' => new Controllers\ProductTypes(),

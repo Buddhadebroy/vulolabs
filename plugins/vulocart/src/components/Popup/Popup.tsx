@@ -2,7 +2,7 @@
 import React from 'react';
 import { ButtonInput } from '@zyra/inputs';
 import { __, sprintf } from '@wordpress/i18n';
-import MODULES_CATALOG, { isModuleCatalogEntry } from '../../modules-config';
+import MODULES_CATALOG, { isModuleCatalogEntry, moduleCardId } from '../../modules-config';
 import './Popup.scss';
 
 interface PopupProps {
@@ -36,8 +36,10 @@ const CATALOG_BY_ID = new Map( MODULES_CATALOG.modules.filter( isModuleCatalogEn
 
 const formatModuleName = ( name: string ): string => {
 	// The name Settings → Modules shows for it, so the popup and the card always agree.
-	if ( CATALOG_BY_ID.get( name ) ) {
-		return CATALOG_BY_ID.get( name )!.name;
+	const card = CATALOG_BY_ID.get( moduleCardId( name ) );
+
+	if ( card ) {
+		return card.name;
 	}
 
 	if ( ACRONYM_LABELS[ name ] ) {

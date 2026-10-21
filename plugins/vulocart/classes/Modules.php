@@ -41,6 +41,7 @@ class Modules {
      */
     const RENAMED_MODULE_IDS = array(
         'shipping-engine' => 'fulfillment',
+        'order-documents' => 'pdf-invoices',
     );
 
     /**
@@ -212,13 +213,27 @@ class Modules {
             update_option( Utill::ACTIVE_MODULES_DB_KEY, $active_modules );
         }
 
+        // Marketing, Product tools, Inventory and AI used to be several cards. A store that had only some of their
+        // modules on keeps that feature: its card goes on (and with it, the companions, below).
+        foreach ( array( 'coupons', 'bulk-editor', 'inventory', 'ai' ) as $card ) {
+            $companions = (array) ( $this->get_companion_map()[ $card ] ?? array() );
+
+            if ( ! in_array( $card, $active_modules, true ) && array_intersect( $companions, $active_modules ) ) {
+                $active_modules[]     = $card;
+                $this->active_modules = $active_modules;
+                update_option( Utill::ACTIVE_MODULES_DB_KEY, $active_modules );
+            }
+        }
+
         // A card stands for its module plus the companions that extend it (Shipping → Shipment, Taxes → Stripe Tax and
         // business tax IDs): keep them on together, so a store that switched the card on before the companion existed,
         // or before Pro was licensed, gets the whole feature.
         $with_companions = array();
 
+        $companion_map = $this->get_companion_map();
+
         foreach ( $active_modules as $module_id ) {
-            $with_companions = array_merge( $with_companions, $this->with_companions( $module_id ) );
+            $with_companions = array_merge( $with_companions, array( $module_id ), (array) ( $companion_map[ $module_id ] ?? array() ) );
         }
 
         $with_companions = array_values( array_unique( $with_companions ) );
@@ -326,25 +341,48 @@ class Modules {
     }
 
     /**
-     * Modules that switch on and off together with another one. A single Modules-screen card stands for the pair
-     * (the free module plus the Pro module that extends it), so toggling the card toggles both. An id that is not
-     * available - Pro not installed or not licensed - is simply dropped by the loader.
+     * The companions map: card module => the modules that switch on and off with it. A single Modules-screen card
+     * stands for the whole group (the free module plus the Pro modules that extend it, or one feature area made of
+     * several modules), so toggling the card toggles all of them. An id that is not available - Pro not installed or
+     * not licensed - is simply dropped by the loader.
      *
      * Filter `vulocart_module_companions` lets a plugin add to the map.
      *
-     * @param string $module_id The module the merchant toggled.
-     * @return string[] That module plus its companions.
+     * @return array<string, string[]>
      */
-    public function with_companions( string $module_id ): array {
-        $map = apply_filters(
+    public function get_companion_map(): array {
+        return (array) apply_filters(
             'vulocart_module_companions',
             array(
                 'shipping'    => array( 'fulfillment' ),
                 'taxes'       => array( 'stripe-tax', 'tax-ids' ),
-                'bulk-editor' => array( 'csv-import' ),
+                'bulk-editor' => array( 'csv-import', 'product-templates' ),
                 'mcp'         => array( 'mcp-server' ),
+                'coupons'     => array( 'gift-cards', 'pricing-rules', 'abandoned-checkout', 'checkout-links' ),
+                'inventory'   => array( 'suppliers' ),
+                'ai'          => array( 'catalog-ai', 'checkout-ai', 'support-ai', 'vector-search' ),
             )
         );
+    }
+
+    /**
+     * Modules that switch on and off together with another one, as a whole group.
+     *
+     * Asking for a companion (e.g. an old "Gift Cards" prompt) returns the whole group, so activating it turns on the
+     * card that owns it rather than one module of the group.
+     *
+     * @param string $module_id The module the merchant toggled.
+     * @return string[] That module plus its companions (or its card and all of that card's companions).
+     */
+    public function with_companions( string $module_id ): array {
+        $map = $this->get_companion_map();
+
+        foreach ( $map as $card => $companions ) {
+            if ( in_array( $module_id, (array) $companions, true ) ) {
+                $module_id = $card;
+                break;
+            }
+        }
 
         return array_values( array_unique( array_merge( array( $module_id ), (array) ( $map[ $module_id ] ?? array() ) ) ) );
     }

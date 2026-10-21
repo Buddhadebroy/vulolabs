@@ -557,7 +557,7 @@ export function OrderEdit( { id }: OrderEditProps ) {
 		setActivating( true );
 
 		axios
-			.post( getApiLink( vulocartLocalizer, 'modules' ), { id: 'order-documents', action: 'activate' }, { headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } } )
+			.post( getApiLink( vulocartLocalizer, 'modules' ), { id: 'pdf-invoices', action: 'activate' }, { headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } } )
 			.then( () => window.location.reload() )
 			.catch( ( error ) => {
 				showErrorToast( errorMessageOf( error ) );
@@ -1143,7 +1143,7 @@ export function OrderEdit( { id }: OrderEditProps ) {
 						/>
 					</CardComponent>
 
-					{ null !== activeModules && ! activeModules.includes( 'order-documents' ) && (
+					{ null !== activeModules && ! activeModules.includes( 'pdf-invoices' ) && (
 						<CardComponent titleIcon="document" title={ __( 'Documents', 'vulocart' ) } desc={ __( 'Invoice, packing slip and credit note as PDF.', 'vulocart' ) }>
 							{ ! vulocartLocalizer.pro_version ? (
 								<>
@@ -1161,9 +1161,9 @@ export function OrderEdit( { id }: OrderEditProps ) {
 								</>
 							) : (
 								<>
-									<p className="vulocart-field-hint">{ __( 'Turn on the Order Documents module to print invoices and packing slips from this screen.', 'vulocart' ) }</p>
+									<p className="vulocart-field-hint">{ __( 'Turn on the PDF Invoices & Packing Slips module to print invoices and packing slips from this screen.', 'vulocart' ) }</p>
 									<button type="button" className="vulocart-order-inline-save" disabled={ activating } onClick={ activateDocuments }>
-										{ activating ? __( 'Turning on…', 'vulocart' ) : __( 'Turn on Order Documents', 'vulocart' ) }
+										{ activating ? __( 'Turning on…', 'vulocart' ) : __( 'Turn on PDF Invoices & Packing Slips', 'vulocart' ) }
 									</button>
 								</>
 							) }

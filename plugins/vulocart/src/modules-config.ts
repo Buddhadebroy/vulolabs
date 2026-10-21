@@ -40,9 +40,34 @@ export interface ModuleCatalogSeparator {
 
 export type ModuleCatalogItem = ModuleCatalogEntry | ModuleCatalogSeparator;
 
+/**
+ * Modules that have no card of their own: each switches on and off with the card named here (the companions map in
+ * `Modules::with_companions()`). Lets a "turn on the X module" prompt for a page name and activate the card.
+ */
+export const MODULE_CARD_OF: Record< string, string > = {
+	fulfillment: 'shipping',
+	'stripe-tax': 'taxes',
+	'tax-ids': 'taxes',
+	'gift-cards': 'coupons',
+	'pricing-rules': 'coupons',
+	'abandoned-checkout': 'coupons',
+	'checkout-links': 'coupons',
+	'product-templates': 'bulk-editor',
+	'csv-import': 'bulk-editor',
+	suppliers: 'inventory',
+	'catalog-ai': 'ai',
+	'checkout-ai': 'ai',
+	'support-ai': 'ai',
+	'vector-search': 'ai',
+	'mcp-server': 'mcp',
+};
+
 export const isModuleCatalogEntry = (
 	item: ModuleCatalogItem
 ): item is ModuleCatalogEntry => ! ( 'type' in item );
+
+/** The card that switches a module: the module itself when it has one, else the card it belongs to. */
+export const moduleCardId = ( id: string ): string => MODULE_CARD_OF[ id ] ?? id;
 
 const MODULES_CATALOG: {
 	category: boolean;
@@ -52,11 +77,11 @@ const MODULES_CATALOG: {
 	category: true,
 	tab: 'settings',
 	modules: [
-		// Checkout
+		// Store setup (shipping and taxes)
 		{
 			type: 'separator',
 			id: 'checkout-steps',
-			label: __( 'Checkout', 'vulocart' ),
+			label: __( 'Store setup', 'vulocart' ),
 		},
 
 		{
@@ -108,29 +133,29 @@ const MODULES_CATALOG: {
 			],
 		},
 
-		{
-			id: 'checkout-links',
-			settingsLink: '?page=marketing&view=checkout-links',
-			icon: 'link',
-			name: __( 'Payment links & QR codes', 'vulocart' ),
-			desc: __(
-				'Create shareable checkout links and QR codes for a product or a custom cart, to sell in chat, email or in person.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'promotions',
-			freeFeatures: [],
-			proFeatures: [
-				__( 'Shareable checkout links', 'vulocart' ),
-				__( 'QR codes for in-person sales', 'vulocart' ),
-			],
-		},
 
 		// Catalog
 		{
 			type: 'separator',
 			id: 'catalog',
 			label: __( 'Catalog', 'vulocart' ),
+		},
+		{
+			id: 'product-reviews',
+			settingsLink: '?page=vulocart#&tab=reviews',
+			icon: 'review',
+			name: __( 'Product Reviews', 'vulocart' ),
+			desc: __(
+				'Customer reviews on your products: a moderation queue where you approve, reject or delete them, and a count of reviews waiting on the dashboard. Switching it off hides the Reviews screen and its routes; your stored reviews are kept.',
+				'vulocart'
+			),
+			proModule: false,
+			category: 'catalog',
+			freeFeatures: [
+				__( 'Approve, reject or delete reviews', 'vulocart' ),
+				__( 'Filter by status and product, export to CSV', 'vulocart' ),
+				__( 'Reviews-to-moderate count on the dashboard', 'vulocart' ),
+			],
 		},
 		{
 			id: 'variants',
@@ -150,47 +175,12 @@ const MODULES_CATALOG: {
 			],
 		},
 		{
-			id: 'pricing-rules',
-			settingsLink: '?page=marketing&view=pricing-rules',
-			icon: 'price',
-			name: __( 'Pricing Rules', 'vulocart' ),
-			desc: __(
-				'Automatic percentage/fixed discounts scoped to all products, one type, one category, or one product.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'catalog',
-			freeFeatures: [],
-			proFeatures: [
-				__( 'Percentage and fixed discounts', 'vulocart' ),
-				__( 'Scope to all, a type, a category or one product', 'vulocart' ),
-				__( 'Effective-price lookup per product', 'vulocart' ),
-			],
-		},
-		{
-			id: 'product-templates',
-			settingsLink: '?page=products&view=product-templates',
-			icon: 'form-section',
-			name: __( 'Product Templates', 'vulocart' ),
-			desc: __(
-				'Save any product\'s fields as a reusable preset, and start new products from it.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'catalog',
-			freeFeatures: [],
-			proFeatures: [
-				__( 'Save a product as a reusable preset', 'vulocart' ),
-				__( 'Start new products from a template', 'vulocart' ),
-			],
-		},
-		{
 			id: 'bulk-editor',
 			settingsLink: '?page=products',
 			icon: 'bulk-action',
-			name: __( 'Bulk Tools', 'vulocart' ),
+			name: __( 'Product tools', 'vulocart' ),
 			desc: __(
-				'Work on many products at once from the Products list: edit them in bulk and import them from a CSV file.',
+				'Work on products faster: bulk edit and CSV import from the Products list, and reusable product templates that pre-fill a new product.',
 				'vulocart'
 			),
 			proModule: true,
@@ -199,23 +189,8 @@ const MODULES_CATALOG: {
 			proFeatures: [
 				__( 'Bulk edit status, price and stock', 'vulocart' ),
 				__( 'Bulk-create products from a CSV with column mapping and preview', 'vulocart' ),
-			],
-		},
-		{
-			id: 'suppliers',
-			settingsLink: '?page=inventory&view=suppliers',
-			icon: 'store-inventory',
-			name: __( 'Suppliers', 'vulocart' ),
-			desc: __(
-				'Track who each product is sourced from - manage suppliers and assign one per product.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'catalog',
-			freeFeatures: [],
-			proFeatures: [
-				__( 'Supplier directory', 'vulocart' ),
-				__( 'Assign one supplier per product', 'vulocart' ),
+				__( 'Save a product as a reusable preset', 'vulocart' ),
+				__( 'Start new products from a template', 'vulocart' ),
 			],
 		},
 		{
@@ -249,9 +224,9 @@ const MODULES_CATALOG: {
 			id: 'coupons',
 			settingsLink: '?page=marketing&view=coupons',
 			icon: 'coupon',
-			name: __( 'Coupons', 'vulocart' ),
+			name: __( 'Marketing', 'vulocart' ),
 			desc: __(
-				'Percentage/fixed discount codes a shopper can enter at checkout.',
+				'Everything for promoting and recovering sales: coupons, gift cards, automatic pricing rules, abandoned-checkout recovery and shareable payment links with QR codes. One switch for the whole Marketing menu.',
 				'vulocart'
 			),
 			proModule: true,
@@ -260,42 +235,17 @@ const MODULES_CATALOG: {
 			proFeatures: [
 				__( 'Percentage and fixed discount codes', 'vulocart' ),
 				__( 'Code validation and redemption at checkout', 'vulocart' ),
-			],
-		},
-		{
-			id: 'gift-cards',
-			settingsLink: '?page=marketing&view=gift-cards',
-			icon: 'gift-card',
-			name: __( 'Gift Cards', 'vulocart' ),
-			desc: __(
-				'Stored-value codes a shopper can redeem, partially or fully, toward their order total.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'promotions',
-			freeFeatures: [],
-			proFeatures: [
 				__( 'Stored-value gift card codes', 'vulocart' ),
 				__( 'Partial or full redemption toward an order', 'vulocart' ),
+				__( 'Percentage and fixed discounts', 'vulocart' ),
+				__( 'Scope to all, a type, a category or one product', 'vulocart' ),
+				__( 'Effective-price lookup per product', 'vulocart' ),
+				__( 'List of started-but-unfinished checkouts', 'vulocart' ),
+				__( 'Shareable checkout links', 'vulocart' ),
+				__( 'QR codes for in-person sales', 'vulocart' ),
 			],
 		},
 
-		{
-			id: 'abandoned-checkout',
-			settingsLink: '?page=marketing&view=abandoned-checkouts',
-			icon: 'cart',
-			name: __( 'Cart Abandoned', 'vulocart' ),
-			desc: __(
-				'A list of checkout sessions that were started but never completed.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'promotions',
-			freeFeatures: [],
-			proFeatures: [
-				__( 'List of started-but-unfinished checkouts', 'vulocart' ),
-			],
-		},
 
 
 		// Customers & Operations
@@ -342,10 +292,10 @@ const MODULES_CATALOG: {
 			],
 		},
 		{
-			id: 'order-documents',
+			id: 'pdf-invoices',
 			settingsLink: '?page=orders',
 			icon: 'invoice',
-			name: __( 'Order Documents', 'vulocart' ),
+			name: __( 'PDF Invoices & Packing Slips', 'vulocart' ),
 			desc: __(
 				'Invoice, packing slip and credit note for every order - as a PDF or a print-ready page, from the order screen.',
 				'vulocart'
@@ -364,9 +314,9 @@ const MODULES_CATALOG: {
 			id: 'inventory',
 			settingsLink: '?page=inventory',
 			icon: 'store-inventory',
-			name: __( 'Inventory Engine', 'vulocart' ),
+			name: __( 'Inventory', 'vulocart' ),
 			desc: __(
-				'Warehouses/locations, purchase orders, transfers, reservations, low-stock alerts, batch/serial tracking, a full inventory history ledger, and demand forecasting - stock decrements automatically on paid orders and stays synced with each product\'s own stock field.',
+				'Warehouses and stock locations, purchase orders, transfers, reservations, low-stock alerts, batch/serial tracking, a full history ledger, demand forecasting and suppliers - stock decrements automatically on paid orders and stays synced with each product\'s own stock field.',
 				'vulocart'
 			),
 			proModule: true,
@@ -378,6 +328,8 @@ const MODULES_CATALOG: {
 				__( 'Reservations and low-stock alerts', 'vulocart' ),
 				__( 'Batch/serial tracking and history ledger', 'vulocart' ),
 				__( 'Demand forecasting', 'vulocart' ),
+				__( 'Supplier directory', 'vulocart' ),
+				__( 'Assign one supplier per product', 'vulocart' ),
 			],
 		},
 		{
@@ -442,11 +394,11 @@ const MODULES_CATALOG: {
 		},
 		{
 			id: 'ai',
-			settingsLink: '?page=vulocart#&tab=settings&subtab=integrations',
+			settingsLink: '?page=ai',
 			icon: 'ai',
 			name: __( 'AI', 'vulocart' ),
 			desc: __(
-				'AI-generated product/upsell recommendations.',
+				'The AI toolkit on one switch: product and upsell recommendations, and with Pro catalog drafting, checkout fraud scoring, support assistants and semantic search. Connect a provider under Settings → Integrations.',
 				'vulocart'
 			),
 			proModule: false,
@@ -456,74 +408,15 @@ const MODULES_CATALOG: {
 				__( 'Upsell suggestions', 'vulocart' ),
 				__( 'Provider configured on the AI settings tab', 'vulocart' ),
 			],
-			proFeatures: [],
-		},
-		{
-			id: 'catalog-ai',
-			settingsLink: '?page=ai',
-			icon: 'ai',
-			name: __( 'Catalog AI', 'vulocart' ),
-			desc: __(
-				'Describe a product and Catalog AI drafts it - title, description, SEO, specifications, FAQs, translations and pricing suggestions. Needs the AI module and a provider on the AI settings tab.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'ai-integrations',
-			freeFeatures: [],
 			proFeatures: [
 				__( 'Generate products and descriptions', 'vulocart' ),
 				__( 'SEO, specifications, FAQs and translations', 'vulocart' ),
 				__( 'Pricing and inventory suggestions', 'vulocart' ),
-			],
-		},
-		{
-			id: 'checkout-ai',
-			settingsLink: '?page=ai',
-			icon: 'ai',
-			name: __( 'Checkout AI', 'vulocart' ),
-			desc: __(
-				'Scores every checkout for fraud risk and queues the risky ones for review, and suggests products bought together.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'ai-integrations',
-			freeFeatures: [],
-			proFeatures: [
 				__( 'Real-time fraud scoring', 'vulocart' ),
 				__( 'Review queue for risky orders', 'vulocart' ),
 				__( 'Co-purchase recommendations', 'vulocart' ),
-			],
-		},
-		{
-			id: 'support-ai',
-			settingsLink: '?page=ai',
-			icon: 'ai',
-			name: __( 'Support AI', 'vulocart' ),
-			desc: __(
-				'Chat assistants that draft replies from your catalog and order data - one for you in wp-admin and one for shoppers on the storefront.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'ai-integrations',
-			freeFeatures: [],
-			proFeatures: [
 				__( 'Merchant assistant in wp-admin', 'vulocart' ),
 				__( 'Customer assistant on the storefront', 'vulocart' ),
-			],
-		},
-		{
-			id: 'vector-search',
-			settingsLink: '?page=ai',
-			icon: 'ai',
-			name: __( 'Vector Search', 'vulocart' ),
-			desc: __(
-				'Semantic search over your catalog - finds products by meaning, not just exact keywords.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'ai-integrations',
-			freeFeatures: [],
-			proFeatures: [
 				__( 'Search by meaning', 'vulocart' ),
 				__( 'Built on your AI provider embeddings', 'vulocart' ),
 			],

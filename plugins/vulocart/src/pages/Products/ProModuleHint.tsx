@@ -2,7 +2,7 @@
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import axios from 'axios';
-import MODULES_CATALOG, { isModuleCatalogEntry } from '../../modules-config';
+import MODULES_CATALOG, { isModuleCatalogEntry, moduleCardId } from '../../modules-config';
 
 interface ProModuleHintProps {
 	/** Module id (`Modules::camel_to_kebab()` of the folder), e.g. `pricing-rules`. */
@@ -20,7 +20,7 @@ export function ProModuleHint( { module, title, description }: ProModuleHintProp
 	const [ busy, setBusy ] = useState( false );
 	const [ failed, setFailed ] = useState( false );
 
-	const moduleName = MODULES_CATALOG.modules.filter( isModuleCatalogEntry ).find( ( entry ) => entry.id === module )?.name;
+	const moduleName = MODULES_CATALOG.modules.filter( isModuleCatalogEntry ).find( ( entry ) => entry.id === moduleCardId( module ) )?.name;
 	const hasPro = !! vulocartLocalizer.pro_version;
 	const licensed = !! vulocartLocalizer.khali_dabba;
 	const settingsUrl = `${ vulocartLocalizer.adminUrl }admin.php?page=vulocart#&tab=settings&subtab=`;

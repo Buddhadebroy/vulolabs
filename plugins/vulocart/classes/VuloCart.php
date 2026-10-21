@@ -173,11 +173,7 @@ final class VuloCart {
             $this->container['service_container']->make( Domain\Attribute\AttributeRepositoryInterface::class ),
             $this->container['event_dispatcher']
         );
-        $this->container['review_service']    = new Application\ReviewService(
-            $this->container['service_container']->make( Domain\Review\ReviewRepositoryInterface::class ),
-            $this->container['product_service'],
-            $this->container['event_dispatcher']
-        );
+        // Reviews are the ProductReviews module (modules/ProductReviews): it builds `review_service` when it is on.
 
         // The Checkout Engine's own orchestration core (Application\
         // CheckoutService's own docblock) - core infrastructure like
@@ -234,6 +230,13 @@ final class VuloCart {
                 array( 'customer', 'address', 'shipping', 'taxes', 'payment', 'review', 'confirmation' )
             );
             update_option( 'vulocart_checkout_modules_seeded', true );
+            $modules_activated_now = true;
+        }
+
+        // Customer reviews became a module; a store that already had them keeps them, once.
+        if ( ! get_option( 'vulocart_reviews_module_seeded' ) ) {
+            $this->container['modules']->activate_modules( array( 'product-reviews' ) );
+            update_option( 'vulocart_reviews_module_seeded', true );
             $modules_activated_now = true;
         }
 

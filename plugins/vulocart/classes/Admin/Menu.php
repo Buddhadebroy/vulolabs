@@ -76,11 +76,14 @@ class Menu {
             56.8
         );
 
-        $tabs = array(
-            'dashboard' => __( 'Dashboard', 'vulocart' ),
-            'reviews'   => __( 'Reviews', 'vulocart' ),
-            'settings'  => __( 'Settings', 'vulocart' ),
-        );
+        $tabs = array( 'dashboard' => __( 'Dashboard', 'vulocart' ) );
+
+        // Reviews is the ProductReviews module: its tab exists while the module is on.
+        if ( VuloCart()->modules->is_active( 'product-reviews' ) ) {
+            $tabs['reviews'] = __( 'Reviews', 'vulocart' );
+        }
+
+        $tabs['settings'] = __( 'Settings', 'vulocart' );
 
         foreach ( $tabs as $slug => $label ) {
             add_submenu_page(

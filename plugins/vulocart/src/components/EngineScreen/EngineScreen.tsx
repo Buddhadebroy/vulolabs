@@ -2,7 +2,7 @@
 import { useEffect, useState } from '@wordpress/element';
 import type { ReactNode } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import MODULES_CATALOG, { isModuleCatalogEntry } from '../../modules-config';
+import MODULES_CATALOG, { isModuleCatalogEntry, moduleCardId } from '../../modules-config';
 import { applyFilters } from '@wordpress/hooks';
 import axios from 'axios';
 import { ContainerComponent, ColumnComponent, NavigatorHeaderComponent } from '@zyra/components';
@@ -131,7 +131,7 @@ export function ModuleRequired( { view }: { view: EngineView } ) {
 	const needsUpgrade = !! view.pro && ! vulocartLocalizer.pro_version;
 	const needsLicense = !! view.pro && ! needsUpgrade && ! vulocartLocalizer.khali_dabba;
 	// The name Settings → Modules shows for it, so the message says exactly which module to switch on.
-	const moduleName = MODULES_CATALOG.modules.filter( isModuleCatalogEntry ).find( ( module ) => module.id === view.module )?.name;
+	const moduleName = MODULES_CATALOG.modules.filter( isModuleCatalogEntry ).find( ( module ) => module.id === moduleCardId( view.module ) )?.name;
 	const settingsUrl = `${ vulocartLocalizer.adminUrl }admin.php?page=vulocart#&tab=settings&subtab=`;
 
 	const activate = () => {
