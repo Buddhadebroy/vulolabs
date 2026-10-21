@@ -39,15 +39,9 @@ class Install {
      * after `CREATE TABLE`, so `CREATE TABLE IF NOT EXISTS `wp_x`` would be read as a table called `IF` and nothing
      * would happen to the real table.
      *
-     * 1.1.0 added `customer_phone`, `customer_user_id`, `billing_address`, `shipping_address`, `shipping_method`, `shipping_cost`, `tax_amount` and `payment_method` to `vulocart_orders`.
-     *
-     * 1.2.0 added `gateway_transaction_id`, `authorized_amount` and `captured_amount`.
-     *
-     * Both were additive: dbDelta() adds the missing columns to the existing table.
-     *
      * @var string
      */
-    const TABLE_SCHEMA_VERSION = '1.2.0';
+    const TABLE_SCHEMA_VERSION = '1.0.0';
 
     /**
      * Install constructor.

@@ -178,32 +178,17 @@ final class VuloCart {
         // fire.
         $this->container['modules'] = new Modules();
 
-        // Cart, Order and the checkout modules are activated once on a new install, with a one-time flag option each.
-        // Activation merges into the stored list of active modules, and because the flag is stored, switching a
-        // module off later is respected and it is never turned back on. A separate flag exists for each group so a
-        // site that was seeded by an earlier version still gets the modules added later. `$modules_activated_now`
+        // Cart, Order, the checkout modules and Product Reviews are activated once on a new install. The flag is
+        // stored, so switching a module off later is respected and it is never turned back on. `$modules_activated_now`
         // stops load_active_modules() from running a second time in the same request, because activate_modules()
         // already calls it.
         $modules_activated_now = false;
 
-        if ( ! get_option( 'vulocart_cart_order_modules_seeded' ) ) {
-            $this->container['modules']->activate_modules( array( 'cart', 'order' ) );
-            update_option( 'vulocart_cart_order_modules_seeded', true );
-            $modules_activated_now = true;
-        }
-
-        if ( ! get_option( 'vulocart_checkout_modules_seeded' ) ) {
+        if ( ! get_option( 'vulocart_modules_seeded' ) ) {
             $this->container['modules']->activate_modules(
-                array( 'customer', 'address', 'shipping', 'taxes', 'payment', 'review', 'confirmation' )
+                array( 'cart', 'order', 'customer', 'address', 'shipping', 'taxes', 'payment', 'review', 'confirmation', 'product-reviews' )
             );
-            update_option( 'vulocart_checkout_modules_seeded', true );
-            $modules_activated_now = true;
-        }
-
-        // Customer reviews became a module; a store that already had them keeps them, once.
-        if ( ! get_option( 'vulocart_reviews_module_seeded' ) ) {
-            $this->container['modules']->activate_modules( array( 'product-reviews' ) );
-            update_option( 'vulocart_reviews_module_seeded', true );
+            update_option( 'vulocart_modules_seeded', true );
             $modules_activated_now = true;
         }
 
@@ -223,9 +208,6 @@ final class VuloCart {
         if ( version_compare( $previous_version, $this->container['version'], '<' ) ) {
             new Install();
         }
-
-        // Self-heals a site that is already on the current version but never got the products `published_at` column.
-        Install::ensure_product_published_at();
 
         do_action( 'vulocart_loaded' );
     }

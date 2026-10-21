@@ -37,13 +37,7 @@ class Install {
      * @return void
      */
     public function run_migration() {
-        $previous_version = get_option( Utill::OTHER_SETTINGS['plugin_db_version'], false );
-
-        if ( ! $previous_version ) {
-            $this->create_database_tables();
-        } else {
-            $this->do_migration( $previous_version );
-        }
+        $this->create_database_tables();
 
         update_option( Utill::OTHER_SETTINGS['plugin_db_version'], VULOCART_PLUGIN_VERSION );
         do_action( 'vulocart_after_installed' );
@@ -216,48 +210,5 @@ class Install {
         ) $collate;";
 
         dbDelta( $sql_checkout_sessions );
-    }
-
-    /**
-     * Adds `vulocart_checkout_sessions` for the Checkout Engine - dbDelta()
-     * is safe to call unconditionally for a table (creates it if missing,
-     * no-ops if it's already there).
-     *
-     * @param string $previous_version The version option value before this run.
-     * @return void
-     */
-    public function do_migration( $previous_version ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
-        self::create_checkout_sessions_table();
-
-        self::ensure_product_published_at();
-    }
-
-    /**
-     * `published_at` on products: dbDelta adds the column, then products that were already published get
-     * their creation date as the best available publish date. Once per site.
-     *
-     * Also called from VuloCart::init_plugin() on every request until it has run, not only from
-     * `do_migration()`: that only runs when the plugin version goes up, so a site already on the current
-     * version would otherwise never get the column - and every product save would fail on it.
-     *
-     * @return void
-     */
-    public static function ensure_product_published_at() {
-        if ( get_option( 'vulocart_product_published_at_added' ) ) {
-            return;
-        }
-
-        global $wpdb;
-
-        if ( ! function_exists( 'dbDelta' ) ) {
-            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-        }
-
-        self::create_product_table();
-
-        $table = $wpdb->prefix . Utill::TABLES['product'];
-        $wpdb->query( "UPDATE {$table} SET published_at = created_at WHERE status = 'published' AND published_at IS NULL" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-time backfill, table name is plugin-defined.
-
-        update_option( 'vulocart_product_published_at_added', '1' );
     }
 }

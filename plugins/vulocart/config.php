@@ -8,7 +8,7 @@
 defined( 'ABSPATH' ) || exit;
 
 define( 'VULOCART_PLUGIN_TEXTDOMAIN', 'vulocart' );
-define( 'VULOCART_PLUGIN_VERSION', '1.1.0' );
+define( 'VULOCART_PLUGIN_VERSION', '1.0.0' );
 define( 'VULOCART_PLUGIN_SLUG', 'vulocart' );
 // Defined in the free plugin: the default `manage_plan_url` for when Pro is not installed. vulocart-pro overrides it
 // with its own VULOCART_MY_ACCOUNT_URL through the `vulocart_update_pro_data` filter.

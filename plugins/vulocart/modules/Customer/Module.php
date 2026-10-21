@@ -55,7 +55,6 @@ class Module {
         add_action( 'vulocart_order_payment_status_changed', array( $this, 'maybe_refresh_totals' ) );
         add_action( 'vulocart_order_fulfillment_status_changed', array( $this, 'maybe_refresh_totals' ) );
         add_action( 'vulocart_order_deleted', array( $this, 'maybe_refresh_totals' ) );
-        add_action( 'init', array( $this, 'maybe_backfill_totals' ) );
     }
 
     /**
@@ -66,21 +65,6 @@ class Module {
      */
     public function maybe_refresh_totals( $payload ) {
         $this->service->refresh_for_order( $payload['order'] );
-    }
-
-    /**
-     * One-time pass: recomputes every customer's totals from their orders. Earlier versions added an order to the
-     * totals when it was placed (paid or not) and never subtracted it.
-     *
-     * @return void
-     */
-    public function maybe_backfill_totals() {
-        if ( get_option( 'vulocart_customer_totals_derived' ) ) {
-            return;
-        }
-
-        $this->service->refresh_all_totals();
-        update_option( 'vulocart_customer_totals_derived', 1 );
     }
 
     /**

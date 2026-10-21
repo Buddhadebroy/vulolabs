@@ -22,7 +22,7 @@ Other options the plugin uses:
 | `vulocart_version` | Installed database version |
 | `vulocart_permalinks` | Product permalink structure (`plain`, `shop`, `base`) and base |
 | `vulocart_disabled_product_types` | Product types switched off |
-| `vulocart_cart_order_modules_seeded`, `vulocart_checkout_modules_seeded`, `vulocart_reviews_module_seeded` | One-time module seeding flags |
+| `vulocart_modules_seeded` | One-time module seeding flag |
 
 ## Keys
 

@@ -26,17 +26,6 @@ defined( 'ABSPATH' ) || exit;
 class Modules {
 
     /**
-     * Module ids that changed with their folder name: old id => new id. `load_active_modules()` moves a stored id
-     * across, so the module stays on.
-     *
-     * @var array<string, string>
-     */
-    const RENAMED_MODULE_IDS = array(
-        'shipping-engine' => 'fulfillment',
-        'order-documents' => 'pdf-invoices',
-    );
-
-    /**
      * Every discovered module, keyed by its kebab-case id (or
      * `{namespace}_{id}` if two sources both register the same id).
      *
@@ -173,7 +162,7 @@ class Modules {
      * Instantiates every active, available module: the boot step. Active module ids that no longer resolve to a real,
      * available module (a renamed folder, a deactivated Pro plugin) are dropped from the stored list.
      *
-     * Core modules are always added, and a module that was renamed keeps its on/off state (see RENAMED_MODULE_IDS).
+     * Core modules are always added,.
      *
      * @return void
      */
@@ -184,15 +173,6 @@ class Modules {
 
         $active_modules = $this->get_active_modules();
 
-        // A module whose folder was renamed keeps its on/off state: its stored id moves to the new one.
-        $renamed = array_values( array_unique( array_map( static fn( $id ) => self::RENAMED_MODULE_IDS[ $id ] ?? $id, $active_modules ) ) );
-
-        if ( $renamed !== $active_modules ) {
-            $active_modules       = $renamed;
-            $this->active_modules = $renamed;
-            update_option( Utill::ACTIVE_MODULES_DB_KEY, $renamed );
-        }
-
         // Cart, checkout and its steps are the store itself, not options: they are always on.
         $missing_core = array_diff( self::CORE_MODULE_IDS, $active_modules );
 
@@ -200,18 +180,6 @@ class Modules {
             $active_modules       = array_values( array_merge( $active_modules, $missing_core ) );
             $this->active_modules = $active_modules;
             update_option( Utill::ACTIVE_MODULES_DB_KEY, $active_modules );
-        }
-
-        // The Marketing, Product tools, Inventory and AI cards each cover several modules. A store that has only some
-        // of those modules on keeps the feature: its card is switched on (and with it the companion modules, below).
-        foreach ( array( 'coupons', 'bulk-editor', 'inventory', 'ai' ) as $card ) {
-            $companions = (array) ( $this->get_companion_map()[ $card ] ?? array() );
-
-            if ( ! in_array( $card, $active_modules, true ) && array_intersect( $companions, $active_modules ) ) {
-                $active_modules[]     = $card;
-                $this->active_modules = $active_modules;
-                update_option( Utill::ACTIVE_MODULES_DB_KEY, $active_modules );
-            }
         }
 
         // A card stands for its module plus the companions that extend it (Shipping → Shipment, Taxes → Stripe Tax and
