@@ -14,7 +14,7 @@ define( 'VULOCART_PLUGIN_NAME', 'VuloCart' );
 define( 'VULOCART_PRO_SHOP_URL', 'https://vulocart.com/pricing/?utm_source=wpadmin&utm_medium=pluginsettings&utm_campaign=vulocart' );
 
 if ( ! defined( 'VULOCART_APPLICATION_ID' ) ) {
-	define( 'VULOCART_APPLICATION_ID', '' );
+	define( 'VULOCART_APPLICATION_ID', '5fbc199f-e6d8-4f61-a0ab-3daf9f3fbe77' );
 }
 
 if ( ! defined( 'VULOCART_VULOCLOUD_URL' ) ) {
