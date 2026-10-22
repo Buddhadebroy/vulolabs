@@ -19,6 +19,7 @@
 	var RangeControl = wp.components.RangeControl;
 	var SelectControl = wp.components.SelectControl;
 	var ToggleControl = wp.components.ToggleControl;
+	var TextControl = wp.components.TextControl;
 
 	var pictureIcon = el(
 		'svg',
@@ -181,6 +182,7 @@
 						template: [
 							[ 'vulocart/product-image' ],
 							[ 'vulocart/product-title' ],
+							[ 'vulocart/product-rating' ],
 							[ 'vulocart/product-price' ],
 							[ 'vulocart/product-add-to-cart' ],
 						],
@@ -355,6 +357,7 @@
 									'44%',
 									[
 										[ 'vulocart/product-title', { level: 1, isLink: false } ],
+										[ 'vulocart/product-rating' ],
 										[ 'vulocart/product-price' ],
 										[ 'vulocart/product-summary', { words: 45 } ],
 										[
@@ -388,6 +391,8 @@
 								),
 							],
 						],
+						[ 'vulocart/product-reviews' ],
+						[ 'vulocart/product-related' ],
 					],
 				} )
 			);
@@ -533,6 +538,171 @@
 			var blockProps = useBlockProps( { className: 'vulocart-description-part is-cards' } );
 
 			return el( 'div', blockProps, el( 'p', { className: 'vulocart-muted' }, __( 'Sections added by extensions, such as the Digital Product Passport, appear here.', 'vulocart' ) ) );
+		},
+		save: noSave,
+	} );
+
+	registerBlockType( 'vulocart/product-related', {
+		edit: function ( props ) {
+			var a = props.attributes;
+			var blockProps = useBlockProps( { className: 'vulocart-related vulocart-section' } );
+
+			return el(
+				Fragment,
+				null,
+				el(
+					InspectorControls,
+					null,
+					el(
+						PanelBody,
+						{ title: __( 'Related products', 'vulocart' ), initialOpen: true },
+						el( TextControl, {
+							label: __( 'Heading', 'vulocart' ),
+							value: a.heading,
+							placeholder: __( 'You may also like', 'vulocart' ),
+							onChange: function ( v ) { props.setAttributes( { heading: v } ); },
+						} ),
+						el( SelectControl, {
+							label: __( 'Products to show', 'vulocart' ),
+							value: String( a.count ),
+							options: [ 2, 3, 4, 5, 6, 8, 12 ].map( function ( n ) { return { label: String( n ), value: String( n ) }; } ),
+							onChange: function ( v ) { props.setAttributes( { count: Number( v ) } ); },
+						} ),
+						el( SelectControl, {
+							label: __( 'Columns', 'vulocart' ),
+							value: String( a.columns ),
+							options: [ { label: __( 'Use the site setting', 'vulocart' ), value: '0' } ].concat(
+								[ 2, 3, 4, 5, 6 ].map( function ( n ) { return { label: String( n ), value: String( n ) }; } )
+							),
+							onChange: function ( v ) { props.setAttributes( { columns: Number( v ) } ); },
+						} ),
+						el( ToggleControl, {
+							label: __( 'Fill with newest products', 'vulocart' ),
+							help: __( 'When the category has too few other products, show the newest ones instead.', 'vulocart' ),
+							checked: !! a.fallback,
+							onChange: function ( v ) { props.setAttributes( { fallback: v } ); },
+						} )
+					)
+				),
+				el( 'div', blockProps, el( 'h2', null, a.heading || __( 'You may also like', 'vulocart' ) ), el( 'p', { className: 'vulocart-muted' }, __( 'Other products from the same category appear here.', 'vulocart' ) ) )
+			);
+		},
+		save: noSave,
+	} );
+
+	registerBlockType( 'vulocart/product-rating', {
+		edit: function ( props ) {
+			var blockProps = useBlockProps( { className: 'vulocart-rating' } );
+
+			return el(
+				Fragment,
+				null,
+				el(
+					InspectorControls,
+					null,
+					el(
+						PanelBody,
+						{ title: __( 'Rating', 'vulocart' ), initialOpen: true },
+						el( ToggleControl, {
+							label: __( 'Show the number of reviews', 'vulocart' ),
+							checked: props.attributes.showCount !== false,
+							onChange: function ( v ) { props.setAttributes( { showCount: v } ); },
+						} )
+					)
+				),
+				el( 'div', blockProps, el( 'span', { className: 'vulocart-stars', style: { '--vc-rating': 4.5 } } ), el( 'span', { className: 'vulocart-rating__value' }, '4.5' ), props.attributes.showCount !== false && el( 'span', { className: 'vulocart-rating__count' }, '(12 ' + __( 'reviews', 'vulocart' ) + ')' ) )
+			);
+		},
+		save: noSave,
+	} );
+
+	registerBlockType( 'vulocart/product-reviews', {
+		edit: function ( props ) {
+			var a = props.attributes;
+			var blockProps = useBlockProps( { className: 'vulocart-reviews vulocart-section' } );
+
+			return el(
+				Fragment,
+				null,
+				el(
+					InspectorControls,
+					null,
+					el(
+						PanelBody,
+						{ title: __( 'Reviews', 'vulocart' ), initialOpen: true },
+						el( TextControl, {
+							label: __( 'Heading', 'vulocart' ),
+							value: a.heading,
+							placeholder: __( 'Customer reviews', 'vulocart' ),
+							onChange: function ( v ) { props.setAttributes( { heading: v } ); },
+						} ),
+						el( SelectControl, {
+							label: __( 'Reviews to show', 'vulocart' ),
+							value: String( a.perPage ),
+							options: [ 5, 10, 20, 50 ].map( function ( n ) { return { label: String( n ), value: String( n ) }; } ),
+							onChange: function ( v ) { props.setAttributes( { perPage: Number( v ) } ); },
+						} ),
+						el( ToggleControl, {
+							label: __( 'Let shoppers write a review', 'vulocart' ),
+							help: __( 'New reviews wait for your approval under VuloCart → Reviews.', 'vulocart' ),
+							checked: a.showForm !== false,
+							onChange: function ( v ) { props.setAttributes( { showForm: v } ); },
+						} )
+					)
+				),
+				el( 'div', blockProps, el( 'h2', null, a.heading || __( 'Customer reviews', 'vulocart' ) ), el( 'p', { className: 'vulocart-muted' }, __( 'Approved reviews, the rating breakdown and the review form appear here.', 'vulocart' ) ) )
+			);
+		},
+		save: noSave,
+	} );
+
+	registerBlockType( 'vulocart/product-recently-viewed', {
+		edit: function ( props ) {
+			var a = props.attributes;
+			var blockProps = useBlockProps( { className: 'vulocart-recent vulocart-section' } );
+			var controls = el(
+				InspectorControls,
+				null,
+				el(
+					PanelBody,
+					{ title: __( 'Recently viewed', 'vulocart' ), initialOpen: true },
+					el( TextControl, { label: __( 'Heading', 'vulocart' ), value: a.heading, onChange: function ( v ) { props.setAttributes( { heading: v } ); } } ),
+					el( SelectControl, {
+						label: __( 'Products to show', 'vulocart' ),
+						value: String( a.count ),
+						options: [ 2, 3, 4, 5, 6, 8, 12 ].map( function ( n ) { return { label: String( n ), value: String( n ) }; } ),
+						onChange: function ( v ) { props.setAttributes( { count: Number( v ) } ); },
+					} ),
+					el( SelectControl, {
+						label: __( 'Columns', 'vulocart' ),
+						value: String( a.columns ),
+						options: [ { label: __( 'Use the site setting', 'vulocart' ), value: '0' } ].concat( [ 2, 3, 4, 5, 6 ].map( function ( n ) { return { label: String( n ), value: String( n ) }; } ) ),
+						onChange: function ( v ) { props.setAttributes( { columns: Number( v ) } ); },
+					} )
+				)
+			);
+
+			return el( Fragment, null, controls, el( 'div', blockProps, el( 'h2', null, a.heading || __( 'Recently viewed', 'vulocart' ) ), el( 'p', { className: 'vulocart-muted' }, __( 'Products this visitor looked at last appear here.', 'vulocart' ) ) ) );
+		},
+		save: noSave,
+	} );
+
+	registerBlockType( 'vulocart/product-share', {
+		edit: function ( props ) {
+			var a = props.attributes;
+			var blockProps = useBlockProps( { className: 'vulocart-share' } );
+
+			return el( Fragment, null, null, el( 'div', blockProps, el( 'span', { className: 'vulocart-share__label' }, __( 'Share', 'vulocart' ) ), ' X · Facebook · WhatsApp · Email · ' + __( 'Copy link', 'vulocart' ) ) );
+		},
+		save: noSave,
+	} );
+
+	registerBlockType( 'vulocart/product-compare', {
+		edit: function ( props ) {
+			var a = props.attributes;
+			var blockProps = useBlockProps( { className: 'vulocart-compare' } );
+
+			return el( Fragment, null, null, el( 'div', blockProps, el( 'p', { className: 'vulocart-muted' }, __( 'The products shoppers tick with Compare appear here in a table. Add this block to one page.', 'vulocart' ) ) ) );
 		},
 		save: noSave,
 	} );

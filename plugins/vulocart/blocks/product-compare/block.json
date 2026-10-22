@@ -1,0 +1,31 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"category": "widgets",
+	"textdomain": "vulocart",
+	"style": "vulocart-storefront",
+	"editorScript": "vulocart-storefront-editor",
+	"viewScript": "vulocart-storefront-view",
+	"name": "vulocart/product-compare",
+	"title": "Product Compare",
+	"description": "A table that compares the products shoppers ticked with \"Compare\" on the shop.",
+	"icon": "columns",
+	"keywords": [
+		"compare",
+		"table"
+	],
+	"usesContext": [
+		"vulocart/product",
+		"vulocart/query"
+	],
+	"supports": {
+		"html": false,
+		"spacing": {
+			"margin": true
+		},
+		"align": [
+			"wide",
+			"full"
+		]
+	}
+}

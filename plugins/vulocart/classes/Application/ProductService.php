@@ -62,7 +62,7 @@ class ProductService {
     /**
      * Returns a page of products, optionally filtered.
      *
-     * @param array{page?: int, per_page?: int, type?: string, status?: string, search?: string, category?: string} $args Pagination/filter args, already sanitized by the caller.
+     * @param array{page?: int, per_page?: int, type?: string, status?: string, search?: string, category?: string, exclude?: int} $args Pagination/filter args, already sanitized by the caller.
      * @return array{data: Product[], total: int}
      */
     public function list_products( $args = array() ) {

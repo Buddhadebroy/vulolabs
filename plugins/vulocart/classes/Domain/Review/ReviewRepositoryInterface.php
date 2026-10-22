@@ -68,4 +68,12 @@ interface ReviewRepositoryInterface {
      * @return array<string, int> Status value => count.
      */
     public function count_by_status(): array;
+
+    /**
+     * Rating figures of one product, counting approved reviews only - what the storefront shows.
+     *
+     * @param int $product_id Product id.
+     * @return array{average: float, count: int, counts: array<int, int>} Average (0 when none), approved review count, and the count per star (5 down to 1).
+     */
+    public function rating_summary( int $product_id ): array;
 }

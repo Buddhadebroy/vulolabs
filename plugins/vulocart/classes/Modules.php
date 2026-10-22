@@ -316,8 +316,8 @@ class Modules {
                 'taxes'       => array( 'stripe-tax', 'tax-ids' ),
                 'bulk-editor' => array( 'csv-import', 'product-templates' ),
                 'mcp'         => array( 'mcp-server' ),
-                'coupons'     => array( 'gift-cards', 'pricing-rules', 'abandoned-checkout', 'checkout-links' ),
-                'inventory'   => array( 'suppliers' ),
+                'coupons'     => array( 'gift-cards', 'pricing-rules', 'abandoned-checkout', 'checkout-links', 'upsells' ),
+                'inventory'   => array( 'suppliers', 'stock-alerts' ),
                 'ai'          => array( 'catalog-ai', 'checkout-ai', 'support-ai', 'vector-search' ),
             )
         );

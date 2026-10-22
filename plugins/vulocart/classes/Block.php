@@ -60,6 +60,8 @@ class Block {
         $config = array(
             'apiUrl'                  => untrailingslashit( esc_url_raw( rest_url() ) ),
             'restUrl'                 => VuloCart()->rest_namespace,
+            'compareUrl'              => VuloCart()->storefront->url_for_block( 'vulocart/product-compare' ),
+            'compareLabel'            => __( 'Compare', 'vulocart' ),
             // Checkout tab settings (src/settings/Checkout.ts) - real
             // storefront behavior now, not just saved-and-unread values:
             // src/blocks/checkout/Checkout.tsx enforces both client-side,

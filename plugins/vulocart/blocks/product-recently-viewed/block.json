@@ -1,0 +1,46 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"category": "widgets",
+	"textdomain": "vulocart",
+	"style": "vulocart-storefront",
+	"editorScript": "vulocart-storefront-editor",
+	"viewScript": "vulocart-storefront-view",
+	"name": "vulocart/product-recently-viewed",
+	"title": "Recently Viewed",
+	"description": "Products this visitor looked at last. Stays hidden until they have viewed another product.",
+	"icon": "clock",
+	"keywords": [
+		"history",
+		"recent",
+		"viewed"
+	],
+	"usesContext": [
+		"vulocart/product",
+		"vulocart/query"
+	],
+	"attributes": {
+		"heading": {
+			"type": "string",
+			"default": ""
+		},
+		"count": {
+			"type": "number",
+			"default": 4
+		},
+		"columns": {
+			"type": "number",
+			"default": 0
+		}
+	},
+	"supports": {
+		"html": false,
+		"spacing": {
+			"margin": true
+		},
+		"align": [
+			"wide",
+			"full"
+		]
+	}
+}

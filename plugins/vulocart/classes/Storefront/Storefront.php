@@ -50,6 +50,9 @@ class Storefront {
 		'product-specs',
 		'product-faqs',
 		'product-extras',
+		'product-related',
+		'product-rating',
+		'product-reviews',
 		'cart',
 		'cart-link',
 	);
@@ -165,6 +168,9 @@ class Storefront {
 			'product-specs'       => 'render_specs',
 			'product-faqs'        => 'render_faqs',
 			'product-extras'      => 'render_extras',
+			'product-related'     => 'render_related',
+			'product-rating'      => 'render_rating',
+			'product-reviews'     => 'render_reviews',
 			'cart'                => 'render_cart',
 			'cart-link'           => 'render_cart_link',
 		);
@@ -743,7 +749,7 @@ class Storefront {
 
 		$base    = $this->base_url();
 		$product = \VuloCart()->product_service->get_product( $id );
-		$wrapper = get_block_wrapper_attributes( array( 'class' => 'vulocart-product-details' ) );
+		$wrapper = get_block_wrapper_attributes( array( 'class' => 'vulocart-product-details' ) ) . ' data-product-id="' . (int) $id . '"';
 
 		if ( ! $product || ( 'published' !== $product->status && ! current_user_can( 'manage_options' ) ) ) {
 			return sprintf(
@@ -771,7 +777,324 @@ class Storefront {
 			$inner .= ( new \WP_Block( $inner_block, $context ) )->render();
 		}
 
+		// A product page saved before the Related Products block existed still gets it, unless the page already
+		// places the block itself or the `vulocart_auto_related_products` filter turns this off.
+		$tree = $block->parsed_block['innerBlocks'];
+
+		if ( ! self::contains_block( $tree, 'vulocart/product-reviews' ) && apply_filters( 'vulocart_auto_product_reviews', true, $product ) ) {
+			$reviews = new \WP_Block( array( 'blockName' => 'vulocart/product-reviews', 'attrs' => array(), 'innerBlocks' => array(), 'innerHTML' => '', 'innerContent' => array() ), $context );
+			$inner  .= $reviews->render();
+		}
+
+		if ( ! self::contains_block( $block->parsed_block['innerBlocks'], 'vulocart/product-related' ) && apply_filters( 'vulocart_auto_related_products', true, $product ) ) {
+			$related = new \WP_Block( array( 'blockName' => 'vulocart/product-related', 'attrs' => array(), 'innerBlocks' => array(), 'innerHTML' => '', 'innerContent' => array() ), $context );
+			$inner  .= $related->render();
+		}
+
+		// Sections other plugins add under the details (vulocart-pro's upsells); `$tree` lets them skip a block the page already places.
+		$inner .= (string) apply_filters( 'vulocart_product_page_sections', '', $product, $context, $tree );
+
+		if ( ! self::contains_block( $tree, 'vulocart/product-recently-viewed' ) && apply_filters( 'vulocart_auto_recently_viewed', true, $product ) ) {
+			$recent = new \WP_Block( array( 'blockName' => 'vulocart/product-recently-viewed', 'attrs' => array(), 'innerBlocks' => array(), 'innerHTML' => '', 'innerContent' => array() ), $context );
+			$inner .= $recent->render();
+		}
+
 		return sprintf( '<div %s>%s</div>', $wrapper, $inner ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
+	/**
+	 * Whether a list of parsed blocks holds a block anywhere in its tree.
+	 *
+	 * @param array<int, array<string, mixed>> $blocks Parsed blocks.
+	 * @param string                           $name   Block name to look for.
+	 * @return bool
+	 */
+	private static function contains_block( $blocks, $name ) {
+		foreach ( $blocks as $parsed ) {
+			if ( ( isset( $parsed['blockName'] ) && $name === $parsed['blockName'] ) || self::contains_block( $parsed['innerBlocks'], $name ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Related products: other published products that share a category with the one being viewed, as a card grid
+	 * under the product details. With `fallback` on (the default) the newest products fill the row when the category
+	 * has too few; the block renders nothing when there is nothing to show.
+	 *
+	 * @param array<string, mixed> $attributes Block attributes.
+	 * @param string               $content    Unused.
+	 * @param \WP_Block            $block      Block instance.
+	 * @return string
+	 */
+	public function render_related( $attributes, $content, $block ) {
+		$current = $this->product_of( $block );
+		$query   = $this->query_of( $block );
+
+		if ( ! $current || ! $query ) {
+			return '';
+		}
+
+		$settings = wp_parse_args( get_option( \VuloCart\Utill::SETTINGS_KEY, array() ), \VuloCart\Utill::SETTINGS_DEFAULTS );
+		$count    = max( 1, min( 12, (int) ( isset( $attributes['count'] ) ? $attributes['count'] : 4 ) ) );
+		$columns  = (int) ( ! empty( $attributes['columns'] ) ? $attributes['columns'] : $settings['listing_columns'] );
+		$columns  = max( 1, min( 6, $columns ? $columns : 4 ) );
+		$fallback = ! isset( $attributes['fallback'] ) || $attributes['fallback'];
+		$id       = (int) $current['id'];
+		$product  = \VuloCart()->product_service->get_product( $id );
+		$slugs    = $product && is_array( $product->meta ) && ! empty( $product->meta['categories'] ) ? array_values( (array) $product->meta['categories'] ) : array();
+		$found    = array();
+
+		// Products picked by hand on the product's own screen (Policies & Related Products) come first.
+		$picked = $product && is_array( $product->meta ) && ! empty( $product->meta['related_products'] ) ? array_filter( array_map( 'absint', explode( ',', (string) $product->meta['related_products'] ) ) ) : array();
+
+		foreach ( $picked as $picked_id ) {
+			$item = $picked_id !== $id ? \VuloCart()->product_service->get_product( $picked_id ) : null;
+
+			if ( $item && 'published' === $item->status ) {
+				$found[ (int) $item->id ] = $item;
+			}
+		}
+
+		foreach ( $found && count( $found ) >= $count ? array() : $slugs as $slug ) {
+			$result = \VuloCart()->product_service->list_products(
+				array(
+					'per_page' => $count,
+					'status'   => 'published',
+					'listing'  => true,
+					'category' => sanitize_key( $slug ),
+					'exclude'  => $id,
+				)
+			);
+
+			foreach ( $result['data'] as $item ) {
+				$found[ (int) $item->id ] = $item;
+			}
+
+			if ( count( $found ) >= $count ) {
+				break;
+			}
+		}
+
+		if ( $fallback && count( $found ) < $count ) {
+			$result = \VuloCart()->product_service->list_products(
+				array(
+					'per_page' => $count + 1,
+					'status'   => 'published',
+					'listing'  => true,
+					'exclude'  => $id,
+				)
+			);
+
+			foreach ( $result['data'] as $item ) {
+				$found[ (int) $item->id ] = isset( $found[ (int) $item->id ] ) ? $found[ (int) $item->id ] : $item;
+			}
+		}
+
+		$found = array_slice( array_values( $found ), 0, $count );
+
+		if ( ! $found ) {
+			return '';
+		}
+
+		$base  = $query['base'];
+		$views = array_map(
+			static function ( $item ) use ( $base ) {
+				return ProductView::make( $item, $base );
+			},
+			$found
+		);
+		$cards = \VuloCart()->discovery->cards_html( $views, $columns, $block );
+
+		$heading = ! empty( $attributes['heading'] ) ? $attributes['heading'] : __( 'You may also like', 'vulocart' );
+
+		return sprintf(
+			'<section %s><h2>%s</h2>%s</section>',
+			get_block_wrapper_attributes( array( 'class' => 'vulocart-related vulocart-section' ) ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by core.
+			esc_html( $heading ),
+			$cards // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- rendered blocks.
+		);
+	}
+
+	/**
+	 * The review service, or null while the Product Reviews module is off.
+	 *
+	 * @return \VuloCart\Application\ReviewService|null
+	 */
+	private static function review_service() {
+		try {
+			return \VuloCart()->review_service;
+		} catch ( \Exception $e ) {
+			return null;
+		}
+	}
+
+	/**
+	 * Stars for a rating from 0 to 5, drawn by CSS from the `--vc-rating` number so halves and tenths show.
+	 *
+	 * @param float  $rating Rating, 0 to 5.
+	 * @param string $class  Extra class names.
+	 * @return string
+	 */
+	private static function stars( $rating, $class = '' ) {
+		$rating = max( 0, min( 5, (float) $rating ) );
+
+		return sprintf(
+			'<span class="vulocart-stars %1$s" style="--vc-rating:%2$s" role="img" aria-label="%3$s"></span>',
+			esc_attr( $class ),
+			esc_attr( (string) $rating ),
+			/* translators: %s: rating out of five, e.g. 4.5. */
+			esc_attr( sprintf( __( 'Rated %s out of 5', 'vulocart' ), number_format_i18n( $rating, 1 ) ) )
+		);
+	}
+
+	/**
+	 * Rating: average stars and review count of the product; nothing when it has no approved review.
+	 *
+	 * @param array<string, mixed> $attributes Block attributes.
+	 * @param string               $content    Unused.
+	 * @param \WP_Block            $block      Block instance.
+	 * @return string
+	 */
+	public function render_rating( $attributes, $content, $block ) {
+		$product = $this->product_of( $block );
+
+		if ( ! $product ) {
+			return '';
+		}
+
+		if ( ! self::review_service() ) {
+			return '';
+		}
+
+		$summary = self::review_service()->rating_summary( (int) $product['id'] );
+
+		if ( ! $summary['count'] ) {
+			return '';
+		}
+
+		$show_count = ! isset( $attributes['showCount'] ) || $attributes['showCount'];
+		$label      = sprintf(
+			/* translators: %s: number of reviews. */
+			_n( '%s review', '%s reviews', $summary['count'], 'vulocart' ),
+			number_format_i18n( $summary['count'] )
+		);
+		$stars      = self::stars( $summary['average'] );
+		$inner      = $stars . '<span class="vulocart-rating__value">' . esc_html( number_format_i18n( $summary['average'], 1 ) ) . '</span>' . ( $show_count ? '<span class="vulocart-rating__count">(' . esc_html( $label ) . ')</span>' : '' );
+
+		// On a product page the rating jumps to the reviews; on a card it is just a label.
+		$on_page = ! isset( $this->query_of( $block )['products'] );
+		$inner   = $on_page ? '<a href="#vulocart-reviews">' . $inner . '</a>' : $inner;
+
+		return sprintf( '<div %s>%s</div>', get_block_wrapper_attributes( array( 'class' => 'vulocart-rating' ) ), $inner ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
+	}
+
+	/**
+	 * Reviews: rating breakdown, the latest approved reviews and a form to write one. The form posts to the public
+	 * reviews route (blocks/view.js); a new review waits for approval in VuloCart → Reviews.
+	 *
+	 * @param array<string, mixed> $attributes Block attributes.
+	 * @param string               $content    Unused.
+	 * @param \WP_Block            $block      Block instance.
+	 * @return string
+	 */
+	public function render_reviews( $attributes, $content, $block ) {
+		$product = $this->product_of( $block );
+
+		if ( ! $product || ! self::review_service() ) {
+			return '';
+		}
+
+		$id        = (int) $product['id'];
+		$per_page  = max( 1, min( 50, (int) ( isset( $attributes['perPage'] ) ? $attributes['perPage'] : 10 ) ) );
+		$show_form = ! isset( $attributes['showForm'] ) || $attributes['showForm'];
+		$heading   = ! empty( $attributes['heading'] ) ? $attributes['heading'] : __( 'Customer reviews', 'vulocart' );
+		$summary   = self::review_service()->rating_summary( $id );
+		$result    = self::review_service()->list_reviews(
+			array(
+				'product_id' => $id,
+				'status'     => 'approved',
+				'per_page'   => $per_page,
+			)
+		);
+
+		ob_start();
+		?>
+		<section <?php echo get_block_wrapper_attributes( array( 'class' => 'vulocart-reviews vulocart-section', 'id' => 'vulocart-reviews' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by core. ?>>
+			<h2><?php echo esc_html( $heading ); ?></h2>
+
+			<?php if ( $summary['count'] ) : ?>
+				<div class="vulocart-reviews__summary">
+					<div class="vulocart-reviews__average">
+						<strong><?php echo esc_html( number_format_i18n( $summary['average'], 1 ) ); ?></strong>
+						<?php echo self::stars( $summary['average'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in stars(). ?>
+						<span class="vulocart-muted">
+							<?php
+							/* translators: %s: number of reviews. */
+							echo esc_html( sprintf( _n( 'Based on %s review', 'Based on %s reviews', $summary['count'], 'vulocart' ), number_format_i18n( $summary['count'] ) ) );
+							?>
+						</span>
+					</div>
+					<ul class="vulocart-reviews__bars">
+						<?php foreach ( $summary['counts'] as $stars => $total ) : ?>
+							<li>
+								<span><?php echo esc_html( sprintf( /* translators: %d: number of stars. */ __( '%d star', 'vulocart' ), $stars ) ); ?></span>
+								<span class="vulocart-reviews__bar"><span style="width:<?php echo esc_attr( (string) round( $total / $summary['count'] * 100 ) ); ?>%"></span></span>
+								<span class="vulocart-muted"><?php echo esc_html( number_format_i18n( $total ) ); ?></span>
+							</li>
+						<?php endforeach; ?>
+					</ul>
+				</div>
+
+				<ul class="vulocart-reviews__list">
+					<?php foreach ( $result['data'] as $review ) : ?>
+						<li class="vulocart-review">
+							<?php echo self::stars( $review->rating ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in stars(). ?>
+							<?php if ( $review->title ) : ?>
+								<h3><?php echo esc_html( $review->title ); ?></h3>
+							<?php endif; ?>
+							<?php if ( $review->content ) : ?>
+								<p><?php echo esc_html( $review->content ); ?></p>
+							<?php endif; ?>
+							<p class="vulocart-muted">
+								<?php
+								$when = $review->created_at ? mysql2date( get_option( 'date_format' ), $review->created_at ) : '';
+								echo esc_html( trim( ( $review->customer_name ? $review->customer_name : __( 'Customer', 'vulocart' ) ) . ( $when ? ' · ' . $when : '' ) ) );
+								?>
+							</p>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			<?php else : ?>
+				<p class="vulocart-muted"><?php esc_html_e( 'There are no reviews yet. Be the first to share what you think.', 'vulocart' ); ?></p>
+			<?php endif; ?>
+
+			<?php if ( $show_form ) : ?>
+				<details class="vulocart-review-form">
+					<summary class="wp-element-button"><?php esc_html_e( 'Write a review', 'vulocart' ); ?></summary>
+					<form data-vulocart-review data-product-id="<?php echo esc_attr( (string) $id ); ?>">
+						<fieldset class="vulocart-review-form__rating">
+							<legend><?php esc_html_e( 'Your rating', 'vulocart' ); ?></legend>
+							<?php for ( $n = 5; $n >= 1; $n-- ) : ?>
+								<input type="radio" name="rating" id="vc-rate-<?php echo esc_attr( (string) $n ); ?>" value="<?php echo esc_attr( (string) $n ); ?>" required />
+								<label for="vc-rate-<?php echo esc_attr( (string) $n ); ?>" title="<?php echo esc_attr( sprintf( /* translators: %d: number of stars. */ _n( '%d star', '%d stars', $n, 'vulocart' ), $n ) ); ?>"><span class="screen-reader-text"><?php echo esc_html( sprintf( /* translators: %d: number of stars. */ _n( '%d star', '%d stars', $n, 'vulocart' ), $n ) ); ?></span></label>
+							<?php endfor; ?>
+						</fieldset>
+						<p><label><?php esc_html_e( 'Your name', 'vulocart' ); ?><input type="text" name="customer_name" maxlength="120" required /></label></p>
+						<p><label><?php esc_html_e( 'Email (not shown)', 'vulocart' ); ?><input type="email" name="customer_email" maxlength="190" /></label></p>
+						<p><label><?php esc_html_e( 'Headline', 'vulocart' ); ?><input type="text" name="title" maxlength="160" /></label></p>
+						<p><label><?php esc_html_e( 'Your review', 'vulocart' ); ?><textarea name="content" rows="5" maxlength="3000"></textarea></label></p>
+						<p class="vulocart-review-form__trap" aria-hidden="true"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off" /></label></p>
+						<button type="submit" class="wp-element-button"><?php esc_html_e( 'Submit review', 'vulocart' ); ?></button>
+						<p class="vulocart-review-form__status" role="status" data-sent="<?php esc_attr_e( 'Thank you! Your review will appear once it has been approved.', 'vulocart' ); ?>" data-error="<?php esc_attr_e( 'Your review could not be sent. Please try again.', 'vulocart' ); ?>"></p>
+					</form>
+				</details>
+			<?php endif; ?>
+		</section>
+		<?php
+		return (string) ob_get_clean();
 	}
 
 	/**
@@ -1237,6 +1560,16 @@ class Storefront {
 	}
 
 	/**
+	 * The permalink of the first published page that holds a block (a Compare page, for example).
+	 *
+	 * @param string $block_name Registered block name.
+	 * @return string Empty when no page holds it.
+	 */
+	public function url_for_block( $block_name ) {
+		return $this->page_url_with( array( $block_name ) );
+	}
+
+	/**
 	 * The page the shop lives on, for product links.
 	 *
 	 * @return string Empty when there is none.
@@ -1301,6 +1634,8 @@ class Storefront {
 
 <!-- wp:vulocart/product-title /-->
 
+<!-- wp:vulocart/product-rating /-->
+
 <!-- wp:vulocart/product-price /-->
 
 <!-- wp:vulocart/product-add-to-cart /-->
@@ -1325,6 +1660,8 @@ class Storefront {
 
 <!-- wp:column {"width":"44%","className":"vulocart-details-info"} -->
 <div class="wp-block-column vulocart-details-info" style="flex-basis:44%"><!-- wp:vulocart/product-title {"level":1,"isLink":false} /-->
+
+<!-- wp:vulocart/product-rating /-->
 
 <!-- wp:vulocart/product-price /-->
 
@@ -1359,6 +1696,10 @@ class Storefront {
 <!-- wp:vulocart/product-extras /--></div>
 <!-- /wp:column --></div>
 <!-- /wp:columns -->
+
+<!-- wp:vulocart/product-reviews /-->
+
+<!-- wp:vulocart/product-related /-->
 <!-- /wp:vulocart/product-details -->
 MARKUP;
 	}
