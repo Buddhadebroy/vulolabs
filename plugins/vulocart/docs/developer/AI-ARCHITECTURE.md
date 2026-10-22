@@ -23,7 +23,7 @@ Code: `classes/AI/` (core classes) and `modules/Ai/` (module wiring, routes, tab
 4. `ConnectBrokerCallbackHandler::handle_callback()` verifies `state`, `VuloCloudConnection::exchange_code()` redeems the code for a **site id and secret**, and the secret is stored encrypted in the option read by `get_connection()`. The browser returns to Settings → Integrations with `connect_status=connected|error`.
 5. **Disconnect** (`POST /vulocloud-ai-connection/disconnect`) revokes the credential on VuloCloud, as far as possible, and always clears it locally.
 
-The VuloCloud URL comes from the constant `VULOCART_VULOCLOUD_URL` (default `https://store.vulolabs.com`). `VULOCART_VULOCLOUD_HOST_ORGANIZATION_ID` can pin an Organization; when empty, VuloCloud asks which one to use.
+The VuloCloud URL comes from the constant `VULOCART_VULOCLOUD_URL` (default `https://store.vulolabs.com`). `VULOCART_VULOCLOUD_HOST_ORGANIZATION_ID` pins the Organization (the same one VuloPilot uses); if a site sets it to an empty string, VuloCloud asks which one to use.
 
 ## Making a request
 
