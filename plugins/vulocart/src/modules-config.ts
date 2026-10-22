@@ -131,6 +131,23 @@ const MODULES_CATALOG: {
 			label: __( 'Catalog', 'vulocart' ),
 		},
 		{
+			id: 'product-variants',
+			settingsLink: '?page=products',
+			icon: 'catalog',
+			name: __( 'Product Variants', 'vulocart' ),
+			desc: __(
+				'Sell one product in several options, such as Color × Size, each with its own SKU, price and stock.',
+				'vulocart'
+			),
+			proModule: true,
+			category: 'catalog',
+			freeFeatures: [],
+			proFeatures: [
+				__( 'Attribute-combination generator', 'vulocart' ),
+				__( 'Per-variant SKU, price and stock', 'vulocart' ),
+			],
+		},
+		{
 			id: 'bulk-editor',
 			settingsLink: '?page=products',
 			icon: 'bulk-action',
@@ -222,6 +239,24 @@ const MODULES_CATALOG: {
 				__( 'Shareable checkout links', 'vulocart' ),
 				__( 'Upsell and "bought together" blocks on the product page', 'vulocart' ),
 				__( 'QR codes for in-person sales', 'vulocart' ),
+			],
+		},
+		{
+			id: 'recurring-billing',
+			settingsLink: '?page=orders&view=subscriptions',
+			icon: 'subscription',
+			name: __( 'Recurring Billing', 'vulocart' ),
+			desc: __(
+				'Makes Subscription products bill automatically: recurring prices, renewal charges through a gateway that can charge a saved card, retries for failed payments, and a page where customers manage their plan.',
+				'vulocart'
+			),
+			proModule: true,
+			category: 'sales-marketing',
+			freeFeatures: [],
+			proFeatures: [
+				__( 'Automatic renewal charges', 'vulocart' ),
+				__( 'Dunning retries for failed payments', 'vulocart' ),
+				__( 'Customer self-service: update payment method', 'vulocart' ),
 			],
 		},
 

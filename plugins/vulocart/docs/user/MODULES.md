@@ -30,6 +30,7 @@ A few cards switch several modules at once, as one feature (for example *Shippin
 
 | Card | Free | With Pro |
 |---|---|---|
+| **Product Variants** | - | Attribute-combination generator, per-variant SKU, price and stock |
 | **Product tools** | - | Bulk edit, CSV import, product templates |
 | **Digital Product Passport** | - | EU Digital Product Passport per product, public page with a QR code |
 | **Inventory** | - | Warehouses, purchase orders, transfers, reservations, batch/serial tracking, history, forecasting, suppliers, back-in-stock alerts |
@@ -39,6 +40,7 @@ A few cards switch several modules at once, as one feature (for example *Shippin
 | Card | What it adds (Pro) |
 |---|---|
 | **Marketing** | Coupons, gift cards, pricing rules, abandoned-checkout recovery, shareable payment links with QR codes, upsells |
+| **Recurring Billing** | Recurring prices, renewal charges, retries, customer self-service |
 
 ### Customers
 
@@ -61,10 +63,6 @@ A few cards switch several modules at once, as one feature (for example *Shippin
 | **Workflow Builder** | - | Automations that react to orders, payments, refunds, low stock, new customers and deliveries |
 | **AI** | The VuloCloud connection | Product drafting, fraud scoring, support assistants, semantic search |
 | **MCP** | The on/off switch and API key for the MCP server | The MCP server for AI clients |
-
-## Always on with Pro
-
-Some Pro features have no card because you use them where they belong. They are switched on automatically while VuloCart Pro is licensed: **Product Variants** (in the product editor), **Recurring Billing** (recurring prices on a product and the Subscriptions page under Orders), the payment gateways (Settings → Payments) and the checkout styles and extras (Settings → Checkout).
 
 ## Always on
 
