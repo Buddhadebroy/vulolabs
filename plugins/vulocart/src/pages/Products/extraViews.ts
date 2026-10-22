@@ -67,7 +67,7 @@ export const ordersExtraViews: Record< string, EngineView > = {
 		title: __( 'Subscriptions', 'vulocart' ),
 		description: __( 'Recurring billing - automatic renewal charges, dunning retries, and customer self-service.', 'vulocart' ),
 		icon: 'subscription',
-		module: 'subscriptions',
+		module: 'recurring-billing',
 		pro: true,
 	},
 };

@@ -1,0 +1,36 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"category": "widgets",
+	"textdomain": "vulocart",
+	"style": "vulocart-storefront",
+	"editorScript": "vulocart-storefront-editor",
+	"name": "vulocart/product-rating",
+	"title": "Product Rating",
+	"description": "The average star rating and review count of a product. Shows nothing until the product has an approved review.",
+	"icon": "star-filled",
+	"keywords": [
+		"stars",
+		"reviews",
+		"rating"
+	],
+	"usesContext": [
+		"vulocart/product",
+		"vulocart/query"
+	],
+	"attributes": {
+		"showCount": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"supports": {
+		"html": false,
+		"spacing": {
+			"margin": true
+		},
+		"typography": {
+			"fontSize": true
+		}
+	}
+}

@@ -228,3 +228,232 @@
 		}
 	} );
 }() );
+
+/** Product page: send a review to the public reviews route; it appears once approved. */
+( function () {
+	'use strict';
+
+	document.addEventListener( 'submit', function ( event ) {
+		var form = event.target.closest && event.target.closest( '[data-vulocart-review]' );
+
+		if ( ! form ) {
+			return;
+		}
+
+		event.preventDefault();
+
+		var data = window.vulocartFrontendData || {};
+		var status = form.querySelector( '.vulocart-review-form__status' );
+		var button = form.querySelector( 'button[type="submit"]' );
+		var body = { product_id: Number( form.dataset.productId ) };
+
+		Array.prototype.forEach.call( new FormData( form ).entries(), function ( pair ) {
+			body[ pair[ 0 ] ] = pair[ 1 ];
+		} );
+		body.rating = Number( body.rating );
+
+		button.disabled = true;
+		status.textContent = '';
+
+		fetch( data.apiUrl + '/' + data.restUrl + '/reviews', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify( body ),
+		} )
+			.then( function ( response ) {
+				if ( ! response.ok ) {
+					return response.json().then( function ( error ) {
+						throw new Error( error && error.message ? error.message : '' );
+					} );
+				}
+
+				form.reset();
+				status.textContent = status.dataset.sent;
+				status.classList.add( 'is-success' );
+			} )
+			.catch( function ( error ) {
+				status.classList.remove( 'is-success' );
+				status.textContent = error.message || status.dataset.error;
+			} )
+			.then( function () {
+				button.disabled = false;
+			} );
+	} );
+}() );
+
+/** Shopper tools: recently viewed, share and compare. */
+( function () {
+	'use strict';
+
+	var data = window.vulocartFrontendData || {};
+	var RECENT = 'vulocart_recent';
+	var COMPARE = 'vulocart_compare';
+
+	function api( path, options ) {
+		return fetch( data.apiUrl + '/' + data.restUrl + path, options ).then( function ( response ) {
+			if ( ! response.ok ) {
+				return response.json().then( function ( error ) {
+					throw new Error( error && error.message ? error.message : '' );
+				} );
+			}
+
+			return response.json();
+		} );
+	}
+
+	function list( key ) {
+		try {
+			var value = JSON.parse( window.localStorage.getItem( key ) || '[]' );
+
+			return Array.isArray( value ) ? value.map( Number ).filter( Boolean ) : [];
+		} catch ( e ) {
+			return [];
+		}
+	}
+
+	function save( key, value ) {
+		try {
+			window.localStorage.setItem( key, JSON.stringify( value ) );
+		} catch ( e ) {}
+	}
+
+	// Recently viewed: remember this product, then show the others.
+	var page = document.querySelector( '.vulocart-product-details[data-product-id]' );
+
+	if ( page ) {
+		var id = Number( page.dataset.productId );
+
+		save( RECENT, [ id ].concat( list( RECENT ).filter( function ( other ) { return other !== id; } ) ).slice( 0, 12 ) );
+	}
+
+	Array.prototype.forEach.call( document.querySelectorAll( '[data-vulocart-recent]' ), function ( block ) {
+		var skip = Number( block.dataset.exclude );
+		var ids = list( RECENT ).filter( function ( other ) { return other !== skip; } ).slice( 0, Number( block.dataset.count ) );
+
+		if ( ! ids.length ) {
+			return;
+		}
+
+		api( '/storefront/cards?ids=' + ids.join( ',' ) + '&columns=' + block.dataset.columns ).then( function ( result ) {
+			if ( result.html ) {
+				block.querySelector( '[data-cards]' ).innerHTML = result.html;
+				block.hidden = false;
+			}
+		} ).catch( function () {} );
+	} );
+
+	document.addEventListener( 'click', function ( event ) {
+		var target = event.target;
+
+		// Share: copy the link, or open the device's share sheet.
+		var share = target.closest && target.closest( '[data-vulocart-share]' );
+
+		if ( share && target.closest( '[data-copy]' ) ) {
+			var button = target.closest( '[data-copy]' );
+			var text = button.textContent;
+
+			( navigator.clipboard ? navigator.clipboard.writeText( share.dataset.url ) : Promise.reject() )
+				.then( function () {
+					button.textContent = button.dataset.done;
+					window.setTimeout( function () { button.textContent = text; }, 2000 );
+				} )
+				.catch( function () {} );
+		}
+
+		if ( share && target.closest( '[data-native]' ) ) {
+			navigator.share( { title: share.dataset.title, url: share.dataset.url } ).catch( function () {} );
+		}
+	} );
+
+	Array.prototype.forEach.call( document.querySelectorAll( '[data-vulocart-share] [data-native]' ), function ( button ) {
+		button.hidden = ! navigator.share;
+	} );
+
+	// Compare: up to four products, kept in the browser; a bar links to the Compare page.
+	function bar() {
+		var ids = list( COMPARE );
+		var existing = document.querySelector( '.vulocart-compare-bar' );
+
+		if ( ! data.compareUrl || ! ids.length || document.querySelector( '[data-vulocart-compare-page]' ) ) {
+			if ( existing ) {
+				existing.remove();
+			}
+
+			return;
+		}
+
+		if ( ! existing ) {
+			existing = document.createElement( 'a' );
+			existing.className = 'vulocart-compare-bar wp-element-button';
+			document.body.appendChild( existing );
+		}
+
+		existing.href = data.compareUrl;
+		existing.textContent = ( data.compareLabel || 'Compare' ) + ' (' + ids.length + ')';
+	}
+
+	function paint() {
+		var ids = list( COMPARE );
+
+		Array.prototype.forEach.call( document.querySelectorAll( '[data-vulocart-compare]' ), function ( box ) {
+			box.checked = ids.indexOf( Number( box.dataset.vulocartCompare ) ) !== -1;
+		} );
+		bar();
+	}
+
+	document.addEventListener( 'change', function ( event ) {
+		var box = event.target.closest && event.target.closest( '[data-vulocart-compare]' );
+
+		if ( ! box ) {
+			return;
+		}
+
+		var id = Number( box.dataset.vulocartCompare );
+		var ids = list( COMPARE ).filter( function ( other ) { return other !== id; } );
+
+		if ( box.checked ) {
+			ids.push( id );
+		}
+
+		save( COMPARE, ids.slice( -4 ) );
+		paint();
+	} );
+
+	function comparePage() {
+		var root = document.querySelector( '[data-vulocart-compare-page]' );
+
+		if ( ! root ) {
+			return;
+		}
+
+		var ids = list( COMPARE );
+		var empty = root.querySelector( '[data-empty]' );
+		var table = root.querySelector( '[data-table]' );
+
+		if ( ! ids.length ) {
+			table.innerHTML = '';
+			empty.hidden = false;
+
+			return;
+		}
+
+		api( '/storefront/compare?ids=' + ids.join( ',' ) ).then( function ( result ) {
+			table.innerHTML = result.html;
+			empty.hidden = !! result.html;
+		} ).catch( function () {} );
+	}
+
+	document.addEventListener( 'click', function ( event ) {
+		var remove = event.target.closest && event.target.closest( '.vulocart-compare__remove' );
+
+		if ( remove ) {
+			var id = Number( remove.dataset.remove );
+
+			save( COMPARE, list( COMPARE ).filter( function ( other ) { return other !== id; } ) );
+			comparePage();
+		}
+	} );
+
+	paint();
+	comparePage();
+}() );

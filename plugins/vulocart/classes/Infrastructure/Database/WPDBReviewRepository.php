@@ -202,4 +202,39 @@ class WPDBReviewRepository implements ReviewRepositoryInterface {
 
         return $counts;
     }
+
+    /**
+     * Rating figures of one product, counting approved reviews only.
+     *
+     * @param int $product_id Product id.
+     * @return array{average: float, count: int, counts: array<int, int>} Average, approved count and the count per star.
+     */
+    public function rating_summary( int $product_id ): array {
+        global $wpdb;
+
+        $rows = $wpdb->get_results(
+            $wpdb->prepare( "SELECT rating, COUNT(*) AS total FROM {$this->get_table()} WHERE product_id = %d AND status = %s GROUP BY rating", $product_id, 'approved' ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            ARRAY_A
+        ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+        $counts = array( 5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0 );
+        $sum    = 0;
+        $count  = 0;
+
+        foreach ( $rows ? $rows : array() as $row ) {
+            $stars = (int) $row['rating'];
+
+            if ( isset( $counts[ $stars ] ) ) {
+                $counts[ $stars ] = (int) $row['total'];
+                $sum             += $stars * (int) $row['total'];
+                $count           += (int) $row['total'];
+            }
+        }
+
+        return array(
+            'average' => $count ? round( $sum / $count, 1 ) : 0.0,
+            'count'   => $count,
+            'counts'  => $counts,
+        );
+    }
 }

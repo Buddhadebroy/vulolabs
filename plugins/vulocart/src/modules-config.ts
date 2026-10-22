@@ -44,6 +44,8 @@ export const MODULE_CARD_OF: Record< string, string > = {
 	'pricing-rules': 'coupons',
 	'abandoned-checkout': 'coupons',
 	'checkout-links': 'coupons',
+	upsells: 'coupons',
+	'stock-alerts': 'inventory',
 	'product-templates': 'bulk-editor',
 	'csv-import': 'bulk-editor',
 	suppliers: 'inventory',
@@ -69,13 +71,12 @@ const MODULES_CATALOG: {
 	category: true,
 	tab: 'settings',
 	modules: [
-		// Store setup (shipping and taxes)
+		// Store setup: Shipping, taxes and the rules your checkout runs on
 		{
 			type: 'separator',
-			id: 'checkout-steps',
+			id: 'store-setup',
 			label: __( 'Store setup', 'vulocart' ),
 		},
-
 		{
 			id: 'shipping',
 			settingsLink: '?page=vulocart#&tab=settings&subtab=shipping',
@@ -86,7 +87,7 @@ const MODULES_CATALOG: {
 				'vulocart'
 			),
 			proModule: false,
-			category: 'checkout-steps',
+			category: 'store-setup',
 			freeFeatures: [
 				__( 'Flat-rate shipping cost', 'vulocart' ),
 				__( 'Configured under Shipping & Tax', 'vulocart' ),
@@ -100,8 +101,6 @@ const MODULES_CATALOG: {
 				__( 'Local pickup', 'vulocart' ),
 			],
 		},
-
-
 		{
 			id: 'taxes',
 			settingsLink: '?page=vulocart#&tab=settings&subtab=taxes',
@@ -112,7 +111,7 @@ const MODULES_CATALOG: {
 				'vulocart'
 			),
 			proModule: false,
-			category: 'checkout-steps',
+			category: 'store-setup',
 			freeFeatures: [
 				__( 'Rates by country, state and postcode', 'vulocart' ),
 				__( 'Tax classes (standard, reduced, zero, your own)', 'vulocart' ),
@@ -125,46 +124,11 @@ const MODULES_CATALOG: {
 			],
 		},
 
-
-		// Catalog
+		// Catalog: What you sell and how it is described and stocked
 		{
 			type: 'separator',
 			id: 'catalog',
 			label: __( 'Catalog', 'vulocart' ),
-		},
-		{
-			id: 'product-reviews',
-			settingsLink: '?page=vulocart#&tab=reviews',
-			icon: 'review',
-			name: __( 'Product Reviews', 'vulocart' ),
-			desc: __(
-				'Customer reviews on your products: a moderation queue where you approve, reject or delete them, and a count of reviews waiting on the dashboard. Switching it off hides the Reviews screen and its routes; your stored reviews are kept.',
-				'vulocart'
-			),
-			proModule: false,
-			category: 'catalog',
-			freeFeatures: [
-				__( 'Approve, reject or delete reviews', 'vulocart' ),
-				__( 'Filter by status and product, export to CSV', 'vulocart' ),
-				__( 'Reviews-to-moderate count on the dashboard', 'vulocart' ),
-			],
-		},
-		{
-			id: 'variants',
-			settingsLink: '?page=products',
-			icon: 'catalog',
-			name: __( 'Variants', 'vulocart' ),
-			desc: __(
-				'Generate attribute-combination variants (e.g. Color × Size) with their own SKU/price/stock.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'catalog',
-			freeFeatures: [],
-			proFeatures: [
-				__( 'Attribute-combination generator', 'vulocart' ),
-				__( 'Per-variant SKU, price and stock', 'vulocart' ),
-			],
 		},
 		{
 			id: 'bulk-editor',
@@ -204,13 +168,35 @@ const MODULES_CATALOG: {
 				__( 'Machine-readable JSON for each passport', 'vulocart' ),
 			],
 		},
+		{
+			id: 'inventory',
+			settingsLink: '?page=inventory',
+			icon: 'store-inventory',
+			name: __( 'Inventory', 'vulocart' ),
+			desc: __(
+				'Warehouses and stock locations, purchase orders, transfers, reservations, low-stock alerts, batch/serial tracking, a full history ledger, demand forecasting and suppliers - stock decrements automatically on paid orders and stays synced with each product\'s own stock field.',
+				'vulocart'
+			),
+			proModule: true,
+			category: 'catalog',
+			freeFeatures: [],
+			proFeatures: [
+				__( 'Warehouses, locations and transfers', 'vulocart' ),
+				__( 'Purchase orders with receiving', 'vulocart' ),
+				__( 'Reservations and low-stock alerts', 'vulocart' ),
+				__( 'Batch/serial tracking and history ledger', 'vulocart' ),
+				__( 'Demand forecasting', 'vulocart' ),
+				__( 'Supplier directory', 'vulocart' ),
+				__( 'Assign one supplier per product', 'vulocart' ),
+				__( 'Back-in-stock email alerts for sold-out products', 'vulocart' ),
+			],
+		},
 
-
-		// Promotions
+		// Sales & Marketing: Selling more and billing again
 		{
 			type: 'separator',
-			id: 'promotions',
-			label: __( 'Promotions', 'vulocart' ),
+			id: 'sales-marketing',
+			label: __( 'Sales & Marketing', 'vulocart' ),
 		},
 		{
 			id: 'coupons',
@@ -222,7 +208,7 @@ const MODULES_CATALOG: {
 				'vulocart'
 			),
 			proModule: true,
-			category: 'promotions',
+			category: 'sales-marketing',
 			freeFeatures: [],
 			proFeatures: [
 				__( 'Percentage and fixed discount codes', 'vulocart' ),
@@ -234,34 +220,32 @@ const MODULES_CATALOG: {
 				__( 'Effective-price lookup per product', 'vulocart' ),
 				__( 'List of started-but-unfinished checkouts', 'vulocart' ),
 				__( 'Shareable checkout links', 'vulocart' ),
+				__( 'Upsell and "bought together" blocks on the product page', 'vulocart' ),
 				__( 'QR codes for in-person sales', 'vulocart' ),
 			],
 		},
 
-
-
-		// Customers & Operations
+		// Customers: Reviews and keeping customers coming back
 		{
 			type: 'separator',
-			id: 'operations',
-			label: __( 'Customers & Operations', 'vulocart' ),
+			id: 'customers',
+			label: __( 'Customers', 'vulocart' ),
 		},
 		{
-			id: 'subscriptions',
-			settingsLink: '?page=orders&view=subscriptions',
-			icon: 'subscription',
-			name: __( 'Subscriptions', 'vulocart' ),
+			id: 'product-reviews',
+			settingsLink: '?page=vulocart#&tab=reviews',
+			icon: 'review',
+			name: __( 'Product Reviews', 'vulocart' ),
 			desc: __(
-				'Recurring billing on top of a recurring-capable payment gateway - automatic renewal charges, dunning retries, and customer self-service.',
+				'Customer reviews on your products: a moderation queue where you approve, reject or delete them, and a count of reviews waiting on the dashboard. Switching it off hides the Reviews screen and its routes; your stored reviews are kept.',
 				'vulocart'
 			),
-			proModule: true,
-			category: 'operations',
-			freeFeatures: [],
-			proFeatures: [
-				__( 'Automatic renewal charges', 'vulocart' ),
-				__( 'Dunning retries for failed payments', 'vulocart' ),
-				__( 'Customer self-service: update payment method', 'vulocart' ),
+			proModule: false,
+			category: 'customers',
+			freeFeatures: [
+				__( 'Approve, reject or delete reviews', 'vulocart' ),
+				__( 'Filter by status and product, export to CSV', 'vulocart' ),
+				__( 'Reviews-to-moderate count on the dashboard', 'vulocart' ),
 			],
 		},
 		{
@@ -274,13 +258,38 @@ const MODULES_CATALOG: {
 				'vulocart'
 			),
 			proModule: true,
-			category: 'operations',
+			category: 'customers',
 			freeFeatures: [],
 			proFeatures: [
 				__( 'Wishlists and saved carts', 'vulocart' ),
 				__( 'Customer groups and dynamic segments', 'vulocart' ),
 				__( 'Loyalty points, credits and wallet ledger', 'vulocart' ),
 				__( 'Communication history and customer timeline', 'vulocart' ),
+			],
+		},
+
+		// Reports & Documents: Numbers and paperwork
+		{
+			type: 'separator',
+			id: 'reports',
+			label: __( 'Reports & Documents', 'vulocart' ),
+		},
+		{
+			id: 'analytics',
+			settingsLink: '?page=vulocart#&tab=dashboard',
+			icon: 'analytics',
+			name: __( 'Analytics', 'vulocart' ),
+			desc: __(
+				'Sales, revenue, customers, products, funnels, abandonment, conversion, lifetime value, retention and forecasts on one dashboard.',
+				'vulocart'
+			),
+			proModule: true,
+			category: 'reports',
+			freeFeatures: [],
+			proFeatures: [
+				__( 'Sales, revenue and customer reports', 'vulocart' ),
+				__( 'Funnels, conversion and abandonment', 'vulocart' ),
+				__( 'Lifetime value, retention and forecasts', 'vulocart' ),
 			],
 		},
 		{
@@ -293,7 +302,7 @@ const MODULES_CATALOG: {
 				'vulocart'
 			),
 			proModule: true,
-			category: 'operations',
+			category: 'reports',
 			freeFeatures: [],
 			proFeatures: [
 				__( 'PDF invoice with your store details', 'vulocart' ),
@@ -302,45 +311,12 @@ const MODULES_CATALOG: {
 				__( 'Print-ready page for each document', 'vulocart' ),
 			],
 		},
+
+		// Automation & AI: Workflows, AI and assistants
 		{
-			id: 'inventory',
-			settingsLink: '?page=inventory',
-			icon: 'store-inventory',
-			name: __( 'Inventory', 'vulocart' ),
-			desc: __(
-				'Warehouses and stock locations, purchase orders, transfers, reservations, low-stock alerts, batch/serial tracking, a full history ledger, demand forecasting and suppliers - stock decrements automatically on paid orders and stays synced with each product\'s own stock field.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'operations',
-			freeFeatures: [],
-			proFeatures: [
-				__( 'Warehouses, locations and transfers', 'vulocart' ),
-				__( 'Purchase orders with receiving', 'vulocart' ),
-				__( 'Reservations and low-stock alerts', 'vulocart' ),
-				__( 'Batch/serial tracking and history ledger', 'vulocart' ),
-				__( 'Demand forecasting', 'vulocart' ),
-				__( 'Supplier directory', 'vulocart' ),
-				__( 'Assign one supplier per product', 'vulocart' ),
-			],
-		},
-		{
-			id: 'analytics',
-			settingsLink: '?page=vulocart#&tab=dashboard',
-			icon: 'analytics',
-			name: __( 'Analytics', 'vulocart' ),
-			desc: __(
-				'Sales, revenue, customers, products, funnels, abandonment, conversion, lifetime value, retention and forecasts on one dashboard.',
-				'vulocart'
-			),
-			proModule: true,
-			category: 'operations',
-			freeFeatures: [],
-			proFeatures: [
-				__( 'Sales, revenue and customer reports', 'vulocart' ),
-				__( 'Funnels, conversion and abandonment', 'vulocart' ),
-				__( 'Lifetime value, retention and forecasts', 'vulocart' ),
-			],
+			type: 'separator',
+			id: 'automation-ai',
+			label: __( 'Automation & AI', 'vulocart' ),
 		},
 		{
 			id: 'workflow-builder',
@@ -352,37 +328,13 @@ const MODULES_CATALOG: {
 				'vulocart'
 			),
 			proModule: true,
-			category: 'operations',
+			category: 'automation-ai',
 			freeFeatures: [],
 			proFeatures: [
 				__( 'Seven triggers and seven actions', 'vulocart' ),
 				__( 'Conditions, loops and waits', 'vulocart' ),
 				__( 'Run history', 'vulocart' ),
 			],
-		},
-
-		// AI & Integrations
-		{
-			type: 'separator',
-			id: 'ai-integrations',
-			label: __( 'AI & Integrations', 'vulocart' ),
-		},
-		{
-			id: 'mcp',
-			settingsLink: '?page=vulocart#&tab=settings&subtab=integrations',
-			icon: 'centralized-connections',
-			name: __( 'MCP', 'vulocart' ),
-			desc: __(
-				'Model Context Protocol server - exposes VuloCart\'s catalog/orders to MCP-compatible AI clients.',
-				'vulocart'
-			),
-			proModule: false,
-			category: 'ai-integrations',
-			freeFeatures: [
-				__( 'MCP endpoint for AI clients', 'vulocart' ),
-				__( 'API key authentication', 'vulocart' ),
-			],
-			proFeatures: [],
 		},
 		{
 			id: 'ai',
@@ -394,7 +346,7 @@ const MODULES_CATALOG: {
 				'vulocart'
 			),
 			proModule: false,
-			category: 'ai-integrations',
+			category: 'automation-ai',
 			freeFeatures: [
 				__( 'AI-generated product recommendations', 'vulocart' ),
 				__( 'Upsell suggestions', 'vulocart' ),
@@ -413,6 +365,24 @@ const MODULES_CATALOG: {
 				__( 'Built on your AI provider embeddings', 'vulocart' ),
 			],
 		},
+		{
+			id: 'mcp',
+			settingsLink: '?page=vulocart#&tab=settings&subtab=integrations',
+			icon: 'centralized-connections',
+			name: __( 'MCP', 'vulocart' ),
+			desc: __(
+				'Model Context Protocol server - exposes VuloCart\'s catalog/orders to MCP-compatible AI clients.',
+				'vulocart'
+			),
+			proModule: false,
+			category: 'automation-ai',
+			freeFeatures: [
+				__( 'MCP endpoint for AI clients', 'vulocart' ),
+				__( 'API key authentication', 'vulocart' ),
+			],
+			proFeatures: [],
+		},
+
 	],
 };
 

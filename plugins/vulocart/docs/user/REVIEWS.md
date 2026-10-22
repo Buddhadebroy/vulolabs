@@ -21,9 +21,17 @@ A review from someone who did not give a name is shown as "Anonymous". A review 
 
 The Dashboard counts the reviews waiting for you and links here ("Moderate").
 
+## What shoppers see
+
+On each product page, under the description, shoppers see the average rating with a breakdown by stars, the latest approved reviews and a **Write a review** form (name, rating, optional email, headline and text). Shops and cards show the stars too. A new review shows a thank-you message and waits in your queue. In the page editor, the **Product Reviews** block lets you change the heading, how many reviews to show and switch the form off.
+
+## Related products
+
+Under the reviews, the **Related Products** block shows other products: first the ones you picked on the product screen (Policies & Related Products), then products from the same category, then the newest ones. Its settings: heading, number of products, columns, and whether to fill with the newest.
+
 ## Switching the module off
 
-If you switch Product Reviews off, the Reviews screen and the review routes disappear. **Your stored reviews are kept** and come back when you switch it on again.
+If you switch Product Reviews off, the Reviews screen, the review routes and the stars and reviews on the storefront disappear. **Your stored reviews are kept** and come back when you switch it on again.
 
 ## Related
 

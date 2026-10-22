@@ -11,7 +11,7 @@ Switch off what you do not use (a store that sells only downloads does not need 
 ## How to use it
 
 1. Go to **VuloCart → Settings → Modules**.
-2. Cards are grouped by category pills (Store setup, Catalog, Promotions, Customers & Operations, AI & Integrations).
+2. Cards are grouped by category pills (Store setup, Catalog, Sales & Marketing, Customers, Reports & Documents, Automation & AI); the **All** pill shows every card.
 3. Toggle a card. Cards marked **Pro** need the VuloCart Pro plugin with an active license; without it the toggle is locked and a popup explains what to do.
 4. A card's **Settings** link opens the screen where the feature is configured.
 
@@ -30,34 +30,41 @@ A few cards switch several modules at once, as one feature (for example *Shippin
 
 | Card | Free | With Pro |
 |---|---|---|
-| **Product Reviews** | Approve, reject or delete customer reviews; filter and export; a "to moderate" count on the Dashboard | - |
-| **Variants** | - | Attribute-combination generator, per-variant SKU, price and stock |
 | **Product tools** | - | Bulk edit, CSV import, product templates |
 | **Digital Product Passport** | - | EU Digital Product Passport per product, public page with a QR code |
+| **Inventory** | - | Warehouses, purchase orders, transfers, reservations, batch/serial tracking, history, forecasting, suppliers, back-in-stock alerts |
 
-### Promotions
+### Sales & Marketing
 
-| Card | With Pro |
+| Card | What it adds (Pro) |
 |---|---|
-| **Marketing** | Coupons, gift cards, pricing rules, abandoned-checkout recovery, shareable payment links with QR codes |
+| **Marketing** | Coupons, gift cards, pricing rules, abandoned-checkout recovery, shareable payment links with QR codes, upsells |
 
-### Customers & Operations (Pro)
-
-| Card | What it adds |
-|---|---|
-| **Subscriptions** | Recurring billing, renewal charges, retries, customer self-service |
-| **Customer Growth** | Wishlists, saved carts, groups, segments, loyalty and wallet, communication history |
-| **PDF Invoices & Packing Slips** | Invoice, packing slip and credit note for every order |
-| **Inventory** | Warehouses, purchase orders, transfers, reservations, batch/serial tracking, history, forecasting, suppliers |
-| **Analytics** | Sales, revenue, customers, funnels, lifetime value, retention and forecasts |
-| **Workflow Builder** | Automations that react to orders, payments, refunds, low stock, new customers and deliveries |
-
-### AI & Integrations
+### Customers
 
 | Card | Free | With Pro |
 |---|---|---|
-| **MCP** | The on/off switch and API key for the MCP server | The MCP server for AI clients |
+| **Product Reviews** | Approve, reject or delete customer reviews; filter and export; a "to moderate" count on the Dashboard | - |
+| **Customer Growth** | - | Wishlists, saved carts, groups, segments, loyalty and wallet, communication history |
+
+### Reports & Documents (Pro)
+
+| Card | What it adds |
+|---|---|
+| **Analytics** | Sales, revenue, customers, funnels, lifetime value, retention and forecasts |
+| **PDF Invoices & Packing Slips** | Invoice, packing slip and credit note for every order |
+
+### Automation & AI
+
+| Card | Free | With Pro |
+|---|---|---|
+| **Workflow Builder** | - | Automations that react to orders, payments, refunds, low stock, new customers and deliveries |
 | **AI** | The VuloCloud connection | Product drafting, fraud scoring, support assistants, semantic search |
+| **MCP** | The on/off switch and API key for the MCP server | The MCP server for AI clients |
+
+## Always on with Pro
+
+Some Pro features have no card because you use them where they belong. They are switched on automatically while VuloCart Pro is licensed: **Product Variants** (in the product editor), **Recurring Billing** (recurring prices on a product and the Subscriptions page under Orders), the payment gateways (Settings → Payments) and the checkout styles and extras (Settings → Checkout).
 
 ## Always on
 

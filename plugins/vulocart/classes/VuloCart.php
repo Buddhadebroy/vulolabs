@@ -202,6 +202,7 @@ final class VuloCart {
         $this->container['block']        = new Block();
         $this->container['storefront']   = new Storefront\Storefront();
         $this->container['permalinks']   = new Storefront\Permalinks();
+        $this->container['discovery']    = new Storefront\Discovery();
         $this->container['order_emails'] = new Notifications\OrderEmails();
 
         $previous_version = get_option( Utill::OTHER_SETTINGS['plugin_db_version'], '' );

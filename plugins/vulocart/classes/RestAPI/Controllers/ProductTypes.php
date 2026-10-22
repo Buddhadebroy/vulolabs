@@ -75,7 +75,7 @@ class ProductTypes extends \WP_REST_Controller {
      */
     const PRO_REQUIRED = array(
         'subscription' => array(
-            'module' => 'subscriptions',
+            'module' => 'recurring-billing',
             'label'  => 'Subscriptions',
             'page'   => 'orders',
             'view'   => 'subscriptions',

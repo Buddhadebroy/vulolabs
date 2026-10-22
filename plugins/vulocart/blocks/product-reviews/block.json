@@ -1,0 +1,50 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"category": "widgets",
+	"textdomain": "vulocart",
+	"style": "vulocart-storefront",
+	"editorScript": "vulocart-storefront-editor",
+	"viewScript": "vulocart-storefront-view",
+	"name": "vulocart/product-reviews",
+	"title": "Product Reviews",
+	"description": "Approved customer reviews of the product with a rating breakdown and a form to write one. New reviews wait for your approval.",
+	"icon": "testimonial",
+	"keywords": [
+		"reviews",
+		"ratings",
+		"feedback"
+	],
+	"ancestor": [
+		"vulocart/product-details"
+	],
+	"usesContext": [
+		"vulocart/product",
+		"vulocart/query"
+	],
+	"attributes": {
+		"heading": {
+			"type": "string",
+			"default": ""
+		},
+		"perPage": {
+			"type": "number",
+			"default": 10
+		},
+		"showForm": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": [
+			"wide",
+			"full"
+		],
+		"spacing": {
+			"margin": true,
+			"padding": true
+		}
+	}
+}

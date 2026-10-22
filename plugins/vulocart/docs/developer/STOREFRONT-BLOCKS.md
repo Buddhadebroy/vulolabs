@@ -46,6 +46,12 @@ What a shopper sees. There are two sets of blocks.
 | `vulocart/product-content` | The long description |
 | `vulocart/product-specs` | Details, specifications or shipping and returns as a card |
 | `vulocart/product-faqs` | Questions and answers |
+| `vulocart/product-rating` | Average stars and review count (card or product page); empty until a review is approved |
+| `vulocart/product-reviews` | Rating breakdown, latest approved reviews and the review form. Needs the Product Reviews module; the form posts to `POST /reviews` (honeypot field `website`, five reviews an hour per address) and a new review stays `pending` until approved |
+| `vulocart/product-related` | Other products: the ones picked on the product screen, then the same category, then (option) the newest. Attributes `heading`, `count`, `columns`, `fallback` |
+| `vulocart/product-recently-viewed` | The products this browser looked at last (kept in `localStorage`), filled in by `blocks/view.js` through `GET /storefront/cards`. Hidden until there is something to show |
+| `vulocart/product-share` | X, Facebook, WhatsApp and email links, copy-link and the device share sheet; no third-party script |
+| `vulocart/product-compare` | Table of the products ticked with "Compare" (up to four, in `localStorage`), from `GET /storefront/compare`. The tick and the floating Compare link appear only once a page holds this block |
 | `vulocart/product-extras` | Sections added by extensions, such as the Digital Product Passport. Filled through the `vulocart_storefront_product_sections` filter |
 
 ### Cart blocks
@@ -87,3 +93,7 @@ All block scripts depend on the shared `vendors.js` chunk (`enqueue_shared_vendo
 - [CATALOG](CATALOG.md) - the data these blocks show
 - [CHECKOUT-ENGINE](CHECKOUT-ENGINE.md)
 - [User guide: storefront](../user/CHECKOUT.md)
+
+Product pages saved before the reviews and related blocks existed still get both at the end of the details. Place the block yourself to move it, or return `false` from `vulocart_auto_product_reviews` / `vulocart_auto_related_products` to drop the automatic one.
+
+The share links go under the buy button, and recently viewed after the related products, on product pages that do not place those blocks; the filters `vulocart_auto_product_share` and `vulocart_auto_recently_viewed` turn each off. `vulocart_product_page_sections` lets another plugin add sections under the details (vulocart-pro's Upsells and Stock Alerts modules use it). The class is `Storefront\Discovery`; its public `views_for()` and `cards_html()` give an extension the shop's own cards.

@@ -85,3 +85,14 @@ Under **Products → Product Types** you can switch off types you never sell, so
 - [ORGANIZING-PRODUCTS](ORGANIZING-PRODUCTS.md) - categories, brands, attributes
 - [CHECKOUT](CHECKOUT.md) - showing products in your shop
 - [REVIEWS](REVIEWS.md)
+
+## What shoppers see on a product page
+
+Besides the details, shoppers get these automatically (each is also a block you can place or remove in the page editor):
+
+- **Reviews** with the rating breakdown and a form (see [REVIEWS](REVIEWS.md)).
+- **Related products**. With VuloCart Pro, the Marketing card also adds **Complete the set** (the add-ons you picked on the product screen, optionally as a "bought together" list with one button).
+- **Share** links (X, Facebook, WhatsApp, email, copy link).
+- **Notify me** when the product is sold out is part of VuloCart Pro (Inventory): shoppers leave an email and get one message when you save the product as available again.
+- **Recently viewed** products, remembered in the shopper's browser.
+- **Compare**: add the **Product Compare** block to one page, and every card gets a "Compare" tick (up to four products) with a floating link to that page.

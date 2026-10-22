@@ -146,6 +146,11 @@ class WPDBProductRepository implements ProductRepositoryInterface {
             $where_values[]  = (string) $args['status'];
         }
 
+        if ( ! empty( $args['exclude'] ) ) {
+            $where_clauses[] = 'id <> %d';
+            $where_values[]  = (int) $args['exclude'];
+        }
+
         if ( ! empty( $args['search'] ) ) {
             $where_clauses[] = '(title LIKE %s OR sku LIKE %s)';
             $like            = '%' . $wpdb->esc_like( (string) $args['search'] ) . '%';
