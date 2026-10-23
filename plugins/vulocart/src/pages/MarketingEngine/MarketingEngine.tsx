@@ -1,6 +1,5 @@
-/* global vulocartLocalizer */
 import { renderEngineView } from '../../components/EngineScreen/EngineScreen';
-import { movedViews, settingsViews, storeExtraViews } from '../Products/extraViews';
+import { storeExtraViews } from '../Products/extraViews';
 
 interface MarketingEngineProps {
 	/** One of the `storeExtraViews` ids (coupons, gift-cards, abandoned-checkouts, ...) - anything else shows Coupons. */
@@ -8,24 +7,11 @@ interface MarketingEngineProps {
 }
 
 /**
- * Free owns this menu's frame only; each page is registered by a vulocart-pro module into
- * `vulocart_marketing_view` (Coupons, Pricing Rules, Gift Cards, Cart Abandoned, Checkout Links), one Marketing
- * submenu each. Checkout Builder moved to Settings → Commerce; its old link redirects there. Without the module active the frame shows its "module
- * required" state.
+ * The Marketing menu. The free plugin owns the frame only; each page is registered by a vulocart-pro module into
+ * `vulocart_marketing_view` (Coupons, Pricing Rules, Gift Cards, Abandoned Checkout, Checkout Links), one Marketing
+ * submenu each. Without the module active the frame shows its "module required" state.
  */
 export function MarketingEngine( { view }: MarketingEngineProps ) {
-	if ( view && settingsViews[ view ] ) {
-		window.location.replace( `${ vulocartLocalizer.adminUrl }admin.php?page=vulocart#&tab=settings&subtab=${ settingsViews[ view ] }` );
-
-		return null;
-	}
-
-	if ( view && movedViews[ view ] ) {
-		window.location.replace( `${ vulocartLocalizer.adminUrl }admin.php?page=${ movedViews[ view ].page }&view=${ movedViews[ view ].view }` );
-
-		return null;
-	}
-
 	return renderEngineView( 'vulocart_marketing_view', storeExtraViews, view && storeExtraViews[ view ] ? view : 'coupons' );
 }
 

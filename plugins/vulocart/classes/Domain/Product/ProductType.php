@@ -10,16 +10,10 @@ namespace VuloCart\Domain\Product;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart ProductType class.
- *
- * The vision's "Never use Product internally. Instead use Product." - Product
- * represents Physical Product, Digital Product, Subscription, Course,
- * Service, Membership, Booking, Rental, Bundle, Donation, Gift Card,
- * License, and future product types. One `vulocart_products` table covers all
- * of them (Install.php); this class is only the closed set of known `type`
- * values that column accepts today - per-type *behavior* differences
- * (e.g. a Booking product needing calendar availability) are a later,
- * separate layer, not something this constants class tries to encode.
+ * The closed set of product `type` values the `vulocart_products` table accepts: Physical, Digital, Subscription,
+ * Course, Service, Membership, Booking, Rental, Bundle, Donation, Gift Card and License. One table covers all of them
+ * (see Install.php). Differences in behaviour between types (for example a booking needing calendar availability) are
+ * not encoded here.
  *
  * @class       ProductType class
  * @version     1.0.0

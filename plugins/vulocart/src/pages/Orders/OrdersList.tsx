@@ -49,8 +49,10 @@ const FULFILLMENT_BADGE: Record< string, string > = {
 
 const PAYMENT_BADGE: Record< string, string > = { pending: 'badge-pending', paid: 'badge-active', failed: 'badge-inactive', refunded: 'badge-info' };
 
+/** Returns the label of the option with the given value. */
 const optionLabel = ( options: { label: string; value: string }[], value: string ) => options.find( ( option ) => option.value === value )?.label ?? value;
 
+/** Formats an order row's total followed by its currency. */
 const formatMoney = ( row: TableRow ) => ( null !== row.total && undefined !== row.total ? `${ row.total } ${ row.currency ?? '' }`.trim() : '-' );
 
 interface OrderRow {
@@ -106,7 +108,7 @@ function OrderStatusPopup( { order, onClose, onSaved }: { order: OrderRow; onClo
 			header={ { icon: 'cart', title: `${ __( 'Update order', 'vulocart' ) } #${ order.order_number }` } }
 			footer={
 				<div className="vulocart-qe-footer">
-					<a href={ `admin.php?page=vulocart-orders&action=edit&id=${ order.id }` }>
+					<a href={ `admin.php?page=orders&action=edit&id=${ order.id }` }>
 						{ __( 'Open full order', 'vulocart' ) } <i className="adminfont-pagination-next-arrow" aria-hidden="true" />
 					</a>
 					<ButtonInput
@@ -154,21 +156,12 @@ interface OrdersListProps {
 }
 
 /**
- * Admin order list - `GET /orders` (modules/Order/Rest.php, manage_options-
- * gated) rendered on the same `NavigatorHeaderComponent` + `TableCard`
- * pattern this plugin's other admin screens use. "View" is a real
- * navigation to `admin.php?page=vulocart-orders&action=edit&id={id}`
- * (plain `<a href>`, full page load) rather than a popup - matching the
- * real WooCommerce order edit screen, per this plugin's admin-UX brief.
- * Orders.tsx is what routes between this component and OrderEdit.tsx/
- * OrderAdd.tsx based on the URL's `action`/`id`/`filter`.
+ * Admin order list: `GET /orders` (admin only) shown in a `NavigatorHeaderComponent` and `TableCard`. "View" is a
+ * plain link to `admin.php?page=orders&action=edit&id={id}` (a full page load). Orders.tsx routes between this
+ * component and OrderEdit.tsx / OrderAdd.tsx from the URL's `action`, `id` and `filter`.
  *
- * Payment Status and Fulfillment Status are two independent columns/
- * filters (PaymentStatus.php's/FulfillmentStatus.php's own docblocks
- * explain why an old single flat `status` couldn't render this way
- * honestly). The "saved view" tabs (TableCard's `categoryCounts`) use
- * real per-status counts from `GET /orders`'s `X-WP-Count-{status}`
- * response headers, not guessed/hardcoded numbers.
+ * Payment Status and Fulfillment Status are independent columns and filters. The status tabs use the real per-status
+ * counts from the `X-WP-Count-{status}` headers of `GET /orders`.
  */
 export function OrdersList( { filter }: OrdersListProps ) {
 	const [ isLoading, setIsLoading ] = useState( false );
@@ -315,7 +308,7 @@ export function OrdersList( { filter }: OrdersListProps ) {
 						</span>
 						<div className="vulocart-order-main">
 							<div className="vulocart-order-head">
-								<a className="vulocart-product-cell-title" href={ `admin.php?page=vulocart-orders&action=edit&id=${ row.id }` }>
+								<a className="vulocart-product-cell-title" href={ `admin.php?page=orders&action=edit&id=${ row.id }` }>
 									#{ row.order_number as string }
 								</a>
 								{ row.created_at && <span className="desc">{ formatWpDate( row.created_at as string ) }</span> }
@@ -362,7 +355,7 @@ export function OrdersList( { filter }: OrdersListProps ) {
 					type: 'button' as const,
 					color: 'text-blue',
 					onClick: ( row: Record< string, unknown > ) => {
-						window.location.href = `admin.php?page=vulocart-orders&action=edit&id=${ row.id }`;
+						window.location.href = `admin.php?page=orders&action=edit&id=${ row.id }`;
 					},
 				},
 				{
@@ -425,7 +418,7 @@ export function OrdersList( { filter }: OrdersListProps ) {
 							icon: 'plus',
 							color: '',
 							onClick: () => {
-								window.location.href = 'admin.php?page=vulocart-orders&action=add';
+								window.location.href = 'admin.php?page=orders&action=add';
 							},
 						},
 					] }

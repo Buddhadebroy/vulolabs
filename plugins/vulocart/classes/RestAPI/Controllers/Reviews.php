@@ -15,8 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Reviews REST controller.
  *
  * Backs the Products menu's "Reviews" admin page
- * (`src/pages/Reviews/`) and a future public review-submission form on
- * `src/blocks/products/ProductDetail.tsx`. `POST /reviews` (submit) is
+ * (`src/pages/Reviews/`). `POST /reviews` (submit) is
  * public - same "guest-first" posture Cart/Order's own public routes
  * take (Cart\Rest.php's own docblock) - everything else is
  * `manage_options`-gated moderation, matching Order\Rest's own admin-only
@@ -148,6 +147,22 @@ class Reviews extends \WP_REST_Controller {
      * @return \WP_REST_Response|\WP_Error
      */
     public function create_item( $request ) {
+        // A hidden field real shoppers never fill: a bot that does gets a believable answer and nothing is stored.
+        if ( '' !== (string) $request->get_param( 'website' ) ) {
+            return new \WP_REST_Response( array( 'id' => 0, 'status' => 'pending' ), 201 );
+        }
+
+        // At most five reviews an hour from one address.
+        $address = filter_input( INPUT_SERVER, 'REMOTE_ADDR', FILTER_VALIDATE_IP );
+        $key     = 'vulocart_review_' . md5( $address ? $address : 'unknown' );
+        $sent    = (int) get_transient( $key );
+
+        if ( $sent >= 5 ) {
+            return new \WP_Error( 'vulocart_review_throttled', esc_html__( 'You have sent several reviews already. Please try again later.', 'vulocart' ), array( 'status' => 429 ) );
+        }
+
+        set_transient( $key, $sent + 1, HOUR_IN_SECONDS );
+
         $data = array(
             'product_id' => absint( $request->get_param( 'product_id' ) ),
             'rating'      => absint( $request->get_param( 'rating' ) ),

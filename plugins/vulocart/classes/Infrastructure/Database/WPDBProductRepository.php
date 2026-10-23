@@ -146,6 +146,11 @@ class WPDBProductRepository implements ProductRepositoryInterface {
             $where_values[]  = (string) $args['status'];
         }
 
+        if ( ! empty( $args['exclude'] ) ) {
+            $where_clauses[] = 'id <> %d';
+            $where_values[]  = (int) $args['exclude'];
+        }
+
         if ( ! empty( $args['search'] ) ) {
             $where_clauses[] = '(title LIKE %s OR sku LIKE %s)';
             $like            = '%' . $wpdb->esc_like( (string) $args['search'] ) . '%';
@@ -183,18 +188,37 @@ class WPDBProductRepository implements ProductRepositoryInterface {
             }
         }
 
+        // The public shop: leave out products whose catalog visibility hides them from listings.
+        if ( ! empty( $args['listing'] ) ) {
+            $where_clauses[] = 'meta NOT LIKE %s';
+            $where_values[]  = '%"catalog_visibility":"hidden"%';
+            $where_clauses[] = 'meta NOT LIKE %s';
+            $where_values[]  = '%"catalog_visibility":"search_only"%';
+        }
+
         $where_sql = $where_clauses ? ( 'WHERE ' . implode( ' AND ', $where_clauses ) ) : '';
+
+        // Whitelisted sort (never interpolates caller input): the storefront's sort control; the admin list keeps newest first.
+        $order_by = array(
+            'newest'     => 'id DESC',
+            'oldest'     => 'id ASC',
+            'title'      => 'title ASC',
+            'title_desc' => 'title DESC',
+            'price_asc'  => 'price IS NULL, price ASC, id DESC',
+            'price_desc' => 'price IS NULL, price DESC, id DESC',
+        );
+        $order_sql = isset( $args['orderby'], $order_by[ $args['orderby'] ] ) ? $order_by[ $args['orderby'] ] : 'id DESC';
 
         if ( $where_values ) {
             $count_sql = $wpdb->prepare( "SELECT COUNT(*) FROM {$table} {$where_sql}", ...$where_values ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $where_sql's %s count matches $where_values' size at runtime; the sniff can't see that statically.
             $rows_sql  = $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- same runtime-sized-array case as above.
-                "SELECT * FROM {$table} {$where_sql} ORDER BY id DESC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                "SELECT * FROM {$table} {$where_sql} ORDER BY {$order_sql} LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                 ...array_merge( $where_values, array( $per_page, $offset ) )
             );
         } else {
             $count_sql = "SELECT COUNT(*) FROM {$table}"; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
             $rows_sql  = $wpdb->prepare(
-                "SELECT * FROM {$table} ORDER BY id DESC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                "SELECT * FROM {$table} ORDER BY {$order_sql} LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                 $per_page,
                 $offset
             );

@@ -69,6 +69,7 @@ const ADDRESS_FIELDS: { key: keyof typeof EMPTY_ADDRESS; label: string }[] = [
 
 const FULFILLMENT_BADGE: Record< string, string > = { draft: 'badge-pending', pending: 'badge-pending', processing: 'badge-info', shipped: 'badge-info', completed: 'badge-active', cancelled: 'badge-inactive' };
 const PAYMENT_BADGE: Record< string, string > = { pending: 'badge-pending', paid: 'badge-active', failed: 'badge-inactive', refunded: 'badge-info' };
+/** Upper-cases the first letter of a word. */
 const capitalize = ( value: string ) => value.charAt( 0 ).toUpperCase() + value.slice( 1 );
 
 /** "Today", "Yesterday" or "12 days ago" for a stored UTC timestamp. */
@@ -86,6 +87,7 @@ const daysAgo = ( timestamp: string ) => {
 	return 1 === days ? __( 'Yesterday', 'vulocart' ) : sprintf( /* translators: %d: number of days. */ __( '%d days ago', 'vulocart' ), days );
 };
 
+/** Formats a number with two decimals; empty values count as 0.00. */
 const money = ( value: number | null | undefined ) => Number( value || 0 ).toFixed( 2 );
 
 /**
@@ -173,9 +175,11 @@ export function CustomerDetail( { id }: { id: number } ) {
 	if ( notFound ) {
 		return (
 			<div className="vulocart-product-edit-page">
-				<a className="vulocart-back-link" href="admin.php?page=vulocart-customers">
-					{ __( '← Back to Customers', 'vulocart' ) }
-				</a>
+				<nav className="vulocart-breadcrumbs" aria-label={ __( 'Breadcrumb', 'vulocart' ) }>
+					<a href="admin.php?page=customers">{ __( 'Customers', 'vulocart' ) }</a>
+					<i className="adminfont-pagination-next-arrow" aria-hidden="true" />
+					<span aria-current="page">{ __( 'Customer', 'vulocart' ) }</span>
+				</nav>
 				<p>{ __( 'No customer exists with this id.', 'vulocart' ) }</p>
 			</div>
 		);
@@ -254,7 +258,7 @@ export function CustomerDetail( { id }: { id: number } ) {
 			<div className="vulocart-product-edit-topbar">
 				<div>
 					<nav className="vulocart-breadcrumbs" aria-label={ __( 'Breadcrumb', 'vulocart' ) }>
-						<a href="admin.php?page=vulocart-customers">{ __( 'Customers', 'vulocart' ) }</a>
+						<a href="admin.php?page=customers">{ __( 'Customers', 'vulocart' ) }</a>
 						<i className="adminfont-pagination-next-arrow" aria-hidden="true" />
 						<span aria-current="page">{ __( 'Customer', 'vulocart' ) }</span>
 					</nav>
@@ -335,7 +339,7 @@ export function CustomerDetail( { id }: { id: number } ) {
 								<tbody>
 									{ orders.map( ( order ) => (
 										<tr key={ order.id }>
-											<td><a href={ `admin.php?page=vulocart-orders&action=edit&id=${ order.id }` }>#{ order.order_number }</a></td>
+											<td><a href={ `admin.php?page=orders&action=edit&id=${ order.id }` }>#{ order.order_number }</a></td>
 											<td><strong>{ money( order.total ) }</strong> { order.currency }</td>
 											<td><span className={ `admin-badge ${ PAYMENT_BADGE[ order.payment_status ] ?? 'badge-info' }` }>{ capitalize( order.payment_status ) }</span></td>
 											<td><span className={ `admin-badge ${ FULFILLMENT_BADGE[ order.fulfillment_status ] ?? 'badge-info' }` }>{ capitalize( order.fulfillment_status ) }</span></td>

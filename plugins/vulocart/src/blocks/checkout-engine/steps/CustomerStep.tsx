@@ -3,6 +3,8 @@ import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { client } from '../../shared/cart';
 import { registerCheckoutStep } from '../registry';
+import { TextField } from '../Field';
+import { hasCheckoutField } from '../options';
 
 /**
  * The Customer step - email/name/phone. Prefills from `/customer/me` for
@@ -29,11 +31,25 @@ interface Props {
 	isFirstStep: boolean;
 }
 
+/**
+ * Customer step: collects the contact details (email, and optionally name and phone), prefilled from the signed-in
+ * account.
+ */
 function CustomerStepView( { data, update, mode, goNext, goBack, isFirstStep }: Props ) {
 	const [ error, setError ] = useState< string | null >( null );
 	const [ hasPrefilled, setHasPrefilled ] = useState( false );
 
+	const account = vulocartFrontendData.currentUser;
+	const isSignedIn = Boolean( account?.email );
+
 	useEffect( () => {
+		// The WordPress session is the source of truth for a signed-in shopper: no round trip needed.
+		if ( isSignedIn && ! data.customerEmail ) {
+			update( { customerEmail: account?.email || '', customerName: account?.name || '' } );
+			setHasPrefilled( true );
+			return;
+		}
+
 		if ( hasPrefilled || data.customerEmail ) {
 			setHasPrefilled( true );
 			return;
@@ -76,29 +92,38 @@ function CustomerStepView( { data, update, mode, goNext, goBack, isFirstStep }: 
 
 	return (
 		<div className="vulocart-checkout-step vulocart-checkout-step-customer">
+			{ isSignedIn ? (
+				<div className="vulocart-checkout-account">
+					<span className="vulocart-checkout-account-avatar" aria-hidden="true">
+						{ account?.avatar ? <img src={ account.avatar } alt="" /> : ( account?.name || account?.email || '?' ).charAt( 0 ).toUpperCase() }
+					</span>
+					<span className="vulocart-checkout-account-who">
+						<strong>{ account?.name || account?.email }</strong>
+						<small>{ account?.email }</small>
+					</span>
+					{ account?.logoutUrl && <a href={ account.logoutUrl }>{ __( 'Sign out', 'vulocart' ) }</a> }
+				</div>
+			) : (
+				account?.loginUrl && (
+					<p className="vulocart-checkout-login-hint">
+						{ __( 'Already have an account?', 'vulocart' ) } <a href={ account.loginUrl }>{ __( 'Log in', 'vulocart' ) }</a>
+					</p>
+				)
+			) }
 			<div className="vulocart-checkout-field-group">
-				<input
-					type="email"
-					placeholder={ __( 'Email', 'vulocart' ) }
-					value={ email }
-					onChange={ ( event ) => update( { customerEmail: event.target.value } ) }
-				/>
-				<input
-					type="text"
-					placeholder={ __( 'Name (optional)', 'vulocart' ) }
-					value={ name }
-					onChange={ ( event ) => update( { customerName: event.target.value } ) }
-				/>
-				<input
-					type="tel"
-					placeholder={
-						vulocartFrontendData.requirePhoneNumber
-							? __( 'Phone number', 'vulocart' )
-							: __( 'Phone number (optional)', 'vulocart' )
-					}
-					value={ phone }
-					onChange={ ( event ) => update( { customerPhone: event.target.value } ) }
-				/>
+				{ ! isSignedIn && <TextField type="email" label={ __( 'Email', 'vulocart' ) } autoComplete="email" value={ email } onChange={ ( value ) => update( { customerEmail: value } ) } /> }
+				<div className="vulocart-checkout-field-row">
+					{ hasCheckoutField( 'name' ) && <TextField label={ __( 'Name (optional)', 'vulocart' ) } autoComplete="name" value={ name } onChange={ ( value ) => update( { customerName: value } ) } /> }
+					{ ( hasCheckoutField( 'phone' ) || vulocartFrontendData.requirePhoneNumber ) && (
+						<TextField
+							type="tel"
+							label={ vulocartFrontendData.requirePhoneNumber ? __( 'Phone', 'vulocart' ) : __( 'Phone (optional)', 'vulocart' ) }
+							autoComplete="tel"
+							value={ phone }
+							onChange={ ( value ) => update( { customerPhone: value } ) }
+						/>
+					) }
+				</div>
 			</div>
 
 			{ error && <p className="vulocart-checkout-step-error">{ error }</p> }
@@ -106,11 +131,11 @@ function CustomerStepView( { data, update, mode, goNext, goBack, isFirstStep }: 
 			{ 'multi_step' === mode && (
 				<div className="vulocart-checkout-step-actions">
 					{ ! isFirstStep && (
-						<button type="button" onClick={ goBack }>
+						<button type="button" className="is-secondary" onClick={ goBack }>
 							{ __( 'Back', 'vulocart' ) }
 						</button>
 					) }
-					<button type="button" className="is-primary" onClick={ continueToNext }>
+					<button type="button" className="is-primary wp-element-button" onClick={ continueToNext }>
 						{ __( 'Continue', 'vulocart' ) }
 					</button>
 				</div>

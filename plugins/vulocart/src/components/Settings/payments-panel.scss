@@ -1,0 +1,62 @@
+// The Configure popup on Settings → Payments: one gateway's credentials, with room around them.
+.vulocart-pay-form {
+	display: grid;
+	gap: 1.125rem;
+	padding: 1.25rem 1.5rem;
+
+	.form-group {
+		display: grid;
+		gap: 0.375rem;
+		margin: 0;
+		padding: 0;
+	}
+
+	.settings-form-label,
+	.settings-form-label .typography-title,
+	label {
+		margin: 0;
+		color: #374151;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		line-height: 1.4;
+	}
+
+	.settings-metabox-description {
+		margin: 0.125rem 0 0;
+		color: #6b7280;
+		font-size: 0.75rem;
+		line-height: 1.5;
+	}
+
+	// zyra draws its own box around text inputs; only keep the field itself full width.
+	.input-wrapper,
+	.basic-input,
+	input[type='text'],
+	input[type='password'] {
+		width: 100%;
+		box-sizing: border-box;
+	}
+}
+
+.vulocart-pay-form-switch {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1.5rem;
+	padding: 0.875rem 1rem;
+	border: 1px solid #e3e6ef;
+	border-radius: 0.5rem;
+	background: #f9fafc;
+
+	.vulocart-pay-form-label {
+		color: #374151;
+		font-size: 0.8125rem;
+		font-weight: 600;
+	}
+
+	.settings-metabox-description {
+		margin-top: 0.125rem;
+		color: #6b7280;
+		font-size: 0.75rem;
+	}
+}

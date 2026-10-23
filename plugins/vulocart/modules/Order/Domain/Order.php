@@ -10,22 +10,13 @@ namespace VuloCart\Order\Domain;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Order module Order entity.
+ * Plain domain object. `order_number` is the human-facing identifier shown to the buyer; `access_token` is the
+ * order's equivalent of a cart's `token`: an opaque value only the buyer (or whoever the order was emailed to) holds,
+ * which lets a guest with no WordPress account look the order up (Rest::track_item()) without `manage_options`.
  *
- * Plain domain object, same shape/rules as VuloCart\Domain\Product\Product/
- * VuloCart\Cart\Domain\Cart. `order_number` is the human-facing identifier
- * (shown to the buyer); `access_token` is the headless equivalent of
- * Cart's `token` - an opaque value only the buyer who placed the order (or
- * whoever it was emailed to) holds, letting a guest with no WordPress
- * account look their own order up (Rest::track_item()) without needing
- * `manage_options`.
- *
- * `$payment_status`/`$fulfillment_status` replaced a single flat `$status`
- * field (PaymentStatus.php's/FulfillmentStatus.php's own docblocks explain
- * why) - the underlying `vulocart_orders` table still has a `status`
- * column, kept in sync with `$fulfillment_status` on write for
- * any external code still reading it directly, but no longer read by this
- * class or anything in this codebase.
+ * `$payment_status` and `$fulfillment_status` are two independent statuses (see PaymentStatus and FulfillmentStatus).
+ * The `vulocart_orders` table still has a `status` column, kept in sync with `$fulfillment_status` on write for
+ * external code that reads it; nothing in this plugin reads it.
  *
  * @class       Order class
  * @version     1.0.0
@@ -65,8 +56,7 @@ class Order {
     public $cart_token;
 
     /**
-     * Buyer's email, for guest orders (no Customer/Identity module exists
-     * yet to reference instead - vision's "Customer" module).
+     * Buyer's email, for guest orders.
      *
      * @var string|null
      */
@@ -117,15 +107,8 @@ class Order {
     public $subtotal;
 
     /**
-     * `subtotal` + `$shipping_cost` + `$tax_amount` - the two latter
-     * fields are 0.0 whenever the Shipping/Taxes modules aren't active
-     * (Application\OrderService::create_from_cart()'s own graceful-
-     * absence handling), so `total === subtotal` is still what a
-     * cart-only/no-checkout-modules install sees, just no longer
-     * guaranteed. Cart\Application\CartService::get_totals() still
-     * documents the identical gap for a cart's own totals, which never
-     * gained shipping/tax (that's checkout-time-only, once an Order
-     * exists).
+     * `subtotal` + `$shipping_cost` + `$tax_amount`. The last two are 0.0 when the Shipping and Taxes modules are not
+     * active, so `total` equals `subtotal` on a store without them.
      *
      * @var float
      */
@@ -181,11 +164,9 @@ class Order {
     public $customer_user_id;
 
     /**
-     * Snapshotted billing address, from the Address module's checkout
-     * step - same open-bag shape as $meta (full_name, phone, address_1,
-     * address_2, city, state, postcode, country), not a reusable address
-     * book entry (vision's lightweight-first scope: an order is a
-     * historical record, not a live reference to an editable address).
+     * Snapshot of the billing address from the Address step, as an open array like $meta (full_name, phone,
+     * address_1, address_2, city, state, postcode, country). It is a historical record of the order, not a reference
+     * to an editable address.
      *
      * @var array<string, mixed>|null
      */
@@ -218,10 +199,8 @@ class Order {
     public $shipping_cost;
 
     /**
-     * Tax amount, computed server-side by the Taxes module at
-     * order-creation time - never trusted from the client. `total` is no
-     * longer always `=== subtotal` now that this and $shipping_cost exist
-     * (OrderService::create_from_cart() is where they're added in).
+     * Tax amount, computed on the server by the Taxes module when the order is created and never taken from the
+     * client (OrderService::create_from_cart() adds it to `total`).
      *
      * @var float
      */

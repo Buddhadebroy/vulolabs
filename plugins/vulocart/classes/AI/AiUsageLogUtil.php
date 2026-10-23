@@ -25,6 +25,8 @@ defined( 'ABSPATH' ) || exit;
 class AiUsageLogUtil {
 
 	/**
+	 * Returns the full name of the AI usage log table, including the site's table prefix.
+	 *
 	 * @return string
 	 */
 	public function get_table(): string {
@@ -33,6 +35,9 @@ class AiUsageLogUtil {
 	}
 
 	/**
+	 * Stores one AI request in the usage log (provider, model, feature, token counts, success flag and error
+	 * message).
+	 *
 	 * @param array<string, mixed> $data Row fields: provider, model, feature, prompt_tokens, completion_tokens, success, error_message.
 	 * @return void
 	 */
@@ -54,6 +59,8 @@ class AiUsageLogUtil {
 	}
 
 	/**
+	 * Returns the most recent AI usage log rows, newest first.
+	 *
 	 * @param int $limit Max rows to return, most recent first.
 	 * @return array<int, array<string, mixed>>
 	 */
@@ -64,6 +71,9 @@ class AiUsageLogUtil {
 	}
 
 	/**
+	 * Returns lifetime totals for the usage log: number of calls, prompt and completion tokens, and how many
+	 * calls failed.
+	 *
 	 * @return array{total_calls: int, total_prompt_tokens: int, total_completion_tokens: int, failed_calls: int}
 	 */
 	public function get_summary(): array {

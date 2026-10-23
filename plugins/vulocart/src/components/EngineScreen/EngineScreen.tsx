@@ -1,7 +1,8 @@
 /* global vulocartLocalizer */
 import { useEffect, useState } from '@wordpress/element';
 import type { ReactNode } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import MODULES_CATALOG, { isModuleCatalogEntry, moduleCardId } from '../../modules-config';
 import { applyFilters } from '@wordpress/hooks';
 import axios from 'axios';
 import { ContainerComponent, ColumnComponent, NavigatorHeaderComponent } from '@zyra/components';
@@ -16,6 +17,8 @@ export interface EngineView {
 	module: string;
 	/** True when the module ships in vulocart-pro, so it also needs an active license. */
 	pro?: boolean;
+	/** The registered page draws its own header (breadcrumb, title, actions), so the frame omits the standard one. */
+	bare?: boolean;
 }
 
 interface EngineScreenProps {
@@ -105,7 +108,7 @@ export function renderEngineView(
 	const meta = views[ view ] ?? Object.values( views )[ 0 ];
 
 	if ( extra ) {
-		return <EngineScreen view={ views[ view ] }>{ extra as ReactNode }</EngineScreen>;
+		return <EngineScreen view={ views[ view ]?.bare ? undefined : views[ view ] }>{ extra as ReactNode }</EngineScreen>;
 	}
 
 	return (
@@ -114,19 +117,6 @@ export function renderEngineView(
 		</EngineScreen>
 	);
 }
-
-/** Modules switched on from Settings → Checkout instead of the Modules screen. */
-const CHECKOUT_SETTING_MODULES = [
-	'popup-checkout',
-	'drawer-checkout',
-	'embedded-checkout',
-	'hosted-checkout',
-	'one-click-checkout',
-	'checkout-links',
-	'checkout-templates',
-	'order-notes',
-	'address-autocomplete',
-];
 
 /**
  * Shown where a module's page would be: tells the user which module powers the page and gives
@@ -140,7 +130,8 @@ export function ModuleRequired( { view }: { view: EngineView } ) {
 	// (Utill::is_khali_dabba()). No Pro at all is an upgrade, Pro without a license is an activation.
 	const needsUpgrade = !! view.pro && ! vulocartLocalizer.pro_version;
 	const needsLicense = !! view.pro && ! needsUpgrade && ! vulocartLocalizer.khali_dabba;
-	const inCheckoutSettings = CHECKOUT_SETTING_MODULES.includes( view.module );
+	// The name Settings → Modules shows for it, so the message says exactly which module to switch on.
+	const moduleName = MODULES_CATALOG.modules.filter( isModuleCatalogEntry ).find( ( module ) => module.id === moduleCardId( view.module ) )?.name;
 	const settingsUrl = `${ vulocartLocalizer.adminUrl }admin.php?page=vulocart#&tab=settings&subtab=`;
 
 	const activate = () => {
@@ -176,8 +167,8 @@ export function ModuleRequired( { view }: { view: EngineView } ) {
 					? __( 'This page is part of VuloCart Pro', 'vulocart' )
 					: needsLicense
 					? __( 'This page needs an active VuloCart Pro license', 'vulocart' )
-					: inCheckoutSettings
-					? __( 'Turn this on in Checkout settings', 'vulocart' )
+					: moduleName
+					? sprintf( /* translators: %s: module name. */ __( 'Turn on the %s module', 'vulocart' ), moduleName )
 					: __( 'Turn on the module behind this page', 'vulocart' ) }
 			</h2>
 			<p>{ view.description }</p>
@@ -189,21 +180,17 @@ export function ModuleRequired( { view }: { view: EngineView } ) {
 				<a className="vulocart-engine-button" href={ `${ settingsUrl }licensing` }>
 					{ __( 'Activate license', 'vulocart' ) }
 				</a>
-			) : inCheckoutSettings ? (
-				<a className="vulocart-engine-button" href={ `${ settingsUrl }checkout` }>
-					{ __( 'Open Checkout settings', 'vulocart' ) }
-				</a>
 			) : (
 				<div>
 					<button type="button" className="vulocart-engine-button" disabled={ busy } onClick={ activate }>
-						{ busy ? __( 'Activating…', 'vulocart' ) : __( 'Activate module', 'vulocart' ) }
+						{ busy ? __( 'Activating…', 'vulocart' ) : moduleName ? sprintf( /* translators: %s: module name. */ __( 'Activate %s', 'vulocart' ), moduleName ) : __( 'Activate module', 'vulocart' ) }
 					</button>
 					<a className="vulocart-engine-link" href={ `${ settingsUrl }modules` }>
 						{ __( 'Manage modules', 'vulocart' ) }
 					</a>
 				</div>
 			) }
-			{ failed && <p className="vulocart-engine-error">{ __( 'Could not activate the module.', 'vulocart' ) }</p> }
+			{ failed && <p className="vulocart-engine-error">{ moduleName ? sprintf( /* translators: %s: module name. */ __( 'Could not activate the %s module. Try again from Settings → Modules.', 'vulocart' ), moduleName ) : __( 'Could not activate the module.', 'vulocart' ) }</p> }
 		</div>
 	);
 }

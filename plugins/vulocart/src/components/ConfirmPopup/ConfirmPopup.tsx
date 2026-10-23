@@ -12,8 +12,7 @@ interface ConfirmPopupProps {
 }
 
 /**
- * The lightbox confirmation VuloPilot shows (its `ShowProPopup` `confirmMode`) in place of
- * `window.confirm()`. Same markup/classes, so the shared popup stylesheet applies.
+ * Lightbox confirmation, used instead of `window.confirm()`. It uses the shared popup markup and classes.
  */
 export function ConfirmPopup( { open, title, message, confirmText, onConfirm, onCancel }: ConfirmPopupProps ) {
 	return (

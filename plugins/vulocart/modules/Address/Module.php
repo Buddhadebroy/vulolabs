@@ -10,17 +10,11 @@ namespace VuloCart\Address;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Address Module.
+ * Address module: sanitizes and validates the billing and shipping address of an order.
  *
- * Same toggleable-addon pattern as VuloCart\Cart\Module. No hard
- * cross-module dependency, no own table - an address here is a per-order
- * snapshot (`Order::$billing_address`/`$shipping_address`, a plain array
- * like `$meta`), not a reusable address-book entry (vision's
- * lightweight-first scope). This module's whole job is sanitizing and
- * validating that snapshot's shape, shared by the checkout wizard's own
- * client-side step validation (`POST /address/validate`) and
- * Order\Rest::create_item()'s server-side re-check before an order is
- * actually persisted.
+ * An address is stored as a snapshot on the order (not as a reusable address book entry). The checkout validates it step
+ * by step through `POST /address/validate`, and the order REST controller checks it again on the server before an order
+ * is saved.
  *
  * @class       Module class
  * @version     1.0.0
@@ -29,9 +23,7 @@ defined( 'ABSPATH' ) || exit;
 class Module {
 
     /**
-     * Module constructor. Constructs this module's own classes and
-     * registers its service on the main plugin container
-     * (`VuloCart()->address_service`).
+     * Creates the address service (`VuloCart()->address_service`), the validation route and the checkout's Address step.
      */
     public function __construct() {
         $service = new Application\AddressService();

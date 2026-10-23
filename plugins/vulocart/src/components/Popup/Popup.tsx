@@ -2,6 +2,7 @@
 import React from 'react';
 import { ButtonInput } from '@zyra/inputs';
 import { __, sprintf } from '@wordpress/i18n';
+import MODULES_CATALOG, { isModuleCatalogEntry, moduleCardId } from '../../modules-config';
 import './Popup.scss';
 
 interface PopupProps {
@@ -20,18 +21,26 @@ const ACRONYM_LABELS: Record< string, string > = {
 };
 
 /**
- * The popup header icon is `adminfont-${moduleName}` - fine for module
- * ids that happen to already be an icon name (e.g. vulopilot's
- * 'automation'), but 'mcp' has no matching glyph in zyra's icon set
- * (`ai` does - checked against `@zyra/theme`'s fonts.scss, same source
- * `src/settings/Mcp.ts`'s/`Ai.ts`'s own `headerIcon` values were verified
- * against). Overridden here rather than renaming the module id itself.
+ * The popup header icon is `adminfont-${moduleName}`. That works for module ids that are also an icon name, but 'mcp'
+ * has no matching glyph in zyra's icon set (`ai` does), so it is overridden here instead of renaming the module id.
  */
 const ICON_OVERRIDES: Record< string, string > = {
 	mcp: 'centralized-connections',
 };
 
+const CATALOG_BY_ID = new Map( MODULES_CATALOG.modules.filter( isModuleCatalogEntry ).map( ( module ) => [ module.id, module ] ) );
+
+/**
+ * Returns the name Settings → Modules shows for a module, so the popup and the module card always agree.
+ */
 const formatModuleName = ( name: string ): string => {
+	// The name Settings → Modules shows for it, so the popup and the card always agree.
+	const card = CATALOG_BY_ID.get( moduleCardId( name ) );
+
+	if ( card ) {
+		return card.name;
+	}
+
 	if ( ACRONYM_LABELS[ name ] ) {
 		return ACRONYM_LABELS[ name ];
 	}
@@ -42,17 +51,16 @@ const formatModuleName = ( name: string ): string => {
 		.join( ' ' );
 };
 
+/** What the Pro popup lists: every module that ships in vulocart-pro, in the order the Modules screen shows them. */
+const PRO_MODULES = MODULES_CATALOG.modules.filter( isModuleCatalogEntry ).filter( ( module ) => module.proModule );
+
 /**
- * The popup zyra's InputRenderer opens when a field with `moduleEnabled`/
- * `dependentPlugin`/`proSetting` is locked - passed in as the `Popup`
- * prop on `<InputRenderer>` (pages/Settings/Settings.tsx). Mirrors
- * `vulopilot/src/components/Popup/Popup.tsx`'s structure, trimmed to
- * what VuloCart actually needs today: the `moduleName` branch is the one
- * real settings fields use (`src/settings/Mcp.ts`'s `mcp_api_key`,
- * `Ai.ts`'s `ai_provider`). The default (no moduleName/plugin) branch -
- * reachable if a future field sets `proSetting: true` - is a plain
- * upgrade CTA, not a fabricated feature list, since this plugin has no
- * central Pro-feature catalog to draw one from honestly.
+ * The popup zyra's InputRenderer opens when a locked field (one with `moduleEnabled`, `dependentPlugin` or
+ * `proSetting`) is clicked; it is passed as the `Popup` prop of `<InputRenderer>` (pages/Settings/Settings.tsx).
+ *
+ * The `moduleName` branch is the one settings fields use (the MCP API key and the shipping and tax fields): it says
+ * which module to activate. The `plugin` branch says which plugin is required. The default branch is a plain upgrade
+ * prompt for Pro.
  */
 const Popup: React.FC< PopupProps > = ( props ) => {
 	if ( props.plugin ) {
@@ -100,7 +108,7 @@ const Popup: React.FC< PopupProps > = ( props ) => {
 	}
 
 	if ( props.moduleName ) {
-		const iconName = ICON_OVERRIDES[ props.moduleName ] ?? props.moduleName;
+		const iconName = ICON_OVERRIDES[ props.moduleName ] ?? CATALOG_BY_ID.get( props.moduleName )?.icon ?? props.moduleName;
 
 		return (
 			<div className="popup-wrapper">
@@ -119,7 +127,7 @@ const Popup: React.FC< PopupProps > = ( props ) => {
 						{ sprintf(
 							/* translators: %s: Module name. */
 							__(
-								'This setting is only usable once the %s module is active.',
+								'This feature is currently unavailable. To activate it, please enable the %s module.',
 								'vulocart'
 							),
 							formatModuleName( props.moduleName )
@@ -130,9 +138,10 @@ const Popup: React.FC< PopupProps > = ( props ) => {
 						buttons={ [
 							{
 								icon: 'eye',
-								text: __( 'Enable now', 'vulocart' ),
+								text: __( 'Enable Now', 'vulocart' ),
 								onClick: () => {
-									window.open( `${ vulocartLocalizer.adminUrl }#&tab=settings&subtab=modules` );
+									// Same admin page, just a different hash tab.
+									window.open( `${ vulocartLocalizer.adminUrl }admin.php?page=vulocart#&tab=settings&subtab=modules&module=${ props.moduleName }`, '_self' );
 								},
 							},
 						] }
@@ -145,22 +154,28 @@ const Popup: React.FC< PopupProps > = ( props ) => {
 	return (
 		<div className="popup-wrapper">
 			<div className="top-section">
-				<div className="heading">{ __( 'Unlock VuloCart Pro', 'vulocart' ) }</div>
+				<div className="heading">{ __( 'Unlock the full VuloCart toolkit', 'vulocart' ) }</div>
 				<div className="description">
-					{ __(
-						'This feature is part of VuloCart Pro.',
-						'vulocart'
-					) }
+					{ __( 'Sell your way: popup, drawer and one-click checkout, subscriptions, coupons, advanced shipping and tax, AI tools, and more.', 'vulocart' ) }
 				</div>
-				<a
-					className="admin-btn"
-					href={ vulocartLocalizer.shop_url }
-					target="_blank"
-					rel="noreferrer"
-				>
+				<a className="admin-btn" href={ vulocartLocalizer.shop_url } target="_blank" rel="noreferrer">
 					{ __( 'Upgrade to Pro', 'vulocart' ) }
 					<i className="adminfont-arrow-right arrow-icon"></i>
 				</a>
+			</div>
+			<div className="popup-details">
+				<div className="heading-text">{ __( 'What you unlock with Pro', 'vulocart' ) }</div>
+				<ul>
+					{ PRO_MODULES.map( ( module ) => (
+						<li key={ module.id }>
+							<div className="title">
+								<i className={ `adminfont-${ module.icon ?? module.id }` } />
+								{ module.name }
+							</div>
+							<div className="desc">{ module.desc.split( '. ' )[ 0 ].replace( /\.$/, '' ) }.</div>
+						</li>
+					) ) }
+				</ul>
 			</div>
 		</div>
 	);

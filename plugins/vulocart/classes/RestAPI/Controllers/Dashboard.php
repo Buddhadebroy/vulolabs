@@ -246,7 +246,7 @@ class Dashboard extends \WP_REST_Controller {
             }
         }
 
-        if ( $has_reviews ) {
+        if ( $has_reviews && VuloCart()->modules->is_active( 'product-reviews' ) ) {
             $attention['pending_reviews'] = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$reviews_table}` WHERE status = 'pending'" );
         }
         // phpcs:enable

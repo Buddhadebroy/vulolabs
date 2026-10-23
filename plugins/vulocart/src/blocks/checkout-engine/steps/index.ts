@@ -1,10 +1,6 @@
 /**
- * Importing this file (side-effect only, no exports used) registers
- * Free's own five interactive checkout steps into registry.ts's
- * `registerCheckoutStep()` - Checkout.tsx imports this once before
- * mounting CheckoutEngine.tsx. See registry.ts's own docblock for why
- * this is one barrel file today rather than each step being its own
- * separately-loaded bundle.
+ * Importing this file (for its side effects only) registers the free plugin's five interactive checkout steps with
+ * `registerCheckoutStep()` from registry.ts. Checkout.tsx imports it once before mounting CheckoutEngine.tsx.
  */
 import './CustomerStep';
 import './AddressStep';

@@ -10,23 +10,10 @@ namespace VuloCart\Cart;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Cart Module.
+ * Cart module: shopping carts for guests and signed-in customers.
  *
- * The vision: an independent Cart Engine, its own toggleable module
- * (`modules/Cart/Module.php`), discovered and instantiated only by
- * VuloCart's own `Modules` loader (module-architecture.md), never
- * constructed directly anywhere in this codebase - same pattern
- * `vulocart-pro`'s Passport module already establishes, just with the
- * fuller Domain/Application/Infrastructure/Rest layering Cart's own
- * business complexity earns (unlike Passport's flatter single-Util
- * shape - module-architecture.md: "no fixed contract... decide
- * per-feature").
- *
- * No cross-module dependency to defer here (unlike Order\Module, which
- * needs Cart's own service to already exist) - `product_service` is
- * constructed eagerly in `VuloCart::init_classes()` *before* any module
- * loads, so this module can wire everything synchronously in its own
- * constructor.
+ * Registers the cart service (`VuloCart()->cart_service`), the cart REST routes, the cart tables, and the daily cleanup
+ * of abandoned carts. It is a core module: the cart cannot be switched off.
  *
  * @class       Module class
  * @version     1.0.0
@@ -35,14 +22,8 @@ defined( 'ABSPATH' ) || exit;
 class Module {
 
     /**
-     * Module constructor. Wires this module's own classes directly and
-     * registers its service on the main plugin container
-     * (`VuloCart()->cart_service`) so sibling modules (Order\Module) and
-     * the core plugin can reach it the same way they reach any other core
-     * service - same plain, self-wiring shape vulopilot(-pro)'s own
-     * Module.php files use (no per-module container/magic getter: nothing
-     * outside this module ever reaches into its instance, so there was
-     * never a consumer for one).
+     * Creates the cart tables, the cart service (`VuloCart()->cart_service`), the cart routes and the daily expired-cart
+     * cleanup.
      */
     public function __construct() {
         new Install();

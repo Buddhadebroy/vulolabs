@@ -10,19 +10,11 @@ namespace VuloCart\Address;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Address module Rest class.
+ * Address REST controller. Public like the other checkout routes.
  *
- * Module-level REST controller, public - same reasoning as Cart\Rest's own
- * docblock (a guest checking out has no WordPress session). This route is
- * validate-only; the address that's actually persisted goes through
- * Order\Rest::create_item()'s own call to the same AddressService, at
- * order-creation time. `POST /address/validate` exists so the checkout
- * wizard's Address step can tell the buyer about a missing field *before*
- * they reach Review, not just fail at the very last step.
- *
- * Extends `\WP_REST_Controller` to match vulopilot's REST convention; no
- * collision - this class declares no `prepare_item_for_response()` (or any
- * other base-class method name) at all, let alone a private one.
+ * `POST /address/validate` only validates, so the Address step can tell the buyer about a missing field before they
+ * reach Review. The address that is saved goes through Order\Rest::create_item(), which uses the same AddressService
+ * when the order is created.
  *
  * @class       Rest class
  * @version     1.0.0

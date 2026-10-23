@@ -32,20 +32,20 @@ const paymentsFields: PaymentField[] = [
 		key: 'payments-section-capture',
 		type: 'section',
 		icon: 'payment',
-		title: __( 'Capture', 'vulocart' ),
-		desc: __( 'When an online gateway actually takes the buyer\'s money.', 'vulocart' ),
+		title: __( 'Card charging', 'vulocart' ),
+		desc: __( 'When an online gateway (Stripe, PayPal, Razorpay) takes the money.', 'vulocart' ),
 	},
 	{
 		key: 'payment_capture_mode',
 		type: 'select',
-		label: __( 'Capture mode', 'vulocart' ),
+		label: __( 'Charge the card', 'vulocart' ),
 		settingDescription: __(
-			'"Immediate" charges the card at checkout. "Manual" only authorizes it, letting you capture payment later from the order screen. Offline gateways are unaffected either way.',
+			'Charge at checkout, or only hold the amount and capture it yourself later from the order screen. Offline methods are not affected.',
 			'vulocart'
 		),
 		options: [
-			{ label: __( 'Immediate', 'vulocart' ), value: 'immediate' },
-			{ label: __( 'Manual', 'vulocart' ), value: 'manual' },
+			{ label: __( 'At checkout', 'vulocart' ), value: 'immediate' },
+			{ label: __( 'Later, when I capture it', 'vulocart' ), value: 'manual' },
 		],
 	},
 	{
@@ -53,7 +53,7 @@ const paymentsFields: PaymentField[] = [
 		type: 'section',
 		icon: 'payment',
 		title: __( 'Manual payment', 'vulocart' ),
-		desc: __( 'A generic offline settlement method - the buyer and store owner arrange payment outside this software.', 'vulocart' ),
+		desc: __( 'You and the buyer arrange payment outside the store, for example by phone or invoice.', 'vulocart' ),
 	},
 	{
 		key: 'enable_manual_payment',
@@ -65,8 +65,8 @@ const paymentsFields: PaymentField[] = [
 	{
 		key: 'default_payment_status',
 		type: 'select',
-		label: __( 'Default status', 'vulocart' ),
-		settingDescription: __( 'Payment status a new manual-payment order starts at.', 'vulocart' ),
+		label: __( 'Payment status of new orders', 'vulocart' ),
+		settingDescription: __( 'The payment status a new manual-payment order starts with. Choose Pending if you confirm payment yourself.', 'vulocart' ),
 		options: [
 			{ label: __( 'Pending', 'vulocart' ), value: 'pending' },
 			{ label: __( 'Paid', 'vulocart' ), value: 'paid' },
@@ -79,7 +79,7 @@ const paymentsFields: PaymentField[] = [
 		type: 'section',
 		icon: 'bank-payment',
 		title: __( 'Bank transfer', 'vulocart' ),
-		desc: __( 'Buyer wires funds directly - the order stays pending until you confirm the transfer landed and mark it paid.', 'vulocart' ),
+		desc: __( 'The buyer sends the money to your bank. The order stays pending until you mark it paid.', 'vulocart' ),
 	},
 	{
 		key: 'enable_bank_transfer',
@@ -91,15 +91,15 @@ const paymentsFields: PaymentField[] = [
 	{
 		key: 'bank_transfer_instructions',
 		type: 'textarea',
-		label: __( 'Instructions', 'vulocart' ),
-		settingDescription: __( 'Shown to the buyer on the order confirmation screen - account number, bank name, reference format, etc.', 'vulocart' ),
+		label: __( 'Payment instructions', 'vulocart' ),
+		settingDescription: __( 'Shown to the buyer after they order: account number, bank name and the reference to use.', 'vulocart' ),
 	},
 	{
 		key: 'payments-section-cod',
 		type: 'section',
 		icon: 'wallet',
 		title: __( 'Cash on delivery', 'vulocart' ),
-		desc: __( 'Buyer pays in cash when the order is delivered.', 'vulocart' ),
+		desc: __( 'The buyer pays in cash when the order arrives.', 'vulocart' ),
 	},
 	{
 		key: 'enable_cash_on_delivery',

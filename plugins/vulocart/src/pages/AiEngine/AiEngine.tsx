@@ -24,7 +24,7 @@ interface AiTool {
 	aliases: string[];
 }
 
-/** The assistant - the page's main column, like VuloPilot's AI Copilot chat. */
+/** The assistant: the main column of the page. */
 const CHAT: AiTool = {
 	id: 'chat',
 	module: 'support-ai',
@@ -63,10 +63,10 @@ function ToolSlot( { tool }: { tool: AiTool } ) {
 }
 
 /**
- * AI Copilot - one page, laid out like VuloPilot's: the assistant chat in the main column, the focused AI tools
- * (product drafting, checkout protection, smart search) as cards beside it. Free owns the frame and the layout;
- * each card is registered by its vulocart-pro module into `vulocart_ai_view` (`layout: 'card'`). Connecting AI
- * (VuloCloud) is under Settings → Integrations; the header says whether it is connected.
+ * AI screen: the assistant chat in the main column and the focused AI tools (product drafting, checkout protection,
+ * smart search) as cards beside it. The free plugin owns the frame and the layout; each card is registered by its
+ * vulocart-pro module into `vulocart_ai_view` (`layout: 'card'`). Connecting AI (VuloCloud) is under Settings →
+ * Integrations; the header says whether it is connected.
  */
 export function AiEngine( { view }: AiEngineProps ) {
 	const [ connected, setConnected ] = useState< boolean | null >( null );

@@ -13,18 +13,11 @@ use VuloCart\Domain\Term\Term as TermEntity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Terms REST controller.
+ * Terms REST controller: registers one set of CRUD routes per taxonomy in ROUTE_TAXONOMIES (`/categories`, `/brands`,
+ * `/collections`, `/tags`), each bound to a Domain\Term\Taxonomy constant. They back the Categories, Brands,
+ * Collections and Tags pages (`src/pages/Terms/`).
  *
- * Registers the same CRUD route shape once per ROUTE_TAXONOMIES entry -
- * `/categories`, `/brands`, `/collections`, `/tags` - each bound to one
- * Domain\Term\Taxonomy constant, backing the Products menu's
- * "Categories"/"Brands"/"Collections"/"Tags" admin pages (`src/pages/Terms/`).
- * One controller class rather than four near-identical ones, mirroring
- * Domain\Term\Taxonomy's own "one shape, one table" reasoning.
- *
- * Listing/reading is public (categories/brands/collections/tags are
- * harmless reference data, same posture as Products' own public GET -
- * rest-api.md); every mutation is `manage_options`-gated.
+ * Listing and reading are public, because these are harmless reference data; every change requires `manage_options`.
  *
  * @class       Terms class
  * @version     1.0.0

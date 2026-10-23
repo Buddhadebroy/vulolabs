@@ -1,0 +1,28 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"category": "widgets",
+	"textdomain": "vulocart",
+	"style": "vulocart-storefront",
+	"editorScript": "vulocart-storefront-editor",
+	"name": "vulocart/product-breadcrumbs",
+	"title": "Product Breadcrumbs",
+	"description": "Home \u203a Shop \u203a Product.",
+	"icon": "arrow-right-alt2",
+	"ancestor": [
+		"vulocart/product-details"
+	],
+	"usesContext": [
+		"vulocart/product",
+		"vulocart/query"
+	],
+	"supports": {
+		"html": false,
+		"spacing": {
+			"margin": true
+		},
+		"typography": {
+			"fontSize": true
+		}
+	}
+}

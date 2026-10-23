@@ -1,0 +1,25 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"category": "widgets",
+	"textdomain": "vulocart",
+	"style": "vulocart-storefront",
+	"editorScript": "vulocart-storefront-editor",
+	"name": "vulocart/product-details",
+	"title": "Product Page",
+	"description": "A single product's page, shown when the shop link has a ?product= address. Arrange the blocks inside to design it.",
+	"icon": "products",
+	"supports": {
+		"html": false,
+		"align": [
+			"wide",
+			"full"
+		],
+		"spacing": {
+			"margin": true,
+			"padding": true,
+			"blockGap": true
+		}
+	},
+	"viewScript": "vulocart-storefront-view"
+}

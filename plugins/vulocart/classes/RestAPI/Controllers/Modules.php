@@ -10,19 +10,11 @@ namespace VuloCart\RestAPI\Controllers;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Modules REST controller.
+ * `GET` / `POST /vulocart/v1/modules`: reads and changes which modules are active.
  *
- * `GET`/`POST /vulocart/v1/modules` - this exact shape (not a richer
- * per-module object, not separate `/activate`/`/deactivate` sub-routes)
- * is what @multivendorx/zyra's `ModuleGridComponent`/`initializeModules()`
- * actually call, verified against zyra's real build output and against
- * `vulopilot`'s own `Controllers/Settings.php::get_modules()`/
- * `set_modules()`, which implements the same contract: `GET` returns a
- * flat array of active module ids, `POST` takes `{ id, action }`
- * (`action` is `'activate'`|`'deactivate'`). The *available* module list
- * with names/descriptions/categories is static frontend config
- * (src/modules-config.ts) zyra's component takes as a prop - this
- * controller only ever reports/changes which ids are active.
+ * `GET` returns a flat array of active module ids. `POST` takes `{ id, action }` where `action` is `activate` or
+ * `deactivate`. The list of available modules (names, descriptions, categories) is static frontend config in
+ * src/modules-config.ts, so this controller only reports and changes which ids are active.
  *
  * @class       Modules class
  * @version     1.0.0

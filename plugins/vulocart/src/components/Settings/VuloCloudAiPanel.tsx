@@ -20,10 +20,9 @@ interface VuloCloudStatus {
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } };
 
 /**
- * Settings → Integrations (the VuloCloud AI section). AI is served by VuloCloud (same connect flow as VuloPilot): connect
- * this site once and requests run on the connected Organization's AI key and credits - there is no
- * provider or API key to enter here. The broker redirects back to this exact URL carrying
- * `connect_status=connected|error` (classes/AI/ConnectBrokerCallbackHandler.php).
+ * Settings → Integrations, VuloCloud AI section. AI is served by VuloCloud: connect this site once and requests run
+ * on the connected Organization's AI key and credits; there is no provider or API key to enter here. VuloCloud
+ * redirects back to this URL with `connect_status=connected|error` (classes/AI/ConnectBrokerCallbackHandler.php).
  */
 const VuloCloudAiPanel = () => {
 	const [ status, setStatus ] = useState< VuloCloudStatus >( {

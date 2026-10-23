@@ -23,7 +23,7 @@ require_once __DIR__ . '/vendor/autoload.php';
  *
  * @return \VuloCart\VuloCart
  */
-function VuloCart() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid -- PascalCase global accessor, same deliberate exception as VuloPilot() (naming-quality.md).
+function VuloCart() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid -- PascalCase global accessor, a deliberate exception to the snake_case function naming rule.
     return \VuloCart\VuloCart::init( __FILE__ );
 }
 

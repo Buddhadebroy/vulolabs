@@ -267,10 +267,8 @@ class CartService {
     /**
      * Computes a cart's totals.
      *
-     * `total` === `subtotal` today - there is no tax or shipping engine
-     * yet (both are separate, not-yet-built modules per the vision), so
-     * this deliberately doesn't fake a tax/shipping figure; once those
-     * exist, this method is where they'd be added in.
+     * `total` equals `subtotal` here. Shipping and tax are added when the order is created
+     * (OrderService::create_from_cart()) and shown in the checkout's Review step.
      *
      * @param Cart $cart Cart to total.
      * @return array{currency: string|null, item_count: int, subtotal: float, total: float}

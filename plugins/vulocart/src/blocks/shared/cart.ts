@@ -2,9 +2,7 @@
 import axios from 'axios';
 
 /**
- * Shared across every public storefront block (`src/blocks/checkout/`,
- * `src/blocks/products/`) - extracted so "add to cart" from the
- * Products detail page and the Checkout block's own cart review use the
+ * Shared across every public storefront block (`src/blocks/checkout/`) - so every block uses the
  * exact same client-held cart identity, not two independently-generated
  * tokens that would each see an empty cart. Not under `src/blocks/{name}/`
  * itself, so `tools/webpack/create-config.js`'s block-entry scanner
@@ -17,6 +15,10 @@ export const client = axios.create( {
 	baseURL: `${ vulocartFrontendData.apiUrl }/${ vulocartFrontendData.restUrl }`,
 } );
 
+/**
+ * Returns the shopper's cart token from localStorage, creating and saving a new one on first use. The token identifies
+ * the guest cart on the server.
+ */
 export function getOrCreateCartToken(): string {
 	const existing = window.localStorage.getItem( CART_TOKEN_STORAGE_KEY );
 
@@ -39,6 +41,8 @@ export interface CartItem {
 	product_id: number;
 	title: string;
 	type: string;
+	/** Small product photo, null when it has none. */
+	image?: string | null;
 	quantity: number;
 	unit_price: number;
 	currency: string | null;

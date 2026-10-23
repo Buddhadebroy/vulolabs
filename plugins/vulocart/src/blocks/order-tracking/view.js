@@ -1,4 +1,4 @@
-import { render } from '@wordpress/element';
+import { render } from '../../lib/render';
 import { OrderTracking } from './OrderTracking';
 
 window.addEventListener( 'DOMContentLoaded', () => {

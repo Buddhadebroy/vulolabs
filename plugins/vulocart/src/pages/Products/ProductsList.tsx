@@ -117,6 +117,9 @@ function loadSavedViews(): SavedView[] {
 	}
 }
 
+/**
+ * Saves the product list's saved filters in this browser; silently skipped when storage is unavailable.
+ */
 function persistSavedViews( views: SavedView[] ) {
 	try {
 		window.localStorage.setItem( SAVED_VIEWS_STORAGE_KEY, JSON.stringify( views ) );
@@ -202,7 +205,7 @@ function ProductQuickEdit( { row, onClose, onSaved }: { row: QuickEditRow; onClo
 			header={ { icon: 'edit', title: __( 'Quick edit', 'vulocart' ) } }
 			footer={
 				<div className="vulocart-qe-footer">
-					<a href={ `admin.php?page=vulocart-products&action=edit&id=${ row.id }` }>
+					<a href={ `admin.php?page=products&action=edit&id=${ row.id }` }>
 						{ __( 'Open full editor', 'vulocart' ) } <i className="adminfont-pagination-next-arrow" aria-hidden="true" />
 					</a>
 					<ButtonInput
@@ -492,21 +495,14 @@ function ProductBulkEdit( { ids, onClose, onDone }: { ids: number[]; onClose: ()
 }
 
 /**
- * The listing half of Products - DB (vulocart_products) → WPDBProductRepository
- * → ProductService → REST (`GET /products`) → this zyra `TableCard`. "Add
- * Product" and per-row "Edit" are real navigations to
- * `admin.php?page=vulocart-products&action=add`/`...&action=edit&id={id}`
- * (plain `<a href>`, full page load) rather than a popup - matching
- * WooCommerce's real Products/Orders admin screens, per this plugin's
- * admin-UX brief ("when edit click this open to another page like
- * woocommerce orders edit page"). Products.tsx is what routes between
- * this component and ProductEdit.tsx based on the URL's `action`/`id`.
+ * Product list: `GET /products` (ProductService, WPDBProductRepository, `vulocart_products`) shown in a zyra
+ * `TableCard`. "Add Product" and each row's "Edit" are plain links to `admin.php?page=products&action=add` /
+ * `...&action=edit&id={id}` (a full page load, not a popup). Products.tsx routes between this component and
+ * ProductEdit.tsx from the URL's `action`, `id` and `view`.
  *
- * Status (draft/published/archived) is the `categoryCounts`/`activeCategory`
- * tab axis, same "saved-view-style tabs from real per-status counts"
- * pattern OrdersList.tsx already establishes for fulfillment status; Type
- * and Category are `TableCard`'s own `filters`. Bulk actions are Edit (a popup for
- * status, price / sale price and stock - see `ProductBulkEdit`) and Delete.
+ * Status (draft, published, archived) is the tab axis, with real per-status counts; Type and Category are `TableCard`
+ * filters. Bulk actions are Edit (a popup for status, price / sale price and stock; see `ProductBulkEdit`) and
+ * Delete.
  */
 export function ProductsList() {
 	const [ isLoading, setIsLoading ] = useState( false );
@@ -668,7 +664,7 @@ export function ProductsList() {
 			color?: string;
 			onClick: ( row: Record< string, unknown > ) => void;
 		}[]
-	 ).map( ( action ) => ( { type: 'button' as const, color: 'text-blue', ...action } ) );
+	).map( ( action ) => ( { type: 'button' as const, color: 'text-blue', ...action } ) );
 
 	const headers = {
 		product: {
@@ -687,7 +683,7 @@ export function ProductsList() {
 				// Title, then SKU, then the published date and the badges (type, status).
 				return (
 					<div className="vulocart-product-cell">
-						<a className="vulocart-product-cell-title" href={ `admin.php?page=vulocart-products&action=edit&id=${ row.id }` }>
+						<a className="vulocart-product-cell-title" href={ `admin.php?page=products&action=edit&id=${ row.id }` }>
 							{ row.title as string }
 						</a>
 						{ details.length > 0 && <div className="desc">{ details.join( ', ' ) }</div> }
@@ -720,7 +716,7 @@ export function ProductsList() {
 					type: 'button' as const,
 					color: 'text-blue',
 					onClick: ( row: Record< string, unknown > ) => {
-						window.location.href = `admin.php?page=vulocart-products&action=edit&id=${ row.id }`;
+						window.location.href = `admin.php?page=products&action=edit&id=${ row.id }`;
 					},
 				},
 				{
@@ -838,7 +834,7 @@ export function ProductsList() {
 															icon: 'plus',
 															color: '',
 															onClick: () => {
-																window.location.href = 'admin.php?page=vulocart-products&action=add';
+																window.location.href = 'admin.php?page=products&action=add';
 															},
 														},
 													] }

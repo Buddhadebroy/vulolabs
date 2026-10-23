@@ -4,23 +4,14 @@ import type { ReactNode } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import axios from 'axios';
 import { getApiLink } from '@zyra/core';
-import { ContainerComponent, ColumnComponent, NavigatorHeaderComponent, PopupComponent } from '@zyra/components';
+import { ContainerComponent, ColumnComponent, InformationItemComponent, NavigatorHeaderComponent, PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { TableCard, TableRow, CategoryCount, QueryProps } from '@zyra/table';
 import { downloadCSV } from '../../lib/utils';
+import { formatWpDateTime } from '../../services/formatWpDate';
+import { authHeaders, fetchInventory, type InventoryItem } from './inventory';
 import './inventory-page.scss';
 import '../Products/products-page.scss';
-
-interface InventoryItem {
-	id: number;
-	title: string;
-	type: string;
-	sku: string | null;
-	stock_management: boolean;
-	stock_status: string;
-	stock_quantity: number | null;
-	low_stock: boolean;
-}
 
 const STOCK_STATUS_OPTIONS = [
 	{ label: __( 'In stock', 'vulocart' ), value: 'in_stock' },
@@ -35,12 +26,84 @@ const STATUS_BADGE: Record< string, string > = { in_stock: 'badge-active', out_o
 
 const DEFAULT_PER_PAGE = 20;
 
+/** Returns the display label of a stock status value. */
 const statusLabel = ( value: string ) => STOCK_STATUS_OPTIONS.find( ( option ) => option.value === value )?.label ?? value;
 
-const authHeaders = () => ( { 'X-WP-Nonce': vulocartLocalizer.nonce } );
-
+/** Saves a new stock quantity or stock status for one product. */
 const patchStock = ( id: number, body: { stock_quantity?: number; stock_status?: string } ) =>
 	axios.patch< InventoryItem >( getApiLink( vulocartLocalizer, `inventory/${ id }` ), body, { headers: authHeaders() } );
+
+interface StockMovement {
+	id: number;
+	type: string;
+	quantity_change: number;
+	balance_after: number;
+	reference: string | null;
+	note: string | null;
+	created_at: string;
+}
+
+/**
+ * "Stock history" - every stock movement of one product, newest first, in a popup. The ledger belongs to vulocart-pro's
+ * Inventory module (`/inventory/history`); without it the popup says so instead of showing an empty list.
+ */
+function StockHistory( { item, onClose }: { item: InventoryItem; onClose: () => void } ) {
+	const [ rows, setRows ] = useState< StockMovement[] | null >( null );
+	const [ unavailable, setUnavailable ] = useState( false );
+
+	useEffect( () => {
+		axios
+			.get< StockMovement[] >( getApiLink( vulocartLocalizer, 'inventory/history' ), { headers: authHeaders(), params: { product_id: item.id } } )
+			.then( ( response ) => setRows( Array.isArray( response.data ) ? response.data : [] ) )
+			.catch( () => setUnavailable( true ) );
+	}, [ item.id ] );
+
+	return (
+		<PopupComponent
+			open
+			onClose={ onClose }
+			width={ 36 }
+			height="auto"
+			position="lightbox"
+			header={ { icon: 'store-inventory', title: __( 'Stock history', 'vulocart' ) } }
+			footer={ <ButtonInput buttons={ [ { text: __( 'Close', 'vulocart' ), color: 'purple', onClick: onClose } ] } /> }
+		>
+			<div className="vulocart-inv-history">
+				<div className="vulocart-inv-adjust-product">
+					<strong>{ item.title }</strong>
+					{ item.sku ? <span className="desc">{ `${ __( 'SKU', 'vulocart' ) }: ${ item.sku }` }</span> : null }
+				</div>
+
+				{ unavailable ? (
+					<p className="vulocart-inv-history-empty">{ __( 'Stock history is recorded by the Inventory module - turn it on under Settings → Modules to see every movement here.', 'vulocart' ) }</p>
+				) : null === rows ? (
+					<p className="vulocart-inv-history-empty">{ __( 'Loading…', 'vulocart' ) }</p>
+				) : rows.length ? (
+					<ul className="vulocart-inv-history-list">
+						{ rows.map( ( row ) => {
+							const change = Number( row.quantity_change );
+
+							return (
+								<li key={ row.id }>
+									<span className={ `admin-badge ${ change >= 0 ? 'badge-active' : 'badge-inactive' }` }>{ `${ change >= 0 ? '+' : '' }${ change }` }</span>
+									<span className="vulocart-inv-history-main">
+										<strong>{ row.type.replace( /_/g, ' ' ) }</strong>
+										<span className="desc">{ [ formatWpDateTime( row.created_at ), row.reference, row.note ].filter( Boolean ).join( ' · ' ) }</span>
+									</span>
+									<span className="vulocart-inv-history-balance">
+										{ sprintf( /* translators: %s: units in stock after the movement. */ __( '%s in stock', 'vulocart' ), row.balance_after ) }
+									</span>
+								</li>
+							);
+						} ) }
+					</ul>
+				) : (
+					<p className="vulocart-inv-history-empty">{ __( 'No stock movements recorded for this product yet.', 'vulocart' ) }</p>
+				) }
+			</div>
+		</PopupComponent>
+	);
+}
 
 /**
  * "Adjust stock" - quantity (with a stepper) and availability for one product, in a popup over the list, the same
@@ -82,7 +145,7 @@ function StockAdjust( { item, onClose, onSaved }: { item: InventoryItem; onClose
 			header={ { icon: 'store-inventory', title: __( 'Adjust stock', 'vulocart' ) } }
 			footer={
 				<div className="vulocart-qe-footer">
-					<a href={ `admin.php?page=vulocart-products&action=edit&id=${ item.id }` }>
+					<a href={ `admin.php?page=products&action=edit&id=${ item.id }` }>
 						{ __( 'Open product', 'vulocart' ) } <i className="adminfont-pagination-next-arrow" aria-hidden="true" />
 					</a>
 					<ButtonInput
@@ -143,11 +206,11 @@ function StockAdjust( { item, onClose, onSaved }: { item: InventoryItem; onClose
 
 /**
  * The Inventory menu's stock-level screen - a view over products of a stock-trackable type (Inventory.php's own
- * `STOCK_TRACKED_TYPES`). Laid out like the Products list: stat tiles for where stock stands, a zyra `TableCard`
+ * `STOCK_TRACKED_TYPES`). Laid out like the Products list: a zyra `TableCard`
  * with a merged product cell, status tabs with counts, a type filter, row actions and a bulk availability change,
  * and an "Adjust stock" popup instead of editable cells (the installed zyra build never enters cell edit mode).
  *
- * `embedded` renders just the tiles and table, for the Inventory page's Stock Levels tab (the page supplies the
+ * `embedded` renders just the table, for the Inventory page's Stock Levels tab (the page supplies the
  * header and container); the Export button then goes into that page's header.
  *
  * The REST list is fetched in full and the tabs, search, filter and paging all run on the loaded rows, so counts
@@ -159,20 +222,11 @@ export function InventoryPage( { embedded = false }: { embedded?: boolean } ) {
 	const [ query, setQuery ] = useState< QueryProps >( {} );
 	const [ bulkError, setBulkError ] = useState( '' );
 	const [ adjusting, setAdjusting ] = useState< InventoryItem | null >( null );
+	const [ historyOf, setHistoryOf ] = useState< InventoryItem | null >( null );
 
 	const load = () => {
 		setIsLoading( true );
-		const url = getApiLink( vulocartLocalizer, 'inventory' );
-		const page = ( number: number ) => axios.get< InventoryItem[] >( url, { headers: authHeaders(), params: { per_page: 100, page: number } } );
-
-		page( 1 )
-			.then( ( first ) => {
-				const pages = Math.min( Number( first.headers[ 'x-wp-totalpages' ] ) || 1, 50 );
-
-				return Promise.all( Array.from( { length: Math.max( 0, pages - 1 ) }, ( _, index ) => page( index + 2 ) ) ).then( ( rest ) =>
-					rest.reduce< InventoryItem[] >( ( all, response ) => all.concat( response.data ), first.data )
-				);
-			} )
+		fetchInventory()
 			.then( setItems )
 			.finally( () => setIsLoading( false ) );
 	};
@@ -239,19 +293,11 @@ export function InventoryPage( { embedded = false }: { embedded?: boolean } ) {
 
 	const countBy = ( status: string ) => items.filter( ( item ) => item.stock_status === status ).length;
 	const lowStock = items.filter( ( item ) => item.low_stock ).length;
-	const unitsOnHand = items.reduce( ( sum, item ) => sum + ( item.stock_quantity ?? 0 ), 0 );
 
 	const categoryCounts: CategoryCount[] = [
 		{ value: 'all', label: __( 'All', 'vulocart' ), count: items.length },
 		...STOCK_STATUS_OPTIONS.map( ( option ) => ( { value: option.value, label: option.label, count: countBy( option.value ) } ) ),
 		{ value: 'low_stock', label: __( 'Low stock', 'vulocart' ), count: lowStock },
-	];
-
-	const tiles = [
-		{ key: 'units', label: __( 'Units on hand', 'vulocart' ), value: unitsOnHand, tone: 'neutral', hint: sprintf( /* translators: %d: number of products. */ _n( 'across %d product', 'across %d products', items.length, 'vulocart' ), items.length ) },
-		{ key: 'in', label: __( 'In stock', 'vulocart' ), value: countBy( 'in_stock' ), tone: 'good', hint: __( 'Ready to sell', 'vulocart' ) },
-		{ key: 'low', label: __( 'Low stock', 'vulocart' ), value: lowStock, tone: 'warn', hint: __( 'At or under the threshold', 'vulocart' ) },
-		{ key: 'out', label: __( 'Out of stock', 'vulocart' ), value: countBy( 'out_of_stock' ), tone: 'bad', hint: __( 'Not sellable', 'vulocart' ) },
 	];
 
 	const csvHeaders = {
@@ -291,15 +337,11 @@ export function InventoryPage( { embedded = false }: { embedded?: boolean } ) {
 				}
 
 				return (
-					<div className="vulocart-product-cell">
-						<a className="vulocart-product-cell-title" href={ `admin.php?page=vulocart-products&action=edit&id=${ row.id }` }>
-							{ row.title as string }
-						</a>
-						{ row.sku ? <div className="desc">{ `${ __( 'SKU', 'vulocart' ) }: ${ row.sku }` }</div> : null }
-						<div className="vulocart-product-cell-tags">
-							<span className="admin-badge badge-info">{ String( row.type ).replace( '_', ' ' ) }</span>
-						</div>
-					</div>
+					<InformationItemComponent
+						title={ row.title as string }
+						badges={ [ { text: String( row.type ).replace( '_', ' ' ), className: 'badge-info' } ] }
+						descriptions={ row.sku ? [ { label: __( 'SKU', 'vulocart' ), value: String( row.sku ) } ] : [] }
+					/>
 				);
 			},
 		},
@@ -315,15 +357,13 @@ export function InventoryPage( { embedded = false }: { embedded?: boolean } ) {
 				const quantity = row.stock_quantity as number | null;
 
 				return (
-					<div className="vulocart-product-cell">
-						<span className={ `vulocart-inv-qty${ row.low_stock ? ' is-low' : '' }` }>
-							{ null === quantity ? '—' : sprintf( /* translators: %s: number of units. */ _n( '%s unit', '%s units', quantity, 'vulocart' ), quantity ) }
-						</span>
-						<div className="vulocart-product-cell-tags">
-							<span className={ `admin-badge ${ STATUS_BADGE[ String( row.stock_status ) ] ?? 'badge-info' }` }>{ statusLabel( String( row.stock_status ) ) }</span>
-							{ row.low_stock ? <span className="admin-badge badge-pending">{ __( 'Low stock', 'vulocart' ) }</span> : null }
-						</div>
-					</div>
+					<InformationItemComponent
+						title={ null === quantity ? '—' : sprintf( /* translators: %s: number of units. */ _n( '%s unit', '%s units', quantity, 'vulocart' ), quantity ) }
+						badges={ [
+							{ text: statusLabel( String( row.stock_status ) ), className: STATUS_BADGE[ String( row.stock_status ) ] ?? 'badge-info' },
+							...( row.low_stock ? [ { text: __( 'Low stock', 'vulocart' ), className: 'badge-pending' } ] : [] ),
+						] }
+					/>
 				);
 			},
 		},
@@ -339,12 +379,19 @@ export function InventoryPage( { embedded = false }: { embedded?: boolean } ) {
 					onClick: ( row: Record< string, unknown > ) => setAdjusting( row as unknown as InventoryItem ),
 				},
 				{
+					label: __( 'History', 'vulocart' ),
+					icon: 'clock',
+					type: 'button' as const,
+					color: 'text-blue',
+					onClick: ( row: Record< string, unknown > ) => setHistoryOf( row as unknown as InventoryItem ),
+				},
+				{
 					label: __( 'Edit product', 'vulocart' ),
-					icon: 'product',
+					icon: 'eye',
 					type: 'button' as const,
 					color: 'text-blue',
 					onClick: ( row: Record< string, unknown > ) => {
-						window.location.href = `admin.php?page=vulocart-products&action=edit&id=${ row.id }`;
+						window.location.href = `admin.php?page=products&action=edit&id=${ row.id }`;
 					},
 				},
 			],
@@ -359,17 +406,8 @@ export function InventoryPage( { embedded = false }: { embedded?: boolean } ) {
 				</p>
 			) }
 
-			<div className="vulocart-inv-tiles">
-				{ tiles.map( ( tile ) => (
-					<div key={ tile.key } className={ `vulocart-inv-tile is-${ tile.tone }` }>
-						<span className="vulocart-inv-tile-label">{ tile.label }</span>
-						<span className="vulocart-inv-tile-value">{ isLoading ? '…' : tile.value.toLocaleString() }</span>
-						<span className="vulocart-inv-tile-hint">{ tile.hint }</span>
-					</div>
-				) ) }
-			</div>
-
 			<TableCard
+				showMenu={ false }
 				headers={ headers }
 				rows={ pageRows as unknown as TableRow[] }
 				ids={ pageRows.map( ( item ) => item.id ) }
@@ -398,6 +436,7 @@ export function InventoryPage( { embedded = false }: { embedded?: boolean } ) {
 			<>
 				{ content }
 				{ adjusting && <StockAdjust item={ adjusting } onClose={ () => setAdjusting( null ) } onSaved={ replaceItem } /> }
+				{ historyOf && <StockHistory item={ historyOf } onClose={ () => setHistoryOf( null ) } /> }
 			</>
 		);
 	}
@@ -416,7 +455,7 @@ export function InventoryPage( { embedded = false }: { embedded?: boolean } ) {
 							icon: 'product',
 							color: '',
 							onClick: () => {
-								window.location.href = 'admin.php?page=vulocart-products';
+								window.location.href = 'admin.php?page=products';
 							},
 						},
 					] }
@@ -426,6 +465,7 @@ export function InventoryPage( { embedded = false }: { embedded?: boolean } ) {
 			</ColumnComponent>
 
 			{ adjusting && <StockAdjust item={ adjusting } onClose={ () => setAdjusting( null ) } onSaved={ replaceItem } /> }
+			{ historyOf && <StockHistory item={ historyOf } onClose={ () => setHistoryOf( null ) } /> }
 		</ContainerComponent>
 	);
 }

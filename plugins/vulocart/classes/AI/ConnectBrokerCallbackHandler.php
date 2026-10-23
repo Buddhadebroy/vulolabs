@@ -20,6 +20,9 @@ defined( 'ABSPATH' ) || exit;
  */
 class ConnectBrokerCallbackHandler {
 
+	/**
+	 * Registers the admin-post endpoint VuloCloud redirects the browser back to after the site is connected.
+	 */
 	public function __construct() {
 		add_action( 'admin_post_vulocart_connect_broker_callback', array( $this, 'handle_callback' ) );
 	}

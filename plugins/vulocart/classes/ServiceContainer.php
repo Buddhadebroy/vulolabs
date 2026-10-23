@@ -10,26 +10,16 @@ namespace VuloCart;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart ServiceContainer class.
+ * A minimal bind/make dependency-injection container.
  *
- * A minimal bind/make dependency-injection container - deliberately
- * distinct from VuloCart::$container (the plain array every plugin
- * bootstrap in this codebase already uses for config values and eagerly-
- * constructed service instances, see php-wordpress.md). That array is a
- * service *locator*; this class is the actual seam the vision's "storage
- * engine is replaceable" principle needs: VuloCart::init_classes() binds
- * `Domain\Product\ProductRepositoryInterface` to a closure building
- * `Infrastructure\Database\WPDBProductRepository`, and `Application\ProductService`
- * only ever asks this container for that interface - never `new`s the
- * concrete repository itself. Swapping the storage engine later (e.g. a
- * future non-`$wpdb` implementation) is a one-line change to that single
- * binding, not a search-and-replace across every consumer.
+ * It is separate from the plugin's own `VuloCart::$container` array, which only holds config values and eagerly built
+ * services (a service locator). This class is the seam that makes the storage engine replaceable:
+ * VuloCart::init_classes() binds each `Domain\...RepositoryInterface` to a closure that builds the
+ * `Infrastructure\Database\WPDB...Repository`, and the application services only ask this container for the
+ * interface, never `new` the concrete repository. Switching to another storage engine is a one-line change to that
+ * binding.
  *
- * Kept intentionally small - no autowiring/reflection, no tagging. The
- * rest of this codebase's services (module registries, REST dispatchers)
- * still use plain constructor injection wired by hand in init_classes(),
- * matching every sibling plugin; this container exists for the one seam
- * above, not to replace that pattern wholesale.
+ * It is kept small on purpose: no autowiring, no reflection, no tagging.
  *
  * @class       ServiceContainer class
  * @version     1.0.0

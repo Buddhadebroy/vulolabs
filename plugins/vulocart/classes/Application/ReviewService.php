@@ -90,6 +90,16 @@ class ReviewService {
     }
 
     /**
+     * Rating figures the storefront shows for one product (approved reviews only).
+     *
+     * @param int $product_id Product id.
+     * @return array{average: float, count: int, counts: array<int, int>}
+     */
+    public function rating_summary( $product_id ): array {
+        return $this->repository->rating_summary( (int) $product_id );
+    }
+
+    /**
      * Submits a new review - public, no account required (class docblock).
      * Always created as `ReviewStatus::PENDING` regardless of what the
      * caller sends, so a review only ever appears on the storefront after

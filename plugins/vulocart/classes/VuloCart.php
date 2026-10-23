@@ -10,14 +10,9 @@ namespace VuloCart;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Class.
- *
- * Plugin bootstrap singleton - same plain-array-container + magic
- * __get/__set shape as VuloPilot\VuloPilot.
- * VuloCart is not WooCommerce-bound (a deliberate design choice - see
- * the vision's "own tables, don't rely on WooCommerce's data model"
- * principle), so it boots on 'plugins_loaded'
- * directly, the same as VuloPilot\VuloPilot.
+ * Plugin bootstrap singleton: a plain-array container with magic `__get` / `__set`, created once by the global
+ * `VuloCart()` accessor. VuloCart does not depend on WooCommerce (it keeps its own tables), so it boots on
+ * `plugins_loaded`.
  *
  * @class       VuloCart class
  * @version     1.0.0
@@ -70,11 +65,9 @@ final class VuloCart {
     }
 
     /**
-     * Runs on plugin activation. Sets a flag rather than creating tables
-     * directly - register_activation_hook() fires before 'plugins_loaded',
-     * earlier than dbDelta()'s upgrade.php include is guaranteed available,
-     * so table creation is deferred to init_plugin() - same reasoning as
-     * VuloPilot\VuloPilot::activate().
+     * Runs on plugin activation. Sets a flag instead of creating tables, because `register_activation_hook()` fires
+     * before `plugins_loaded`, when the `dbDelta()` include is not guaranteed to be available. The tables are created
+     * later, in init_plugin().
      *
      * @return void
      */
@@ -107,22 +100,16 @@ final class VuloCart {
     }
 
     /**
-     * Initializes VuloCart classes and fires 'vulocart_loaded', the hook
-     * VuloCart Pro (and any third-party extension) gates its own boot on -
-     * the same per-product boot-order-gate pattern as vulopilot_loaded, just
-     * scoped to this product line.
+     * Initializes VuloCart's classes and fires `vulocart_loaded`, the action VuloCart Pro and third-party extensions
+     * wait for before booting.
      *
      * @return void
      */
     public function init_classes() {
         $this->container['util'] = new Utill();
 
-        // Dependency-injection seam (vision principle: "storage engine is
-        // replaceable") - ProductRepositoryInterface is bound to a concrete
-        // WPDBProductRepository here, and only here; every other class asks
-        // the container for the interface instead of `new`ing the concrete
-        // class directly, so swapping storage engines later is a one-line
-        // change to this binding.
+        // Each repository interface is bound to its concrete class here, and only here. Every other class asks the
+        // container for the interface, so switching storage engines is a change to this binding.
         $this->container['service_container'] = new ServiceContainer();
         $this->container['service_container']->singleton(
             Domain\Product\ProductRepositoryInterface::class,
@@ -173,11 +160,7 @@ final class VuloCart {
             $this->container['service_container']->make( Domain\Attribute\AttributeRepositoryInterface::class ),
             $this->container['event_dispatcher']
         );
-        $this->container['review_service']    = new Application\ReviewService(
-            $this->container['service_container']->make( Domain\Review\ReviewRepositoryInterface::class ),
-            $this->container['product_service'],
-            $this->container['event_dispatcher']
-        );
+        // Reviews are the ProductReviews module (modules/ProductReviews): it builds `review_service` when it is on.
 
         // The Checkout Engine's own orchestration core (Application\
         // CheckoutService's own docblock) - core infrastructure like
@@ -190,50 +173,22 @@ final class VuloCart {
             $this->container['event_dispatcher']
         );
 
-        // Module loader (module-architecture.md) - loaded before the REST
-        // dispatcher so a module's own constructor (e.g. registering a
-        // route via `vulocart_rest_controllers`, or reacting to
-        // `vulocart_activated_module_{id}`) runs before those registries'
-        // own hooks fire.
+        // The module loader is created before the REST dispatcher, so a module constructor can register REST
+        // controllers (`vulocart_rest_controllers`) or react to `vulocart_activated_module_{id}` before those hooks
+        // fire.
         $this->container['modules'] = new Modules();
 
-        // Cart and Order are real toggleable modules (modules/Cart,
-        // modules/Order - module-architecture.md), not core services wired
-        // here - VuloCart()->cart_service/order_service only exist once
-        // their own Module.php has run. A brand-new install (or this exact
-        // site, the very first time it boots after Cart/Order became
-        // modules) gets both pre-activated exactly once, via
-        // Modules::activate_modules() (which merges into whatever's
-        // already active, unlike add_option() - the stored active-module
-        // list may already exist with unrelated entries, e.g. this site
-        // already had 'passport' active from before Cart/Order existed as
-        // toggleable concepts), so cart/checkout keeps working out of the
-        // box. The one-time flag means turning either off afterward is
-        // fully respected - this never re-seeds them back on.
-        // Same one-time pre-activation as above, for the Customer/Address/
-        // Shipping/Taxes/Payment/Review/Confirmation checkout modules -
-        // a *second*, independent seed flag (not folded into
-        // 'vulocart_cart_order_modules_seeded') since that flag is already
-        // `true` on every existing install by the time these modules were
-        // added; reusing it would silently skip seeding them on any site
-        // that already had cart/order active. `$modules_activated_now`
-        // guards load_active_modules() below from running a second time in
-        // the same request - activate_modules() already calls it
-        // internally, and calling it twice would reconstruct (not just
-        // re-fetch) every already-active module.
+        // Cart, Order, the checkout modules and Product Reviews are activated once on a new install. The flag is
+        // stored, so switching a module off later is respected and it is never turned back on. `$modules_activated_now`
+        // stops load_active_modules() from running a second time in the same request, because activate_modules()
+        // already calls it.
         $modules_activated_now = false;
 
-        if ( ! get_option( 'vulocart_cart_order_modules_seeded' ) ) {
-            $this->container['modules']->activate_modules( array( 'cart', 'order' ) );
-            update_option( 'vulocart_cart_order_modules_seeded', true );
-            $modules_activated_now = true;
-        }
-
-        if ( ! get_option( 'vulocart_checkout_modules_seeded' ) ) {
+        if ( ! get_option( 'vulocart_modules_seeded' ) ) {
             $this->container['modules']->activate_modules(
-                array( 'customer', 'address', 'shipping', 'taxes', 'payment', 'review', 'confirmation' )
+                array( 'cart', 'order', 'customer', 'address', 'shipping', 'taxes', 'payment', 'review', 'confirmation', 'product-reviews' )
             );
-            update_option( 'vulocart_checkout_modules_seeded', true );
+            update_option( 'vulocart_modules_seeded', true );
             $modules_activated_now = true;
         }
 
@@ -245,15 +200,15 @@ final class VuloCart {
         $this->container['rest']         = new RestAPI\Rest();
         $this->container['cors']         = new RestAPI\Cors();
         $this->container['block']        = new Block();
+        $this->container['storefront']   = new Storefront\Storefront();
+        $this->container['permalinks']   = new Storefront\Permalinks();
+        $this->container['discovery']    = new Storefront\Discovery();
         $this->container['order_emails'] = new Notifications\OrderEmails();
 
         $previous_version = get_option( Utill::OTHER_SETTINGS['plugin_db_version'], '' );
         if ( version_compare( $previous_version, $this->container['version'], '<' ) ) {
             new Install();
         }
-
-        // Self-heals a site that is already on the current version but never got the products `published_at` column.
-        Install::ensure_product_published_at();
 
         do_action( 'vulocart_loaded' );
     }

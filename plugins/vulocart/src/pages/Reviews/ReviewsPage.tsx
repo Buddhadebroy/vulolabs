@@ -9,6 +9,7 @@ import { TableCard, TableRow, QueryProps, CategoryCount } from '@zyra/table';
 import { downloadCSV } from '../../lib/utils';
 import { formatWpDate } from '../../services/formatWpDate';
 import ConfirmPopup from '../../components/ConfirmPopup/ConfirmPopup';
+import { ModuleRequired } from '../../components/EngineScreen/EngineScreen';
 import '../Products/products-page.scss';
 
 interface ReviewRow {
@@ -50,7 +51,7 @@ const CSV_HEADERS = {
  * Same `TableCard` + real per-status `categoryCounts` pattern
  * `src/pages/Orders/OrdersList.tsx` already establishes.
  */
-export function ReviewsPage() {
+function ReviewsQueue() {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ rowIds, setRowIds ] = useState< number[] >( [] );
 	const [ rows, setRows ] = useState< TableRow[] >( [] );
@@ -181,7 +182,7 @@ export function ReviewsPage() {
 						{ row.title ? <span className="vulocart-product-cell-title">{ row.title as string }</span> : null }
 						<div className="desc">{ ( row.content as string )?.slice( 0, 120 ) }</div>
 						<div className="desc">
-							<a href={ `admin.php?page=vulocart-products&action=edit&id=${ row.product_id }` }>
+							<a href={ `admin.php?page=products&action=edit&id=${ row.product_id }` }>
 								{ ( row.product_title as string ) || __( '(deleted product)', 'vulocart' ) }
 							</a>
 							{ ' · ' }
@@ -272,6 +273,25 @@ export function ReviewsPage() {
 			/>
 		</ContainerComponent>
 	);
+}
+
+/** The Reviews screen. The routes only exist while the Product Reviews module is on, so with it off this says so. */
+export function ReviewsPage() {
+	if ( ! vulocartLocalizer.active_modules.includes( 'product-reviews' ) ) {
+		return (
+			<ModuleRequired
+				view={ {
+					title: __( 'Reviews', 'vulocart' ),
+					description: __( 'Customer reviews on your products - approve, reject or delete them. Your stored reviews are kept while the module is off.', 'vulocart' ),
+					icon: 'review',
+					module: 'product-reviews',
+					pro: false,
+				} }
+			/>
+		);
+	}
+
+	return <ReviewsQueue />;
 }
 
 export default ReviewsPage;

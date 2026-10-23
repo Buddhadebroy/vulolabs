@@ -15,24 +15,11 @@ use VuloCart\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Order module Rest class.
+ * Order REST controller.
  *
- * Module-level REST controller - self-hooks `rest_api_init` in its own
- * constructor, per rest-api.md's "module-level controllers" tier, same as
- * VuloCart\Cart\Rest. `POST /orders` (create from cart) and
- * `GET /orders/track` are public, same "cart token is the access control"
- * reasoning VuloCart\Cart\Rest's docblock explains - a guest placing an
- * order and a guest checking on the order they just placed both need to
- * work with no WordPress session. Every other route (listing, single-order
- * read/update, manual order creation, refunds, bulk actions) stays
- * `manage_options`-gated, matching every other admin-listing controller
- * (rest-api.md) - order management (as opposed to placing/tracking one's
- * own order) is store-owner-only.
- *
- * Extends `\WP_REST_Controller` to match vulopilot's REST convention; this
- * class's own response-shaping helpers are named `format_order_item_for_
- * response()` and `prepare_order_for_response()`, neither of which collides
- * with anything `\WP_REST_Controller` declares.
+ * `POST /orders` (create from a cart) and `GET /orders/track` are public, because a guest placing an order and
+ * checking on it has no WordPress session. Every other route (listing, reading and updating an order, manual orders,
+ * refunds, bulk actions) requires `manage_options`: managing orders is for the store owner only.
  *
  * @class       Rest class
  * @version     1.0.0
@@ -389,11 +376,11 @@ class Rest extends \WP_REST_Controller {
         $customer_phone = $request->get_param( 'customer_phone' ) ? sanitize_text_field( (string) $request->get_param( 'customer_phone' ) ) : null;
         $user_id        = get_current_user_id();
 
-        // Checkout tab's `require_phone_number` - same "client hint,
+        // Checkout tab's `checkout_phone` set to `required` - same "client hint,
         // server re-check" pattern `guest_checkout_enabled` above already
         // uses, so a direct API call can't skip a field the wizard's own
         // Customer step marks required.
-        if ( ! empty( $settings['require_phone_number'] ) && ! $customer_phone ) {
+        if ( 'required' === $settings['checkout_phone'] && ! $customer_phone ) {
             return new \WP_Error(
                 'vulocart_missing_phone_number',
                 esc_html__( 'A phone number is required.', 'vulocart' ),

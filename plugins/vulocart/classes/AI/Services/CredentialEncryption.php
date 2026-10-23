@@ -10,13 +10,11 @@ namespace VuloCart\AI\Services;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Encrypts/decrypts third-party AI provider API keys before they touch
- * `vulocart_ai_provider_configs.credentials` - same construction as
- * vulopilot's own `Services\CredentialEncryption`: the key is derived from
- * `wp_salt('auth')` rather than stored anywhere in the database, so it
- * moves (or is lost) exactly when the rest of the site's own secrets
- * would too. AES-256-CBC, random IV per call, IV prepended to the
- * ciphertext.
+ * Encrypts and decrypts secrets stored in the database (the VuloCloud site secret, and the VuloCloud tokens of
+ * vulocart-pro).
+ *
+ * The key is derived from `wp_salt('auth')` and is not stored anywhere, so a secret can only be decrypted on the site
+ * that saved it. AES-256-CBC with a random IV per call; the IV is prepended to the ciphertext.
  *
  * @class       CredentialEncryption class
  * @version     1.0.0
@@ -27,6 +25,9 @@ class CredentialEncryption {
 	const CIPHER = 'aes-256-cbc';
 
 	/**
+	 * Derives the 256-bit encryption key from the site's WordPress auth salt, so stored secrets only decrypt on
+	 * the site that saved them.
+	 *
 	 * @return string 32 raw bytes, suitable for aes-256-cbc.
 	 */
 	private static function get_key(): string {
@@ -34,6 +35,8 @@ class CredentialEncryption {
 	}
 
 	/**
+	 * Encrypts a secret with AES using a random IV and returns it as a base64 string safe to store in an option.
+	 *
 	 * @param string $plaintext The raw API key.
 	 * @return string Base64-encoded IV + ciphertext.
 	 */
@@ -45,6 +48,9 @@ class CredentialEncryption {
 	}
 
 	/**
+	 * Reverses encrypt(); returns the original secret, or null if the value is malformed or was encrypted on
+	 * another site.
+	 *
 	 * @param string $encoded Value previously returned by encrypt().
 	 * @return string|null The original plaintext, or null if $encoded is malformed/undecryptable.
 	 */

@@ -12,7 +12,16 @@ $engine-muted: #6b7280;
 	// Free's own pages (vulocart-ai-settings, ...) and every Pro module wrap their
 	// content in one div; the heading becomes the card title, not a page <h1>.
 	// The frame already printed the view's header, so a module's own title/subtitle would repeat it.
+	// A page that draws its own header (a detail page's breadcrumb topbar) sits at the top of the frame.
+	&:not(.has-header),
 	&.has-header {
+		padding-top: 0;
+	}
+
+	// The header block already pads its own bottom (0.5rem), as on the standalone lists - no extra gap before the table.
+	&.has-header {
+		padding-top: 0;
+
 		h1,
 		[class*='subtitle'] {
 			display: none;
@@ -88,7 +97,7 @@ $engine-muted: #6b7280;
 		}
 	}
 
-	label {
+	label:where(:not(.admin-table-wrapper label)) {
 		display: block;
 		font-size: 0.8125rem;
 		font-weight: 500;
@@ -109,7 +118,7 @@ $engine-muted: #6b7280;
 			input[type='search'],
 			select,
 			textarea
-		):where(:not(.admin-table-wrapper *)) {
+		):where(:not(.admin-table-wrapper *, .input-wrapper *, .form-select-field *)) {
 		display: block;
 		width: 100%;
 		max-width: 100%;
@@ -137,7 +146,7 @@ $engine-muted: #6b7280;
 
 	// Not the buttons inside zyra's table (its row actions are blue/red text buttons, as on Products). `:where()` keeps the
 	// exclusion at zero specificity, so it doesn't outrank the tab and pill styles below.
-	button:where(:not(.admin-table-wrapper button)),
+	button:where(:not(.admin-table-wrapper button, .admin-btn)),
 	.vulocart-engine-button {
 		display: inline-flex;
 		align-items: center;
@@ -284,12 +293,63 @@ $engine-muted: #6b7280;
 	&.is-error {
 		background: #b91c1c;
 	}
+
+	&.is-success {
+		background: #15803d;
+	}
 }
 
 // react-select (zyra SelectInput) renders its own search <input>; keep the generic field rules off it.
-.vulocart-engine-page .form-select-field {
+// zyra field labels: small and tight, as on the product edit page (zyra renders them at the page's 16px).
+.vulocart-engine-page .form-group:where(:not(.admin-table-wrapper *)),
+.vulocart-engine-page .form-group-wrapper .form-group:where(:not(.admin-table-wrapper *)) {
+	gap: 0.375rem;
+
+	.settings-form-label .typography-title {
+		display: block;
+		font-size: 0.8125rem;
+		font-weight: 500;
+		line-height: 1.4;
+		color: #4b5563;
+	}
+}
+
+// zyra text inputs / textareas (TextInput, TextAreaInput): the wrapper draws the box, as on the product edit page.
+.vulocart-engine-page .input-wrapper:where(:not(.admin-table-wrapper *)) {
 	width: 100%;
 	margin: 0 0 0.75rem;
+	border: 1px solid #dcdfea;
+	border-radius: 0.375rem;
+	background: #fff;
+
+	&:focus-within {
+		border-color: $engine-primary;
+		box-shadow: 0 0 0 3px rgba($engine-primary, 0.14);
+	}
+
+	input,
+	textarea {
+		width: 100%;
+		margin: 0;
+		border: 0;
+		background: transparent;
+		box-shadow: none;
+		outline: 0;
+		font-size: 0.875rem;
+	}
+
+	textarea {
+		padding: 0.5rem 0.875rem;
+	}
+}
+
+.vulocart-engine-page .form-select-field:where(:not(.admin-table-wrapper *)) {
+	width: 100%;
+	margin: 0 0 0.75rem;
+
+	.select-prefix__control {
+		min-height: calc(2rem + 2px);
+	}
 
 	.select-prefix__input-container input,
 	.select-prefix__input {
@@ -325,13 +385,40 @@ $engine-muted: #6b7280;
 		color: $engine-muted;
 		cursor: pointer;
 
-		&:hover {
+		// A tab, not a button: the generic engine button's hover fill must not apply.
+		&:hover:not(:disabled) {
+			background: transparent;
 			color: $engine-primary;
 		}
 
-		&.is-active {
+		&.is-active,
+		&.is-active:hover:not(:disabled) {
 			border-bottom-color: $engine-primary;
+			background: transparent;
 			color: $engine-primary;
 		}
 	}
+}
+
+// Detail-page header (`DetailHeader` in vulocart-pro): the product edit topbar, filling the frame's width. A page with
+// its own header (`bare`) has no frame padding above it, so the topbar's own top padding is the only space.
+.vulocart-engine-page .vulocart-detail-header.vulocart-product-edit-page {
+	width: 100%;
+	max-width: none;
+	margin: 0;
+	padding: 0;
+
+	// Align with the cards below: the product page's negative side margins assume its own padded container.
+	&.vulocart-product-edit-page .vulocart-product-edit-topbar {
+		top: 0;
+		margin: 0 0 0.5rem;
+		padding: 1.25rem 0 1rem;
+	}
+}
+
+// The body under a detail header (cards): the frame already provides the side room, so no page padding of its own.
+.vulocart-engine-page .vulocart-product-edit-page.vulocart-workflow-edit-body {
+	max-width: none;
+	margin: 0;
+	padding: 0 0 2.5rem;
 }

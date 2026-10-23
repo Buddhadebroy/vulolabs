@@ -14,28 +14,12 @@ use VuloCart\Cart\Domain\CartItem;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Cart module Rest class.
+ * Cart REST controller: `/cart`, `/cart/items`, `/cart/items/{id}` and `/cart/totals`. It calls only
+ * `VuloCart()->cart_service`.
  *
- * Module-level REST controller - self-hooks `rest_api_init` in its own
- * constructor rather than going through the plugin-level `RestAPI\Rest`
- * dispatcher, per rest-api.md's "module-level controllers" tier. Extends
- * `\WP_REST_Controller` to match vulopilot's REST convention; the
- * historical collision this codebase used to avoid by *not* extending it
- * (a private helper literally named `prepare_item_for_response()` fatally
- * colliding with the base class's own public method of that name) doesn't
- * apply here - this class's own response-formatting helper is named
- * `prepare_cart_for_response()`, which doesn't collide with anything
- * `\WP_REST_Controller` declares.
- *
- * `/cart`, `/cart/items`, `/cart/items/{id}`, `/cart/totals` - calls only
- * VuloCart()->cart_service, same "controller never touches a repository
- * directly" convention every other REST class in this codebase follows.
- *
- * Deliberately public (no `manage_options`/nonce requirement) - a cart has
- * to be reachable by a client with no WordPress session at all (a
- * headless storefront, a mobile app, an MCP client per the vision's
- * headless requirement), so the cart *token* is the access control here,
- * the same way a session id is for any other cart implementation.
+ * The routes are public (no `manage_options` and no nonce), because a cart must work for a client with no WordPress
+ * session: a headless storefront, a mobile app or an MCP client. The cart token is the access control, in the same
+ * way as a session id.
  *
  * @class       Rest class
  * @version     1.0.0
@@ -140,6 +124,26 @@ class Rest extends \WP_REST_Controller {
     }
 
     /**
+     * A small photo of a product for the cart, or null when it has none (or its file is gone).
+     *
+     * @param \VuloCart\Domain\Product\Product $product Product.
+     * @return string|null
+     */
+    private function product_image_url( $product ): ?string {
+        $meta = is_array( $product->meta ) ? $product->meta : array();
+        $id   = isset( $meta['featured_image']['id'] ) ? (int) $meta['featured_image']['id'] : 0;
+        $file = $id ? get_attached_file( $id ) : '';
+
+        if ( ! $id || ! $file || ! file_exists( $file ) ) {
+            return null;
+        }
+
+        $url = wp_get_attachment_image_url( $id, 'thumbnail' );
+
+        return $url ? $url : null;
+    }
+
+    /**
      * Converts a domain CartItem into the REST response shape, including
      * a display title from its Product - bounded by cart size (a handful of
      * items), and ProductService's own in-request cache-by-id
@@ -156,6 +160,7 @@ class Rest extends \WP_REST_Controller {
             'product_id' => $item->product_id,
             'title'       => $product ? $product->title : null,
             'type'        => $product ? $product->type : null,
+            'image'       => $product ? $this->product_image_url( $product ) : null,
             'quantity'    => $item->quantity,
             'unit_price'  => $item->unit_price,
             'currency'    => $item->currency,

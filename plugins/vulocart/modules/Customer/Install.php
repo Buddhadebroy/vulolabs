@@ -81,13 +81,10 @@ class Install {
 
         dbDelta( $sql_customers );
 
-        // A real address book - `label` is the buyer's own name for it
-        // ("Home", "Work"); `is_default_billing`/`is_default_shipping` let
-        // the checkout wizard's own Address step (a future enhancement,
-        // not built this pass - see AddressService's own docblock on why
-        // checkout itself still snapshots free-typed fields onto the
-        // Order rather than reading from here yet) eventually offer "use
-        // a saved address" as a real option.
+        // Address book entries. `label` is the buyer's own name for the address ("Home", "Work").
+        // `is_default_billing` and `is_default_shipping` are for offering a saved address in the checkout's Address
+        // step; for now the checkout copies the typed fields onto the order and does not read from this table (see
+        // AddressService).
         $sql_addresses = "CREATE TABLE `{$wpdb->prefix}vulocart_customer_addresses` (
             `id`                  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             `customer_id`         bigint(20) unsigned NOT NULL,

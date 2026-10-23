@@ -14,16 +14,9 @@ use VuloCart\Events\EventDispatcher;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart ProductService.
- *
- * Where Product business logic actually lives - per the vision's "business
- * logic must never exist inside React components" and "must never exist
- * inside WordPress hooks", RestAPI\Controllers\Products calls only this
- * class, and this class is the only thing that talks to
- * ProductRepositoryInterface. Any future GraphQL resolver or MCP tool
- * (`create_product()`, per the vision's MCP tool list) calls this same
- * service too, rather than re-implementing creation/listing logic against
- * the repository directly.
+ * Where product business logic lives. RestAPI\Controllers\Products calls only this class, and this class is the only
+ * one that talks to ProductRepositoryInterface. Anything else that creates or lists products (an MCP tool, a future
+ * GraphQL resolver) should use this service too, instead of the repository.
  *
  * @class       ProductService class
  * @version     1.0.0
@@ -69,7 +62,7 @@ class ProductService {
     /**
      * Returns a page of products, optionally filtered.
      *
-     * @param array{page?: int, per_page?: int, type?: string, status?: string, search?: string, category?: string} $args Pagination/filter args, already sanitized by the caller.
+     * @param array{page?: int, per_page?: int, type?: string, status?: string, search?: string, category?: string, exclude?: int} $args Pagination/filter args, already sanitized by the caller.
      * @return array{data: Product[], total: int}
      */
     public function list_products( $args = array() ) {
@@ -96,7 +89,7 @@ class ProductService {
             null,
             $data['type'],
             $data['title'],
-            sanitize_title( $data['title'] ),
+            $this->unique_slug( sanitize_title( $data['title'] ) ),
             isset( $data['sku'] ) ? $data['sku'] : null,
             isset( $data['status'] ) ? $data['status'] : 'draft',
             isset( $data['price'] ) ? (float) $data['price'] : null,
@@ -109,6 +102,32 @@ class ProductService {
         $this->events->dispatch( 'product_created', array( 'product' => $product ) );
 
         return $product;
+    }
+
+    /**
+     * A slug no other product has: `blue-bottle`, then `blue-bottle-2`, `blue-bottle-3`...
+     *
+     * @param string $slug Wanted slug.
+     * @return string
+     */
+    private function unique_slug( $slug ) {
+        global $wpdb;
+
+        $slug  = '' !== $slug ? $slug : 'product';
+        $table = $wpdb->prefix . \VuloCart\Utill::TABLES['product'];
+        $try   = $slug;
+
+        for ( $n = 2; $n < 500; $n++ ) {
+            $taken = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE slug = %s", $try ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- plugin table.
+
+            if ( ! (int) $taken ) {
+                break;
+            }
+
+            $try = $slug . '-' . $n;
+        }
+
+        return $try;
     }
 
     /**

@@ -83,7 +83,21 @@ class OrderReviewService {
         $shipping_cost    = ( $shipping_service && $shipping_method ) ? $shipping_service->calculate_cost( $shipping_method ) : 0.0;
 
         $tax_service = $this->resolve_optional_service( 'tax_service' );
-        $tax_amount  = $tax_service ? $tax_service->calculate( $totals['subtotal'] ) : 0.0;
+        $tax         = $tax_service
+            ? $tax_service->calculate_cart(
+                $cart,
+                $shipping_address,
+                $billing_address,
+                (float) $shipping_cost,
+                array( 'cart_token' => $cart_token )
+            )
+            : array(
+                'amount'    => 0.0,
+                'included'  => 0.0,
+                'inclusive' => false,
+                'lines'     => array(),
+            );
+        $tax_amount  = (float) $tax['amount'];
 
         $payment_service = $this->resolve_optional_service( 'payment_service' );
         $payment_status  = $payment_service ? $payment_service->get_initial_payment_status() : 'pending';
@@ -146,6 +160,10 @@ class OrderReviewService {
             'initial_payment_status' => $payment_status,
             'subtotal'               => $totals['subtotal'],
             'tax_amount'             => $tax_amount,
+            // Each tax on its own line (name, rate, amount), and - when prices include tax - the part of the total that is tax.
+            'tax_lines'              => $tax['lines'],
+            'tax_included'           => (float) $tax['included'],
+            'prices_include_tax'     => (bool) $tax['inclusive'],
             'total'                  => $total,
         );
     }

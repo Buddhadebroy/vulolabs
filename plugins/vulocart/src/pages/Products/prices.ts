@@ -64,10 +64,12 @@ export function getPriceTypes(): PriceTypeDef[] {
 	return applyFilters( 'vulocart_product_price_types', [ ONE_TIME ] ) as PriceTypeDef[];
 }
 
+/** Generates a random local id for a new price row. */
 export function newPriceId(): string {
 	return `price_${ Math.random().toString( 36 ).slice( 2, 10 ) }`;
 }
 
+/** Creates an empty price row of the given type, with optional overrides. */
 export function newPrice( type: PriceTypeDef, overrides: Partial< EditablePrice > = {} ): EditablePrice {
 	return {
 		id: newPriceId(),
@@ -88,6 +90,7 @@ export function newPrice( type: PriceTypeDef, overrides: Partial< EditablePrice 
 
 type RawPrice = Partial< Record< keyof EditablePrice, unknown > >;
 
+/** A stored value as text, using the fallback when it is missing. */
 const text = ( value: unknown, fallback = '' ): string => ( null === value || undefined === value ? fallback : String( value ) );
 
 /** A stored flag as a boolean. Templates round-trip booleans through text, so `''`/`'0'` mean false; missing means `fallback`. */

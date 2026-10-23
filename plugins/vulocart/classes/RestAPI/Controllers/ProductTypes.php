@@ -12,19 +12,13 @@ use VuloCart\Domain\Product\ProductType;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart ProductTypes REST controller.
+ * Product Types REST controller: backs the "Product Types" page of the Products menu (`src/pages/ProductTypes/`).
  *
- * Backs the Products menu's "Product Types" admin page
- * (`src/pages/ProductTypes/`) - deliberately read-only. Unlike
- * Categories/Brands/Collections/Attributes, a product *type* isn't a
- * merchant-managed record: it's a closed, PHP-registered set
- * (Domain\Product\ProductType's own docblock - "this class is only the closed
- * set of known `type` values") that drives real per-type behavior
- * elsewhere (ProductEdit.tsx's `TYPE_FIELD_CONFIG`,
- * classes/RestAPI/Controllers/Products.php's `TYPE_DETAIL_FIELDS`).
- * WooCommerce doesn't let you create a custom product type from wp-admin
- * either, for the identical reason - this page is a reference/dashboard
- * view (real per-type product counts), not a type builder.
+ * A product type is not a merchant-created record. The list is a closed, PHP-registered set
+ * (Domain\Product\ProductType) that drives per-type behaviour in the editor (`TYPE_FIELD_CONFIG`) and in
+ * Controllers\Products (`TYPE_DETAIL_FIELDS`). The page shows the real number of products per type and lets an admin
+ * switch a type off, which only stops it being offered when creating a product; the option
+ * `vulocart_disabled_product_types` stores the switched-off types.
  *
  * @class       ProductTypes class
  * @version     1.0.0
@@ -63,6 +57,13 @@ class ProductTypes extends \WP_REST_Controller {
     );
 
     /**
+     * The only type the free plugin sells; every other type needs VuloCart Pro.
+     *
+     * @var string[]
+     */
+    const FREE_TYPES = array( 'physical' );
+
+    /**
      * Option holding the types a merchant has switched off (everything else is on).
      */
     const DISABLED_OPTION = 'vulocart_disabled_product_types';
@@ -74,15 +75,15 @@ class ProductTypes extends \WP_REST_Controller {
      */
     const PRO_REQUIRED = array(
         'subscription' => array(
-            'module' => 'subscriptions',
+            'module' => 'recurring-billing',
             'label'  => 'Subscriptions',
-            'page'   => 'vulocart-orders',
+            'page'   => 'orders',
             'view'   => 'subscriptions',
         ),
         'gift_card'    => array(
             'module' => 'gift-cards',
             'label'  => 'Gift Cards',
-            'page'   => 'vulocart-products',
+            'page'   => 'products',
             'view'   => 'gift-cards',
         ),
     );
@@ -95,19 +96,19 @@ class ProductTypes extends \WP_REST_Controller {
      */
     const PRO_EXTRAS = array(
         'physical'   => array(
-            array( 'label' => 'Warehouses', 'page' => 'vulocart-inventory', 'view' => 'warehouses' ),
-            array( 'label' => 'Shipping zones', 'page' => 'vulocart-shipping', 'view' => 'zones' ),
+            array( 'label' => 'Warehouses', 'page' => 'inventory', 'view' => 'warehouses' ),
+            array( 'label' => 'Shipping zones', 'page' => 'shipping', 'view' => 'zones' ),
         ),
         'rental'     => array(
-            array( 'label' => 'Warehouses', 'page' => 'vulocart-inventory', 'view' => 'warehouses' ),
-            array( 'label' => 'Shipping zones', 'page' => 'vulocart-shipping', 'view' => 'zones' ),
+            array( 'label' => 'Warehouses', 'page' => 'inventory', 'view' => 'warehouses' ),
+            array( 'label' => 'Shipping zones', 'page' => 'shipping', 'view' => 'zones' ),
         ),
         'bundle'     => array(
-            array( 'label' => 'Warehouses', 'page' => 'vulocart-inventory', 'view' => 'warehouses' ),
-            array( 'label' => 'Shipping zones', 'page' => 'vulocart-shipping', 'view' => 'zones' ),
+            array( 'label' => 'Warehouses', 'page' => 'inventory', 'view' => 'warehouses' ),
+            array( 'label' => 'Shipping zones', 'page' => 'shipping', 'view' => 'zones' ),
         ),
         'membership' => array(
-            array( 'label' => 'Customer groups', 'page' => 'vulocart-customers', 'view' => 'groups' ),
+            array( 'label' => 'Customer groups', 'page' => 'customers', 'view' => 'groups' ),
         ),
     );
 
@@ -132,7 +133,7 @@ class ProductTypes extends \WP_REST_Controller {
     private static function pro_extras( string $type ): array {
         return array_merge(
             self::PRO_EXTRAS[ $type ] ?? array(),
-            array( array( 'label' => 'Pricing rules', 'page' => 'vulocart-products', 'view' => 'pricing-rules' ) )
+            array( array( 'label' => 'Pricing rules', 'page' => 'products', 'view' => 'pricing-rules' ) )
         );
     }
 
@@ -145,6 +146,29 @@ class ProductTypes extends \WP_REST_Controller {
         $stored = get_option( self::DISABLED_OPTION, array() );
 
         return is_array( $stored ) ? array_values( array_intersect( ProductType::all(), $stored ) ) : array();
+    }
+
+    /**
+     * Whether a type needs VuloCart Pro.
+     *
+     * @param string $type Product type.
+     * @return bool
+     */
+    public static function is_pro_type( string $type ): bool {
+        return ! in_array( $type, self::FREE_TYPES, true );
+    }
+
+    /**
+     * The types that cannot be offered right now: the Pro-only ones while Pro is not active and licensed.
+     *
+     * @return string[]
+     */
+    public static function locked_types(): array {
+        if ( VuloCart()->util->is_khali_dabba() ) {
+            return array();
+        }
+
+        return array_values( array_filter( ProductType::all(), array( __CLASS__, 'is_pro_type' ) ) );
     }
 
     /**
@@ -232,6 +256,7 @@ class ProductTypes extends \WP_REST_Controller {
                     'description'    => self::DESCRIPTIONS[ $type ] ?? '',
                     'product_count' => isset( $counts[ $type ] ) ? $counts[ $type ] : 0,
                     'enabled'        => ! in_array( $type, $disabled, true ),
+                    'pro_only'       => self::is_pro_type( $type ),
                     'pro'            => self::PRO_REQUIRED[ $type ] ?? null,
                     'pro_extras'     => self::pro_extras( $type ),
                     'settings'       => self::SETTINGS[ $type ] ?? null,

@@ -1,0 +1,40 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"category": "widgets",
+	"textdomain": "vulocart",
+	"style": "vulocart-storefront",
+	"editorScript": "vulocart-storefront-editor",
+	"name": "vulocart/product-specs",
+	"title": "Product Specs",
+	"description": "Details, specifications or shipping & returns as a card.",
+	"icon": "list-view",
+	"ancestor": [
+		"vulocart/product-details"
+	],
+	"usesContext": [
+		"vulocart/product",
+		"vulocart/query"
+	],
+	"attributes": {
+		"source": {
+			"type": "string",
+			"enum": [
+				"details",
+				"specifications",
+				"policies"
+			],
+			"default": "specifications"
+		}
+	},
+	"supports": {
+		"html": false,
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"typography": {
+			"fontSize": true
+		}
+	}
+}

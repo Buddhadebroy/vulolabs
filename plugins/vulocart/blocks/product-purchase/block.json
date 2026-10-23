@@ -1,0 +1,26 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"category": "widgets",
+	"textdomain": "vulocart",
+	"style": "vulocart-storefront",
+	"editorScript": "vulocart-storefront-editor",
+	"name": "vulocart/product-purchase",
+	"title": "Product Purchase",
+	"description": "Price options, quantity, the buy button and stock.",
+	"icon": "cart",
+	"ancestor": [
+		"vulocart/product-details"
+	],
+	"usesContext": [
+		"vulocart/product",
+		"vulocart/query"
+	],
+	"supports": {
+		"html": false,
+		"spacing": {
+			"margin": true,
+			"padding": true
+		}
+	}
+}

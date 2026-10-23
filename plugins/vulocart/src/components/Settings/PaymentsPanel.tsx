@@ -15,6 +15,7 @@ import {
 } from '@zyra/components';
 import { ButtonInput, MultiCheckboxInput, SelectInput, TextAreaInput, TextInput } from '@zyra/inputs';
 import paymentsFields, { type PaymentField } from './paymentsFields';
+import './payments-panel.scss';
 
 type Values = Record< string, unknown >;
 
@@ -28,6 +29,7 @@ interface Group {
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } };
 
+/** Whether a payment field is an on/off toggle that enables a payment method. */
 const isToggle = ( field: PaymentField ) => 'checkbox' === field.type && 'toggle' === field.look;
 
 /** Splits the flat field list into its `section` groups. */
@@ -51,6 +53,7 @@ const toGroups = ( fields: PaymentField[] ): Group[] => {
 	return groups;
 };
 
+/** Whether a stored setting value counts as switched on. */
 const isOn = ( value: unknown ) => Array.isArray( value ) ? value.length > 0 : !! value && 'false' !== value && '0' !== value;
 
 /**
@@ -264,12 +267,27 @@ const PaymentsPanel = () => {
 					/>
 				}
 			>
-				<FormGroupWrapperComponent>
+				<div className="vulocart-pay-form">
 					{ editing &&
-						configFields( editing ).map( ( field ) =>
-							renderField( field, draft[ field.key ], ( next ) => setDraft( ( current ) => ( { ...current, [ field.key ]: next } ) ) )
-						) }
-				</FormGroupWrapperComponent>
+						configFields( editing ).map( ( field ) => {
+							const onChange = ( next: unknown ) => setDraft( ( current ) => ( { ...current, [ field.key ]: next } ) );
+
+							// A switch (e.g. sandbox mode) reads as a row: the text on the left, the switch on the right.
+							if ( isToggle( field ) ) {
+								return (
+									<div className="vulocart-pay-form-switch" key={ field.key }>
+										<div>
+											<div className="vulocart-pay-form-label">{ field.label }</div>
+											{ field.settingDescription && <div className="settings-metabox-description">{ field.settingDescription }</div> }
+										</div>
+										{ renderControl( field, draft[ field.key ], onChange ) }
+									</div>
+								);
+							}
+
+							return renderField( field, draft[ field.key ], onChange );
+						} ) }
+				</div>
 			</PopupComponent>
 		</>
 	);

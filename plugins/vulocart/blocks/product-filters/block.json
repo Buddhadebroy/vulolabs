@@ -1,0 +1,46 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"category": "widgets",
+	"textdomain": "vulocart",
+	"style": "vulocart-storefront",
+	"editorScript": "vulocart-storefront-editor",
+	"name": "vulocart/product-filters",
+	"title": "Product Filters",
+	"description": "Result count, search, category and sort for the collection.",
+	"icon": "filter",
+	"ancestor": [
+		"vulocart/product-collection"
+	],
+	"attributes": {
+		"showSearch": {
+			"type": "boolean",
+			"default": true
+		},
+		"showCategories": {
+			"type": "boolean",
+			"default": true
+		},
+		"showSort": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"usesContext": [
+		"vulocart/query"
+	],
+	"supports": {
+		"html": false,
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"color": {
+			"background": true,
+			"text": true
+		},
+		"typography": {
+			"fontSize": true
+		}
+	}
+}

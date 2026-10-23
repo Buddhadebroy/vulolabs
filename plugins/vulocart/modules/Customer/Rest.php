@@ -10,23 +10,11 @@ namespace VuloCart\Customer;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Customer module Rest class.
+ * Customer REST controller.
  *
- * `GET /customer/me` stays public (unchanged - checkout prefill, class
- * docblock predating this pass still holds). Admin CRUD/list/notes routes
- * are `manage_options`-gated, same as every other admin-listing
- * controller. The `/customer/me/*` self-service routes are the one
- * genuinely new access-control shape in this codebase: gated on
- * `is_user_logged_in()` rather than an opaque per-resource token - the
- * established "token is the access control" pattern (`Order::
- * $access_token`, `Passport`'s own) doesn't fit an address BOOK a buyer
- * manages over many separate visits; a real login is what "my account"
- * has always meant everywhere else, and this app already has one
- * (WordPress's own).
- *
- * Extends `\WP_REST_Controller` to match vulopilot's REST convention; this
- * class's own response-shaping helper is named `prepare_for_response()`,
- * which doesn't collide with anything `\WP_REST_Controller` declares.
+ * `GET /customer/me` is public (it prefills the checkout). The admin routes (list, read, update, delete, addresses,
+ * notes) require `manage_options`. The `/customer/me/*` address book routes require a logged-in user, because an
+ * address book is managed over many visits and needs a real login rather than a per-resource token.
  *
  * @class       Rest class
  * @version     1.0.0

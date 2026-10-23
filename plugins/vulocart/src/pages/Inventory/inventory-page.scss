@@ -121,3 +121,68 @@
 		text-align: center;
 	}
 }
+
+// "Stock history" popup: one row per movement.
+.vulocart-inv-history {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	padding: 1.25rem 1.5rem;
+}
+
+.vulocart-inv-history-list {
+	margin: 0;
+	padding: 0;
+	max-height: 22rem;
+	overflow-y: auto;
+	list-style: none;
+
+	li {
+		display: flex;
+		align-items: center;
+		gap: 0.875rem;
+		margin: 0;
+		padding: 0.75rem 0;
+		border-top: 1px solid #f0f1f6;
+
+		&:first-child {
+			border-top: 0;
+			padding-top: 0;
+		}
+	}
+
+	.admin-badge {
+		flex: none;
+		min-width: 3rem;
+		justify-content: center;
+	}
+}
+
+.vulocart-inv-history-main {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 0.125rem;
+	min-width: 0;
+
+	strong {
+		font-size: 0.875rem;
+		font-weight: 600;
+		text-transform: capitalize;
+		color: #1f2937;
+	}
+}
+
+.vulocart-inv-history-balance {
+	flex: none;
+	font-size: 0.8125rem;
+	color: #6b7280;
+}
+
+.vulocart-inv-history-empty {
+	margin: 0;
+	padding: 1.25rem 0;
+	text-align: center;
+	font-size: 0.8125rem;
+	color: #9ca3af;
+}

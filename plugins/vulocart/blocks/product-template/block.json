@@ -1,0 +1,24 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"category": "widgets",
+	"textdomain": "vulocart",
+	"style": "vulocart-storefront",
+	"editorScript": "vulocart-storefront-editor",
+	"name": "vulocart/product-template",
+	"title": "Product Template",
+	"description": "Repeats the blocks inside once for every product in the collection.",
+	"icon": "layout",
+	"ancestor": [
+		"vulocart/product-collection"
+	],
+	"usesContext": [
+		"vulocart/query"
+	],
+	"supports": {
+		"html": false,
+		"spacing": {
+			"blockGap": true
+		}
+	}
+}

@@ -1,17 +1,8 @@
 import { applyFilters } from '@wordpress/hooks';
 
 /**
- * Same `require.context`-based settings-tab discovery
- * `vulopilot/src/services/templateService.ts` uses - react-frontend.md's
- * "declarative settings-config pattern". Settings.tsx used to import a
- * single hardcoded `{ name, type, content }` entry directly (there was
- * exactly one tab file, General.ts) - now that there are 12 tab files
- * under `../settings`, that one-off allowance no longer applies, so this
- * scans the folder instead, same as every sibling plugin with more than
- * one settings tab already does. `vulocart_settings_context` is this
- * plugin's own filter name (not vulopilot's), so a future
- * vulocart-pro settings tab (e.g. Passport-specific fields) registers
- * into a filter actually scoped to this plugin family.
+ * Settings tab discovery: scans the `../settings` folder with `require.context` and builds the tree of settings
+ * folders and tabs. `vulocart_settings_context` lets vulocart-pro add settings tabs of its own.
  */
 const contexts: Record< string, any > = {
 	settings: require.context( '../settings', true, /\.ts$/ ),
@@ -26,6 +17,9 @@ type SettingNode = {
 	headerIcon?: string;
 };
 
+/**
+ * Reads every settings file from a webpack context and arranges them into a sorted tree of folders and tabs.
+ */
 const importAll = ( inpContext: any ): SettingNode[] => {
 	const folderStructure: SettingNode[] = [];
 	const folderPriorityMap: Record< string, number > = {};
@@ -118,6 +112,10 @@ const importAll = ( inpContext: any ): SettingNode[] => {
 	return sortStructure( folderStructure );
 };
 
+/**
+ * Returns the settings tree for the admin Settings screen; Pro can extend the context with the
+ * `vulocart_settings_context` filter.
+ */
 const getTemplateData = ( type: 'settings' ): SettingNode[] => {
 	let ctx = contexts[ type ];
 

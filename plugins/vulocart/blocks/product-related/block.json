@@ -1,0 +1,54 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"category": "widgets",
+	"textdomain": "vulocart",
+	"style": "vulocart-storefront",
+	"editorScript": "vulocart-storefront-editor",
+	"name": "vulocart/product-related",
+	"title": "Related Products",
+	"description": "Other products from the same category as the one being viewed.",
+	"icon": "grid-view",
+	"keywords": [
+		"related",
+		"similar",
+		"more like this",
+		"products"
+	],
+	"ancestor": [
+		"vulocart/product-details"
+	],
+	"usesContext": [
+		"vulocart/product",
+		"vulocart/query"
+	],
+	"attributes": {
+		"heading": {
+			"type": "string",
+			"default": ""
+		},
+		"count": {
+			"type": "number",
+			"default": 4
+		},
+		"columns": {
+			"type": "number",
+			"default": 0
+		},
+		"fallback": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": [
+			"wide",
+			"full"
+		],
+		"spacing": {
+			"margin": true,
+			"padding": true
+		}
+	}
+}

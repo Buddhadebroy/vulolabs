@@ -10,16 +10,8 @@ namespace VuloCart\Confirmation;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Confirmation module Rest class.
- *
- * Module-level REST controller, public - same reasoning as Cart\Rest's own
- * docblock: the buyer who just placed the order has whatever the
- * `POST /orders` response already gave them (order_number + access_token)
- * and no WordPress session.
- *
- * Extends `\WP_REST_Controller` to match vulopilot's REST convention; no
- * collision - this class declares no `prepare_item_for_response()` (or any
- * other base-class method name) at all, let alone a private one.
+ * Confirmation REST controller. Public: the buyer who just placed the order already has the order number and access
+ * token from the `POST /orders` response, and no WordPress session.
  *
  * @class       Rest class
  * @version     1.0.0

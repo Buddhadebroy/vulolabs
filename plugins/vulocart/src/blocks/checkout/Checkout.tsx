@@ -1,215 +1,99 @@
 /* global vulocartFrontendData */
-import { billingText } from '../../lib/priceText';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { client, getOrCreateCartToken } from '../shared/cart';
 import type { CartResponse } from '../shared/cart';
-import { ProductCards } from '../shared/ProductCards';
-import { isVisibleInListing } from '../shared/product';
-import type { ProductSummary } from '../shared/product';
 import { CheckoutEngine } from '../checkout-engine/CheckoutEngine';
 import '../checkout-engine/mount'; // side-effect only - registers Free's 5 interactive steps AND patches window.vulocartCheckoutEngine.mount()/unmount() (see mount.tsx).
 import './checkout.scss';
 
-interface ShippingMethod {
-	id: string;
-	label: string;
-	cost: number;
+/**
+ * The Checkout block: the shopper's cart goes straight into `CheckoutEngine` (`../checkout-engine/`) - contact,
+ * address, shipping, payment and review beside a live order summary. Editing quantities and browsing products
+ * belong to the Cart and Shop pages, so none of that is repeated here; "Edit cart" in the summary links back.
+ *
+ * This file owns only what is genuinely block-specific (the unavailable / guest / empty states and mounting into
+ * this Gutenberg block's DOM node) and nothing about WHICH steps exist or how they are laid out - that is the
+ * engine's job, and it has no idea this block exists. `checkoutMode` (single_page/multi_step) is a plugin setting
+ * (`vulocartFrontendData.checkoutMode`); a vulocart-pro delivery mode (Popup/Embedded/Hosted) mounts the exact
+ * same `CheckoutEngine` from a different entry point with no WordPress page underneath it at all.
+ */
+export interface CheckoutBlockSettings {
+	/** The layout this block forces; empty follows Settings → Checkout. */
+	layout?: string;
+	/** The steps this block shows, in order; omit to follow Settings → Checkout. */
+	steps?: string[];
+	/** The optional fields this block shows; omit to follow Settings → Checkout. */
+	fields?: string[];
 }
 
 /**
- * The Checkout block - cart browsing/editing (unchanged from before), then
- * hands off to `CheckoutEngine` (`../checkout-engine/`) for everything
- * checkout itself. This file used to hardcode the entire step sequence
- * and every field's markup inline; now it owns only what's genuinely
- * block-specific (rendering the products list, mounting into this
- * Gutenberg block's DOM node) and nothing about WHICH checkout steps
- * exist or how they're laid out - that's `CheckoutEngine`'s job, and it
- * has no idea this block exists. `checkoutMode` (single_page/multi_step)
- * is a block/plugin setting (`vulocartFrontendData.checkoutMode`), not
- * hardcoded - a merchant can switch it without any code change, and a
- * future vulocart-pro delivery mode (Popup/Embedded/Hosted) mounts the
- * exact same `CheckoutEngine` component this file does, just from a
- * different entry point with no WordPress page underneath it at all.
+ * The checkout block: loads the shopper's cart and renders the checkout engine with the chosen layout, steps and
+ * optional fields.
  */
-export function Checkout() {
+export function Checkout( { layout, steps, fields }: CheckoutBlockSettings = {} ) {
 	const [ cartToken, setCartToken ] = useState( '' );
 	const [ cart, setCart ] = useState< CartResponse | null >( null );
-	const [ products, setProducts ] = useState< ProductSummary[] >( [] );
 	const [ isLoading, setIsLoading ] = useState( true );
-	const [ hasEnteredCheckout, setHasEnteredCheckout ] = useState( false );
-	const [ shippingEstimate, setShippingEstimate ] = useState< ShippingMethod | null >( null );
 
 	useEffect( () => {
-		if ( ! vulocartFrontendData.cartCheckoutEnabled ) {
-			return;
-		}
-
 		const token = getOrCreateCartToken();
 		setCartToken( token );
 
-		( vulocartFrontendData.productsListingEnabled
-			? client.get< ProductSummary[] >( '/products', { params: { per_page: 50 } } )
-			: Promise.resolve( { data: [] as ProductSummary[] } )
-		)
-			.then( ( productsResponse ) => {
-				setProducts( productsResponse.data.filter( isVisibleInListing ) );
-				return client.get< CartResponse >( '/cart', { headers: { 'X-Cart-Token': token } } );
-			} )
-			.then( ( cartResponse ) => setCart( cartResponse.data ) )
+		client
+			.get< CartResponse >( '/cart', { headers: { 'X-Cart-Token': token } } )
+			.then( ( response ) => setCart( response.data ) )
 			.finally( () => setIsLoading( false ) );
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- runs once on mount only.
 	}, [] );
 
-	/**
-	 * Shipping Estimation - a real capability, not a stub: the same
-	 * `/shipping/methods` endpoint the Shipping step itself later calls
-	 * (Shipping\Rest::get_methods(), public, no address required since
-	 * this plugin's shipping model is flat-rate - ShippingService's own
-	 * docblock), surfaced here on the cart view so a shopper sees what
-	 * shipping will roughly cost before committing to checkout at all,
-	 * the actual point of "estimate before you commit" rather than a
-	 * numbers-matching coincidence.
-	 */
-	useEffect( () => {
-		if ( ! cart || 0 === cart.items.length ) {
-			setShippingEstimate( null );
-			return;
-		}
-
-		client.get< ShippingMethod[] >( '/shipping/methods' ).then( ( response ) => {
-			if ( 0 === response.data.length ) {
-				return;
-			}
-
-			setShippingEstimate( response.data.reduce( ( cheapest, method ) => ( method.cost < cheapest.cost ? method : cheapest ) ) );
-		} );
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- only re-fetch when the cart's item composition (not e.g. isLoading) changes.
-	}, [ cart?.items.length ] );
-
-	const addToCart = ( productId: number ) => {
-		client
-			.post< CartResponse >( '/cart/items', { product_id: productId, quantity: 1 }, { headers: { 'X-Cart-Token': cartToken } } )
-			.then( ( response ) => setCart( response.data ) );
-	};
-
-	const changeQuantity = ( itemId: number, quantity: number ) => {
-		if ( quantity <= 0 ) {
-			client
-				.delete< CartResponse >( `/cart/items/${ itemId }`, { headers: { 'X-Cart-Token': cartToken } } )
-				.then( ( response ) => setCart( response.data ) );
-			return;
-		}
-
-		client
-			.put< CartResponse >( `/cart/items/${ itemId }`, { quantity }, { headers: { 'X-Cart-Token': cartToken } } )
-			.then( ( response ) => setCart( response.data ) );
-	};
-
-	if ( ! vulocartFrontendData.cartCheckoutEnabled ) {
+	if ( isLoading ) {
 		return (
-			<div className="vulocart-checkout-notice">
-				<p>{ __( 'Checkout is temporarily unavailable. Please check back soon.', 'vulocart' ) }</p>
+			<div className="vulocart-checkout-loading" aria-busy="true" aria-label={ __( 'Loading checkout…', 'vulocart' ) }>
+				<span />
+				<span />
+				<span />
 			</div>
 		);
-	}
-
-	if ( isLoading ) {
-		return <p>{ __( 'Loading…', 'vulocart' ) }</p>;
 	}
 
 	if ( ! vulocartFrontendData.guestCheckoutEnabled && ! vulocartFrontendData.isLoggedIn ) {
 		return (
 			<div className="vulocart-checkout-notice">
 				<p>{ __( 'Guest checkout is disabled for this store. Please log in to place an order.', 'vulocart' ) }</p>
-				<a href="/wp-login.php" style={ { fontWeight: 700 } }>
+				<a href="/wp-login.php" className="vulocart-checkout-notice-link">
 					{ __( 'Log in', 'vulocart' ) }
 				</a>
 			</div>
 		);
 	}
 
-	if ( hasEnteredCheckout ) {
+	if ( ! cart || 0 === cart.items.length ) {
+		const shopUrl = vulocartFrontendData.shopPageUrl;
+
 		return (
-			<CheckoutEngine
-				cartToken={ cartToken }
-				cart={ cart }
-				mode={ 'single_page' === vulocartFrontendData.checkoutMode ? 'single_page' : 'multi_step' }
-				onBackToCart={ () => setHasEnteredCheckout( false ) }
-			/>
+			<div className="vulocart-checkout-empty">
+				<h2>{ __( 'Your cart is empty', 'vulocart' ) }</h2>
+				<p>{ __( 'Add something to your cart and it will show up here.', 'vulocart' ) }</p>
+				{ shopUrl && (
+					<a className="wp-element-button" href={ shopUrl }>
+						{ __( 'Browse the shop', 'vulocart' ) }
+					</a>
+				) }
+			</div>
 		);
 	}
 
 	return (
-		<div className="vulocart-checkout-cart-view">
-			{ vulocartFrontendData.productsListingEnabled && (
-				<div className="vulocart-checkout-products">
-					<h3>{ __( 'Available Products', 'vulocart' ) }</h3>
-					{ 0 === products.length && <p>{ __( 'No products yet.', 'vulocart' ) }</p> }
-					<ProductCards
-						products={ products }
-						hrefFor={ ( id ) => ( vulocartFrontendData.productsPageUrl ? `${ vulocartFrontendData.productsPageUrl }?product=${ id }` : '#' ) }
-						renderAction={ ( product ) => (
-							<button type="button" onClick={ () => addToCart( product.id ) }>
-								{ __( 'Add to cart', 'vulocart' ) }
-							</button>
-						) }
-					/>
-				</div>
-			) }
-
-			<div className="vulocart-checkout-cart">
-				<h3>{ __( 'Your Cart', 'vulocart' ) }</h3>
-
-				{ ( ! cart || 0 === cart.items.length ) && <p>{ __( 'Your cart is empty.', 'vulocart' ) }</p> }
-
-				{ cart?.items.map( ( item ) => (
-					<div key={ item.id } className="vulocart-checkout-cart-item">
-						<span>
-							{ item.title }
-							{ item.price && ( item.price.label || billingText( item.price ) ) && (
-								<small style={ { display: 'block', color: '#6b7280', fontSize: '12px' } }>
-									{ [ item.price.label, billingText( item.price ) ].filter( Boolean ).join( ' · ' ) }
-								</small>
-							) }
-						</span>
-						<div className="vulocart-checkout-cart-item-controls">
-							<button type="button" onClick={ () => changeQuantity( item.id, item.quantity - 1 ) }>
-								−
-							</button>
-							<span>{ item.quantity }</span>
-							<button type="button" onClick={ () => changeQuantity( item.id, item.quantity + 1 ) }>
-								+
-							</button>
-							<span>
-								{ item.subtotal } { item.currency }
-							</span>
-						</div>
-					</div>
-				) ) }
-
-				{ cart && cart.items.length > 0 && (
-					<p className="vulocart-checkout-cart-subtotal">
-						{ __( 'Subtotal:', 'vulocart' ) } { cart.totals.total } { cart.totals.currency }
-					</p>
-				) }
-
-				{ shippingEstimate && (
-					<p className="vulocart-checkout-shipping-estimate">
-						{ __( 'Estimated shipping:', 'vulocart' ) } { shippingEstimate.cost } { cart?.totals.currency } { ' ' }
-						({ shippingEstimate.label })
-					</p>
-				) }
-
-				<button
-					type="button"
-					className="vulocart-checkout-continue"
-					disabled={ ! cart || 0 === cart.items.length }
-					onClick={ () => setHasEnteredCheckout( true ) }
-				>
-					{ __( 'Continue to Checkout', 'vulocart' ) }
-				</button>
-			</div>
-		</div>
+		<CheckoutEngine
+			cartToken={ cartToken }
+			cart={ cart }
+			mode={ 'single_page' === ( layout || vulocartFrontendData.checkoutMode ) ? 'single_page' : 'multi_step' }
+			options={ { ...( steps ? { steps } : {} ), ...( fields ? { fields } : {} ) } }
+			onBackToCart={ () => {
+				if ( vulocartFrontendData.cartPageUrl ) {
+					window.location.href = vulocartFrontendData.cartPageUrl;
+				}
+			} }
+		/>
 	);
 }

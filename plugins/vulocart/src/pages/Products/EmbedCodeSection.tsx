@@ -19,21 +19,13 @@ const client = axios.create( {
 } );
 
 /**
- * "Generate embed code automatically" (Phase 4's own requirement) - a
- * Free-tier section on the Product edit page (rendered directly, not
- * through `vulocart_product_edit_sections` - that filter is Free's own
- * extension point FOR Pro, this is Free's own baseline UI, same posture
- * Shipping Estimation's own inline addition to Checkout.tsx already
- * takes). Buy Button is the only mode that's genuinely product-specific
- * (needs this product's own id); Embedded Cart/Embedded Checkout/Popup/
- * Drawer all trigger off the shopper's ambient cart, so their snippets
- * are the same regardless of which product page you're looking at -
- * shown here anyway, for convenience, since this is the natural place a
- * merchant is already looking when they want to start selling something.
- * Popup/Drawer only appear when their own Pro module is active - read
- * from `GET /sdk/config`'s own `features` flags (Sdk.php), the same
- * capability check the SDK itself uses, rather than a second, separate
- * "is this Pro module active" query this component would otherwise need.
+ * Product edit page section that generates ready-to-paste embed code for the SDK. It is rendered directly by the
+ * page, not through `vulocart_product_edit_sections` (which is the extension point for Pro).
+ *
+ * The Buy Button is the only product-specific snippet (it needs this product's id). Embedded Cart, Embedded Checkout,
+ * Popup and Drawer work from the shopper's own cart, so their snippets are the same on every product. Popup and
+ * Drawer are shown only when their Pro module is active, read from the `features` flags of `GET /sdk/config`
+ * (Sdk.php), the same check the SDK itself uses.
  */
 export function EmbedCodeSection( { productId }: { productId: number } ) {
 	const [ config, setConfig ] = useState< SdkConfig | null >( null );

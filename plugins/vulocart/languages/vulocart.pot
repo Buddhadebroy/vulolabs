@@ -8,13 +8,14 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-31T11:22:22+00:00\n"
+"POT-Creation-Date: 2026-10-21T12:27:05+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.12.0\n"
+"X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: vulocart\n"
 
 #. Plugin Name of the plugin
 #: vulocart.php
+#: classes/Storefront/Storefront.php:1373
 msgid "VuloCart"
 msgstr ""
 
@@ -38,115 +39,234 @@ msgstr ""
 msgid "https://vulolabs.com/"
 msgstr ""
 
-#: classes/Admin/Menu.php:69
+#: classes/Admin/Menu.php:65
+#: assets/js/index.js:1
 msgid "Dashboard"
 msgstr ""
 
-#: classes/Admin/Menu.php:70
-#: assets/js/index.js:1
-msgid "Modules"
-msgstr ""
-
-#: classes/Admin/Menu.php:71
-#: assets/js/index.js:1
-msgid "Settings"
-msgstr ""
-
-#: classes/Admin/Menu.php:117
-msgid "VuloCart Orders"
-msgstr ""
-
-#: classes/Admin/Menu.php:118
-#: assets/js/index.js:1
-msgid "Orders"
-msgstr ""
-
-#: classes/Admin/Menu.php:128
-#: classes/Admin/Menu.php:129
-msgid "All Orders"
-msgstr ""
-
-#: classes/Admin/Menu.php:137
-#: classes/Admin/Menu.php:138
-#: classes/Admin/Menu.php:213
-#: classes/Admin/Menu.php:214
-#: assets/js/index.js:1
-msgid "Add New"
-msgstr ""
-
-#: classes/Admin/Menu.php:146
-#: classes/Admin/Menu.php:147
-msgid "Draft Orders"
-msgstr ""
-
-#: classes/Admin/Menu.php:155
-#: classes/Admin/Menu.php:156
-msgid "Refunds"
-msgstr ""
-
-#: classes/Admin/Menu.php:193
-msgid "VuloCart Products"
-msgstr ""
-
-#: classes/Admin/Menu.php:194
-#: assets/js/index.js:1
-msgid "Products"
-msgstr ""
-
-#: classes/Admin/Menu.php:204
-#: classes/Admin/Menu.php:205
-msgid "All Products"
-msgstr ""
-
-#: classes/Admin/Menu.php:221
-#: assets/js/index.js:1
-msgid "Categories"
-msgstr ""
-
-#: classes/Admin/Menu.php:222
-#: assets/js/index.js:1
-msgid "Collections"
-msgstr ""
-
-#: classes/Admin/Menu.php:223
-#: assets/js/index.js:1
-msgid "Brands"
-msgstr ""
-
-#: classes/Admin/Menu.php:224
-#: assets/js/index.js:1
-msgid "Tags"
-msgstr ""
-
-#: classes/Admin/Menu.php:225
-#: assets/js/index.js:1
-msgid "Attributes"
-msgstr ""
-
-#: classes/Admin/Menu.php:226
-#: assets/js/index.js:1
-msgid "Product Types"
-msgstr ""
-
-#: classes/Admin/Menu.php:227
-#: assets/js/index.js:1
-msgid "Inventory"
-msgstr ""
-
-#: classes/Admin/Menu.php:228
+#: classes/Admin/Menu.php:69
 #: assets/js/index.js:1
 msgid "Reviews"
 msgstr ""
 
+#: classes/Admin/Menu.php:72
+#: assets/js/index.js:1
+msgid "Settings"
+msgstr ""
+
+#: classes/Admin/Menu.php:186
+msgid "VuloCart Orders"
+msgstr ""
+
+#: classes/Admin/Menu.php:187
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Orders"
+msgstr ""
+
+#: classes/Admin/Menu.php:197
+#: classes/Admin/Menu.php:198
+msgid "All Orders"
+msgstr ""
+
+#: classes/Admin/Menu.php:206
+#: classes/Admin/Menu.php:207
+#: classes/Admin/Menu.php:246
+#: classes/Admin/Menu.php:247
+msgid "Add New"
+msgstr ""
+
+#: classes/Admin/Menu.php:226
+msgid "VuloCart Products"
+msgstr ""
+
+#: classes/Admin/Menu.php:227
+#: assets/js/index.js:1
+msgid "Products"
+msgstr ""
+
+#: classes/Admin/Menu.php:237
+#: classes/Admin/Menu.php:238
+msgid "All Products"
+msgstr ""
+
+#: classes/Admin/Menu.php:254
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Categories"
+msgstr ""
+
+#: classes/Admin/Menu.php:255
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Collections"
+msgstr ""
+
+#: classes/Admin/Menu.php:256
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Brands"
+msgstr ""
+
+#: classes/Admin/Menu.php:257
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Tags"
+msgstr ""
+
+#: classes/Admin/Menu.php:258
+#: assets/js/index.js:1
+#: assets/js/index.js:6
+msgid "Attributes"
+msgstr ""
+
+#: classes/Admin/Menu.php:259
+#: assets/js/index.js:8
+msgid "Product Types"
+msgstr ""
+
+#: classes/Admin/Menu.php:286
+msgid "VuloCart Customers"
+msgstr ""
+
+#: classes/Admin/Menu.php:287
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Customers"
+msgstr ""
+
+#: classes/Admin/Menu.php:297
+#: classes/Admin/Menu.php:298
+msgid "All Customers"
+msgstr ""
+
+#: classes/Admin/Menu.php:330
+msgid "VuloCart Inventory"
+msgstr ""
+
+#: classes/Admin/Menu.php:331
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Inventory"
+msgstr ""
+
+#: classes/Admin/Menu.php:357
+msgid "VuloCart Shipment"
+msgstr ""
+
+#: classes/Admin/Menu.php:358
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Shipment"
+msgstr ""
+
+#: classes/Admin/Menu.php:375
+msgid "VuloCart AI"
+msgstr ""
+
+#: classes/Admin/Menu.php:376
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "AI"
+msgstr ""
+
+#: classes/Admin/Menu.php:393
+msgid "VuloCart Workflows"
+msgstr ""
+
+#: classes/Admin/Menu.php:394
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Workflows"
+msgstr ""
+
+#: classes/Admin/Menu.php:410
+msgid "VuloCart Marketing"
+msgstr ""
+
+#: classes/Admin/Menu.php:411
+#: assets/js/index.js:8
+msgid "Marketing"
+msgstr ""
+
+#: classes/AI/AiClient.php:107
+msgid "The AI service did not return valid JSON."
+msgstr ""
+
+#: classes/AI/AiClient.php:123
+msgid "Image generation is not available through VuloCloud AI yet."
+msgstr ""
+
+#: classes/AI/AiClient.php:140
+msgid "Embeddings are not available through VuloCloud AI yet."
+msgstr ""
+
+#: classes/AI/ConnectBrokerCallbackHandler.php:37
+msgid "You do not have permission to do this."
+msgstr ""
+
+#: classes/AI/VuloCloudConnection.php:186
+#: classes/AI/VuloCloudConnection.php:271
+#: classes/AI/VuloCloudConnection.php:373
+#: modules/Ai/Rest.php:127
+#: assets/js/index.js:8
+msgid "VuloCloud isn’t configured for this build yet."
+msgstr ""
+
+#. translators: %d: HTTP status code.
+#: classes/AI/VuloCloudConnection.php:215
+msgid "VuloCloud returned a non-JSON response (HTTP %d)."
+msgstr ""
+
+#: classes/AI/VuloCloudConnection.php:224
+msgid "VuloCloud could not complete the connection."
+msgstr ""
+
+#: classes/AI/VuloCloudConnection.php:277
+msgid "This site is not connected to VuloCloud. Connect it under Settings → Integrations."
+msgstr ""
+
+#. translators: %s: underlying error message.
+#: classes/AI/VuloCloudConnection.php:306
+msgid "Could not reach VuloCloud: %s"
+msgstr ""
+
+#: classes/AI/VuloCloudConnection.php:317
+msgid "VuloCloud returned an unexpected response."
+msgstr ""
+
+#: classes/AI/VuloCloudConnection.php:324
+msgid "Your Organization hasn’t configured an AI key yet."
+msgstr ""
+
+#: classes/AI/VuloCloudConnection.php:330
+msgid "This site’s VuloCloud connection was revoked. Please reconnect under Settings → Integrations."
+msgstr ""
+
+#: classes/AI/VuloCloudConnection.php:333
+msgid "VuloCloud could not process this AI request right now."
+msgstr ""
+
+#: classes/AI/VuloCloudConnection.php:347
+msgid "You don’t have enough AI credits to complete this request."
+msgstr ""
+
+#: classes/AI/VuloCloudConnection.php:397
+msgid "VuloCloud returned a non-JSON response."
+msgstr ""
+
+#: classes/Application/PriceCatalog.php:43
+#: assets/js/index.js:1
+msgid "One-time"
+msgstr ""
+
 #. translators: %s: order number, e.g. VC-000042.
-#: classes/Notifications/OrderEmails.php:131
-#, php-format
+#: classes/Notifications/OrderEmails.php:116
 msgid "Order %s confirmed"
 msgstr ""
 
 #. translators: 1: customer name or "there", 2: order number, 3: line items, 4: total amount, 5: currency, 6: order number (repeated for tracking), 7: access token.
-#: classes/Notifications/OrderEmails.php:137
-#, php-format
+#: classes/Notifications/OrderEmails.php:122
 msgid ""
 "Hi %1$s,\n"
 "\n"
@@ -162,14 +282,15 @@ msgid ""
 "Access token: %7$s"
 msgstr ""
 
-#: classes/Notifications/OrderEmails.php:141
-#: classes/Notifications/OrderEmails.php:220
+#: classes/Notifications/OrderEmails.php:126
+#: classes/Notifications/OrderEmails.php:205
+#: classes/Notifications/OrderEmails.php:238
+#: assets/js/index.js:1
 msgid "there"
 msgstr ""
 
 #. translators: 1: customer name or "there", 2: order number, 3: new fulfillment status.
-#: classes/Notifications/OrderEmails.php:167
-#, php-format
+#: classes/Notifications/OrderEmails.php:152
 msgid ""
 "Hi %1$s,\n"
 "\n"
@@ -177,8 +298,7 @@ msgid ""
 msgstr ""
 
 #. translators: 1: customer name or "there", 2: order number, 3: new payment status.
-#: classes/Notifications/OrderEmails.php:184
-#, php-format
+#: classes/Notifications/OrderEmails.php:169
 msgid ""
 "Hi %1$s,\n"
 "\n"
@@ -186,9 +306,33 @@ msgid ""
 msgstr ""
 
 #. translators: %s: order number, e.g. VC-000042.
-#: classes/Notifications/OrderEmails.php:214
-#, php-format
+#: classes/Notifications/OrderEmails.php:199
 msgid "Update on your order %s"
+msgstr ""
+
+#. translators: 1: customer name, 2: order number, 3: amount due with currency.
+#: classes/Notifications/OrderEmails.php:237
+msgid ""
+"Hi %1$s,\n"
+"\n"
+"This is a request for payment on order %2$s.\n"
+"\n"
+"Amount due: %3$s\n"
+"\n"
+""
+msgstr ""
+
+#: classes/Notifications/OrderEmails.php:244
+msgid "How to pay (bank transfer):"
+msgstr ""
+
+#: classes/Notifications/OrderEmails.php:247
+msgid "Reply to this email if you have any questions."
+msgstr ""
+
+#. translators: %s: order number.
+#: classes/Notifications/OrderEmails.php:252
+msgid "Payment request for order %s"
 msgstr ""
 
 #: classes/RestAPI/Controllers/Attributes.php:163
@@ -199,7 +343,8 @@ msgid "No attribute exists with this id."
 msgstr ""
 
 #: classes/RestAPI/Controllers/Attributes.php:179
-#: classes/RestAPI/Controllers/Terms.php:180
+#: classes/RestAPI/Controllers/Terms.php:173
+#: assets/js/index.js:1
 msgid "A name is required."
 msgstr ""
 
@@ -217,171 +362,965 @@ msgid "No checkout session exists for this cart token."
 msgstr ""
 
 #: classes/RestAPI/Controllers/Inventory.php:181
-#: classes/RestAPI/Controllers/Products.php:336
-#: classes/RestAPI/Controllers/Products.php:454
-#: classes/RestAPI/Controllers/Products.php:458
-#: classes/RestAPI/Controllers/Products.php:542
+#: classes/RestAPI/Controllers/Products.php:243
+#: classes/RestAPI/Controllers/Products.php:414
+#: classes/RestAPI/Controllers/Products.php:557
+#: classes/RestAPI/Controllers/Products.php:561
+#: classes/RestAPI/Controllers/Products.php:665
 #: assets/js/index.js:1
 msgid "No product exists with this id."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Modules.php:99
+#: classes/RestAPI/Controllers/Logs.php:108
+msgid "There is no log to download yet."
+msgstr ""
+
+#: classes/RestAPI/Controllers/Modules.php:91
 msgid "No module id given."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Products.php:207
-msgid "At least one product id is required."
-msgstr ""
-
-#: classes/RestAPI/Controllers/Products.php:232
-msgid "A status is required."
-msgstr ""
-
-#: classes/RestAPI/Controllers/Products.php:256
-msgid "A price or sale price is required."
+#. translators: %s: original product title.
+#: classes/RestAPI/Controllers/Products.php:253
+msgid "%s (Copy)"
 msgstr ""
 
 #: classes/RestAPI/Controllers/Products.php:285
+msgid "At least one product id is required."
+msgstr ""
+
+#: classes/RestAPI/Controllers/Products.php:310
+msgid "A status is required."
+msgstr ""
+
+#: classes/RestAPI/Controllers/Products.php:334
+msgid "A price or sale price is required."
+msgstr ""
+
+#: classes/RestAPI/Controllers/Products.php:363
 msgid "A stock status or quantity is required."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Products.php:294
+#: classes/RestAPI/Controllers/Products.php:372
 msgid "Invalid stock status."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Products.php:476
-#: classes/RestAPI/Controllers/Products.php:555
+#: classes/RestAPI/Controllers/Products.php:579
+#: classes/RestAPI/Controllers/Products.php:678
 msgid "Invalid product type."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Products.php:486
-#: classes/RestAPI/Controllers/Products.php:569
+#: classes/RestAPI/Controllers/Products.php:587
+msgid "This product type needs VuloCart Pro."
+msgstr ""
+
+#: classes/RestAPI/Controllers/Products.php:597
+#: classes/RestAPI/Controllers/Products.php:692
 msgid "A product title is required."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Reviews.php:200
+#: classes/RestAPI/Controllers/Products.php:749
+msgid "The price cannot be negative."
+msgstr ""
+
+#: classes/RestAPI/Controllers/Products.php:762
+msgid "Another product already uses this SKU."
+msgstr ""
+
+#: classes/RestAPI/Controllers/ProductTypes.php:212
+msgid "Unknown product type."
+msgstr ""
+
+#: classes/RestAPI/Controllers/ProductTypes.php:223
+msgid "At least one product type must stay enabled."
+msgstr ""
+
+#: classes/RestAPI/Controllers/Reviews.php:199
 msgid "Review not found."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:123
+#: classes/RestAPI/Controllers/Settings.php:127
+#: assets/js/index.js:8
 msgid "Settings saved."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Terms.php:163
-#: classes/RestAPI/Controllers/Terms.php:243
-#: classes/RestAPI/Controllers/Terms.php:259
+#: classes/RestAPI/Controllers/Terms.php:156
+#: classes/RestAPI/Controllers/Terms.php:236
+#: classes/RestAPI/Controllers/Terms.php:252
 msgid "No term exists with this id."
 msgstr ""
 
-#: modules/Address/Module.php:71
-#: assets/js/index.js:1
-msgid "Address"
+#: classes/Storefront/Permalinks.php:215
+msgid "VuloCart product page"
 msgstr ""
 
-#: modules/Cart/Rest.php:247
-msgid "A product_id is required."
+#: classes/Storefront/Permalinks.php:216
+#: classes/Storefront/Permalinks.php:251
+msgid "Product permalink"
 msgstr ""
 
-#: modules/Cart/Rest.php:261
-msgid "Invalid product."
+#: classes/Storefront/Permalinks.php:245
+msgid "Plain"
 msgstr ""
 
-#: modules/Confirmation/Module.php:83
-#: assets/js/index.js:1
-msgid "Confirmation"
+#: classes/Storefront/Permalinks.php:246
+msgid "On the shop page"
 msgstr ""
 
-#: modules/Confirmation/Rest.php:65
-msgid "An access_token is required."
+#: classes/Storefront/Permalinks.php:266
+msgid "Own base"
 msgstr ""
 
-#: modules/Confirmation/Rest.php:73
-#: modules/Order/Rest.php:258
-#: modules/Order/Rest.php:286
-#: modules/Order/Rest.php:497
-#: modules/Order/Rest.php:519
-msgid "Order not found."
+#: classes/Storefront/Permalinks.php:272
+msgid "Old ?product=123 links keep working and send visitors to the new address."
 msgstr ""
 
-#: modules/Customer/Module.php:76
-#: assets/js/index.js:1
-msgid "Customer"
+#: classes/Storefront/Permalinks.php:275
+msgid "No shop page was found (or it is the front page), so plain links are used for now."
 msgstr ""
 
-#: modules/Order/Rest.php:278
-msgid "order_number and access_token are both required."
+#: classes/Storefront/ProductView.php:94
+msgid "Book now"
 msgstr ""
 
-#: modules/Order/Rest.php:312
-msgid "Guest checkout is disabled. Please log in to place an order."
+#: classes/Storefront/ProductView.php:96
+msgid "Donate"
 msgstr ""
 
-#: modules/Order/Rest.php:328
-#: modules/Review/Rest.php:77
-msgid "A cart_token (or X-Cart-Token header) is required."
+#: classes/Storefront/ProductView.php:98
+msgid "Enroll"
 msgstr ""
 
-#: modules/Order/Rest.php:345
-msgid "A phone number is required."
+#: classes/Storefront/ProductView.php:101
+msgid "Subscribe"
 msgstr ""
 
-#: modules/Order/Rest.php:373
-msgid "Billing address is missing required fields."
+#: classes/Storefront/ProductView.php:103
+msgid "Request this service"
 msgstr ""
 
-#: modules/Order/Rest.php:381
-msgid "Shipping address is missing required fields."
+#: classes/Storefront/ProductView.php:105
+msgid "Rent now"
 msgstr ""
 
-#: modules/Order/Rest.php:401
-msgid "Cart is empty or does not exist."
+#: classes/Storefront/ProductView.php:107
+msgid "Buy gift card"
 msgstr ""
 
-#: modules/Order/Rest.php:430
-msgid "At least one item is required."
+#: classes/Storefront/ProductView.php:109
+msgid "Add to cart"
 msgstr ""
 
-#: modules/Order/Rest.php:513
-msgid "A positive refund amount is required."
-msgstr ""
-
-#: modules/Order/Rest.php:537
-#: modules/Order/Rest.php:563
-msgid "No order ids were provided."
-msgstr ""
-
-#: modules/Payment/Application/PaymentService.php:56
-msgid "Manual / offline payment (pay on delivery, bank transfer, etc.)"
-msgstr ""
-
-#: modules/Payment/Module.php:71
-#: assets/js/index.js:1
-msgid "Payment"
-msgstr ""
-
-#: modules/Review/Module.php:75
-#: assets/js/index.js:1
-msgid "Review"
-msgstr ""
-
-#: modules/Shipping/Application/ShippingService.php:55
-#: assets/js/index.js:1
-msgid "Free shipping"
-msgstr ""
-
-#: modules/Shipping/Application/ShippingService.php:64
-msgid "Flat rate"
-msgstr ""
-
-#: modules/Shipping/Module.php:69
+#. translators: %d: number of days.
+#: classes/Storefront/ProductView.php:202
 #: assets/js/block/checkout/view.js:1
 #: assets/js/index.js:1
+#: assets/js/storefront.js:1
+msgid "every day"
+msgid_plural "every %d days"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of days.
+#: classes/Storefront/ProductView.php:202
+msgid "every %d days"
+msgstr ""
+
+#. translators: %d: number of weeks.
+#: classes/Storefront/ProductView.php:205
+#: assets/js/block/checkout/view.js:1
+#: assets/js/index.js:1
+#: assets/js/storefront.js:1
+msgid "every week"
+msgid_plural "every %d weeks"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of weeks.
+#: classes/Storefront/ProductView.php:205
+msgid "every %d weeks"
+msgstr ""
+
+#. translators: %d: number of months.
+#: classes/Storefront/ProductView.php:208
+#: assets/js/block/checkout/view.js:1
+#: assets/js/index.js:1
+#: assets/js/storefront.js:1
+msgid "every month"
+msgid_plural "every %d months"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of months.
+#: classes/Storefront/ProductView.php:208
+msgid "every %d months"
+msgstr ""
+
+#. translators: %d: number of years.
+#: classes/Storefront/ProductView.php:211
+#: assets/js/block/checkout/view.js:1
+#: assets/js/index.js:1
+#: assets/js/storefront.js:1
+msgid "every year"
+msgid_plural "every %d years"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of years.
+#: classes/Storefront/ProductView.php:211
+msgid "every %d years"
+msgstr ""
+
+#. translators: 1: "every month", 2: number of payments.
+#: classes/Storefront/ProductView.php:233
+#: assets/js/block/checkout/view.js:1
+#: assets/js/index.js:1
+#: assets/js/storefront.js:1
+msgid "%1$s (%2$d payment)"
+msgid_plural "%1$s (%2$d payments)"
+msgstr[0] ""
+msgstr[1] ""
+
+#: classes/Storefront/ProductView.php:292
+#: assets/js/index.js:1
+msgid "Standard"
+msgstr ""
+
+#: classes/Storefront/ProductView.php:336
+msgid "Yes"
+msgstr ""
+
+#: classes/Storefront/ProductView.php:336
+msgid "No"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:64
+msgid "Newest"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:65
+msgid "Price: low to high"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:66
+msgid "Price: high to low"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:67
+msgid "Name: A to Z"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:352
+msgid "No products found"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:354
+msgid "Showing 1 product"
+msgstr ""
+
+#. translators: 1: first product number, 2: last, 3: total.
+#: classes/Storefront/Storefront.php:358
+msgid "Showing %1$d–%2$d of %3$d products"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:367
+msgid "Filter products"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:370
+msgid "Search products"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:372
+msgid "Search products…"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:378
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Category"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:380
+msgid "All categories"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:390
+msgid "Sort by"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:399
+#: assets/js/index.js:8
+msgid "Apply"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:404
+msgid "Clear filters"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:507
+#: classes/Storefront/Storefront.php:636
+#: classes/Storefront/Storefront.php:828
+#: classes/Storefront/Storefront.php:956
+msgid "Sold out"
+msgstr ""
+
+#. translators: %d: discount percentage.
+#: classes/Storefront/Storefront.php:510
+#: classes/Storefront/Storefront.php:831
+msgid "-%d%%"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:512
+#: assets/js/index.js:1
+msgid "Featured"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:574
+msgid "Price not set"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:580
+#: assets/js/index.js:1
+msgid "From"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:584
+msgid "Original price:"
+msgstr ""
+
+#. translators: %s: billing interval, e.g. month.
+#: classes/Storefront/Storefront.php:591
+msgid "/ %s"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:645
+#: classes/Storefront/Storefront.php:911
+#: classes/Storefront/Storefront.php:923
+msgid "Added"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:650
+msgid "Select options"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:693
+msgid "Previous page"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:694
+msgid "Next page"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:705
+msgid "Product pages"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:752
+msgid "This product could not be found."
+msgstr ""
+
+#: classes/Storefront/Storefront.php:754
+msgid "Browse all products"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:795
+#: classes/Storefront/Storefront.php:1455
+msgid "Shop"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:800
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Breadcrumb"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:802
+msgid "Home"
+msgstr ""
+
+#. translators: %d: photo number.
+#: classes/Storefront/Storefront.php:849
+msgid "Show photo %d"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:885
+msgid "Choose a price"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:901
+msgid "Ordering is currently unavailable."
+msgstr ""
+
+#: classes/Storefront/Storefront.php:912
+msgid "Buy now"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:918
+#: assets/js/index.js:8
+msgid "Quantity"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:919
+#: assets/js/index.js:1
+msgid "Decrease quantity"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:920
+#: assets/js/index.js:1
+msgid "Increase quantity"
+msgstr ""
+
+#. translators: %d: discount percentage.
+#: classes/Storefront/Storefront.php:952
+msgid "You save %d%% on the regular price"
+msgstr ""
+
+#. translators: %d: units left.
+#: classes/Storefront/Storefront.php:960
+msgid "Only %d left"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:962
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "In stock"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:998
+#: assets/js/block/checkout/view.js:1
+#: assets/js/storefront.js:1
+msgid "Secure checkout"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1019
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "SKU"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1022
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Brand"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1025
+#: assets/js/index.js:8
+msgid "Collection"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1027
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Type"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1056
+#: assets/js/index.js:1
+msgid "Description"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1060
+msgid "Details"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1066
+#: assets/js/index.js:1
+msgid "Weight"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1072
+msgid "Dimensions (L × W × H)"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1078
+#: assets/js/index.js:1
+msgid "Specifications"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1086
+msgid "Questions & answers"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1091
+#: modules/Shipping/Module.php:48
+#: assets/js/block/checkout/index.js:1
+#: assets/js/block/checkout/view.js:1
+#: assets/js/index.js:1
+#: assets/js/index.js:8
 #: assets/js/storefront.js:1
 msgid "Shipping"
 msgstr ""
 
+#: classes/Storefront/Storefront.php:1092
+msgid "Returns & refunds"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1093
+msgid "Cancellation"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1104
+msgid "Shipping & returns"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1216
+msgid "Please enable JavaScript to see your cart."
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1235
+msgid "View cart"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1287
+msgid "No products match your filters. Try a different search or clear the filters."
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1379
+msgid "Shop page"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1380
+msgid "A shop heading, filters and a product grid with pagination."
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1390
+msgid "Cart page"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1391
+msgid "The shopper's cart with an order summary and a checkout button."
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1401
+#: assets/js/index.js:8
+msgid "Checkout page"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1402
+msgid "Contact, address, shipping and payment, with a live order summary."
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1456
+msgid "The theme header and footer around a VuloCart shop: filters, product grid and pagination."
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1460
+msgid "Cart"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1461
+msgid "The theme header and footer around the shopper's cart."
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1465
+#: assets/js/block/checkout/index.js:1
+#: assets/js/index.js:8
+msgid "Checkout"
+msgstr ""
+
+#: classes/Storefront/Storefront.php:1466
+msgid "The theme header and footer around the checkout."
+msgstr ""
+
+#: modules/Address/Module.php:48
+#: assets/js/block/checkout/index.js:1
+#: assets/js/block/checkout/view.js:1
+#: assets/js/index.js:8
+#: assets/js/storefront.js:1
+msgid "Address"
+msgstr ""
+
+#: modules/Cart/Rest.php:261
+msgid "A product_id is required."
+msgstr ""
+
+#: modules/Cart/Rest.php:277
+msgid "Invalid product or price."
+msgstr ""
+
+#: modules/Confirmation/Module.php:54
+msgid "Confirmation"
+msgstr ""
+
+#: modules/Confirmation/Rest.php:66
+msgid "An access_token is required."
+msgstr ""
+
+#: modules/Confirmation/Rest.php:74
+#: modules/Order/Rest.php:299
+#: modules/Order/Rest.php:327
+#: modules/Order/Rest.php:540
+#: modules/Order/Rest.php:615
+#: modules/Order/Rest.php:634
+#: modules/Order/Rest.php:704
+#: modules/Order/Rest.php:771
+#: modules/Payment/Rest.php:245
+#: modules/Payment/Rest.php:286
+msgid "Order not found."
+msgstr ""
+
+#: modules/Customer/Module.php:90
+#: assets/js/block/checkout/index.js:1
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Customer"
+msgstr ""
+
+#: modules/Customer/Rest.php:309
+#: modules/Customer/Rest.php:471
+msgid "Address not found."
+msgstr ""
+
+#: modules/Customer/Rest.php:379
+#: modules/Customer/Rest.php:405
+#: modules/Customer/Rest.php:421
+#: modules/Customer/Rest.php:540
+msgid "Customer not found."
+msgstr ""
+
+#: modules/Customer/Rest.php:509
+msgid "Note text is required."
+msgstr ""
+
+#: modules/Customer/Rest.php:556
+msgid "No customer ids were provided."
+msgstr ""
+
+#: modules/Order/Rest.php:319
+msgid "order_number and access_token are both required."
+msgstr ""
+
+#: modules/Order/Rest.php:353
+msgid "Guest checkout is disabled. Please log in to place an order."
+msgstr ""
+
+#: modules/Order/Rest.php:369
+#: modules/Payment/Rest.php:145
+#: modules/Review/Rest.php:79
+msgid "A cart_token (or X-Cart-Token header) is required."
+msgstr ""
+
+#: modules/Order/Rest.php:386
+msgid "A phone number is required."
+msgstr ""
+
+#: modules/Order/Rest.php:414
+msgid "Billing address is missing required fields."
+msgstr ""
+
+#: modules/Order/Rest.php:422
+msgid "Shipping address is missing required fields."
+msgstr ""
+
+#: modules/Order/Rest.php:444
+#: modules/Payment/Rest.php:151
+msgid "Cart is empty or does not exist."
+msgstr ""
+
+#: modules/Order/Rest.php:473
+msgid "At least one item is required."
+msgstr ""
+
+#: modules/Order/Rest.php:640
+msgid "Order placed"
+msgstr ""
+
+#: modules/Order/Rest.php:649
+msgid "Payment requested"
+msgstr ""
+
+#: modules/Order/Rest.php:698
+msgid "A positive refund amount is required."
+msgstr ""
+
+#: modules/Order/Rest.php:722
+#: modules/Order/Rest.php:748
+#: modules/Order/Rest.php:787
+msgid "No order ids were provided."
+msgstr ""
+
+#: modules/Payment/Application/PaymentService.php:173
+msgid "That payment method is not available."
+msgstr ""
+
+#: modules/Payment/Gateways/BankTransferGateway.php:46
+#: assets/js/index.js:1
+msgid "Bank transfer"
+msgstr ""
+
+#: modules/Payment/Gateways/CashOnDeliveryGateway.php:44
+#: assets/js/index.js:1
+msgid "Cash on delivery"
+msgstr ""
+
+#: modules/Payment/Gateways/ManualGateway.php:50
+msgid "Manual / offline payment (pay on delivery, bank transfer, etc.)"
+msgstr ""
+
+#: modules/Payment/Module.php:68
+#: assets/js/block/checkout/index.js:1
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Payment"
+msgstr ""
+
+#: modules/Payment/Rest.php:254
+msgid "This order has no linked payment gateway to capture from."
+msgstr ""
+
+#: modules/Payment/Rest.php:292
+msgid "This order has no linked payment gateway to cancel."
+msgstr ""
+
+#: modules/Review/Module.php:48
+#: assets/js/block/checkout/index.js:1
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Review"
+msgstr ""
+
+#: modules/Shipping/Application/ShippingService.php:67
+#: assets/js/index.js:1
+msgid "Free shipping"
+msgstr ""
+
+#: modules/Shipping/Application/ShippingService.php:75
+#: assets/js/index.js:8
+msgid "Flat rate"
+msgstr ""
+
+#: modules/Taxes/Application/Presets.php:68
+msgid "EU VAT (27 countries)"
+msgstr ""
+
+#: modules/Taxes/Application/Presets.php:69
+msgid "Standard VAT rate for every EU member state, charged at the buyer's country rate."
+msgstr ""
+
+#: modules/Taxes/Application/Presets.php:73
+msgid "United Kingdom VAT"
+msgstr ""
+
+#: modules/Taxes/Application/Presets.php:74
+msgid "20% standard rate."
+msgstr ""
+
+#: modules/Taxes/Application/Presets.php:78
+msgid "India GST"
+msgstr ""
+
+#: modules/Taxes/Application/Presets.php:79
+msgid "CGST + SGST inside your state, IGST everywhere else in India. Pick your state and the GST slab."
+msgstr ""
+
+#: modules/Taxes/Application/Presets.php:84
+msgid "Australia GST"
+msgstr ""
+
+#: modules/Taxes/Application/Presets.php:85
+msgid "10%."
+msgstr ""
+
+#: modules/Taxes/Application/Presets.php:89
+msgid "New Zealand GST"
+msgstr ""
+
+#: modules/Taxes/Application/Presets.php:90
+msgid "15%."
+msgstr ""
+
+#: modules/Taxes/Application/Presets.php:94
+msgid "Singapore GST"
+msgstr ""
+
+#: modules/Taxes/Application/Presets.php:95
+msgid "9%."
+msgstr ""
+
+#: modules/Taxes/Application/Presets.php:99
+msgid "Canada GST (federal only)"
+msgstr ""
+
+#: modules/Taxes/Application/Presets.php:100
+msgid "5% GST. Add provincial PST / HST rows yourself."
+msgstr ""
+
+#: modules/Taxes/Application/RateRepository.php:50
+msgid "Reduced rate"
+msgstr ""
+
+#: modules/Taxes/Application/RateRepository.php:51
+msgid "Zero rate"
+msgstr ""
+
+#: modules/Taxes/Application/RateRepository.php:54
+#: assets/js/index.js:1
+msgid "Standard rate"
+msgstr ""
+
+#: modules/Taxes/Application/TaxService.php:268
+#: modules/Taxes/Application/TaxService.php:337
+#: assets/js/block/checkout/view.js:1
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+#: assets/js/storefront.js:1
+msgid "Tax"
+msgstr ""
+
+#: modules/Taxes/Rest.php:195
+msgid "Give the class a new name."
+msgstr ""
+
+#: modules/Taxes/Rest.php:217
+msgid "The standard class cannot be removed."
+msgstr ""
+
+#: modules/Taxes/Rest.php:256
+#: modules/Taxes/Rest.php:270
+msgid "No tax rate exists with this id."
+msgstr ""
+
+#: modules/Taxes/Rest.php:299
+msgid "Unknown preset."
+msgstr ""
+
+#: assets/js/block/checkout/index.js:1
+#: assets/js/index.js:1
+#: assets/js/index.js:6
+#: assets/js/index.js:8
+msgid "Name"
+msgstr ""
+
+#: assets/js/block/checkout/index.js:1
+#: assets/js/index.js:8
+msgid "Phone number"
+msgstr ""
+
+#: assets/js/block/checkout/index.js:1
+#: assets/js/index.js:8
+msgid "Apartment, suite, etc."
+msgstr ""
+
+#: assets/js/block/checkout/index.js:1
+msgid "Customize this checkout"
+msgstr ""
+
+#: assets/js/block/checkout/index.js:1
+msgid "This page uses the layout, steps and fields below."
+msgstr ""
+
+#: assets/js/block/checkout/index.js:1
+msgid "This page follows Settings → Checkout."
+msgstr ""
+
+#: assets/js/block/checkout/index.js:1
+#: assets/js/index.js:8
+msgid "Layout"
+msgstr ""
+
+#: assets/js/block/checkout/index.js:1
+msgid "Checkout layout"
+msgstr ""
+
+#: assets/js/block/checkout/index.js:1
+msgid "Follow Settings"
+msgstr ""
+
+#: assets/js/block/checkout/index.js:1
+msgid "Multi-step (one step at a time)"
+msgstr ""
+
+#: assets/js/block/checkout/index.js:1
+msgid "Single page (every step at once)"
+msgstr ""
+
+#: assets/js/block/checkout/index.js:1
+#: assets/js/index.js:8
+msgid "Steps"
+msgstr ""
+
+#: assets/js/block/checkout/index.js:1
+msgid "Move up"
+msgstr ""
+
+#: assets/js/block/checkout/index.js:1
+msgid "Move down"
+msgstr ""
+
+#: assets/js/block/checkout/index.js:1
+msgid "Fields"
+msgstr ""
+
 #: assets/js/block/checkout/index.js:1
 msgid "VuloCart Checkout - renders the real cart/order flow on the published page."
+msgstr ""
+
+#: assets/js/block/checkout/index.js:1
+msgid "Following Settings → Checkout"
+msgstr ""
+
+#: assets/js/block/checkout/view.js:1
+#: assets/js/storefront.js:1
+msgid "Order summary"
+msgstr ""
+
+#: assets/js/block/checkout/view.js:1
+#: assets/js/storefront.js:1
+msgid "Hide order summary"
+msgstr ""
+
+#. translators: %d: number of items.
+#: assets/js/block/checkout/view.js:1
+#: assets/js/storefront.js:1
+msgid "Show order summary (%d item)"
+msgid_plural "Show order summary (%d items)"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/block/checkout/view.js:1
+#: assets/js/storefront.js:1
+msgid "Edit cart"
+msgstr ""
+
+#. translators: %d: quantity.
+#: assets/js/block/checkout/view.js:1
+#: assets/js/storefront.js:1
+msgid "Quantity: %d"
+msgstr ""
+
+#: assets/js/block/checkout/view.js:1
+#: assets/js/index.js:1
+#: assets/js/storefront.js:1
+msgid "Subtotal"
+msgstr ""
+
+#: assets/js/block/checkout/view.js:1
+#: assets/js/storefront.js:1
+msgid "Free"
+msgstr ""
+
+#: assets/js/block/checkout/view.js:1
+#: assets/js/storefront.js:1
+msgid "Next step"
+msgstr ""
+
+#: assets/js/block/checkout/view.js:1
+#: assets/js/index.js:1
+#: assets/js/storefront.js:1
+msgid "Discount"
+msgstr ""
+
+#: assets/js/block/checkout/view.js:1
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+#: assets/js/storefront.js:1
+msgid "Total"
+msgstr ""
+
+#: assets/js/block/checkout/view.js:1
+#: assets/js/storefront.js:1
+msgid "Includes tax"
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
@@ -410,7 +1349,23 @@ msgid "Placing order…"
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
+#: assets/js/storefront.js:1
+msgid "Sign out"
+msgstr ""
+
+#: assets/js/block/checkout/view.js:1
+#: assets/js/storefront.js:1
+msgid "Already have an account?"
+msgstr ""
+
+#: assets/js/block/checkout/view.js:1
+#: assets/js/storefront.js:1
+msgid "Log in"
+msgstr ""
+
+#: assets/js/block/checkout/view.js:1
 #: assets/js/index.js:1
+#: assets/js/index.js:8
 #: assets/js/storefront.js:1
 msgid "Email"
 msgstr ""
@@ -421,13 +1376,15 @@ msgid "Name (optional)"
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
+#: assets/js/index.js:1
+#: assets/js/index.js:8
 #: assets/js/storefront.js:1
-msgid "Phone number"
+msgid "Phone"
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
 #: assets/js/storefront.js:1
-msgid "Phone number (optional)"
+msgid "Phone (optional)"
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
@@ -452,20 +1409,30 @@ msgstr ""
 
 #: assets/js/block/checkout/view.js:1
 #: assets/js/storefront.js:1
+msgid "Country / region"
+msgstr ""
+
+#: assets/js/block/checkout/view.js:1
+#: assets/js/index.js:8
+#: assets/js/storefront.js:1
+msgid "Select a country…"
+msgstr ""
+
+#: assets/js/block/checkout/view.js:1
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+#: assets/js/storefront.js:1
 msgid "Full name"
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
 #: assets/js/storefront.js:1
-msgid "Address line 1"
+msgid "Apartment, suite, etc. (optional)"
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
-#: assets/js/storefront.js:1
-msgid "Address line 2 (optional)"
-msgstr ""
-
-#: assets/js/block/checkout/view.js:1
+#: assets/js/index.js:1
+#: assets/js/index.js:8
 #: assets/js/storefront.js:1
 msgid "City"
 msgstr ""
@@ -476,17 +1443,14 @@ msgid "State / region"
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
+#: assets/js/index.js:1
+#: assets/js/index.js:8
 #: assets/js/storefront.js:1
 msgid "Postcode"
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
-#: assets/js/storefront.js:1
-msgid "Country"
-msgstr ""
-
-#: assets/js/block/checkout/view.js:1
-#: assets/js/index.js:1
+#: assets/js/index.js:8
 #: assets/js/storefront.js:1
 msgid "Billing address"
 msgstr ""
@@ -497,7 +1461,7 @@ msgid "Shipping address is the same as billing"
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
-#: assets/js/index.js:1
+#: assets/js/index.js:8
 #: assets/js/storefront.js:1
 msgid "Shipping address"
 msgstr ""
@@ -553,77 +1517,31 @@ msgid "No payment methods are currently available."
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
-#: assets/js/block/products/view.js:1
-#: assets/js/index.js:1
 #: assets/js/storefront.js:1
-msgid "Loading…"
+msgid "Place order"
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
 #: assets/js/storefront.js:1
-msgid "Shipping to:"
-msgstr ""
-
-#: assets/js/block/checkout/view.js:1
-#: assets/js/index.js:1
-#: assets/js/storefront.js:1
-msgid "Subtotal"
+msgid "Contact"
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
 #: assets/js/index.js:1
 #: assets/js/storefront.js:1
-msgid "Tax"
+msgid "Ship to"
+msgstr ""
+
+#: assets/js/block/checkout/view.js:1
+#: assets/js/storefront.js:1
+msgid "Copied"
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
 #: assets/js/index.js:1
+#: assets/js/index.js:8
 #: assets/js/storefront.js:1
-msgid "Total"
-msgstr ""
-
-#: assets/js/block/checkout/view.js:1
-#: assets/js/storefront.js:1
-msgid "Place Order"
-msgstr ""
-
-#: assets/js/block/checkout/view.js:1
-msgid "Available Products"
-msgstr ""
-
-#: assets/js/block/checkout/view.js:1
-#: assets/js/block/products/view.js:1
-msgid "No products yet."
-msgstr ""
-
-#: assets/js/block/checkout/view.js:1
-#: assets/js/block/products/view.js:1
-msgid "Price not set"
-msgstr ""
-
-#: assets/js/block/checkout/view.js:1
-#: assets/js/block/products/view.js:1
-msgid "Add to cart"
-msgstr ""
-
-#: assets/js/block/checkout/view.js:1
-msgid "Your Cart"
-msgstr ""
-
-#: assets/js/block/checkout/view.js:1
-msgid "Your cart is empty."
-msgstr ""
-
-#: assets/js/block/checkout/view.js:1
-msgid "Subtotal:"
-msgstr ""
-
-#: assets/js/block/checkout/view.js:1
-msgid "Estimated shipping:"
-msgstr ""
-
-#: assets/js/block/checkout/view.js:1
-msgid "Continue to Checkout"
+msgid "Copy"
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
@@ -631,11 +1549,15 @@ msgid "Guest checkout is disabled for this store. Please log in to place an orde
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
-msgid "Log in"
+msgid "Your cart is empty"
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
-msgid "Checkout is temporarily unavailable. Please check back soon."
+msgid "Add something to your cart and it will show up here."
+msgstr ""
+
+#: assets/js/block/checkout/view.js:1
+msgid "Browse the shop"
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
@@ -645,68 +1567,22 @@ msgstr ""
 
 #: assets/js/block/checkout/view.js:1
 #: assets/js/storefront.js:1
-msgid "Order number:"
-msgstr ""
-
-#: assets/js/block/checkout/view.js:1
-#: assets/js/block/order-tracking/view.js:1
-#: assets/js/storefront.js:1
-msgid "Total:"
+msgid "We've received your order and will email you the details shortly."
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
 #: assets/js/storefront.js:1
-msgid "Save this access token to check your order status later:"
+msgid "Order number"
 msgstr ""
 
-#: assets/js/block/products/index.js:1
-msgid "VuloCart Products - renders the catalog listing (or a single product's detail page, via ?product=) on the published page."
+#: assets/js/block/checkout/view.js:1
+#: assets/js/storefront.js:1
+msgid "Keep this access token to check your order status later:"
 msgstr ""
 
-#: assets/js/block/products/view.js:1
-msgid "This catalog is currently unavailable."
-msgstr ""
-
-#: assets/js/block/products/view.js:1
-msgid "No image"
-msgstr ""
-
-#: assets/js/block/products/view.js:1
-#: assets/js/index.js:1
-msgid "Out of stock"
-msgstr ""
-
-#: assets/js/block/products/view.js:1
-msgid "This product could not be found."
-msgstr ""
-
-#: assets/js/block/products/view.js:1
-msgid "← Back to products"
-msgstr ""
-
-#: assets/js/block/products/view.js:1
-msgid "Adding…"
-msgstr ""
-
-#: assets/js/block/products/view.js:1
-msgid "Ordering is currently unavailable."
-msgstr ""
-
-#: assets/js/block/products/view.js:1
-msgid "Added to cart!"
-msgstr ""
-
-#: assets/js/block/products/view.js:1
-msgid "Go to checkout →"
-msgstr ""
-
-#: assets/js/block/products/view.js:1
-msgid "Details"
-msgstr ""
-
-#: assets/js/block/products/view.js:1
-#: assets/js/index.js:1
-msgid "Description"
+#: assets/js/block/checkout/view.js:1
+#: assets/js/storefront.js:1
+msgid "Continue shopping"
 msgstr ""
 
 #: assets/js/block/order-tracking/index.js:1
@@ -739,64 +1615,227 @@ msgstr ""
 
 #: assets/js/block/order-tracking/view.js:1
 #: assets/js/index.js:1
+#: assets/js/index.js:8
 msgid "Order"
 msgstr ""
 
 #: assets/js/block/order-tracking/view.js:1
-#: assets/js/index.js:1
 msgid "Status:"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Cart"
+#: assets/js/block/order-tracking/view.js:1
+msgid "Total:"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "The Cart Engine - add/update/remove line items, headless-ready via a client-held cart token."
+msgid "This page is part of VuloCart Pro"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Turns a Cart into a placed Order - requires the Cart module to be active."
+msgid "This page needs an active VuloCart Pro license"
+msgstr ""
+
+#. translators: %s: module name.
+#: assets/js/index.js:1
+msgid "Turn on the %s module"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Checkout wizard Customer step - prefills name/email/phone for a logged-in buyer."
+msgid "Turn on the module behind this page"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Checkout wizard Address step - billing/shipping address capture and validation."
+msgid "Upgrade to Pro"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Checkout wizard Shipping step - flat-rate shipping cost, configured on the Shipping settings tab."
+#: assets/js/index.js:8
+msgid "Activate license"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Taxes"
+msgid "Activating…"
+msgstr ""
+
+#. translators: %s: module name.
+#. translators: %s: Module name.
+#: assets/js/index.js:1
+msgid "Activate %s"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Adds tax calculation to order totals, using a flat rate configured on the Taxes settings tab."
+msgid "Activate module"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Checkout wizard Payment step - manual/offline payment, configured on the Payments settings tab."
+msgid "Manage modules"
+msgstr ""
+
+#. translators: %s: module name.
+#: assets/js/index.js:1
+msgid "Could not activate the %s module. Try again from Settings → Modules."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Checkout wizard Review step - a real preview of the final order total before it's placed."
+msgid "Could not activate the module."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "The checkout wizard's post-order confirmation step - requires the Order module to be active."
+msgid "Card charging"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Passport"
+msgid "When an online gateway (Stripe, PayPal, Razorpay) takes the money."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Give every Product a Digital Passport - serial number, manufacturer, warranty, and other provenance details."
+msgid "Charge the card"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Charge at checkout, or only hold the amount and capture it yourself later from the order screen. Offline methods are not affected."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "At checkout"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Later, when I capture it"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Manual payment"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "You and the buyer arrange payment outside the store, for example by phone or invoice."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enable manual payment"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Payment status of new orders"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The payment status a new manual-payment order starts with. Choose Pending if you confirm payment yourself."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Pending"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Paid"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Failed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Refunded"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The buyer sends the money to your bank. The order stays pending until you mark it paid."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enable bank transfer"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Payment instructions"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Shown to the buyer after they order: account number, bank name and the reference to use."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The buyer pays in cash when the order arrives."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enable cash on delivery"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sales and store overview."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Approve or reject customer reviews."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Every order."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add order"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Create an order by hand."
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Subscriptions"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Recurring billing."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Everything you sell."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add product"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Create a new product."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Group products into categories."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Hand-picked groups of products."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The brands your products come from."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Free-form labels for products."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Properties such as colour and size."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Everyone who has bought from you."
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Stock Levels"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Stock for every product."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -804,55 +1843,20 @@ msgid "Suppliers"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Track who each product is sourced from - manage suppliers and assign one per product."
+msgid "Who you source products from."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Product Templates"
+#: assets/js/index.js:8
+msgid "Warehouses"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Save any product's fields as a reusable preset, and start new products from it."
+msgid "Stock locations."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Pricing Rules"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Automatic percentage/fixed discounts scoped to all products, one type, one category, or one product."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Variants"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Generate attribute-combination variants (e.g. Color × Size) with their own SKU/price/stock."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Bulk Editor"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "A spreadsheet-style screen for editing price/status/stock across many products at once, plus Duplicate Product."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Import CSV"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Bulk-create products from a spreadsheet export, with column mapping and a preview."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Order Notes"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Lets a buyer leave a note for their order at checkout, shown on the Order edit page."
+msgid "Shipments, returns and local pickup."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -860,7 +1864,7 @@ msgid "Coupons"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Percentage/fixed discount codes a shopper can enter at checkout."
+msgid "Discount codes."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -868,66 +1872,159 @@ msgid "Gift Cards"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Stored-value codes a shopper can redeem, partially or fully, toward their order total."
+msgid "Stored-value codes."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Abandoned Checkout"
+msgid "Pricing Rules"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "A list of checkout sessions that were started but never completed."
+msgid "Automatic discounts."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Checkout Builder"
+msgid "Payment Links"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Enable/disable and reorder checkout steps, saved as named, one-active-at-a-time templates."
+msgid "Links that open checkout with products already in the cart."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Popup Checkout"
+msgid "Checkout steps and fields"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Opens checkout in a modal from any \"data-vulocart-checkout-trigger\" element on any page, not just the Checkout block."
+msgid "Choose which checkout steps and fields are shown."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Hosted Checkout"
+msgid "Cart Abandoned"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "A dedicated /checkout/hosted/{cart_token}/ URL a shopper can be redirected to - not a WordPress page, no theme involved."
+msgid "Checkouts that were never completed."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "MCP"
+msgid "Catalog, checkout, support and search AI."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Model Context Protocol server - exposes VuloCart's catalog/orders to MCP-compatible AI clients."
+msgid "Automations that react to store events."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "AI"
+#: assets/js/index.js:8
+msgid "Analytics"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "AI-generated product/upsell recommendations."
+msgid "Sales, customers, funnels and forecasts."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Search…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Every Where"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Pages"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Modules"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "7 days"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "30 days"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "90 days"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Store insights"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Conversion, lifetime value, retention, checkout funnel, abandoned carts, top customers, AI insights and stock forecasts."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Processing"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Shipped"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Completed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Cancelled"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Good morning"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Good afternoon"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Good evening"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sales chart"
+msgstr ""
+
+#. translators: %d: number of orders.
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "%d order"
+msgid_plural "%d orders"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Stock health"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "%d healthy"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "%d low"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "%d out"
 msgstr ""
 
 #. translators: %s: Plugin name.
 #: assets/js/index.js:1
-#, js-format
 msgid "Plugin required: %s"
 msgstr ""
 
 #. translators: %s: Plugin name.
 #: assets/js/index.js:1
-#, js-format
 msgid "This feature requires the \"%s\" plugin to be active."
 msgstr ""
 
@@ -937,42 +2034,338 @@ msgstr ""
 
 #. translators: %s: Module name.
 #: assets/js/index.js:1
-#, js-format
-msgid "Activate %s"
-msgstr ""
-
-#. translators: %s: Module name.
-#: assets/js/index.js:1
-#, js-format
-msgid "This setting is only usable once the %s module is active."
+msgid "This feature is currently unavailable. To activate it, please enable the %s module."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Enable now"
+#: assets/js/index.js:8
+msgid "Enable Now"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Unlock VuloCart Pro"
+msgid "Unlock the full VuloCart toolkit"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "This feature is part of VuloCart Pro."
+msgid "Sell your way: popup, drawer and one-click checkout, subscriptions, coupons, advanced shipping and tax, AI tools, and more."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Upgrade to Pro"
+msgid "What you unlock with Pro"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Total Products"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Active Modules"
-msgstr ""
-
-#: assets/js/index.js:1
+#: assets/js/index.js:8
 msgid "Enable or disable VuloCart features. Turning a module on activates its settings and REST routes; turning it off hides them."
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Cancel"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:6
+#: assets/js/index.js:8
+msgid "Delete"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Approved"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Rejected"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Product"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Rating"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Title"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Status"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Submitted"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "All"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Anonymous"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "(deleted product)"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:6
+#: assets/js/index.js:8
+msgid "Actions"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Approve"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Reject"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Customer ratings and comments on your products - approve or reject before they show on the storefront."
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Export"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Search reviews…"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Mark as"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delete review"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delete the selected review(s)? This cannot be undone."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Restock"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "product is out of stock"
+msgid_plural "products are out of stock"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+msgid "Fulfil"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "paid order to fulfil"
+msgid_plural "paid orders to fulfil"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+msgid "order awaiting payment"
+msgid_plural "orders awaiting payment"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+msgid "Reorder"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "product running low"
+msgid_plural "products running low"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+msgid "Moderate"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "review to moderate"
+msgid_plural "reviews to moderate"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: time-of-day greeting, 2: current user's display name.
+#: assets/js/index.js:1
+msgid "%1$s, %2$s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "How your store is doing, and what needs your attention today."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Date range"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The dashboard could not be loaded. Reload the page to try again."
+msgstr ""
+
+#. translators: %d: number of days.
+#: assets/js/index.js:1
+msgid "vs previous %d days"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Get ready for your first order"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Three quick steps and your store is live."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add products"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Set up payments"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Place a test order"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Key figures"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Revenue"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "%s awaiting payment"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "%1$d paid%2$s"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Average order"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "New customers"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sales"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "About %s a day"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "best day %s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Chart metric"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Recent orders"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "All orders"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No orders yet. They will show up here as they come in."
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Guest"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Unpaid"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Unfulfilled"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Today's focus"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "You're all caught up"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Nothing needs your attention. A good time to run a promotion."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Create a coupon"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Create order"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "View store"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Top products"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Best sellers appear once orders come in."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "These %1$d products bring in %2$d%% of your revenue."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "%d sold"
+msgid_plural "%d sold"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Stock"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Out of stock"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "%d left"
+msgstr ""
+
+#. translators: %d: low stock threshold.
+#: assets/js/index.js:1
+msgid "Everything has more than %d in stock."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -980,11 +2373,44 @@ msgid "Could not load settings."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "All"
+#: assets/js/index.js:8
+msgid "Loading…"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Refunded"
+msgid "Customer reviews on your products - approve, reject or delete them. Your stored reviews are kept while the module is off."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Draft"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Update order"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Open full order"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:6
+#: assets/js/index.js:8
+msgid "Saving…"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Save changes"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not update this order."
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Fulfillment"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -992,35 +2418,7 @@ msgid "Items"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Payment Status"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Fulfillment Status"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Created"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Actions"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "View order"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "View"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Every order placed through the storefront checkout - update status as you fulfil, cancel, or refund each one."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Search order #, email, or name…"
+msgid "Payment status"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1028,7 +2426,43 @@ msgid "Fulfillment status"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Payment status"
+msgid "Currency"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Created"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Payment:"
+msgstr ""
+
+#. translators: %d: number of items.
+#: assets/js/index.js:1
+msgid "%d item"
+msgid_plural "%d items"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "View"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Update status"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Every order placed through the storefront checkout - update status as you fulfil, cancel, or refund each one."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add Order"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Search order #, email, or name…"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1040,11 +2474,52 @@ msgid "Fulfillment:"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Payment:"
+msgid "Delete order"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Export CSV"
+msgid "Delete orders"
+msgstr ""
+
+#. translators: %d: number of orders.
+#: assets/js/index.js:1
+msgid "Permanently delete this order and its items? This cannot be undone."
+msgid_plural "Permanently delete %d orders and their items? This cannot be undone."
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+msgid "Choose…"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:6
+#: assets/js/index.js:8
+msgid "Save"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Address line 1"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Address line 2"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "State"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Country"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Save address"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1056,15 +2531,30 @@ msgid "No order exists with this id."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Placed:"
+msgid "Edit Order"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Saving…"
+msgid "Placed"
 msgstr ""
 
 #: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Unsaved changes"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
 msgid "Update"
+msgstr ""
+
+#. translators: 1: fulfillment status, 2: payment status.
+#: assets/js/index.js:1
+msgid "This order is %1$s but payment is still %2$s."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Go to payment"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1072,8 +2562,8 @@ msgid "Order updated."
 msgstr ""
 
 #. translators: %d: number of items on the order.
+#. translators: %d: number of units.
 #: assets/js/index.js:1
-#, js-format
 msgid "%d item(s) on this order."
 msgstr ""
 
@@ -1094,23 +2584,15 @@ msgid "Qty"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Customer details"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Guest Customer"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No email on file."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Status"
+msgid "Balance due"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Refund"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Return money for this order."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1126,27 +2608,210 @@ msgid "Confirm refund"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Enter a refund amount greater than zero."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Issue refund"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Add New Order"
+msgid "Where this order is going and how."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Product"
+msgid "Method"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Add item"
+msgid "Add shipping method"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No items added yet."
+msgid "e.g. Standard delivery"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Name"
+msgid "Shipping cost"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Add address"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Copy billing address"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Timeline"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Everything that has happened to this order."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No events yet."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Guest Customer"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Registered"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add email"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add phone"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Lifetime spend"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Customer since"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add shipping address"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Billing"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Same as shipping."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add billing address"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Copy shipping address"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "How and when this order was paid."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Choose method"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Amount"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Transaction ID"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Marked as paid manually - no gateway events were recorded."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Waiting for payment"
+msgstr ""
+
+#. translators: %s: customer email.
+#: assets/js/index.js:1
+msgid "Email %s the amount due and how to pay."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add the customer's email so you can send them a payment request."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sending…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Ask again"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Ask your customer to pay"
+msgstr ""
+
+#. translators: %s: date and time.
+#: assets/js/index.js:1
+msgid "Last asked %s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Transaction history"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Event"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Date"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No tags yet - use them to group orders, e.g. \"wholesale\" or \"gift\"."
+msgstr ""
+
+#. translators: %s: tag.
+#. translators: %s: term name.
+#: assets/js/index.js:1
+msgid "Remove %s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add a tag and press Enter"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Documents"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Invoice, packing slip and credit note as PDF."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Turn on the PDF Invoices & Packing Slips module to print invoices and packing slips from this screen."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Turning on…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Turn on PDF Invoices & Packing Slips"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Activate your VuloCart Pro license to use order documents."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "PDF invoices and packing slips are part of VuloCart Pro."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "New order"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Created by you"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1154,23 +2819,152 @@ msgid "Save as draft"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Could not create the order."
+msgid "Add at least one item first."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Add at least one item."
+msgid "Search your catalogue and click a product to add it."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "In stock"
+msgid "Search products by name or SKU…"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Your catalogue is empty."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add a product"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No product matches that search."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Price"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Remove item"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Shipping, tax and discounts are worked out once the order is saved."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Who is this order for?"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Use a different customer"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Find an existing customer…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No customer found - fill in the details below for a one-off."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "or enter details"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Optional - leave blank for an anonymous order."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What happens next"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The order is saved as a draft - nothing is charged."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "On the next screen, set the payment and fulfillment status, add addresses and create a shipment."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Print the invoice or packing slip from the Documents card."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Product templates"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Presets that pre-fill a new product - pick one when you add a product."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Discount codes a shopper can enter at checkout."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Automatic discounts applied when a product is added to cart. When more than one rule matches, the lowest resulting price wins."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Stored-value codes a shopper can redeem, partially or fully, toward their order total."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checkout sessions that were started but never resulted in an order."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sell without a store visit: a link that opens checkout with your chosen products already in the cart. Share it anywhere or print it as a QR code."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Recurring billing - automatic renewal charges, dunning retries, and customer self-service."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Customer Groups"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Manual tags - add a customer to a group from their own detail page."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Segments"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Dynamic, rule-based customer audiences - membership is always computed live, never a saved snapshot."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The vendors you source products from, and what each one supplies."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Views options"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Show views"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Built-in views"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Restore defaults"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
 msgid "On backorder"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Draft"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1182,15 +2976,88 @@ msgid "Archived"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Quick Edit"
+msgid "Products you have starred"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Title"
+msgid "Marked out of stock"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Price"
+msgid "No price"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Cannot be bought yet - no price set"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Hidden"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Not shown in the shop or search"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Physical"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Products that ship"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Digital"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Downloads"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Recurring products"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Services"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Services and bookings"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Quick edit"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Open full editor"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not save this product."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Catalog visibility"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Shop and search"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Shop only"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Search only"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Regular price"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1198,31 +3065,73 @@ msgid "Sale price"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Stock status"
+msgid "Must be lower than the regular price."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Stock quantity"
+#: assets/js/index.js:8
+msgid "Availability"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Save"
+#: assets/js/index.js:8
+msgid "Units in stock"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Cancel"
+msgid "Stock tracking is off."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Type"
+msgid "Highlight it in featured sections of your store."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "SKU"
+#: assets/js/index.js:8
+msgid "Save view"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Edit product"
+msgid "Keeps the current status, type, category and search."
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "View name"
+msgstr ""
+
+#. translators: %d: number of products.
+#: assets/js/index.js:1
+msgid "Edit %d product"
+msgid_plural "Edit %d products"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+msgid "Fill in only what you want to change."
+msgstr ""
+
+#. translators: %d: number of fields.
+#: assets/js/index.js:1
+msgid "%d change will be applied."
+msgid_plural "%d changes will be applied."
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+msgid "Applying…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Apply to selected"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not update the selected products."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No change"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1230,7 +3139,34 @@ msgid "Edit"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Quick edit product"
+msgid "Duplicate"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add Product"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Manage every product - physical, digital, or service-based - from one place."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Views:"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Delete saved view"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Save current filters as a view"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Search title or SKU…"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1242,99 +3178,427 @@ msgid "Delete this product? This cannot be undone."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Delete"
+msgid "Delete products"
+msgstr ""
+
+#. translators: %d: number of products.
+#: assets/js/index.js:1
+msgid "Delete %d selected product? This cannot be undone."
+msgid_plural "Delete %d selected products? This cannot be undone."
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+msgid "Day"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Manage every product - physical, digital, or service-based - from one place."
+msgid "Week"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Add Product"
+msgid "Month"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Saved views:"
+msgid "Year"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Delete saved view"
+msgid "Customers pay once."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Name this view:"
+msgid "The sale price must be lower than the regular price."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Save current filters as a view"
+msgid "Choose how often this price is billed."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Search title or SKU…"
+msgid "Enter how many payments make up this plan."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Category"
+msgid "Prices"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Set price…"
+msgid "Add price"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Set sale price…"
+msgid "No amount yet"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Stock:"
+msgid "Default"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Set stock quantity…"
+#: assets/js/index.js:8
+msgid "Inactive"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "New price for the selected products:"
+msgid "Plugin inactive"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "New sale price for the selected products:"
+msgid "Price options"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "New stock quantity for the selected products:"
+msgid "Collapse price"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Delete the selected products? This cannot be undone."
+msgid "Edit price"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Standard"
+msgid "Make default"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Fragile"
+msgid "Deactivate"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Oversized"
+msgid "Activate"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Shop and search results"
+msgid "shown to customers"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Shop only"
+msgid "e.g. Standard, Team, Lifetime"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Search results only"
+msgid "optional"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Hidden"
+msgid "Add"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "SEO title"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Meta description"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Search result preview"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Your product title"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Your meta description appears here."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Name, e.g. Weight"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Value, e.g. 1.2 kg"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Remove row"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Question"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Remove question"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No translations yet. Use the AI button to translate this listing into another language."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "(no title)"
+msgstr ""
+
+#. translators: %s: language code.
+#: assets/js/index.js:1
+msgid "Remove %s translation"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Short description"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Full description"
+msgstr ""
+
+#. translators: %s: noun.
+#: assets/js/index.js:1
+msgid "Change %s"
+msgstr ""
+
+#. translators: %s: noun.
+#. translators: %s: product type, e.g. Service.
+#: assets/js/index.js:1
+msgid "Add %s"
+msgstr ""
+
+#. translators: %s: plural noun.
+#: assets/js/index.js:1
+msgid "No %s added"
+msgstr ""
+
+#. translators: %s: noun.
+#: assets/js/index.js:1
+msgid "Search or type a new %s…"
+msgstr ""
+
+#. translators: %s: noun.
+#: assets/js/index.js:1
+msgid "Search or add a %s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Done"
+msgstr ""
+
+#. translators: %s: noun.
+#: assets/js/index.js:1
+msgid "Available %s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Adding…"
+msgstr ""
+
+#. translators: %s: typed name.
+#: assets/js/index.js:1
+msgid "Create “%s”"
+msgstr ""
+
+#. translators: %s: plural noun.
+#: assets/js/index.js:1
+msgid "No %s yet - type a name to create the first one."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Everything is already added."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Whether this product is taxed, and which rates apply. Rates are set under Settings → Shipping & Tax → Tax."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Tax status"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Taxable"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Not taxable"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Tax class"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Stripe tax code"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What the product is, for Stripe Tax. Leave empty for general physical goods."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Buy Button"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Embedded Cart"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Embedded Checkout"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Popup Checkout (Pro)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Not available as a React component yet - use the HTML snippet."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Drawer Checkout (Pro)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Embed code"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sell this product anywhere - a landing page, a Next.js app, plain HTML - with the VuloCart SDK."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Plain HTML / any site"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Copied!"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "React / Next.js (@vulocart/react)"
+msgstr ""
+
+#. translators: %s: module name.
+#: assets/js/index.js:1
+msgid "Turn on %s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Turn on"
+msgstr ""
+
+#. translators: %s: module name.
+#: assets/js/index.js:1
+msgid "Could not turn on the %s module. Try again from Settings → Modules."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not turn this on. Try again from Settings → Modules."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Per hour"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Per day"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Per week"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Per month"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Product name"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A product you ship to the buyer."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Fulfilment"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "One product, one price."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "With options"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sizes, colours or other choices."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Pre-order"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sold before it is in stock."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Made to order"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Produced after the order, no stock held."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Release date"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "When pre-orders start shipping."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Pre-order limit"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Leave blank for no cap."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Production time (days)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Shown to the customer as the wait before shipping."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A file, key or online access delivered instantly."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Digital Delivery"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "File download"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "E-book, template, music, design files."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Software & keys"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "An app or plugin with a license key."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Online access"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A private link, community or stream."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1362,23 +3626,59 @@ msgid "Leave blank to never expire."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Billing interval"
+msgid "Sites / devices per key"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Daily"
+msgid "How many activations one license allows."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Weekly"
+msgid "License valid for (days)"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Monthly"
+msgid "Leave blank for a lifetime license."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Yearly"
+msgid "Access link"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Where the customer goes after purchase."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Plan name"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Subscription"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Billed on a schedule until cancelled."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Subscription Terms"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Access plan"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Software, content or a service."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Recurring box"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A physical product sent every cycle."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1390,11 +3690,43 @@ msgid "Leave blank for no trial."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Subscription length (cycles)"
+msgid "Ends after (billing cycles)"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Leave blank for until cancelled."
+msgid "Leave blank to renew until cancelled."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Course name"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Course"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Lessons a student works through."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Course Details"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Self-paced"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Learn any time, at your own speed."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Live cohort"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Fixed dates, taught live."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1422,6 +3754,14 @@ msgid "Advanced"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Starts on"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Live sessions"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Enrollment limit"
 msgstr ""
 
@@ -1430,7 +3770,47 @@ msgid "Leave blank for unlimited."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Service duration (minutes)"
+msgid "Service name"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Service"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Work you do for the customer."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Service Details"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Fixed project"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A defined piece of work with a deadline."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Session"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Time with you: consulting, coaching, repair."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delivered within (days)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Revisions included"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Session length (minutes)"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1450,51 +3830,147 @@ msgid "Either"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Membership name"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Membership"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Ongoing access to perks or a members area."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Membership Details"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Fixed term"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Access for a set number of days."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Recurring"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Renews until cancelled."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Lifetime"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "One payment, access forever."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Membership duration (days)"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Leave blank for lifetime."
+msgid "Booking name"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Renewal"
+msgid "Booking"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Automatic"
+msgid "A time slot, seat or ticket."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Manual"
+msgid "Booking Details"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Slot duration (minutes)"
+msgid "Appointment"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Max attendees per slot"
+msgid "One person books one slot."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Group class"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Several people share a slot."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Event ticket"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Entry to a dated event."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Slot length (minutes)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Seats per slot"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Event date"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Venue"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Address or online link."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Tickets available"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Rental name"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Rental"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Something customers use for a period and return."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Rental Terms"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Equipment"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Gear that is shipped or collected."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Space or venue"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Used on site, nothing ships."
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Rental period"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Per hour"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Per day"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Per week"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Per month"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1506,6 +3982,42 @@ msgid "Late fee per day"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Capacity (people)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Bundle name"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Bundle"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Several products sold together."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Bundle Contents"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Fixed set"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Everything is included."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Mix & match"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Customer picks some from a list."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Bundle items"
 msgstr ""
 
@@ -1514,59 +4026,19 @@ msgid "Comma-separated product ids included in this bundle."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Suggested amounts"
+msgid "Items the customer picks"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Comma-separated amounts, e.g. 10, 25, 50."
+msgid "Campaign name"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Allow custom amount"
+msgid "Donation"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Denominations"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Comma-separated amounts, e.g. 25, 50, 100."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Expires after (days)"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Digital Delivery"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Subscription Details"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Course Details"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Service Details"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Membership Details"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Booking Details"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Rental Details"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Bundle Details"
+msgid "A contribution of any amount."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1574,7 +4046,151 @@ msgid "Donation Details"
 msgstr ""
 
 #: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "General"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "An open, ongoing cause."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Campaign"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A fundraiser with a goal."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Fundraising goal"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Gift card name"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Gift card"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A balance someone redeems later."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Gift Card Details"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Code sent by email."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Physical card"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A printed card in the post."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Expires after (days)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "License name"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "License"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Older license products, kept as they are."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A license key."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Turned off for this store"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Needs VuloCart Pro"
+msgstr ""
+
+#. translators: %s: module name, e.g. Subscriptions.
+#: assets/js/index.js:1
+msgid "Turn on %s first"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What are you selling?"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Pick the closest match. It sets up the right fields, and you can change it later."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Greyed-out types are not enabled for this store."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Manage product types"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enable in Product Types"
+msgstr ""
+
+#. translators: %s: product type, e.g. "Physical".
+#: assets/js/index.js:1
+msgid "Skip - start with %s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Got it - new products will open straight on the product page. You can turn this back on in Settings → General."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "This step will show again when you add a product."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Don't show this step again - I'll pick the type on the product page"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Available on backorder"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Fragile"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Oversized"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add one price per denomination - for example $25, $50 and $100."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add one price per suggested amount - for example $10, $25 and $50."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "For a recurring membership, add a Subscription price (Pro). The access length below applies to every price."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add one price per rental period if the rate differs - for example per day and per week."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1587,10 +4203,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Set competitive prices including any sale or discount options"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Stock"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1618,7 +4230,15 @@ msgid "Being upfront about shipping, returns, and cancellations builds trust"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "← Back to Products"
+msgid "Give this product a name."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add a price before publishing - enter 0 if it is free."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enter how many units you have, or turn off Track stock."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1626,7 +4246,64 @@ msgid "Edit Product"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Enter your product details - name, price, stock, and image & publish."
+msgid "Untitled product"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "View product"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Preview product"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The \"What are you selling?\" step is back on."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Change product type"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Show the \"What are you selling?\" step again"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Change status"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Published on"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Setup progress"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Ready to publish"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Almost there"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "steps complete"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Close"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "More actions"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Quick start"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1634,27 +4311,35 @@ msgid "Product updated."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Product Setup"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Choose the type that best describes what you are selling."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Recommended"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Product Details"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Tell customers what you are selling and what it costs."
+msgid "Featured - click to remove"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Product name"
+msgid "Feature this product"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Feature this"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Tell customers what you are selling."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Product type"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Kind"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Product subtype"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1662,11 +4347,19 @@ msgid "Short description - One-line summary"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Full description"
+msgid "Pricing"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Regular price"
+msgid "What customers pay. Add more prices for plans, tiers or bundles."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Pricing rules"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Automatic percentage or fixed discounts for this product, its category or the whole store."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1686,43 +4379,60 @@ msgid "Type Details"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Fields specific to this product type."
+msgid "How much you have, and whether customers can buy it."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Inventory & Shipping"
+msgid "Track stock"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Stock management"
+msgid "Running low"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Stock Status"
+#: assets/js/index.js:8
+msgid "Units on hand"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Package dimensions & weight"
+msgid "Not tracked"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Weight (kg)"
+msgid "units"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Shipping classes"
+msgid "Units in stock is 0 but this is not marked out of stock - customers may order something you cannot ship."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Length (in)"
+msgid "What the package weighs and measures, so checkout can price delivery."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Width (in)"
+msgid "Add a weight so shipping rates can be calculated at checkout."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Height (in)"
+msgid "Shipping class"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Package size"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Length"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Width"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Height"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1762,71 +4472,162 @@ msgid "Suggested at cart. Comma-separated product ids."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Publishing"
+msgid "Search & content"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Featured product"
+msgid "How this listing appears in search, plus the specifications, questions and translations that go with it."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Catalog Visibility"
+msgid "Search listing"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Product Status"
+msgid "Shown as a table on the product page."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Cataloged at"
+msgid "Add specification"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Organization"
+msgid "Frequently asked questions"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Where this product appears in your store, and how it's tagged."
+msgid "Shown on the product page."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No categories yet - add some from Products → Categories."
+msgid "Add question"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No tags yet - add some from Products → Tags."
+msgid "Translations"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Brand"
+msgid "Available once you create the product."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "None"
+msgid "Storefront preview"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No collections yet - add some from Products → Collections."
+msgid "Your short description appears here."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Upload image"
+msgid "No price yet"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Featured Image"
+msgid "Live preview - updates as you type"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Select Featured Image"
+msgid "Images"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Product gallery"
+msgid "Make this the featured image"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Add Gallery Image"
+msgid "Feature"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Remove image"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add images"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add product images"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The featured image shows on product cards and at the top of the product page."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Catalog & Sourcing"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Where this product appears in your store, how it's tagged, and who supplies it."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "category"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "categories"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "tag"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "tags"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "brand"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "brands"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "collection"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "collections"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "In use"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Empty"
+msgstr ""
+
+#. translators: %d: number of products.
+#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "%d product"
+msgid_plural "%d products"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: parent category name.
+#: assets/js/index.js:1
+msgid "In %s"
+msgstr ""
+
+#. translators: %s: item label, e.g. Category.
+#: assets/js/index.js:1
+msgid "Edit %s"
+msgstr ""
+
+#. translators: %s: item label, e.g. Category.
+#: assets/js/index.js:1
+msgid "Add new %s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "How it appears across your store."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1834,7 +4635,7 @@ msgid "Slug"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Delete this entry? This cannot be undone."
+msgid "The URL-friendly version. Leave blank to create it from the name."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1842,415 +4643,1862 @@ msgid "Parent"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Add"
+msgid "None (top level)"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Nest this under another category to build a hierarchy."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Optional. Shown on some storefront layouts."
+msgstr ""
+
+#. translators: %s: item label, e.g. Category.
+#: assets/js/index.js:1
+msgid "Update %s"
+msgstr ""
+
+#. translators: %s: item label, e.g. Category.
+#: assets/js/index.js:1
+msgid "%s saved."
+msgstr ""
+
+#. translators: %s: item label, e.g. Category.
+#: assets/js/index.js:1
+msgid "Could not save this %s."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Search by name or slug…"
+msgstr ""
+
+#. translators: %s: plural title, e.g. Categories.
+#: assets/js/index.js:1
+msgid "No %s yet - add the first one."
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Delete %s"
+msgstr ""
+
+#. translators: %d: number of products.
+#: assets/js/index.js:2
+msgid "This is used by %d product, which will lose it. Delete anyway?"
+msgid_plural "This is used by %d products, which will lose it. Delete anyway?"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:2
+msgid "Delete this entry? This cannot be undone."
+msgstr ""
+
+#. translators: %s: item label, e.g. Category.
+#: assets/js/index.js:4
+msgid "%s deleted."
+msgstr ""
+
+#. translators: %s: item label, e.g. Category.
+#: assets/js/index.js:6
+msgid "Could not delete this %s."
+msgstr ""
+
+#: assets/js/index.js:6
+#: assets/js/index.js:8
+msgid "Delete selected"
+msgstr ""
+
+#: assets/js/index.js:6
+msgid "Delete the selected entries? This cannot be undone."
+msgstr ""
+
+#: assets/js/index.js:6
+msgid "Selected entries deleted."
+msgstr ""
+
+#: assets/js/index.js:6
+msgid "Attribute"
+msgstr ""
+
+#. translators: %d: number of values.
+#: assets/js/index.js:6
+msgid "%d Value"
+msgid_plural "%d Values"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:6
+msgid "Values"
+msgstr ""
+
+#: assets/js/index.js:6
+msgid "Manage values"
+msgstr ""
+
+#: assets/js/index.js:6
 msgid "Named properties products can be described by - e.g. \"Color\" with values Red/Blue/Green."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "e.g. Color"
-msgstr ""
-
-#: assets/js/index.js:1
+#: assets/js/index.js:6
 msgid "Add attribute"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "No attributes yet."
+#: assets/js/index.js:6
+msgid "Search by attribute or value…"
 msgstr ""
 
-#: assets/js/index.js:1
+#: assets/js/index.js:6
+msgid "No attributes yet - add the first one."
+msgstr ""
+
+#: assets/js/index.js:6
+msgid "Attribute saved."
+msgstr ""
+
+#: assets/js/index.js:6
+msgid "Could not save this attribute."
+msgstr ""
+
+#: assets/js/index.js:6
+msgid "e.g. Color"
+msgstr ""
+
+#. translators: %s: attribute name.
+#: assets/js/index.js:8
+msgid "%s values"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Add value"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Could not add this value."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "New value"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "e.g. Red"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Current values"
+msgstr ""
+
+#: assets/js/index.js:8
 msgid "No values yet."
 msgstr ""
 
-#: assets/js/index.js:1
+#: assets/js/index.js:8
 msgid "Remove value"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Add a value…"
+#: assets/js/index.js:8
+msgid "Delete Attribute"
 msgstr ""
 
-#: assets/js/index.js:1
+#: assets/js/index.js:8
 msgid "Delete this attribute and all its values? This cannot be undone."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Delete attribute"
+#: assets/js/index.js:8
+msgid "Attribute deleted."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "The built-in product types this plugin supports, and how many products currently use each one."
+#: assets/js/index.js:8
+msgid "Could not delete this attribute."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Stock levels for every physical, rental, bundle, and gift card product."
+#: assets/js/index.js:8
+msgid "Delete the selected attributes and their values? This cannot be undone."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "No stock-tracked products yet."
+#: assets/js/index.js:8
+msgid "Selected attributes deleted."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Quantity"
+#: assets/js/index.js:8
+msgid "Choose which kinds of product you sell. A type you switch off is no longer offered when creating a new product."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Low stock"
+#: assets/js/index.js:8
+msgid "Pro"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "(deleted product)"
+#. translators: %s: product type.
+#: assets/js/index.js:8
+msgid "Enable %s"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Rating"
+#: assets/js/index.js:8
+msgid "At least one type must stay on."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "From"
+#: assets/js/index.js:8
+msgid "Could not update this type."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Anonymous"
+#: assets/js/index.js:8
+msgid "Pro tools"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Submitted"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Approve"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Reject"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Delete this review? This cannot be undone."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Customer ratings and comments on your products - approve or reject before they show on the storefront."
-msgstr ""
-
-#: assets/js/index.js:1
+#: assets/js/index.js:8
 msgid "Group products into a hierarchy of categories."
 msgstr ""
 
-#: assets/js/index.js:1
+#: assets/js/index.js:8
 msgid "Manually-curated groups of products, e.g. \"Summer Sale\" or \"Staff Picks\"."
 msgstr ""
 
-#: assets/js/index.js:1
+#: assets/js/index.js:8
 msgid "The manufacturers/brands your products come from."
 msgstr ""
 
-#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Tag"
+msgstr ""
+
+#: assets/js/index.js:8
 msgid "Free-form labels products can carry, e.g. \"clearance\" or \"eco-friendly\"."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Enable debug logging"
+#: assets/js/index.js:8
+msgid "Every customer"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Writes module-loading failures to the server error log. Leave off unless you're actively debugging."
+#: assets/js/index.js:8
+msgid "New"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Allow guest carts"
+#: assets/js/index.js:8
+msgid "Joined in the last 30 days"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Let a shopper add items to a cart before creating an account - matches Cart\\Rest.php's existing token-based cart access, which already has no account requirement."
+#: assets/js/index.js:8
+msgid "Repeat buyers"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Cart expiry (days)"
+#: assets/js/index.js:8
+msgid "Two or more orders"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "How long an abandoned cart is kept before it could be cleared out."
+#: assets/js/index.js:8
+msgid "High value"
 msgstr ""
 
-#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Spent 500 or more"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Ordered before, but not in 90 days"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "No orders"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Have never placed an order"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Have a site account"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Guests"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Checked out without an account"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Keeps the current view and search."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Open full profile"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Could not save this customer."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Total spent"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Last order"
+msgstr ""
+
+#. translators: %s: date.
+#: assets/js/index.js:8
+msgid "Since %s"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Spent"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "No orders yet"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Every shopper who has placed an order - profile, saved addresses, order history, and internal notes in one place."
+msgstr ""
+
+#. translators: %s: search text.
+#: assets/js/index.js:8
+msgid "Searching \"%s\""
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Search name or email…"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Delete customer"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Delete customers"
+msgstr ""
+
+#. translators: %d: number of customers.
+#: assets/js/index.js:8
+msgid "Permanently delete this customer with their saved addresses and notes? Their orders are kept. This cannot be undone."
+msgid_plural "Permanently delete %d customers with their saved addresses and notes? Their orders are kept. This cannot be undone."
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:8
+msgid "Label"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Today"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Yesterday"
+msgstr ""
+
+#. translators: %d: number of days.
+#: assets/js/index.js:8
+msgid "%d days ago"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "No customer exists with this id."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Since"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Customer updated."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Placed to date"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Lifetime value"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Per order"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Never"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Order history"
+msgstr ""
+
+#. translators: %d: number of orders.
+#: assets/js/index.js:8
+msgid "%d orders placed."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "No orders yet."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Profile"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Contact details for this customer."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Addresses"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Saved billing and shipping addresses."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Delete address"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Default billing"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Default shipping"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "No saved addresses."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Notes"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Internal only - customers never see these."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Add note"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Delete note"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Saved to this customer; they can pick it at checkout."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Enter at least a name or an address line."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Delete this saved address? This cannot be undone."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Delete this note? This cannot be undone."
+msgstr ""
+
+#. translators: %d: number of products.
+#: assets/js/index.js:8
+msgid "across %d product"
+msgid_plural "across %d products"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:8
+msgid "Healthy"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Ready to sell"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Low stock"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "At or under the threshold"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Not sellable"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Low"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Backorder"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Out"
+msgstr ""
+
+#. translators: %d: number of products.
+#: assets/js/index.js:8
+msgid "%d tracked product"
+msgid_plural "%d tracked products"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:8
+msgid "No stock-tracked products yet."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Needs attention"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Manage stock"
+msgstr ""
+
+#. translators: %s: units left.
+#: assets/js/index.js:8
+msgid "%s left"
+msgstr ""
+
+#. translators: %d: number of products.
+#: assets/js/index.js:8
+msgid "+ %d more"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Everything is stocked."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Stock history"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Stock history is recorded by the Inventory module - turn it on under Settings → Modules to see every movement here."
+msgstr ""
+
+#. translators: %s: units in stock after the movement.
+#: assets/js/index.js:8
+msgid "%s in stock"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "No stock movements recorded for this product yet."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Adjust stock"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Open product"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Could not save this stock level."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Decrease"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Increase"
+msgstr ""
+
+#. translators: %s: number of units.
+#: assets/js/index.js:8
+msgid "%s unit"
+msgid_plural "%s units"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:8
+msgid "History"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Edit product"
+msgstr ""
+
+#. translators: %d: number of products.
+#: assets/js/index.js:8
+msgid "%d product could not be updated."
+msgid_plural "%d products could not be updated."
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:8
+msgid "Stock levels for every physical, rental, bundle, and gift card product."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "All products"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Overview"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Where stock stands, what needs attention, and what will run out next."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Stock for every physical, rental, bundle and gift card product."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Every stock location this store fulfills from - orders decrement from the default warehouse."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Purchase Orders"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Order stock from suppliers and receive it into a warehouse."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Transfers"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Move stock between warehouses."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Reservations"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Hold stock for an order or customer so it cannot be sold twice."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Inventory History"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Every stock-affecting event across every product and warehouse, most recent first."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Stock levels, warehouses, suppliers, purchase orders and transfers."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Shipments"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Every shipment across every order. Create a new one from the order's own edit page."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Returns"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Request, approve or reject, receive the item, then refund."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Pickup"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Orders fulfilled by local pickup instead of shipping."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Ship orders, handle returns and local pickup. Zones, rates and packaging are set up in Settings → Shipping."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Chat with VuloCart AI"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Ask about your products, orders and customers in plain words."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Create a product with AI"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Describe it in a sentence; AI drafts the title, description and price."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Checkout protection"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Every order is scored for fraud risk; risky ones wait for your review."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Smart search"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Shoppers find products by meaning, not exact words."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "AI Copilot"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Your store assistant: ask questions, draft products, catch risky orders and improve search - all in one place."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Connected to VuloCloud AI"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Connect VuloCloud AI in Settings → Integrations"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Online"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Offline - connect AI"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Automate what happens after an order, payment, refund, low-stock alert, new customer, delivered shipment, or AI event."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "The request failed."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Store setup"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Checkout Shipping step - flat-rate shipping, configured under Shipping & Tax. With Pro, the same card also turns on zone and weight-based rates, packaging, the Shipment page (tracked shipments, carriers, returns, local pickup). Switch it off for a store that does not ship."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Flat-rate shipping cost"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Configured under Shipping & Tax"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Zone and weight-based rates"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Packaging presets"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Multi-shipment fulfillment with tracking"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Pluggable carrier and label framework"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Returns (RMA) with automatic refunds"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Local pickup"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Taxes"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Charges tax by where the order is going and what each product is: rates per country, state and postcode, tax classes, tax on shipping, tax-inclusive prices, and ready-made sets (EU VAT, UK VAT, India GST and more). Set it up under Shipping & Tax."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Rates by country, state and postcode"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Tax classes (standard, reduced, zero, your own)"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Stacked taxes such as CGST + SGST"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Tax-inclusive or tax-exclusive prices"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Automatic rates with Stripe Tax"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "EU VAT reverse charge and GSTIN capture for business buyers"
+msgstr ""
+
+#: assets/js/index.js:8
 msgid "Catalog"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Default product type"
+#: assets/js/index.js:8
+msgid "Product Reviews"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Product type preselected when a merchant clicks \"Add New\" on the Products screen."
+#: assets/js/index.js:8
+msgid "Customer reviews on your products: a moderation queue where you approve, reject or delete them, and a count of reviews waiting on the dashboard. Switching it off hides the Reviews screen and its routes; your stored reviews are kept."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Default catalog visibility"
+#: assets/js/index.js:8
+msgid "Approve, reject or delete reviews"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Visibility preselected for a newly created product."
+#: assets/js/index.js:8
+msgid "Filter by status and product, export to CSV"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Low stock threshold"
+#: assets/js/index.js:8
+msgid "Reviews-to-moderate count on the dashboard"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Quantity at or below which a stock-tracked product could be flagged as low stock."
+#: assets/js/index.js:8
+msgid "Variants"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Checkout"
+#: assets/js/index.js:8
+msgid "Generate attribute-combination variants (e.g. Color × Size) with their own SKU/price/stock."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Checkout layout"
+#: assets/js/index.js:8
+msgid "Attribute-combination generator"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Domain\\Checkout\\CheckoutMode - which layout the storefront Checkout Engine renders its registered steps in."
+#: assets/js/index.js:8
+msgid "Per-variant SKU, price and stock"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Multi-step (one step at a time)"
+#: assets/js/index.js:8
+msgid "Product tools"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Single page (every step at once)"
+#: assets/js/index.js:8
+msgid "Work on products faster: bulk edit and CSV import from the Products list, and reusable product templates that pre-fill a new product."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Enable guest checkout"
+#: assets/js/index.js:8
+msgid "Bulk edit status, price and stock"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Allow an order to be placed with just an email address, no account required."
+#: assets/js/index.js:8
+msgid "Bulk-create products from a CSV with column mapping and preview"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Require phone number"
+#: assets/js/index.js:8
+msgid "Save a product as a reusable preset"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Require a phone number on the Customer step before checkout can continue."
+#: assets/js/index.js:8
+msgid "Start new products from a template"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Require terms acceptance"
+#: assets/js/index.js:8
+msgid "Digital Product Passport"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Require the buyer to accept your terms before placing an order."
+#: assets/js/index.js:8
+msgid "The EU Digital Product Passport for each product - identifiers, manufacturer, compliance, materials, carbon footprint, durability and repair, and end of life - published on a public page you can share as a QR code."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Terms & conditions URL"
+#: assets/js/index.js:8
+msgid "Passport data on every product, with a completeness checklist"
 msgstr ""
 
-#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Compliance, materials, footprint, repair and end-of-life details"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Public passport page with a QR code"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Machine-readable JSON for each passport"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Promotions"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Everything for promoting and recovering sales: coupons, gift cards, automatic pricing rules, abandoned-checkout recovery and shareable payment links with QR codes. One switch for the whole Marketing menu."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Percentage and fixed discount codes"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Code validation and redemption at checkout"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Stored-value gift card codes"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Partial or full redemption toward an order"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Percentage and fixed discounts"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Scope to all, a type, a category or one product"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Effective-price lookup per product"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "List of started-but-unfinished checkouts"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Shareable checkout links"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "QR codes for in-person sales"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Customers & Operations"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Recurring billing on top of a recurring-capable payment gateway - automatic renewal charges, dunning retries, and customer self-service."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Automatic renewal charges"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Dunning retries for failed payments"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Customer self-service: update payment method"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Customer Growth"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Wishlist, saved carts, manual groups, dynamic segments, a unified loyalty points/credits/wallet ledger (spendable at checkout), communication history, and a merged customer timeline."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Wishlists and saved carts"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Customer groups and dynamic segments"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Loyalty points, credits and wallet ledger"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Communication history and customer timeline"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "PDF Invoices & Packing Slips"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Invoice, packing slip and credit note for every order - as a PDF or a print-ready page, from the order screen."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "PDF invoice with your store details"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Packing slip without prices"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Credit note for refunded orders"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Print-ready page for each document"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Warehouses and stock locations, purchase orders, transfers, reservations, low-stock alerts, batch/serial tracking, a full history ledger, demand forecasting and suppliers - stock decrements automatically on paid orders and stays synced with each product's own stock field."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Warehouses, locations and transfers"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Purchase orders with receiving"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Reservations and low-stock alerts"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Batch/serial tracking and history ledger"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Demand forecasting"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Supplier directory"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Assign one supplier per product"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Sales, revenue, customers, products, funnels, abandonment, conversion, lifetime value, retention and forecasts on one dashboard."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Sales, revenue and customer reports"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Funnels, conversion and abandonment"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Lifetime value, retention and forecasts"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Workflow Builder"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Automate what happens after an order, payment, refund, low-stock alert, new customer or delivery - triggers, conditions and actions such as email, webhook and Slack."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Seven triggers and seven actions"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Conditions, loops and waits"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Run history"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "AI & Integrations"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "MCP"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Model Context Protocol server - exposes VuloCart's catalog/orders to MCP-compatible AI clients."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "MCP endpoint for AI clients"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "API key authentication"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "The AI toolkit on one switch: product and upsell recommendations, and with Pro catalog drafting, checkout fraud scoring, support assistants and semantic search. Connect a provider under Settings → Integrations."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "AI-generated product recommendations"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Upsell suggestions"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Provider configured on the AI settings tab"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Generate products and descriptions"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "SEO, specifications, FAQs and translations"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Pricing and inventory suggestions"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Real-time fraud scoring"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Review queue for risky orders"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Co-purchase recommendations"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Merchant assistant in wp-admin"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Customer assistant on the storefront"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Search by meaning"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Built on your AI provider embeddings"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Debug log"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "The most recent entries, newest last. Entries are only recorded while debug logging is on."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Download"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Clear"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Logging"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Debugging"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Diagnostic logging for troubleshooting - leave off in normal operation."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Enable debug logging"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Records problems such as a module that failed to load in the debug log below. Leave off unless you are fixing a problem."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "How checkout opens"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Where shoppers land when they press \"Proceed to checkout\" or \"Buy now\", and how the steps are laid out there."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Open checkout as"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "A page of its own by default. Popup, side drawer, hosted page and one-click need VuloCart Pro."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Popup"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Side drawer"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Hosted page"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "One-click"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Show the steps one at a time, or all together on one page. A checkout block can choose its own layout."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "One step at a time"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Everything on one page"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "What shoppers fill in"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "The steps they go through and the details you ask for. A checkout block can override these for its own page."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Untick the steps you can skip. Customer and Payment are always part of checkout."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Whether the Customer step asks for a phone number, and whether the shopper must give one."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Do not ask"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Ask, but optional"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Required"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Other details to ask for"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Extra, optional fields on the Customer and Address steps."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Extras (Pro)"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Order notes lets shoppers leave a message with their order. Address lookup suggests full addresses as they type."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Order notes"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Address lookup"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Who can buy"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Whether shoppers need an account, and what they must accept before an order is placed."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Allow guest checkout"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Shoppers can order with just an email address. Turn off to require an account."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Ask shoppers to accept your terms"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "A checkbox the shopper must tick before placing an order."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Terms & conditions page"
+msgstr ""
+
+#: assets/js/index.js:8
 msgid "https://yourstore.com/terms"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Linked from the checkout terms-acceptance checkbox on the storefront."
+#: assets/js/index.js:8
+msgid "The checkbox links to this address."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Payments"
+#: assets/js/index.js:8
+msgid "Carts"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Enable manual/offline payment"
+#: assets/js/index.js:8
+msgid "How long a cart is kept when the shopper does not finish."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Accept orders without an online payment gateway - the only payment mode this plugin supports until a gateway module exists."
+#: assets/js/index.js:8
+msgid "Keep abandoned carts for (days)"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Default payment status"
+#: assets/js/index.js:8
+msgid "After this many days without activity a cart is deleted."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Payment status a new order would start at, once orders track payment status separately from fulfillment status."
+#: assets/js/index.js:8
+msgid "Store"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Pending"
+#: assets/js/index.js:8
+msgid "The basics every product and order uses."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Paid"
+#: assets/js/index.js:8
+msgid "Store currency"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Failed"
+#: assets/js/index.js:8
+msgid "The three-letter currency code, for example USD, EUR, GBP or INR. New products are priced in it."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Enable shipping"
+#: assets/js/index.js:8
+msgid "Adding products"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Whether shippable product types (Physical, Rental, Bundle) show shipping fields at all."
+#: assets/js/index.js:8
+msgid "How the Add Product screen starts."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Default shipping class"
+#: assets/js/index.js:8
+msgid "Start with \"What are you selling?\""
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Shipping class preselected for a new shippable product."
+#: assets/js/index.js:8
+msgid "Adding a product opens a screen to pick its type first. Turn off to go straight to the product page and pick the type there."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Flat rate shipping cost"
+#: assets/js/index.js:8
+msgid "When a product counts as running low."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "A single flat shipping charge, once order totals account for shipping."
+#: assets/js/index.js:8
+msgid "Low stock threshold"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Enable tax calculation"
+#: assets/js/index.js:8
+msgid "A product with this many units or fewer is shown as low stock on the Dashboard and in Inventory."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Whether order totals should factor in tax at all, once a tax module exists to do the calculation."
+#: assets/js/index.js:8
+msgid "Product listing"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Default tax rate (%)"
+#: assets/js/index.js:8
+msgid "How your products catalog looks on the storefront. A single page can still override it from the block settings."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "A single flat tax rate applied to every order, until per-region tax rules exist."
+#: assets/js/index.js:8
+msgid "Grid"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Prices already include tax"
+#: assets/js/index.js:8
+msgid "Image cards in a tidy grid. A good default for most catalogs."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Whether a product's price is tax-inclusive or tax gets added on top at checkout."
+#: assets/js/index.js:8
+msgid "Compact"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Frontend"
+#: assets/js/index.js:8
+msgid "Small tiles, more per row. Best for large catalogs."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Show products listing"
+#: assets/js/index.js:8
+msgid "List"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Show the \"Available Products\" catalog-browsing section on the storefront checkout page."
+#: assets/js/index.js:8
+msgid "One row per product with a short description."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Enable cart & checkout"
+#: assets/js/index.js:8
+msgid "Showcase"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Turn off to take the storefront checkout page offline temporarily - visitors see an \"unavailable\" notice instead of the cart/checkout flow."
+#: assets/js/index.js:8
+msgid "Large image-first cards with a soft shadow."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "General"
+#: assets/js/index.js:8
+msgid "Columns on wide screens"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Default currency"
+#: assets/js/index.js:8
+msgid "How many products sit side by side. Smaller screens show fewer automatically; the List layout ignores this."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "ISO 4217 code used when a new product is created without an explicit currency."
+#: assets/js/index.js:8
+msgid "Integrations"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Default product status"
+#: assets/js/index.js:8
+msgid "Connected to VuloCloud."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Status a new product gets when none is specified."
+#: assets/js/index.js:8
+msgid "Could not connect to VuloCloud. Please try again."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "AI provider"
+#: assets/js/index.js:8
+msgid "Connected"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Which AI provider powers AI features, once the AI module is active."
+#: assets/js/index.js:8
+msgid "Awaiting AI key"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "OpenAI"
+#: assets/js/index.js:8
+msgid "Not Connected"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Anthropic"
+#: assets/js/index.js:8
+msgid "Connected - AI requests run on your Organization’s AI key and use your AI credits."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "API"
+#: assets/js/index.js:8
+msgid "Connected to VuloCloud, but your Organization hasn’t configured an AI key yet. Ask your Organization to add one."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Enable public REST API"
+#: assets/js/index.js:8
+msgid "Connect this site to VuloCloud to use the AI key managed by your Organization."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Whether VuloCart's public-read endpoints (e.g. GET /products) are reachable at all, independent of the always-on admin-only endpoints."
+#: assets/js/index.js:8
+msgid "VuloCloud AI"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Rate limit (requests / minute)"
+#: assets/js/index.js:8
+msgid "Connect VuloCloud AI to power AI features across VuloCart. No API key is needed on this site."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "A per-client request cap, once the REST layer enforces one."
+#: assets/js/index.js:8
+msgid "AI credits remaining:"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Send order confirmation email"
+#: assets/js/index.js:8
+msgid "Buy credits"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Emails the buyer right after they place an order."
+#: assets/js/index.js:8
+msgid "Disconnecting…"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Send order status update email"
+#: assets/js/index.js:8
+msgid "Disconnect"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Emails the buyer whenever an admin changes their order's status."
+#: assets/js/index.js:8
+msgid "Connecting…"
 msgstr ""
 
-#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "Connect to VuloCloud"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Disconnect VuloCloud"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Disconnect this site from VuloCloud? AI features will stop working until you connect again."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Disconnected from VuloCloud."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Could not disconnect from VuloCloud."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "The emails your store sends to buyers, and the address they come from."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Order confirmation email"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Email the buyer as soon as they place an order."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Order status update email"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Email the buyer whenever you change the status of their order."
+msgstr ""
+
+#: assets/js/index.js:8
 msgid "From address"
 msgstr ""
 
-#: assets/js/index.js:1
+#: assets/js/index.js:8
 msgid "orders@yourstore.com"
 msgstr ""
 
-#: assets/js/index.js:1
+#: assets/js/index.js:8
 msgid "Address order emails are sent from. Leave blank to use your site's default mail sender."
 msgstr ""
 
-#: assets/js/index.js:1
+#: assets/js/index.js:8
+msgid "The key an AI assistant uses to connect to your store. Switch on the MCP module under Modules first."
+msgstr ""
+
+#: assets/js/index.js:8
 msgid "MCP API key"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Credential an MCP client would present to authenticate against the server, once the MCP module is active."
+#: assets/js/index.js:8
+msgid "Choose a long random value and keep it secret. Anyone with it can use your store's MCP tools."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Licensing"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Activate your VuloCart Pro license."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Payments"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Could not save settings."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Enabled"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Disabled"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Disable"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Enable"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Payment method enabled."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Payment method disabled."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Configure"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Payment methods"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Turn on the ways buyers can pay. Card gateways from Pro appear here once their module is active."
+msgstr ""
+
+#. translators: %s: payment method name.
+#: assets/js/index.js:8
+msgid "Configure %s"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Payment method saved."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Packages"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "The boxes and envelopes you ship in. The default one is pre-selected when you create a shipment."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Shipping rates"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "The shipping charge every order gets when no zone rate applies."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Flat rate shipping cost"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "A single shipping charge added to every order. Leave it at 0 for free shipping."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Zone rates"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Rates for the zones you ship to. They layer on top of the flat rate above - they never replace it."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Rates by zone and weight, on top of the flat rate."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Great!"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Tax rates"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "What you charge in each place. The buyer's address decides which rate applies."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Start from a preset"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "A ready-made rate set replaces your standard rates. Rates change, so check them with your tax adviser."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Choose a rate set…"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Your state code, e.g. KA"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Your state code"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "GST slab"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "This replaces your standard-class rates with this set. Continue?"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Tax rates applied."
+msgstr ""
+
+#. translators: %s: tax class name.
+#: assets/js/index.js:8
+msgid "Rates: %s"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Rates"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Add a rate for each place you charge tax: a country, optionally a state or postcode. Where rates overlap, the most specific one wins."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "+ Add rate"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Delete this tax class and all its rates? Products using it fall back to the standard class."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Delete class"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Some products taxed differently?"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Tax classes"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "For products taxed at a different rate, like food or books. Pick a class, set its rates below, then choose it on the product's edit page. Products with no class use Standard."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "New class, e.g. Digital goods"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Add class"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "No rates for this class yet. Add one, or start from a preset above."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Flat rate (%)"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Charged on every order until you add a rate; replaced as soon as you do. Leave at 0 to charge no tax."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Rate %"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Priority"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Applies to shipping"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Ship"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Any country"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Any"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Rate"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Delete rate"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "The Taxes module is off."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Turn it on to charge tax and set tax rates and classes. Your stored rates are kept."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Calculation"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Which address decides the tax, whether shipping is taxed, and whether your prices already include it."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Calculate tax based on"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Most places tax by where the goods are delivered. Digital sales in the EU follow the buyer's billing country."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Store address"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Prices already include tax"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "On: the tax is taken out of the listed price and shown as \"includes\". Off: tax is added on top at checkout."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Charge tax on shipping"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Also tax the shipping charge, using the rates marked \"Applies to shipping\". Needs tax rates to be entered below."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Where you sell from. Used when tax is based on the store address, and as the fallback when an order has no address yet."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "State / region code"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "The code your tax rates use, e.g. CA, NY, KA. Leave empty if you have none."
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Zones"
+msgstr ""
+
+#: assets/js/index.js:8
+msgid "Where you ship: countries and regions. What each zone costs is set under Rates."
 msgstr ""
 
 #: assets/js/block/checkout/block.json
@@ -2260,17 +6508,7 @@ msgstr ""
 
 #: assets/js/block/checkout/block.json
 msgctxt "block description"
-msgid "A real, working single-page checkout: browse products, adjust cart quantities, and place an order - no payment gateway yet, orders are created as 'pending'."
-msgstr ""
-
-#: assets/js/block/products/block.json
-msgctxt "block title"
-msgid "VuloCart Products"
-msgstr ""
-
-#: assets/js/block/products/block.json
-msgctxt "block description"
-msgid "The storefront catalog: a listing grid of published products, or a single product's detail page when the URL's `product` query param is present."
+msgid "A real, working checkout: contact, address, shipping and payment, then the order. Choose the layout, steps and fields for this page, or follow Settings → Checkout."
 msgstr ""
 
 #: assets/js/block/order-tracking/block.json
