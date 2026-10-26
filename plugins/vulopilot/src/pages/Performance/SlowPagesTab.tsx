@@ -55,7 +55,7 @@ interface PageSpeedSummary {
 	last_scanned_at: string | null;
 }
 
-interface PageSpeedIssue {
+export interface PageSpeedIssue {
 	issue: string;
 	affected_pages: number;
 }

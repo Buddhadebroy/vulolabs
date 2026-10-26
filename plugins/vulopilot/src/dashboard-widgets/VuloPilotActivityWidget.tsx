@@ -11,6 +11,7 @@ import ShowProPopup from '../components/Popup/Popup';
 import { useApiList } from '../services/useApiList';
 import { formatWpDate } from '../services/formatWpDate';
 import { WidgetProps } from './types';
+import type { PeriodDays } from '../services/scoreRating';
 
 interface CrawlerAnalyticsResponse {
 	current_total: number;
@@ -24,7 +25,6 @@ interface HealthSnapshot {
 	overall_score: number;
 }
 
-type PeriodDays = '7' | '30' | '90';
 
 /** Same real `key` field convention `OverviewTab.tsx`'s own identical `ToggleInput` usage already establishes. */
 const PERIOD_OPTIONS = [

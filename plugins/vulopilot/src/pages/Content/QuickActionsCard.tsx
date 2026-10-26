@@ -1,10 +1,10 @@
 /* global vulopilotAppLocalizer */
-import { useState, type ComponentType } from 'react';
+import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ListComponent, PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import ContentToolPopup from './ContentToolPopup';
-import { ContentTool } from './ContentToolsGrid';
+import { ContentTool, ProToolsSlot } from './ContentToolsGrid';
 import { useFilterSlot } from '../../services/useFilterSlot';
 import ShowProPopup, { VuloCloudInlineNotice } from '../../components/Popup/Popup';
 import { useAiCredits } from '../../services/useAiCredits';
@@ -52,16 +52,6 @@ const QUICK_ACTION_TOOLS: ContentTool[] = [
 	},
 ];
 
-interface ProToolsSlot {
-	Popup: ComponentType<{
-		tool: ContentTool | null;
-		onClose: () => void;
-		VuloCloudInlineNotice: ComponentType;
-		creditsStatus: { connected?: boolean } | null;
-	}>;
-	tools: ContentTool[];
-}
-
 const QuickActionsCard = () => {
 	const [activeTool, setActiveTool] = useState<ContentTool | null>(null);
 	const proSlot = useFilterSlot<ProToolsSlot>('vulopilot_content_tools_pro');
@@ -75,9 +65,7 @@ const QuickActionsCard = () => {
 		document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 	};
 
-	// Content Planner is vulopilot-pro's own page (modules/ContentOptimization/src/ContentPlanner.tsx,
-	// WP menu slug `content-planner`) - this button navigates there directly rather than opening a
-	// second, competing create UI over the same `/content-planner` REST store.
+	// Content Planner is vulopilot-pro's own page (menu slug `content-planner`) - navigates there directly.
 	const openPlanner = () => {
 		if (vulopilotAppLocalizer.khali_dabba) {
 			window.location.href = '?page=vulopilot#&tab=content-planner';
