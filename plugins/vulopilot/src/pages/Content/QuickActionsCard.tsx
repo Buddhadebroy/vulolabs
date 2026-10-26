@@ -1,17 +1,21 @@
 /* global vulopilotAppLocalizer */
-import { useState } from 'react';
+import { useState, type ComponentType } from 'react';
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ListComponent, PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import ContentToolPopup from './ContentToolPopup';
 import { ContentTool } from './ContentToolsGrid';
-import ShowProPopup from '../../components/Popup/Popup';
+import { useFilterSlot } from '../../services/useFilterSlot';
+import ShowProPopup, { VuloCloudInlineNotice } from '../../components/Popup/Popup';
 import { useAiCredits } from '../../services/useAiCredits';
 import { useContentToolsEnabled } from '../../services/useContentToolsEnabled';
 
 /**
  * "Quick Actions" card: standalone AI actions using the same propose, preview and approve flow as
- * ContentToolsGrid.tsx.
+ * ContentToolsGrid.tsx. The 2 Pro tiles are display-metadata-only shells here (title/desc/fields,
+ * for when Pro's JS hasn't loaded anything to show yet) - same `vulopilot_content_tools_pro`
+ * filter ContentToolsGrid.tsx resolves supplies the real field definitions + runner Popup
+ * (`/content-tools/runs`, not Free's own `/ai-action-runs`) once Pro provides them.
  */
 const QUICK_ACTION_TOOLS: ContentTool[] = [
 	{
@@ -37,13 +41,7 @@ const QUICK_ACTION_TOOLS: ContentTool[] = [
 		desc: __('Discover content opportunities', 'vulopilot'),
 		actionId: 'keyword-research',
 		pro: true,
-		fields: [
-			{
-				key: 'post_id',
-				label: __('Post or page', 'vulopilot'),
-				type: 'post-picker',
-			},
-		],
+		fields: [],
 	},
 	{
 		id: 'content-templates',
@@ -53,26 +51,23 @@ const QUICK_ACTION_TOOLS: ContentTool[] = [
 		desc: __('Use proven content templates', 'vulopilot'),
 		actionId: 'generate-from-template',
 		pro: true,
-		fields: [
-			{
-				key: 'template_type',
-				label: __('Template', 'vulopilot'),
-				type: 'select',
-				options: [
-					{ value: 'how-to-guide', label: __('How-To Guide', 'vulopilot') },
-					{ value: 'listicle', label: __('Listicle', 'vulopilot') },
-					{ value: 'comparison', label: __('Comparison Post', 'vulopilot') },
-					{ value: 'faq-page', label: __('FAQ Page', 'vulopilot') },
-					{ value: 'product-announcement', label: __('Product Announcement', 'vulopilot') },
-				],
-			},
-			{ key: 'topic', label: __('Topic', 'vulopilot'), type: 'text' },
-		],
+		fields: [],
 	},
 ];
 
+interface ProToolsSlot {
+	Popup: ComponentType<{
+		tool: ContentTool | null;
+		onClose: () => void;
+		VuloCloudInlineNotice: ComponentType;
+		creditsStatus: { connected?: boolean } | null;
+	}>;
+	tools: ContentTool[];
+}
+
 const QuickActionsCard = () => {
 	const [activeTool, setActiveTool] = useState<ContentTool | null>(null);
+	const proSlot = useFilterSlot<ProToolsSlot>('vulopilot_content_tools_pro');
 	const { status: creditsStatus } = useAiCredits();
 	const isContentToolsEnabled = useContentToolsEnabled();
 	const [isCloudConnectPromptOpen, setIsCloudConnectPromptOpen] = useState(false);
@@ -96,21 +91,21 @@ const QuickActionsCard = () => {
 	};
 
 	const handleToolClick = (tool: ContentTool) => {
-		if (tool.pro && !isContentToolsEnabled) {
+		if (tool.pro && (!isContentToolsEnabled || !proSlot)) {
 			setIsProLocked(true);
 			return;
 		}
 
-		if (creditsStatus && !creditsStatus.connected) {
+		if (!tool.pro && creditsStatus && !creditsStatus.connected) {
 			setIsCloudConnectPromptOpen(true);
 			return;
 		}
 
-		setActiveTool(tool);
+		setActiveTool(tool.pro ? (proSlot?.tools.find((t) => t.id === tool.id) ?? tool) : tool);
 	};
 
 	const proBadge = (tool: ContentTool) =>
-		tool.pro && !isContentToolsEnabled ? (
+		tool.pro && (!isContentToolsEnabled || !proSlot) ? (
 			<span className="admin-tag pro-tag pro-tag-inline">
 				<i className="adminfont-pro-tag" />
 				{__('Pro', 'vulopilot')}
@@ -166,7 +161,19 @@ const QuickActionsCard = () => {
 					onClick: () => scrollTo('content-tools-grid'),
 				}}
 			/>
-			<ContentToolPopup tool={activeTool} onClose={() => setActiveTool(null)} />
+			{activeTool?.pro && proSlot ? (
+				<proSlot.Popup
+					tool={activeTool}
+					onClose={() => setActiveTool(null)}
+					VuloCloudInlineNotice={VuloCloudInlineNotice}
+					creditsStatus={creditsStatus}
+				/>
+			) : (
+				<ContentToolPopup
+					tool={activeTool?.pro ? null : activeTool}
+					onClose={() => setActiveTool(null)}
+				/>
+			)}
 			<PopupComponent
 				open={isCloudConnectPromptOpen}
 				onClose={() => setIsCloudConnectPromptOpen(false)}
