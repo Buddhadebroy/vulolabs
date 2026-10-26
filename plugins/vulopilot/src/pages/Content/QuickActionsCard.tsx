@@ -11,11 +11,8 @@ import { useAiCredits } from '../../services/useAiCredits';
 import { useContentToolsEnabled } from '../../services/useContentToolsEnabled';
 
 /**
- * "Quick Actions" card: standalone AI actions using the same propose, preview and approve flow as
- * ContentToolsGrid.tsx. The 2 Pro tiles are display-metadata-only shells here (title/desc/fields,
- * for when Pro's JS hasn't loaded anything to show yet) - same `vulopilot_content_tools_pro`
- * filter ContentToolsGrid.tsx resolves supplies the real field definitions + runner Popup
- * (`/content-tools/runs`, not Free's own `/ai-action-runs`) once Pro provides them.
+ * "Quick Actions" card, same propose/preview/approve flow as ContentToolsGrid.tsx. The 2 Pro
+ * tiles are display shells only - real fields/runner come from the `vulopilot_content_tools_pro` slot.
  */
 const QUICK_ACTION_TOOLS: ContentTool[] = [
 	{

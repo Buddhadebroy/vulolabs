@@ -9,12 +9,7 @@ interface AeoTabProps {
 	onNavigate?: ( tab: string, target?: string ) => void;
 }
 
-/**
- * AEO (Answer Engine Optimization) citation check - Pro-only. Card shell only: the real
- * check (`CitationCoverageChecker::check_one_post()`, a real AI call) lives in
- * vulopilot-pro's own `src/post-editor/AeoCitationCheckPanel.tsx`, resolved via the
- * `vulopilot_post_editor_aeo_citation_panel` filter.
- */
+/** AEO citation check - Pro-only. Card shell only; the real check is Pro's `AeoCitationCheckPanel.tsx`. */
 export default function AeoTab( _props: AeoTabProps ) {
 	const { postId } = usePostData();
 	const Panel = useFilterSlot< ComponentType< { postId: number } > >(
