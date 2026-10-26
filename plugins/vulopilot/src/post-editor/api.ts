@@ -283,24 +283,9 @@ export function analyzeGeoScore( postId: number ): Promise< GeoScoreResponse > {
 	return request( `geo-analysis/${ postId }`, { method: 'POST' } );
 }
 
-/** `CitationCoverageChecker::check_one_post()`'s own real flat result shape. */
-export interface AeoCitationResult {
-	post_id: number;
-	title: string;
-	question: string;
-	from_content: boolean;
-	cited: boolean;
-	answer: string;
-}
-
-/**
- * Real AEO citation check for this one post - asks the configured AI provider the post's own
- * question (from an FAQ heading, or a deterministic title-based question) without naming this
- * site, then checks whether the answer cites it. Costs a real AI call - explicit button only.
- */
-export function checkAeoCitationForPost( postId: number ): Promise< AeoCitationResult > {
-	return request( `aeo-citation-coverage/${ postId }`, { method: 'POST' } );
-}
+// AEO citation-check (checkAeoCitationForPost/AeoCitationResult) lives in vulopilot-pro's
+// own src/post-editor/api.ts now - resolved via the `vulopilot_post_editor_aeo_citation_panel`
+// filter where Free still needs it (tabs/AeoTab.tsx).
 
 /** `KeywordRepository`'s own real row shape (`vulopilot_keywords`). */
 export interface KeywordRecord {

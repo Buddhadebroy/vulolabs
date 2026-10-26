@@ -2,8 +2,7 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useModules } from '@zyra/core';
-import { ColumnComponent, ContainerComponent, PopupComponent } from '@zyra/components';
-import ShowProPopup from '../../components/Popup/Popup';
+import { ColumnComponent, ContainerComponent } from '@zyra/components';
 import AeoScoreSummaryCard from './AeoScoreSummaryCard';
 import { computeTrendChange } from './geoTrendChange';
 import AeoCitationCoverageCard from './AeoCitationCoverageCard';
@@ -120,8 +119,6 @@ const AeoTab = () => {
 	} | null>(null);
 	/** Set by a real "Analyze" click in the "Pages & Posts" table below. */
 	const [analyzingPostId, setAnalyzingPostId] = useState<number | null>(null);
-	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
-	const openProPopup = () => setIsProPopupOpen(true);
 	const { modules } = useModules();
 	const aeoActive = isAeoModuleActive(modules);
 	const { groups, isLoading: isLoadingGroups } = useAllFindingGroups();
@@ -148,13 +145,12 @@ const AeoTab = () => {
 	};
 
 	const aeoTrend = computeTrendChange(history, getAeoTrendScore);
-	const isProInstalled = Boolean(vulopilotAppLocalizer.khali_dabba);
 
 	return (
-		<>
 		<ContainerComponent>
 			<ColumnComponent grid={6}>
 				<AeoScoreSummaryCard
+					isActive={aeoActive}
 					isLoading={isLoadingSnapshot || isLoadingGroups || isLoadingPages}
 					questionsAnswered={questionsAnswered}
 					totalPages={totalPages}
@@ -163,7 +159,6 @@ const AeoTab = () => {
 					topics={AEO_SECTIONS}
 					groups={groups}
 					onSelectTopic={goToIssuesTable}
-					onScoreClick={aeoActive ? undefined : openProPopup}
 				/>
 			</ColumnComponent>
 			<AeoCitationCoverageCard isActive={isCitationCheckActive(modules)} />
@@ -203,20 +198,6 @@ const AeoTab = () => {
 				</ColumnComponent>
 			)}
 		</ContainerComponent>
-		<PopupComponent
-			open={isProPopupOpen}
-			onClose={() => setIsProPopupOpen(false)}
-			width={31.25}
-			height="auto"
-			position="lightbox"
-		>
-			{isProInstalled ? (
-				<ShowProPopup moduleName={AEO_MODULE_ID} />
-			) : (
-				<ShowProPopup />
-			)}
-		</PopupComponent>
-		</>
 	);
 };
 
