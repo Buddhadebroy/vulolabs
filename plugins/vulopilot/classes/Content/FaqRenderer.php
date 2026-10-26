@@ -4,17 +4,9 @@ namespace VuloPilot\Content;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real render logic for the `vulopilot/faq` block (`src/blocks/faq/render.php` calls
- * straight into this - see TableOfContentsRenderer's own docblock for why render.php
- * itself must stay declaration-free).
- *
- * Real `<details name="…">` exclusive-group accordion (native HTML, no JS needed for the
- * open/close interaction itself) when `allowMultipleOpen` is false - every browser that supports
- * `<details>` in the first place now supports `name` grouping, so closing a sibling when another
- * opens needs no hand-rolled JS. `layoutMode: 'expanded'` renders plain, always-visible
- * `<div>`s instead (no `<details>` at all), matching `FaqAccordion.js`'s own identical branch for
- * the editor's two real JS-rendered surfaces (canvas, live style preview) - see that file's own
- * docblock for why this is the one place the three can't literally share one component.
+ * Render logic for the `vulopilot/faq` block. Uses native `<details name="…">` exclusive-group
+ * accordion markup when `allowMultipleOpen` is false; `layoutMode: 'expanded'` renders plain
+ * always-visible `<div>`s instead, matching `FaqAccordion.js`'s editor branch.
  *
  * @class       FaqRenderer class
  * @version     1.0.0
@@ -116,10 +108,10 @@ class FaqRenderer {
 	}
 
 	/**
+	 * Both glyphs always render; CSS toggles which one shows via `[open]`, no JS needed.
+	 *
 	 * @param string $icon_style One of `self::ICON_GLYPHS`'s own keys.
-	 * @return string The real `.vulopilot-faq__icon` markup - both glyphs always render, CSS
-	 *                `[open] .vulopilot-faq__icon-open`/`-closed` toggles which one shows, same
-	 *                technique `FaqAccordion.js` uses so there's no JS needed to swap the glyph.
+	 * @return string The `.vulopilot-faq__icon` markup.
 	 */
 	private static function build_icon_html( string $icon_style ): string {
 		$glyph = self::ICON_GLYPHS[ $icon_style ] ?? self::ICON_GLYPHS['plus-minus'];
@@ -132,12 +124,9 @@ class FaqRenderer {
 	}
 
 	/**
-	 * Real PHP mirror of `faqStyleVars.js`'s own `buildFaqStyleVars()` - same `style.*` attribute
-	 * → CSS custom property mapping `public/styles/blocks.scss`'s own `.vulopilot-faq` rules read
-	 * (`var(--faq-*, <fallback>)`), including the same legacy `questionColor`/`questionFontSize`/
-	 * `answerColor`/`answerFontSize` fallback for a FAQ block saved before the `style` attribute
-	 * existed. An unset/empty value is simply omitted, same as the JS side, so the stylesheet's
-	 * own fallback (including the theme `--color-primary` chain for accent colors) applies.
+	 * PHP mirror of `faqStyleVars.js`'s `buildFaqStyleVars()`. Keeps the legacy
+	 * `questionColor`/`questionFontSize`/`answerColor`/`answerFontSize` fallback for FAQ
+	 * blocks saved before the `style` attribute existed.
 	 *
 	 * @param array<string, mixed> $attributes Real block attributes.
 	 * @return string A `--name:value;` CSS custom-property declaration list, or '' if nothing is set.

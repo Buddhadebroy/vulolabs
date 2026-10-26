@@ -493,10 +493,10 @@ class Utill {
 	}
 
 	/**
-	 * Reads one key out of the VULOPILOT_SETTINGS_KEY option, merged over its documented defaults.
+	 * Reads one key from the settings option, merged over VULOPILOT_SETTINGS_DEFAULTS.
 	 *
 	 * @param string $key     Settings array key to read.
-	 * @param mixed  $default Fallback when the key isn't present even after merging with VULOPILOT_SETTINGS_DEFAULTS.
+	 * @param mixed  $default Fallback when the key isn't in the defaults either.
 	 * @return mixed
 	 */
 	public static function get_setting( string $key, $default = null ) {

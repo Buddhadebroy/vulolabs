@@ -7,14 +7,10 @@ use VuloPilot\Content\RedirectRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Fetches `/not-found-logs`, Submits to `/not-found-logs/{id}/delete` (dismiss a log
- * entry), POST /not-found-logs/{id}/convert (turn it into a real redirect)
- * - backs the Redirects page's own "404 Log" table. convert_item() does
- * both steps atomically (create the redirect, then remove the now-handled
- * log row) rather than leaving the frontend to call Redirects' own
- * create_item() and this controller's delete_item() separately - a failed
- * second call would otherwise leave a log entry that's already been
- * redirected still showing up as unhandled.
+ * Backs the Redirects page's "404 Log" table: GET /not-found-logs, POST .../delete
+ * (dismiss), POST .../convert (turn into a redirect). `convert_item()` creates the
+ * redirect and removes the log row atomically, so a failed second call can't leave
+ * an already-redirected entry looking unhandled.
  *
  * @class       NotFoundLogs controller
  * @version     1.0.0
@@ -83,15 +79,10 @@ class NotFoundLogs extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Lists 404 log entries, paginated/searched, most recently seen first
-	 * by default, plus content/system counts for the status pill bar
-	 * (same `count_by_column()` pattern Redirects.php's own
-	 * `is_active_counts` uses). `is_system` ('0'/'1') scopes this to real
-	 * missing content pages or the "system" bucket (theme/plugin/core-file/
-	 * asset 404s - Services\NotFoundLogger::is_system_path()) when the
-	 * frontend's own "All/Content/System" filter pills narrow it down;
-	 * omitting the param (the default "All" pill) returns both mixed
-	 * together, same as any other RepositoryUtil filterable column.
+	 * Lists 404 log entries, paginated/searched, newest first by default, plus
+	 * content/system counts for the status pill bar. `is_system` ('0'/'1') scopes to
+	 * real missing pages vs. the "system" bucket (NotFoundLogger::is_system_path());
+	 * omitted, both are returned mixed.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
