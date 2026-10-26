@@ -370,9 +370,9 @@ class CrawlerVisitRepository extends RepositoryUtil {
 		$not_found = 0;
 		$by_bot    = array();
 		foreach ( $rows as $row ) {
-			$total    += (int) $row['total'];
+			$total     += (int) $row['total'];
 			$not_found += (int) $row['not_found'];
-			$by_bot[]  = array(
+			$by_bot[]   = array(
 				'bot_name'     => $row['bot_name'],
 				'total'        => (int) $row['total'],
 				'last_seen_at' => $row['last_seen_at'],

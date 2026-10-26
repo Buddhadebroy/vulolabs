@@ -131,8 +131,8 @@ class TitleFormatter {
 	 * else.
 	 *
 	 * @param array<string, mixed> $settings    Effective plugin settings.
-	 * @param string                $prefix      `'title_format_'` or `'description_format_'`.
-	 * @param string                $context_key current_context_key()'s own return value.
+	 * @param string               $prefix      `'title_format_'` or `'description_format_'`.
+	 * @param string               $context_key current_context_key()'s own return value.
 	 * @return string
 	 */
 	private function get_template( array $settings, string $prefix, string $context_key ): string {

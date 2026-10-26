@@ -63,9 +63,9 @@ class GenerateBlogAction extends AbstractBasicAction {
 		$tone       = mb_substr( sanitize_text_field( (string) ( $input['tone'] ?? '' ) ), 0, 60 );
 		// Content Planner's own writing-style fields (audience/prompt) - optional for every
 		// other caller of this action, which simply won't pass them.
-		$audience   = mb_substr( sanitize_text_field( (string) ( $input['audience'] ?? '' ) ), 0, 120 );
-		$prompt     = mb_substr( sanitize_textarea_field( (string) ( $input['prompt'] ?? '' ) ), 0, 2000 );
-		$post_type  = in_array( $input['post_type'] ?? 'post', array( 'post', 'page' ), true ) ? $input['post_type'] : 'post';
+		$audience  = mb_substr( sanitize_text_field( (string) ( $input['audience'] ?? '' ) ), 0, 120 );
+		$prompt    = mb_substr( sanitize_textarea_field( (string) ( $input['prompt'] ?? '' ) ), 0, 2000 );
+		$post_type = in_array( $input['post_type'] ?? 'post', array( 'post', 'page' ), true ) ? $input['post_type'] : 'post';
 
 		return array(
 			'topic'      => $topic,

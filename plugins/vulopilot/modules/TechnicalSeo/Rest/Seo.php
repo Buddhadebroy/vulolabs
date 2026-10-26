@@ -221,15 +221,15 @@ class Seo extends \WP_REST_Controller {
 			array(
 				// Backward-compatible top-level field the toolbar/sidebar badge already reads -
 				// null (insufficient data) reported as 0 rather than breaking that number contract.
-				'score'          => $summary['score'] ?? 0,
-				'ruleset_version' => \VuloPilot\SeoVisibility\SeoScoreEngine::RULESET_VERSION,
-				'insufficient_data' => $summary['insufficient_data'],
-				'coverage_percent'  => $summary['coverage_percent'],
-				'evaluated_count'   => $summary['evaluated_count'],
-				'unknown_count'     => $summary['unknown_count'],
+				'score'                => $summary['score'] ?? 0,
+				'ruleset_version'      => \VuloPilot\SeoVisibility\SeoScoreEngine::RULESET_VERSION,
+				'insufficient_data'    => $summary['insufficient_data'],
+				'coverage_percent'     => $summary['coverage_percent'],
+				'evaluated_count'      => $summary['evaluated_count'],
+				'unknown_count'        => $summary['unknown_count'],
 				'not_applicable_count' => $summary['not_applicable_count'],
-				'categories'     => $summary['categories'],
-				'rules'          => $rules,
+				'categories'           => $summary['categories'],
+				'rules'                => $rules,
 			)
 		);
 	}

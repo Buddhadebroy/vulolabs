@@ -339,7 +339,7 @@ class Findings extends \WP_REST_Controller {
         // string, so this can't become a SQL-injection vector via
         // FindingRepository::get_finding_groups()'s own `WHERE status = %s`.
         $requested_status = sanitize_key( (string) $request->get_param( 'status' ) );
-        $status            = in_array( $requested_status, array( 'open', 'all' ), true ) ? $requested_status : 'open';
+        $status           = in_array( $requested_status, array( 'open', 'all' ), true ) ? $requested_status : 'open';
 
         $page     = absint( $request->get_param( 'page' ) );
         $per_page = absint( $request->get_param( 'per_page' ) );

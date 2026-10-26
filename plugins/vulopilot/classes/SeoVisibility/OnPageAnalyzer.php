@@ -40,11 +40,11 @@ class OnPageAnalyzer {
 	 * @return array<int, array<string, mixed>> Each entry shaped like result()'s own return value.
 	 */
 	public function analyze( array $fields ): array {
-		$title         = trim( (string) ( $fields['title'] ?? '' ) );
-		$content_html  = (string) ( $fields['content'] ?? '' );
-		$content_text  = trim( wp_strip_all_tags( $content_html ) );
-		$excerpt       = trim( (string) ( $fields['excerpt'] ?? '' ) );
-		$slug          = (string) ( $fields['slug'] ?? '' );
+		$title        = trim( (string) ( $fields['title'] ?? '' ) );
+		$content_html = (string) ( $fields['content'] ?? '' );
+		$content_text = trim( wp_strip_all_tags( $content_html ) );
+		$excerpt      = trim( (string) ( $fields['excerpt'] ?? '' ) );
+		$slug         = (string) ( $fields['slug'] ?? '' );
 		// `focus_keyword` may carry a comma-separated list; only the primary (first) one is scored.
 		$focus_keyword = PostSeoMetaFields::primary_keyword( (string) ( $fields['focus_keyword'] ?? '' ) );
 
@@ -323,7 +323,10 @@ class OnPageAnalyzer {
 	 */
 	private function count_links_by_scope( string $content_html ): array {
 		if ( ! preg_match_all( '/<a\s[^>]*href=["\']([^"\']+)["\']/i', $content_html, $matches ) ) {
-			return array( 'internal' => 0, 'external' => 0 );
+			return array(
+				'internal' => 0,
+				'external' => 0,
+			);
 		}
 
 		$home_host = (string) wp_parse_url( home_url(), PHP_URL_HOST );
@@ -344,7 +347,10 @@ class OnPageAnalyzer {
 			}
 		}
 
-		return array( 'internal' => $internal, 'external' => $external );
+		return array(
+			'internal' => $internal,
+			'external' => $external,
+		);
 	}
 
 	/**

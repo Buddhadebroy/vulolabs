@@ -88,9 +88,9 @@ class AuditContentAction extends AbstractBasicAction {
 	 * @inheritDoc
 	 */
 	public function build_prompt( array $input ): array {
-		$plain_content  = wp_strip_all_tags( $input['post_content'] );
-		$trimmed        = wp_trim_words( $plain_content, self::MAX_CONTENT_WORDS, '' );
-		$was_truncated  = $trimmed !== $plain_content;
+		$plain_content = wp_strip_all_tags( $input['post_content'] );
+		$trimmed       = wp_trim_words( $plain_content, self::MAX_CONTENT_WORDS, '' );
+		$was_truncated = $trimmed !== $plain_content;
 
 		return array(
 			array(

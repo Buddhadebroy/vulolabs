@@ -56,7 +56,7 @@ class SeoScoreEngine {
 	private const TOC_RECOMMEND_WORDS = 1200;
 
 	/** Rule 13/16 - configurable density heuristics (percent). */
-	private const KEYWORD_DENSITY_WARN_ABOVE = 2.5;
+	private const KEYWORD_DENSITY_WARN_ABOVE     = 2.5;
 	private const KEYWORD_DENSITY_STUFFING_ABOVE = 4.0;
 
 	/** Rule 4 (URL length advisory) / slug-quality guideline. */
@@ -77,21 +77,21 @@ class SeoScoreEngine {
 	/**
 	 * Runs every rule against one post's current (possibly live/unsaved) field values.
 	 *
-	 * @param \WP_Post $post          Saved post - used for technical/link/image checks that need
-	 *                                 the real stored object (ID, post_type, post_status, attachments).
+	 * @param \WP_Post                                                                                    $post          Saved post - used for technical/link/image checks that need
+	 *                                                                                                                    the real stored object (ID, post_type, post_status, attachments).
 	 * @param array{title: string, content: string, excerpt: string, slug: string, focus_keyword: string} $live
 	 *                                 Live editor field values - same shape OnPageAnalyzer::analyze() takes.
 	 * @return array<int, array<string, mixed>>
-	 * @param bool $skip_fetch Skip the one real HTTP self-fetch this evaluation would otherwise
-	 *                         make (feeds http_status/canonical/structured_data) - for a live,
-	 *                         debounced-on-keystroke call, where a network round trip every ~600ms
-	 *                         would queue up behind itself and make the score appear frozen while
-	 *                         requests pile up. Those 3 rules report `unknown` for this call
-	 *                         instead (still excluded from the denominator, never fabricated) -
-	 *                         they describe the currently-published page anyway, which hasn't
-	 *                         changed just because the editor has unsaved edits, so skipping them
-	 *                         for live calls loses nothing a save-triggered re-evaluation won't
-	 *                         immediately restore.
+	 * @param bool                                                                                        $skip_fetch Skip the one real HTTP self-fetch this evaluation would otherwise
+	 *                                                                                                                make (feeds http_status/canonical/structured_data) - for a live,
+	 *                                                                                                                debounced-on-keystroke call, where a network round trip every ~600ms
+	 *                                                                                                                would queue up behind itself and make the score appear frozen while
+	 *                                                                                                                requests pile up. Those 3 rules report `unknown` for this call
+	 *                                                                                                                instead (still excluded from the denominator, never fabricated) -
+	 *                                                                                                                they describe the currently-published page anyway, which hasn't
+	 *                                                                                                                changed just because the editor has unsaved edits, so skipping them
+	 *                                                                                                                for live calls loses nothing a save-triggered re-evaluation won't
+	 *                                                                                                                immediately restore.
 	 */
 	public function evaluate( \WP_Post $post, array $live, bool $skip_fetch = false ): array {
 		$title         = trim( (string) $live['title'] );
@@ -121,7 +121,7 @@ class SeoScoreEngine {
 		$results[] = $this->rule_freshness();
 
 		// C. Keyword optimization (15).
-		$density = $this->keyword_density_percent( $focus_keyword, $content_text, $word_count );
+		$density   = $this->keyword_density_percent( $focus_keyword, $content_text, $word_count );
 		$results[] = $this->rule_natural_keyword_usage( $focus_keyword, $density );
 		$results[] = $this->rule_topic_coverage();
 		$results[] = $this->rule_keyword_distribution( $focus_keyword, $content_text );
@@ -130,12 +130,12 @@ class SeoScoreEngine {
 
 		// D. Links (10).
 		$link_counts = $this->count_links( $content_html );
-		$results[] = $this->rule_internal_links( $link_counts['internal'] );
-		$results[] = $this->rule_external_links( $link_counts['external'] );
-		$results[] = $this->rule_broken_links( $post->ID );
+		$results[]   = $this->rule_internal_links( $link_counts['internal'] );
+		$results[]   = $this->rule_external_links( $link_counts['external'] );
+		$results[]   = $this->rule_broken_links( $post->ID );
 
 		// E. Images and media (10).
-		$images = $this->extract_images( $content_html );
+		$images    = $this->extract_images( $content_html );
 		$results[] = $this->rule_relevant_images( $post, $images );
 		$results[] = $this->rule_image_alt_text( $images, $focus_keyword );
 		$results[] = $this->rule_image_optimization( $images );
@@ -155,7 +155,7 @@ class SeoScoreEngine {
 			// permanently while typing, which is exactly what made the score show 0 the whole time
 			// (#bug - a stricter regression than the original "frozen" complaint this was fixing).
 		} else {
-			$fetch = $this->technical->fetch( (string) get_permalink( $post ) );
+			$fetch     = $this->technical->fetch( (string) get_permalink( $post ) );
 			$results[] = $this->rule_http_status( $fetch );
 			$results[] = $this->rule_canonical( $fetch );
 			$results[] = $this->rule_structured_data( $fetch );
@@ -175,8 +175,8 @@ class SeoScoreEngine {
 	 * @return array{score: int|null, insufficient_data: bool, coverage_percent: float, applicable_weight: float, earned_points: float, evaluated_count: int, unknown_count: int, not_applicable_count: int, categories: array<string, array{max: int, earned: float, applicable: float}>}
 	 */
 	public function calculate_score( array $results ): array {
-		$earned               = 0.0;
-		$applicable_weight    = 0.0;
+		$earned            = 0.0;
+		$applicable_weight = 0.0;
 		// Coverage denominator: applicable + genuinely-unknown weight only. `not_applicable` is
 		// excluded from BOTH sides entirely (spec, explicitly) - a rule that plainly doesn't apply
 		// (e.g. image alt text on a page with no images) isn't a gap in what this engine knows, so
@@ -188,7 +188,11 @@ class SeoScoreEngine {
 		$categories           = array();
 
 		foreach ( array_keys( self::CATEGORY_WEIGHTS ) as $category ) {
-			$categories[ $category ] = array( 'max' => self::CATEGORY_WEIGHTS[ $category ], 'earned' => 0.0, 'applicable' => 0.0 );
+			$categories[ $category ] = array(
+				'max'        => self::CATEGORY_WEIGHTS[ $category ],
+				'earned'     => 0.0,
+				'applicable' => 0.0,
+			);
 		}
 
 		foreach ( $results as $rule ) {
@@ -257,14 +261,14 @@ class SeoScoreEngine {
 	// ---------------------------------------------------------------------
 
 	/**
-	 * @param string $id             Stable rule id.
-	 * @param string $category       One of `CATEGORY_WEIGHTS`'s own keys.
-	 * @param string $status         'pass'|'warning'|'fail'|'not_applicable'|'unknown'.
-	 * @param float  $max_points     This rule's own max point value.
-	 * @param float  $earned_points  Points actually earned (0 for not_applicable/unknown).
-	 * @param string $reason         Human-readable explanation.
-	 * @param array  $evidence       Real data this rule's decision was based on.
-	 * @param string $data_source    Where the evidence came from (e.g. 'post_content', 'live_http_fetch', 'postmeta').
+	 * @param string      $id             Stable rule id.
+	 * @param string      $category       One of `CATEGORY_WEIGHTS`'s own keys.
+	 * @param string      $status         'pass'|'warning'|'fail'|'not_applicable'|'unknown'.
+	 * @param float       $max_points     This rule's own max point value.
+	 * @param float       $earned_points  Points actually earned (0 for not_applicable/unknown).
+	 * @param string      $reason         Human-readable explanation.
+	 * @param array       $evidence       Real data this rule's decision was based on.
+	 * @param string      $data_source    Where the evidence came from (e.g. 'post_content', 'live_http_fetch', 'postmeta').
 	 * @param string|null $recommendation Actionable fix, when status isn't 'pass'.
 	 * @return array<string, mixed>
 	 */
@@ -316,7 +320,10 @@ class SeoScoreEngine {
 	 */
 	private function count_links( string $content_html ): array {
 		if ( ! preg_match_all( '/<a\s[^>]*href=["\']([^"\']+)["\']/i', $content_html, $matches ) ) {
-			return array( 'internal' => 0, 'external' => 0 );
+			return array(
+				'internal' => 0,
+				'external' => 0,
+			);
 		}
 
 		$home_host = (string) wp_parse_url( home_url(), PHP_URL_HOST );
@@ -332,7 +339,10 @@ class SeoScoreEngine {
 			'' === $host || $host === $home_host ? ++$internal : ++$external;
 		}
 
-		return array( 'internal' => $internal, 'external' => $external );
+		return array(
+			'internal' => $internal,
+			'external' => $external,
+		);
 	}
 
 	/**
@@ -367,19 +377,19 @@ class SeoScoreEngine {
 	 * Rule 1 - SEO title (5 pts: 2 non-empty, 2 concise length, 1 no obvious stuffing).
 	 */
 	private function rule_seo_title( string $title, string $focus_keyword ): array {
-		$earned   = 0.0;
-		$reasons  = array();
-		$length   = mb_strlen( $title );
+		$earned  = 0.0;
+		$reasons = array();
+		$length  = mb_strlen( $title );
 
 		if ( '' !== $title ) {
-			$earned    += 2;
+			$earned   += 2;
 			$reasons[] = __( 'A title is set.', 'vulopilot' );
 		} else {
 			$reasons[] = __( 'No SEO title is set.', 'vulopilot' );
 		}
 
 		if ( $length >= 30 && $length <= 60 ) {
-			$earned    += 2;
+			$earned   += 2;
 			$reasons[] = sprintf( /* translators: %d: real character count. */ __( 'Title length (%d chars) is concise.', 'vulopilot' ), $length );
 		} elseif ( '' !== $title ) {
 			$reasons[] = sprintf( /* translators: %d: real character count. */ __( 'Title is %d characters - aim for roughly 50-60.', 'vulopilot' ), $length );
@@ -389,7 +399,7 @@ class SeoScoreEngine {
 		$stuffed = '' !== $focus_keyword && substr_count( mb_strtolower( $title ), mb_strtolower( $focus_keyword ) ) >= 3;
 
 		if ( ! $stuffed ) {
-			$earned    += 1;
+			$earned   += 1;
 			$reasons[] = __( 'No obvious keyword stuffing in the title.', 'vulopilot' );
 		} else {
 			$reasons[] = __( 'The focus keyword repeats unnaturally often in the title.', 'vulopilot' );
@@ -398,9 +408,16 @@ class SeoScoreEngine {
 		$status = $earned >= 5 ? 'pass' : ( $earned > 0 ? 'warning' : 'fail' );
 
 		return $this->rule_result(
-			'seo_title', 'on_page', $status, 5, $earned,
+			'seo_title',
+            'on_page',
+            $status,
+            5,
+            $earned,
 			implode( ' ', $reasons ),
-			array( 'title' => $title, 'length' => $length ),
+			array(
+				'title'  => $title,
+				'length' => $length,
+            ),
 			'live_editor_state',
 			$earned < 5 ? __( 'Write a concise, descriptive SEO title around 50-60 characters.', 'vulopilot' ) : null
 		);
@@ -415,14 +432,14 @@ class SeoScoreEngine {
 		$length  = mb_strlen( $excerpt );
 
 		if ( '' !== $excerpt ) {
-			$earned    += 2;
+			$earned   += 2;
 			$reasons[] = __( 'A meta description is set.', 'vulopilot' );
 		} else {
 			$reasons[] = __( 'No meta description is set.', 'vulopilot' );
 		}
 
 		if ( $length >= 70 && $length <= 160 ) {
-			$earned    += 2;
+			$earned   += 2;
 			$reasons[] = sprintf( /* translators: %d: real character count. */ __( 'Description length (%d chars) is appropriate.', 'vulopilot' ), $length );
 		} elseif ( '' !== $excerpt ) {
 			$reasons[] = sprintf( /* translators: %d: real character count. */ __( 'Description is %d characters - aim for roughly 120-160.', 'vulopilot' ), $length );
@@ -432,16 +449,23 @@ class SeoScoreEngine {
 		// point only on the deterministic proxy available: it mentions the focus keyword (when
 		// one is set) or is simply present (when there's no keyword to check against).
 		if ( '' !== $excerpt && ( '' === $focus_keyword || $this->contains( $focus_keyword, $excerpt ) ) ) {
-			$earned    += 1;
+			$earned   += 1;
 			$reasons[] = __( 'Description appears relevant to the page topic.', 'vulopilot' );
 		}
 
 		$status = $earned >= 5 ? 'pass' : ( $earned > 0 ? 'warning' : 'fail' );
 
 		return $this->rule_result(
-			'meta_description', 'on_page', $status, 5, $earned,
+			'meta_description',
+            'on_page',
+            $status,
+            5,
+            $earned,
 			implode( ' ', $reasons ),
-			array( 'description' => $excerpt, 'length' => $length ),
+			array(
+				'description' => $excerpt,
+				'length'      => $length,
+            ),
 			'live_editor_state',
 			$earned < 5 ? __( 'Write a clear, 120-160 character meta description that summarizes the page.', 'vulopilot' ) : null
 		);
@@ -454,8 +478,14 @@ class SeoScoreEngine {
 	private function rule_url_slug( string $slug ): array {
 		if ( '' === $slug ) {
 			return $this->rule_result(
-				'url_slug_quality', 'on_page', 'fail', 4, 0,
-				__( 'No URL slug is set.', 'vulopilot' ), array( 'slug' => $slug ), 'live_editor_state',
+				'url_slug_quality',
+                'on_page',
+                'fail',
+                4,
+                0,
+				__( 'No URL slug is set.', 'vulopilot' ),
+                array( 'slug' => $slug ),
+                'live_editor_state',
 				__( 'Set a short, readable URL slug.', 'vulopilot' )
 			);
 		}
@@ -476,9 +506,16 @@ class SeoScoreEngine {
 		$earned = empty( $issues ) ? 4 : 2;
 
 		return $this->rule_result(
-			'url_slug_quality', 'on_page', $status, 4, $earned,
+			'url_slug_quality',
+            'on_page',
+            $status,
+            4,
+            $earned,
 			empty( $issues ) ? __( 'The URL slug is readable and reasonably sized.', 'vulopilot' ) : sprintf( /* translators: %s: comma-separated list of real issues found. */ __( 'Slug issues: %s.', 'vulopilot' ), implode( ', ', $issues ) ),
-			array( 'slug' => $slug, 'length' => mb_strlen( $slug ) ),
+			array(
+				'slug'   => $slug,
+				'length' => mb_strlen( $slug ),
+            ),
 			'live_editor_state',
 			empty( $issues ) ? null : __( 'Use a short, descriptive, hyphen-separated slug.', 'vulopilot' )
 		);
@@ -491,8 +528,14 @@ class SeoScoreEngine {
 	private function rule_focus_keyword_placement( string $keyword, string $title, string $excerpt, string $content_text ): array {
 		if ( '' === $keyword ) {
 			return $this->rule_result(
-				'focus_keyword_placement', 'on_page', 'not_applicable', 4, 0,
-				__( 'No focus keyword is configured.', 'vulopilot' ), array(), 'live_editor_state'
+				'focus_keyword_placement',
+                'on_page',
+                'not_applicable',
+                4,
+                0,
+				__( 'No focus keyword is configured.', 'vulopilot' ),
+                array(),
+                'live_editor_state'
 			);
 		}
 
@@ -518,11 +561,18 @@ class SeoScoreEngine {
 		$status = $earned >= 3.9 ? 'pass' : ( $earned > 0 ? 'warning' : 'fail' );
 
 		return $this->rule_result(
-			'focus_keyword_placement', 'on_page', $status, 4, round( $earned, 2 ),
+			'focus_keyword_placement',
+            'on_page',
+            $status,
+            4,
+            round( $earned, 2 ),
 			empty( $where )
 				? __( 'Focus keyword was not found in the title, description, or opening paragraph.', 'vulopilot' )
 				: sprintf( /* translators: %s: comma-separated list of where the keyword was actually found. */ __( 'Focus keyword found in: %s.', 'vulopilot' ), implode( ', ', $where ) ),
-			array( 'keyword' => $keyword, 'found_in' => $where ),
+			array(
+				'keyword'  => $keyword,
+				'found_in' => $where,
+            ),
 			'live_editor_state',
 			$earned < 3.9 ? __( 'Work the focus keyword naturally into the title, description, and opening paragraph.', 'vulopilot' ) : null
 		);
@@ -539,31 +589,55 @@ class SeoScoreEngine {
 		$has_h3 = (bool) preg_match( '/<h3[\s>]/i', $content_html );
 
 		// A real (if rough) hierarchy check: does an H3 appear before the first H2?
-		$h2_pos = stripos( $content_html, '<h2' );
-		$h3_pos = stripos( $content_html, '<h3' );
+		$h2_pos       = stripos( $content_html, '<h2' );
+		$h3_pos       = stripos( $content_html, '<h3' );
 		$out_of_order = $has_h3 && $has_h2 && false !== $h3_pos && $h3_pos < $h2_pos;
 
 		if ( $has_h2 && ! $out_of_order ) {
 			return $this->rule_result(
-				'heading_structure', 'on_page', 'pass', 4, 4,
+				'heading_structure',
+                'on_page',
+                'pass',
+                4,
+                4,
 				__( 'Content has section headings in a logical order.', 'vulopilot' ),
-				array( 'has_h2' => $has_h2, 'has_h3' => $has_h3 ), 'post_content'
+				array(
+					'has_h2' => $has_h2,
+					'has_h3' => $has_h3,
+                ),
+                'post_content'
 			);
 		}
 
 		if ( $has_h2 && $out_of_order ) {
 			return $this->rule_result(
-				'heading_structure', 'on_page', 'warning', 4, 2,
+				'heading_structure',
+                'on_page',
+                'warning',
+                4,
+                2,
 				__( 'An H3 appears before the first H2 - heading levels should nest in order.', 'vulopilot' ),
-				array( 'has_h2' => $has_h2, 'has_h3' => $has_h3 ), 'post_content',
+				array(
+					'has_h2' => $has_h2,
+					'has_h3' => $has_h3,
+                ),
+                'post_content',
 				__( 'Reorder headings so H3s sit under an H2, not before one.', 'vulopilot' )
 			);
 		}
 
 		return $this->rule_result(
-			'heading_structure', 'on_page', 'fail', 4, 0,
+			'heading_structure',
+            'on_page',
+            'fail',
+            4,
+            0,
 			__( 'No section headings (H2/H3) found in the content.', 'vulopilot' ),
-			array( 'has_h2' => false, 'has_h3' => $has_h3 ), 'post_content',
+			array(
+				'has_h2' => false,
+				'has_h3' => $has_h3,
+            ),
+            'post_content',
 			__( 'Break the content into sections with H2 (and H3 where needed) subheadings.', 'vulopilot' )
 		);
 	}
@@ -576,9 +650,14 @@ class SeoScoreEngine {
 	 */
 	private function rule_search_intent_alignment(): array {
 		return $this->rule_result(
-			'search_intent_alignment', 'on_page', 'unknown', 3, 0,
+			'search_intent_alignment',
+            'on_page',
+            'unknown',
+            3,
+            0,
 			__( 'Search intent alignment needs semantic/AI assessment, which this engine does not perform - not evaluated.', 'vulopilot' ),
-			array(), 'not_available'
+			array(),
+            'not_available'
 		);
 	}
 
@@ -594,9 +673,14 @@ class SeoScoreEngine {
 	 */
 	private function rule_content_usefulness(): array {
 		return $this->rule_result(
-			'content_usefulness', 'content_quality', 'unknown', 8, 0,
+			'content_usefulness',
+            'content_quality',
+            'unknown',
+            8,
+            0,
 			__( 'Content usefulness/completeness needs human or AI judgment of what the reader actually needed - not evaluated.', 'vulopilot' ),
-			array(), 'not_available'
+			array(),
+            'not_available'
 		);
 	}
 
@@ -607,9 +691,14 @@ class SeoScoreEngine {
 	 */
 	private function rule_content_originality(): array {
 		return $this->rule_result(
-			'content_originality', 'content_quality', 'unknown', 5, 0,
+			'content_originality',
+            'content_quality',
+            'unknown',
+            5,
+            0,
 			__( 'Content originality needs a duplication/similarity check this engine does not perform - not evaluated.', 'vulopilot' ),
-			array(), 'not_available'
+			array(),
+            'not_available'
 		);
 	}
 
@@ -626,13 +715,22 @@ class SeoScoreEngine {
 		$status = $ratio >= 1.0 ? 'pass' : ( $ratio >= 0.5 ? 'warning' : 'fail' );
 
 		return $this->rule_result(
-			'content_length', 'content_quality', $status, 4, $earned,
+			'content_length',
+            'content_quality',
+            $status,
+            4,
+            $earned,
 			sprintf(
 				/* translators: 1: real word count, 2: configured target word count. */
 				__( 'Content is %1$d words (target: %2$d+).', 'vulopilot' ),
-				$word_count, $target
+				$word_count,
+                $target
 			),
-			array( 'word_count' => $word_count, 'target' => $target ), 'live_editor_state',
+			array(
+				'word_count' => $word_count,
+				'target'     => $target,
+            ),
+            'live_editor_state',
 			$ratio < 1.0 ? __( 'Expand the content with real, useful detail relevant to the topic.', 'vulopilot' ) : null
 		);
 	}
@@ -650,26 +748,40 @@ class SeoScoreEngine {
 			$words = str_word_count( wp_strip_all_tags( $paragraph_html ) );
 
 			if ( $words > self::LONG_PARAGRAPH_WORDS ) {
-				$long_paragraphs[] = array( 'index' => $index, 'words' => $words );
+				$long_paragraphs[] = array(
+					'index' => $index,
+					'words' => $words,
+				);
 			}
 		}
 
 		if ( empty( $long_paragraphs ) ) {
 			return $this->rule_result(
-				'readability_paragraphs', 'content_quality', 'pass', 4, 4,
+				'readability_paragraphs',
+                'content_quality',
+                'pass',
+                4,
+                4,
 				sprintf( /* translators: %d: real max paragraph length, in words. */ __( 'No paragraph exceeds %d words.', 'vulopilot' ), self::LONG_PARAGRAPH_WORDS ),
-				array( 'long_paragraph_count' => 0 ), 'post_content'
+				array( 'long_paragraph_count' => 0 ),
+                'post_content'
 			);
 		}
 
 		return $this->rule_result(
-			'readability_paragraphs', 'content_quality', 'warning', 4, 2,
+			'readability_paragraphs',
+            'content_quality',
+            'warning',
+            4,
+            2,
 			sprintf(
 				/* translators: 1: real count of overlong paragraphs, 2: real max paragraph length, in words. */
 				_n( '%1$d paragraph exceeds %2$d words.', '%1$d paragraphs exceed %2$d words.', count( $long_paragraphs ), 'vulopilot' ),
-				count( $long_paragraphs ), self::LONG_PARAGRAPH_WORDS
+				count( $long_paragraphs ),
+                self::LONG_PARAGRAPH_WORDS
 			),
-			array( 'long_paragraphs' => $long_paragraphs ), 'post_content',
+			array( 'long_paragraphs' => $long_paragraphs ),
+            'post_content',
 			__( 'Split the longest paragraphs into shorter ones for easier reading.', 'vulopilot' )
 		);
 	}
@@ -683,9 +795,14 @@ class SeoScoreEngine {
 	private function rule_table_of_contents( string $content_html, int $word_count ): array {
 		if ( $word_count < self::TOC_RECOMMEND_WORDS ) {
 			return $this->rule_result(
-				'table_of_contents', 'content_quality', 'not_applicable', 2, 0,
+				'table_of_contents',
+                'content_quality',
+                'not_applicable',
+                2,
+                0,
 				sprintf( /* translators: %d: real word count below the configured recommendation threshold. */ __( 'Article is %d words - too short to need a table of contents.', 'vulopilot' ), $word_count ),
-				array( 'word_count' => $word_count ), 'post_content'
+				array( 'word_count' => $word_count ),
+                'post_content'
 			);
 		}
 
@@ -696,15 +813,26 @@ class SeoScoreEngine {
 
 		if ( $has_toc ) {
 			return $this->rule_result(
-				'table_of_contents', 'content_quality', 'pass', 2, 2,
-				__( 'A table of contents was detected.', 'vulopilot' ), array( 'word_count' => $word_count ), 'post_content'
+				'table_of_contents',
+                'content_quality',
+                'pass',
+                2,
+                2,
+				__( 'A table of contents was detected.', 'vulopilot' ),
+                array( 'word_count' => $word_count ),
+                'post_content'
 			);
 		}
 
 		return $this->rule_result(
-			'table_of_contents', 'content_quality', 'fail', 2, 0,
+			'table_of_contents',
+            'content_quality',
+            'fail',
+            2,
+            0,
 			sprintf( /* translators: %d: real word count above the configured recommendation threshold. */ __( 'No table of contents detected on this %d-word article.', 'vulopilot' ), $word_count ),
-			array( 'word_count' => $word_count ), 'post_content',
+			array( 'word_count' => $word_count ),
+            'post_content',
 			__( 'Add a table of contents (e.g. the VuloPilot Table of Contents block) for long-form content.', 'vulopilot' )
 		);
 	}
@@ -717,9 +845,14 @@ class SeoScoreEngine {
 	 */
 	private function rule_freshness(): array {
 		return $this->rule_result(
-			'freshness_accuracy', 'content_quality', 'unknown', 2, 0,
+			'freshness_accuracy',
+            'content_quality',
+            'unknown',
+            2,
+            0,
 			__( 'Freshness/accuracy needs real-world fact verification this engine does not perform - not evaluated.', 'vulopilot' ),
-			array(), 'not_available'
+			array(),
+            'not_available'
 		);
 	}
 
@@ -734,33 +867,63 @@ class SeoScoreEngine {
 	private function rule_natural_keyword_usage( string $keyword, ?float $density ): array {
 		if ( null === $density ) {
 			return $this->rule_result(
-				'natural_keyword_usage', 'keyword_optimization', 'not_applicable', 4, 0,
-				__( 'No focus keyword is configured.', 'vulopilot' ), array(), 'live_editor_state'
+				'natural_keyword_usage',
+                'keyword_optimization',
+                'not_applicable',
+                4,
+                0,
+				__( 'No focus keyword is configured.', 'vulopilot' ),
+                array(),
+                'live_editor_state'
 			);
 		}
 
 		if ( $density <= 0 ) {
 			return $this->rule_result(
-				'natural_keyword_usage', 'keyword_optimization', 'fail', 4, 0,
+				'natural_keyword_usage',
+                'keyword_optimization',
+                'fail',
+                4,
+                0,
 				__( 'Focus keyword does not appear in the content.', 'vulopilot' ),
-				array( 'density_percent' => round( $density, 2 ), 'keyword' => $keyword ), 'live_editor_state',
+				array(
+					'density_percent' => round( $density, 2 ),
+					'keyword'         => $keyword,
+                ),
+                'live_editor_state',
 				__( 'Use the focus keyword a few times naturally throughout the content.', 'vulopilot' )
 			);
 		}
 
 		if ( $density > self::KEYWORD_DENSITY_WARN_ABOVE ) {
 			return $this->rule_result(
-				'natural_keyword_usage', 'keyword_optimization', 'warning', 4, 2,
+				'natural_keyword_usage',
+                'keyword_optimization',
+                'warning',
+                4,
+                2,
 				sprintf( /* translators: %s: real keyword density percentage. */ __( 'Keyword density is %s%% - on the high side.', 'vulopilot' ), round( $density, 1 ) ),
-				array( 'density_percent' => round( $density, 2 ), 'keyword' => $keyword ), 'live_editor_state',
+				array(
+					'density_percent' => round( $density, 2 ),
+					'keyword'         => $keyword,
+                ),
+                'live_editor_state',
 				__( 'Vary the wording so the keyword appears a little less densely.', 'vulopilot' )
 			);
 		}
 
 		return $this->rule_result(
-			'natural_keyword_usage', 'keyword_optimization', 'pass', 4, 4,
+			'natural_keyword_usage',
+            'keyword_optimization',
+            'pass',
+            4,
+            4,
 			sprintf( /* translators: %s: real keyword density percentage. */ __( 'Keyword density is %s%% - natural.', 'vulopilot' ), round( $density, 1 ) ),
-			array( 'density_percent' => round( $density, 2 ), 'keyword' => $keyword ), 'live_editor_state'
+			array(
+				'density_percent' => round( $density, 2 ),
+				'keyword'         => $keyword,
+            ),
+            'live_editor_state'
 		);
 	}
 
@@ -772,9 +935,14 @@ class SeoScoreEngine {
 	 */
 	private function rule_topic_coverage(): array {
 		return $this->rule_result(
-			'topic_coverage', 'keyword_optimization', 'unknown', 5, 0,
+			'topic_coverage',
+            'keyword_optimization',
+            'unknown',
+            5,
+            0,
 			__( 'Related-term/topic-coverage analysis needs semantic/NLP capability this engine does not have - not evaluated.', 'vulopilot' ),
-			array(), 'not_available'
+			array(),
+            'not_available'
 		);
 	}
 
@@ -785,8 +953,14 @@ class SeoScoreEngine {
 	private function rule_keyword_distribution( string $keyword, string $content_text ): array {
 		if ( '' === $keyword ) {
 			return $this->rule_result(
-				'keyword_distribution', 'keyword_optimization', 'not_applicable', 2, 0,
-				__( 'No focus keyword is configured.', 'vulopilot' ), array(), 'live_editor_state'
+				'keyword_distribution',
+                'keyword_optimization',
+                'not_applicable',
+                2,
+                0,
+				__( 'No focus keyword is configured.', 'vulopilot' ),
+                array(),
+                'live_editor_state'
 			);
 		}
 
@@ -794,8 +968,14 @@ class SeoScoreEngine {
 
 		if ( 0 === $length ) {
 			return $this->rule_result(
-				'keyword_distribution', 'keyword_optimization', 'fail', 2, 0,
-				__( 'There is no content to check keyword distribution in.', 'vulopilot' ), array(), 'live_editor_state'
+				'keyword_distribution',
+                'keyword_optimization',
+                'fail',
+                2,
+                0,
+				__( 'There is no content to check keyword distribution in.', 'vulopilot' ),
+                array(),
+                'live_editor_state'
 			);
 		}
 
@@ -815,16 +995,26 @@ class SeoScoreEngine {
 
 		if ( $hit_count >= 2 ) {
 			return $this->rule_result(
-				'keyword_distribution', 'keyword_optimization', 'pass', 2, 2,
+				'keyword_distribution',
+                'keyword_optimization',
+                'pass',
+                2,
+                2,
 				__( 'Focus keyword appears across multiple parts of the content.', 'vulopilot' ),
-				array( 'sections_with_keyword' => $hit_count ), 'live_editor_state'
+				array( 'sections_with_keyword' => $hit_count ),
+                'live_editor_state'
 			);
 		}
 
 		return $this->rule_result(
-			'keyword_distribution', 'keyword_optimization', 'warning', 2, $hit_count > 0 ? 1 : 0,
+			'keyword_distribution',
+            'keyword_optimization',
+            'warning',
+            2,
+            $hit_count > 0 ? 1 : 0,
 			__( 'Focus keyword is concentrated in one part of the content rather than spread naturally throughout.', 'vulopilot' ),
-			array( 'sections_with_keyword' => $hit_count ), 'live_editor_state',
+			array( 'sections_with_keyword' => $hit_count ),
+            'live_editor_state',
 			__( 'Mention the focus keyword naturally in more than one section.', 'vulopilot' )
 		);
 	}
@@ -836,24 +1026,46 @@ class SeoScoreEngine {
 	private function rule_keyword_stuffing( string $keyword, ?float $density ): array {
 		if ( null === $density ) {
 			return $this->rule_result(
-				'keyword_stuffing', 'keyword_optimization', 'not_applicable', 2, 0,
-				__( 'No focus keyword is configured.', 'vulopilot' ), array(), 'live_editor_state'
+				'keyword_stuffing',
+                'keyword_optimization',
+                'not_applicable',
+                2,
+                0,
+				__( 'No focus keyword is configured.', 'vulopilot' ),
+                array(),
+                'live_editor_state'
 			);
 		}
 
 		if ( $density > self::KEYWORD_DENSITY_STUFFING_ABOVE ) {
 			return $this->rule_result(
-				'keyword_stuffing', 'keyword_optimization', 'fail', 2, 0,
+				'keyword_stuffing',
+                'keyword_optimization',
+                'fail',
+                2,
+                0,
 				sprintf( /* translators: %s: real keyword density percentage. */ __( 'Keyword density is %s%% - this reads as manipulative repetition.', 'vulopilot' ), round( $density, 1 ) ),
-				array( 'density_percent' => round( $density, 2 ), 'keyword' => $keyword ), 'live_editor_state',
+				array(
+					'density_percent' => round( $density, 2 ),
+					'keyword'         => $keyword,
+                ),
+                'live_editor_state',
 				__( 'Reduce how often the exact keyword phrase repeats; use natural variations instead.', 'vulopilot' )
 			);
 		}
 
 		return $this->rule_result(
-			'keyword_stuffing', 'keyword_optimization', 'pass', 2, 2,
+			'keyword_stuffing',
+            'keyword_optimization',
+            'pass',
+            2,
+            2,
 			__( 'No keyword stuffing detected.', 'vulopilot' ),
-			array( 'density_percent' => round( $density, 2 ), 'keyword' => $keyword ), 'live_editor_state'
+			array(
+				'density_percent' => round( $density, 2 ),
+				'keyword'         => $keyword,
+            ),
+            'live_editor_state'
 		);
 	}
 
@@ -864,8 +1076,14 @@ class SeoScoreEngine {
 	private function rule_duplicate_keyword_targeting( int $post_id, string $keyword ): array {
 		if ( '' === $keyword ) {
 			return $this->rule_result(
-				'duplicate_keyword_targeting', 'keyword_optimization', 'not_applicable', 2, 0,
-				__( 'No focus keyword is configured.', 'vulopilot' ), array(), 'live_editor_state'
+				'duplicate_keyword_targeting',
+                'keyword_optimization',
+                'not_applicable',
+                2,
+                0,
+				__( 'No focus keyword is configured.', 'vulopilot' ),
+                array(),
+                'live_editor_state'
 			);
 		}
 
@@ -885,20 +1103,33 @@ class SeoScoreEngine {
 
 		if ( empty( $other_posts ) ) {
 			return $this->rule_result(
-				'duplicate_keyword_targeting', 'keyword_optimization', 'pass', 2, 2,
+				'duplicate_keyword_targeting',
+                'keyword_optimization',
+                'pass',
+                2,
+                2,
 				__( 'No other published page targets this same focus keyword.', 'vulopilot' ),
-				array( 'keyword' => $keyword ), 'postmeta_scan'
+				array( 'keyword' => $keyword ),
+                'postmeta_scan'
 			);
 		}
 
 		return $this->rule_result(
-			'duplicate_keyword_targeting', 'keyword_optimization', 'warning', 2, 1,
+			'duplicate_keyword_targeting',
+            'keyword_optimization',
+            'warning',
+            2,
+            1,
 			sprintf(
 				/* translators: %d: real number of other published posts/pages targeting the same focus keyword. */
 				_n( '%d other published page also targets this focus keyword.', '%d other published pages also target this focus keyword.', count( $other_posts ), 'vulopilot' ),
 				count( $other_posts )
 			),
-			array( 'keyword' => $keyword, 'other_post_ids' => array_map( 'intval', $other_posts ) ), 'postmeta_scan',
+			array(
+				'keyword'        => $keyword,
+				'other_post_ids' => array_map( 'intval', $other_posts ),
+            ),
+            'postmeta_scan',
 			__( 'Review whether these pages should target different keywords, or consolidate them.', 'vulopilot' )
 		);
 	}
@@ -914,11 +1145,16 @@ class SeoScoreEngine {
 		$status = $count > 0 ? 'pass' : 'warning';
 
 		return $this->rule_result(
-			'internal_links', 'links', $status, 5, $count > 0 ? 5 : 0,
+			'internal_links',
+            'links',
+            $status,
+            5,
+            $count > 0 ? 5 : 0,
 			$count > 0
 				? sprintf( /* translators: %d: real number of internal links found. */ _n( '%d internal link found.', '%d internal links found.', $count, 'vulopilot' ), $count )
 				: __( 'No internal links found.', 'vulopilot' ),
-			array( 'internal_link_count' => $count ), 'post_content',
+			array( 'internal_link_count' => $count ),
+            'post_content',
 			0 === $count ? __( 'Link to other relevant pages on this site.', 'vulopilot' ) : null
 		);
 	}
@@ -930,11 +1166,16 @@ class SeoScoreEngine {
 		$status = $count > 0 ? 'pass' : 'warning';
 
 		return $this->rule_result(
-			'external_links', 'links', $status, 2, $count > 0 ? 2 : 0,
+			'external_links',
+            'links',
+            $status,
+            2,
+            $count > 0 ? 2 : 0,
 			$count > 0
 				? sprintf( /* translators: %d: real number of external links found. */ _n( '%d external link found.', '%d external links found.', $count, 'vulopilot' ), $count )
 				: __( 'No external links found.', 'vulopilot' ),
-			array( 'external_link_count' => $count ), 'post_content',
+			array( 'external_link_count' => $count ),
+            'post_content',
 			0 === $count ? __( 'Consider linking to a relevant, credible external source.', 'vulopilot' ) : null
 		);
 	}
@@ -947,8 +1188,14 @@ class SeoScoreEngine {
 		$check = $this->technical->check_broken_links( $post_id );
 
 		return $this->rule_result(
-			'broken_links', 'links', $check['status'], 3, 'pass' === $check['status'] ? 3 : 0,
-			$check['reason'], $check['evidence'], 'broken_links_scanner',
+			'broken_links',
+            'links',
+            $check['status'],
+            3,
+            'pass' === $check['status'] ? 3 : 0,
+			$check['reason'],
+            $check['evidence'],
+            'broken_links_scanner',
 			'fail' === $check['status'] ? __( 'Fix or remove the broken link(s).', 'vulopilot' ) : null
 		);
 	}
@@ -968,16 +1215,32 @@ class SeoScoreEngine {
 
 		if ( $has_featured || $has_inline ) {
 			return $this->rule_result(
-				'relevant_images', 'images_media', 'pass', 3, 3,
+				'relevant_images',
+                'images_media',
+                'pass',
+                3,
+                3,
 				__( 'This page has at least one image.', 'vulopilot' ),
-				array( 'has_featured_image' => $has_featured, 'inline_image_count' => count( $images ) ), 'post_content'
+				array(
+					'has_featured_image' => $has_featured,
+					'inline_image_count' => count( $images ),
+                ),
+                'post_content'
 			);
 		}
 
 		return $this->rule_result(
-			'relevant_images', 'images_media', 'warning', 3, 1.5,
+			'relevant_images',
+            'images_media',
+            'warning',
+            3,
+            1.5,
 			__( 'No featured or inline images found - add one if a visual would help this content.', 'vulopilot' ),
-			array( 'has_featured_image' => false, 'inline_image_count' => 0 ), 'post_content'
+			array(
+				'has_featured_image' => false,
+				'inline_image_count' => 0,
+            ),
+            'post_content'
 		);
 	}
 
@@ -987,8 +1250,14 @@ class SeoScoreEngine {
 	private function rule_image_alt_text( array $images, string $focus_keyword ): array {
 		if ( empty( $images ) ) {
 			return $this->rule_result(
-				'image_alt_text', 'images_media', 'not_applicable', 4, 0,
-				__( 'No images in this content.', 'vulopilot' ), array(), 'post_content'
+				'image_alt_text',
+                'images_media',
+                'not_applicable',
+                4,
+                0,
+				__( 'No images in this content.', 'vulopilot' ),
+                array(),
+                'post_content'
 			);
 		}
 
@@ -1003,16 +1272,32 @@ class SeoScoreEngine {
 		// An empty alt="" is a legitimate decorative-image marker (spec) - only a MISSING attribute counts against this.
 		if ( 0 === $missing ) {
 			return $this->rule_result(
-				'image_alt_text', 'images_media', 'pass', 4, 4,
+				'image_alt_text',
+                'images_media',
+                'pass',
+                4,
+                4,
 				__( 'Every image has an alt attribute (empty is fine for decorative images).', 'vulopilot' ),
-				array( 'image_count' => count( $images ), 'missing_alt_count' => 0 ), 'post_content'
+				array(
+					'image_count'       => count( $images ),
+					'missing_alt_count' => 0,
+                ),
+                'post_content'
 			);
 		}
 
 		return $this->rule_result(
-			'image_alt_text', 'images_media', 'fail', 4, 0,
+			'image_alt_text',
+            'images_media',
+            'fail',
+            4,
+            0,
 			sprintf( /* translators: %d: real count of images with no alt attribute at all. */ _n( '%d image has no alt attribute.', '%d images have no alt attribute.', $missing, 'vulopilot' ), $missing ),
-			array( 'image_count' => count( $images ), 'missing_alt_count' => $missing ), 'post_content',
+			array(
+				'image_count'       => count( $images ),
+				'missing_alt_count' => $missing,
+            ),
+            'post_content',
 			__( 'Add an alt attribute (can be empty for purely decorative images) to every image.', 'vulopilot' )
 		);
 	}
@@ -1025,14 +1310,20 @@ class SeoScoreEngine {
 	private function rule_image_optimization( array $images ): array {
 		if ( empty( $images ) ) {
 			return $this->rule_result(
-				'image_optimization', 'images_media', 'not_applicable', 3, 0,
-				__( 'No images in this content.', 'vulopilot' ), array(), 'post_content'
+				'image_optimization',
+                'images_media',
+                'not_applicable',
+                3,
+                0,
+				__( 'No images in this content.', 'vulopilot' ),
+                array(),
+                'post_content'
 			);
 		}
 
-		$checked      = 0;
-		$oversized    = 0;
-		$oversize_kb  = 500;
+		$checked     = 0;
+		$oversized   = 0;
+		$oversize_kb = 500;
 
 		foreach ( $images as $image ) {
 			$attachment_id = attachment_url_to_postid( $image['src'] );
@@ -1056,28 +1347,52 @@ class SeoScoreEngine {
 
 		if ( 0 === $checked ) {
 			return $this->rule_result(
-				'image_optimization', 'images_media', 'unknown', 3, 0,
+				'image_optimization',
+                'images_media',
+                'unknown',
+                3,
+                0,
 				__( 'None of this content\'s images are local Media Library attachments that can be inspected.', 'vulopilot' ),
-				array(), 'attachment_metadata'
+				array(),
+                'attachment_metadata'
 			);
 		}
 
 		if ( 0 === $oversized ) {
 			return $this->rule_result(
-				'image_optimization', 'images_media', 'pass', 3, 3,
+				'image_optimization',
+                'images_media',
+                'pass',
+                3,
+                3,
 				sprintf( /* translators: %d: real number of local images checked. */ __( 'Checked %d local image(s); none are unusually large.', 'vulopilot' ), $checked ),
-				array( 'checked' => $checked, 'oversized' => 0, 'threshold_kb' => $oversize_kb ), 'attachment_metadata'
+				array(
+					'checked'      => $checked,
+					'oversized'    => 0,
+					'threshold_kb' => $oversize_kb,
+                ),
+                'attachment_metadata'
 			);
 		}
 
 		return $this->rule_result(
-			'image_optimization', 'images_media', 'warning', 3, 1.5,
+			'image_optimization',
+            'images_media',
+            'warning',
+            3,
+            1.5,
 			sprintf(
 				/* translators: 1: real count of oversized images, 2: the size threshold in KB. */
 				_n( '%1$d image is over %2$dKB.', '%1$d images are over %2$dKB.', $oversized, 'vulopilot' ),
-				$oversized, $oversize_kb
+				$oversized,
+                $oversize_kb
 			),
-			array( 'checked' => $checked, 'oversized' => $oversized, 'threshold_kb' => $oversize_kb ), 'attachment_metadata',
+			array(
+				'checked'      => $checked,
+				'oversized'    => $oversized,
+				'threshold_kb' => $oversize_kb,
+            ),
+            'attachment_metadata',
 			__( 'Compress or resize the oversized image(s).', 'vulopilot' )
 		);
 	}
@@ -1094,8 +1409,14 @@ class SeoScoreEngine {
 		$earned = 'pass' === $check['status'] ? 5 : 0;
 
 		return $this->rule_result(
-			'indexability', 'technical_seo', $check['status'], 5, $earned,
-			$check['reason'], $check['evidence'], 'post_status_and_settings',
+			'indexability',
+            'technical_seo',
+            $check['status'],
+            5,
+            $earned,
+			$check['reason'],
+            $check['evidence'],
+            'post_status_and_settings',
 			'fail' === $check['status']
 				? __( 'Review publish status and Settings → Reading.', 'vulopilot' )
 				: ( 'warning' === $check['status'] ? __( 'Remove the noindex override if this page should appear in search results.', 'vulopilot' ) : null )
@@ -1110,8 +1431,14 @@ class SeoScoreEngine {
 		$earned = 'pass' === $check['status'] ? 3 : ( 'warning' === $check['status'] ? 1.5 : 0 );
 
 		return $this->rule_result(
-			'http_status', 'technical_seo', $check['status'], 3, $earned,
-			$check['reason'], $check['evidence'], 'live_http_fetch'
+			'http_status',
+            'technical_seo',
+            $check['status'],
+            3,
+            $earned,
+			$check['reason'],
+            $check['evidence'],
+            'live_http_fetch'
 		);
 	}
 
@@ -1123,8 +1450,14 @@ class SeoScoreEngine {
 		$earned = 'pass' === $check['status'] ? 3 : 0;
 
 		return $this->rule_result(
-			'canonical_url', 'technical_seo', $check['status'], 3, $earned,
-			$check['reason'], $check['evidence'], 'live_http_fetch',
+			'canonical_url',
+            'technical_seo',
+            $check['status'],
+            3,
+            $earned,
+			$check['reason'],
+            $check['evidence'],
+            'live_http_fetch',
 			'fail' === $check['status'] ? __( 'Ensure a canonical URL tag is output for this page.', 'vulopilot' ) : null
 		);
 	}
@@ -1137,8 +1470,14 @@ class SeoScoreEngine {
 		$earned = 'pass' === $check['status'] ? 2 : 0;
 
 		return $this->rule_result(
-			'structured_data', 'technical_seo', $check['status'], 2, $earned,
-			$check['reason'], $check['evidence'], 'live_http_fetch'
+			'structured_data',
+            'technical_seo',
+            $check['status'],
+            2,
+            $earned,
+			$check['reason'],
+            $check['evidence'],
+            'live_http_fetch'
 		);
 	}
 
@@ -1150,8 +1489,14 @@ class SeoScoreEngine {
 		$earned = 'pass' === $check['status'] ? 2 : 0;
 
 		return $this->rule_result(
-			'sitemap_discovery', 'technical_seo', $check['status'], 2, $earned,
-			$check['reason'], $check['evidence'], 'sitemap_settings',
+			'sitemap_discovery',
+            'technical_seo',
+            $check['status'],
+            2,
+            $earned,
+			$check['reason'],
+            $check['evidence'],
+            'sitemap_settings',
 			'pass' !== $check['status'] ? __( 'Enable XML sitemaps in Settings → Sitemap.', 'vulopilot' ) : null
 		);
 	}
@@ -1166,13 +1511,22 @@ class SeoScoreEngine {
 		$status = $length <= self::URL_LENGTH_GUIDELINE ? 'pass' : 'warning';
 
 		return $this->rule_result(
-			'url_length', 'technical_seo', $status, 0, 0,
+			'url_length',
+            'technical_seo',
+            $status,
+            0,
+            0,
 			sprintf(
 				/* translators: 1: real canonical URL character count, 2: the configured guideline length. */
 				__( 'Canonical URL is %1$d characters (guideline: %2$d or fewer).', 'vulopilot' ),
-				$length, self::URL_LENGTH_GUIDELINE
+				$length,
+                self::URL_LENGTH_GUIDELINE
 			),
-			array( 'url' => $url, 'length' => $length ), 'live_permalink',
+			array(
+				'url'    => $url,
+				'length' => $length,
+            ),
+            'live_permalink',
 			'warning' === $status ? __( 'Consider shortening unnecessary URL components.', 'vulopilot' ) : null
 		);
 	}

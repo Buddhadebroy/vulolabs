@@ -19,23 +19,23 @@ class PostSeoMetaFields {
 	 * @var array<string, string>
 	 */
 	public const META_KEYS = array(
-		'focus_keyword'      => '_vulopilot_focus_keyword',
-		'seo_title'          => '_vulopilot_seo_title',
-		'canonical_url'      => '_vulopilot_canonical_url',
-		'robots_noindex'     => '_vulopilot_robots_noindex',
-		'robots_nofollow'    => '_vulopilot_robots_nofollow',
-		'social_title'       => '_vulopilot_social_title',
-		'social_description' => '_vulopilot_social_description',
-		'social_image_id'    => '_vulopilot_social_image_id',
-		'schema_type'        => '_vulopilot_schema_type',
+		'focus_keyword'                    => '_vulopilot_focus_keyword',
+		'seo_title'                        => '_vulopilot_seo_title',
+		'canonical_url'                    => '_vulopilot_canonical_url',
+		'robots_noindex'                   => '_vulopilot_robots_noindex',
+		'robots_nofollow'                  => '_vulopilot_robots_nofollow',
+		'social_title'                     => '_vulopilot_social_title',
+		'social_description'               => '_vulopilot_social_description',
+		'social_image_id'                  => '_vulopilot_social_image_id',
+		'schema_type'                      => '_vulopilot_schema_type',
 		// Closes the Recommendations tab in the post-editor metabox for THIS post only - the admin
 		// never decided to hide it for every post, just this one (PostSeoPanel.tsx).
-		'recommendations_dismissed' => '_vulopilot_recommendations_dismissed',
+		'recommendations_dismissed'        => '_vulopilot_recommendations_dismissed',
 		// Same per-post "close" for the Content Intelligence panel's "Analyze your website" prompt
 		// (ContentIntelligencePanel.tsx).
 		'analyze_website_prompt_dismissed' => '_vulopilot_analyze_website_prompt_dismissed',
 		// "Keep Current Topic" on the Rethink-topic outcome, same panel - closes it for THIS post only.
-		'rethink_topic_closed' => '_vulopilot_rethink_topic_closed',
+		'rethink_topic_closed'             => '_vulopilot_rethink_topic_closed',
 	);
 
 	/**

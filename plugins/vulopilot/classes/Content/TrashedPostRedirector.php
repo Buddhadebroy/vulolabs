@@ -52,9 +52,7 @@ class TrashedPostRedirector {
 	 * @return void
 	 */
 	public function maybe_queue_notice( int $post_id ): void {
-		$settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
-
-		if ( empty( $settings['enable_redirect_manager'] ) ) {
+		if ( empty( Utill::get_setting( 'enable_redirect_manager' ) ) ) {
 			return;
 		}
 

@@ -49,7 +49,7 @@ class GeoAnalyzer {
      * this class must be given that same instance, the same reason
      * AiCopilot\ActionRunner requires it too.
      *
-     * @param AiRequestSender          $request_sender Sends a prompt through the safety-validate → send → sanitize sequence.
+     * @param AiRequestSender            $request_sender Sends a prompt through the safety-validate → send → sanitize sequence.
      * @param FindingRepository|null     $findings       Defaults to a new instance (injectable for tests).
      * @param ActivityLogRepository|null $activity_logs Defaults to a new instance (injectable for tests).
      */
@@ -346,7 +346,7 @@ class GeoAnalyzer {
     private function calculate_content_freshness( \WP_Post $post ): int {
         $settings            = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
         $stale_after_days    = absint( $settings['ai_visibility_scans']['freshness']['stale_months'] ?? 12 ) * 30;
-        $days_since_modified = ( current_time( 'timestamp', true ) - strtotime( $post->post_modified_gmt ) ) / DAY_IN_SECONDS;
+        $days_since_modified = ( time() - strtotime( $post->post_modified_gmt ) ) / DAY_IN_SECONDS;
 
         if ( $days_since_modified <= $stale_after_days * 0.25 ) {
             return 100;

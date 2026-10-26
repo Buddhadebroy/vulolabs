@@ -43,7 +43,11 @@ class PageTechnicalChecks {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			return array( 'body' => null, 'status' => null, 'error' => $response->get_error_message() );
+			return array(
+				'body'   => null,
+				'status' => null,
+				'error'  => $response->get_error_message(),
+			);
 		}
 
 		return array(
@@ -103,7 +107,11 @@ class PageTechnicalChecks {
 		return array(
 			'status'   => 'pass',
 			'reason'   => __( 'This page is published and publicly indexable.', 'vulopilot' ),
-			'evidence' => array( 'post_status' => 'publish', 'blog_public' => '1', 'robots_noindex' => false ),
+			'evidence' => array(
+				'post_status'    => 'publish',
+				'blog_public'    => '1',
+				'robots_noindex' => false,
+			),
 			'critical' => false,
 		);
 	}
@@ -337,7 +345,10 @@ class PageTechnicalChecks {
 					__( 'The "%s" post type is not included in the XML sitemap settings.', 'vulopilot' ),
 					$post->post_type
 				),
-				'evidence' => array( 'post_type' => $post->post_type, 'included_post_types' => $included_types ),
+				'evidence' => array(
+					'post_type'           => $post->post_type,
+					'included_post_types' => $included_types,
+				),
 			);
 		}
 

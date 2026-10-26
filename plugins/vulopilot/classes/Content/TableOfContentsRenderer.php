@@ -19,6 +19,8 @@ defined( 'ABSPATH' ) || exit;
  */
 class TableOfContentsRenderer {
 
+	use StyleVarsTrait;
+
 	/**
 	 * @param array<string, mixed> $attributes Real block attributes.
 	 * @param int                  $post_id    The post this block instance is rendering on.
@@ -260,39 +262,21 @@ class TableOfContentsRenderer {
 	private static function build_style_attribute( array $attributes ): string {
 		$vars = array();
 
-		$set = static function ( string $name, $value ) use ( &$vars ): void {
-			if ( '' !== $value && null !== $value ) {
-				$vars[ $name ] = $value;
-			}
-		};
+		self::set_style_var( $vars, '--toc-content-font-size', $attributes['contentFontSize'] ?? '' );
+		self::set_style_var( $vars, '--toc-content-color', $attributes['contentColor'] ?? '' );
+		self::set_style_var( $vars, '--toc-content-line-height', $attributes['contentLineHeight'] ?? null );
+		self::set_style_var( $vars, '--toc-content-list-style', $attributes['contentListStyle'] ?? '' );
+		self::set_style_var( $vars, '--toc-content-gap', $attributes['contentGap'] ?? '' );
 
-		$set_box = static function ( string $prefix, $box ) use ( &$vars, $set ): void {
-			if ( ! is_array( $box ) ) {
-				return;
-			}
+		self::set_style_var( $vars, '--toc-title-font-size', $attributes['titleFontSize'] ?? '' );
+		self::set_style_var( $vars, '--toc-title-color', $attributes['titleColor'] ?? '' );
+		self::set_style_var( $vars, '--toc-title-line-height', $attributes['titleLineHeight'] ?? null );
+		self::set_style_box_vars( $vars, '--toc-title-padding', $attributes['titlePadding'] ?? null );
+		self::set_style_box_vars( $vars, '--toc-title-margin', $attributes['titleMargin'] ?? null );
 
-			foreach ( array( 'top', 'right', 'bottom', 'left' ) as $side ) {
-				if ( isset( $box[ $side ] ) ) {
-					$set( "{$prefix}-{$side}", $box[ $side ] );
-				}
-			}
-		};
-
-		$set( '--toc-content-font-size', $attributes['contentFontSize'] ?? '' );
-		$set( '--toc-content-color', $attributes['contentColor'] ?? '' );
-		$set( '--toc-content-line-height', $attributes['contentLineHeight'] ?? null );
-		$set( '--toc-content-list-style', $attributes['contentListStyle'] ?? '' );
-		$set( '--toc-content-gap', $attributes['contentGap'] ?? '' );
-
-		$set( '--toc-title-font-size', $attributes['titleFontSize'] ?? '' );
-		$set( '--toc-title-color', $attributes['titleColor'] ?? '' );
-		$set( '--toc-title-line-height', $attributes['titleLineHeight'] ?? null );
-		$set_box( '--toc-title-padding', $attributes['titlePadding'] ?? null );
-		$set_box( '--toc-title-margin', $attributes['titleMargin'] ?? null );
-
-		$set( '--toc-section-background', $attributes['sectionBackground'] ?? '' );
-		$set_box( '--toc-section-padding', $attributes['sectionPadding'] ?? null );
-		$set_box( '--toc-section-margin', $attributes['sectionMargin'] ?? null );
+		self::set_style_var( $vars, '--toc-section-background', $attributes['sectionBackground'] ?? '' );
+		self::set_style_box_vars( $vars, '--toc-section-padding', $attributes['sectionPadding'] ?? null );
+		self::set_style_box_vars( $vars, '--toc-section-margin', $attributes['sectionMargin'] ?? null );
 
 		$declarations = array();
 
