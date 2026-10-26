@@ -83,11 +83,9 @@ const QuickActionsCard = () => {
 		document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 	};
 
-	// Content Planner has its own dedicated page (`pages/ContentPlanner/ContentPlanner.tsx`, WP
-	// menu slug `content-planner`) - this button navigates there directly rather than opening a
-	// second, competing create UI over the same `/content-planner` REST store (the Content
-	// Planner Redesign spec's "two competing create flows" complaint - the old popup this used
-	// to open has been removed).
+	// Content Planner is vulopilot-pro's own page (modules/ContentOptimization/src/ContentPlanner.tsx,
+	// WP menu slug `content-planner`) - this button navigates there directly rather than opening a
+	// second, competing create UI over the same `/content-planner` REST store.
 	const openPlanner = () => {
 		if (vulopilotAppLocalizer.khali_dabba) {
 			window.location.href = '?page=vulopilot#&tab=content-planner';

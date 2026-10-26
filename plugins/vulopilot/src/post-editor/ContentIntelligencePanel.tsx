@@ -4,18 +4,21 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { createBlock } from '@wordpress/blocks';
 import { Button, PanelBody, PanelRow, Spinner } from '@wordpress/components';
 import { usePostData } from './usePostData';
+import { useFilterSlot } from '../services/useFilterSlot';
 import {
 	getContentIntelligenceDecision,
 	createContentBrief,
 	getTopicOpportunities,
 	discoverTopicOpportunities,
-	createContentPlanItem,
 	createKeyword,
 	analyzeWebsite,
 	ContentIntelligenceDecision,
 	ContentBrief,
 	TopicOpportunity,
 } from './api';
+
+/** Real "save as content plan" call - lives in vulopilot-pro's own post-editor bundle (`src/post-editor/api.ts`), not here. */
+type CreateContentPlanItem = ( item: Record< string, unknown > ) => Promise< unknown >;
 
 /** Matches `KeywordManagementSection.tsx`'s search debounce style; spec calls for ~800-1200ms for a full-title analysis. */
 const TITLE_DEBOUNCE_MS = 1000;
@@ -57,6 +60,7 @@ const DECISION_CLASS: Record< ContentIntelligenceDecision[ 'decision' ], string 
  */
 export default function ContentIntelligencePanel() {
 	const { postId, title, meta, setMeta } = usePostData();
+	const createContentPlanItem = useFilterSlot< CreateContentPlanItem >( 'vulopilot_post_editor_create_content_plan_item' );
 	const [ decision, setDecision ] = useState< ContentIntelligenceDecision | null >( null );
 	const [ isAnalyzing, setIsAnalyzing ] = useState( false );
 	const [ isStale, setIsStale ] = useState( false );
@@ -235,7 +239,7 @@ export default function ContentIntelligencePanel() {
 	};
 
 	const saveBriefAsContentPlan = () => {
-		if ( ! brief ) {
+		if ( ! brief || ! createContentPlanItem ) {
 			return;
 		}
 		setIsSavingPlan( true );

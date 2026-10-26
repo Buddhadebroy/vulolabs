@@ -651,46 +651,9 @@ export function getKeywordResearch( query: string ): Promise< KeywordResearchRes
 	return request( `topic-finder/keyword-research?query=${ encodeURIComponent( query ) }` );
 }
 
-/** `ContentPlannerRest`'s own real item shape, extended with Topic Finder's optional fields. */
-export interface ContentPlanItem {
-	id: string;
-	title: string;
-	post_type: string;
-	planned_date: string;
-	notes: string;
-	main_topic: string;
-	primary_keyword: string;
-	related_keywords: string[];
-	topic_cluster: string;
-	opportunity_score: number | null;
-	rationale: string;
-	is_pillar: boolean;
-	dismissed: boolean;
-	post_id: number;
-	status: 'planned' | 'drafted' | 'published' | 'dismissed';
-	is_overdue: boolean;
-	edit_url: string | null;
-}
-
-export function getContentPlan(): Promise< ContentPlanItem[] > {
-	return request( 'content-planner' );
-}
-
-export function createContentPlanItem( item: Partial< ContentPlanItem > ): Promise< ContentPlanItem > {
-	return request( 'content-planner', { method: 'POST', body: JSON.stringify( item ) } );
-}
-
-export function updateContentPlanItem( id: string, item: Partial< ContentPlanItem > ): Promise< ContentPlanItem > {
-	return request( `content-planner/${ id }`, { method: 'PUT', body: JSON.stringify( item ) } );
-}
-
-export function deleteContentPlanItem( id: string ): Promise< { deleted: boolean } > {
-	return request( `content-planner/${ id }`, { method: 'DELETE' } );
-}
-
-export function createDraftFromPlanItem( id: string ): Promise< ContentPlanItem > {
-	return request( `content-planner/${ id }/draft`, { method: 'POST' } );
-}
+// Content Planner's own API calls (getContentPlan/createContentPlanItem/etc.) live in
+// vulopilot-pro's own src/post-editor/api.ts now - resolved via the
+// `vulopilot_post_editor_create_content_plan_item` filter where Free still needs one.
 
 /** `ContentIntelligenceDecisionService::decide()`'s own real shape. */
 export interface ContentIntelligenceDecision {

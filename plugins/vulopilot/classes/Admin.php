@@ -122,11 +122,6 @@ class Admin {
 					'priority' => 40,
 					'icon'     => 'dashicons-media-text',
 				),
-				'content-planner' => array(
-					'name'     => __( 'Content Planner', 'vulopilot' ),
-					'priority' => 41,
-					'icon'     => 'dashicons-calendar-alt',
-				),
 				'performance'     => array(
 					'name'     => __( 'Performance', 'vulopilot' ),
 					'priority' => 50,

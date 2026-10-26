@@ -12,7 +12,6 @@ import Security from './pages/Security/Security';
 import SiteHealth from './pages/SiteHealth/SiteHealth';
 import Accessibility from './pages/Accessibility/Accessibility';
 import Content from './pages/Content/Content';
-import ContentPlanner from './pages/ContentPlanner/ContentPlanner';
 import SetupWizard from './pages/SetupWizard/SetupWizard';
 
 registerVuloPilotRoute({ tab: 'dashboard', component: Dashboard });
@@ -31,4 +30,5 @@ registerVuloPilotRoute({ tab: 'security', component: Security });
 registerVuloPilotRoute({ tab: 'site-health', component: SiteHealth });
 registerVuloPilotRoute({ tab: 'accessibility', component: Accessibility });
 registerVuloPilotRoute({ tab: 'content', component: Content });
-registerVuloPilotRoute({ tab: 'content-planner', component: ContentPlanner });
+// 'content-planner' is registered by vulopilot-pro's ContentOptimization module
+// (modules/ContentOptimization/src/index.tsx) - Pro-only, no Free fallback page.
