@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useModules } from '@zyra/core';
-import { ColumnComponent, ContainerComponent } from '@zyra/components';
+import { ColumnComponent, ContainerComponent, PopupComponent } from '@zyra/components';
+import ShowProPopup from '../../components/Popup/Popup';
 import AeoScoreSummaryCard from './AeoScoreSummaryCard';
 import { computeTrendChange } from './geoTrendChange';
 import AeoCitationCoverageCard from './AeoCitationCoverageCard';
@@ -94,13 +95,20 @@ const getAeoTrendScore = (row: GeoVisibilityHistoryRow): number | null =>
 			])
 		: null;
 
+/** Real backend module id (Settings → Modules) - Pro-only, no matching Free module folder. */
+const AEO_MODULE_ID = 'answer-engine-optimization';
+
 /**
  * Whether GeoInsights' Rest.php class is registered - either 'geo-insights' or 'aeo-insights'
  * being active is enough.
  */
 const isCitationCheckActive = (modules: string[]): boolean =>
 	Boolean(vulopilotAppLocalizer.khali_dabba) &&
-	(modules.includes('geo-analysis') || modules.includes('answer-engine-optimization'));
+	(modules.includes('geo-analysis') || modules.includes(AEO_MODULE_ID));
+
+/** Whether Pro is active+licensed AND the AEO module itself is toggled on. */
+const isAeoModuleActive = (modules: string[]): boolean =>
+	Boolean(vulopilotAppLocalizer.khali_dabba) && modules.includes(AEO_MODULE_ID);
 
 /**
  * AEO = Answer Engine Optimization - whether AI systems can extract, structure.
@@ -112,7 +120,10 @@ const AeoTab = () => {
 	} | null>(null);
 	/** Set by a real "Analyze" click in the "Pages & Posts" table below. */
 	const [analyzingPostId, setAnalyzingPostId] = useState<number | null>(null);
+	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
+	const openProPopup = () => setIsProPopupOpen(true);
 	const { modules } = useModules();
+	const aeoActive = isAeoModuleActive(modules);
 	const { groups, isLoading: isLoadingGroups } = useAllFindingGroups();
 	const { history, isLoading: isLoadingSnapshot } = useGeoVisibilitySnapshot();
 	const { pages: aeoPages, total: totalPages, isLoading: isLoadingPages } =
@@ -137,8 +148,10 @@ const AeoTab = () => {
 	};
 
 	const aeoTrend = computeTrendChange(history, getAeoTrendScore);
+	const isProInstalled = Boolean(vulopilotAppLocalizer.khali_dabba);
 
 	return (
+		<>
 		<ContainerComponent>
 			<ColumnComponent grid={6}>
 				<AeoScoreSummaryCard
@@ -150,6 +163,7 @@ const AeoTab = () => {
 					topics={AEO_SECTIONS}
 					groups={groups}
 					onSelectTopic={goToIssuesTable}
+					onScoreClick={aeoActive ? undefined : openProPopup}
 				/>
 			</ColumnComponent>
 			<AeoCitationCoverageCard isActive={isCitationCheckActive(modules)} />
@@ -189,6 +203,20 @@ const AeoTab = () => {
 				</ColumnComponent>
 			)}
 		</ContainerComponent>
+		<PopupComponent
+			open={isProPopupOpen}
+			onClose={() => setIsProPopupOpen(false)}
+			width={31.25}
+			height="auto"
+			position="lightbox"
+		>
+			{isProInstalled ? (
+				<ShowProPopup moduleName={AEO_MODULE_ID} />
+			) : (
+				<ShowProPopup />
+			)}
+		</PopupComponent>
+		</>
 	);
 };
 

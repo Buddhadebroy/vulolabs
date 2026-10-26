@@ -71,6 +71,8 @@ interface AeoScoreSummaryCardProps {
 	/** AeoTab.tsx's own real `goToIssuesTable` - same real click-through `GeoScoreSection.tsx`'s own `onSelectSignal` gives its rows. */
 	// eslint-disable-next-line no-unused-vars
 	onSelectTopic?: (topicKey: string) => void;
+	/** AnswerEngineOptimization is Pro-only - clicking the score ring opens the upgrade popup instead of the real score while it's off/unlicensed. */
+	onScoreClick?: () => void;
 }
 
 /**
@@ -85,6 +87,7 @@ const AeoScoreSummaryCard = ({
 	topics,
 	groups,
 	onSelectTopic,
+	onScoreClick,
 }: AeoScoreSummaryCardProps) => {
 	const changeValue = trend
 		? sprintf(
@@ -163,7 +166,13 @@ const AeoScoreSummaryCard = ({
 			isLoading={isLoading}
 		>
 			<div className="aeo-score-summary">
-				<div className="aeo-score-summary-gauge">
+				<div
+					className="aeo-score-summary-gauge"
+					role={onScoreClick ? 'button' : undefined}
+					tabIndex={onScoreClick ? 0 : undefined}
+					onClick={onScoreClick}
+					style={onScoreClick ? { cursor: 'pointer' } : undefined}
+				>
 					<div className="geo-overall-visibility">
 						<ChartComponent
 							type="ring"
