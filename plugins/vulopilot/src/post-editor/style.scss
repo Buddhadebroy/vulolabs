@@ -254,6 +254,13 @@
 		flex-grow: 1;
 	}
 
+	&__dismiss {
+		min-width: 24px !important;
+		height: 24px !important;
+		padding: 0 !important;
+		flex-shrink: 0;
+	}
+
 	&__summary {
 		display: inline-flex;
 		align-items: center;
@@ -643,6 +650,7 @@
 }
 
 .vulopilot-content-intelligence-decision {
+	position: relative;
 	margin-top: 8px;
 	padding: 10px 12px;
 	border-radius: 12px;
@@ -652,6 +660,16 @@
 	strong {
 		display: block;
 		margin-bottom: 2px;
+		padding-right: 24px;
+	}
+
+	&__close {
+		position: absolute;
+		top: 4px;
+		right: 4px;
+		min-width: 24px !important;
+		height: 24px !important;
+		padding: 0 !important;
 	}
 
 	&.is-create {
@@ -675,6 +693,15 @@
 	flex-wrap: wrap;
 	gap: 6px;
 	margin-top: 8px;
+}
+
+.vulopilot-content-intelligence-explore-error {
+	width: 100%;
+	margin-top: 4px;
+
+	p {
+		margin-bottom: 6px;
+	}
 }
 
 .vulopilot-content-intelligence-brief {

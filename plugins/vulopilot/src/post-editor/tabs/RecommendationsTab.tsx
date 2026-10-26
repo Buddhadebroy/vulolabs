@@ -1,12 +1,14 @@
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
-import { Spinner } from '@wordpress/components';
+import { Button, Spinner } from '@wordpress/components';
 import { usePostData } from '../usePostData';
 import { getPostSeoScore, getGeoScore, SeoScoreResponse, GeoScoreResponse } from '../api';
 
 interface RecommendationsTabProps {
 	// eslint-disable-next-line no-unused-vars
 	onNavigate?: ( tab: string, target?: string ) => void;
+	/** Closes this tab for this post only - a postmeta flag, not a global setting (`PostSeoPanel.tsx`). */
+	onDismiss?: () => void;
 }
 
 /**
@@ -16,7 +18,7 @@ interface RecommendationsTabProps {
  * is pure aggregation of two existing arrays, so it never recommends anything the SEO Score or
  * GEO tabs wouldn't already show individually.
  */
-export default function RecommendationsTab( { onNavigate }: RecommendationsTabProps ) {
+export default function RecommendationsTab( { onNavigate, onDismiss }: RecommendationsTabProps ) {
 	const { postId } = usePostData();
 	const [ seoScore, setSeoScore ] = useState< SeoScoreResponse | null >( null );
 	const [ geoScore, setGeoScore ] = useState< GeoScoreResponse | null >( null );
@@ -64,6 +66,14 @@ export default function RecommendationsTab( { onNavigate }: RecommendationsTabPr
 				<div className="vulopilot-seo-checklist">
 					<div className="vulopilot-seo-checklist__header">
 						<span className="title vulopilot-seo-checklist__title">{ __( 'SEO Score recommendations', 'vulopilot' ) }</span>
+						{ onDismiss && (
+							<Button
+								className="vulopilot-seo-checklist__dismiss"
+								icon="no-alt"
+								label={ __( 'Close this tab for this post', 'vulopilot' ) }
+								onClick={ onDismiss }
+							/>
+						) }
 					</div>
 					<ul className="vulopilot-seo-checklist__list">
 						{ actionableRules.map( ( rule ) => (

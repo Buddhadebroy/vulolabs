@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
+import { useDispatch } from '@wordpress/data';
 import { TabPanel } from '@wordpress/components';
 import GeneralTab from './tabs/GeneralTab';
 import OnPageTab from './tabs/OnPageTab';
@@ -21,7 +22,9 @@ import type { SeoIssueEditorTab } from '../services/seoIssueEditorTarget';
  * now live inside `OnPageTab`'s own accordion, and the 6-tab "AI Visibility Score" suite
  * (Overview/AI Readiness/AEO/GEO/AI Visibility/Content Analysis) lives inside
  * `AiVisibilitySuiteTab`'s own accordion. Every deep-link target below (`DEEP_LINK_TAB_GROUP`)
- * still resolves correctly to one of these 5.
+ * still resolves correctly to one of these 5. The Recommendations tab can be closed per-post (see
+ * `RECOMMENDATIONS_DISMISSED_META_KEY` below) - that's a postmeta flag on this one post, not a
+ * global admin setting, so it never hides the tab for any other post.
  */
 const TABS = [
 	{ name: 'general', title: __( 'General', 'vulopilot' ), icon: 'admin-generic', Component: GeneralTab },
@@ -52,6 +55,9 @@ const DEEP_LINK_TAB_GROUP: Record< SeoIssueEditorTab, string > = {
 	'topic-linking': 'topic-linking',
 };
 
+/** Postmeta key for "close" on the Recommendations tab - registered in `PostSeoMetaFields::META_KEYS`. */
+const RECOMMENDATIONS_DISMISSED_META_KEY = '_vulopilot_recommendations_dismissed';
+
 interface PostSeoPanelProps {
 	/** "All SEO Issues" table's "Fix with AI" deep link (post-editor/index.tsx) - which tab to land on. */
 	initialTabName?: SeoIssueEditorTab;
@@ -77,8 +83,20 @@ interface PostSeoPanelProps {
  */
 export default function PostSeoPanel( { initialTabName, highlightTarget, navigationNonce, navigationTarget }: PostSeoPanelProps ) {
 	const [ navTarget, setNavTarget ] = useState< { tab: SeoIssueEditorTab; target?: string } | null >( null );
-	const { postId } = usePostData();
+	const { postId, meta, setMeta } = usePostData();
 	const { seoScore, aeoScore, seoScoreRules, refetch } = usePostScores( postId ?? 0 );
+	const { savePost } = useDispatch( 'core/editor' ) as any;
+
+	// Per-post "close" on the Recommendations tab - a postmeta flag on this one post, so it never
+	// affects any other post (saved immediately, same pattern PageAnalysisTab.tsx's own
+	// immediate-save actions use, rather than waiting for the editor's next manual Update).
+	const dismissRecommendationsTab = () => {
+		setMeta( { [ RECOMMENDATIONS_DISMISSED_META_KEY ]: true } );
+		savePost();
+	};
+	const visibleTabs = meta[ RECOMMENDATIONS_DISMISSED_META_KEY ]
+		? TABS.filter( ( tab ) => 'recommendations' !== tab.name )
+		: TABS;
 
 	useEffect( () => {
 		if ( undefined !== navigationNonce && initialTabName ) {
@@ -129,17 +147,18 @@ export default function PostSeoPanel( { initialTabName, highlightTarget, navigat
 			) }
 			<TabPanel
 				key={ activeTabName ?? 'general' }
-				tabs={ TABS.map( ( { name, title, icon } ) => ( { name, title, icon } ) ) }
+				tabs={ visibleTabs.map( ( { name, title, icon } ) => ( { name, title, icon } ) ) }
 				initialTabName={ activeTabName }
 			>
 				{ ( tab ) => {
-					const active = TABS.find( ( candidate ) => candidate.name === tab.name );
+					const active = visibleTabs.find( ( candidate ) => candidate.name === tab.name );
 					const ActiveComponent = active ? active.Component : GeneralTab;
 
 					return (
 						<ActiveComponent
 							highlightTarget={ activeHighlight }
 							onNavigate={ navigateTo }
+							onDismiss={ 'recommendations' === active?.name ? dismissRecommendationsTab : undefined }
 						/>
 					);
 				} }

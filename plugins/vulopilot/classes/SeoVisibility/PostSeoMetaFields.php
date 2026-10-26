@@ -28,6 +28,14 @@ class PostSeoMetaFields {
 		'social_description' => '_vulopilot_social_description',
 		'social_image_id'    => '_vulopilot_social_image_id',
 		'schema_type'        => '_vulopilot_schema_type',
+		// Closes the Recommendations tab in the post-editor metabox for THIS post only - the admin
+		// never decided to hide it for every post, just this one (PostSeoPanel.tsx).
+		'recommendations_dismissed' => '_vulopilot_recommendations_dismissed',
+		// Same per-post "close" for the Content Intelligence panel's "Analyze your website" prompt
+		// (ContentIntelligencePanel.tsx).
+		'analyze_website_prompt_dismissed' => '_vulopilot_analyze_website_prompt_dismissed',
+		// "Keep Current Topic" on the Rethink-topic outcome, same panel - closes it for THIS post only.
+		'rethink_topic_closed' => '_vulopilot_rethink_topic_closed',
 	);
 
 	/**
@@ -75,6 +83,9 @@ class PostSeoMetaFields {
 			register_post_meta( $post_type, self::META_KEYS['social_description'], $this->string_field_args() );
 			register_post_meta( $post_type, self::META_KEYS['social_image_id'], $this->integer_field_args() );
 			register_post_meta( $post_type, self::META_KEYS['schema_type'], $this->string_field_args() );
+			register_post_meta( $post_type, self::META_KEYS['recommendations_dismissed'], $this->boolean_field_args() );
+			register_post_meta( $post_type, self::META_KEYS['analyze_website_prompt_dismissed'], $this->boolean_field_args() );
+			register_post_meta( $post_type, self::META_KEYS['rethink_topic_closed'], $this->boolean_field_args() );
 
 			// Registered so the Schema tab's JSON textarea saves via the same native save button.
 			register_post_meta(

@@ -21,6 +21,19 @@ import {
 const TITLE_DEBOUNCE_MS = 1000;
 const MIN_TITLE_LENGTH = 4;
 
+/**
+ * Postmeta key for "close" on this card - registered in `PostSeoMetaFields::META_KEYS`. A flag on
+ * THIS post only, not a global/browser-wide dismissal: the admin didn't decide to hide the prompt
+ * on every post, just this one, so every other post keeps showing it until closed there too.
+ */
+const ANALYZE_WEBSITE_PROMPT_DISMISSED_META_KEY = '_vulopilot_analyze_website_prompt_dismissed';
+
+/**
+ * Postmeta key for "Keep Current Topic" on the Rethink-topic outcome - same per-post, not global,
+ * convention as `ANALYZE_WEBSITE_PROMPT_DISMISSED_META_KEY` above.
+ */
+const RETHINK_TOPIC_CLOSED_META_KEY = '_vulopilot_rethink_topic_closed';
+
 const DECISION_LABEL: Record< ContentIntelligenceDecision[ 'decision' ], string > = {
 	create_new: __( 'Create a new article', 'vulopilot' ),
 	improve_existing: __( 'Improve an existing article', 'vulopilot' ),
@@ -43,7 +56,7 @@ const DECISION_CLASS: Record< ContentIntelligenceDecision[ 'decision' ], string 
  * existing live-check precedent (`getPostSeoScore(..., liveOnly)`).
  */
 export default function ContentIntelligencePanel() {
-	const { postId, title } = usePostData();
+	const { postId, title, meta, setMeta } = usePostData();
 	const [ decision, setDecision ] = useState< ContentIntelligenceDecision | null >( null );
 	const [ isAnalyzing, setIsAnalyzing ] = useState( false );
 	const [ isStale, setIsStale ] = useState( false );
@@ -69,13 +82,25 @@ export default function ContentIntelligencePanel() {
 	const [ alternatives, setAlternatives ] = useState< TopicOpportunity[] | null >( null );
 	const [ isExploring, setIsExploring ] = useState( false );
 	const [ exploreError, setExploreError ] = useState< string | null >( null );
-	const [ keptCurrentTopic, setKeptCurrentTopic ] = useState( false );
+	const rethinkTopicClosed = !! meta[ RETHINK_TOPIC_CLOSED_META_KEY ];
 
 	// "Analyze Website" - right here, not a pointer to go run it from a different screen. A real
 	// AI call (`AnalyzeWebsiteAction`), explicit button only; on success, re-runs the current
 	// title's analysis so the decision reflects the freshly-generated profile immediately.
 	const [ isAnalyzingWebsite, setIsAnalyzingWebsite ] = useState( false );
 	const [ websiteAnalysisError, setWebsiteAnalysisError ] = useState< string | null >( null );
+	const { savePost } = useDispatch( 'core/editor' ) as any;
+	const analyzeWebsitePromptDismissed = !! meta[ ANALYZE_WEBSITE_PROMPT_DISMISSED_META_KEY ];
+	const dismissAnalyzeWebsitePrompt = () => {
+		setMeta( { [ ANALYZE_WEBSITE_PROMPT_DISMISSED_META_KEY ]: true } );
+		savePost();
+	};
+
+	/** "Keep Current Topic" - closes the Rethink-topic outcome for THIS post only, permanently. */
+	const keepCurrentTopic = () => {
+		setMeta( { [ RETHINK_TOPIC_CLOSED_META_KEY ]: true } );
+		savePost();
+	};
 
 	const { insertBlocks } = useDispatch( 'core/block-editor' );
 	const blockCount = useSelect( ( select ) => ( select( 'core/block-editor' ) as any ).getBlockCount(), [] );
@@ -110,7 +135,8 @@ export default function ContentIntelligencePanel() {
 			} );
 	};
 
-	const analyzeWebsiteNow = () => {
+	/** @param onSuccess Called after a successful analysis - e.g. retrying Explore Better Topics (see the explore-error UI below). */
+	const analyzeWebsiteNow = ( onSuccess?: () => void ) => {
 		setIsAnalyzingWebsite( true );
 		setWebsiteAnalysisError( null );
 		analyzeWebsite()
@@ -118,6 +144,7 @@ export default function ContentIntelligencePanel() {
 				if ( title.trim().length >= MIN_TITLE_LENGTH ) {
 					runAnalysis( title.trim() ); // Refresh the decision with the freshly-generated profile.
 				}
+				onSuccess?.();
 			} )
 			.catch( ( e: Error ) =>
 				setWebsiteAnalysisError( e.message || __( 'Could not analyze the website - try again.', 'vulopilot' ) )
@@ -141,7 +168,6 @@ export default function ContentIntelligencePanel() {
 		setIsStale( true );
 		setBrief( null );
 		setAlternatives( null );
-		setKeptCurrentTopic( false );
 		debounceRef.current = setTimeout( () => runAnalysis( title.trim() ), TITLE_DEBOUNCE_MS );
 
 		return () => {
@@ -292,14 +318,20 @@ export default function ContentIntelligencePanel() {
 
 			{ error && <div className="desc vulopilot-seo-checklist__error">{ error }</div> }
 
-			{ needsWebsiteProfile && (
+			{ needsWebsiteProfile && ! analyzeWebsitePromptDismissed && (
 				<div className="vulopilot-content-intelligence-decision is-improve">
+					<Button
+						className="vulopilot-content-intelligence-decision__close"
+						icon="no-alt"
+						label={ __( 'Dismiss', 'vulopilot' ) }
+						onClick={ dismissAnalyzeWebsitePrompt }
+					/>
 					<strong>{ __( 'Analyze your website for a confident recommendation', 'vulopilot' ) }</strong>
 					<p className="small desc">
 						{ __( 'This score is missing relevance and business-value signals because your site hasn\'t been analyzed yet. This takes one click, right here.', 'vulopilot' ) }
 					</p>
 					{ websiteAnalysisError && <div className="desc vulopilot-seo-checklist__error">{ websiteAnalysisError }</div> }
-					<Button variant="primary" onClick={ analyzeWebsiteNow } disabled={ isAnalyzingWebsite }>
+					<Button variant="primary" onClick={ () => analyzeWebsiteNow() } disabled={ isAnalyzingWebsite }>
 						{ isAnalyzingWebsite ? __( 'Analyzing website…', 'vulopilot' ) : __( 'Analyze Website', 'vulopilot' ) }
 					</Button>
 				</div>
@@ -309,7 +341,12 @@ export default function ContentIntelligencePanel() {
 				<p className="small desc">{ __( 'Keep typing a title to get a recommendation.', 'vulopilot' ) }</p>
 			) }
 
-			{ decision && decision.decision !== 'not_enough_input' && (
+			{ decision
+				&& decision.decision !== 'not_enough_input'
+				// "Keep Current Topic" closes the WHOLE Rethink-topic section for this post, not just
+				// its action buttons - the title/reason/score above was previously still rendering.
+				&& ! ( 'rethink_topic' === decision.decision && rethinkTopicClosed )
+				&& (
 				<div className={ `vulopilot-content-intelligence-decision ${ DECISION_CLASS[ decision.decision ] }` }>
 					<strong>{ DECISION_LABEL[ decision.decision ] }</strong>
 					<p className="small desc">{ decision.reason }</p>
@@ -468,16 +505,28 @@ export default function ContentIntelligencePanel() {
 					) }
 
 					{ /* Outcome C - Rethink topic. */ }
-					{ 'rethink_topic' === decision.decision && ! keptCurrentTopic && (
+					{ 'rethink_topic' === decision.decision && (
 						<div className="vulopilot-content-intelligence-actions">
 							<Button variant="primary" onClick={ exploreBetterTopics } disabled={ isExploring }>
 								{ isExploring ? __( 'Finding alternatives…', 'vulopilot' ) : __( 'Explore Better Topics', 'vulopilot' ) }
 							</Button>
-							<Button variant="secondary" onClick={ () => setKeptCurrentTopic( true ) }>
+							<Button variant="secondary" onClick={ keepCurrentTopic }>
 								{ __( 'Keep Current Topic', 'vulopilot' ) }
 							</Button>
 
-							{ exploreError && <div className="desc vulopilot-seo-checklist__error">{ exploreError }</div> }
+							{ exploreError && (
+								<div className="vulopilot-content-intelligence-explore-error">
+									<p className="small desc vulopilot-seo-checklist__error">{ exploreError }</p>
+									{ websiteAnalysisError && <p className="small desc vulopilot-seo-checklist__error">{ websiteAnalysisError }</p> }
+									<Button
+										variant="secondary"
+										onClick={ () => analyzeWebsiteNow( exploreBetterTopics ) }
+										disabled={ isAnalyzingWebsite || isExploring }
+									>
+										{ isAnalyzingWebsite ? __( 'Analyzing website…', 'vulopilot' ) : __( 'Analyze Website', 'vulopilot' ) }
+									</Button>
+								</div>
+							) }
 
 							{ alternatives && alternatives.length === 0 && ! exploreError && (
 								<p className="small desc">{ __( 'No alternative topics available yet.', 'vulopilot' ) }</p>
@@ -498,10 +547,6 @@ export default function ContentIntelligencePanel() {
 								</ul>
 							) }
 						</div>
-					) }
-
-					{ 'rethink_topic' === decision.decision && keptCurrentTopic && (
-						<p className="small desc">{ __( 'Keeping your original topic. You can change your mind anytime by re-running analysis.', 'vulopilot' ) }</p>
 					) }
 				</div>
 			) }
