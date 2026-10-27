@@ -274,9 +274,7 @@ export function getGeoScore( postId: number ): Promise< GeoScoreResponse > {
 	return request( `geo-analysis/${ postId }`, { method: 'GET' } );
 }
 
-// The "Analyze" trigger (analyzeGeoScore) now lives in vulopilot-pro's own src/post-editor/api.ts -
-// its real UI (GeoVisibilityPanel.tsx/AiReadinessPanel.tsx) is resolved via the
-// `vulopilot_post_editor_geo_panel`/`vulopilot_post_editor_ai_readiness_panel` filters.
+// analyzeGeoScore now lives in vulopilot-pro's own api.ts, resolved via a filter.
 
 // AEO citation-check (checkAeoCitationForPost/AeoCitationResult) lives in vulopilot-pro's
 // own src/post-editor/api.ts now - resolved via the `vulopilot_post_editor_aeo_citation_panel`
