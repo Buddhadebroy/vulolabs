@@ -274,14 +274,9 @@ export function getGeoScore( postId: number ): Promise< GeoScoreResponse > {
 	return request( `geo-analysis/${ postId }`, { method: 'GET' } );
 }
 
-/**
- * `AiVisibilityCard.tsx`'s own "Analyze" button - runs a real, fresh AI-backed analysis
- * (`GeoAnalyzer::analyze()`) and persists it. Costs a real AI call - never call this on a
- * debounce/keystroke, only on explicit user action.
- */
-export function analyzeGeoScore( postId: number ): Promise< GeoScoreResponse > {
-	return request( `geo-analysis/${ postId }`, { method: 'POST' } );
-}
+// The "Analyze" trigger (analyzeGeoScore) now lives in vulopilot-pro's own src/post-editor/api.ts -
+// its real UI (GeoVisibilityPanel.tsx/AiReadinessPanel.tsx) is resolved via the
+// `vulopilot_post_editor_geo_panel`/`vulopilot_post_editor_ai_readiness_panel` filters.
 
 // AEO citation-check (checkAeoCitationForPost/AeoCitationResult) lives in vulopilot-pro's
 // own src/post-editor/api.ts now - resolved via the `vulopilot_post_editor_aeo_citation_panel`
