@@ -68,7 +68,7 @@ const QuickActionsCard = () => {
 	// Content Planner is vulopilot-pro's own page (menu slug `content-planner`) - navigates there directly.
 	const openPlanner = () => {
 		if (vulopilotAppLocalizer.khali_dabba) {
-			window.location.href = '?page=vulopilot#&tab=content-planner';
+			window.location.hash = '#&tab=content-planner';
 			return;
 		}
 
