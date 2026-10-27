@@ -24,13 +24,10 @@ interface ToolbarScorePillsProps {
 }
 
 /**
- * The editor header toolbar's own score pills - same real SEO/AEO scores `PostScoreBadges.tsx`
- * shows inside the sidebar panel. Portaled into the header's settings row by `index.tsx`'s own
- * `useToolbarScorePillsPortal()` rather than passed as `PluginSidebar`'s `icon` - that prop goes
- * through `Icon`, which clips/squashes anything beyond a simple small dashicon/SVG, which is why
- * an earlier version of this rendered blank in the toolbar. Each pill is its own button (not one
- * shared button for both) so clicking a score opens the sidebar straight to the tab that score's
- * own detail/edit fields live on, instead of a generic "open the sidebar" with no tab context.
+ * Toolbar score pills - same SEO/AEO scores PostScoreBadges.tsx shows in the sidebar, portaled
+ * into the header via `useToolbarScorePillsPortal()` (PluginSidebar's `icon` clips anything
+ * beyond a small dashicon). Each pill is its own button so clicking one opens straight to that
+ * score's own tab.
  */
 export default function ToolbarScorePills( { onClickSeo, onClickAeo }: ToolbarScorePillsProps ) {
 	const postId = useSelect( ( select ) => ( select( 'core/editor' ) as any ).getCurrentPostId(), [] );

@@ -90,12 +90,8 @@ export async function fetchOpenFindings( scannerIds: string[] ): Promise< RawFin
 }
 
 /**
- * Same real pagination loop as `fetchOpenFindings()`, but with no `status` filter at all - the
- * findings REST endpoint only applies a status filter when the param is present/non-empty
- * (`FindingRepository::find_all()`), so omitting it returns every status (open, resolved,
- * ignored, snoozed). Used to tell "this post has never been scanned by these scanners" (zero
- * rows, any status) apart from "it was scanned and nothing is open" (at least one row exists,
- * just none currently open) - `fetchOpenFindings()` alone can't distinguish those two states.
+ * Same pagination loop as `fetchOpenFindings()` but with no status filter - distinguishes "never
+ * scanned" (zero rows, any status) from "scanned, nothing currently open" (rows exist, none open).
  */
 export async function fetchAllFindings( scannerIds: string[] ): Promise< RawFinding[] > {
 	const scannerParam = scannerIds.join( ',' );

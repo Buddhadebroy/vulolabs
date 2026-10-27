@@ -83,11 +83,8 @@ const getAffectedItemLink = (
 };
 
 /**
- * Splits a sample finding's own real `title` - every scanner's `get_title()` writes it as
- * "{message}: {affected item name}" (e.g. "Image missing alt text: 2.4.4.gif") - into its message
- * half and its affected-item-name half, for the header's own title/desc swap below. Falls back to
- * `{ message: title, name: null }` when there's no ": " to split on, so a title that doesn't follow
- * that shape still renders (as the old plain desc) rather than silently dropping half of it.
+ * Splits a sample finding's `title` ("{message}: {affected item name}") into its message and
+ * name halves. Falls back to `{ message: title, name: null }` when there's no ": " to split on.
  */
 const splitSampleTitle = (
 	title: string
@@ -510,12 +507,9 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	};
 
 	/**
-	 * Header title/desc swap, per direct instruction: the sample's own affected-item name (e.g.
-	 * "2.4.4.gif") becomes the title, tagged with its real object-type noun ("image"); the sample's
-	 * own message half ("Image missing alt text") becomes the desc, in place of the group's generic
-	 * label ("Images") that used to sit there. Falls back to the old title={group.label}/
-	 * desc={group.sample?.title} shape when there's no sample, or its title isn't the real
-	 * "{message}: {name}" shape `splitSampleTitle()` expects.
+	 * Header title becomes the sample's affected-item name (e.g. "2.4.4.gif"), desc becomes its
+	 * message, in place of the group's generic label. Falls back to title=group.label/
+	 * desc=group.sample?.title when there's no sample or it isn't in `splitSampleTitle()`'s shape.
 	 */
 	const sampleSplit = group.sample ? splitSampleTitle(group.sample.title) : null;
 	const headerTitle =

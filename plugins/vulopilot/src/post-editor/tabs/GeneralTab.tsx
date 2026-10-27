@@ -46,16 +46,10 @@ export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
 	const [ keywordDraft, setKeywordDraft ] = useState( '' );
 	const [ isSnippetPulsing, setIsSnippetPulsing ] = useState( false );
 
-	// Toolbar SEO score pill deep link (index.tsx's `openSidebarToTab('general')`, which sends
-	// `snippet-<nonce>` as the target) - the whole point of clicking a score is to go straight
-	// to editing the thing it's scoring, not land on a General tab the admin then has to scan
-	// for an "Edit Snippet" toggle themselves. Opens the (by-default-collapsed) snippet editor
-	// and scrolls/pulses it, same idiom `useFieldHighlight` already uses for `canonical_url` -
-	// not reused directly since this needs to flip `isEditingSnippet` open first, before the
-	// target element even exists. The nonce suffix (not just the literal string "snippet") is
-	// what the effect's dependency actually keys off - a plain one-shot ref guard would miss a
-	// second click while already on this tab, since the component wouldn't remount and
-	// `highlightTarget` would otherwise look unchanged ("snippet" === "snippet").
+	// Score pill deep link (`snippet-<nonce>` target) - opens the collapsed snippet editor and
+	// pulses it. Not `useFieldHighlight` directly, since this must open `isEditingSnippet` first
+	// before the target element exists; the nonce suffix lets a second click re-trigger even
+	// without a remount.
 	useEffect( () => {
 		if ( ! highlightTarget?.startsWith( 'snippet' ) ) {
 			return;

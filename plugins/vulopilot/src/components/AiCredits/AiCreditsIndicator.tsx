@@ -11,20 +11,11 @@ import './AiCreditsIndicator.scss';
 /**
  * The persistent "⚡ N AI Credits" indicator (architecture plan §21).
  *
- * Not connected: the button starts the real VuloCloud OAuth connect flow
- * directly (`useConnectVuloCloud`'s own `handleConnect`) - no popup. It used
- * to open a `PopupComponent` around `VuloCloudInlineNotice` (a single small
- * notice card), which only ever needed a fraction of that popup's own fixed
- * `width={35}`/`height="fit-content"` box - leaving a large empty white
- * area beneath the real content. There's nothing else for that popup to
- * show, so this is the "Connect to VuloCloud" action itself, not a second
- * confirmation step in front of it.
+ * Not connected: starts the real VuloCloud OAuth flow directly, no popup - a popup here used to
+ * just wrap one small notice card in a lot of empty space.
  *
- * Connected: the button still opens the real balance panel, now as a real
- * `position="slide-right-to-left"` anchored panel (zyra's own `PopupPosition`
- * - same variant panel-style popups elsewhere in this plugin use) instead of
- * a full-screen dimmed lightbox, since this is a small panel anchored to its
- * own header button, not a modal dialog.
+ * Connected: opens the real balance panel as a `slide-right-to-left` anchored panel rather than a
+ * full-screen lightbox, since it's anchored to its own header button, not a modal dialog.
  */
 const AiCreditsIndicator = () => {
 	const { status, isLoading, refresh } = useAiCredits();

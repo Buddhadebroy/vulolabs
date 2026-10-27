@@ -22,12 +22,9 @@ const MODE_CONFIG: Record< AiMode, { label: string; icon: string } > = {
 };
 
 /**
- * The format's `edit` component - rendered by Gutenberg inside the native inline format toolbar
- * (the same popup that shows Bold/Italic) whenever a RichText field is focused. This format is
- * never actually applied to text (no `toggleFormat` call anywhere) - it exists purely to get a
- * toolbar slot at the exact point of a real text selection, the "closest supported WordPress
- * editor extension point" for this, per the spec. Returns null (no buttons at all) unless there's
- * a genuine, non-trivial selection, so it never appears for a bare cursor position.
+ * The format's `edit` component - rendered by Gutenberg in the native inline toolbar (Bold/Italic's
+ * popup) whenever RichText is focused. Never actually applies the format (no `toggleFormat` call) -
+ * it only exists to get a toolbar slot at a real text selection. Returns null for a bare cursor.
  */
 function TextActionsEdit( { value, onChange }: any ) {
 	const { postId } = usePostData();

@@ -13,21 +13,10 @@ import { registerTextSelectionActions } from './TextSelectionActions';
 registerTextSelectionActions();
 
 /**
- * Gutenberg's `PluginSidebar` `icon` prop goes through `@wordpress/components`' `Icon`, which
- * expects a simple dashicon/SVG sized to fit a small square toolbar button - not an arbitrary
- * flex layout with two text pills, which it clips/squashes to nothing. So instead of fighting
- * that, this portals the real score pills straight into the header's own settings row
- * (`.editor-header__settings`, confirmed against this WP version's own real `editor.js` source -
- * `HeaderSkeleton`'s `settings` prop, a plain `Fragment` the Header component builds and
- * re-renders inline).
- *
- * That `Fragment` is hardcoded JSX with no public Slot/Fill for arbitrary content, and React owns
- * and fully replaces that div's children on every one of its own re-renders (which fire
- * constantly - any editor state change, including this very score refetching) - so a plain
- * `insertBefore()` gets silently wiped out the next time Header re-renders, which is near-
- * immediate. A MutationObserver watches for that and re-inserts the container every time,
- * the same defensive pattern third-party scripts use to keep content alive inside someone
- * else's React tree.
+ * `PluginSidebar`'s `icon` prop can't fit our two text pills, so this portals them straight into
+ * the header's settings row (`.editor-header__settings`) instead. That row is a hardcoded
+ * `Fragment` with no public Slot/Fill, and React wipes a plain `insertBefore()` on its next
+ * re-render - so a MutationObserver re-inserts the container every time it gets evicted.
  */
 const useToolbarScorePillsPortal = () => {
 	const [ container, setContainer ] = useState< HTMLElement | null >( null );
@@ -135,17 +124,10 @@ const readDeepLinkTarget = (): DeepLinkTarget => {
 const { wasPresent: shouldOpenSidebar, tab: deepLinkTab, target: deepLinkHighlight } = readDeepLinkTarget();
 
 /**
- * Opens the VuloPilot SEO sidebar the first time the user clicks into the title field - works
- * for any post type (post, page, product, ...), since Gutenberg's title field uses the same
- * real markup regardless. The block editor canvas (title field included) renders inside its own
- * same-origin iframe (`iframe[name="editor-canvas"]`) since WP 5.9's iframed editor, so a
- * listener on the top-level `document` never sees focus/click events that happen inside it -
- * confirmed live (`core/block-editor`'s own `getSelectedBlock()` stayed `null` after a real
- * click on the title, and `page.frames()` shows the real iframe). The iframe mounts
- * asynchronously and its `contentDocument` is swapped on every editor reload, so this polls for
- * it the same way `useToolbarScorePillsPortal` above already does for the same async-canvas
- * problem. Fires once per page load (`firedRef`) and never re-opens after the user closes the
- * sidebar themselves.
+ * Opens the SEO sidebar the first time the user clicks into the title field. The editor canvas
+ * (title included) renders in its own iframe since WP 5.9, so this polls for `contentDocument`
+ * the same way `useToolbarScorePillsPortal` does, and attaches the listener there instead of on
+ * the top-level `document`. Fires once per page load, never re-opens after the user closes it.
  */
 const useOpenSidebarOnTitleClick = () => {
 	useEffect( () => {

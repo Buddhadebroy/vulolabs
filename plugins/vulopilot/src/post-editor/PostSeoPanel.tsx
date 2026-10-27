@@ -17,25 +17,17 @@ import { usePostScores } from './usePostScores';
 import type { SeoIssueEditorTab } from '../services/seoIssueEditorTarget';
 
 /**
- * `icon` (a Dashicon slug) is what gives icon-only tabs: TabPanel renders `children: !tab.icon &&
- * tab.title`. Reduced from 12 icon-only tabs to 5 - the original Social/Schema/Page Analysis tabs
- * now live inside `OnPageTab`'s own accordion, and the 6-tab "AI Visibility Score" suite
- * (Overview/AI Readiness/AEO/GEO/AI Visibility/Content Analysis) lives inside
- * `AiVisibilitySuiteTab`'s own accordion. Every deep-link target below (`DEEP_LINK_TAB_GROUP`)
- * still resolves correctly to one of these 5. The Recommendations tab can be closed per-post (see
- * `RECOMMENDATIONS_DISMISSED_META_KEY` below) - that's a postmeta flag on this one post, not a
- * global admin setting, so it never hides the tab for any other post.
+ * Reduced from 12 icon-only tabs to 5 - Social/Schema/Page Analysis now live inside OnPageTab's
+ * accordion, and the 6-tab "AI Visibility Score" suite lives inside AiVisibilitySuiteTab's.
+ * Every deep-link target below still resolves to one of these 5.
  */
 const TABS = [
 	{ name: 'general', title: __( 'General', 'vulopilot' ), icon: 'admin-generic', Component: GeneralTab },
 	{ name: 'on-page', title: __( 'On-Page & Social', 'vulopilot' ), icon: 'share', Component: OnPageTab },
-	// "AI Visibility Score" suite - each section composes real data an existing engine already
-	// computes (SeoScoreEngine, GeoAnalyzer, CitationCoverageChecker, CrawlerVisitRepository);
-	// no new scoring rules were invented for this suite.
+	// "AI Visibility Score" suite - composes real data existing engines already compute, no new scoring rules.
 	{ name: 'ai-visibility-suite', title: __( 'AI Visibility', 'vulopilot' ), icon: 'visibility', Component: AiVisibilitySuiteTab },
 	{ name: 'recommendations', title: __( 'Recommendations', 'vulopilot' ), icon: 'lightbulb', Component: RecommendationsTab },
-	// Topic Intelligence & Internal Linking - composes real deterministic (RelatedPostFinder) and
-	// AI-backed (AnalyzeTopicAction/SuggestLinkOpportunitiesAction) data; see TopicLinkingTab.tsx.
+	// Topic Intelligence & Internal Linking - composes real deterministic and AI-backed data, see TopicLinkingTab.tsx.
 	{ name: 'topic-linking', title: __( 'Topic & Linking', 'vulopilot' ), icon: 'networking', Component: TopicLinkingTab },
 ];
 
@@ -64,14 +56,9 @@ interface PostSeoPanelProps {
 	/** Same deep link's specific field/checklist-item id to scroll to and highlight, within whichever tab it names. */
 	highlightTarget?: string;
 	/**
-	 * Bumped by index.tsx's toolbar score pills every time one is clicked, so this re-navigates
-	 * even when `initialTabName` is the same value as last time (e.g. clicking the SEO pill
-	 * twice in a row). Deliberately does NOT remount this component (an earlier version used
-	 * `key` on `<PostSeoPanel>` itself for this, which also remounted `ContentIntelligencePanel`
-	 * below - throwing away its already-fetched real analysis and showing its empty "not
-	 * analyzed yet" default for the few seconds its own fetch took to finish again, visible live
-	 * as the panel's content flickering from real data to the empty state right after a pill
-	 * click). Only `navTarget` (and so only the inner `TabPanel`) reacts to this now.
+	 * Bumped on every pill click so this re-navigates even to the same tab. Deliberately doesn't
+	 * remount this component - an earlier `key`-based version also remounted
+	 * ContentIntelligencePanel, flickering its already-fetched analysis back to empty.
 	 */
 	navigationNonce?: number;
 	/** The specific field/section `navigationNonce` should land on within `initialTabName`, e.g. 'snippet' for the SEO pill. */

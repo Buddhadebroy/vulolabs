@@ -7,8 +7,7 @@ interface ScanRow {
 }
 
 /**
- * The real most recent *completed* scan run's own `finished_at` (`vulopilot_scans`, `GET /scans`)
- * for one scanner group.
+ * The most recent completed scan run's `finished_at` for one scanner group.
  *
  * @param scannerIds Real scanner ids to scope to, or omit for site-wide.
  * @param categories Real category ids to scope to (e.g. `['security']`) -
