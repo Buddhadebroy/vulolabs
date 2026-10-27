@@ -6,11 +6,9 @@ import { createPortal } from 'react-dom';
 import { __ } from '@wordpress/i18n';
 import PostSeoPanel from './PostSeoPanel';
 import ToolbarScorePills from './ToolbarScorePills';
-import { registerTextSelectionActions } from './TextSelectionActions';
 
-// Registers once at module load - safe even when Pro is inactive, since the format's own `edit`
-// component checks `window.vulopilotPostSeo.isPro` and renders nothing when it's false.
-registerTextSelectionActions();
+// The text-selection AI toolbar is Pro-only - vulopilot-pro's own post-editor bundle registers
+// it directly (TextSelectionActionsPanel.tsx), only while licensed.
 
 /**
  * `PluginSidebar`'s `icon` prop can't fit our two text pills, so this portals them straight into
