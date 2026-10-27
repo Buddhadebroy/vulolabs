@@ -8,11 +8,10 @@ interface ScoreImprovementCardProps {
 	score: number | null;
 	rules: SeoScoreRule[];
 	postId: number;
-	/** `usePostScores()`'s own full refetch - called once auto-fix finishes, so the toolbar/sidebar badges update immediately instead of waiting for the next debounced recheck. */
+	/** Full refetch, called once auto-fix finishes so the toolbar/sidebar badges update immediately. */
 	onScoreUpdated?: () => void;
 }
 
-/** `SeoScoreEngine::CATEGORY_WEIGHTS`'s own keys, human-readable. */
 const CATEGORY_LABELS: Record< string, string > = {
 	on_page: __( 'On-page SEO', 'vulopilot' ),
 	content_quality: __( 'Content quality', 'vulopilot' ),
@@ -29,16 +28,8 @@ const RESULT_ICON: Record< AutoFixScoreResult[ 'status' ], string > = {
 };
 
 /**
- * "You can reach 100 by fixing these" - every rule this evaluation actually scored (not
- * `not_applicable`/`unknown` - those are excluded from the score's own denominator, so fixing
- * every real `fail`/`warning` row below genuinely does reach 100, not an approximation).
- *
- * Free: "Upgrade to Pro to Auto-Fix" is a marketing CTA to `shopUrl` - no auto-fix capability
- * exists in the free plugin.
- * Pro: the button actually runs `SeoScoreAutoFixRunner::run_all()` and shows a real per-issue
- * outcome - `fixed`/`failed` (e.g. "not connected to VuloCloud AI")/`skipped` (no fix exists for
- * this rule yet - duplicate-keyword-targeting, broken links, image optimization, relevant images,
- * and anything needing real-world/AI judgment this engine doesn't perform), never fabricated.
+ * Lists every actually-scored fail/warning rule, so fixing all of them genuinely reaches 100.
+ * Free shows a marketing CTA only; Pro's button runs a real auto-fix with per-issue outcomes.
  */
 export default function ScoreImprovementCard( { score, rules, postId, onScoreUpdated }: ScoreImprovementCardProps ) {
 	const [ isFixing, setIsFixing ] = useState( false );

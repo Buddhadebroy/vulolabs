@@ -47,7 +47,7 @@ const DEEP_LINK_TAB_GROUP: Record< SeoIssueEditorTab, string > = {
 	'topic-linking': 'topic-linking',
 };
 
-/** Postmeta key for "close" on the Recommendations tab - registered in `PostSeoMetaFields::META_KEYS`. */
+/** Postmeta key for "close" on the Recommendations tab. */
 const RECOMMENDATIONS_DISMISSED_META_KEY = '_vulopilot_recommendations_dismissed';
 
 interface PostSeoPanelProps {
@@ -55,11 +55,7 @@ interface PostSeoPanelProps {
 	initialTabName?: SeoIssueEditorTab;
 	/** Same deep link's specific field/checklist-item id to scroll to and highlight, within whichever tab it names. */
 	highlightTarget?: string;
-	/**
-	 * Bumped on every pill click so this re-navigates even to the same tab. Deliberately doesn't
-	 * remount this component - an earlier `key`-based version also remounted
-	 * ContentIntelligencePanel, flickering its already-fetched analysis back to empty.
-	 */
+	/** Bumped on every pill click so this re-navigates even to the same tab, without remounting (which used to flicker ContentIntelligencePanel's fetched analysis). */
 	navigationNonce?: number;
 	/** The specific field/section `navigationNonce` should land on within `initialTabName`, e.g. 'snippet' for the SEO pill. */
 	navigationTarget?: string;
@@ -74,9 +70,7 @@ export default function PostSeoPanel( { initialTabName, highlightTarget, navigat
 	const { seoScore, aeoScore, seoScoreRules, refetch } = usePostScores( postId ?? 0 );
 	const { savePost } = useDispatch( 'core/editor' ) as any;
 
-	// Per-post "close" on the Recommendations tab - a postmeta flag on this one post, so it never
-	// affects any other post (saved immediately, same pattern PageAnalysisTab.tsx's own
-	// immediate-save actions use, rather than waiting for the editor's next manual Update).
+	// Per-post postmeta flag, saved immediately rather than waiting for the editor's next manual Update.
 	const dismissRecommendationsTab = () => {
 		setMeta( { [ RECOMMENDATIONS_DISMISSED_META_KEY ]: true } );
 		savePost();
@@ -87,25 +81,18 @@ export default function PostSeoPanel( { initialTabName, highlightTarget, navigat
 
 	useEffect( () => {
 		if ( undefined !== navigationNonce && initialTabName ) {
-			// The nonce suffix makes this a real, distinct value every click, even when
-			// `navigationTarget` itself is the same string twice in a row (e.g. the SEO pill
-			// clicked twice without switching tabs in between) - GeneralTab's own highlight
-			// effect keys off the exact string changing, not just a literal "snippet" match.
+			// Nonce suffix keeps the target distinct even if the same pill is clicked twice in a row.
 			setNavTarget( {
 				tab: initialTabName,
 				target: navigationTarget ? `${ navigationTarget }-${ navigationNonce }` : undefined,
 			} );
 		}
-		// Only re-navigate when the nonce actually changes (a new pill click) - `initialTabName`
-		// itself isn't a dependency here on purpose, it's read fresh via closure each time the
-		// nonce fires, same as any "do X when this counter bumps" effect.
+		// Re-navigate only when the nonce changes - initialTabName is read fresh via closure, not a dependency.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ navigationNonce ] );
 
 	const deepLinkTab = navTarget?.tab ?? initialTabName;
-	// `deepLinkTab` is one of the original 12 fine-grained ids (e.g. 'social') - `TabPanel` only
-	// knows the 5 merged tab names, so it's translated here; `activeHighlight` still carries the
-	// original fine-grained target so the right accordion section/field highlights inside it.
+	// deepLinkTab is one of the 12 fine-grained ids; TabPanel only knows the 5 merged names, so it's translated here.
 	const activeTabName = deepLinkTab ? DEEP_LINK_TAB_GROUP[ deepLinkTab ] : undefined;
 	const activeHighlight = navTarget ? navTarget.target : highlightTarget;
 

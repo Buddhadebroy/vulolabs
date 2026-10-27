@@ -11,9 +11,9 @@ export interface FindingSample {
 	created_at: string;
 	/** When this finding was last reconfirmed by a scan. */
 	last_seen_at?: string;
-	/** Resolved page path or 'Site-wide' - added server-side by Findings.php's add_page_field(). */
+	/** Resolved page path or 'Site-wide' - added server-side. */
 	page?: string;
-	/** Raw `wp_json_encode()`-d `Finding::get_meta()` column. */
+	/** Raw JSON-encoded meta column. */
 	meta?: string | null;
 }
 

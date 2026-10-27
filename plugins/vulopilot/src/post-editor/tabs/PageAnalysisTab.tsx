@@ -15,10 +15,7 @@ interface PageAnalysisTabProps {
 	onNavigate?: ( tab: SeoIssueEditorTab, target?: string ) => void;
 }
 
-/**
- * This tab's own check `key`s (`Seo::get_page_analysis()`) → the scanner id
- * `SEO_ISSUE_EDITOR_TARGETS` already understands.
- */
+/** This tab's check keys → the scanner id SEO_ISSUE_EDITOR_TARGETS understands. */
 const CHECK_KEY_TO_SCANNER_ID: Record< string, string > = {
 	h1_heading: 'heading-structure',
 	canonical: 'canonical-url',
@@ -29,17 +26,10 @@ const CHECK_KEY_TO_SCANNER_ID: Record< string, string > = {
 	orphan_page: 'internal-linking',
 };
 
-/**
- * Saved-page checks the live checklist above them already covers, so they are left out of the "SEO
- * Issues" list.
- */
+/** Saved-page checks the live checklist already covers, left out of the "SEO Issues" list. */
 const CHECKS_COVERED_BY_LIVE_CHECKLIST = [ 'title_tag', 'meta_description', 'content', 'headings', 'images' ];
 
-/**
- * Saved-page checks with a real fix. Social Metadata is left out - its only fix is sitewide, not
- * per-post. Orphan Page has none here on purpose - it now just navigates to the real Internal
- * Linking check (`CHECK_KEY_TO_SCANNER_ID` above) instead of running the nav-menu proxy action.
- */
+/** Saved-page checks with a real fix. Social Metadata (sitewide only) and Orphan Page (navigates to Internal Linking instead) are left out on purpose. */
 const CHECK_KEY_TO_FIX_ACTION: Record< string, string > = {
 	structured_data: 'generate-schema',
 	featured_image: 'set-featured-image-from-content',
@@ -71,10 +61,7 @@ const editorTargetForCheck = ( checkKey: string ): SeoIssueEditorTarget | null =
 	return scannerId ? SEO_ISSUE_EDITOR_TARGETS[ scannerId ] ?? null : null;
 };
 
-/**
- * This tab's own local copy of GeoTab.tsx's/AeoTab.tsx's real scanner-id unions
- * (`GEO_SECTIONS`/`AEO_SECTIONS`).
- */
+/** Local copy of GeoTab.tsx's/AeoTab.tsx's own scanner-id lists. */
 const GEO_SCANNER_IDS = [
 	'geo-citation-opportunities',
 	'geo-chunking',
@@ -103,14 +90,14 @@ const STATUS_ICON: Record< PageAnalysisCheck[ 'status' ], string > = {
 	fail: 'dismiss',
 };
 
-/** `PageAnalysisCheck['status']` → this bundle's own `vulopilot-seo-checklist__item--{modifier}` CSS already ships (`--pass`/`--warning`/`--fail`). */
+/** Maps a check status to the matching vulopilot-seo-checklist__item--{modifier} CSS class. */
 const STATUS_MODIFIER: Record< PageAnalysisCheck[ 'status' ], string > = {
 	pass: 'pass',
 	warn: 'warning',
 	fail: 'fail',
 };
 
-/** GEO/AEO findings have no "pass" state (a finding only ever exists for a real open problem - same real gap `GeoAeoPageAnalysisPanel.tsx`'s own docblock documents). */
+/** GEO/AEO findings have no "pass" state - a finding only ever exists for a real open problem. */
 const SEVERITY_TO_STATUS: Record< RawFinding[ 'severity' ], PageAnalysisCheck[ 'status' ] > = {
 	critical: 'fail',
 	high: 'fail',
@@ -132,25 +119,13 @@ interface IssueRow {
 	message: string;
 	target: SeoIssueEditorTarget | null;
 	fix?: RowFix;
-	/**
-	 * A second, manual option next to `fix` - jumps to the real WordPress field instead of running
-	 * the automatic action, for checks (like Featured Image) whose fix a site owner may reasonably
-	 * want to do by hand.
-	 */
+	/** A manual option next to `fix` - jumps to the real WordPress field instead of running the automatic action. */
 	manualFix?: { label: string; onClick: () => void };
-	/**
-	 * Set right after `onFix` resolves, before the re-analysis this tab triggers comes back - so the
-	 * row shows fixed immediately instead of sitting on its old cross/"Fix" state for the length of
-	 * that round trip.
-	 */
+	/** Set right after `onFix` resolves so the row shows fixed immediately, before the re-analysis round trip returns. */
 	justFixed?: boolean;
 }
 
-/**
- * Opens the Document sidebar and expands WordPress core's own Featured Image panel - the real
- * manual field, not one of VuloPilot's own tabs, so this doesn't go through `onNavigate`/
- * `SEO_ISSUE_EDITOR_TARGETS` at all.
- */
+/** Opens the Document sidebar and expands WordPress core's own Featured Image panel. */
 const jumpToFeaturedImagePanel = () => {
 	( dispatch( 'core/edit-post' ) as any ).openGeneralSidebar( 'edit-post/document' );
 
@@ -213,7 +188,7 @@ const rowFromFinding = ( finding: RawFinding, fixedIds: Set< string > ): IssueRo
 /** Live checks about the post body itself - shown in their own "Content" section. */
 const CONTENT_CHECK_IDS = [ 'content_length', 'has_subheadings', 'has_links', 'image_alt', 'keyword_in_content', 'keyword_in_first_paragraph' ];
 
-/** AI actions that rewrite `post_content` (`PostSeoFixRest::CONTENT_MUTATING_ACTIONS`). */
+/** AI actions that rewrite post_content. */
 const CONTENT_MUTATING_ACTIONS = [ 'improve-readability', 'add-subheadings', 'expand-content', 'suggest-internal-links' ];
 
 /**
@@ -395,12 +370,7 @@ interface IssueSectionProps {
 	showSummary?: boolean;
 }
 
-/**
- * A Rank-Math-style collapsible group: header (title + real error/warning-count pill) always
- * visible, row list expands/collapses on click. Starts collapsed, except when one of its own rows
- * is the deep-link target (`pulsingId`) - that row needs to be visible and scrolled to the moment
- * this tab opens, same as before this section became collapsible.
- */
+/** Collapsible group: header always visible, rows expand/collapse on click. Starts open only when it contains the deep-link target. */
 function IssueSection( { heading, idPrefix, rows, isLoading, error, emptyMessage, pulsingId, onNavigate, fixControls, showSummary }: IssueSectionProps ) {
 	const failCount = rows.filter( ( row ) => 'fail' === row.status ).length;
 	const warnCount = rows.filter( ( row ) => 'warn' === row.status ).length;

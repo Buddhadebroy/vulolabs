@@ -44,25 +44,15 @@ interface FindingRow {
 	object_type: string | null;
 	object_ref: string | null;
 	created_at: string;
-	/**
-	 * When this row was last reconfirmed by a scan - same value as `created_at` for a finding
-	 * that's only ever been detected once.
-	 */
+	/** Last reconfirmed by a scan - same as created_at if only ever detected once. */
 	last_seen_at?: string;
 	page?: string;
 }
 
-/**
- * How many individual findings to actually list under "Affected accounts"/ "Affected pages"/etc..
- */
+/** How many individual findings to list under "Affected accounts"/"Affected pages"/etc. */
 const MAX_AFFECTED_ITEMS_SHOWN = 20;
 
-/**
- * Prefers the live front-end page, falls back to the post edit screen.
- *
- * @param row A FindingRow (or FindingGroup.sample, same shape).
- * @return The URL to open, or undefined if this row has no obvious target.
- */
+/** Prefers the live front-end page, falls back to the post edit screen. */
 const getAffectedItemLink = (
 	row: Pick<FindingRow, 'object_type' | 'object_ref' | 'page'>
 ): string | undefined => {
@@ -82,10 +72,7 @@ const getAffectedItemLink = (
 	return `${vulopilotAppLocalizer.site_url}/wp-admin/post.php?post=${encodeURIComponent(row.object_ref)}&action=edit`;
 };
 
-/**
- * Splits a sample finding's `title` ("{message}: {affected item name}") into its message and
- * name halves. Falls back to `{ message: title, name: null }` when there's no ": " to split on.
- */
+/** Splits a sample finding's title ("{message}: {affected item name}") into its two halves. */
 const splitSampleTitle = (
 	title: string
 ): { message: string; name: string | null } => {
@@ -137,9 +124,9 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	group,
 	onActionComplete,
 }) => {
+	const isProActive = !!vulopilotAppLocalizer.khali_dabba;
 	const [isBusy, setIsBusy] = useState(false);
-	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
-	const [isDetailProPopupOpen, setIsDetailProPopupOpen] = useState(false);
+	const [proPopup, setProPopup] = useState<null | 'one-click-fix' | 'generic'>(null);
 	const [affectedItems, setAffectedItems] = useState<FindingRow[] | null>(
 		null
 	);
@@ -160,11 +147,9 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		// `showPanelNotice` is re-created every render and only calls a state setter; re-run only when the selected issue changes.
 	}, [group?.scanner_id]);
 
-	/**
-	 * The group response only ever carries a `count` + one sample.
-	 */
+	/** The group response only ever carries a count + one sample. */
 	useEffect(() => {
-		if (!group || !vulopilotAppLocalizer.khali_dabba) {
+		if (!group || !isProActive) {
 			setAffectedItems(null);
 			return;
 		}
@@ -214,12 +199,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		);
 	}
 
-	const isProActive = !!vulopilotAppLocalizer.khali_dabba;
-
-	/**
-	 * Parses `group.sample.meta`, the raw JSON `Finding::get_meta()` column, which older findings
-	 * may not have.
-	 */
+	/** Parses the raw JSON meta column, which older findings may not have. */
 	const sampleMeta: Record<string, unknown> | null = (() => {
 		if (!group.sample?.meta) {
 			return null;
@@ -256,10 +236,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 			: '';
 	const showWhatHappened = !showRecommendedFix && '' !== whatHappened;
 
-	/**
-	 * `group.sample` is always the same finding "Recommended fix"/"What happened"/"Example
-	 * finding" above already shows in full.
-	 */
+	/** group.sample is already shown in full above ("Recommended fix"/"What happened"/"Example finding"). */
 	const otherAffectedItems = (affectedItems ?? []).filter(
 		(row) => row.id !== group.sample?.id
 	);
@@ -292,11 +269,11 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					role="button"
 					tabIndex={0}
 					aria-label={__('Upgrade to Pro', 'vulopilot')}
-					onClick={() => setIsDetailProPopupOpen(true)}
+					onClick={() => setProPopup('generic')}
 					onKeyDown={(e) => {
 						if ('Enter' === e.key || ' ' === e.key) {
 							e.preventDefault();
-							setIsDetailProPopupOpen(true);
+							setProPopup('generic');
 						}
 					}}
 				/>
@@ -364,10 +341,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 			.finally(() => setIsBusy(false));
 	};
 
-	/**
-	 * Runs the bulk-fix handler sequentially in BULK_FIX_BATCH_SIZE chunks and aggregates the
-	 * counts into one outcome.
-	 */
+	/** Runs the bulk-fix handler in BULK_FIX_BATCH_SIZE chunks, aggregating the counts into one outcome. */
 	const runBulkFixInBatches = (
 
 		// eslint-disable-next-line no-unused-vars
@@ -482,7 +456,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		const bulkFixHandler = getFindingBulkFixHandler();
 
 		if ('function' !== typeof bulkFixHandler) {
-			setIsProPopupOpen(true);
+			setProPopup(isProActive ? 'one-click-fix' : 'generic');
 			return;
 		}
 
@@ -506,11 +480,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 			.finally(() => setIsBusy(false));
 	};
 
-	/**
-	 * Header title becomes the sample's affected-item name (e.g. "2.4.4.gif"), desc becomes its
-	 * message, in place of the group's generic label. Falls back to title=group.label/
-	 * desc=group.sample?.title when there's no sample or it isn't in `splitSampleTitle()`'s shape.
-	 */
+	/** Header uses the sample's affected-item name/message when available, else group.label/group.sample?.title. */
 	const sampleSplit = group.sample ? splitSampleTitle(group.sample.title) : null;
 	const headerTitle =
 		sampleSplit?.name
@@ -897,33 +867,24 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 							{
 								text: __('Unlock to pro see details', 'vulopilot'),
 								icon: 'pro-tag',
-								onClick: () => setIsDetailProPopupOpen(true),
+								onClick: () => setProPopup('generic'),
 							},
 						]}
 					/>
 				)}
 			</CardComponent>
 			<PopupComponent
-				open={isProPopupOpen}
-				onClose={() => setIsProPopupOpen(false)}
+				open={!!proPopup}
+				onClose={() => setProPopup(null)}
 				width={31.25}
 				height="auto"
 				position="lightbox"
 			>
-				{vulopilotAppLocalizer.khali_dabba ? (
+				{'one-click-fix' === proPopup ? (
 					<ShowProPopup moduleName="one-click-fix" />
 				) : (
 					<ShowProPopup />
 				)}
-			</PopupComponent>
-			<PopupComponent
-				open={isDetailProPopupOpen}
-				onClose={() => setIsDetailProPopupOpen(false)}
-				width={31.25}
-				height="auto"
-				position="lightbox"
-			>
-				<ShowProPopup />
 			</PopupComponent>
 		</>
 	);

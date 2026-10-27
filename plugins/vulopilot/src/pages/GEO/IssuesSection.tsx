@@ -67,7 +67,7 @@ export interface ContentRowTab {
  * with an open finding).
  */
 export interface ContentModeConfig {
-	/** `GenerateLandingPageAction::META_KEY` - the real page meta flag that tells a landing page apart from any other real `page` post type (see `RecentContentCard.tsx`'s own `LANDING_PAGE_META_KEY` docblock). */
+	/** The page meta flag that tells a landing page apart from any other `page` post type. */
 	landingPageMetaKey: string;
 	/** Real display label/icon per raw `categoryKey` (`'blog-post'`/`'landing-page'`/`'product'`/`'other'`). */
 	categories: Record<string, { label: string; icon: string }>;

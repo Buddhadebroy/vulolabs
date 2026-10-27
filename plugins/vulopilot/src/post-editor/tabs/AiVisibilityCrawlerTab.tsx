@@ -9,13 +9,7 @@ interface AiVisibilityCrawlerTabProps {
 	onNavigate?: ( tab: string, target?: string ) => void;
 }
 
-/**
- * Real logged AI-bot visits to this post's own permalink (`CrawlerVisitRepository::log()`,
- * populated by the sitewide bot-detection middleware) - deliberately separate from GeoTab's
- * content-derived GEO score: this tab answers "have AI crawlers actually fetched this page",
- * not "is this page well-structured for them to understand it". Free (crawler logging already
- * runs free-side) - no Pro gate here, unlike GeoTab/AiReadinessTab/AeoTab.
- */
+/** Logged AI-bot visits to this permalink - separate from GeoTab's content-derived score. Free (no Pro gate here). */
 export default function AiVisibilityCrawlerTab( _props: AiVisibilityCrawlerTabProps ) {
 	const { postId } = usePostData();
 	const [ stats, setStats ] = useState< CrawlerPostStatsResponse | null >( null );

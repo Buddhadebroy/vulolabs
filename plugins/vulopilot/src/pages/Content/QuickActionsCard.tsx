@@ -5,7 +5,7 @@ import { CardComponent, ListComponent, PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import ContentToolPopup from './ContentToolPopup';
 import { ContentTool, ProToolsSlot } from './ContentToolsGrid';
-import { useFilterSlot } from '../../services/useFilterSlot';
+import { useFilterSlot, useIsRouteRegistered } from '../../services/useFilterSlot';
 import ShowProPopup, { VuloCloudInlineNotice } from '../../components/Popup/Popup';
 import { useAiCredits } from '../../services/useAiCredits';
 import { useContentToolsEnabled } from '../../services/useContentToolsEnabled';
@@ -55,6 +55,7 @@ const QUICK_ACTION_TOOLS: ContentTool[] = [
 const QuickActionsCard = () => {
 	const [activeTool, setActiveTool] = useState<ContentTool | null>(null);
 	const proSlot = useFilterSlot<ProToolsSlot>('vulopilot_content_tools_pro');
+	const hasContentPlanner = useIsRouteRegistered('content-planner');
 	const { status: creditsStatus } = useAiCredits();
 	const isContentToolsEnabled = useContentToolsEnabled();
 	const [isCloudConnectPromptOpen, setIsCloudConnectPromptOpen] = useState(false);
@@ -65,9 +66,8 @@ const QuickActionsCard = () => {
 		document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 	};
 
-	// Content Planner is vulopilot-pro's own page (menu slug `content-planner`) - navigates there directly.
 	const openPlanner = () => {
-		if (vulopilotAppLocalizer.khali_dabba) {
+		if (hasContentPlanner) {
 			window.location.hash = '#&tab=content-planner';
 			return;
 		}
@@ -125,7 +125,7 @@ const QuickActionsCard = () => {
 						className: 'icon-blue',
 						title: __('Content Planner', 'vulopilot'),
 						desc: __('Plan and schedule content', 'vulopilot'),
-						tags: vulopilotAppLocalizer.khali_dabba ? (
+						tags: hasContentPlanner ? (
 							<i className="adminfont-arrow-right" />
 						) : (
 							<span className="admin-tag pro-tag pro-tag-inline">

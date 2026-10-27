@@ -17,11 +17,7 @@ const statusClass: Record< string, string > = {
 	unknown: 'warning',
 };
 
-/**
- * `SeoScoreEngine::evaluate()`'s own `content_quality` category rules (content depth, keyword
- * density/stuffing, natural usage, etc.) - the same engine PageAnalysisTab/ScoreImprovementCard
- * already call, just filtered to this one category instead of showing every rule across all six.
- */
+/** Same SEO score engine PageAnalysisTab/ScoreImprovementCard call, filtered to the content_quality category. */
 export default function ContentAnalysisTab( _props: ContentAnalysisTabProps ) {
 	const { postId } = usePostData();
 	const [ score, setScore ] = useState< SeoScoreResponse | null >( null );
