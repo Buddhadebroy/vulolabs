@@ -118,6 +118,23 @@ class FormRepository {
 	}
 
 	/**
+	 * Ids of every form made from a template.
+	 *
+	 * @param string $template Template id.
+	 * @return int[]
+	 */
+	public function ids_for_template( $template ) {
+		global $wpdb;
+
+		if ( '' === $template ) {
+			return array();
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		return array_map( 'intval', (array) $wpdb->get_col( $wpdb->prepare( 'SELECT id FROM %i WHERE form_schema LIKE %s', $this->table(), '%' . $wpdb->esc_like( '"template":' . wp_json_encode( $template ) ) . '%' ) ) );
+	}
+
+	/**
 	 * Conditions that leave out forms made from a template of a plugin that is switched off. The
 	 * forms are kept, and come back when the plugin does.
 	 *

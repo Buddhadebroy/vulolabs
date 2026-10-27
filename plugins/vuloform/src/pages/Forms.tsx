@@ -23,6 +23,8 @@ interface FormRow {
 	unread: number;
 	/** A plugin needs this form, so it can't be deleted. */
 	protected?: boolean;
+	/** Made from a one-per-site template, so it can't be copied. */
+	single?: boolean;
 	updated_at_display: string;
 	[key: string]: unknown;
 }
@@ -302,8 +304,8 @@ const Forms = () => {
 																`&tab=forms&form=${row.id}`
 															),
 													},
-													// A form a plugin depends on is neither copied nor deleted.
-													...(row.protected
+													// A one-per-site form is not copied; a form a plugin depends on is not deleted.
+													...(row.single || row.protected
 														? []
 														: [
 																{
@@ -318,6 +320,10 @@ const Forms = () => {
 																			row
 																		),
 																},
+														  ]),
+													...(row.protected
+														? []
+														: [
 																{
 																	text: __(
 																		'Delete',

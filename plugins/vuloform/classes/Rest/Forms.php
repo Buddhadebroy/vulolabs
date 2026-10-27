@@ -50,6 +50,14 @@ class Forms extends Controller {
 		);
 		$counts    = VuloForm()->submissions->counts_by_form();
 		$protected = Templates::protected_form_ids();
+		$single    = array();
+
+		// Forms of a one-per-site template can't be copied.
+		foreach ( Templates::all() as $template_id => $template ) {
+			if ( ! empty( $template['single'] ) ) {
+				$single = array_merge( $single, VuloForm()->forms->ids_for_template( $template_id ) );
+			}
+		}
 
 		foreach ( $result['data'] as $index => $row ) {
 			$form_counts = $counts[ (int) $row['id'] ] ?? array(
@@ -59,6 +67,7 @@ class Forms extends Controller {
 
 			$result['data'][ $index ]['id']                 = (int) $row['id'];
 			$result['data'][ $index ]['protected']          = in_array( (int) $row['id'], $protected, true );
+			$result['data'][ $index ]['single']             = in_array( (int) $row['id'], $single, true );
 			$result['data'][ $index ]['submissions']        = $form_counts['total'];
 			$result['data'][ $index ]['unread']             = $form_counts['unread'];
 			$result['data'][ $index ]['updated_at_display'] = Utill::format_datetime( $row['updated_at'] );
