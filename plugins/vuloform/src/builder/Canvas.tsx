@@ -2,8 +2,8 @@ import type { ReactNode } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { ReactSortable } from 'react-sortablejs';
 import { BadgeComponent } from '@zyra/components';
-import type { Field } from '../services/types';
-import { createField, fieldType, fieldTypes } from './fields';
+import type { Field, PaletteItem as Preset } from '../services/types';
+import { createField, fieldType, paletteGroups } from './fields';
 
 interface CanvasProps {
 	fields: Field[];
@@ -16,6 +16,8 @@ interface CanvasProps {
 	onDuplicate: (id: string) => void;
 	// eslint-disable-next-line no-unused-vars
 	onDelete: (id: string) => void;
+	/** Id of the form's template, which can have a field library of its own. */
+	template?: string;
 	/** Shown under the fields: what belongs to the form as a whole but is managed alongside them. */
 	footer?: ReactNode;
 }
@@ -25,6 +27,9 @@ interface PaletteItem {
 	id: string;
 	paletteType: string;
 }
+
+const presetOf = (groups: ReturnType<typeof paletteGroups>, id: string): Preset | undefined =>
+	groups.flatMap((group) => group.items).find((item) => item.id === id);
 
 const GROUPS: { id: string; label: string }[] = [
 	{ id: 'basic', label: __('Questions', 'vuloform') },
@@ -41,9 +46,12 @@ const SORT_GROUP = 'vuloform-fields';
  * it), which appends it after the selected field. Fields are reordered by dragging their handle or
  * with the Move up / Move down buttons, so everything works without a pointer.
  */
-const Canvas = ({ fields, selectedId, onChange, onSelect, onDuplicate, onDelete, footer }: CanvasProps) => {
-	const add = (type: string) => {
-		const field = createField(type, fields);
+const Canvas = ({ fields, selectedId, onChange, onSelect, onDuplicate, onDelete, template, footer }: CanvasProps) => {
+	const groups = paletteGroups(template, GROUPS);
+
+	const add = (id: string) => {
+		const preset = presetOf(groups, id);
+		const field = createField(preset?.type ?? id, fields, preset);
 		const index = fields.findIndex((item) => item.id === selectedId);
 		const next = [...fields];
 
@@ -71,7 +79,15 @@ const Canvas = ({ fields, selectedId, onChange, onSelect, onDuplicate, onDelete,
 
 		list.forEach((item) => {
 			if ('paletteType' in item) {
-				const field = createField(item.paletteType as string, [...fields, ...next]);
+				const paletteId = item.paletteType as string;
+				const preset = presetOf(groups, paletteId);
+
+				// A once-only field already on the form is not added a second time.
+				if (preset?.unique && preset.key && [...fields, ...next].some((existing) => existing.key === preset.key)) {
+					return;
+				}
+
+				const field = createField(preset?.type ?? paletteId, [...fields, ...next], preset);
 
 				added = field.id;
 				next.push(field);
@@ -106,10 +122,8 @@ const Canvas = ({ fields, selectedId, onChange, onSelect, onDuplicate, onDelete,
 					</span>
 				</div>
 				<div className="vuloform-palette-body">
-				{GROUPS.map((group) => {
-					const items: PaletteItem[] = fieldTypes()
-						.filter((type) => type.group === group.id)
-						.map((type) => ({ id: `palette-${type.id}`, paletteType: type.id }));
+				{groups.map((group) => {
+					const items: PaletteItem[] = group.items.map((item) => ({ id: `palette-${item.id}`, paletteType: item.id }));
 
 					return (
 						<div className="vuloform-palette-group" key={group.id}>
@@ -121,18 +135,20 @@ const Canvas = ({ fields, selectedId, onChange, onSelect, onDuplicate, onDelete,
 								group={{ name: SORT_GROUP, pull: 'clone', put: false }}
 								className="vuloform-palette-items"
 							>
-								{items.map((item) => {
-									const type = fieldType(item.paletteType);
+								{group.items.map((item) => {
+									// A once-only item is used up as soon as a field has its key.
+									const used = Boolean(item.unique && item.key && fields.some((field) => field.key === item.key));
 
 									return (
 										<button
 											type="button"
 											className="vuloform-palette-item"
 											key={item.id}
-											onClick={() => add(item.paletteType)}
+											disabled={used}
+											onClick={() => add(item.id)}
 										>
-											<i className={`adminfont-${type?.icon}`} aria-hidden="true" />
-											<span>{type?.label}</span>
+											<i className={`adminfont-${item.icon}`} aria-hidden="true" />
+											<span>{item.label}</span>
 										</button>
 									);
 								})}

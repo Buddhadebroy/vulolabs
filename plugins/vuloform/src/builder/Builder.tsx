@@ -463,6 +463,7 @@ const Builder = ({ formId }: { formId: number }) => {
 			{'fields' === tab && (
 				<div className="vuloform-builder-panes">
 					<Canvas
+						template={present.settings.template}
 						fields={present.fields}
 						selectedId={selectedId}
 						onSelect={setSelectedId}

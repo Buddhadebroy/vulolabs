@@ -1,6 +1,6 @@
 /* global vuloformAppLocalizer */
 import { __ } from '@wordpress/i18n';
-import type { Field, FieldType } from '../services/types';
+import type { Field, FieldType, PaletteGroup, PaletteItem } from '../services/types';
 import { makeId } from '../services/types';
 
 export const fieldTypes = (): FieldType[] => vuloformAppLocalizer.field_types;
@@ -32,8 +32,41 @@ export const uniqueKey = (wanted: string, fields: Field[], ownId = ''): string =
 	return key;
 };
 
-/** A new field of the given type, with sensible starting values. */
-export const createField = (type: string, fields: Field[]): Field => {
+/**
+ * The field library for a form: its template's own, when the template has one, otherwise the
+ * standard groups. Every item is resolved to a ready-made field (a plain type id becomes one that
+ * takes its label and icon from the type).
+ */
+export const paletteGroups = (template: string | undefined, standard: { id: string; label: string }[]): { id: string; label: string; items: PaletteItem[] }[] => {
+	const own: PaletteGroup[] | undefined = template ? vuloformAppLocalizer.palettes?.[template] : undefined;
+
+	if (own?.length) {
+		return own.map((group) => ({
+			id: group.id,
+			label: group.label,
+			items: group.items.flatMap((item): PaletteItem[] => {
+				if ('string' !== typeof item) {
+					return fieldType(item.type) ? [item] : [];
+				}
+
+				const type = fieldType(item);
+
+				return type ? [{ id: type.id, type: type.id, label: type.label, icon: type.icon }] : [];
+			}),
+		}));
+	}
+
+	return standard.map((group) => ({
+		id: group.id,
+		label: group.label,
+		items: fieldTypes()
+			.filter((type) => type.group === group.id)
+			.map((type) => ({ id: type.id, type: type.id, label: type.label, icon: type.icon })),
+	}));
+};
+
+/** A new field of the given type, with sensible starting values. A preset also sets its own label, key and placeholder. */
+export const createField = (type: string, fields: Field[], preset?: PaletteItem): Field => {
 	const definition = fieldType(type);
 	const label = definition?.label ?? type;
 
@@ -93,6 +126,12 @@ export const createField = (type: string, fields: Field[]): Field => {
 
 	if ('address' === type) {
 		field.parts = Object.keys(vuloformAppLocalizer.address_parts);
+	}
+
+	if (preset) {
+		field.label = preset.label;
+		field.key = uniqueKey(preset.key || slug(preset.label), fields);
+		field.placeholder = preset.placeholder ?? field.placeholder;
 	}
 
 	return field;
