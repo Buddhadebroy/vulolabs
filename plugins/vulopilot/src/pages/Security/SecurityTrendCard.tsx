@@ -1,7 +1,7 @@
 /* global vulopilotAppLocalizer */
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import type { PeriodDays } from '../../services/scoreRating';
+import type { PeriodDays } from './types';
 import {
 	AnalyticsComponent,
 	CardComponent,

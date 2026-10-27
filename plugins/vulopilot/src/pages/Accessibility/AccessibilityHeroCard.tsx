@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
-import type { Rating } from '../../services/scoreRating';
+import type { Rating } from './types';
 import {
 	CardComponent,
 	ChartComponent,

@@ -8,7 +8,7 @@ import { formatWpDate } from '../../services/formatWpDate';
 import { useGeoScore } from './useGeoScore';
 import type { GeoSignalScore } from './useGeoScore';
 import './SeoVisibility.scss';
-import type { PeriodDays } from '../../services/scoreRating';
+import type { PeriodDays } from './types';
 
 const getRating = (score: number): string => {
 	if (score >= 70) {

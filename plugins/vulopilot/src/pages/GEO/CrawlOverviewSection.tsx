@@ -8,7 +8,7 @@ import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
 import CrawlerAnalyticsSection from './CrawlerAnalyticsSection';
 import { useCrawlerAnalytics } from './useCrawlerAnalytics';
-import type { PeriodDays } from '../../services/scoreRating';
+import type { PeriodDays } from './types';
 
 const HistoricalCrawlTrendsCard = applyFilters(
 	'vulopilot_crawler_historical_trends_card',

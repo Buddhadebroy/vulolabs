@@ -7,7 +7,7 @@ import { ToggleInput } from '@zyra/inputs';
 import { formatWpDate } from '../../services/formatWpDate';
 import { nonceHeaders } from './seoIssuesShared';
 import './WhatShouldIFixFirst.scss';
-import type { PeriodDays } from '../../services/scoreRating';
+import type { PeriodDays } from './types';
 
 interface TrendPoint {
 	date: string;

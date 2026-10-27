@@ -10,8 +10,7 @@ import { BlurredProContent } from '../components/UpgradeToProOverlay';
 import ShowProPopup from '../components/Popup/Popup';
 import { useApiList } from '../services/useApiList';
 import { formatWpDate } from '../services/formatWpDate';
-import { WidgetProps } from './types';
-import type { PeriodDays } from '../services/scoreRating';
+import { WidgetProps, PeriodDays } from './types';
 
 interface CrawlerAnalyticsResponse {
 	current_total: number;

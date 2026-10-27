@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import type { ComponentType } from 'react';
 import { applyFilters } from '@wordpress/hooks';
 import { __, sprintf } from '@wordpress/i18n';
-import type { Rating } from '../../services/scoreRating';
+import type { Rating } from './types';
 import {
 	getApiLink,
 	getApiResponse,

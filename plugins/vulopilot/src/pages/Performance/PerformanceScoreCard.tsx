@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
-import type { PeriodDays, Rating } from '../../services/scoreRating';
+import type { PeriodDays, Rating } from './types';
 import {
 	CardComponent,
 	ChartComponent,
