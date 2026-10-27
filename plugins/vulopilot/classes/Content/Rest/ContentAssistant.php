@@ -7,12 +7,7 @@ use VuloPilot\Utill\VuloPilotException;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * REST controller for the AI Content Assistant sidebar's chat turn. Each
- * message goes through one orchestrator AI call that asks a clarifying
- * question, answers directly, or hands off to the `generate-blog` AIAction
- * (auto-approved, since the conversation itself is the approval).
- * Conversation state is just the client's round-tripped `history` array -
- * no separate slot-filling state machine.
+ * REST controller for the AI Content Assistant sidebar's chat turn.
  *
  * @class       ContentAssistant controller
  * @version     1.0.0

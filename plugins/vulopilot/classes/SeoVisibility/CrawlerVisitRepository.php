@@ -229,18 +229,10 @@ class CrawlerVisitRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Current-versus-previous-period comparison for the Crawler Traffic tab, with percent
-	 * change against the preceding period of equal length.
+	 * Current-versus-previous-period comparison for the Crawler Traffic tab, with percent change against the preceding period of equal length. current_total:
 	 *
 	 * @param int $days Trailing window size (also the length of the "previous" comparison window).
 	 * @return array{
-	 *     current_total: int,
-	 *     previous_total: int,
-	 *     current_unique_bots: int,
-	 *     previous_unique_bots: int,
-	 *     top_crawlers: array<int, array{bot_name: string, total: int, previous_total: int, last_seen_at: string|null}>,
-	 *     most_crawled_pages: array<int, array{requested_url: string, total: int, previous_total: int}>,
-	 * }
 	 */
 	public function get_period_comparison( int $days = 30 ): array {
 		global $wpdb;

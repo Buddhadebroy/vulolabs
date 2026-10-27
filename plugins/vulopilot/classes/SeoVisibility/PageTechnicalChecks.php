@@ -248,11 +248,7 @@ class PageTechnicalChecks {
 	}
 
 	/**
-	 * Rule 20 - broken links, read from the Broken Links scanner's own stored findings for this
-	 * post rather than live-checking every link here (that scanner already owns link-destination
-	 * verification, with its own timeout/retry handling - re-implementing it here would be the
-	 * exact duplicate logic the spec says to avoid). A post the scanner has never covered reports
-	 * unknown, not a false "no broken links" pass.
+	 * Rule 20 - broken links, read from the Broken Links scanner's own stored findings for this post rather than live-checking every link here (that scanner already owns link-destination verification, with its own timeout/retry handling - re-implementing it here would be the exact duplicate logic the spec says to avoid).
 	 *
 	 * @param int $post_id Post being checked.
 	 * @return array{status: string, reason: string, evidence: array<string, mixed>}

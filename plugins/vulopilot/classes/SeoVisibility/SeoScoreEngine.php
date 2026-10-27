@@ -10,21 +10,7 @@ namespace VuloPilot\SeoVisibility;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloPilot's own SEO score engine - a diagnostic metric (not Google's score, not a ranking
- * prediction), built against Google's own general guidance (developers.google.com/search/docs/
- * essentials, .../fundamentals/seo-starter-guide, .../crawling-indexing/overview-google-crawlers)
- * rather than any other plugin's proprietary formula.
- *
- * 6 categories, 28 rules, weights summing to exactly 100 (asserted in a unit test, not just this
- * comment). Each rule returns rule_id/category/status/max_points/earned_points/reason/evidence/
- * recommendation/data_source. `unknown` (verification wasn't possible) and `not_applicable`
- * (the rule genuinely doesn't apply here) are both excluded from the score denominator - neither
- * counts as a failure, and neither is silently awarded full points either.
- *
- * Rules needing capability this codebase doesn't have (AI-judged search-intent alignment,
- * content usefulness/originality/freshness, semantic topic coverage) are deliberately reported as
- * `unknown` with a reason explaining why, rather than a fabricated status - see each rule's own
- * docblock for which ones and why.
+ * VuloPilot's own SEO score engine - a diagnostic metric (not Google's score, not a ranking prediction), built against Google's own general guidance (developers.google.com/search/docs/ essentials, .../fundamentals/seo-starter-guide, .../crawling-indexing/overview-google-crawlers) rather than any other plugin's proprietary formula.
  *
  * @class       SeoScoreEngine class
  * @version     1.0.0
@@ -75,23 +61,12 @@ class SeoScoreEngine {
 	}
 
 	/**
-	 * Runs every rule against one post's current (possibly live/unsaved) field values.
+	 * Runs every rule against one post's current (possibly live/unsaved) field values. the real stored object (ID, post_type, post_status, attachments).
 	 *
 	 * @param \WP_Post                                                                                    $post          Saved post - used for technical/link/image checks that need
-	 *                                                                                                                    the real stored object (ID, post_type, post_status, attachments).
 	 * @param array{title: string, content: string, excerpt: string, slug: string, focus_keyword: string} $live
-	 *                                 Live editor field values - same shape OnPageAnalyzer::analyze() takes.
 	 * @return array<int, array<string, mixed>>
 	 * @param bool                                                                                        $skip_fetch Skip the one real HTTP self-fetch this evaluation would otherwise
-	 *                                                                                                                make (feeds http_status/canonical/structured_data) - for a live,
-	 *                                                                                                                debounced-on-keystroke call, where a network round trip every ~600ms
-	 *                                                                                                                would queue up behind itself and make the score appear frozen while
-	 *                                                                                                                requests pile up. Those 3 rules report `unknown` for this call
-	 *                                                                                                                instead (still excluded from the denominator, never fabricated) -
-	 *                                                                                                                they describe the currently-published page anyway, which hasn't
-	 *                                                                                                                changed just because the editor has unsaved edits, so skipping them
-	 *                                                                                                                for live calls loses nothing a save-triggered re-evaluation won't
-	 *                                                                                                                immediately restore.
 	 */
 	public function evaluate( \WP_Post $post, array $live, bool $skip_fetch = false ): array {
 		$title         = trim( (string) $live['title'] );

@@ -26,15 +26,7 @@ class AuditContentAction extends AbstractBasicAction {
 
 	private const META_KEY = '_vulopilot_ai_content_audit';
 
-	/**
-	 * Word cap on the content sent to the AI - `AiRequestSender::validate_prompt()` rejects any
-	 * combined prompt over 32,000 characters outright (every request, no partial send), so a
-	 * long page/post sent here in full previously failed this action unconditionally with "This
-	 * request is too long to send to the AI service". A content audit only needs enough of the
-	 * page to judge quality/structure/engagement, not every word - `wp_trim_words()` here is the
-	 * same truncation helper this codebase's own preview rendering already uses elsewhere
-	 * (e.g. ImproveReadabilityAction's build_preview()), just applied to the prompt itself.
-	 */
+	/** Word cap on the content sent to the AI - `AiRequestSender::validate_prompt()` rejects any combined prompt over 32,000 characters outright (every request, no partial send), so a long page/post sent here in full previously failed this action unconditionally with "This request is too long to send to the AI service". */
 	private const MAX_CONTENT_WORDS = 3000;
 
 	/**

@@ -242,11 +242,7 @@ class TableOfContentsRenderer {
 	}
 
 	/**
-	 * Real PHP mirror of `styleVars.js`'s own `buildTocStyleVars()` - same attribute → CSS custom
-	 * property mapping `public/styles/blocks.scss`'s own `.vulopilot-toc` rules read
-	 * (`var(--toc-*, <fallback>)`), so a style set in the editor renders identically on the live
-	 * page. An unset/empty attribute is simply omitted, same as the JS side, so the stylesheet's
-	 * own fallback value applies.
+	 * Real PHP mirror of `styleVars.js`'s own `buildTocStyleVars()` - same attribute → CSS custom property mapping `public/styles/blocks.scss`'s own `.vulopilot-toc` rules read (`var(--toc-*, <fallback>)`), so a style set in the editor renders identically on the live page.
 	 *
 	 * @param array<string, mixed> $attributes Real block attributes.
 	 * @return string A `--name: value;` CSS custom-property declaration list, or '' if nothing is set.

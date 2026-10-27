@@ -124,11 +124,7 @@ class TitleFormatter {
 	}
 
 	/**
-	 * Looks up a raw template for one context key - a flat `{$prefix}{$context_key}` settings
-	 * field for the built-in contexts (home/post/page/category/tag/search/archive), or the
-	 * matching `{$prefix}post_types`/`{$prefix}taxonomies` map entry for a dynamic
-	 * `post_type:{slug}`/`taxonomy:{slug}` context key current_context_key() returns for anything
-	 * else.
+	 * Looks up a raw template for one context key - a flat `{$prefix}{$context_key}` settings field for the built-in contexts (home/post/page/category/tag/search/archive), or the matching `{$prefix}post_types`/`{$prefix}taxonomies` map entry for a dynamic `post_type:{slug}`/`taxonomy:{slug}` context key current_context_key() returns for anything else.
 	 *
 	 * @param array<string, mixed> $settings    Effective plugin settings.
 	 * @param string               $prefix      `'title_format_'` or `'description_format_'`.

@@ -4,11 +4,7 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Fetches `/scans` to list past scan runs. Submitting to `/scans` queues a background run via
- * `VuloPilot()->scan_runner->run_queued()` (Utill\ScanRunner - already wired in
- * VuloPilot::init_classes()) and returns immediately; `/scans/status` reports real progress.
- * Persistence of each scanner's result happens via Utill\ScanPersistenceListener's
- * `vulopilot_scan_completed` hook, not anything in this controller.
+ * Fetches `/scans` to list past scan runs.
  *
  * @class       Scans controller
  * @version     1.0.0
@@ -109,18 +105,9 @@ class Scans extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Comma-separated `category` scopes the run and takes precedence over `scanner_id`. Treated as a forced, user-initiated run unless the caller sends `trigger_type=scheduled`, so rate-limited scanners still run on demand.
+	 *
 	 * @inheritDoc
-	 *
-	 * Comma-separated `category` scopes the run and takes precedence over `scanner_id`.
-	 * Treated as a forced, user-initiated run unless the caller sends
-	 * `trigger_type=scheduled`, so rate-limited scanners still run on demand.
-	 *
-	 * Never runs scanners inline: there are ~85 registered scanners today, several making
-	 * their own network calls, so running them all within this one request can take far
-	 * longer than PHP's own max_execution_time (commonly 30s) and 500 the request before
-	 * most scanners even get a turn. `ScanRunner::run_queued()` instead queues them for
-	 * background batch ticks (same shape as BackupManager's own batch queue) and this
-	 * returns immediately - the frontend polls `/scans/status` for completion.
 	 */
 	public function create_item( $request ) {
 		$force      = 'scheduled' !== sanitize_key( (string) $request->get_param( 'trigger_type' ) );

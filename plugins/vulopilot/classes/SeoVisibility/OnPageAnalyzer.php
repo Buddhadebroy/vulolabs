@@ -132,14 +132,7 @@ class OnPageAnalyzer {
 		return $this->result( 'description_length', 'basic', 'pass', __( 'Meta description length is good.', 'vulopilot' ) );
 	}
 
-	/**
-	 * Content-depth tiers, word count => fraction of full credit - Rank Math's own published
-	 * tiers (rankmath.com/kb/seo-score-vs-content-ai-score/: ">2500 words = 100%; 2000-2500 = 70%;
-	 * 1500-2000 = 60%; 1000-1500 = 40%; 600-1000 = 20%; <600 = 0%"), the one test their own KB
-	 * doc actually publishes real numbers for.
-	 *
-	 * Keyed by the tier's own minimum word count, checked highest-first.
-	 */
+	/** Content-depth tiers, word count => fraction of full credit - Rank Math's own published tiers (rankmath.com/kb/seo-score-vs-content-ai-score/: */
 	private const CONTENT_DEPTH_TIERS = array(
 		2500 => 1.0,
 		2000 => 0.7,
@@ -150,11 +143,7 @@ class OnPageAnalyzer {
 	);
 
 	/**
-	 * Scores the content's own depth against `CONTENT_DEPTH_TIERS` - not the flat
-	 * `thin_content_word_threshold` pass/fail the Thin Content scanner uses elsewhere, which only
-	 * ever gates a single low bar (300 words by default) and gave full score credit to anything
-	 * past it, even content far short of what actually ranks (#bug: this let a 98 score through
-	 * on content Rank Math itself scored 54 on, almost entirely from this one test).
+	 * Scores the content's own depth against `CONTENT_DEPTH_TIERS` - not the flat `thin_content_word_threshold` pass/fail the Thin Content scanner uses elsewhere, which only ever gates a single low bar (300 words by default) and gave full score credit to anything past it, even content far short of what actually ranks (#bug:
 	 *
 	 * @param string $content_text Plain-text content.
 	 * @return array<string, mixed>
@@ -383,11 +372,7 @@ class OnPageAnalyzer {
 	}
 
 	/**
-	 * Checks whether every image in the content has alt text. No images at all is scored as a
-	 * miss, not a free pass - Rank Math's own "focus keyword in image alt text" test requires a
-	 * real image to pass, so a page with none fails this the same way a page with zero content
-	 * can't pass a word-count test (#bug: this used to award full credit for having no images,
-	 * exactly the opposite of what Rank Math does).
+	 * Checks whether every image in the content has alt text.
 	 *
 	 * @param string $content_html Raw post content.
 	 * @return array<string, mixed>
