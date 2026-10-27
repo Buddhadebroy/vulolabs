@@ -18,11 +18,7 @@ use VuloPilot\AiCopilot\Repositories\AiConversationRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * REST controller for the AI Copilot chat. Grounded with a live snapshot
- * of the site's findings/automation counts (build_site_context()) so
- * answers reason from actual open issues. A "write a blog about X"
- * request creates a real draft via ContentCreationOrchestrator
- * (auto-approved); every other kind of change stays advice-only.
+ * REST controller for the AI Copilot chat. Grounded with a live snapshot of the site's findings/automation counts (build_site_context()) so answers reason from actual open issues.
  *
  * @class       Copilot controller
  * @version     1.0.0
