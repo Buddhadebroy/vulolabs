@@ -56,10 +56,31 @@ export const useContentGate = (
 				? 'module'
 				: null;
 
-	// Only ever reached for 'pro'/'vulocloud' now - 'module' renders a real
-	// `ModuleGuardComponent` below instead (its own `buttonLink` navigates
-	// directly, no popup/click-handler needed).
-	const handleActivate = () => setIsPopupOpen(true);
+	const handleActivate = () => {
+		if ('module' === gateReason && moduleId) {
+			window.location.hash = `#&tab=settings&subtab=modules&module=${moduleId}`;
+			return;
+		}
+		setIsPopupOpen(true);
+	};
+
+	const handleSectionKeyDown = (event: KeyboardEvent) => {
+		if ('Enter' === event.key || ' ' === event.key) {
+			event.preventDefault();
+			handleActivate();
+		}
+	};
+
+	const renderTag = (): ReactNode => {
+		const moduleName = (moduleId && MODULE_CATALOG_BY_ID.get(moduleId)?.name) ?? moduleId ?? '';
+
+		return (
+			<span className="admin-tag module-tag">
+				<i className="adminfont-lock" />
+				{moduleName}
+			</span>
+		);
+	};
 
 	const wrap = (realContent: ReactNode, dummyContent: ReactNode = DEFAULT_DUMMY_CONTENT): ReactNode => {
 		if (null === gateReason) {
