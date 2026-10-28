@@ -45,7 +45,11 @@ const open = (hash: string) => {
  */
 const Forms = () => {
 	const [query, setQuery] = useState<TableQuery>({ paged: 1, per_page: 10 });
-	const [list, setList] = useState<{ data: FormRow[]; total: number }>({
+	const [list, setList] = useState<{
+		data: FormRow[];
+		total: number;
+		categories?: { value: string; label: string; count: number }[];
+	}>({
 		data: [],
 		total: 0,
 	});
@@ -65,8 +69,16 @@ const Forms = () => {
 
 		setIsLoading(true);
 
-		apiGet<{ data: FormRow[]; total: number }>('forms', {
+		apiGet<{
+			data: FormRow[];
+			total: number;
+			categories?: { value: string; label: string; count: number }[];
+		}>('forms', {
 			search: query.searchValue || undefined,
+			plugin:
+				query.categoryFilter && 'all' !== query.categoryFilter
+					? query.categoryFilter
+					: undefined,
 			page: query.paged,
 			per_page: query.per_page,
 		})
@@ -212,6 +224,9 @@ const Forms = () => {
 								placeholder: __('Search forms…', 'vuloform'),
 							}}
 							showMenu={false}
+							hideHeader
+							categoryCounts={list.categories ?? []}
+							activeCategory="all"
 							headers={{
 								title: {
 									label: __('Form', 'vuloform'),
@@ -240,6 +255,31 @@ const Forms = () => {
 														text={__('Draft', 'vuloform')}
 													/>
 												)}
+												<a href={`#&tab=submissions&form=${row.id}`}>
+													<BadgeComponent
+														color="blue"
+														text={sprintf(
+															/* translators: %d: number of submissions. */
+															_n(
+																'%d submission',
+																'%d submissions',
+																row.submissions,
+																'vuloform'
+															),
+															row.submissions
+														)}
+													/>
+												</a>
+												{row.unread > 0 && (
+													<BadgeComponent
+														color="green"
+														text={sprintf(
+															/* translators: %d: number of unread submissions. */
+															__('%d new', 'vuloform'),
+															row.unread
+														)}
+													/>
+												)}
 											</span>
 											<span className="vuloform-cell-secondary">
 												{sprintf(
@@ -251,96 +291,50 @@ const Forms = () => {
 										</div>
 									),
 								},
-								submissions: {
-									label: __('Submissions', 'vuloform'),
+								shortcode: {
+									label: __('Shortcode', 'vuloform'),
 									render: (row: FormRow) => (
-										<a
-											href={`#&tab=submissions&form=${row.id}`}
-										>
-											{sprintf(
-												/* translators: %d: number of submissions. */
-												_n(
-													'%d submission',
-													'%d submissions',
-													row.submissions,
-													'vuloform'
-												),
-												row.submissions
-											)}
-											{row.unread > 0 && (
-												<>
-													{' '}
-													<BadgeComponent
-														color="blue"
-														text={sprintf(
-															/* translators: %d: number of unread submissions. */
-															__(
-																'%d new',
-																'vuloform'
-															),
-															row.unread
-														)}
-													/>
-												</>
-											)}
-										</a>
+										<code className="vuloform-cell-shortcode">
+											{`[vuloform id="${row.id}"]`}
+										</code>
 									),
 								},
-								id: {
-									label: '',
-									render: (row: FormRow) => (
-										<div className="vuloform-row-actions">
-											<ButtonInput
-												buttons={[
-													{
-														text: __(
-															'Edit',
-															'vuloform'
-														),
-														icon: 'edit',
-														color: 'purple',
-														onClick: () =>
-															open(
-																`&tab=forms&form=${row.id}`
-															),
-													},
-													// A one-per-site form is not copied; a form a plugin depends on is not deleted.
-													...(row.single || row.protected
-														? []
-														: [
-																{
-																	text: __(
-																		'Duplicate',
-																		'vuloform'
-																	),
-																	icon: 'copy',
-																	color: 'purple',
-																	onClick: () =>
-																		duplicate(
-																			row
-																		),
-																},
-														  ]),
-													...(row.protected
-														? []
-														: [
-																{
-																	text: __(
-																		'Delete',
-																		'vuloform'
-																	),
-																	icon: 'delete',
-																	color: 'border-red',
-																	onClick: () =>
-																		setPendingDelete(
-																			row
-																		),
-																},
-														  ]),
-												]}
-											/>
-										</div>
-									),
+								action: {
+									key: 'action',
+									type: 'action',
+									label: __('Action', 'vuloform'),
+									actions: [
+										{
+											label: __('Edit', 'vuloform'),
+											icon: 'setting',
+											onClick: (row: FormRow) =>
+												open(`&tab=forms&form=${row.id}`),
+										},
+										{
+											// The form's submissions, as a table.
+											label: __('View submissions', 'vuloform'),
+											icon: 'eye',
+											onClick: (row: FormRow) =>
+												open(`&tab=submissions&form=${row.id}`),
+										},
+										{
+											label: __('Duplicate', 'vuloform'),
+											icon: 'copy',
+											// One-per-site and plugin-owned forms are not copied.
+											hidden: (row: FormRow) =>
+												Boolean(row.single || row.protected),
+											onClick: (row: FormRow) => duplicate(row),
+										},
+										{
+											label: __('Delete', 'vuloform'),
+											icon: 'delete',
+											// A form a plugin depends on can't be deleted.
+											hidden: (row: FormRow) =>
+												Boolean(row.protected),
+											onClick: (row: FormRow) =>
+												setPendingDelete(row),
+										},
+									],
 								},
 							}}
 							bulkActions={[

@@ -90,6 +90,7 @@ class FrontendScripts {
 				'field_types'      => $field_types,
 				'templates'        => $templates,
 				'palettes'         => Templates::palettes(),
+				'locked'           => Templates::locked_fields(),
 				'default_settings' => Schema::default_settings(),
 				'file_types'       => array_keys( Schema::FILE_TYPES ),
 				'name_parts'       => Registry::part_labels( 'name' ),

@@ -65,6 +65,10 @@ export const paletteGroups = (template: string | undefined, standard: { id: stri
 	}));
 };
 
+/** What the form's template locks about a field: it is always required, and/or can't be deleted. */
+export const lockOf = (template: string | undefined, field: Field): { required?: boolean; delete?: boolean } =>
+	(template && vuloformAppLocalizer.locked?.[template]?.[field.key]) || {};
+
 /** A new field of the given type, with sensible starting values. A preset also sets its own label, key and placeholder. */
 export const createField = (type: string, fields: Field[], preset?: PaletteItem): Field => {
 	const definition = fieldType(type);
@@ -132,6 +136,7 @@ export const createField = (type: string, fields: Field[], preset?: PaletteItem)
 		field.label = preset.label;
 		field.key = uniqueKey(preset.key || slug(preset.label), fields);
 		field.placeholder = preset.placeholder ?? field.placeholder;
+		field.required = preset.required ?? field.required;
 	}
 
 	return field;

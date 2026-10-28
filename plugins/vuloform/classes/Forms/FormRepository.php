@@ -77,6 +77,8 @@ class FormRepository {
 			$params[] = $args['status'];
 		}
 
+		$where = array_merge( $where, $this->plugin_clauses( (string) ( $args['plugin'] ?? '' ), $params ) );
+
 		$where_sql = implode( ' AND ', array_merge( $where, $this->hidden_template_clauses( $params ) ) );
 		$per_page  = (int) ( $args['per_page'] ?? 0 );
 		$per_page  = $per_page > 0 ? min( 100, $per_page ) : 10;
@@ -115,6 +117,55 @@ class FormRepository {
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return (int) $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM %i WHERE form_schema LIKE %s ORDER BY id ASC LIMIT 1', $this->table(), '%' . $wpdb->esc_like( '"template":' . wp_json_encode( $template ) ) . '%' ) );
+	}
+
+	/**
+	 * Conditions for the plugin filter of the list: '' for every form, 'vuloform' for the forms that
+	 * belong to no plugin, or a plugin's name for the forms made from its templates.
+	 *
+	 * @param string $plugin Filter value.
+	 * @param array  $params Query values; the conditions' values are appended.
+	 * @return string[]
+	 */
+	private function plugin_clauses( $plugin, array &$params ) {
+		global $wpdb;
+
+		$plugins = Templates::plugins();
+
+		if ( '' === $plugin || 'all' === $plugin ) {
+			return array();
+		}
+
+		$like = static function ( $id ) use ( $wpdb ) {
+			return '%' . $wpdb->esc_like( '"template":' . wp_json_encode( $id ) ) . '%';
+		};
+
+		if ( 'vuloform' === $plugin ) {
+			$clauses = array();
+
+			foreach ( array_merge( array(), ...array_values( $plugins ) ) as $id ) {
+				$clauses[] = 'form_schema NOT LIKE %s';
+				$params[]  = $like( $id );
+			}
+
+			return $clauses;
+		}
+
+		$ids = $plugins[ $plugin ] ?? array();
+
+		if ( ! $ids ) {
+			// A plugin that is not offering templates has no forms in the list.
+			return array( '1=0' );
+		}
+
+		$or = array();
+
+		foreach ( $ids as $id ) {
+			$or[]     = 'form_schema LIKE %s';
+			$params[] = $like( $id );
+		}
+
+		return array( '(' . implode( ' OR ', $or ) . ')' );
 	}
 
 	/**

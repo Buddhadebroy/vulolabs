@@ -395,6 +395,39 @@ class Templates {
 	}
 
 	/**
+	 * Plugins that offer templates right now, with the ids of their templates.
+	 *
+	 * @return array<string, string[]> Plugin name => template ids.
+	 */
+	public static function plugins() {
+		$out = array();
+
+		foreach ( self::all() as $id => $template ) {
+			if ( ! empty( $template['plugin'] ) ) {
+				$out[ $template['plugin'] ][] = $id;
+			}
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Fields a template needs to keep, by template id then field key. A locked field is always
+	 * required (`required`) and/or can't be removed from the form (`delete` => false). A plugin adds
+	 * its own with the `vuloform_template_locked_fields` filter; the builder enforces them.
+	 *
+	 * @return array<string, array<string, array{required?: bool, delete?: bool}>>
+	 */
+	public static function locked_fields() {
+		/**
+		 * Filters the fields a template locks.
+		 *
+		 * @param array $locked Template id => field key => array( 'required' => bool, 'delete' => bool ).
+		 */
+		return (array) apply_filters( 'vuloform_template_locked_fields', array() );
+	}
+
+	/**
 	 * Forms that can't be deleted, because something depends on them (a plugin's registration form,
 	 * for example). A plugin adds its form's id with the `vuloform_protected_forms` filter.
 	 *

@@ -44,6 +44,7 @@ class Forms extends Controller {
 			array(
 				'search'   => sanitize_text_field( (string) $request->get_param( 'search' ) ),
 				'status'   => sanitize_key( (string) $request->get_param( 'status' ) ),
+				'plugin'   => sanitize_text_field( (string) $request->get_param( 'plugin' ) ),
 				'page'     => absint( $request->get_param( 'page' ) ),
 				'per_page' => absint( $request->get_param( 'per_page' ) ),
 			)
@@ -73,7 +74,53 @@ class Forms extends Controller {
 			$result['data'][ $index ]['updated_at_display'] = Utill::format_datetime( $row['updated_at'] );
 		}
 
+		$result['categories'] = $this->categories();
+
 		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * The list's filter tabs: every form, the forms of VuloForm itself, and one tab per plugin that
+	 * offers templates, each with its count.
+	 *
+	 * @return array<int, array{value: string, label: string, count: int}>
+	 */
+	private function categories() {
+		$total      = (int) VuloForm()->forms->query( array( 'per_page' => 1 ) )['total'];
+		$categories = array();
+		$in_plugins = 0;
+
+		foreach ( array_keys( Templates::plugins() ) as $name ) {
+			$count       = (int) VuloForm()->forms->query(
+				array(
+					'plugin'   => $name,
+					'per_page' => 1,
+				)
+			)['total'];
+			$in_plugins += $count;
+
+			$categories[] = array(
+				'value' => $name,
+				'label' => $name,
+				'count' => $count,
+			);
+		}
+
+		return array_merge(
+			array(
+				array(
+					'value' => 'all',
+					'label' => __( 'All', 'vuloform' ),
+					'count' => $total,
+				),
+				array(
+					'value' => 'vuloform',
+					'label' => 'VuloForm',
+					'count' => max( 0, $total - $in_plugins ),
+				),
+			),
+			$categories
+		);
 	}
 
 	/**

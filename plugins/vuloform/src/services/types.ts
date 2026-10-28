@@ -17,6 +17,10 @@ export interface PaletteItem {
 	placeholder?: string;
 	/** Can be added only once. */
 	unique?: boolean;
+	/** Added as a required field. */
+	required?: boolean;
+	/** Kept at the top or bottom of the form, and not movable. Needs `key`. */
+	pin?: 'top' | 'bottom';
 }
 
 export interface PaletteGroup {
