@@ -75,12 +75,6 @@ class FindingRepository extends RepositoryUtil {
 		$where = implode(
 			' AND ',
 			array(
-				// A real `dedupe_key` is a stable identity independent of status - matching it
-				// regardless of status lets a scanner that only samples part of its object set each
-				// run (e.g. BrokenLinksScanner/BrokenImagesScanner) reopen its own earlier row
-				// instead of inserting a duplicate once that row got auto-resolved in a run that
-				// simply didn't re-sample it. A title-only match (no dedupe_key) keeps the old,
-				// narrower "open" scope, since title isn't guaranteed stable/unique on its own.
 				null !== $dedupe_key ? '1 = 1' : "status = 'open'",
 				'scanner_id = %s',
 				$type_is_null ? '%i IS NULL' : '%i = %s',

@@ -95,9 +95,6 @@ export const useApiList = <T = Record<string, unknown>>(
 		// RecentActivityWidget, NeedsAttentionWidget, etc.) wins over tableQuery's own per_page.
 		per_page: params.per_page ?? tableQuery.per_page,
 		search: tableQuery.searchValue,
-		// A caller-supplied static default (e.g. a page that should open sorted by hits rather than
-		// TableCard's own default) survives until the user actually picks a sort - same precedence
-		// as the per_page override just above.
 		orderby: tableQuery.orderby || params.orderby,
 		order: tableQuery.order || params.order,
 		...(categoryFilter && tableQuery.categoryFilter !== 'all'

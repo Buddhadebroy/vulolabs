@@ -135,13 +135,7 @@ const getBrokenUrl = (finding: BrokenLinkFinding): string =>
 const truncateText = (text: string, maxLength = 15): string =>
 	text.length > maxLength ? `${text.slice(0, maxLength)}…` : text;
 
-/**
- * `page_title` already comes back decoded from `Findings::add_page_field()` (`get_the_title()`
- * is HTML-entity-encoded by WordPress' own `the_title` filter, e.g. "Terms &amp; Condition") -
- * this is a defensive second pass purely for display, in case a title was saved doubly-encoded
- * at the source (e.g. "Terms &amp;amp; Condition"), which a single server-side decode wouldn't
- * fully resolve. A real `<textarea>` round-trip handles every HTML entity, not just `&amp;`.
- */
+
 const decodeHtmlEntities = (text: string | null | undefined): string => {
 	if (!text || -1 === text.indexOf('&')) {
 		return text || '';
@@ -306,9 +300,6 @@ const fetchAllBrokenFindings = async (): Promise<BrokenLinkFinding[]> => {
 		}>(
 			getApiLink(
 				vulopilotAppLocalizer,
-				// `status=all` is required - FindingRepository::find_all() silently defaults to
-				// 'open' otherwise, which would drop every resolved (fixed) finding from this
-				// fetch entirely, even though the Status filter below expects to show them.
 				`findings?scanner_id=${scannerParam}&status=all&per_page=${FINDINGS_PAGE_SIZE}&page=${page}&orderby=id&order=desc`
 			),
 			nonceHeaders
@@ -654,11 +645,6 @@ const BrokenLinksSection = () => {
 		paged * perPage
 	);
 
-	// One source page can have several broken links (e.g. a Terms page linking to several other
-	// broken pages) - repeating its title/icon/External-Internal badge on every single one of
-	// those rows is what makes this table read as a wall of near-identical rows. Only the first
-	// row for a given page in the CURRENT page of results carries that page-level info; the rest
-	// render as a lighter continuation row - same underlying data/actions, just visually grouped.
 	const firstRowIdsByPage = (() => {
 		const seenPages = new Set<string>();
 		const firstIds = new Set<number | string>();
@@ -702,9 +688,6 @@ const BrokenLinksSection = () => {
 
 				return (
 					<InformationItemComponent
-						// Every row shows its own real page name - repeating it on a continuation
-						// row (same page as the row above) is what made this table read as a wall
-						// of near-identical rows, so only the first row for a page shows it.
 						title={decodeHtmlEntities(row.page_title) || row.page || __('(no title)', 'vulopilot')}
 						titleLink={pageUrl}
 						avatar={{

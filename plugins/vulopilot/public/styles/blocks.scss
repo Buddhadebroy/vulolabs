@@ -321,17 +321,6 @@
 	}
 }
 
-/*
- * "Outline" appearance - one bordered panel, items flush against each other and separated only
- * by a thin top divider (not each item its own card), plus a plain plus/cross toggle icon drawn
- * with ::before/::after instead of this block's own glyph-swap icon. Deliberately self-contained
- * (every property it needs set here, not relying on the --faq-* custom properties the other 3
- * presets share) so it reads as its own separate look, not a patch over the default one. Picking
- * it from the Appearance panel just adds this modifier class (FaqRenderer.php/FaqAccordion.js),
- * same as any other preset; `.wp-block-vulopilot-faq` in the selector out-specifies the default
- * rules above without needing `!important` anywhere but `font-weight` (whose own default rule is
- * itself `!important`).
- */
 .vulopilot-faq.wp-block-vulopilot-faq.vulopilot-faq--appearance-outline {
 	display: block;
 	gap: 0;

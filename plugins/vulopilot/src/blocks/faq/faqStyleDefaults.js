@@ -134,10 +134,6 @@ export const APPEARANCE_PRESETS = [
 		label: 'Outline',
 		desc: 'One bordered panel, items flush, separated by a thin top divider.',
 		style: {
-			// The real look (outer panel border/radius, the flush top-divider between items, the
-			// plus/cross icon) is CSS-only - see `.vulopilot-faq--appearance-outline` in
-			// blocks.scss - this bundle just keeps "Spacing & borders" coherent if the user opens
-			// it afterward (no per-item border/radius/gap of its own to fight that CSS).
 			layout: { itemGap: '0' },
 			item: {
 				background: 'transparent',

@@ -185,10 +185,6 @@ class Findings extends \WP_REST_Controller {
                 'per_page'    => absint( $request->get_param( 'per_page' ) ) ?: 20,
                 'category'    => $category,
                 'severity'    => $severity_filter,
-                // `find_all()`'s own filterable-column loop does an exact `status = %s` match with
-                // no 'all' escape hatch (unlike get_finding_groups()/get_attention_summary(), which
-                // special-case it) - passed through as-is, the literal string 'all' matches zero
-                // rows instead of meaning "every status".
                 'status'      => 'all' === $status ? '' : $status,
                 'search'      => $search,
                 'scanner_id'  => $scanner_ids ?? '',
@@ -364,13 +360,6 @@ class Findings extends \WP_REST_Controller {
             // above (e.g. BrokenLinksSection.tsx's own "Source page"
             // column) - null when there's no real post behind this row to
             // name (falls back to `page` itself either way, never a
-            // fabricated title). `get_the_title()` returns the `the_title`-filtered, HTML-entity-
-            // encoded string (e.g. "Terms &amp; Condition") - correct for echoing into HTML, but
-            // every REST consumer of this field renders it as plain text (React JSX children,
-            // CSV export), so it's decoded back to real characters here, once, for all of them.
-            // Decoded twice: a title saved doubly-encoded at the source (e.g. "Terms &amp;amp;
-            // Condition", which block-editor RichText serialization can produce) needs a second
-            // pass - decoding an already-plain string a second time is a harmless no-op.
             $title             = html_entity_decode( html_entity_decode( get_the_title( $post_id ), ENT_QUOTES ), ENT_QUOTES );
             $row['page_title'] = $permalink && '' !== $title ? $title : null;
 

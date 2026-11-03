@@ -753,9 +753,6 @@
 	}
 }
 
-// A broken link on the same source page as the row above it (BrokenLinksSection.tsx's own
-// `firstRowIdsByPage`) - lighter weight and indented, so a source page with several broken links
-// reads as one group instead of repeating its own title/link on every row.
 .broken-link-continuation-row {
 	.info-item {
 		padding-left: 1.5rem;

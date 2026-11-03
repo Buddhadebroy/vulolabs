@@ -594,9 +594,6 @@ registerBlockType( metadata.name, {
 								/>
 							</span>
 						) }
-						// Editing happens directly on the canvas, so every item is shown open at
-						// once here regardless of the real `layoutMode` setting (which still
-						// governs the accordion/expanded behavior the frontend actually renders).
 						settings={ { ...settings, layoutMode: 'expanded' } }
 						styleVars={ styleVars }
 						className={ `vulopilot-faq--appearance-${ appearance }` }

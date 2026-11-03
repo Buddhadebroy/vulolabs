@@ -25,10 +25,6 @@ class BlockRegistrar {
 	public function __construct() {
 		add_action( 'init', array( $this, 'register_blocks' ) );
 		add_filter( 'block_categories_all', array( $this, 'register_block_category' ) );
-		// `enqueue_block_editor_assets` only reaches wp-admin's own <head>, outside the block
-		// editor's canvas iframe (WP 6.3+) - a stylesheet enqueued there never actually styles
-		// the block preview. `enqueue_block_assets` is the one hook WP pipes into that iframe
-		// automatically, and it also fires on the real frontend, so one callback covers both.
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_blocks_styles' ) );
 	}
 
@@ -95,11 +91,6 @@ class BlockRegistrar {
 	}
 
 	/**
-	 * Unconditional in wp-admin - the block inserter/editor canvas needs the same `.vulopilot-
-	 * toc`/`.vulopilot-faq` rules to preview correctly regardless of whether either block has
-	 * been inserted into THIS particular post yet. On the real frontend, only when one of
-	 * these blocks is actually on the page.
-	 *
 	 * @return void
 	 */
 	public function enqueue_blocks_styles(): void {

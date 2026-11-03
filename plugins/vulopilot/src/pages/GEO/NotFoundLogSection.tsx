@@ -103,10 +103,6 @@ const NotFoundLogSection = () => {
 		setBulkDismissIds(null);
 		setIsBulkApplying(true);
 
-		// One at a time, not Promise.all - firing every delete at once let one failed/slow request
-		// (a dropped connection, a nonce hiccup) take the whole batch down with it via an unhandled
-		// rejection, silently stopping short of the rest (some rows dismissed, some not, no refetch,
-		// no notice). A plain try/catch per row means a single failure can't stop the others.
 		let failed = 0;
 
 		for (const id of ids) {
@@ -220,9 +216,6 @@ const NotFoundLogSection = () => {
 								placeholder: __('Search missing URLs…', 'vulopilot'),
 							}}
 							hideHeader={true}
-							// Real "Sort by" filter rendered in the table's own action row, before
-							// the search field - same placement SectionedIssuesTable.tsx's own
-							// "All resources" filter uses.
 							filtersBeforeSearch
 							filters={[
 								{
