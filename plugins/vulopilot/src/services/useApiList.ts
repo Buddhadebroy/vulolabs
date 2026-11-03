@@ -95,8 +95,8 @@ export const useApiList = <T = Record<string, unknown>>(
 		// RecentActivityWidget, NeedsAttentionWidget, etc.) wins over tableQuery's own per_page.
 		per_page: params.per_page ?? tableQuery.per_page,
 		search: tableQuery.searchValue,
-		orderby: tableQuery.orderby,
-		order: tableQuery.order,
+		orderby: tableQuery.orderby || params.orderby,
+		order: tableQuery.order || params.order,
 		...(categoryFilter && tableQuery.categoryFilter !== 'all'
 			? { [categoryFilter.key]: tableQuery.categoryFilter }
 			: {}),
