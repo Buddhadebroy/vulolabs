@@ -5,7 +5,7 @@ Tags: seo, website optimization, site health, performance, security
 Requires at least: 6.7
 Tested up to: 7.1.3
 Requires PHP: 8.1
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -464,6 +464,16 @@ Supported one-click fixes require approval. If you enable Pro automation, review
 
 ## Changelog ##
 
+### 1.0.1 ###
+
+* Fix: 404 Log now clears URLs that no longer return a 404 (for example, once a removed page is restored or redirected). A daily recheck handles this, and trashing the matching post removes its row immediately.
+* Fix: bulk Dismiss in the 404 Log no longer stops partway through a batch.
+* Fix: Broken Links tab no longer shows an empty table and zero status counts when broken links exist.
+* Fix: Broken Links and Broken Images no longer list the same link or image more than once across scans.
+* Fix: source-page titles containing "&" in Broken Links and Broken Images now display correctly instead of as "&amp;".
+* Add: bulk Dismiss for the 404 Log table, with a confirmation step.
+* Add: "Sort by" option (Most hits / Most recent) for the 404 Log table, defaulting to Most hits.
+
 ### 1.0.0 ###
 
 * Initial release.
@@ -483,6 +493,10 @@ Supported one-click fixes require approval. If you enable Pro automation, review
 * Dashboard with website health scores and detailed findings.
 
 ## Upgrade Notice ##
+
+### 1.0.1 ###
+
+Fixes the 404 Log, Broken Links and Broken Images tables, and adds bulk dismiss and sorting to the 404 Log.
 
 ### 1.0.0 ###
 

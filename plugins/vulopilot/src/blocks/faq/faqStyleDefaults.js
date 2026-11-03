@@ -15,52 +15,52 @@ export const DEFAULT_FAQ_STYLE = {
 	container: {
 		background: '',
 		padding: { top: '', right: '', bottom: '', left: '' },
-		border: { color: '', width: '', style: 'solid' },
-		radius: '',
+		border: { color: '', width: '0', style: 'solid' },
+		radius: '0',
 		shadow: '',
 	},
 	item: {
-		background: '#ffffff',
-		border: { color: '#e6e9f2', width: '0.0625rem', style: 'solid' },
-		radius: '0.75rem',
+		background: 'transparent',
+		border: { color: 'transparent', width: '0', style: 'solid' },
+		radius: '0',
 		shadow: '',
 	},
 	question: {
 		fontFamily: '',
-		fontSize: '1.125rem',
-		fontWeight: '600',
-		lineHeight: '1.4',
+		fontSize: '1rem',
+		fontWeight: '500',
+		lineHeight: '1.5',
 		letterSpacing: '',
 		textAlign: 'left',
-		color: '#1f2937',
+		color: '#1e1e1e',
 		background: '',
-		padding: { top: '1.25rem', right: '1.25rem', bottom: '1.25rem', left: '1.25rem' },
+		padding: { top: '1.25rem', right: '1.5rem', bottom: '1.25rem', left: '1.5rem' },
 	},
 	answer: {
 		fontFamily: '',
 		fontSize: '1rem',
 		fontWeight: '400',
-		lineHeight: '1.6',
-		color: '#1f2937',
+		lineHeight: '1.5',
+		color: '#50575e',
 		background: '',
-		padding: { top: '1.25rem', right: '1.25rem', bottom: '1.25rem', left: '1.25rem' },
+		padding: { top: '0', right: '1.5rem', bottom: '1.25rem', left: '1.5rem' },
 		linkColor: '',
 	},
 	icon: {
-		size: '1.75rem',
+		size: '1.125rem',
 		color: '',
-		spacing: '0.813rem',
-		background: '#f2f5ff',
-		radius: '0.4375rem',
+		spacing: '1rem',
+		background: 'transparent',
+		radius: '0',
 	},
 	states: {
-		hoverBorderColor: '#cbd4f5',
-		expandedBorderColor: '#b8c6f2',
-		expandedShadow: '0 0.25rem 1rem rgba(0, 41, 145, 0.06)',
-		expandedBackground: '#f8faff',
+		hoverBorderColor: '',
+		expandedBorderColor: '',
+		expandedShadow: '',
+		expandedBackground: '',
 		expandedQuestionColor: '',
 		expandedIconBackground: '',
-		expandedIconColor: '#ffffff',
+		expandedIconColor: '',
 		focusColor: '',
 	},
 	responsive: {
@@ -75,55 +75,46 @@ export const DEFAULT_FAQ_STYLE = {
 			questionFontSize: '0.9375rem',
 			answerFontSize: '0.875rem',
 			itemPadding: '',
-			itemGap: '0.5rem',
+			itemGap: '0',
 			iconSize: '1.625rem',
 		},
 	},
 };
 
 /**
- * 3 real `style.item`/`style.question` bundles - picking a preset writes these straight into the
- * block's own `style` attribute (same `setAttributes()` path a manual Spacing & Borders edit
- * uses), so the result is a real, inspectable value rather than a CSS-only "look" that manual
- * fine-tuning afterward could silently fight with. `appearance` itself just remembers which
- * preset button is shown selected - re-picking the same one is a no-op, picking a different one
- * overwrites `item`/`question` again.
+ * 2 real `style.layout`/`style.container`/`style.item` bundles - picking a preset writes these
+ * straight into the block's own `style` attribute (same `setAttributes()` path a manual Spacing &
+ * Borders edit uses), so the result is a real, inspectable value rather than a CSS-only "look"
+ * that manual fine-tuning afterward could silently fight with. `appearance` itself just remembers
+ * which preset button is shown selected - re-picking the same one is a no-op, picking a different
+ * one overwrites `layout`/`container`/`item` again.
  */
 export const APPEARANCE_PRESETS = [
 	{
-		value: 'cards',
-		label: 'Cards',
-		desc: 'Each question its own bordered, shadowed card.',
-		style: {
-			item: {
-				background: '#ffffff',
-				border: { color: '#e6e9f2', width: '0.0625rem', style: 'solid' },
-				radius: '0.75rem',
-				shadow: '',
-			},
-		},
-	},
-	{
-		value: 'dividers',
-		label: 'Dividers',
-		desc: 'A flat list, separated by a thin line.',
-		style: {
-			item: {
-				background: 'transparent',
-				border: { color: '#e6e9f2', width: '0.0625rem', style: 'solid' },
-				radius: '0',
-				shadow: '',
-			},
-		},
-	},
-	{
 		value: 'minimal',
-		label: 'Minimal',
+		label: 'Default',
 		desc: 'No borders or backgrounds - just spacing.',
 		style: {
+			layout: { itemGap: '1rem' },
+			container: DEFAULT_FAQ_STYLE.container,
+			item: DEFAULT_FAQ_STYLE.item,
+		},
+	},
+	{
+		value: 'card',
+		label: 'Card',
+		desc: 'One bordered panel, rows separated by a thin line.',
+		style: {
+			layout: { itemGap: '0rem' },
+			container: {
+				background: '#ffffff',
+				border: { color: '#e1e6f2', width: '0.0625rem', style: 'solid' },
+				radius: '0.125rem',
+				shadow: '',
+			},
 			item: {
 				background: 'transparent',
-				border: { color: 'transparent', width: '0', style: 'solid' },
+				border: { color: '#e1e6f2', width: '0.0625rem', style: 'solid' },
 				radius: '0',
 				shadow: '',
 			},

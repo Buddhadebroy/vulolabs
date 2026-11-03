@@ -368,7 +368,11 @@ class Findings extends \WP_REST_Controller {
             // encoded string (e.g. "Terms &amp; Condition") - correct for echoing into HTML, but
             // every REST consumer of this field renders it as plain text (React JSX children,
             // CSV export), so it's decoded back to real characters here, once, for all of them.
-            $row['page_title'] = $permalink ? ( html_entity_decode( get_the_title( $post_id ), ENT_QUOTES ) ?: null ) : null;
+            // Decoded twice: a title saved doubly-encoded at the source (e.g. "Terms &amp;amp;
+            // Condition", which block-editor RichText serialization can produce) needs a second
+            // pass - decoding an already-plain string a second time is a harmless no-op.
+            $title             = html_entity_decode( html_entity_decode( get_the_title( $post_id ), ENT_QUOTES ), ENT_QUOTES );
+            $row['page_title'] = $permalink && '' !== $title ? $title : null;
 
             return $row;
         }

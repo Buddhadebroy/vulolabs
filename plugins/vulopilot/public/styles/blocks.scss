@@ -1,9 +1,4 @@
 .vulopilot-toc {
-	// Section style - the block's own outer box. Each side falls back to the
-	// pre-style-settings default (1.5em 0 / 1em 1.25em) when its own
-	// `--toc-section-*` var isn't set (styleVars.js/TableOfContentsRenderer.php's
-	// `build_style_attribute()` only ever emit a var for an attribute that's
-	// actually been changed from its block.json default).
 	margin: var(--toc-section-margin-top, 1.5em) var(--toc-section-margin-right, 0)
 		var(--toc-section-margin-bottom, 1.5em) var(--toc-section-margin-left, 0);
 	padding: var(--toc-section-padding-top, 1em) var(--toc-section-padding-right, 1.25em)
@@ -148,6 +143,7 @@
 	width: 100%;
 	max-width: 100%;
 	box-sizing: border-box;
+	overflow: hidden;
 
 	background: var(--faq-container-background, transparent);
 	padding: var(--faq-container-padding-top, 0) var(--faq-container-padding-right, 0)
@@ -159,11 +155,11 @@
 }
 
 /* FAQ item */
-.vulopilot-faq__item {
-	background: var(--faq-item-background, #fff);
-	border: var(--faq-item-border-width, 0.0625rem) var(--faq-item-border-style, solid)
-		var(--faq-item-border-color, #e6e9f2);
-	border-radius: var(--faq-item-radius, 0.75rem);
+.vulopilot-faq-item {
+	background: var(--faq-item-background, transparent);
+	border: var(--faq-item-border-width, 0) var(--faq-item-border-style, solid)
+		var(--faq-item-border-color, transparent);
+	border-radius: var(--faq-item-radius, 0);
 	box-shadow: var(--faq-item-shadow, none);
 	overflow: hidden;
 	max-width: 100%;
@@ -173,33 +169,33 @@
 		box-shadow var(--faq-animation-duration, 0.2s) ease;
 }
 
-.vulopilot-faq__item:hover {
-	border-color: var(--faq-hover-border-color, #cbd4f5);
+.vulopilot-faq-item:hover {
+	border-color: var(--faq-hover-border-color, var(--faq-item-border-color, transparent));
 }
 
-.vulopilot-faq__item[open] {
-	border-color: var(--faq-expanded-border-color, #b8c6f2);
-	box-shadow: var(--faq-expanded-shadow, 0 0.25rem 1rem rgba(0, 41, 145, 0.06));
+.vulopilot-faq-item[open] {
+	border-color: var(--faq-expanded-border-color, var(--faq-item-border-color, transparent));
+	box-shadow: var(--faq-expanded-shadow, none);
 }
 
 /* Question */
-.vulopilot-faq__question,
-.vulopilot-faq__question--static {
+.vulopilot-faq-question,
+.vulopilot-faq-question--static {
 	position: relative;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 0.5rem;
-	padding: var(--faq-question-padding-top, 1.25rem) var(--faq-question-padding-right, 1.25rem)
-		var(--faq-question-padding-bottom, 1.25rem) var(--faq-question-padding-left, 1.25rem);
+	gap: 1rem;
+	padding: var(--faq-question-padding-top, 1.25rem) var(--faq-question-padding-right, 1.5rem)
+		var(--faq-question-padding-bottom, 1.25rem) var(--faq-question-padding-left, 1.5rem);
 
 	font-family: var(--faq-question-font-family, inherit);
-	font-size: var(--faq-question-font-size, 1.125rem);
-	font-weight: var(--faq-question-font-weight, 600) !important;
-	line-height: var(--faq-question-line-height, 1.4);
+	font-size: var(--faq-question-font-size, 1rem);
+	font-weight: var(--faq-question-font-weight, 500);
+	line-height: var(--faq-question-line-height, 1.5);
 	letter-spacing: var(--faq-question-letter-spacing, normal);
 	text-align: var(--faq-question-text-align, left);
-	color: var(--faq-question-color, #1f2937);
+	color: var(--faq-question-color, #1e1e1e);
 	background: var(--faq-question-background, transparent);
 	cursor: pointer;
 	list-style: none;
@@ -207,7 +203,7 @@
 	box-sizing: border-box;
 }
 
-.vulopilot-faq__question-text {
+.vulopilot-faq-question-text {
 	flex: 1;
 	margin: 0;
 	font: inherit;
@@ -215,89 +211,118 @@
 	text-align: inherit;
 }
 
-.vulopilot-faq__question--static {
+.vulopilot-faq-question--static {
 	cursor: default;
 	user-select: text;
 }
 
-.vulopilot-faq__question::-webkit-details-marker {
+.vulopilot-faq-question::-webkit-details-marker {
 	display: none;
 }
 
-.vulopilot-faq__question::marker {
+.vulopilot-faq-question::marker {
 	content: '';
 }
 
 /* Toggle icon */
-.vulopilot-faq__icon {
+.vulopilot-faq-icon {
+	position: relative;
 	flex-shrink: 0;
 	order: 2;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 
-	width: var(--faq-icon-size, 1.75rem);
-	height: var(--faq-icon-size, 1.75rem);
-	border-radius: var(--faq-icon-radius, 0.4375rem);
+	width: var(--faq-icon-size, 1.125rem);
+	height: var(--faq-icon-size, 1.125rem);
+	border-radius: var(--faq-icon-radius, 0);
 
-	background: var(--faq-icon-background, #f2f5ff);
-	color: var(--faq-icon-color, var(--color-primary, #002991));
+	background: var(--faq-icon-background, transparent);
+	color: var(--faq-icon-color, currentColor);
 
 	font-size: 1.25rem;
 	font-weight: 400;
 	line-height: 1;
 
 	transition: background var(--faq-animation-duration, 0.2s) ease,
-		color var(--faq-animation-duration, 0.2s) ease;
+		color var(--faq-animation-duration, 0.2s) ease,
+		transform var(--faq-animation-duration, 0.2s) ease;
 }
 
-.vulopilot-faq--icon-right .vulopilot-faq__icon {
-	margin-left: var(--faq-icon-spacing, 0.813rem);
+.vulopilot-faq--icon-right .vulopilot-faq-icon {
+	margin-left: var(--faq-icon-spacing, 1rem);
 	order: 2;
 }
 
-.vulopilot-faq--icon-left .vulopilot-faq__question {
+.vulopilot-faq--icon-left .vulopilot-faq-question {
 	flex-direction: row-reverse;
 }
 
-.vulopilot-faq--icon-left .vulopilot-faq__icon {
-	margin-right: var(--faq-icon-spacing, 0.813rem);
+.vulopilot-faq--icon-left .vulopilot-faq-icon {
+	margin-right: var(--faq-icon-spacing, 1rem);
 }
 
-.vulopilot-faq__icon-open {
+.vulopilot-faq-icon-open {
 	display: none;
 }
 
-.vulopilot-faq__item[open] .vulopilot-faq__icon-closed {
+.vulopilot-faq-item[open] .vulopilot-faq-icon-closed {
 	display: none;
 }
 
-.vulopilot-faq__item[open] .vulopilot-faq__icon-open {
+.vulopilot-faq-item[open] .vulopilot-faq-icon-open {
 	display: block;
 }
 
+// "Plus / Minus" icon style's own CSS-drawn bars (a crisp "+" that rotates 45° into a "×" on
+// open) instead of the Unicode `+`/`−` glyph spans every other icon style still uses - those
+// spans are hidden here since this variant draws the icon itself, not text.
+.vulopilot-faq--icon-style-plus-minus .vulopilot-faq-icon > span {
+	display: none !important;
+}
+
+.vulopilot-faq--icon-style-plus-minus .vulopilot-faq-icon::before,
+.vulopilot-faq--icon-style-plus-minus .vulopilot-faq-icon::after {
+	content: '';
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 0.656rem;
+	height: 0.094rem;
+	border-radius: 0.125rem;
+	background: currentColor;
+	transform: translate(-50%, -50%);
+}
+
+.vulopilot-faq--icon-style-plus-minus .vulopilot-faq-icon::after {
+	transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.vulopilot-faq--icon-style-plus-minus .vulopilot-faq-item[open] .vulopilot-faq-icon {
+	transform: rotate(45deg);
+}
+
 /* Open state */
-.vulopilot-faq__item[open] .vulopilot-faq__question {
-	color: var(--faq-expanded-question-color, var(--color-primary, #002991));
+.vulopilot-faq-item[open] .vulopilot-faq-question {
+	color: var(--faq-expanded-question-color, var(--faq-question-color, #1e1e1e));
 	background: var(--faq-expanded-background, transparent);
 }
 
-.vulopilot-faq__item[open] .vulopilot-faq__icon {
-	background: var(--faq-expanded-icon-background, var(--color-primary, #002991));
-	color: var(--faq-expanded-icon-color, #fff);
+.vulopilot-faq-item[open] .vulopilot-faq-icon {
+	background: var(--faq-expanded-icon-background, var(--faq-icon-background, transparent));
+	color: var(--faq-expanded-icon-color, var(--faq-icon-color, currentColor));
 }
 
 /* Answer */
-.vulopilot-faq__answer {
-	padding: var(--faq-answer-padding-top, 1.25rem) var(--faq-answer-padding-right, 1.25rem)
-		var(--faq-answer-padding-bottom, 1.25rem) var(--faq-answer-padding-left, 1.25rem);
-	border-top: 0.0625rem solid #eef0f5;
+.vulopilot-faq-answer {
+	padding: var(--faq-answer-padding-top, 0) var(--faq-answer-padding-right, 1.5rem)
+		var(--faq-answer-padding-bottom, 1.25rem) var(--faq-answer-padding-left, 1.5rem);
 
 	font-family: var(--faq-answer-font-family, inherit);
 	font-size: var(--faq-answer-font-size, 1rem);
 	font-weight: var(--faq-answer-font-weight, 400);
-	line-height: var(--faq-answer-line-height, 1.6);
-	color: var(--faq-answer-color, #1f2937);
+	line-height: var(--faq-answer-line-height, 1.5);
+	color: var(--faq-answer-color, #50575e);
 	background: var(--faq-answer-background, transparent);
 	max-width: 100%;
 	box-sizing: border-box;
@@ -308,27 +333,47 @@
 	}
 }
 
-.vulopilot-faq__item--static .vulopilot-faq__answer {
-	border-top: none;
-}
-
 /* Keyboard accessibility */
-.vulopilot-faq__question:focus-visible {
+.vulopilot-faq-question:focus-visible {
 	outline: 0.125rem solid var(--faq-focus-color, var(--color-primary, #002991));
 	outline-offset: -0.125rem;
 	border-radius: 0.5rem;
 }
 
+// Real smooth open/close height animation (newer browsers only - `@supports` guards it, so
+// everywhere else just keeps the instant native `<details>` toggle it already had).
+@supports (interpolate-size: allow-keywords) {
+	.vulopilot-faq {
+		interpolate-size: allow-keywords;
+	}
+
+	.vulopilot-faq-item::details-content {
+		height: 0;
+		opacity: 0;
+		overflow: hidden;
+		transition: height var(--faq-animation-duration, 0.3s) ease,
+			opacity var(--faq-animation-duration, 0.3s) ease,
+			content-visibility var(--faq-animation-duration, 0.3s) allow-discrete;
+	}
+
+	.vulopilot-faq-item[open]::details-content {
+		height: auto;
+		opacity: 1;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
-	.vulopilot-faq__item,
-	.vulopilot-faq__icon {
+	.vulopilot-faq-item,
+	.vulopilot-faq-icon,
+	.vulopilot-faq-item::details-content {
 		transition-duration: 0s !important;
 	}
 }
 
 .vulopilot-faq--no-animation {
-	.vulopilot-faq__item,
-	.vulopilot-faq__icon {
+	.vulopilot-faq-item,
+	.vulopilot-faq-icon,
+	.vulopilot-faq-item::details-content {
 		transition-duration: 0s !important;
 	}
 }
@@ -336,51 +381,50 @@
 /* Tablet */
 @media (max-width: 48.875rem) {
 	.vulopilot-faq {
-		gap: var(--faq-tablet-item-gap, var(--faq-item-gap, 0.75rem));
+		gap: var(--faq-tablet-item-gap, var(--faq-item-gap, 0));
 	}
 
-	.vulopilot-faq__question,
-	.vulopilot-faq__question--static {
-		font-size: var(--faq-tablet-question-font-size, var(--faq-question-font-size, 1.125rem));
+	.vulopilot-faq-question,
+	.vulopilot-faq-question--static {
+		font-size: var(--faq-tablet-question-font-size, var(--faq-question-font-size, 1rem));
 	}
 
-	.vulopilot-faq__answer {
+	.vulopilot-faq-answer {
 		font-size: var(--faq-tablet-answer-font-size, var(--faq-answer-font-size, 1rem));
 	}
 
-	.vulopilot-faq__icon {
-		width: var(--faq-tablet-icon-size, var(--faq-icon-size, 1.75rem));
-		height: var(--faq-tablet-icon-size, var(--faq-icon-size, 1.75rem));
+	.vulopilot-faq-icon {
+		width: var(--faq-tablet-icon-size, var(--faq-icon-size, 1.125rem));
+		height: var(--faq-tablet-icon-size, var(--faq-icon-size, 1.125rem));
 	}
 }
 
 /* Mobile */
 @media (max-width: 37.5rem) {
 	.vulopilot-faq {
-		gap: var(--faq-mobile-item-gap, var(--faq-tablet-item-gap, 0.5rem));
+		gap: var(--faq-mobile-item-gap, var(--faq-tablet-item-gap, 0));
 	}
 
-	.vulopilot-faq__question,
-	.vulopilot-faq__question--static {
-		padding: 0.9375rem 3rem 0.9375rem 1rem;
+	.vulopilot-faq-question,
+	.vulopilot-faq-question--static {
+		padding: 0.9375rem 2.5rem 0.9375rem 1rem;
 		font-size: var(
 			--faq-mobile-question-font-size,
 			var(--faq-tablet-question-font-size, 0.9375rem)
 		);
 	}
 
-	.vulopilot-faq--icon-left .vulopilot-faq__question {
-		padding: 0.9375rem 1rem 0.9375rem 3rem;
+	.vulopilot-faq--icon-left .vulopilot-faq-question {
+		padding: 0.9375rem 1rem 0.9375rem 2.5rem;
 	}
 
-	.vulopilot-faq__icon {
-		width: var(--faq-mobile-icon-size, var(--faq-tablet-icon-size, 1.625rem));
-		height: var(--faq-mobile-icon-size, var(--faq-tablet-icon-size, 1.625rem));
+	.vulopilot-faq-icon {
+		width: var(--faq-mobile-icon-size, var(--faq-tablet-icon-size, 1rem));
+		height: var(--faq-mobile-icon-size, var(--faq-tablet-icon-size, 1rem));
 	}
 
-	.vulopilot-faq__answer {
-		margin: 0 1rem;
-		padding: 0.75rem 1.75rem 1rem 0;
+	.vulopilot-faq-answer {
+		padding: 0 1rem 0.9375rem;
 		font-size: var(
 			--faq-mobile-answer-font-size,
 			var(--faq-tablet-answer-font-size, 0.875rem)
@@ -388,7 +432,7 @@
 	}
 }
 
-.vulopilot-faq__empty {
+.vulopilot-faq-empty {
 	color: #6b7280;
 	font-style: italic;
 }
@@ -434,20 +478,14 @@
 	border-radius: 0.25rem;
 	background: #f0f1f4;
 
-	&--cards {
-		background: #fff;
-		border: 0.0625rem solid #e6e9f2;
-		box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.08);
-	}
-
-	&--dividers {
-		background: #fff;
-		border-bottom: 0.0625rem solid #e6e9f2;
-		border-radius: 0;
-	}
-
 	&--minimal {
 		background: transparent;
+	}
+
+	&--card {
+		background: #fff;
+		border: 0.0625rem solid #e1e6f2;
+		border-radius: 0.0625rem;
 	}
 }
 
@@ -456,101 +494,4 @@
 	font-weight: 500;
 }
 
-// Content tab's own "Questions & answers" panel (index.js) - a single-open accordion-of-rows,
-// each row a numbered badge + the question text + a chevron, expanding to real Question/Answer
-// fields plus Duplicate/Remove - a sidebar mirror of the same canvas RichText editing, not a
-// second source of truth (both read/write the one real `questions` attribute).
-.vulopilot-faq-qa-count {
-	margin-left: 0.5rem;
-	padding: 0.125rem 0.5rem;
-	border-radius: 1rem;
-	background: #f0f1f4;
-	color: #50575e;
-	font-size: 0.75rem;
-	font-weight: 400;
-}
-
-.vulopilot-faq-qa-item {
-	border: 0.0625rem solid #e2e4e7;
-	border-radius: 0.25rem;
-	margin-bottom: 0.5rem;
-	overflow: hidden;
-
-	&.is-open {
-		border-color: #cbd4f5;
-	}
-}
-
-.vulopilot-faq-qa-item__header {
-	display: flex;
-	align-items: center;
-	gap: 0.625rem;
-	width: 100%;
-	padding: 0.625rem 0.75rem;
-	background: #fff;
-	border: none;
-	cursor: pointer;
-	text-align: left;
-}
-
-.vulopilot-faq-qa-item__badge {
-	flex-shrink: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 1.5rem;
-	height: 1.5rem;
-	border-radius: 50%;
-	background: var(--color-primary, #002991);
-	color: #fff;
-	font-size: 0.6875rem;
-	font-weight: 600;
-}
-
-.vulopilot-faq-qa-item__title {
-	flex: 1;
-	font-size: 0.8125rem;
-	font-weight: 500;
-	color: #1f2937;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.vulopilot-faq-qa-item__chevron {
-	flex-shrink: 0;
-	color: #757575;
-}
-
-.vulopilot-faq-qa-item__body {
-	padding: 0 0.75rem 0.75rem;
-	border-top: 0.0625rem solid #f0f1f4;
-
-	> * {
-		margin-top: 0.75rem;
-	}
-}
-
-.vulopilot-faq-qa-item__actions {
-	display: flex;
-	justify-content: space-between;
-}
-
-.vulopilot-faq-qa-add {
-	width: 100%;
-	justify-content: center;
-	margin-top: 0.25rem;
-}
-
-.vulopilot-faq-qa-hint {
-	margin: 0.5rem 0 0;
-	color: #757575;
-	font-size: 0.75rem;
-	font-style: italic;
-}
-
-.vulopilot-faq-sidebar-empty {
-	color: #6b7280;
-	font-style: italic;
-}
 

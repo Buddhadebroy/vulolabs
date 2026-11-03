@@ -99,7 +99,13 @@ const isSeoModuleActive = () =>
 /** Reads the finding's `meta` JSON defensively, since it's free-form per scanner. */
 const getFindingMeta = (
 	finding: Pick<BrokenLinkFinding, 'meta'>
-): { url?: string; reason?: string; text?: string } => {
+): {
+	url?: string;
+	reason?: string;
+	text?: string;
+	context_before?: string;
+	context_after?: string;
+} => {
 	try {
 		return JSON.parse(finding.meta || '{}');
 	} catch {
@@ -128,6 +134,25 @@ const getBrokenUrl = (finding: BrokenLinkFinding): string =>
 /** Real text, shortened for this table's own compact row display. */
 const truncateText = (text: string, maxLength = 15): string =>
 	text.length > maxLength ? `${text.slice(0, maxLength)}…` : text;
+
+/**
+ * `page_title` already comes back decoded from `Findings::add_page_field()` (`get_the_title()`
+ * is HTML-entity-encoded by WordPress' own `the_title` filter, e.g. "Terms &amp; Condition") -
+ * this is a defensive second pass purely for display, in case a title was saved doubly-encoded
+ * at the source (e.g. "Terms &amp;amp; Condition"), which a single server-side decode wouldn't
+ * fully resolve. A real `<textarea>` round-trip handles every HTML entity, not just `&amp;`.
+ */
+const decodeHtmlEntities = (text: string | null | undefined): string => {
+	if (!text || -1 === text.indexOf('&')) {
+		return text || '';
+	}
+
+	const el = document.createElement('textarea');
+
+	el.innerHTML = text;
+
+	return el.value;
+};
 
 /** Resolves a broken URL down to a literal path a redirect rule can actually intercept. */
 const deriveSourcePath = (url: string): string | null => {
@@ -211,10 +236,6 @@ const statusKeyLabel = (key: string): string => {
 	}
 };
 
-/** A confirmed HTTP error or DNS failure reads as more severe (red) than an unverified/timed-out check this scanner just couldn't confirm either way (yellow). */
-const statusKeyColor = (key: string): string =>
-	/^\d+$/.test(key) || 'dns' === key ? 'red' : 'yellow';
-
 
 /**
  * Real, client-side CSV built straight from whatever findings currently pass every active filter
@@ -285,7 +306,10 @@ const fetchAllBrokenFindings = async (): Promise<BrokenLinkFinding[]> => {
 		}>(
 			getApiLink(
 				vulopilotAppLocalizer,
-				`findings?scanner_id=${scannerParam}&per_page=${FINDINGS_PAGE_SIZE}&page=${page}&orderby=id&order=desc`
+				// `status=all` is required - FindingRepository::find_all() silently defaults to
+				// 'open' otherwise, which would drop every resolved (fixed) finding from this
+				// fetch entirely, even though the Status filter below expects to show them.
+				`findings?scanner_id=${scannerParam}&status=all&per_page=${FINDINGS_PAGE_SIZE}&page=${page}&orderby=id&order=desc`
 			),
 			nonceHeaders
 		);
@@ -437,26 +461,20 @@ const BrokenLinksSection = () => {
 
 	const summary = summarizeBrokenFindings(allFindings);
 
-	const handleSetStatus = (
-		finding: BrokenLinkFinding,
-		status: 'resolved' | 'ignored' | 'open',
-		successMessage: string
-	) => {
+	/** Same real `findings/bulk` endpoint FindingsTable.tsx's own bulk Ignore already uses. */
+	const handleBulkIgnore = (ids: number[]) => {
 		sendApiResponse(
 			vulopilotAppLocalizer,
-			getApiLink(vulopilotAppLocalizer, `findings/${finding.id}`),
-			{ status }
+			getApiLink(vulopilotAppLocalizer, 'findings/bulk'),
+			{ ids, status: 'ignored' }
 		).then((response) => {
 			NoticeManager.add({
-				uniqueKey: `broken-link-${status}-${finding.id}`,
+				uniqueKey: 'broken-link-bulk-ignore',
 				type: response ? 'success' : 'error',
 				position: 'float',
 				message: response
-					? successMessage
-					: __(
-						'Could not update this finding. Please try again.',
-						'vulopilot'
-					),
+					? __('Selected findings ignored.', 'vulopilot')
+					: __('Could not update these findings. Please try again.', 'vulopilot'),
 			});
 
 			if (response) {
@@ -464,13 +482,6 @@ const BrokenLinksSection = () => {
 			}
 		});
 	};
-
-
-	const handleIgnore = (finding: BrokenLinkFinding) =>
-		handleSetStatus(finding, 'ignored', __('Finding ignored.', 'vulopilot'));
-
-	const handleReopen = (finding: BrokenLinkFinding) =>
-		handleSetStatus(finding, 'open', __('Finding reopened.', 'vulopilot'));
 
 
 	const openFixPopup = (finding: BrokenLinkFinding) => {
@@ -643,6 +654,27 @@ const BrokenLinksSection = () => {
 		paged * perPage
 	);
 
+	// One source page can have several broken links (e.g. a Terms page linking to several other
+	// broken pages) - repeating its title/icon/External-Internal badge on every single one of
+	// those rows is what makes this table read as a wall of near-identical rows. Only the first
+	// row for a given page in the CURRENT page of results carries that page-level info; the rest
+	// render as a lighter continuation row - same underlying data/actions, just visually grouped.
+	const firstRowIdsByPage = (() => {
+		const seenPages = new Set<string>();
+		const firstIds = new Set<number | string>();
+
+		pageRows.forEach((row) => {
+			const key = row.page || '';
+
+			if (!seenPages.has(key)) {
+				seenPages.add(key);
+				firstIds.add(row.id);
+			}
+		});
+
+		return firstIds;
+	})();
+
 	const handleExportCsv = () => {
 		if (!visibleFindings.length) {
 			NoticeManager.add({
@@ -658,32 +690,32 @@ const BrokenLinksSection = () => {
 	};
 
 	const headers = {
-		// Same real `InformationItemComponent` "title + descriptions + badges" shape this
-		// codebase's own findings-style tables already use (SeoIssuesByPageTable.tsx).
+		// Same real `InformationItemComponent` "icon + title + badges + descriptions" shape this
+		// codebase's own findings-style tables already use (SeoIssuesByPageTable.tsx). Clicking
+		// the title is the real "view page" action.
 		page: {
 			label: __('Source page', 'vulopilot'),
 			render: (row: BrokenLinkFinding) => {
 				const pageUrl = `${vulopilotAppLocalizer.site_url}${row.page}`;
-				const statusKey = deriveStatusKey(row);
 				const external = isExternalFinding(row);
+				const isFirstOfPage = firstRowIdsByPage.has(row.id);
 
 				return (
 					<InformationItemComponent
-						title={row.page_title || row.page || __('(no title)', 'vulopilot')}
+						// Every row shows its own real page name - repeating it on a continuation
+						// row (same page as the row above) is what made this table read as a wall
+						// of near-identical rows, so only the first row for a page shows it.
+						title={decodeHtmlEntities(row.page_title) || row.page || __('(no title)', 'vulopilot')}
 						titleLink={pageUrl}
-						icon={'broken-images' === row.scanner_id ? 'attachment' : 'link'}
+						avatar={{
+							iconClass: 'broken-images' === row.scanner_id ? 'attachment' : 'page',
+						}}
+						className={isFirstOfPage ? undefined : 'broken-link-continuation-row'}
 						badges={[
 							{
-								text: statusKeyLabel(statusKey),
-								className:
-									'red' === statusKeyColor(statusKey)
-										? 'badge-failed'
-										: 'badge-pending',
-							},
-							{
 								text: external
-									? __('External', 'vulopilot')
-									: __('Internal', 'vulopilot'),
+									? __('External link', 'vulopilot')
+									: __('Internal link', 'vulopilot'),
 								className: external ? 'badge-pending' : 'badge-info',
 							},
 							{
@@ -693,14 +725,23 @@ const BrokenLinksSection = () => {
 						]}
 						descriptions={[
 							{
-								icon: 'link',
-								label: __('Target URL', 'vulopilot'),
-								value: getBrokenUrl(row),
+								icon: 'text-fields',
+								label: __('Anchor text', 'vulopilot'),
+								value: truncateText(getLinkText(row)),
 							},
 							{
-								icon: 'text-fields',
-								label: __('Link Text', 'vulopilot'),
-								value: truncateText(getLinkText(row)),
+								icon: 'link',
+								label: __('Broken Link', 'vulopilot'),
+								value: (
+									<a
+										className="broken-link-target-url"
+										href={getBrokenUrl(row)}
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										{getBrokenUrl(row)}
+									</a>
+								),
 							},
 						]}
 					/>
@@ -714,7 +755,29 @@ const BrokenLinksSection = () => {
 			type: 'action',
 			actions: [
 				{
-					label: __('Open URL', 'vulopilot'),
+					label: __('Edit page', 'vulopilot'),
+					icon: 'edit',
+					type: 'button',
+					color: 'text-blue',
+					onClick: (row: Record<string, unknown>) => {
+						const finding = row as unknown as BrokenLinkFinding;
+
+						if (!finding.object_ref) {
+							return;
+						}
+
+						window.open(
+							`${vulopilotAppLocalizer.admin_url}post.php?post=${finding.object_ref}&action=edit`,
+							'_blank',
+							'noopener,noreferrer'
+						);
+					},
+				},
+				{
+					label: (row: Record<string, unknown>) =>
+						'broken-images' === (row as unknown as BrokenLinkFinding).scanner_id
+							? __('View Image', 'vulopilot')
+							: __('View Page', 'vulopilot'),
 					icon: 'eye',
 					type: 'button',
 					color: 'text-blue',
@@ -724,21 +787,6 @@ const BrokenLinksSection = () => {
 							'_blank',
 							'noopener,noreferrer'
 						),
-				},
-				{
-					label: (row: Record<string, unknown>) =>
-						'ignored' === (row as unknown as BrokenLinkFinding).status
-							? __('Unignore', 'vulopilot')
-							: __('Ignore Issue', 'vulopilot'),
-					icon: 'eye-blocked',
-					color: 'text-red',
-					type: 'button',
-					onClick: (row: Record<string, unknown>) => {
-						const finding = row as unknown as BrokenLinkFinding;
-						return 'ignored' === finding.status
-							? handleReopen(finding)
-							: handleIgnore(finding);
-					},
 				},
 				{
 					label: __('Fix', 'vulopilot'),
@@ -1011,6 +1059,14 @@ const BrokenLinksSection = () => {
 											onClick: handleExportCsv,
 										},
 									]}
+									bulkActions={[
+										{ label: __('Ignore Issue', 'vulopilot'), value: 'ignored' },
+									]}
+									onBulkActionApply={(action: string, ids: number[]) => {
+										if ('ignored' === action) {
+											handleBulkIgnore(ids);
+										}
+									}}
 									onQueryUpdate={(query: {
 										paged?: number | string;
 										per_page?: number | string;
