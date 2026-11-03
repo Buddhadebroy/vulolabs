@@ -55,8 +55,9 @@ class FaqRenderer {
 		// same page (or two instances of this same block) never fight over which item is open.
 		$group_name = wp_unique_id( 'vulopilot-faq-' );
 
+		$appearance         = sanitize_html_class( (string) ( $attributes['appearance'] ?? 'cards' ) );
 		$wrapper_class      = 'vulopilot-faq vulopilot-faq--icon-' . $icon_position
-			. ' vulopilot-faq--icon-style-' . $icon_style
+			. ' vulopilot-faq--appearance-' . $appearance
 			. ( 'expanded' === $layout_mode ? ' vulopilot-faq--expanded' : '' )
 			. ( empty( $attributes['animationEnabled'] ) ? ' vulopilot-faq--no-animation' : '' );
 		$wrapper_attributes = get_block_wrapper_attributes(
@@ -73,7 +74,7 @@ class FaqRenderer {
 
 			if ( $heading_level ) {
 				$question_html = sprintf(
-					'<h%1$d class="vulopilot-faq-question-text">%2$s</h%1$d>',
+					'<h%1$d class="vulopilot-faq__question-text">%2$s</h%1$d>',
 					$heading_level,
 					$question_html
 				);
@@ -83,7 +84,7 @@ class FaqRenderer {
 
 			if ( 'expanded' === $layout_mode ) {
 				$html .= sprintf(
-					'<div class="vulopilot-faq-item vulopilot-faq-item--static"><div class="vulopilot-faq-question vulopilot-faq-question--static">%1$s</div><div class="vulopilot-faq-answer">%2$s</div></div>',
+					'<div class="vulopilot-faq__item vulopilot-faq__item--static"><div class="vulopilot-faq__question vulopilot-faq__question--static">%1$s</div><div class="vulopilot-faq__answer">%2$s</div></div>',
 					$question_html,
 					wp_kses_post( $item['answer'] )
 				);
@@ -94,7 +95,7 @@ class FaqRenderer {
 			$name_attr = $allow_multiple_open ? '' : sprintf( ' name="%s"', esc_attr( $group_name ) );
 
 			$html .= sprintf(
-				'<details class="vulopilot-faq-item"%1$s%2$s><summary class="vulopilot-faq-question">%3$s%4$s</summary><div class="vulopilot-faq-answer">%5$s</div></details>',
+				'<details class="vulopilot-faq__item"%1$s%2$s><summary class="vulopilot-faq__question">%3$s%4$s</summary><div class="vulopilot-faq__answer">%5$s</div></details>',
 				$name_attr,
 				$is_open ? ' open' : '',
 				$question_html,
@@ -112,13 +113,13 @@ class FaqRenderer {
 	 * Both glyphs always render; CSS toggles which one shows via `[open]`, no JS needed.
 	 *
 	 * @param string $icon_style One of `self::ICON_GLYPHS`'s own keys.
-	 * @return string The `.vulopilot-faq-icon` markup.
+	 * @return string The `.vulopilot-faq__icon` markup.
 	 */
 	private static function build_icon_html( string $icon_style ): string {
 		$glyph = self::ICON_GLYPHS[ $icon_style ] ?? self::ICON_GLYPHS['plus-minus'];
 
 		return sprintf(
-			'<span class="vulopilot-faq-icon" aria-hidden="true"><span class="vulopilot-faq-icon-closed">%1$s</span><span class="vulopilot-faq-icon-open">%2$s</span></span>',
+			'<span class="vulopilot-faq__icon" aria-hidden="true"><span class="vulopilot-faq__icon-closed">%1$s</span><span class="vulopilot-faq__icon-open">%2$s</span></span>',
 			$glyph['closed'],
 			$glyph['open']
 		);

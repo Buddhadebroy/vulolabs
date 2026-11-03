@@ -731,7 +731,7 @@ const BrokenLinksSection = () => {
 							},
 							{
 								icon: 'link',
-								label: __('Broken Link', 'vulopilot'),
+								label: __('Target URL', 'vulopilot'),
 								value: (
 									<a
 										className="broken-link-target-url"

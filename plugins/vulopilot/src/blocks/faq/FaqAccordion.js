@@ -49,7 +49,6 @@ export default function FaqAccordion( {
 		'vulopilot-faq',
 		className,
 		`vulopilot-faq--icon-${ iconPosition }`,
-		`vulopilot-faq--icon-style-${ iconStyle }`,
 		isExpanded ? 'vulopilot-faq--expanded' : '',
 		false === animationEnabled ? 'vulopilot-faq--no-animation' : '',
 	]
@@ -59,7 +58,7 @@ export default function FaqAccordion( {
 	if ( 0 === items.length && emptyMessage ) {
 		return (
 			<div className={ wrapperClassName } style={ styleVars }>
-				<p className="vulopilot-faq-empty">{ emptyMessage }</p>
+				<p className="vulopilot-faq__empty">{ emptyMessage }</p>
 			</div>
 		);
 	}
@@ -69,10 +68,10 @@ export default function FaqAccordion( {
 			{ items.map( ( item, index ) => {
 				if ( isExpanded ) {
 					return (
-						<div className="vulopilot-faq-item vulopilot-faq-item--static" key={ index }>
-							<div className="vulopilot-faq-question vulopilot-faq-question--static">
+						<div className="vulopilot-faq__item vulopilot-faq__item--static" key={ index }>
+							<div className="vulopilot-faq__question vulopilot-faq__question--static">
 								{ HeadingTag ? (
-									<HeadingTag className="vulopilot-faq-question-text">
+									<HeadingTag className="vulopilot-faq__question-text">
 										{ renderQuestion( item, index ) }
 									</HeadingTag>
 								) : (
@@ -80,7 +79,7 @@ export default function FaqAccordion( {
 								) }
 								{ renderItemControls && renderItemControls( item, index ) }
 							</div>
-							<div className="vulopilot-faq-answer">
+							<div className="vulopilot-faq__answer">
 								{ renderAnswer( item, index ) }
 							</div>
 							{ renderItemFooter && renderItemFooter( item, index ) }
@@ -90,33 +89,33 @@ export default function FaqAccordion( {
 
 				return (
 					<details
-						className="vulopilot-faq-item"
+						className="vulopilot-faq__item"
 						name={ allowMultipleOpen ? undefined : groupName }
 						open={ index === initialOpenIndex }
 						key={ index }
 					>
-						<summary className="vulopilot-faq-question">
+						<summary className="vulopilot-faq__question">
 							{ HeadingTag ? (
-								<HeadingTag className="vulopilot-faq-question-text">
+								<HeadingTag className="vulopilot-faq__question-text">
 									{ renderQuestion( item, index ) }
 								</HeadingTag>
 							) : (
 								renderQuestion( item, index )
 							) }
 							<span
-								className="vulopilot-faq-icon"
+								className="vulopilot-faq__icon"
 								aria-hidden="true"
 							>
-								<span className="vulopilot-faq-icon-closed">
+								<span className="vulopilot-faq__icon-closed">
 									{ glyph.closed }
 								</span>
-								<span className="vulopilot-faq-icon-open">
+								<span className="vulopilot-faq__icon-open">
 									{ glyph.open }
 								</span>
 							</span>
 							{ renderItemControls && renderItemControls( item, index ) }
 						</summary>
-						<div className="vulopilot-faq-answer">
+						<div className="vulopilot-faq__answer">
 							{ renderAnswer( item, index ) }
 						</div>
 					</details>

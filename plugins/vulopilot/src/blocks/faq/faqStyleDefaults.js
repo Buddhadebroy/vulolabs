@@ -10,57 +10,57 @@ export const DEFAULT_FAQ_STYLE = {
 		width: '',
 		maxWidth: '',
 		align: 'left', // left | center | right
-		itemGap: '1rem',
+		itemGap: '0.625rem',
 	},
 	container: {
 		background: '',
 		padding: { top: '', right: '', bottom: '', left: '' },
-		border: { color: '', width: '0', style: 'solid' },
-		radius: '0',
+		border: { color: '', width: '', style: 'solid' },
+		radius: '',
 		shadow: '',
 	},
 	item: {
-		background: 'transparent',
-		border: { color: 'transparent', width: '0', style: 'solid' },
-		radius: '0',
+		background: '#ffffff',
+		border: { color: '#e6e9f2', width: '0.0625rem', style: 'solid' },
+		radius: '0.75rem',
 		shadow: '',
 	},
 	question: {
 		fontFamily: '',
-		fontSize: '1rem',
-		fontWeight: '500',
-		lineHeight: '1.5',
+		fontSize: '1.125rem',
+		fontWeight: '600',
+		lineHeight: '1.4',
 		letterSpacing: '',
 		textAlign: 'left',
-		color: '#1e1e1e',
+		color: '#1f2937',
 		background: '',
-		padding: { top: '1.25rem', right: '1.5rem', bottom: '1.25rem', left: '1.5rem' },
+		padding: { top: '1.25rem', right: '1.25rem', bottom: '1.25rem', left: '1.25rem' },
 	},
 	answer: {
 		fontFamily: '',
 		fontSize: '1rem',
 		fontWeight: '400',
-		lineHeight: '1.5',
-		color: '#50575e',
+		lineHeight: '1.6',
+		color: '#1f2937',
 		background: '',
-		padding: { top: '0', right: '1.5rem', bottom: '1.25rem', left: '1.5rem' },
+		padding: { top: '1.25rem', right: '1.25rem', bottom: '1.25rem', left: '1.25rem' },
 		linkColor: '',
 	},
 	icon: {
-		size: '1.125rem',
+		size: '1.75rem',
 		color: '',
-		spacing: '1rem',
-		background: 'transparent',
-		radius: '0',
+		spacing: '0.813rem',
+		background: '#f2f5ff',
+		radius: '0.4375rem',
 	},
 	states: {
-		hoverBorderColor: '',
-		expandedBorderColor: '',
-		expandedShadow: '',
-		expandedBackground: '',
+		hoverBorderColor: '#cbd4f5',
+		expandedBorderColor: '#b8c6f2',
+		expandedShadow: '0 0.25rem 1rem rgba(0, 41, 145, 0.06)',
+		expandedBackground: '#f8faff',
 		expandedQuestionColor: '',
 		expandedIconBackground: '',
-		expandedIconColor: '',
+		expandedIconColor: '#ffffff',
 		focusColor: '',
 	},
 	responsive: {
@@ -75,46 +75,73 @@ export const DEFAULT_FAQ_STYLE = {
 			questionFontSize: '0.9375rem',
 			answerFontSize: '0.875rem',
 			itemPadding: '',
-			itemGap: '0',
+			itemGap: '0.5rem',
 			iconSize: '1.625rem',
 		},
 	},
 };
 
 /**
- * 2 real `style.layout`/`style.container`/`style.item` bundles - picking a preset writes these
- * straight into the block's own `style` attribute (same `setAttributes()` path a manual Spacing &
- * Borders edit uses), so the result is a real, inspectable value rather than a CSS-only "look"
- * that manual fine-tuning afterward could silently fight with. `appearance` itself just remembers
- * which preset button is shown selected - re-picking the same one is a no-op, picking a different
- * one overwrites `layout`/`container`/`item` again.
+ * 3 real `style.item`/`style.question` bundles - picking a preset writes these straight into the
+ * block's own `style` attribute (same `setAttributes()` path a manual Spacing & Borders edit
+ * uses), so the result is a real, inspectable value rather than a CSS-only "look" that manual
+ * fine-tuning afterward could silently fight with. `appearance` itself just remembers which
+ * preset button is shown selected - re-picking the same one is a no-op, picking a different one
+ * overwrites `item`/`question` again.
  */
 export const APPEARANCE_PRESETS = [
 	{
-		value: 'minimal',
-		label: 'Default',
-		desc: 'No borders or backgrounds - just spacing.',
+		value: 'cards',
+		label: 'Cards',
+		desc: 'Each question its own bordered, shadowed card.',
 		style: {
-			layout: { itemGap: '1rem' },
-			container: DEFAULT_FAQ_STYLE.container,
-			item: DEFAULT_FAQ_STYLE.item,
+			item: {
+				background: '#ffffff',
+				border: { color: '#e6e9f2', width: '0.0625rem', style: 'solid' },
+				radius: '0.75rem',
+				shadow: '',
+			},
 		},
 	},
 	{
-		value: 'card',
-		label: 'Card',
-		desc: 'One bordered panel, rows separated by a thin line.',
+		value: 'dividers',
+		label: 'Dividers',
+		desc: 'A flat list, separated by a thin line.',
 		style: {
-			layout: { itemGap: '0rem' },
-			container: {
-				background: '#ffffff',
-				border: { color: '#e1e6f2', width: '0.0625rem', style: 'solid' },
-				radius: '0.125rem',
-				shadow: '',
-			},
 			item: {
 				background: 'transparent',
-				border: { color: '#e1e6f2', width: '0.0625rem', style: 'solid' },
+				border: { color: '#e6e9f2', width: '0.0625rem', style: 'solid' },
+				radius: '0',
+				shadow: '',
+			},
+		},
+	},
+	{
+		value: 'minimal',
+		label: 'Minimal',
+		desc: 'No borders or backgrounds - just spacing.',
+		style: {
+			item: {
+				background: 'transparent',
+				border: { color: 'transparent', width: '0', style: 'solid' },
+				radius: '0',
+				shadow: '',
+			},
+		},
+	},
+	{
+		value: 'outline',
+		label: 'Outline',
+		desc: 'One bordered panel, items flush, separated by a thin top divider.',
+		style: {
+			// The real look (outer panel border/radius, the flush top-divider between items, the
+			// plus/cross icon) is CSS-only - see `.vulopilot-faq--appearance-outline` in
+			// blocks.scss - this bundle just keeps "Spacing & borders" coherent if the user opens
+			// it afterward (no per-item border/radius/gap of its own to fight that CSS).
+			layout: { itemGap: '0' },
+			item: {
+				background: 'transparent',
+				border: { color: 'transparent', width: '0', style: 'solid' },
 				radius: '0',
 				shadow: '',
 			},

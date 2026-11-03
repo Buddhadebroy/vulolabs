@@ -578,7 +578,7 @@ registerBlockType( metadata.name, {
 							/>
 						) }
 						renderItemControls={ ( item, index ) => (
-							<span className="vulopilot-faq-item-controls">
+							<span className="vulopilot-faq__item-controls">
 								<Button
 									icon="admin-page"
 									label={ __( 'Duplicate', 'vulopilot' ) }
@@ -599,6 +599,7 @@ registerBlockType( metadata.name, {
 						// governs the accordion/expanded behavior the frontend actually renders).
 						settings={ { ...settings, layoutMode: 'expanded' } }
 						styleVars={ styleVars }
+						className={ `vulopilot-faq--appearance-${ appearance }` }
 						groupName="editor-preview"
 						emptyMessage={ __(
 							'Add a question to get started.',

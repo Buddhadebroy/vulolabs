@@ -34,7 +34,7 @@
 		"animationDuration": { "type": "number", "default": 250 },
 		"headingLevel": { "type": "number", "default": 0 },
 		"enableSchema": { "type": "boolean", "default": true },
-		"appearance": { "type": "string", "default": "minimal" },
+		"appearance": { "type": "string", "default": "cards" },
 
 		"style": { "type": "object", "default": {} }
 	},
