@@ -122,20 +122,12 @@ class BrokenLinksScanner extends ScannerUtil implements TracksScannedObjectsInte
 				(string) $link['post_id'],
 				array(
 					'url'            => $url,
-					// 'unverified' - a network/timeout/DNS failure (is_wp_error()).
+					// 'unverified' = network/timeout/DNS failure.
 					'reason'         => $result['reason'],
-					// Real visible anchor text for this real `a` tag (stripped of any nested
-					// markup, e.g. a wrapped `strong`/`span`).
 					'text'           => $link['text'],
-					// Real plain-text excerpt from the post's own content immediately around
-					// this link, so the UI can show "where in the content" it actually sits.
 					'context_before' => $link['context_before'],
 					'context_after'  => $link['context_after'],
 				),
-				// Stable per (post, target URL) identity - this scanner only samples
-				// POSTS_BATCH_SIZE/MAX_LINKS_PER_RUN links each run, so a link that drops out of
-				// one run's sample and back into a later one must reopen its own old row instead
-				// of getting a brand-new one once that row's been auto-resolved in between.
 				md5( $link['post_id'] . '|' . $url )
 			);
 		}
@@ -153,16 +145,6 @@ class BrokenLinksScanner extends ScannerUtil implements TracksScannedObjectsInte
 
 		return $findings;
 	}
-
-	/**
-	 * Real plain-text excerpt immediately around an `<a>` match, so the UI can show "where in
-	 * the content" this link actually sits - same idea as a search engine's own result snippet.
-	 *
-	 * @param string $content Raw `post_content`, with HTML still in it.
-	 * @param int    $offset  Byte offset of the matched `<a ...>...</a>` within $content.
-	 * @param int    $length  Byte length of that same match.
-	 * @return array{before: string, after: string}
-	 */
 	private function extract_link_context( string $content, int $offset, int $length ): array {
 		$context_chars = 60;
 
@@ -179,7 +161,7 @@ class BrokenLinksScanner extends ScannerUtil implements TracksScannedObjectsInte
 	 * Pulls every http(s) link out of the most recently published content, deduped, capped
 	 * at MAX_LINKS_PER_RUN.
 	 *
-	 * @return array<string, array{post_id: int, text: string, context_before: string, context_after: string}> URL => the real post ID it was found in + its real anchor text + surrounding plain-text context.
+	 * @return array<string, array{post_id: int, text: string, context_before: string, context_after: string}> URL => post ID, anchor text, surrounding context.
 	 */
 	private function extract_links_from_recent_content(): array {
 		$posts = get_posts(
@@ -210,9 +192,8 @@ class BrokenLinksScanner extends ScannerUtil implements TracksScannedObjectsInte
 					break;
 				}
 
-				// Stored post_content encodes "&" as an entity (e.g. "&#038;"/"&amp;") - decode
-				// before using this as a real URL, or the query string (and the live HTTP
-				// check, and "Open URL") breaks on every link with more than one param.
+				// post_content encodes "&" as an entity - decode it, or any URL with more
+				// than one query param breaks.
 				$url = html_entity_decode( $match[1][0], ENT_QUOTES );
 
 				if ( 0 !== strpos( $url, 'http://' ) && 0 !== strpos( $url, 'https://' ) ) {

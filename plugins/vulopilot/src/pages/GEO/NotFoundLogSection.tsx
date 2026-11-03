@@ -48,12 +48,9 @@ const NotFoundLogSection = () => {
 	const [convertTargetUrl, setConvertTargetUrl] = useState('');
 	const [isConverting, setIsConverting] = useState(false);
 
-	/** Bulk dismiss pending confirmation (`confirmMode` popup, same as the single-row dismiss). */
 	const [bulkDismissIds, setBulkDismissIds] = useState<(string | number)[] | null>(null);
 	const [isBulkApplying, setIsBulkApplying] = useState(false);
 
-	// Busiest URLs first by default - that's what's worth acting on; "Most recent" is there for
-	// chasing down something that only just started 404ing.
 	const [sortBy, setSortBy] = useState<'hit_count' | 'last_seen_at'>('hit_count');
 
 	// "All/Content/System" status pill bar - same `${key}_counts` contract Redirects.php's own
@@ -328,9 +325,6 @@ const NotFoundLogSection = () => {
 							)}
 							isLoading={notFoundLogs.isLoading || isBulkApplying}
 							onQueryUpdate={(query) => {
-								// `sort_by` isn't a real server-side filter - translate it into the
-								// `orderby` this page's `useApiList` call is keyed on before
-								// forwarding the rest of the query on as usual.
 								const nextSortBy = (query.filter as Record<string, string> | undefined)?.sort_by;
 
 								setSortBy('last_seen_at' === nextSortBy ? 'last_seen_at' : 'hit_count');

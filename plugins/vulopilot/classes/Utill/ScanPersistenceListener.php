@@ -105,10 +105,6 @@ class ScanPersistenceListener {
 				: null;
 
 			if ( null !== $duplicate ) {
-				// Same problem is still present as of this run - refresh the existing row's own
-				// scan-run-specific fields. A dedupe_key match can land on a row that was already
-				// auto-resolved (e.g. by a run that simply didn't re-sample this object) - reopen it
-				// instead of leaving a stale "resolved" row and inserting a fresh duplicate below.
 				$update = array(
 					'scan_id'      => $scan_id,
 					'severity'     => $finding->get_severity(),

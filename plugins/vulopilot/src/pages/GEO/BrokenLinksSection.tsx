@@ -40,18 +40,14 @@ interface BrokenLinkFixOutcome {
 	message: string;
 }
 
-/**
- * @return A function resolving a real fix outcome, or null when no fix handler is available.
- */
+/** Resolves a fix outcome, or null when no fix handler is registered. */
 const getBrokenLinkFixHandler = () =>
 	applyFilters('vulopilot_broken_link_fix_handler', null);
 
-/** Basic\BrokenLinksScanner + Basic\BrokenImagesScanner - this tab's own two real data sources. */
+/** This tab's two data sources. */
 const BROKEN_SCANNER_IDS = ['broken-links', 'broken-images'];
 
-/**
- * `GET /findings` is a real `SELECT *` (AbstractRepository::find_all()).
- */
+/** A row from `GET /findings`. */
 interface BrokenLinkFinding extends Finding {
 	meta?: string;
 	scanner_id?: string;
@@ -66,7 +62,7 @@ interface RunStats {
 	checked_at: number | null;
 }
 
-/** The most recent genuinely-finished run of either scanner. */
+/** Most recent finished run of either scanner. */
 interface LastRunStats {
 	duration_ms: number;
 	finished_at: number;
@@ -92,11 +88,11 @@ const EMPTY_SUMMARY: BrokenFindingsSummary = {
 	ignored: 0,
 };
 
-/** Same module-gate check SeoTab.tsx and CrawlerTrafficTab.tsx already use. */
+/** Same module-gate check used elsewhere (SeoTab.tsx, CrawlerTrafficTab.tsx). */
 const isSeoModuleActive = () =>
 	vulopilotAppLocalizer.active_modules?.includes('technical-seo') ?? false;
 
-/** Reads the finding's `meta` JSON defensively, since it's free-form per scanner. */
+/** Parses the finding's free-form `meta` JSON. */
 const getFindingMeta = (
 	finding: Pick<BrokenLinkFinding, 'meta'>
 ): {
@@ -113,7 +109,7 @@ const getFindingMeta = (
 	}
 };
 
-/** The broken `a` tag's own visible text, for the "Link Text" column. */
+/** Visible anchor text, for the "Link Text" column. */
 const getLinkText = (finding: BrokenLinkFinding): string => {
 	const { text } = getFindingMeta(finding);
 
@@ -124,14 +120,14 @@ const getLinkText = (finding: BrokenLinkFinding): string => {
 	return text || __('(no visible text)', 'vulopilot');
 };
 
-/** Raw visible text, `''` when none - unlike getLinkText()'s display placeholders. */
+/** Raw anchor text, `''` when none (no display placeholder). */
 const getRawLinkText = (finding: BrokenLinkFinding): string =>
 	getFindingMeta(finding).text ?? '';
 
 const getBrokenUrl = (finding: BrokenLinkFinding): string =>
 	getFindingMeta(finding).url || '';
 
-/** Real text, shortened for this table's own compact row display. */
+/** Shortens text for compact row display. */
 const truncateText = (text: string, maxLength = 15): string =>
 	text.length > maxLength ? `${text.slice(0, maxLength)}…` : text;
 
@@ -148,7 +144,7 @@ const decodeHtmlEntities = (text: string | null | undefined): string => {
 	return el.value;
 };
 
-/** Resolves a broken URL down to a literal path a redirect rule can actually intercept. */
+/** Resolves a broken URL to a path a redirect rule can match. */
 const deriveSourcePath = (url: string): string | null => {
 	if (!url) {
 		return null;
@@ -168,14 +164,11 @@ const deriveSourcePath = (url: string): string | null => {
 	}
 };
 
-/**
- * True when a finding's broken URL points at a different site entirely - i.e. deriveSourcePath()
- * above returns null for it.
- */
+/** True when the broken URL points off-site. */
 const isExternalFinding = (finding: BrokenLinkFinding): boolean =>
 	!deriveSourcePath(getBrokenUrl(finding));
 
-/** Real HTTP reason phrases for the status codes these two scanners actually see in practice. */
+/** HTTP reason phrases for the status codes these scanners see. */
 const HTTP_STATUS_PHRASES: Record<string, string> = {
 	'400': __('Bad Request', 'vulopilot'),
 	'401': __('Unauthorized', 'vulopilot'),
@@ -189,9 +182,7 @@ const HTTP_STATUS_PHRASES: Record<string, string> = {
 	'504': __('Gateway Timeout', 'vulopilot'),
 };
 
-/**
- * A short, real status key derived from the scanner's own real `meta.reason` + `description`.
- */
+/** Short status key derived from `meta.reason` + `description`. */
 const deriveStatusKey = (finding: BrokenLinkFinding): string => {
 	const { reason } = getFindingMeta(finding);
 	const description = finding.description || '';
@@ -212,7 +203,7 @@ const deriveStatusKey = (finding: BrokenLinkFinding): string => {
 	return 'unverified';
 };
 
-/** Human label for a deriveStatusKey() result - a real numeric HTTP code gets its real reason phrase appended when known (HTTP_STATUS_PHRASES). */
+/** Human label for a deriveStatusKey() result. */
 const statusKeyLabel = (key: string): string => {
 	switch (key) {
 		case 'broken':
@@ -231,10 +222,7 @@ const statusKeyLabel = (key: string): string => {
 };
 
 
-/**
- * Real, client-side CSV built straight from whatever findings currently pass every active filter
- * (search/issue/link-type/page/status).
- */
+/** Builds a client-side CSV from the currently filtered findings. */
 const downloadBrokenLinksCsv = (rows: BrokenLinkFinding[]) => {
 	const header = [
 		__('Source page', 'vulopilot'),
@@ -280,14 +268,12 @@ const downloadBrokenLinksCsv = (rows: BrokenLinkFinding[]) => {
 };
 
 const FINDINGS_PAGE_SIZE = 100;
-/** Safety ceiling for the pagination loop below - both scanners are bounded to ~40 checks/run by design. */
+/** Safety ceiling for the pagination loop below. */
 const MAX_FINDINGS = 500;
-/** This table's own client-side page size (rows already fetched in full above; TableCard's footer/page-size selector just slices them, same pattern PagesNeedingAttentionTable.tsx/SlowPagesTab.tsx use). */
+/** Client-side page size; TableCard's page-size selector just slices the already-fetched rows. */
 const DEFAULT_PER_PAGE = 10;
 
-/**
- * Fetches every real broken-link/broken-image finding, any status.
- */
+/** Fetches every broken-link/broken-image finding, any status. */
 const fetchAllBrokenFindings = async (): Promise<BrokenLinkFinding[]> => {
 	const scannerParam = BROKEN_SCANNER_IDS.join(',');
 	let page = 1;
@@ -324,10 +310,7 @@ const fetchAllBrokenFindings = async (): Promise<BrokenLinkFinding[]> => {
 	return all;
 };
 
-/**
- * Collapses duplicate findings for the exact same broken URL on the exact same page/scanner/status
- * down to just the newest one.
- */
+/** Collapses duplicate findings for the same URL/page/scanner/status to the newest one. */
 const dedupeBrokenFindings = (
 	findings: BrokenLinkFinding[]
 ): BrokenLinkFinding[] => {
@@ -384,9 +367,7 @@ type IssueFilter = 'all' | 'broken-links' | 'broken-images' | 'unverified';
 type LinkTypeFilter = 'all' | 'internal' | 'external';
 type StatusFilter = 'all' | 'open' | 'resolved' | 'ignored' | 'snoozed';
 
-/**
- * "Broken Links" inner section of the "Crawl & URLs" tab (BrokenLinksSection.tsx): real.
- */
+/** "Broken Links" inner section of the "Crawl & URLs" tab. */
 const BrokenLinksSection = () => {
 	const [allFindings, setAllFindings] = useState<BrokenLinkFinding[]>([]);
 	const [isLoadingFindings, setIsLoadingFindings] = useState(true);
@@ -404,10 +385,10 @@ const BrokenLinksSection = () => {
 	const [redirectSourcePath] = useState('');
 	const [redirectTargetUrl, setRedirectTargetUrl] = useState('');
 	const [redirectType, setRedirectType] = useState('301');
-	/** "Fix" popup - a real search-and-replace: swaps this exact broken `href`/`src` for a real new URL the user types in. */
+	/** "Fix" popup state - replaces the broken `href`/`src` with a new URL. */
 	const [fixFinding, setFixFinding] = useState<BrokenLinkFinding | null>(null);
 	const [fixNewUrl, setFixNewUrl] = useState('');
-	/** The same real `a` tag's own visible text - editable alongside the URL (only meaningful for a `broken-links` finding; a `broken-images` finding has no text field at all). */
+	/** Editable anchor text alongside the URL (broken-links only; images have none). */
 	const [fixNewText, setFixNewText] = useState('');
 	const [isSavingFixUrl, setIsSavingFixUrl] = useState(false);
 	const [isSavingRedirect, setIsSavingRedirect] = useState(false);
@@ -445,14 +426,14 @@ const BrokenLinksSection = () => {
 	}, []);
 
 
-	// Any filter/search change can shrink the result set below the currently-viewed page.
+	// A filter/search change can shrink the result set below the current page.
 	useEffect(() => {
 		setPaged(1);
 	}, [searchTerm, issueFilter, linkTypeFilter, pageFilter, statusFilter]);
 
 	const summary = summarizeBrokenFindings(allFindings);
 
-	/** Same real `findings/bulk` endpoint FindingsTable.tsx's own bulk Ignore already uses. */
+	/** Same `findings/bulk` endpoint FindingsTable.tsx's bulk Ignore uses. */
 	const handleBulkIgnore = (ids: number[]) => {
 		sendApiResponse(
 			vulopilotAppLocalizer,
@@ -483,8 +464,7 @@ const BrokenLinksSection = () => {
 
 		setFixFinding(finding);
 		setFixNewUrl('');
-		// Real current raw text, pre-filled (never `getLinkText()`'s own
-		// display placeholders - see `getRawLinkText()`'s own docblock).
+		// Pre-fills the raw text, not getLinkText()'s display placeholder.
 		setFixNewText(getRawLinkText(finding));
 	};
 
@@ -509,8 +489,7 @@ const BrokenLinksSection = () => {
 			old_url: getBrokenUrl(fixFinding),
 			new_url: fixNewUrl.trim(),
 			is_image: isImageFix,
-			// Only meaningful for a real `broken-links` finding - an
-			// image has no visible text of its own to edit.
+			// Only meaningful for a broken-links finding, not an image.
 			...(isImageFix
 				? {}
 				: {
@@ -538,8 +517,7 @@ const BrokenLinksSection = () => {
 				});
 
 				if (response?.success) {
-					// The underlying problem is fixed on the real page now - same real status-
-					// update call handleResolve()/ handleCreateRedirect() already make.
+					// The page is fixed now - resolve this finding.
 					sendApiResponse(
 						vulopilotAppLocalizer,
 						getApiLink(vulopilotAppLocalizer, `findings/${fixFinding.id}`),
@@ -581,8 +559,7 @@ const BrokenLinksSection = () => {
 				});
 
 				if (response && redirectFinding) {
-					// The underlying problem is fixed from a visitor's perspective now that a real
-					// redirect exists.
+					// A redirect now covers this URL - resolve this finding.
 					sendApiResponse(
 						vulopilotAppLocalizer,
 						getApiLink(vulopilotAppLocalizer, `findings/${redirectFinding.id}`),
@@ -595,8 +572,7 @@ const BrokenLinksSection = () => {
 			.finally(() => setIsSavingRedirect(false));
 	};
 
-	// Real client-side filters over the one full fetch this tab already makes (loadFindings(),
-	// above).
+	// Client-side filters over the one full fetch loadFindings() makes above.
 	const visibleFindings = allFindings
 		.filter((finding) => 'all' === statusFilter || finding.status === statusFilter)
 		.filter((finding) => {
@@ -676,9 +652,7 @@ const BrokenLinksSection = () => {
 	};
 
 	const headers = {
-		// Same real `InformationItemComponent` "icon + title + badges + descriptions" shape this
-		// codebase's own findings-style tables already use (SeoIssuesByPageTable.tsx). Clicking
-		// the title is the real "view page" action.
+		// Same InformationItemComponent shape other findings tables use. Title links to the page.
 		page: {
 			label: __('Source page', 'vulopilot'),
 			render: (row: BrokenLinkFinding) => {
@@ -731,8 +705,7 @@ const BrokenLinksSection = () => {
 				);
 			},
 		},
-		// Same real `type: 'action'` header shape SeoIssuesByPageTable.tsx's own row actions
-		// already use.
+		// Same action-header shape SeoIssuesByPageTable.tsx uses.
 		action: {
 			label: __('Actions', 'vulopilot'),
 			type: 'action',
