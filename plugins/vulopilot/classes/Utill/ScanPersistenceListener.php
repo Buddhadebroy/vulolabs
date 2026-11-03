@@ -105,20 +105,22 @@ class ScanPersistenceListener {
 				: null;
 
 			if ( null !== $duplicate ) {
-				// Same problem is still present as of this run - refresh the existing open row's
-				// own scan-run-specific fields.
-				$this->findings->update(
-					(int) $duplicate['id'],
-					array(
-						'scan_id'      => $scan_id,
-						'severity'     => $finding->get_severity(),
-						'category'     => $finding->get_category(),
-						'title'        => $finding->get_title(),
-						'description'  => $finding->get_description(),
-						'meta'         => wp_json_encode( $finding->get_meta() ),
-						'last_seen_at' => current_time( 'mysql', true ),
-					)
+				$update = array(
+					'scan_id'      => $scan_id,
+					'severity'     => $finding->get_severity(),
+					'category'     => $finding->get_category(),
+					'title'        => $finding->get_title(),
+					'description'  => $finding->get_description(),
+					'meta'         => wp_json_encode( $finding->get_meta() ),
+					'last_seen_at' => current_time( 'mysql', true ),
 				);
+
+				if ( 'open' !== $duplicate['status'] ) {
+					$update['status']      = 'open';
+					$update['resolved_at'] = null;
+				}
+
+				$this->findings->update( (int) $duplicate['id'], $update );
 				unset( $previously_open_ids[ (int) $duplicate['id'] ] );
 				continue;
 			}

@@ -75,7 +75,7 @@ class FindingRepository extends RepositoryUtil {
 		$where = implode(
 			' AND ',
 			array(
-				"status = 'open'",
+				null !== $dedupe_key ? '1 = 1' : "status = 'open'",
 				'scanner_id = %s',
 				$type_is_null ? '%i IS NULL' : '%i = %s',
 				$ref_is_null ? '%i IS NULL' : '%i = %s',

@@ -185,7 +185,7 @@ class Findings extends \WP_REST_Controller {
                 'per_page'    => absint( $request->get_param( 'per_page' ) ) ?: 20,
                 'category'    => $category,
                 'severity'    => $severity_filter,
-                'status'      => $status,
+                'status'      => 'all' === $status ? '' : $status,
                 'search'      => $search,
                 'scanner_id'  => $scanner_ids ?? '',
                 'object_type' => $object_type,
@@ -360,8 +360,8 @@ class Findings extends \WP_REST_Controller {
             // above (e.g. BrokenLinksSection.tsx's own "Source page"
             // column) - null when there's no real post behind this row to
             // name (falls back to `page` itself either way, never a
-            // fabricated title).
-            $row['page_title'] = $permalink ? ( get_the_title( $post_id ) ?: null ) : null;
+            $title             = html_entity_decode( html_entity_decode( get_the_title( $post_id ), ENT_QUOTES ), ENT_QUOTES );
+            $row['page_title'] = $permalink && '' !== $title ? $title : null;
 
             return $row;
         }
