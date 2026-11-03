@@ -185,7 +185,11 @@ class Findings extends \WP_REST_Controller {
                 'per_page'    => absint( $request->get_param( 'per_page' ) ) ?: 20,
                 'category'    => $category,
                 'severity'    => $severity_filter,
-                'status'      => $status,
+                // `find_all()`'s own filterable-column loop does an exact `status = %s` match with
+                // no 'all' escape hatch (unlike get_finding_groups()/get_attention_summary(), which
+                // special-case it) - passed through as-is, the literal string 'all' matches zero
+                // rows instead of meaning "every status".
+                'status'      => 'all' === $status ? '' : $status,
                 'search'      => $search,
                 'scanner_id'  => $scanner_ids ?? '',
                 'object_type' => $object_type,
@@ -360,8 +364,11 @@ class Findings extends \WP_REST_Controller {
             // above (e.g. BrokenLinksSection.tsx's own "Source page"
             // column) - null when there's no real post behind this row to
             // name (falls back to `page` itself either way, never a
-            // fabricated title).
-            $row['page_title'] = $permalink ? ( get_the_title( $post_id ) ?: null ) : null;
+            // fabricated title). `get_the_title()` returns the `the_title`-filtered, HTML-entity-
+            // encoded string (e.g. "Terms &amp; Condition") - correct for echoing into HTML, but
+            // every REST consumer of this field renders it as plain text (React JSX children,
+            // CSV export), so it's decoded back to real characters here, once, for all of them.
+            $row['page_title'] = $permalink ? ( html_entity_decode( get_the_title( $post_id ), ENT_QUOTES ) ?: null ) : null;
 
             return $row;
         }
