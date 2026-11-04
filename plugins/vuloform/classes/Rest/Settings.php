@@ -86,15 +86,17 @@ class Settings extends Controller {
 			$after['keep_data_uninstall'] = 'delete_everything' === $input['keep_data_uninstall'] ? 'delete_everything' : 'keep_data';
 		}
 
-		// The on/off settings arrive from the form as a toggle group: `{ store_ip: { enable: bool } }`.
-		foreach ( array( 'store_ip', 'honeypot' ) as $toggle ) {
-			foreach ( $input as $value ) {
-				if ( is_array( $value ) && isset( $value[ $toggle ] ) ) {
-					$after[ $toggle ] = is_array( $value[ $toggle ] ) && ! empty( $value[ $toggle ]['enable'] );
-				}
-			}
+		// The on/off settings arrive either flat, or wrapped in the form's own toggle group:
+		// `{ privacy_options: { store_ip: { enable: bool } } }`.
+		$toggle_wrappers = array(
+			'privacy_options' => 'store_ip',
+			'spam_options'    => 'honeypot',
+		);
 
-			if ( array_key_exists( $toggle, $input ) && ! is_array( $input[ $toggle ] ) ) {
+		foreach ( $toggle_wrappers as $wrapper => $toggle ) {
+			if ( isset( $input[ $wrapper ][ $toggle ] ) ) {
+				$after[ $toggle ] = is_array( $input[ $wrapper ][ $toggle ] ) && ! empty( $input[ $wrapper ][ $toggle ]['enable'] );
+			} elseif ( array_key_exists( $toggle, $input ) && ! is_array( $input[ $toggle ] ) ) {
 				$after[ $toggle ] = (bool) $input[ $toggle ];
 			}
 		}

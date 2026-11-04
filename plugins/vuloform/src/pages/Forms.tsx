@@ -32,6 +32,20 @@ interface TableQuery {
 	categoryFilter?: string;
 }
 
+interface MigrationSource {
+	id: string;
+	label: string;
+	count: number;
+}
+
+interface MigrationResult {
+	migrated: number;
+	skipped: number;
+	errors: string[];
+	posts_updated?: number;
+	references_updated?: number;
+}
+
 const open = (hash: string) => {
 	window.location.hash = hash;
 };
@@ -52,6 +66,10 @@ const Forms = () => {
 	const [isBusy, setIsBusy] = useState(false);
 	const [pendingDelete, setPendingDelete] = useState<FormRow | null>(null);
 	const fileInput = useRef<HTMLInputElement>(null);
+	const [isMigrating, setIsMigrating] = useState(false);
+	const [sources, setSources] = useState<MigrationSource[] | null>(null);
+	const [migratingId, setMigratingId] = useState('');
+	const [migrationResult, setMigrationResult] = useState<MigrationResult | null>(null);
 
 	const onQueryUpdate = useCallback((next: TableQuery) => setQuery(next), []);
 
@@ -108,6 +126,31 @@ const Forms = () => {
 			);
 	};
 
+	const openMigrating = () => {
+		setIsMigrating(true);
+		setMigrationResult(null);
+
+		apiGet<{ data: MigrationSource[] }>('migration/sources')
+			.then((payload) => setSources(payload.data))
+			.catch((e) => notify('error', errorMessage(e)));
+	};
+
+	const runMigration = (source: string) => {
+		setMigratingId(source);
+		setMigrationResult(null);
+
+		apiPost<MigrationResult>('migration/run', { source })
+			.then((result) => {
+				setMigrationResult(result);
+
+				if (result.migrated > 0) {
+					setReload((n) => n + 1);
+				}
+			})
+			.catch((e) => notify('error', errorMessage(e)))
+			.finally(() => setMigratingId(''));
+	};
+
 	const duplicate = (row: FormRow) => {
 		apiPost<Form>(`forms/${row.id}/duplicate`)
 			.then(() => {
@@ -141,13 +184,23 @@ const Forms = () => {
 					'vuloform'
 				)}
 				headerCustomContent={
-					<ButtonInput
-						buttons={{
-							text: __('New form', 'vuloform'),
-							icon: 'plus',
-							onClick: () => setIsChoosing(true),
-						}}
-					/>
+					<div className="vuloform-inline">
+						<ButtonInput
+							buttons={{
+								text: __('Migrate forms', 'vuloform'),
+								icon: 'import',
+								color: 'border-purple',
+								onClick: openMigrating,
+							}}
+						/>
+						<ButtonInput
+							buttons={{
+								text: __('New form', 'vuloform'),
+								icon: 'plus',
+								onClick: () => setIsChoosing(true),
+							}}
+						/>
+					</div>
 				}
 			/>
 			<ContainerComponent general>
@@ -416,6 +469,85 @@ const Forms = () => {
 							]}
 						/>
 					</div>
+				</div>
+			</PopupComponent>
+			<PopupComponent
+				open={isMigrating}
+				onClose={() => setIsMigrating(false)}
+				width={34}
+				height="auto"
+				position="lightbox"
+				header={{
+					icon: 'import',
+					title: __('Migrate forms from another plugin', 'vuloform'),
+				}}
+			>
+				<div className="vuloform-popup-body">
+					{!sources ? (
+						<p>{__('Looking for forms from other plugins…', 'vuloform')}</p>
+					) : 0 === sources.length ? (
+						<p>{__('No supported form plugins were found on this site.', 'vuloform')}</p>
+					) : (
+						sources.map((source) => (
+							<div className="vuloform-migration-source" key={source.id}>
+								<div>
+									<strong>{source.label}</strong>
+									<span>
+										{0 === source.count
+											? __('No forms found.', 'vuloform')
+											: sprintf(
+													/* translators: %d: number of forms found. */
+													_n('%d form found.', '%d forms found.', source.count, 'vuloform'),
+													source.count
+											  )}
+									</span>
+								</div>
+								<ButtonInput
+									buttons={{
+										text: source.id === migratingId ? __('Migrating…', 'vuloform') : __('Migrate', 'vuloform'),
+										icon: 'import',
+										color: 'purple',
+										disabled: 0 === source.count || '' !== migratingId,
+										onClick: () => runMigration(source.id),
+									}}
+								/>
+							</div>
+						))
+					)}
+					{migrationResult && (
+						<div className="vuloform-migration-result">
+							<p>
+								{sprintf(
+									/* translators: 1: number of forms migrated, 2: number already migrated. */
+									__('%1$d form migrated, %2$d already up to date.', 'vuloform'),
+									migrationResult.migrated,
+									migrationResult.skipped
+								)}
+							</p>
+							{Boolean(migrationResult.references_updated) && (
+								<p>
+									{sprintf(
+										/* translators: 1: number of shortcode references updated, 2: number of pages/posts. */
+										_n(
+											'%1$d shortcode reference updated across %2$d page or post.',
+											'%1$d shortcode references updated across %2$d pages and posts.',
+											migrationResult.references_updated ?? 0,
+											'vuloform'
+										),
+										migrationResult.references_updated,
+										migrationResult.posts_updated ?? 0
+									)}
+								</p>
+							)}
+							{migrationResult.errors.length > 0 && (
+								<ul className="vuloform-migration-errors">
+									{migrationResult.errors.map((line, index) => (
+										<li key={index}>{line}</li>
+									))}
+								</ul>
+							)}
+						</div>
+					)}
 				</div>
 			</PopupComponent>
 		</>
