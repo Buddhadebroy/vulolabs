@@ -14,7 +14,8 @@ defined( 'ABSPATH' ) || exit;
  * `Migration\MigrationManager` (list detected sources with a found-forms count, then run one on
  * demand) - the house pattern for this kind of migration tab across the monorepo.
  *
- * Adapters are added here one plugin at a time: WPForms, then Forminator.
+ * Adapters are added here one plugin at a time: WPForms, then Forminator, then Gravity Forms,
+ * then Contact Form 7, then Ninja Forms, then Formidable Forms, then Fluent Forms.
  */
 class MigrationManager {
 
@@ -24,6 +25,11 @@ class MigrationManager {
 	private const MIGRATOR_CLASSES = array(
 		WpFormsMigrator::class,
 		ForminatorMigrator::class,
+		GravityFormsMigrator::class,
+		ContactForm7Migrator::class,
+		NinjaFormsMigrator::class,
+		FormidableMigrator::class,
+		FluentFormsMigrator::class,
 	);
 
 	/**
@@ -62,7 +68,17 @@ class MigrationManager {
 			$sources[] = array(
 				'id'    => $migrator->get_id(),
 				'label' => $migrator->get_label(),
-				'count' => count( $forms ),
+				// Already-migrated forms stay listed (re-running an import can still update them),
+				// but don't count toward "forms found" - that count drives the forms list's own
+				// detection notice, which should go away once there is nothing new left to migrate.
+				'count' => count(
+					array_filter(
+						$forms,
+						static function ( $form ) {
+							return empty( $form['already_migrated'] );
+						}
+					)
+				),
 				'forms' => $forms,
 			);
 		}

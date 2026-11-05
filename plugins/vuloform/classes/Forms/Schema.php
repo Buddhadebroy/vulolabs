@@ -217,6 +217,11 @@ class Schema {
 				$add( sprintf( __( '"%s" has no choices for visitors to pick from. Select the field and add at least one under Choices.', 'vuloform' ), $field['label'] ), $field['id'] );
 			}
 
+			if ( 'repeater' === $field['type'] && ! $field['fields'] ) {
+				/* translators: %s: field label. */
+				$add( sprintf( __( '"%s" has no fields in its row yet. Select the field and add at least one under Row fields.', 'vuloform' ), $field['label'] ), $field['id'] );
+			}
+
 			if ( 'calculation' !== $field['type'] ) {
 				continue;
 			}
@@ -413,6 +418,15 @@ class Schema {
 				$field['prefix']   = sanitize_text_field( (string) ( $raw['prefix'] ?? '' ) );
 				break;
 
+			case 'signature':
+				// Fixed, not builder-configurable: a signature is always one drawn-or-uploaded PNG, so
+				// it reuses the 'file' field's whole storage/validation pipeline (Uploads, Processor,
+				// Formatter, Rest\Submissions) unchanged.
+				$field['allowed_types'] = array( 'png' );
+				$field['max_size_mb']   = 2;
+				$field['max_files']     = 1;
+				break;
+
 			case 'name':
 			case 'address':
 				$parts = array();
@@ -425,6 +439,35 @@ class Schema {
 				}
 
 				$field['parts'] = $parts ? $parts : Registry::PARTS[ $type ];
+				break;
+
+			case 'repeater':
+				$sub_ids  = array();
+				$sub_keys = array();
+				$rows     = array();
+
+				foreach ( array_slice( isset( $raw['fields'] ) && is_array( $raw['fields'] ) ? $raw['fields'] : array(), 0, 20 ) as $sub_raw ) {
+					// A row cannot hold a repeater (no nesting), a file/signature (per-row uploads
+					// aren't wired into the submission processor) or a calculation (it would need its
+					// own per-row formula scope).
+					if ( is_array( $sub_raw ) && in_array( sanitize_key( (string) ( $sub_raw['type'] ?? '' ) ), array( 'repeater', 'file', 'signature', 'calculation' ), true ) ) {
+						continue;
+					}
+
+					$sub_field = self::sanitize_field( $sub_raw, $sub_ids, $sub_keys );
+
+					if ( $sub_field ) {
+						$rows[] = $sub_field;
+					}
+				}
+
+				$field['fields']   = $rows;
+				$field['min_rows'] = max( 0, min( 50, (int) ( $raw['min_rows'] ?? 0 ) ) );
+				$field['max_rows'] = max( 1, min( 50, (int) ( $raw['max_rows'] ?? 10 ) ) );
+
+				if ( $field['min_rows'] > $field['max_rows'] ) {
+					$field['min_rows'] = $field['max_rows'];
+				}
 				break;
 		}
 

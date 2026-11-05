@@ -26,7 +26,7 @@ defined( 'ABSPATH' ) || exit;
  * skips an already-migrated form unless `$overwrite` is set, in which case the previously-created
  * VuloForm form is updated in place.
  */
-class ForminatorMigrator implements MigratorInterface {
+class ForminatorMigrator extends AbstractMigrator {
 
 	const POST_TYPE = 'forminator_forms';
 	const META_KEY  = 'forminator_form_meta';
@@ -64,15 +64,6 @@ class ForminatorMigrator implements MigratorInterface {
 	);
 
 	/**
-	 * @var MigrationMap
-	 */
-	private $map;
-
-	public function __construct() {
-		$this->map = new MigrationMap();
-	}
-
-	/**
 	 * @inheritDoc
 	 */
 	public function get_id(): string {
@@ -89,8 +80,23 @@ class ForminatorMigrator implements MigratorInterface {
 	/**
 	 * @inheritDoc
 	 */
+	protected function is_active() {
+		return post_type_exists( self::POST_TYPE );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function shortcode_tags() {
+		// Forminator's embed shortcode is `[forminator_form id="123"]`.
+		return array( 'forminator_form' );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public function list_available(): array {
-		if ( ! post_type_exists( self::POST_TYPE ) ) {
+		if ( ! $this->is_active() ) {
 			return array();
 		}
 
@@ -122,98 +128,15 @@ class ForminatorMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * @inheritDoc
-	 */
-	public function migrate( array $source_ids = array(), bool $overwrite = false ): array {
-		$migrated = 0;
-		$skipped  = 0;
-		$errors   = array();
-
-		if ( ! post_type_exists( self::POST_TYPE ) ) {
-			return array(
-				'migrated'           => 0,
-				'skipped'            => 0,
-				'errors'             => array( __( 'Forminator is not installed, so there is nothing to migrate.', 'vuloform' ) ),
-				'posts_updated'      => 0,
-				'references_updated' => 0,
-			);
-		}
-
-		foreach ( $this->list_available() as $row ) {
-			$source_id = $row['source_id'];
-
-			if ( $source_ids && ! in_array( $source_id, $source_ids, true ) ) {
-				continue;
-			}
-
-			$existing_form_id = $this->map->get( $this->get_id(), $source_id );
-
-			if ( $existing_form_id && ! $overwrite ) {
-				++$skipped;
-				continue;
-			}
-
-			try {
-				$form_id = $this->migrate_one( (int) $source_id, $existing_form_id, $errors );
-
-				if ( $form_id ) {
-					$this->map->record( $this->get_id(), $source_id, $form_id );
-					++$migrated;
-				} else {
-					$errors[] = sprintf(
-						/* translators: %s: Forminator form id. */
-						__( 'Forminator form #%s could not be created in VuloForm.', 'vuloform' ),
-						$source_id
-					);
-				}
-			} catch ( \Throwable $e ) {
-				$errors[] = sprintf(
-					/* translators: 1: Forminator form id, 2: error message. */
-					__( 'Forminator form #%1$s: %2$s', 'vuloform' ),
-					$source_id,
-					$e->getMessage()
-				);
-			}
-		}
-
-		$shortcodes = $this->replace_shortcodes();
-
-		return array(
-			'migrated'           => $migrated,
-			'skipped'            => $skipped,
-			'errors'             => $errors,
-			'posts_updated'      => $shortcodes['posts_updated'],
-			'references_updated' => $shortcodes['references_updated'],
-		);
-	}
-
-	/**
-	 * @return array{posts_updated: int, references_updated: int}
-	 */
-	private function replace_shortcodes(): array {
-		$id_map = array();
-
-		foreach ( $this->list_available() as $row ) {
-			$form_id = $this->map->get( $this->get_id(), $row['source_id'] );
-
-			if ( $form_id ) {
-				$id_map[ (string) $row['source_id'] ] = $form_id;
-			}
-		}
-
-		// Forminator's embed shortcode is `[forminator_form id="123"]`.
-		return ( new ShortcodeReplacer() )->replace( 'forminator_form', 'id', $id_map );
-	}
-
-	/**
-	 * @param int      $post_id          Forminator form post id.
-	 * @param int|null $existing_form_id A VuloForm form already created for this source form, if any.
-	 * @param string[] $errors           Compatibility notes, by reference.
+	 * @param int|string $post_id          Forminator form post id.
+	 * @param int|null   $existing_form_id A VuloForm form already created for this source form, if any.
+	 * @param string[]   $errors           Compatibility notes, by reference.
 	 * @return int VuloForm form id, or 0 on failure.
 	 */
-	private function migrate_one( int $post_id, ?int $existing_form_id, array &$errors ): int {
-		$post = get_post( $post_id );
-		$data = $post ? $this->read_meta( $post_id ) : array();
+	protected function migrate_one( $post_id, ?int $existing_form_id, array &$errors ) {
+		$post_id = (int) $post_id;
+		$post    = get_post( $post_id );
+		$data    = $post ? $this->read_meta( $post_id ) : array();
 
 		if ( ! $post || ! $data ) {
 			$errors[] = sprintf(

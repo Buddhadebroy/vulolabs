@@ -66,10 +66,19 @@ const Forms = () => {
 	const [isBusy, setIsBusy] = useState(false);
 	const [pendingDelete, setPendingDelete] = useState<FormRow | null>(null);
 	const fileInput = useRef<HTMLInputElement>(null);
-	const [isMigrating, setIsMigrating] = useState(false);
 	const [sources, setSources] = useState<MigrationSource[] | null>(null);
-	const [migratingId, setMigratingId] = useState('');
-	const [migrationResult, setMigrationResult] = useState<MigrationResult | null>(null);
+	const [isMigrating, setIsMigrating] = useState(false);
+
+	// Checked once on load, so a detected plugin can be surfaced right on the forms list.
+	const loadSources = () => {
+		apiGet<{ data: MigrationSource[] }>('migration/sources')
+			.then((payload) => setSources(payload.data))
+			.catch(() => {});
+	};
+
+	useEffect(loadSources, []);
+
+	const detectedSources = (sources ?? []).filter((source) => source.count > 0);
 
 	const onQueryUpdate = useCallback((next: TableQuery) => setQuery(next), []);
 
@@ -126,29 +135,43 @@ const Forms = () => {
 			);
 	};
 
-	const openMigrating = () => {
+	/** Migrates every detected source straight away - no picker, no popup. */
+	const migrateDetected = () => {
+		if (0 === detectedSources.length) {
+			return;
+		}
+
 		setIsMigrating(true);
-		setMigrationResult(null);
 
-		apiGet<{ data: MigrationSource[] }>('migration/sources')
-			.then((payload) => setSources(payload.data))
-			.catch((e) => notify('error', errorMessage(e)));
-	};
+		Promise.all(
+			detectedSources.map((source) =>
+				apiPost<MigrationResult>('migration/run', { source: source.id })
+			)
+		)
+			.then((results) => {
+				const migrated = results.reduce((total, result) => total + result.migrated, 0);
+				const errors = results.flatMap((result) => result.errors);
 
-	const runMigration = (source: string) => {
-		setMigratingId(source);
-		setMigrationResult(null);
-
-		apiPost<MigrationResult>('migration/run', { source })
-			.then((result) => {
-				setMigrationResult(result);
-
-				if (result.migrated > 0) {
+				if (migrated > 0) {
+					notify(
+						'success',
+						sprintf(
+							/* translators: %d: number of forms migrated. */
+							_n('%d form migrated.', '%d forms migrated.', migrated, 'vuloform'),
+							migrated
+						)
+					);
 					setReload((n) => n + 1);
 				}
+
+				if (errors.length > 0) {
+					notify('error', errors.join(' '));
+				}
+
+				loadSources();
 			})
 			.catch((e) => notify('error', errorMessage(e)))
-			.finally(() => setMigratingId(''));
+			.finally(() => setIsMigrating(false));
 	};
 
 	const duplicate = (row: FormRow) => {
@@ -184,23 +207,13 @@ const Forms = () => {
 					'vuloform'
 				)}
 				headerCustomContent={
-					<div className="vuloform-inline">
-						<ButtonInput
-							buttons={{
-								text: __('Migrate forms', 'vuloform'),
-								icon: 'import',
-								color: 'border-purple',
-								onClick: openMigrating,
-							}}
-						/>
-						<ButtonInput
-							buttons={{
-								text: __('New form', 'vuloform'),
-								icon: 'plus',
-								onClick: () => setIsChoosing(true),
-							}}
-						/>
-					</div>
+					<ButtonInput
+						buttons={{
+							text: __('New form', 'vuloform'),
+							icon: 'plus',
+							onClick: () => setIsChoosing(true),
+						}}
+					/>
 				}
 			/>
 			<ContainerComponent general>
@@ -212,18 +225,76 @@ const Forms = () => {
 							desc={error}
 						/>
 					) : !isLoading && 0 === list.total && !query.searchValue ? (
-						<ModuleGuardComponent
-							icon="form"
-							title={__('Create your first form', 'vuloform')}
-							desc={__(
-								'Start from a template such as a contact form, or from a blank form.',
-								'vuloform'
-							)}
-							buttonText={__('New form', 'vuloform')}
-							onButtonClick={() => setIsChoosing(true)}
-						/>
+						detectedSources.length > 0 ? (
+							<ModuleGuardComponent
+								icon="import"
+								title={sprintf(
+									/* translators: %s: comma-separated list of detected plugin names. */
+									__('Forms found in %s', 'vuloform'),
+									detectedSources.map((source) => source.label).join(', ')
+								)}
+								desc={sprintf(
+									/* translators: %d: number of forms found. */
+									_n(
+										'%d form can be migrated into VuloForm.',
+										'%d forms can be migrated into VuloForm.',
+										detectedSources.reduce((total, source) => total + source.count, 0),
+										'vuloform'
+									),
+									detectedSources.reduce((total, source) => total + source.count, 0)
+								)}
+								buttonText={isMigrating ? __('Migrating…', 'vuloform') : __('Migrate', 'vuloform')}
+								onButtonClick={migrateDetected}
+							/>
+						) : (
+							<ModuleGuardComponent
+								icon="form"
+								title={__('Create your first form', 'vuloform')}
+								desc={__(
+									'Start from a template such as a contact form, or from a blank form.',
+									'vuloform'
+								)}
+								buttonText={__('New form', 'vuloform')}
+								onButtonClick={() => setIsChoosing(true)}
+							/>
+						)
 					) : (
-						<TableCard
+						<>
+							{detectedSources.length > 0 && (
+								<div className="vuloform-migration-banner">
+									<div>
+										<strong>
+											{sprintf(
+												/* translators: %s: comma-separated list of detected plugin names. */
+												__('Forms found in %s.', 'vuloform'),
+												detectedSources.map((source) => source.label).join(', ')
+											)}
+										</strong>
+										<span>
+											{sprintf(
+												/* translators: %d: number of forms found. */
+												_n(
+													'%d form can be migrated into VuloForm.',
+													'%d forms can be migrated into VuloForm.',
+													detectedSources.reduce((total, source) => total + source.count, 0),
+													'vuloform'
+												),
+												detectedSources.reduce((total, source) => total + source.count, 0)
+											)}
+										</span>
+									</div>
+									<ButtonInput
+										buttons={{
+											text: isMigrating ? __('Migrating…', 'vuloform') : __('Migrate', 'vuloform'),
+											icon: 'import',
+											color: 'purple',
+											disabled: isMigrating,
+											onClick: migrateDetected,
+										}}
+									/>
+								</div>
+							)}
+							<TableCard
 							search={{
 								placeholder: __('Search forms…', 'vuloform'),
 							}}
@@ -358,6 +429,7 @@ const Forms = () => {
 								'vuloform'
 							)}
 						/>
+						</>
 					)}
 				</CardComponent>
 			</ContainerComponent>
@@ -469,85 +541,6 @@ const Forms = () => {
 							]}
 						/>
 					</div>
-				</div>
-			</PopupComponent>
-			<PopupComponent
-				open={isMigrating}
-				onClose={() => setIsMigrating(false)}
-				width={34}
-				height="auto"
-				position="lightbox"
-				header={{
-					icon: 'import',
-					title: __('Migrate forms from another plugin', 'vuloform'),
-				}}
-			>
-				<div className="vuloform-popup-body">
-					{!sources ? (
-						<p>{__('Looking for forms from other plugins…', 'vuloform')}</p>
-					) : 0 === sources.length ? (
-						<p>{__('No supported form plugins were found on this site.', 'vuloform')}</p>
-					) : (
-						sources.map((source) => (
-							<div className="vuloform-migration-source" key={source.id}>
-								<div>
-									<strong>{source.label}</strong>
-									<span>
-										{0 === source.count
-											? __('No forms found.', 'vuloform')
-											: sprintf(
-													/* translators: %d: number of forms found. */
-													_n('%d form found.', '%d forms found.', source.count, 'vuloform'),
-													source.count
-											  )}
-									</span>
-								</div>
-								<ButtonInput
-									buttons={{
-										text: source.id === migratingId ? __('Migrating…', 'vuloform') : __('Migrate', 'vuloform'),
-										icon: 'import',
-										color: 'purple',
-										disabled: 0 === source.count || '' !== migratingId,
-										onClick: () => runMigration(source.id),
-									}}
-								/>
-							</div>
-						))
-					)}
-					{migrationResult && (
-						<div className="vuloform-migration-result">
-							<p>
-								{sprintf(
-									/* translators: 1: number of forms migrated, 2: number already migrated. */
-									__('%1$d form migrated, %2$d already up to date.', 'vuloform'),
-									migrationResult.migrated,
-									migrationResult.skipped
-								)}
-							</p>
-							{Boolean(migrationResult.references_updated) && (
-								<p>
-									{sprintf(
-										/* translators: 1: number of shortcode references updated, 2: number of pages/posts. */
-										_n(
-											'%1$d shortcode reference updated across %2$d page or post.',
-											'%1$d shortcode references updated across %2$d pages and posts.',
-											migrationResult.references_updated ?? 0,
-											'vuloform'
-										),
-										migrationResult.references_updated,
-										migrationResult.posts_updated ?? 0
-									)}
-								</p>
-							)}
-							{migrationResult.errors.length > 0 && (
-								<ul className="vuloform-migration-errors">
-									{migrationResult.errors.map((line, index) => (
-										<li key={index}>{line}</li>
-									))}
-								</ul>
-							)}
-						</div>
-					)}
 				</div>
 			</PopupComponent>
 		</>

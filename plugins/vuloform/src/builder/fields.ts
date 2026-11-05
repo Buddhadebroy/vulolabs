@@ -95,6 +95,12 @@ export const createField = (type: string, fields: Field[]): Field => {
 		field.parts = Object.keys(vuloformAppLocalizer.address_parts);
 	}
 
+	if ('repeater' === type) {
+		field.fields = [];
+		field.min_rows = 1;
+		field.max_rows = 10;
+	}
+
 	return field;
 };
 

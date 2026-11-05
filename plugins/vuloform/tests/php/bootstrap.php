@@ -56,6 +56,30 @@ if ( ! class_exists( 'WP_Error', false ) ) {
 	}
 }
 
+if ( ! class_exists( 'GFAPI', false ) ) {
+	/**
+	 * Minimal stand-in for Gravity Forms' own GFAPI. `class_exists( 'GFAPI' )` is how
+	 * GravityFormsMigrator detects the plugin, so this always "exists" for the test suite;
+	 * individual tests control its forms through the public static $forms array.
+	 */
+	class GFAPI { // phpcs:ignore
+		/**
+		 * Form id => form array, set by a test before calling the migrator.
+		 *
+		 * @var array
+		 */
+		public static $forms = array();
+
+		public static function get_forms( $active = true, $trash = false, $sort_column = 'id', $sort_dir = 'ASC' ) {
+			return array_values( self::$forms );
+		}
+
+		public static function get_form( $id ) {
+			return self::$forms[ $id ] ?? false;
+		}
+	}
+}
+
 /**
  * Test container standing in for the plugin singleton; tests assign the services they need.
  *

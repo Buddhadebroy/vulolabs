@@ -76,6 +76,32 @@
 	}
 }
 
+// Forms.tsx: shown in the table body when a competitor plugin with forms is detected, independent
+// of the "Migrate forms" header button which always stays visible.
+.vuloform-migration-banner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	margin-bottom: 1rem;
+	padding: 0.875rem 1rem;
+	border: 0.063rem solid var(--color-primary);
+	border-radius: 0.5rem;
+	background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+
+	strong {
+		display: block;
+		color: var(--text-color);
+	}
+
+	span {
+		display: block;
+		margin-top: 0.125rem;
+		font-size: 0.8125rem;
+		color: var(--sub-text-color);
+	}
+}
+
 .vuloform-migration-result {
 	margin-top: 1rem;
 	padding-top: 1rem;

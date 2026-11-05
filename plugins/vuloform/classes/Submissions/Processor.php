@@ -83,7 +83,7 @@ class Processor {
 
 		// First pass: clean every value, so conditions can be evaluated against the whole form.
 		foreach ( $form['schema']['fields'] as $field ) {
-			if ( Registry::is_input( $field['type'] ) && 'file' !== $field['type'] && 'calculation' !== $field['type'] ) {
+			if ( Registry::is_input( $field['type'] ) && ! in_array( $field['type'], array( 'file', 'signature', 'calculation' ), true ) ) {
 				$values[ $field['key'] ] = self::clean( $field, $raw[ $field['key'] ] ?? '' );
 			}
 		}
@@ -110,7 +110,7 @@ class Processor {
 				continue;
 			}
 
-			if ( 'file' === $field['type'] ) {
+			if ( 'file' === $field['type'] || 'signature' === $field['type'] ) {
 				$sent = Uploads::normalise( $files[ 'vf_file_' . $key ] ?? null );
 
 				if ( ! $sent ) {
@@ -280,6 +280,26 @@ class Processor {
 			case 'consent':
 				return is_string( $value ) && '' !== $value ? '1' : '';
 
+			case 'repeater':
+				$rows  = array();
+				$limit = max( 1, (int) ( $field['max_rows'] ?? 10 ) );
+
+				foreach ( array_slice( is_array( $value ) ? $value : array(), 0, $limit ) as $row ) {
+					if ( ! is_array( $row ) ) {
+						continue;
+					}
+
+					$clean_row = array();
+
+					foreach ( $field['fields'] as $sub_field ) {
+						$clean_row[ $sub_field['key'] ] = self::clean( $sub_field, $row[ $sub_field['key'] ] ?? '' );
+					}
+
+					$rows[] = $clean_row;
+				}
+
+				return $rows;
+
 			default:
 				return is_string( $value ) ? sanitize_text_field( $value ) : '';
 		}
@@ -295,6 +315,10 @@ class Processor {
 	 * @return string Error message, or ''.
 	 */
 	public static function validate( array $field, $value, $required, array $messages ) {
+		if ( 'repeater' === $field['type'] ) {
+			return self::validate_repeater( $field, $value, $required, $messages );
+		}
+
 		$flat  = Conditions::flatten( $value );
 		$empty = ! $flat;
 
@@ -357,6 +381,7 @@ class Processor {
 
 			case 'text':
 			case 'textarea':
+			case 'password':
 				$length = mb_strlen( $text );
 
 				if ( $field['minlength'] > 0 && $length < $field['minlength'] ) {
@@ -370,6 +395,43 @@ class Processor {
 				}
 
 				return '';
+		}
+
+		return '';
+	}
+
+	/**
+	 * Validates a repeater's rows: each row's own sub-fields, against their own `required`, plus the
+	 * repeater's row-count bounds.
+	 *
+	 * @param array $field    The repeater field definition.
+	 * @param mixed $value    Cleaned rows, as returned by `clean()`.
+	 * @param bool  $required Whether the repeater itself (at least one row) is required.
+	 * @param array $messages The form's `required` and `invalid` messages.
+	 * @return string Error message, or ''.
+	 */
+	private static function validate_repeater( array $field, $value, $required, array $messages ) {
+		$rows = is_array( $value ) ? $value : array();
+
+		if ( ! $rows ) {
+			return $required || (int) $field['min_rows'] > 0 ? $messages['required'] : '';
+		}
+
+		if ( count( $rows ) < (int) $field['min_rows'] ) {
+			/* translators: %d: smallest allowed number of rows. */
+			return sprintf( _n( 'Add at least %d row.', 'Add at least %d rows.', (int) $field['min_rows'], 'vuloform' ), (int) $field['min_rows'] );
+		}
+
+		foreach ( $rows as $index => $row ) {
+			foreach ( $field['fields'] as $sub_field ) {
+				$sub_value = is_array( $row ) ? ( $row[ $sub_field['key'] ] ?? '' ) : '';
+				$sub_error = self::validate( $sub_field, $sub_value, $sub_field['required'], $messages );
+
+				if ( '' !== $sub_error ) {
+					/* translators: 1: row number, 2: error message. */
+					return sprintf( __( 'Row %1$d: %2$s', 'vuloform' ), $index + 1, $sub_error );
+				}
+			}
 		}
 
 		return '';

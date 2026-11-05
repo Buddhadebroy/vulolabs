@@ -51,6 +51,13 @@ class Registry {
 				'input'    => true,
 				'supports' => array( 'placeholder', 'required', 'default', 'description' ),
 			),
+			'password'    => array(
+				'label'    => __( 'Password', 'vuloform' ),
+				'icon'     => 'lock',
+				'group'    => 'basic',
+				'input'    => true,
+				'supports' => array( 'placeholder', 'required', 'default', 'length', 'description' ),
+			),
 			'phone'       => array(
 				'label'    => __( 'Phone', 'vuloform' ),
 				'icon'     => 'form-phone',
@@ -176,6 +183,20 @@ class Registry {
 				'group'    => 'advanced',
 				'input'    => true,
 				'supports' => array( 'description' ),
+			),
+			'signature'   => array(
+				'label'    => __( 'Signature', 'vuloform' ),
+				'icon'     => 'edit',
+				'group'    => 'advanced',
+				'input'    => true,
+				'supports' => array( 'required', 'description' ),
+			),
+			'repeater'    => array(
+				'label'    => __( 'Repeater', 'vuloform' ),
+				'icon'     => 'repeat',
+				'group'    => 'advanced',
+				'input'    => true,
+				'supports' => array( 'required', 'description' ),
 			),
 		);
 

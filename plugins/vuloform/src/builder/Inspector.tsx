@@ -10,7 +10,7 @@ import {
 	TextInput,
 } from '@zyra/inputs';
 import type { Field, Option, Rule } from '../services/types';
-import { explainFormula, fieldType, slug, supports, uniqueKey } from './fields';
+import { createField, explainFormula, fieldType, fieldTypes, slug, supports, uniqueKey } from './fields';
 import { inspectorSections } from '../services/slots';
 
 // Tags a starting value may contain; the form replaces them when it is shown (DynamicValues.php).
@@ -290,7 +290,8 @@ const Inspector = ({ field, fields, onChange, onAddField }: InspectorProps) => {
 			(item) =>
 				item.id !== field.id &&
 				fieldType(item.type)?.input &&
-				'file' !== item.type
+				'file' !== item.type &&
+				'signature' !== item.type
 		)
 		.map((item) => ({ value: item.key, label: item.label || item.key }));
 
@@ -301,6 +302,29 @@ const Inspector = ({ field, fields, onChange, onAddField }: InspectorProps) => {
 	const shownParts = (field.parts as string[] | undefined) ?? [];
 	const allowedTypes = (field.allowed_types as string[] | undefined) ?? [];
 	const isLayout = !type?.input;
+
+	// A repeater row can hold any input type except one needing its own upload/calculation
+	// plumbing or another repeater (Forms\Schema::sanitize_field() enforces the same restriction).
+	const rowFields = (field.fields as Field[] | undefined) ?? [];
+	const rowFieldTypeOptions = fieldTypes()
+		.filter((item) => item.input && !['file', 'signature', 'calculation', 'repeater'].includes(item.id))
+		.map((item) => ({ value: item.id, label: item.label }));
+	const setRowField = (index: number, patch: Partial<Field>) =>
+		set({
+			fields: rowFields.map((row, i) => (i === index ? { ...row, ...patch } : row)),
+		});
+	const addRowField = () => {
+		const rowType = rowFieldTypeOptions[0]?.value ?? 'text';
+
+		set({
+			fields: [
+				...rowFields,
+				createField(rowType, rowFields),
+			],
+		});
+	};
+	const removeRowField = (index: number) =>
+		set({ fields: rowFields.filter((_, i) => i !== index) });
 
 	const id = (name: string) => `vuloform-inspector-${name}`;
 
@@ -1087,6 +1111,96 @@ const Inspector = ({ field, fields, onChange, onAddField }: InspectorProps) => {
 								</label>
 							))}
 						</div>
+					)}
+
+				{'repeater' === field.type &&
+					section(
+						'repeater',
+						__('Row fields', 'vuloform'),
+						sprintf(
+							/* translators: %d: number of fields in one row. */
+							__('%d field(s)', 'vuloform'),
+							rowFields.length
+						),
+						<>
+							{rowFields.map((row, index) => (
+								<div className="vuloform-rule" key={row.id}>
+									<div className="vuloform-rule-line">
+										<SelectInput
+											type="single-select"
+											name={`row-type-${index}`}
+											isClearable={false}
+											options={rowFieldTypeOptions}
+											value={row.type}
+											onChange={(value) =>
+												setRowField(index, {
+													type: value as string,
+												})
+											}
+										/>
+										<TextInput
+											id={id(`row-label-${index}`)}
+											name={`row-label-${index}`}
+											placeholder={__('Label', 'vuloform')}
+											value={row.label}
+											onChange={(value) =>
+												setRowField(index, {
+													label: String(value),
+												})
+											}
+										/>
+										<button
+											type="button"
+											className="vuloform-icon-button is-danger"
+											aria-label={__('Remove this row field', 'vuloform')}
+											title={__('Remove this row field', 'vuloform')}
+											onClick={() => removeRowField(index)}
+										>
+											<i className="adminfont-delete" aria-hidden="true" />
+										</button>
+									</div>
+								</div>
+							))}
+							<ButtonInput
+								type="button"
+								value={__('Add a field to the row', 'vuloform')}
+								onClick={addRowField}
+							/>
+							<Pair>
+								<Control
+									label={__('Minimum rows', 'vuloform')}
+									name="min_rows"
+								>
+									<TextInput
+										id={id('min_rows')}
+										name="min_rows"
+										type="number"
+										minNumber={0}
+										maxNumber={50}
+										value={Number(field.min_rows ?? 0)}
+										onChange={(value) =>
+											set({ min_rows: Number(value) })
+										}
+									/>
+								</Control>
+								<Control
+									label={__('Maximum rows', 'vuloform')}
+									name="max_rows"
+								>
+									<TextInput
+										id={id('max_rows')}
+										name="max_rows"
+										type="number"
+										minNumber={1}
+										maxNumber={50}
+										value={Number(field.max_rows ?? 10)}
+										onChange={(value) =>
+											set({ max_rows: Number(value) })
+										}
+									/>
+								</Control>
+							</Pair>
+						</>
 					)}
 
 				{(supports(field, 'range') || supports(field, 'length')) &&

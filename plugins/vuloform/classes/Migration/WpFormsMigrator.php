@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  * run repeatedly: `MigrationMap` skips a source form already migrated unless `$overwrite` is set,
  * in which case the previously-created VuloForm form is updated in place rather than duplicated.
  */
-class WpFormsMigrator implements MigratorInterface {
+class WpFormsMigrator extends AbstractMigrator {
 
 	const POST_TYPE = 'wpforms';
 
@@ -49,15 +49,6 @@ class WpFormsMigrator implements MigratorInterface {
 	);
 
 	/**
-	 * @var MigrationMap
-	 */
-	private $map;
-
-	public function __construct() {
-		$this->map = new MigrationMap();
-	}
-
-	/**
 	 * @inheritDoc
 	 */
 	public function get_id(): string {
@@ -74,8 +65,22 @@ class WpFormsMigrator implements MigratorInterface {
 	/**
 	 * @inheritDoc
 	 */
+	protected function is_active() {
+		return post_type_exists( self::POST_TYPE );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function shortcode_tags() {
+		return array( 'wpforms' );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public function list_available(): array {
-		if ( ! post_type_exists( self::POST_TYPE ) ) {
+		if ( ! $this->is_active() ) {
 			return array();
 		}
 
@@ -107,101 +112,15 @@ class WpFormsMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * @inheritDoc
-	 */
-	public function migrate( array $source_ids = array(), bool $overwrite = false ): array {
-		$migrated = 0;
-		$skipped  = 0;
-		$errors   = array();
-
-		if ( ! post_type_exists( self::POST_TYPE ) ) {
-			return array(
-				'migrated'           => 0,
-				'skipped'            => 0,
-				'errors'             => array( __( 'WPForms is not installed, so there is nothing to migrate.', 'vuloform' ) ),
-				'posts_updated'      => 0,
-				'references_updated' => 0,
-			);
-		}
-
-		foreach ( $this->list_available() as $row ) {
-			$source_id = $row['source_id'];
-
-			if ( $source_ids && ! in_array( $source_id, $source_ids, true ) ) {
-				continue;
-			}
-
-			$existing_form_id = $this->map->get( $this->get_id(), $source_id );
-
-			if ( $existing_form_id && ! $overwrite ) {
-				++$skipped;
-				continue;
-			}
-
-			try {
-				$form_id = $this->migrate_one( (int) $source_id, $existing_form_id, $errors );
-
-				if ( $form_id ) {
-					$this->map->record( $this->get_id(), $source_id, $form_id );
-					++$migrated;
-				} else {
-					$errors[] = sprintf(
-						/* translators: %s: WPForms form id. */
-						__( 'WPForms form #%s could not be created in VuloForm.', 'vuloform' ),
-						$source_id
-					);
-				}
-			} catch ( \Throwable $e ) {
-				$errors[] = sprintf(
-					/* translators: 1: WPForms form id, 2: error message. */
-					__( 'WPForms form #%1$s: %2$s', 'vuloform' ),
-					$source_id,
-					$e->getMessage()
-				);
-			}
-		}
-
-		$shortcodes = $this->replace_shortcodes();
-
-		return array(
-			'migrated'           => $migrated,
-			'skipped'            => $skipped,
-			'errors'             => $errors,
-			'posts_updated'      => $shortcodes['posts_updated'],
-			'references_updated' => $shortcodes['references_updated'],
-		);
-	}
-
-	/**
-	 * Replaces `[wpforms id="N"]` with `[vuloform id="M"]` wherever N has a known mapping - every
-	 * form ever migrated, not just this run's, so a retry also catches references that were added
-	 * (or left unresolved) since an earlier migration.
-	 *
-	 * @return array{posts_updated: int, references_updated: int}
-	 */
-	private function replace_shortcodes(): array {
-		$id_map = array();
-
-		foreach ( $this->list_available() as $row ) {
-			$form_id = $this->map->get( $this->get_id(), $row['source_id'] );
-
-			if ( $form_id ) {
-				$id_map[ (string) $row['source_id'] ] = $form_id;
-			}
-		}
-
-		return ( new ShortcodeReplacer() )->replace( 'wpforms', 'id', $id_map );
-	}
-
-	/**
-	 * @param int        $post_id          WPForms form post id.
+	 * @param int|string $post_id          WPForms form post id.
 	 * @param int|null   $existing_form_id A VuloForm form already created for this source form, if any (re-migrating with $overwrite).
 	 * @param string[]   $errors           Compatibility notes, by reference.
 	 * @return int VuloForm form id, or 0 on failure.
 	 */
-	private function migrate_one( int $post_id, ?int $existing_form_id, array &$errors ): int {
-		$post = get_post( $post_id );
-		$data = $post ? $this->decode( $post->post_content ) : null;
+	protected function migrate_one( $post_id, ?int $existing_form_id, array &$errors ) {
+		$post_id = (int) $post_id;
+		$post    = get_post( $post_id );
+		$data    = $post ? $this->decode( $post->post_content ) : null;
 
 		if ( ! $post || ! $data ) {
 			$errors[] = sprintf(
@@ -231,7 +150,7 @@ class WpFormsMigrator implements MigratorInterface {
 
 		$schema = array(
 			'fields'   => $fields,
-			'settings' => $this->migrate_settings( $settings, $fields ),
+			'settings' => $this->migrate_settings( $settings ),
 		);
 
 		$status = 'publish' === $post->post_status ? 'published' : 'draft';
@@ -360,10 +279,9 @@ class WpFormsMigrator implements MigratorInterface {
 
 	/**
 	 * @param array $settings WPForms `settings` object.
-	 * @param array $fields   Already-migrated VuloForm fields, so notifications can be pointed at a real field key.
 	 * @return array A VuloForm `settings` object (Schema::sanitize() rebuilds/validates it on save).
 	 */
-	private function migrate_settings( array $settings, array $fields ): array {
+	private function migrate_settings( array $settings ): array {
 		$out = array();
 
 		if ( ! empty( $settings['submit_text'] ) ) {
