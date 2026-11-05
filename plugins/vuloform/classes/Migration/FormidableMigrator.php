@@ -74,6 +74,13 @@ class FormidableMigrator extends AbstractMigrator {
 	/**
 	 * @inheritDoc
 	 */
+	public function plugin_files(): array {
+		return array( 'formidable/formidable.php', 'formidable-pro/formidable-pro.php' );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public function get_label(): string {
 		return __( 'Formidable Forms', 'vuloform' );
 	}

@@ -73,6 +73,13 @@ class ContactForm7Migrator extends AbstractMigrator {
 	/**
 	 * @inheritDoc
 	 */
+	public function plugin_files(): array {
+		return array( 'contact-form-7/wp-contact-form-7.php' );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public function get_label(): string {
 		return __( 'Contact Form 7', 'vuloform' );
 	}

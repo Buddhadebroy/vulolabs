@@ -77,6 +77,13 @@ class NinjaFormsMigrator extends AbstractMigrator {
 	/**
 	 * @inheritDoc
 	 */
+	public function plugin_files(): array {
+		return array( 'ninja-forms/ninja-forms.php' );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public function get_label(): string {
 		return __( 'Ninja Forms', 'vuloform' );
 	}
@@ -111,11 +118,12 @@ class NinjaFormsMigrator extends AbstractMigrator {
 			$form_id = $form->get_id();
 			$title   = (string) $form->get_setting( 'title' );
 
+			// get_forms() rows have no get_fields() of their own - fetch it from the full form.
 			$available[] = array(
 				'source_id'        => $form_id,
 				'title'            => '' !== $title ? $title : __( '(untitled form)', 'vuloform' ),
 				'status'           => 'publish',
-				'field_count'      => count( $form->get_fields() ),
+				'field_count'      => count( Ninja_Forms()->form( $form_id )->get_fields() ),
 				'already_migrated' => null !== $this->map->get( $this->get_id(), $form_id ),
 			);
 		}

@@ -93,6 +93,13 @@ class GravityFormsMigrator extends AbstractMigrator {
 	/**
 	 * @inheritDoc
 	 */
+	public function plugin_files(): array {
+		return array( 'gravityforms/gravityforms.php' );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public function get_label(): string {
 		return __( 'Gravity Forms', 'vuloform' );
 	}

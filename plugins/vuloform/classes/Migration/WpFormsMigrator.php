@@ -58,6 +58,13 @@ class WpFormsMigrator extends AbstractMigrator {
 	/**
 	 * @inheritDoc
 	 */
+	public function plugin_files(): array {
+		return array( 'wpforms-lite/wpforms.php', 'wpforms/wpforms.php' );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public function get_label(): string {
 		return __( 'WPForms', 'vuloform' );
 	}

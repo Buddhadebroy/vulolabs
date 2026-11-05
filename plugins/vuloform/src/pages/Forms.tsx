@@ -36,6 +36,8 @@ interface MigrationSource {
 	id: string;
 	label: string;
 	count: number;
+	plugin_file: string;
+	forms: Array<{ already_migrated: boolean }>;
 }
 
 interface MigrationResult {
@@ -68,6 +70,7 @@ const Forms = () => {
 	const fileInput = useRef<HTMLInputElement>(null);
 	const [sources, setSources] = useState<MigrationSource[] | null>(null);
 	const [isMigrating, setIsMigrating] = useState(false);
+	const [isDeactivating, setIsDeactivating] = useState(false);
 
 	// Checked once on load, so a detected plugin can be surfaced right on the forms list.
 	const loadSources = () => {
@@ -79,6 +82,12 @@ const Forms = () => {
 	useEffect(loadSources, []);
 
 	const detectedSources = (sources ?? []).filter((source) => source.count > 0);
+
+	// Still-active plugins with at least one already-migrated form - shown until the plugin itself
+	// is deactivated (plugin_file goes empty), so this survives reloads, not just this page visit.
+	const migratedSources = (sources ?? []).filter(
+		(source) => source.plugin_file && source.forms.some((form) => form.already_migrated)
+	);
 
 	const onQueryUpdate = useCallback((next: TableQuery) => setQuery(next), []);
 
@@ -143,8 +152,10 @@ const Forms = () => {
 
 		setIsMigrating(true);
 
+		const migratingSources = detectedSources;
+
 		Promise.all(
-			detectedSources.map((source) =>
+			migratingSources.map((source) =>
 				apiPost<MigrationResult>('migration/run', { source: source.id })
 			)
 		)
@@ -172,6 +183,26 @@ const Forms = () => {
 			})
 			.catch((e) => notify('error', errorMessage(e)))
 			.finally(() => setIsMigrating(false));
+	};
+
+	const deactivateMigratedSources = () => {
+		if (0 === migratedSources.length) {
+			return;
+		}
+
+		setIsDeactivating(true);
+
+		Promise.all(
+			migratedSources.map((source) =>
+				apiPost('migration/deactivate-source', { source: source.id })
+			)
+		)
+			.then(() => {
+				notify('success', __('Plugin deactivated.', 'vuloform'));
+				loadSources();
+			})
+			.catch((e) => notify('error', errorMessage(e)))
+			.finally(() => setIsDeactivating(false));
 	};
 
 	const duplicate = (row: FormRow) => {
@@ -228,22 +259,25 @@ const Forms = () => {
 						detectedSources.length > 0 ? (
 							<ModuleGuardComponent
 								icon="import"
+								iconColor="purple"
+								className="vuloform-migration-guard"
 								title={sprintf(
 									/* translators: %s: comma-separated list of detected plugin names. */
-									__('Forms found in %s', 'vuloform'),
+									__('Bring your %s forms into VuloForm', 'vuloform'),
 									detectedSources.map((source) => source.label).join(', ')
 								)}
 								desc={sprintf(
-									/* translators: %d: number of forms found. */
+									/* translators: 1: number of forms found, 2: comma-separated list of detected plugin names. */
 									_n(
-										'%d form can be migrated into VuloForm.',
-										'%d forms can be migrated into VuloForm.',
+										'%1$d form found in %2$s. Migrate copies it to VuloForm - %2$s stays untouched.',
+										'%1$d forms found in %2$s. Migrate copies them to VuloForm - %2$s stays untouched.',
 										detectedSources.reduce((total, source) => total + source.count, 0),
 										'vuloform'
 									),
-									detectedSources.reduce((total, source) => total + source.count, 0)
+									detectedSources.reduce((total, source) => total + source.count, 0),
+									detectedSources.map((source) => source.label).join(', ')
 								)}
-								buttonText={isMigrating ? __('Migrating…', 'vuloform') : __('Migrate', 'vuloform')}
+								buttonText={isMigrating ? __('Migrating…', 'vuloform') : __('Migrate now', 'vuloform')}
 								onButtonClick={migrateDetected}
 							/>
 						) : (
@@ -290,6 +324,34 @@ const Forms = () => {
 											color: 'purple',
 											disabled: isMigrating,
 											onClick: migrateDetected,
+										}}
+									/>
+								</div>
+							)}
+							{migratedSources.length > 0 && (
+								<div className="vuloform-migration-banner vuloform-migration-success">
+									<div>
+										<strong>{__('Migration successful.', 'vuloform')}</strong>
+										<span>
+											{sprintf(
+												/* translators: %s: comma-separated list of source plugin names. */
+												__(
+													'Your forms from %s now live in VuloForm too. You can deactivate it.',
+													'vuloform'
+												),
+												migratedSources.map((source) => source.label).join(', ')
+											)}
+										</span>
+									</div>
+									<ButtonInput
+										buttons={{
+											text: isDeactivating
+												? __('Deactivating…', 'vuloform')
+												: __('Deactivate it', 'vuloform'),
+											icon: 'trash',
+											color: 'border-red',
+											disabled: isDeactivating,
+											onClick: deactivateMigratedSources,
 										}}
 									/>
 								</div>

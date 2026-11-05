@@ -10,8 +10,10 @@ namespace VuloForm\Tests;
 use Brain\Monkey\Functions;
 use VuloForm\Forms\FormRepository;
 use VuloForm\Forms\Schema;
+use VuloForm\Migration\FluentFormsMigrator;
 use VuloForm\Migration\GravityFormsMigrator;
 use VuloForm\Migration\MigrationManager;
+use VuloForm\Migration\NinjaFormsMigrator;
 use VuloForm\Migration\WpFormsMigrator;
 
 /**
@@ -64,10 +66,13 @@ class TestMigration extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->forms                            = new FakeForms();
-		VuloForm()->forms                       = $this->forms;
-		$GLOBALS['vuloform_test_wpforms_posts'] = array();
-		\GFAPI::$forms                          = array();
+		$this->forms                                 = new FakeForms();
+		VuloForm()->forms                            = $this->forms;
+		$GLOBALS['vuloform_test_wpforms_posts']      = array();
+		\GFAPI::$forms                               = array();
+		$GLOBALS['vuloform_test_ninja_forms']->rows  = array();
+		$GLOBALS['vuloform_test_ninja_forms']->forms = array();
+		$GLOBALS['vuloform_test_fluent']->tables     = array();
 
 		Functions\when( 'post_type_exists' )->alias(
 			static function ( $post_type ) {
@@ -344,17 +349,34 @@ class TestMigration extends TestCase {
 				'title'     => 'Contact',
 				'is_active' => true,
 				'fields'    => array(
-					array( 'id' => 1, 'type' => 'text', 'label' => 'Your name', 'isRequired' => true, 'placeholder' => 'Jane Doe' ),
+					array(
+						'id'          => 1,
+						'type'        => 'text',
+						'label'       => 'Your name',
+						'isRequired'  => true,
+						'placeholder' => 'Jane Doe',
+					),
 					array(
 						'id'      => 2,
 						'type'    => 'select',
 						'label'   => 'Favorite color',
 						'choices' => array(
-							array( 'text' => 'Red', 'value' => 'red' ),
-							array( 'text' => 'Blue', 'value' => 'blue' ),
+							array(
+								'text'  => 'Red',
+								'value' => 'red',
+							),
+							array(
+								'text'  => 'Blue',
+								'value' => 'blue',
+							),
 						),
 					),
-					array( 'id' => 3, 'type' => 'email', 'label' => 'Email', 'isRequired' => true ),
+					array(
+						'id'         => 3,
+						'type'       => 'email',
+						'label'      => 'Email',
+						'isRequired' => true,
+					),
 				),
 			),
 		);
@@ -375,8 +397,14 @@ class TestMigration extends TestCase {
 		$this->assertSame( 'select', $schema['fields'][1]['type'] );
 		$this->assertSame(
 			array(
-				array( 'label' => 'Red', 'value' => 'red' ),
-				array( 'label' => 'Blue', 'value' => 'blue' ),
+				array(
+					'label' => 'Red',
+					'value' => 'red',
+				),
+				array(
+					'label' => 'Blue',
+					'value' => 'blue',
+				),
 			),
 			$schema['fields'][1]['options']
 		);
@@ -391,10 +419,22 @@ class TestMigration extends TestCase {
 				'title'     => 'Order',
 				'is_active' => true,
 				'fields'    => array(
-					array( 'id' => 1, 'type' => 'text', 'label' => 'Name' ),
+					array(
+						'id'    => 1,
+						'type'  => 'text',
+						'label' => 'Name',
+					),
 					// Post Fields and Pricing Fields have no VuloForm equivalent at all.
-					array( 'id' => 2, 'type' => 'post_title', 'label' => 'Title' ),
-					array( 'id' => 3, 'type' => 'product', 'label' => 'Item' ),
+					array(
+						'id'    => 2,
+						'type'  => 'post_title',
+						'label' => 'Title',
+					),
+					array(
+						'id'    => 3,
+						'type'  => 'product',
+						'label' => 'Item',
+					),
 				),
 			),
 		);
@@ -418,9 +458,19 @@ class TestMigration extends TestCase {
 						'type'   => 'name',
 						'label'  => 'Name',
 						'inputs' => array(
-							array( 'id' => '1.2', 'label' => 'Prefix', 'isHidden' => true ),
-							array( 'id' => '1.3', 'label' => 'First' ),
-							array( 'id' => '1.6', 'label' => 'Last' ),
+							array(
+								'id'       => '1.2',
+								'label'    => 'Prefix',
+								'isHidden' => true,
+							),
+							array(
+								'id'    => '1.3',
+								'label' => 'First',
+							),
+							array(
+								'id'    => '1.6',
+								'label' => 'Last',
+							),
 						),
 					),
 					array(
@@ -428,9 +478,18 @@ class TestMigration extends TestCase {
 						'type'   => 'address',
 						'label'  => 'Address',
 						'inputs' => array(
-							array( 'id' => '2.1', 'label' => 'Street' ),
-							array( 'id' => '2.3', 'label' => 'City' ),
-							array( 'id' => '2.6', 'label' => 'Country' ),
+							array(
+								'id'    => '2.1',
+								'label' => 'Street',
+							),
+							array(
+								'id'    => '2.3',
+								'label' => 'City',
+							),
+							array(
+								'id'    => '2.6',
+								'label' => 'Country',
+							),
 						),
 					),
 				),
@@ -451,9 +510,19 @@ class TestMigration extends TestCase {
 				'id'            => 1,
 				'title'         => 'Lead',
 				'is_active'     => true,
-				'fields'        => array( array( 'id' => 1, 'type' => 'email', 'label' => 'Email' ) ),
+				'fields'        => array(
+					array(
+						'id'    => 1,
+						'type'  => 'email',
+						'label' => 'Email',
+					),
+				),
 				'notifications' => array(
-					'abc123' => array( 'name' => 'Admin Notification', 'to' => '{admin_email}', 'subject' => 'New lead' ),
+					'abc123' => array(
+						'name'    => 'Admin Notification',
+						'to'      => '{admin_email}',
+						'subject' => 'New lead',
+					),
 				),
 			),
 		);
@@ -466,17 +535,60 @@ class TestMigration extends TestCase {
 		$this->assertSame( array(), $this->forms->rows[1]['schema']['settings']['notifications'], 'Reported as a compatibility note, not guessed at.' );
 	}
 
-	public function test_gravity_forms_is_registered_as_a_migration_source() {
-		$manager = new MigrationManager();
-		$gravity = null;
+	public function test_ninja_forms_list_available_reads_field_count_from_the_full_form_object() {
+		// get_forms() returns the plain row, which has no get_fields() of its own - the fix this
+		// test locks in reads the field count through form( $id ) instead. See AbstractMigrator's
+		// VuloformTestNinjaForms stub for why this would fail again if that regressed.
+		$row = new \VuloformTestNinjaFormsRow( 1, array( 'title' => 'Contact Me' ) );
 
-		foreach ( $manager->list_sources() as $source ) {
-			if ( 'gravityforms' === $source['id'] ) {
-				$gravity = $source;
-			}
-		}
+		$GLOBALS['vuloform_test_ninja_forms']->rows[1]  = $row;
+		$GLOBALS['vuloform_test_ninja_forms']->forms[1] = new \VuloformTestNinjaFormsForm(
+			$row,
+			array(
+				new \VuloformTestNinjaFormsRow(
+                    'f1',
+                    array(
+						'type'  => 'textbox',
+						'label' => 'Name',
+                    )
+                ),
+				new \VuloformTestNinjaFormsRow(
+                    'f2',
+                    array(
+						'type'  => 'email',
+						'label' => 'Email',
+                    )
+                ),
+			)
+		);
 
-		$this->assertNotNull( $gravity );
-		$this->assertSame( 0, $gravity['count'], 'No forms were set up for this test.' );
+		$available = ( new NinjaFormsMigrator() )->list_available();
+
+		$this->assertCount( 1, $available );
+		$this->assertSame( 1, $available[0]['source_id'] );
+		$this->assertSame( 'Contact Me', $available[0]['title'] );
+		$this->assertSame( 2, $available[0]['field_count'] );
+	}
+
+	public function test_fluent_forms_list_available_reads_rows_out_of_the_query_builders_collection() {
+		// wpFluent()->table(...)->get() returns a Collection object, not a plain array - the fix
+		// this test locks in iterates it directly instead of `(array)`-casting it. See
+		// VuloformTestFluentCollection's doc comment for why a plain-array stub would not catch
+		// this regressing.
+		$GLOBALS['vuloform_test_fluent']->tables['fluentform_forms'] = array(
+			array(
+				'id'          => 1,
+				'title'       => 'Contact Form Demo',
+				'status'      => 'published',
+				'form_fields' => wp_json_encode( array( 'fields' => array( array( 'element' => 'input_email' ), array( 'element' => 'input_text' ) ) ) ),
+			),
+		);
+
+		$available = ( new FluentFormsMigrator() )->list_available();
+
+		$this->assertCount( 1, $available );
+		$this->assertSame( 1, $available[0]['source_id'] );
+		$this->assertSame( 'Contact Form Demo', $available[0]['title'] );
+		$this->assertSame( 2, $available[0]['field_count'] );
 	}
 }

@@ -73,6 +73,13 @@ class FluentFormsMigrator extends AbstractMigrator {
 	/**
 	 * @inheritDoc
 	 */
+	public function plugin_files(): array {
+		return array( 'fluentform/fluentform.php', 'fluentformpro/fluentformpro.php' );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public function get_label(): string {
 		return __( 'Fluent Forms', 'vuloform' );
 	}
@@ -100,11 +107,12 @@ class FluentFormsMigrator extends AbstractMigrator {
 			return array();
 		}
 
+		// get() returns a Collection object, not a plain array - iterate it directly.
 		$forms = wpFluent()->table( self::TABLE_FORMS )->get();
 
 		$available = array();
 
-		foreach ( (array) $forms as $form ) {
+		foreach ( $forms as $form ) {
 			$form   = (object) $form;
 			$fields = $this->decode_fields( (string) ( $form->form_fields ?? '' ) );
 

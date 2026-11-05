@@ -47,4 +47,13 @@ interface MigratorInterface {
 	 * @return array{migrated: int, skipped: int, errors: string[], posts_updated?: int, references_updated?: int} The last two, when present, count website content updated by a `ShortcodeReplacer` pass.
 	 */
 	public function migrate( array $source_ids = array(), bool $overwrite = false ): array;
+
+	/**
+	 * Candidate plugin basenames (`folder/file.php`, as `get_plugins()` keys them) for the source
+	 * plugin, so the migration screen can offer to deactivate it once nothing is left to migrate.
+	 * More than one when the plugin ships under different folder names (e.g. a lite vs. paid build).
+	 *
+	 * @return string[]
+	 */
+	public function plugin_files(): array;
 }

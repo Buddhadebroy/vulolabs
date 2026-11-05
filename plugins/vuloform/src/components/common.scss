@@ -102,6 +102,22 @@
 	}
 }
 
+// Same shape as .vuloform-migration-banner above, shown after a successful migration (green instead
+// of the brand purple, since this is a confirmation rather than an opportunity to act on).
+.vuloform-migration-success {
+	border-color: var(--color-green, #2e7d32);
+	background: color-mix(in srgb, var(--color-green, #2e7d32) 6%, transparent);
+}
+
+// The same empty-state ModuleGuardComponent zyra renders elsewhere (e.g. "Create your first
+// form"), but tinted and bordered like .vuloform-migration-banner above so a detected plugin's
+// forms read as an opportunity to act on, not a generic empty state or a warning.
+.vuloform-migration-guard {
+	border: 0.063rem solid var(--color-primary);
+	border-radius: 0.5rem;
+	background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+}
+
 .vuloform-migration-result {
 	margin-top: 1rem;
 	padding-top: 1rem;
