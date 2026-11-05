@@ -10,21 +10,10 @@ namespace VuloForm\Migration;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Imports forms from Forminator.
- *
- * Forminator stores a form as a `forminator_forms` post; its definition is a PHP array (not JSON)
- * in the `forminator_form_meta` postmeta, read with `get_post_meta( $id, 'forminator_form_meta',
- * true )` - confirmed against `library/model/class-base-form-model.php` and
- * `class-custom-form-model.php` in the public forminator source (plugins.svn.wordpress.org/
- * forminator). That array's top-level keys are `fields`, `settings`, `notifications` and
- * `behaviors` (confirmed via `get_default_maps()`'s `type: meta` entries); each field entry's type
- * slug and property keys were confirmed per-type against `library/fields/*.php` (quoted per field
- * below). Forminator's own email notification entry shape was not publicly confirmed, so
- * notifications are reported rather than guessed at - see migrate_settings().
- *
- * Like WpFormsMigrator, this never touches the source form and is safe to re-run: `MigrationMap`
- * skips an already-migrated form unless `$overwrite` is set, in which case the previously-created
- * VuloForm form is updated in place.
+ * Imports forms from Forminator. A form is a `forminator_forms` post; its definition (a PHP array
+ * with `fields`, `settings`, `notifications`, `behaviors`) lives in the `forminator_form_meta`
+ * postmeta. Notification shape wasn't confirmed, so notifications are reported, not guessed at.
+ * Safe to re-run, like the other migrators.
  */
 class ForminatorMigrator extends AbstractMigrator {
 
@@ -32,10 +21,8 @@ class ForminatorMigrator extends AbstractMigrator {
 	const META_KEY  = 'forminator_form_meta';
 
 	/**
-	 * Forminator field slug => VuloForm field type, confirmed against each type's own
-	 * `library/fields/*.php` class (`$slug`/`$type` properties). Types with no VuloForm equivalent
-	 * (payment fields, calculator, captcha, rating, password, group, section...) are reported, not
-	 * guessed at - see migrate_field().
+	 * Forminator field slug => VuloForm field type. Unmapped types are reported, not guessed at -
+	 * see migrate_field().
 	 *
 	 * @var array<string, string>
 	 */

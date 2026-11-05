@@ -10,10 +10,8 @@ namespace VuloForm\Migration;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Contract for a single "import forms from another plugin" migrator. Each source plugin
- * (WPForms, Forminator, Gravity Forms, Fluent Forms, JetFormBuilder) gets its own class
- * implementing this, registered in `MigrationManager::MIGRATOR_CLASSES`. Mirrors VuloPilot's
- * own `Migration\MigratorInterface` (SEO plugin migration) - same contract, same house pattern.
+ * Contract for a single "import forms from another plugin" migrator, registered in
+ * `MigrationManager::MIGRATOR_CLASSES`.
  */
 interface MigratorInterface {
 

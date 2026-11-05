@@ -10,18 +10,9 @@ namespace VuloForm\Migration;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Imports forms from WPForms (Lite or Pro - both use the same storage).
- *
- * WPForms stores a form as a `wpforms` post; its definition is JSON in `post_content`
- * (`wpforms_decode()`/`wpforms_encode()`), shaped `{field_id, fields: {id => field}, settings:
- * {...}, meta: {...}}` - confirmed against `includes/class-form.php` and the field classes under
- * `includes/fields/` in the public wpforms-lite source (plugins.svn.wordpress.org/wpforms-lite).
- * Nothing here reads WPForms' entries tables; only the form definition is migrated, never
- * submissions.
- *
- * `migrate()` never touches the source form, and only ever creates VuloForm forms - it is safe to
- * run repeatedly: `MigrationMap` skips a source form already migrated unless `$overwrite` is set,
- * in which case the previously-created VuloForm form is updated in place rather than duplicated.
+ * Imports forms from WPForms (Lite or Pro). A form is a `wpforms` post; its definition is JSON in
+ * `post_content` (`wpforms_decode()`), shaped `{fields, settings, meta}`. Only the form definition
+ * migrates, never entries/submissions. Safe to re-run, like the other migrators.
  */
 class WpFormsMigrator extends AbstractMigrator {
 

@@ -156,8 +156,7 @@ class Renderer {
 		}
 
 		if ( ! $args['preview'] && Recaptcha::is_active( $form ) ) {
-			// The form's script fills this in: the v2 checkbox is drawn inside it, a v3 token is put
-			// in the hidden field. Without JavaScript the check can't run, and the visitor is told.
+			// form.js fills these in; without JavaScript the visitor is told reCAPTCHA can't run.
 			$html .= sprintf(
 				'<div class="vuloform-recaptcha"><input type="hidden" name="%s" value=""><noscript><p>%s</p></noscript></div>',
 				esc_attr( Recaptcha::FIELD ),
@@ -225,8 +224,7 @@ class Renderer {
 			if ( Registry::is_input( $field['type'] ) ) {
 				$fields[] = array_intersect_key( $field, array_flip( $keep ) );
 
-				// A default that depends on the address bar or the page is worked out again in the
-				// browser, which knows both even on a cached page or another website.
+				// Address/page-dependent defaults are re-resolved in the browser, not here.
 				$template = DynamicValues::browser_template( $field['default'] ?? '' );
 
 				if ( '' !== $template ) {
@@ -458,9 +456,7 @@ class Renderer {
 				break;
 
 			case 'signature':
-				// A plain file input is the no-JavaScript fallback (upload a PNG of a signature);
-				// form.js replaces it with a drawable pad, writing the drawing back into this same
-				// input so it submits exactly like a 'file' field - no server-side difference at all.
+				// No-JS fallback; form.js replaces it with a drawable pad that writes back into this input.
 				$control = sprintf(
 					'<input class="vuloform-input vuloform-input--signature" type="file" id="%s" name="%s" accept="image/png"%s>',
 					esc_attr( $id ),
@@ -528,10 +524,7 @@ class Renderer {
 	}
 
 	/**
-	 * Renders a repeater's rows: one row per already-submitted/default row (at least `min_rows`,
-	 * never more than `max_rows`), each a fieldset of the row's own sub-fields. form.js adds the
-	 * "Add row"/"Remove row" controls and re-indexes names as rows are added or removed; without
-	 * JavaScript the visitor gets exactly `min_rows` (or one) static row.
+	 * Renders a repeater's rows, between `min_rows` and `max_rows`.
 	 *
 	 * @param array  $field       The repeater field definition.
 	 * @param string $uid         Form instance id.
@@ -577,8 +570,7 @@ class Renderer {
 		$html = sprintf( '<div class="vuloform-repeater-row" data-row="%d">', $index );
 
 		foreach ( $field['fields'] as $sub_field ) {
-			// `__N__` (not `-N-`) so the browser script's reindex-on-add/remove regex can match the
-			// row number unambiguously; a field id is otherwise only lowercase letters/digits/`_`.
+			// `__N__` so form.js's reindex regex can match the row number unambiguously.
 			$sub_id    = $id . '__' . $index . '__' . $sub_field['id'];
 			$sub_name  = $name . '[' . $index . '][' . $sub_field['key'] . ']';
 			$sub_value = $row[ $sub_field['key'] ] ?? null;

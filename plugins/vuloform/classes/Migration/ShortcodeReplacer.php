@@ -10,13 +10,9 @@ namespace VuloForm\Migration;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Finds and replaces a source plugin's embed shortcode with VuloForm's own `[vuloform id="..."]`,
- * across every post type and status WordPress stores content in (pages, posts, drafts, private
- * and scheduled content, custom post types). Only the shortcode tag itself is touched - everything
- * else in `post_content` is left exactly as it was.
- *
- * A migrator calls this once its forms are created, passing the id map it already knows
- * (`{source_id: new_vuloform_id}`); a reference to a source form not in that map is left alone.
+ * Replaces a source plugin's embed shortcode with VuloForm's own `[vuloform id="..."]`, across
+ * every post type and status. Only the shortcode tag is touched. A migrator calls this once its
+ * forms exist, passing the id map it knows (`{source_id: new_vuloform_id}`); anything else is left alone.
  */
 class ShortcodeReplacer {
 

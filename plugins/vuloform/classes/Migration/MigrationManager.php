@@ -10,12 +10,8 @@ namespace VuloForm\Migration;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Registry of every supported "import forms from another plugin" migrator. Mirrors VuloPilot's
- * `Migration\MigrationManager` (list detected sources with a found-forms count, then run one on
- * demand) - the house pattern for this kind of migration tab across the monorepo.
- *
- * Adapters are added here one plugin at a time: WPForms, then Forminator, then Gravity Forms,
- * then Contact Form 7, then Ninja Forms, then Formidable Forms, then Fluent Forms.
+ * Registry of every supported "import forms from another plugin" migrator: list detected sources
+ * with a found-forms count, then run one on demand.
  */
 class MigrationManager {
 
@@ -68,9 +64,7 @@ class MigrationManager {
 			$sources[] = array(
 				'id'    => $migrator->get_id(),
 				'label' => $migrator->get_label(),
-				// Already-migrated forms stay listed (re-running an import can still update them),
-				// but don't count toward "forms found" - that count drives the forms list's own
-				// detection notice, which should go away once there is nothing new left to migrate.
+				// Already-migrated forms stay listed but don't count toward "forms found".
 				'count' => count(
 					array_filter(
 						$forms,
@@ -80,8 +74,7 @@ class MigrationManager {
 					)
 				),
 				'forms' => $forms,
-				// '' when none of the migrator's candidate basenames is an active plugin - offering
-				// to deactivate only makes sense once we know exactly which plugin that is.
+				// '' when none of the migrator's candidate basenames is an active plugin.
 				'plugin_file' => $this->resolve_active_plugin_file( $migrator->plugin_files() ),
 			);
 		}

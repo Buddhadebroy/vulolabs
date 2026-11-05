@@ -18,13 +18,8 @@ defined( 'ABSPATH' ) || exit;
 class Registry {
 
 	/**
-	 * Every field type.
-	 *
-	 * Keys per type:
-	 * - label, icon, group (basic|layout|advanced)
-	 * - input: whether it collects a value (false for headings, dividers, page breaks...)
-	 * - supports: which generic settings apply (placeholder, required, default, options, range,
-	 *   length, description)
+	 * Every field type: label, icon, group, whether it collects a value (`input`), and which
+	 * generic settings it supports.
 	 *
 	 * @return array<string, array>
 	 */

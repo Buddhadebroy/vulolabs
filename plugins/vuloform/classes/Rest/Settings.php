@@ -57,13 +57,9 @@ class Settings extends Controller {
 	}
 
 	/**
-	 * Accepts a flat body or the `{ setting, settingName }` body of zyra's auto-saving form -
-	 * same shape, and the same merge-the-submitted-fields-in-then-save-the-whole-blob structure,
-	 * as vulopilot's own Settings REST controller. Unlike vulopilot's, these values are re-checked
-	 * after the merge rather than trusted as submitted: a bounded setting is clamped back into
-	 * range, the two settings a UI toggle wraps in an envelope object are read out of it, and the
-	 * secret - never sent to the browser, so the form posts it empty unless a new one was typed -
-	 * is kept rather than blanked by a naive merge.
+	 * Accepts a flat body or zyra's auto-saving `{ setting, settingName }` body. Merges submitted
+	 * fields into the stored settings, then re-checks them: bounds are clamped, toggle-wrapped
+	 * settings are read out of their envelope, and an empty secret keeps its stored value.
 	 *
 	 * @param \WP_REST_Request $request Request.
 	 * @return \WP_REST_Response
@@ -74,9 +70,7 @@ class Settings extends Controller {
 		$input   = $is_form ? $input['setting'] : $input;
 		$before  = Utill::settings();
 
-		// Only a key that already names a known setting is merged in; a toggle's wrapper object
-		// (`privacy_options`, `spam_options`) and the secret - both handled on their own below -
-		// are excluded, so neither reaches the database untouched.
+		// Only known setting keys are merged in; toggle wrappers and the secret are handled below.
 		$after = array_merge(
 			$before,
 			array_diff_key( array_intersect_key( $input, $before ), array( 'recaptcha_secret_key' => true ) )

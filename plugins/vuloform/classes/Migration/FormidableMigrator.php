@@ -10,32 +10,16 @@ namespace VuloForm\Migration;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Imports forms from Formidable Forms.
- *
- * Like Ninja Forms, Formidable keeps forms and fields in its own tables (`frm_forms`, `frm_fields`)
- * rather than as posts, so this migrator goes through its public API classes - `FrmForm::getAll()`
- * / `FrmField::get_all_for_form()` - instead of querying those tables directly. Formidable's DB
- * layer (`FrmDb`) auto (un)serializes the `options` column on a form and the `field_options` column
- * on a field, so both come back as plain arrays already.
- *
- * Two things below are not re-verified against every Formidable version the way the field-type map
- * is, the same honesty caveat as Forminator's notification format: the `success_action`/
- * `success_msg`/`success_url` keys read off a form's `options` for its confirmation, and whether
- * `FrmFormAction` (Formidable's own notification-actions API, added after email settings moved out
- * of `options` into separate `frm_form_actions` posts) is present to read notifications from - when
- * it isn't, notifications are reported rather than guessed at.
- *
- * Like the other migrators, this never touches the source form and is safe to re-run:
- * `MigrationMap` skips an already-migrated form unless `$overwrite` is set, in which case the
- * previously-created VuloForm form is updated in place.
+ * Imports forms from Formidable Forms, via its public API (`FrmForm::getAll()`,
+ * `FrmField::get_all_for_form()`) rather than querying its `frm_forms`/`frm_fields` tables directly.
+ * Notifications come from `FrmFormAction` when present; otherwise they're reported, not guessed at.
+ * Safe to re-run, like the other migrators.
  */
 class FormidableMigrator extends AbstractMigrator {
 
 	/**
-	 * Formidable field type => VuloForm field type. `captcha` renders a CAPTCHA, not a data field,
-	 * and is skipped outright - see migrate_field(). Types with no safe VuloForm equivalent (`rte`,
-	 * `data`/`lookup`, `tag`, `user_id`, `password`, `scale`, `image`, `repeat`, and any Pro-only
-	 * add-on field) are reported, not guessed at.
+	 * Formidable field type => VuloForm field type. `captcha` is skipped outright; unmapped types
+	 * are reported, not guessed at - see migrate_field().
 	 *
 	 * @var array<string, string>
 	 */

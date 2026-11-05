@@ -10,32 +10,15 @@ namespace VuloForm\Migration;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Imports forms from Ninja Forms.
- *
- * Unlike WPForms/Forminator/Contact Form 7, Ninja Forms does not store a form as a post at all -
- * forms, fields and actions live in its own `nf3_forms`/`nf3_fields`/`nf3_actions`/`nf3_object_meta`
- * tables, with no documented guarantee on column shape. So this migrator goes through Ninja Forms'
- * own public extension API (`Ninja_Forms()->form( $id )->get()`, `->get_fields()`, `->get_actions()`,
- * `$field->get_setting( $key )` - the same accessors Ninja Forms' own "Building an Extension" docs
- * use) instead of querying those tables directly.
- *
- * Two setting keys below (`default` for a field's default value, `desc` for its description) are
- * the names used throughout Ninja Forms' own field classes and are not expected to vary, but - like
- * Forminator's notification format - were not re-verified against every field type's own settings
- * array, so a field that uses a different key for either will simply migrate with that value blank.
- *
- * Like the other migrators, this never touches the source form and is safe to re-run:
- * `MigrationMap` skips an already-migrated form unless `$overwrite` is set, in which case the
- * previously-created VuloForm form is updated in place.
+ * Imports forms from Ninja Forms, through its own extension API (`Ninja_Forms()->form( $id )`,
+ * `->get_fields()`, `->get_actions()`) rather than querying its `nf3_*` tables directly. Safe to
+ * re-run, like the other migrators.
  */
 class NinjaFormsMigrator extends AbstractMigrator {
 
 	/**
-	 * Ninja Forms field type => VuloForm field type. `submit`, `recaptcha`/`hcaptcha` (handled as a
-	 * security feature, not a field, on VuloForm's side) are never a migratable field and are
-	 * skipped outright - see migrate_field(). Types with no VuloForm equivalent (`star_rating`,
-	 * `password`, `confirm`, `listmultiselect`, and any field added by a Ninja Forms add-on such as
-	 * address/List) are reported, not guessed at.
+	 * Ninja Forms field type => VuloForm field type. `submit`/`recaptcha`/`hcaptcha` are skipped
+	 * outright - see migrate_field(). Unmapped types are reported, not guessed at.
 	 *
 	 * @var array<string, string>
 	 */

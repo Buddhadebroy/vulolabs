@@ -10,21 +10,10 @@ namespace VuloForm\Migration;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Imports forms from Fluent Forms, through its own `wpFluent()` query builder
- * (`function_exists( 'wpFluent' )` is the documented way addons detect it) rather than Fluent
- * Forms' internal model classes, which live under a versioned namespace not safe to `use` here.
- *
- * Fluent Forms is not hosted on wp.org either, so - like GravityFormsMigrator - the table/column
- * names and JSON shapes below are built from its own publicly shared developer snippets
- * (wpmanageninja.com/docs, and the many `wpFluent()->table(...)` examples in its hooks docs), not
- * a verified source read: `fluentform_forms.form_fields` is a JSON-encoded field list (each field
- * keyed by its `element` type slug, with label/placeholder/required under `settings`), and
- * `fluentform_form_meta` rows (keyed `notifications`, `formSettings`) hold everything else. Two
- * things are deliberately NOT guessed at and reported instead: the "Send To" field/conditional
- * routing a notification can use (the same ambiguity GravityFormsMigrator reports for Gravity
- * Forms), and the compound Full Name element (its sub-field settings shape wasn't confirmed).
- *
- * Like the other migrators, this never touches the source form and is safe to re-run.
+ * Imports forms from Fluent Forms, through its own `wpFluent()` query builder rather than its
+ * internal model classes. `fluentform_forms.form_fields` holds a JSON-encoded field list (keyed by
+ * `element` type); `fluentform_form_meta` holds notifications/formSettings. Notification "Send To"
+ * routing and the Full Name element aren't guessed at - both are reported instead. Safe to re-run.
  */
 class FluentFormsMigrator extends AbstractMigrator {
 
@@ -32,11 +21,8 @@ class FluentFormsMigrator extends AbstractMigrator {
 	const TABLE_META  = 'fluentform_form_meta';
 
 	/**
-	 * Fluent Forms `element` type => VuloForm field type, for the elements confirmed by name
-	 * across Fluent Forms' own public hook/snippet docs. Types with no VuloForm equivalent or
-	 * whose settings shape wasn't confirmed (`input_name`, `address`, `select_country`, `ratings`,
-	 * `terms_and_condition` beyond the simpler `gdpr_agreement`, `payment_*`, `repeater_fields`,
-	 * `custom_submit_button`) are reported, not guessed at - see migrate_field().
+	 * Fluent Forms `element` type => VuloForm field type. Unmapped types are reported, not guessed
+	 * at - see migrate_field().
 	 *
 	 * @var array<string, string>
 	 */
@@ -307,9 +293,7 @@ class FluentFormsMigrator extends AbstractMigrator {
 			);
 		}
 
-		// A notification's "Send To" can point at a field's own answer or a conditional rule, not
-		// only a fixed address - the same ambiguity GravityFormsMigrator reports for Gravity Forms'
-		// notifications, so these are reported rather than guessed at.
+		// "Send To" can route to a field's answer, not just a fixed address - reported, not guessed at.
 		$notifications = $this->get_meta_value( $form_id, 'notifications' );
 
 		if ( $notifications ) {

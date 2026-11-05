@@ -10,26 +10,15 @@ namespace VuloForm\Migration;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Imports forms from Gravity Forms, through its own `GFAPI` (`class_exists( 'GFAPI' )` is the
- * documented way to detect it - docs.gravityforms.com/getting-started-gravity-forms-api-gfapi).
- *
- * Unlike WPForms/Forminator, Gravity Forms is not hosted on wp.org, so there is no public SVN
- * source to confirm its storage format against; everything field-level here is instead built
- * against `GFAPI`'s own long-documented, stable public object shape (docs.gravityforms.com), not
- * a verified source read. Two things are deliberately NOT guessed at and are reported instead of
- * migrated: notifications (Gravity Forms' routing-based "send to" can point at a field or a
- * condition, not only a fixed address, and that shape is not publicly documented in enough
- * detail to translate safely) and conditional logic (a different rule engine entirely). Like the
- * other migrators, this never touches the source form and is safe to re-run.
+ * Imports forms from Gravity Forms, through its own `GFAPI`. Notifications ("send to" can route
+ * to a field or a condition) and conditional logic are reported, not migrated. Safe to re-run,
+ * like the other migrators.
  */
 class GravityFormsMigrator extends AbstractMigrator {
 
 	/**
-	 * Gravity Forms field type => VuloForm field type, for every stable, long-documented core
-	 * field type. Types with no VuloForm equivalent - the Post Fields (post_title, post_content,
-	 * post_excerpt, post_tags, post_category, post_custom_field, post_image; these create a WP
-	 * post from the submission), the Pricing Fields (product, option, quantity, shipping, total),
-	 * password, captcha, list and section - are reported, not guessed at; see migrate_field().
+	 * Gravity Forms field type => VuloForm field type. Unmapped types (Post Fields, Pricing
+	 * Fields, password, captcha, list, section) are reported, not guessed at - see migrate_field().
 	 *
 	 * @var array<string, string>
 	 */
@@ -52,10 +41,7 @@ class GravityFormsMigrator extends AbstractMigrator {
 		'time'       => 'time',
 		'fileupload' => 'file',
 		'consent'    => 'consent',
-		// The Signature Add-On's own field type, migrated straight to VuloForm's own 'signature'
-		// field (same drawable-pad-or-upload-a-PNG shape) when the add-on was active on the
-		// source site.
-		'signature'  => 'signature',
+		'signature'  => 'signature', // The Signature Add-On's own field type.
 	);
 
 	/**
@@ -127,8 +113,7 @@ class GravityFormsMigrator extends AbstractMigrator {
 			return array();
 		}
 
-		// Both active and inactive forms, never trashed ones - the same "every non-trashed form"
-		// scope the WPForms/Forminator migrators use for their own post_status lists.
+		// Both active and inactive forms, never trashed ones.
 		$forms = (array) \GFAPI::get_forms( null, false );
 
 		$available = array();
@@ -172,8 +157,7 @@ class GravityFormsMigrator extends AbstractMigrator {
 		$fields = array();
 
 		foreach ( (array) ( $form['fields'] ?? array() ) as $raw_field ) {
-			// A GF_Field object on some versions, a plain array on others (Gravity Forms' own
-			// filter docs note this split); an array cast reads either one's public properties.
+			// A GF_Field object on some versions, a plain array on others - cast reads either.
 			$field = $this->migrate_field( (array) $raw_field, $errors, $title );
 
 			if ( $field ) {
@@ -214,9 +198,7 @@ class GravityFormsMigrator extends AbstractMigrator {
 		$gf_type = (string) ( $raw['type'] ?? '' );
 		$type    = self::FIELD_TYPE_MAP[ $gf_type ] ?? null;
 
-		// GF's own "multi select" shares no VuloForm field that allows several values from a
-		// closed list rendered as a dropdown; Checkboxes is the closer fit than Select, but only
-		// 'checkbox' is mapped directly above - 'multiselect' is intentionally left unmapped.
+		// 'multiselect' has no close VuloForm equivalent, so it's intentionally left unmapped.
 		if ( null === $type ) {
 			$errors[] = sprintf(
 				/* translators: 1: form title, 2: Gravity Forms field type. */
@@ -355,10 +337,7 @@ class GravityFormsMigrator extends AbstractMigrator {
 			);
 		}
 
-		// Gravity Forms can route a notification's "Send To" to a field's own answer or to a
-		// conditional rule, not only a fixed address, and that shape is not publicly documented
-		// in enough detail to translate safely - reported instead of guessed at, the same
-		// approach ForminatorMigrator takes for its own notifications.
+		// "Send To" can route to a field's answer, not just a fixed address - reported, not guessed at.
 		if ( ! empty( $form['notifications'] ) ) {
 			$errors[] = sprintf(
 				/* translators: %s: form title. */

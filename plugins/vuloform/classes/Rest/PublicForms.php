@@ -13,12 +13,9 @@ use VuloForm\Security\Token;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * vuloform/v1/public - the three routes a visitor's browser may call: get a fresh form token,
- * submit a form, and load a form for embedding on another site.
- *
- * They answer any origin, because an embedded form is by definition on another origin. That is
- * safe here: none of them uses the visitor's WordPress login (the response is the same for
- * everyone), and what protects a submission is the signed token, the honeypot and the rate limit.
+ * vuloform/v1/public - the three routes a visitor's browser may call: get a token, submit a form,
+ * load a form for embedding. Answer any origin (safe: no login use); the signed token, honeypot
+ * and rate limit protect a submission instead.
  */
 class PublicForms extends Controller {
 

@@ -12,11 +12,9 @@ use VuloForm\Fields\Registry;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The stored shape of a form, and the only code allowed to produce it.
- *
- * Whatever the builder sends is rebuilt here field by field: unknown keys are dropped, every value
- * is typed and sanitized, ids and keys are made unique. The renderer and the submission processor
- * read only what this class wrote, so neither has to trust the browser.
+ * The stored shape of a form, and the only code allowed to produce it. Whatever the builder sends
+ * is rebuilt here field by field: unknown keys dropped, values typed and sanitized, ids/keys made
+ * unique.
  */
 class Schema {
 
@@ -419,9 +417,7 @@ class Schema {
 				break;
 
 			case 'signature':
-				// Fixed, not builder-configurable: a signature is always one drawn-or-uploaded PNG, so
-				// it reuses the 'file' field's whole storage/validation pipeline (Uploads, Processor,
-				// Formatter, Rest\Submissions) unchanged.
+				// Fixed, not builder-configurable: a signature is always one drawn-or-uploaded PNG.
 				$field['allowed_types'] = array( 'png' );
 				$field['max_size_mb']   = 2;
 				$field['max_files']     = 1;
@@ -447,9 +443,7 @@ class Schema {
 				$rows     = array();
 
 				foreach ( array_slice( isset( $raw['fields'] ) && is_array( $raw['fields'] ) ? $raw['fields'] : array(), 0, 20 ) as $sub_raw ) {
-					// A row cannot hold a repeater (no nesting), a file/signature (per-row uploads
-					// aren't wired into the submission processor) or a calculation (it would need its
-					// own per-row formula scope).
+					// A row cannot hold a repeater, file/signature, or calculation field.
 					if ( is_array( $sub_raw ) && in_array( sanitize_key( (string) ( $sub_raw['type'] ?? '' ) ), array( 'repeater', 'file', 'signature', 'calculation' ), true ) ) {
 						continue;
 					}
@@ -472,9 +466,7 @@ class Schema {
 		}
 
 		if ( ! $known ) {
-			// A type added by an extension that is not active right now. Its own settings are kept
-			// (cleaned, not interpreted) so the field comes back intact when the extension does;
-			// until then it is neither shown to visitors nor accepted in a submission.
+			// An inactive extension's field type: settings are kept (cleaned, not interpreted).
 			return array_merge( $field, self::deep_clean( $raw ), array_intersect_key( $field, array_flip( array( 'id', 'key', 'type', 'conditions' ) ) ) );
 		}
 

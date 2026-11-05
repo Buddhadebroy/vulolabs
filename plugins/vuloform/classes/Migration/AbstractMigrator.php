@@ -10,11 +10,9 @@ namespace VuloForm\Migration;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * What every "import forms from another plugin" migrator does identically: skip-if-already-
- * migrated/record-the-mapping bookkeeping, one error message per failed source form, and
- * rewriting the source plugin's embed shortcode(s) site-wide afterwards. A migrator subclass
- * supplies only what differs between source plugins - detecting the plugin, listing its forms,
- * turning one of them into a VuloForm schema, and its own embed shortcode tag(s).
+ * What every "import forms from another plugin" migrator does identically: skip-already-migrated
+ * bookkeeping, per-form error reporting, and shortcode rewriting. A subclass supplies only what
+ * differs - detecting the plugin, listing its forms, and turning one into a VuloForm schema.
  */
 abstract class AbstractMigrator implements MigratorInterface {
 

@@ -10,20 +10,10 @@ namespace VuloForm\Migration;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Imports forms from Contact Form 7.
- *
- * CF7 stores a form as a `wpcf7_contact_form` post. Unlike WPForms/Forminator there is no field
- * array: the form template is a string of mixed HTML and form-tags (`[text* your-name]`,
- * `[email your-email]`, ...) in the `_form` postmeta, parsed here with a tag scanner built from
- * CF7's own documented form-tag syntax (contactform7.com/editing-form-template - type, optional
- * `*` for required, name, then quoted values and `key:value`/bareword attributes). Mail settings
- * live in the `_mail` postmeta (subject/sender/recipient/body), and the inline success text in
- * `_messages['mail_sent_ok']`. CF7 has no built-in redirect-on-submit, so confirmations always
- * migrate as a message, never a redirect.
- *
- * Like the other migrators, this never touches the source form and is safe to re-run:
- * `MigrationMap` skips an already-migrated form unless `$overwrite` is set, in which case the
- * previously-created VuloForm form is updated in place.
+ * Imports forms from Contact Form 7. A form is a `wpcf7_contact_form` post; its fields live as
+ * form-tags (`[text* your-name]`) in the `_form` postmeta, parsed with a tag scanner built from
+ * CF7's own documented syntax. Mail settings come from `_mail` postmeta; CF7 has no redirect-on-
+ * submit, so confirmations always migrate as a message. Safe to re-run, like the other migrators.
  */
 class ContactForm7Migrator extends AbstractMigrator {
 
@@ -325,10 +315,7 @@ class ContactForm7Migrator extends AbstractMigrator {
 	}
 
 	/**
-	 * Scans a CF7 form template for form-tags, following the documented syntax at
-	 * contactform7.com/editing-form-template: `[type* name "value" "value" key:value flag]`,
-	 * optionally paired with closing content for container tags like `acceptance`
-	 * (`[acceptance acceptance-1]Text[/acceptance]`).
+	 * Scans a CF7 form template for form-tags (`[type* name "value" key:value flag]`).
 	 *
 	 * @param string $form_template The `_form` postmeta value.
 	 * @return array<int, array{type: string, required: bool, name: string, values: string[], atts: array<string, string>, flags: string[], content: string}>

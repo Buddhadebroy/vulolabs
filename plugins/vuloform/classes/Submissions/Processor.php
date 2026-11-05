@@ -17,11 +17,8 @@ use VuloForm\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Takes a posted form from request to stored submission.
- *
- * Nothing the browser says about the form is trusted: which fields exist, which are required, which
- * are hidden by a condition and what a calculation comes to are all worked out here from the stored
- * schema.
+ * Takes a posted form from request to stored submission. Nothing the browser says about the form
+ * is trusted - required, visibility and calculations are all worked out here from the stored schema.
  */
 class Processor {
 

@@ -14,11 +14,8 @@ use VuloForm\Submissions\SubmissionRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Sends a form's email and SMS notifications after a submission is accepted.
- *
- * Email goes through VuloMail's public API when that plugin is active, otherwise through
- * wp_mail(). SMS is only possible through VuloMail. Either way, what is recorded is whether the
- * message was handed to the mail or SMS system, never that it was delivered: VuloForm can't know.
+ * Sends a form's email and SMS notifications after a submission is accepted. Email goes through
+ * VuloMail when active, otherwise wp_mail(); SMS only through VuloMail. Records handoff, not delivery.
  */
 class Notifier {
 
