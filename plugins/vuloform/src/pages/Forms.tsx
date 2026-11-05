@@ -65,6 +65,7 @@ const Forms = () => {
 	const [error, setError] = useState('');
 	const [reload, setReload] = useState(0);
 	const [isChoosing, setIsChoosing] = useState(false);
+	const [templateCategory, setTemplateCategory] = useState('all');
 	const [isBusy, setIsBusy] = useState(false);
 	const [pendingDelete, setPendingDelete] = useState<FormRow | null>(null);
 	const fileInput = useRef<HTMLInputElement>(null);
@@ -88,6 +89,28 @@ const Forms = () => {
 	const migratedSources = (sources ?? []).filter(
 		(source) => source.plugin_file && source.forms.some((form) => form.already_migrated)
 	);
+
+	// Categories in first-seen order, each with how many templates it holds.
+	const templateCategories = vuloformAppLocalizer.templates.reduce<
+		Array<{ id: string; label: string; count: number }>
+	>((categories, template) => {
+		const existing = categories.find((category) => category.label === template.category);
+
+		if (existing) {
+			existing.count++;
+		} else {
+			categories.push({ id: template.category, label: template.category, count: 1 });
+		}
+
+		return categories;
+	}, []);
+
+	const visibleTemplates =
+		'all' === templateCategory
+			? vuloformAppLocalizer.templates
+			: vuloformAppLocalizer.templates.filter(
+					(template) => template.category === templateCategory
+				);
 
 	const onQueryUpdate = useCallback((next: TableQuery) => setQuery(next), []);
 
@@ -498,7 +521,7 @@ const Forms = () => {
 			<PopupComponent
 				open={isChoosing}
 				onClose={() => setIsChoosing(false)}
-				width={52}
+				width={68}
 				height="auto"
 				position="lightbox"
 				header={{
@@ -507,37 +530,68 @@ const Forms = () => {
 				}}
 			>
 				<div className="vuloform-popup-body">
-					<div className="vuloform-templates">
-						<button
-							type="button"
-							className="vuloform-template"
-							disabled={isBusy}
-							onClick={() => create({})}
-						>
-							<i className="adminfont-plus" aria-hidden="true" />
-							<strong>{__('Blank form', 'vuloform')}</strong>
-							<span>
-								{__('Start with an empty canvas.', 'vuloform')}
-							</span>
-						</button>
-						{vuloformAppLocalizer.templates.map((template) => (
+					<div className="vuloform-template-picker">
+						<div className="vuloform-template-categories">
+							<button
+								type="button"
+								className={
+									'all' === templateCategory
+										? 'vuloform-template-category is-active'
+										: 'vuloform-template-category'
+								}
+								onClick={() => setTemplateCategory('all')}
+							>
+								{__('All templates', 'vuloform')}
+								<span>{vuloformAppLocalizer.templates.length}</span>
+							</button>
+							{templateCategories.map((category) => (
+								<button
+									type="button"
+									key={category.id}
+									className={
+										category.id === templateCategory
+											? 'vuloform-template-category is-active'
+											: 'vuloform-template-category'
+									}
+									onClick={() => setTemplateCategory(category.id)}
+								>
+									{category.label}
+									<span>{category.count}</span>
+								</button>
+							))}
+						</div>
+						<div className="vuloform-templates">
 							<button
 								type="button"
 								className="vuloform-template"
-								key={template.id}
 								disabled={isBusy}
-								onClick={() =>
-									create({ template: template.id })
-								}
+								onClick={() => create({})}
 							>
-								<i
-									className={`adminfont-${template.icon}`}
-									aria-hidden="true"
-								/>
-								<strong>{template.title}</strong>
-								<span>{template.desc}</span>
+								<i className="adminfont-plus" aria-hidden="true" />
+								<strong>{__('Blank form', 'vuloform')}</strong>
+								<span>
+									{__('Start with an empty canvas.', 'vuloform')}
+								</span>
 							</button>
-						))}
+							{visibleTemplates.map((template) => (
+								<button
+									type="button"
+									className="vuloform-template"
+									key={template.id}
+									disabled={isBusy}
+									onClick={() =>
+										create({ template: template.id })
+									}
+								>
+									<i
+										className={`adminfont-${template.icon}`}
+										aria-hidden="true"
+									/>
+									<strong>{template.title}</strong>
+									<span>{template.desc}</span>
+								</button>
+							))}
+						</div>
 					</div>
 					<div className="vuloform-form-footer">
 						<input

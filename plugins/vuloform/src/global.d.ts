@@ -14,7 +14,7 @@ declare global {
 		admin_email: string;
 		date_format_js: string;
 		field_types: FieldType[];
-		templates: { id: string; title: string; desc: string; icon: string; fields: number }[];
+		templates: { id: string; title: string; desc: string; icon: string; category: string; fields: number }[];
 		default_settings: FormSettings;
 		file_types: string[];
 		name_parts: Record<string, string>;

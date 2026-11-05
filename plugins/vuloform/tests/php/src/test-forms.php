@@ -307,7 +307,7 @@ class TestForms extends TestCase {
 
 		$templates = Templates::all();
 
-		$this->assertCount( 28, $templates );
+		$this->assertCount( 90, $templates );
 
 		foreach ( $templates as $id => $template ) {
 			$this->assertSame( array(), Schema::problems( $template['schema'] ), "Template {$id} has problems." );
