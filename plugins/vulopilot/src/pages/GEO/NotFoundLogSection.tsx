@@ -16,6 +16,7 @@ import { ButtonInput, TextInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
+import ShowProPopup from '../../components/Popup/Popup';
 
 /**
  * `wp_vulopilot_not_found_logs` rows - NotFoundLogger's own real 404 visit log.
@@ -47,11 +48,16 @@ const NotFoundLogSection = () => {
 	const [convertTargetUrl, setConvertTargetUrl] = useState('');
 	const [isConverting, setIsConverting] = useState(false);
 
+	const [bulkDismissIds, setBulkDismissIds] = useState<(string | number)[] | null>(null);
+	const [isBulkApplying, setIsBulkApplying] = useState(false);
+
+	const [sortBy, setSortBy] = useState<'hit_count' | 'last_seen_at'>('hit_count');
+
 	// "All/Content/System" status pill bar - same `${key}_counts` contract Redirects.php's own
 	// `is_active_counts` already established (NotFoundLogs.php's `is_system_counts`).
 	const notFoundLogs = useApiList<NotFoundLogRow>(
 		'not-found-logs',
-		{ orderby: 'last_seen_at' },
+		{ orderby: sortBy, order: 'desc' },
 		{
 			key: 'is_system',
 			options: [
@@ -72,6 +78,61 @@ const NotFoundLogSection = () => {
 				notFoundLogs.refetch();
 			}
 		});
+	};
+
+	const handleBulkActionApply = (action: string, selectedIds: (string | number)[]) => {
+		if (!selectedIds.length) {
+			return;
+		}
+
+		if ('dismiss' === action) {
+			setBulkDismissIds(selectedIds);
+		}
+	};
+
+	const handleConfirmBulkDismiss = async () => {
+		if (!bulkDismissIds) {
+			return;
+		}
+
+		const ids = bulkDismissIds;
+
+		setBulkDismissIds(null);
+		setIsBulkApplying(true);
+
+		let failed = 0;
+
+		for (const id of ids) {
+			try {
+				const response = await sendApiResponse(
+					vulopilotAppLocalizer,
+					getApiLink(vulopilotAppLocalizer, `not-found-logs/${id}/delete`),
+					{}
+				);
+
+				if (!response) {
+					failed++;
+				}
+			} catch {
+				failed++;
+			}
+		}
+
+		NoticeManager.add({
+			uniqueKey: 'vulopilot-not-found-log-bulk-dismiss',
+			type: failed ? 'error' : 'success',
+			position: 'float',
+			message: failed
+				? sprintf(
+					/* translators: %d: number of log entries that failed to dismiss. */
+					_n('%d entry could not be dismissed.', '%d entries could not be dismissed.', failed, 'vulopilot'),
+					failed
+				)
+				: __('Selected entries dismissed.', 'vulopilot'),
+		});
+
+		notFoundLogs.refetch();
+		setIsBulkApplying(false);
 	};
 
 	const openConvertPopup = (row: NotFoundLogRow) => {
@@ -152,6 +213,19 @@ const NotFoundLogSection = () => {
 								placeholder: __('Search missing URLs…', 'vulopilot'),
 							}}
 							hideHeader={true}
+							filtersBeforeSearch
+							filters={[
+								{
+									key: 'sort_by',
+									label: __('Sort by', 'vulopilot'),
+									type: 'select',
+									size: 10,
+									options: [
+										{ label: __('Most hits', 'vulopilot'), value: 'hit_count' },
+										{ label: __('Most recent', 'vulopilot'), value: 'last_seen_at' },
+									],
+								},
+							]}
 							headers={{
 								requested_path: {
 									key: 'requested_path',
@@ -249,8 +323,17 @@ const NotFoundLogSection = () => {
 									? { ...cat, count: notFoundLogs.total }
 									: cat
 							)}
-							isLoading={notFoundLogs.isLoading}
-							onQueryUpdate={notFoundLogs.onQueryUpdate}
+							isLoading={notFoundLogs.isLoading || isBulkApplying}
+							onQueryUpdate={(query) => {
+								const nextSortBy = (query.filter as Record<string, string> | undefined)?.sort_by;
+
+								setSortBy('last_seen_at' === nextSortBy ? 'last_seen_at' : 'hit_count');
+								notFoundLogs.onQueryUpdate(query);
+							}}
+							bulkActions={[
+								{ label: __('Dismiss', 'vulopilot'), value: 'dismiss' },
+							]}
+							onBulkActionApply={handleBulkActionApply}
 							emptyMessage={
 								<>
 									{__(
@@ -328,6 +411,33 @@ const NotFoundLogSection = () => {
 						/>
 					</FormGroupComponent>
 				</FormGroupWrapperComponent>
+			</PopupComponent>
+
+			<PopupComponent
+				position="lightbox"
+				open={!!bulkDismissIds}
+				onClose={() => setBulkDismissIds(null)}
+				width={31.25}
+				height="auto"
+			>
+				<ShowProPopup
+					confirmMode
+					title={__('Dismiss entries', 'vulopilot')}
+					confirmMessage={sprintf(
+						/* translators: %d: number of selected log entries. */
+						_n(
+							'Dismiss %d selected entry? This cannot be undone.',
+							'Dismiss %d selected entries? This cannot be undone.',
+							bulkDismissIds?.length ?? 0,
+							'vulopilot'
+						),
+						bulkDismissIds?.length ?? 0
+					)}
+					confirmYesText={__('Dismiss', 'vulopilot')}
+					confirmNoText={__('Cancel', 'vulopilot')}
+					onConfirm={handleConfirmBulkDismiss}
+					onCancel={() => setBulkDismissIds(null)}
+				/>
 			</PopupComponent>
 		</ContainerComponent>
 	);

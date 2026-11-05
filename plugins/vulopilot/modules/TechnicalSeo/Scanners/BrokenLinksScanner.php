@@ -121,13 +121,14 @@ class BrokenLinksScanner extends ScannerUtil implements TracksScannedObjectsInte
 				'post',
 				(string) $link['post_id'],
 				array(
-					'url'    => $url,
-					// 'unverified' - a network/timeout/DNS failure (is_wp_error()).
-					'reason' => $result['reason'],
-					// Real visible anchor text for this real `a` tag (stripped of any nested
-					// markup, e.g. a wrapped `strong`/`span`).
-					'text'   => $link['text'],
-				)
+					'url'            => $url,
+					// 'unverified' = network/timeout/DNS failure.
+					'reason'         => $result['reason'],
+					'text'           => $link['text'],
+					'context_before' => $link['context_before'],
+					'context_after'  => $link['context_after'],
+				),
+				md5( $link['post_id'] . '|' . $url )
 			);
 		}
 
@@ -144,12 +145,23 @@ class BrokenLinksScanner extends ScannerUtil implements TracksScannedObjectsInte
 
 		return $findings;
 	}
+	private function extract_link_context( string $content, int $offset, int $length ): array {
+		$context_chars = 60;
+
+		$before = wp_strip_all_tags( substr( $content, 0, $offset ) );
+		$after  = wp_strip_all_tags( substr( $content, $offset + $length ) );
+
+		return array(
+			'before' => trim( mb_substr( $before, -$context_chars ) ),
+			'after'  => trim( mb_substr( $after, 0, $context_chars ) ),
+		);
+	}
 
 	/**
 	 * Pulls every http(s) link out of the most recently published content, deduped, capped
 	 * at MAX_LINKS_PER_RUN.
 	 *
-	 * @return array<string, array{post_id: int, text: string}> URL => the real post ID it was found in + its real anchor text.
+	 * @return array<string, array{post_id: int, text: string, context_before: string, context_after: string}> URL => post ID, anchor text, surrounding context.
 	 */
 	private function extract_links_from_recent_content(): array {
 		$posts = get_posts(
@@ -171,7 +183,7 @@ class BrokenLinksScanner extends ScannerUtil implements TracksScannedObjectsInte
 				break;
 			}
 
-			if ( ! preg_match_all( '/<a\s[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)<\/a>/is', $post->post_content, $matches, PREG_SET_ORDER ) ) {
+			if ( ! preg_match_all( '/<a\s[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)<\/a>/is', $post->post_content, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE ) ) {
 				continue;
 			}
 
@@ -180,19 +192,22 @@ class BrokenLinksScanner extends ScannerUtil implements TracksScannedObjectsInte
 					break;
 				}
 
-				// Stored post_content encodes "&" as an entity (e.g. "&#038;"/"&amp;") - decode
-				// before using this as a real URL, or the query string (and the live HTTP
-				// check, and "Open URL") breaks on every link with more than one param.
-				$url = html_entity_decode( $match[1], ENT_QUOTES );
+				// post_content encodes "&" as an entity - decode it, or any URL with more
+				// than one query param breaks.
+				$url = html_entity_decode( $match[1][0], ENT_QUOTES );
 
 				if ( 0 !== strpos( $url, 'http://' ) && 0 !== strpos( $url, 'https://' ) ) {
 					continue;
 				}
 
 				if ( ! isset( $links[ $url ] ) ) {
+					$context = $this->extract_link_context( $post->post_content, $match[0][1], strlen( $match[0][0] ) );
+
 					$links[ $url ] = array(
-						'post_id' => $post->ID,
-						'text'    => trim( wp_strip_all_tags( $match[2] ) ),
+						'post_id'        => $post->ID,
+						'text'           => trim( wp_strip_all_tags( $match[2][0] ) ),
+						'context_before' => $context['before'],
+						'context_after'  => $context['after'],
 					);
 				}
 			}

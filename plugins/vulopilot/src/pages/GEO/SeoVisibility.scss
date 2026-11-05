@@ -753,6 +753,18 @@
 	}
 }
 
+.broken-link-continuation-row {
+	.info-item {
+		padding-left: 1.5rem;
+		opacity: 0.85;
+	}
+
+	.name {
+		font-style: italic;
+		color: $sub-text-color;
+	}
+}
+
 .broken-link-target-url {
 	display: inline-block;
 	max-width: 16rem;

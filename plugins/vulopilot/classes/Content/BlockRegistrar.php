@@ -25,17 +25,11 @@ class BlockRegistrar {
 	public function __construct() {
 		add_action( 'init', array( $this, 'register_blocks' ) );
 		add_filter( 'block_categories_all', array( $this, 'register_block_category' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_styles' ) );
-		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_editor_styles' ) );
+		add_action( 'enqueue_block_assets', array( $this, 'enqueue_blocks_styles' ) );
 	}
 
 	/**
-	 * Adds a real "VuloPilot" category to the block inserter so this
-	 * plugin's own blocks (`faq`/`table-of-contents`, both `"category":
-	 * "vulopilot"` in their own block.json) group under their own plugin
-	 * name instead of the generic core "Widgets"/"Theme" bucket every
-	 * other `category: widgets` block (core's own Tag Cloud, etc.) also
-	 * falls into.
+	 * Adds a real "VuloPilot" category to the block inserter so this plugin's own blocks (`faq`/`table-of-contents`, both `"category":
 	 *
 	 * @param array<int, array{slug: string, title: string, icon: ?string}> $categories Core's own already-registered categories.
 	 * @return array<int, array{slug: string, title: string, icon: ?string}>
@@ -99,23 +93,12 @@ class BlockRegistrar {
 	/**
 	 * @return void
 	 */
-	public function enqueue_frontend_styles(): void {
-		if ( ! has_block( 'vulopilot/table-of-contents' ) && ! has_block( 'vulopilot/faq' ) ) {
+	public function enqueue_blocks_styles(): void {
+		if ( ! is_admin() && ! has_block( 'vulopilot/table-of-contents' ) && ! has_block( 'vulopilot/faq' ) ) {
 			return;
 		}
 
 		$this->enqueue_blocks_stylesheet( 'vulopilot-blocks' );
-	}
-
-	/**
-	 * Unconditional in the editor - the block inserter needs the same `.vulopilot-
-	 * toc`/`.vulopilot-faq` rules to preview correctly regardless of whether either block
-	 * has been inserted into THIS particular post yet.
-	 *
-	 * @return void
-	 */
-	public function enqueue_editor_styles(): void {
-		$this->enqueue_blocks_stylesheet( 'vulopilot-blocks-editor' );
 	}
 
 	/**

@@ -48,7 +48,7 @@ class ActionRunner {
 
 	/**
 	 * @param ActionRegistry             $registry           Action id registry.
-	 * @param AiRequestSender          $request_sender      Sends prompts through validate → send → sanitize.
+	 * @param AiRequestSender            $request_sender      Sends prompts through validate → send → sanitize.
 	 * @param ActionRunRepository|null   $runs           Defaults to a new instance.
 	 * @param ActivityLogRepository|null $activity_logs Defaults to a new instance.
 	 * @param AiCreditGatewayClient|null $credit_gateway Defaults to a new instance.

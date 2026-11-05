@@ -125,7 +125,8 @@ class BrokenImagesScanner extends ScannerUtil implements TracksScannedObjectsInt
 					// Same 'unverified' vs 'broken' distinction BrokenLinksScanner's own
 					// Finding::meta carries.
 					'reason' => $result['reason'],
-				)
+				),
+				md5( $post_id . '|' . $url )
 			);
 		}
 

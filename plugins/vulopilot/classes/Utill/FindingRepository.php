@@ -10,11 +10,7 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for vulopilot_scan_findings. category/severity/status back
- * the admin UI's FindingsTable filters; object_type/object_ref let
- * callers (GeoAnalyzer, ResolveFindingAction) look up findings for one
- * specific object - both are needed together since object_ref alone
- * isn't unique across object types (e.g. post id 12 and attachment id 12).
+ * Persistence for vulopilot_scan_findings. category/severity/status back the admin UI's FindingsTable filters;
  *
  * @class       FindingRepository class
  * @version     1.0.0
@@ -79,7 +75,7 @@ class FindingRepository extends RepositoryUtil {
 		$where = implode(
 			' AND ',
 			array(
-				"status = 'open'",
+				null !== $dedupe_key ? '1 = 1' : "status = 'open'",
 				'scanner_id = %s',
 				$type_is_null ? '%i IS NULL' : '%i = %s',
 				$ref_is_null ? '%i IS NULL' : '%i = %s',
