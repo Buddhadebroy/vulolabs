@@ -285,6 +285,16 @@ class SitemapUrlRewriter {
 	}
 
 	/**
+	 * The real index sitemap URL as it actually resolves right now - the pretty
+	 * `/sitemap_index.xml` when pretty rules are registered, else core's own `/wp-sitemap.xml`.
+	 *
+	 * @return string
+	 */
+	public function get_index_url(): string {
+		return home_url( $this->uses_pretty_permalinks() && $this->pretty_rules_registered() ? '/sitemap_index.xml' : '/wp-sitemap.xml' );
+	}
+
+	/**
 	 * Real 301 redirect from an old-shape sitemap URL to its real new pretty equivalent.
 	 *
 	 * @return void

@@ -32,6 +32,22 @@ interface TableQuery {
 	categoryFilter?: string;
 }
 
+interface MigrationSource {
+	id: string;
+	label: string;
+	count: number;
+	plugin_file: string;
+	forms: Array<{ already_migrated: boolean }>;
+}
+
+interface MigrationResult {
+	migrated: number;
+	skipped: number;
+	errors: string[];
+	posts_updated?: number;
+	references_updated?: number;
+}
+
 const open = (hash: string) => {
 	window.location.hash = hash;
 };
@@ -49,9 +65,52 @@ const Forms = () => {
 	const [error, setError] = useState('');
 	const [reload, setReload] = useState(0);
 	const [isChoosing, setIsChoosing] = useState(false);
+	const [templateCategory, setTemplateCategory] = useState('all');
 	const [isBusy, setIsBusy] = useState(false);
 	const [pendingDelete, setPendingDelete] = useState<FormRow | null>(null);
 	const fileInput = useRef<HTMLInputElement>(null);
+	const [sources, setSources] = useState<MigrationSource[] | null>(null);
+	const [isMigrating, setIsMigrating] = useState(false);
+	const [isDeactivating, setIsDeactivating] = useState(false);
+
+	// Checked once on load, so a detected plugin can be surfaced right on the forms list.
+	const loadSources = () => {
+		apiGet<{ data: MigrationSource[] }>('migration/sources')
+			.then((payload) => setSources(payload.data))
+			.catch(() => {});
+	};
+
+	useEffect(loadSources, []);
+
+	const detectedSources = (sources ?? []).filter((source) => source.count > 0);
+
+	// Still-active plugins with at least one already-migrated form - shown until the plugin itself
+	// is deactivated (plugin_file goes empty), so this survives reloads, not just this page visit.
+	const migratedSources = (sources ?? []).filter(
+		(source) => source.plugin_file && source.forms.some((form) => form.already_migrated)
+	);
+
+	// Categories in first-seen order, each with how many templates it holds.
+	const templateCategories = vuloformAppLocalizer.templates.reduce<
+		Array<{ id: string; label: string; count: number }>
+	>((categories, template) => {
+		const existing = categories.find((category) => category.label === template.category);
+
+		if (existing) {
+			existing.count++;
+		} else {
+			categories.push({ id: template.category, label: template.category, count: 1 });
+		}
+
+		return categories;
+	}, []);
+
+	const visibleTemplates =
+		'all' === templateCategory
+			? vuloformAppLocalizer.templates
+			: vuloformAppLocalizer.templates.filter(
+					(template) => template.category === templateCategory
+				);
 
 	const onQueryUpdate = useCallback((next: TableQuery) => setQuery(next), []);
 
@@ -108,6 +167,67 @@ const Forms = () => {
 			);
 	};
 
+	/** Migrates every detected source straight away - no picker, no popup. */
+	const migrateDetected = () => {
+		if (0 === detectedSources.length) {
+			return;
+		}
+
+		setIsMigrating(true);
+
+		const migratingSources = detectedSources;
+
+		Promise.all(
+			migratingSources.map((source) =>
+				apiPost<MigrationResult>('migration/run', { source: source.id })
+			)
+		)
+			.then((results) => {
+				const migrated = results.reduce((total, result) => total + result.migrated, 0);
+				const errors = results.flatMap((result) => result.errors);
+
+				if (migrated > 0) {
+					notify(
+						'success',
+						sprintf(
+							/* translators: %d: number of forms migrated. */
+							_n('%d form migrated.', '%d forms migrated.', migrated, 'vuloform'),
+							migrated
+						)
+					);
+					setReload((n) => n + 1);
+				}
+
+				if (errors.length > 0) {
+					notify('error', errors.join(' '));
+				}
+
+				loadSources();
+			})
+			.catch((e) => notify('error', errorMessage(e)))
+			.finally(() => setIsMigrating(false));
+	};
+
+	const deactivateMigratedSources = () => {
+		if (0 === migratedSources.length) {
+			return;
+		}
+
+		setIsDeactivating(true);
+
+		Promise.all(
+			migratedSources.map((source) =>
+				apiPost('migration/deactivate-source', { source: source.id })
+			)
+		)
+			.then(() => {
+				notify('success', __('Plugin deactivated.', 'vuloform'));
+				loadSources();
+			})
+			.catch((e) => notify('error', errorMessage(e)))
+			.finally(() => setIsDeactivating(false));
+	};
+
 	const duplicate = (row: FormRow) => {
 		apiPost<Form>(`forms/${row.id}/duplicate`)
 			.then(() => {
@@ -159,18 +279,107 @@ const Forms = () => {
 							desc={error}
 						/>
 					) : !isLoading && 0 === list.total && !query.searchValue ? (
-						<ModuleGuardComponent
-							icon="form"
-							title={__('Create your first form', 'vuloform')}
-							desc={__(
-								'Start from a template such as a contact form, or from a blank form.',
-								'vuloform'
-							)}
-							buttonText={__('New form', 'vuloform')}
-							onButtonClick={() => setIsChoosing(true)}
-						/>
+						detectedSources.length > 0 ? (
+							<ModuleGuardComponent
+								icon="import"
+								iconColor="purple"
+								className="vuloform-migration-guard"
+								title={sprintf(
+									/* translators: %s: comma-separated list of detected plugin names. */
+									__('Bring your %s forms into VuloForm', 'vuloform'),
+									detectedSources.map((source) => source.label).join(', ')
+								)}
+								desc={sprintf(
+									/* translators: 1: number of forms found, 2: comma-separated list of detected plugin names. */
+									_n(
+										'%1$d form found in %2$s. Migrate copies it to VuloForm - %2$s stays untouched.',
+										'%1$d forms found in %2$s. Migrate copies them to VuloForm - %2$s stays untouched.',
+										detectedSources.reduce((total, source) => total + source.count, 0),
+										'vuloform'
+									),
+									detectedSources.reduce((total, source) => total + source.count, 0),
+									detectedSources.map((source) => source.label).join(', ')
+								)}
+								buttonText={isMigrating ? __('Migrating…', 'vuloform') : __('Migrate now', 'vuloform')}
+								onButtonClick={migrateDetected}
+							/>
+						) : (
+							<ModuleGuardComponent
+								icon="form"
+								title={__('Create your first form', 'vuloform')}
+								desc={__(
+									'Start from a template such as a contact form, or from a blank form.',
+									'vuloform'
+								)}
+								buttonText={__('New form', 'vuloform')}
+								onButtonClick={() => setIsChoosing(true)}
+							/>
+						)
 					) : (
-						<TableCard
+						<>
+							{detectedSources.length > 0 && (
+								<div className="vuloform-migration-banner">
+									<div>
+										<strong>
+											{sprintf(
+												/* translators: %s: comma-separated list of detected plugin names. */
+												__('Forms found in %s.', 'vuloform'),
+												detectedSources.map((source) => source.label).join(', ')
+											)}
+										</strong>
+										<span>
+											{sprintf(
+												/* translators: %d: number of forms found. */
+												_n(
+													'%d form can be migrated into VuloForm.',
+													'%d forms can be migrated into VuloForm.',
+													detectedSources.reduce((total, source) => total + source.count, 0),
+													'vuloform'
+												),
+												detectedSources.reduce((total, source) => total + source.count, 0)
+											)}
+										</span>
+									</div>
+									<ButtonInput
+										buttons={{
+											text: isMigrating ? __('Migrating…', 'vuloform') : __('Migrate', 'vuloform'),
+											icon: 'import',
+											color: 'purple',
+											disabled: isMigrating,
+											onClick: migrateDetected,
+										}}
+									/>
+								</div>
+							)}
+							{migratedSources.length > 0 && (
+								<div className="vuloform-migration-banner vuloform-migration-success">
+									<div>
+										<strong>{__('Migration successful.', 'vuloform')}</strong>
+										<span>
+											{sprintf(
+												/* translators: %s: comma-separated list of source plugin names. */
+												__(
+													'Your forms from %s now live in VuloForm too. You can deactivate it.',
+													'vuloform'
+												),
+												migratedSources.map((source) => source.label).join(', ')
+											)}
+										</span>
+									</div>
+									<ButtonInput
+										buttons={{
+											text: isDeactivating
+												? __('Deactivating…', 'vuloform')
+												: __('Deactivate it', 'vuloform'),
+											icon: 'trash',
+											color: 'border-red',
+											disabled: isDeactivating,
+											onClick: deactivateMigratedSources,
+										}}
+									/>
+								</div>
+							)}
+							<TableCard
 							search={{
 								placeholder: __('Search forms…', 'vuloform'),
 							}}
@@ -305,13 +514,14 @@ const Forms = () => {
 								'vuloform'
 							)}
 						/>
+						</>
 					)}
 				</CardComponent>
 			</ContainerComponent>
 			<PopupComponent
 				open={isChoosing}
 				onClose={() => setIsChoosing(false)}
-				width={52}
+				width={68}
 				height="auto"
 				position="lightbox"
 				header={{
@@ -320,37 +530,68 @@ const Forms = () => {
 				}}
 			>
 				<div className="vuloform-popup-body">
-					<div className="vuloform-templates">
-						<button
-							type="button"
-							className="vuloform-template"
-							disabled={isBusy}
-							onClick={() => create({})}
-						>
-							<i className="adminfont-plus" aria-hidden="true" />
-							<strong>{__('Blank form', 'vuloform')}</strong>
-							<span>
-								{__('Start with an empty canvas.', 'vuloform')}
-							</span>
-						</button>
-						{vuloformAppLocalizer.templates.map((template) => (
+					<div className="vuloform-template-picker">
+						<div className="vuloform-template-categories">
+							<button
+								type="button"
+								className={
+									'all' === templateCategory
+										? 'vuloform-template-category is-active'
+										: 'vuloform-template-category'
+								}
+								onClick={() => setTemplateCategory('all')}
+							>
+								{__('All templates', 'vuloform')}
+								<span>{vuloformAppLocalizer.templates.length}</span>
+							</button>
+							{templateCategories.map((category) => (
+								<button
+									type="button"
+									key={category.id}
+									className={
+										category.id === templateCategory
+											? 'vuloform-template-category is-active'
+											: 'vuloform-template-category'
+									}
+									onClick={() => setTemplateCategory(category.id)}
+								>
+									{category.label}
+									<span>{category.count}</span>
+								</button>
+							))}
+						</div>
+						<div className="vuloform-templates">
 							<button
 								type="button"
 								className="vuloform-template"
-								key={template.id}
 								disabled={isBusy}
-								onClick={() =>
-									create({ template: template.id })
-								}
+								onClick={() => create({})}
 							>
-								<i
-									className={`adminfont-${template.icon}`}
-									aria-hidden="true"
-								/>
-								<strong>{template.title}</strong>
-								<span>{template.desc}</span>
+								<i className="adminfont-plus" aria-hidden="true" />
+								<strong>{__('Blank form', 'vuloform')}</strong>
+								<span>
+									{__('Start with an empty canvas.', 'vuloform')}
+								</span>
 							</button>
-						))}
+							{visibleTemplates.map((template) => (
+								<button
+									type="button"
+									className="vuloform-template"
+									key={template.id}
+									disabled={isBusy}
+									onClick={() =>
+										create({ template: template.id })
+									}
+								>
+									<i
+										className={`adminfont-${template.icon}`}
+										aria-hidden="true"
+									/>
+									<strong>{template.title}</strong>
+									<span>{template.desc}</span>
+								</button>
+							))}
+						</div>
 					</div>
 					<div className="vuloform-form-footer">
 						<input

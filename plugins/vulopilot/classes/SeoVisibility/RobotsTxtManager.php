@@ -25,7 +25,27 @@ class RobotsTxtManager {
 	 */
 	public function __construct() {
 		add_filter( 'robots_txt', array( $this, 'maybe_use_custom_robots_txt' ), 5, 1 );
+		add_filter( 'robots_txt', array( $this, 'maybe_strip_admin_ajax_allow' ), 15, 1 );
 		add_filter( 'robots_txt', array( $this, 'maybe_append_sitemap_line' ), 20, 2 );
+	}
+
+	/**
+	 * Core's own `do_robots()` always adds `Allow: /wp-admin/admin-ajax.php` under the
+	 * `Disallow: /wp-admin/` block it generates; strip it when we're auto-generating, since a
+	 * crawlable ajax endpoint has no SEO value and only the custom override (already applied
+	 * at priority 5) should ever keep it.
+	 *
+	 * @param string $output The robots.txt content built so far.
+	 * @return string
+	 */
+	public function maybe_strip_admin_ajax_allow( $output ) {
+		$settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
+
+		if ( empty( $settings['robots_auto_generate'] ) || '' !== $this->get_custom_content() ) {
+			return $output;
+		}
+
+		return trim( preg_replace( '/^Allow: \/wp-admin\/admin-ajax\.php\R?/m', '', $output ) );
 	}
 
 	/**
@@ -54,7 +74,7 @@ class RobotsTxtManager {
 			return $output; // Another plugin/theme (or the real custom override above) already added one - don't duplicate.
 		}
 
-		return rtrim( $output ) . "\nSitemap: " . home_url( '/wp-sitemap.xml' ) . "\n";
+		return rtrim( $output ) . "\nSitemap: " . VuloPilot()->sitemap_url_rewriter->get_index_url() . "\n";
 	}
 
 	/**

@@ -12,11 +12,8 @@ use VuloForm\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Signed, time-stamped form tokens.
- *
- * A WordPress nonce is tied to a logged-in session and breaks on cached pages and on forms embedded
- * in another site, so public forms use this instead: proof that the form was really loaded from
- * this site, and when. The "when" is what the time-based spam check reads.
+ * Signed, time-stamped form tokens - used instead of a WordPress nonce, which breaks on cached
+ * pages and embedded forms. The timestamp is what the time-based spam check reads.
  */
 class Token {
 
