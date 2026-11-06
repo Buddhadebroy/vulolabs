@@ -98,7 +98,7 @@ const AccessibilityHistoryDummy = () => {
 				<BlurredProContent
 					contentClassName="accessibility-history-dummy"
 					onClick={() => setIsProPopupOpen(true)}
-					icon={isModuleGate ? 'unlock' : undefined}
+					icon={isModuleGate ? 'unlock' : ''}
 					title={
 						isModuleGate
 							? __('Enable Accessibility module', 'vulopilot')

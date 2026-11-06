@@ -43,7 +43,7 @@ const DummyCard = ({
 		<BlurredProContent
 			contentClassName={contentClassName}
 			onClick={onClick}
-			icon={isModuleGate ? 'unlock' : undefined}
+			icon={isModuleGate ? 'unlock' : ''}
 			title={isModuleGate ? __('Enable Commerce module', 'vulopilot') : undefined}
 			desc={
 				isModuleGate

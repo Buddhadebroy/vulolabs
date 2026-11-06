@@ -39,7 +39,7 @@ const KeywordsTab = () => {
 				<BlurredProContent
 					contentClassName="gsc-connect-hero"
 					onClick={() => setIsPopupOpen(true)}
-					icon={isModuleGate ? 'unlock' : undefined}
+					icon={isModuleGate ? 'unlock' : ''}
 					title={
 						isModuleGate
 							? __('Enable Keyword Rank Tracking module', 'vulopilot')
