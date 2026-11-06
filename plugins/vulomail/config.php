@@ -8,7 +8,7 @@
 defined( 'ABSPATH' ) || exit;
 
 define( 'VULOMAIL_PLUGIN_TEXTDOMAIN', 'vulomail' );
-define( 'VULOMAIL_PLUGIN_VERSION', '1.0.0' );
+define( 'VULOMAIL_PLUGIN_VERSION', '1.0.1' );
 define( 'VULOMAIL_PLUGIN_SLUG', 'vulomail' );
 define( 'VULOMAIL_PLUGIN_NAME', 'VuloMail' );
 
