@@ -126,7 +126,7 @@ export const AutomationsAiActivityDummy = ({ onClick, isModuleGate }: Automation
 					<li key={row.title} className="automation-ai-activity-row">
 						<i className="adminfont-check" />
 						<span className="automation-ai-activity-title">{row.title}</span>
-						<span className="admin-badge purple">{__('AI', 'vulopilot')}</span>
+						<span className="admin-badge zyra-purple">{__('AI', 'vulopilot')}</span>
 						<span className="automation-agent-task">{row.time}</span>
 						<span className="automation-overview-link">{__('Undo', 'vulopilot')}</span>
 					</li>

@@ -16,6 +16,46 @@ defined( 'ABSPATH' ) || exit;
 class Templates {
 
 	/**
+	 * Plugin name => the ids of the templates it offers (the "Needs %s" badge / plugin filter
+	 * tabs on the templates picker) - built from each template's own `plugin` key. No template
+	 * declares one yet, so this is empty until one does.
+	 *
+	 * @return array<string, array<int, string>>
+	 */
+	public static function plugins() {
+		$plugins = array();
+
+		foreach ( self::all() as $id => $template ) {
+			if ( ! empty( $template['plugin'] ) ) {
+				$plugins[ $template['plugin'] ][] = $id;
+			}
+		}
+
+		return $plugins;
+	}
+
+	/**
+	 * Ids of templates whose own `plugin` isn't active right now, so a form already made from one
+	 * stays hidden instead of orphaned (FormRepository::hidden_template_clauses()). Empty for the
+	 * same reason plugins() is - no template declares a `plugin` key yet.
+	 *
+	 * @return array<int, string>
+	 */
+	public static function unavailable() {
+		return array();
+	}
+
+	/**
+	 * Ids of forms a plugin depends on existing, so the list can't delete them (`protected_error()`
+	 * in Rest\Forms.php). No template is flagged `protected` yet, so none are.
+	 *
+	 * @return array<int, int>
+	 */
+	public static function protected_form_ids() {
+		return array();
+	}
+
+	/**
 	 * @return array<string, array{title: string, desc: string, icon: string, category: string, schema: array}>
 	 */
 	public static function all() {
@@ -211,7 +251,7 @@ class Templates {
 				),
 				'submit' => __( 'Register', 'vuloform' ),
 			),
-			'job'        => array(
+			'job'               => array(
 				'title'  => __( 'Job application', 'vuloform' ),
 				'category' => __( 'Business Operations', 'vuloform' ),
 				'desc'   => __( 'Applicant details with a CV upload.', 'vuloform' ),

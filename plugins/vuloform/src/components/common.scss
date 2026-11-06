@@ -105,8 +105,8 @@
 // Same shape as .vuloform-migration-banner above, shown after a successful migration (green instead
 // of the brand purple, since this is a confirmation rather than an opportunity to act on).
 .vuloform-migration-success {
-	border-color: var(--color-green, #2e7d32);
-	background: color-mix(in srgb, var(--color-green, #2e7d32) 6%, transparent);
+	border-color: #16a34a;
+	background: color-mix(in srgb, #16a34a 6%, transparent);
 }
 
 // The same empty-state ModuleGuardComponent zyra renders elsewhere (e.g. "Create your first

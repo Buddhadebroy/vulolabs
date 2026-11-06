@@ -60,14 +60,17 @@ class FrontendScripts {
 
 		foreach ( Templates::all() as $id => $template ) {
 			$templates[] = array(
-				'id'     => $id,
-				'title'  => $template['title'],
-				'desc'   => $template['desc'],
-				'icon'   => $template['icon'],
+				'id'       => $id,
+				'title'    => $template['title'],
+				'desc'     => $template['desc'],
+				'icon'     => $template['icon'],
+				'category' => $template['category'] ?? __( 'Other', 'vuloform' ),
 				'plugin' => $template['plugin'] ?? '',
-				// Id of the one form a single-form template allows, once it exists.
+
+				'fields'   => count( $template['schema']['fields'] ),
+
 				'exists' => ! empty( $template['single'] ) ? VuloForm()->forms->id_for_template( $id ) : 0,
-				'fields' => count( $template['schema']['fields'] ),
+			
 			);
 		}
 
@@ -89,8 +92,6 @@ class FrontendScripts {
 				'date_format_js'   => 'YYYY-MM-DD',
 				'field_types'      => $field_types,
 				'templates'        => $templates,
-				'palettes'         => Templates::palettes(),
-				'locked'           => Templates::locked_fields(),
 				'default_settings' => Schema::default_settings(),
 				'file_types'       => array_keys( Schema::FILE_TYPES ),
 				'name_parts'       => Registry::part_labels( 'name' ),

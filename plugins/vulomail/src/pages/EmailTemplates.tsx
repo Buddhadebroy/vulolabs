@@ -7,6 +7,8 @@ import {
 	ContainerComponent,
 	ModuleGuardComponent,
 	NoticeManager,
+	NavigatorHeaderComponent,
+	SkeletonComponent
 } from '@zyra/components';
 import {
 	EmailTemplateEditorPopup,
@@ -21,7 +23,7 @@ import {
 } from '@zyra/builders';
 import type { EmailSource } from '../global';
 import { errorMessage } from '../services/notify';
-import { SelectInput, TextInput } from '@zyra/inputs';
+import { SelectInput, TextInput, ToggleInput } from '@zyra/inputs';
 import { apiGet, apiPost } from '../services/api';
 
 interface Recipient {
@@ -185,16 +187,16 @@ const EmailTemplates = () => {
 			found ||
 			(owner && /^\d+$/.test(template)
 				? ({
-						id: Number(template),
-						event: '',
-						description: '',
-						category: '',
-						tag: '',
-						recipients: [],
-						channels: {},
-						email_subject: null,
-						__source: owner,
-				  } as EmailTemplateRow)
+					id: Number(template),
+					event: '',
+					description: '',
+					category: '',
+					tag: '',
+					recipients: [],
+					channels: {},
+					email_subject: null,
+					__source: owner,
+				} as EmailTemplateRow)
 				: null);
 
 		if (row) {
@@ -303,10 +305,10 @@ const EmailTemplates = () => {
 					row: row.event
 						? row
 						: {
-								...row,
-								event: (full as { event?: string; event_name?: string })?.event || (full as { event_name?: string })?.event_name || row.event,
-								email_subject: (full as { email_subject?: string | null })?.email_subject ?? row.email_subject,
-						  },
+							...row,
+							event: (full as { event?: string; event_name?: string })?.event || (full as { event_name?: string })?.event_name || row.event,
+							email_subject: (full as { email_subject?: string | null })?.email_subject ?? row.email_subject,
+						},
 					templates: (full?.templates || []).map((template) => ({
 						id: template.id,
 						name: template.name,
@@ -314,7 +316,7 @@ const EmailTemplates = () => {
 						// A template is either ready-made blocks, or an event's default email as HTML.
 						blocks: legacyEmailBlocksToEmailBlocks(
 							template.blocks ||
-								(htmlToBlocks(template.email_body || '') as unknown as LegacyEmailBlock[])
+							(htmlToBlocks(template.email_body || '') as unknown as LegacyEmailBlock[])
 						),
 					})),
 					// id 0 is the standalone "Email Template Customizer"
@@ -326,7 +328,7 @@ const EmailTemplates = () => {
 							? legacyEmailBlocksToEmailBlocks(full?.legacy_blocks || [])
 							: legacyEmailBlocksToEmailBlocks(
 								htmlToBlocks(full?.email_body || '') as unknown as LegacyEmailBlock[]
-					  ),
+							),
 				});
 			})
 			.catch((e) => {
@@ -372,10 +374,10 @@ const EmailTemplates = () => {
 				editing.row.id === 0
 					? { id: 0, legacy_blocks: legacyBlocks }
 					: {
-							id: editing.row.id,
-							email_subject: editing.row.email_subject,
-							email_body: renderBlocksToHTML(legacyBlocks as unknown as Block[]),
-						},
+						id: editing.row.id,
+						email_subject: editing.row.email_subject,
+						email_body: renderBlocksToHTML(legacyBlocks as unknown as Block[]),
+					},
 		});
 	};
 
@@ -471,7 +473,35 @@ const EmailTemplates = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [rows]);
 
-	let content = <p className="vulomail-emails-note">{__('Loading…', 'vulomail')}</p>;
+	let content = (
+		<div className="vulomail-emails">
+			<div className="vulomail-emails-toolbar">
+				<div className="vulomail-inline">
+					<SkeletonComponent variant="rectangular" width={4} height={2.25} />
+					<SkeletonComponent variant="rectangular" width={6} height={2.25} />
+				</div>
+				<SkeletonComponent variant="rectangular" width={10} height={2.25} />
+			</div>
+			<section className="vulomail-emails-section">
+				<header>
+					<SkeletonComponent width={10} height={1.25} />
+				</header>
+				<ul>
+					{[...Array(3)].map((_unused, index) => (
+						<li key={index}>
+							<SkeletonComponent variant="rectangular" width={2.75} height={1.5} />
+							<div className="vulomail-emails-text">
+								<SkeletonComponent width="60%" height={1} />
+								<SkeletonComponent width="85%" height={0.875} />
+							</div>
+							<SkeletonComponent variant="rectangular" width={5} height={1.75} />
+							<SkeletonComponent variant="rectangular" width={6} height={2.25} />
+						</li>
+					))}
+				</ul>
+			</section>
+		</div>
+	);
 
 	if (error) {
 		content = (
@@ -484,40 +514,17 @@ const EmailTemplates = () => {
 	} else if (rows) {
 		content = (
 			<div className="vulomail-emails">
-				<h2 className="vulomail-emails-title">{__('Email notifications', 'vulomail')}</h2>
-				<p className="vulomail-emails-lead">
-					{__('Every email your marketplace sends. Turn one on or off, or open it to change the design and wording.', 'vulomail')}
-				</p>
-				<p className="vulomail-emails-stats">
-					<span>
-						<b>{totals.on}</b> {sprintf(__('of %d on', 'vulomail'), totals.total)}
-					</span>
-					<span className="is-store">
-						<b>{totals.store}</b> {__('to stores', 'vulomail')}
-					</span>
-					<span className="is-customer">
-						<b>{totals.customer}</b> {__('to customers', 'vulomail')}
-					</span>
-					<span className="is-admin">
-						<b>{totals.admin}</b> {__('to you', 'vulomail')}
-					</span>
-				</p>
-
 				<div className="vulomail-emails-toolbar">
-					<div className="vulomail-emails-tabs" role="tablist">
-						{categoryCounts.map((tab: { value: string; label: string; count: number }) => (
-							<button
-								type="button"
-								role="tab"
-								aria-selected={categoryFilter === tab.value}
-								key={tab.value}
-								className={categoryFilter === tab.value ? 'is-active' : ''}
-								onClick={() => setCategoryFilter(tab.value)}
-							>
-								{tab.label} <span>{tab.count}</span>
-							</button>
-						))}
-					</div>
+						<ToggleInput
+						variant="pill"
+						value={categoryFilter}
+						onChange={(value) => setCategoryFilter(value as string)}
+						options={categoryCounts.map((tab: { value: string; label: string; count: number }) => ({
+							key: tab.value,
+							value: tab.value,
+							label: `${tab.label} (${tab.count})`,
+						}))}
+					/>
 					<div className="vulomail-emails-select">
 						<SelectInput
 							name="sent_to"
@@ -592,6 +599,11 @@ const EmailTemplates = () => {
 
 	return (
 		<>
+			<NavigatorHeaderComponent
+				headerIcon="mail"
+				headerTitle={__('Email Templates', 'vulomail')}
+				headerDescription={__('Every email and text message this site has tried to send.', 'vulomail')}
+			/>
 			<ContainerComponent general>{content}</ContainerComponent>
 			{editing && (
 				<EmailTemplateEditorPopup

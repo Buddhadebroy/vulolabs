@@ -21,10 +21,6 @@ interface FormRow {
 	status: string;
 	submissions: number;
 	unread: number;
-	/** A plugin needs this form, so it can't be deleted. */
-	protected?: boolean;
-	/** Made from a one-per-site template, so it can't be copied. */
-	single?: boolean;
 	updated_at_display: string;
 	[key: string]: unknown;
 }
@@ -61,11 +57,7 @@ const open = (hash: string) => {
  */
 const Forms = () => {
 	const [query, setQuery] = useState<TableQuery>({ paged: 1, per_page: 10 });
-	const [list, setList] = useState<{
-		data: FormRow[];
-		total: number;
-		categories?: { value: string; label: string; count: number }[];
-	}>({
+	const [list, setList] = useState<{ data: FormRow[]; total: number }>({
 		data: [],
 		total: 0,
 	});
@@ -76,7 +68,6 @@ const Forms = () => {
 	const [templateCategory, setTemplateCategory] = useState('all');
 	const [isBusy, setIsBusy] = useState(false);
 	const [pendingDelete, setPendingDelete] = useState<FormRow | null>(null);
-	const [bulkDeleteIds, setBulkDeleteIds] = useState<number[]>([]);
 	const fileInput = useRef<HTMLInputElement>(null);
 	const [sources, setSources] = useState<MigrationSource[] | null>(null);
 	const [isMigrating, setIsMigrating] = useState(false);
@@ -128,16 +119,8 @@ const Forms = () => {
 
 		setIsLoading(true);
 
-		apiGet<{
-			data: FormRow[];
-			total: number;
-			categories?: { value: string; label: string; count: number }[];
-		}>('forms', {
+		apiGet<{ data: FormRow[]; total: number }>('forms', {
 			search: query.searchValue || undefined,
-			plugin:
-				query.categoryFilter && 'all' !== query.categoryFilter
-					? query.categoryFilter
-					: undefined,
 			page: query.paged,
 			per_page: query.per_page,
 		})
@@ -266,38 +249,6 @@ const Forms = () => {
 			})
 			.catch((e) => notify('error', errorMessage(e)))
 			.finally(() => setPendingDelete(null));
-	};
-
-	const confirmBulkDelete = () => {
-		apiPost<{ deleted: number; skipped: number }>('forms/bulk-delete', {
-			ids: bulkDeleteIds,
-		})
-			.then(({ deleted, skipped }) => {
-				notify(
-					'success',
-					sprintf(
-						/* translators: %d: number of forms. */
-						_n('%d form deleted.', '%d forms deleted.', deleted, 'vuloform'),
-						deleted
-					) +
-						(skipped > 0
-							? ' ' +
-							  sprintf(
-									/* translators: %d: number of forms. */
-									_n(
-										'%d form was kept because a plugin needs it.',
-										'%d forms were kept because a plugin needs them.',
-										skipped,
-										'vuloform'
-									),
-									skipped
-							  )
-							: '')
-				);
-				setReload((n) => n + 1);
-			})
-			.catch((e) => notify('error', errorMessage(e)))
-			.finally(() => setBulkDeleteIds([]));
 	};
 
 	return (
@@ -433,9 +384,6 @@ const Forms = () => {
 								placeholder: __('Search forms…', 'vuloform'),
 							}}
 							showMenu={false}
-							hideHeader
-							categoryCounts={list.categories ?? []}
-							activeCategory="all"
 							headers={{
 								title: {
 									label: __('Form', 'vuloform'),
@@ -464,28 +412,12 @@ const Forms = () => {
 														text={__('Draft', 'vuloform')}
 													/>
 												)}
-												<a href={`#&tab=submissions&form=${row.id}`}>
+												{0 === row.submissions && (
 													<BadgeComponent
 														color="blue"
-														text={sprintf(
-															/* translators: %d: number of submissions. */
-															_n(
-																'%d submission',
-																'%d submissions',
-																row.submissions,
-																'vuloform'
-															),
-															row.submissions
-														)}
-													/>
-												</a>
-												{row.unread > 0 && (
-													<BadgeComponent
-														color="green"
-														text={sprintf(
-															/* translators: %d: number of unread submissions. */
-															__('%d new', 'vuloform'),
-															row.unread
+														text={__(
+															'No submissions',
+															'vuloform'
 														)}
 													/>
 												)}
@@ -508,54 +440,36 @@ const Forms = () => {
 										</code>
 									),
 								},
-								action: {
-									key: 'action',
+								id: {
+									label: __('Actions', 'vuloform'),
 									type: 'action',
-									label: __('Action', 'vuloform'),
 									actions: [
 										{
 											label: __('Edit', 'vuloform'),
-											icon: 'setting',
-											onClick: (row: FormRow) =>
-												open(`&tab=forms&form=${row.id}`),
-										},
-										{
-											// The form's submissions, as a table.
-											label: __('View submissions', 'vuloform'),
-											icon: 'eye',
-											onClick: (row: FormRow) =>
-												open(`&tab=submissions&form=${row.id}`),
+											icon: 'edit',
+											color: 'text-purple',
+											type: 'button',
+											onClick: (row: Record<string, unknown>) =>
+												open(`&tab=forms&form=${(row as unknown as FormRow).id}`),
 										},
 										{
 											label: __('Duplicate', 'vuloform'),
 											icon: 'copy',
-											// One-per-site and plugin-owned forms are not copied.
-											hidden: (row: FormRow) =>
-												Boolean(row.single || row.protected),
-											onClick: (row: FormRow) => duplicate(row),
+											color: 'text-purple',
+											type: 'button',
+											onClick: (row: Record<string, unknown>) =>
+												duplicate(row as unknown as FormRow),
 										},
 										{
 											label: __('Delete', 'vuloform'),
 											icon: 'delete',
-											// A form a plugin depends on can't be deleted.
-											hidden: (row: FormRow) =>
-												Boolean(row.protected),
-											onClick: (row: FormRow) =>
-												setPendingDelete(row),
+											color: 'text-red',
+											type: 'button',
+											onClick: (row: Record<string, unknown>) =>
+												setPendingDelete(row as unknown as FormRow),
 										},
 									],
 								},
-							}}
-							bulkActions={[
-								{
-									label: __('Delete', 'vuloform'),
-									value: 'delete',
-								},
-							]}
-							onBulkActionApply={(action: string, ids: number[]) => {
-								if ('delete' === action && ids.length) {
-									setBulkDeleteIds(ids);
-								}
 							}}
 							rows={list.data}
 							ids={list.data.map((row) => row.id)}
@@ -618,35 +532,13 @@ const Forms = () => {
 								type="button"
 								className="vuloform-template"
 								disabled={isBusy}
-								onClick={() =>
-									// One form per site: open it instead of making another.
-									template.exists
-										? open(`&tab=forms&form=${template.exists}`)
-										: create({ template: template.id })
-								}
+								onClick={() => create({})}
 							>
-								<i
-									className={`adminfont-${template.icon}`}
-									aria-hidden="true"
-								/>
-								<strong>{template.title}</strong>
-								<span>{template.desc}</span>
-								{template.exists ? (
-									<BadgeComponent
-										color="green"
-										text={__('Already created: open it', 'vuloform')}
-									/>
-								) : null}
-								{template.plugin && (
-									<BadgeComponent
-										color="blue"
-										text={sprintf(
-											/* translators: %s: plugin name. */
-											__('Needs %s', 'vuloform'),
-											template.plugin
-										)}
-									/>
-								)}
+								<i className="adminfont-plus" aria-hidden="true" />
+								<strong>{__('Blank form', 'vuloform')}</strong>
+								<span>
+									{__('Start with an empty canvas.', 'vuloform')}
+								</span>
 							</button>
 							{visibleTemplates.map((template) => (
 								<button
@@ -728,53 +620,6 @@ const Forms = () => {
 									icon: 'delete',
 									color: 'border-red',
 									onClick: confirmDelete,
-								},
-							]}
-						/>
-					</div>
-				</div>
-			</PopupComponent>
-			<PopupComponent
-				open={bulkDeleteIds.length > 0}
-				onClose={() => setBulkDeleteIds([])}
-				width={30}
-				height="auto"
-				position="lightbox"
-				header={{
-					icon: 'delete',
-					title: __('Delete these forms?', 'vuloform'),
-				}}
-			>
-				<div className="vuloform-popup-body">
-					<p>
-						{sprintf(
-							/* translators: %d: number of forms. */
-							_n(
-								'%d selected form and its submissions, including any uploaded files, will be permanently deleted.',
-								'%d selected forms and their submissions, including any uploaded files, will be permanently deleted.',
-								bulkDeleteIds.length,
-								'vuloform'
-							),
-							bulkDeleteIds.length
-						)}{' '}
-						{__(
-							'A form a plugin needs is kept.',
-							'vuloform'
-						)}
-					</p>
-					<div className="vuloform-form-footer">
-						<ButtonInput
-							buttons={[
-								{
-									text: __('Keep forms', 'vuloform'),
-									color: 'purple',
-									onClick: () => setBulkDeleteIds([]),
-								},
-								{
-									text: __('Delete forms', 'vuloform'),
-									icon: 'delete',
-									color: 'border-red',
-									onClick: confirmBulkDelete,
 								},
 							]}
 						/>

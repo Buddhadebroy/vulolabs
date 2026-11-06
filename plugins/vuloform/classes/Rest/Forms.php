@@ -79,12 +79,6 @@ class Forms extends Controller {
 		return rest_ensure_response( $result );
 	}
 
-	/**
-	 * The list's filter tabs: every form, the forms of VuloForm itself, and one tab per plugin that
-	 * offers templates, each with its count.
-	 *
-	 * @return array<int, array{value: string, label: string, count: int}>
-	 */
 	private function categories() {
 		$total      = (int) VuloForm()->forms->query( array( 'per_page' => 1 ) )['total'];
 		$categories = array();
@@ -245,12 +239,6 @@ class Forms extends Controller {
 		return rest_ensure_response( array( 'deleted' => true ) );
 	}
 
-	/**
-	 * Deletes several forms. Protected forms are skipped and counted, not treated as an error.
-	 *
-	 * @param \WP_REST_Request $request Request.
-	 * @return \WP_REST_Response
-	 */
 	public function bulk_delete( $request ) {
 		$input     = (array) $request->get_json_params();
 		$ids       = array_slice( array_unique( array_filter( array_map( 'absint', (array) ( $input['ids'] ?? array() ) ) ) ), 0, 100 );

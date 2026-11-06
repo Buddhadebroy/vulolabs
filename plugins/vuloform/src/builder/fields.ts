@@ -32,11 +32,7 @@ export const uniqueKey = (wanted: string, fields: Field[], ownId = ''): string =
 	return key;
 };
 
-/**
- * The field library for a form: its template's own, when the template has one, otherwise the
- * standard groups. Every item is resolved to a ready-made field (a plain type id becomes one that
- * takes its label and icon from the type).
- */
+
 export const paletteGroups = (template: string | undefined, standard: { id: string; label: string }[]): { id: string; label: string; items: PaletteItem[] }[] => {
 	const own: PaletteGroup[] | undefined = template ? vuloformAppLocalizer.palettes?.[template] : undefined;
 

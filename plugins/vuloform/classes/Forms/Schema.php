@@ -69,7 +69,6 @@ class Schema {
 	 */
 	public static function default_settings() {
 		return array(
-			// Id of the template the form was started from; picks the builder's field library.
 			'template'          => '',
 			'submit_label'      => __( 'Submit', 'vuloform' ),
 			'next_label'        => __( 'Next', 'vuloform' ),

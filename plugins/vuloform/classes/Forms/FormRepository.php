@@ -102,12 +102,6 @@ class FormRepository {
 		);
 	}
 
-	/**
-	 * The oldest form made from a template, 0 when there is none.
-	 *
-	 * @param string $template Template id.
-	 * @return int
-	 */
 	public function id_for_template( $template ) {
 		global $wpdb;
 
@@ -119,14 +113,6 @@ class FormRepository {
 		return (int) $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM %i WHERE form_schema LIKE %s ORDER BY id ASC LIMIT 1', $this->table(), '%' . $wpdb->esc_like( '"template":' . wp_json_encode( $template ) ) . '%' ) );
 	}
 
-	/**
-	 * Conditions for the plugin filter of the list: '' for every form, 'vuloform' for the forms that
-	 * belong to no plugin, or a plugin's name for the forms made from its templates.
-	 *
-	 * @param string $plugin Filter value.
-	 * @param array  $params Query values; the conditions' values are appended.
-	 * @return string[]
-	 */
 	private function plugin_clauses( $plugin, array &$params ) {
 		global $wpdb;
 
@@ -168,12 +154,6 @@ class FormRepository {
 		return array( '(' . implode( ' OR ', $or ) . ')' );
 	}
 
-	/**
-	 * Ids of every form made from a template.
-	 *
-	 * @param string $template Template id.
-	 * @return int[]
-	 */
 	public function ids_for_template( $template ) {
 		global $wpdb;
 
@@ -181,17 +161,9 @@ class FormRepository {
 			return array();
 		}
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return array_map( 'intval', (array) $wpdb->get_col( $wpdb->prepare( 'SELECT id FROM %i WHERE form_schema LIKE %s', $this->table(), '%' . $wpdb->esc_like( '"template":' . wp_json_encode( $template ) ) . '%' ) ) );
 	}
 
-	/**
-	 * Conditions that leave out forms made from a template of a plugin that is switched off. The
-	 * forms are kept, and come back when the plugin does.
-	 *
-	 * @param array $params Query values; the conditions' values are appended.
-	 * @return string[]
-	 */
 	private function hidden_template_clauses( array &$params ) {
 		global $wpdb;
 
@@ -221,14 +193,6 @@ class FormRepository {
 		return $rows ? $rows : array();
 	}
 
-	/**
-	 * Creates a form.
-	 *
-	 * @param string $title  Title.
-	 * @param mixed  $schema Schema, sanitized here.
-	 * @param string $status draft or published.
-	 * @return int New form id, 0 on failure.
-	 */
 	public function create( $title, $schema = array(), $status = 'draft' ) {
 		global $wpdb;
 
@@ -310,11 +274,6 @@ class FormRepository {
 		$deleted = (bool) $wpdb->delete( $this->table(), array( 'id' => (int) $id ) );
 
 		if ( $deleted ) {
-			/**
-			 * Fires after a form is deleted.
-			 *
-			 * @param int $id Form id.
-			 */
 			do_action( 'vuloform_form_deleted', (int) $id );
 		}
 

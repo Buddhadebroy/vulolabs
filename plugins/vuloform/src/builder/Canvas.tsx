@@ -49,8 +49,6 @@ const SORT_GROUP = 'vuloform-fields';
 const Canvas = ({ fields, selectedId, onChange, onSelect, onDuplicate, onDelete, template, footer }: CanvasProps) => {
 	const groups = paletteGroups(template, GROUPS);
 
-	// A library item with a key and a pin or a once-only flag describes a field that is fixed: it
-	// is found on the form again by that key.
 	const keyed = groups.flatMap((group) => group.items).filter((item) => item.key && (item.pin || item.unique));
 	const pinOf = (field: Field) => keyed.find((item) => item.key === field.key)?.pin;
 	const isOnceOnly = (field: Field) => keyed.some((item) => item.key === field.key && item.unique);
@@ -75,7 +73,6 @@ const Canvas = ({ fields, selectedId, onChange, onSelect, onDuplicate, onDelete,
 	const move = (index: number, delta: number) => {
 		const target = index + delta;
 
-		// A pinned field stays where it is, and nothing is moved past one.
 		if (target < 0 || target >= fields.length || pinOf(fields[index]) || pinOf(fields[target])) {
 			return;
 		}

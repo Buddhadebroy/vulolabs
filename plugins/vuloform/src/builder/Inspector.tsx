@@ -10,7 +10,7 @@ import {
 	TextInput,
 } from '@zyra/inputs';
 import type { Field, Option, Rule } from '../services/types';
-import { createField, explainFormula, fieldType, fieldTypes, slug, supports, uniqueKey } from './fields';
+import { lockOf, createField, explainFormula, fieldType, fieldTypes, slug, supports, uniqueKey } from './fields';
 import { inspectorSections } from '../services/slots';
 
 // Tags a starting value may contain; the form replaces them when it is shown (DynamicValues.php).
@@ -24,7 +24,6 @@ const DYNAMIC_TAGS = [
 ];
 
 interface InspectorProps {
-	/** Id of the form's template, which can lock fields. */
 	template?: string;
 	field: Field | undefined;
 	fields: Field[];
@@ -82,7 +81,6 @@ const storedOpen = (): string[] => {
 };
 
 /** One setting: a small label, its control, and an optional hint underneath. */
-/** Text as it is typed, not as HTML stores it: `&amp;` shows as `&`. The server cleans the saved value. */
 const decodeEntities = (value: string): string => {
 	const area = document.createElement('textarea');
 
@@ -94,10 +92,6 @@ const decodeEntities = (value: string): string => {
 const escapeHtml = (value: string): string =>
 	value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-/**
- * Adds a link to a text without typing HTML: select the words in the text above (or type them here),
- * give the address, and the link is put in place of the selection.
- */
 const AddLink = ({
 	textareaId,
 	value,

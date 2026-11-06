@@ -200,31 +200,6 @@
 	}
 }
 
-.vulomail-log-seg {
-	display: inline-flex;
-	gap: 0.125rem;
-	padding: 0.1875rem;
-	border-radius: 0.5rem;
-	background: var(--background-color);
-
-	button {
-		padding: 0.3125rem 0.625rem;
-		border: none;
-		border-radius: 0.375rem;
-		background: transparent;
-		font-size: 0.8125rem;
-		font-weight: 600;
-		color: var(--sub-text-color);
-		cursor: pointer;
-
-		&[aria-selected='true'] {
-			background: var(--background-white);
-			color: var(--text-color);
-			box-shadow: 0 0.063rem 0.125rem rgb(16 24 40 / 8%);
-		}
-	}
-}
-
 // Diagnostics screen (Tools.tsx). Severity has its own universal red/amber/green/blue, not the
 // theme's brand palette, so these are fixed rather than drawn from --color-primary.
 .vulomail-diag-summary {
@@ -1235,38 +1210,6 @@
 
 	&-select {
 		flex: 0 0 11rem;
-	}
-
-	&-tabs {
-		display: flex;
-		flex: none;
-		gap: 0.25rem;
-		padding: 0.25rem;
-		border-radius: 0.625rem;
-		background: var(--background-color);
-
-		button {
-			padding: 0.4rem 0.85rem;
-			border: 0;
-			border-radius: 0.5rem;
-			background: none;
-			color: var(--sub-text-color);
-			font: inherit;
-			font-weight: 600;
-			cursor: pointer;
-
-			span {
-				margin-left: 0.2rem;
-				opacity: 0.6;
-				font-weight: 500;
-			}
-
-			&.is-active {
-				background: var(--background-white);
-				color: var(--text-color);
-				box-shadow: 0 0.063rem 0.125rem rgba(16, 24, 40, 0.12);
-			}
-		}
 	}
 
 	&-note {
