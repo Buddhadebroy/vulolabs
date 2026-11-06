@@ -60,7 +60,6 @@ class TestSubmissions extends TestCase {
 		parent::setUp();
 
 		$this->store = new FakeSubmissions();
-		$_SERVER['REMOTE_ADDR'] = '203.0.113.9';
 	}
 
 	private function form( array $fields, array $settings = array(), $status = 'published' ) {

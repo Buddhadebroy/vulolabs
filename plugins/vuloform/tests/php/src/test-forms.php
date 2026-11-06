@@ -378,20 +378,18 @@ class TestForms extends TestCase {
 		Functions\when( 'get_permalink' )->justReturn( 'https://shop.example.com/pricing/' );
 		Functions\when( 'wp_date' )->justReturn( '2026-10-10' );
 
-		$_GET = array( 'utm_source' => ' newsletter<script> ', 'list' => array( 'not', 'scalar' ) );
+		$query = array( 'utm_source' => ' newsletter<script> ', 'list' => array( 'not', 'scalar' ) );
 
-		$this->assertSame( 'newsletter', \VuloForm\Forms\DynamicValues::resolve( '{query:utm_source}' ), 'Markup in a URL value is stripped.' );
-		$this->assertSame( '', \VuloForm\Forms\DynamicValues::resolve( '{query:list}{query:missing}' ) );
+		$this->assertSame( 'newsletter', \VuloForm\Forms\DynamicValues::resolve( '{query:utm_source}', $query ), 'Markup in a URL value is stripped.' );
+		$this->assertSame( '', \VuloForm\Forms\DynamicValues::resolve( '{query:list}{query:missing}', $query ) );
 		$this->assertSame( 'Jane Doe <jane@example.com>', \VuloForm\Forms\DynamicValues::resolve( '{user:name} <{user:email}>' ) );
 		$this->assertSame( 'Pricing (42) on 2026-10-10', \VuloForm\Forms\DynamicValues::resolve( '{page:title} ({page:id}) on {date}' ) );
 		$this->assertSame( 'https://shop.example.com/pricing/', \VuloForm\Forms\DynamicValues::resolve( '{page:url}' ) );
 		$this->assertSame( 'Plain text and {unknown:tag} stay.', \VuloForm\Forms\DynamicValues::resolve( 'Plain text and {unknown:tag} stay.' ) );
 
 		// What the browser is left to fill in: only the tags it answers better than the server.
-		$this->assertSame( 'jane@example.com via {query:utm_source}', \VuloForm\Forms\DynamicValues::browser_template( '{user:email} via {query:utm_source}' ) );
+		$this->assertSame( 'jane@example.com via {query:utm_source}', \VuloForm\Forms\DynamicValues::browser_template( '{user:email} via {query:utm_source}', $query ) );
 		$this->assertSame( '', \VuloForm\Forms\DynamicValues::browser_template( '{user:email}' ) );
-
-		$_GET = array();
 	}
 
 	public function test_dynamic_user_values_are_empty_for_a_visitor_who_is_not_logged_in() {

@@ -83,7 +83,7 @@ class NinjaFormsMigrator extends AbstractMigrator {
 	 */
 	protected function shortcode_tags() {
 		// Ninja Forms' classic embed shortcode is `[ninja_form id=123]`; the Gutenberg block it also
-		// ships is not a shortcode and is out of scope for ShortcodeReplacer.
+		// ships is not a shortcode and is out of scope for the shortcode rewrite pass.
 		return array( 'ninja_form' );
 	}
 
@@ -107,7 +107,7 @@ class NinjaFormsMigrator extends AbstractMigrator {
 				'title'            => '' !== $title ? $title : __( '(untitled form)', 'vuloform' ),
 				'status'           => 'publish',
 				'field_count'      => count( Ninja_Forms()->form( $form_id )->get_fields() ),
-				'already_migrated' => null !== $this->map->get( $this->get_id(), $form_id ),
+				'already_migrated' => null !== self::map_get( $this->get_id(), $form_id ),
 			);
 		}
 

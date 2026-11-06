@@ -114,7 +114,7 @@ class ForminatorMigrator extends AbstractMigrator {
 				'title'            => $post->post_title ? $post->post_title : __( '(untitled form)', 'vuloform' ),
 				'status'           => $post->post_status,
 				'field_count'      => count( (array) ( $data['fields'] ?? array() ) ),
-				'already_migrated' => null !== $this->map->get( $this->get_id(), $post->ID ),
+				'already_migrated' => null !== self::map_get( $this->get_id(), $post->ID ),
 			);
 		}
 

@@ -141,7 +141,8 @@ class TrashedPostRedirector {
 			wp_send_json_error( null, 403 );
 		}
 
-		$post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified above via check_ajax_referer().
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified above via check_ajax_referer().
+		$post_id = absint( filter_input( INPUT_POST, 'post_id', FILTER_SANITIZE_NUMBER_INT ) );
 
 		$notices = get_option( self::NOTICES_OPTION, array() );
 

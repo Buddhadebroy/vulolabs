@@ -81,7 +81,8 @@ final class VuloPilot {
 		// redirects use. Not set on a bulk activation (several plugins at once) - that redirect
 		// would only ever reach whichever plugin's own admin_init ran last, dropping every other
 		// bulk-activated plugin's own redirect.
-		if ( ! isset( $_GET['activate-multi'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only, core's own bulk-activate query var.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only, core's own bulk-activate query var.
+		if ( null === filter_input( INPUT_GET, 'activate-multi' ) ) {
 			add_option( 'vulopilot_activation_redirect', true );
 		}
 	}
