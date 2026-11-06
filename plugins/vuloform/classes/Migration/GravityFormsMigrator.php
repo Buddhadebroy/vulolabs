@@ -126,7 +126,7 @@ class GravityFormsMigrator extends AbstractMigrator {
 				'title'            => '' !== (string) ( $form['title'] ?? '' ) ? (string) $form['title'] : __( '(untitled form)', 'vuloform' ),
 				'status'           => empty( $form['is_active'] ) ? 'draft' : 'publish',
 				'field_count'      => count( (array) ( $form['fields'] ?? array() ) ),
-				'already_migrated' => null !== $this->map->get( $this->get_id(), (int) ( $form['id'] ?? 0 ) ),
+				'already_migrated' => null !== self::map_get( $this->get_id(), (int) ( $form['id'] ?? 0 ) ),
 			);
 		}
 

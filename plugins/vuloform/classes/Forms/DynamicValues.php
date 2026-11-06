@@ -29,10 +29,11 @@ class DynamicValues {
 	/**
 	 * Replaces every tag in a default value.
 	 *
-	 * @param string $template Default value as the form owner wrote it.
+	 * @param string     $template Default value as the form owner wrote it.
+	 * @param array|null $query    Query values to read `{query:...}` tags from; real request when null.
 	 * @return string
 	 */
-	public static function resolve( $template ) {
+	public static function resolve( $template, array $query = null ) {
 		$template = (string) $template;
 
 		if ( false === strpos( $template, '{' ) ) {
@@ -41,8 +42,8 @@ class DynamicValues {
 
 		return (string) preg_replace_callback(
 			self::PATTERN,
-			static function ( $match ) {
-				return isset( $match[3] ) && 'date' === $match[3] ? self::value( 'date', '' ) : self::value( $match[1], $match[2] );
+			static function ( $match ) use ( $query ) {
+				return isset( $match[3] ) && 'date' === $match[3] ? self::value( 'date', '', $query ) : self::value( $match[1], $match[2], $query );
 			},
 			$template
 		);
@@ -52,10 +53,11 @@ class DynamicValues {
 	 * What the form's script needs to fill in the browser-side tags itself: the default with
 	 * everything else already replaced. Empty when the default has no such tag.
 	 *
-	 * @param string $template Default value as the form owner wrote it.
+	 * @param string     $template Default value as the form owner wrote it.
+	 * @param array|null $query    Query values to read `{query:...}` tags from; real request when null.
 	 * @return string
 	 */
-	public static function browser_template( $template ) {
+	public static function browser_template( $template, array $query = null ) {
 		$template = (string) $template;
 
 		if ( ! preg_match( self::BROWSER_TAGS, $template ) ) {
@@ -64,8 +66,8 @@ class DynamicValues {
 
 		$left = (string) preg_replace_callback(
 			self::PATTERN,
-			static function ( $match ) {
-				$value = isset( $match[3] ) && 'date' === $match[3] ? self::value( 'date', '' ) : self::value( $match[1], $match[2] );
+			static function ( $match ) use ( $query ) {
+				$value = isset( $match[3] ) && 'date' === $match[3] ? self::value( 'date', '', $query ) : self::value( $match[1], $match[2], $query );
 
 				// Page tags only defer to the browser when the server doesn't know the page either.
 				if ( 'query' === $match[1] || ( '' === $value && preg_match( self::BROWSER_TAGS, $match[0] ) ) ) {
@@ -81,15 +83,20 @@ class DynamicValues {
 	}
 
 	/**
-	 * @param string $source query, user, page, site or date.
-	 * @param string $name   What to read from it.
+	 * @param string     $source query, user, page, site or date.
+	 * @param string     $name   What to read from it.
+	 * @param array|null $query  Query values for the `query` source; real request when null.
 	 * @return string Empty when there is nothing to give, including for a visitor who is not logged in.
 	 */
-	private static function value( $source, $name ) {
+	private static function value( $source, $name, array $query = null ) {
 		switch ( $source ) {
 			case 'query':
-				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- reading a public URL parameter to pre-fill a field, not acting on it.
-				$value = filter_input( INPUT_GET, $name, FILTER_DEFAULT );
+				if ( null !== $query ) {
+					$value = $query[ $name ] ?? null;
+				} else {
+					// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- reading a public URL parameter to pre-fill a field, not acting on it.
+					$value = filter_input( INPUT_GET, $name, FILTER_DEFAULT );
+				}
 
 				return is_scalar( $value ) ? sanitize_text_field( (string) $value ) : '';
 

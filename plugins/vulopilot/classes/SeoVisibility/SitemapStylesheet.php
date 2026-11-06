@@ -92,7 +92,7 @@ class SitemapStylesheet {
 	 * @return bool
 	 */
 	private function is_browser_request() {
-		$accept = isset( $_SERVER['HTTP_ACCEPT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT'] ) ) : '';
+		$accept = sanitize_text_field( wp_unslash( (string) filter_input( INPUT_SERVER, 'HTTP_ACCEPT' ) ) );
 
 		return false !== strpos( $accept, 'text/html' );
 	}

@@ -183,7 +183,7 @@ class Vault {
 	 */
 	public function is_in_web_root() {
 		$base = $this->base();
-		$root = isset( $_SERVER['DOCUMENT_ROOT'] ) ? wp_normalize_path( sanitize_text_field( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ) ) : '';
+		$root = wp_normalize_path( sanitize_text_field( wp_unslash( (string) filter_input( INPUT_SERVER, 'DOCUMENT_ROOT' ) ) ) );
 
 		return PathGuard::would_be_within( $base, ABSPATH ) || ( '' !== $root && is_dir( $root ) && PathGuard::would_be_within( $base, $root ) );
 	}

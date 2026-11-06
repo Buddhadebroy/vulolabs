@@ -123,7 +123,7 @@ class Spam {
 	 * @return string
 	 */
 	public static function ip() {
-		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$ip = sanitize_text_field( wp_unslash( (string) filter_input( INPUT_SERVER, 'REMOTE_ADDR' ) ) );
 
 		return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : '';
 	}

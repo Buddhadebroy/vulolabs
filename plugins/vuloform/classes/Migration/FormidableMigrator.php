@@ -107,7 +107,7 @@ class FormidableMigrator extends AbstractMigrator {
 				'title'            => $form->name ? $form->name : __( '(untitled form)', 'vuloform' ),
 				'status'           => 'draft' === ( $form->status ?? '' ) ? 'draft' : 'publish',
 				'field_count'      => count( \FrmField::get_all_for_form( $form_id ) ),
-				'already_migrated' => null !== $this->map->get( $this->get_id(), $form_id ),
+				'already_migrated' => null !== self::map_get( $this->get_id(), $form_id ),
 			);
 		}
 
