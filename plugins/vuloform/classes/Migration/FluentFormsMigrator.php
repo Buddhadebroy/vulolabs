@@ -111,7 +111,7 @@ class FluentFormsMigrator extends AbstractMigrator {
 				'title'            => '' !== (string) ( $form->title ?? '' ) ? (string) $form->title : __( '(untitled form)', 'vuloform' ),
 				'status'           => 'draft' === ( $form->status ?? '' ) ? 'draft' : 'publish',
 				'field_count'      => count( $fields ),
-				'already_migrated' => null !== $this->map->get( $this->get_id(), (int) $form->id ),
+				'already_migrated' => null !== self::map_get( $this->get_id(), (int) $form->id ),
 			);
 		}
 

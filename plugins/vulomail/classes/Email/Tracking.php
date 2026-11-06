@@ -385,7 +385,7 @@ class Tracking {
 	 */
 	private static function query_var( $key ) {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- public link from an email; verified by resolve_click()/record_open(), not a nonce.
-		return isset( $_GET[ $key ] ) ? (string) wp_unslash( $_GET[ $key ] ) : '';
+		return (string) wp_unslash( (string) filter_input( INPUT_GET, $key ) );
 	}
 
 	/**
@@ -395,7 +395,7 @@ class Tracking {
 	 * @return string
 	 */
 	private static function server_var( $key ) {
-		return isset( $_SERVER[ $key ] ) ? (string) wp_unslash( $_SERVER[ $key ] ) : '';
+		return (string) wp_unslash( (string) filter_input( INPUT_SERVER, $key ) );
 	}
 
 	/**

@@ -42,7 +42,7 @@ interface MigratorInterface {
 	 *
 	 * @param array<int, int|string> $source_ids Which source forms to migrate; empty migrates every form `list_available()` returns.
 	 * @param bool                   $overwrite  When false (default), a source form already migrated before (per the stored mapping) is left alone rather than re-imported.
-	 * @return array{migrated: int, skipped: int, errors: string[], posts_updated?: int, references_updated?: int} The last two, when present, count website content updated by a `ShortcodeReplacer` pass.
+	 * @return array{migrated: int, skipped: int, errors: string[], posts_updated?: int, references_updated?: int} The last two, when present, count website content updated by the shortcode rewrite pass.
 	 */
 	public function migrate( array $source_ids = array(), bool $overwrite = false ): array;
 
