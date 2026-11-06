@@ -49,7 +49,7 @@ class TestForms extends TestCase {
 				array(
 					'id'       => 'f_sig',
 					'key'      => 'sig',
-					'type'     => 'signature',
+					'type'     => 'ranking',
 					'label'    => 'Sign <i>here</i>',
 					'required' => true,
 					'pen'      => array( 'color' => '#000', 'width' => 2, 'note' => '<script>x</script>ok' ),
@@ -67,14 +67,14 @@ class TestForms extends TestCase {
 		$twice = Schema::sanitize( $once );
 		$field = $twice['fields'][1];
 
-		$this->assertSame( 'signature', $field['type'] );
+		$this->assertSame( 'ranking', $field['type'] );
 		$this->assertSame( 'f_sig', $field['id'] );
 		$this->assertTrue( $field['required'], 'Settings the core cannot interpret are kept as they were.' );
 		$this->assertSame( array( 'color' => '#000', 'width' => 2, 'note' => 'ok' ), $field['pen'], 'Kept, but cleaned.' );
 		$this->assertSame( 'sig', $twice['fields'][0]['conditions']['rules'][0]['field'], 'A rule depending on the extension field is kept.' );
 		$this->assertSame( array( 'payments' => array( 'enabled' => true, 'amount' => '19.50', 'onclick' => 'x' ) ), $twice['settings']['extensions'] );
 		$this->assertSame( $once, $twice, 'Saving again changes nothing.' );
-		$this->assertStringNotContainsString( 'signature', Renderer::render( array( 'id' => 1, 'title' => 'T', 'status' => 'published', 'schema' => $twice ) ), 'Visitors are not shown a field nothing can handle.' );
+		$this->assertStringNotContainsString( 'ranking', Renderer::render( array( 'id' => 1, 'title' => 'T', 'status' => 'published', 'schema' => $twice ) ), 'Visitors are not shown a field nothing can handle.' );
 	}
 
 	public function test_duplicated_fields_never_share_an_id_or_a_key() {
@@ -307,7 +307,7 @@ class TestForms extends TestCase {
 
 		$templates = Templates::all();
 
-		$this->assertCount( 10, $templates );
+		$this->assertCount( 90, $templates );
 
 		foreach ( $templates as $id => $template ) {
 			$this->assertSame( array(), Schema::problems( $template['schema'] ), "Template {$id} has problems." );
@@ -317,6 +317,14 @@ class TestForms extends TestCase {
 		$lead = $templates['lead']['schema']['fields'];
 		$this->assertSame( 'enquiring_as', $lead[4]['conditions']['rules'][0]['field'], 'The lead template ships with working conditional logic.' );
 		$this->assertContains( 'page_break', array_column( $templates['survey']['schema']['fields'], 'type' ) );
+
+		$donation = $templates['donation']['schema']['fields'];
+		$this->assertSame( 'preset_amount', $donation[0]['key'] );
+		$this->assertSame( 'preset_amount', $donation[1]['conditions']['rules'][0]['field'], 'The custom amount only shows for "Other amount".' );
+
+		$rsvp = $templates['rsvp']['schema']['fields'];
+		$this->assertSame( 'attending', $rsvp[2]['key'] );
+		$this->assertSame( 'attending', $rsvp[3]['conditions']['rules'][0]['field'], 'Guest count only shows once attendance is confirmed.' );
 	}
 
 	public function test_renderer_outputs_accessible_markup_and_splits_pages() {
@@ -390,5 +398,65 @@ class TestForms extends TestCase {
 		Functions\when( 'is_user_logged_in' )->justReturn( false );
 
 		$this->assertSame( 'Hello ', \VuloForm\Forms\DynamicValues::resolve( 'Hello {user:first_name}' ) );
+	}
+
+	public function test_password_field_behaves_like_text_with_length_limits() {
+		$schema = Schema::sanitize(
+			array(
+				'fields' => array(
+					array( 'type' => 'password', 'label' => 'PIN', 'required' => true, 'minlength' => 4, 'maxlength' => 8 ),
+				),
+			)
+		);
+
+		$field = $schema['fields'][0];
+
+		$this->assertSame( 'password', $field['type'] );
+		$this->assertSame( 4, $field['minlength'] );
+		$this->assertSame( 8, $field['maxlength'] );
+		$this->assertStringContainsString( 'type="password"', Renderer::render( array( 'id' => 1, 'title' => 'T', 'status' => 'published', 'schema' => $schema ) ) );
+	}
+
+	public function test_repeater_rows_are_sanitized_and_capped() {
+		$schema = Schema::sanitize(
+			array(
+				'fields' => array(
+					array(
+						'type'     => 'repeater',
+						'label'    => 'Guests',
+						'min_rows' => 1,
+						'max_rows' => 2,
+						'fields'   => array(
+							array( 'type' => 'text', 'label' => 'Guest name' ),
+							// A nested repeater, file and calculation are never allowed in a row.
+							array( 'type' => 'repeater', 'label' => 'Nested' ),
+							array( 'type' => 'file', 'label' => 'ID' ),
+						),
+					),
+				),
+			)
+		);
+
+		$field = $schema['fields'][0];
+
+		$this->assertSame( 'repeater', $field['type'] );
+		$this->assertCount( 1, $field['fields'], 'Only the plain text sub-field survives; repeater and file are dropped.' );
+		$this->assertSame( 'text', $field['fields'][0]['type'] );
+		$this->assertSame( 1, $field['min_rows'] );
+		$this->assertSame( 2, $field['max_rows'] );
+	}
+
+	public function test_repeater_with_no_row_fields_is_reported_as_unpublishable() {
+		$schema   = Schema::sanitize( array( 'fields' => array( array( 'type' => 'repeater', 'label' => 'Guests' ) ) ) );
+		$problems = Schema::problems( $schema );
+
+		$this->assertNotEmpty(
+			array_filter(
+				$problems,
+				static function ( $message ) {
+					return false !== strpos( $message, 'Guests' );
+				}
+			)
+		);
 	}
 }

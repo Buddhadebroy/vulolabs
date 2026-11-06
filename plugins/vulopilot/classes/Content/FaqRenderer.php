@@ -55,7 +55,9 @@ class FaqRenderer {
 		// same page (or two instances of this same block) never fight over which item is open.
 		$group_name = wp_unique_id( 'vulopilot-faq-' );
 
+		$appearance         = sanitize_html_class( (string) ( $attributes['appearance'] ?? 'cards' ) );
 		$wrapper_class      = 'vulopilot-faq vulopilot-faq--icon-' . $icon_position
+			. ' vulopilot-faq--appearance-' . $appearance
 			. ( 'expanded' === $layout_mode ? ' vulopilot-faq--expanded' : '' )
 			. ( empty( $attributes['animationEnabled'] ) ? ' vulopilot-faq--no-animation' : '' );
 		$wrapper_attributes = get_block_wrapper_attributes(

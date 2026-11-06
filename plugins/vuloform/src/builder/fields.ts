@@ -132,12 +132,18 @@ export const createField = (type: string, fields: Field[], preset?: PaletteItem)
 		field.parts = Object.keys(vuloformAppLocalizer.address_parts);
 	}
 
-	if (preset) {
+	if ('repeater' === type) {
+		field.fields = [];
+		field.min_rows = 1;
+		field.max_rows = 10;
+	}
+  
+  if (preset) {
 		field.label = preset.label;
 		field.key = uniqueKey(preset.key || slug(preset.label), fields);
 		field.placeholder = preset.placeholder ?? field.placeholder;
 		field.required = preset.required ?? field.required;
-	}
+  }
 
 	return field;
 };

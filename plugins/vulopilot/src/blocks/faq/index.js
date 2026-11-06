@@ -1,6 +1,5 @@
 import { registerBlockType } from '@wordpress/blocks';
-import { __, sprintf } from '@wordpress/i18n';
-import { useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import {
 	useBlockProps,
 	RichText,
@@ -15,8 +14,6 @@ import {
 	Button,
 	PanelBody,
 	TabPanel,
-	TextControl,
-	TextareaControl,
 	ToggleControl,
 	SelectControl,
 	RangeControl,
@@ -128,9 +125,6 @@ registerBlockType( metadata.name, {
 			appearance,
 		} = attributes;
 
-		// The one sidebar "Questions & answers" item shown expanded at a time (image mockup's own
-		// single-open accordion-of-rows look) - `null` once the user collapses every row.
-		const [ openQuestionIndex, setOpenQuestionIndex ] = useState( 0 );
 		const style = mergeFaqStyle( attributes.style );
 		const blockProps = useBlockProps();
 
@@ -236,131 +230,11 @@ registerBlockType( metadata.name, {
 					<TabPanel
 						className="vulopilot-faq-inspector-tabs"
 						tabs={ [
-							{ name: 'content', title: __( 'Content', 'vulopilot' ) },
 							{ name: 'settings', title: __( 'Settings', 'vulopilot' ) },
 							{ name: 'style', title: __( 'Style', 'vulopilot' ) },
 						] }
 					>
 						{ ( tab ) => {
-							if ( 'content' === tab.name ) {
-								return (
-									<PanelBody
-										title={
-											<>
-												{ __( 'Questions & answers', 'vulopilot' ) }
-												<span className="vulopilot-faq-qa-count">
-													{ sprintf(
-														/* translators: %d: real number of questions currently on this block. */
-														__( '%d items', 'vulopilot' ),
-														questions.length
-													) }
-												</span>
-											</>
-										}
-									>
-										{ 0 === questions.length && (
-											<p className="vulopilot-faq-sidebar-empty">
-												{ __( 'No questions added yet.', 'vulopilot' ) }
-											</p>
-										) }
-										{ questions.map( ( item, index ) => {
-											const isOpen = index === openQuestionIndex;
-
-											return (
-												<div
-													className={ `vulopilot-faq-qa-item${ isOpen ? ' is-open' : '' }` }
-													key={ index }
-												>
-													<button
-														type="button"
-														className="vulopilot-faq-qa-item__header"
-														onClick={ () =>
-															setOpenQuestionIndex( isOpen ? null : index )
-														}
-													>
-														<span className="vulopilot-faq-qa-item__badge">
-															{ String( index + 1 ).padStart( 2, '0' ) }
-														</span>
-														<span className="vulopilot-faq-qa-item__title">
-															{ item.question ||
-																sprintf(
-																	/* translators: %d: real 1-based question number. */
-																	__( 'Question %d', 'vulopilot' ),
-																	index + 1
-																) }
-														</span>
-														<span
-															className="vulopilot-faq-qa-item__chevron"
-															aria-hidden="true"
-														>
-															{ isOpen ? '⌃' : '⌄' }
-														</span>
-													</button>
-													{ isOpen && (
-														<div className="vulopilot-faq-qa-item__body">
-															<TextControl
-																label={ __( 'Question', 'vulopilot' ) }
-																value={ item.question }
-																onChange={ ( value ) =>
-																	updateQuestion( index, 'question', value )
-																}
-																__next40pxDefaultSize
-																__nextHasNoMarginBottom
-															/>
-															<TextareaControl
-																label={ __( 'Answer', 'vulopilot' ) }
-																value={ item.answer }
-																onChange={ ( value ) =>
-																	updateQuestion( index, 'answer', value )
-																}
-																rows={ 3 }
-																__nextHasNoMarginBottom
-															/>
-															<div className="vulopilot-faq-qa-item__actions">
-																<Button
-																	variant="tertiary"
-																	icon="admin-page"
-																	size="small"
-																	onClick={ () => duplicateRow( index ) }
-																>
-																	{ __( 'Duplicate', 'vulopilot' ) }
-																</Button>
-																<Button
-																	variant="tertiary"
-																	isDestructive
-																	icon="trash"
-																	size="small"
-																	onClick={ () => removeRow( index ) }
-																>
-																	{ __( 'Remove', 'vulopilot' ) }
-																</Button>
-															</div>
-														</div>
-													) }
-												</div>
-											);
-										} ) }
-										<Button
-											className="vulopilot-faq-qa-add"
-											variant="secondary"
-											icon="plus-alt2"
-											onClick={ () => {
-												addRow();
-												setOpenQuestionIndex( questions.length );
-											} }
-										>
-											{ __( 'Add question', 'vulopilot' ) }
-										</Button>
-										<p className="vulopilot-faq-qa-hint">
-											{ __(
-												'You can also edit questions directly on the canvas.',
-												'vulopilot'
-											) }
-										</p>
-									</PanelBody>
-								);
-							}
-
 							if ( 'settings' === tab.name ) {
 								return (
 									<PanelBody title={ __( 'Behavior', 'vulopilot' ) }>

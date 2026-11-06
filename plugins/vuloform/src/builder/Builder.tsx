@@ -12,7 +12,7 @@ import Inspector from './Inspector';
 import { createField, lockOf, uniqueKey } from './fields';
 import FormSettings, { lastSection, openSettingsGroup } from './FormSettings';
 import Share from './Share';
-import Switch from '../components/Switch';
+import Switch from './Switch';
 import { builderHash, openBuilder, tabFromHash } from './route';
 import type { BuilderTab } from './route';
 import { duplicateField } from './fields';

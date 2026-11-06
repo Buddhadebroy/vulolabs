@@ -390,9 +390,7 @@ class Forms extends Controller {
 
 		$form['shortcode'] = '[vuloform id="' . (int) $form['id'] . '"]';
 
-		// The snippet a site owner pastes into another site's HTML; it is shown as text, never
-		// printed here, so the <script> markup is built with core's own tag-building function
-		// rather than enqueued - there is no page of ours for wp_enqueue_script() to attach to.
+		// A snippet to paste elsewhere, not enqueued - there's no page of ours to attach it to.
 		$script_tag = wp_get_script_tag(
 			array(
 				'src'   => add_query_arg( 'site', rawurlencode( untrailingslashit( rest_url() ) ), VuloForm()->plugin_url . 'assets/js/public/vuloform-embed.min.js' ),

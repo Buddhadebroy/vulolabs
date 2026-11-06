@@ -31,10 +31,12 @@ Custom tables were chosen over a post type because submissions are numerous, are
 
 | Option | Content |
 | --- | --- |
-| `vuloform_settings` | `retention_days`, `store_ip`, `rate_limit`, `keep_data_uninstall` |
+| `vuloform_settings` | `retention_days`, `store_ip`, `rate_limit`, `keep_data_uninstall`, plus the site-wide spam/honeypot settings (`Utill::SETTINGS_DEFAULTS`) |
 | `vuloform_plugin_db_version` | Version the tables were last updated for |
+| `vuloform_run_installer` | One-shot flag set on activation, cleared once `Install` has run |
 | `vuloform_active_modules` | Ids of the extension modules that are switched on |
 | `vuloform_secret` | Random key that signs form tokens and hashes visitor addresses for the rate limit |
+| `vuloform_migration_map` | Source plugin id + source form id → VuloForm form id, so re-running a migration updates rather than duplicates a form. See [MIGRATION.md](MIGRATION.md). |
 
 Transients: `vuloform_rl_*` (rate limit windows, one minute) and `vuloform_result_*` (outcome of a no-JavaScript submission, a few minutes).
 

@@ -133,28 +133,16 @@
 	}
 }
 
-// Real accordion design - one single canonical style, fully `var(--faq-*, <default>)`-driven so
-// the editor's own Style tab (index.js's own `buildFaqStyleVars()`) and the frontend
-// (FaqRenderer.php's own PHP mirror of that same mapping) always render identically, and two FAQ
-// blocks on the same page can carry independent styles (each block's own inline `style="--faq-…"`
-// attribute only ever affects its own `.vulopilot-faq` instance - these rules never hardcode a
-// value that would leak between instances). `FaqAccordion.js` is the one shared component that
-// builds this same DOM shape for both JS-rendered surfaces (editor canvas, live style preview);
-// FaqRenderer.php mirrors it by hand for the frontend.
 .vulopilot-faq {
 	display: flex;
 	flex-direction: column;
-	gap: var(--faq-item-gap, 1rem);
+	gap: 0.5rem;
 	width: 100%;
 	max-width: 100%;
 	box-sizing: border-box;
-
-	background: var(--faq-container-background, transparent);
 	padding: var(--faq-container-padding-top, 0) var(--faq-container-padding-right, 0)
 		var(--faq-container-padding-bottom, 0) var(--faq-container-padding-left, 0);
-	border: var(--faq-container-border-width, 0) var(--faq-container-border-style, solid)
-		var(--faq-container-border-color, transparent);
-	border-radius: var(--faq-container-radius, 0);
+
 	box-shadow: var(--faq-container-shadow, none);
 }
 
@@ -330,6 +318,165 @@
 	.vulopilot-faq__item,
 	.vulopilot-faq__icon {
 		transition-duration: 0s !important;
+	}
+}
+
+.vulopilot-faq.wp-block-vulopilot-faq.vulopilot-faq--appearance-outline {
+	display: block;
+	gap: 0;
+	margin: 0;
+	padding: 0;
+	background: #fff;
+	border: 0.0625rem solid #e1e6f2;
+	border-radius: 0.125rem;
+	box-shadow: none;
+	overflow: hidden;
+
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
+
+	.vulopilot-faq__item {
+		margin: 0;
+		padding: 0;
+		background: transparent;
+		border: 0;
+		border-top: 0.0625rem solid #e1e6f2;
+		border-radius: 0;
+		box-shadow: none;
+	}
+
+	.vulopilot-faq__item:first-child {
+		border-top: 0;
+	}
+
+	/* Question row */
+	.vulopilot-faq__question,
+	.vulopilot-faq__question--static {
+		gap: 1rem;
+		width: 100%;
+		margin: 0;
+		padding: 1.25rem 1.5rem;
+		font-size: 1rem;
+		line-height: 1.5rem;
+		font-weight: 500 !important;
+		letter-spacing: 0;
+		text-transform: none;
+		color: #0a1230;
+		background: transparent;
+		border: 0;
+	}
+
+	.vulopilot-faq__item[open] .vulopilot-faq__question {
+		color: #0a1230;
+		background: transparent;
+	}
+
+	.vulopilot-faq__question:focus-visible {
+		outline: 0.125rem solid #002991;
+		outline-offset: -0.125rem;
+		border-radius: 0;
+	}
+
+	.vulopilot-faq__question-text {
+		flex: 1;
+		margin: 0;
+		padding: 0;
+		font-family: inherit;
+		font-size: inherit;
+		line-height: inherit;
+		font-weight: inherit;
+		color: inherit;
+	}
+
+	/* Plus icon that turns into × when open */
+	.vulopilot-faq__icon {
+		position: relative;
+		flex-shrink: 0;
+		display: block;
+		width: 1.125rem;
+		height: 1.125rem;
+		margin: 0;
+		padding: 0;
+		background: transparent;
+		border: 0;
+		border-radius: 0;
+		color: #0a1230;
+		font-size: 0;
+		line-height: 0;
+		transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+
+		> span {
+			display: none;
+		}
+
+		&::before,
+		&::after {
+			content: '';
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			width: 0.656rem;
+			height: 0.094rem;
+			border-radius: 0.125rem;
+			background: currentColor;
+			transform: translate(-50%, -50%);
+		}
+
+		&::after {
+			transform: translate(-50%, -50%) rotate(90deg);
+		}
+	}
+
+	.vulopilot-faq__item[open] .vulopilot-faq__icon {
+		background: transparent;
+		color: #0a1230;
+		transform: rotate(45deg);
+	}
+
+	/* Answer */
+	.vulopilot-faq__answer {
+		margin: 0;
+		padding: 0 1.5rem 1.25rem;
+		border: 0;
+		background: transparent;
+		font-size: 1rem;
+		line-height: 1.5rem;
+		font-weight: 400;
+		color: #5d6784;
+
+		> *:last-child {
+			margin-bottom: 0;
+		}
+	}
+
+	/* Smooth open and close (newer browsers; others just open instantly) */
+	@supports (interpolate-size: allow-keywords) {
+		interpolate-size: allow-keywords;
+
+		.vulopilot-faq__item::details-content {
+			height: 0;
+			opacity: 0;
+			overflow: hidden;
+			transition:
+				height 0.3s ease,
+				opacity 0.3s ease,
+				content-visibility 0.3s allow-discrete;
+		}
+
+		.vulopilot-faq__item[open]::details-content {
+			height: auto;
+			opacity: 1;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.vulopilot-faq__icon,
+		.vulopilot-faq__item::details-content {
+			transition: none;
+		}
 	}
 }
 
@@ -544,10 +691,6 @@
 	font-weight: 500;
 }
 
-// Content tab's own "Questions & answers" panel (index.js) - a single-open accordion-of-rows,
-// each row a numbered badge + the question text + a chevron, expanding to real Question/Answer
-// fields plus Duplicate/Remove - a sidebar mirror of the same canvas RichText editing, not a
-// second source of truth (both read/write the one real `questions` attribute).
 .vulopilot-faq-qa-count {
 	margin-left: 0.5rem;
 	padding: 0.125rem 0.5rem;

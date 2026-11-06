@@ -135,10 +135,7 @@ class Frontend {
 			exit;
 		}
 
-		// filter_input() reads the request as the browser sent it, before WordPress's own
-		// magic-quotes slashing of $_POST, so the value is already unslashed here - unlike the REST
-		// route, which gets unslashed values from WP_REST_Request for the same reason. Each value is
-		// then sanitized for its field type in Processor::clean().
+		// filter_input() reads the request pre-slashing, so it's already unslashed here.
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$post   = (array) filter_input_array( INPUT_POST );
 		$result = VuloForm()->processor->handle( $form, $post, $_FILES );
