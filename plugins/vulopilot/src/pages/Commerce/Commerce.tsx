@@ -61,9 +61,6 @@ const CommercePanel = ({
 const Commerce = () => {
 	const RealPanel = useFilterSlot('vulopilot_commerce_panel');
 	const isProInstalled = Boolean(vulopilotAppLocalizer.khali_dabba);
-	// Once Pro itself is licensed, the only remaining reason `RealPanel`
-	// doesn't resolve is the Commerce module being off - every dummy card's
-	// own overlay and the popup both need to say that, not "Upgrade to Pro".
 	const isModuleGate = isProInstalled;
 	const [isPopupOpen, setIsPopupOpen] = useState(false);
 	const isUnlocked = Boolean(RealPanel);

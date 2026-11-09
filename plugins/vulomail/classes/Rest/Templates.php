@@ -1,9 +1,4 @@
 <?php
-/**
- * Email templates REST controller file.
- *
- * @package VuloMail
- */
 
 namespace VuloMail\Rest;
 
@@ -11,24 +6,10 @@ use VuloMail\Templates\Registry;
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * REST controller for vulomail/v1/templates: the registered email templates, and loading and saving
- * one. Names contain a slash (`plugin/template`), so they are passed as `?name=`.
- */
 class Templates extends Controller {
 
-	/**
-	 * REST base for this controller.
-	 *
-	 * @var string
-	 */
 	protected $rest_base = 'templates';
 
-	/**
-	 * Registers this controller's routes.
-	 *
-	 * @return void
-	 */
 	public function register_routes() {
 		register_rest_route(
 			VuloMail()->rest_namespace,
@@ -72,12 +53,6 @@ class Templates extends Controller {
 		);
 	}
 
-	/**
-	 * The template list, with its categories.
-	 *
-	 * @param \WP_REST_Request $request Request.
-	 * @return \WP_REST_Response
-	 */
 	public function get_items( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
 		$categories = Registry::categories();
 		$items      = array();
@@ -93,13 +68,6 @@ class Templates extends Controller {
 			)
 		);
 	}
-
-	/**
-	 * One template: its saved (or default) email, and every template as a starting point.
-	 *
-	 * @param \WP_REST_Request $request Request.
-	 * @return \WP_REST_Response|\WP_Error
-	 */
 	public function get_item( $request ) {
 		$name     = sanitize_text_field( (string) $request->get_param( 'name' ) );
 		$template = Registry::get( $name );
@@ -134,12 +102,6 @@ class Templates extends Controller {
 		);
 	}
 
-	/**
-	 * Saves an edited email through the template's own save callback.
-	 *
-	 * @param \WP_REST_Request $request Request.
-	 * @return \WP_REST_Response|\WP_Error
-	 */
 	public function save_item( $request ) {
 		$input = (array) $request->get_json_params();
 		$name  = sanitize_text_field( (string) ( $input['name'] ?? $request->get_param( 'name' ) ) );
@@ -155,12 +117,7 @@ class Templates extends Controller {
 		return rest_ensure_response( array( 'saved' => true ) );
 	}
 
-	/**
-	 * Switches one or several templates on or off: `{ names: [], enabled: bool }`.
-	 *
-	 * @param \WP_REST_Request $request Request.
-	 * @return \WP_REST_Response
-	 */
+
 	public function set_enabled( $request ) {
 		$input   = (array) $request->get_json_params();
 		$enabled = ! empty( $input['enabled'] );
@@ -182,12 +139,6 @@ class Templates extends Controller {
 		);
 	}
 
-	/**
-	 * @param string $name       Template name.
-	 * @param array  $template   Registered arguments.
-	 * @param array  $categories Category slug => label.
-	 * @return array
-	 */
 	private function summary( $name, array $template, array $categories ) {
 		return array(
 			'name'           => $name,

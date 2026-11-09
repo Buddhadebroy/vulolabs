@@ -760,7 +760,6 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 								0 === otherAffectedItems.length && (
 									<span className="desc">
 										{sprintf(
-											/* translators: %s: the real section title above ("Recommended fix"/"What happened?"/"Example finding") that already shows this group's one open finding in full. */
 											__(
 												'This group has only one open finding - its full details are in the “%s” section above.',
 												'vulopilot'

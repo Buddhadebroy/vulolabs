@@ -14,9 +14,6 @@ import { BlurredProContent } from '../../components/UpgradeToProOverlay';
 
 interface CommerceProDummiesProps {
 	onClick: () => void;
-	/** Once Pro itself is licensed, the only remaining reason `vulopilot_commerce_panel`
-	 * doesn't resolve is the Commerce module being off - every card's own overlay needs
-	 * to say that, not "Upgrade to Pro" (see Commerce.tsx's own docblock on this prop). */
 	isModuleGate?: boolean;
 }
 

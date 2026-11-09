@@ -19,9 +19,6 @@ const BENEFITS = [
 const KeywordsTab = () => {
 	const RealPanel = useFilterSlot('vulopilot_keywords_panel');
 	const isProInstalled = Boolean(vulopilotAppLocalizer.khali_dabba);
-	// Once Pro is licensed, the only remaining reason `RealPanel` doesn't
-	// resolve is the Keyword Rank Tracking module being off - the overlay/
-	// popup both need to say that, not "Upgrade to Pro".
 	const isModuleGate = isProInstalled;
 	const [isPopupOpen, setIsPopupOpen] = useState(false);
 

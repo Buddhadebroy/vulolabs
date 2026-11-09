@@ -122,13 +122,6 @@ export const useContentGate = (
 			);
 		}
 
-		// Same canonical "module is turned off" empty state every other module-gated
-		// card in this codebase uses (BrandVisibilityTab.tsx/SeoTab.tsx/
-		// AiCopilotGuard.tsx/…, all real `ModuleGuardComponent` usages) - a plain
-		// informational state with a real link to Settings → Modules, not blurred
-		// dummy content behind a click-through (that treatment is 'pro'/'vulocloud'
-		// only, see the branch above - a module a site owner can just switch on for
-		// free doesn't need an upsell-style preview to justify itself).
 		const moduleName = MODULE_CATALOG_BY_ID.get(moduleId ?? '')?.name ?? moduleId ?? '';
 
 		return (

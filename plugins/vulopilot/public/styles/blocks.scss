@@ -541,13 +541,6 @@
 }
 
 
-// Editor-only chrome below - never rendered by FaqRenderer.php, so it can't affect the frontend's
-// own byte-identical copy of the rules above.
-
-// The canvas's own Rank Math-style repeater (index.js) - one light-grey container holding a white
-// card per question, fully independent of the `.vulopilot-faq__*`/`--faq-*` accordion rules above
-// (those style the real frontend `<details>` markup; this is editor-only authoring chrome and
-// deliberately never reuses that styling or those custom properties).
 .vulopilot-faq-editor {
 	display: flex;
 	flex-direction: column;

@@ -1080,9 +1080,6 @@
 	}
 }
 
-// A real on/off switch — `ToggleInput` is a segmented choice control (two
-// labelled pill buttons), not a boolean switch, so the Email Templates
-// screen's "On" column uses this instead.
 .vulomail-switch {
 	position: relative;
 	display: inline-block;

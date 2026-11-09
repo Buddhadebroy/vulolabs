@@ -43,8 +43,7 @@ interface EmailTemplateRow {
 	recipients: Recipient[];
 	channels: { mail?: boolean; sms?: boolean; system?: boolean };
 	email_subject: string | null;
-	// Which registered source this row came from — not part of the
-	// plugin's own REST response, stamped on after fetching.
+	// Which registered source this row came from - stamped on after fetching, not part of the REST response.
 	__source: EmailSource;
 	// Set for a template from the registry (`vulomail_email_templates`): its `plugin/name`.
 	__name?: string;
@@ -53,15 +52,6 @@ interface EmailTemplateRow {
 	__audience?: Audience[];
 }
 
-// Every registered plugin's own REST namespace lives on the same site as
-// vulomail's, just under a different namespace segment — `getApiLink`'s
-// `namespace` override builds that URL. The owning plugin's own
-// `wp_verify_nonce( ..., 'wp_rest' )` permission check still runs though
-// (e.g. `multivendorx_permissions_check`), so every call needs the same
-// `X-WP-Nonce` header vulomail's own `services/api.ts` already sends for
-// its own REST calls — a shared `wp_rest` nonce works across plugins on
-// one site, it's just never attached automatically for a cross-namespace
-// call the way axios's default config is for vulomail's own.
 const sourceGet = <T,>(source: EmailSource, endpoint: string) =>
 	axios
 		.get<T>(getApiLink(vulomailAppLocalizer, endpoint, source.rest_namespace), {
@@ -76,9 +66,6 @@ const sourcePost = <T,>(source: EmailSource, endpoint: string, data: unknown) =>
 		})
 		.then((res) => res.data);
 
-// Every registered plugin's own REST shape (see each plugin's
-// `email-templates` route — e.g. multivendorx's
-// `classes/RestAPI/Controllers/Notifications.php`).
 const fetchSourceTemplates = (source: EmailSource) =>
 	sourceGet<Omit<EmailTemplateRow, '__source'>[]>(source, 'email-templates').then(
 		(rows) => rows.map((row) => ({ ...row, __source: source }))
@@ -128,9 +115,6 @@ interface StarterTemplates {
 const EmailTemplates = () => {
 	const sources = vulomailAppLocalizer.email_sources || [];
 	const [rows, setRows] = useState<EmailTemplateRow[] | null>(null);
-	// `TableCard`'s category pills only drive their own highlight/count
-	// UI and report the selected value via `onQueryUpdate` — filtering
-	// the actual row list for that category is the caller's own job.
 	const [categoryFilter, setCategoryFilter] = useState('all');
 	const [error, setError] = useState('');
 	const [editing, setEditing] = useState<{
@@ -149,8 +133,6 @@ const EmailTemplates = () => {
 
 	useEffect(loadAll, [loadAll]);
 
-	// `#&tab=email-templates&source=multivendorx&template=12` opens that template's editor, so a plugin's
-	// own screen can send people straight to the email they clicked.
 	const [deepLinked, setDeepLinked] = useState(false);
 
 	useEffect(() => {
@@ -319,10 +301,7 @@ const EmailTemplates = () => {
 							(htmlToBlocks(template.email_body || '') as unknown as LegacyEmailBlock[])
 						),
 					})),
-					// id 0 is the standalone "Email Template Customizer"
-					// row (see multivendorx's `get_template_customizer_row`)
-					// — it stores raw legacy blocks (one saved template),
-					// not rendered HTML like every real event row does.
+					// id 0 is the standalone "Email Template Customizer" row - it stores raw legacy blocks, not rendered HTML like every other row.
 					blocks:
 						row.id === 0
 							? legacyEmailBlocksToEmailBlocks(full?.legacy_blocks || [])
@@ -332,11 +311,7 @@ const EmailTemplates = () => {
 				});
 			})
 			.catch((e) => {
-				// A per-row failure here used to call the same `setError`
-				// the initial full-list load uses, which replaces the
-				// *entire* table with an error card — one row's editor
-				// failing to open shouldn't take the whole list down with
-				// it, so this reports it as a float notice instead.
+				// A float notice, not `setError` - one row's editor failing shouldn't take the whole list down.
 				NoticeManager.add({
 					title: __('Could not open editor', 'vulomail'),
 					message: errorMessage(e),

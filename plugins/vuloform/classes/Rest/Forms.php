@@ -294,12 +294,6 @@ class Forms extends Controller {
 		return new \WP_Error( 'vuloform_form_protected', __( 'This form is needed by a plugin and cannot be deleted.', 'vuloform' ), array( 'status' => 403 ) );
 	}
 
-	/**
-	 * An error when the template allows one form per site and that form exists.
-	 *
-	 * @param string $template Template id.
-	 * @return \WP_Error|null
-	 */
 	private function single_template_form( $template ) {
 		$templates = Templates::all();
 

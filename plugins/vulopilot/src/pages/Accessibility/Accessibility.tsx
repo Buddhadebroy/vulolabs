@@ -67,13 +67,6 @@ const AccessibilityHistoryDummy = () => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
 	const [period, setPeriod] = useState<PeriodDays>('30');
 	const isProInstalled = Boolean(vulopilotAppLocalizer.khali_dabba);
-	// Once Pro itself is licensed, the only remaining reason this real panel
-	// (`vulopilot_accessibility_history_panel`) isn't resolved is the
-	// Accessibility module being switched off - the overlay/popup both need
-	// to say that, not "Upgrade to Pro" (this site already has Pro). Was
-	// previously always the generic Pro overlay with a *module* popup
-	// underneath once licensed - a real mismatch (click "Upgrade to Pro",
-	// get "Activate Accessibility" instead).
 	const isModuleGate = isProInstalled;
 
 	return (

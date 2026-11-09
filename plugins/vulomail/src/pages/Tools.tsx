@@ -144,8 +144,7 @@ const TestCard = ({ channel, connections, preselected }: TestCardProps) => {
 	const [result, setResult] = useState<TestResult | null>(null);
 	const [isHighlighted, setIsHighlighted] = useState(isTarget);
 
-	// Scrolls to and briefly highlights this card so it's obvious which one was preselected,
-	// since both the email and SMS cards are already on screen without any tab to switch to.
+	// Scrolls to and briefly highlights this card so it's obvious which one was preselected.
 	useEffect(() => {
 		if (!isTarget) {
 			return;

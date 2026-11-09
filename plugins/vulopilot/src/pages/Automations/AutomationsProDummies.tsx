@@ -5,9 +5,6 @@ import { BlurredProContent } from '../../components/UpgradeToProOverlay';
 
 interface AutomationsDummyProps {
 	onClick: () => void;
-	/** Once Pro itself is licensed, the only remaining reason `vulopilot_automations_panel`
-	 * doesn't resolve is the Workflow Automation module being off - the overlay needs to say
-	 * that, not "Upgrade to Pro" (see Automations.tsx's own docblock on this prop). */
 	isModuleGate?: boolean;
 }
 

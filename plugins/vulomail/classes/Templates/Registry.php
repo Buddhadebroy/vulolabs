@@ -1,41 +1,12 @@
 <?php
 /**
  * Email template registry file.
- *
- * @package VuloMail
  */
 
 namespace VuloMail\Templates;
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Email templates, registered the way Gutenberg registers blocks: each has a namespaced name
- * (`multivendorx/store-pending-approval`), a title, a category and its content.
- *
- * A plugin registers templates with the `vulomail_email_templates` filter (or
- * `vulomail_register_email_template()`), and categories with `vulomail_email_template_categories`.
- * A template's arguments:
- *
- * - `title`         Name shown in the list and the editor.
- * - `description`   One line about when the email is sent.
- * - `category`      A category slug (see `vulomail_email_template_categories`).
- * - `icon`          adminfont icon name, without the `adminfont-` prefix.
- * - `group`         Section the email is listed under (for example "Orders"). Default "General".
- * - `recipients`    Who receives it: any of `store`, `customer`, `admin`.
- * - `enabled_callback` `function ( $name, $template )`: whether the email is switched on.
- * - `toggle_callback`  `function ( $name, $enabled, $template )`: switches it on or off, so a plugin keeps
- *                   its own on/off setting. Without these VuloMail keeps the switch itself.
- * - `subject`       Default subject.
- * - `content`       Default email as HTML, or
- * - `blocks`        Default email as editor blocks, or
- * - `file`          Path to a JSON file holding `blocks`.
- * - `load_callback` `function ( $name, $template )`: returns `array( 'subject' => '', 'content' => '' )`
- *                   or `array( 'blocks' => array() )` for the saved email, so a plugin can keep its
- *                   emails where it already stores them.
- * - `save_callback` `function ( $name, $data, $template )`: saves `$data` (`subject`, `content`, `blocks`)
- *                   and returns true. Without one VuloMail keeps the edited email in its own option.
- */
 class Registry {
 
 	/**
@@ -55,13 +26,6 @@ class Registry {
 	 */
 	private static $registered = array();
 
-	/**
-	 * Registers a template.
-	 *
-	 * @param string $name Namespaced name, such as `plugin/template`.
-	 * @param array  $args Template arguments.
-	 * @return bool False for an invalid name.
-	 */
 	public static function register( $name, array $args = array() ) {
 		if ( ! self::is_valid_name( $name ) ) {
 			return false;
@@ -72,11 +36,6 @@ class Registry {
 		return true;
 	}
 
-	/**
-	 * The templates VuloMail ships, in its own category.
-	 *
-	 * @return array<string, array>
-	 */
 	private static function built_in() {
 		return array(
 			'vulomail/basic-notification' => array(
@@ -91,27 +50,17 @@ class Registry {
 		);
 	}
 
-	/**
-	 * @param string $name Template name.
-	 * @return bool
-	 */
+
 	public static function is_valid_name( $name ) {
 		return is_string( $name ) && 1 === preg_match( '#^[a-z0-9_-]+/[a-z0-9_-]+$#', $name );
 	}
 
 	/**
-	 * Every registered template, by name.
-	 *
-	 * @return array<string, array>
-	 */
+	 * Every registered template, by name. */
 	public static function all() {
 		$templates = array_merge( self::built_in(), self::$registered );
 
-		/**
-		 * Filters the registered email templates.
-		 *
-		 * @param array $templates Template name => arguments.
-		 */
+		/**  Filters the registered email templates. */
 		$templates = (array) apply_filters( 'vulomail_email_templates', $templates );
 		$out       = array();
 
@@ -140,40 +89,17 @@ class Registry {
 
 		return $out;
 	}
-
-	/**
-	 * @param string $name Template name.
-	 * @return array|null
-	 */
 	public static function get( $name ) {
 		$all = self::all();
 
 		return $all[ $name ] ?? null;
 	}
-
-	/**
-	 * Template categories: slug => label.
-	 *
-	 * @return array<string, string>
-	 */
 	public static function categories() {
-		/**
-		 * Filters the email template categories.
-		 *
-		 * @param array $categories Slug => label.
-		 */
 		return (array) apply_filters(
 			'vulomail_email_template_categories',
 			array( 'vulomail' => 'VuloMail' )
 		);
 	}
-
-	/**
-	 * The email to edit or send for a template: the saved one, else the registered default.
-	 *
-	 * @param string $name Template name.
-	 * @return array|null `subject`, plus `content` (HTML) or `blocks`; null for an unknown template.
-	 */
 	public static function load( $name ) {
 		$template = self::get( $name );
 
@@ -198,12 +124,6 @@ class Registry {
 		return self::defaults( $name );
 	}
 
-	/**
-	 * The registered default email, ignoring anything saved.
-	 *
-	 * @param string $name Template name.
-	 * @return array|null
-	 */
 	public static function defaults( $name ) {
 		$template = self::get( $name );
 
@@ -228,13 +148,6 @@ class Registry {
 		return $out;
 	}
 
-	/**
-	 * Saves an edited email.
-	 *
-	 * @param string $name Template name.
-	 * @param array  $data `subject`, `content` (HTML) and `blocks`.
-	 * @return bool
-	 */
 	public static function save( $name, array $data ) {
 		$template = self::get( $name );
 
@@ -256,24 +169,12 @@ class Registry {
 		}
 
 		if ( $saved ) {
-			/**
-			 * Fires after an email template is saved.
-			 *
-			 * @param string $name Template name.
-			 * @param array  $data Saved email.
-			 */
 			do_action( 'vulomail_email_template_saved', $name, $data );
 		}
 
 		return $saved;
 	}
 
-	/**
-	 * Whether a template's email is switched on.
-	 *
-	 * @param string $name Template name.
-	 * @return bool
-	 */
 	public static function is_enabled( $name ) {
 		$template = self::get( $name );
 
@@ -287,14 +188,6 @@ class Registry {
 
 		return ! in_array( $name, (array) get_option( self::OFF_OPTION, array() ), true );
 	}
-
-	/**
-	 * Switches a template's email on or off.
-	 *
-	 * @param string $name    Template name.
-	 * @param bool   $enabled Whether it should be on.
-	 * @return bool
-	 */
 	public static function set_enabled( $name, $enabled ) {
 		$template = self::get( $name );
 
@@ -317,10 +210,6 @@ class Registry {
 		return true;
 	}
 
-	/**
-	 * @param string $name Template name.
-	 * @return string
-	 */
 	private static function option_name( $name ) {
 		return self::OPTION_PREFIX . str_replace( '/', '__', $name );
 	}

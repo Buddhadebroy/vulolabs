@@ -286,10 +286,6 @@ class FaqRenderer {
 			if ( ! is_array( $row ) ) {
 				continue;
 			}
-
-			// The editor's own per-item visibility toggle (`hidden`) - a row kept for later
-			// re-use without deleting it, so it must reach neither the visible markup nor the
-			// JSON-LD while toggled off.
 			if ( ! empty( $row['hidden'] ) ) {
 				continue;
 			}
