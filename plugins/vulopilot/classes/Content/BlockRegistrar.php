@@ -118,7 +118,7 @@ class BlockRegistrar {
 			$handle,
 			VuloPilot()->plugin_url . 'assets/styles/public/vulopilot-blocks.min.css',
 			array(),
-			(string) filemtime( $style_path )
+			VuloPilot()->version
 		);
 	}
 }
