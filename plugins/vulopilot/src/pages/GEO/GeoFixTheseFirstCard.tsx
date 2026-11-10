@@ -39,8 +39,7 @@ interface GeoFixTheseFirstCardProps {
 }
 
 /**
- * "Fix These First" - the real, worst-severity-first (ties broken by real affected count)
- * findings.
+ * "Fix These First" - the real, worst-severity-first (ties broken by real affected count) findings.
  */
 const GeoFixTheseFirstCard = ({
 	groups,

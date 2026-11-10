@@ -17,9 +17,7 @@ import './routes';
 localStorage.setItem('force_vulopilot_context_reload', 'true');
 
 /**
- * Reads the active tab from the URL hash (`?page=vulopilot#&tab=dashboard`) and renders the
- * component registered for it in routes.ts. Uses the hash rather than path routes, since every
- * admin URL is `admin.php?page=vulopilot`.
+ * Reads the active tab from the URL hash (`?page=vulopilot#&tab=dashboard`) and renders the component registered for it in routes.ts.
  */
 const Route = () => {
 	const location = useLocation();
@@ -88,8 +86,7 @@ const App = () => {
 	};
 
 	/**
-	 * A page-section result's target tab may not be mounted yet at click time (the hash change
-	 * above triggers Route's own async re-render).
+	 * A page-section result's target tab may not be mounted yet at click time (the hash change above triggers Route's own async re-render).
 	 */
 	const scrollToSectionWhenReady = (sectionId: string, attempt = 0) => {
 		if (document.getElementById(sectionId)) {
@@ -113,8 +110,7 @@ const App = () => {
 		}
 	};
 
-	// Highlight the active tab in the WP admin sidebar submenu. Content Planner has no menu
-	// entry of its own (it opens from the Content page), so it highlights Content.
+	// Highlight the active tab in the sidebar; Content Planner (no menu entry) highlights Content.
 	useEffect(() => {
 		const menuTab = currentTab === 'content-planner' ? 'content' : currentTab;
 

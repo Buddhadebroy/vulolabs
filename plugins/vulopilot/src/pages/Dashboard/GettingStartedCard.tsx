@@ -3,9 +3,7 @@ import { __ } from '@wordpress/i18n';
 import BannerCard from '../../components/BannerCard';
 
 /**
- * Compact, dismissible "finish setup" banner - replaces the old WelcomeSection's much larger
- * welcome banner + Modules grid + Extend your website + Need help getting started cards, none of
- * which exist in the Dashboard mockup this page is modeled on.
+ * Compact, dismissible "finish setup" banner.
  */
 const GettingStartedCard: React.FC = () => (
 	<BannerCard

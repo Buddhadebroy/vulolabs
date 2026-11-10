@@ -43,8 +43,7 @@ export interface SeoScoreResponse {
 }
 
 /**
- * `GET /seo/score` - Seo.php's own real, deterministic weighted-severity score (same formula
- * BrandIntelligence's own Brand Score uses).
+ * `GET /seo/score` - Seo.php's own real, deterministic weighted-severity score (same formula BrandIntelligence's own Brand Score uses).
  */
 export const useSeoScore = (): {
 	score: SeoScoreResponse | null;

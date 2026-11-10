@@ -155,8 +155,7 @@ class VuloPilotException extends \Exception {
 	}
 
 	/**
-	 * TYPE_INSUFFICIENT_CREDITS convenience getter - see that constant's
-	 * own docblock. Credits are fractional.
+	 * TYPE_INSUFFICIENT_CREDITS convenience getter - see that constant's own docblock.
 	 *
 	 * @return float
 	 */
@@ -165,8 +164,7 @@ class VuloPilotException extends \Exception {
 	}
 
 	/**
-	 * TYPE_INSUFFICIENT_CREDITS convenience getter - where the site owner can buy more
-	 * credits (the server's own AI Credits page), or '' if the server didn't say.
+	 * TYPE_INSUFFICIENT_CREDITS convenience getter - where the site owner can buy more credits (the server's own AI Credits page), or '' if the server didn't say.
 	 *
 	 * @return string
 	 */

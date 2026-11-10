@@ -51,8 +51,7 @@ const STATUS_ICON: Record<string, string> = {
 };
 
 /**
- * Real HH:MM:SS between two real timestamps - same padding technique BrokenLinksSection.tsx's own
- * `formatDurationMs()` already uses.
+ * Real HH:MM:SS between two real timestamps - same padding technique BrokenLinksSection.tsx's own `formatDurationMs()` already uses.
  */
 const formatDuration = (startIso: string, endIso: string): string => {
 	const totalSeconds = Math.max(

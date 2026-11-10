@@ -171,10 +171,7 @@ class RankMathMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * Rank Math's "Edit robots.txt" content (`general.robots_txt_content`, confirmed against
-	 * `includes/modules/robots-txt/class-robots-txt.php`) into VuloPilot's own custom robots.txt
-	 * override (`RobotsTxtManager`'s `vulopilot_custom_robots_txt` option - deliberately outside
-	 * `vulopilot_settings`, so it's never touched by migrate_settings() above).
+	 * Rank Math's "Edit robots.txt" content (`general.robots_txt_content`, confirmed against `includes/modules/robots-txt/class-robots-txt.php`) into VuloPilot's own custom robots.txt override (`RobotsTxtManager`'s `vulopilot_custom_robots_txt` option - deliberately outside `vulopilot_settings`, so it's never touched by migrate_settings() above).
 	 *
 	 * @param bool  $overwrite Passed through from migrate().
 	 * @param int   $migrated  Running total, by reference.

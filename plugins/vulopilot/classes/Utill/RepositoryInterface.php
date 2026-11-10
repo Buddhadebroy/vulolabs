@@ -26,8 +26,7 @@ interface RepositoryInterface {
 	public function find( int $id ): ?array;
 
 	/**
-	 * @param array $args Optional 'page', 'per_page', 'orderby', 'order', plus
-	 *                     whatever columns the concrete repository allows filtering on.
+	 * @param array $args Optional 'page', 'per_page', 'orderby', 'order', plus whatever columns the concrete repository allows filtering on.
 	 * @return array{data: array<int, array<string, mixed>>, total: int}
 	 */
 	public function find_all( array $args = array() ): array;

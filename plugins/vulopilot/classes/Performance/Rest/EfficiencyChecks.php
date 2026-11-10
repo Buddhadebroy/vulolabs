@@ -305,8 +305,7 @@ class EfficiencyChecks extends \WP_REST_Controller {
 
 	/**
 	 * @param string $url URL to request.
-	 * @return array|null The raw `wp_remote_get()` response, or null on failure. Read
-	 *                     headers with `wp_remote_retrieve_header()`, not an `(array)` cast.
+	 * @return array|null The raw `wp_remote_get()` response, or null on failure.
 	 */
 	private function probe( string $url ): ?array {
 		$response = wp_remote_get(
@@ -343,8 +342,7 @@ class EfficiencyChecks extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Wraps `WP_Site_Health::should_suggest_persistent_object_cache()`'s
-	 * own thresholds rather than re-deriving them.
+	 * Wraps `WP_Site_Health::should_suggest_persistent_object_cache()`'s own thresholds rather than re-deriving them.
 	 *
 	 * @return bool
 	 */

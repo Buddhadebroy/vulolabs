@@ -20,10 +20,7 @@ const ratingColor = ( score: number ): string => {
 };
 
 /**
- * Side-by-side summary of the three real, already-computed scores this post has: mechanical SEO
- * score (SeoScoreEngine), AI-judged GEO score (GeoAnalyzer, Pro-only), and whether AEO citation
- * coverage has ever been checked for this post. No new scoring - every number here is read from
- * an endpoint another tab in this panel already calls directly.
+ * Side-by-side summary of the three real, already-computed scores this post has: mechanical SEO score.
  */
 export default function OverviewTab( { onNavigate }: OverviewTabProps ) {
 	const { postId } = usePostData();

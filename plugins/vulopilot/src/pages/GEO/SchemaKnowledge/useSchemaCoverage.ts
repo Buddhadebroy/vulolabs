@@ -42,8 +42,7 @@ export interface SchemaCoverageSnapshot {
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 /**
- * `GET`/`POST /schema/coverage` - Schema.php's own real per-page JSON-LD sample
- * (SchemaCoverageAnalyzer, real outbound HTTP, no AI).
+ * `GET`/`POST /schema/coverage` - Schema.php's own real per-page JSON-LD sample (SchemaCoverageAnalyzer, real outbound HTTP, no AI).
  */
 export const useSchemaCoverage = (): {
 	snapshot: SchemaCoverageSnapshot | null;

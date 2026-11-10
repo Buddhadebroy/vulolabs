@@ -49,8 +49,7 @@ interface ProfileRow {
 }
 
 /**
- * Real "confidence" a site owner should place in each row, disclosed here rather than left
- * implicit: - Business name: always "high".
+ * Real "confidence" a site owner should place in each row, disclosed here rather than left implicit: - Business name: always "high".
  */
 const buildRows = (entities: EntitiesResponse): ProfileRow[] => {
 	const businessName = entities.organizations[0]?.name ?? '';

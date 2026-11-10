@@ -62,9 +62,7 @@ interface AutomationSlotValue {
 }
 
 /**
- * "Automate Work" - Free gets exactly 2 fixed, schedule-only automations
- * (`BuiltinAutomationCards.tsx` - "Run Full Site Scan"/"Send Visibility Report", no template
- * picker, no wizard) always shown at the top.
+ * "Automate Work" - Free gets exactly 2 fixed, schedule-only automations.
  */
 const Automations = () => {
 	const slot = useFilterSlot<AutomationSlotValue>('vulopilot_automations_panel');

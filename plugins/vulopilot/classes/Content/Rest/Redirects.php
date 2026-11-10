@@ -237,8 +237,7 @@ class Redirects extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Checks whether each redirect's `target_url` resolves. Cached for `HEALTH_CACHE_SECONDS`
-	 * (`force=1` bypasses it), bounded to `MAX_HEALTH_CHECKS` redirects per call.
+	 * Checks whether each redirect's `target_url` resolves.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
@@ -277,8 +276,7 @@ class Redirects extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Same real HEAD-request check BrokenLinksScanner::check_link() uses for in-content
-	 * links, applied here to a redirect row's own `target_url` instead.
+	 * Same real HEAD-request check BrokenLinksScanner::check_link() uses for in-content links, applied here to a redirect row's own `target_url` instead.
 	 *
 	 * @param string $url Real target URL to check.
 	 * @return array{broken: bool, status: int|string}

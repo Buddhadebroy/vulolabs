@@ -129,9 +129,7 @@ const scrollToBreakdown = () => {
 };
 
 /**
- * Real per-signal score change - same real "current score minus the oldest point in this signal's
- * own real `trend`" shape `SeoTab.tsx`'s own `categoryScoreDelta()` already established, now
- * backed by `Geo.php`'s own real `signal.trend` (added alongside this).
+ * Real per-signal score change - same real "current score minus the oldest point in this signal's own real `trend`" shape `SeoTab.tsx`'s own `categoryScoreDelta()` already established, now backed by `Geo.php`'s own real `signal.trend` (added alongside this).
  */
 const signalScoreDelta = (signal: GeoSignalScore): number | null =>
 	null !== signal.score && signal.trend && signal.trend.length > 0

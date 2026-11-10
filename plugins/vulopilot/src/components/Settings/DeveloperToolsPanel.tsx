@@ -8,8 +8,7 @@ import { useSetting } from '../../contexts/SettingContext';
 import CardHeader from '../CardHeader';
 
 /**
- * Hand-built panel (not InputRenderer-driven) for "Keep VuloPilot data after uninstall",
- * "Anonymous usage data" and Reset.
+ * Hand-built panel (not InputRenderer-driven) for "Keep VuloPilot data after uninstall", "Anonymous usage data" and Reset.
  */
 const DeveloperToolsPanel = () => {
 	const [isClearing, setIsClearing] = useState(false);

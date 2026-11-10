@@ -61,8 +61,7 @@ class GoogleServicesConnection {
 	}
 
 	/**
-	 * The redirect_uri registered with Google must be EXACTLY this URL (down to trailing
-	 * slashes/scheme).
+	 * The redirect_uri registered with Google must be EXACTLY this URL (down to trailing slashes/scheme).
 	 *
 	 * @return string
 	 */
@@ -71,8 +70,7 @@ class GoogleServicesConnection {
 	}
 
 	/**
-	 * Whether the broker-based Google connect flow is configured. This is the only way the
-	 * plugin ever obtains Google OAuth tokens - the Client ID/Secret live solely in VuloCloud.
+	 * Whether the broker-based Google connect flow is configured.
 	 *
 	 * @return bool
 	 */
@@ -82,8 +80,7 @@ class GoogleServicesConnection {
 	}
 
 	/**
-	 * Builds the Google OAuth URL (offline access, forced consent) with a `state` carrying
-	 * a nonce and the tab to return to.
+	 * Builds the Google OAuth URL (offline access, forced consent) with a `state` carrying a nonce and the tab to return to.
 	 *
 	 * @param string $return_to One of self::RETURN_TARGETS; anything else silently falls back to 'settings'.
 	 * @return string|null Null if the broker isn't configured for this build yet.

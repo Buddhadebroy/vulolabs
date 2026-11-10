@@ -11,10 +11,7 @@ import ToolbarScorePills from './ToolbarScorePills';
 // it directly (TextSelectionActionsPanel.tsx), only while licensed.
 
 /**
- * `PluginSidebar`'s `icon` prop can't fit our two text pills, so this portals them straight into
- * the header's settings row (`.editor-header__settings`) instead. That row is a hardcoded
- * `Fragment` with no public Slot/Fill, and React wipes a plain `insertBefore()` on its next
- * re-render - so a MutationObserver re-inserts the container every time it gets evicted.
+ * `PluginSidebar`'s `icon` prop can't fit our two text pills, so this portals them straight into the header's settings row (`.editor-header__settings`) instead.
  */
 const useToolbarScorePillsPortal = () => {
 	const [ container, setContainer ] = useState< HTMLElement | null >( null );
@@ -82,8 +79,7 @@ interface DeepLinkTarget {
 }
 
 /**
- * Two independent deep-link sources land here, both stripped from the URL immediately so a page
- * refresh doesn't keep re-triggering the highlight.
+ * Two independent deep-link sources land here, both stripped from the URL immediately so a page refresh doesn't keep re-triggering the highlight.
  */
 const readDeepLinkTarget = (): DeepLinkTarget => {
 	const params = new URLSearchParams( window.location.search );
@@ -122,10 +118,7 @@ const readDeepLinkTarget = (): DeepLinkTarget => {
 const { wasPresent: shouldOpenSidebar, tab: deepLinkTab, target: deepLinkHighlight } = readDeepLinkTarget();
 
 /**
- * Opens the SEO sidebar the first time the user clicks into the title field. The editor canvas
- * (title included) renders in its own iframe since WP 5.9, so this polls for `contentDocument`
- * the same way `useToolbarScorePillsPortal` does, and attaches the listener there instead of on
- * the top-level `document`. Fires once per page load, never re-opens after the user closes it.
+ * Opens the SEO sidebar the first time the user clicks into the title field.
  */
 const useOpenSidebarOnTitleClick = () => {
 	useEffect( () => {
@@ -205,8 +198,7 @@ const VuloPilotSeoPlugin = () => {
 		}
 
 		/**
-		 * Open VuloPilot's sidebar when arriving through
-		 * one of the SEO/GEO/AEO deep links.
+		 * Open VuloPilot's sidebar when arriving through one of the SEO/GEO/AEO deep links.
 		 */
 		const open = () => {
 			dispatch( 'core/edit-post' ).openGeneralSidebar(

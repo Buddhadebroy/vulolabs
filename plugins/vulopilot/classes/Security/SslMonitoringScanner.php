@@ -76,8 +76,7 @@ class SslMonitoringScanner extends ScannerUtil {
 	}
 
 	/**
-	 * Opens a TLS connection to the site's own host and reads back the
-	 * peer certificate WordPress's own HTTP API doesn't expose directly.
+	 * Opens a TLS connection to the site's own host and reads back the peer certificate WordPress's own HTTP API doesn't expose directly.
 	 *
 	 * @param string $host Hostname to connect to.
 	 * @return array<string, mixed>|null Parsed certificate fields, or null on any connection/parse failure.

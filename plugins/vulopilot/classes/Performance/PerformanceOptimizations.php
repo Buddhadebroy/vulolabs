@@ -24,8 +24,7 @@ class PerformanceOptimizations {
 	}
 
 	/**
-	 * Adds the site logo and the first queued CSS file to the resources
-	 * WordPress preloads in the page head (core prints the tags itself).
+	 * Adds the site logo and the first queued CSS file to the resources WordPress preloads in the page head (core prints the tags itself).
 	 *
 	 * @param array<int, array<string, mixed>> $preload_resources Resources core is already going to preload.
 	 * @return array<int, array<string, mixed>>

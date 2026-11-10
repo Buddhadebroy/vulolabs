@@ -33,8 +33,7 @@ class OnPageAnalyzer {
 	private const FIRST_PARAGRAPH_WORDS = 100;
 
 	/**
-	 * Runs every check against the editor's current (possibly unsaved)
-	 * field values.
+	 * Runs every check against the editor's current (possibly unsaved) field values.
 	 *
 	 * @param array<string, string> $fields Live editor state - 'title', 'content', 'excerpt', 'slug'.
 	 * @return array<int, array<string, mixed>> Each entry shaped like result()'s own return value.
@@ -143,7 +142,7 @@ class OnPageAnalyzer {
 	);
 
 	/**
-	 * Scores the content's own depth against `CONTENT_DEPTH_TIERS` - not the flat `thin_content_word_threshold` pass/fail the Thin Content scanner uses elsewhere, which only ever gates a single low bar (300 words by default) and gave full score credit to anything past it, even content far short of what actually ranks (#bug:
+	 * Scores the content's own depth against `CONTENT_DEPTH_TIERS`.
 	 *
 	 * @param string $content_text Plain-text content.
 	 * @return array<string, mixed>
@@ -191,9 +190,7 @@ class OnPageAnalyzer {
 	}
 
 	/**
-	 * The word count the next tier up from `$tier_min` starts at, for the "aim for X+ words"
-	 * message - 2500 (the top tier) has no "next" tier, so that case is never reached by a caller
-	 * already short of full credit.
+	 * The word count the next tier up from `$tier_min` starts at, for the "aim for X+ words" message.
 	 *
 	 * @param int $tier_min Current tier's own minimum word count.
 	 * @return int
@@ -289,10 +286,7 @@ class OnPageAnalyzer {
 	}
 
 	/**
-	 * Checks whether the content contains at least one link - kept for the existing
-	 * `has_links`/`suggest-internal-links` UI deep link; `check_internal_link()`/
-	 * `check_external_link()` below score the real distinction Rank Math's own tests make
-	 * (linking anywhere at all isn't equivalent to having both an internal and an external one).
+	 * Checks whether the content contains at least one link.
 	 *
 	 * @param string $content_html Raw post content.
 	 * @return array<string, mixed>
@@ -304,8 +298,7 @@ class OnPageAnalyzer {
 	}
 
 	/**
-	 * Every `href` found in the content, normalized to "internal" (same host as this site, or a
-	 * root-relative path) or "external".
+	 * Every `href` found in the content, normalized to "internal" (same host as this site, or a root-relative path) or "external".
 	 *
 	 * @param string $content_html Raw post content.
 	 * @return array{internal: int, external: int}
@@ -343,8 +336,7 @@ class OnPageAnalyzer {
 	}
 
 	/**
-	 * Rank Math's own "linking to internal resources" test - at least one link to this site
-	 * itself, distinct from `has_links`, which a page with only external links already satisfies.
+	 * Rank Math's own "linking to internal resources" test.
 	 *
 	 * @param string $content_html Raw post content.
 	 * @return array<string, mixed>
@@ -392,10 +384,7 @@ class OnPageAnalyzer {
 	}
 
 	/**
-	 * Rank Math's own keyword-density test ("about 1-1.5% is sufficient... Warning above 2.5%" -
-	 * rankmath.com/kb/seo-score-vs-content-ai-score/). Counted as whole-phrase occurrences of the
-	 * (possibly multi-word) focus keyword against the total word count, same convention
-	 * `contains()` already uses for every other keyword check in this class.
+	 * Rank Math's own keyword-density test ("about 1-1.5% is sufficient...
 	 *
 	 * @param string $keyword      Focus keyword.
 	 * @param string $content_text Plain-text content.
@@ -457,8 +446,7 @@ class OnPageAnalyzer {
 	}
 
 	/**
-	 * Titles with a number (a year, a count, "7 ways to…") measurably
-	 * get more clicks.
+	 * Titles with a number (a year, a count, "7 ways to…") measurably get more clicks.
 	 *
 	 * @param string $title Current post title.
 	 * @return array<string, mixed>
@@ -470,8 +458,7 @@ class OnPageAnalyzer {
 	}
 
 	/**
-	 * Case-insensitive substring match, not word-boundary, since a focus
-	 * keyword is often a multi-word phrase.
+	 * Case-insensitive substring match, not word-boundary, since a focus keyword is often a multi-word phrase.
 	 *
 	 * @param string $keyword  Focus keyword.
 	 * @param string $haystack Text to search within.

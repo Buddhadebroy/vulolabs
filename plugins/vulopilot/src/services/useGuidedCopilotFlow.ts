@@ -12,10 +12,7 @@ export interface GuidedTurn {
 }
 
 /**
- * Walks one `GUIDED_FLOWS` tree entirely client-side - every question and option is static copy
- * or real site data (`findings/groups`), never an AI call. AI is called exactly once, by
- * `onComplete`, after the last step, with every collected answer folded into one message - the
- * "ask the fixed questions first, only call AI at the end" behaviour the whole panel now follows.
+ * Walks one `GUIDED_FLOWS` tree entirely client-side - every question and option is static copy or real site data (`findings/groups`), never an AI call.
  */
 export const useGuidedCopilotFlow = (
 	// eslint-disable-next-line no-unused-vars

@@ -100,8 +100,7 @@ class TableOfContentsRenderer {
 	}
 
 	/**
-	 * Same `level:text` identifier `headingTree.js`'s `headingKey()` computes - what both
-	 * sides key an `excludedHeadings` entry on.
+	 * Same `level:text` identifier `headingTree.js`'s `headingKey()` computes - what both sides key an `excludedHeadings` entry on.
 	 *
 	 * @param array{level: int, text: string} $heading A single real heading.
 	 * @return string
@@ -138,8 +137,7 @@ class TableOfContentsRenderer {
 	}
 
 	/**
-	 * Real mirror of `headingTree.js`'s own `buildHeadingTree()` - a heading nests under the
-	 * nearest *preceding* heading with a shallower level.
+	 * Real mirror of `headingTree.js`'s own `buildHeadingTree()` - a heading nests under the nearest *preceding* heading with a shallower level.
 	 *
 	 * @param array<int, array{level: int, text: string, anchor: string}> $headings Already filtered, document order.
 	 * @return array<int, array<string, mixed>> Each node is `$heading + ['children' => [...]]`.
@@ -176,8 +174,7 @@ class TableOfContentsRenderer {
 	 * @param array<int, array<string, mixed>> $nodes        `build_tree()` output (or one node's own 'children').
 	 * @param bool                             $hierarchical Whether to compute "1"/"1.1" numbering.
 	 * @param string                           $prefix       Already-resolved parent number, e.g. '1' - '' at the root.
-	 * @param string                           $list_id      Real `id` attribute - only the top-level `render()` call
-	 *                                                        passes one, so only the outermost `<ul>` gets it.
+	 * @param string                           $list_id      Real `id` attribute - only the top-level `render()` call passes one, so only the outermost `<ul>` gets it.
 	 * @return string
 	 */
 	private static function build_nested_list( array $nodes, bool $hierarchical, string $prefix = '', string $list_id = '' ): string {
@@ -242,7 +239,7 @@ class TableOfContentsRenderer {
 	}
 
 	/**
-	 * Real PHP mirror of `styleVars.js`'s own `buildTocStyleVars()` - same attribute → CSS custom property mapping `public/styles/blocks.scss`'s own `.vulopilot-toc` rules read (`var(--toc-*, <fallback>)`), so a style set in the editor renders identically on the live page.
+	 * Real PHP mirror of `styleVars.js`'s own `buildTocStyleVars()`.
 	 *
 	 * @param array<string, mixed> $attributes Real block attributes.
 	 * @return string A `--name: value;` CSS custom-property declaration list, or '' if nothing is set.

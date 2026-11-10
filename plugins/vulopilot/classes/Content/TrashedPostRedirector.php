@@ -39,8 +39,7 @@ class TrashedPostRedirector {
 	}
 
 	/**
-	 * Queues a one-time notice for the just-trashed post, if it had a real, previously-public URL
-	 * worth offering a redirect for.
+	 * Queues a one-time notice for the just-trashed post, if it had a real, previously-public URL worth offering a redirect for.
 	 *
 	 * @param int $post_id Post id being trashed.
 	 * @return void
@@ -73,7 +72,6 @@ class TrashedPostRedirector {
 
 	/**
 	 * Renders one dismissible notice per pending entry, linking to the Redirects tab.
-	 * Dismissal is persisted via AJAX (`ajax_dismiss_notice()`).
 	 *
 	 * @return void
 	 */
@@ -108,8 +106,7 @@ class TrashedPostRedirector {
 	}
 
 	/**
-	 * Reports the dismiss click back to storage - otherwise core only hides it in the
-	 * current page's DOM and it reappears on the next load.
+	 * Reports the dismiss click back to storage - otherwise core only hides it in the current page's DOM and it reappears on the next load.
 	 *
 	 * @return void
 	 */

@@ -265,8 +265,7 @@ class BackupManager {
 	}
 
 	/**
-	 * Processes as many queued steps as fit in `BATCH_SECONDS_BUDGET`, then either
-	 * reschedules itself or finalizes the archive once the queue is drained.
+	 * Processes as many queued steps as fit in `BATCH_SECONDS_BUDGET`, then either reschedules itself or finalizes the archive once the queue is drained.
 	 *
 	 * @return void
 	 */
@@ -370,8 +369,7 @@ class BackupManager {
 	}
 
 	/**
-	 * Appends one real table's own `DROP TABLE`/`CREATE TABLE`/`INSERT` statements to the
-	 * shared temp `.sql` file.
+	 * Appends one real table's own `DROP TABLE`/`CREATE TABLE`/`INSERT` statements to the shared temp `.sql` file.
 	 *
 	 * @param string $table    Real, already-known table name (from `SHOW TABLES`, never client input).
 	 * @param string $sql_path Real path to this backup's shared temp `.sql` file.
@@ -438,8 +436,7 @@ class BackupManager {
 	}
 
 	/**
-	 * Folds the accumulated `.sql` dump into the archive as `database.sql`, marks the row
-	 * `completed` with its real file size, and applies retention cleanup.
+	 * Folds the accumulated `.sql` dump into the archive as `database.sql`, marks the row `completed` with its real file size, and applies retention cleanup.
 	 *
 	 * @param int                  $backup_id Real `vulopilot_backups` row id.
 	 * @param array<string, mixed> $queue     The now-drained queue option's own array.
@@ -721,8 +718,7 @@ class BackupManager {
 	}
 
 	/**
-	 * Reads the value list of one dumped `INSERT` - `NULL` or a single-quoted
-	 * string with backslash escapes, separated by commas - back into an array.
+	 * Reads the value list of one dumped `INSERT` - `NULL` or a single-quoted string with backslash escapes, separated by commas - back into an array.
 	 *
 	 * @param string $value_list The text between `VALUES (` and the closing `)`.
 	 * @return array<int, string|null>|null Null when the text is not in that format.
@@ -813,8 +809,7 @@ class BackupManager {
 	}
 
 	/**
-	 * Deletes the oldest completed backups (row + real file) beyond
-	 * `backup_retention_count`, so disk usage stays bounded.
+	 * Deletes the oldest completed backups (row + real file) beyond `backup_retention_count`, so disk usage stays bounded.
 	 *
 	 * @return void
 	 */

@@ -77,8 +77,7 @@ class CrawlerTraffic extends \WP_REST_Controller {
 	}
 
 	/**
-	 * `GET /crawler-traffic/post/{post_id}` - real per-post bot-visit counts, scoped by the
-	 * post's own permalink path (not a sitewide aggregate).
+	 * `GET /crawler-traffic/post/{post_id}` - real per-post bot-visit counts, scoped by the post's own permalink path (not a sitewide aggregate).
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
@@ -126,9 +125,7 @@ class CrawlerTraffic extends \WP_REST_Controller {
 	}
 
 	/**
-	 * `GET /crawler-traffic/analytics` - real current-vs-previous-period comparison
-	 * (CrawlerVisitRepository::get_period_comparison()) plus a real "by AI lab" breakdown
-	 * and the real open blocked-pages count.
+	 * `GET /crawler-traffic/analytics` - real current-vs-previous-period comparison.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response

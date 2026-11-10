@@ -20,9 +20,7 @@ defined( 'ABSPATH' ) || exit;
 interface TracksScannedObjectsInterface {
 
 	/**
-	 * @return int[] Post/page IDs actually considered during this scanner's
-	 *                most recent scan() call, whether or not each one
-	 *                produced a Finding.
+	 * @return int[] Post/page IDs actually considered during this scanner's most recent scan() call, whether or not each one produced a Finding.
 	 */
 	public function get_scanned_post_ids(): array;
 }

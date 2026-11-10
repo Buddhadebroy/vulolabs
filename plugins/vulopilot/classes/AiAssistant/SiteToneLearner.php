@@ -41,7 +41,7 @@ class SiteToneLearner {
 	}
 
 	/**
-	 * The `save_post` callback - guards, then defers. Never calls AI itself.
+	 * The `save_post` callback - guards, then defers.
 	 *
 	 * @param int      $post_id Post being saved.
 	 * @param \WP_Post $post    Same post object.
@@ -69,8 +69,7 @@ class SiteToneLearner {
 	}
 
 	/**
-	 * Registered on `self::RELEARN_HOOK`, run via WP-Cron only - the real
-	 * AI call happens here, never inline with the triggering save.
+	 * Registered on `self::RELEARN_HOOK`, run via WP-Cron only - the real AI call happens here, never inline with the triggering save.
 	 *
 	 * @return void
 	 */
@@ -99,8 +98,7 @@ class SiteToneLearner {
 	}
 
 	/**
-	 * Same query shape as ContentIntelligence\ContentGapAnalyzer::sample_own_titles(),
-	 * extended to also carry each post's full body text.
+	 * Same query shape as ContentIntelligence\ContentGapAnalyzer::sample_own_titles(), extended to also carry each post's full body text.
 	 *
 	 * @return array<int, array{title: string, content: string}>
 	 */

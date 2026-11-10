@@ -30,10 +30,7 @@ class RobotsTxtManager {
 	}
 
 	/**
-	 * Core's own `do_robots()` always adds `Allow: /wp-admin/admin-ajax.php` under the
-	 * `Disallow: /wp-admin/` block it generates; strip it when we're auto-generating, since a
-	 * crawlable ajax endpoint has no SEO value and only the custom override (already applied
-	 * at priority 5) should ever keep it.
+	 * Core's own `do_robots()` always adds `Allow: /wp-admin/admin-ajax.php` under the `Disallow: /wp-admin/` block it generates.
 	 *
 	 * @param string $output The robots.txt content built so far.
 	 * @return string

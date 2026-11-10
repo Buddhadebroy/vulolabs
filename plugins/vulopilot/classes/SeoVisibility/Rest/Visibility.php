@@ -205,9 +205,7 @@ class Visibility extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Same weighting every other real score in this codebase uses - logarithmic, not linear,
-	 * per-tier penalty (see Dashboard::score_from_breakdown()'s own docblock for why: a linear
-	 * count*weight penalty saturates to 0 after roughly a dozen high-severity findings).
+	 * Same weighting every other real score in this codebase uses.
 	 *
 	 * @param array{critical: int, high: int, medium: int, low: int} $breakdown Severity breakdown to score.
 	 * @return int 0-100.
@@ -259,7 +257,7 @@ class Visibility extends \WP_REST_Controller {
 	}
 
 	/**
-	 * "Visibility by Source": GA4 sessions grouped by `sessionDefaultChannelGroup` over the last `TRAFFIC_SOURCE_WINDOW_DAYS` days. `connected:
+	 * "Visibility by Source": GA4 sessions grouped by `sessionDefaultChannelGroup` over the last `TRAFFIC_SOURCE_WINDOW_DAYS` days.
 	 *
 	 * @return \WP_REST_Response
 	 */

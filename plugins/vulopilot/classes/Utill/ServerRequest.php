@@ -36,8 +36,7 @@ class ServerRequest {
 	}
 
 	/**
-	 * Real client IP - the connecting address only, never a client-supplied `X-Forwarded-
-	 * For`-style header.
+	 * Real client IP - the connecting address only, never a client-supplied `X-Forwarded- For`-style header.
 	 *
 	 * @return string Real IP, or '0.0.0.0' if genuinely unavailable (e.g. CLI context).
 	 */

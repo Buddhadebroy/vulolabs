@@ -43,8 +43,7 @@ const SOURCE_COLOR: Record<string, string> = {
 };
 
 /**
- * "Business Name Details" - the reference mockup's own slide-in panel for
- * `BusinessProfileCard.tsx`'s "Business name" row.
+ * "Business Name Details" - the reference mockup's own slide-in panel for `BusinessProfileCard.tsx`'s "Business name" row.
  */
 const BusinessNameDetailsPanel = ({
 	open,

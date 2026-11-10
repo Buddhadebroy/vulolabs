@@ -9,9 +9,7 @@ interface PostScoreBadgesProps {
 }
 
 /**
- * The two score badges shown at the top of every post/page's "VuloPilot SEO" sidebar. Reads
- * scores as props (one `usePostScores()` call lives in `PostSeoPanel.tsx` now, shared with
- * `ScoreImprovementCard.tsx`) rather than fetching its own copy.
+ * The two score badges shown at the top of every post/page's "VuloPilot SEO" sidebar.
  */
 export default function PostScoreBadges( { seoScore, aeoScore, onNavigate }: PostScoreBadgesProps ) {
 	const goToPageAnalysis = () => onNavigate?.( 'page-analysis' );

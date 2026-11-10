@@ -67,8 +67,7 @@ final class Finding {
 	 * @param string|null $object_type What kind of thing this finding is about, if any.
 	 * @param string|null $object_ref  Reference to the specific object, if any.
 	 * @param array       $meta        Arbitrary scanner-specific extra data.
-	 * @param string|null $dedupe_key  Stable identity for matching across rescans when `$title`
-	 *                                 contains a fluctuating value (word count, score, etc.).
+	 * @param string|null $dedupe_key  Stable identity for matching across rescans when `$title` contains a fluctuating value (word count, score, etc.).
 	 */
 	public function __construct(
 		string $title,

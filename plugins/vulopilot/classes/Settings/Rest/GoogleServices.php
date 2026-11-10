@@ -181,8 +181,7 @@ class GoogleServices extends \WP_REST_Controller {
 	}
 
 	/**
-	 * `return_to` is only sanitized here; the allow-list check is in
-	 * GoogleServicesConnection::get_authorization_url().
+	 * `return_to` is only sanitized here; the allow-list check is in GoogleServicesConnection::get_authorization_url().
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
@@ -246,8 +245,7 @@ class GoogleServices extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Pings each Google service once, since a revoked refresh token would still read as
-	 * connected from `get_status()`.
+	 * Pings each Google service once, since a revoked refresh token would still read as connected from `get_status()`.
 	 *
 	 * @return \WP_REST_Response
 	 */
@@ -281,8 +279,7 @@ class GoogleServices extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Uses `sanitize_text_field()`, not `esc_url_raw()`, which would strip valid `sc-
-	 * domain:` property values.
+	 * Uses `sanitize_text_field()`, not `esc_url_raw()`, which would strip valid `sc- domain:` property values.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
@@ -344,8 +341,7 @@ class GoogleServices extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Validated against a fresh real `list_account_summaries()`/ `list_data_streams()`
-	 * pair rather than trusting the posted account/property names as-is.
+	 * Validated against a fresh real `list_account_summaries()`/ `list_data_streams()` pair rather than trusting the posted account/property names as-is.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error

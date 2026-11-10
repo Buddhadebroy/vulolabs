@@ -510,12 +510,9 @@ class Utill {
 	}
 
 	/**
-	 * Accepts both the current shape (`array<{name, url}>`) and the pre-`dynamic-row`
-	 * shape (a single newline-separated string) so an older stored option value still
-	 * works until it's next saved through the settings UI.
+	 * Accepts both the current shape (`array<{name, url}>`) and the pre-`dynamic-row` shape.
 	 *
-	 * @param array<int, array<string, mixed>>|string $stored The raw
-	 *     `geo_competitor_urls` setting value.
+	 * @param array<int, array<string, mixed>>|string $stored The raw `geo_competitor_urls` setting value.
 	 * @return string[] Trimmed, non-empty URLs, in stored order.
 	 */
 	public static function competitor_urls( $stored ): array {

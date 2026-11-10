@@ -54,13 +54,11 @@ export interface CategoryFilterConfig {
 type ListResponse<T> = T[] | { data?: T[]; total?: number; [key: string]: unknown };
 
 /**
- * Fetches a VuloPilot REST list endpoint (`vulopilot/v1/{endpoint}`) and tracks
- * loading/error/empty state.
+ * Fetches a VuloPilot REST list endpoint (`vulopilot/v1/{endpoint}`) and tracks loading/error/empty state.
  *
  * @param endpoint       REST resource path relative to the vulopilot/v1 namespace, e.g. 'findings'.
- * @param params         Optional static query params (e.g. a fixed category for a
+ * @param params         Optional static query params (e.g. a fixed category for a params are owned by TableCard itself - see onQueryUpdate.
  *                       category-scoped page). Pagination/per-page/select-filter
- *                       params are owned by TableCard itself - see onQueryUpdate.
  * @param categoryFilter Optional status-count pill bar config - see CategoryFilterConfig.
  * @param enabled        When false, no request is made (e.g. the endpoint only exists while an optional module is active).
  */

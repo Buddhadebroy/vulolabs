@@ -24,8 +24,7 @@ const formatCount = (count: number | null): string =>
 	null === count ? NOT_SET : String(count);
 
 /**
- * A public site's homepage screenshot from WordPress.com's mShots service (the same one WP.org
- * uses for plugin/theme previews).
+ * A public site's homepage screenshot from WordPress.com's mShots service (the same one WP.org uses for plugin/theme previews).
  */
 const getHomeScreenshotUrl = (siteUrl: string): string => {
 	try {
@@ -45,8 +44,7 @@ const getHomeScreenshotUrl = (siteUrl: string): string => {
 };
 
 /**
- * "Site snapshot" - real WordPress core counts (`summary.site_snapshot`, Dashboard controller's
- * own `build_site_snapshot()`).
+ * "Site snapshot" - real WordPress core counts (`summary.site_snapshot`, Dashboard controller's own `build_site_snapshot()`).
  */
 const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 	summary,

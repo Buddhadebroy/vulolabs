@@ -66,8 +66,7 @@ abstract class AbstractAssetOptimizationScanner extends ScannerUtil {
 	}
 
 	/**
-	 * Extracts same-host asset URLs from one kind of tag (read with WP_HTML_Tag_Processor)
-	 * that don't already look minified (no `.min.` in the path).
+	 * Extracts same-host asset URLs from one kind of tag (read with WP_HTML_Tag_Processor) that don't already look minified (no `.min.` in the path).
 	 *
 	 * @param string      $html      Homepage HTML.
 	 * @param string      $tag       Tag name to read.

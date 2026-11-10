@@ -84,8 +84,7 @@ interface GoogleServiceCardProps {
 }
 
 /**
- * One Search Console/Analytics/AdSense summary card - the mockup's own per-service layout (status
- * badge, Property/account summary line, "Manage Connection"/"Connect AdSense" button, ⋮ menu).
+ * One Search Console/Analytics/AdSense summary card.
  */
 const GoogleServiceCard = ( {
 	icon,

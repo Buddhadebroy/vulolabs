@@ -21,10 +21,7 @@ const calculateAeoScore = ( breakdown: { critical: number; high: number; medium:
 const LIVE_SCORE_DEBOUNCE_MS = 600;
 
 /**
- * Real SEO score (live against current editor fields, same `OnPageAnalyzer` engine as the Page
- * Analysis tab) and real AEO score (this post's open AEO findings) - shared by the in-panel
- * badges and the toolbar score pill, so both read one fetch pair. Reacts to typing (debounced)
- * and to every successful save.
+ * Real SEO score (live against current editor fields, same `OnPageAnalyzer` engine as the Page Analysis tab) and real AEO score.
  */
 export function usePostScores( postId: number ) {
 	const [ seoScore, setSeoScore ] = useState< number | null >( null );

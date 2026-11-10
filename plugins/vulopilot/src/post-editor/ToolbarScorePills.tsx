@@ -24,10 +24,7 @@ interface ToolbarScorePillsProps {
 }
 
 /**
- * Toolbar score pills - same SEO/AEO scores PostScoreBadges.tsx shows in the sidebar, portaled
- * into the header via `useToolbarScorePillsPortal()` (PluginSidebar's `icon` clips anything
- * beyond a small dashicon). Each pill is its own button so clicking one opens straight to that
- * score's own tab.
+ * Toolbar score pills - same SEO/AEO scores PostScoreBadges.tsx shows in the sidebar, portaled into the header via `useToolbarScorePillsPortal()`.
  */
 export default function ToolbarScorePills( { onClickSeo, onClickAeo }: ToolbarScorePillsProps ) {
 	const postId = useSelect( ( select ) => ( select( 'core/editor' ) as any ).getCurrentPostId(), [] );

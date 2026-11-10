@@ -55,8 +55,7 @@ const buildFixWithAiLink = (editLink: string, finding: RawFinding): string =>
 		: `${editLink}&${FINDING_ID_QUERY_PARAM}=${finding.id}`;
 
 /**
- * Same real "no real number, no arrow" honesty `PagesNeedingAttentionTable.tsx`'s own identical
- * cell already established.
+ * Same real "no real number, no arrow" honesty `PagesNeedingAttentionTable.tsx`'s own identical cell already established.
  */
 const ChangeCell = ({ change }: { change: number }) => {
 	if (0 === change) {
@@ -83,8 +82,7 @@ const toggleRowExpansion = (event: React.MouseEvent<HTMLElement>) => {
 };
 
 /**
- * Same Title Case formatting the old standalone "Status" column used for both a page's own
- * `status` and a finding's `severity` (e.g. 'in_progress' -> 'In Progress').
+ * Same Title Case formatting the old standalone "Status" column used for both a page's own `status` and a finding's `severity`.
  */
 const formatStatusLabel = (value: string): string =>
 	String(value)
@@ -129,8 +127,7 @@ interface SeoIssuesByPageTableProps {
 }
 
 /**
- * Page/post-wise table - the other of the two real tables that replace the old combined "All SEO
- * Issues" card, split apart.
+ * Page/post-wise table - the other of the two real tables that replace the old combined "All SEO Issues" card, split apart.
  */
 const SeoIssuesByPageTable = ({
 	rows,
@@ -192,8 +189,7 @@ const SeoIssuesByPageTable = ({
 		row.title.toLowerCase().includes(searchValue.trim().toLowerCase());
 
 	/**
-	 * `Table.tsx` does not re-sort `rows`; a sortable header only reports the new
-	 * `orderby`/`order` via `onQueryUpdate`.
+	 * `Table.tsx` does not re-sort `rows`; a sortable header only reports the new `orderby`/`order` via `onQueryUpdate`.
 	 */
 	const sortRowsByVisibility = (unsorted: PageRow[]): PageRow[] => {
 		if ('visibility_score' !== sortBy) {

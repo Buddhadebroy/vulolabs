@@ -37,8 +37,7 @@ class GoogleAnalyticsClient {
 	}
 
 	/**
-	 * Real `GET .../v1beta/accountSummaries` - every GA4 account this Google user can
-	 * access, each with its own real properties.
+	 * Real `GET .../v1beta/accountSummaries` - every GA4 account this Google user can access, each with its own real properties.
 	 *
 	 * @return array<int, array{account_id: string, account_name: string, properties: array<int, array{property_id: string.
 	 */
@@ -84,8 +83,7 @@ class GoogleAnalyticsClient {
 	}
 
 	/**
-	 * Lists a property's web data streams (app streams are skipped, as only a browser
-	 * `gtag.js` snippet is injected).
+	 * Lists a property's web data streams (app streams are skipped, as only a browser `gtag.js` snippet is injected).
 	 *
 	 * @param string $property_id A real `property_id` from `list_account_summaries()`.
 	 * @return array<int, array{data_stream_id: string, display_name: string, measurement_id: string}>|\WP_Error

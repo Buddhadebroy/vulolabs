@@ -39,8 +39,7 @@ class FirewallGuard {
 	}
 
 	/**
-	 * `init` callback (priority 1) - checked on every real front-end/admin
-	 * request.
+	 * `init` callback (priority 1) - checked on every real front-end/admin request.
 	 *
 	 * @return void
 	 */

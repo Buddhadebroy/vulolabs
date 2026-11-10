@@ -178,7 +178,7 @@ class Seo extends \WP_REST_Controller {
 	 * @return \WP_REST_Response
 	 */
 	/**
-	 * VuloPilot's own SEO Score Engine (`SeoScoreEngine`) - 6 categories, 28 rules, weights summing to exactly 100, run against this post's current (possibly live/unsaved) field values.
+	 * VuloPilot's own SEO Score Engine (`SeoScoreEngine`).
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
@@ -933,8 +933,7 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Fetches the page once, shared by the canonical, structured data and social metadata
-	 * checks.
+	 * Fetches the page once, shared by the canonical, structured data and social metadata checks.
 	 *
 	 * @param string $url Real permalink to fetch.
 	 * @return string|null Response body, or null if the request failed.

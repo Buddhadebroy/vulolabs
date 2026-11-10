@@ -105,17 +105,14 @@ class AiRequestSender {
 
 	/**
 	 * Runs an AI-service feature from its structured input instead of a plugin-built prompt.
-	 * Same safety checks, retries and history as send().
 	 *
 	 * @param string               $feature_id Feature id, e.g. 'rewrite_content'.
 	 * @param string               $action     Feature action, e.g. 'rewrite'.
 	 * @param array<string, mixed> $context    The feature's structured input.
 	 * @param string|null          $surface    Optional feature label recorded to `vulopilot_ai_history.surface`.
 	 * @param string|null          $label      Optional human task name, recorded as the history row's prompt excerpt.
-	 * @param bool                 $allow_html True keeps post-safe HTML (wp_kses_post()), for replies written into
-	 *                                         content; false strips all tags, as send() does, for plain text and JSON.
+	 * @param bool                 $allow_html True keeps post-safe HTML (wp_kses_post()), for replies written into content; false strips all tags, as send() does, for plain text and JSON.
 	 * @return AIResponse
-	 *
 	 * @throws VuloPilotException Same as send(), plus TYPE_INVALID_ACTION_OUTPUT if the reply is still incomplete.
 	 * @throws \RuntimeException  If no AI connection is configured.
 	 */
@@ -202,12 +199,10 @@ class AiRequestSender {
 	}
 
 	/**
-	 * The prompt-length/secret-pattern gate every request goes through before it's ever
-	 * sent.
+	 * The prompt-length/secret-pattern gate every request goes through before it's ever sent.
 	 *
 	 * @param string $combined All the text about to be sent.
 	 * @return void
-	 *
 	 * @throws VuloPilotException If the prompt is too long or appears to contain a secret.
 	 */
 	private function validate_prompt( string $combined ): void {
@@ -407,8 +402,7 @@ class AiRequestSender {
 	}
 
 	/**
-	 * Truncates real text down to an audit-trail-sized excerpt. `mb_substr`
-	 * since real AI replies routinely contain multi-byte characters.
+	 * Truncates real text down to an audit-trail-sized excerpt.
 	 *
 	 * @param string $content Full text.
 	 * @return string

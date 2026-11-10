@@ -21,8 +21,7 @@ const TAB_META: Record<
 };
 
 /**
- * "Reports" - a tab shell, now just Overview/History. "Report Builder" (ReportTab.tsx) and
- * "Activity" (ActivityTab.tsx) were fully deleted.
+ * "Reports" - a tab shell, now just Overview/History.
  */
 const Reports = () => {
 	const subtab = new URLSearchParams(useLocation().hash.substring(1)).get(

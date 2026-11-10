@@ -48,8 +48,7 @@ class FirewallBlockRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Real block/log-row count in the last N days -
-	 * FirewallScanner's own summary count.
+	 * Real block/log-row count in the last N days - FirewallScanner's own summary count.
 	 *
 	 * @param int $days Real lookback window.
 	 * @return int

@@ -63,16 +63,13 @@ const scoreSummary = (score: number): string => {
 };
 
 /**
- * Real per-category score change - this category's current `score` minus the oldest point in its
- * own real `trend` array (`Seo.php`'s own `get_category_trend()`, oldest-first - same real series
- * `overallCategoryTrend()` above already folds into the "All Areas" tile).
+ * Real per-category score change - this category's current `score` minus the oldest point in its own real `trend` array.
  */
 const categoryScoreDelta = (category: SeoScoreResponse['category_scores'][keyof SeoScoreResponse['category_scores']]): number | null =>
 	category.trend.length > 0 ? category.score - category.trend[0] : null;
 
 /**
- * Unlike the 'geo' module (whose own scanners run regardless of its active-module state - see
- * modules/Geo/Module.php's docblock).
+ * Unlike the 'geo' module (whose own scanners run regardless of its active-module state - see modules/Geo/Module.php's docblock).
  */
 const isSeoModuleActive = () =>
 	vulopilotAppLocalizer.active_modules?.includes('technical-seo') ?? false;
@@ -86,7 +83,7 @@ const SeoTab = () => {
 	/** Set by a real "Analyze" click in the "Pages & Posts" table below. */
 	const [analyzingPostId, setAnalyzingPostId] = useState<number | null>(null);
 
-	/** Same real "scroll the just-opened detail panel into view" fix the other issues tables' own `handleSelectGroup` already establishes (`scrollToId`, not `window.scrollTo` - WP admin's own scrollable wrapper isn't the document). */
+	/** Same real "scroll the just-opened detail panel into view" fix the other issues tables' own `handleSelectGroup` already establishes. */
 	const handleAnalyze = (postId: number) => {
 		setAnalyzingPostId(postId);
 		scrollToId('seo-page-analysis-panel');

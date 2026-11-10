@@ -81,8 +81,7 @@ class ContentAnalyzer {
 	}
 
 	/**
-	 * Reads back a previously generated score without spending another AI
-	 * call - what the REST controller's GET route returns.
+	 * Reads back a previously generated score without spending another AI call - what the REST controller's GET route returns.
 	 *
 	 * @param int $post_id Post to read a score for.
 	 * @return array<string, mixed>|null
@@ -189,8 +188,7 @@ class ContentAnalyzer {
 	}
 
 	/**
-	 * Simple, documented average - same "coarse, not scientific" posture
-	 * GeoAnalyzer::calculate_overall_score() already takes.
+	 * Simple, documented average - same "coarse, not scientific" posture GeoAnalyzer::calculate_overall_score() already takes.
 	 *
 	 * @param int|null $deterministic_score 0-100, or null.
 	 * @param int      $topic_authority     0-100.

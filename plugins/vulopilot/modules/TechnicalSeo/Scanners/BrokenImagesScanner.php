@@ -145,8 +145,7 @@ class BrokenImagesScanner extends ScannerUtil implements TracksScannedObjectsInt
 	}
 
 	/**
-	 * Pulls every http(s) `img` out of the most recently published content, deduped,
-	 * capped at MAX_IMAGES_PER_RUN.
+	 * Pulls every http(s) `img` out of the most recently published content, deduped, capped at MAX_IMAGES_PER_RUN.
 	 *
 	 * @return array<string, int> URL => the post ID it was found in.
 	 */
@@ -199,8 +198,7 @@ class BrokenImagesScanner extends ScannerUtil implements TracksScannedObjectsInt
 	}
 
 	/**
-	 * Same real rate-limit shape as BrokenLinksScanner::due_to_run() -
-	 * see that method's own docblock, including what `$force` does.
+	 * Same real rate-limit shape as BrokenLinksScanner::due_to_run() - see that method's own docblock, including what `$force` does.
 	 *
 	 * @param string $frequency 'daily' or 'weekly'.
 	 * @param bool   $force     True to bypass the interval check (a manual "Run scan").

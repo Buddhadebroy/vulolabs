@@ -163,8 +163,7 @@ class History extends \WP_REST_Controller {
 	}
 
 	/**
-	 * The 'all' tab's timeline: activity_logs and ai_history merged via UNION ALL and
-	 * ordered by created_at, so pagination stays correct across both sources.
+	 * The 'all' tab's timeline: activity_logs and ai_history merged via UNION ALL and ordered by created_at, so pagination stays correct across both sources.
 	 *
 	 * @param array{search?: string, date_from?: string, date_to?: string, page?: int, per_page?: int, around_id?: int} $args
 	 * @return array{data: array<int, array<string, mixed>>, total: int, pages_loaded: int}
@@ -352,8 +351,7 @@ class History extends \WP_REST_Controller {
 	}
 
 	/**
-	 * One page's worth of (ai_take, log_take) under get_combined_timeline()'s quota. Gives
-	 * leftover slots to whichever source isn't exhausted.
+	 * One page's worth of (ai_take, log_take) under get_combined_timeline()'s quota.
 	 *
 	 * @param int $per_page           Rows per page.
 	 * @param int $conversation_quota This page's conversation reservation, before checking what's left.
@@ -374,8 +372,7 @@ class History extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Turns get_combined_timeline()'s around_id branch's (id, src) pairs back into full,
-	 * enriched rows, in the same order.
+	 * Turns get_combined_timeline()'s around_id branch's (id, src) pairs back into full, enriched rows, in the same order.
 	 *
 	 * @param array<int, array{id: string, src: string}> $ordered
 	 * @param string                                     $log_table
@@ -453,8 +450,7 @@ class History extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Bucket-sums count_by_column('event_type')'s raw per-event-type counts into the 2
-	 * activity_logs-backed category counts.
+	 * Bucket-sums count_by_column('event_type')'s raw per-event-type counts into the 2 activity_logs-backed category counts.
 	 *
 	 * @param ActivityLogRepository $repository   Repository to count scan/change from.
 	 * @param AiHistoryRepository   $history_repo Repository to count conversations from.
@@ -482,8 +478,7 @@ class History extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Adds a real `conversation` sub-object to one `vulopilot_ai_history`
-	 * row.
+	 * Adds a real `conversation` sub-object to one `vulopilot_ai_history` row.
 	 *
 	 * @param array<string, mixed> $row One vulopilot_ai_history row.
 	 * @return array<string, mixed>
@@ -555,8 +550,7 @@ class History extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Adds a real `scan` or `change` sub-object to one activity_logs row,
-	 * joined back to its source table by `object_id`.
+	 * Adds a real `scan` or `change` sub-object to one activity_logs row, joined back to its source table by `object_id`.
 	 *
 	 * @param array<string, mixed> $row One vulopilot_activity_logs row.
 	 * @return array<string, mixed>
@@ -576,8 +570,7 @@ class History extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real detail for one scan.completed timeline row, joined back to its
-	 * vulopilot_scans source row.
+	 * Real detail for one scan.completed timeline row, joined back to its vulopilot_scans source row.
 	 *
 	 * @param int $scan_id vulopilot_scans.id.
 	 * @return array<string, mixed>|null Null if the source scan row is gone.
@@ -706,8 +699,7 @@ class History extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real numeric post ids one finding's `object_type`/`object_ref` points at - empty for
-	 * anything not page/post-scoped (a URL/site-wide finding).
+	 * Real numeric post ids one finding's `object_type`/`object_ref` points at - empty for anything not page/post-scoped (a URL/site-wide finding).
 	 *
 	 * @param string|null $object_type e.g. 'post'.
 	 * @param string|null $object_ref  A post id, or a comma-joined list of post ids.
@@ -726,8 +718,7 @@ class History extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real detail for one ai_action.* timeline row, joined back to its
-	 * vulopilot_ai_action_runs source row.
+	 * Real detail for one ai_action.* timeline row, joined back to its vulopilot_ai_action_runs source row.
 	 *
 	 * @param int $run_id vulopilot_ai_action_runs.id.
 	 * @return array<string, mixed>|null Null if the source run row is gone.
@@ -758,8 +749,7 @@ class History extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Same "post permalink, else site-wide" resolution Findings.php's own
-	 * add_page_field() uses.
+	 * Same "post permalink, else site-wide" resolution Findings.php's own add_page_field() uses.
 	 *
 	 * @param string|null $object_type e.g. 'post'.
 	 * @param string|null $object_ref  Post id, as a string.

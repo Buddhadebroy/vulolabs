@@ -13,10 +13,7 @@ interface OnPageTabProps {
 }
 
 /**
- * Groups the three on-page settings tabs (Page Analysis, Social, Schema) under one sidebar tab -
- * each sub-section is its own existing, unmodified component, just wrapped in a `PanelBody`
- * accordion instead of three separate top-level icon-only tabs. Reduces the sidebar's tab count
- * without touching any of the underlying analysis/save logic.
+ * Groups the three on-page settings tabs (Page Analysis, Social, Schema) under one sidebar tab.
  */
 export default function OnPageTab( props: OnPageTabProps ) {
 	return (

@@ -131,9 +131,7 @@ const AIAssistant = () => {
 	const [isAttachPanelOpen, setIsAttachPanelOpen] = useState(false);
 
 	/**
-	 * A starter chip walks its own fixed question tree first (`useGuidedCopilotFlow`) - no AI call
-	 * until the last step. A free-typed message (not one of these chips) still goes straight to
-	 * the AI as before - this tree only exists for the 9 starter prompts.
+	 * A starter chip walks its own fixed question tree first (`useGuidedCopilotFlow`) - no AI call until the last step.
 	 */
 	const handleSelectPrompt = (title: string) => {
 		if (isSending || activeFlow) {

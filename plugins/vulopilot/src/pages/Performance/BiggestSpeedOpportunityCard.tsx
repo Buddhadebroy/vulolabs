@@ -34,8 +34,7 @@ interface BiggestSpeedOpportunityCardProps {
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 /**
- * "Biggest Speed Opportunity" - one real, prioritized recommendation instead of a static tip list:
- * replaces PerformanceTipsCard.tsx (now deleted).
+ * "Biggest Speed Opportunity" - one real, prioritized recommendation instead of a static tip list: replaces PerformanceTipsCard.tsx (now deleted).
  */
 const BiggestSpeedOpportunityCard = ({
 	onViewSlowPages,

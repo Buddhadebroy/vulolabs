@@ -117,8 +117,7 @@ class CoreWebVitalsRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Same percentile logic as percentile_75(), converting the stored
-	 * ×1000 integer back to a real CLS float (e.g. 80 → 0.08).
+	 * Same percentile logic as percentile_75(), converting the stored ×1000 integer back to a real CLS float (e.g. 80 → 0.08).
 	 *
 	 * @param array<int, string|null> $values Raw `cls_thousandths` column values.
 	 * @return float|null

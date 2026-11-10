@@ -15,11 +15,7 @@ interface ReportsOverviewActionsProps {
 }
 
 /**
- * The Overview tab's own "Last N days" range + Create Report/Schedule Report/Download PDF action
- * row - moved here from ReportsOverviewHeader.tsx's own `rightContent` (per direct instruction) so
- * Reports.tsx can render it in the page header's own `headerCustomContent` slot, replacing
- * "Run scan" there - but only while the Overview tab is active; History keeps "Run scan"
- * (RunScanHeaderExtra) as before.
+ * The Overview tab's own "Last N days" range + Create Report/Schedule Report/Download PDF action row.
  */
 const ReportsOverviewActions = ({
 	days,

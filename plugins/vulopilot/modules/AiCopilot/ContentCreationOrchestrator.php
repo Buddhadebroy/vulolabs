@@ -31,8 +31,7 @@ class ContentCreationOrchestrator {
 	);
 
 	/**
-	 * Runs a whitelisted CONTENT_CREATION_ACTIONS entry through the real AIAction
-	 * lifecycle end to end.
+	 * Runs a whitelisted CONTENT_CREATION_ACTIONS entry through the real AIAction lifecycle end to end.
 	 *
 	 * @param array{action_id: string, input: array<string, mixed>} $decision BlogIntake::handle()'s "ready_action" decision.
 	 * @return array{content: string, link: array{url: string, label: string}|null, run_id: int}|\WP_Error

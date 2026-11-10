@@ -43,8 +43,7 @@ class DashboardLayout extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Returns the saved layout, appending widgets added since it was saved and dropping
-	 * ones that no longer exist.
+	 * Returns the saved layout, appending widgets added since it was saved and dropping ones that no longer exist.
 	 *
 	 * @inheritDoc
 	 */
@@ -60,8 +59,7 @@ class DashboardLayout extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Returns the user's saved layout reconciled against Utill::DASHBOARD_WIDGET_IDS: widgets added since
-	 * the last save are appended (enabled), and saved ids that no longer exist are dropped.
+	 * Returns the user's saved layout reconciled against Utill::DASHBOARD_WIDGET_IDS: widgets added since the last save are appended.
 	 *
 	 * @inheritDoc
 	 */

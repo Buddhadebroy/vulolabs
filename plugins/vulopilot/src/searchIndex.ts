@@ -57,8 +57,7 @@ interface ModuleConfig extends BaseConfig {
 	modules?: ModuleItem[];
 }
 
-// Matches templateService.ts's own `Record<string, any>` require.context typing in this same
-// plugin.
+// Matches templateService.ts's own `Record<string, any>` require.context typing in this same plugin.
 function buildIndexFromContext(
 	context: any,
 	category: 'modules' | 'settings'

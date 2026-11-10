@@ -41,8 +41,7 @@ class BackupScheduler {
 	}
 
 	/**
-	 * Reconciles the real scheduled cron event against the real, current
-	 * `enable_automatic_backups`/`backup_frequency` settings.
+	 * Reconciles the real scheduled cron event against the real, current `enable_automatic_backups`/`backup_frequency` settings.
 	 *
 	 * @return void
 	 */

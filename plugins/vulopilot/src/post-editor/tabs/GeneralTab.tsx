@@ -16,25 +16,19 @@ interface GeneralTabProps {
 }
 
 /**
- * The metabox's General tab - focus keyword, SEO title (its own `_vulopilot_seo_title` postmeta,
- * independent of the real `post_title`), meta description (native `post_excerpt`), a live
- * snippet preview.
+ * The metabox's General tab - focus keyword, SEO title.
  */
 export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
 	const { postId, title, excerpt, slug, meta, setExcerpt, setMeta } = usePostData();
 	const { metaKeys, shopUrl } = window.vulopilotPostSeo;
-	// Independent of the real post title (the editor's own Title field/`post_title`) - an empty
-	// override here just means "use the page's own title", same fallback every other SEO plugin's
-	// per-post title field uses.
+	// Independent of the real post title (the editor's own Title field/`post_title`).
 	const seoTitle = ( meta[ metaKeys.seo_title ] as string ) || '';
 	const setSeoTitle = ( value: string ) => setMeta( { [ metaKeys.seo_title ]: value } );
 	const canonicalUrl = ( meta[ metaKeys.canonical_url ] as string ) || '';
 	const noindex = Boolean( meta[ metaKeys.robots_noindex ] );
 	const nofollow = Boolean( meta[ metaKeys.robots_nofollow ] );
 	const isCanonicalHighlighted = useFieldHighlight( highlightTarget, 'canonical_url' );
-	// Stored as one comma-separated string (PostSeoMetaFields::split_keywords()'s own docblock) -
-	// the first is the "primary" keyword every check on the Page Analysis tab scores against,
-	// same primary/additional distinction Rank Math's own focus keyword field uses.
+	// Stored as one comma-separated string (PostSeoMetaFields::split_keywords()'s own docblock).
 	const focusKeywordRaw = ( meta[ window.vulopilotPostSeo.metaKeys.focus_keyword ] as string ) || '';
 	const focusKeywords = focusKeywordRaw
 		.split( ',' )

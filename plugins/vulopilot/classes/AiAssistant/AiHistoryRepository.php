@@ -45,8 +45,7 @@ class AiHistoryRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Success/failure counts, zero-filled - backs the AI Assistant table's status-count
-	 * pill bar (same reasoning as AutomationsRepository::get_status_counts()).
+	 * Success/failure counts, zero-filled - backs the AI Assistant table's status-count pill bar (same reasoning as AutomationsRepository::get_status_counts()).
 	 *
 	 * @return array{success: int, failure: int}
 	 */
@@ -61,8 +60,7 @@ class AiHistoryRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Call counts and real credits spent for one date range - what
-	 * Reports\Types\AiUsageReport's headline summary reads.
+	 * Call counts and real credits spent for one date range - what Reports\Types\AiUsageReport's headline summary reads.
 	 *
 	 * @param string $period_start Y-m-d, inclusive.
 	 * @param string $period_end   Y-m-d, inclusive.
@@ -158,8 +156,7 @@ class AiHistoryRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Real conversation count for History's "Conversations" filter pill -
-	 * same CHAT_SURFACES scope as get_conversations() above.
+	 * Real conversation count for History's "Conversations" filter pill - same CHAT_SURFACES scope as get_conversations() above.
 	 *
 	 * @return int
 	 */

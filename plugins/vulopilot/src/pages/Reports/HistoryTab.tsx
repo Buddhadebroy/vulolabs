@@ -56,8 +56,7 @@ const resolveDateFrom = (preset: DateRangePreset): string | undefined => {
 };
 
 /**
- * RecentActivityWidget.tsx's (Dashboard tab) own "Recent activity" arrow lands here with a real
- * `?vulopilot_history_id=`.
+ * RecentActivityWidget.tsx's (Dashboard tab) own "Recent activity" arrow lands here with a real `?vulopilot_history_id=`.
  */
 const getDeepLinkHistoryId = (): number | null => {
 	const params = new URLSearchParams(
@@ -78,8 +77,7 @@ const EMPTY_TYPE_COUNTS: Record<HistoryFilter, number> = {
 };
 
 /**
- * Reports' History tab - a real, day-grouped activity timeline built from `GET /history`
- * (Controllers/History.php).
+ * Reports' History tab - a real, day-grouped activity timeline built from `GET /history` (Controllers/History.php).
  */
 const HistoryTab = () => {
 	const [activeFilter, setActiveFilter] = useState<HistoryFilter>('all');
@@ -257,8 +255,7 @@ const HistoryTab = () => {
 	};
 
 	/**
-	 * Same real "scroll the right-side detail panel into view" affordance SeoTitlesPanel.tsx's own
-	 * `handleEditRow()`/IssuesList.tsx's row select already establish.
+	 * Same real "scroll the right-side detail panel into view" affordance SeoTitlesPanel.tsx's own `handleEditRow()`/IssuesList.tsx's row select already establish.
 	 */
 	const handleSelectRow = (row: HistoryRow) => {
 		setSelectedRow(row);
@@ -266,8 +263,7 @@ const HistoryTab = () => {
 	};
 
 	/**
-	 * "Related actions (from this conversation)" (HistoryDetailPanel.tsx) jumps to a real 'change'
-	 * row elsewhere in this same timeline.
+	 * "Related actions (from this conversation)" (HistoryDetailPanel.tsx) jumps to a real 'change' row elsewhere in this same timeline.
 	 */
 	const handleSelectRelatedAction = (id: number) => {
 		pendingSelectId.current = id;

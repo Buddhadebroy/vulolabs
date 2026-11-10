@@ -96,9 +96,7 @@ class AuthorSchemaScanner extends ScannerUtil implements TracksScannedObjectsInt
 	}
 
 	/**
-	 * Simple raw-string presence check (nested-safe - a Person reference commonly lives as
-	 * an "author" sub-object of an Article block rather than a standalone top-level type),
-	 * same posture OrganizationSchemaScanner's own check takes.
+	 * Simple raw-string presence check (nested-safe.
 	 *
 	 * @param int $post_id Post to check.
 	 * @return bool

@@ -33,8 +33,7 @@ interface StatWidgetProps {
 }
 
 /**
- * Binds a StatWidgetConfig into a component matching WidgetDefinition's
- * `React.ComponentType<WidgetProps>` shape.
+ * Binds a StatWidgetConfig into a component matching WidgetDefinition's `React.ComponentType<WidgetProps>` shape.
  */
 export const createStatWidgetComponent = (
 	config: StatWidgetConfig

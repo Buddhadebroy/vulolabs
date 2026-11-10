@@ -73,8 +73,7 @@ class GoogleAnalyticsTracker {
 	}
 
 	/**
-	 * Fetches (once, then caches) Google's own real gtag.js for this property and returns
-	 * the local URL to serve it from.
+	 * Fetches (once, then caches) Google's own real gtag.js for this property and returns the local URL to serve it from.
 	 *
 	 * @param string $measurement_id Real GA4 Measurement ID (e.g. "G-XXXXXXX").
 	 * @return string

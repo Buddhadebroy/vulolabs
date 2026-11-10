@@ -79,8 +79,7 @@ const ratingColor = (score: number): string => {
 };
 
 /**
- * `$wpdb`'s own raw row shape - every numeric column comes back as a PHP string once JSON-encoded
- * (confirmed live: `redirect_type: "307"`, not `307`).
+ * `$wpdb`'s own raw row shape - every numeric column comes back as a PHP string once JSON-encoded (confirmed live: `redirect_type: "307"`, not `307`).
  */
 const normalizeRedirectRow = (row: RedirectRow): RedirectRow => ({
 	...row,
@@ -120,8 +119,7 @@ const fetchAllRedirects = async (): Promise<RedirectRow[]> => {
 };
 
 /**
- * A redirect's `target_url` resolved down to a real, comparable path - same-origin check as
- * BrokenLinksSection.tsx's own `deriveSourcePath()`.
+ * A redirect's `target_url` resolved down to a real, comparable path - same-origin check as BrokenLinksSection.tsx's own `deriveSourcePath()`.
  */
 const resolveTargetPath = (targetUrl: string): string | null => {
 	try {

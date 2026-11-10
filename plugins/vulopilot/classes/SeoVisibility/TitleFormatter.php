@@ -80,8 +80,7 @@ class TitleFormatter {
 	}
 
 	/**
-	 * Outputs `meta` on `wp_head`, same setting-gated/context-scoped
-	 * posture as `maybe_filter_title()` above.
+	 * Outputs `meta` on `wp_head`, same setting-gated/context-scoped posture as `maybe_filter_title()` above.
 	 *
 	 * @return void
 	 */
@@ -124,7 +123,7 @@ class TitleFormatter {
 	}
 
 	/**
-	 * Looks up a raw template for one context key - a flat `{$prefix}{$context_key}` settings field for the built-in contexts (home/post/page/category/tag/search/archive), or the matching `{$prefix}post_types`/`{$prefix}taxonomies` map entry for a dynamic `post_type:{slug}`/`taxonomy:{slug}` context key current_context_key() returns for anything else.
+	 * Looks up a raw template for one context key.
 	 *
 	 * @param array<string, mixed> $settings    Effective plugin settings.
 	 * @param string               $prefix      `'title_format_'` or `'description_format_'`.
@@ -247,8 +246,7 @@ class TitleFormatter {
 	}
 
 	/**
-	 * `%post_title%`/`%page_title%`/`%category_title%`/`%tag_title%`/ `%archive_title%`
-	 * all resolve the same way.
+	 * `%post_title%`/`%page_title%`/`%category_title%`/`%tag_title%`/ `%archive_title%` all resolve the same way.
 	 *
 	 * @return string
 	 */

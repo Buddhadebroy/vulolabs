@@ -27,8 +27,7 @@ class LoginProtectionGuard {
 	}
 
 	/**
-	 * Real settings, parsed with defaults - same `wp_parse_args()` shape
-	 * every scanner in this codebase already reads settings with.
+	 * Real settings, parsed with defaults - same `wp_parse_args()` shape every scanner in this codebase already reads settings with.
 	 *
 	 * @return array<string, mixed>
 	 */

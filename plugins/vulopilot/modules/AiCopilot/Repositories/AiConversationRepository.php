@@ -206,8 +206,7 @@ class AiConversationRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Appends to an existing conversation; ownership is checked in the UPDATE's WHERE
-	 * clause to keep this a single query.
+	 * Appends to an existing conversation; ownership is checked in the UPDATE's WHERE clause to keep this a single query.
 	 *
 	 * @param int               $id      vulopilot_ai_conversations.id.
 	 * @param int               $user_id Must match the row's own `user_id`.

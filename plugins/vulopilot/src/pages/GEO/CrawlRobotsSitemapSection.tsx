@@ -61,8 +61,7 @@ interface SitemapRow extends TableRow, SitemapChild {
 }
 
 /**
- * "Blocked Pages", "Robots.txt Issues", and "XML Sitemap Issues" are all registered by
- * modules/Seo/Module.php.
+ * "Blocked Pages", "Robots.txt Issues", and "XML Sitemap Issues" are all registered by modules/Seo/Module.php.
  */
 const isSeoModuleActive = () =>
 	vulopilotAppLocalizer.active_modules?.includes('technical-seo') ?? false;
@@ -164,8 +163,7 @@ export const RobotsTxtEditor = ({ value, onChange, placeholder, readOnly = false
 };
 
 /**
- * "Robots & Sitemap" section of the Crawl & URLs tab: robots.txt analysis and editing, sitemap
- * overview, blocked pages and llms.txt content.
+ * "Robots & Sitemap" section of the Crawl & URLs tab: robots.txt analysis and editing, sitemap overview, blocked pages and llms.txt content.
  */
 const CrawlRobotsSitemapSection = () => {
 	const [robots, setRobots] = useState<RobotsResponse | null>(null);
@@ -188,8 +186,7 @@ const CrawlRobotsSitemapSection = () => {
 	};
 
 	/**
-	 * `refreshEditorContent` gates whether this fetch is allowed to overwrite the editor's local
-	 * `value` state.
+	 * `refreshEditorContent` gates whether this fetch is allowed to overwrite the editor's local `value` state.
 	 */
 	const loadRobots = (refreshEditorContent = true, showLoadingState = true) => {
 		if (showLoadingState) {

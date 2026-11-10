@@ -53,8 +53,7 @@ class SitemapManager {
 	}
 
 	/**
-	 * `sitemap_links_per_page` - 0 or unset falls back to core's own
-	 * default (2000) rather than passing through a nonsensical override.
+	 * `sitemap_links_per_page` - 0 or unset falls back to core's own default (2000) rather than passing through a nonsensical override.
 	 *
 	 * @param int $max_urls Core's own current max-URLs-per-page value.
 	 * @return int
@@ -104,8 +103,7 @@ class SitemapManager {
 	}
 
 	/**
-	 * `sitemap_exclude_posts` - comma-separated post IDs, applied via
-	 * core's own `wp_sitemaps_posts_query_args` filter.
+	 * `sitemap_exclude_posts` - comma-separated post IDs, applied via core's own `wp_sitemaps_posts_query_args` filter.
 	 *
 	 * @param array $args Core's own current WP_Query args for one sitemap page.
 	 * @return array
@@ -124,8 +122,7 @@ class SitemapManager {
 	}
 
 	/**
-	 * `sitemap_exclude_terms` - comma-separated term IDs, applied via
-	 * core's own `wp_sitemaps_taxonomies_query_args` filter.
+	 * `sitemap_exclude_terms` - comma-separated term IDs, applied via core's own `wp_sitemaps_taxonomies_query_args` filter.
 	 *
 	 * @param array $args Core's own current get_terms() args for one sitemap page.
 	 * @return array
@@ -144,8 +141,7 @@ class SitemapManager {
 	}
 
 	/**
-	 * Drops the author (users) sitemap on single-author sites, where the author archive
-	 * only repeats the blog page.
+	 * Drops the author (users) sitemap on single-author sites, where the author archive only repeats the blog page.
 	 *
 	 * @param \WP_Sitemaps_Provider|false $provider Sitemap provider.
 	 * @param string                      $name     Provider name.
@@ -178,8 +174,7 @@ class SitemapManager {
 	}
 
 	/**
-	 * `sitemap_exclude_author_roles`/`sitemap_exclude_author_ids` - applied via core's own
-	 * `wp_sitemaps_users_query_args` filter (the 'users' provider's own get_users() args).
+	 * `sitemap_exclude_author_roles`/`sitemap_exclude_author_ids`.
 	 *
 	 * @param array $args Core's own current get_users() args for one users-sitemap page.
 	 * @return array
@@ -227,8 +222,7 @@ class SitemapManager {
 	}
 
 	/**
-	 * Ids of posts that should not be in the sitemap: noindex posts, posts whose canonical
-	 * points elsewhere, redirected posts and unedited placeholder posts. Cached briefly.
+	 * Ids of posts that should not be in the sitemap: noindex posts, posts whose canonical points elsewhere, redirected posts and unedited placeholder posts.
 	 *
 	 * @return int[]
 	 */

@@ -230,7 +230,7 @@ class Findings extends \WP_REST_Controller {
     );
 
     /**
-     * Fetches `/findings/attention-summary` - real open-findings counts bucketed into 3 priority tiers, the top 3 issue types sitewide (grouped by scanner_id, most severe first), and one top issue per RECOMMENDATION_BUCKETS bucket - every group/recommendation annotated with its scanner's human `get_label()` so the client never has to hardcode a scanner_id => label map.
+     * Fetches `/findings/attention-summary` - real open-findings counts bucketed into 3 priority tiers, the top 3 issue types sitewide.
      *
      * @param \WP_REST_Request $request Full details about the request.
      * @return \WP_REST_Response
@@ -342,7 +342,7 @@ class Findings extends \WP_REST_Controller {
     }
 
     /**
-     * Resolves each row's raw `object_type`/`object_ref` DB columns into a human-readable `page` field the client can display directly (GEO.tsx's compact FindingsTable layout - "$page · Detected $date", the same meta line the dashboard mockup's own FindingRow shows) rather than a bare post ID or the `home_url('/')` placeholder ref sitewide scanners write (see GeoAnalysis\GeoAnalyzer::calculate_deterministic_score()'s own docblock on that placeholder).
+     * Resolves each row's raw `object_type`/`object_ref` DB columns into a human-readable `page` field the client can display directly.
      *
      * @param array<string, mixed> $row One row from FindingRepository::find_all()'s `data`.
      * @return array<string, mixed> Same row, with a `page` key added.
@@ -477,8 +477,7 @@ class Findings extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Backs FindingsTable.tsx's "Snooze" row action (and any other
-	 * registered manual action) via Automations\ManualActionRunner.
+	 * Backs FindingsTable.tsx's "Snooze" row action (and any other registered manual action) via Automations\ManualActionRunner.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error

@@ -136,8 +136,7 @@ class Copilot extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Sends one real chat turn through the AI request sender, grounded with a live site
-	 * snapshot, and acts on its decision.
+	 * Sends one real chat turn through the AI request sender, grounded with a live site snapshot, and acts on its decision.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
@@ -241,8 +240,7 @@ class Copilot extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Saves this turn to a real, reloadable conversation thread
-	 * (`vulopilot_ai_conversations`).
+	 * Saves this turn to a real, reloadable conversation thread (`vulopilot_ai_conversations`).
 	 *
 	 * @param int|null             $conversation_id Client-supplied existing conversation id, or null for a new one.
 	 * @param string               $user_message    This turn's real, full user message - never the context-appended version sent to the AI service.
@@ -299,8 +297,7 @@ class Copilot extends \WP_REST_Controller {
 	}
 
 	/**
-	 * `GET /copilot/conversations` - RecentConversationsCard.tsx's own list of this
-	 * admin's most recent real conversation threads.
+	 * `GET /copilot/conversations` - RecentConversationsCard.tsx's own list of this admin's most recent real conversation threads.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
@@ -318,8 +315,7 @@ class Copilot extends \WP_REST_Controller {
 	}
 
 	/**
-	 * `GET /copilot/conversations/{id}` - one thread's real, full, untruncated turns, read
-	 * back into the composer by useCopilotChat.ts's own loadConversation().
+	 * `GET /copilot/conversations/{id}` - one thread's real, full, untruncated turns, read back into the composer by useCopilotChat.ts's own loadConversation().
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
@@ -342,8 +338,7 @@ class Copilot extends \WP_REST_Controller {
 	}
 
 	/**
-	 * "Auto-applies (with approval)" turned off - describes what would
-	 * have been created instead of creating it.
+	 * "Auto-applies (with approval)" turned off - describes what would have been created instead of creating it.
 	 *
 	 * @param array{action_id: string, input: array<string, mixed>} $decision BlogIntake::handle()'s "ready_action" decision.
 	 * @return string
@@ -408,8 +403,7 @@ class Copilot extends \WP_REST_Controller {
 	}
 
 	/**
-	 * The chat feature's input: the new message, the whole conversation so far, and the site
-	 * data the chat may use - the live snapshot plus anything the user attached.
+	 * The chat feature's input: the new message, the whole conversation so far, and the site data the chat may use.
 	 *
 	 * @param string            $message          The new user message.
 	 * @param array<int, mixed> $raw_history      Client-supplied {role, content} turns, oldest first.

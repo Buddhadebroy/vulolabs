@@ -93,8 +93,7 @@ final class AIResponse {
 	}
 
 	/**
-	 * Returns a copy of this response with different content - used to
-	 * apply sanitization without mutating the original.
+	 * Returns a copy of this response with different content - used to apply sanitization without mutating the original.
 	 *
 	 * @param string $new_content Replacement content.
 	 * @return self

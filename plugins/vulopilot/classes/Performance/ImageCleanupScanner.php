@@ -91,8 +91,7 @@ class ImageCleanupScanner extends ScannerUtil {
 	}
 
 	/**
-	 * Unattached image attachments older than MIN_AGE_DAYS, minus anything currently
-	 * protected (see get_protected_image_ids()).
+	 * Unattached image attachments older than MIN_AGE_DAYS, minus anything currently protected (see get_protected_image_ids()).
 	 *
 	 * @return array<int, int> Attachment ids.
 	 */
@@ -121,8 +120,7 @@ class ImageCleanupScanner extends ScannerUtil {
 	}
 
 	/**
-	 * Image attachment ids that must never be treated as orphaned, even if `post_parent`
-	 * happens to be 0.
+	 * Image attachment ids that must never be treated as orphaned, even if `post_parent` happens to be 0.
 	 *
 	 * @return array<int, int>
 	 */

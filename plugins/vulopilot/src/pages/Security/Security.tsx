@@ -4,8 +4,7 @@ import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import SecurityTab from './SecurityTab';
 
 /**
- * "Security" (WP menu slug `security`) - used to be a tab shell over Security/Site Health/Backups
- * (this page's own former name, "Protect My Site").
+ * "Security" (WP menu slug `security`) - used to be a tab shell over Security/Site Health/Backups (this page's own former name, "Protect My Site").
  */
 const Security = () => {
 	return (

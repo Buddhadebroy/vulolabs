@@ -305,10 +305,7 @@ class AiCreditsConnection {
 	 * @param string      $site_tone  The `site_tone` setting, or ''.
 	 * @param string      $request_id Idempotency key, stable across retries of this one logical request.
 	 * @param string|null $label      Human task name for the site owner's credit history (e.g. 'Write Meta Title').
-	 * @return array{success: true, request_id: string, response: string, credits_used: float, credits_remaining: float, truncated: bool}|\WP_Error
-	 *   WP_Error codes: 'vulopilot_ai_insufficient_credits' (nothing charged yet),
-	 *   'vulopilot_vulocloud_ai_not_configured', 'vulopilot_vulocloud_ai_unreachable'/'_busy' (safe
-	 *   to retry with the same $request_id), or a non-retryable gateway error.
+	 * @return array{success: true, request_id: string, response: string, credits_used: float, credits_remaining: float, truncated: bool}|\WP_Error WP_Error codes: 'vulopilot_ai_insufficient_credits' (nothing charged yet), 'vulopilot_vulocloud_ai_not_configured', 'vulopilot_vulocloud_ai_unreachable'/'_busy' (safe to retry with the same $request_id), or a non-retryable gateway error.
 	 */
 	public function execute( string $feature, string $prompt, string $site_tone, string $request_id, ?string $label = null ) {
 		$body = array(

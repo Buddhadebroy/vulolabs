@@ -61,7 +61,7 @@ class SeoScoreEngine {
 	}
 
 	/**
-	 * Runs every rule against one post's current (possibly live/unsaved) field values. the real stored object (ID, post_type, post_status, attachments).
+	 * Runs every rule against one post's current (possibly live/unsaved) field values.
 	 *
 	 * @param \WP_Post                                                                                    $post          Saved post - used for technical/link/image checks that need
 	 * @param array{title: string, content: string, excerpt: string, slug: string, focus_keyword: string} $live
@@ -143,8 +143,7 @@ class SeoScoreEngine {
 	}
 
 	/**
-	 * Applies the formula: (sum earned / sum applicable weight) × 100, excluding `not_applicable`
-	 * and `unknown` rules from both sums. Rounds only the final displayed score.
+	 * Applies the formula: (sum earned / sum applicable weight) × 100, excluding `not_applicable` and `unknown` rules from both sums.
 	 *
 	 * @param array<int, array<string, mixed>> $results `evaluate()`'s own return value.
 	 * @return array{score: int|null, insufficient_data: bool, coverage_percent: float, applicable_weight: float, earned_points: float, evaluated_count: int, unknown_count: int, not_applicable_count: int, categories: array<string, array{max: int, earned: float, applicable: float}>}
@@ -447,8 +446,7 @@ class SeoScoreEngine {
 	}
 
 	/**
-	 * Rule 3 - URL slug quality (4 pts). Readable, not just numeric/auto-generated, no excessive
-	 * length or repeated separators - does not require exact keyword inclusion (spec).
+	 * Rule 3 - URL slug quality (4 pts).
 	 */
 	private function rule_url_slug( string $slug ): array {
 		if ( '' === $slug ) {
@@ -498,7 +496,6 @@ class SeoScoreEngine {
 
 	/**
 	 * Rule 4 - focus keyword placement (4 pts, split across title/description/opening paragraph).
-	 * not_applicable when no focus keyword is configured (spec: exclude, don't fail).
 	 */
 	private function rule_focus_keyword_placement( string $keyword, string $title, string $excerpt, string $content_text ): array {
 		if ( '' === $keyword ) {
@@ -554,10 +551,7 @@ class SeoScoreEngine {
 	}
 
 	/**
-	 * Rule 5 - heading structure (4 pts). H1 is the theme's own rendered post title, not something
-	 * `post_content` itself should contain - checked for subheadings and basic H2-before-H3 order
-	 * instead of re-litigating whether an H1 exists in content (spec: "do not incorrectly penalize
-	 * a valid theme-generated H1").
+	 * Rule 5 - heading structure (4 pts).
 	 */
 	private function rule_heading_structure( string $content_html ): array {
 		$has_h2 = (bool) preg_match( '/<h2[\s>]/i', $content_html );
@@ -618,10 +612,7 @@ class SeoScoreEngine {
 	}
 
 	/**
-	 * Rule 6 - search intent alignment (3 pts). Judging whether a page actually answers the query
-	 * it targets needs real language understanding this codebase has no built-in capability for
-	 * (no AI call is wired into this engine) - reporting a pass/fail here without one would be
-	 * exactly the fabrication the spec says not to do.
+	 * Rule 6 - search intent alignment (3 pts).
 	 */
 	private function rule_search_intent_alignment(): array {
 		return $this->rule_result(
@@ -641,10 +632,7 @@ class SeoScoreEngine {
 	// ---------------------------------------------------------------------
 
 	/**
-	 * Rule 7 - content usefulness/completeness (8 pts). Whether content "addresses the reader's
-	 * likely question" or "demonstrates appropriate depth for the search intent" needs real
-	 * reading comprehension this engine doesn't have - reported unknown rather than inferred from
-	 * word count alone (spec explicitly: "Do not reward length alone").
+	 * Rule 7 - content usefulness/completeness (8 pts).
 	 */
 	private function rule_content_usefulness(): array {
 		return $this->rule_result(
@@ -660,9 +648,7 @@ class SeoScoreEngine {
 	}
 
 	/**
-	 * Rule 8 - content originality/value (5 pts). Detecting duplication against the rest of the
-	 * web needs a real plagiarism/similarity service this codebase doesn't integrate - reported
-	 * unknown rather than a guess (spec: "Do not claim plagiarism... without sufficient evidence").
+	 * Rule 8 - content originality/value (5 pts).
 	 */
 	private function rule_content_originality(): array {
 		return $this->rule_result(
@@ -678,9 +664,7 @@ class SeoScoreEngine {
 	}
 
 	/**
-	 * Rule 9 - content length (4 pts), graduated against a configurable target (default 1000
-	 * words) rather than Rank Math's own tiers - a short but complete answer should not
-	 * automatically fail (spec), so this is deliberately gentler than a hard cliff.
+	 * Rule 9 - content length (4 pts), graduated against a configurable target.
 	 */
 	private function rule_content_length( int $word_count ): array {
 		$target = self::CONTENT_LENGTH_TARGET_WORDS;
@@ -711,9 +695,7 @@ class SeoScoreEngine {
 	}
 
 	/**
-	 * Rule 10 - readability/paragraph length (4 pts). Specific, deterministic sub-check: no
-	 * editorial `<p>` paragraph exceeds 120 words. Headings/captions/code excluded by only
-	 * scanning `<p>` tag contents.
+	 * Rule 10 - readability/paragraph length (4 pts).
 	 */
 	private function rule_readability_paragraphs( string $content_html ): array {
 		preg_match_all( '/<p[^>]*>(.*?)<\/p>/is', $content_html, $matches );
@@ -762,10 +744,7 @@ class SeoScoreEngine {
 	}
 
 	/**
-	 * Rule 11 - table of contents (2 pts). Detects VuloPilot's own TOC block, common third-party
-	 * TOC plugin output classes, or a list of same-page anchor links near the top of the content.
-	 * not_applicable below the recommendation threshold (default 1200 words) - a short article
-	 * doesn't need one (spec).
+	 * Rule 11 - table of contents (2 pts).
 	 */
 	private function rule_table_of_contents( string $content_html, int $word_count ): array {
 		if ( $word_count < self::TOC_RECOMMEND_WORDS ) {
@@ -813,10 +792,7 @@ class SeoScoreEngine {
 	}
 
 	/**
-	 * Rule 12 - freshness/accuracy (2 pts). Whether facts are current or claims are supportable
-	 * needs real-world verification this engine can't perform, and the spec explicitly forbids
-	 * using the publish/modified date alone as a proxy ("do not reward changing publication dates
-	 * without substantive updates") - reported unknown.
+	 * Rule 12 - freshness/accuracy (2 pts).
 	 */
 	private function rule_freshness(): array {
 		return $this->rule_result(
@@ -836,8 +812,7 @@ class SeoScoreEngine {
 	// ---------------------------------------------------------------------
 
 	/**
-	 * Rule 13 - natural keyword usage (4 pts), scored against density. not_applicable with no
-	 * keyword configured.
+	 * Rule 13 - natural keyword usage (4 pts), scored against density.
 	 */
 	private function rule_natural_keyword_usage( string $keyword, ?float $density ): array {
 		if ( null === $density ) {
@@ -903,10 +878,7 @@ class SeoScoreEngine {
 	}
 
 	/**
-	 * Rule 14 - related terms/topic coverage (5 pts). Judging real semantic topic coverage needs
-	 * an entity/NLP model this engine doesn't have - a keyword-overlap heuristic would be low
-	 * enough confidence to mislead rather than help, so this is reported unknown rather than
-	 * invented (spec: "Do not require an arbitrary list of keywords").
+	 * Rule 14 - related terms/topic coverage (5 pts).
 	 */
 	private function rule_topic_coverage(): array {
 		return $this->rule_result(
@@ -922,8 +894,7 @@ class SeoScoreEngine {
 	}
 
 	/**
-	 * Rule 15 - keyword distribution (2 pts). Splits the content into thirds and checks the
-	 * keyword appears in more than one, so it isn't concentrated entirely in one section.
+	 * Rule 15 - keyword distribution (2 pts).
 	 */
 	private function rule_keyword_distribution( string $keyword, string $content_text ): array {
 		if ( '' === $keyword ) {
@@ -995,8 +966,7 @@ class SeoScoreEngine {
 	}
 
 	/**
-	 * Rule 16 - keyword stuffing (2 pts), distinct threshold from Rule 13's "is density natural"
-	 * - this one only flags egregious, clearly manipulative repetition.
+	 * Rule 16 - keyword stuffing (2 pts), distinct threshold from Rule 13's "is density natural" - this one only flags egregious, clearly manipulative repetition.
 	 */
 	private function rule_keyword_stuffing( string $keyword, ?float $density ): array {
 		if ( null === $density ) {
@@ -1045,8 +1015,7 @@ class SeoScoreEngine {
 	}
 
 	/**
-	 * Rule 17 - duplicate keyword targeting (2 pts). Real DB check against this site's other
-	 * published posts/pages sharing the same focus keyword - deterministic, not a guess.
+	 * Rule 17 - duplicate keyword targeting (2 pts).
 	 */
 	private function rule_duplicate_keyword_targeting( int $post_id, string $keyword ): array {
 		if ( '' === $keyword ) {
@@ -1156,8 +1125,7 @@ class SeoScoreEngine {
 	}
 
 	/**
-	 * Rule 20 - broken links (3 pts). Delegates to `PageTechnicalChecks::check_broken_links()`
-	 * (shared with `Seo::get_page_analysis()`) rather than re-verifying link destinations here.
+	 * Rule 20 - broken links (3 pts).
 	 */
 	private function rule_broken_links( int $post_id ): array {
 		$check = $this->technical->check_broken_links( $post_id );
@@ -1180,9 +1148,7 @@ class SeoScoreEngine {
 	// ---------------------------------------------------------------------
 
 	/**
-	 * Rule 21 - relevant images (3 pts). Can't judge "relevant" without visual/semantic analysis,
-	 * so this only checks presence (featured image or inline) and reports a warning (not a fail)
-	 * when there's none, since a text-only article may legitimately need none (spec).
+	 * Rule 21 - relevant images (3 pts).
 	 */
 	private function rule_relevant_images( \WP_Post $post, array $images ): array {
 		$has_featured = has_post_thumbnail( $post );
@@ -1220,7 +1186,7 @@ class SeoScoreEngine {
 	}
 
 	/**
-	 * Rule 22 - image alt text (4 pts). not_applicable with zero images (spec, explicitly).
+	 * Rule 22 - image alt text (4 pts).
 	 */
 	private function rule_image_alt_text( array $images, string $focus_keyword ): array {
 		if ( empty( $images ) ) {
@@ -1278,9 +1244,7 @@ class SeoScoreEngine {
 	}
 
 	/**
-	 * Rule 23 - image optimization (3 pts). Checks local attachments' file size where the content
-	 * references a real Media Library attachment; remote/external images can't be inspected this
-	 * way and are excluded from the denominator-affecting evidence (not silently passed or failed).
+	 * Rule 23 - image optimization (3 pts).
 	 */
 	private function rule_image_optimization( array $images ): array {
 		if ( empty( $images ) ) {
@@ -1477,8 +1441,7 @@ class SeoScoreEngine {
 	}
 
 	/**
-	 * URL length advisory (section 4 of the spec) - 0 points by design, to avoid double-counting
-	 * with `rule_url_slug()`'s own length consideration.
+	 * URL length advisory (section 4 of the spec) - 0 points by design, to avoid double-counting with `rule_url_slug()`'s own length consideration.
 	 */
 	private function rule_url_length( \WP_Post $post ): array {
 		$url    = (string) get_permalink( $post );

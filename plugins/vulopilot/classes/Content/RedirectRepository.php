@@ -82,7 +82,7 @@ class RedirectRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Finds the active redirect this request path matches - an exact `source_path` row if one exists (the common case, one indexed lookup), otherwise the first active non-exact row (`match_type` of `contains`/`start`/`end`/`regex`) whose own `source_path` pattern matches, checked oldest-created first.
+	 * Finds the active redirect this request path matches.
 	 *
 	 * @param string $requested_path Already-normalized path (see normalize_path()).
 	 * @return array<string, mixed>|null
@@ -138,8 +138,7 @@ class RedirectRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Normalizes a request path (strips the subdirectory prefix, forces a leading slash,
-	 * drops trailing slashes) so redirects and 404 log entries compare equal.
+	 * Normalizes a request path (strips the subdirectory prefix, forces a leading slash, drops trailing slashes) so redirects and 404 log entries compare equal.
 	 *
 	 * @param string $raw_path A raw REQUEST_URI path component (no query string) or a user-typed path.
 	 * @return string

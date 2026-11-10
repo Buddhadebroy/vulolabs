@@ -94,8 +94,7 @@ class BrandIntelligence extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Same weighting Dashboard::calculate_category_score()/
-	 * ContentIntelligence::get_score() already use.
+	 * Same weighting Dashboard::calculate_category_score()/ ContentIntelligence::get_score() already use.
 	 *
 	 * @param array{critical: int, high: int, medium: int, low: int} $breakdown Severity breakdown to score.
 	 * @return int 0-100.

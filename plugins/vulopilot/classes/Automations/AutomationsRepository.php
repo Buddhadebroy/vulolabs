@@ -39,8 +39,7 @@ class AutomationsRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * @return int Count of currently enabled automations - what the
-	 *             dashboard's "active automations" stat card reads.
+	 * @return int Count of currently enabled automations - what the dashboard's "active automations" stat card reads.
 	 */
 	public function count_enabled(): int {
 		global $wpdb;

@@ -247,10 +247,7 @@ class GeoAnalysis extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Optional `scanner_ids` request param (comma-separated) - when present,
-	 * ranks/scores by open findings against that set instead of the
-	 * default `category = geo`. Lets AeoTab.tsx reuse this endpoint with
-	 * its own AEO scanner ids.
+	 * Optional `scanner_ids` request param (comma-separated) - when present, ranks/scores by open findings against that set instead of the default `category = geo`.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return string[] Sanitized scanner ids, empty if the param was absent/empty.
@@ -287,8 +284,7 @@ class GeoAnalysis extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Published posts/pages with no open GEO finding at all, capped to
-	 * MAX_ZERO_FINDING_FILL.
+	 * Published posts/pages with no open GEO finding at all, capped to MAX_ZERO_FINDING_FILL.
 	 *
 	 * @param int[] $exclude_post_ids Post ids already counted (have at least one open finding), skip these.
 	 * @return int[]

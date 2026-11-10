@@ -88,8 +88,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 	const [period, setPeriod] = useState<PeriodDays>('30');
 
 	/**
-	 * Real objects only - `getApiResponse` (zyra) hands back whatever axios parsed `response.data`
-	 * into.
+	 * Real objects only - `getApiResponse` (zyra) hands back whatever axios parsed `response.data` into.
 	 */
 	const isPlainObject = (value: unknown): value is Record<string, unknown> =>
 		null !== value && 'object' === typeof value && !Array.isArray(value);

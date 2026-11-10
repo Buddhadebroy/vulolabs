@@ -24,7 +24,7 @@ interface GeoAeoPageAnalysisPanelProps {
 	onClose: () => void;
 }
 
-/** Same real severity→badge class convention `SeoSiteWideIssuesTable.tsx`'s/`IssuesList.tsx`'s own `titleBadges` already use (`badge-critical`/`badge-high`/…, real CSS classes already shipped for that exact convention) - reused here directly rather than a third copy of a severity→color map. */
+/** Same real severity→badge class convention `SeoSiteWideIssuesTable.tsx`'s/`IssuesList.tsx`'s own `titleBadges` already use. */
 const severityBadgeColor = (severity: FindingSeverity): string => `badge-${severity}`;
 
 /**
@@ -39,8 +39,7 @@ const SEVERITY_ICON: Record<FindingSeverity, string> = {
 };
 
 /**
- * Same real navigate-and-highlight deep link `SeoIssuesByPageTable.tsx`'s own
- * `buildFixWithAiLink()` already establishes.
+ * Same real navigate-and-highlight deep link `SeoIssuesByPageTable.tsx`'s own `buildFixWithAiLink()` already establishes.
  */
 const buildFixWithAiLink = (editLink: string, finding: RawFinding): string =>
 	getEditorTargetForScanner(finding.scanner_id)

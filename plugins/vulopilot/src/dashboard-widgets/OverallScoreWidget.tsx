@@ -49,8 +49,7 @@ const GLANCE_ROWS: GlanceRow[] = [
 ];
 
 /**
- * "Vital Pulse" - the Dashboard's hero status ring: one real 0-100 `overall_score`, colored by its
- * own real rating band via `ratingColorFor()`.
+ * "Vital Pulse" - the Dashboard's hero status ring: one real 0-100 `overall_score`, colored by its own real rating band via `ratingColorFor()`.
  */
 export const getRating = (score: number): string => {
 	if (score >= 90) {

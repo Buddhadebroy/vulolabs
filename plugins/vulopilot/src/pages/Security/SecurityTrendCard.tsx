@@ -25,8 +25,7 @@ const PERIOD_OPTIONS = [
 ];
 
 /**
- * `days` is a real 7/30/90 toggle now (same `PERIOD_OPTIONS`/`ToggleInput` shape
- * GeoScoreSection.tsx's own card action already uses).
+ * `days` is a real 7/30/90 toggle now (same `PERIOD_OPTIONS`/`ToggleInput` shape GeoScoreSection.tsx's own card action already uses).
  */
 const SecurityTrendCard = () => {
 	const [period, setPeriod] = useState<PeriodDays>('30');

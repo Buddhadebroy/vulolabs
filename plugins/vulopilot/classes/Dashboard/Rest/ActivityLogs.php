@@ -66,8 +66,7 @@ class ActivityLogs extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Parses a comma-separated list of event types with `sanitize_text_field()`, because
-	 * `sanitize_key()` strips the dots in values like `scan.completed`.
+	 * Parses a comma-separated list of event types with `sanitize_text_field()`, because `sanitize_key()` strips the dots in values like `scan.completed`.
 	 *
 	 * @param mixed $raw_param Raw comma-separated request param.
 	 * @return string[]|null Sanitized values, or null when the param was empty/absent.

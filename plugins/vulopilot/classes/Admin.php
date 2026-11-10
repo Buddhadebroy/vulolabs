@@ -43,10 +43,7 @@ class Admin {
 	}
 
 	/**
-	 * Consumes `activate()`'s one-shot `vulopilot_activation_redirect` flag: redirects straight to
-	 * the Migration setup wizard, but only when there's real migratable data waiting (a Rank
-	 * Math/Yoast/AIOSEO install) - no point interrupting a fresh install's first admin page load
-	 * with a migration wizard that would find nothing to do.
+	 * Consumes `activate()`'s one-shot `vulopilot_activation_redirect` flag: redirects straight to the Migration setup wizard, but only when there's real migratable data waiting (a Rank Math/Yoast/AIOSEO install) - no point interrupting a fresh install's first admin page load with a migration wizard that would find nothing to do.
 	 *
 	 * @return void
 	 */
@@ -240,8 +237,7 @@ class Admin {
 	}
 
 	/**
-	 * Scrolls to and briefly highlights WP core's own "Email" field on its native user-
-	 * edit.php screen when linked here with `?highlight=email`.
+	 * Scrolls to and briefly highlights WP core's own "Email" field on its native user- edit.php screen when linked here with `?highlight=email`.
 	 */
 	public function enqueue_user_edit_highlight_script() {
 		$screen = get_current_screen();
@@ -271,8 +267,7 @@ class Admin {
 	}
 
 	/**
-	 * Grafts a grouped/collapsible look onto the native `#toplevel_page_vulopilot` admin
-	 * menu.
+	 * Grafts a grouped/collapsible look onto the native `#toplevel_page_vulopilot` admin menu.
 	 *
 	 * @return void
 	 */

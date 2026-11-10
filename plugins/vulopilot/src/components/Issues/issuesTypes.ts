@@ -148,9 +148,7 @@ export const formatAffected = (count: number, objectType: string | null): string
 	`${count} ${getObjectTypeNoun(count, objectType)}`;
 
 /**
- * A single scanner_id can report several unrelated finding groups - this is the real unique
- * group identity (`scanner_id, category, object_type`), used instead of bare `scanner_id` for
- * every row-selection/table-row id in this plugin's issue tables.
+ * A single scanner_id can report several unrelated finding groups.
  */
 export const groupKey = (
 	group: Pick<FindingGroup, 'scanner_id' | 'object_type'>

@@ -110,13 +110,11 @@ class ActionRunner {
 	}
 
 	/**
-	 * Gets the AI completion for a proposed action: the AI-service feature of a
-	 * CloudAIActionInterface action, the action's own prompt otherwise (third-party actions).
+	 * Gets the AI completion for a proposed action: the AI-service feature of a CloudAIActionInterface action, the action's own prompt otherwise.
 	 *
 	 * @param \VuloPilot\Utill\AIActionInterface $action Resolved action instance.
 	 * @param array                              $input  Normalized input.
 	 * @return AIResponse
-	 *
 	 * @throws VuloPilotException If credits can't cover the request, or the AI request fails.
 	 * @throws \RuntimeException  If no AI connection is configured.
 	 */
@@ -159,11 +157,8 @@ class ActionRunner {
 	 * Applies a previously proposed, still-pending action.
 	 *
 	 * @param int    $run_id A propose()-returned run_id.
-	 * @param string $method 'manual', 'auto_automation', or 'auto_unattended'. For the
-	 *                       latter two, `approved_by` is left null since no human was
-	 *                       involved, and the exact method is persisted for History.
+	 * @param string $method 'manual', 'auto_automation', or 'auto_unattended'.
 	 * @return array<string, mixed> ActionExecutionResult::to_array().
-	 *
 	 * @throws \RuntimeException If $run_id doesn't exist or isn't pending approval.
 	 */
 	public function approve( int $run_id, string $method = 'manual' ): array {

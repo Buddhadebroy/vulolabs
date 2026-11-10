@@ -68,8 +68,7 @@ export const formatWpDate = (value?: string | null): string => {
 };
 
 /**
- * Same Settings → General → Date Format, for a calendar-day-only value (`Y-m-d`, e.g. a daily
- * snapshot's `snapshot_date` or a chart's x-axis `date`).
+ * Same Settings → General → Date Format, for a calendar-day-only value (`Y-m-d`, e.g. a daily snapshot's `snapshot_date` or a chart's x-axis `date`).
  */
 export const formatWpDay = (value?: string | null): string => {
 	if (!value) {
@@ -95,8 +94,7 @@ export const formatWpTime = (value?: string | null): string => {
 };
 
 /**
- * This site's own current wall-clock date/time (Settings → General → Timezone), for comparisons
- * like "is this timestamp today".
+ * This site's own current wall-clock date/time (Settings → General → Timezone), for comparisons like "is this timestamp today".
  */
 export const wpNow = (): Date =>
 	new Date(Date.now() + (vulopilotAppLocalizer.gmt_offset_minutes ?? 0) * 60000);

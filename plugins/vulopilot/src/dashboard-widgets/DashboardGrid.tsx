@@ -31,8 +31,7 @@ const WIDGETS_BY_ID = new Map(
 );
 
 /**
- * Drag-and-drop widget grid: loads the user's saved layout, renders enabled widgets in order and
- * saves a new order on drag.
+ * Drag-and-drop widget grid: loads the user's saved layout, renders enabled widgets in order and saves a new order on drag.
  */
 const DashboardGrid: React.FC<DashboardGridProps> = ({
 	summary,

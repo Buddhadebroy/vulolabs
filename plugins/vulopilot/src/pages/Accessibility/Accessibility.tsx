@@ -120,8 +120,7 @@ const AccessibilityHistoryDummy = () => {
 };
 
 /**
- * "Accessibility" top-level page (WP menu slug `accessibility`, `classes/Admin.php`'s
- * `$submenus`).
+ * "Accessibility" top-level page (WP menu slug `accessibility`, `classes/Admin.php`'s `$submenus`).
  */
 const Accessibility = () => {
 	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');

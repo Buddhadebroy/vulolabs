@@ -156,19 +156,7 @@ class YoastSeoMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * Yoast's File Editor tool (`admin/views/tool-file-editor.php`) writes straight to the real
-	 * `robots.txt` file at the site root (`fopen()`/`fwrite()`) - there is no `wpseo_*` option
-	 * holding this content, unlike Rank Math's `robots_txt_content`. So this reads that real file
-	 * (if one exists) and copies its content into VuloPilot's own override
-	 * (`RobotsTxtManager::save_custom_content()`).
-	 *
-	 * Important: while that physical file still exists, WordPress's entire virtual robots.txt
-	 * system never runs for this request at all - the webserver serves the static file directly,
-	 * bypassing every plugin's `robots_txt` filter, VuloPilot's own included. So copying the
-	 * content alone isn't enough to make VuloPilot's version take effect; this is reported back
-	 * as an error/warning entry telling the admin the physical file still needs removing, rather
-	 * than deleting it here automatically (a filesystem delete is too destructive to do silently
-	 * inside a background migration step).
+	 * Yoast's File Editor tool (`admin/views/tool-file-editor.php`) writes straight to the real `robots.txt` file at the site root.
 	 *
 	 * @param bool  $overwrite Passed through from migrate().
 	 * @param int   $migrated  Running total, by reference.
@@ -200,8 +188,7 @@ class YoastSeoMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * @return string The real `robots.txt` file's content at the site root, or '' if none exists
-	 *                 or it can't be read.
+	 * @return string The real `robots.txt` file's content at the site root, or '' if none exists or it can't be read.
 	 */
 	private function read_physical_robots_txt(): string {
 		$path = trailingslashit( ABSPATH ) . 'robots.txt';
@@ -271,9 +258,7 @@ class YoastSeoMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * Yoast's own legacy `linkdex`/`content_score` postmeta into VuloPilot's `ContentScore`
-	 * JSON shape, written directly as postmeta - same convention every other per-post field in
-	 * this migrator follows.
+	 * Yoast's own legacy `linkdex`/`content_score` postmeta into VuloPilot's `ContentScore` JSON shape, written directly as postmeta.
 	 *
 	 * @param int  $post_id   Post id.
 	 * @param bool $overwrite Passed through from migrate().
@@ -488,11 +473,7 @@ class YoastSeoMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * Every post type's/taxonomy's own dynamic `title-{slug}`/`metadesc-{slug}`/
-	 * `title-tax-{slug}`/`metadesc-tax-{slug}` key - unlike Rank Math, Yoast gives post/page and
-	 * category/post_tag no separate fixed field, so even those built-in contexts go through this
-	 * same dynamic path; 'post'/'page'/'category'/'post_tag' route to VuloPilot's own flat
-	 * fields, everything else into the `title_format_post_types`/`title_format_taxonomies` maps.
+	 * Every post type's/taxonomy's own dynamic `title-{slug}`/`metadesc-{slug}`/ `title-tax-{slug}`/`metadesc-tax-{slug}` key.
 	 *
 	 * @param array $values Field values being built, by reference.
 	 * @param array $titles The raw `wpseo_titles` option.
@@ -573,9 +554,7 @@ class YoastSeoMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * Yoast's Knowledge Graph identity (`company_or_person`/`company_name`/`person_name`/
-	 * `company_logo_id`/`website_name`) into the same `entity_business_*` fields
-	 * RankMathSettingsMigrator's own `knowledgegraph_type` mapping writes into.
+	 * Yoast's Knowledge Graph identity (`company_or_person`/`company_name`/`person_name`/ `company_logo_id`/`website_name`) into the same `entity_business_*` fields RankMathSettingsMigrator's own `knowledgegraph_type` mapping writes into.
 	 *
 	 * @param array $values Field values being built, by reference.
 	 * @param array $titles The raw `wpseo_titles` option.
@@ -605,14 +584,10 @@ class YoastSeoMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * Yoast's `%%variable%%` template syntax into VuloPilot's `%variable%` one - only the tokens
-	 * TitleFormatter actually resolves; anything else (`%%focuskw%%`, `%%excerpt%%`, `%%page%%`,
-	 * ...) is dropped rather than left as literal, unresolved `%%...%%` text in a migrated title.
+	 * Yoast's `%%variable%%` template syntax into VuloPilot's `%variable%` one.
 	 *
 	 * @param string $template Raw Yoast template.
-	 * @param string $context  `'author'` for `title-author-wpseo`/`metadesc-author-wpseo`
-	 *                         (its own `%%name%%` token means the author's display name, not
-	 *                         `%post_title%` like every other context); `'default'` otherwise.
+	 * @param string $context  `'author'` for `title-author-wpseo`/`metadesc-author-wpseo`.
 	 * @return string
 	 */
 	private function translate_yoast_template( string $template, string $context = 'default' ): string {

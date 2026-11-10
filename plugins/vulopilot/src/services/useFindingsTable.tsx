@@ -108,8 +108,7 @@ export interface UseFindingsTableResult {
 }
 
 /**
- * Shared findings-list logic - the Health, SEO, GEO, and WooCommerce pages are all
- * "vulopilot_scan_findings filtered to a category".
+ * Shared findings-list logic - the Health, SEO, GEO, and WooCommerce pages are all "vulopilot_scan_findings filtered to a category".
  */
 export const useFindingsTable = ({
 	category,

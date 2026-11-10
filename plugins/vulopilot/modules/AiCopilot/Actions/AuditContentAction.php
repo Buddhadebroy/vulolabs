@@ -44,8 +44,7 @@ class AuditContentAction extends AbstractCloudAction {
 	}
 
 	/**
-	 * Impact::LOW - writes only a narrow postmeta verdict; never touches
-	 * `post_content`/`post_title` or any other real post field.
+	 * Impact::LOW - writes only a narrow postmeta verdict; never touches `post_content`/`post_title` or any other real post field.
 	 *
 	 * @inheritDoc
 	 */

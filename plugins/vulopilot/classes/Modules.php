@@ -67,8 +67,7 @@ class Modules {
 	}
 
 	/**
-	 * Scans every registered module source directory for a `{Folder}/Module.php` and
-	 * indexes what it finds.
+	 * Scans every registered module source directory for a `{Folder}/Module.php` and indexes what it finds.
 	 *
 	 * @return array
 	 */
@@ -126,9 +125,7 @@ class Modules {
 	}
 
 	/**
-	 * @return array Active module ids - from the in-request cache once
-	 *               load_active_modules() has run, otherwise straight from
-	 *               the stored option.
+	 * @return array Active module ids - from the in-request cache once load_active_modules() has run, otherwise straight from the stored option.
 	 */
 	public function get_active_modules() {
 		if ( $this->active_modules ) {
@@ -193,9 +190,7 @@ class Modules {
 
 	/**
 	 * @param array $module One get_all_modules() entry.
-	 * @return bool False if the module's file vanished, or its own static
-	 *              `is_compatible()` (optional
-	 *              gate) says no.
+	 * @return bool False if the module's file vanished, or its own static `is_compatible()` (optional gate) says no.
 	 */
 	private function is_module_available( $module ) {
 		if ( ! file_exists( $module['module_file'] ) ) {

@@ -45,8 +45,7 @@ class ExtensionManager {
 	}
 
 	/**
-	 * Instantiates every registered extension class, gates each on
-	 * VersionGuard::meets_minimum(), and calls register() on the ones that pass.
+	 * Instantiates every registered extension class, gates each on VersionGuard::meets_minimum(), and calls register() on the ones that pass.
 	 *
 	 * @return void
 	 */

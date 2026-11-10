@@ -210,8 +210,7 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 	const structureCheck = data?.structure ?? null;
 
 	/**
-	 * Same `post.php?post={id}&action=edit&vulopilot_seo_issue={scannerId}` shape
-	 * `SeoIssuesByPageTable.tsx`/`GEO/PageAnalysisPanel.tsx` build.
+	 * Same `post.php?post={id}&action=edit&vulopilot_seo_issue={scannerId}` shape `SeoIssuesByPageTable.tsx`/`GEO/PageAnalysisPanel.tsx` build.
 	 */
 	const goToCheckInEditor = (checkId: string) => {
 		if (!editLink) {

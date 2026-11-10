@@ -84,8 +84,7 @@ const Settings = () => {
 			(field: { key: string }) => field.key
 		);
 
-		// zyra runs a pro field's own change handler before its pro-lock check, so a locked
-		// "Add" button still changes the value; drop those updates while the feature isn't unlocked.
+		// zyra runs a pro field's own change handler before its pro-lock check, so a locked "Add" button still changes the value.
 		const guardedUpdateSetting = (key: string, value: unknown) => {
 			const field = (settingModal?.modal ?? []).find(
 				(f: { key: string; proSetting?: boolean }) => f.key === key

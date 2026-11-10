@@ -30,8 +30,7 @@ abstract class AbstractBasicAction implements AIActionInterface {
 	}
 
 	/**
-	 * Impact::MEDIUM, a cautious default: most actions rewrite part of an existing post's
-	 * content.
+	 * Impact::MEDIUM, a cautious default: most actions rewrite part of an existing post's content.
 	 *
 	 * @inheritDoc
 	 */

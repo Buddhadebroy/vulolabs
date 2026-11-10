@@ -58,8 +58,7 @@ class BuiltinAutomationSeeder {
 	}
 
 	/**
-	 * Runs on every request (cheap no-op after the first, via SEEDED_OPTION) rather than
-	 * only on activation.
+	 * Runs on every request (cheap no-op after the first, via SEEDED_OPTION) rather than only on activation.
 	 *
 	 * @return void
 	 */

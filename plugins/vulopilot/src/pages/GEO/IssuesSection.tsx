@@ -131,8 +131,7 @@ interface IssuesSectionProps {
 }
 
 /**
- * Generalized from what used to be `SeoIssuesSection.tsx` (now inlined as a thin SEO-defaults
- * usage directly in SeoTab.tsx, its only consumer).
+ * Generalized from what used to be `SeoIssuesSection.tsx` (now inlined as a thin SEO-defaults usage directly in SeoTab.tsx, its only consumer).
  */
 const IssuesSection = ({
 	scannerIds,

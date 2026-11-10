@@ -64,8 +64,7 @@ const buildCheckEditLink = (postId: number, checkKey: string): string =>
 	`${buildEditLink(postId)}&${PAGE_ANALYSIS_CHECK_QUERY_PARAM}=${encodeURIComponent(checkKey)}`;
 
 /**
- * "Page Analysis" (SEO & Visibility → SEO's own "Pages & Posts" table, a new "Analyze" row
- * action).
+ * "Page Analysis" (SEO & Visibility → SEO's own "Pages & Posts" table, a new "Analyze" row action).
  */
 const PageAnalysisPanel = ({ postId }: PageAnalysisPanelProps) => {
 	const [data, setData] = useState<PageAnalysisResponse | null>(null);

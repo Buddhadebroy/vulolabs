@@ -109,8 +109,7 @@ class Schema extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Falls back to a fresh analyze() the first time this is called, so the card never needs a
-	 * manual "Run scan" click before it shows anything.
+	 * Falls back to a fresh analyze() the first time this is called, so the card never needs a manual "Run scan" click before it shows anything.
 	 *
 	 * @return \WP_REST_Response
 	 */
@@ -128,8 +127,7 @@ class Schema extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Inspector section's "Inspect a specific page" - resolves either a given `url` or a
-	 * `post_id`'s real permalink.
+	 * Inspector section's "Inspect a specific page" - resolves either a given `url` or a `post_id`'s real permalink.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
@@ -157,8 +155,7 @@ class Schema extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real posts/pages/products the Inspector's own page-picker dropdown offers
-	 * (InspectorSection.tsx).
+	 * Real posts/pages/products the Inspector's own page-picker dropdown offers (InspectorSection.tsx).
 	 *
 	 * @return \WP_REST_Response
 	 */

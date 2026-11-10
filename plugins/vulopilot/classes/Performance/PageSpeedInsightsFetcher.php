@@ -91,8 +91,7 @@ class PageSpeedInsightsFetcher {
 	}
 
 	/**
-	 * Settings → Connections → PageSpeed Insights' own "Test Connection" button - the one
-	 * place besides the daily cron that ever calls Google's real API.
+	 * Settings → Connections → PageSpeed Insights' own "Test Connection" button - the one place besides the daily cron that ever calls Google's real API.
 	 *
 	 * @return array{success: bool, message: string, mobile: int|null, desktop: int|null}
 	 */
@@ -149,8 +148,7 @@ class PageSpeedInsightsFetcher {
 	}
 
 	/**
-	 * Settings → Connections → PageSpeed Insights' own on-load state - the real
-	 * "Connected"/"Not Connected" pill and "Daily API Usage" bar.
+	 * Settings → Connections → PageSpeed Insights' own on-load state - the real "Connected"/"Not Connected" pill and "Daily API Usage" bar.
 	 *
 	 * @return array{connected: bool, mobile: int|null, desktop: int|null, checked_at: string|null, requests_today: int, daily_limit: int}
 	 */
@@ -170,8 +168,7 @@ class PageSpeedInsightsFetcher {
 	}
 
 	/**
-	 * Real daily request counter behind "Daily API Usage" - rolls over the moment the
-	 * stored date no longer matches today's.
+	 * Real daily request counter behind "Daily API Usage" - rolls over the moment the stored date no longer matches today's.
 	 *
 	 * @return void
 	 */

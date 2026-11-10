@@ -114,9 +114,9 @@ const SitemapPanel = () => {
 		{ label: __('SEO Titles', 'vulopilot'), value: 'seo_title' },
 	];
 
-	/** Single-option `look="toggle"` switch, as in DeveloperToolsPanel.tsx and
-	 * EnableAutomationModuleAction.tsx. Wrapped in `FormGroupComponent` because the toggle look swallows
-	 * `MultiCheckboxInput`'s own `option.label`. */
+	/**
+	 * Single-option `look="toggle"` switch, as in DeveloperToolsPanel.tsx and EnableAutomationModuleAction.tsx.
+	 */
 	const renderToggle = (key: string, label: string, desc?: string) => (
 		<FormGroupComponent row label={label} desc={desc}>
 			<MultiCheckboxInput

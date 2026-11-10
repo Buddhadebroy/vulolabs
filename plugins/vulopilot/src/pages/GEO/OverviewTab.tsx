@@ -201,8 +201,7 @@ const QUICK_LINKS: { tab: string; icon: string; title: string; desc: string }[] 
 ];
 
 /**
- * "SEO & Visibility" Overview tab: score cards, trend, breakdown, opportunities, activity and
- * quick links.
+ * "SEO & Visibility" Overview tab: score cards, trend, breakdown, opportunities, activity and quick links.
  */
 const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 	const { score, isLoading } = useVisibilityScore();

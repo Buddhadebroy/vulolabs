@@ -34,8 +34,7 @@ export interface SectionStatusBadge {
 export type SectionStatusBadges = SectionStatusBadge[] | null;
 
 /**
- * "3 Open · 1 High Severity"-style summary for a section card's title (CardComponent's own
- * `badges` prop - same `admin-badge` tag styling every other badge in this app already uses).
+ * "3 Open · 1 High Severity"-style summary for a section card's title.
  */
 export const useSectionStatus = (
 	category: string,

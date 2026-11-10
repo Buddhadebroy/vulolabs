@@ -46,10 +46,7 @@ interface CommerceIssuesTableProps {
 }
 
 /**
- * "All WooCommerce Issues" - a real category-tab bar over a real grouped-findings table +
- * detail panel, same table+detail pattern `IssuesList.tsx`/`SectionedIssuesTable.tsx` already use
- * elsewhere for `GET /findings/groups` data, instead of the bare info popup `useFindingsTable.tsx`
- * gives its own flat `GET /findings` rows.
+ * "All WooCommerce Issues" - a real category-tab bar over a real grouped-findings table + detail panel, same table+detail pattern `IssuesList.tsx`/`SectionedIssuesTable.tsx` already use elsewhere for `GET /findings/groups` data, instead of the bare info popup `useFindingsTable.tsx` gives its own flat `GET /findings` rows.
  */
 const CommerceIssuesTable = ({
 	groups,

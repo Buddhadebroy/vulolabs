@@ -124,9 +124,7 @@ const getTemplateData = (type: 'settings'): SettingNode[] => {
 };
 
 /**
- * The Modules page's metadata catalog - mirrors the free vulolabs plugin's own `getModuleData()`
- * exactly (a plain `require()`, not a `require.context`, since there's exactly one file to load,
- * not a folder of them).
+ * The Modules page's metadata catalog - mirrors the free vulolabs plugin's own `getModuleData()` exactly.
  */
 const getModuleData = () => {
 	try {

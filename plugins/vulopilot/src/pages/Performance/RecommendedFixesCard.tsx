@@ -31,8 +31,7 @@ const FIX_BY_KEYWORD: { keyword: string; actionId: string; icon: string; label: 
 ];
 
 /**
- * "Recommended Fixes" - real, one-click actions tied to what this site's own Slow Pages scan
- * actually found.
+ * "Recommended Fixes" - real, one-click actions tied to what this site's own Slow Pages scan actually found.
  */
 const RecommendedFixesCard = ({ topIssues }: { topIssues: PageSpeedIssue[] }) => {
 	const [runningActionId, setRunningActionId] = useState<string | null>(null);

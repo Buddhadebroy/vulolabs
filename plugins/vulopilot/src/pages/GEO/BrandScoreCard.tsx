@@ -86,8 +86,7 @@ const SCORE_TILES: {
 ];
 
 /**
- * Brand Visibility page's own score cards - `GET /brand-intelligence/score` (BrandIntelligence,
- * Free - deterministic, no AI call).
+ * Brand Visibility page's own score cards - `GET /brand-intelligence/score` (BrandIntelligence, Free - deterministic, no AI call).
  */
 const BrandScoreCard = () => {
 	const [data, setData] = useState<BrandScoreResponse | null>(null);

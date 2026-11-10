@@ -200,9 +200,7 @@ const CWV_METRICS = [
 ];
 
 /**
- * Real Google CrUX field-data dots - one per metric, gray/"unknown" when that metric has no real
- * field data for this page (common for low-traffic pages; CrUX only reports once enough real
- * visits exist).
+ * Real Google CrUX field-data dots - one per metric, gray/"unknown" when that metric has no real field data for this page.
  */
 const CoreWebVitalsDots = ({ row }: { row: PageSpeedRow }) => (
 	<div className="page-speed-cwv-dots">
@@ -231,8 +229,7 @@ const CoreWebVitalsDots = ({ row }: { row: PageSpeedRow }) => (
 const csvEscape = (value: string): string => `"${value.replace(/"/g, '""')}"`;
 
 /**
- * "Slow Pages" tab of "Performance" - real per-page speed data from `GET /page-speed`
- * (PageSpeedRepository, populated in the background by Services\PageSpeedScanner).
+ * "Slow Pages" tab of "Performance" - real per-page speed data from `GET /page-speed`.
  */
 const SlowPagesTab = () => {
 	const [response, setResponse] = useState<PageSpeedResponse | null>(null);

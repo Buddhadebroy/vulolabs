@@ -19,8 +19,7 @@ class ConnectBrokerCallbackHandler {
 	}
 
 	/**
-	 * Verifies the real `state` nonce, exchanges the real `code` for a ConnectedSite
-	 * credential (AiCreditsConnection::exchange_broker_code()).
+	 * Verifies the real `state` nonce, exchanges the real `code` for a ConnectedSite credential (AiCreditsConnection::exchange_broker_code()).
 	 *
 	 * @return void
 	 */

@@ -19,8 +19,7 @@ export interface CopilotTurnBubbleProps {
 }
 
 /**
- * The standard `CopilotChatTurn` bubble - sent attachments (inline thumbnail or file chip), real
- * Markdown.
+ * The standard `CopilotChatTurn` bubble - sent attachments (inline thumbnail or file chip), real Markdown.
  */
 const CopilotTurnBubble: React.FC<CopilotTurnBubbleProps> = ({
 	turn,

@@ -19,8 +19,7 @@ interface AccessibilityChecksGridProps {
 }
 
 /**
- * The mockup's "Accessibility Checks" 5-tile grid, plus a real 6th "All Checks" tile combining the
- * other 5.
+ * The mockup's "Accessibility Checks" 5-tile grid, plus a real 6th "All Checks" tile combining the other 5.
  */
 const AccessibilityChecksGrid = ({ onReview }: AccessibilityChecksGridProps) => {
 	const pageStructure = useApiList<AccessibilityFinding>('findings', {

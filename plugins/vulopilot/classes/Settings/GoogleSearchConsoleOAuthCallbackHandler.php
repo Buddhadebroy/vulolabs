@@ -19,8 +19,7 @@ class GoogleSearchConsoleOAuthCallbackHandler {
 	}
 
 	/**
-	 * Verifies the `state` nonce, exchanges the `code` for tokens, then redirects back to
-	 * the tab that started the connection with a success or error flag.
+	 * Verifies the `state` nonce, exchanges the `code` for tokens, then redirects back to the tab that started the connection with a success or error flag.
 	 *
 	 * @return void
 	 */

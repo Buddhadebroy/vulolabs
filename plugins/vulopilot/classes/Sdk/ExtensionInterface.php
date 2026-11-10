@@ -37,8 +37,7 @@ interface ExtensionInterface {
 	public function get_minimum_vulopilot_version(): string;
 
 	/**
-	 * Called once, only after ExtensionManager has confirmed
-	 * get_minimum_vulopilot_version() is satisfied by the running core version.
+	 * Called once, only after ExtensionManager has confirmed get_minimum_vulopilot_version() is satisfied by the running core version.
 	 *
 	 * @return void
 	 */

@@ -31,8 +31,7 @@ class ScanRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Scan-run counts by status for one date range - what
-	 * Reports\Types\ScanSummaryReport's headline summary reads.
+	 * Scan-run counts by status for one date range - what Reports\Types\ScanSummaryReport's headline summary reads.
 	 *
 	 * @param string $period_start Y-m-d, inclusive.
 	 * @param string $period_end   Y-m-d, inclusive.
@@ -64,8 +63,7 @@ class ScanRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Most recent successfully-finished `vulopilot_scans` row for any of the given scanner
-	 * ids.
+	 * Most recent successfully-finished `vulopilot_scans` row for any of the given scanner ids.
 	 *
 	 * @param string[] $scanner_ids e.g. array( 'broken-links', 'broken-images' ).
 	 * @return array{duration_ms: int, finished_at: int}|null Null when neither scanner has ever completed a run.

@@ -71,8 +71,7 @@ class WebmasterToolsManager {
 	}
 
 	/**
-	 * Rebuilds `webmaster_custom_tags` from scratch as safe `meta` tags only - never
-	 * echoes the admin's raw input string.
+	 * Rebuilds `webmaster_custom_tags` from scratch as safe `meta` tags only - never echoes the admin's raw input string.
 	 *
 	 * @param string $raw Raw admin-entered textarea content.
 	 * @return string Rebuilt, safe `meta` tags only.
@@ -104,8 +103,7 @@ class WebmasterToolsManager {
 	}
 
 	/**
-	 * Parses `name="x" content="y"`-style attribute pairs out of one matched `meta`
-	 * tag's inner attribute string.
+	 * Parses `name="x" content="y"`-style attribute pairs out of one matched `meta` tag's inner attribute string.
 	 *
 	 * @param string $attributes_string Raw attribute text between `<meta` and `/>`.
 	 * @return array<string, string>

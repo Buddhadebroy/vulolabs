@@ -23,8 +23,6 @@ interface AttentionGroup {
 
 /**
  * "Needs your attention" - flags only what actually blocks an automation, grouped by flag type.
- * Only 3 flags are wired up: setup incomplete, run failed, and a cron automation with no
- * scheduled run. Connection/credits/approval flags have no backing signal yet, left out.
  */
 const AutomationsAttentionCard = ({ onViewAll, refetchSignal }: AutomationsAttentionCardProps) => {
 	const [rows, setRows] = useState<AutomationRow[]>([]);

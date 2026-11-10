@@ -109,8 +109,7 @@ class PerformanceActions extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Flushes the WordPress object cache plus every known caching plugin's
-	 * own real purge function, if active.
+	 * Flushes the WordPress object cache plus every known caching plugin's own real purge function, if active.
 	 *
 	 * @return array{success: bool, message: string}
 	 */
@@ -132,8 +131,7 @@ class PerformanceActions extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Regenerates minified assets via a known minification-capable plugin's own real
-	 * function - returns an honest failure, not a fabricated success.
+	 * Regenerates minified assets via a known minification-capable plugin's own real function - returns an honest failure, not a fabricated success.
 	 *
 	 * @return array{success: bool, message: string}
 	 */
@@ -168,8 +166,7 @@ class PerformanceActions extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Regenerates registered thumbnail sizes (never the original file) for the largest
-	 * oversized image attachments, at a lower JPEG/WebP quality.
+	 * Regenerates registered thumbnail sizes (never the original file) for the largest oversized image attachments, at a lower JPEG/WebP quality.
 	 *
 	 * @return array{success: bool, message: string}
 	 */
@@ -233,8 +230,7 @@ class PerformanceActions extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Deletes real expired transients and real excess post revisions -
-	 * the same rows DatabaseCleanupScanner counts.
+	 * Deletes real expired transients and real excess post revisions - the same rows DatabaseCleanupScanner counts.
 	 *
 	 * @return array{success: bool, message: string}
 	 */
@@ -292,9 +288,7 @@ class PerformanceActions extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Deletes unattached, unused image attachments via
-	 * ImageCleanupScanner::get_orphaned_image_ids(), bounded by
-	 * MAX_IMAGES_PER_RUN per click.
+	 * Deletes unattached, unused image attachments via ImageCleanupScanner::get_orphaned_image_ids(), bounded by MAX_IMAGES_PER_RUN per click.
 	 *
 	 * @return array{success: bool, message: string}
 	 */
@@ -344,8 +338,7 @@ class PerformanceActions extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real, reversible toggle - PerformanceOptimizations reads this option on every
-	 * request and force-enables WordPress's own native lazy-loading filter when set.
+	 * Real, reversible toggle - PerformanceOptimizations reads this option on every request and force-enables WordPress's own native lazy-loading filter when set.
 	 *
 	 * @return array{success: bool, message: string}
 	 */
@@ -363,8 +356,7 @@ class PerformanceActions extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real, reversible toggle - PerformanceOptimizations reads
-	 * this option on every `wp_head` and outputs real preload tags when set.
+	 * Real, reversible toggle - PerformanceOptimizations reads this option on every `wp_head` and outputs real preload tags when set.
 	 *
 	 * @return array{success: bool, message: string}
 	 */
@@ -382,10 +374,7 @@ class PerformanceActions extends \WP_REST_Controller {
 	}
 
 	/**
-	 * One-time `.htaccess` write via `insert_with_markers()`, inside a
-	 * self-contained marker block so re-running never duplicates existing
-	 * rules. Emits `mod_expires` directives. Returns an honest failure
-	 * when `.htaccess` isn't writable.
+	 * One-time `.htaccess` write via `insert_with_markers()`, inside a self-contained marker block so re-running never duplicates existing rules.
 	 *
 	 * @return array{success: bool, message: string}
 	 */
@@ -487,8 +476,7 @@ class PerformanceActions extends \WP_REST_Controller {
 	}
 
 	/**
-	 * `wp_editor_set_quality` filter callback used only for the duration of
-	 * run_optimize_images()'s regeneration loop.
+	 * `wp_editor_set_quality` filter callback used only for the duration of run_optimize_images()'s regeneration loop.
 	 *
 	 * @return int
 	 */

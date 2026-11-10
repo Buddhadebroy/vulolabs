@@ -82,8 +82,7 @@ interface SectionedIssuesTableProps {
 }
 
 /**
- * One real, unified issues table - same design as AI Copilot's own "Issues" tab
- * (src/pages/AIAssistant/IssuesList.tsx).
+ * One real, unified issues table - same design as AI Copilot's own "Issues" tab (src/pages/AIAssistant/IssuesList.tsx).
  */
 const SectionedIssuesTable = ({
 	id,

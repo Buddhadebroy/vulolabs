@@ -103,8 +103,7 @@ export const fetchOpenFindingsFor = async (
 };
 
 /**
- * Repeated scans create a new open Finding instead of superseding the previous one, so rows are
- * deduplicated here, keeping the most recent.
+ * Repeated scans create a new open Finding instead of superseding the previous one, so rows are deduplicated here, keeping the most recent.
  */
 const dedupeSiteWideFindings = (findings: RawFinding[]): RawFinding[] => {
 	const byKey = new Map<string, RawFinding>();
@@ -122,8 +121,7 @@ const dedupeSiteWideFindings = (findings: RawFinding[]): RawFinding[] => {
 };
 
 /**
- * Splits findings into per-page buckets (keyed by real numeric post/page id) and a `siteWide`
- * bucket (deduped, see `dedupeSiteWideFindings`) for anything not tied to one specific page.
+ * Splits findings into per-page buckets (keyed by real numeric post/page id) and a `siteWide` bucket.
  */
 export const bucketFindingsByPage = (
 	findings: RawFinding[]

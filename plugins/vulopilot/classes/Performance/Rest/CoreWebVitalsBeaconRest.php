@@ -129,8 +129,7 @@ class CoreWebVitalsBeaconRest extends \WP_REST_Controller {
 	}
 
 	/**
-	 * A single sitewide rolling-window counter - this endpoint has no visitor
-	 * identifier to key a per-visitor limit on.
+	 * A single sitewide rolling-window counter - this endpoint has no visitor identifier to key a per-visitor limit on.
 	 *
 	 * @return bool True if this request may proceed, false if rate-limited.
 	 */

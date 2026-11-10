@@ -40,8 +40,7 @@ const formatAbbreviated = (count: number): string =>
 		: count.toLocaleString();
 
 /**
- * "Content Stats": content created and words generated for the selected period, from `GET
- * /content-intelligence/stats`, with change against the previous period.
+ * "Content Stats": content created and words generated for the selected period, from `GET /content-intelligence/stats`, with change against the previous period.
  */
 const ContentStatsCard = () => {
 	const [period, setPeriod] = useState<StatsPeriod>('30');

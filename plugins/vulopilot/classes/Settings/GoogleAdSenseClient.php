@@ -28,8 +28,7 @@ class GoogleAdSenseClient {
 	}
 
 	/**
-	 * Real `GET https://adsense.googleapis.com/v2/accounts` - every AdSense account this
-	 * Google user can access.
+	 * Real `GET https://adsense.googleapis.com/v2/accounts` - every AdSense account this Google user can access.
 	 *
 	 * @return array<int, array{account_id: string, display_name: string}>|\WP_Error
 	 */

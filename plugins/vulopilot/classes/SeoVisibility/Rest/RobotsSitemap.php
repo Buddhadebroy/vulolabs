@@ -70,8 +70,7 @@ class RobotsSitemap extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Live-fetches this site's own `/robots.txt` and parses every real `User-
-	 * agent`/`Allow`/`Disallow`/`Sitemap`/`Crawl-delay` line.
+	 * Live-fetches this site's own `/robots.txt` and parses every real `User- agent`/`Allow`/`Disallow`/`Sitemap`/`Crawl-delay` line.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
@@ -132,9 +131,7 @@ class RobotsSitemap extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Saves a persisted override of this site's robots.txt output via
-	 * RobotsTxtManager::save_custom_content(). An empty `content` clears
-	 * the override, reverting to core's default.
+	 * Saves a persisted override of this site's robots.txt output via RobotsTxtManager::save_custom_content().
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
@@ -215,8 +212,7 @@ class RobotsSitemap extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Live-fetches the site's real sitemap (robots.txt's declared `Sitemap:`, then
-	 * `/wp-sitemap.xml`, then `/sitemap.xml`) and enumerates its child sitemaps/URLs.
+	 * Live-fetches the site's real sitemap (robots.txt's declared `Sitemap:`, then `/wp-sitemap.xml`, then `/sitemap.xml`) and enumerates its child sitemaps/URLs.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response

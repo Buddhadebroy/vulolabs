@@ -72,8 +72,7 @@ class AutomationScheduler {
 	}
 
 	/**
-	 * Reconciles both real scheduled cron events against their own
-	 * automation row's current `status`/`trigger_config`.
+	 * Reconciles both real scheduled cron events against their own automation row's current `status`/`trigger_config`.
 	 *
 	 * @return void
 	 */

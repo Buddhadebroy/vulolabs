@@ -46,9 +46,7 @@ interface CrawlUrlsTabProps {
 }
 
 /**
- * "Crawl & URLs" tab of "SEO & Visibility" - merges 3 former standalone tabs (Crawler Traffic,
- * Broken Links, Redirects) plus the 404 log that used to live bundled inside Broken Links, into
- * one tab with 5 real inner tabs.
+ * "Crawl & URLs" tab of "SEO & Visibility".
  */
 const CrawlUrlsTab = ({ initialSection = 'overview' }: CrawlUrlsTabProps) => {
 	// Same real `currentSetting`/`onNavigate` wiring SiteHealth.tsx's own tab bar already uses - a
@@ -72,8 +70,7 @@ const CrawlUrlsTab = ({ initialSection = 'overview' }: CrawlUrlsTabProps) => {
 	const prepareUrl = (sectionId: string) =>
 		`?page=vulopilot#&tab=seo-visibility&subtab=crawl-urls&section=${sectionId}`;
 
-	// Same real `window.history.pushState` + hash-parse pattern SiteHealth.tsx's own
-	// `handleNavigate` already uses for an identical `NavigatorComponent` tab bar.
+	// Same real `window.history.pushState` + hash-parse pattern SiteHealth.tsx's own `handleNavigate` already uses for an identical `NavigatorComponent` tab bar.
 	const handleNavigate = (url: string) => {
 		window.history.pushState(null, '', url);
 

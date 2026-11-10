@@ -466,20 +466,18 @@ Supported one-click fixes require approval. If you enable Pro automation, review
 
 ### 1.0.1 ###
 
-* Add: migration from other SEO plugins. Import your existing SEO data from Yoast SEO, Rank Math, All in One SEO and ThinkRank in one step: per-post titles, descriptions, canonical URLs, focus keywords, robots and social settings, plus sitewide settings. The Rank Math import also brings over redirects and 404 log entries, and robots.txt rules are imported from the plugins that store them.
-* Add: SEO score. Every post now gets a 0-100 SEO score covering on-page SEO, content quality, keyword optimization, links, images and technical SEO, with a score panel in the post editor and suggestions on how to improve it. It is a diagnostic guide built on Google's published guidance, not a ranking prediction.
-* Add: bulk Dismiss for the 404 Log table, with a confirmation step.
-* Add: "Sort by" option (Most hits / Most recent) for the 404 Log table, defaulting to Most hits.
-* Add: Broken Links now shows a short snippet of the surrounding text, so you can see where in the content each broken link sits.
-* Add: FAQ block now offers two style presets, Default (no borders or backgrounds) and Card (one bordered panel with divider lines). Default is the new starting style.
-* Improve: XML sitemap page redesigned. Browsers are dropping the XSLT support the old sitemap styling relied on, so the sitemap now opens as a regular styled page in a browser. Search engines and other tools still receive the plain XML.
-* Improve: FAQ block editor sidebar simplified.
-* Fix: 404 Log now clears URLs that no longer return a 404 (for example, once a removed page is restored or redirected). A daily recheck handles this, and trashing the matching post removes its row immediately.
-* Fix: bulk Dismiss in the 404 Log no longer stops partway through a batch.
-* Fix: Broken Links tab no longer shows an empty table and zero status counts when broken links exist.
-* Fix: Broken Links and Broken Images no longer list the same link or image more than once across scans.
-* Fix: source-page titles containing "&" in Broken Links and Broken Images now display correctly instead of as "&amp;".
-* Fix: FAQ and Table of Contents block styles now load inside the block editor preview as well as on the front end.
+* Added - Import SEO data from Yoast SEO, Rank Math, All in One SEO and ThinkRank.
+* Added - 0-100 SEO score for every post, with tips in the post editor.
+* Added - Bulk Dismiss and Sort by for the 404 Log.
+* Added - Surrounding text snippet for each broken link.
+* Added - Default and Card styles for the FAQ block.
+* Fixed - Redesigned XML sitemap page.
+* Fixed - Simpler FAQ block sidebar.
+* Fixed - 404 Log removes URLs that no longer return 404.
+* Fixed - Bulk Dismiss no longer stops partway.
+* Fixed - Broken Links tab showing empty with broken links present.
+* Fixed - Duplicate rows in Broken Links and Broken Images.
+* Fixed - FAQ and Table of Contents styles missing in the block editor.
 
 ### 1.0.0 ###
 

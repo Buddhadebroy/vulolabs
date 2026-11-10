@@ -65,8 +65,7 @@ class NotFoundLogRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Records one 404 visit - inserts a new row for a path seen for the first time, or
-	 * bumps `hit_count`/`last_seen_at` on an existing one.
+	 * Records one 404 visit - inserts a new row for a path seen for the first time, or bumps `hit_count`/`last_seen_at` on an existing one.
 	 *
 	 * @param string      $requested_path Already-normalized path.
 	 * @param string|null $referrer       The visit's HTTP referrer, if any.

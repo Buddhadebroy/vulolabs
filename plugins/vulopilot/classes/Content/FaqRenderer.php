@@ -126,9 +126,7 @@ class FaqRenderer {
 	}
 
 	/**
-	 * PHP mirror of `faqStyleVars.js`'s `buildFaqStyleVars()`. Keeps the legacy
-	 * `questionColor`/`questionFontSize`/`answerColor`/`answerFontSize` fallback for FAQ
-	 * blocks saved before the `style` attribute existed.
+	 * PHP mirror of `faqStyleVars.js`'s `buildFaqStyleVars()`.
 	 *
 	 * @param array<string, mixed> $attributes Real block attributes.
 	 * @return string A `--name:value;` CSS custom-property declaration list, or '' if nothing is set.
@@ -250,8 +248,7 @@ class FaqRenderer {
 	}
 
 	/**
-	 * Prints the FAQPage JSON-LD for the same rows render() shows - nothing when
-	 * `enableSchema` is off, or every row was blank.
+	 * Prints the FAQPage JSON-LD for the same rows render() shows - nothing when `enableSchema` is off, or every row was blank.
 	 *
 	 * @param array<string, mixed> $attributes Real block attributes - `questions: array<{question,answer}>`.
 	 * @return void
@@ -269,8 +266,7 @@ class FaqRenderer {
 	}
 
 	/**
-	 * Never lets a blank question/answer row reach EITHER the visible markup or the JSON-
-	 * LD.
+	 * Never lets a blank question/answer row reach EITHER the visible markup or the JSON- LD.
 	 *
 	 * @param mixed $raw The block's own `questions` attribute value.
 	 * @return array<int, array{question: string, answer: string}>

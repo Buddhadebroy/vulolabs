@@ -138,9 +138,7 @@ class ContentIntelligence extends \WP_REST_Controller {
     );
 
     /**
-     * Per-post quality signals: readability (Flesch reading ease),
-     * completeness (OnPageAnalyzer's basic checks), and structure
-     * (has_subheadings).
+     * Per-post quality signals: readability (Flesch reading ease), completeness (OnPageAnalyzer's basic checks), and structure (has_subheadings).
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response
@@ -219,10 +217,7 @@ class ContentIntelligence extends \WP_REST_Controller {
     }
 
     /**
-     * Fetches `/content-intelligence/stats` - Content Created/Words
-     * Generated counts for one period (`date_from`/`date_to`, both Y-m-d;
-     * defaults to the current calendar month), plus each metric's percent
-     * change against the immediately preceding period of equal length.
+     * Fetches `/content-intelligence/stats` - Content Created/Words Generated counts for one period.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response
@@ -257,7 +252,7 @@ class ContentIntelligence extends \WP_REST_Controller {
     }
 
     /**
-     * The date range immediately preceding [$period_start, $period_end], of the same inclusive day length - same real trend math Reports\AbstractReportType::get_previous_period() already uses for the Reports page (duplicated as a small local method rather than shared, see this class's own register_routes() comment on why).
+     * The date range immediately preceding [$period_start, $period_end], of the same inclusive day length.
      *
      * @param string $period_start Y-m-d, inclusive.
      * @param string $period_end   Y-m-d, inclusive.

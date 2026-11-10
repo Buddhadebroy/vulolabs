@@ -46,8 +46,7 @@ export interface EntitiesResponse {
 
 
 /**
- * Same "genuinely gates the underlying data" posture SeoTab.tsx's own isSeoModuleActive() already
- * documents.
+ * Same "genuinely gates the underlying data" posture SeoTab.tsx's own isSeoModuleActive() already documents.
  */
 const isEntityExtractionModuleActive = () =>
 	vulopilotAppLocalizer.active_modules?.includes('knowledge-graph') ?? false;

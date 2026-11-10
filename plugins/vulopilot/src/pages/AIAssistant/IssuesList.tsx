@@ -31,8 +31,7 @@ interface IssuesListProps {
 }
 
 /**
- * AI Copilot's Issues table - every open finding grouped by issue type (`GET /findings/groups`,
- * FindingRepository::get_finding_groups()).
+ * AI Copilot's Issues table - every open finding grouped by issue type (`GET /findings/groups`, FindingRepository::get_finding_groups()).
  */
 const IssuesList: React.FC<IssuesListProps> = ({
 	initialScannerId,

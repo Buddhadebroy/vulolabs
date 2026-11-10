@@ -40,7 +40,6 @@ interface ActionInterface {
 
 	/**
 	 * Whether a successful execute() changes something on the site, versus only notifying.
-	 * Counted as `changes_made` in automation runs.
 	 *
 	 * @return bool
 	 */

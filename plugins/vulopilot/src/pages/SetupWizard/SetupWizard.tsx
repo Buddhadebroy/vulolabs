@@ -21,11 +21,7 @@ interface MigrationResult {
 type Step = 'detecting' | 'review' | 'importing' | 'done';
 
 /**
- * Admin.php's `maybe_redirect_to_setup_wizard()` lands a freshly-activated site here only when a
- * Rank Math/Yoast/AIOSEO install with real data was detected - same auto-detect-then-wizard
- * pattern MultiVendorX's own onboarding uses. Reuses the Migration tab's own REST endpoints
- * (`migration/sources`, `migration/run`) and progress-bar styling (MigrationPanel.tsx), as a
- * full-page flow instead of a popup.
+ * Admin.php's `maybe_redirect_to_setup_wizard()` lands a freshly-activated site here only when a Rank Math/Yoast/AIOSEO install with real data was detected.
  */
 const SetupWizard = () => {
 	const [step, setStep] = useState<Step>('detecting');

@@ -103,8 +103,7 @@ class CrawlerVisitRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Visit counts per calendar day over a trailing window, zero-filled for days with no
-	 * visits.
+	 * Visit counts per calendar day over a trailing window, zero-filled for days with no visits.
 	 *
 	 * @param int $days Trailing window size.
 	 * @return array<int, array{date: string, total: int}> Oldest first.
@@ -229,7 +228,7 @@ class CrawlerVisitRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Current-versus-previous-period comparison for the Crawler Traffic tab, with percent change against the preceding period of equal length. current_total:
+	 * Current-versus-previous-period comparison for the Crawler Traffic tab, with percent change against the preceding period of equal length.
 	 *
 	 * @param int $days Trailing window size (also the length of the "previous" comparison window).
 	 * @return array{
@@ -334,8 +333,7 @@ class CrawlerVisitRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Per-bot visit counts and last-seen time for one specific URL - backs a single post's own
-	 * "AI Visibility" (crawler activity) tab, as opposed to the sitewide Crawler Traffic page.
+	 * Per-bot visit counts and last-seen time for one specific URL.
 	 *
 	 * @param string $requested_url Exact path this plugin logs visits under (e.g. post permalink path).
 	 * @param int    $days          Trailing window size.

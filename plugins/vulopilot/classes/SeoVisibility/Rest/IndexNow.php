@@ -52,8 +52,7 @@ class IndexNow extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Shared permission check for both routes in this controller - same `manage_options`
-	 * gate every other VuloPilot settings-adjacent controller uses.
+	 * Shared permission check for both routes in this controller - same `manage_options` gate every other VuloPilot settings-adjacent controller uses.
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return bool

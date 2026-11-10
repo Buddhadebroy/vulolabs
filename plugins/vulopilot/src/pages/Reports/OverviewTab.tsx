@@ -11,10 +11,7 @@ interface OverviewTabProps {
 }
 
 /**
- * "Reports"'s Overview tab - rebuilt to match the reference mockup exactly: a title/desc header
- * (ReportsOverviewHeader.tsx). `days`/`refreshKey` now come from Reports.tsx, which also drives
- * the page header's own "Last N days"/Create Report/Schedule Report/Download PDF row
- * (ReportsOverviewActions.tsx) - this tab just reads the same real state, not a second copy of it.
+ * "Reports"'s Overview tab - rebuilt to match the reference mockup exactly: a title/desc header (ReportsOverviewHeader.tsx).
  */
 const OverviewTab = ({ days, refreshKey }: OverviewTabProps) => {
 	return (

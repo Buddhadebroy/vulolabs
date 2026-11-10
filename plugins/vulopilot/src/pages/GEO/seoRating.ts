@@ -1,8 +1,7 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Same 3-tier 0-100 score thresholds used throughout the SEO tab (the "SEO Health Score" ring,
- * "SEO areas" tiles, and "Pages that need attention").
+ * Same 3-tier 0-100 score thresholds used throughout the SEO tab (the "SEO Health Score" ring, "SEO areas" tiles, and "Pages that need attention").
  */
 export const getRating = (score: number): string => {
 	if (score >= 70) {

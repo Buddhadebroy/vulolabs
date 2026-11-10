@@ -88,8 +88,7 @@ class PerformanceRequestRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Deletes rows older than the given retention window - called by
-	 * PerformanceRequestLogger's own daily cleanup cron.
+	 * Deletes rows older than the given retention window - called by PerformanceRequestLogger's own daily cleanup cron.
 	 *
 	 * @param int $days Retention window, in days.
 	 * @return void

@@ -85,8 +85,7 @@ class Dashboard extends \WP_REST_Controller {
 	}
 
 	/**
-	 * "Site snapshot" - counts read directly from WordPress core functions, not from scan
-	 * findings.
+	 * "Site snapshot" - counts read directly from WordPress core functions, not from scan findings.
 	 *
 	 * @return array{posts: int, pages: int, comments: int, users: int, plugins_active: int, plugins_total: int, wp_version: string, php_version: string}
 	 */
@@ -198,8 +197,6 @@ class Dashboard extends \WP_REST_Controller {
 
 	/**
 	 * Shared weighting formula for the overall, category, content and brand scores.
-	 * Uses log(1 + n) instead of a linear penalty, so one category with many findings
-	 * doesn't flatten the whole score to 0.
 	 *
 	 * @param array{critical: int, high: int, medium: int, low: int} $breakdown Severity counts to score.
 	 * @return int 0-100.
@@ -215,8 +212,7 @@ class Dashboard extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Same weighting as calculate_category_score()/calculate_content_score(), scoped to
-	 * Brand Intelligence's own combined scanner_id list.
+	 * Same weighting as calculate_category_score()/calculate_content_score(), scoped to Brand Intelligence's own combined scanner_id list.
 	 *
 	 * @param FindingRepository $findings Repository to read the breakdown from.
 	 * @return int 0-100.
@@ -238,8 +234,7 @@ class Dashboard extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Same weighting as calculate_category_score()/calculate_overall_score(), scoped to
-	 * Content Intelligence's own fixed scanner_id list.
+	 * Same weighting as calculate_category_score()/calculate_overall_score(), scoped to Content Intelligence's own fixed scanner_id list.
 	 *
 	 * @param FindingRepository $findings Repository to read the breakdown from.
 	 * @return int 0-100.
@@ -281,8 +276,7 @@ class Dashboard extends \WP_REST_Controller {
 	}
 
 	/**
-	 * "Quick Fixes" = open findings in a category that has a matching one-click AIAction
-	 * already registered.
+	 * "Quick Fixes" = open findings in a category that has a matching one-click AIAction already registered.
 	 *
 	 * @param FindingRepository $findings Repository to count from.
 	 * @return int

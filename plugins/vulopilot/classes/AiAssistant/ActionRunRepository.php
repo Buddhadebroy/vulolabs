@@ -35,8 +35,7 @@ class ActionRunRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Real content-creation stats for one date range - how many of the given actions
-	 * actually ran to completion (`status = 'executed'`).
+	 * Real content-creation stats for one date range - how many of the given actions actually ran to completion (`status = 'executed'`).
 	 *
 	 * @param string   $period_start Y-m-d, inclusive.
 	 * @param string   $period_end   Y-m-d, inclusive.

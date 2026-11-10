@@ -51,8 +51,7 @@ interface SeoSiteWideIssuesTableProps {
 }
 
 /**
- * "Site-wide Issues" - one of the two real tables that replace the old combined "All SEO Issues"
- * card, split apart.
+ * "Site-wide Issues" - one of the two real tables that replace the old combined "All SEO Issues" card, split apart.
  */
 const SeoSiteWideIssuesTable = ({
 	findings,
@@ -105,7 +104,7 @@ const SeoSiteWideIssuesTable = ({
 			.finally(() => setFixingFindingId(null));
 	};
 
-	/** Resolve/Ignore - the same real `POST /findings/{id} {status}` RecentContentCard.tsx's own `handleFindingStatus` calls (Findings.php::update_item() has no `object_type` restriction, so this works unmodified here). */
+	/** Resolve/Ignore - the same real `POST /findings/{id} {status}` RecentContentCard.tsx's own `handleFindingStatus` calls. */
 	const handleStatus = (
 		finding: RawFinding,
 		status: 'resolved' | 'ignored',

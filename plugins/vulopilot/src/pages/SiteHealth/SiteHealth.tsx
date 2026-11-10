@@ -18,8 +18,7 @@ const TAB_META: Record<
 };
 
 /**
- * "Site Health" (WP menu slug `site-health`) - promoted out of the former "Protect My Site" page's
- * own 3-tab shell (Security.tsx).
+ * "Site Health" (WP menu slug `site-health`) - promoted out of the former "Protect My Site" page's own 3-tab shell (Security.tsx).
  */
 const SiteHealth = () => {
 	const location = useLocation();

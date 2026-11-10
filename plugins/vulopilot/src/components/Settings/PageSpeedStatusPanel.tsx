@@ -71,8 +71,7 @@ const PageSpeedStatusPanel = () => {
 
 	useEffect(loadStatus, []);
 
-	// The test reads the key stored on the server, so save what's typed first - the debounced
-	// autosave may not have fired yet.
+	// The test reads the key stored on the server, so save what's typed first - the debounced autosave may not have fired yet.
 	const testConnection = () => {
 		setIsTesting(true);
 

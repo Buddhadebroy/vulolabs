@@ -174,8 +174,7 @@ class Backups extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Streams a real backup archive rather than ever returning its filesystem path to the
-	 * client.
+	 * Streams a real backup archive rather than ever returning its filesystem path to the client.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|void

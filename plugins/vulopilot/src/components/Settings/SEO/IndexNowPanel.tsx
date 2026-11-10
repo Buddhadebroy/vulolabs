@@ -46,8 +46,7 @@ const POST_TYPE_OPTIONS = [
 
 
 /**
- * Hand-built rather than InputRenderer-driven - same escape hatch other panels already use
- * (Settings.tsx's GetForm() special-cases `currentTab === 'indexnow'`).
+ * Hand-built rather than InputRenderer-driven - same escape hatch other panels already use (Settings.tsx's GetForm() special-cases `currentTab === 'indexnow'`).
  */
 const IndexNowPanel = () => {
 	const { setting, updateSetting } = useSetting();

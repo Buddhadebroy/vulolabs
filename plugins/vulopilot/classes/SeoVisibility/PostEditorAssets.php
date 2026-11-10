@@ -21,8 +21,7 @@ class PostEditorAssets {
 	}
 
 	/**
-	 * Enqueues the post-editor sidebar assets on post/page/product edit
-	 * screens.
+	 * Enqueues the post-editor sidebar assets on post/page/product edit screens.
 	 *
 	 * @return void
 	 */

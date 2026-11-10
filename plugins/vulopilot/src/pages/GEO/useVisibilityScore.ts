@@ -25,8 +25,7 @@ export interface VisibilityScoreResponse {
 }
 
 /**
- * `GET /visibility/score` - Visibility.php's own real combined score across the 4 real free-tier
- * areas (Brand/SEO/GEO/Crawl & URLs).
+ * `GET /visibility/score` - Visibility.php's own real combined score across the 4 real free-tier areas (Brand/SEO/GEO/Crawl & URLs).
  */
 export const useVisibilityScore = (): {
 	score: VisibilityScoreResponse | null;

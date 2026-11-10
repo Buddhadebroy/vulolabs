@@ -84,8 +84,7 @@ class DefaultRobotsManager {
 	}
 
 	/**
-	 * @return bool True on a category/tag/custom-taxonomy term archive that currently has zero
-	 *              published posts.
+	 * @return bool True on a category/tag/custom-taxonomy term archive that currently has zero published posts.
 	 */
 	private function is_empty_taxonomy_archive(): bool {
 		if ( ! is_category() && ! is_tag() && ! is_tax() ) {

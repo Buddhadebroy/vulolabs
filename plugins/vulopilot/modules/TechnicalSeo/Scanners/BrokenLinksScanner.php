@@ -158,8 +158,7 @@ class BrokenLinksScanner extends ScannerUtil implements TracksScannedObjectsInte
 	}
 
 	/**
-	 * Pulls every http(s) link out of the most recently published content, deduped, capped
-	 * at MAX_LINKS_PER_RUN.
+	 * Pulls every http(s) link out of the most recently published content, deduped, capped at MAX_LINKS_PER_RUN.
 	 *
 	 * @return array<string, array{post_id: int, text: string, context_before: string, context_after: string}> URL => post ID, anchor text, surrounding context.
 	 */

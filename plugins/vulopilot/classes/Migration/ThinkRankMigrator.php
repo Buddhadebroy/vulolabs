@@ -314,10 +314,7 @@ class ThinkRankMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * Per-post AI content score, from ThinkRank's own `{prefix}thinkrank_seo_scores` table into
-	 * the same JSON shape `ContentScore::to_array()` writes to `_vulopilot_content_score` -
-	 * written directly as postmeta rather than by instantiating that class, same convention every
-	 * other per-post field in this migrator follows.
+	 * Per-post AI content score, from ThinkRank's own `{prefix}thinkrank_seo_scores` table into the same JSON shape `ContentScore::to_array()` writes to `_vulopilot_content_score` - written directly as postmeta rather than by instantiating that class, same convention every other per-post field in this migrator follows.
 	 *
 	 * @param bool  $overwrite Passed through from migrate().
 	 * @param int   $migrated  Running total, by reference.
@@ -377,8 +374,7 @@ class ThinkRankMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * `_thinkrank_focus_keywords` is a JSON array of keyword strings (2.x+); `_thinkrank_focus_keyword`
-	 * (singular) is the pre-2.x single-string key, kept by ThinkRank itself as a legacy fallback.
+	 * `_thinkrank_focus_keywords` is a JSON array of keyword strings.
 	 *
 	 * @param int $post_id Post id.
 	 * @return string
@@ -540,10 +536,7 @@ class ThinkRankMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * Reads every active `site`-context row for one `setting_category` straight out of
-	 * `{prefix}thinkrank_seo_settings` - the same EAV table every `Abstract_SEO_Manager`
-	 * subclass reads/writes through, read directly rather than instantiating ThinkRank's own
-	 * (not loaded) manager classes.
+	 * Reads every active `site`-context row for one `setting_category` straight out of `{prefix}thinkrank_seo_settings`.
 	 *
 	 * @param string $category `setting_category` value (e.g. 'site_identity', 'sitemap').
 	 * @return array<string, mixed>
@@ -695,12 +688,7 @@ class ThinkRankMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * Every real post type's/taxonomy's own title/description template, plus the `archive:author`/
-	 * `special:search` special entities, from `thinkrank_global_seo_settings`
-	 * (`class-settings-key-map.php` documents the exact key shape: `title`, `description`,
-	 * `robots.noindex`). 'post'/'page' and 'category'/'post_tag' route to VuloPilot's own flat
-	 * fields; `archive:author`/`special:search` route to the matching flat author/search fields;
-	 * everything else goes into the `title_format_post_types`/`title_format_taxonomies` maps.
+	 * Every real post type's/taxonomy's own title/description template, plus the `archive:author`/ `special:search` special entities, from `thinkrank_global_seo_settings` (`class-settings-key-map.php` documents the exact key shape: `title`, `description`, `robots.noindex`).
 	 *
 	 * @param array $values     Field values being built, by reference.
 	 * @param array $global_seo The decoded `thinkrank_global_seo_settings` option.
@@ -822,9 +810,7 @@ class ThinkRankMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * ThinkRank Site Identity's `%token%` syntax into VuloPilot's own (same vocabulary, different
-	 * names for a few tokens) - unsupported tokens (`%date%`) are dropped rather than left as
-	 * literal, unresolved text, same policy as the other three migrators' own translators.
+	 * ThinkRank Site Identity's `%token%` syntax into VuloPilot's own.
 	 *
 	 * @param string $template Raw ThinkRank Site Identity template.
 	 * @return string
@@ -842,12 +828,7 @@ class ThinkRankMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * ThinkRank Global SEO's `%token%` syntax into VuloPilot's own. `%title%` has no single fixed
-	 * mapping - it means "this entity's own current title", which is the same role every one of
-	 * TitleFormatter's `%post_title%`/`%category_title%`/`%tag_title%`/`%archive_title%` variables
-	 * already plays for its own context, so VuloPilot resolves whichever one its own context key
-	 * picks; `%post_title%` is used here only as the literal substitution text, matching how
-	 * `AllInOneSeoMigrator::translate_aioseo_template()` makes the same choice for AIOSEO's `#post_title%`.
+	 * ThinkRank Global SEO's `%token%` syntax into VuloPilot's own.
 	 *
 	 * @param string $template Raw ThinkRank Global SEO template.
 	 * @return string

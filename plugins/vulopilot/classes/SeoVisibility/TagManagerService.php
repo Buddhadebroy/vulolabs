@@ -65,8 +65,7 @@ class TagManagerService {
 	}
 
 	/**
-	 * Real, trimmed GTM Container ID - empty when the toggle is off or no id has been
-	 * entered yet.
+	 * Real, trimmed GTM Container ID - empty when the toggle is off or no id has been entered yet.
 	 *
 	 * @return string
 	 */

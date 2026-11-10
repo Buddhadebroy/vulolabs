@@ -15,11 +15,7 @@ interface AiVisibilitySuiteTabProps {
 }
 
 /**
- * Groups the six "AI Visibility Score" sidebar tabs (Overview, AI Readiness, AEO, GEO, AI
- * Visibility/crawler, Content Analysis) into one tab with accordion sections, instead of six
- * separate icon-only top-level tabs - the sidebar's tab bar had grown to 12 icons, most of them
- * unlabeled and indistinguishable at a glance. Each section is its own existing, unmodified
- * component; only the navigation chrome changed.
+ * Groups the six "AI Visibility Score" sidebar tabs.
  */
 export default function AiVisibilitySuiteTab( { onNavigate }: AiVisibilitySuiteTabProps ) {
 	return (

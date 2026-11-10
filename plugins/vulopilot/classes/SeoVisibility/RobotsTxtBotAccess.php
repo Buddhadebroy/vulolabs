@@ -27,8 +27,7 @@ class RobotsTxtBotAccess {
 	}
 
 	/**
-	 * Disallow paths for one bot token - its own named group if robots.txt has one,
-	 * otherwise the wildcard group's rules.
+	 * Disallow paths for one bot token - its own named group if robots.txt has one, otherwise the wildcard group's rules.
 	 *
 	 * @param string $bot_token Literal User-Agent token, e.g. 'GPTBot'.
 	 * @return string[] Disallow paths (may include '/').

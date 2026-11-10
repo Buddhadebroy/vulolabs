@@ -38,9 +38,7 @@ interface ActionRunRow {
 }
 
 /**
- * "Needs your attention" - the three real, honest data sources that used to be three separate
- * cards (Quick fixes, Recent open issues, Pending approval), combined into one tabbed widget
- * instead.
+ * "Needs your attention" - the three real, honest data sources that used to be three separate cards.
  */
 const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 	onHide,

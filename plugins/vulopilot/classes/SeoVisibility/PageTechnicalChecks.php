@@ -27,8 +27,7 @@ class PageTechnicalChecks {
 	private const PAGE_FETCH_TIMEOUT_SECONDS = 5;
 
 	/**
-	 * One real GET against the page's own permalink - canonical/structured-data/HTTP-status all
-	 * read from this single fetch rather than each re-requesting the page.
+	 * One real GET against the page's own permalink - canonical/structured-data/HTTP-status all read from this single fetch rather than each re-requesting the page.
 	 *
 	 * @param string $url Real permalink to fetch.
 	 * @return array{body: string|null, status: int|null, error: string|null}
@@ -58,10 +57,7 @@ class PageTechnicalChecks {
 	}
 
 	/**
-	 * Rule 24 - indexability and crawl access. Checks publish status, sitewide
-	 * `blog_public`/"discourage search engines", and VuloPilot's own per-post robots-noindex
-	 * override (`PostSeoMetaFields::META_KEYS['robots_noindex']`) - an intentional noindex must
-	 * never be scored the same as an accidental one, so the message distinguishes them.
+	 * Rule 24 - indexability and crawl access.
 	 *
 	 * @param \WP_Post $post Post being checked.
 	 * @return array{status: string, reason: string, evidence: array<string, mixed>, critical: bool}
@@ -157,8 +153,7 @@ class PageTechnicalChecks {
 	}
 
 	/**
-	 * Rule 26 - canonical URL presence (not full conflict/redirect-chain analysis, which would
-	 * need crawling every candidate duplicate - out of scope here and reported as such).
+	 * Rule 26 - canonical URL presence (not full conflict/redirect-chain analysis, which would need crawling every candidate duplicate.
 	 *
 	 * @param array{body: string|null, status: int|null, error: string|null} $fetch This page's own `fetch()` result.
 	 * @return array{status: string, reason: string, evidence: array<string, mixed>}
@@ -189,8 +184,7 @@ class PageTechnicalChecks {
 	}
 
 	/**
-	 * Rule 27 - structured data presence (JSON-LD block detected and is valid JSON; doesn't
-	 * validate individual schema.org properties, which would need a full schema validator).
+	 * Rule 27 - structured data presence (JSON-LD block detected and is valid JSON.
 	 *
 	 * @param array{body: string|null, status: int|null, error: string|null} $fetch This page's own `fetch()` result.
 	 * @return array{status: string, reason: string, evidence: array<string, mixed>}
@@ -248,7 +242,7 @@ class PageTechnicalChecks {
 	}
 
 	/**
-	 * Rule 20 - broken links, read from the Broken Links scanner's own stored findings for this post rather than live-checking every link here (that scanner already owns link-destination verification, with its own timeout/retry handling - re-implementing it here would be the exact duplicate logic the spec says to avoid).
+	 * Rule 20 - broken links, read from the Broken Links scanner's own stored findings for this post rather than live-checking every link here.
 	 *
 	 * @param int $post_id Post being checked.
 	 * @return array{status: string, reason: string, evidence: array<string, mixed>}
@@ -308,10 +302,7 @@ class PageTechnicalChecks {
 	}
 
 	/**
-	 * Rule 28 - sitemap discovery, derived from VuloPilot's own sitemap settings (post type
-	 * enabled, post not in the exclude list) rather than fetching and parsing the live sitemap
-	 * XML - equivalent in practice (those settings are exactly what the sitemap generator itself
-	 * reads to decide inclusion), without a second live HTTP round trip per score calculation.
+	 * Rule 28 - sitemap discovery, derived from VuloPilot's own sitemap settings.
 	 *
 	 * @param \WP_Post $post Post being checked.
 	 * @return array{status: string, reason: string, evidence: array<string, mixed>}

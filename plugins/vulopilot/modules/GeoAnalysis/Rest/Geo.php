@@ -158,8 +158,7 @@ class Geo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Same weighting `Seo::calculate_score()`/
-	 * BrandIntelligence::calculate_score() already use.
+	 * Same weighting `Seo::calculate_score()`/ BrandIntelligence::calculate_score() already use.
 	 *
 	 * @param array{critical: int, high: int, medium: int, low: int} $breakdown Severity breakdown to score.
 	 * @return int 0-100.
@@ -175,9 +174,7 @@ class Geo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * `PROGRESS_TREND_DAYS`-point daily score trend for one finding-based
-	 * signal, same reconstruction technique as
-	 * `Controllers\Seo::get_category_trend()`.
+	 * `PROGRESS_TREND_DAYS`-point daily score trend for one finding-based signal, same reconstruction technique as `Controllers\Seo::get_category_trend()`.
 	 *
 	 * @param FindingRepository $findings    Shared repository instance.
 	 * @param string[]          $scanner_ids This signal's scanner ids.
@@ -199,9 +196,7 @@ class Geo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Most-severe open finding's title across a set of scanner ids, for
-	 * this card's "Main Problem" column. Ranked client-side since
-	 * `find_all()` has no severity ORDER BY.
+	 * Most-severe open finding's title across a set of scanner ids, for this card's "Main Problem" column.
 	 *
 	 * @param FindingRepository $findings    Repository instance to query.
 	 * @param string[]          $scanner_ids Scanner ids to look across.
@@ -229,10 +224,7 @@ class Geo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Sitewide "Content Freshness" signal: 4-tier recency banding (same
-	 * tiers as `GeoAnalyzer::calculate_content_freshness()`) computed in
-	 * one SQL pass over `post_modified_gmt`. `trend` is always null since
-	 * there's no finding history to reconstruct for it.
+	 * Sitewide "Content Freshness" signal: 4-tier recency banding.
 	 *
 	 * @return array{score: int|null, open_count: null, affected_pages: int, main_problem: string|null, trend: null}
 	 */
@@ -304,9 +296,7 @@ class Geo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * "Score Snapshot": daily score trend over `days` (7/30/90), scoped to
-	 * the 6 finding-based signals only - `content-freshness` is excluded
-	 * since it has no finding history to reconstruct.
+	 * "Score Snapshot": daily score trend over `days`.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response

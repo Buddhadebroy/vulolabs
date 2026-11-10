@@ -41,8 +41,7 @@ class SchemaCoverageAnalyzer {
 	);
 
 	/**
-	 * Regenerates the coverage snapshot whenever the schema scanner finishes - i.e. as
-	 * part of any "Run scan" that includes schema.
+	 * Regenerates the coverage snapshot whenever the schema scanner finishes - i.e. as part of any "Run scan" that includes schema.
 	 *
 	 * @param ScanResult $result The completed scanner result.
 	 * @return void
@@ -65,7 +64,7 @@ class SchemaCoverageAnalyzer {
 	}
 
 	/**
-	 * Runs a fresh sample and stores it. The only path that performs outbound HTTP requests.
+	 * Runs a fresh sample and stores it.
 	 *
 	 * @return array{generated_at: string, sample_size: int, coverage: array<int, array{type: string, meaning: string, found_on: int, problems: int, pages: array<int, array{id: int, title: string, url: string, edit_url: string|null}>}>, pages_checked: int, pages_with_valid_schema: int, pages_needing_attention: int}
 	 */

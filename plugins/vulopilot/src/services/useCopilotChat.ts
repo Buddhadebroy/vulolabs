@@ -212,8 +212,7 @@ export const useCopilotChat = ( noticeKey: string ) => {
 	};
 
 	/**
-	 * Loads a real, past conversation's full turns back into this composer (`GET
-	 * /copilot/conversations/{id}`, Copilot.php's own get_conversation()).
+	 * Loads a real, past conversation's full turns back into this composer (`GET /copilot/conversations/{id}`, Copilot.php's own get_conversation()).
 	 */
 	const loadConversation = ( id: number ) => {
 		setIsLoadingConversation( true );
@@ -242,8 +241,7 @@ export const useCopilotChat = ( noticeKey: string ) => {
 	};
 
 	/**
-	 * "New Chat": clears `turns` and drops `conversationId`, so the next `send()` starts a new
-	 * conversation.
+	 * "New Chat": clears `turns` and drops `conversationId`, so the next `send()` starts a new conversation.
 	 */
 	const startNewConversation = () => {
 		chatGeneration.current += 1;

@@ -73,8 +73,7 @@ const SEPARATOR_OPTIONS: Array<{ value: string; label: string; char: string }> =
 ];
 
 /**
- * Same token-replacement + leading/trailing-separator-trim logic as TitleFormatter::resolve()
- * (PHP).
+ * Same token-replacement + leading/trailing-separator-trim logic as TitleFormatter::resolve() (PHP).
  */
 const resolveTemplate = (template: string, vars: Record<string, string>, separator: string): string => {
 	const resolved = template.replace(/%([a-z_]+)%/g, (_match, token: string) => {
@@ -93,8 +92,7 @@ const resolveTemplate = (template: string, vars: Record<string, string>, separat
 };
 
 /**
- * Length-based heuristic, graded against real, already-established thresholds elsewhere in this
- * codebase rather than an invented number.
+ * Length-based heuristic, graded against real, already-established thresholds elsewhere in this codebase rather than an invented number.
  */
 const scoreLength = (text: string, max: number, min = 0): LengthScore => {
 	const length = text.trim().length;
@@ -366,8 +364,7 @@ const SeoTitlesPanel = () => {
 	const editingRow = previewRows.find((row) => row.key === editingKey) ?? null;
 
 	/**
-	 * One real `%token%` field + its own "click to insert" pill row + a real length
-	 * `BadgeComponent`.
+	 * One real `%token%` field + its own "click to insert" pill row + a real length `BadgeComponent`.
 	 */
 	const renderTemplateField = (
 		key: string,

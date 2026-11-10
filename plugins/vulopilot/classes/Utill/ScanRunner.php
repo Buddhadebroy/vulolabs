@@ -43,9 +43,7 @@ class ScanRunner {
 	}
 
 	/**
-	 * Queues the given scanners to run across one or more background batch ticks -
-	 * never blocks the calling request. Mirrors BackupManager::start_backup()'s own
-	 * queue-then-schedule shape.
+	 * Queues the given scanners to run across one or more background batch ticks - never blocks the calling request.
 	 *
 	 * @param string[] $scanner_ids Scanner ids to run, in order.
 	 * @param bool     $force       See run()'s own docblock.
@@ -72,8 +70,7 @@ class ScanRunner {
 	}
 
 	/**
-	 * Real status of the current (if any) queued run - polled by the frontend instead of
-	 * the REST request blocking until every scanner finishes.
+	 * Real status of the current (if any) queued run - polled by the frontend instead of the REST request blocking until every scanner finishes.
 	 *
 	 * @return array{running: bool, total: int, remaining: int}
 	 */
@@ -96,8 +93,7 @@ class ScanRunner {
 	}
 
 	/**
-	 * Runs as many queued scanners as fit in `BATCH_SECONDS_BUDGET`, then either
-	 * reschedules itself or clears the queue once it's drained.
+	 * Runs as many queued scanners as fit in `BATCH_SECONDS_BUDGET`, then either reschedules itself or clears the queue once it's drained.
 	 *
 	 * @return void
 	 */
@@ -143,8 +139,7 @@ class ScanRunner {
 	 * Runs a single scanner by id.
 	 *
 	 * @param string $scanner_id A scanner's get_id().
-	 * @param bool   $force      True for a user-initiated "Run scan" - forces a scanner
-	 *                           implementing SupportsForceRunInterface to bypass its own rate limit.
+	 * @param bool   $force      True for a user-initiated "Run scan" - forces a scanner implementing SupportsForceRunInterface to bypass its own rate limit.
 	 * @return ScanResult|null Null if no scanner is registered under that id.
 	 */
 	public function run( string $scanner_id, bool $force = false ): ?ScanResult {

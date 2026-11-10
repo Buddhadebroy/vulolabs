@@ -208,8 +208,7 @@ const scannerTitleFromMessage = (row: HistoryRow): string | null => {
 };
 
 /**
- * Every real row title comes straight from its real scan/change/ conversation label - never
- * invented copy.
+ * Every real row title comes straight from its real scan/change/ conversation label - never invented copy.
  */
 export const rowTitle = (row: HistoryRow): string => {
 	if (row.scan) {
@@ -307,18 +306,14 @@ export const rowStatusBadge = (
 };
 
 /**
- * Real time-of-day, in this site's own real Settings → General → Time Format (`formatWpTime()`,
- * previously a hardcoded `toLocaleTimeString()` that ignored that setting) - the day heading
- * already carries the date, so the row itself only needs the time.
+ * Real time-of-day, in this site's own real Settings → General → Time Format.
  */
 export const rowTime = (createdAt: string): string => formatWpTime(createdAt);
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /**
- * "Today"/"Yesterday"/this site's own real Settings → General → Date Format (`formatWpDate()`,
- * previously a hardcoded `toLocaleDateString()` that ignored that setting - same real fix
- * `rowTime()` above already applies for the time half).
+ * "Today"/"Yesterday"/this site's own real Settings → General → Date Format.
  */
 export const dayLabel = (createdAt: string): string => {
 	const date = new Date(createdAt);
@@ -371,8 +366,7 @@ export const groupByDay = (
 };
 
 /**
- * Adapts an activity-style row (from `GET /activity-logs` or `GET /automation-runs`) into a
- * `HistoryRow` for HistoryTimeline.tsx.
+ * Adapts an activity-style row (from `GET /activity-logs` or `GET /automation-runs`) into a `HistoryRow` for HistoryTimeline.tsx.
  */
 export const toHistoryRow = (row: {
 	id: number | string;

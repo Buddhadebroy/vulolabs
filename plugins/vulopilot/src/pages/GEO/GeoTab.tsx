@@ -65,8 +65,7 @@ const GEO_TOPICS: {
 	];
 
 /**
- * GEO = Generative Engine Optimization - how discoverable/citable this site is to AI answer
- * engines (distinct from classic search-engine SEO).
+ * GEO = Generative Engine Optimization - how discoverable/citable this site is to AI answer engines (distinct from classic search-engine SEO).
  */
 const GeoTab = () => {
 	const [categoryFocus, setCategoryFocus] = useState<{

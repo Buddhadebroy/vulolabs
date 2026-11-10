@@ -16,10 +16,7 @@ const BUILTIN_TRIGGERS = [ 'free_full_site_scan', 'free_visibility_report' ];
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
 /**
- * "Automation status" - a quick 4-tile health overview (Active / Not active / Errors / Custom
- * automations), using `AnalyticsComponent`'s own `variant="dashboard"` (zyra Storybook's
- * `Components/AnalyticsComponent/Dashboard` story) - each tile's smaller caption renders in the
- * `extra` report row under the number, same as that story, rather than folded into `text` by hand.
+ * "Automation status" - a quick 4-tile health overview.
  */
 const AutomationsStatusCard = ( { refetchSignal }: { refetchSignal: number } ) => {
 	const [ counts, setCounts ] = useState<StatusCounts>( { enabled: 0, disabled: 0 } );

@@ -238,9 +238,7 @@ const AiContentAssistantSidebar = () => {
 	};
 
 	/**
-	 * Shared by both answer paths: typing free text (`handleSend`) and picking a page from the
-	 * search dropdown (`handlePagePicked`) - either way, `answer` is folded into the pending
-	 * chip's own build() the same way.
+	 * Shared by both answer paths: typing free text.
 	 */
 	const submitAnswer = (answer: string) => {
 		if ('' === answer || isSending) {
@@ -265,8 +263,7 @@ const AiContentAssistantSidebar = () => {
 	const handleSend = () => submitAnswer(message.trim());
 
 	/**
-	 * Selecting a page submits immediately - there's nothing left to type once a real page is
-	 * picked.
+	 * Selecting a page submits immediately - there's nothing left to type once a real page is picked.
 	 */
 	const handlePagePicked = (pageId: string) => {
 		const picked = pageOptions.find((option) => option.value === pageId);
@@ -276,8 +273,7 @@ const AiContentAssistantSidebar = () => {
 		}
 	};
 
-	// AiChatCard's own onSelectPrompt only hands back a prompt's title (the shape every real
-	// composer's prompt grid shares).
+	// AiChatCard's own onSelectPrompt only hands back a prompt's title (the shape every real composer's prompt grid shares).
 	const handleSelectPrompt = (title: string) => {
 		const chip = PROMPT_CHIPS.find((c) => c.title === title);
 

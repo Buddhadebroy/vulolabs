@@ -47,8 +47,7 @@ class SitemapStylesheet {
 	}
 
 	/**
-	 * If this request is a browser navigating straight to a sitemap URL, renders the same page as
-	 * real HTML and exits; otherwise does nothing and lets core's own XML rendering run as normal.
+	 * If this request is a browser navigating straight to a sitemap URL, renders the same page as real HTML and exits.
 	 *
 	 * @return void
 	 */
@@ -86,8 +85,7 @@ class SitemapStylesheet {
 	}
 
 	/**
-	 * A direct browser visit asks for `text/html`; a crawler or any other XML consumer does not -
-	 * same heuristic the WordPress ecosystem settled on for this exact browser change.
+	 * A direct browser visit asks for `text/html`.
 	 *
 	 * @return bool
 	 */
@@ -155,9 +153,7 @@ class SitemapStylesheet {
 	}
 
 	/**
-	 * Writes the real HTML page and ends the request, same markup/CSS classes
-	 * (`#sitemap__header`/`#sitemap__table`) the old XSL output used, so the compiled stylesheet
-	 * applies unchanged.
+	 * Writes the real HTML page and ends the request, same markup/CSS classes.
 	 *
 	 * @param array $table    From `url_rows()`/`index_rows()`.
 	 * @param bool  $is_index Whether this is the top-level sitemap index.
@@ -230,8 +226,7 @@ class SitemapStylesheet {
 	}
 
 	/**
-	 * Address of the compiled file, with the plugin version appended. Empty when the file has not
-	 * been built.
+	 * Address of the compiled file, with the plugin version appended.
 	 *
 	 * @return string
 	 */

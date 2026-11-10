@@ -92,9 +92,7 @@ const STATUS_SEVERITY_CLASS: Record<CoverageStatus, string> = {
 };
 
 /**
- * "Structured Data" section of the merged "Schema & Knowledge" tab - table left, detail panel
- * right (grid 8/4), same split IssuesSection.tsx uses above it, instead of a popup lightbox.
- * First real row auto-selects once a snapshot loads, same convention as `selectedGroup` there.
+ * "Structured Data" section of the merged "Schema & Knowledge" tab.
  */
 const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 	const { snapshot, isLoading } = coverage;

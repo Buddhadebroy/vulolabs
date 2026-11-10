@@ -65,8 +65,7 @@ class NotFoundLogger {
 	}
 
 	/**
-	 * Logs the current request as a 404 visit, if it is one - classified
-	 * as `is_system` (see is_system_path()) or a real content-page miss.
+	 * Logs the current request as a 404 visit, if it is one - classified as `is_system` (see is_system_path()) or a real content-page miss.
 	 *
 	 * @return void
 	 */

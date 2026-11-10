@@ -48,8 +48,7 @@ class LoginAttemptRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Real failed-attempt count for one IP within a rolling time window -
-	 * LoginProtectionGuard::block_if_locked_out()'s only query.
+	 * Real failed-attempt count for one IP within a rolling time window - LoginProtectionGuard::block_if_locked_out()'s only query.
 	 *
 	 * @param string $ip_address   Real client IP.
 	 * @param int    $minutes      Rolling window size.
@@ -70,8 +69,7 @@ class LoginAttemptRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Every distinct IP that actually tripped the lockout threshold at some point in the
-	 * last N days, with its own real failure count in that window.
+	 * Every distinct IP that actually tripped the lockout threshold at some point in the last N days, with its own real failure count in that window.
 	 *
 	 * @param int $days       Real lookback window.
 	 * @param int $threshold  Real, current `login_max_attempts` setting value.

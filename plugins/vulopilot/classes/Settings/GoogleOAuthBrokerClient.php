@@ -53,8 +53,7 @@ class GoogleOAuthBrokerClient {
 	}
 
 	/**
-	 * `POST {broker}/plugin/google/refresh` - refreshes tokens that were issued through
-	 * the broker, since a refresh token only works with the OAuth client that issued it.
+	 * `POST {broker}/plugin/google/refresh` - refreshes tokens that were issued through the broker, since a refresh token only works with the OAuth client that issued it.
 	 *
 	 * @return array{access_token: string, expires_in: int}|\WP_Error
 	 */

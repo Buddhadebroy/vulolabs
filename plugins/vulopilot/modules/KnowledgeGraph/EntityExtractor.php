@@ -111,9 +111,7 @@ class EntityExtractor {
 	}
 
 	/**
-	 * @return string Real, owner-provided `entity_business_name` override - empty when unset, so
-	 *                callers fall back to the first extracted organization's name, then the site
-	 *                title.
+	 * @return string Real, owner-provided `entity_business_name` override - empty when unset, so callers fall back to the first extracted organization's name, then the site title.
 	 */
 	private function get_business_name_setting(): string {
 		$settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
@@ -122,8 +120,7 @@ class EntityExtractor {
 	}
 
 	/**
-	 * @return string|null Full URL of the owner-uploaded `entity_business_logo_id` attachment, or
-	 *                      null when none is set.
+	 * @return string|null Full URL of the owner-uploaded `entity_business_logo_id` attachment, or null when none is set.
 	 */
 	private function get_business_logo_url(): ?string {
 		$settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
@@ -224,8 +221,7 @@ class EntityExtractor {
 	}
 
 	/**
-	 * The homepage's display name: the static front page's title, or the site title for a
-	 * latest-posts homepage.
+	 * The homepage's display name: the static front page's title, or the site title for a latest-posts homepage.
 	 *
 	 * @return string|null
 	 */
@@ -248,8 +244,7 @@ class EntityExtractor {
 	}
 
 	/**
-	 * Whether the real business name shows up in a real, published About page's own
-	 * content.
+	 * Whether the real business name shows up in a real, published About page's own content.
 	 *
 	 * @param string $business_name The real, already-resolved business name to check for.
 	 * @return array{value: string|null, url: string|null} `value` is the real business name when a published About page's content actually contains it, null otherwise (no About page, or one that doesn't mention it). `url` is that page's own real permalink whenever a published About page exists at all - even when its content doesn't mention the name, so "View" can still send someone to the real page to check for themselves.
@@ -279,8 +274,7 @@ class EntityExtractor {
 	}
 
 	/**
-	 * Real, deterministic, template-built candidate relationships - never AI-generated (no
-	 * AI call, no cost).
+	 * Real, deterministic, template-built candidate relationships - never AI-generated (no AI call, no cost).
 	 *
 	 * @param string     $business_name Real organization name (extract_organizations()'s own first entry).
 	 * @param array      $services      extract_services()'s own real rows.
@@ -342,8 +336,7 @@ class EntityExtractor {
 	}
 
 	/**
-	 * Real site "People" - every published post/page's author (as before) plus every real
-	 * WordPress Administrator, even one who's never authored anything.
+	 * Real site "People" - every published post/page's author (as before) plus every real WordPress Administrator, even one who's never authored anything.
 	 *
 	 * @return array<int, array{id: string, type: string, name: string, url: string|null, source_object_type: string.
 	 */
@@ -495,8 +488,7 @@ class EntityExtractor {
 	}
 
 	/**
-	 * "Product Details" panel data - real published store-platform products, each with a
-	 * real.
+	 * "Product Details" panel data - real published store-platform products, each with a real.
 	 *
 	 * @return array<int, array{id: int, name: string, url: string, edit_url: string|null, issues: array<int, string>.
 	 */
@@ -555,8 +547,7 @@ class EntityExtractor {
 	}
 
 	/**
-	 * Owner-curated, newline-separated page URLs/ids (Site Identity → Business
-	 * Information's `entity_service_pages` setting).
+	 * Owner-curated, newline-separated page URLs/ids (Site Identity → Business Information's `entity_service_pages` setting).
 	 *
 	 * @return array<int, array{id: string, type: string, name: string, url: string|null, source_object_type: string.
 	 */
@@ -597,8 +588,7 @@ class EntityExtractor {
 	}
 
 	/**
-	 * `url_to_postid()` alone (this method's only resolution path until this fix) silently
-	 * fails for a real, live.
+	 * `url_to_postid()` alone (this method's only resolution path until this fix) silently fails for a real, live.
 	 *
 	 * @param string $line One raw line from the setting - either a numeric post ID or a URL.
 	 * @return int 0 if nothing resolves.
@@ -626,8 +616,7 @@ class EntityExtractor {
 	}
 
 	/**
-	 * Owner-curated, newline-separated `Name | Address` lines (Site Identity → Business
-	 * Information's `entity_business_locations` setting).
+	 * Owner-curated, newline-separated `Name | Address` lines (Site Identity → Business Information's `entity_business_locations` setting).
 	 *
 	 * @return array<int, array{id: string, type: string, name: string, url: null, source_object_type: string.
 	 */

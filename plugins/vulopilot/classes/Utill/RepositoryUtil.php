@@ -139,8 +139,7 @@ abstract class RepositoryUtil implements RepositoryInterface {
 	}
 
 	/**
-	 * Row counts grouped by one column, scoped by the other filterable columns in `$args`
-	 * but not by `search`.
+	 * Row counts grouped by one column, scoped by the other filterable columns in `$args` but not by `search`.
 	 *
 	 * @param string               $column Column to GROUP BY.
 	 * @param array<string, mixed> $args   Same shape as find_all()'s $args.
@@ -218,8 +217,7 @@ abstract class RepositoryUtil implements RepositoryInterface {
 	}
 
 	/**
-	 * Applies the same update to a bounded set of rows (e.g. rows checked via a table's
-	 * bulk-action UI).
+	 * Applies the same update to a bounded set of rows (e.g. rows checked via a table's bulk-action UI).
 	 *
 	 * @param int[]                $ids  Row ids to update.
 	 * @param array<string, mixed> $data Column => value pairs to set on every row.

@@ -241,8 +241,7 @@ class Install {
 
 
 	/**
-	 * Creates `vulopilot_ai_conversations` - AI Copilot's own persisted chat threads
-	 * (Copilot.php, RecentConversationsCard.tsx's "click to load full history" feature).
+	 * Creates `vulopilot_ai_conversations` - AI Copilot's own persisted chat threads.
 	 *
 	 * @return void
 	 */
@@ -271,8 +270,7 @@ class Install {
 	}
 
 	/**
-	 * Creates `vulopilot_redirects` and `vulopilot_not_found_logs` - own method, same
-	 * shape as create_crawler_visits_table() below.
+	 * Creates `vulopilot_redirects` and `vulopilot_not_found_logs` - own method, same shape as create_crawler_visits_table() below.
 	 *
 	 * @return void
 	 */
@@ -347,8 +345,7 @@ class Install {
 	}
 
 	/**
-	 * Creates `vulopilot_performance_samples` - "Performance" Overview's real-time data,
-	 * one row per sample, `sample_type` saying which kind: - `request`.
+	 * Creates `vulopilot_performance_samples` - "Performance" Overview's real-time data, one row per sample, `sample_type` saying which kind: - `request`.
 	 *
 	 * @return void
 	 */
@@ -379,9 +376,7 @@ class Install {
 	}
 
 	/**
-	 * Creates `vulopilot_page_speed` - "Performance" › Slow Pages' per-page speed table
-	 * (PageSpeedScanner writes here, one row per real page it has checked, replaced on
-	 * every rescan).
+	 * Creates `vulopilot_page_speed` - "Performance" › Slow Pages' per-page speed table.
 	 *
 	 * @return void
 	 */
@@ -425,8 +420,7 @@ class Install {
 	}
 
 	/**
-	 * Creates `vulopilot_security_events` - Protect My Site's IP-based event log, one row
-	 * per event, `event_type` saying which kind: - `login_attempt`.
+	 * Creates `vulopilot_security_events` - Protect My Site's IP-based event log, one row per event, `event_type` saying which kind: - `login_attempt`.
 	 *
 	 * @return void
 	 */
@@ -458,8 +452,7 @@ class Install {
 	}
 
 	/**
-	 * Creates `vulopilot_backups` - Protect My Site's "Backups"/"Recovery" tiles
-	 * (BackupManager/BackupScheduler).
+	 * Creates `vulopilot_backups` - Protect My Site's "Backups"/"Recovery" tiles (BackupManager/BackupScheduler).
 	 *
 	 * @return void
 	 */
@@ -496,8 +489,7 @@ class Install {
 	}
 
 	/**
-	 * Creates `vulopilot_crawler_visits` - its own method, same shape as every other
-	 * create_*_table() method below create_database_tables().
+	 * Creates `vulopilot_crawler_visits` - its own method, same shape as every other create_*_table() method below create_database_tables().
 	 *
 	 * @return void
 	 */

@@ -51,8 +51,7 @@ class PostSeo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Runs OnPageAnalyzer against the editor's current (possibly
-	 * unsaved) field values, not the post as stored in the database.
+	 * Runs OnPageAnalyzer against the editor's current (possibly unsaved) field values, not the post as stored in the database.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response

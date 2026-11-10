@@ -36,8 +36,7 @@ class AutomationsRunRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Run/success/failure counts for one date range - what
-	 * Reports\Types\AutomationsReport's headline summary reads.
+	 * Run/success/failure counts for one date range - what Reports\Types\AutomationsReport's headline summary reads.
 	 *
 	 * @param string $period_start Y-m-d, inclusive.
 	 * @param string $period_end   Y-m-d, inclusive.
@@ -69,8 +68,7 @@ class AutomationsRunRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Sum of the already-persisted per-run `actions_executed`/`actions_failed`/
-	 * `changes_made` counters over one date range.
+	 * Sum of the already-persisted per-run `actions_executed`/`actions_failed`/ `changes_made` counters over one date range.
 	 *
 	 * @param string $period_start Y-m-d, inclusive.
 	 * @param string $period_end   Y-m-d, inclusive.
@@ -138,8 +136,7 @@ class AutomationsRunRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * The single most recent run per automation, for however many of `$automation_ids`
-	 * actually have one.
+	 * The single most recent run per automation, for however many of `$automation_ids` actually have one.
 	 *
 	 * @param int[] $automation_ids Real automation ids to look up; empty returns empty.
 	 * @return array<int, array{status: string, actions_executed: int, actions_failed: int, changes_made: int, started_at: string.
@@ -234,8 +231,7 @@ class AutomationsRunRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Per-automation run counts for one date range, joined against `vulopilot_automations`
-	 * for the display name.
+	 * Per-automation run counts for one date range, joined against `vulopilot_automations` for the display name.
 	 *
 	 * @param string $period_start Y-m-d, inclusive.
 	 * @param string $period_end   Y-m-d, inclusive.

@@ -370,7 +370,7 @@ interface IssueSectionProps {
 	showSummary?: boolean;
 }
 
-/** Collapsible group: header always visible, rows expand/collapse on click. Starts open only when it contains the deep-link target. */
+/** Collapsible group: header always visible, rows expand/collapse on click. */
 function IssueSection( { heading, idPrefix, rows, isLoading, error, emptyMessage, pulsingId, onNavigate, fixControls, showSummary }: IssueSectionProps ) {
 	const failCount = rows.filter( ( row ) => 'fail' === row.status ).length;
 	const warnCount = rows.filter( ( row ) => 'warn' === row.status ).length;
@@ -420,9 +420,7 @@ function IssueSection( { heading, idPrefix, rows, isLoading, error, emptyMessage
  */
 export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAnalysisTabProps ) {
 	const { postId, title, excerpt, slug, content, meta, setExcerpt, setMeta } = usePostData();
-	// Same per-post override GeneralTab.tsx's own SEO Title field writes - independent of the real
-	// post title, which "Fix with AI" must never silently rename (#bug: this used to call
-	// setTitle(), renaming the page itself).
+	// Same per-post override GeneralTab.tsx's own SEO Title field writes.
 	const seoTitle = ( meta[ window.vulopilotPostSeo.metaKeys.seo_title ] as string ) || '';
 	const focusKeyword = ( meta[ window.vulopilotPostSeo.metaKeys.focus_keyword ] as string ) || '';
 
@@ -636,8 +634,7 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 		onFix: handleFix,
 	};
 
-	// "SEO" and "Content" lists, worst first, so nothing is shown twice: the live checks (this
-	// editor's current, possibly unsaved state) are split by what they grade.
+	// "SEO" and "Content" lists, worst first, so nothing is shown twice: the live checks (this editor's current, possibly unsaved state) are split by what they grade.
 	const bySeverity = ( a: IssueRow, b: IssueRow ) => STATUS_ORDER[ a.status ] - STATUS_ORDER[ b.status ];
 	const contentRows = liveResults
 		.filter( ( result ) => CONTENT_CHECK_IDS.includes( result.id ) )

@@ -19,9 +19,7 @@ const TAB_META: Record<
 };
 
 /**
- * "Performance" (WP menu slug `performance`) - Overview (OverviewTab.tsx) and a real "Slow Pages"
- * tab (SlowPagesTab.tsx, a real per-page speed report - PageSpeedRepository, populated in the
- * background by Services\PageSpeedScanner).
+ * "Performance" (WP menu slug `performance`).
  */
 const Performance = () => {
 	const subtab = new URLSearchParams(useLocation().hash.substring(1)).get(

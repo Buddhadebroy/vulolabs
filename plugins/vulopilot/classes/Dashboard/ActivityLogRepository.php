@@ -45,8 +45,7 @@ class ActivityLogRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * User/system/automation counts, zero-filled - backs the Activity table's status-count
-	 * pill bar.
+	 * User/system/automation counts, zero-filled - backs the Activity table's status-count pill bar.
 	 *
 	 * @return array{user: int, system: int, automation: int}
 	 */
@@ -138,8 +137,7 @@ class ActivityLogRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Placeholder values for the timeline's WHERE clause, in the order the clause's own
-	 * placeholders appear: event types, then the search term.
+	 * Placeholder values for the timeline's WHERE clause, in the order the clause's own placeholders appear: event types, then the search term.
 	 *
 	 * @param string[]             $event_types Event types the timeline is limited to.
 	 * @param array<string, mixed> $args        Same filters `get_timeline()` takes.
@@ -166,8 +164,7 @@ class ActivityLogRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * How many `$per_page`-sized pages, counted from the newest row, it takes to include
-	 * row `$id` under the same filters as the timeline query.
+	 * How many `$per_page`-sized pages, counted from the newest row, it takes to include row `$id` under the same filters as the timeline query.
 	 *
 	 * @param string               $table       This plugin's own activity-log table name.
 	 * @param string[]             $event_types Event types the timeline is limited to.

@@ -329,8 +329,7 @@ const BuiltinAutomationCards = ({ refetchSignal, onChanged, highlightTemplateId 
 	/** Which card (by real template id) is currently showing the highlight flash. */
 	const [flashedTemplateId, setFlashedTemplateId] = useState<string | null>(null);
 
-	// `isLoading` only starts true for the first load - refetches after a toggle/frequency
-	// change/run must NOT flip it back on.
+	// `isLoading` only starts true for the first load - refetches after a toggle/frequency change/run must NOT flip it back on.
 	const fetchRows = () => {
 		getApiResponse<{ data: BuiltinRow[] } | BuiltinRow[]>(
 			`${getApiLink(vulopilotAppLocalizer, 'automations')}?per_page=100`,
@@ -380,8 +379,7 @@ const BuiltinAutomationCards = ({ refetchSignal, onChanged, highlightTemplateId 
 	const scanRow = rows.find((row) => FULL_SITE_SCAN_TRIGGER === row.trigger_type) ?? null;
 	const reportRow = rows.find((row) => VISIBILITY_REPORT_TRIGGER === row.trigger_type) ?? null;
 
-	// `onChanged` bumps the host's `refetchSignal`, which already re-runs
-	// `fetchRows` through the effect above - calling it here too fetched twice.
+	// `onChanged` bumps the host's `refetchSignal`, which already re-runs `fetchRows` through the effect above - calling it here too fetched twice.
 	const handleChanged = () => {
 		onChanged();
 	};

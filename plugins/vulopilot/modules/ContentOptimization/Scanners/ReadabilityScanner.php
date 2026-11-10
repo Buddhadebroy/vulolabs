@@ -147,8 +147,7 @@ class ReadabilityScanner extends ScannerUtil implements TracksScannedObjectsInte
 	}
 
 	/**
-	 * Standard vowel-group heuristic: count transitions into a vowel group (a run of
-	 * a/e/i/o/u/y not preceded by another vowel).
+	 * Standard vowel-group heuristic: count transitions into a vowel group (a run of a/e/i/o/u/y not preceded by another vowel).
 	 *
 	 * @param string $plain_text Already-stripped-of-HTML content.
 	 * @return int

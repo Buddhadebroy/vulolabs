@@ -9,8 +9,7 @@ import AiContentAssistantSidebar from './AiContentAssistantSidebar';
 import './CreateContent.scss';
 
 /**
- * "Content" (WP menu slug `content`) - used to be a tab shell over Overview (formerly its own
- * OverviewTab.tsx, inlined here - it had exactly one consumer, this file).
+ * "Content" (WP menu slug `content`) - used to be a tab shell over Overview.
  */
 const Content = () => {
 	return (

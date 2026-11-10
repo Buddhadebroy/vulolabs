@@ -63,8 +63,7 @@ const TONE_RATING_LABEL: Record<ScoreTone, string> = {
 };
 
 /**
- * "Site Overview" card: overall score ring, four category scores and the open findings count, from
- * `GET /dashboard`.
+ * "Site Overview" card: overall score ring, four category scores and the open findings count, from `GET /dashboard`.
  */
 const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 	onNavigateTab,

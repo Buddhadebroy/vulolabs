@@ -93,8 +93,7 @@ class SitemapUrlRewriter {
 	}
 
 	/**
-	 * Rewrites each real child sitemap's own `loc` on the INDEX page (`sitemap_index.xml`)
-	 * to its real new pretty URL directly.
+	 * Rewrites each real child sitemap's own `loc` on the INDEX page (`sitemap_index.xml`) to its real new pretty URL directly.
 	 *
 	 * @param array  $sitemap_entry  Core's own real sitemap-index entry (`['loc' => …]`).
 	 * @param string $object_type    Core's own real generic object type (`post`/`term`/`user`).
@@ -138,8 +137,7 @@ class SitemapUrlRewriter {
 	}
 
 	/**
-	 * Core has no `get_lastpostmodified()` equivalent scoped to a taxonomy, so this finds it
-	 * directly: the most recently modified published post carrying any term of `$taxonomy`.
+	 * Core has no `get_lastpostmodified()` equivalent scoped to a taxonomy, so this finds it directly: the most recently modified published post carrying any term of `$taxonomy`.
 	 *
 	 * @param string $taxonomy Taxonomy slug.
 	 * @return string Post's `post_modified_gmt`, or '' when nothing is published yet.
@@ -167,8 +165,7 @@ class SitemapUrlRewriter {
 	}
 
 	/**
-	 * Registers the real new pretty-URL rewrite rules - one pair (page-1-implicit + page-
-	 * N-suffixed) per real registered provider/ subtype combination.
+	 * Registers the real new pretty-URL rewrite rules - one pair (page-1-implicit + page- N-suffixed) per real registered provider/ subtype combination.
 	 *
 	 * @return void
 	 */
@@ -239,8 +236,7 @@ class SitemapUrlRewriter {
 	}
 
 	/**
-	 * Flushes rewrite rules once, gated on `REWRITE_VERSION`, so new sitemap rules reach
-	 * already-active installs.
+	 * Flushes rewrite rules once, gated on `REWRITE_VERSION`, so new sitemap rules reach already-active installs.
 	 *
 	 * @return void
 	 */
@@ -261,8 +257,7 @@ class SitemapUrlRewriter {
 	}
 
 	/**
-	 * Rebuilds the rewrite rules with this class's sitemap rules included and records that
-	 * it did.
+	 * Rebuilds the rewrite rules with this class's sitemap rules included and records that it did.
 	 *
 	 * @return void
 	 */
@@ -285,8 +280,7 @@ class SitemapUrlRewriter {
 	}
 
 	/**
-	 * The real index sitemap URL as it actually resolves right now - the pretty
-	 * `/sitemap_index.xml` when pretty rules are registered, else core's own `/wp-sitemap.xml`.
+	 * The real index sitemap URL as it actually resolves right now.
 	 *
 	 * @return string
 	 */

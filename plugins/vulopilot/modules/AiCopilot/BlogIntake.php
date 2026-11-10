@@ -61,9 +61,7 @@ class BlogIntake {
 	 * Handles a chat message if it starts or continues a blog request.
 	 *
 	 * @param string $message The user's message.
-	 * @return array<string, mixed>|null A decision - `question`/`respond` with a `message`, or
-	 *                                   `ready_action` with `generate-blog`'s complete `input` -
-	 *                                   or null when the message isn't part of a blog request.
+	 * @return array<string, mixed>|null A decision - `question`/`respond` with a `message`, or `ready_action` with `generate-blog`'s complete `input`.
 	 */
 	public function handle( string $message ): ?array {
 		$state = $this->load();

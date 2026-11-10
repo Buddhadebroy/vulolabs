@@ -33,10 +33,7 @@ const CATEGORY_TAB_LINKS: Record<string, string> = {
 };
 
 /**
- * @param category A finding's `category` field. Unrecognized/empty
- * categories fall back to the Health page - the one real page that lists
- * every category's open findings unfiltered, so the link always lands
- * somewhere the finding genuinely appears.
+ * @param category A finding's `category` field.
  */
 export const getCategoryTabHash = (category?: string): string => {
 	const target = CATEGORY_TAB_LINKS[category ?? ''] ?? 'health';

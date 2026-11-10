@@ -38,10 +38,7 @@ class GeoAnalyzer {
     private ActivityLogRepository $activity_logs;
 
     /**
-     * $request_sender is deliberately required, not defaulted - VuloPilot.php's
-     * init_classes() builds the one real AiRequestSender during bootstrap and
-     * this class must be given that same instance, the same reason
-     * AiCopilot\ActionRunner requires it too.
+     * $request_sender is deliberately required, not defaulted.
      *
      * @param AiRequestSender            $request_sender Sends a prompt through the safety-validate → send → sanitize sequence.
      * @param FindingRepository|null     $findings       Defaults to a new instance (injectable for tests).
@@ -177,8 +174,7 @@ class GeoAnalyzer {
     }
 
     /**
-     * Reads back a previously generated score without spending another
-     * AI call - what the REST controller's fetch route returns.
+     * Reads back a previously generated score without spending another AI call - what the REST controller's fetch route returns.
      *
      * @param int $post_id Post to read a score for.
      * @return array<string, mixed>|null
@@ -196,10 +192,7 @@ class GeoAnalyzer {
     }
 
     /**
-     * Percentage of GEO-MODULE.md's 9 deterministic checks that have no
-     * open finding for this post (8 per-post scanners) or sitewide (Trust
-     * Signals) - null if this site has no GEO scan history at all yet,
-     * so an absence of problems is never confused with "never checked."
+     * Percentage of GEO-MODULE.md's 9 deterministic checks that have no open finding for this post.
      *
      * @param int $post_id Post to score.
      * @return int|null 0-100, or null if no 'geo' category finding has ever been recorded.
@@ -238,10 +231,7 @@ class GeoAnalyzer {
     }
 
     /**
-     * The deterministic-score formula, extracted so
-     * Controllers\GeoAnalysis::get_pages() can compute the same score in
-     * bulk for every published page without calculate_deterministic_score()'s
-     * per-post queries.
+     * The deterministic-score formula, extracted so Controllers\GeoAnalysis::get_pages() can compute the same score in bulk for every published page without calculate_deterministic_score()'s per-post queries.
      *
      * @param int      $per_post_failures             Open findings against this specific post (uncapped - capped below).
      * @param bool     $sitewide_trust_signal_failure  Whether the sitewide Trust Signals check is currently open.
@@ -260,7 +250,7 @@ class GeoAnalyzer {
     }
 
     /**
-     * The 6 readme.txt AI-Visibility sub-metrics that don't need an AI judgment call - either a direct or composite read of specific scanner-id findings (made queryable by FindingRepository's `scanner_id` filter), or a value computed straight from the post object already in hand.
+     * The 6 readme.txt AI-Visibility sub-metrics that don't need an AI judgment call.
      *
      * @param int      $post_id Post to score.
      * @param \WP_Post $post    Same post, already loaded by analyze().
@@ -296,10 +286,7 @@ class GeoAnalyzer {
     }
 
     /**
-     * Whether one specific scanner has an open finding against one
-     * specific object - the per-check building block calculate_sub_scores()
-     * composes into named sub-metrics, made possible by FindingRepository
-     * exposing `scanner_id` as a filterable column.
+     * Whether one specific scanner has an open finding against one specific object.
      *
      * @param string $scanner_id One of the Geo*Scanner::get_id() strings.
      * @param string $object_ref Post id (or home_url('/') for the sitewide Trust Signals check).
@@ -318,7 +305,7 @@ class GeoAnalyzer {
     }
 
     /**
-     * Coarse recency tiering off `post_modified_gmt`, scored on a 0-100 scale. Tier boundaries scale off the "Content freshness" setting's `ai_visibility_scans.freshness.stale_months`.
+     * Coarse recency tiering off `post_modified_gmt`, scored on a 0-100 scale.
      *
      * @param \WP_Post $post Post being scored.
      * @return int 0-100.
@@ -341,10 +328,7 @@ class GeoAnalyzer {
     }
 
     /**
-     * Scores evidence density using GeoCitationOpportunityScanner's claim
-     * regex, counting matches per 500 words against the "Evidence checks"
-     * setting's `ai_visibility_scans.evidence.min_data_points` threshold;
-     * the middle tier sits at half that.
+     * Scores evidence density using GeoCitationOpportunityScanner's claim regex, counting matches per 500 words against the "Evidence checks" setting's `ai_visibility_scans.evidence.min_data_points` threshold; the middle tier sits at half that.
      *
      * @param \WP_Post $post Post being scored.
      * @return int 0-100.

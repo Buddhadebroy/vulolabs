@@ -101,8 +101,7 @@ interface PerformanceTabProps {
 }
 
 /**
- * "Top Issues" - Performance's own OverviewTab.tsx (wrapped in `#performance-section-findings`) is
- * this component's only call site.
+ * "Top Issues" - Performance's own OverviewTab.tsx (wrapped in `#performance-section-findings`) is this component's only call site.
  */
 const PerformanceTab = ({ activeTab, onTabChange }: PerformanceTabProps) => {
 	return (

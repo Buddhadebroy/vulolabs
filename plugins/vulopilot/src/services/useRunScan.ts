@@ -13,9 +13,9 @@ interface ScanQueueStatus {
 /** How often to re-check `/scans/status` while a queued run is in progress. */
 const POLL_INTERVAL_MS = 1500;
 
-/** `POST /scans` only queues scanners now (ScanRunner::run_queued()) - this polls
- * `/scans/status` until the background batch runner (ScanRunner::process_batch(), via
- * WP-Cron) has drained the queue. */
+/**
+ * `POST /scans` only queues scanners now (ScanRunner::run_queued()).
+ */
 const pollUntilDone = (onDone: () => void) => {
 	const tick = () => {
 		getApiResponse<ScanQueueStatus>(

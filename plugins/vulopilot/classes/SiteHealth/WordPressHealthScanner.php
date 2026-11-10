@@ -70,7 +70,6 @@ class WordPressHealthScanner extends ScannerUtil {
 
 	/**
 	 * Flags installed but deactivated plugins, which remain on disk as an attack surface.
-	 * Core Site Health only lists them.
 	 *
 	 * @return Finding|null Null when there are no inactive plugins.
 	 */
@@ -175,8 +174,7 @@ class WordPressHealthScanner extends ScannerUtil {
 	}
 
 	/**
-	 * `WP_Site_Health`'s own test descriptions are built from separate real HTML `p`
-	 * blocks (confirmed by reading `WP_Site_Health`'s own core source).
+	 * `WP_Site_Health`'s own test descriptions are built from separate real HTML `p` blocks (confirmed by reading `WP_Site_Health`'s own core source).
 	 *
 	 * @param string $html_description Raw HTML `description` from a `WP_Site_Health` test result.
 	 * @return array<int, string> Plain-text paragraphs, in order, empty ones dropped.

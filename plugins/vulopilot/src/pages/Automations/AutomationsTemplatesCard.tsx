@@ -15,8 +15,7 @@ interface AutomationsTemplatesCardProps {
 }
 
 /**
- * "Create new automation" - a real entry point into Automate Work's
- * existing create-automation flow, not a decorative mockup.
+ * "Create new automation" - a real entry point into Automate Work's existing create-automation flow, not a decorative mockup.
  */
 const AutomationsTemplatesCard: React.FC<AutomationsTemplatesCardProps> = ({
 	onSelectTemplate,

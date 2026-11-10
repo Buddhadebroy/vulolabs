@@ -192,8 +192,7 @@ class FrontendScripts {
 	}
 
 	/**
-	 * Real, currently-registered public post types beyond the 4 this plugin's own Sitemap
-	 * settings tab already hardcodes as fixed checkboxes.
+	 * Real, currently-registered public post types beyond the 4 this plugin's own Sitemap settings tab already hardcodes as fixed checkboxes.
 	 *
 	 * @return array<int, array{value: string, label: string}>
 	 */
@@ -218,8 +217,7 @@ class FrontendScripts {
 	}
 
 	/**
-	 * Converts a PHP `date()` format string into the token syntax zyra's table `date`
-	 * column understands.
+	 * Converts a PHP `date()` format string into the token syntax zyra's table `date` column understands.
 	 *
 	 * @param string $php_format A PHP `date()` format string, e.g. get_option( 'date_format' ).
 	 * @return string The same format expressed in zyra's token syntax.
@@ -266,8 +264,7 @@ class FrontendScripts {
 	}
 
 	/**
-	 * Best real image to represent the homepage: the static front page's featured image,
-	 * else the custom logo, else the site icon.
+	 * Best real image to represent the homepage: the static front page's featured image, else the custom logo, else the site icon.
 	 *
 	 * @return string Image URL, or '' when the site has none of them.
 	 */

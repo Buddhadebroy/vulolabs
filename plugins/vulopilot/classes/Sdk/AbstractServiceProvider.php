@@ -29,8 +29,7 @@ abstract class AbstractServiceProvider {
 	private array $resolved = array();
 
 	/**
-	 * Registers this provider's services - call bind() here for
-	 * everything the extension wants resolvable through make().
+	 * Registers this provider's services - call bind() here for everything the extension wants resolvable through make().
 	 *
 	 * @return void
 	 */

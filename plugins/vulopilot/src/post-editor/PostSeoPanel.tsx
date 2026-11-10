@@ -62,7 +62,7 @@ interface PostSeoPanelProps {
 }
 
 /**
- * The metabox's tab shell. "Page Analysis" is VuloPilot's own addition.
+ * The metabox's tab shell.
  */
 export default function PostSeoPanel( { initialTabName, highlightTarget, navigationNonce, navigationTarget }: PostSeoPanelProps ) {
 	const [ navTarget, setNavTarget ] = useState< { tab: SeoIssueEditorTab; target?: string } | null >( null );

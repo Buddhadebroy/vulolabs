@@ -107,8 +107,7 @@ class DatabaseCleanupScanner extends ScannerUtil {
 	}
 
 	/**
-	 * Counts revisions beyond the most recent KEEP_REVISIONS_PER_POST for each post that
-	 * has any.
+	 * Counts revisions beyond the most recent KEEP_REVISIONS_PER_POST for each post that has any.
 	 *
 	 * @return int
 	 */

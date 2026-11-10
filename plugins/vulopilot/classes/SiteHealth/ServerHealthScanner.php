@@ -107,8 +107,7 @@ class ServerHealthScanner extends ScannerUtil {
 	}
 
 	/**
-	 * Same real paragraph-recovery (and same `br`-within-a-paragraph handling)
-	 * `WordPressHealthScanner`'s own `split_into_paragraphs()` documents.
+	 * Same real paragraph-recovery (and same `br`-within-a-paragraph handling) `WordPressHealthScanner`'s own `split_into_paragraphs()` documents.
 	 *
 	 * @param string $html_description Raw HTML `description` from a `WP_Site_Health` test result.
 	 * @return array<int, string> Plain-text paragraphs, in order, empty ones dropped.

@@ -34,8 +34,7 @@ const formatBytes = (bytes: number): string => {
 };
 
 /**
- * "Real-time Monitoring": server response time, from `GET /performance-realtime`, and the other
- * live sub-metrics.
+ * "Real-time Monitoring": server response time, from `GET /performance-realtime`, and the other live sub-metrics.
  */
 const RealTimeMonitoringCard = () => {
 	const [stats, setStats] = useState<RealtimeStats | null>(null);

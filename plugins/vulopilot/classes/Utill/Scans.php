@@ -66,10 +66,7 @@ class Scans extends \WP_REST_Controller {
 	}
 
 	/**
-	 * @inheritDoc
-	 *
-	 * Accepts comma-separated `scanner_id` and/or `category` params (merged together)
-	 * plus `orderby`/`order`, so callers can scope results without paging client-side.
+	 * @inheritDoc Accepts comma-separated `scanner_id` and/or `category` params (merged together) plus `orderby`/`order`, so callers can scope results without paging client-side.
 	 */
 	public function get_items( $request ) {
 		$repository  = new ScanRepository();
@@ -105,7 +102,7 @@ class Scans extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Comma-separated `category` scopes the run and takes precedence over `scanner_id`. Treated as a forced, user-initiated run unless the caller sends `trigger_type=scheduled`, so rate-limited scanners still run on demand.
+	 * Comma-separated `category` scopes the run and takes precedence over `scanner_id`.
 	 *
 	 * @inheritDoc
 	 */
@@ -140,8 +137,7 @@ class Scans extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real status of the current (if any) queued scan run - the frontend polls this
-	 * instead of waiting on `create_item()` to block until every scanner finishes.
+	 * Real status of the current (if any) queued scan run - the frontend polls this instead of waiting on `create_item()` to block until every scanner finishes.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response

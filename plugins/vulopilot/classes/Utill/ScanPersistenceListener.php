@@ -223,8 +223,7 @@ class ScanPersistenceListener {
 	}
 
 	/**
-	 * Emails the site's notification address when this scan raised any critical-severity
-	 * finding.
+	 * Emails the site's notification address when this scan raised any critical-severity finding.
 	 *
 	 * @param ScanResult $scan_result The completed scan.
 	 * @return void
@@ -307,8 +306,7 @@ class ScanPersistenceListener {
 	}
 
 	/**
-	 * Cron callback for `vulopilot_send_critical_alert_email` - the actual wp_mail() call,
-	 * off the scan request's own thread.
+	 * Cron callback for `vulopilot_send_critical_alert_email` - the actual wp_mail() call, off the scan request's own thread.
 	 *
 	 * @param string   $recipient
 	 * @param string   $subject

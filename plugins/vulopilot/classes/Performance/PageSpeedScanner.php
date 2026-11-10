@@ -46,8 +46,7 @@ class PageSpeedScanner {
 	}
 
 	/**
-	 * Enumerates real pages and seeds the queue for a fresh scan. Safe to
-	 * call again mid-scan - replaces whatever queue existed.
+	 * Enumerates real pages and seeds the queue for a fresh scan.
 	 *
 	 * @return array{queued: int}
 	 */
@@ -217,8 +216,7 @@ class PageSpeedScanner {
 	}
 
 	/**
-	 * Bands a score into the 'slow'/'needs_improvement'/'good' status stored in its own
-	 * column.
+	 * Bands a score into the 'slow'/'needs_improvement'/'good' status stored in its own column.
 	 *
 	 * @param int $score Real 0-100 score.
 	 * @return string 'slow'|'needs_improvement'|'good'.
@@ -236,8 +234,7 @@ class PageSpeedScanner {
 	}
 
 	/**
-	 * Linear score derived from a real measured load time, anchored so SlowPageScanner's
-	 * own real 2-second "slow" threshold lands at exactly 50.
+	 * Linear score derived from a real measured load time, anchored so SlowPageScanner's own real 2-second "slow" threshold lands at exactly 50.
 	 *
 	 * @param int $load_time_ms Real measured response time, in milliseconds.
 	 * @return int 0-100.
@@ -293,8 +290,7 @@ class PageSpeedScanner {
 	}
 
 	/**
-	 * A real Lighthouse audit's own `numericValue` (e.g. `total-byte-weight`,
-	 * in bytes) - null when that audit isn't present in this response.
+	 * A real Lighthouse audit's own `numericValue` (e.g. `total-byte-weight`, in bytes) - null when that audit isn't present in this response.
 	 *
 	 * @param array<string, mixed> $audits Real `lighthouseResult.audits` from a PSI response.
 	 * @param string               $audit_id Audit id, e.g. 'total-byte-weight'.
@@ -307,8 +303,7 @@ class PageSpeedScanner {
 	}
 
 	/**
-	 * Real request count from the `network-requests` Lighthouse audit's own
-	 * `details.items` array - one real entry per network request Lighthouse observed.
+	 * Real request count from the `network-requests` Lighthouse audit's own `details.items` array - one real entry per network request Lighthouse observed.
 	 *
 	 * @param array<string, mixed> $audits Real `lighthouseResult.audits` from a PSI response.
 	 * @return int|null
@@ -346,8 +341,7 @@ class PageSpeedScanner {
 	}
 
 	/**
-	 * Picks the real Lighthouse audit with the greatest potential savings (`numericValue`
-	 * on an opportunity-type audit that scored below 0.9).
+	 * Picks the real Lighthouse audit with the greatest potential savings (`numericValue` on an opportunity-type audit that scored below 0.9).
 	 *
 	 * @param array<string, mixed> $audits Real `lighthouseResult.audits` from a PSI response.
 	 * @return string|null
@@ -443,8 +437,7 @@ class PageSpeedScanner {
 	}
 
 	/**
-	 * Adds real store-platform shop/cart/checkout pages, recent products, and
-	 * product categories to the enumeration.
+	 * Adds real store-platform shop/cart/checkout pages, recent products, and product categories to the enumeration.
 	 *
 	 * @param callable $add Closure that records one real (url, title, page_type) entry.
 	 * @return void

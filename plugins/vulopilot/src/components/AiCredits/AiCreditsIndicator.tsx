@@ -10,12 +10,6 @@ import './AiCreditsIndicator.scss';
 
 /**
  * The persistent "⚡ N AI Credits" indicator (architecture plan §21).
- *
- * Not connected: starts the real VuloCloud OAuth flow directly, no popup - a popup here used to
- * just wrap one small notice card in a lot of empty space.
- *
- * Connected: opens the real balance panel as a `slide-right-to-left` anchored panel rather than a
- * full-screen lightbox, since it's anchored to its own header button, not a modal dialog.
  */
 const AiCreditsIndicator = () => {
 	const { status, isLoading, refresh } = useAiCredits();

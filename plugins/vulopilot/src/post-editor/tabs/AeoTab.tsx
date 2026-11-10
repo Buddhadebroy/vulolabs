@@ -9,7 +9,7 @@ interface AeoTabProps {
 	onNavigate?: ( tab: string, target?: string ) => void;
 }
 
-/** AEO citation check - Pro-only. Card shell only; the real check is Pro's `AeoCitationCheckPanel.tsx`. */
+/** AEO citation check - Pro-only. */
 export default function AeoTab( _props: AeoTabProps ) {
 	const { postId } = usePostData();
 	const Panel = useFilterSlot< ComponentType< { postId: number } > >(

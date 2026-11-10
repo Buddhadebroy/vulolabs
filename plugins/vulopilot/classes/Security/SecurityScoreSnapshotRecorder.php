@@ -72,8 +72,7 @@ class SecurityScoreSnapshotRecorder {
 	}
 
 	/**
-	 * Standard wp_next_scheduled()-guarded wp_schedule_event() pattern -
-	 * same shape PerformanceScoreSnapshotRecorder already uses.
+	 * Standard wp_next_scheduled()-guarded wp_schedule_event() pattern - same shape PerformanceScoreSnapshotRecorder already uses.
 	 *
 	 * @return void
 	 */

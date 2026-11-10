@@ -14,8 +14,7 @@ defined( 'ABSPATH' ) || exit;
 class HeadingAnchorResolver {
 
 	/**
-	 * Every real `core/heading` block in a post's raw content, in document order, at any
-	 * nesting depth (inside `core/group`/`core/columns`/etc).
+	 * Every real `core/heading` block in a post's raw content, in document order, at any nesting depth (inside `core/group`/`core/columns`/etc).
 	 *
 	 * @param int $post_id Real post id.
 	 * @return array<int, array{level: int, text: string, anchor: string}>
@@ -58,8 +57,7 @@ class HeadingAnchorResolver {
 	}
 
 	/**
-	 * Heading `content`, `level` and `anchor` are markup-sourced, so they are not in
-	 * `$block['attrs']` and are read from the inner HTML.
+	 * Heading `content`, `level` and `anchor` are markup-sourced, so they are not in `$block['attrs']` and are read from the inner HTML.
 	 *
 	 * @param string              $inner_html A core/heading block's raw `innerHTML`.
 	 * @param array<string, bool> $used       Slugs already claimed, appended to by reference.

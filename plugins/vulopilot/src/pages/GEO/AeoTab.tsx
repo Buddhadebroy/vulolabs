@@ -82,8 +82,7 @@ const average = (values: number[]): number =>
 		: 0;
 
 /**
- * The same 3-dimension average the "AEO Score" ring computes for "today"
- * (`answer_first_structure`/`question_coverage`/`citation_readiness`).
+ * The same 3-dimension average the "AEO Score" ring computes for "today" (`answer_first_structure`/`question_coverage`/`citation_readiness`).
  */
 const getAeoTrendScore = (row: GeoVisibilityHistoryRow): number | null =>
 	row.ai_scores && row.sub_scores
@@ -98,8 +97,7 @@ const getAeoTrendScore = (row: GeoVisibilityHistoryRow): number | null =>
 const AEO_MODULE_ID = 'answer-engine-optimization';
 
 /**
- * Whether GeoInsights' Rest.php class is registered - either 'geo-insights' or 'aeo-insights'
- * being active is enough.
+ * Whether GeoInsights' Rest.php class is registered - either 'geo-insights' or 'aeo-insights' being active is enough.
  */
 const isCitationCheckActive = (modules: string[]): boolean =>
 	Boolean(vulopilotAppLocalizer.khali_dabba) &&

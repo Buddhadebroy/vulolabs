@@ -200,9 +200,7 @@ class Settings extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Merges one tab's fields into the stored settings - the request shape zyra's
-	 * `InputRenderer` actually sends (`{ setting, settingName }`, see this class's own
-	 * docblock), not a flat replace-everything body.
+	 * Merges one tab's fields into the stored settings.
 	 *
 	 * @inheritDoc
 	 */
@@ -262,8 +260,7 @@ class Settings extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Deletes the stored option entirely, reverting every setting to
-	 * Utill::VULOPILOT_SETTINGS_DEFAULTS - the "Reset to defaults" action.
+	 * Deletes the stored option entirely, reverting every setting to Utill::VULOPILOT_SETTINGS_DEFAULTS - the "Reset to defaults" action.
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return \WP_REST_Response
@@ -461,8 +458,7 @@ class Settings extends \WP_REST_Controller {
 	}
 
 	/**
-	 * The real on-load "Connected" pill/usage-bar state, without calling Google's API -
-	 * see PageSpeedInsightsFetcher::get_status()'s own docblock.
+	 * The real on-load "Connected" pill/usage-bar state, without calling Google's API - see PageSpeedInsightsFetcher::get_status()'s own docblock.
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return \WP_REST_Response
@@ -472,8 +468,7 @@ class Settings extends \WP_REST_Controller {
 	}
 
 	/**
-	 * "Verify"/"Verify with Bing"/"Verify with Pinterest" (Settings → Connections → Site
-	 * Verification).
+	 * "Verify"/"Verify with Bing"/"Verify with Pinterest" (Settings → Connections → Site Verification).
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return \WP_REST_Response
@@ -565,8 +560,7 @@ class Settings extends \WP_REST_Controller {
 	}
 
 	/**
-	 * On success, also persists a real `crawler_alert_last_test_sent` timestamp into the
-	 * flat settings option.
+	 * On success, also persists a real `crawler_alert_last_test_sent` timestamp into the flat settings option.
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return \WP_REST_Response
@@ -634,9 +628,7 @@ class Settings extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Activates or deactivates one module - the same request shape zyra's
-	 * `ModuleGridComponent` sends regardless of which plugin it's talking to (`{ id,
-	 * action, modules? }`), mirrored from the free vulolabs plugin's own `set_modules()`.
+	 * Activates or deactivates one module - the same request shape zyra's `ModuleGridComponent` sends regardless of which plugin it's talking to.
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return \WP_REST_Response|\WP_Error
@@ -664,9 +656,7 @@ class Settings extends \WP_REST_Controller {
 	}
 
 	/**
-	 * @return array Every currently active module's id - zyra's
-	 *               `initializeModules()`/`useModules()`
-	 *               expect this exact flat-array shape.
+	 * @return array Every currently active module's id - zyra's `initializeModules()`/`useModules()` expect this exact flat-array shape.
 	 */
 	public function get_modules() {
 		return VuloPilot()->modules->get_active_modules();

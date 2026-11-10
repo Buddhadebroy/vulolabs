@@ -34,8 +34,7 @@ class SiteTelemetryReporter {
 	}
 
 	/**
-	 * The daily cron callback - reports every currently-connected connection this plugin
-	 * holds.
+	 * The daily cron callback - reports every currently-connected connection this plugin holds.
 	 *
 	 * @return void
 	 */
@@ -118,8 +117,7 @@ class SiteTelemetryReporter {
 	}
 
 	/**
-	 * Best-effort recognition of a handful of hosts that identify themselves via a well-
-	 * known constant/function in wp-config.php or an mu-plugin.
+	 * Best-effort recognition of a handful of hosts that identify themselves via a well- known constant/function in wp-config.php or an mu-plugin.
 	 *
 	 * @return string
 	 */
