@@ -1,14 +1,14 @@
 # Copyright (c) 2026 VuloLabs Inc. All Rights Reserved.
 msgid ""
 msgstr ""
-"Project-Id-Version: VuloForm 1.0.0\n"
+"Project-Id-Version: VuloForm 1.0.1\n"
 "Report-Msgid-Bugs-To: https://vulolabs.com/contact/\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-10T12:23:33+00:00\n"
+"POT-Creation-Date: 2026-11-10T05:38:33+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vuloform\n"
@@ -21,7 +21,7 @@ msgstr ""
 
 #. Plugin URI of the plugin
 #: vuloform.php
-msgid "https://vulolabs.com/vuloform/"
+msgid "https://vuloform.com/"
 msgstr ""
 
 #. Description of the plugin
@@ -57,130 +57,153 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: classes/Fields/Registry.php:34
+#: classes/Fields/Registry.php:29
 msgid "Short text"
 msgstr ""
 
-#: classes/Fields/Registry.php:41
+#: classes/Fields/Registry.php:36
 msgid "Long text"
 msgstr ""
 
-#: classes/Fields/Registry.php:48
+#: classes/Fields/Registry.php:43
 #: classes/Forms/Templates.php:23
 #: assets/js/index.js:6
 msgid "Email"
 msgstr ""
 
-#: classes/Fields/Registry.php:55
+#: classes/Fields/Registry.php:50
+#: classes/Forms/Templates.php:488
+msgid "Password"
+msgstr ""
+
+#: classes/Fields/Registry.php:57
 #: classes/Forms/Templates.php:24
 msgid "Phone"
 msgstr ""
 
-#: classes/Fields/Registry.php:62
+#: classes/Fields/Registry.php:64
 msgid "Number"
 msgstr ""
 
-#: classes/Fields/Registry.php:69
+#: classes/Fields/Registry.php:71
 msgid "Website"
 msgstr ""
 
-#: classes/Fields/Registry.php:76
+#: classes/Fields/Registry.php:78
 msgid "Dropdown"
 msgstr ""
 
-#: classes/Fields/Registry.php:83
+#: classes/Fields/Registry.php:85
 msgid "Single choice"
 msgstr ""
 
-#: classes/Fields/Registry.php:90
+#: classes/Fields/Registry.php:92
 msgid "Multiple choice"
 msgstr ""
 
-#: classes/Fields/Registry.php:97
+#: classes/Fields/Registry.php:99
 #: classes/Forms/Templates.php:28
-#: classes/Forms/Templates.php:108
-#: classes/Forms/Templates.php:212
+#: classes/Forms/Templates.php:101
+#: classes/Forms/Templates.php:209
+#: classes/Forms/Templates.php:316
+#: classes/Forms/Templates.php:623
+#: classes/Forms/Templates.php:1010
+#: classes/Forms/Templates.php:1028
+#: classes/Forms/Templates.php:2068
+#: classes/Forms/Templates.php:2214
 msgid "Consent"
 msgstr ""
 
-#: classes/Fields/Registry.php:104
+#: classes/Fields/Registry.php:106
 msgid "Date"
 msgstr ""
 
-#: classes/Fields/Registry.php:111
+#: classes/Fields/Registry.php:113
 msgid "Time"
 msgstr ""
 
-#: classes/Fields/Registry.php:118
+#: classes/Fields/Registry.php:120
 msgid "File upload"
 msgstr ""
 
-#: classes/Fields/Registry.php:125
+#: classes/Fields/Registry.php:127
 msgid "Heading"
 msgstr ""
 
-#: classes/Fields/Registry.php:132
+#: classes/Fields/Registry.php:134
 msgid "Text block"
 msgstr ""
 
-#: classes/Fields/Registry.php:139
+#: classes/Fields/Registry.php:141
 msgid "Divider"
 msgstr ""
 
-#: classes/Fields/Registry.php:146
-#: classes/Forms/Templates.php:151
+#: classes/Fields/Registry.php:148
+#: classes/Forms/Templates.php:146
+#: classes/Forms/Templates.php:1506
+#: classes/Forms/Templates.php:1850
 msgid "Page break"
 msgstr ""
 
-#: classes/Fields/Registry.php:153
+#: classes/Fields/Registry.php:155
 #: classes/Forms/Templates.php:22
 #: assets/js/index.js:5
 msgid "Name"
 msgstr ""
 
-#: classes/Fields/Registry.php:160
+#: classes/Fields/Registry.php:162
+#: classes/Forms/Templates.php:1785
+#: classes/Forms/Templates.php:1928
 #: assets/js/index.js:6
 msgid "Address"
 msgstr ""
 
-#: classes/Fields/Registry.php:167
+#: classes/Fields/Registry.php:169
 msgid "Hidden value"
 msgstr ""
 
-#: classes/Fields/Registry.php:174
+#: classes/Fields/Registry.php:176
 #: assets/js/index.js:5
 msgid "Calculation"
 msgstr ""
 
-#: classes/Fields/Registry.php:241
+#: classes/Fields/Registry.php:183
+msgid "Signature"
+msgstr ""
+
+#: classes/Fields/Registry.php:190
+msgid "Repeater"
+msgstr ""
+
+#: classes/Fields/Registry.php:257
 msgid "First name"
 msgstr ""
 
-#: classes/Fields/Registry.php:242
+#: classes/Fields/Registry.php:258
 msgid "Last name"
 msgstr ""
 
-#: classes/Fields/Registry.php:247
+#: classes/Fields/Registry.php:263
 msgid "Address line 1"
 msgstr ""
 
-#: classes/Fields/Registry.php:248
+#: classes/Fields/Registry.php:264
 msgid "Address line 2"
 msgstr ""
 
-#: classes/Fields/Registry.php:249
+#: classes/Fields/Registry.php:265
 msgid "City"
 msgstr ""
 
-#: classes/Fields/Registry.php:250
+#: classes/Fields/Registry.php:266
 msgid "State / Region"
 msgstr ""
 
-#: classes/Fields/Registry.php:251
+#: classes/Fields/Registry.php:267
 msgid "ZIP / Postal code"
 msgstr ""
 
-#: classes/Fields/Registry.php:252
+#: classes/Fields/Registry.php:268
 msgid "Country"
 msgstr ""
 
@@ -191,84 +214,103 @@ msgid "%s (copy)"
 msgstr ""
 
 #: classes/Forms/FormRepository.php:226
+#: classes/Migration/ContactForm7Migrator.php:155
+#: classes/Migration/FluentFormsMigrator.php:141
+#: classes/Migration/FormidableMigrator.php:137
+#: classes/Migration/ForminatorMigrator.php:145
+#: classes/Migration/GravityFormsMigrator.php:156
+#: classes/Migration/NinjaFormsMigrator.php:138
+#: classes/Migration/WpFormsMigrator.php:133
 #: assets/js/index.js:6
 msgid "Untitled form"
 msgstr ""
 
-#: classes/Forms/Schema.php:74
+#: classes/Forms/Schema.php:72
+#: classes/Forms/Templates.php:1687
+#: classes/Forms/Templates.php:1838
+#: classes/Forms/Templates.php:2122
+#: classes/Forms/Templates.php:2221
 msgid "Submit"
 msgstr ""
 
-#: classes/Forms/Schema.php:75
+#: classes/Forms/Schema.php:73
 msgid "Next"
 msgstr ""
 
-#: classes/Forms/Schema.php:76
+#: classes/Forms/Schema.php:74
 msgid "Back"
 msgstr ""
 
-#: classes/Forms/Schema.php:81
+#: classes/Forms/Schema.php:79
 #: assets/js/index.js:6
 msgid "Thank you. Your message has been sent."
 msgstr ""
 
-#: classes/Forms/Schema.php:88
+#: classes/Forms/Schema.php:86
 msgid "This field is required."
 msgstr ""
 
-#: classes/Forms/Schema.php:89
+#: classes/Forms/Schema.php:87
 msgid "Please check this field."
 msgstr ""
 
-#: classes/Forms/Schema.php:90
+#: classes/Forms/Schema.php:88
 msgid "Please correct the highlighted fields and try again."
 msgstr ""
 
 #. translators: %s: field label.
-#: classes/Forms/Schema.php:217
+#: classes/Forms/Schema.php:215
 #, php-format
 msgid "\"%s\" has no choices for visitors to pick from. Select the field and add at least one under Choices."
 msgstr ""
 
 #. translators: %s: field label.
-#: classes/Forms/Schema.php:226
+#: classes/Forms/Schema.php:220
 #, php-format
-msgid "\"%s\" has nothing to calculate yet. Select the field and build its calculation under \"What to calculate\", for example {quantity} * {price}."
+msgid "\"%s\" has no fields in its row yet. Select the field and add at least one under Row fields."
 msgstr ""
 
 #. translators: %s: field label.
 #: classes/Forms/Schema.php:229
 #, php-format
+msgid "\"%s\" has nothing to calculate yet. Select the field and build its calculation under \"What to calculate\", for example {quantity} * {price}."
+msgstr ""
+
+#. translators: %s: field label.
+#: classes/Forms/Schema.php:232
+#, php-format
 msgid "The calculation in \"%s\" cannot be worked out. Select the field: what is wrong is shown under the calculation."
 msgstr ""
 
-#: classes/Forms/Schema.php:234
+#: classes/Forms/Schema.php:237
 msgid "The form has no field for visitors to fill in. Add one from the list on the left of the Fields tab."
 msgstr ""
 
-#: classes/Forms/Schema.php:240
+#: classes/Forms/Schema.php:243
 msgid "A page break is the last field, so the step after it would be empty. Add a field after it or remove it."
 msgstr ""
 
 #. translators: %s: webhook name.
-#: classes/Forms/Schema.php:246
+#: classes/Forms/Schema.php:249
 #, php-format
 msgid "The webhook \"%s\" has no address. Enter one that starts with https://, or switch the webhook off."
 msgstr ""
 
 #. translators: %s: notification name.
-#: classes/Forms/Schema.php:253
+#: classes/Forms/Schema.php:256
 #, php-format
 msgid "The notification \"%s\" has nobody to send to. Fill in \"To\", or switch the notification off."
 msgstr ""
 
 #. translators: %s: extension id, e.g. "payments".
-#: classes/Forms/Schema.php:271
+#: classes/Forms/Schema.php:274
 #, php-format
 msgid "This form relies on \"%s\", which is not active on this site. Activate it, or switch that feature off for this form."
 msgstr ""
 
 #: classes/Forms/Templates.php:25
+#: classes/Forms/Templates.php:605
+#: classes/Forms/Templates.php:659
 #: assets/js/index.js:6
 msgid "Message"
 msgstr ""
@@ -278,350 +320,2922 @@ msgstr ""
 msgid "I agree to my details being stored so you can reply to me."
 msgstr ""
 
-#: classes/Forms/Templates.php:37
+#: classes/Forms/Templates.php:35
+msgid "Yes, I will be there"
+msgstr ""
+
+#: classes/Forms/Templates.php:39
 msgid "Contact form"
 msgstr ""
 
-#: classes/Forms/Templates.php:38
+#: classes/Forms/Templates.php:40
+#: classes/Forms/Templates.php:47
+#: classes/Forms/Templates.php:67
+#: classes/Forms/Templates.php:189
+#: classes/Forms/Templates.php:247
+#: classes/Forms/Templates.php:371
+#: classes/Forms/Templates.php:530
+#: classes/Forms/Templates.php:592
+msgid "Business Operations"
+msgstr ""
+
+#: classes/Forms/Templates.php:41
 msgid "Name, email and a message."
 msgstr ""
 
-#: classes/Forms/Templates.php:40
+#: classes/Forms/Templates.php:43
+#: classes/Forms/Templates.php:1852
 #: assets/js/index.js:6
 msgid "Subject"
 msgstr ""
 
-#: classes/Forms/Templates.php:43
+#: classes/Forms/Templates.php:46
 msgid "General inquiry"
 msgstr ""
 
-#: classes/Forms/Templates.php:44
+#: classes/Forms/Templates.php:48
 msgid "Lets the visitor say what the question is about."
 msgstr ""
 
-#: classes/Forms/Templates.php:52
+#: classes/Forms/Templates.php:56
 msgid "What is your question about?"
 msgstr ""
 
-#: classes/Forms/Templates.php:55
+#: classes/Forms/Templates.php:59
+#: classes/Forms/Templates.php:1889
 msgid "Sales"
 msgstr ""
 
-#: classes/Forms/Templates.php:55
+#: classes/Forms/Templates.php:59
+#: classes/Forms/Templates.php:1889
 msgid "Support"
 msgstr ""
 
-#: classes/Forms/Templates.php:55
+#: classes/Forms/Templates.php:59
+#: classes/Forms/Templates.php:340
+#: classes/Forms/Templates.php:1889
 msgid "Billing"
 msgstr ""
 
-#: classes/Forms/Templates.php:55
+#: classes/Forms/Templates.php:59
 msgid "Something else"
 msgstr ""
 
-#: classes/Forms/Templates.php:62
+#: classes/Forms/Templates.php:66
 msgid "Lead generation"
 msgstr ""
 
-#: classes/Forms/Templates.php:63
+#: classes/Forms/Templates.php:68
 msgid "Collects a business contact, with a company field for businesses."
 msgstr ""
 
-#: classes/Forms/Templates.php:71
+#: classes/Forms/Templates.php:76
 msgid "I am enquiring as"
 msgstr ""
 
-#: classes/Forms/Templates.php:75
+#: classes/Forms/Templates.php:80
 msgid "An individual"
 msgstr ""
 
-#: classes/Forms/Templates.php:75
-#: classes/Forms/Templates.php:90
+#: classes/Forms/Templates.php:80
+#: classes/Forms/Templates.php:86
 msgid "A business"
 msgstr ""
 
-#: classes/Forms/Templates.php:80
+#: classes/Forms/Templates.php:85
+#: classes/Forms/Templates.php:1865
 msgid "Company"
 msgstr ""
 
-#: classes/Forms/Templates.php:96
+#: classes/Forms/Templates.php:88
 msgid "What are you looking for?"
 msgstr ""
 
-#: classes/Forms/Templates.php:101
+#: classes/Forms/Templates.php:93
 msgid "Newsletter signup"
 msgstr ""
 
-#: classes/Forms/Templates.php:102
+#: classes/Forms/Templates.php:94
+#: classes/Forms/Templates.php:479
+#: classes/Forms/Templates.php:554
+msgid "Sign-up"
+msgstr ""
+
+#: classes/Forms/Templates.php:95
 msgid "An email address and consent."
 msgstr ""
 
-#: classes/Forms/Templates.php:111
+#: classes/Forms/Templates.php:104
 msgid "Yes, send me the newsletter. I can unsubscribe at any time."
 msgstr ""
 
-#: classes/Forms/Templates.php:115
+#: classes/Forms/Templates.php:108
 msgid "Subscribe"
 msgstr ""
 
-#: classes/Forms/Templates.php:118
+#: classes/Forms/Templates.php:111
 msgid "Feedback form"
 msgstr ""
 
-#: classes/Forms/Templates.php:119
+#: classes/Forms/Templates.php:112
+#: classes/Forms/Templates.php:220
+#: classes/Forms/Templates.php:327
+#: classes/Forms/Templates.php:665
+#: classes/Forms/Templates.php:1571
+#: classes/Forms/Templates.php:1597
+#: classes/Forms/Templates.php:1635
+#: classes/Forms/Templates.php:1667
+#: classes/Forms/Templates.php:1691
+#: classes/Forms/Templates.php:1711
+#: classes/Forms/Templates.php:1740
+#: classes/Forms/Templates.php:1761
+#: classes/Forms/Templates.php:1778
+#: classes/Forms/Templates.php:1800
+#: classes/Forms/Templates.php:1824
+#: classes/Forms/Templates.php:1842
+#: classes/Forms/Templates.php:1859
+#: classes/Forms/Templates.php:1878
+#: classes/Forms/Templates.php:1898
+#: classes/Forms/Templates.php:1921
+#: classes/Forms/Templates.php:1936
+#: classes/Forms/Templates.php:1958
+#: classes/Forms/Templates.php:1993
+#: classes/Forms/Templates.php:2015
+#: classes/Forms/Templates.php:2040
+msgid "Customer Service"
+msgstr ""
+
+#: classes/Forms/Templates.php:113
 msgid "A rating and a comment."
 msgstr ""
 
-#: classes/Forms/Templates.php:124
+#: classes/Forms/Templates.php:118
 msgid "How would you rate your experience?"
 msgstr ""
 
-#: classes/Forms/Templates.php:127
+#: classes/Forms/Templates.php:121
+#: classes/Forms/Templates.php:360
+#: classes/Forms/Templates.php:702
+#: classes/Forms/Templates.php:710
 msgid "Excellent"
 msgstr ""
 
-#: classes/Forms/Templates.php:127
+#: classes/Forms/Templates.php:121
+#: classes/Forms/Templates.php:360
+#: classes/Forms/Templates.php:702
+#: classes/Forms/Templates.php:710
 msgid "Good"
 msgstr ""
 
-#: classes/Forms/Templates.php:127
+#: classes/Forms/Templates.php:121
+#: classes/Forms/Templates.php:360
+#: classes/Forms/Templates.php:702
+#: classes/Forms/Templates.php:710
+#: classes/Forms/Templates.php:859
 msgid "Average"
 msgstr ""
 
-#: classes/Forms/Templates.php:127
+#: classes/Forms/Templates.php:121
+#: classes/Forms/Templates.php:360
+#: classes/Forms/Templates.php:702
+#: classes/Forms/Templates.php:710
 msgid "Poor"
 msgstr ""
 
-#: classes/Forms/Templates.php:130
+#: classes/Forms/Templates.php:124
+#: classes/Forms/Templates.php:2033
 msgid "What could we do better?"
 msgstr ""
 
-#: classes/Forms/Templates.php:131
+#: classes/Forms/Templates.php:125
+#: classes/Forms/Templates.php:365
+#: classes/Forms/Templates.php:715
+#: classes/Forms/Templates.php:1685
+#: classes/Forms/Templates.php:1952
+#: classes/Forms/Templates.php:2034
 msgid "Email (optional)"
 msgstr ""
 
-#: classes/Forms/Templates.php:131
+#: classes/Forms/Templates.php:125
+#: classes/Forms/Templates.php:365
 msgid "Only if you would like a reply."
 msgstr ""
 
-#: classes/Forms/Templates.php:133
+#: classes/Forms/Templates.php:127
+#: classes/Forms/Templates.php:367
 msgid "Send feedback"
 msgstr ""
 
-#: classes/Forms/Templates.php:136
+#: classes/Forms/Templates.php:130
 msgid "Survey"
 msgstr ""
 
-#: classes/Forms/Templates.php:137
+#: classes/Forms/Templates.php:131
+#: classes/Forms/Templates.php:350
+msgid "Feedback & survey"
+msgstr ""
+
+#: classes/Forms/Templates.php:132
 msgid "A two-step survey with multiple-choice questions."
 msgstr ""
 
-#: classes/Forms/Templates.php:140
+#: classes/Forms/Templates.php:135
 msgid "About you"
 msgstr ""
 
-#: classes/Forms/Templates.php:143
+#: classes/Forms/Templates.php:138
+#: classes/Forms/Templates.php:989
 msgid "How did you hear about us?"
 msgstr ""
 
-#: classes/Forms/Templates.php:144
+#: classes/Forms/Templates.php:139
 msgid "Search engine"
 msgstr ""
 
-#: classes/Forms/Templates.php:144
+#: classes/Forms/Templates.php:139
 msgid "Social media"
 msgstr ""
 
-#: classes/Forms/Templates.php:144
+#: classes/Forms/Templates.php:139
 msgid "A friend"
 msgstr ""
 
-#: classes/Forms/Templates.php:144
+#: classes/Forms/Templates.php:139
+#: classes/Forms/Templates.php:340
+#: classes/Forms/Templates.php:384
+#: classes/Forms/Templates.php:512
+#: classes/Forms/Templates.php:678
+#: classes/Forms/Templates.php:752
+#: classes/Forms/Templates.php:882
+#: classes/Forms/Templates.php:909
+#: classes/Forms/Templates.php:1610
+#: classes/Forms/Templates.php:1676
+#: classes/Forms/Templates.php:1723
+#: classes/Forms/Templates.php:1813
+#: classes/Forms/Templates.php:2006
+#: classes/Forms/Templates.php:2294
+#: classes/FrontendScripts.php:67
 msgid "Other"
 msgstr ""
 
-#: classes/Forms/Templates.php:148
+#: classes/Forms/Templates.php:143
 msgid "Which of our services have you used?"
 msgstr ""
 
-#: classes/Forms/Templates.php:149
+#: classes/Forms/Templates.php:144
 msgid "Service A"
 msgstr ""
 
-#: classes/Forms/Templates.php:149
+#: classes/Forms/Templates.php:144
 msgid "Service B"
 msgstr ""
 
-#: classes/Forms/Templates.php:149
+#: classes/Forms/Templates.php:144
 msgid "Service C"
 msgstr ""
 
-#: classes/Forms/Templates.php:152
+#: classes/Forms/Templates.php:147
 msgid "Your opinion"
 msgstr ""
 
-#: classes/Forms/Templates.php:155
+#: classes/Forms/Templates.php:150
 msgid "How likely are you to recommend us?"
 msgstr ""
 
-#: classes/Forms/Templates.php:158
+#: classes/Forms/Templates.php:153
 msgid "Very likely"
 msgstr ""
 
-#: classes/Forms/Templates.php:158
+#: classes/Forms/Templates.php:153
 msgid "Likely"
 msgstr ""
 
-#: classes/Forms/Templates.php:158
+#: classes/Forms/Templates.php:153
 msgid "Unlikely"
 msgstr ""
 
-#: classes/Forms/Templates.php:158
+#: classes/Forms/Templates.php:153
 msgid "Very unlikely"
 msgstr ""
 
-#: classes/Forms/Templates.php:161
+#: classes/Forms/Templates.php:156
 msgid "Anything else you would like to tell us?"
 msgstr ""
 
-#: classes/Forms/Templates.php:165
+#: classes/Forms/Templates.php:160
 msgid "Event registration"
 msgstr ""
 
-#: classes/Forms/Templates.php:166
+#: classes/Forms/Templates.php:161
+#: classes/Forms/Templates.php:402
+#: classes/Forms/Templates.php:442
+#: classes/Forms/Templates.php:500
+#: classes/Forms/Templates.php:634
+#: classes/Forms/Templates.php:721
+#: classes/Forms/Templates.php:740
+msgid "Event Planning"
+msgstr ""
+
+#: classes/Forms/Templates.php:162
 msgid "Attendee details, number of tickets and dietary needs."
 msgstr ""
 
-#: classes/Forms/Templates.php:174
+#: classes/Forms/Templates.php:170
 msgid "Number of attendees"
 msgstr ""
 
-#: classes/Forms/Templates.php:184
+#: classes/Forms/Templates.php:180
 msgid "Dietary requirements"
 msgstr ""
 
-#: classes/Forms/Templates.php:185
+#: classes/Forms/Templates.php:181
 msgid "Vegetarian"
 msgstr ""
 
-#: classes/Forms/Templates.php:185
+#: classes/Forms/Templates.php:181
 msgid "Vegan"
 msgstr ""
 
-#: classes/Forms/Templates.php:185
+#: classes/Forms/Templates.php:181
 msgid "Gluten free"
 msgstr ""
 
-#: classes/Forms/Templates.php:187
+#: classes/Forms/Templates.php:183
+#: classes/Forms/Templates.php:586
 msgid "Anything we should know?"
 msgstr ""
 
-#: classes/Forms/Templates.php:189
+#: classes/Forms/Templates.php:185
+#: classes/Forms/Templates.php:496
 msgid "Register"
 msgstr ""
 
-#: classes/Forms/Templates.php:192
+#: classes/Forms/Templates.php:188
 msgid "Job application"
 msgstr ""
 
-#: classes/Forms/Templates.php:193
+#: classes/Forms/Templates.php:190
 msgid "Applicant details with a CV upload."
 msgstr ""
 
-#: classes/Forms/Templates.php:199
+#: classes/Forms/Templates.php:196
 msgid "Position you are applying for"
 msgstr ""
 
-#: classes/Forms/Templates.php:202
+#: classes/Forms/Templates.php:199
 msgid "Your CV"
 msgstr ""
 
-#: classes/Forms/Templates.php:209
+#: classes/Forms/Templates.php:206
 msgid "Cover letter"
 msgstr ""
 
-#: classes/Forms/Templates.php:215
+#: classes/Forms/Templates.php:212
 msgid "I agree to my application being stored and reviewed."
 msgstr ""
 
-#: classes/Forms/Templates.php:219
+#: classes/Forms/Templates.php:216
 msgid "Apply"
 msgstr ""
 
-#: classes/Forms/Templates.php:222
+#: classes/Forms/Templates.php:219
 msgid "Support request"
 msgstr ""
 
-#: classes/Forms/Templates.php:223
+#: classes/Forms/Templates.php:221
 msgid "Priority, a description and an optional screenshot."
 msgstr ""
 
-#: classes/Forms/Templates.php:230
+#: classes/Forms/Templates.php:228
+#: classes/Forms/Templates.php:1702
 msgid "Priority"
 msgstr ""
 
-#: classes/Forms/Templates.php:233
+#: classes/Forms/Templates.php:231
+#: classes/Forms/Templates.php:1618
+#: classes/Forms/Templates.php:1647
+#: classes/Forms/Templates.php:1703
+#: classes/Forms/Templates.php:1731
 msgid "Low"
 msgstr ""
 
-#: classes/Forms/Templates.php:233
+#: classes/Forms/Templates.php:231
+#: classes/Forms/Templates.php:1618
+#: classes/Forms/Templates.php:1703
+#: classes/Forms/Templates.php:1731
 #: assets/js/index.js:6
 msgid "Normal"
 msgstr ""
 
-#: classes/Forms/Templates.php:233
+#: classes/Forms/Templates.php:231
+#: classes/Forms/Templates.php:1618
+#: classes/Forms/Templates.php:1703
+#: classes/Forms/Templates.php:1731
 msgid "Urgent"
 msgstr ""
 
-#: classes/Forms/Templates.php:236
+#: classes/Forms/Templates.php:234
 msgid "Describe the problem"
 msgstr ""
 
-#: classes/Forms/Templates.php:239
+#: classes/Forms/Templates.php:237
+#: classes/Forms/Templates.php:1656
 msgid "Screenshot (optional)"
 msgstr ""
 
-#: classes/Forms/Templates.php:248
+#: classes/Forms/Templates.php:246
 msgid "Order or quote inquiry"
 msgstr ""
 
-#: classes/Forms/Templates.php:249
+#: classes/Forms/Templates.php:248
 msgid "Quantity and unit price with a calculated estimate."
 msgstr ""
 
-#: classes/Forms/Templates.php:254
+#: classes/Forms/Templates.php:253
 msgid "Product or service"
 msgstr ""
 
-#: classes/Forms/Templates.php:257
+#: classes/Forms/Templates.php:256
+#: classes/Forms/Templates.php:540
+#: classes/Forms/Templates.php:2181
 #: assets/js/index.js:3
 msgid "Quantity"
 msgstr ""
 
-#: classes/Forms/Templates.php:268
+#: classes/Forms/Templates.php:267
 msgid "Budget per item"
 msgstr ""
 
-#: classes/Forms/Templates.php:277
+#: classes/Forms/Templates.php:276
 msgid "Estimated total"
 msgstr ""
 
-#: classes/Forms/Templates.php:283
+#: classes/Forms/Templates.php:282
+#: classes/Forms/Templates.php:396
+#: classes/Forms/Templates.php:686
+#: classes/Forms/Templates.php:1705
+#: classes/Forms/Templates.php:1818
 msgid "Details"
 msgstr ""
 
-#: classes/Forms/Templates.php:285
+#: classes/Forms/Templates.php:284
 msgid "Request a quote"
 msgstr ""
 
-#: classes/Forms/Templates.php:332
+#: classes/Forms/Templates.php:287
+msgid "Donation form"
+msgstr ""
+
+#: classes/Forms/Templates.php:288
+msgid "Payment"
+msgstr ""
+
+#: classes/Forms/Templates.php:289
+msgid "A preset or custom amount, with donor details."
+msgstr ""
+
+#: classes/Forms/Templates.php:294
+#: classes/Forms/Templates.php:2266
+msgid "Donation amount"
+msgstr ""
+
+#: classes/Forms/Templates.php:298
+#: classes/Forms/Templates.php:308
+#: classes/Forms/Templates.php:2269
+msgid "Other amount"
+msgstr ""
+
+#: classes/Forms/Templates.php:303
+msgid "Enter your amount"
+msgstr ""
+
+#: classes/Forms/Templates.php:313
+#: classes/Forms/Templates.php:473
+#: classes/Forms/Templates.php:966
+#: classes/Forms/Templates.php:2272
+msgid "Message (optional)"
+msgstr ""
+
+#: classes/Forms/Templates.php:319
+msgid "I agree to my details being stored to process this donation."
+msgstr ""
+
+#: classes/Forms/Templates.php:323
+#: classes/Forms/Templates.php:2274
+msgid "Donate"
+msgstr ""
+
+#: classes/Forms/Templates.php:326
+msgid "Customer complaint form"
+msgstr ""
+
+#: classes/Forms/Templates.php:328
+msgid "Order reference, category and details of the issue."
+msgstr ""
+
+#: classes/Forms/Templates.php:334
+msgid "Order or reference number"
+msgstr ""
+
+#: classes/Forms/Templates.php:337
+msgid "Complaint category"
+msgstr ""
+
+#: classes/Forms/Templates.php:340
+msgid "Product quality"
+msgstr ""
+
+#: classes/Forms/Templates.php:340
+#: classes/Forms/Templates.php:509
+#: classes/Forms/Templates.php:1907
+msgid "Service"
+msgstr ""
+
+#: classes/Forms/Templates.php:340
+#: assets/js/index.js:6
+msgid "Delivery"
+msgstr ""
+
+#: classes/Forms/Templates.php:343
+#: classes/Forms/Templates.php:1621
+#: classes/Forms/Templates.php:1734
+msgid "Describe the issue"
+msgstr ""
+
+#: classes/Forms/Templates.php:344
+msgid "What resolution would you like?"
+msgstr ""
+
+#: classes/Forms/Templates.php:346
+msgid "Submit complaint"
+msgstr ""
+
+#: classes/Forms/Templates.php:349
+msgid "Event feedback form"
+msgstr ""
+
+#: classes/Forms/Templates.php:351
+msgid "A rating and comments about an event just attended."
+msgstr ""
+
+#: classes/Forms/Templates.php:354
+msgid "Which event did you attend?"
+msgstr ""
+
+#: classes/Forms/Templates.php:357
+msgid "How would you rate the event?"
+msgstr ""
+
+#: classes/Forms/Templates.php:363
+#: classes/Forms/Templates.php:713
+msgid "What did you like most?"
+msgstr ""
+
+#: classes/Forms/Templates.php:364
+msgid "What could we improve?"
+msgstr ""
+
+#: classes/Forms/Templates.php:370
+msgid "Home service request form"
+msgstr ""
+
+#: classes/Forms/Templates.php:372
+msgid "Service address, type of service and a preferred time."
+msgstr ""
+
+#: classes/Forms/Templates.php:378
+msgid "Service address"
+msgstr ""
+
+#: classes/Forms/Templates.php:381
+msgid "Type of service"
+msgstr ""
+
+#: classes/Forms/Templates.php:384
+msgid "Cleaning"
+msgstr ""
+
+#: classes/Forms/Templates.php:384
+#: classes/Forms/Templates.php:1610
+msgid "Plumbing"
+msgstr ""
+
+#: classes/Forms/Templates.php:384
+#: classes/Forms/Templates.php:1610
+msgid "Electrical"
+msgstr ""
+
+#: classes/Forms/Templates.php:384
+msgid "Repairs"
+msgstr ""
+
+#: classes/Forms/Templates.php:389
+#: classes/Forms/Templates.php:517
+#: classes/Forms/Templates.php:887
+#: classes/Forms/Templates.php:1816
+#: classes/Forms/Templates.php:1914
+#: classes/Forms/Templates.php:2234
+msgid "Preferred date"
+msgstr ""
+
+#: classes/Forms/Templates.php:395
+#: classes/Forms/Templates.php:523
+#: classes/Forms/Templates.php:1817
+#: classes/Forms/Templates.php:1915
+#: classes/Forms/Templates.php:2235
+msgid "Preferred time"
+msgstr ""
+
+#: classes/Forms/Templates.php:398
+#: classes/Forms/Templates.php:1820
+msgid "Request service"
+msgstr ""
+
+#: classes/Forms/Templates.php:401
+msgid "Restaurant reservation form"
+msgstr ""
+
+#: classes/Forms/Templates.php:403
+msgid "Date, time and party size for a table booking."
+msgstr ""
+
+#: classes/Forms/Templates.php:411
+msgid "Reservation date"
+msgstr ""
+
+#: classes/Forms/Templates.php:419
+msgid "Reservation time"
+msgstr ""
+
+#: classes/Forms/Templates.php:427
+msgid "Number of guests"
+msgstr ""
+
+#: classes/Forms/Templates.php:436
+msgid "Special requests (optional)"
+msgstr ""
+
+#: classes/Forms/Templates.php:438
+msgid "Reserve a table"
+msgstr ""
+
+#: classes/Forms/Templates.php:441
+msgid "RSVP form"
+msgstr ""
+
+#: classes/Forms/Templates.php:443
+msgid "Attendance, guest count and dietary needs for an invitation."
+msgstr ""
+
+#: classes/Forms/Templates.php:450
+#: classes/Forms/Templates.php:934
+msgid "Will you be attending?"
+msgstr ""
+
+#: classes/Forms/Templates.php:454
+msgid "No, I cannot make it"
+msgstr ""
+
+#: classes/Forms/Templates.php:454
+#: classes/Forms/Templates.php:1683
+msgid "Maybe"
+msgstr ""
+
+#: classes/Forms/Templates.php:459
+msgid "Number of guests, including you"
+msgstr ""
+
+#: classes/Forms/Templates.php:470
+msgid "Dietary restrictions (optional)"
+msgstr ""
+
+#: classes/Forms/Templates.php:475
+msgid "Send RSVP"
+msgstr ""
+
+#: classes/Forms/Templates.php:478
+msgid "Registration form"
+msgstr ""
+
+#: classes/Forms/Templates.php:480
+msgid "Sign up for an account, membership or program."
+msgstr ""
+
+#: classes/Forms/Templates.php:485
+msgid "Username"
+msgstr ""
+
+#: classes/Forms/Templates.php:499
+msgid "Appointment booking form"
+msgstr ""
+
+#: classes/Forms/Templates.php:501
+msgid "Service, preferred date and time, and contact details."
+msgstr ""
+
+#: classes/Forms/Templates.php:512
+msgid "Consultation"
+msgstr ""
+
+#: classes/Forms/Templates.php:512
+msgid "Follow-up"
+msgstr ""
+
+#: classes/Forms/Templates.php:524
+#: classes/Forms/Templates.php:548
+#: classes/Forms/Templates.php:940
+msgid "Notes (optional)"
+msgstr ""
+
+#: classes/Forms/Templates.php:526
+#: classes/Forms/Templates.php:1917
+msgid "Book appointment"
+msgstr ""
+
+#: classes/Forms/Templates.php:529
+msgid "Order form"
+msgstr ""
+
+#: classes/Forms/Templates.php:531
+msgid "Item, quantity and delivery details for a small business order."
+msgstr ""
+
+#: classes/Forms/Templates.php:537
+msgid "Product or item"
+msgstr ""
+
+#: classes/Forms/Templates.php:547
+msgid "Delivery address"
+msgstr ""
+
+#: classes/Forms/Templates.php:550
+#: classes/Forms/Templates.php:2183
+msgid "Place order"
+msgstr ""
+
+#: classes/Forms/Templates.php:553
+msgid "Volunteer sign-up form"
+msgstr ""
+
+#: classes/Forms/Templates.php:555
+msgid "Availability and areas of interest for volunteering."
+msgstr ""
+
+#: classes/Forms/Templates.php:563
+msgid "When are you available?"
+msgstr ""
+
+#: classes/Forms/Templates.php:564
+msgid "Weekdays"
+msgstr ""
+
+#: classes/Forms/Templates.php:564
+msgid "Weekends"
+msgstr ""
+
+#: classes/Forms/Templates.php:564
+msgid "Evenings"
+msgstr ""
+
+#: classes/Forms/Templates.php:568
+msgid "Areas you are interested in"
+msgstr ""
+
+#: classes/Forms/Templates.php:569
+msgid "Events"
+msgstr ""
+
+#: classes/Forms/Templates.php:569
+msgid "Admin support"
+msgstr ""
+
+#: classes/Forms/Templates.php:569
+msgid "Fundraising"
+msgstr ""
+
+#: classes/Forms/Templates.php:569
+msgid "On-site help"
+msgstr ""
+
+#: classes/Forms/Templates.php:571
+msgid "Anything else you would like to share?"
+msgstr ""
+
+#: classes/Forms/Templates.php:573
+msgid "Sign up to volunteer"
+msgstr ""
+
+#: classes/Forms/Templates.php:576
+msgid "Course enrollment form"
+msgstr ""
+
+#: classes/Forms/Templates.php:577
+#: classes/Forms/Templates.php:692
+#: classes/Forms/Templates.php:1188
+#: classes/Forms/Templates.php:1215
+#: classes/Forms/Templates.php:2055
+#: classes/Forms/Templates.php:2079
+#: classes/Forms/Templates.php:2104
+#: classes/Forms/Templates.php:2126
+#: classes/Forms/Templates.php:2150
+#: classes/Forms/Templates.php:2164
+#: classes/Forms/Templates.php:2187
+#: classes/Forms/Templates.php:2205
+#: classes/Forms/Templates.php:2225
+#: classes/Forms/Templates.php:2242
+#: classes/Forms/Templates.php:2257
+msgid "Education"
+msgstr ""
+
+#: classes/Forms/Templates.php:578
+msgid "Student details and the course they want to join."
+msgstr ""
+
+#: classes/Forms/Templates.php:584
+msgid "Course"
+msgstr ""
+
+#: classes/Forms/Templates.php:585
+msgid "Preferred start date"
+msgstr ""
+
+#: classes/Forms/Templates.php:588
+msgid "Enroll now"
+msgstr ""
+
+#: classes/Forms/Templates.php:591
+msgid "Real estate inquiry form"
+msgstr ""
+
+#: classes/Forms/Templates.php:593
+msgid "Property interest and contact details for a viewing or more information."
+msgstr ""
+
+#: classes/Forms/Templates.php:599
+msgid "Property of interest"
+msgstr ""
+
+#: classes/Forms/Templates.php:602
+#: classes/Forms/Templates.php:1869
+msgid "Budget range"
+msgstr ""
+
+#: classes/Forms/Templates.php:603
+msgid "Under $200,000"
+msgstr ""
+
+#: classes/Forms/Templates.php:603
+msgid "$200,000 - $500,000"
+msgstr ""
+
+#: classes/Forms/Templates.php:603
+msgid "$500,000 - $1,000,000"
+msgstr ""
+
+#: classes/Forms/Templates.php:603
+msgid "Over $1,000,000"
+msgstr ""
+
+#: classes/Forms/Templates.php:607
+msgid "Send inquiry"
+msgstr ""
+
+#: classes/Forms/Templates.php:610
+msgid "Medical history form"
+msgstr ""
+
+#: classes/Forms/Templates.php:611
+#: classes/Forms/Templates.php:924
+#: classes/Forms/Templates.php:1387
+#: classes/Forms/Templates.php:1977
+msgid "Healthcare"
+msgstr ""
+
+#: classes/Forms/Templates.php:612
+msgid "Patient details and health background for a provider."
+msgstr ""
+
+#: classes/Forms/Templates.php:618
+#: classes/Forms/Templates.php:1984
+msgid "Date of birth"
+msgstr ""
+
+#: classes/Forms/Templates.php:619
+msgid "Known allergies"
+msgstr ""
+
+#: classes/Forms/Templates.php:620
+msgid "Current medications"
+msgstr ""
+
+#: classes/Forms/Templates.php:626
+msgid "I agree to this health information being stored and used to provide my care."
+msgstr ""
+
+#: classes/Forms/Templates.php:630
+msgid "Submit health history"
+msgstr ""
+
+#: classes/Forms/Templates.php:633
+msgid "Travel booking form"
+msgstr ""
+
+#: classes/Forms/Templates.php:635
+msgid "Destination, dates and traveler details for a trip request."
+msgstr ""
+
+#: classes/Forms/Templates.php:641
+#: assets/js/index.js:6
+msgid "Destination"
+msgstr ""
+
+#: classes/Forms/Templates.php:644
+msgid "Departure date"
+msgstr ""
+
+#: classes/Forms/Templates.php:650
+msgid "Return date"
+msgstr ""
+
+#: classes/Forms/Templates.php:653
+msgid "Number of travelers"
+msgstr ""
+
+#: classes/Forms/Templates.php:661
+#: classes/Forms/Templates.php:893
+msgid "Request booking"
+msgstr ""
+
+#: classes/Forms/Templates.php:664
+msgid "Return request (RMA) form"
+msgstr ""
+
+#: classes/Forms/Templates.php:666
+msgid "Order number, item and reason for a return."
+msgstr ""
+
+#: classes/Forms/Templates.php:671
+msgid "Order number"
+msgstr ""
+
+#: classes/Forms/Templates.php:672
+msgid "Item"
+msgstr ""
+
+#: classes/Forms/Templates.php:675
+msgid "Reason for return"
+msgstr ""
+
+#: classes/Forms/Templates.php:678
+msgid "Defective"
+msgstr ""
+
+#: classes/Forms/Templates.php:678
+msgid "Wrong item received"
+msgstr ""
+
+#: classes/Forms/Templates.php:678
+msgid "No longer needed"
+msgstr ""
+
+#: classes/Forms/Templates.php:683
+msgid "Preferred resolution"
+msgstr ""
+
+#: classes/Forms/Templates.php:684
+msgid "Refund"
+msgstr ""
+
+#: classes/Forms/Templates.php:684
+msgid "Replacement"
+msgstr ""
+
+#: classes/Forms/Templates.php:684
+msgid "Store credit"
+msgstr ""
+
+#: classes/Forms/Templates.php:688
+msgid "Submit return request"
+msgstr ""
+
+#: classes/Forms/Templates.php:691
+msgid "Course evaluation form"
+msgstr ""
+
+#: classes/Forms/Templates.php:693
+msgid "Rating and feedback on a course just completed."
+msgstr ""
+
+#: classes/Forms/Templates.php:696
+msgid "Course name"
+msgstr ""
+
+#: classes/Forms/Templates.php:699
+msgid "How would you rate the instructor?"
+msgstr ""
+
+#: classes/Forms/Templates.php:707
+msgid "How would you rate the course content?"
+msgstr ""
+
+#: classes/Forms/Templates.php:714
+msgid "What could be improved?"
+msgstr ""
+
+#: classes/Forms/Templates.php:717
+#: classes/Forms/Templates.php:2036
+msgid "Submit evaluation"
+msgstr ""
+
+#: classes/Forms/Templates.php:720
+msgid "Conference registration form"
+msgstr ""
+
+#: classes/Forms/Templates.php:722
+msgid "Attendee details and session choices for a conference."
+msgstr ""
+
+#: classes/Forms/Templates.php:728
+msgid "Organization"
+msgstr ""
+
+#: classes/Forms/Templates.php:731
+msgid "Which sessions are you interested in?"
+msgstr ""
+
+#: classes/Forms/Templates.php:732
+msgid "Keynote"
+msgstr ""
+
+#: classes/Forms/Templates.php:732
+msgid "Workshops"
+msgstr ""
+
+#: classes/Forms/Templates.php:732
+msgid "Networking"
+msgstr ""
+
+#: classes/Forms/Templates.php:732
+msgid "Panel discussions"
+msgstr ""
+
+#: classes/Forms/Templates.php:734
+msgid "Dietary requirements (optional)"
+msgstr ""
+
+#: classes/Forms/Templates.php:736
+msgid "Register for the conference"
+msgstr ""
+
+#: classes/Forms/Templates.php:739
+msgid "Fitness class registration form"
+msgstr ""
+
+#: classes/Forms/Templates.php:741
+msgid "Class choice, preferred schedule and an emergency contact."
+msgstr ""
+
+#: classes/Forms/Templates.php:749
+#: classes/Forms/Templates.php:2247
+msgid "Class"
+msgstr ""
+
+#: classes/Forms/Templates.php:752
+msgid "Yoga"
+msgstr ""
+
+#: classes/Forms/Templates.php:752
+msgid "Pilates"
+msgstr ""
+
+#: classes/Forms/Templates.php:752
+msgid "Spin"
+msgstr ""
+
+#: classes/Forms/Templates.php:752
+msgid "Strength training"
+msgstr ""
+
+#: classes/Forms/Templates.php:757
+msgid "Preferred schedule"
+msgstr ""
+
+#: classes/Forms/Templates.php:758
+#: classes/Forms/Templates.php:1770
+msgid "Morning"
+msgstr ""
+
+#: classes/Forms/Templates.php:758
+#: classes/Forms/Templates.php:1770
+msgid "Afternoon"
+msgstr ""
+
+#: classes/Forms/Templates.php:758
+#: classes/Forms/Templates.php:1770
+msgid "Evening"
+msgstr ""
+
+#: classes/Forms/Templates.php:760
+msgid "Emergency contact name"
+msgstr ""
+
+#: classes/Forms/Templates.php:761
+msgid "Emergency contact phone"
+msgstr ""
+
+#: classes/Forms/Templates.php:763
+msgid "Register for class"
+msgstr ""
+
+#: classes/Forms/Templates.php:766
+msgid "BMI calculator"
+msgstr ""
+
+#: classes/Forms/Templates.php:767
+#: classes/Forms/Templates.php:804
+#: classes/Forms/Templates.php:850
+#: classes/Forms/Templates.php:1054
+#: classes/Forms/Templates.php:1094
+#: classes/Forms/Templates.php:1129
+#: classes/Forms/Templates.php:1161
+#: classes/Forms/Templates.php:1252
+#: classes/Forms/Templates.php:1279
+#: classes/Forms/Templates.php:1301
+#: classes/Forms/Templates.php:1328
+#: classes/Forms/Templates.php:1360
+#: classes/Forms/Templates.php:1409
+#: classes/Forms/Templates.php:1429
+#: classes/Forms/Templates.php:1451
+#: classes/Forms/Templates.php:1478
+msgid "Calculator"
+msgstr ""
+
+#: classes/Forms/Templates.php:768
+msgid "Weight and height, with the body mass index worked out automatically."
+msgstr ""
+
+#: classes/Forms/Templates.php:773
+#: classes/Forms/Templates.php:1393
+msgid "Weight (kg)"
+msgstr ""
+
+#: classes/Forms/Templates.php:783
+msgid "Height (m)"
+msgstr ""
+
+#: classes/Forms/Templates.php:793
+msgid "Your BMI"
+msgstr ""
+
+#: classes/Forms/Templates.php:800
+#: classes/Forms/Templates.php:846
+#: classes/Forms/Templates.php:866
+#: classes/Forms/Templates.php:1090
+#: classes/Forms/Templates.php:1125
+#: classes/Forms/Templates.php:1157
+#: classes/Forms/Templates.php:1184
+#: classes/Forms/Templates.php:1211
+#: classes/Forms/Templates.php:1248
+#: classes/Forms/Templates.php:1275
+#: classes/Forms/Templates.php:1297
+#: classes/Forms/Templates.php:1324
+#: classes/Forms/Templates.php:1356
+#: classes/Forms/Templates.php:1383
+#: classes/Forms/Templates.php:1405
+#: classes/Forms/Templates.php:1425
+#: classes/Forms/Templates.php:1447
+#: classes/Forms/Templates.php:1474
+#: classes/Forms/Templates.php:1496
+msgid "Calculate"
+msgstr ""
+
+#: classes/Forms/Templates.php:803
+msgid "Simple interest calculator"
+msgstr ""
+
+#: classes/Forms/Templates.php:805
+msgid "Principal, rate and time, with the interest worked out automatically."
+msgstr ""
+
+#: classes/Forms/Templates.php:810
+msgid "Principal amount"
+msgstr ""
+
+#: classes/Forms/Templates.php:819
+msgid "Annual interest rate (%)"
+msgstr ""
+
+#: classes/Forms/Templates.php:829
+msgid "Time (years)"
+msgstr ""
+
+#: classes/Forms/Templates.php:839
+msgid "Interest"
+msgstr ""
+
+#: classes/Forms/Templates.php:849
+msgid "Grade average calculator"
+msgstr ""
+
+#: classes/Forms/Templates.php:851
+msgid "Three scores, with the average worked out automatically."
+msgstr ""
+
+#: classes/Forms/Templates.php:854
+msgid "Score 1"
+msgstr ""
+
+#: classes/Forms/Templates.php:855
+msgid "Score 2"
+msgstr ""
+
+#: classes/Forms/Templates.php:856
+msgid "Score 3"
+msgstr ""
+
+#: classes/Forms/Templates.php:869
+msgid "Photography booking form"
+msgstr ""
+
+#: classes/Forms/Templates.php:870
+#: classes/Forms/Templates.php:897
+msgid "Entertainment"
+msgstr ""
+
+#: classes/Forms/Templates.php:871
+msgid "Session type, date and location for a photography booking."
+msgstr ""
+
+#: classes/Forms/Templates.php:879
+msgid "Session type"
+msgstr ""
+
+#: classes/Forms/Templates.php:882
+msgid "Wedding"
+msgstr ""
+
+#: classes/Forms/Templates.php:882
+msgid "Portrait"
+msgstr ""
+
+#: classes/Forms/Templates.php:882
+msgid "Event"
+msgstr ""
+
+#: classes/Forms/Templates.php:882
+msgid "Product"
+msgstr ""
+
+#: classes/Forms/Templates.php:890
+#: classes/Forms/Templates.php:1580
+msgid "Location"
+msgstr ""
+
+#: classes/Forms/Templates.php:891
+msgid "Tell us about the shoot"
+msgstr ""
+
+#: classes/Forms/Templates.php:896
+msgid "Talent show audition signup"
+msgstr ""
+
+#: classes/Forms/Templates.php:898
+msgid "Act type, performance details and a video or image upload."
+msgstr ""
+
+#: classes/Forms/Templates.php:906
+msgid "Act type"
+msgstr ""
+
+#: classes/Forms/Templates.php:909
+msgid "Singing"
+msgstr ""
+
+#: classes/Forms/Templates.php:909
+msgid "Dancing"
+msgstr ""
+
+#: classes/Forms/Templates.php:909
+msgid "Comedy"
+msgstr ""
+
+#: classes/Forms/Templates.php:909
+msgid "Magic"
+msgstr ""
+
+#: classes/Forms/Templates.php:912
+msgid "Title of your performance"
+msgstr ""
+
+#: classes/Forms/Templates.php:915
+msgid "Performance length (minutes)"
+msgstr ""
+
+#: classes/Forms/Templates.php:918
+msgid "Special requirements (props, music, equipment)"
+msgstr ""
+
+#: classes/Forms/Templates.php:920
+msgid "Sign up to audition"
+msgstr ""
+
+#: classes/Forms/Templates.php:923
+msgid "Appointment confirmation form"
+msgstr ""
+
+#: classes/Forms/Templates.php:925
+msgid "Lets a patient confirm, reschedule or cancel an upcoming appointment."
+msgstr ""
+
+#: classes/Forms/Templates.php:931
+msgid "Appointment date"
+msgstr ""
+
+#: classes/Forms/Templates.php:937
+msgid "Yes, confirmed"
+msgstr ""
+
+#: classes/Forms/Templates.php:937
+msgid "I need to reschedule"
+msgstr ""
+
+#: classes/Forms/Templates.php:937
+msgid "I need to cancel"
+msgstr ""
+
+#: classes/Forms/Templates.php:942
+msgid "Submit response"
+msgstr ""
+
+#: classes/Forms/Templates.php:945
+msgid "Fundraiser pledge form"
+msgstr ""
+
+#: classes/Forms/Templates.php:946
+#: classes/Forms/Templates.php:973
+msgid "Nonprofit"
+msgstr ""
+
+#: classes/Forms/Templates.php:947
+msgid "A one-time or recurring pledge amount, with donor details."
+msgstr ""
+
+#: classes/Forms/Templates.php:955
+msgid "Pledge amount"
+msgstr ""
+
+#: classes/Forms/Templates.php:960
+msgid "Pledge frequency"
+msgstr ""
+
+#: classes/Forms/Templates.php:963
+msgid "One-time"
+msgstr ""
+
+#: classes/Forms/Templates.php:963
+msgid "Monthly"
+msgstr ""
+
+#: classes/Forms/Templates.php:969
+msgid "Make my pledge"
+msgstr ""
+
+#: classes/Forms/Templates.php:972
+msgid "Membership application form"
+msgstr ""
+
+#: classes/Forms/Templates.php:974
+msgid "Contact details, membership type and how they heard about you."
+msgstr ""
+
+#: classes/Forms/Templates.php:980
+#: classes/Forms/Templates.php:2086
+msgid "Mailing address"
+msgstr ""
+
+#: classes/Forms/Templates.php:983
+msgid "Membership type"
+msgstr ""
+
+#: classes/Forms/Templates.php:986
+msgid "Individual"
+msgstr ""
+
+#: classes/Forms/Templates.php:986
+msgid "Family"
+msgstr ""
+
+#: classes/Forms/Templates.php:986
+msgid "Student"
+msgstr ""
+
+#: classes/Forms/Templates.php:986
+msgid "Lifetime"
+msgstr ""
+
+#: classes/Forms/Templates.php:992
+msgid "Apply for membership"
+msgstr ""
+
+#: classes/Forms/Templates.php:995
+msgid "Webinar registration form"
+msgstr ""
+
+#: classes/Forms/Templates.php:996
+#: classes/Forms/Templates.php:1021
+msgid "Marketing"
+msgstr ""
+
+#: classes/Forms/Templates.php:997
+msgid "Attendee details and the session they want to join."
+msgstr ""
+
+#: classes/Forms/Templates.php:1002
+msgid "Company (optional)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1005
+msgid "Which session would you like to join?"
+msgstr ""
+
+#: classes/Forms/Templates.php:1006
+msgid "Morning session"
+msgstr ""
+
+#: classes/Forms/Templates.php:1006
+msgid "Afternoon session"
+msgstr ""
+
+#: classes/Forms/Templates.php:1013
+msgid "Send me the webinar link and occasional updates by email."
+msgstr ""
+
+#: classes/Forms/Templates.php:1017
+msgid "Reserve my seat"
+msgstr ""
+
+#: classes/Forms/Templates.php:1020
+msgid "Coupon signup form"
+msgstr ""
+
+#: classes/Forms/Templates.php:1022
+msgid "An email address in exchange for a discount code."
+msgstr ""
+
+#: classes/Forms/Templates.php:1031
+msgid "Email me the discount code and future offers. I can unsubscribe at any time."
+msgstr ""
+
+#: classes/Forms/Templates.php:1035
+msgid "Get my discount"
+msgstr ""
+
+#: classes/Forms/Templates.php:1038
+msgid "Change of address form"
+msgstr ""
+
+#: classes/Forms/Templates.php:1039
+#: classes/Forms/Templates.php:1791
+msgid "Personal"
+msgstr ""
+
+#: classes/Forms/Templates.php:1040
+msgid "Old and new address, for updating someone's records."
+msgstr ""
+
+#: classes/Forms/Templates.php:1046
+msgid "Previous address"
+msgstr ""
+
+#: classes/Forms/Templates.php:1047
+msgid "New address"
+msgstr ""
+
+#: classes/Forms/Templates.php:1048
+msgid "Effective date"
+msgstr ""
+
+#: classes/Forms/Templates.php:1050
+msgid "Submit change"
+msgstr ""
+
+#: classes/Forms/Templates.php:1053
+msgid "Tip calculator"
+msgstr ""
+
+#: classes/Forms/Templates.php:1055
+msgid "Bill amount, tip percentage and number of people, split automatically."
+msgstr ""
+
+#: classes/Forms/Templates.php:1060
+msgid "Bill amount"
+msgstr ""
+
+#: classes/Forms/Templates.php:1065
+msgid "Tip percentage"
+msgstr ""
+
+#: classes/Forms/Templates.php:1070
+msgid "Number of people"
+msgstr ""
+
+#: classes/Forms/Templates.php:1075
+msgid "Tip amount"
+msgstr ""
+
+#: classes/Forms/Templates.php:1083
+msgid "Total per person"
+msgstr ""
+
+#: classes/Forms/Templates.php:1093
+msgid "Discount calculator"
+msgstr ""
+
+#: classes/Forms/Templates.php:1095
+msgid "Original price and discount percentage, with the final price worked out automatically."
+msgstr ""
+
+#: classes/Forms/Templates.php:1100
+msgid "Original price"
+msgstr ""
+
+#: classes/Forms/Templates.php:1105
+msgid "Discount (%)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1110
+msgid "You save"
+msgstr ""
+
+#: classes/Forms/Templates.php:1118
+msgid "Final price"
+msgstr ""
+
+#: classes/Forms/Templates.php:1128
+msgid "Shipping cost calculator"
+msgstr ""
+
+#: classes/Forms/Templates.php:1130
+msgid "Package weight and a per-kg rate, with the shipping cost worked out automatically."
+msgstr ""
+
+#: classes/Forms/Templates.php:1135
+msgid "Package weight (kg)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1140
+msgid "Rate per kg"
+msgstr ""
+
+#: classes/Forms/Templates.php:1145
+msgid "Base handling fee"
+msgstr ""
+
+#: classes/Forms/Templates.php:1150
+msgid "Estimated shipping cost"
+msgstr ""
+
+#: classes/Forms/Templates.php:1160
+msgid "Loan payment estimator"
+msgstr ""
+
+#: classes/Forms/Templates.php:1162
+msgid "Loan amount and number of months, with an even monthly payment worked out automatically."
+msgstr ""
+
+#: classes/Forms/Templates.php:1167
+msgid "Loan amount"
+msgstr ""
+
+#: classes/Forms/Templates.php:1172
+msgid "Number of months"
+msgstr ""
+
+#: classes/Forms/Templates.php:1177
+msgid "Estimated monthly payment"
+msgstr ""
+
+#: classes/Forms/Templates.php:1187
+msgid "Student budget calculator"
+msgstr ""
+
+#: classes/Forms/Templates.php:1189
+msgid "Monthly income and expenses, with the amount left over worked out automatically."
+msgstr ""
+
+#: classes/Forms/Templates.php:1194
+msgid "Monthly income"
+msgstr ""
+
+#: classes/Forms/Templates.php:1199
+msgid "Monthly expenses"
+msgstr ""
+
+#: classes/Forms/Templates.php:1204
+msgid "Left over"
+msgstr ""
+
+#: classes/Forms/Templates.php:1214
+msgid "Final grade calculator"
+msgstr ""
+
+#: classes/Forms/Templates.php:1216
+msgid "Coursework and exam scores weighted by percentage, with the final grade worked out automatically."
+msgstr ""
+
+#: classes/Forms/Templates.php:1221
+msgid "Coursework score"
+msgstr ""
+
+#: classes/Forms/Templates.php:1226
+msgid "Coursework weight (%)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1231
+msgid "Exam score"
+msgstr ""
+
+#: classes/Forms/Templates.php:1236
+msgid "Exam weight (%)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1241
+msgid "Final grade"
+msgstr ""
+
+#: classes/Forms/Templates.php:1251
+msgid "Square footage calculator"
+msgstr ""
+
+#: classes/Forms/Templates.php:1253
+msgid "Length and width, with the area worked out automatically."
+msgstr ""
+
+#: classes/Forms/Templates.php:1258
+msgid "Length (ft)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1263
+msgid "Width (ft)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1268
+msgid "Area (sq ft)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1278
+msgid "Length unit converter"
+msgstr ""
+
+#: classes/Forms/Templates.php:1280
+msgid "A length in meters, converted to feet automatically."
+msgstr ""
+
+#: classes/Forms/Templates.php:1285
+msgid "Length (meters)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1290
+msgid "Length (feet)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1300
+msgid "Percentage calculator"
+msgstr ""
+
+#: classes/Forms/Templates.php:1302
+msgid "A part and a whole, with the percentage worked out automatically."
+msgstr ""
+
+#: classes/Forms/Templates.php:1307
+msgid "Part"
+msgstr ""
+
+#: classes/Forms/Templates.php:1312
+msgid "Whole"
+msgstr ""
+
+#: classes/Forms/Templates.php:1317
+msgid "Percentage"
+msgstr ""
+
+#: classes/Forms/Templates.php:1327
+msgid "Fuel cost calculator"
+msgstr ""
+
+#: classes/Forms/Templates.php:1329
+msgid "Trip distance, fuel economy and fuel price, with the trip cost worked out automatically."
+msgstr ""
+
+#: classes/Forms/Templates.php:1334
+msgid "Trip distance (miles)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1339
+msgid "Fuel economy (miles per gallon)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1344
+msgid "Fuel price per gallon"
+msgstr ""
+
+#: classes/Forms/Templates.php:1349
+msgid "Estimated fuel cost"
+msgstr ""
+
+#: classes/Forms/Templates.php:1359
+msgid "Baking measurement converter"
+msgstr ""
+
+#: classes/Forms/Templates.php:1361
+msgid "A quantity in cups, converted to grams automatically."
+msgstr ""
+
+#: classes/Forms/Templates.php:1366
+msgid "Cups"
+msgstr ""
+
+#: classes/Forms/Templates.php:1371
+msgid "Grams per cup for this ingredient"
+msgstr ""
+
+#: classes/Forms/Templates.php:1376
+msgid "Grams"
+msgstr ""
+
+#: classes/Forms/Templates.php:1386
+msgid "Water intake calculator"
+msgstr ""
+
+#: classes/Forms/Templates.php:1388
+msgid "Body weight, with a suggested daily water intake worked out automatically."
+msgstr ""
+
+#: classes/Forms/Templates.php:1398
+msgid "Suggested daily water intake (liters)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1408
+msgid "Volume calculator"
+msgstr ""
+
+#: classes/Forms/Templates.php:1410
+msgid "Length, width and height, with the volume worked out automatically."
+msgstr ""
+
+#: classes/Forms/Templates.php:1413
+msgid "Length"
+msgstr ""
+
+#: classes/Forms/Templates.php:1414
+msgid "Width"
+msgstr ""
+
+#: classes/Forms/Templates.php:1415
+msgid "Height"
+msgstr ""
+
+#: classes/Forms/Templates.php:1418
+msgid "Volume"
+msgstr ""
+
+#: classes/Forms/Templates.php:1428
+msgid "Days to years calculator"
+msgstr ""
+
+#: classes/Forms/Templates.php:1430
+msgid "A number of days, converted to years automatically."
+msgstr ""
+
+#: classes/Forms/Templates.php:1435
+msgid "Number of days"
+msgstr ""
+
+#: classes/Forms/Templates.php:1440
+msgid "Years"
+msgstr ""
+
+#: classes/Forms/Templates.php:1450
+msgid "Engine horsepower calculator"
+msgstr ""
+
+#: classes/Forms/Templates.php:1452
+msgid "Torque and engine speed, with horsepower worked out automatically."
+msgstr ""
+
+#: classes/Forms/Templates.php:1457
+msgid "Torque (lb-ft)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1462
+msgid "Engine speed (RPM)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1467
+msgid "Horsepower"
+msgstr ""
+
+#: classes/Forms/Templates.php:1477
+msgid "Digital storage unit converter"
+msgstr ""
+
+#: classes/Forms/Templates.php:1479
+msgid "A size in gigabytes, converted to megabytes automatically."
+msgstr ""
+
+#: classes/Forms/Templates.php:1484
+msgid "Size (GB)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1489
+msgid "Size (MB)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1499
+msgid "Trivia quiz"
+msgstr ""
+
+#: classes/Forms/Templates.php:1500
+#: classes/Forms/Templates.php:1536
+msgid "Quizzes"
+msgstr ""
+
+#: classes/Forms/Templates.php:1501
+msgid "A few multiple-choice questions and a place to collect the player's name."
+msgstr ""
+
+#: classes/Forms/Templates.php:1509
+msgid "Question 1"
+msgstr ""
+
+#: classes/Forms/Templates.php:1512
+#: classes/Forms/Templates.php:1520
+#: classes/Forms/Templates.php:1528
+msgid "Option A"
+msgstr ""
+
+#: classes/Forms/Templates.php:1512
+#: classes/Forms/Templates.php:1520
+#: classes/Forms/Templates.php:1528
+msgid "Option B"
+msgstr ""
+
+#: classes/Forms/Templates.php:1512
+#: classes/Forms/Templates.php:1520
+#: classes/Forms/Templates.php:1528
+msgid "Option C"
+msgstr ""
+
+#: classes/Forms/Templates.php:1512
+#: classes/Forms/Templates.php:1520
+#: classes/Forms/Templates.php:1528
+msgid "Option D"
+msgstr ""
+
+#: classes/Forms/Templates.php:1517
+msgid "Question 2"
+msgstr ""
+
+#: classes/Forms/Templates.php:1525
+msgid "Question 3"
+msgstr ""
+
+#: classes/Forms/Templates.php:1532
+msgid "Submit answers"
+msgstr ""
+
+#: classes/Forms/Templates.php:1535
+msgid "Personality quiz"
+msgstr ""
+
+#: classes/Forms/Templates.php:1537
+msgid "A light, fun quiz built from a few multiple-choice questions."
+msgstr ""
+
+#: classes/Forms/Templates.php:1544
+msgid "How do you usually spend a free weekend?"
+msgstr ""
+
+#: classes/Forms/Templates.php:1547
+msgid "Outdoors"
+msgstr ""
+
+#: classes/Forms/Templates.php:1547
+msgid "At home relaxing"
+msgstr ""
+
+#: classes/Forms/Templates.php:1547
+msgid "Out with friends"
+msgstr ""
+
+#: classes/Forms/Templates.php:1547
+msgid "Working on a project"
+msgstr ""
+
+#: classes/Forms/Templates.php:1552
+msgid "Pick a color"
+msgstr ""
+
+#: classes/Forms/Templates.php:1555
+msgid "Blue"
+msgstr ""
+
+#: classes/Forms/Templates.php:1555
+msgid "Red"
+msgstr ""
+
+#: classes/Forms/Templates.php:1555
+msgid "Green"
+msgstr ""
+
+#: classes/Forms/Templates.php:1555
+msgid "Yellow"
+msgstr ""
+
+#: classes/Forms/Templates.php:1560
+msgid "Which best describes you?"
+msgstr ""
+
+#: classes/Forms/Templates.php:1563
+msgid "Planner"
+msgstr ""
+
+#: classes/Forms/Templates.php:1563
+msgid "Spontaneous"
+msgstr ""
+
+#: classes/Forms/Templates.php:1563
+msgid "Thinker"
+msgstr ""
+
+#: classes/Forms/Templates.php:1563
+msgid "Doer"
+msgstr ""
+
+#: classes/Forms/Templates.php:1567
+msgid "See my result"
+msgstr ""
+
+#: classes/Forms/Templates.php:1570
+msgid "Accident report form"
+msgstr ""
+
+#: classes/Forms/Templates.php:1572
+msgid "Date, location and a description of what happened, with photo upload."
+msgstr ""
+
+#: classes/Forms/Templates.php:1578
+msgid "Date of incident"
+msgstr ""
+
+#: classes/Forms/Templates.php:1579
+msgid "Time of incident"
+msgstr ""
+
+#: classes/Forms/Templates.php:1581
+msgid "What happened?"
+msgstr ""
+
+#: classes/Forms/Templates.php:1582
+msgid "Was anyone injured?"
+msgstr ""
+
+#: classes/Forms/Templates.php:1585
+msgid "Photos (optional)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1593
+msgid "Submit report"
+msgstr ""
+
+#: classes/Forms/Templates.php:1596
+msgid "Maintenance request form"
+msgstr ""
+
+#: classes/Forms/Templates.php:1598
+msgid "Location, issue type and urgency for a maintenance request."
+msgstr ""
+
+#: classes/Forms/Templates.php:1604
+msgid "Unit or location"
+msgstr ""
+
+#: classes/Forms/Templates.php:1607
+msgid "Issue type"
+msgstr ""
+
+#: classes/Forms/Templates.php:1610
+msgid "HVAC"
+msgstr ""
+
+#: classes/Forms/Templates.php:1610
+msgid "Appliance"
+msgstr ""
+
+#: classes/Forms/Templates.php:1615
+#: classes/Forms/Templates.php:1728
+msgid "Urgency"
+msgstr ""
+
+#: classes/Forms/Templates.php:1624
+msgid "Photo (optional)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1631
+#: classes/Forms/Templates.php:1736
+#: classes/Forms/Templates.php:1757
+msgid "Submit request"
+msgstr ""
+
+#: classes/Forms/Templates.php:1634
+msgid "Bug tracker form"
+msgstr ""
+
+#: classes/Forms/Templates.php:1636
+msgid "Severity, steps to reproduce and the environment it happened in."
+msgstr ""
+
+#: classes/Forms/Templates.php:1641
+msgid "Bug title"
+msgstr ""
+
+#: classes/Forms/Templates.php:1644
+msgid "Severity"
+msgstr ""
+
+#: classes/Forms/Templates.php:1647
+msgid "Medium"
+msgstr ""
+
+#: classes/Forms/Templates.php:1647
+msgid "High"
+msgstr ""
+
+#: classes/Forms/Templates.php:1647
+msgid "Critical"
+msgstr ""
+
+#: classes/Forms/Templates.php:1650
+msgid "Steps to reproduce"
+msgstr ""
+
+#: classes/Forms/Templates.php:1651
+msgid "Expected result"
+msgstr ""
+
+#: classes/Forms/Templates.php:1652
+msgid "Actual result"
+msgstr ""
+
+#: classes/Forms/Templates.php:1653
+msgid "Browser or device"
+msgstr ""
+
+#: classes/Forms/Templates.php:1663
+msgid "Submit bug"
+msgstr ""
+
+#: classes/Forms/Templates.php:1666
+msgid "Cancellation survey form"
+msgstr ""
+
+#: classes/Forms/Templates.php:1668
+msgid "A reason for leaving and a chance to share feedback."
+msgstr ""
+
+#: classes/Forms/Templates.php:1673
+msgid "Why are you cancelling?"
+msgstr ""
+
+#: classes/Forms/Templates.php:1676
+msgid "Too expensive"
+msgstr ""
+
+#: classes/Forms/Templates.php:1676
+msgid "Not using it enough"
+msgstr ""
+
+#: classes/Forms/Templates.php:1676
+msgid "Missing features"
+msgstr ""
+
+#: classes/Forms/Templates.php:1676
+msgid "Found an alternative"
+msgstr ""
+
+#: classes/Forms/Templates.php:1679
+msgid "What could we have done better?"
+msgstr ""
+
+#: classes/Forms/Templates.php:1682
+msgid "Would you consider coming back in the future?"
+msgstr ""
+
+#: classes/Forms/Templates.php:1683
+#: classes/Forms/Templates.php:2031
+#: classes/Submissions/Formatter.php:32
+msgid "Yes"
+msgstr ""
+
+#: classes/Forms/Templates.php:1683
+#: classes/Forms/Templates.php:2031
+#: classes/Submissions/Formatter.php:32
+msgid "No"
+msgstr ""
+
+#: classes/Forms/Templates.php:1690
+msgid "Work order request form"
+msgstr ""
+
+#: classes/Forms/Templates.php:1692
+msgid "Work type, location and priority for a job request."
+msgstr ""
+
+#: classes/Forms/Templates.php:1698
+msgid "Job site address"
+msgstr ""
+
+#: classes/Forms/Templates.php:1699
+msgid "Type of work"
+msgstr ""
+
+#: classes/Forms/Templates.php:1707
+msgid "Submit work order"
+msgstr ""
+
+#: classes/Forms/Templates.php:1710
+msgid "IT service request form"
+msgstr ""
+
+#: classes/Forms/Templates.php:1712
+msgid "Device, issue category and urgency for an IT support ticket."
+msgstr ""
+
+#: classes/Forms/Templates.php:1717
+msgid "Device or system"
+msgstr ""
+
+#: classes/Forms/Templates.php:1720
+msgid "Issue category"
+msgstr ""
+
+#: classes/Forms/Templates.php:1723
+msgid "Hardware"
+msgstr ""
+
+#: classes/Forms/Templates.php:1723
+msgid "Software"
+msgstr ""
+
+#: classes/Forms/Templates.php:1723
+msgid "Network"
+msgstr ""
+
+#: classes/Forms/Templates.php:1723
+msgid "Account access"
+msgstr ""
+
+#: classes/Forms/Templates.php:1739
+msgid "GDPR right to erasure request form"
+msgstr ""
+
+#: classes/Forms/Templates.php:1741
+msgid "Lets someone ask you to delete the personal data you hold on them."
+msgstr ""
+
+#: classes/Forms/Templates.php:1746
+msgid "Account or customer reference (if known)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1747
+msgid "Which data would you like deleted?"
+msgstr ""
+
+#: classes/Forms/Templates.php:1750
+msgid "Confirmation"
+msgstr ""
+
+#: classes/Forms/Templates.php:1753
+msgid "I confirm I am the person this data belongs to, or am authorized to act on their behalf."
+msgstr ""
+
+#: classes/Forms/Templates.php:1760
+msgid "Request a call back form"
+msgstr ""
+
+#: classes/Forms/Templates.php:1762
+msgid "Phone number and preferred time for the team to call back."
+msgstr ""
+
+#: classes/Forms/Templates.php:1769
+msgid "Best time to call"
+msgstr ""
+
+#: classes/Forms/Templates.php:1772
+msgid "What is this about?"
+msgstr ""
+
+#: classes/Forms/Templates.php:1774
+msgid "Request a call back"
+msgstr ""
+
+#: classes/Forms/Templates.php:1777
+msgid "Account opening form"
+msgstr ""
+
+#: classes/Forms/Templates.php:1779
+msgid "Contact details, address and account type for a new account."
+msgstr ""
+
+#: classes/Forms/Templates.php:1788
+msgid "Account type"
+msgstr ""
+
+#: classes/Forms/Templates.php:1791
+msgid "Business"
+msgstr ""
+
+#: classes/Forms/Templates.php:1796
+msgid "Open account"
+msgstr ""
+
+#: classes/Forms/Templates.php:1799
+msgid "Pest control service request form"
+msgstr ""
+
+#: classes/Forms/Templates.php:1801
+msgid "Pest type, property address and a preferred appointment time."
+msgstr ""
+
+#: classes/Forms/Templates.php:1807
+msgid "Property address"
+msgstr ""
+
+#: classes/Forms/Templates.php:1810
+msgid "Pest type"
+msgstr ""
+
+#: classes/Forms/Templates.php:1813
+msgid "Ants"
+msgstr ""
+
+#: classes/Forms/Templates.php:1813
+msgid "Rodents"
+msgstr ""
+
+#: classes/Forms/Templates.php:1813
+msgid "Termites"
+msgstr ""
+
+#: classes/Forms/Templates.php:1813
+msgid "Bed bugs"
+msgstr ""
+
+#: classes/Forms/Templates.php:1823
+msgid "Automobile information form"
+msgstr ""
+
+#: classes/Forms/Templates.php:1825
+msgid "Owner and vehicle details, for service records or a trade-in."
+msgstr ""
+
+#: classes/Forms/Templates.php:1831
+msgid "Make"
+msgstr ""
+
+#: classes/Forms/Templates.php:1832
+msgid "Model"
+msgstr ""
+
+#: classes/Forms/Templates.php:1833
+msgid "Year"
+msgstr ""
+
+#: classes/Forms/Templates.php:1834
+msgid "VIN"
+msgstr ""
+
+#: classes/Forms/Templates.php:1835
+msgid "Current mileage"
+msgstr ""
+
+#: classes/Forms/Templates.php:1836
+#: classes/Forms/Templates.php:1930
+msgid "Notes"
+msgstr ""
+
+#: classes/Forms/Templates.php:1841
+msgid "Multi-page contact form"
+msgstr ""
+
+#: classes/Forms/Templates.php:1843
+msgid "Contact details on one page, the message on the next."
+msgstr ""
+
+#: classes/Forms/Templates.php:1846
+msgid "Your details"
+msgstr ""
+
+#: classes/Forms/Templates.php:1851
+msgid "Your message"
+msgstr ""
+
+#: classes/Forms/Templates.php:1855
+#: classes/Forms/Templates.php:1894
+msgid "Send message"
+msgstr ""
+
+#: classes/Forms/Templates.php:1858
+msgid "Online proposal request form"
+msgstr ""
+
+#: classes/Forms/Templates.php:1860
+msgid "Project scope, budget and timeline for a business proposal."
+msgstr ""
+
+#: classes/Forms/Templates.php:1866
+msgid "Project scope"
+msgstr ""
+
+#: classes/Forms/Templates.php:1870
+msgid "Under $5,000"
+msgstr ""
+
+#: classes/Forms/Templates.php:1870
+msgid "$5,000 - $20,000"
+msgstr ""
+
+#: classes/Forms/Templates.php:1870
+msgid "$20,000 - $50,000"
+msgstr ""
+
+#: classes/Forms/Templates.php:1870
+msgid "Over $50,000"
+msgstr ""
+
+#: classes/Forms/Templates.php:1872
+msgid "Target start date"
+msgstr ""
+
+#: classes/Forms/Templates.php:1874
+msgid "Request proposal"
+msgstr ""
+
+#: classes/Forms/Templates.php:1877
+msgid "Select a recipient contact form"
+msgstr ""
+
+#: classes/Forms/Templates.php:1879
+msgid "Lets the visitor route their message to the right department."
+msgstr ""
+
+#: classes/Forms/Templates.php:1886
+msgid "Who would you like to contact?"
+msgstr ""
+
+#: classes/Forms/Templates.php:1889
+msgid "Human resources"
+msgstr ""
+
+#: classes/Forms/Templates.php:1897
+msgid "Salon appointment booking form"
+msgstr ""
+
+#: classes/Forms/Templates.php:1899
+msgid "Service, preferred stylist and appointment time for a salon visit."
+msgstr ""
+
+#: classes/Forms/Templates.php:1910
+msgid "Haircut"
+msgstr ""
+
+#: classes/Forms/Templates.php:1910
+msgid "Color"
+msgstr ""
+
+#: classes/Forms/Templates.php:1910
+msgid "Styling"
+msgstr ""
+
+#: classes/Forms/Templates.php:1910
+msgid "Treatment"
+msgstr ""
+
+#: classes/Forms/Templates.php:1913
+msgid "Preferred stylist (optional)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1920
+msgid "Customer information form"
+msgstr ""
+
+#: classes/Forms/Templates.php:1922
+msgid "Contact details and address, for keeping a customer record up to date."
+msgstr ""
+
+#: classes/Forms/Templates.php:1929
+msgid "Date of birth (optional)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1932
+msgid "Save details"
+msgstr ""
+
+#: classes/Forms/Templates.php:1935
+msgid "Product review form"
+msgstr ""
+
+#: classes/Forms/Templates.php:1937
+msgid "A star rating and a written review for a specific product."
+msgstr ""
+
+#: classes/Forms/Templates.php:1941
+msgid "Product name"
+msgstr ""
+
+#: classes/Forms/Templates.php:1944
+#: classes/Forms/Templates.php:2196
+msgid "Rating"
+msgstr ""
+
+#: classes/Forms/Templates.php:1950
+msgid "Review title"
+msgstr ""
+
+#: classes/Forms/Templates.php:1951
+msgid "Your review"
+msgstr ""
+
+#: classes/Forms/Templates.php:1954
+#: classes/Forms/Templates.php:2201
+msgid "Submit review"
+msgstr ""
+
+#: classes/Forms/Templates.php:1957
+msgid "Design brief questionnaire"
+msgstr ""
+
+#: classes/Forms/Templates.php:1959
+msgid "Style preferences, references and project details for a design project."
+msgstr ""
+
+#: classes/Forms/Templates.php:1964
+msgid "Project name"
+msgstr ""
+
+#: classes/Forms/Templates.php:1967
+msgid "Style preferences"
+msgstr ""
+
+#: classes/Forms/Templates.php:1968
+msgid "Modern"
+msgstr ""
+
+#: classes/Forms/Templates.php:1968
+msgid "Minimal"
+msgstr ""
+
+#: classes/Forms/Templates.php:1968
+msgid "Classic"
+msgstr ""
+
+#: classes/Forms/Templates.php:1968
+msgid "Bold"
+msgstr ""
+
+#: classes/Forms/Templates.php:1968
+msgid "Playful"
+msgstr ""
+
+#: classes/Forms/Templates.php:1970
+msgid "Reference links (optional)"
+msgstr ""
+
+#: classes/Forms/Templates.php:1971
+msgid "Describe what you are looking for"
+msgstr ""
+
+#: classes/Forms/Templates.php:1973
+msgid "Submit brief"
+msgstr ""
+
+#: classes/Forms/Templates.php:1976
+msgid "Prescription refill request form"
+msgstr ""
+
+#: classes/Forms/Templates.php:1978
+msgid "Patient and medication details for a refill request."
+msgstr ""
+
+#: classes/Forms/Templates.php:1985
+msgid "Medication name"
+msgstr ""
+
+#: classes/Forms/Templates.php:1986
+msgid "Pharmacy"
+msgstr ""
+
+#: classes/Forms/Templates.php:1987
+msgid "Notes for the provider"
+msgstr ""
+
+#: classes/Forms/Templates.php:1989
+msgid "Request refill"
+msgstr ""
+
+#: classes/Forms/Templates.php:1992
+msgid "Gift certificate order form"
+msgstr ""
+
+#: classes/Forms/Templates.php:1994
+msgid "Recipient details and amount for a gift certificate order."
+msgstr ""
+
+#: classes/Forms/Templates.php:1997
+#: classes/Forms/Templates.php:2157
+msgid "Your name"
+msgstr ""
+
+#: classes/Forms/Templates.php:1998
+msgid "Your email"
+msgstr ""
+
+#: classes/Forms/Templates.php:1999
+msgid "Recipient's name"
+msgstr ""
+
+#: classes/Forms/Templates.php:2000
+msgid "Recipient's email"
+msgstr ""
+
+#: classes/Forms/Templates.php:2003
+msgid "Amount"
+msgstr ""
+
+#: classes/Forms/Templates.php:2009
+msgid "Personal message (optional)"
+msgstr ""
+
+#: classes/Forms/Templates.php:2011
+msgid "Order gift certificate"
+msgstr ""
+
+#: classes/Forms/Templates.php:2014
+msgid "Customer service evaluation form"
+msgstr ""
+
+#: classes/Forms/Templates.php:2016
+msgid "Rates a recent support interaction and asks what could be improved."
+msgstr ""
+
+#: classes/Forms/Templates.php:2019
+msgid "Ticket or reference number (optional)"
+msgstr ""
+
+#: classes/Forms/Templates.php:2022
+msgid "How satisfied were you with the support you received?"
+msgstr ""
+
+#: classes/Forms/Templates.php:2025
+msgid "Very satisfied"
+msgstr ""
+
+#: classes/Forms/Templates.php:2025
+msgid "Satisfied"
+msgstr ""
+
+#: classes/Forms/Templates.php:2025
+msgid "Neutral"
+msgstr ""
+
+#: classes/Forms/Templates.php:2025
+msgid "Dissatisfied"
+msgstr ""
+
+#: classes/Forms/Templates.php:2025
+msgid "Very dissatisfied"
+msgstr ""
+
+#: classes/Forms/Templates.php:2030
+msgid "Was your issue resolved?"
+msgstr ""
+
+#: classes/Forms/Templates.php:2031
+msgid "Partially"
+msgstr ""
+
+#: classes/Forms/Templates.php:2039
+msgid "Bank reference request form"
+msgstr ""
+
+#: classes/Forms/Templates.php:2041
+msgid "Requests a reference letter confirming an account holder's standing."
+msgstr ""
+
+#: classes/Forms/Templates.php:2046
+msgid "Account or customer reference"
+msgstr ""
+
+#: classes/Forms/Templates.php:2047
+msgid "Who is this reference for?"
+msgstr ""
+
+#: classes/Forms/Templates.php:2048
+msgid "What should the reference confirm?"
+msgstr ""
+
+#: classes/Forms/Templates.php:2051
+msgid "Request reference"
+msgstr ""
+
+#: classes/Forms/Templates.php:2054
+msgid "Parental consent form"
+msgstr ""
+
+#: classes/Forms/Templates.php:2056
+msgid "A parent or guardian's permission for a child to take part in an activity."
+msgstr ""
+
+#: classes/Forms/Templates.php:2059
+msgid "Child's full name"
+msgstr ""
+
+#: classes/Forms/Templates.php:2060
+msgid "Child's date of birth"
+msgstr ""
+
+#: classes/Forms/Templates.php:2061
+msgid "Parent or guardian's name"
+msgstr ""
+
+#: classes/Forms/Templates.php:2064
+msgid "Activity this consent covers"
+msgstr ""
+
+#: classes/Forms/Templates.php:2065
+msgid "Medical conditions or allergies we should know about"
+msgstr ""
+
+#: classes/Forms/Templates.php:2071
+msgid "I give permission for my child to take part in this activity."
+msgstr ""
+
+#: classes/Forms/Templates.php:2075
+msgid "Submit consent"
+msgstr ""
+
+#: classes/Forms/Templates.php:2078
+msgid "College application form"
+msgstr ""
+
+#: classes/Forms/Templates.php:2080
+msgid "Applicant details, program choice and supporting documents."
+msgstr ""
+
+#: classes/Forms/Templates.php:2087
+msgid "Program applying for"
+msgstr ""
+
+#: classes/Forms/Templates.php:2088
+msgid "Previous school"
+msgstr ""
+
+#: classes/Forms/Templates.php:2091
+msgid "Transcript"
+msgstr ""
+
+#: classes/Forms/Templates.php:2098
+msgid "Personal statement"
+msgstr ""
+
+#: classes/Forms/Templates.php:2100
+#: classes/Forms/Templates.php:2146
+msgid "Submit application"
+msgstr ""
+
+#: classes/Forms/Templates.php:2103
+msgid "School ID registration form"
+msgstr ""
+
+#: classes/Forms/Templates.php:2105
+msgid "Student details and a photo for a school ID card."
+msgstr ""
+
+#: classes/Forms/Templates.php:2108
+msgid "Student's full name"
+msgstr ""
+
+#: classes/Forms/Templates.php:2109
+#: classes/Forms/Templates.php:2169
+msgid "Grade or class"
+msgstr ""
+
+#: classes/Forms/Templates.php:2110
+msgid "Student ID number (if known)"
+msgstr ""
+
+#: classes/Forms/Templates.php:2114
+msgid "Photo"
+msgstr ""
+
+#: classes/Forms/Templates.php:2125
+msgid "Scholarship application form"
+msgstr ""
+
+#: classes/Forms/Templates.php:2127
+msgid "Applicant background, achievements and an essay for a scholarship."
+msgstr ""
+
+#: classes/Forms/Templates.php:2133
+msgid "School or institution"
+msgstr ""
+
+#: classes/Forms/Templates.php:2134
+msgid "GPA"
+msgstr ""
+
+#: classes/Forms/Templates.php:2135
+msgid "Extracurricular activities and achievements"
+msgstr ""
+
+#: classes/Forms/Templates.php:2136
+msgid "Why do you deserve this scholarship?"
+msgstr ""
+
+#: classes/Forms/Templates.php:2139
+msgid "Supporting documents (optional)"
+msgstr ""
+
+#: classes/Forms/Templates.php:2149
+msgid "Alumni award nomination form"
+msgstr ""
+
+#: classes/Forms/Templates.php:2151
+msgid "Nominate a graduate for a school or alumni association award."
+msgstr ""
+
+#: classes/Forms/Templates.php:2154
+msgid "Nominee's full name"
+msgstr ""
+
+#: classes/Forms/Templates.php:2155
+#: classes/Forms/Templates.php:2263
+msgid "Graduating class or year"
+msgstr ""
+
+#: classes/Forms/Templates.php:2156
+msgid "Why are they a good fit for this award?"
+msgstr ""
+
+#: classes/Forms/Templates.php:2160
+msgid "Submit nomination"
+msgstr ""
+
+#: classes/Forms/Templates.php:2163
+msgid "School uniform order form"
+msgstr ""
+
+#: classes/Forms/Templates.php:2165
+msgid "Item, size and quantity for a student's uniform order."
+msgstr ""
+
+#: classes/Forms/Templates.php:2168
+#: classes/Forms/Templates.php:2246
+msgid "Student's name"
+msgstr ""
+
+#: classes/Forms/Templates.php:2173
+msgid "Items needed"
+msgstr ""
+
+#: classes/Forms/Templates.php:2174
+msgid "Shirt"
+msgstr ""
+
+#: classes/Forms/Templates.php:2174
+msgid "Trousers/skirt"
+msgstr ""
+
+#: classes/Forms/Templates.php:2174
+msgid "Jumper"
+msgstr ""
+
+#: classes/Forms/Templates.php:2174
+msgid "PE kit"
+msgstr ""
+
+#: classes/Forms/Templates.php:2178
+msgid "Size"
+msgstr ""
+
+#: classes/Forms/Templates.php:2186
+msgid "Book review form"
+msgstr ""
+
+#: classes/Forms/Templates.php:2188
+msgid "A rating and a short review of a book just read."
+msgstr ""
+
+#: classes/Forms/Templates.php:2192
+msgid "Book title"
+msgstr ""
+
+#: classes/Forms/Templates.php:2193
+msgid "Author"
+msgstr ""
+
+#: classes/Forms/Templates.php:2199
+msgid "What did you think of it?"
+msgstr ""
+
+#: classes/Forms/Templates.php:2204
+msgid "General consent form"
+msgstr ""
+
+#: classes/Forms/Templates.php:2206
+msgid "A general permission and release form for an activity or program."
+msgstr ""
+
+#: classes/Forms/Templates.php:2211
+msgid "What is this consent for?"
+msgstr ""
+
+#: classes/Forms/Templates.php:2217
+msgid "I have read and agree to the terms described above."
+msgstr ""
+
+#: classes/Forms/Templates.php:2224
+msgid "Parent-teacher conference request form"
+msgstr ""
+
+#: classes/Forms/Templates.php:2226
+msgid "A parent's preferred times to meet with their child's teacher."
+msgstr ""
+
+#: classes/Forms/Templates.php:2229
+msgid "Parent's name"
+msgstr ""
+
+#: classes/Forms/Templates.php:2232
+msgid "Child's name"
+msgstr ""
+
+#: classes/Forms/Templates.php:2233
+msgid "Teacher"
+msgstr ""
+
+#: classes/Forms/Templates.php:2236
+msgid "What would you like to discuss?"
+msgstr ""
+
+#: classes/Forms/Templates.php:2238
+msgid "Request conference"
+msgstr ""
+
+#: classes/Forms/Templates.php:2241
+msgid "Grade submission form"
+msgstr ""
+
+#: classes/Forms/Templates.php:2243
+msgid "Lets a teacher record a grade for one student and assignment."
+msgstr ""
+
+#: classes/Forms/Templates.php:2248
+msgid "Assignment"
+msgstr ""
+
+#: classes/Forms/Templates.php:2249
+msgid "Score"
+msgstr ""
+
+#: classes/Forms/Templates.php:2250
+msgid "Out of"
+msgstr ""
+
+#: classes/Forms/Templates.php:2251
+msgid "Comments"
+msgstr ""
+
+#: classes/Forms/Templates.php:2253
+msgid "Submit grade"
+msgstr ""
+
+#: classes/Forms/Templates.php:2256
+msgid "Alumni donation form"
+msgstr ""
+
+#: classes/Forms/Templates.php:2258
+msgid "Lets a graduate give back to their school or alumni fund."
+msgstr ""
+
+#: classes/Forms/Templates.php:2322
 #: assets/js/index.js:6
 msgid "Admin notification"
 msgstr ""
 
-#: classes/Forms/Templates.php:336
-#: classes/Notifications/Notifier.php:127
-#: classes/Notifications/Notifier.php:185
+#: classes/Forms/Templates.php:2326
+#: classes/Notifications/Notifier.php:124
+#: classes/Notifications/Notifier.php:182
 #: assets/js/index.js:6
 msgid "New submission: {form_title}"
 msgstr ""
@@ -638,22 +3252,22 @@ msgstr ""
 msgid "Leave this field empty"
 msgstr ""
 
-#: classes/Frontend/Renderer.php:164
+#: classes/Frontend/Renderer.php:163
 msgid "This form is protected by Google reCAPTCHA, which needs JavaScript. Please switch JavaScript on to send it."
 msgstr ""
 
 #: classes/Frontend/Renderer.php:250
-#: classes/Submissions/Processor.php:315
+#: classes/Submissions/Processor.php:390
 msgid "Enter a valid email address."
 msgstr ""
 
 #: classes/Frontend/Renderer.php:251
-#: classes/Submissions/Processor.php:318
+#: classes/Submissions/Processor.php:393
 msgid "Enter a valid web address, starting with https://."
 msgstr ""
 
 #: classes/Frontend/Renderer.php:252
-#: classes/Submissions/Processor.php:327
+#: classes/Submissions/Processor.php:402
 msgid "Enter a number."
 msgstr ""
 
@@ -662,84 +3276,304 @@ msgid "That file is too large or not an allowed type."
 msgstr ""
 
 #: classes/Frontend/Renderer.php:254
-msgid "Something went wrong. Please check your connection and try again."
+msgid "Clear"
 msgstr ""
 
 #: classes/Frontend/Renderer.php:255
-msgid "Sending…"
+msgid "Something went wrong. Please check your connection and try again."
 msgstr ""
 
 #: classes/Frontend/Renderer.php:256
+msgid "Sending…"
+msgstr ""
+
+#: classes/Frontend/Renderer.php:257
 msgid "This is a preview. Nothing was sent."
 msgstr ""
 
 #. translators: 1: current step, 2: number of steps.
-#: classes/Frontend/Renderer.php:258
-#: classes/Frontend/Renderer.php:272
+#: classes/Frontend/Renderer.php:259
+#: classes/Frontend/Renderer.php:273
 #, php-format
 msgid "Step %1$s of %2$s"
 msgstr ""
 
 #. translators: Placeholder option of a dropdown field.
-#: classes/Frontend/Renderer.php:350
+#: classes/Frontend/Renderer.php:353
 msgid "Select…"
 msgstr ""
 
 #. translators: 1: comma-separated file extensions, 2: size in megabytes.
-#: classes/Frontend/Renderer.php:443
+#: classes/Frontend/Renderer.php:446
 #, php-format
 msgid "Allowed: %1$s. Up to %2$d MB."
 msgstr ""
 
-#: classes/Notifications/Notifier.php:62
+#: classes/Frontend/Renderer.php:467
+msgid "Draw your signature, or upload a PNG image of it."
+msgstr ""
+
+#: classes/Frontend/Renderer.php:554
+msgid "Add row"
+msgstr ""
+
+#: classes/Frontend/Renderer.php:583
+#: assets/js/index.js:6
+msgid "Remove"
+msgstr ""
+
+#. translators: %s: source plugin name.
+#: classes/Migration/AbstractMigrator.php:58
+#, php-format
+msgid "%s is not installed, so there is nothing to migrate."
+msgstr ""
+
+#. translators: 1: source plugin name, 2: source form id.
+#: classes/Migration/AbstractMigrator.php:87
+#, php-format
+msgid "%1$s form #%2$s could not be created in VuloForm."
+msgstr ""
+
+#. translators: 1: source plugin name, 2: source form id, 3: error message.
+#: classes/Migration/AbstractMigrator.php:95
+#, php-format
+msgid "%1$s form #%2$s: %3$s"
+msgstr ""
+
+#: classes/Migration/ContactForm7Migrator.php:74
+msgid "Contact Form 7"
+msgstr ""
+
+#: classes/Migration/ContactForm7Migrator.php:125
+#: classes/Migration/FluentFormsMigrator.php:111
+#: classes/Migration/FormidableMigrator.php:107
+#: classes/Migration/ForminatorMigrator.php:114
+#: classes/Migration/GravityFormsMigrator.php:126
+#: classes/Migration/NinjaFormsMigrator.php:107
+#: classes/Migration/WpFormsMigrator.php:102
+msgid "(untitled form)"
+msgstr ""
+
+#. translators: %d: Contact Form 7 form id.
+#: classes/Migration/ContactForm7Migrator.php:148
+#, php-format
+msgid "Contact Form 7 form #%d could not be read."
+msgstr ""
+
+#. translators: 1: form title, 2: CF7 form-tag type.
+#. translators: 1: form title, 2: Fluent Forms field type.
+#. translators: 1: form title, 2: Formidable field type.
+#. translators: 1: form title, 2: Forminator field type.
+#. translators: 1: form title, 2: Gravity Forms field type.
+#. translators: 1: form title, 2: Ninja Forms field type.
+#. translators: 1: form title, 2: WPForms field type.
+#: classes/Migration/ContactForm7Migrator.php:207
+#: classes/Migration/FluentFormsMigrator.php:207
+#: classes/Migration/FormidableMigrator.php:189
+#: classes/Migration/ForminatorMigrator.php:196
+#: classes/Migration/GravityFormsMigrator.php:205
+#: classes/Migration/NinjaFormsMigrator.php:189
+#: classes/Migration/WpFormsMigrator.php:185
+#, php-format
+msgid "\"%1$s\": the \"%2$s\" field type is not supported yet and was skipped."
+msgstr ""
+
+#. translators: 1: form title, 2: field name.
+#: classes/Migration/ContactForm7Migrator.php:244
+#, php-format
+msgid "\"%1$s\": the \"%2$s\" dropdown allows multiple selections in Contact Form 7; it migrated as a single-choice dropdown."
+msgstr ""
+
+#. translators: 1: form title, 2: field name.
+#: classes/Migration/ContactForm7Migrator.php:269
+#, php-format
+msgid "\"%1$s\": the slider control on \"%2$s\" is not available in VuloForm; it migrated as a plain number field with the same min/max."
+msgstr ""
+
+#: classes/Migration/ContactForm7Migrator.php:292
+msgid "Mail (1)"
+msgstr ""
+
+#: classes/Migration/FluentFormsMigrator.php:70
+msgid "Fluent Forms"
+msgstr ""
+
+#. translators: %d: Fluent Forms form id.
+#: classes/Migration/FluentFormsMigrator.php:134
+#, php-format
+msgid "Fluent Forms form #%d could not be read."
+msgstr ""
+
+#: classes/Migration/FluentFormsMigrator.php:209
+#: classes/Migration/GravityFormsMigrator.php:207
+msgid "(unknown)"
+msgstr ""
+
+#: classes/Migration/FluentFormsMigrator.php:263
+#: classes/Migration/NinjaFormsMigrator.php:226
+msgid "I agree"
+msgstr ""
+
+#. translators: %s: form title.
+#: classes/Migration/FluentFormsMigrator.php:302
+#, php-format
+msgid "\"%s\": email notifications were found but could not be migrated automatically (Fluent Forms can route a notification to a field's answer, which has no safe automatic translation); add them again under this form's Notification Settings."
+msgstr ""
+
+#: classes/Migration/FormidableMigrator.php:69
+msgid "Formidable Forms"
+msgstr ""
+
+#. translators: %d: Formidable form id.
+#: classes/Migration/FormidableMigrator.php:130
+#, php-format
+msgid "Formidable form #%d could not be read."
+msgstr ""
+
+#. translators: %s: form title.
+#: classes/Migration/FormidableMigrator.php:278
+#, php-format
+msgid "\"%s\": email notifications could not be read from this Formidable version and were not migrated; add them again under this form's Notifications tab."
+msgstr ""
+
+#: classes/Migration/ForminatorMigrator.php:71
+msgid "Forminator"
+msgstr ""
+
+#. translators: %d: Forminator form id.
+#: classes/Migration/ForminatorMigrator.php:138
+#, php-format
+msgid "Forminator form #%d could not be read."
+msgstr ""
+
+#. translators: 1: form title, 2: field label.
+#: classes/Migration/ForminatorMigrator.php:258
+#, php-format
+msgid "\"%1$s\": the prefix (Mr/Mrs/...) part of \"%2$s\" is not supported and was dropped."
+msgstr ""
+
+#. translators: 1: form title, 2: field label.
+#: classes/Migration/ForminatorMigrator.php:267
+#: classes/Migration/WpFormsMigrator.php:264
+#, php-format
+msgid "\"%1$s\": the middle-name part of \"%2$s\" is not supported; the field migrated with first/last name only."
+msgstr ""
+
+#. translators: %s: form title.
+#: classes/Migration/ForminatorMigrator.php:303
+#, php-format
+msgid "\"%s\": email notifications were found but could not be migrated automatically (Forminator's notification format is not publicly documented); add them again under this form's Notifications tab."
+msgstr ""
+
+#: classes/Migration/GravityFormsMigrator.php:90
+msgid "Gravity Forms"
+msgstr ""
+
+#. translators: %d: Gravity Forms form id.
+#: classes/Migration/GravityFormsMigrator.php:149
+#, php-format
+msgid "Gravity Forms form #%d could not be read."
+msgstr ""
+
+#. translators: 1: form title, 2: field label.
+#: classes/Migration/GravityFormsMigrator.php:272
+#, php-format
+msgid "\"%1$s\": conditional logic on \"%2$s\" uses a different rule engine and was not migrated; rebuild it under this field's Logic tab."
+msgstr ""
+
+#. translators: %s: form title.
+#: classes/Migration/GravityFormsMigrator.php:344
+#, php-format
+msgid "\"%s\": email notifications were found but could not be migrated automatically (Gravity Forms can route a notification to a field's answer, which has no safe automatic translation); add them again under this form's Notifications tab."
+msgstr ""
+
+#: classes/Migration/NinjaFormsMigrator.php:71
+msgid "Ninja Forms"
+msgstr ""
+
+#. translators: %d: Ninja Forms form id.
+#: classes/Migration/NinjaFormsMigrator.php:130
+#, php-format
+msgid "Ninja Forms form #%d could not be read."
+msgstr ""
+
+#. translators: 1: form title, 2: Ninja Forms action type.
+#: classes/Migration/NinjaFormsMigrator.php:273
+#, php-format
+msgid "\"%1$s\": the \"%2$s\" action is not supported yet and was skipped."
+msgstr ""
+
+#: classes/Migration/WpFormsMigrator.php:60
+msgid "WPForms"
+msgstr ""
+
+#. translators: %d: WPForms form id.
+#: classes/Migration/WpFormsMigrator.php:126
+#, php-format
+msgid "WPForms form #%d could not be read."
+msgstr ""
+
+#. translators: 1: form title, 2: field label.
+#: classes/Migration/WpFormsMigrator.php:232
+#, php-format
+msgid "\"%1$s\": the slider control on \"%2$s\" is not available in VuloForm; it migrated as a plain number field with the same min/max/step."
+msgstr ""
+
+#. translators: 1: form title, 2: field label.
+#: classes/Migration/WpFormsMigrator.php:245
+#, php-format
+msgid "\"%1$s\": the word limit on \"%2$s\" is not supported; only character limits migrate."
+msgstr ""
+
+#: classes/Notifications/Notifier.php:59
 msgid "Not sent: this submission does not meet the notification's conditions."
 msgstr ""
 
-#: classes/Notifications/Notifier.php:119
+#: classes/Notifications/Notifier.php:116
 msgid "No valid recipient address."
 msgstr ""
 
-#: classes/Notifications/Notifier.php:158
+#: classes/Notifications/Notifier.php:155
 msgid "Cancelled by another plugin."
 msgstr ""
 
-#: classes/Notifications/Notifier.php:165
-#: classes/Notifications/Notifier.php:205
+#: classes/Notifications/Notifier.php:162
+#: classes/Notifications/Notifier.php:202
 msgid "Handed to VuloMail."
 msgstr ""
 
-#: classes/Notifications/Notifier.php:170
+#: classes/Notifications/Notifier.php:167
 msgid "Handed to WordPress mail."
 msgstr ""
 
-#: classes/Notifications/Notifier.php:171
+#: classes/Notifications/Notifier.php:168
 msgid "WordPress could not send the email."
 msgstr ""
 
-#: classes/Notifications/Notifier.php:182
+#: classes/Notifications/Notifier.php:179
 msgid "SMS needs VuloMail with an SMS connection."
 msgstr ""
 
-#: classes/Notifications/Notifier.php:202
+#: classes/Notifications/Notifier.php:199
 msgid "No phone number to send to."
 msgstr ""
 
 #. translators: %d: HTTP status code.
-#: classes/Notifications/Webhooks.php:192
-#: classes/Notifications/Webhooks.php:197
+#: classes/Notifications/Webhooks.php:189
+#: classes/Notifications/Webhooks.php:194
 #, php-format
 msgid "The endpoint answered HTTP %d."
 msgstr ""
 
-#: classes/Notifications/Webhooks.php:210
+#: classes/Notifications/Webhooks.php:207
 msgid "A webhook URL must start with https://."
 msgstr ""
 
-#: classes/Notifications/Webhooks.php:214
+#: classes/Notifications/Webhooks.php:211
 msgid "A webhook URL can't contain a username or password."
 msgstr ""
 
-#: classes/Notifications/Webhooks.php:218
+#: classes/Notifications/Webhooks.php:215
 msgid "That address is not allowed. Webhooks can only be sent to public servers."
 msgstr ""
 
@@ -755,11 +3589,24 @@ msgstr ""
 msgid "The form could not be created."
 msgstr ""
 
-#: classes/Rest/Forms.php:238
+#: classes/Rest/Forms.php:246
 msgid "Please enable JavaScript to use this form."
 msgstr ""
 
-#: classes/Rest/Settings.php:111
+#: classes/Rest/Migration.php:58
+#: classes/Rest/Migration.php:80
+msgid "Unknown migration source."
+msgstr ""
+
+#: classes/Rest/Migration.php:73
+msgid "You are not allowed to deactivate plugins."
+msgstr ""
+
+#: classes/Rest/Migration.php:90
+msgid "That plugin is already inactive."
+msgstr ""
+
+#: classes/Rest/Settings.php:95
 msgid "Settings saved."
 msgstr ""
 
@@ -768,16 +3615,29 @@ msgstr ""
 msgid "Choose at least one submission."
 msgstr ""
 
-#: classes/Rest/Submissions.php:181
+#: classes/Rest/Submissions.php:208
+#: assets/js/index.js:6
+msgid "All forms"
+msgstr ""
+
+#: classes/Rest/Submissions.php:209
 msgid "ID"
 msgstr ""
 
-#: classes/Rest/Submissions.php:181
+#: classes/Rest/Submissions.php:212
+#: assets/js/block/form/index.js:1
+#: assets/js/index.js:1
+#: assets/js/index.js:3
+#: assets/js/index.js:6
+msgid "Form"
+msgstr ""
+
+#: classes/Rest/Submissions.php:225
 #: classes/Security/Privacy.php:77
 msgid "Submitted"
 msgstr ""
 
-#: classes/Rest/Submissions.php:181
+#: classes/Rest/Submissions.php:225
 #: assets/js/index.js:6
 msgid "Status"
 msgstr ""
@@ -827,56 +3687,48 @@ msgstr ""
 msgid "You are sending messages too quickly. Please wait a minute and try again."
 msgstr ""
 
-#: classes/Submissions/Formatter.php:31
-msgid "Yes"
-msgstr ""
-
-#: classes/Submissions/Formatter.php:31
-msgid "No"
-msgstr ""
-
-#: classes/Submissions/Processor.php:52
+#: classes/Submissions/Processor.php:49
 msgid "This form is not accepting submissions."
 msgstr ""
 
-#: classes/Submissions/Processor.php:58
+#: classes/Submissions/Processor.php:55
 msgid "This form is temporarily unavailable. Please try again later."
 msgstr ""
 
-#: classes/Submissions/Processor.php:168
+#: classes/Submissions/Processor.php:94
 msgid "Your file could not be saved. Please try again later."
 msgstr ""
 
-#: classes/Submissions/Processor.php:186
+#: classes/Submissions/Processor.php:111
 msgid "Your message could not be saved. Please try again later."
 msgstr ""
 
-#: classes/Submissions/Processor.php:323
+#: classes/Submissions/Processor.php:398
 msgid "Enter a valid phone number."
 msgstr ""
 
 #. translators: %s: smallest allowed number.
-#: classes/Submissions/Processor.php:332
+#: classes/Submissions/Processor.php:407
 #, php-format
 msgid "Enter a number of %s or more."
 msgstr ""
 
 #. translators: %s: largest allowed number.
-#: classes/Submissions/Processor.php:337
+#: classes/Submissions/Processor.php:412
 #, php-format
 msgid "Enter a number of %s or less."
 msgstr ""
 
-#: classes/Submissions/Processor.php:345
+#: classes/Submissions/Processor.php:420
 msgid "Enter a valid date."
 msgstr ""
 
-#: classes/Submissions/Processor.php:348
+#: classes/Submissions/Processor.php:423
 msgid "Enter a valid time."
 msgstr ""
 
 #. translators: %d: number of characters.
-#: classes/Submissions/Processor.php:364
+#: classes/Submissions/Processor.php:440
 #, php-format
 msgid "Enter at least %d character."
 msgid_plural "Enter at least %d characters."
@@ -884,33 +3736,47 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of characters.
-#: classes/Submissions/Processor.php:369
+#: classes/Submissions/Processor.php:445
 #, php-format
 msgid "Enter no more than %d character."
 msgid_plural "Enter no more than %d characters."
 msgstr[0] ""
 msgstr[1] ""
 
+#. translators: %d: smallest allowed number of rows.
+#: classes/Submissions/Processor.php:473
+#, php-format
+msgid "Add at least %d row."
+msgid_plural "Add at least %d rows."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: row number, 2: error message.
+#: classes/Submissions/Processor.php:483
+#, php-format
+msgid "Row %1$d: %2$s"
+msgstr ""
+
 #. translators: %d: number of files.
-#: classes/Submissions/Uploads.php:47
+#: classes/Submissions/Uploads.php:44
 #, php-format
 msgid "You can upload %d file here."
 msgid_plural "You can upload up to %d files here."
 msgstr[0] ""
 msgstr[1] ""
 
-#: classes/Submissions/Uploads.php:52
+#: classes/Submissions/Uploads.php:49
 msgid "The file could not be uploaded. Please try again."
 msgstr ""
 
 #. translators: %d: size in megabytes.
-#: classes/Submissions/Uploads.php:57
+#: classes/Submissions/Uploads.php:54
 #, php-format
 msgid "Each file must be %d MB or smaller."
 msgstr ""
 
 #. translators: %s: comma-separated file extensions.
-#: classes/Submissions/Uploads.php:62
+#: classes/Submissions/Uploads.php:59
 #, php-format
 msgid "That file type is not allowed. Allowed types: %s."
 msgstr ""
@@ -924,13 +3790,6 @@ msgid "You have no published forms yet. Create and publish one in VuloForm first
 msgstr ""
 
 #: assets/js/block/form/index.js:1
-#: assets/js/index.js:1
-#: assets/js/index.js:3
-#: assets/js/index.js:6
-msgid "Form"
-msgstr ""
-
-#: assets/js/block/form/index.js:1
 msgid "Select a form…"
 msgstr ""
 
@@ -939,8 +3798,198 @@ msgid "The selected form is no longer published."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Data"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What happens to your forms, submissions and uploaded files when VuloForm is deleted."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "When VuloForm is deleted"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Keep data"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Reinstalling picks up where you left off."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delete everything"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Removes forms, submissions and uploaded files."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Privacy"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What is kept about the people who fill in your forms, and for how long."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "days"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Keep submissions for"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Older submissions and their uploaded files are deleted automatically. 0 keeps them until you delete them."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Store the visitor's IP address"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Off by default. An IP address is personal data; only keep it if you have a reason to."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "On"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:6
+msgid "Off"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Spam protection"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Limits and checks that apply to every form, and the keys for Google reCAPTCHA."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Abuse protection"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks that need no outside service. They apply to every form."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "per minute"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Submissions allowed from one visitor"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Per form. Further attempts in the same minute are refused. 0 switches the limit off."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "seconds"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Minimum fill time"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A form sent faster than a person could fill it in is filed as spam. 0 switches this off."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Hidden trap field"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A field people never see. A submission that fills it in is filed as spam."
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:6
+msgid "Google reCAPTCHA"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Optional. Create a site key and secret key for the version you choose here, then switch reCAPTCHA on in each form, at the bottom of its Fields tab."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Version"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "v2 checkbox"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Visitors tick \"I'm not a robot\"."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "v3 invisible"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Scores each visitor in the background."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Site key"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Keys only work for the version they were created for. Empty this to switch reCAPTCHA off everywhere."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Get reCAPTCHA keys"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Secret key"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Kept on the server and never shown again. Leave empty to keep the key already saved."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "v3 strictness"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Only used by v3. Submissions scoring below this are filed as spam, not refused."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Lenient (0.3)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Balanced (0.5)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Strict (0.7)"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Something went wrong. Please try again."
 msgstr ""
+
+#. translators: %d: number of forms migrated.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d form migrated."
+msgid_plural "%d forms migrated."
+msgstr[0] ""
+msgstr[1] ""
 
 #: assets/js/index.js:1
 msgid "Every form on your site. Build one, publish it, and add it to a page."
@@ -952,6 +4001,50 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Could not load your forms"
+msgstr ""
+
+#. translators: %s: comma-separated list of detected plugin names.
+#: assets/js/index.js:1
+#, js-format
+msgid "Forms found in %s."
+msgstr ""
+
+#. translators: %d: number of forms found.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d form can be migrated into VuloForm."
+msgid_plural "%d forms can be migrated into VuloForm."
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+msgid "Migrating…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Migrate"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Migration successful."
+msgstr ""
+
+#. translators: %s: comma-separated list of source plugin names.
+#: assets/js/index.js:1
+#, js-format
+msgid "Your forms from %s now live in VuloForm too. You can deactivate it."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Deactivating…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Deactivate it"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Plugin deactivated."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1009,6 +4102,24 @@ msgstr ""
 msgid "No forms match your search."
 msgstr ""
 
+#. translators: %s: comma-separated list of detected plugin names.
+#: assets/js/index.js:1
+#, js-format
+msgid "Bring your %s forms into VuloForm"
+msgstr ""
+
+#. translators: 1: number of forms found, 2: comma-separated list of detected plugin names.
+#: assets/js/index.js:1
+#, js-format
+msgid "%1$d form found in %2$s. Migrate copies it to VuloForm - %2$s stays untouched."
+msgid_plural "%1$d forms found in %2$s. Migrate copies them to VuloForm - %2$s stays untouched."
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+msgid "Migrate now"
+msgstr ""
+
 #: assets/js/index.js:1
 msgid "Create your first form"
 msgstr ""
@@ -1019,6 +4130,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Start a new form"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "All templates"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1562,6 +4677,36 @@ msgid "%1$d of %2$d"
 msgstr ""
 
 #: assets/js/index.js:6
+msgid "Row fields"
+msgstr ""
+
+#. translators: %d: number of fields in one row.
+#: assets/js/index.js:6
+#, js-format
+msgid "%d field(s)"
+msgstr ""
+
+#: assets/js/index.js:6
+msgid "Label"
+msgstr ""
+
+#: assets/js/index.js:6
+msgid "Remove this row field"
+msgstr ""
+
+#: assets/js/index.js:6
+msgid "Add a field to the row"
+msgstr ""
+
+#: assets/js/index.js:6
+msgid "Minimum rows"
+msgstr ""
+
+#: assets/js/index.js:6
+msgid "Maximum rows"
+msgstr ""
+
+#: assets/js/index.js:6
 msgid "Answer limits"
 msgstr ""
 
@@ -1736,10 +4881,6 @@ msgstr ""
 msgid "Click to rename. Only you see this name."
 msgstr ""
 
-#: assets/js/index.js:6
-msgid "Off"
-msgstr ""
-
 #. translators: %s: name of a notification or webhook.
 #: assets/js/index.js:6
 #, js-format
@@ -1750,10 +4891,6 @@ msgstr ""
 #: assets/js/index.js:6
 #, js-format
 msgid "Remove \"%s\""
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Remove"
 msgstr ""
 
 #: assets/js/index.js:6
@@ -1944,10 +5081,6 @@ msgstr ""
 #: assets/js/index.js:6
 #, js-format
 msgid "Email to %s"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Delivery"
 msgstr ""
 
 #: assets/js/index.js:6
@@ -2275,10 +5408,6 @@ msgid "Not saved yet: enter the address to send to"
 msgstr ""
 
 #: assets/js/index.js:6
-msgid "Destination"
-msgstr ""
-
-#: assets/js/index.js:6
 msgid "Where each submission is sent."
 msgstr ""
 
@@ -2475,10 +5604,6 @@ msgid "Field removed. Use Undo to bring it back."
 msgstr ""
 
 #: assets/js/index.js:6
-msgid "Google reCAPTCHA"
-msgstr ""
-
-#: assets/js/index.js:6
 msgid "An extra spam check before the form is sent. It loads a Google script for everyone who opens this form."
 msgstr ""
 
@@ -2500,6 +5625,10 @@ msgstr ""
 
 #: assets/js/index.js:6
 msgid "Try the form. Nothing you enter here is sent or saved."
+msgstr ""
+
+#: assets/js/index.js:6
+msgid "Not answered"
 msgstr ""
 
 #: assets/js/index.js:6
@@ -2539,15 +5668,23 @@ msgid "What people have sent through your forms. Only administrators can see thi
 msgstr ""
 
 #: assets/js/index.js:6
-msgid "All forms"
-msgstr ""
-
-#: assets/js/index.js:6
 msgid "Export CSV"
 msgstr ""
 
 #: assets/js/index.js:6
-msgid "Choose one form to export its submissions."
+msgid "There is nothing to export."
+msgstr ""
+
+#: assets/js/index.js:6
+msgid "New"
+msgstr ""
+
+#: assets/js/index.js:6
+msgid "Read"
+msgstr ""
+
+#: assets/js/index.js:6
+msgid "Spam"
 msgstr ""
 
 #: assets/js/index.js:6
@@ -2588,18 +5725,6 @@ msgstr ""
 
 #: assets/js/index.js:6
 msgid "Received"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Spam"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "New"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Read"
 msgstr ""
 
 #: assets/js/index.js:6
@@ -2661,179 +5786,19 @@ msgid "Submission deleted."
 msgstr ""
 
 #: assets/js/index.js:6
-msgid "Privacy"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "What is kept about the people who fill in your forms, and for how long."
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "days"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Keep submissions for"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Older submissions and their uploaded files are deleted automatically. 0 keeps them until you delete them."
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Store the visitor's IP address"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Off by default. An IP address is personal data; only keep it if you have a reason to."
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "On"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Abuse protection"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Checks that need no outside service. They apply to every form."
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "per minute"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Submissions allowed from one visitor"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Per form. Further attempts in the same minute are refused. 0 switches the limit off."
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "seconds"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Minimum fill time"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "A form sent faster than a person could fill it in is filed as spam. 0 switches this off."
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Hidden trap field"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "A field people never see. A submission that fills it in is filed as spam."
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Optional. Create a site key and secret key for the version you choose here, then switch reCAPTCHA on in each form, at the bottom of its Fields tab."
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Get reCAPTCHA keys"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Version"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "v2 checkbox"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Visitors tick \"I'm not a robot\"."
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "v3 invisible"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Scores each visitor in the background."
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Site key"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Keys only work for the version they were created for. Empty this to switch reCAPTCHA off everywhere."
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Secret key"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Kept on the server and never shown again. Leave empty to keep the key already saved."
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "v3 strictness"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Only used by v3. Submissions scoring below this are filed as spam, not refused."
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Lenient (0.3)"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Balanced (0.5)"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Strict (0.7)"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Data"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "What happens to your forms, submissions and uploaded files when VuloForm is deleted."
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "When VuloForm is deleted"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Keep data"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Reinstalling picks up where you left off."
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Delete everything"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Removes forms, submissions and uploaded files."
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Spam protection"
-msgstr ""
-
-#: assets/js/index.js:6
-msgid "Limits and checks that apply to every form, and the keys for Google reCAPTCHA."
-msgstr ""
-
-#: assets/js/index.js:6
 msgid "Could not load settings"
+msgstr ""
+
+#: assets/js/index.js:6
+msgid "This settings section isn’t available"
+msgstr ""
+
+#: assets/js/index.js:6
+msgid "The tab you linked to doesn’t exist."
+msgstr ""
+
+#: assets/js/index.js:6
+msgid "Loading…"
 msgstr ""
 
 #: assets/js/index.js:6
