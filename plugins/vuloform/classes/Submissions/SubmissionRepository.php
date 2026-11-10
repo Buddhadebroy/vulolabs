@@ -114,7 +114,8 @@ class SubmissionRepository {
 			$params[] = $args['status'];
 		} elseif ( 'inbox' === ( $args['status'] ?? '' ) ) {
 			// Everything that isn't spam.
-			$where[] = "status <> 'spam'";
+			$where[]  = 'status <> %s';
+			$params[] = 'spam';
 		}
 
 		$where_sql = implode( ' AND ', $where );
@@ -242,15 +243,16 @@ class SubmissionRepository {
 	public function ids_where( $column, $value, $limit = 200 ) {
 		global $wpdb;
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		if ( 'created_before' === $column ) {
-			$ids = $wpdb->get_col( $wpdb->prepare( 'SELECT id FROM %i WHERE created_at < %s ORDER BY id ASC LIMIT %d', $this->table(), (string) $value, (int) $limit ) );
-		} elseif ( 'user_id' === $column ) {
-			$ids = $wpdb->get_col( $wpdb->prepare( 'SELECT id FROM %i WHERE user_id = %d ORDER BY id ASC LIMIT %d', $this->table(), (int) $value, (int) $limit ) );
-		} else {
-			$ids = $wpdb->get_col( $wpdb->prepare( 'SELECT id FROM %i WHERE form_id = %d ORDER BY id ASC LIMIT %d', $this->table(), (int) $value, (int) $limit ) );
-		}
-		// phpcs:enable
+		$conditions = array(
+			'created_before' => array( 'created_at < %s', (string) $value ),
+			'user_id'        => array( 'user_id = %d', (int) $value ),
+			'form_id'        => array( 'form_id = %d', (int) $value ),
+		);
+
+		list( $condition, $match ) = $conditions[ $column ] ?? $conditions['form_id'];
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- $condition is one of the fixed fragments above.
+		$ids = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM %i WHERE {$condition} ORDER BY id ASC LIMIT %d", $this->table(), $match, (int) $limit ) );
 
 		return array_map( 'intval', (array) $ids );
 	}
