@@ -117,6 +117,7 @@ class FrontendScripts {
 				'text_domain'    => VULOMAIL_PLUGIN_TEXTDOMAIN,
 				'admin_email'    => wp_get_current_user()->user_email,
 				'default_from'   => Email\MessageFactory::default_from_email(),
+				'google_redirect_uri' => Connections\GoogleOAuth::redirect_uri(),
 				'providers'      => VuloMail()->providers->definitions(),
 				'sms_triggers'   => self::sms_trigger_definitions(),
 				'email_sources'  => apply_filters( 'vulomail_email_sources', array() ),
