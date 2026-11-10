@@ -104,14 +104,6 @@ class FormRepository {
 
 	/**
 	 * @param string $template Template id.
-	 * @return int First form made from that template, 0 if none.
-	 */
-	public function id_for_template( $template ) {
-		return (int) ( $this->ids_for_template( $template )[0] ?? 0 );
-	}
-
-	/**
-	 * @param string $template Template id.
 	 * @return int[] Forms made from that template, oldest first.
 	 */
 	public function ids_for_template( $template ) {

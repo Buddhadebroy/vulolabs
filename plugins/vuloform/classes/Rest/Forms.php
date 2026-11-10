@@ -301,7 +301,7 @@ class Forms extends Controller {
 			return null;
 		}
 
-		$existing = VuloForm()->forms->id_for_template( $template );
+		$existing = (int) ( VuloForm()->forms->ids_for_template( $template )[0] ?? 0 );
 
 		if ( ! $existing ) {
 			return null;

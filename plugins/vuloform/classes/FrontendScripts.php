@@ -69,7 +69,7 @@ class FrontendScripts {
 
 				'fields'   => count( $template['schema']['fields'] ),
 
-				'exists' => ! empty( $template['single'] ) ? VuloForm()->forms->id_for_template( $id ) : 0,
+				'exists' => ! empty( $template['single'] ) ? (int) ( VuloForm()->forms->ids_for_template( $id )[0] ?? 0 ) : 0,
 			
 			);
 		}

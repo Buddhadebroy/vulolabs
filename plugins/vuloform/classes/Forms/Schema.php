@@ -490,8 +490,10 @@ class Schema {
 	public static function missing_modules( array $schema ) {
 		$missing = array();
 
+		$active = isset( VuloForm()->modules ) ? VuloForm()->modules->get_active_modules() : array();
+
 		foreach ( (array) ( $schema['settings']['extensions'] ?? array() ) as $id => $extension ) {
-			if ( ! empty( $extension['enabled'] ) && ! empty( $extension['needs_module'] ) && ! ( isset( VuloForm()->modules ) && VuloForm()->modules->is_active( (string) $id ) ) ) {
+			if ( ! empty( $extension['enabled'] ) && ! empty( $extension['needs_module'] ) && ! in_array( (string) $id, $active, true ) ) {
 				$missing[] = (string) $id;
 			}
 		}
