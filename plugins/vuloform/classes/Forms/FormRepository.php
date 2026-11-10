@@ -68,6 +68,7 @@ class FormRepository {
 		$plugin  = (string) ( $args['plugin'] ?? '' );
 		$plugins = Templates::plugins();
 		$where   = array();
+		$hidden  = Templates::unavailable();
 
 		if ( ! empty( $args['search'] ) ) {
 			$where[] = $wpdb->prepare( 'title LIKE %s', '%' . $wpdb->esc_like( $args['search'] ) . '%' );
@@ -79,21 +80,31 @@ class FormRepository {
 
 		if ( 'vuloform' === $plugin ) {
 			// Forms that were not made from any plugin's template.
-			$where[] = $this->template_sql( array_merge( array(), ...array_values( $plugins ) ), true );
+			$hidden = array_merge( $hidden, ...array_values( $plugins ) );
 		} elseif ( '' !== $plugin && 'all' !== $plugin ) {
-			$where[] = $this->template_sql( $plugins[ $plugin ] ?? array() );
+			// A plugin that offers no templates has no forms in the list.
+			if ( empty( $plugins[ $plugin ] ) ) {
+				return array(
+					'data'  => array(),
+					'total' => 0,
+				);
+			}
+
+			$where[] = $this->template_sql( $plugins[ $plugin ] );
 		}
 
-		$where[] = $this->template_sql( Templates::unavailable(), true );
+		if ( $hidden ) {
+			$where[] = $this->template_sql( $hidden, true );
+		}
 
-		$where_sql = implode( ' AND ', $where );
+		$where_sql = $where ? 'WHERE ' . implode( ' AND ', $where ) : '';
 		$per_page  = (int) ( $args['per_page'] ?? 0 );
 		$per_page  = $per_page > 0 ? min( 100, $per_page ) : 10;
 		$offset    = ( max( 1, (int) ( $args['page'] ?? 1 ) ) - 1 ) * $per_page;
 
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- the table name is ours, $where_sql is built from prepare() calls above and the numbers are integers.
-		$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE {$where_sql}" );
-		$rows  = $wpdb->get_results( "SELECT id, title, status, created_at, updated_at FROM {$table} WHERE {$where_sql} ORDER BY updated_at DESC, id DESC LIMIT {$per_page} OFFSET {$offset}", ARRAY_A );
+		$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} {$where_sql}" );
+		$rows  = $wpdb->get_results( "SELECT id, title, status, created_at, updated_at FROM {$table} {$where_sql} ORDER BY updated_at DESC, id DESC LIMIT {$per_page} OFFSET {$offset}", ARRAY_A );
 		// phpcs:enable
 
 		return array(
@@ -125,7 +136,7 @@ class FormRepository {
 	/**
 	 * A form remembers its template as `"template":"id"` inside its schema, so that is what we match.
 	 *
-	 * @param string[] $ids Template ids.
+	 * @param string[] $ids Template ids, at least one.
 	 * @param bool     $not True for forms made from none of them, false for any of them.
 	 * @return string Already-prepared SQL condition.
 	 */
@@ -139,10 +150,6 @@ class FormRepository {
 			$conditions[] = $wpdb->prepare( $not ? 'form_schema NOT LIKE %s' : 'form_schema LIKE %s', $like );
 		}
 
-		if ( ! $conditions ) {
-			return $not ? '1=1' : '1=0';
-		}
-
 		return '(' . implode( $not ? ' AND ' : ' OR ', $conditions ) . ')';
 	}
 
@@ -152,11 +159,12 @@ class FormRepository {
 	public function published() {
 		global $wpdb;
 
-		$table     = $this->table();
-		$available = $this->template_sql( Templates::unavailable(), true );
+		$table  = $this->table();
+		$hidden = Templates::unavailable();
+		$extra  = $hidden ? ' AND ' . $this->template_sql( $hidden, true ) : '';
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- the table name is ours, $available comes from prepare().
-		$rows = $wpdb->get_results( "SELECT id, title FROM {$table} WHERE status = 'published' AND {$available} ORDER BY title ASC LIMIT 500", ARRAY_A );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- the table name is ours, $extra comes from prepare().
+		$rows = $wpdb->get_results( "SELECT id, title FROM {$table} WHERE status = 'published'{$extra} ORDER BY title ASC LIMIT 500", ARRAY_A );
 
 		return $rows ? $rows : array();
 	}
