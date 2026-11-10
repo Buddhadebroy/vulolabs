@@ -7,7 +7,7 @@ One React 19 app, mounted by `src/index.tsx`, using the shared `@multivendorx/zy
 | `forms` | `pages/Forms.tsx`: list, new form (templates, import), duplicate, delete |
 | `forms` + `&form={id}` | `builder/Builder.tsx` |
 | `submissions` | `pages/Submissions.tsx` |
-| `settings` | `pages/Settings.tsx`: zyra's navigator with sub-tabs Privacy, Spam protection and Data (each a slice of one schema, saved on change), then extension sub-tabs |
+| `settings` | `pages/Settings.tsx`: zyra's navigator over `components/Settings/*.ts` (one declarative schema file per sub-tab - Privacy, Spam protection, Data), then extension sub-tabs |
 
 PHP passes data through the `vuloformAppLocalizer` global (`FrontendScripts`): REST URL and nonce, field type definitions, templates, default settings, allowed file types and whether VuloMail SMS is available.
 
@@ -29,9 +29,13 @@ Builder.tsx        state, undo/redo, save, preview, tabs
 - **Preview** sends the unsaved schema to `POST forms/preview` and runs the real public script on the returned HTML. Nothing is submitted.
 - "Unsaved" is worked out by comparing the snapshot with what the server last returned. Problems are shown for a published form, and for a draft once publishing was tried. Closing the browser tab with a save pending triggers the browser's confirmation.
 
+## Site Settings page
+
+`pages/Settings.tsx` follows the same shape as the other VuloLabs plugins' own Settings page (VuloPilot's `pages/Settings/Settings.tsx`): each sub-tab is a standalone declarative `modal` schema file under `components/Settings/` (`Privacy.ts`, `SpamProtection.ts`, `Data.ts`), not one schema object inlined in the page. `services/templateService.ts` discovers them with `require.context` (filterable via the `vuloform_settings_context` hook, for an extension that wants to add its own context) and feeds them to zyra's `getAvailableSettings()`/`getSettingById()`; `GetForm` resolves the current sub-tab's schema and renders it with zyra's `InputRenderer`. Values load once into a `settingsRef`, sliced per tab by the schema's own field keys, and saved through `SettingProvider`/`useSetting` - imported straight from `@zyra/core`, not a local copy. Extension sub-tabs (`services/slots.ts`'s `vuloform_settings_tabs` filter) still render their own component directly, via the same `PanelComponent` escape hatch VuloPilot's Settings page uses for its own non-field tabs (Modules, Migration, …).
+
 ## The form's Settings tab
 
-Groups are sub-tabs, in the order people need them: Notifications, After submitting (id `confirmation`), Appearance, Integrations (the webhooks, plus whatever extensions place there), then one per extension. Spam protection is not a group: the trap field, fill time and rate limit are site settings (`pages/Settings.tsx`), and a form's only spam setting, `settings.spam.recaptcha`, is the switch under its fields on the Fields tab (`Canvas`'s `footer`, filled in by `Builder.tsx`). The open tab and group are kept in the URL (`builder/route.ts`: `&subtab=settings&section=integrations`). A notification or webhook is a collapsible line (`Item` in `FormSettings.tsx`); `Segmented` in `components/Section.tsx` is used for choices between a few options. Each group is a panel of sections in the layout the other VuloLabs settings screens use (title and explanation on the left, settings on the right), built from `components/Section.tsx` (`Sections`, `Section`, `Row`, `Wide`) with zyra's own class names, and `components/Switch.tsx` for on/off settings. A notification or a webhook is one section each.
+Groups are sub-tabs, in the order people need them: Notifications, After submitting (id `confirmation`), Appearance, Integrations (the webhooks, plus whatever extensions place there), then one per extension. Spam protection is not a group: the trap field, fill time and rate limit are site settings (`pages/Settings.tsx`), and a form's only spam setting, `settings.spam.recaptcha`, is the switch under its fields on the Fields tab (`Canvas`'s `footer`, filled in by `Builder.tsx`). The open tab and group are kept in the URL (`builder/route.ts`: `&subtab=settings&section=integrations`). A notification or webhook is a collapsible line (`Item` in `FormSettings.tsx`); `Segmented` in `builder/Section.tsx` is used for choices between a few options. Each group is a panel of sections in the layout the other VuloLabs settings screens use (title and explanation on the left, settings on the right), built from `builder/Section.tsx` (`Sections`, `Section`, `Row`, `Wide`) with zyra's own class names, and `builder/Switch.tsx` for on/off settings. A notification or a webhook is one section each.
 
 ## Conventions
 

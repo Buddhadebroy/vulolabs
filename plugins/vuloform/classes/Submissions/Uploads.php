@@ -12,11 +12,8 @@ use VuloForm\Forms\Schema;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Validates and stores files sent through a file field.
- *
- * Files are kept out of the media library, under random folder and file names, in a directory that
- * refuses direct requests. They are only ever served through an administrator-only route
- * (Rest\Submissions::download_file()).
+ * Validates and stores files sent through a file field. Kept out of the media library, under
+ * random names, in a directory that refuses direct requests; served only via an admin-only route.
  */
 class Uploads {
 

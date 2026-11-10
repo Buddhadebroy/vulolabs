@@ -10,11 +10,8 @@ namespace VuloForm\Forms;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Evaluates a field's conditional logic against submitted values.
- *
- * The browser applies the same rules (public/js/form.js) for a responsive form, but this class is
- * the authority: a hidden field's value is discarded and its "required" is not enforced, whatever
- * the browser sent.
+ * Evaluates a field's conditional logic against submitted values. form.js applies the same rules
+ * client-side, but this class is the authority: a hidden field's value and "required" are ignored.
  */
 class Conditions {
 

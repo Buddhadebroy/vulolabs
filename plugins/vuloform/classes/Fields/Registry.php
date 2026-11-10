@@ -18,13 +18,8 @@ defined( 'ABSPATH' ) || exit;
 class Registry {
 
 	/**
-	 * Every field type.
-	 *
-	 * Keys per type:
-	 * - label, icon, group (basic|layout|advanced)
-	 * - input: whether it collects a value (false for headings, dividers, page breaks...)
-	 * - supports: which generic settings apply (placeholder, required, default, options, range,
-	 *   length, description)
+	 * Every field type: label, icon, group, whether it collects a value (`input`), and which
+	 * generic settings it supports.
 	 *
 	 * @return array<string, array>
 	 */
@@ -50,6 +45,13 @@ class Registry {
 				'group'    => 'basic',
 				'input'    => true,
 				'supports' => array( 'placeholder', 'required', 'default', 'description' ),
+			),
+			'password'    => array(
+				'label'    => __( 'Password', 'vuloform' ),
+				'icon'     => 'lock',
+				'group'    => 'basic',
+				'input'    => true,
+				'supports' => array( 'placeholder', 'required', 'default', 'length', 'description' ),
 			),
 			'phone'       => array(
 				'label'    => __( 'Phone', 'vuloform' ),
@@ -176,6 +178,20 @@ class Registry {
 				'group'    => 'advanced',
 				'input'    => true,
 				'supports' => array( 'description' ),
+			),
+			'signature'   => array(
+				'label'    => __( 'Signature', 'vuloform' ),
+				'icon'     => 'edit',
+				'group'    => 'advanced',
+				'input'    => true,
+				'supports' => array( 'required', 'description' ),
+			),
+			'repeater'    => array(
+				'label'    => __( 'Repeater', 'vuloform' ),
+				'icon'     => 'repeat',
+				'group'    => 'advanced',
+				'input'    => true,
+				'supports' => array( 'required', 'description' ),
 			),
 		);
 

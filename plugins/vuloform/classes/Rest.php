@@ -31,6 +31,7 @@ class Rest {
 			'settings'    => new Rest\Settings(),
 			'modules'     => new Rest\Modules(),
 			'public'      => new Rest\PublicForms(),
+			'migration'   => new Rest\Migration(),
 		);
 
 		foreach ( (array) apply_filters( 'vuloform_rest_controllers', array() ) as $key => $controller ) {

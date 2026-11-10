@@ -30,6 +30,7 @@ classes/
   Notifications/               Notifier (email, SMS), Webhooks
   Frontend/                    Renderer (HTML), Frontend (shortcode, block, assets, no-JS post)
   Rest/                        Controller base + Forms, Submissions, Settings, PublicForms
+  Migration/                   import forms from 7 competitor plugins - see MIGRATION.md
   Integrations/functions.php   public PHP functions
 public/js/form.js              the public form script (no dependencies)
 public/js/embed.js             loader for forms on other websites

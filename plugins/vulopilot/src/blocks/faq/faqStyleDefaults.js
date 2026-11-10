@@ -10,7 +10,7 @@ export const DEFAULT_FAQ_STYLE = {
 		width: '',
 		maxWidth: '',
 		align: 'left', // left | center | right
-		itemGap: '1rem',
+		itemGap: '0.625rem',
 	},
 	container: {
 		background: '',
@@ -121,6 +121,20 @@ export const APPEARANCE_PRESETS = [
 		label: 'Minimal',
 		desc: 'No borders or backgrounds - just spacing.',
 		style: {
+			item: {
+				background: 'transparent',
+				border: { color: 'transparent', width: '0', style: 'solid' },
+				radius: '0',
+				shadow: '',
+			},
+		},
+	},
+	{
+		value: 'outline',
+		label: 'Outline',
+		desc: 'One bordered panel, items flush, separated by a thin top divider.',
+		style: {
+			layout: { itemGap: '0' },
 			item: {
 				background: 'transparent',
 				border: { color: 'transparent', width: '0', style: 'solid' },

@@ -8,7 +8,7 @@
 defined( 'ABSPATH' ) || exit;
 
 define( 'VULOFORM_PLUGIN_TEXTDOMAIN', 'vuloform' );
-define( 'VULOFORM_PLUGIN_VERSION', '1.0.0' );
+define( 'VULOFORM_PLUGIN_VERSION', '1.0.1' );
 define( 'VULOFORM_PLUGIN_SLUG', 'vuloform' );
 define( 'VULOFORM_PLUGIN_NAME', 'VuloForm' );
 

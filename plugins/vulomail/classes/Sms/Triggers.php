@@ -319,14 +319,15 @@ class Triggers {
 	 *
 	 * @param string        $user_login Username.
 	 * @param \WP_User|null $user       User.
+	 * @param string|null   $ip         Override for the request's address; real address when null.
 	 * @return void
 	 */
-	public function on_login( $user_login, $user = null ) {
+	public function on_login( $user_login, $user = null, $ip = null ) {
 		if ( ! $this->is_enabled( 'admin_login' ) || ! $user || ! user_can( $user, 'manage_options' ) ) {
 			return;
 		}
 
-		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$ip = sanitize_text_field( $ip ?? self::server_var( 'REMOTE_ADDR' ) );
 
 		$this->fire(
 			'admin_login',
@@ -539,6 +540,16 @@ class Triggers {
 				)
 			)
 		);
+	}
+
+	/**
+	 * One entry of `$_SERVER`.
+	 *
+	 * @param string $key Entry name.
+	 * @return string
+	 */
+	private static function server_var( $key ) {
+		return (string) wp_unslash( (string) filter_input( INPUT_SERVER, $key ) );
 	}
 
 	/**

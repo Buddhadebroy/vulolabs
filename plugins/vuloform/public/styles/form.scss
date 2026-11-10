@@ -122,6 +122,50 @@ textarea.vuloform-input {
 	padding: 0.5rem;
 }
 
+// form.js replaces a signature field's file input (the no-JavaScript fallback) with these two
+// elements, inserted right before it; the input itself stays in the DOM, just hidden.
+.vuloform-signature-pad {
+	display: block;
+	width: 100%;
+	max-width: 31.25rem;
+	height: 10rem;
+	margin-bottom: 0.5rem;
+	border: 1px dashed var(--vf-border);
+	border-radius: var(--vf-radius);
+	background: #fff;
+	touch-action: none;
+	cursor: crosshair;
+
+	&:focus-visible {
+		outline: 2px solid var(--vf-accent);
+		outline-offset: 1px;
+	}
+}
+
+.vuloform-signature-clear {
+	margin-bottom: 0.5rem;
+	padding: 0.375rem 0.875rem;
+	font-size: 0.875rem;
+}
+
+.vuloform-repeater-row {
+	position: relative;
+	padding: 1rem;
+	margin-bottom: 0.75rem;
+	border: 1px solid var(--vf-border);
+	border-radius: var(--vf-radius);
+}
+
+.vuloform-repeater-remove {
+	margin-top: 0.5rem;
+	padding: 0.375rem 0.875rem;
+	font-size: 0.875rem;
+}
+
+.vuloform-repeater-add {
+	padding: 0.5rem 1rem;
+}
+
 .vuloform-choice {
 	display: flex;
 	align-items: flex-start;

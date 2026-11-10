@@ -31,11 +31,27 @@ Every field has `id`, `key`, `type`, `label`, `description`, `placeholder`, `req
 
 | Group | Types |
 | --- | --- |
-| Basic | `text`, `textarea`, `email`, `phone`, `number`, `url`, `select`, `radio`, `checkboxes`, `consent`, `date`, `time`, `file` |
+| Basic | `text`, `textarea`, `email`, `phone`, `password`, `number`, `url`, `select`, `radio`, `checkboxes`, `consent`, `date`, `time`, `file` |
 | Layout | `heading`, `html`, `divider`, `page_break` |
-| Advanced | `name`, `address`, `hidden`, `calculation` |
+| Advanced | `name`, `address`, `hidden`, `calculation`, `signature`, `repeater` |
 
-Type-specific keys: `minlength`/`maxlength` (text, textarea), `min`/`max`/`step` (number), `allowed_types`/`max_size_mb`/`max_files` (file), `parts` (name, address), `formula`/`decimals`/`prefix` (calculation), `content` (html), `level` (heading).
+Type-specific keys: `minlength`/`maxlength` (text, textarea, password), `min`/`max`/`step` (number), `allowed_types`/`max_size_mb`/`max_files` (file; `signature` reuses this pipeline, fixed to a single PNG - see `Schema::sanitize_field()`'s `signature` case), `parts` (name, address), `formula`/`decimals`/`prefix` (calculation), `content` (html), `level` (heading).
+
+`password` behaves exactly like `text` everywhere except the HTML control it renders (`type="password"`, `autocomplete="new-password"`) - it needed no new case in `Schema::sanitize_field()`, `Processor::clean()`/`validate()`, or the renderer's per-type switch, only entries in those methods' existing generic/shared branches.
+
+### Repeater fields
+
+`repeater` holds a configurable row of its own sub-fields, repeated `min_rows`..`max_rows` times (0-50, default 1-10):
+
+```json
+{ "type": "repeater", "key": "guests", "min_rows": 1, "max_rows": 10, "fields": [ { "id": "f_1", "key": "guest_name", "type": "text", "...": "..." } ] }
+```
+
+- A row's sub-fields are sanitized the same way top-level fields are (`Schema::sanitize_field()` calls itself recursively, with the row's own `$ids`/`$keys` namespace so a sub-field id never collides with a top-level one).
+- A row cannot hold another `repeater` (no nesting), a `file`/`signature` (per-row uploads aren't wired into `Submissions\Processor`) or a `calculation` (no per-row formula scope) - these are silently dropped from `fields` on save, not reported as an error.
+- `Processor::clean()`/`validate_repeater()` clean and validate each row's own sub-fields using their own type's rules, and enforce `min_rows`/`max_rows`; a row beyond `max_rows` in a submission is dropped, not an error.
+- `Renderer::repeater()`/`repeater_row()` render `min_rows` (or one) static rows for the no-JavaScript case; `public/js/form.js`'s `setupRepeater()` adds the Add/Remove row behaviour, re-indexing each row's `name`/`id` attributes (`vf[key][N][subkey]`, `id__N__subid`) as rows are added or removed.
+- `Schema::issues()` reports a repeater with an empty `fields` array as unpublishable.
 
 Add a type with the `vuloform_field_types` filter and render it with `vuloform_render_field`; see [HOOKS.md](HOOKS.md).
 
@@ -59,4 +75,8 @@ The server recomputes every calculation from the validated values; whatever the 
 
 ## Templates
 
-`Forms\Templates::all()` returns ten ready-made schemas (contact, inquiry, lead, newsletter, feedback, survey, event, job application, support, quote), each with an admin notification. The `vuloform_templates` filter adds more. A unit test asserts that every template can be published as it is.
+`Forms\Templates::all()` returns 28 ready-made schemas (contact, general inquiry, lead generation, newsletter signup, feedback, survey, event registration, job application, support request, order/quote inquiry, donation, customer complaint, event feedback, home service request, restaurant reservation, RSVP, registration, appointment booking, order, volunteer sign-up, course enrollment, real estate inquiry, medical history, travel booking, return/RMA, course evaluation, conference registration, fitness class registration), each with an admin notification. `Templates::show_if( $field, $value )` builds the repeated "show this field only when another field's answer is X" conditions shape used by several of them (lead's Company field, the donation/RSVP templates' conditional fields).
+
+The `vuloform_templates` filter adds more - VuloForm Pro's Payments module registers two of its own this way (a donation and an order form that use the Payments extension's `amount_field`), gated on nothing: the template itself is always offered, and is simply inert (the payment doesn't process) until the module is switched on and a provider is connected, the same "keep what it cannot interpret" rule as any other extension setting. See [EXTENSIONS.md](EXTENSIONS.md) and VuloForm Pro's own `docs/developer/PAYMENTS.md` (separate repo/plugin).
+
+A unit test asserts that every template can be published as it is.
