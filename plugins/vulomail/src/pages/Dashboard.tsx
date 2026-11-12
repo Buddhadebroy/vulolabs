@@ -369,7 +369,6 @@ const Dashboard = () => {
 								value={days}
 								onChange={(value) => setDays(value as string)}
 								modules={[]}
-								variant="pill"
 							/>
 						}
 					>

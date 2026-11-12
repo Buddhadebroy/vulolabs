@@ -336,7 +336,7 @@ const CrawlerAnalyticsSection = ({
 								value={period}
 								onChange={(value) => onPeriodChange(value as string)}
 								modules={[]}
-								variant="pill"
+								
 							/>
 						}
 					>

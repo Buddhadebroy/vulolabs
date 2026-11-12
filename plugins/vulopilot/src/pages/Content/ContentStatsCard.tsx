@@ -100,7 +100,7 @@ const ContentStatsCard = () => {
 					value={period}
 					onChange={(value) => setPeriod(value as StatsPeriod)}
 					modules={[]}
-					variant="pill"
+					
 				/>
 			}
 		>

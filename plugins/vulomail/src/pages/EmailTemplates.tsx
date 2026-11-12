@@ -491,7 +491,7 @@ const EmailTemplates = () => {
 			<div className="vulomail-emails">
 				<div className="vulomail-emails-toolbar">
 						<ToggleInput
-						variant="pill"
+						
 						value={categoryFilter}
 						onChange={(value) => setCategoryFilter(value as string)}
 						options={categoryCounts.map((tab: { value: string; label: string; count: number }) => ({

@@ -301,7 +301,10 @@ module.exports = function createWebpackConfig(
 		},
 
 		watchOptions: {
-			ignored: /node_modules/,
+			// Everything in node_modules except a linked local zyra. zyra is rebuilt by deleting and then
+			// rewriting its `build/` files; if webpack compiles in between, it records the missing file
+			// under `node_modules/@multivendorx/zyra`, and has to see that path to rebuild once it is back.
+			ignored: /[\\/]node_modules[\\/](?!@multivendorx[\\/]zyra)/,
 			// Without this, a real `node_modules/@multivendorx/zyra` that's
 			// actually a symlink (e.g. `pnpm link`, or the `file:`/workspace
 			// override a contributor uses to develop against a local zyra

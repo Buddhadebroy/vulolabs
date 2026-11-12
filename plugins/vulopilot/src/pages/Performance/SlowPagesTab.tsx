@@ -540,7 +540,7 @@ const SlowPagesTab = () => {
 							<ToggleInput
 								value={scoreDevice}
 								modules={[]}
-								variant="pill"
+								
 								options={[
 									{ key: 'desktop', value: 'desktop', label: __('Desktop', 'vulopilot') },
 									{ key: 'mobile', value: 'mobile', label: __('Mobile', 'vulopilot') },

@@ -304,7 +304,7 @@ const Logs = () => {
 							value={channel}
 							onChange={(value) => setChannel(value as string)}
 							modules={[]}
-							variant="pill"
+							
 						/>
 						<ButtonInput
 							buttons={{
@@ -649,7 +649,7 @@ const Logs = () => {
 								<div className="vulomail-log-message-head">
 									<h4 className="vulomail-section-title">{__('Message', 'vulomail')}</h4>
 									<ToggleInput
-										variant="pill"
+										
 										value={messageView}
 										onChange={(value) => setMessageView(value as 'preview' | 'raw')}
 										options={[

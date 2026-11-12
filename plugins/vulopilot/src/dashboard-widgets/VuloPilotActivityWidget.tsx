@@ -99,7 +99,7 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 						value={healthTimelineDays}
 						onChange={(value) => setHealthTimelineDays(value as PeriodDays)}
 						modules={[]}
-						variant="pill"
+						
 					/>
 				}
 			>
