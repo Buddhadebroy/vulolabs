@@ -384,23 +384,21 @@ const Connections = () => {
 							pendingDelete?.label ?? ''
 						)}
 					</p>
-					<div className="vulomail-form-footer">
-						<ButtonInput
-							buttons={[
-								{
-									text: __('Keep connection', 'vulomail'),
-									color: 'purple',
-									onClick: () => setPendingDelete(null),
-								},
-								{
-									text: __('Delete connection', 'vulomail'),
-									icon: 'delete',
-									color: 'border-red',
-									onClick: confirmDelete,
-								},
-							]}
-						/>
-					</div>
+					<ButtonInput
+						buttons={[
+							{
+								text: __('Keep connection', 'vulomail'),
+								color: 'purple',
+								onClick: () => setPendingDelete(null),
+							},
+							{
+								text: __('Delete connection', 'vulomail'),
+								icon: 'delete',
+								color: 'border-red',
+								onClick: confirmDelete,
+							},
+						]}
+					/>
 				</div>
 			</PopupComponent>
 		</>

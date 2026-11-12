@@ -468,7 +468,6 @@ const Dashboard = () => {
 								message={__('Alerts are sent once an SMS connection is set as primary.', 'vulomail')}
 							/>
 						)}
-						<div className="vulomail-form-footer">
 							<ButtonInput
 								buttons={{
 									text:
@@ -479,7 +478,6 @@ const Dashboard = () => {
 									onClick: () => goTo('sms-alerts'),
 								}}
 							/>
-						</div>
 					</CardComponent>
 				</ColumnComponent>
 			</ContainerComponent>

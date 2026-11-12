@@ -1,10 +1,11 @@
 /* global vulomailAppLocalizer */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink } from '@zyra/core';
 import {
 	ContainerComponent,
+	ListToolbarComponent,
 	ModuleGuardComponent,
 	NoticeManager,
 	NavigatorHeaderComponent,
@@ -23,7 +24,7 @@ import {
 } from '@zyra/builders';
 import type { EmailSource } from '../global';
 import { errorMessage } from '../services/notify';
-import { SelectInput, TextInput, ToggleInput } from '@zyra/inputs';
+import { TextInput, ToggleInput } from '@zyra/inputs';
 import { apiGet, apiPost } from '../services/api';
 
 interface Recipient {
@@ -380,6 +381,12 @@ const EmailTemplates = () => {
 
 	const [search, setSearch] = useState('');
 	const [audienceFilter, setAudienceFilter] = useState<'any' | Audience>('any');
+	const audienceFilterLabel: Record<'any' | Audience, string> = {
+		any: __('Sent to anyone', 'vulomail'),
+		store: __('Sent to stores', 'vulomail'),
+		customer: __('Sent to customers', 'vulomail'),
+		admin: __('Sent to you', 'vulomail'),
+	};
 
 	const setEnabled = (targets: EmailTemplateRow[], enabled: boolean) => {
 		const keyOf = (r: EmailTemplateRow) => `${r.__source.plugin}:${r.id}`;
@@ -489,37 +496,60 @@ const EmailTemplates = () => {
 	} else if (rows) {
 		content = (
 			<div className="vulomail-emails">
-				<div className="vulomail-emails-toolbar">
-						<ToggleInput
-						
-						value={categoryFilter}
-						onChange={(value) => setCategoryFilter(value as string)}
-						options={categoryCounts.map((tab: { value: string; label: string; count: number }) => ({
-							key: tab.value,
+				<ListToolbarComponent
+					filters={{
+						value: categoryFilter,
+						onChange: setCategoryFilter,
+						options: categoryCounts.map((tab: { value: string; label: string; count: number }) => ({
 							value: tab.value,
-							label: `${tab.label} (${tab.count})`,
-						}))}
-					/>
-					<div className="vulomail-emails-select">
-						<SelectInput
-							name="sent_to"
-							type="single-select"
+							label: tab.label,
+							count: tab.count,
+						})),
+					}}
+					search={{
+						value: search,
+						onChange: setSearch,
+						placeholder: __('Search emails…', 'vulomail'),
+						placement: 'secondary',
+					}}
+					summary={sprintf(
+						/* translators: %d: number of emails shown. */
+						_n('%d email', '%d emails', shown.length, 'vulomail'),
+						shown.length
+					)}
+					activeFilters={[
+						...('all' === categoryFilter
+							? []
+							: [{ key: 'category', label: categoryCounts.find((tab: { value: string; label: string }) => tab.value === categoryFilter)?.label ?? categoryFilter }]),
+						...('any' === audienceFilter ? [] : [{ key: 'audience', label: audienceFilterLabel[audienceFilter] }]),
+					]}
+					onRemoveFilter={(key) => ('category' === key ? setCategoryFilter('all') : setAudienceFilter('any'))}
+					onClearAll={() => {
+						setCategoryFilter('all');
+						setAudienceFilter('any');
+					}}
+					clearAllLabel={__('Clear all', 'vulomail')}
+					secondary={
+						<ToggleInput
+							variant="chips"
 							value={audienceFilter}
-							options={[
-								{ value: 'any', label: __('Sent to anyone', 'vulomail') },
-								{ value: 'store', label: __('Sent to stores', 'vulomail') },
-								{ value: 'customer', label: __('Sent to customers', 'vulomail') },
-								{ value: 'admin', label: __('Sent to you', 'vulomail') },
-							]}
-							onChange={(value) => setAudienceFilter((Array.isArray(value) ? value[0] : value) as 'any' | Audience)}
+							onChange={(value) => setAudienceFilter(String(value) as 'any' | Audience)}
+							options={Object.entries(audienceFilterLabel).map(([value, label]) => ({
+								key: value,
+								value,
+								label,
+								count: 'any' === value ? totals.total : totals[value as Audience],
+							}))}
 						/>
-					</div>
-				</div>
+					}
+				/>
 
 				{0 === sections.length && (
-					<p className="vulomail-emails-note">
-						{__('No emails match. Plugins add their emails with the vulomail_email_templates filter.', 'vulomail')}
-					</p>
+					<ModuleGuardComponent
+						icon="mail"
+						title={__('No emails match', 'vulomail')}
+						desc={__('Try another filter or search. Plugins add their emails with the vulomail_email_templates filter.', 'vulomail')}
+					/>
 				)}
 
 				{sections.map(([group, items]) => {
