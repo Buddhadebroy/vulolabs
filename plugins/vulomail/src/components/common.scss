@@ -344,7 +344,9 @@
 	place-items: center;
 	background: var(--background-color);
 	color: var(--sub-text-color);
-
+	i{
+		font-size: 1.45rem;
+	}
 	.is-error & {
 		background: #fef3f2;
 		color: #d92d20;
@@ -483,7 +485,9 @@
 }
 
 .vulomail-diag-tick {
-	display: grid;
+	display: flex !important;
+	justify-content: center;
+	align-items: center;
 	flex-shrink: 0;
 	width: 1.5rem;
 	height: 1.5rem;

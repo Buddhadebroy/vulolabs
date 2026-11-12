@@ -373,13 +373,13 @@ const Dashboard = () => {
 						}
 					>
 						<AnalyticsComponent
-							variant="small"
+							variant="tinted"
 							cols={4}
 							data={[
-								{ icon: 'mail green', number: email.sent, text: __('Emails sent', 'vulomail') },
-								{ icon: 'error red', number: email.failed, text: __('Emails failed', 'vulomail') },
-								{ icon: 'send blue', number: sms.sent, text: __('SMS sent', 'vulomail') },
-								{ icon: 'error red', number: sms.failed, text: __('SMS failed', 'vulomail') },
+								{ colorClass: 'green', number: email.sent, text: __('Emails sent', 'vulomail') },
+								{ colorClass: 'red', number: email.failed, text: __('Emails failed', 'vulomail') },
+								{ colorClass: 'blue', number: sms.sent, text: __('SMS sent', 'vulomail') },
+								{ colorClass: 'red', number: sms.failed, text: __('SMS failed', 'vulomail') },
 							]}
 						/>
 					</CardComponent>

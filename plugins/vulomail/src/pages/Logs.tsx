@@ -296,14 +296,14 @@ const Logs = () => {
 			<ContainerComponent general>
 				<ColumnComponent>
 					<AnalyticsComponent
-						variant="with-out-boxshadow"
+						variant="small-card"
 						cols={3}
 						data={[
-							{ icon: 'check', iconClass: 'green', number: sent, text: __('Sent', 'vulomail') },
-							{ icon: 'error', iconClass: 'red', number: failed, text: __('Failed', 'vulomail') },
+							{ icon: 'check green', colorClass: 'green', number: sent, text: __('Sent', 'vulomail') },
+							{ icon: 'error red', colorClass: 'red', number: failed, text: __('Failed', 'vulomail') },
 							{
-								icon: 'analytics',
-								iconClass: 'blue',
+								icon: 'analytics blue',
+								colorClass: 'blue',
 								number: 0 === sent + failed ? '—' : `${Math.round((sent / (sent + failed)) * 100)}%`,
 								text: __('Delivery rate', 'vulomail'),
 							},
