@@ -16,8 +16,7 @@ use VuloPilot\Utill\ScannedPostsTrait;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags substantial published content (over MIN_WORD_COUNT_TO_CHECK words - a short post
- * genuinely may not need subheadings) with no `h2`-`h6` tags anywhere in it.
+ * Flags substantial published content with no `h2`-`h6` tags anywhere in it.
  *
  * @class       HeadingStructureScanner class
  * @version     1.0.0

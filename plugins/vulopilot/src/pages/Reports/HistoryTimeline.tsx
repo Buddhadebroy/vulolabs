@@ -19,14 +19,12 @@ interface HistoryTimelineProps {
 	onSelectRow: (row: HistoryRow) => void;
 	isLoadingMore: boolean;
 	onLoadMore: () => void;
-	/** Overrides what the trailing arrow does - HistoryTab.tsx's own real use (select the row, open the side detail panel) is the default when this is omitted. */
+	/** Overrides what the trailing arrow does. */
 	// eslint-disable-next-line no-unused-vars
 	onArrowClick?: (row: HistoryRow) => void;
 }
 
-/**
- * The real, day-grouped activity timeline HistoryTab.tsx's own "History" tab renders.
- */
+/** The real, day-grouped activity timeline HistoryTab.tsx's own "History" tab renders. */
 const HistoryTimeline = ({
 	rows,
 	total,
@@ -50,8 +48,7 @@ const HistoryTimeline = ({
 						const tag = rowTag(row);
 						const statusBadge = rowStatusBadge(row);
 						const title = rowTitle(row);
-						// `rowTitle()` already falls back to `row.message` when there's no real
-						// `scan`/`change` detail to title itself with.
+						// `rowTitle()` already falls back to `row.message` when there's no real `scan`/`change` detail to title itself with.
 						const showDesc = row.message !== title;
 						const showBeforeAfter =
 							row.change &&

@@ -16,9 +16,7 @@ class SiteTelemetryReporter {
 
 	private const CRON_HOOK = 'vulopilot_site_telemetry_daily';
 
-	/**
-	 * Registers the daily cron report alongside the immediate, connect-time report.
-	 */
+	/** Registers the daily cron report alongside the immediate, connect-time report. */
 	public function __construct() {
 		add_action( 'init', array( $this, 'ensure_daily_report_scheduled' ) );
 		add_action( self::CRON_HOOK, array( $this, 'report_all_connections' ) );
@@ -82,7 +80,7 @@ class SiteTelemetryReporter {
 	/**
 	 * The tracker payload itself.
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function build_payload(): array {
 		global $wpdb;
@@ -105,11 +103,9 @@ class SiteTelemetryReporter {
 			'Theme'          => $theme->get( 'Name' ),
 			'Theme Version'  => $theme->get( 'Version' ),
 			'Platform'       => 'WordPress',
-			// $wpdb->db_version() is the server's raw MySQL/MariaDB protocol version (e.g.
-			// "5.7.44-log").
+			// $wpdb->db_version() is the server's raw MySQL/MariaDB protocol version.
 			'Database'       => $wpdb->db_version(),
-			// Core since WP 5.5 ('production' unless the host/wp-config.php explicitly sets
-			// WP_ENVIRONMENT_TYPE otherwise).
+			// Core since WP 5.5.
 			'Environment'    => wp_get_environment_type(),
 			'Hosting Type'   => $this->detect_hosting_type(),
 			// Commerce/LMS Platform, Framework Version and Site Type are deliberately omitted.

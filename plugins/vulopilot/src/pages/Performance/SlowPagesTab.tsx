@@ -174,10 +174,7 @@ const formatBytes = (bytes: number | null): string => {
 	return `${bytes} B`;
 };
 
-/**
- * Google's own real CrUX field-data category ('FAST'/'AVERAGE'/'SLOW') for one Core Web Vital,
- * passed through verbatim from PageSpeedScanner.
- */
+/** Google's own real CrUX field-data category for one Core Web Vital, passed through verbatim from PageSpeedScanner. */
 const CWV_DOT_CLASS: Record<string, string> = {
 	FAST: 'good',
 	AVERAGE: 'needs-improvement',
@@ -199,9 +196,7 @@ const CWV_METRICS = [
 	{ key: 'cls', label: 'CLS', ratingKey: 'cls_rating' as const },
 ];
 
-/**
- * Real Google CrUX field-data dots - one per metric, gray/"unknown" when that metric has no real field data for this page.
- */
+/** Real Google CrUX field-data dots. */
 const CoreWebVitalsDots = ({ row }: { row: PageSpeedRow }) => (
 	<div className="page-speed-cwv-dots">
 		{CWV_METRICS.map((metric) => {
@@ -228,9 +223,7 @@ const CoreWebVitalsDots = ({ row }: { row: PageSpeedRow }) => (
 
 const csvEscape = (value: string): string => `"${value.replace(/"/g, '""')}"`;
 
-/**
- * "Slow Pages" tab of "Performance" - real per-page speed data from `GET /page-speed`.
- */
+/** "Slow Pages" tab of "Performance" - real per-page speed data from `GET /page-speed`. */
 const SlowPagesTab = () => {
 	const [response, setResponse] = useState<PageSpeedResponse | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
@@ -240,13 +233,11 @@ const SlowPagesTab = () => {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [detailRow, setDetailRow] = useState<PageSpeedRow | null>(null);
 	const [trendDays] = useState('30');
-	// Real "which real PSI device's own scores to show" toggle for the "Slow Pages Score" summary
-	// card's header.
+	// Real "which real PSI device's own scores to show" toggle for the "Slow Pages Score" summary card's header.
 	const [scoreDevice, setScoreDevice] = useState<'mobile' | 'desktop'>('mobile');
 	const [trend, setTrend] = useState<ScoreSnapshot[]>([]);
 	const [isTrendLoading, setIsTrendLoading] = useState(true);
-	// This table's own rows are all fetched once (per_page=200) and filtered/searched entirely
-	// client-side (see this file's own docblock).
+	// This table's own rows are all fetched once and filtered/searched entirely client-side.
 	const [paged, setPaged] = useState(1);
 	const [perPage, setPerPage] = useState(10);
 
@@ -325,14 +316,12 @@ const SlowPagesTab = () => {
 		};
 	}, [trendDays]);
 
-	// The "Scan Again" trigger for this real per-page speed scan (`POST /page-speed`) lives in
-	// Performance.tsx's own page header now.
+	// The "Scan Again" trigger for this real per-page speed scan lives in Performance.tsx's own page header now.
 
 	const rows = response?.data ?? [];
 	const hasDeviceScores = rows.some((row) => null !== row.mobile_score);
 	const hasPsiDetail = rows.some((row) => null !== row.page_size_bytes);
-	// Real average - `avg_mobile_score` only when a PSI key is configured (per-device split
-	// available).
+	// Real average - `avg_mobile_score` only when a PSI key is configured.
 	const avgScore = response?.summary
 		? (hasDeviceScores
 			? response.summary.avg_mobile_score
@@ -340,9 +329,7 @@ const SlowPagesTab = () => {
 		: null;
 	const avgLoadTimeMs = response?.summary?.avg_load_time_ms ?? null;
 
-	/**
-	 * Real average mobile/desktop PSI scores, computed client-side from this same `rows` fetch.
-	 */
+	/** Real average mobile/desktop PSI scores, computed client-side from this same `rows` fetch. */
 	const avgDeviceScore = (key: 'mobile_score' | 'desktop_score'): number | null => {
 		const scores = rows
 			.map((row) => row[key])
@@ -395,14 +382,12 @@ const SlowPagesTab = () => {
 		});
 	}, [rows, statusFilter, pageTypeFilter, searchTerm]);
 
-	// A stale page 3 left over from a previous filter could otherwise show
-	// an empty page once a new filter/search narrows the real result set.
+	// A stale page 3 left over from a previous filter could otherwise show an empty page once a new filter/search narrows the real result set.
 	useEffect(() => {
 		setPaged(1);
 	}, [statusFilter, pageTypeFilter, searchTerm]);
 
-	// Auto-open the first row's details whenever the filtered set changes and nothing valid is
-	// currently selected.
+	// Auto-open the first row's details whenever the filtered set changes and nothing valid is currently selected.
 	useEffect(() => {
 		if (0 === filteredRows.length) {
 			setDetailRow(null);
@@ -421,10 +406,7 @@ const SlowPagesTab = () => {
 	const statusCounts = response?.status_counts ?? {};
 	const summary = response?.summary ?? null;
 
-	/**
-	 * The whole "Slow Pages Score" summary card's own real data for whichever device the header
-	 * toggle has selected.
-	 */
+	/** The whole "Slow Pages Score" summary card's own real data for whichever device the header toggle has selected. */
 	const deviceScoreKey = 'mobile' === scoreDevice ? 'mobile_score' : 'desktop_score';
 	const displayScore = hasDeviceScores
 		? ('mobile' === scoreDevice ? avgMobileScore : avgDesktopScore)
@@ -448,8 +430,7 @@ const SlowPagesTab = () => {
 
 	// Fed to TableCard's own `categoryCounts`/`activeCategory`.
 	const statusCategoryCounts = [
-		// Same "All" pill shape IssuesList.tsx's own `tableCategoryCounts` already establishes for
-		// this same `TableCard`/`categoryCounts` prop.
+		// Same "All" pill shape IssuesList.tsx's own `tableCategoryCounts` already establishes for this same `TableCard`/`categoryCounts` prop.
 		{ value: 'all', label: __('All', 'vulopilot'), count: rows.length },
 		{ value: 'slow', label: __('Slow', 'vulopilot'), count: statusCounts.slow ?? 0 },
 		{
@@ -846,8 +827,7 @@ const SlowPagesTab = () => {
 						ids={pageRows.map((row) => row.id)}
 						totalRows={filteredRows.length}
 						activeRowId={detailRow?.id}
-						// Same toggle the action cell's own "More Details"/"Showing" button
-						// already does.
+						// Same toggle the action cell's own "More Details"/"Showing" button already does.
 						onRowClick={(row: Record<string, unknown>) => {
 							const pageRow = row as unknown as PageSpeedRow;
 							setDetailRow(

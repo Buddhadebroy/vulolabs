@@ -7,8 +7,7 @@ use VuloPilot\Utill\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags un-minified same-host CSS on the homepage when no known minification-capable
- * plugin is active.
+ * Flags un-minified same-host CSS on the homepage when no known minification-capable plugin is active.
  *
  * @class       CssOptimizationScanner class
  * @version     1.0.0

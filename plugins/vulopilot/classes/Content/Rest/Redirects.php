@@ -21,10 +21,7 @@ class Redirects extends \WP_REST_Controller {
 	 */
 	protected $rest_base = 'redirects';
 
-	/**
-	 * Real per-check results cache for get_health() - see that method's
-	 * own docblock.
-	 */
+	/** Real per-check results cache for get_health() - see that method's own docblock. */
 	private const HEALTH_OPTION = 'vulopilot_redirect_health';
 
 	private const HEALTH_CACHE_SECONDS           = HOUR_IN_SECONDS;
@@ -171,7 +168,7 @@ class Redirects extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Partially updates a redirect - only the fields actually present in the request body change.
+	 * Partially updates a redirect.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
@@ -279,7 +276,7 @@ class Redirects extends \WP_REST_Controller {
 	 * Same real HEAD-request check BrokenLinksScanner::check_link() uses for in-content links, applied here to a redirect row's own `target_url` instead.
 	 *
 	 * @param string $url Real target URL to check.
-	 * @return array{broken: bool, status: int|string}
+	 * @return array
 	 */
 	private function check_target( string $url ): array {
 		$response = wp_remote_head(

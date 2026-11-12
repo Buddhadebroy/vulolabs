@@ -4,9 +4,7 @@ namespace VuloPilot\AiAssistant;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Handles the Connect broker's real redirect back to this site (`admin-
- * post.php?action=vulopilot_connect_broker_callback` -
- * AiCreditsConnection::get_broker_redirect_uri()'s own exact URL).
+ * Handles the Connect broker's real redirect back to this site (`admin- post.php?action=vulopilot_connect_broker_callback` - AiCreditsConnection::get_broker_redirect_uri()'s own exact URL).
  *
  * @class       ConnectBrokerCallbackHandler class
  * @version     1.0.0
@@ -19,7 +17,7 @@ class ConnectBrokerCallbackHandler {
 	}
 
 	/**
-	 * Verifies the real `state` nonce, exchanges the real `code` for a ConnectedSite credential (AiCreditsConnection::exchange_broker_code()).
+	 * Verifies the real `state` nonce, exchanges the real `code` for a ConnectedSite credential.
 	 *
 	 * @return void
 	 */
@@ -31,8 +29,7 @@ class ConnectBrokerCallbackHandler {
 		$redirect_base = admin_url( 'admin.php?page=vulopilot#&tab=settings&subtab=integrations' );
 		$connection    = new AiCreditsConnection();
 
-		// `state` is the nonce this flow put on the authorize URL; nothing else in
-		// the request is read until it checks out.
+		// `state` is the nonce this flow put on the authorize URL.
 		if ( ! wp_verify_nonce( sanitize_text_field( (string) filter_input( INPUT_GET, 'state' ) ), 'vulopilot_connect_broker' ) ) {
 			wp_safe_redirect( $redirect_base . '&connect_status=error' );
 			exit;

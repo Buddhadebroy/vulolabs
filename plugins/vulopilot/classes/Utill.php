@@ -29,8 +29,7 @@ class Utill {
 		'automations'        => 'vulopilot_automations',
 		'automations_run'    => 'vulopilot_automations_runs',
 		'ai_history'         => 'vulopilot_ai_history',
-		// Full, untruncated AI Copilot chat threads (RecentConversationsCard.tsx's "click to load
-		// full history" feature).
+		// Full, untruncated AI Copilot chat threads.
 		'ai_conversation'    => 'vulopilot_ai_conversations',
 		'report'             => 'vulopilot_reports',
 		'activity_log'       => 'vulopilot_activity_logs',
@@ -41,8 +40,7 @@ class Utill {
 		'snapshot'           => 'vulopilot_snapshots',
 		'performance_sample' => 'vulopilot_performance_samples',
 		'page_speed'         => 'vulopilot_page_speed',
-		// Protect My Site's Malware/Firewall/Login Protection/Backups/ Recovery tiles - real,
-		// always-on core features, not a Modules-page module.
+		// Protect My Site's Malware/Firewall/Login Protection/Backups/ Recovery tiles.
 		'security_event'     => 'vulopilot_security_events',
 		'backup'             => 'vulopilot_backups',
 	);
@@ -56,14 +54,12 @@ class Utill {
 		'run_installer'              => 'vulopilot_run_installer',
 		'plugin_db_version'          => 'vulopilot_version',
 		'crawler_alert_known_bots'   => 'vulopilot_crawler_alert_known_bots',
-		// Per alert-type digest bookkeeping (last-sent timestamp + pending items accumulated since
-		// then) for the "Daily digest"/"Weekly digest" frequency options.
+		// Per alert-type digest bookkeeping for the "Daily digest"/"Weekly digest" frequency options.
 		'crawler_alert_digest_state' => 'vulopilot_crawler_alert_digest_state',
 	);
 
 	/**
-	 * Option name for VuloPilot's plain settings - deliberately a single wp_options row
-	 * (an array), not a custom table.
+	 * Option name for VuloPilot's plain settings.
 	 *
 	 * @var string
 	 */
@@ -77,8 +73,7 @@ class Utill {
 		'scan_frequency'                        => 'daily',
 		'keep_data_uninstall'                   => 'keep_data',
 		'anonymous_usage_data'                  => 'disabled',
-		// A short, freeform phrase describing this site's writing voice, sent as a `site_tone`
-		// hint on every AI request (AI\AiRequestSender).
+		// A short, freeform phrase describing this site's writing voice, sent as a `site_tone` hint on every AI request.
 		'site_tone'                             => '',
 		'site_tone_source'                      => 'auto',
 		// Notifications.
@@ -107,8 +102,7 @@ class Utill {
 		),
 		'email_from_name'                       => '',
 		'email_from_address'                    => '',
-		// Automation - replaces AutomationEngine's previously-hardcoded
-		// COOLDOWN_MINUTES constant.
+		// Automation - replaces AutomationEngine's previously-hardcoded COOLDOWN_MINUTES constant.
 		'automation_cooldown_minutes'           => 60,
 		'automation_max_retries'                => 0,
 		'automation_retry_delay_minutes'        => 5,
@@ -132,8 +126,7 @@ class Utill {
 		// Reports.
 		'default_report_format'                 => 'pdf',
 		'default_report_period_days'            => 30,
-		// "Last test report sent on ..." - set by Settings::send_test_report(), read back by
-		// ReportTestPanel.tsx on load so that line survives a page refresh.
+		// "Last test report sent on...".
 		'report_last_test_sent'                 => '',
 		// Security.
 		'enable_rest_api_scanner'               => array( 'enable_rest_api_scanner' ),
@@ -146,13 +139,11 @@ class Utill {
 		'enable_core_file_integrity_scanner'    => array( 'enable_core_file_integrity_scanner' ),
 		// Protect My Site's Malware/Firewall/Login Protection/Backups tiles.
 		'enable_malware_scanner'                => array( 'enable_malware_scanner' ),
-		// Read by LoginProtectionGuard - real brute-force lockout
-		// enforced via the `authenticate` filter, not just detection.
+		// Read by LoginProtectionGuard.
 		'enable_login_protection'               => array( 'enable_login_protection' ),
 		'login_max_attempts'                    => 5,
 		'login_lockout_minutes'                 => 15,
-		// Read by FirewallGuard - `enable_firewall` always logs matched requests (safe, never
-		// blocks anyone).
+		// Read by FirewallGuard - `enable_firewall` always logs matched requests.
 		'enable_firewall'                       => array( 'enable_firewall' ),
 		'enable_firewall_blocking'              => array(),
 		// Read by BackupManager/BackupScheduler - real DB+file archives.
@@ -161,29 +152,23 @@ class Utill {
 		'backup_retention_count'                => 5,
 		// Which real storage destination a just-completed backup uploads to.
 		'backup_storage_destination'            => 'local',
-		// Scanner-category kill switches - each gates every scanner registered under that category
-		// string, not just one check.
+		// Scanner-category kill switches.
 		'enable_accessibility_scanning'         => array( 'enable_accessibility_scanning' ),
 		'enable_woocommerce_scanning'           => array( 'enable_woocommerce_scanning' ),
 		// Scanning > SEO - granular, per-check toggles (readme's SEO Optimization pillar).
 		'flag_orphan_pages'                     => array( 'flag_orphan_pages' ),
-		// Read by ThinContentScanner as its minimum word
-		// count instead of a hardcoded constant.
+		// Read by ThinContentScanner as its minimum word count instead of a hardcoded constant.
 		'thin_content_word_threshold'           => 300,
 		'flag_missing_featured_image'           => array( 'flag_missing_featured_image' ),
-		// Moved back OUT of the nested `content_search_scans.seo` row (see that setting's own
-		// docblock below) and into flat, standalone keys.
+		// Moved back OUT of the nested `content_search_scans.seo` row and into flat, standalone keys.
 		'flag_missing_meta_description'         => array( 'flag_missing_meta_description' ),
 		'flag_duplicate_titles'                 => array( 'flag_duplicate_titles' ),
-		// Same "moved back out to a flat key" story as the two directly above, for the 'images'
-		// row's own two granular flags.
+		// Same "moved back out to a flat key" story as the two directly above, for the 'images' row's own two granular flags.
 		'flag_missing_alt_text'                 => array( 'flag_missing_alt_text' ),
 		'flag_broken_images'                    => array( 'flag_broken_images' ),
-		// Same "moved back out to a flat key" story again, for the 'links' row's own one granular
-		// flag.
+		// Same "moved back out to a flat key" story again, for the 'links' row's own one granular flag.
 		'flag_broken_links'                     => array( 'flag_broken_links' ),
-		// Scanning > Content & Search - Settings → Scanning → "Content & Search" tab's own 5
-		// toggle-card rows (seo/images/ links/schema/readability).
+		// Scanning > Content & Search.
 		'content_search_scans'                  => array(
 			'seo'         => array(
 				'enable' => true,
@@ -202,26 +187,20 @@ class Utill {
 				'enable' => true,
 			),
 		),
-		// Same "moved back out to a flat key" story again, for the 'readability' row's own one
-		// granular field.
+		// Same "moved back out to a flat key" story again, for the 'readability' row's own one granular field.
 		'content_readability_min_score'         => 50,
 		// Read by BrokenLinksScanner to self-rate-limit - 'daily'/'weekly'.
 		'broken_link_check_frequency'           => 'daily',
-		// Read by BrokenImagesScanner - same real gate/frequency shape as
-		// broken_link_check_frequency directly above, for `img` instead of `a`.
+		// Read by BrokenImagesScanner.
 		'broken_image_check_frequency'          => 'daily',
-		// Scanning > Sitemap - moved out of the SEO tab into its own dedicated Settings sub-tab
-		// (Scanning/Sitemap.ts).
+		// Scanning > Sitemap - moved out of the SEO tab into its own dedicated Settings sub-tab.
 		'sitemap_enabled'                       => array( 'sitemap_enabled' ),
-		// Max URLs per sitemap page - core's own default is 2000; this
-		// overrides `wp_sitemaps_max_urls` when set.
+		// Max URLs per sitemap page.
 		'sitemap_links_per_page'                => 200,
 		// Neither of these has a real backing implementation.
 		'sitemap_include_images'                => array(),
 		'sitemap_include_featured_images'       => array(),
-		// Comma-separated post/term IDs - read by SitemapManager and applied via
-		// `wp_sitemaps_posts_query_args`/ `wp_sitemaps_taxonomies_query_args`
-		// (`post__not_in`/`exclude`).
+		// Comma-separated post/term IDs.
 		'sitemap_exclude_posts'                 => '',
 		'sitemap_exclude_terms'                 => '',
 		// Which real post types/taxonomies are included.
@@ -233,14 +212,12 @@ class Utill {
 		'sitemap_health_enabled'                => array( 'sitemap_health_enabled' ),
 		'sitemap_health_last_run'               => '',
 		'sitemap_health_last_problems'          => 0,
-		// Read by HtmlSitemapRenderer - a real, human-readable `[vulopilot_html_sitemap]` shortcode
-		// (mockup's own "Shortcode" settings row).
+		// Read by HtmlSitemapRenderer - a real, human-readable `[vulopilot_html_sitemap]` shortcode.
 		'html_sitemap_enabled'                  => array( 'html_sitemap_enabled' ),
 		'html_sitemap_display_format'           => 'list',
 		'html_sitemap_sort_by'                  => 'published_date',
 		'html_sitemap_show_dates'               => array( 'html_sitemap_show_dates' ),
-		// 'post_title' or 'seo_title'; the latter reads PostSeoMetaFields::META_KEYS['social_title'] per
-		// post/term (the closest "SEO title" field; there's no separate one), falling back to the title.
+		// Either the post title or the SEO title.
 		'html_sitemap_item_titles'              => 'post_title',
 		// Scanning > SEO & Content > Tag Manager.
 		'tag_manager_enabled'                   => array(),
@@ -257,9 +234,7 @@ class Utill {
 		'webmaster_yandex_verification'         => '',
 		'webmaster_pinterest_verification'      => '',
 		'webmaster_norton_verification'         => '',
-		// Free-form custom `meta` tags - WebmasterToolsManager sanitizes this with an allowlist
-		// limited to `meta` tags only (mockup's own "Only meta tags are allowed" copy) before
-		// echoing it.
+		// Free-form custom `meta` tags.
 		'webmaster_custom_tags'                 => '',
 		// Connections > Site Verification (SiteVerificationPanel.tsx).
 		'webmaster_google_verified_at'          => '',
@@ -267,32 +242,24 @@ class Utill {
 		'webmaster_pinterest_verified_at'       => '',
 		// Scanning > Instant Indexing (IndexNow).
 		'indexnow_post_types'                   => array( 'post', 'page', 'product' ),
-		// Generated lazily (Settings::get_stored_settings(), same "can't call a method inside a
-		// class const array" reasoning llms_txt_content's own comment gives) rather than defaulted
-		// here.
+		// Generated lazily (Settings::get_stored_settings(), same "can't call a method inside a class const array" reasoning llms_txt_content's own comment gives) rather than defaulted here.
 		'indexnow_api_key'                      => '',
-		// "Performance" Overview's PerformanceScoreCard.tsx - a real, user-supplied Google
-		// PageSpeed Insights API key (free tier available).
+		// "Performance" Overview's PerformanceScoreCard.tsx.
 		'psi_api_key'                           => '',
 		// Settings → Connections → PageSpeed Insights' own "Daily API Limit".
 		'psi_daily_limit'                       => 1000,
-		// Read by RobotsTxtManager - appends a `Sitemap:` line to WordPress core's own virtual
-		// robots.txt via the `robots_txt` filter.
+		// Read by RobotsTxtManager - appends a `Sitemap:` line to WordPress core's own virtual robots.txt via the `robots_txt` filter.
 		'robots_auto_generate'                  => array( 'robots_auto_generate' ),
-		// Read by AiCrawlerBlockedPagesScanner - flags real published pages robots.txt disallows
-		// for one specific known AI bot.
+		// Read by AiCrawlerBlockedPagesScanner.
 		'flag_ai_crawler_blocked_pages'         => array( 'flag_ai_crawler_blocked_pages' ),
 		'canonical_url_enabled'                 => array(),
 		'social_meta_tags_enabled'              => array(),
-		// Scanning > SEO > Open Graph - fallback used by SocialMetaTagsManager only when a page
-		// has no post thumbnail/site icon of its own.
+		// Scanning > SEO > Open Graph.
 		'social_default_image_id'               => 0,
 		'social_twitter_card_type'              => 'summary_large_image',
-		// Newline-separated profile URLs - fed into Pro's Organization schema `sameAs` array
-		// alongside entity_business_name/entity_business_logo_id above.
+		// Newline-separated profile URLs.
 		'social_profile_urls'                   => '',
-		// Settings → Site Identity → Title Formats, read by TitleFormatter
-		// (`pre_get_document_title`).
+		// Settings → Site Identity → Title Formats, read by TitleFormatter.
 		'site_identity_enabled'                 => 'enabled',
 		'title_separator'                       => '|',
 		'title_format_home'                     => '%site_title% %sep% %site_description%',
@@ -302,12 +269,9 @@ class Utill {
 		'title_format_tag'                      => '%tag_title% %sep% %site_title%',
 		'title_format_search'                   => 'Search results for "%search_term%" %sep% %site_title%',
 		'title_format_archive'                  => '%archive_title% %sep% %site_title%',
-		// Author archives aren't covered by the generic 'archive' bucket above - a real,
-		// dedicated context (TitleFormatter's own 'author' context key), same as Rank
-		// Math's/Yoast's own separate author-archive title/description fields.
+		// Author archives aren't covered by the generic 'archive' bucket above.
 		'title_format_author'                   => '%author_name% %sep% %site_title%',
-		// Same feature, same `TitleFormatter::resolve()`/`%variable%` engine as `title_format_*`
-		// above.
+		// Same feature, same `TitleFormatter::resolve()`/`%variable%` engine as `title_format_*` above.
 		'description_format_home'               => '%site_description%',
 		'description_format_post'               => '%post_title% %sep% %site_description%',
 		'description_format_page'               => '%page_title% %sep% %site_description%',
@@ -322,14 +286,11 @@ class Utill {
 		'log_404s'                              => array( 'log_404s' ),
 		// AI Visibility / GEO.
 		'enable_llms_txt'                       => array( 'enable_llms_txt' ),
-		// Empty means "not customized yet" - Settings::get_stored_settings() fills this with
-		// GeoAnalysis\LlmsTxtGenerator::generate()'s live output for display until an admin edits
-		// and saves their own.
+		// Empty means "not customized yet".
 		'llms_txt_content'                      => '',
 		// Read by modules/GeoAnalysis/Module.php's save_post hook.
 		'llms_auto_regen'                       => array( 'llms_auto_regen' ),
-		// Read by GeoAnalysis\LlmsTxtGenerator::generate() to decide which
-		// sections to build at all.
+		// Read by GeoAnalysis\LlmsTxtGenerator::generate() to decide which sections to build at all.
 		'llms_include_types'                    => array( 'pages', 'posts' ),
 		// Settings → Scanning → AI Visibility's own `expandable-panel` field (AiVisibility.ts).
 		'ai_visibility_scans'                   => array(
@@ -337,7 +298,6 @@ class Utill {
 				'enable' => true,
 			),
 			// `enable` gates whether GeoAnalyzer's AI-judged "entity_coverage" dimension is scored for a post.
-			// It needs per-post AI judgment, so it can't be a deterministic scanner's kill switch like 'structure'.
 			'entity'       => array(
 				'enable'       => true,
 				'min_mentions' => 2,
@@ -346,14 +306,12 @@ class Utill {
 				'enable'       => true,
 				'stale_months' => 12,
 			),
-			// Read by Geo\Scanners\GeoSummaryBlockScanner - GEO scanning has no whole-category
-			// kill switch (unlike SEO/Accessibility/ e-commerce above).
+			// Read by Geo\Scanners\GeoSummaryBlockScanner.
 			'answer_first' => array(
 				'enable'    => true,
 				'min_words' => 200,
 			),
-			// `enable` gates Geo\Scanners\GeoCitationOpportunityScanner (its own findings-list
-			// check).
+			// `enable` gates Geo\Scanners\GeoCitationOpportunityScanner (its own findings-list check).
 			'evidence'     => array(
 				'enable'          => true,
 				'min_data_points' => 3,
@@ -393,26 +351,18 @@ class Utill {
 		'crawler_alert_last_test_sent'          => '',
 		// Scanning > Entity Extraction.
 		'entity_business_type'                  => '',
-		// Newline-separated page URLs/ids - this codebase has no existing Service concept to derive
-		// these from automatically.
+		// Newline-separated page URLs/ids.
 		'entity_service_pages'                  => '',
-		// Newline-separated `Name | Address` lines - same reasoning as 'entity_service_pages'
-		// above.
+		// Newline-separated `Name | Address` lines - same reasoning as 'entity_service_pages' above.
 		'entity_business_locations'             => '',
-		// Owner-provided override - EntityExtractor falls back to the first extracted
-		// organization's name, then the site title, when this is empty.
+		// Owner-provided override - EntityExtractor falls back to the first extracted organization's name, then the site title, when this is empty.
 		'entity_business_name'                  => '',
 		// Attachment id - same convention as PostSeoMetaFields::META_KEYS['social_image_id'].
 		'entity_business_logo_id'               => 0,
-		// Scanning > SEO > Open Graph - read by SocialMetaTagsManager, output as
-		// fb:app_id/fb:admin_id meta tags (Facebook's own app-association tags, not an API
-		// credential - the still-unused App Secret purposely has no field here).
+		// Scanning > SEO > Open Graph.
 		'facebook_app_id'                       => '',
 		'facebook_admin_id'                     => '',
-		// Scanning > SEO > Robots - read by DefaultRobotsManager. Each is a real, narrow condition
-		// (not Rank Math's single freeform "default robots meta" value, which is almost always
-		// 'index,follow' and rarely actionable) - 'robots_noindex_sitewide' is the one blunt
-		// "noindex everything" switch, useful for staging sites.
+		// Scanning > SEO > Robots - read by DefaultRobotsManager.
 		'robots_noindex_sitewide'               => array(),
 		'robots_noindex_search'                 => array(),
 		'robots_noindex_empty_taxonomies'       => array(),
@@ -426,9 +376,7 @@ class Utill {
 		// Comma-separated role slugs/user IDs.
 		'sitemap_exclude_author_roles'          => '',
 		'sitemap_exclude_author_ids'            => '',
-		// Settings → Site Identity → Title Formats - per-post-type/per-taxonomy overrides for any
-		// post type/taxonomy other than the built-in post/page/category/tag (which keep their own
-		// flat title_format_*/description_format_* fields above). Keyed by post type/taxonomy slug.
+		// Settings → Site Identity → Title Formats.
 		'title_format_post_types'               => array(),
 		'description_format_post_types'         => array(),
 		'title_format_taxonomies'               => array(),
@@ -512,7 +460,7 @@ class Utill {
 	/**
 	 * Accepts both the current shape (`array<{name, url}>`) and the pre-`dynamic-row` shape.
 	 *
-	 * @param array<int, array<string, mixed>>|string $stored The raw `geo_competitor_urls` setting value.
+	 * @param array|string $stored The raw `geo_competitor_urls` setting value.
 	 * @return string[] Trimmed, non-empty URLs, in stored order.
 	 */
 	public static function competitor_urls( $stored ): array {

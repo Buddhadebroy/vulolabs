@@ -26,9 +26,7 @@ import { CLOUD_STORAGE_LOCKED_METHODS } from '../../components/Settings/Backups'
 import { useFilterSlot } from '../../services/useFilterSlot';
 import type { ComponentType } from 'react';
 
-/**
- * Settings page built on zyra's settings framework.
- */
+/** Settings page built on zyra's settings framework. */
 
 const Settings = () => {
 	const [isLoading, setIsLoading] = useState(true);
@@ -84,7 +82,7 @@ const Settings = () => {
 			(field: { key: string }) => field.key
 		);
 
-		// zyra runs a pro field's own change handler before its pro-lock check, so a locked "Add" button still changes the value.
+		// Zyra runs a pro field's own change handler before its pro-lock check, so a locked "Add" button still changes the value.
 		const guardedUpdateSetting = (key: string, value: unknown) => {
 			const field = (settingModal?.modal ?? []).find(
 				(f: { key: string; proSetting?: boolean }) => f.key === key
@@ -118,26 +116,22 @@ const Settings = () => {
 			return null;
 		}
 
-		// Modules tab - real enable/disable toggles (ModuleGridComponent's own `apiLink="modules"`
-		// round-trip), not persisted-field settings.
+		// Modules tab - real enable/disable toggles, not persisted-field settings.
 		if (currentTab === 'modules') {
 			return <ModulesPanel />;
 		}
 
-		// Instant Indexing tab's "Submit URLs"/"History" cards are real actions/logs, not
-		// persisted-field settings.
+		// Instant Indexing tab's "Submit URLs"/"History" cards are real actions/logs, not persisted-field settings.
 		if (currentTab === 'indexnow') {
 			return <IndexNowPanel />;
 		}
 
-		// Developer Tools' "Clear cache" is a real action, not a
-		// persisted field - same escape hatch as 'indexnow' above.
+		// Developer Tools' "Clear cache" is a real action, not a persisted field.
 		if (currentTab === 'developer-tools') {
 			return <DeveloperToolsPanel />;
 		}
 
-		// Migration tab's source list + run buttons are real actions/results, not
-		// persisted-field settings - same escape hatch as 'developer-tools' above.
+		// Migration tab's source list + run buttons are real actions/results, not persisted-field settings.
 		if (currentTab === 'migration') {
 			return <MigrationPanel />;
 		}
@@ -158,8 +152,7 @@ const Settings = () => {
 								setting={setting}
 								updateSetting={guardedUpdateSetting}
 								Popup={ShowProPopup}
-								// Per-tab opt-in (General.ts's own `groupBySections: true` is the
-								// first) into InputRenderer's card-grouped layout.
+								// Per-tab opt-in into InputRenderer's card-grouped layout.
 								groupBySections={settingModal.groupBySections}
 							/>
 						) : (

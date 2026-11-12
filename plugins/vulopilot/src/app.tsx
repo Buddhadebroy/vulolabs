@@ -12,13 +12,10 @@ import InsufficientCreditsNotice from './components/AiCredits/InsufficientCredit
 import './routeRegistry';
 import './routes';
 
-// Forces initializeModules() (called in index.tsx, right after this module is imported) to actually
-// fetch active modules from the server on every load.
+// Forces initializeModules() to actually fetch active modules from the server on every load.
 localStorage.setItem('force_vulopilot_context_reload', 'true');
 
-/**
- * Reads the active tab from the URL hash (`?page=vulopilot#&tab=dashboard`) and renders the component registered for it in routes.ts.
- */
+/** Reads the active tab from the URL hash. */
 const Route = () => {
 	const location = useLocation();
 	const [routes, setRoutes] = useState([...window.VULOPILOT_ROUTES]);
@@ -85,9 +82,7 @@ const App = () => {
 		setResults(filtered);
 	};
 
-	/**
-	 * A page-section result's target tab may not be mounted yet at click time (the hash change above triggers Route's own async re-render).
-	 */
+	/** A page-section result's target tab may not be mounted yet at click time. */
 	const scrollToSectionWhenReady = (sectionId: string, attempt = 0) => {
 		if (document.getElementById(sectionId)) {
 			scrollToId(sectionId);

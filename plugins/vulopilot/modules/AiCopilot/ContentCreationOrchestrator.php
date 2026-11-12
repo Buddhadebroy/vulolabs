@@ -20,9 +20,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class ContentCreationOrchestrator {
 
-	/**
-	 * The only 3 AIActions a free-text chat message alone can legitimately trigger.
-	 */
+	/** The only 3 AIActions a free-text chat message alone can legitimately trigger. */
 	public const CONTENT_CREATION_ACTIONS = array(
 		'generate-blog' => array(
 			'noun'       => 'blog post',
@@ -33,8 +31,8 @@ class ContentCreationOrchestrator {
 	/**
 	 * Runs a whitelisted CONTENT_CREATION_ACTIONS entry through the real AIAction lifecycle end to end.
 	 *
-	 * @param array{action_id: string, input: array<string, mixed>} $decision BlogIntake::handle()'s "ready_action" decision.
-	 * @return array{content: string, link: array{url: string, label: string}|null, run_id: int}|\WP_Error
+	 * @param array $decision BlogIntake::handle()'s "ready_action" decision.
+	 * @return array|\WP_Error
 	 */
 	public function create_content_and_respond( array $decision ) {
 		try {

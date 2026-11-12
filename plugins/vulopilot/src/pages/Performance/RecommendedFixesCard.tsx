@@ -16,10 +16,7 @@ interface ActionResult {
 	message: string;
 }
 
-/**
- * One-click fixes via `POST /performance-actions/{id}`, the same actions as the Overview Quick
- * Actions card.
- */
+/** One-click fixes via `POST /performance-actions/{id}`, the same actions as the Overview Quick Actions card. */
 const FIX_BY_KEYWORD: { keyword: string; actionId: string; icon: string; label: string }[] = [
 	{ keyword: 'image', actionId: 'optimize-images', icon: 'image', label: __('Optimize Images', 'vulopilot') },
 	{ keyword: 'cache', actionId: 'clear-caches', icon: 'refresh-bold', label: __('Clear All Caches', 'vulopilot') },
@@ -30,9 +27,7 @@ const FIX_BY_KEYWORD: { keyword: string; actionId: string; icon: string; label: 
 	{ keyword: 'offscreen', actionId: 'lazy-loading', icon: 'eye', label: __('Enable Lazy Loading', 'vulopilot') },
 ];
 
-/**
- * "Recommended Fixes" - real, one-click actions tied to what this site's own Slow Pages scan actually found.
- */
+/** "Recommended Fixes". */
 const RecommendedFixesCard = ({ topIssues }: { topIssues: PageSpeedIssue[] }) => {
 	const [runningActionId, setRunningActionId] = useState<string | null>(null);
 

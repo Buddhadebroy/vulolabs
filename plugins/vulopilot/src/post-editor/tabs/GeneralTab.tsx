@@ -8,16 +8,14 @@ import { useFieldHighlight } from '../useFieldHighlight';
 import { useFilterSlot } from '../../services/useFilterSlot';
 
 interface GeneralTabProps {
-	/** "All SEO Issues" table's "Fix with AI" deep link - currently only ever resolves to 'canonical_url' on this tab (see seoIssueEditorTarget.ts). */
+	/** "All SEO Issues" table's "Fix with AI" deep link. */
 	highlightTarget?: string;
-	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch - accepted for prop-shape parity with every other tab, unused here. */
+	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch. */
 	// eslint-disable-next-line no-unused-vars
 	onNavigate?: ( tab: string, target?: string ) => void;
 }
 
-/**
- * The metabox's General tab - focus keyword, SEO title.
- */
+/** The metabox's General tab - focus keyword, SEO title. */
 export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
 	const { postId, title, excerpt, slug, meta, setExcerpt, setMeta } = usePostData();
 	const { metaKeys, shopUrl } = window.vulopilotPostSeo;
@@ -40,10 +38,7 @@ export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
 	const [ keywordDraft, setKeywordDraft ] = useState( '' );
 	const [ isSnippetPulsing, setIsSnippetPulsing ] = useState( false );
 
-	// Score pill deep link (`snippet-<nonce>` target) - opens the collapsed snippet editor and
-	// pulses it. Not `useFieldHighlight` directly, since this must open `isEditingSnippet` first
-	// before the target element exists; the nonce suffix lets a second click re-trigger even
-	// without a remount.
+	// Score pill deep link - opens the collapsed snippet editor and pulses it.
 	useEffect( () => {
 		if ( ! highlightTarget?.startsWith( 'snippet' ) ) {
 			return;

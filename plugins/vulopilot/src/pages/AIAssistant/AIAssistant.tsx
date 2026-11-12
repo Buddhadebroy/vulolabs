@@ -50,9 +50,7 @@ const SUGGESTED_PROMPTS = [
 	{ id: 'geo', icon: 'geo-location', title: __('Make my site GEO ready', 'vulopilot') },
 ];
 
-/**
- * "AI Copilot" - a single-view page.
- */
+/** "AI Copilot" - a single-view page. */
 const AIAssistant = () => {
 	const [chatMessage, setChatMessage] = useState('');
 	const [autoApply, setAutoApply] = useState(true);
@@ -66,9 +64,7 @@ const AIAssistant = () => {
 	const { status: aiCreditsStatus } = useAiCredits();
 	const vulocloudConnected = Boolean(aiCreditsStatus?.connected);
 
-	/**
-	 * The Issues table lives inline below the composer rather than as its own nav tab.
-	 */
+	/** The Issues table lives inline below the composer rather than as its own nav tab. */
 	const goToTab = (tab: string, filter?: IssuesFilter) => {
 		if ('chat' === tab) {
 			setIssuesFilter(filter ?? null);
@@ -102,7 +98,7 @@ const AIAssistant = () => {
 	} = useCopilotChat('vulopilot-copilot-chat-error');
 	const [undoingRunId, setUndoingRunId] = useState<number | null>(null);
 
-	/** Starter prompts (and only starter prompts) walk their fixed question tree first - AI is asked only once, right at the end, via this onComplete. */
+	/** Starter prompts walk their fixed question tree first. */
 	const {
 		activeFlow,
 		activeStep,
@@ -116,9 +112,7 @@ const AIAssistant = () => {
 	} = useGuidedCopilotFlow((message) => send(message, [], [], autoApply));
 	const [otherAnswer, setOtherAnswer] = useState('');
 
-	/**
-	 * RecentConversationsCard.tsx's own click-to-load - the card renders below the composer.
-	 */
+	/** RecentConversationsCard.tsx's own click-to-load - the card renders below the composer. */
 	const handleSelectConversation = (id: number) => {
 		loadConversation(id);
 		composerRef.current?.scrollIntoView({
@@ -130,9 +124,7 @@ const AIAssistant = () => {
 	const [attachments, setAttachments] = useState<CopilotAttachment[]>([]);
 	const [isAttachPanelOpen, setIsAttachPanelOpen] = useState(false);
 
-	/**
-	 * A starter chip walks its own fixed question tree first (`useGuidedCopilotFlow`) - no AI call until the last step.
-	 */
+	/** A starter chip walks its own fixed question tree first. */
 	const handleSelectPrompt = (title: string) => {
 		if (isSending || activeFlow) {
 			return;
@@ -157,9 +149,7 @@ const AIAssistant = () => {
 		setIsAttachPanelOpen(false);
 	};
 
-	/**
-	 * Undoes a turn's content-creation run via `POST /ai-action-runs/{id}/rollback`.
-	 */
+	/** Undoes a turn's content-creation run via `POST /ai-action-runs/{id}/rollback`. */
 	const handleUndo = (runId: number) => {
 		setUndoingRunId(runId);
 

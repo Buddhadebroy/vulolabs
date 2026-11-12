@@ -4,8 +4,7 @@ namespace VuloPilot\SeoVisibility;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Parses `/robots.txt` into per-user-agent Disallow groups, scoped to the known AI bot
- * tokens (CrawlerTrafficLogger::get_bot_signatures()).
+ * Parses `/robots.txt` into per-user-agent Disallow groups, scoped to the known AI bot tokens (CrawlerTrafficLogger::get_bot_signatures()).
  *
  * @class       RobotsTxtBotAccess class
  * @version     1.0.0
@@ -27,7 +26,7 @@ class RobotsTxtBotAccess {
 	}
 
 	/**
-	 * Disallow paths for one bot token - its own named group if robots.txt has one, otherwise the wildcard group's rules.
+	 * Disallow paths for one bot token.
 	 *
 	 * @param string $bot_token Literal User-Agent token, e.g. 'GPTBot'.
 	 * @return string[] Disallow paths (may include '/').
@@ -39,8 +38,8 @@ class RobotsTxtBotAccess {
 	/**
 	 * The actual "named group, or fall back to wildcard" resolution.
 	 *
-	 * @param array<string, string[]> $groups    Parsed robots.txt groups.
-	 * @param string                  $bot_token Literal User-Agent token.
+	 * @param array  $groups    Parsed robots.txt groups.
+	 * @param string $bot_token Literal User-Agent token.
 	 * @return string[]
 	 */
 	private function resolve_from_groups( array $groups, string $bot_token ): array {
@@ -52,7 +51,7 @@ class RobotsTxtBotAccess {
 	}
 
 	/**
-	 * @return array<string, string[]> User-agent token => Disallow paths.
+	 * @return array User-agent token => Disallow paths.
 	 */
 	private function get_groups(): array {
 		$cached = get_transient( self::CACHE_KEY );
@@ -81,7 +80,7 @@ class RobotsTxtBotAccess {
 
 	/**
 	 * @param string $body robots.txt contents.
-	 * @return array<string, string[]>
+	 * @return array
 	 */
 	private function parse_groups( string $body ): array {
 		$lines               = preg_split( '/\r\n|\r|\n/', $body );
@@ -97,8 +96,7 @@ class RobotsTxtBotAccess {
 			}
 
 			if ( preg_match( '/^user-agent:\s*(.+)$/i', $line, $matches ) ) {
-				// A run of consecutive User-agent lines shares the rules that follow (standard
-				// robots.txt grouping).
+				// A run of consecutive User-agent lines shares the rules that follow.
 				if ( ! $last_line_was_agent ) {
 					$current_agents = array();
 				}

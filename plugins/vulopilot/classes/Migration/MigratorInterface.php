@@ -10,9 +10,7 @@ namespace VuloPilot\Migration;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Contract for a single "import SEO data from another plugin" migrator. Each real competitor
- * (Rank Math, Yoast SEO, All in One SEO) gets its own class implementing this, registered in
- * `MigrationManager::MIGRATORS`.
+ * Contract for a single "import SEO data from another plugin" migrator.
  *
  * @class       MigratorInterface
  * @version     1.0.0
@@ -42,10 +40,10 @@ interface MigratorInterface {
 	public function count_available(): int;
 
 	/**
-	 * Imports every post this migrator finds data for into VuloPilot's own SEO postmeta (`VuloPilot\SeoVisibility\PostSeoMetaFields::META_KEYS`).
+	 * Imports every post this migrator finds data for into VuloPilot's own SEO postmeta.
 	 *
-	 * @param bool $overwrite When false (default), a post that already has a VuloPilot focus keyword or social title saved is left alone rather than overwritten.
-	 * @return array{migrated: int, skipped: int, errors: string[]}
+	 * @param bool $overwrite When false, a post that already has a VuloPilot focus keyword or social title saved is left alone rather than overwritten.
+	 * @return array
 	 */
 	public function migrate( bool $overwrite = false ): array;
 }

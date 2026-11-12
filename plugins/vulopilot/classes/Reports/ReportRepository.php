@@ -34,9 +34,9 @@ class ReportRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Generating/ready/failed counts, zero-filled - backs the Reports table's status-count pill bar (same reasoning as AutomationsRepository::get_status_counts()).
+	 * Generating/ready/failed counts, zero-filled.
 	 *
-	 * @return array{generating: int, ready: int, failed: int}
+	 * @return array
 	 */
 	public function get_status_counts(): array {
 		return array_merge(

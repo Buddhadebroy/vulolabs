@@ -7,8 +7,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Settings-driven filters over WordPress core's native sitemap at /wp-sitemap.xml (enable,
- * links per page, post types, taxonomies, exclusions).
+ * Settings-driven filters over WordPress core's native sitemap at /wp-sitemap.xml.
  *
  * @class       SitemapManager class
  * @version     1.0.0
@@ -16,9 +15,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class SitemapManager {
 
-	/**
-	 * SitemapManager constructor.
-	 */
+	/** SitemapManager constructor. */
 	public function __construct() {
 		add_filter( 'wp_sitemaps_enabled', array( $this, 'filter_sitemaps_enabled' ) );
 
@@ -35,25 +32,21 @@ class SitemapManager {
 		add_action( 'deleted_post', array( $this, 'clear_conflict_cache' ) );
 	}
 
-	/**
-	 * Maximum URLs per sitemap allowed by the sitemaps protocol.
-	 */
+	/** Maximum URLs per sitemap allowed by the sitemaps protocol. */
 	private const PROTOCOL_MAX_URLS = 50000;
 
-	/**
-	 * Transient holding the ids of posts that must not be listed.
-	 */
+	/** Transient holding the ids of posts that must not be listed. */
 	private const CONFLICT_TRANSIENT = 'vulopilot_sitemap_conflicting_ids';
 
 	/**
-	 * @return array<string, mixed> Effective settings, defaults filled in.
+	 * @return array Effective settings, defaults filled in.
 	 */
 	private function get_settings(): array {
 		return wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
 	}
 
 	/**
-	 * `sitemap_links_per_page` - 0 or unset falls back to core's own default (2000) rather than passing through a nonsensical override.
+	 * `sitemap_links_per_page`.
 	 *
 	 * @param int $max_urls Core's own current max-URLs-per-page value.
 	 * @return int
@@ -103,7 +96,7 @@ class SitemapManager {
 	}
 
 	/**
-	 * `sitemap_exclude_posts` - comma-separated post IDs, applied via core's own `wp_sitemaps_posts_query_args` filter.
+	 * `sitemap_exclude_posts`.
 	 *
 	 * @param array $args Core's own current WP_Query args for one sitemap page.
 	 * @return array
@@ -122,7 +115,7 @@ class SitemapManager {
 	}
 
 	/**
-	 * `sitemap_exclude_terms` - comma-separated term IDs, applied via core's own `wp_sitemaps_taxonomies_query_args` filter.
+	 * `sitemap_exclude_terms`.
 	 *
 	 * @param array $args Core's own current get_terms() args for one sitemap page.
 	 * @return array
@@ -141,7 +134,7 @@ class SitemapManager {
 	}
 
 	/**
-	 * Drops the author (users) sitemap on single-author sites, where the author archive only repeats the blog page.
+	 * Drops the author.
 	 *
 	 * @param \WP_Sitemaps_Provider|false $provider Sitemap provider.
 	 * @param string                      $name     Provider name.
@@ -152,8 +145,7 @@ class SitemapManager {
 			return $provider;
 		}
 
-		// Scanning → Sitemap → Authors' own master switch - 'on' by default (Rank Math's own
-		// default too), so most sites see no behavior change from this field existing.
+		// Scanning → Sitemap → Authors' own master switch.
 		if ( ! $this->is_enabled( 'sitemap_include_authors' ) ) {
 			return false;
 		}
@@ -209,9 +201,9 @@ class SitemapManager {
 	/**
 	 * Adds a `lastmod` timestamp taken from the post's modified date.
 	 *
-	 * @param array<string, string> $entry Sitemap entry.
-	 * @param \WP_Post              $post  Post the entry is for.
-	 * @return array<string, string>
+	 * @param array    $entry Sitemap entry.
+	 * @param \WP_Post $post  Post the entry is for.
+	 * @return array
 	 */
 	public function filter_posts_entry( $entry, $post ) {
 		if ( empty( $entry['lastmod'] ) && ! empty( $post->post_modified_gmt ) && '0000-00-00 00:00:00' !== $post->post_modified_gmt ) {
@@ -222,7 +214,7 @@ class SitemapManager {
 	}
 
 	/**
-	 * Ids of posts that should not be in the sitemap: noindex posts, posts whose canonical points elsewhere, redirected posts and unedited placeholder posts.
+	 * Ids of posts that should not be in the sitemap.
 	 *
 	 * @return int[]
 	 */
@@ -266,7 +258,7 @@ class SitemapManager {
 	/**
 	 * Runs a post id query page by page, up to 50 pages of 100.
 	 *
-	 * @param array<string, mixed> $args get_posts() args with `posts_per_page` set.
+	 * @param array $args get_posts() args with `posts_per_page` set.
 	 * @return int[]
 	 */
 	private function get_all_post_ids( array $args ): array {

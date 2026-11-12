@@ -10,7 +10,7 @@ interface PageSpeedResponse {
 	top_issues: PageSpeedIssue[];
 }
 
-/** One row of `GET /findings/groups` - only the fields this card actually reads (real scanner label + real open-finding count). */
+/** One row of `GET /findings/groups` - only the fields this card actually reads. */
 interface FindingGroupRow {
 	label: string;
 	count: number;
@@ -25,17 +25,15 @@ type SpeedOpportunity =
 	| { source: 'finding'; label: string; count: number };
 
 interface BiggestSpeedOpportunityCardProps {
-	/** Jumps to the real "Slow Pages" tab - only meaningful for a page_speed-sourced opportunity, where every affected page is a real row there. */
+	/** Jumps to the real "Slow Pages" tab. */
 	onViewSlowPages: () => void;
-	/** Jumps to the real "Top Issues" findings table on this same tab (`#performance-section-findings`). */
+	/** Jumps to the real "Top Issues" findings table on this same tab. */
 	onViewFindings: () => void;
 }
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
-/**
- * "Biggest Speed Opportunity" - one real, prioritized recommendation instead of a static tip list: replaces PerformanceTipsCard.tsx (now deleted).
- */
+/** "Biggest Speed Opportunity". */
 const BiggestSpeedOpportunityCard = ({
 	onViewSlowPages,
 	onViewFindings,

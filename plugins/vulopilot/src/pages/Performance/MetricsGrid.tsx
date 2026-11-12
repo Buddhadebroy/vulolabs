@@ -9,10 +9,7 @@ import './Performance.scss';
 
 interface MetricTileData {
 	id: string;
-	/**
-	 * `"{adminfont name} {color-palette key}"` - same icon-name-plus-palette-key convention
-	 * CATEGORY_CARDS (SeoTab.tsx) and GeoScoreSection.tsx already use.
-	 */
+	/** `"{adminfont name} {color-palette key}"`. */
 	icon: string;
 	title: string;
 	desc: string;
@@ -105,10 +102,7 @@ const METRIC_TILES: MetricTileData[] = [
 	},
 ];
 
-/**
- * Tile ids backed by `GET /efficiency-checks` (EfficiencyChecks.php) instead of a
- * category-'performance' scanner.
- */
+/** Tile ids backed by `GET /efficiency-checks` instead of a category-'performance' scanner. */
 const EFFICIENCY_TILE_IDS = [
 	'page-caching',
 	'browser-caching',
@@ -119,17 +113,14 @@ const EFFICIENCY_TILE_IDS = [
 const NOT_TRACKED_BADGE = { text: __('Not tracked', 'vulopilot'), color: 'pink' };
 const OPEN_FALLBACK_BADGE = { text: __('No findings', 'vulopilot'), color: 'red' };
 
-/** Same status→color mapping EfficiencySummaryCard.tsx's own `efficiency-check-icon--{status}` styling implies (good=green, attention=orange, not_applicable=neutral). */
+/** Same status→color mapping EfficiencySummaryCard.tsx's own `efficiency-check-icon--{status}` styling implies. */
 const EFFICIENCY_STATUS_COLOR: Record<string, string> = {
 	good: 'green',
 	attention: 'orange',
 	not_applicable: 'indigo',
 };
 
-/**
- * Each scanner-backed tile's own real section on the "Top Issues" table below
- * (PerformanceTab.tsx's own `SECTIONS`, kept in sync by hand).
- */
+/** Each scanner-backed tile's own real section on the "Top Issues" table below. */
 const SECTION_KEY_BY_TILE_ID: Record<string, string> = {
 	caching: 'caching-delivery',
 	'css-optimization': 'code-optimization',
@@ -235,17 +226,11 @@ const MetricsGrid = ({
 
 		const badge = SECTION_STATUS_BY_TILE[id]?.badge ?? OPEN_FALLBACK_BADGE;
 
-		// Same real "N Open · N {Severity} Severity" text useSectionStatus()'s own `badge` always
-		// builds - just the "N Open" half kept here (just this grid's own tiles, per direct
-		// instruction: one number, not two) rather than in that shared hook, which other real
-		// callers still read as-is. "No Open Findings"/"Not tracked yet" have no " · " to split on,
-		// so they pass through unchanged.
+		// Same real "N Open · N {Severity} Severity" text useSectionStatus()'s own `badge` always builds.
 		return { ...badge, text: badge.text.split(' · ')[0] };
 	};
 
-	/**
-	 * `MetricTileComponent`'s own `desc` accepts any React node.
-	 */
+	/** `MetricTileComponent`'s own `desc` accepts any React node. */
 	const descFor = (id: string, fallback: string) => {
 		if (id !== 'php-acceleration') {
 			return fallback;

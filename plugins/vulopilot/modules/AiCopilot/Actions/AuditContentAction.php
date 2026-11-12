@@ -26,7 +26,7 @@ class AuditContentAction extends AbstractCloudAction {
 
 	private const META_KEY = '_vulopilot_ai_content_audit';
 
-	/** Word cap on the content sent to the AI - `AiRequestSender::validate_prompt()` rejects any combined prompt over 32,000 characters outright (every request, no partial send), so a long page/post sent here in full previously failed this action unconditionally with "This request is too long to send to the AI service". */
+	/** Word cap on the content sent to the AI. */
 	private const MAX_CONTENT_WORDS = 3000;
 
 	/**
@@ -44,7 +44,7 @@ class AuditContentAction extends AbstractCloudAction {
 	}
 
 	/**
-	 * Impact::LOW - writes only a narrow postmeta verdict; never touches `post_content`/`post_title` or any other real post field.
+	 * Impact::LOW - writes only a narrow postmeta verdict.
 	 *
 	 * @inheritDoc
 	 */

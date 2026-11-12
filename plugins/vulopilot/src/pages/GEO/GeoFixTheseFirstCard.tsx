@@ -15,9 +15,7 @@ const SEVERITY_RANK: Record<FindingGroup['severity'], number> = {
 
 const MAX_ROWS = 4;
 
-/**
- * Uses the `close` and `error` glyphs, the only ones zyra's icon font offers for open findings.
- */
+/** Uses the `close` and `error` glyphs, the only ones zyra's icon font offers for open findings. */
 const SEVERITY_ICON: Record<FindingGroup['severity'], string> = {
 	critical: 'close red',
 	high: 'close red',
@@ -33,14 +31,12 @@ interface GeoFixTheseFirstCardProps {
 	onViewAll: () => void;
 	// eslint-disable-next-line no-unused-vars
 	onSelectScanner: (scannerId: string) => void;
-	/** Defaults to "Fix These First" (GEO tab) - AeoTab.tsx passes "What Needs Your Attention" instead, reusing this same real ranking. */
+	/** Defaults to "Fix These First". */
 	title?: string;
 	emptyMessage?: string;
 }
 
-/**
- * "Fix These First" - the real, worst-severity-first (ties broken by real affected count) findings.
- */
+/** "Fix These First". */
 const GeoFixTheseFirstCard = ({
 	groups,
 	isLoading,

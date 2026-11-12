@@ -21,9 +21,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class FirewallBlockRepository extends RepositoryUtil {
 
-	/**
-	 * This repository's `event_type` in the shared `vulopilot_security_events` table.
-	 */
+	/** This repository's `event_type` in the shared `vulopilot_security_events` table. */
 	private const EVENT_TYPE = 'firewall_block';
 
 	/**
@@ -70,7 +68,7 @@ class FirewallBlockRepository extends RepositoryUtil {
 	 * The single IP with the most matched-rule rows in the last N days.
 	 *
 	 * @param int $days Real lookback window.
-	 * @return array{ip_address: string, hit_count: int}|null
+	 * @return array|null
 	 */
 	public function get_most_active_ip( int $days ): ?array {
 		global $wpdb;

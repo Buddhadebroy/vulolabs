@@ -30,9 +30,7 @@ class ContentAssistant extends \WP_REST_Controller {
 	 */
 	private ContentCreationOrchestrator $orchestrator;
 
-	/**
-	 * ContentAssistant constructor.
-	 */
+	/** ContentAssistant constructor. */
 	public function __construct() {
 		$this->orchestrator = new ContentCreationOrchestrator();
 	}
@@ -133,7 +131,7 @@ class ContentAssistant extends \WP_REST_Controller {
 	/**
 	 * Sends one chat message with the conversation so far and returns the AI's answer.
 	 *
-	 * @param array<string, mixed> $context build_chat_context()'s result.
+	 * @param array $context build_chat_context()'s result.
 	 * @return string|\WP_Error
 	 */
 	private function ask( array $context ) {
@@ -172,9 +170,9 @@ class ContentAssistant extends \WP_REST_Controller {
 	/**
 	 * The content assistant feature's input: the new message and the whole conversation so far.
 	 *
-	 * @param string            $message     The new user message.
-	 * @param array<int, mixed> $raw_history Client-supplied {role, content} turns, oldest first.
-	 * @return array<string, mixed>
+	 * @param string $message     The new user message.
+	 * @param array  $raw_history Client-supplied {role, content} turns, oldest first.
+	 * @return array
 	 */
 	private function build_chat_context( string $message, array $raw_history ): array {
 		$history = array();

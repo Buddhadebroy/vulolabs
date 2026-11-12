@@ -10,8 +10,7 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Single exception class for VuloPilot failures, distinguished by a `type` constant, with
- * an optional `$context` array.
+ * Single exception class for VuloPilot failures, distinguished by a `type` constant, with an optional `$context` array.
  *
  * @class       VuloPilotException class
  * @version     1.0.0
@@ -19,63 +18,45 @@ defined( 'ABSPATH' ) || exit;
  */
 class VuloPilotException extends \Exception {
 
-	/**
-	 * Common parent of every failure of an AI request to the server.
-	 */
+	/** Common parent of every failure of an AI request to the server. */
 	const TYPE_AI_REQUEST = 'ai_request';
 
 	/**
-	 * Thrown by AiAssistant\AiRequestSender when the server reports that no
-	 * AI key is configured for this site's Organization yet.
+	 * Thrown by AiAssistant\AiRequestSender when the server reports that no AI key is configured for this site's Organization yet.
 	 */
 	const TYPE_VULOCLOUD_AI_NOT_CONFIGURED = 'vulocloud_ai_not_configured';
 
-	/**
-	 * A non-retryable gateway failure (a malformed request, or one the server rejects
-	 * outright).
-	 */
+	/** A non-retryable gateway failure (a malformed request, or one the server rejects outright). */
 	const TYPE_GATEWAY_REQUEST = 'gateway_request';
 
 	/**
-	 * Thrown by AiAssistant\AiRequestSender when this site's per-minute request budget is
-	 * exhausted, before the request is ever sent to the server.
+	 * Thrown by AiAssistant\AiRequestSender when this site's per-minute request budget is exhausted, before the request is ever sent to the server.
 	 */
 	const TYPE_RATE_LIMIT_EXCEEDED = 'rate_limit_exceeded';
 
-	/**
-	 * A retryable gateway failure - network error, HTTP 5xx, or HTTP 429.
-	 */
+	/** A retryable gateway failure - network error, HTTP 5xx, or HTTP 429. */
 	const TYPE_TRANSIENT_GATEWAY = 'transient_gateway';
 
 	/**
-	 * Thrown by AiAssistant\AiRequestSender::validate_prompt() when a request is too long
-	 * or appears to contain a credential.
+	 * Thrown by AiAssistant\AiRequestSender::validate_prompt() when a request is too long or appears to contain a credential.
 	 */
 	const TYPE_UNSAFE_PROMPT = 'unsafe_prompt';
 
 	/**
-	 * Thrown by an AIActionInterface implementation's validate_input() when the raw user-
-	 * supplied input fails validation (e.g. a referenced post/attachment doesn't exist, a
-	 * required field is empty).
+	 * Thrown by an AIActionInterface implementation's validate_input() when the raw user- supplied input fails validation.
 	 */
 	const TYPE_INVALID_ACTION_INPUT = 'invalid_action_input';
 
 	/**
-	 * Thrown by an AIActionInterface implementation's validate_output() when the AI
-	 * response fails validation (e.g. empty content, missing required fields, malformed
-	 * JSON-LD) before it's shown to the user as a preview.
+	 * Thrown by an AIActionInterface implementation's validate_output() when the AI response fails validation before it's shown to the user as a preview.
 	 */
 	const TYPE_INVALID_ACTION_OUTPUT = 'invalid_action_output';
 
-	/**
-	 * Thrown when the server refuses a request because the AI credit balance cannot cover
-	 * it.
-	 */
+	/** Thrown when the server refuses a request because the AI credit balance cannot cover it. */
 	const TYPE_INSUFFICIENT_CREDITS = 'insufficient_credits';
 
 	/**
-	 * The AI-request-failure types `is_ai_request_failure()` treats as
-	 * equivalent to the old `instanceof AiRequestException` check.
+	 * The AI-request-failure types `is_ai_request_failure()` treats as equivalent to the old `instanceof AiRequestException` check.
 	 *
 	 * @var string[]
 	 */
@@ -95,17 +76,16 @@ class VuloPilotException extends \Exception {
 	private string $type;
 
 	/**
-	 * Extra, type-specific data - e.g. TYPE_INSUFFICIENT_CREDITS's `credits_remaining`
-	 * (int), `can_buy_credits` (bool), `can_upgrade` (bool).
+	 * Extra, type-specific data.
 	 *
-	 * @var array<string, mixed>
+	 * @var array
 	 */
 	private array $context;
 
 	/**
-	 * @param string               $message Exception message.
-	 * @param string               $type    One of the TYPE_* constants above.
-	 * @param array<string, mixed> $context Extra, type-specific data - see each TYPE_*'s own docblock.
+	 * @param string $message Exception message.
+	 * @param string $type    One of the TYPE_* constants above.
+	 * @param array  $context Extra, type-specific data - see each TYPE_*'s own docblock.
 	 */
 	public function __construct( string $message, string $type = self::TYPE_AI_REQUEST, array $context = array() ) {
 		parent::__construct( $message );
@@ -117,9 +97,9 @@ class VuloPilotException extends \Exception {
 	/**
 	 * Throws an exception with an already-escaped message.
 	 *
-	 * @param string               $message Escaped exception message.
-	 * @param string               $type    One of the TYPE_* constants above.
-	 * @param array<string, mixed> $context Extra, type-specific data - see each TYPE_*'s own docblock.
+	 * @param string $message Escaped exception message.
+	 * @param string $type    One of the TYPE_* constants above.
+	 * @param array  $context Extra, type-specific data - see each TYPE_*'s own docblock.
 	 * @return void
 	 * @throws self Always.
 	 */
@@ -146,7 +126,7 @@ class VuloPilotException extends \Exception {
 	}
 
 	/**
-	 * @param string $key     A context key, e.g. 'credits_remaining'.
+	 * @param string $key      A context key, e.g. 'credits_remaining'.
 	 * @param mixed  $fallback Returned when $key isn't set.
 	 * @return mixed
 	 */
@@ -164,7 +144,7 @@ class VuloPilotException extends \Exception {
 	}
 
 	/**
-	 * TYPE_INSUFFICIENT_CREDITS convenience getter - where the site owner can buy more credits (the server's own AI Credits page), or '' if the server didn't say.
+	 * TYPE_INSUFFICIENT_CREDITS convenience getter.
 	 *
 	 * @return string
 	 */

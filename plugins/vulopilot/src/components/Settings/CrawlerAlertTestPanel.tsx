@@ -17,9 +17,7 @@ interface StoredSettings {
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
-/**
- * Unlike BackupStoragePanel.tsx (which Settings.tsx's own GetForm() appends after ALL of its tab's fields).
- */
+/** Unlike BackupStoragePanel.tsx. */
 const CrawlerAlertTestPanel = () => {
 	const [lastSentAt, setLastSentAt] = useState<string | null>(null);
 	const [isSending, setIsSending] = useState(false);

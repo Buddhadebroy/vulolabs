@@ -57,15 +57,13 @@ class NotFoundLogger {
 		'csv',
 	);
 
-	/**
-	 * NotFoundLogger constructor.
-	 */
+	/** NotFoundLogger constructor. */
 	public function __construct() {
 		add_action( 'template_redirect', array( $this, 'maybe_log' ), 20 );
 	}
 
 	/**
-	 * Logs the current request as a 404 visit, if it is one - classified as `is_system` (see is_system_path()) or a real content-page miss.
+	 * Logs the current request as a 404 visit, if it is one.
 	 *
 	 * @return void
 	 */
@@ -90,7 +88,7 @@ class NotFoundLogger {
 	/**
 	 * Checks a path against SYSTEM_PATH_PREFIXES/SYSTEM_EXTENSIONS.
 	 *
-	 * @param string $path Already-normalized request path (RedirectRepository::normalize_path()).
+	 * @param string $path Already-normalized request path.
 	 * @return bool True if this path is a static asset/tooling-probe request, not a real missing content page.
 	 */
 	private static function is_system_path( string $path ): bool {

@@ -96,10 +96,9 @@ defined( 'ABSPATH' ) || exit;
 class ThinkRankMigrator implements MigratorInterface {
 
 	/**
-	 * ThinkRank's own `title_separator` setting is a named key ('pipe', 'dash', ...), not a
-	 * literal character - `Site_Identity_Manager::$title_separators`.
+	 * ThinkRank's own `title_separator` setting is a named key, not a literal character.
 	 *
-	 * @var array<string, string>
+	 * @var array
 	 */
 	private const SEPARATOR_SYMBOLS = array(
 		'pipe'    => '|',
@@ -111,10 +110,9 @@ class ThinkRankMigrator implements MigratorInterface {
 	);
 
 	/**
-	 * ThinkRank's Site Identity `%token%` template vocabulary
-	 * (`class-settings-key-map.php`'s `template()` helper) into VuloPilot's own.
+	 * ThinkRank's Site Identity `%token%` template vocabulary (`class-settings-key-map.php`'s `template()` helper) into VuloPilot's own.
 	 *
-	 * @var array<string, string>
+	 * @var array
 	 */
 	private const SITE_IDENTITY_TOKEN_MAP = array(
 		'%site_name%' => '%site_title%',
@@ -124,11 +122,9 @@ class ThinkRankMigrator implements MigratorInterface {
 	);
 
 	/**
-	 * ThinkRank's Global SEO (per-post-type/taxonomy/archive) `%token%` vocabulary
-	 * (`class-global-seo-endpoint.php`) into VuloPilot's own. `%title%` is context-dependent -
-	 * resolved separately per call in `translate_global_seo_template()`.
+	 * ThinkRank's Global SEO `%token%` vocabulary into VuloPilot's own.
 	 *
-	 * @var array<string, string>
+	 * @var array
 	 */
 	private const GLOBAL_SEO_TOKEN_MAP = array(
 		'%sitename%' => '%site_title%',
@@ -194,9 +190,7 @@ class ThinkRankMigrator implements MigratorInterface {
 		);
 	}
 
-	// ---------------------------------------------------------------------
-	// Per-post SEO data (real postmeta keys).
-	// ---------------------------------------------------------------------
+	// --------------------------------------------------------------------- Per-post SEO data.
 
 	/**
 	 * @return int
@@ -258,9 +252,7 @@ class ThinkRankMigrator implements MigratorInterface {
 		$robots_enabled = (bool) get_post_meta( $post_id, '_thinkrank_robots_meta_enabled', true );
 		$robots         = $robots_enabled ? get_post_meta( $post_id, '_thinkrank_robots_meta', true ) : array();
 
-		// `register_post_meta()`'s own sanitize callback for this key JSON-encodes the value, so a
-		// real site's `get_post_meta()` returns a JSON string here, not a PHP array - confirmed
-		// against actual stored data on wp-env, not assumed from the registration schema alone.
+		// `register_post_meta()`'s own sanitize callback for this key JSON-encodes the value, so a real site's `get_post_meta()` returns a JSON string here, not a PHP array.
 		if ( is_string( $robots ) ) {
 			$robots = json_decode( $robots, true );
 		}
@@ -314,7 +306,7 @@ class ThinkRankMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * Per-post AI content score, from ThinkRank's own `{prefix}thinkrank_seo_scores` table into the same JSON shape `ContentScore::to_array()` writes to `_vulopilot_content_score` - written directly as postmeta rather than by instantiating that class, same convention every other per-post field in this migrator follows.
+	 * Per-post AI content score, from ThinkRank's own `{prefix}thinkrank_seo_scores` table into the same JSON shape `ContentScore::to_array()` writes to `_vulopilot_content_score`.
 	 *
 	 * @param bool  $overwrite Passed through from migrate().
 	 * @param int   $migrated  Running total, by reference.
@@ -397,9 +389,7 @@ class ThinkRankMigrator implements MigratorInterface {
 		return (string) get_post_meta( $post_id, '_thinkrank_focus_keyword', true );
 	}
 
-	// ---------------------------------------------------------------------
-	// robots.txt (physical file - same architecture as Yoast's File Editor).
-	// ---------------------------------------------------------------------
+	// --------------------------------------------------------------------- robots.txt.
 
 	/**
 	 * @param bool  $overwrite Passed through from migrate().
@@ -441,9 +431,7 @@ class ThinkRankMigrator implements MigratorInterface {
 		return trim( (string) file_get_contents( $path ) );
 	}
 
-	// ---------------------------------------------------------------------
-	// Sitewide settings (EAV table + `thinkrank_global_seo_settings` option).
-	// ---------------------------------------------------------------------
+	// --------------------------------------------------------------------- Sitewide settings.
 
 	/**
 	 * @param bool $overwrite Passed through from migrate().
@@ -481,7 +469,7 @@ class ThinkRankMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function build_settings_values(): array {
 		$site_identity = $this->read_eav_category( 'site_identity' );
@@ -539,7 +527,7 @@ class ThinkRankMigrator implements MigratorInterface {
 	 * Reads every active `site`-context row for one `setting_category` straight out of `{prefix}thinkrank_seo_settings`.
 	 *
 	 * @param string $category `setting_category` value (e.g. 'site_identity', 'sitemap').
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function read_eav_category( string $category ): array {
 		global $wpdb;
@@ -688,7 +676,7 @@ class ThinkRankMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * Every real post type's/taxonomy's own title/description template, plus the `archive:author`/ `special:search` special entities, from `thinkrank_global_seo_settings` (`class-settings-key-map.php` documents the exact key shape: `title`, `description`, `robots.noindex`).
+	 * Every real post type's/taxonomy's own title/description template, plus the `archive:author`/ `special:search` special entities, from `thinkrank_global_seo_settings`.
 	 *
 	 * @param array $values     Field values being built, by reference.
 	 * @param array $global_seo The decoded `thinkrank_global_seo_settings` option.

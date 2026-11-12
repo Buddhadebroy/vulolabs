@@ -9,14 +9,14 @@ interface CardHeaderProps {
 	desc: ReactNode;
 	/** Rendered inline right after `title`, before `action` - typically a status badge. */
 	badge?: ReactNode;
-	/** Rendered inline right after `title` (and `badge`) - a `ToggleInput`, a button, or omitted entirely. */
+	/** Rendered inline right after `title` - a `ToggleInput`, a button, or omitted entirely. */
 	action?: ReactNode;
 	/** Extra class(es) on the outer `.common-card` wrapper. */
 	className?: string;
 	/** Extra class(es) on the `.common-card-header` row - e.g. `'is-clickable'`. */
 	headerClass?: string;
 	onClick?: () => void;
-	/** Everything below the header - typically one body div, left to the caller rather than auto-wrapped. */
+	/** Everything below the header. */
 	children?: ReactNode;
 }
 

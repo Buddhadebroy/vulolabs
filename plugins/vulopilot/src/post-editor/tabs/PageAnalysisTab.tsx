@@ -10,7 +10,7 @@ import { SEO_ISSUE_EDITOR_TARGETS, SeoIssueEditorTab, SeoIssueEditorTarget } fro
 interface PageAnalysisTabProps {
 	/** Either of 2 real deep-link vocabularies this tab now understands. */
 	highlightTarget?: string;
-	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch - lets a row here jump straight to the real General/Social/Schema field that fixes it. */
+	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch. */
 	// eslint-disable-next-line no-unused-vars
 	onNavigate?: ( tab: SeoIssueEditorTab, target?: string ) => void;
 }
@@ -21,28 +21,27 @@ const CHECK_KEY_TO_SCANNER_ID: Record< string, string > = {
 	canonical: 'canonical-url',
 	structured_data: 'structured-data',
 	social_metadata: 'open-graph',
-	// No literal single-field fix for "nothing links here" - points at the real Internal
-	// Linking check instead of running the nav-menu proxy fix below.
+	// No literal single-field fix for "nothing links here".
 	orphan_page: 'internal-linking',
 };
 
 /** Saved-page checks the live checklist already covers, left out of the "SEO Issues" list. */
 const CHECKS_COVERED_BY_LIVE_CHECKLIST = [ 'title_tag', 'meta_description', 'content', 'headings', 'images' ];
 
-/** Saved-page checks with a real fix. Social Metadata (sitewide only) and Orphan Page (navigates to Internal Linking instead) are left out on purpose. */
+/** Saved-page checks with a real fix. */
 const CHECK_KEY_TO_FIX_ACTION: Record< string, string > = {
 	structured_data: 'generate-schema',
 	featured_image: 'set-featured-image-from-content',
 	h1_heading: 'insert-h1-from-title',
 };
 
-/** Fix ids that run a deterministic action, not an AI generation - shown as "Fix" rather than "Fix with AI". */
+/** Fix ids that run a deterministic action, not an AI generation. */
 const MECHANICAL_FIX_ACTIONS = [ 'set-featured-image-from-content', 'insert-h1-from-title' ];
 
 /** Mechanical fix ids whose result rewrites post_content, same as CONTENT_MUTATING_ACTIONS below for the AI ones. */
 const CONTENT_MUTATING_MECHANICAL_ACTIONS = [ 'insert-h1-from-title' ];
 
-/** GEO/AEO scanners with a mapped fix - `POST /findings/{id}/fix` resolves it from the finding's own scanner. */
+/** GEO/AEO scanners with a mapped fix. */
 const FIXABLE_FINDING_SCANNER_IDS = [
 	'geo-faq-opportunity',
 	'geo-summary-block',
@@ -97,7 +96,7 @@ const STATUS_MODIFIER: Record< PageAnalysisCheck[ 'status' ], string > = {
 	fail: 'fail',
 };
 
-/** GEO/AEO findings have no "pass" state - a finding only ever exists for a real open problem. */
+/** GEO/AEO findings have no "pass" state. */
 const SEVERITY_TO_STATUS: Record< RawFinding[ 'severity' ], PageAnalysisCheck[ 'status' ] > = {
 	critical: 'fail',
 	high: 'fail',
@@ -112,14 +111,14 @@ type RowFix = { kind: 'post'; actionId: string } | { kind: 'finding'; findingId:
 /** One shared row shape the live checks, the saved SEO checks and GEO's/AEO's open findings all resolve into. */
 interface IssueRow {
 	id: string;
-	/** DOM id, when it differs from `${idPrefix}-${id}` (live checks keep the id the deep links target). */
+	/** DOM id, when it differs from `${idPrefix}-${id}`. */
 	domId?: string;
 	status: PageAnalysisCheck[ 'status' ];
 	label: string;
 	message: string;
 	target: SeoIssueEditorTarget | null;
 	fix?: RowFix;
-	/** A manual option next to `fix` - jumps to the real WordPress field instead of running the automatic action. */
+	/** A manual option next to `fix`. */
 	manualFix?: { label: string; onClick: () => void };
 	/** Set right after `onFix` resolves so the row shows fixed immediately, before the re-analysis round trip returns. */
 	justFixed?: boolean;
@@ -191,9 +190,7 @@ const CONTENT_CHECK_IDS = [ 'content_length', 'has_subheadings', 'has_links', 'i
 /** AI actions that rewrite post_content. */
 const CONTENT_MUTATING_ACTIONS = [ 'improve-readability', 'add-subheadings', 'expand-content', 'suggest-internal-links' ];
 
-/**
- * Loads content the server just saved into the open block editor.
- */
+/** Loads content the server just saved into the open block editor. */
 const applyContentToEditor = ( content: string ) => {
 	( dispatch( 'core/editor' ) as any ).resetEditorBlocks( parse( content ) );
 };
@@ -221,14 +218,12 @@ interface IssueListProps {
 	fixControls: FixControls;
 }
 
-/** Renders one section's own real row list - the exact same clickable-row markup/behavior this tab's SEO section already had. */
+/** Renders one section's own real row list. */
 function IssueList( { idPrefix, rows, pulsingId, onNavigate, fixControls }: IssueListProps ) {
 	return (
 		<ul className="vulopilot-seo-checklist__list">
 			{ rows.map( ( row ) => {
-				// Real "go fix this" destination - resolves to null (row stays inert) whenever this
-				// row's own scanner/check has no real editor-sidebar field anywhere in this
-				// codebase.
+				// Real "go fix this" destination.
 				const isClickable = Boolean( row.target && onNavigate );
 
 				return (
@@ -366,7 +361,7 @@ interface IssueSectionProps {
 	// eslint-disable-next-line no-unused-vars
 	onNavigate?: ( tab: SeoIssueEditorTab, target?: string ) => void;
 	fixControls: FixControls;
-	/** Worst status across `rows` - drives the header's summary pill (same look the old General-tab groups had). */
+	/** Worst status across `rows` - drives the header's summary pill. */
 	showSummary?: boolean;
 }
 
@@ -415,9 +410,7 @@ function IssueSection( { heading, idPrefix, rows, isLoading, error, emptyMessage
 	);
 }
 
-/**
- * The metabox's "Page Analysis" tab - 3 headed sections (SEO / GEO Issues / AEO Issues).
- */
+/** The metabox's "Page Analysis" tab - 3 headed sections (SEO / GEO Issues / AEO Issues). */
 export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAnalysisTabProps ) {
 	const { postId, title, excerpt, slug, content, meta, setExcerpt, setMeta } = usePostData();
 	// Same per-post override GeneralTab.tsx's own SEO Title field writes.
@@ -430,7 +423,7 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 	const [ fixError, setFixError ] = useState< string | null >( null );
 	/** Bumped after a fix succeeds so the saved SEO checks and the GEO/AEO findings refetch and the fixed row drops out. */
 	const [ refreshKey, setRefreshKey ] = useState( 0 );
-	/** Row ids shown as fixed (tick + "Fixed") the instant `onFix` resolves - cleared once the refetch above lands, by which point the real check/finding data agrees. */
+	/** Row ids shown as fixed the instant `onFix` resolves. */
 	const [ fixedIds, setFixedIds ] = useState< Set< string > >( new Set() );
 
 	const [ data, setData ] = useState< PageAnalysisResponse | null >( null );
@@ -457,9 +450,7 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 			.then( ( response ) => {
 				if ( ! cancelled ) {
 					setData( response );
-					// The real re-checked data has landed - drop the optimistic "just fixed" override
-					// so a row that's genuinely still failing (an unrelated edit undid the fix) shows
-					// that, instead of staying stuck on "Fixed".
+					// The real re-checked data has landed.
 					setFixedIds( new Set() );
 				}
 			} )
@@ -479,8 +470,7 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 		};
 	}, [ postId, refreshKey ] );
 
-	// 2 more real, independent requests rather than gating the whole tab (including the unchanged
-	// SEO section above) behind them.
+	// 2 more real, independent requests rather than gating the whole tab behind them.
 	useEffect( () => {
 		let cancelled = false;
 		setIsLoadingGeo( true );
@@ -535,8 +525,7 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 		};
 	}, [ postId, refreshKey ] );
 
-	// The live checklist re-analyzes LIVE, possibly-unsaved editor state on a short debounce (see
-	// PostSeo.php for why that's a POST-with-body, not a stored-post read).
+	// The live checklist re-analyzes LIVE, possibly-unsaved editor state on a short debounce.
 	useEffect( () => {
 		let cancelled = false;
 		setIsAnalyzingLive( true );
@@ -549,8 +538,7 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 					}
 				} )
 				.catch( () => {
-					// A failed call just leaves the previous checklist
-					// showing - it re-runs on the next edit.
+					// A failed call just leaves the previous checklist showing - it re-runs on the next edit.
 				} )
 				.finally( () => {
 					if ( ! cancelled ) {
@@ -634,7 +622,7 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 		onFix: handleFix,
 	};
 
-	// "SEO" and "Content" lists, worst first, so nothing is shown twice: the live checks (this editor's current, possibly unsaved state) are split by what they grade.
+	// "SEO" and "Content" lists, worst first, so nothing is shown twice.
 	const bySeverity = ( a: IssueRow, b: IssueRow ) => STATUS_ORDER[ a.status ] - STATUS_ORDER[ b.status ];
 	const contentRows = liveResults
 		.filter( ( result ) => CONTENT_CHECK_IDS.includes( result.id ) )
@@ -647,10 +635,7 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 			.map( ( check ) => rowFromCheck( check, fixedIds ) ),
 	].sort( bySeverity );
 
-	// Deep-link highlighting: live checks (by check id, e.g. 'description_length',
-	// `SEO_ISSUE_EDITOR_TARGETS`) and SEO's saved `data.checks` (by `key`,
-	// `PAGE_ANALYSIS_CHECK_QUERY_PARAM`) are tried first; GEO/AEO findings (by numeric id,
-	// `FINDING_ID_QUERY_PARAM`) next, once each section's fetch has resolved.
+	// Deep-link highlighting: live checks and SEO's saved `data.checks` are tried first.
 	useEffect( () => {
 		if ( ! highlightTarget || hasScrolledRef.current ) {
 			return;

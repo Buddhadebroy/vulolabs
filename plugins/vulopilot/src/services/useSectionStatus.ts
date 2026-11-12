@@ -28,14 +28,11 @@ export interface SectionStatusBadge {
 }
 
 /**
- * Same real total-open / top-severity numbers `badge` below already combines into one "N Open · N
- * {Severity} Severity" string.
+ * Same real total-open / top-severity numbers `badge` below already combines into one "N Open · N {Severity} Severity" string.
  */
 export type SectionStatusBadges = SectionStatusBadge[] | null;
 
-/**
- * "3 Open · 1 High Severity"-style summary for a section card's title.
- */
+/** "3 Open · 1 High Severity"-style summary for a section card's title. */
 export const useSectionStatus = (
 	category: string,
 	scannerIds: string[]

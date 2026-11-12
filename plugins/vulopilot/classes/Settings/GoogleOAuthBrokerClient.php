@@ -12,7 +12,9 @@ defined( 'ABSPATH' ) || exit;
  */
 class GoogleOAuthBrokerClient {
 
-	/** @var string e.g. https://cloud.vulolabs.com (no trailing slash) */
+	/**
+	 * @var string e.g. https://cloud.vulolabs.com (no trailing slash).
+	 */
 	private $broker_url;
 
 	public function __construct( string $broker_url ) {
@@ -38,7 +40,7 @@ class GoogleOAuthBrokerClient {
 	/**
 	 * Exchanges a single-use code for Google tokens.
 	 *
-	 * @return array{access_token: string, refresh_token: string, expires_in: int}|\WP_Error
+	 * @return array|\WP_Error
 	 */
 	public function exchange( string $domain, string $code ) {
 		return $this->post(
@@ -53,9 +55,9 @@ class GoogleOAuthBrokerClient {
 	}
 
 	/**
-	 * `POST {broker}/plugin/google/refresh` - refreshes tokens that were issued through the broker, since a refresh token only works with the OAuth client that issued it.
+	 * `POST {broker}/plugin/google/refresh`.
 	 *
-	 * @return array{access_token: string, expires_in: int}|\WP_Error
+	 * @return array|\WP_Error
 	 */
 	public function refresh( string $application_id, string $domain, string $refresh_token ) {
 		return $this->post(
@@ -73,11 +75,11 @@ class GoogleOAuthBrokerClient {
 	/**
 	 * Sends a JSON POST to the broker and decodes the response.
 	 *
-	 * @param string $path             e.g. '/plugin/google/exchange'.
-	 * @param array  $body              JSON-encoded request body.
-	 * @param string $error_code        WP_Error code on a completed-but-unsuccessful response.
-	 * @param string $default_message   WP_Error message when the broker's own response carries none.
-	 * @return array<string, mixed>|\WP_Error
+	 * @param string $path            e.g. '/plugin/google/exchange'.
+	 * @param array  $body            JSON-encoded request body.
+	 * @param string $error_code      WP_Error code on a completed-but-unsuccessful response.
+	 * @param string $default_message WP_Error message when the broker's own response carries none.
+	 * @return array|\WP_Error
 	 */
 	private function post( string $path, array $body, string $error_code, string $default_message ) {
 		$response = wp_remote_post(
@@ -90,8 +92,7 @@ class GoogleOAuthBrokerClient {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			// DNS failure, connection refused, timeout, ... - the request
-			// never got a response at all.
+			// DNS failure, connection refused, timeout, ...
 			return $response;
 		}
 

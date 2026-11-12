@@ -22,7 +22,7 @@ class SchemaCoverageAnalyzer {
 	/**
 	 * Plain-English meaning shown per real schema.org @type found.
 	 *
-	 * @var array<string, string>
+	 * @var array
 	 */
 	private const TYPE_MEANINGS = array(
 		'Organization'    => 'Your business identity',
@@ -41,7 +41,7 @@ class SchemaCoverageAnalyzer {
 	);
 
 	/**
-	 * Regenerates the coverage snapshot whenever the schema scanner finishes - i.e. as part of any "Run scan" that includes schema.
+	 * Regenerates the coverage snapshot whenever the schema scanner finishes.
 	 *
 	 * @param ScanResult $result The completed scanner result.
 	 * @return void
@@ -66,7 +66,7 @@ class SchemaCoverageAnalyzer {
 	/**
 	 * Runs a fresh sample and stores it.
 	 *
-	 * @return array{generated_at: string, sample_size: int, coverage: array<int, array{type: string, meaning: string, found_on: int, problems: int, pages: array<int, array{id: int, title: string, url: string, edit_url: string|null}>}>, pages_checked: int, pages_with_valid_schema: int, pages_needing_attention: int}
+	 * @return array
 	 */
 	public function analyze(): array {
 		$post_ids = get_posts(
@@ -125,8 +125,7 @@ class SchemaCoverageAnalyzer {
 			}
 		}
 
-		// The homepage's own sitewide Organization/WebSite schema (site identity, not per-post
-		// content).
+		// The homepage's own sitewide Organization/WebSite schema.
 		$homepage_types = $this->extract_types_from_url( home_url( '/' ) );
 		if ( null !== $homepage_types ) {
 			++$pages_checked;
@@ -220,8 +219,7 @@ class SchemaCoverageAnalyzer {
 				continue;
 			}
 
-			// A single JSON-LD block can be one object, a @graph of several, or a JSON array of
-			// several top-level objects.
+			// A single JSON-LD block can be one object, a @graph of several, or a JSON array of several top-level objects.
 			$is_list    = array_keys( $decoded ) === range( 0, count( $decoded ) - 1 );
 			$candidates = isset( $decoded['@graph'] ) && is_array( $decoded['@graph'] )
 				? $decoded['@graph']

@@ -60,15 +60,11 @@ interface SitemapRow extends TableRow, SitemapChild {
 	id: string;
 }
 
-/**
- * "Blocked Pages", "Robots.txt Issues", and "XML Sitemap Issues" are all registered by modules/Seo/Module.php.
- */
+/** "Blocked Pages", "Robots.txt Issues", and "XML Sitemap Issues" are all registered by modules/Seo/Module.php. */
 const isSeoModuleActive = () =>
 	vulopilotAppLocalizer.active_modules?.includes('technical-seo') ?? false;
 
-/**
- * Real sitemap `loc` URL, stripped down to just its own path/name for display.
- */
+/** Real sitemap `loc` URL, stripped down to just its own path/name for display. */
 const getSitemapDisplayName = (loc: string): string => {
 	try {
 		const { pathname } = new URL(loc);
@@ -92,9 +88,7 @@ const getSitemapDisplayName = (loc: string): string => {
 const escapeHtml = (text: string): string =>
 	text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-/**
- * Real, per-line syntax highlight for the robots.txt editor below.
- */
+/** Real, per-line syntax highlight for the robots.txt editor below. */
 const highlightRobotsLine = (line: string): string => {
 	if (/^\s*#/.test(line)) {
 		return `<span class="rt-comment">${escapeHtml(line)}</span>`;
@@ -116,9 +110,7 @@ const highlightRobotsLine = (line: string): string => {
 	);
 };
 
-/**
- * Line-numbered, syntax-highlighted robots.txt editor.
- */
+/** Line-numbered, syntax-highlighted robots.txt editor. */
 interface RobotsTxtEditorProps {
 	value: string;
 	// eslint-disable-next-line no-unused-vars
@@ -143,8 +135,7 @@ export const RobotsTxtEditor = ({ value, onChange, placeholder, readOnly = false
 				<pre
 					className="rt-highlight"
 					aria-hidden="true"
-					// Real highlight markup built entirely from `escapeHtml`'d
-					// content above - never raw user input.
+					// Real highlight markup built entirely from `escapeHtml`'d content above.
 					dangerouslySetInnerHTML={{ __html: highlighted || '&nbsp;' }}
 				/>
 				{!readOnly && (
@@ -162,9 +153,7 @@ export const RobotsTxtEditor = ({ value, onChange, placeholder, readOnly = false
 	);
 };
 
-/**
- * "Robots & Sitemap" section of the Crawl & URLs tab: robots.txt analysis and editing, sitemap overview, blocked pages and llms.txt content.
- */
+/** "Robots & Sitemap" section of the Crawl & URLs tab. */
 const CrawlRobotsSitemapSection = () => {
 	const [robots, setRobots] = useState<RobotsResponse | null>(null);
 	const [isLoadingRobots, setIsLoadingRobots] = useState(true);
@@ -172,10 +161,7 @@ const CrawlRobotsSitemapSection = () => {
 	const [isLoadingSitemap, setIsLoadingSitemap] = useState(true);
 
 
-	/**
-	 * `useFindingsTable`'s own `tableCardProps.totalRows` counts every status
-	 * (open/resolved/ignored/snoozed).
-	 */
+	/** `useFindingsTable`'s own `tableCardProps.totalRows` counts every status. */
 	const [blockedPagesOpenCount, setBlockedPagesOpenCount] = useState(0);
 
 	const loadOpenCounts = () => {
@@ -185,9 +171,7 @@ const CrawlRobotsSitemapSection = () => {
 		).then((response) => setBlockedPagesOpenCount(response?.total ?? 0));
 	};
 
-	/**
-	 * `refreshEditorContent` gates whether this fetch is allowed to overwrite the editor's local `value` state.
-	 */
+	/** `refreshEditorContent` gates whether this fetch is allowed to overwrite the editor's local `value` state. */
 	const loadRobots = (refreshEditorContent = true, showLoadingState = true) => {
 		if (showLoadingState) {
 			setIsLoadingRobots(true);
@@ -215,10 +199,7 @@ const CrawlRobotsSitemapSection = () => {
 			.finally(() => setIsLoadingSitemap(false));
 	};
 
-	/**
-	 * Inline, auto-saving robots.txt editor - same real shape "llms.txt content" below already
-	 * established (`llmsTxtContent`/ `llmsTxtSaveState`/`llmsTxtSaveTimer`).
-	 */
+	/** Inline, auto-saving robots.txt editor. */
 	const [robotsEditContent, setRobotsEditContent] = useState('');
 	const robotsSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -239,8 +220,7 @@ const CrawlRobotsSitemapSection = () => {
 				}
 
 				if (response) {
-					// Refresh the card's own read-only data (rules/directives counts, the "Custom"
-					// badge).
+					// Refresh the card's own read-only data (rules/directives counts, the "Custom" badge).
 					loadRobots(false, false);
 				}
 			});
@@ -266,10 +246,7 @@ const CrawlRobotsSitemapSection = () => {
 		persistRobotsContent('', true);
 	};
 
-	/**
-	 * "llms.txt content" - moved here from Settings → AI Visibility (the mockup places it on this
-	 * tab instead).
-	 */
+	/** "llms.txt content" - moved here from Settings → AI Visibility. */
 	const [llmsTxtContent, setLlmsTxtContent] = useState('');
 	const [isLlmsTxtEnabled, setIsLlmsTxtEnabled] = useState(false);
 	const [isLoadingLlmsTxt, setIsLoadingLlmsTxt] = useState(true);
@@ -380,11 +357,7 @@ const CrawlRobotsSitemapSection = () => {
 		scannerIds: ['robots-txt'],
 	});
 
-	/**
-	 * Only its own "Fix" pro-upsell popup is still used (below) - the sitemap findings table
-	 * itself isn't rendered anywhere in this section (see `llmsTxtFindingsProps`, which used to be
-	 * mistakenly fed by this hook's `tableCardProps`).
-	 */
+	/** Only its own "Fix" pro-upsell popup is still used. */
 	const {
 		isProPopupOpen: isSitemapProPopupOpen,
 		closeProPopup: closeSitemapProPopup,

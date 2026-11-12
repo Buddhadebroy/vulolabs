@@ -12,9 +12,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class PerformanceOptimizations {
 
-	/**
-	 * PerformanceOptimizations constructor.
-	 */
+	/** PerformanceOptimizations constructor. */
 	public function __construct() {
 		if ( get_option( 'vulopilot_force_lazy_loading' ) ) {
 			add_filter( 'wp_lazy_loading_enabled', '__return_true', 999 );
@@ -24,10 +22,10 @@ class PerformanceOptimizations {
 	}
 
 	/**
-	 * Adds the site logo and the first queued CSS file to the resources WordPress preloads in the page head (core prints the tags itself).
+	 * Adds the site logo and the first queued CSS file to the resources WordPress preloads in the page head.
 	 *
-	 * @param array<int, array<string, mixed>> $preload_resources Resources core is already going to preload.
-	 * @return array<int, array<string, mixed>>
+	 * @param array $preload_resources Resources core is already going to preload.
+	 * @return array
 	 */
 	public function add_preloads( $preload_resources ) {
 		if ( ! get_option( 'vulopilot_preload_critical_resources' ) ) {

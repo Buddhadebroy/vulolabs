@@ -16,9 +16,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class HeavyPluginsScanner extends ScannerUtil {
 
-	/**
-	 * Active plugin count above which this is worth flagging.
-	 */
+	/** Active plugin count above which this is worth flagging. */
 	private const ACTIVE_PLUGIN_THRESHOLD = 40;
 
 	/**

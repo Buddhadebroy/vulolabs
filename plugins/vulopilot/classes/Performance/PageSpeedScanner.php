@@ -19,28 +19,18 @@ class PageSpeedScanner {
 
 	private const BATCH_HOOK = 'vulopilot_page_speed_process_batch';
 
-	/**
-	 * Pages processed per batch tick.
-	 */
+	/** Pages processed per batch tick. */
 	private const BATCH_SIZE = 3;
 
-	/**
-	 * Real pages/posts/products enumerated per content type - bounds the
-	 * whole scan to a reasonable size on a large site.
-	 */
+	/** Real pages/posts/products enumerated per content type. */
 	private const MAX_PER_TYPE = 20;
 
 	private const REQUEST_TIMEOUT_SECONDS = 10;
 
-	/**
-	 * Response time, in seconds, above which a page is considered slow -
-	 * same real threshold SlowPageScanner already uses for the homepage.
-	 */
+	/** Response time, in seconds, above which a page is considered slow. */
 	private const SLOW_THRESHOLD_SECONDS = 2.0;
 
-	/**
-	 * PageSpeedScanner constructor.
-	 */
+	/** PageSpeedScanner constructor. */
 	public function __construct() {
 		add_action( self::BATCH_HOOK, array( $this, 'process_batch' ) );
 	}
@@ -48,7 +38,7 @@ class PageSpeedScanner {
 	/**
 	 * Enumerates real pages and seeds the queue for a fresh scan.
 	 *
-	 * @return array{queued: int}
+	 * @return array
 	 */
 	public function start_scan(): array {
 		$pages = $this->enumerate_pages();
@@ -122,9 +112,9 @@ class PageSpeedScanner {
 	/**
 	 * Times one real page, derives its score, and writes the result.
 	 *
-	 * @param PageSpeedRepository                                  $repository Repository to write the result to.
-	 * @param array{url: string, title: string, page_type: string} $page Real page to check.
-	 * @param string                                               $psi_key    Real PSI API key, or '' if none configured.
+	 * @param PageSpeedRepository $repository Repository to write the result to.
+	 * @param array               $page       Real page to check.
+	 * @param string              $psi_key    Real PSI API key, or '' if none configured.
 	 * @return void
 	 */
 	private function check_page( PageSpeedRepository $repository, array $page, string $psi_key ): void {
@@ -165,8 +155,7 @@ class PageSpeedScanner {
 		$mobile_score  = null;
 		$desktop_score = null;
 
-		// Field-data (real Chrome UX Report percentiles/ratings) and the real Lighthouse page-
-		// weight/request-count audits.
+		// Field-data and the real Lighthouse page- weight/request-count audits.
 		$psi_detail = array(
 			'page_size_bytes' => null,
 			'requests_count'  => null,
@@ -249,7 +238,7 @@ class PageSpeedScanner {
 	 * @param string $api_key  Real PSI API key.
 	 * @param string $url      Real page URL to check.
 	 * @param string $strategy 'mobile' or 'desktop'.
-	 * @return array{score: int|null, top_opportunity: string|null, page_size_bytes: int|null, requests_count: int|null, lcp_ms: int|null, lcp_rating: string|null, inp_ms: int|null, inp_rating: string|null, cls_thousandths: int|null, cls_rating: string|null}|null Null if the request failed.
+	 * @return array|null Null if the request failed.
 	 */
 	private function fetch_psi( string $api_key, string $url, string $strategy ): ?array {
 		$request_url = add_query_arg(
@@ -290,10 +279,10 @@ class PageSpeedScanner {
 	}
 
 	/**
-	 * A real Lighthouse audit's own `numericValue` (e.g. `total-byte-weight`, in bytes) - null when that audit isn't present in this response.
+	 * A real Lighthouse audit's own `numericValue`.
 	 *
-	 * @param array<string, mixed> $audits Real `lighthouseResult.audits` from a PSI response.
-	 * @param string               $audit_id Audit id, e.g. 'total-byte-weight'.
+	 * @param array  $audits   Real `lighthouseResult.audits` from a PSI response.
+	 * @param string $audit_id Audit id, e.g. 'total-byte-weight'.
 	 * @return int|null
 	 */
 	private function audit_numeric_value( array $audits, string $audit_id ): ?int {
@@ -303,9 +292,9 @@ class PageSpeedScanner {
 	}
 
 	/**
-	 * Real request count from the `network-requests` Lighthouse audit's own `details.items` array - one real entry per network request Lighthouse observed.
+	 * Real request count from the `network-requests` Lighthouse audit's own `details.items` array.
 	 *
-	 * @param array<string, mixed> $audits Real `lighthouseResult.audits` from a PSI response.
+	 * @param array $audits Real `lighthouseResult.audits` from a PSI response.
 	 * @return int|null
 	 */
 	private function count_network_requests( array $audits ): ?int {
@@ -317,8 +306,8 @@ class PageSpeedScanner {
 	/**
 	 * Percentile value of a CrUX field-data metric, or null when CrUX has no data.
 	 *
-	 * @param array<string, mixed> $field_data Real `loadingExperience` block from a PSI response.
-	 * @param string               $metric_key e.g. 'LARGEST_CONTENTFUL_PAINT_MS'.
+	 * @param array  $field_data Real `loadingExperience` block from a PSI response.
+	 * @param string $metric_key e.g. 'LARGEST_CONTENTFUL_PAINT_MS'.
 	 * @return int|null
 	 */
 	private function crux_percentile( array $field_data, string $metric_key ): ?int {
@@ -330,8 +319,8 @@ class PageSpeedScanner {
 	/**
 	 * That same real metric's own Google-assigned rating - 'FAST'/'AVERAGE'/'SLOW'.
 	 *
-	 * @param array<string, mixed> $field_data Real `loadingExperience` block from a PSI response.
-	 * @param string               $metric_key e.g. 'LARGEST_CONTENTFUL_PAINT_MS'.
+	 * @param array  $field_data Real `loadingExperience` block from a PSI response.
+	 * @param string $metric_key e.g. 'LARGEST_CONTENTFUL_PAINT_MS'.
 	 * @return string|null
 	 */
 	private function crux_category( array $field_data, string $metric_key ): ?string {
@@ -341,9 +330,9 @@ class PageSpeedScanner {
 	}
 
 	/**
-	 * Picks the real Lighthouse audit with the greatest potential savings (`numericValue` on an opportunity-type audit that scored below 0.9).
+	 * Picks the real Lighthouse audit with the greatest potential savings.
 	 *
-	 * @param array<string, mixed> $audits Real `lighthouseResult.audits` from a PSI response.
+	 * @param array $audits Real `lighthouseResult.audits` from a PSI response.
 	 * @return string|null
 	 */
 	private function top_opportunity_title( array $audits ): ?string {
@@ -384,7 +373,7 @@ class PageSpeedScanner {
 	/**
 	 * Enumerates the pages to check: front page, published pages, recent posts and store pages.
 	 *
-	 * @return array<int, array{url: string, title: string, page_type: string}>
+	 * @return array
 	 */
 	private function enumerate_pages(): array {
 		$pages = array();

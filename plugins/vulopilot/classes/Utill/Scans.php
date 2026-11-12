@@ -74,10 +74,7 @@ class Scans extends \WP_REST_Controller {
 		$categories  = $this->parse_comma_separated_list( $request->get_param( 'category' ) );
 
 		if ( $categories ) {
-			// The shared, already-populated registry - a fresh `new ScannerRegistry()` has no
-			// scanner sources registered (those are merged in once, onto VuloPilot()'s own
-			// instance, via the `vulopilot_scanner_sources` filter during init_classes()), so
-			// every category lookup against it would silently resolve to zero scanners.
+			// The shared, already-populated registry.
 			$registry = VuloPilot()->scanner_registry;
 
 			foreach ( $categories as $category ) {
@@ -137,7 +134,7 @@ class Scans extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real status of the current (if any) queued scan run - the frontend polls this instead of waiting on `create_item()` to block until every scanner finishes.
+	 * Real status of the current.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response

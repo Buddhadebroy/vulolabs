@@ -14,8 +14,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * For sites that have an About page, checks it has enough words and a contact signal (an
- * email address or a link to a Contact page).
+ * For sites that have an About page, checks it has enough words and a contact signal.
  *
  * @class       AboutPageAnalysisScanner class
  * @version     1.0.0
@@ -23,16 +22,10 @@ defined( 'ABSPATH' ) || exit;
  */
 class AboutPageAnalysisScanner extends ScannerUtil {
 
-	/**
-	 * Same common About-page slugs GeoTrustSignalsScanner's own
-	 * ABOUT_SLUGS checks.
-	 */
+	/** Same common About-page slugs GeoTrustSignalsScanner's own ABOUT_SLUGS checks. */
 	private const ABOUT_SLUGS = array( 'about', 'about-us', 'about-me' );
 
-	/**
-	 * Fallback only - the real threshold is Scanning → Brand
-	 * Intelligence's `brand_about_page_min_words` setting.
-	 */
+	/** Fallback only - the real threshold is Scanning → Brand Intelligence's `brand_about_page_min_words` setting. */
 	private const DEFAULT_MIN_WORDS = 80;
 
 	/**

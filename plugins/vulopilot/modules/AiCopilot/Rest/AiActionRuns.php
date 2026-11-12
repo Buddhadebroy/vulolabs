@@ -13,7 +13,7 @@ use VuloPilot\Utill\VuloPilotException;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Fetches `/ai-action-runs` to back the Dashboard's "Pending Approval" widget. Creating via `/ai-action-runs` starts the lifecycle (called by ContentToolRunner.tsx).
+ * Fetches `/ai-action-runs` to back the Dashboard's "Pending Approval" widget.
  *
  * @class       AiActionRuns controller
  * @version     1.0.0

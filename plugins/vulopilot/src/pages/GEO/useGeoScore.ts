@@ -7,10 +7,7 @@ export interface GeoSignalScore {
 	open_count: number | null;
 	affected_pages: number;
 	main_problem: string | null;
-	/**
-	 * Real `PROGRESS_TREND_DAYS`-point daily score trend, oldest first (`Geo.php`'s own
-	 * `get_signal_trend()`).
-	 */
+	/** Real `PROGRESS_TREND_DAYS`-point daily score trend, oldest first (`Geo.php`'s own `get_signal_trend()`). */
 	trend: number[] | null;
 }
 

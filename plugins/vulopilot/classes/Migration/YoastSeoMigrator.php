@@ -14,33 +14,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Imports everything VuloPilot can read from a free Yoast SEO install, in one migrator (same
- * shape as RankMathMigrator):
- *
- * - Per-post SEO postmeta (`_yoast_wpseo_*`) into `PostSeoMetaFields::META_KEYS`.
- * - Sitewide settings, from Yoast's own three option rows (schema confirmed against
- *   `inc/options/class-wpseo-option-{wpseo,social,titles}.php` in Yoast/wordpress-seo):
- *   `wpseo` (webmaster verification, IndexNow key), `wpseo_social` (Pinterest verification,
- *   default OG image/Twitter card, social profile URLs), `wpseo_titles` (separator, title/
- *   description templates - including every post type's/taxonomy's own dynamic `title-{slug}`/
- *   `title-tax-{slug}` key, not just post/page/category/tag - and Knowledge Graph identity).
- *
- * - Per-post schema type (`_yoast_wpseo_schema_page_type`/`_yoast_wpseo_schema_article_type`,
- *   confirmed against `Indexable_To_Postmeta_Helper::$yoast_to_postmeta` in the real plugin)
- *   into `PostSeoMetaFields::META_KEYS['schema_type']`.
- * - Per-post AI content score, from Yoast's own legacy postmeta `_yoast_wpseo_linkdex` (SEO
- *   score) and `_yoast_wpseo_content_score` (readability) - confirmed these are still the real
- *   source of truth read by `Indexable_Post_Builder::build()` itself (`$this->meta->get_value(
- *   'linkdex'/'content_score', $post_id )`), not legacy/unused fields - into VuloPilot's own
- *   `_vulopilot_content_score` postmeta, the same JSON shape `ContentScore::to_array()` writes.
- *
- * No redirects/404-log migration here, unlike RankMathMigrator: Yoast's Redirect Manager and 404
- * Monitor are Premium-only features with no free-plugin database tables to read, so there is
- * nothing to migrate for them.
- *
- * Settings fields with no VuloPilot field to write into (Breadcrumbs, RSS content injection, the
- * per-post-type noindex-{type} toggles, disable-author/disable-date/disable-post_format/
- * disable-attachment archive kill switches) are deliberately left out rather than guessed at.
+ * Imports everything VuloPilot can read from a free Yoast SEO install, in one migrator.
  *
  * @class       YoastSeoMigrator
  * @version     2.0.0
@@ -51,7 +25,7 @@ class YoastSeoMigrator implements MigratorInterface {
 	/**
 	 * `_yoast_wpseo_*` postmeta key for each VuloPilot per-post field it has an equivalent for.
 	 *
-	 * @var array<string, string>
+	 * @var array
 	 */
 	private const POST_META_MAP = array(
 		'focus_keyword'      => '_yoast_wpseo_focuskw',
@@ -64,10 +38,9 @@ class YoastSeoMigrator implements MigratorInterface {
 	);
 
 	/**
-	 * Yoast's own `wpseo_titles` separator codes (`class-wpseo-option-titles.php`'s own
-	 * `get_separator_option_list()`) to the literal character `title_separator` expects.
+	 * Yoast's own `wpseo_titles` separator codes (`class-wpseo-option-titles.php`'s own `get_separator_option_list()`) to the literal character `title_separator` expects.
 	 *
-	 * @var array<string, string>
+	 * @var array
 	 */
 	private const SEPARATOR_MAP = array(
 		'sc-dash'   => '-',
@@ -89,7 +62,7 @@ class YoastSeoMigrator implements MigratorInterface {
 	/**
 	 * The five built-in contexts with their own fixed `wpseo_titles` key, keyed by VuloPilot field.
 	 *
-	 * @var array<string, string>
+	 * @var array
 	 */
 	private const FIXED_TITLE_FIELD_MAP = array(
 		'title_format_home'          => 'title-home-wpseo',
@@ -101,7 +74,7 @@ class YoastSeoMigrator implements MigratorInterface {
 		'description_format_author'  => 'metadesc-author-wpseo',
 	);
 
-	/** `wpseo_titles` keys that are NOT a dynamic post-type/taxonomy template - excluded when scanning for those. */
+	/** `wpseo_titles` keys that are NOT a dynamic post-type/taxonomy template. */
 	private const FIXED_TITLE_KEYS = array(
 		'title-home-wpseo',
 		'title-author-wpseo',
@@ -156,7 +129,7 @@ class YoastSeoMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * Yoast's File Editor tool (`admin/views/tool-file-editor.php`) writes straight to the real `robots.txt` file at the site root.
+	 * Yoast's File Editor tool.
 	 *
 	 * @param bool  $overwrite Passed through from migrate().
 	 * @param int   $migrated  Running total, by reference.
@@ -200,9 +173,7 @@ class YoastSeoMigrator implements MigratorInterface {
 		return trim( (string) file_get_contents( $path ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- reading a real local file at a hardcoded, non-user-controllable path (the site's own robots.txt), not a remote URL.
 	}
 
-	// ---------------------------------------------------------------------
-	// Per-post SEO data.
-	// ---------------------------------------------------------------------
+	// --------------------------------------------------------------------- Per-post SEO data.
 
 	/**
 	 * @param bool  $overwrite Passed through from migrate().
@@ -348,9 +319,7 @@ class YoastSeoMigrator implements MigratorInterface {
 		return $raw_value;
 	}
 
-	// ---------------------------------------------------------------------
-	// Sitewide settings.
-	// ---------------------------------------------------------------------
+	// --------------------------------------------------------------------- Sitewide settings.
 
 	/**
 	 * @param bool $overwrite Passed through from migrate().
@@ -390,7 +359,7 @@ class YoastSeoMigrator implements MigratorInterface {
 	/**
 	 * Every VuloPilot settings field Yoast has real, non-empty data for.
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function build_settings_values(): array {
 		$wpseo  = get_option( 'wpseo', array() );
@@ -554,7 +523,7 @@ class YoastSeoMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * Yoast's Knowledge Graph identity (`company_or_person`/`company_name`/`person_name`/ `company_logo_id`/`website_name`) into the same `entity_business_*` fields RankMathSettingsMigrator's own `knowledgegraph_type` mapping writes into.
+	 * Yoast's Knowledge Graph identity.
 	 *
 	 * @param array $values Field values being built, by reference.
 	 * @param array $titles The raw `wpseo_titles` option.
@@ -596,9 +565,7 @@ class YoastSeoMigrator implements MigratorInterface {
 			'%%sitedesc%%'     => '%site_description%',
 			'%%sep%%'          => '%sep%',
 			'%%searchphrase%%' => '%search_term%',
-			// `%%title%%` means "this item's own title" everywhere - `%post_title%` resolves the
-			// same way regardless of which context it's used in (TitleFormatter's own
-			// var_current_title() reads real query conditionals, not the token name).
+			// `%%title%%` means "this item's own title" everywhere.
 			'%%title%%'        => '%post_title%',
 			'%%name%%'         => 'author' === $context ? '%author_name%' : '%post_title%',
 		);

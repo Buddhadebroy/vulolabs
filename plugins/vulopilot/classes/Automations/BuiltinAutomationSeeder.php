@@ -58,7 +58,7 @@ class BuiltinAutomationSeeder {
 	}
 
 	/**
-	 * Runs on every request (cheap no-op after the first, via SEEDED_OPTION) rather than only on activation.
+	 * Runs on every request.
 	 *
 	 * @return void
 	 */
@@ -113,7 +113,7 @@ class BuiltinAutomationSeeder {
 	 * @param array  $trigger_config Merged with `system_default` before insert.
 	 * @param array  $actions        Automation row `actions`.
 	 * @param string $default_status 'enabled'|'disabled'.
-	 * @return bool True if the row already existed or was just created; false only on a real insert failure (retried next request).
+	 * @return bool True if the row already existed or was just created.
 	 */
 	private function ensure_row( string $marker, string $trigger_type, string $name, string $category, array $trigger_config, array $actions, string $default_status ): bool {
 		if ( $this->automations->find_by_system_default_marker( $marker ) ) {

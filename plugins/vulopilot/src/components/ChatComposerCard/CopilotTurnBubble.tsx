@@ -9,18 +9,14 @@ const IMAGE_EXTENSION_RE = /\.(jpe?g|png|gif|webp)$/i;
 
 export interface CopilotTurnBubbleProps {
 	turn: CopilotChatTurn;
-	/**
-	 * A turn's own `runId` currently being rolled back, or null.
-	 */
+	/** A turn's own `runId` currently being rolled back, or null. */
 	undoingRunId?: number | null;
 	 
 	// eslint-disable-next-line no-unused-vars
 	onUndo?: (runId: number) => void;
 }
 
-/**
- * The standard `CopilotChatTurn` bubble - sent attachments (inline thumbnail or file chip), real Markdown.
- */
+/** The standard `CopilotChatTurn` bubble. */
 const CopilotTurnBubble: React.FC<CopilotTurnBubbleProps> = ({
 	turn,
 	undoingRunId = null,

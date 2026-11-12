@@ -8,8 +8,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags an oversized autoloaded-options footprint - every option row with `autoload =
- * 'yes'` is loaded into memory on *every* WordPress request.
+ * Flags an oversized autoloaded-options footprint.
  *
  * @class       PerformanceScanner class
  * @version     1.0.0
@@ -17,10 +16,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class PerformanceScanner extends ScannerUtil {
 
-	/**
-	 * Autoloaded-options size, in bytes, above which this is worth
-	 * flagging. 1MB is a widely-cited threshold for this exact check.
-	 */
+	/** Autoloaded-options size, in bytes, above which this is worth flagging. */
 	private const AUTOLOAD_SIZE_THRESHOLD_BYTES = 1_000_000;
 
 	/**

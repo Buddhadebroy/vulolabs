@@ -12,9 +12,7 @@ interface OnPageTabProps {
 	onNavigate?: ( tab: SeoIssueEditorTab, target?: string ) => void;
 }
 
-/**
- * Groups the three on-page settings tabs (Page Analysis, Social, Schema) under one sidebar tab.
- */
+/** Groups the three on-page settings tabs. */
 export default function OnPageTab( props: OnPageTabProps ) {
 	return (
 		<div className="vulopilot-seo-tab vulopilot-seo-tab--on-page">

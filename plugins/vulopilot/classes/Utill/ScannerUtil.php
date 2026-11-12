@@ -4,8 +4,7 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Base class for every free-tier scanner across every tab folder (Dashboard/,
- * SeoVisibility/, Content/, etc.).
+ * Base class for every free-tier scanner across every tab folder.
  *
  * @class       ScannerUtil class
  * @version     1.0.0

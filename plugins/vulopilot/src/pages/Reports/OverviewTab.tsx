@@ -10,9 +10,7 @@ interface OverviewTabProps {
 	refreshKey: number;
 }
 
-/**
- * "Reports"'s Overview tab - rebuilt to match the reference mockup exactly: a title/desc header (ReportsOverviewHeader.tsx).
- */
+/** "Reports"'s Overview tab. */
 const OverviewTab = ({ days, refreshKey }: OverviewTabProps) => {
 	return (
 		<ContainerComponent>

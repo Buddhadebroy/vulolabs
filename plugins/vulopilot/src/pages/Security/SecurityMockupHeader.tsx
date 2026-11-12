@@ -11,9 +11,7 @@ interface SecurityMockupHeaderProps {
 	onViewSection: (tab: SectionedIssuesTab) => void;
 }
 
-/**
- * RecentActivityCard/SecurityTrendCard (real daily score history, its own dedicated table.
- */
+/** RecentActivityCard/SecurityTrendCard (real daily score history, its own dedicated table. */
 const SecurityMockupHeader = ({
 	onViewSection,
 }: SecurityMockupHeaderProps) => {

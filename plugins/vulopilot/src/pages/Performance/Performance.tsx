@@ -18,9 +18,7 @@ const TAB_META: Record<
 	'slow-pages': { headerTitle: __('Slow Pages', 'vulopilot'), headerIcon: 'clock' },
 };
 
-/**
- * "Performance" (WP menu slug `performance`).
- */
+/** "Performance" (WP menu slug `performance`). */
 const Performance = () => {
 	const subtab = new URLSearchParams(useLocation().hash.substring(1)).get(
 		'subtab'
@@ -89,8 +87,7 @@ const Performance = () => {
 			<NavigatorComponent
 				headerIcon="bar-chart"
 				headerTitle={__('Performance', 'vulopilot')}
-				// headerDescription={__( 'Make your website faster and deliver a better experience
-				// to your visitors.', 'vulopilot' )}
+				// headerDescription={__( 'Make your website faster and deliver a better experience to your visitors.', 'vulopilot' )}.
 				headerCustomContent={
 					'slow-pages' === activeTab ? (
 						<RunScanHeaderExtra

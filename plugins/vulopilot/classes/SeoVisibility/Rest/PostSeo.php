@@ -7,8 +7,7 @@ use VuloPilot\SeoVisibility\PostSeoMetaFields;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `POST /post-seo/{id}/analyze` - the one part of the post-editor metabox that needs a
- * custom endpoint.
+ * `POST /post-seo/{id}/analyze`.
  *
  * @class       PostSeo controller
  * @version     1.0.0
@@ -51,7 +50,7 @@ class PostSeo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Runs OnPageAnalyzer against the editor's current (possibly unsaved) field values, not the post as stored in the database.
+	 * Runs OnPageAnalyzer against the editor's current.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response

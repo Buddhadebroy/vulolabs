@@ -31,23 +31,18 @@ class TitleFormatter {
 		'author_name'      => array( __CLASS__, 'var_author_name' ),
 	);
 
-	/**
-	 * TitleFormatter constructor.
-	 */
+	/** TitleFormatter constructor. */
 	public function __construct() {
 		add_filter( 'pre_get_document_title', array( $this, 'maybe_filter_title' ), 5 );
 		add_action( 'wp_head', array( $this, 'maybe_output_description' ), 5 );
 	}
 
 	/**
-	 * @param string $title Core's own already-resolved title (unused - this
-	 *                       either replaces it wholesale or returns it untouched).
+	 * @param string $title Core's own already-resolved title.
 	 * @return string
 	 */
 	public function maybe_filter_title( string $title ): string {
-		// A per-post "SEO Title" override (General tab) always wins, same as every other per-post
-		// SEO field (canonical URL, robots, social title) - independent of whether the sitewide
-		// Title Format templates below are even enabled.
+		// A per-post "SEO Title" override always wins, same as every other per-post SEO field.
 		if ( is_singular() ) {
 			$override = trim( (string) get_post_meta( get_queried_object_id(), PostSeoMetaFields::META_KEYS['seo_title'], true ) );
 
@@ -125,9 +120,9 @@ class TitleFormatter {
 	/**
 	 * Looks up a raw template for one context key.
 	 *
-	 * @param array<string, mixed> $settings    Effective plugin settings.
-	 * @param string               $prefix      `'title_format_'` or `'description_format_'`.
-	 * @param string               $context_key current_context_key()'s own return value.
+	 * @param array  $settings    Effective plugin settings.
+	 * @param string $prefix      `'title_format_'` or `'description_format_'`.
+	 * @param string $context_key current_context_key()'s own return value.
 	 * @return string
 	 */
 	private function get_template( array $settings, string $prefix, string $context_key ): string {
@@ -151,9 +146,9 @@ class TitleFormatter {
 	/**
 	 * Resolves a template string against one context's own variable set.
 	 *
-	 * @param string $template   Raw template, e.g. `%post_title% %sep% %site_title%`.
-	 * @param string $context    One of `home`/`post`/`page`/`category`/`tag`/`search`/`archive`.
-	 * @param string $separator  What `%sep%` itself resolves to.
+	 * @param string $template  Raw template, e.g. `%post_title% %sep% %site_title%`.
+	 * @param string $context   One of `home`/`post`/`page`/`category`/`tag`/`search`/`archive`.
+	 * @param string $separator What `%sep%` itself resolves to.
 	 * @return string
 	 */
 	public function resolve( string $template, string $context, string $separator ): string {
@@ -165,8 +160,7 @@ class TitleFormatter {
 
 		$resolved = strtr( $template, $replacements );
 
-		// Collapse the empty-separator runs a template produces when one of its own tokens resolves
-		// empty in this context (e.g. `%site_description%` when the site tagline is blank).
+		// Collapse the empty-separator runs a template produces when one of its own tokens resolves empty in this context.
 		$resolved = preg_replace( '/\s*' . preg_quote( $separator, '/' ) . '\s*$/', '', $resolved );
 		$resolved = preg_replace( '/^\s*' . preg_quote( $separator, '/' ) . '\s*/', '', $resolved );
 
@@ -174,7 +168,7 @@ class TitleFormatter {
 	}
 
 	/**
-	 * @return string|null One of home/post/page/category/tag/search/archive, or null for anything else (404, embeds, ...).
+	 * @return string|null One of home/post/page/category/tag/search/archive, or null for anything else.
 	 */
 	private function current_context_key(): ?string {
 		if ( is_front_page() || is_home() ) {
@@ -197,9 +191,7 @@ class TitleFormatter {
 			return 'tag';
 		}
 
-		// Any taxonomy term page that isn't category/tag - a dynamic 'taxonomy:{slug}' key, looked
-		// up in the `title_format_taxonomies`/`description_format_taxonomies` maps (get_template()
-		// below) rather than a flat settings field, since the taxonomy slug is only known at runtime.
+		// Any taxonomy term page that isn't category/tag.
 		if ( is_tax() ) {
 			$term = get_queried_object();
 
@@ -215,8 +207,7 @@ class TitleFormatter {
 		if ( is_singular() ) {
 			$post_type = get_post_type();
 
-			// Same dynamic-key story as the taxonomy branch above, for any post type other than
-			// the two with their own flat settings fields.
+			// Same dynamic-key story as the taxonomy branch above, for any post type other than the two with their own flat settings fields.
 			if ( $post_type && ! in_array( $post_type, array( 'post', 'page' ), true ) ) {
 				return 'post_type:' . $post_type;
 			}

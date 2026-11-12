@@ -27,20 +27,13 @@ class CoreWebVitalsBeaconRest extends \WP_REST_Controller {
 
 	private const RATE_LIMIT_MAX = 1000;
 
-	/**
-	 * A metric outside this range (ms) is treated as unmeasured rather
-	 * than trusted - a real LCP/INP is never a full minute.
-	 */
+	/** A metric outside this range is treated as unmeasured rather than trusted. */
 	private const MAX_MS = 60000;
 
-	/**
-	 * CLS ×1000 - a real CLS is essentially never above 10.0.
-	 */
+	/** CLS ×1000 - a real CLS is essentially never above 10.0. */
 	private const MAX_CLS_THOUSANDTHS = 10000;
 
-	/**
-	 * Transfer sizes above this are treated as unmeasured.
-	 */
+	/** Transfer sizes above this are treated as unmeasured. */
 	private const MAX_TRANSFER_BYTES = 500 * MB_IN_BYTES;
 
 	/**
@@ -129,7 +122,7 @@ class CoreWebVitalsBeaconRest extends \WP_REST_Controller {
 	}
 
 	/**
-	 * A single sitewide rolling-window counter - this endpoint has no visitor identifier to key a per-visitor limit on.
+	 * A single sitewide rolling-window counter.
 	 *
 	 * @return bool True if this request may proceed, false if rate-limited.
 	 */

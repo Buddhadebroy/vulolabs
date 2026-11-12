@@ -1,17 +1,12 @@
 /* global vulopilotAppLocalizer */
 
 /**
- * Formats a raw date string using this site's own Settings → General → Date Format
- * (`vulopilotAppLocalizer.date_format_js`, already translated into zyra's token syntax by
- * FrontendScripts::convert_date_format_to_js()).
+ * Formats a raw date string using this site's own Settings → General → Date Format (`vulopilotAppLocalizer.date_format_js`, already translated into zyra's token syntax by FrontendScripts::convert_date_format_to_js()).
  *
  * @param value Raw date string (e.g. a MySQL datetime), or null/undefined.
  * @return Formatted date string, or '' if value is empty/unparseable.
  */
-/**
- * A raw value with no explicit UTC/offset marker (a plain MySQL `Y-m-d H:i:s`, or the same with a
- * `T` separator).
- */
+/** A raw value with no explicit UTC/offset marker. */
 const UTC_MARKER = /(?:[Zz]|[+-]\d{2}:?\d{2})$/;
 
 const parseAsUtc = (value: string): Date => {
@@ -24,9 +19,7 @@ const parseAsUtc = (value: string): Date => {
 	return new Date(`${trimmed.replace(' ', 'T')}Z`);
 };
 
-/**
- * Shared by `formatWpDate`/`formatWpTime` below - same token-replace algorithm either way.
- */
+/** Shared by `formatWpDate`/`formatWpTime` below - same token-replace algorithm either way. */
 const formatWithTokens = (
 	value: string,
 	format: string,
@@ -67,9 +60,7 @@ export const formatWpDate = (value?: string | null): string => {
 	return formatWithTokens(value, vulopilotAppLocalizer.date_format_js || 'YYYY-MM-DD');
 };
 
-/**
- * Same Settings → General → Date Format, for a calendar-day-only value (`Y-m-d`, e.g. a daily snapshot's `snapshot_date` or a chart's x-axis `date`).
- */
+/** Same Settings → General → Date Format, for a calendar-day-only value. */
 export const formatWpDay = (value?: string | null): string => {
 	if (!value) {
 		return '';
@@ -82,9 +73,7 @@ export const formatWpDay = (value?: string | null): string => {
 	);
 };
 
-/**
- * WordPress time format (`time_format_js`), converted server-side like `date_format_js`.
- */
+/** WordPress time format (`time_format_js`), converted server-side like `date_format_js`. */
 export const formatWpTime = (value?: string | null): string => {
 	if (!value) {
 		return '';
@@ -93,15 +82,11 @@ export const formatWpTime = (value?: string | null): string => {
 	return formatWithTokens(value, vulopilotAppLocalizer.time_format_js || 'HH:mm');
 };
 
-/**
- * This site's own current wall-clock date/time (Settings → General → Timezone), for comparisons like "is this timestamp today".
- */
+/** This site's own current wall-clock date/time. */
 export const wpNow = (): Date =>
 	new Date(Date.now() + (vulopilotAppLocalizer.gmt_offset_minutes ?? 0) * 60000);
 
-/**
- * Same-day comparison against `wpNow()` above, both read via UTC getters.
- */
+/** Same-day comparison against `wpNow()` above, both read via UTC getters. */
 export const isWpToday = (value: string): boolean => {
 	const utcDate = parseAsUtc(value);
 

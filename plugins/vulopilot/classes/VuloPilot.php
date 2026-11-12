@@ -68,11 +68,9 @@ final class VuloPilot {
 	 */
 	public function activate() {
 		add_option( Utill::VULOPILOT_OTHER_SETTINGS['run_installer'], true );
-		// A no-op if this site already has an active-module list (e.g. a deactivate/reactivate
-		// cycle).
+		// A no-op if this site already has an active-module list.
 		add_option( Utill::ACTIVE_MODULES_DB_KEY, array( 'geo-analysis', 'technical-seo', 'content-optimization', 'brand-visibility', 'knowledge-graph', 'ai-copilot' ) );
-		// The sitemap rules are only registered once WordPress has initialised its sitemaps, after
-		// this hook.
+		// The sitemap rules are only registered once WordPress has initialised its sitemaps, after this hook.
 		delete_option( 'vulopilot_sitemap_rewrite_version' );
 		flush_rewrite_rules();
 
@@ -155,22 +153,18 @@ final class VuloPilot {
 			$this->container['ai_request_sender']
 		);
 
-		// GEO module - reuses the same ai_request_sender
-		// every AIAction goes through, not a second AI-calling path.
+		// GEO module - reuses the same ai_request_sender every AIAction goes through, not a second AI-calling path.
 		$this->container['geo_analyzer'] = new GeoAnalysis\GeoAnalyzer( $this->container['ai_request_sender'] );
 
 		$this->container['content_analyzer'] = new ContentOptimization\ContentAnalyzer( $this->container['ai_request_sender'] );
 
-		// llms.txt Generation & Management (readme.txt) - self-registers its own rewrite-
-		// rule/template_redirect hooks.
+		// llms.txt Generation & Management.
 		$this->container['llms_txt_generator'] = new GeoAnalysis\LlmsTxtGenerator();
 
-		// AI Crawler Traffic Monitoring (readme.txt) - self-registers its own
-		// template_redirect/cron hooks.
+		// AI Crawler Traffic Monitoring - self-registers its own template_redirect/cron hooks.
 		$this->container['crawler_traffic_logger'] = new \VuloPilot\SeoVisibility\CrawlerTrafficLogger();
 
-		// Scanning → Sitemap/Robots.txt cards - all wrap WordPress core's own native
-		// sitemap/robots.txt rather than building either from scratch.
+		// Scanning → Sitemap/Robots.txt cards.
 		$this->container['sitemap_manager']       = new \VuloPilot\SeoVisibility\SitemapManager();
 		$this->container['sitemap_stylesheet']    = new \VuloPilot\SeoVisibility\SitemapStylesheet();
 		$this->container['sitemap_url_rewriter']  = new \VuloPilot\SeoVisibility\SitemapUrlRewriter();
@@ -189,9 +183,7 @@ final class VuloPilot {
 
 		$this->container['connect_broker_callback_handler'] = new \VuloPilot\AiAssistant\ConnectBrokerCallbackHandler();
 
-		// Scanning → Instant Indexing (IndexNow) - real key-file serving (self-registers its own
-		// rewrite-rule/template_redirect hooks, same shape as llms_txt_generator above) and
-		// automatic submission on publish/update/trash, gated by their own settings.
+		// Scanning → Instant Indexing.
 		$this->container['indexnow_key_file_server'] = new \VuloPilot\SeoVisibility\IndexNowKeyFileServer();
 		$this->container['indexnow_auto_submitter']  = new \VuloPilot\SeoVisibility\IndexNowAutoSubmitter();
 
@@ -199,14 +191,12 @@ final class VuloPilot {
 
 		$this->container['canonical_url_manager']    = new \VuloPilot\SeoVisibility\CanonicalUrlManager();
 		$this->container['social_meta_tags_manager'] = new \VuloPilot\SeoVisibility\SocialMetaTagsManager();
-		// Settings → Site Identity → Title Formats' real backing - filters
-		// `pre_get_document_title`.
+		// Settings → Site Identity → Title Formats' real backing - filters `pre_get_document_title`.
 		$this->container['title_formatter']          = new \VuloPilot\SeoVisibility\TitleFormatter();
 		$this->container['schema_json_ld_renderer']  = new \VuloPilot\SeoVisibility\SchemaJsonLdRenderer();
 		$this->container['homepage_schema_renderer'] = new \VuloPilot\SeoVisibility\HomepageSchemaRenderer();
 
-		// Post-editor SEO metabox: General tab's noindex/nofollow output (PostRobotsMetaManager)
-		// and the Block Editor sidebar's asset loader (PostEditorAssets).
+		// Post-editor SEO metabox: General tab's noindex/nofollow output and the Block Editor sidebar's asset loader.
 		$this->container['post_seo_meta_fields']     = new \VuloPilot\SeoVisibility\PostSeoMetaFields();
 		$this->container['post_robots_meta_manager'] = new \VuloPilot\SeoVisibility\PostRobotsMetaManager();
 		$this->container['default_robots_manager']   = new \VuloPilot\SeoVisibility\DefaultRobotsManager();
@@ -216,18 +206,15 @@ final class VuloPilot {
 		$this->container['block_registrar']         = new \VuloPilot\Content\BlockRegistrar();
 		$this->container['heading_anchor_injector'] = new \VuloPilot\Content\HeadingAnchorInjector();
 
-		// Redirects & 404s (readme.txt) - real functionality behind the
-		// enable_redirect_manager/auto_redirect_on_slug_change/log_404s settings.
+		// Redirects & 404s - real functionality behind the enable_redirect_manager/auto_redirect_on_slug_change/log_404s settings.
 		$this->container['redirect_manager']        = new \VuloPilot\Content\RedirectManager();
 		$this->container['not_found_logger']        = new \VuloPilot\Content\NotFoundLogger();
 		$this->container['trashed_post_redirector'] = new \VuloPilot\Content\TrashedPostRedirector();
 
-		// "Performance" Overview - Speed History's daily score snapshots (scan-completed + daily-
-		// cron triggered).
+		// "Performance" Overview - Speed History's daily score snapshots.
 		$this->container['performance_score_snapshot_recorder'] = new \VuloPilot\Performance\PerformanceScoreSnapshotRecorder();
 		$this->container['security_score_snapshot_recorder']    = new \VuloPilot\Security\SecurityScoreSnapshotRecorder();
-		// Schema Coverage table (Schema & Knowledge tab) refreshes itself
-		// whenever a scan that includes the schema scanner completes.
+		// Schema Coverage table refreshes itself whenever a scan that includes the schema scanner completes.
 		$this->container['schema_coverage_analyzer'] = new \VuloPilot\SeoVisibility\SchemaCoverageAnalyzer();
 		add_action( 'vulopilot_scan_completed', array( $this->container['schema_coverage_analyzer'], 'refresh_after_scan' ), 30 );
 		$this->container['performance_request_logger'] = new \VuloPilot\Performance\PerformanceRequestLogger();
@@ -237,8 +224,7 @@ final class VuloPilot {
 		$this->container['psi_fetcher']            = new \VuloPilot\Performance\PageSpeedInsightsFetcher();
 		$this->container['core_web_vitals_beacon'] = new \VuloPilot\Performance\CoreWebVitalsBeacon();
 
-		// "Performance" › Slow Pages - real per-page load-time checks (plus real per-page PSI
-		// mobile/desktop scores when a psi_api_key is configured).
+		// "Performance" › Slow Pages - real per-page load-time checks.
 		$this->container['page_speed_scanner'] = new \VuloPilot\Performance\PageSpeedScanner();
 
 		// Protect My Site's Malware/Firewall/Login Protection/Backups/ Recovery tiles.

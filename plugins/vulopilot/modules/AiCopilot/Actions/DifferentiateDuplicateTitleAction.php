@@ -16,8 +16,7 @@ use VuloPilot\Utill\Impact;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Fixes DuplicateContentScanner's finding: two or more published posts sharing the exact
- * same title.
+ * Fixes DuplicateContentScanner's finding.
  *
  * @class       DifferentiateDuplicateTitleAction class
  * @version     1.0.0
@@ -25,10 +24,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class DifferentiateDuplicateTitleAction extends AbstractCloudAction {
 
-	/**
-	 * A rewritten title longer than this is rejected as a run-on AI
-	 * response rather than a genuine title.
-	 */
+	/** A rewritten title longer than this is rejected as a run-on AI response rather than a genuine title. */
 	private const MAX_LENGTH = 150;
 
 	/**

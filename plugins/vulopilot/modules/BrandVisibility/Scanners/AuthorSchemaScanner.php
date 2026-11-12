@@ -16,9 +16,7 @@ use VuloPilot\Utill\ScannedPostsTrait;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Brand Intelligence's own new check - distinct from GeoAuthorInfoScanner's own check
- * (does the author have a bio *at all*, on their WordPress user profile) and from
- * GeoEeatSignalsScanner (bio OR freshness).
+ * Brand Intelligence's own new check.
  *
  * @class       AuthorSchemaScanner class
  * @version     1.0.0
@@ -30,9 +28,7 @@ class AuthorSchemaScanner extends ScannerUtil implements TracksScannedObjectsInt
 
 	private const BATCH_SIZE = 50;
 
-	/**
-	 * Must match SchemaJsonLdRenderer::META_KEY.
-	 */
+	/** Must match SchemaJsonLdRenderer::META_KEY. */
 	private const SCHEMA_META_KEY = '_vulopilot_schema_json';
 
 	/**

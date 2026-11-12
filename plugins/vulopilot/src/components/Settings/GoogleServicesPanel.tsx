@@ -83,9 +83,7 @@ interface GoogleServiceCardProps {
 	children?: React.ReactNode;
 }
 
-/**
- * One Search Console/Analytics/AdSense summary card.
- */
+/** One Search Console/Analytics/AdSense summary card. */
 const GoogleServiceCard = ( {
 	icon,
 	title,
@@ -158,9 +156,7 @@ const GoogleServiceCard = ( {
 	</CardHeader>
 );
 
-/**
- * Settings → Connections → Google Services.
- */
+/** Settings → Connections → Google Services. */
 const GoogleServicesPanel = () => {
 	const { setting, updateSetting } = useSetting();
 
@@ -253,7 +249,7 @@ const GoogleServicesPanel = () => {
 		).then( ( response ) => setGa4Streams( response ?? [] ) );
 	}, [ selectedPropertyId ] );
 
-	/** Opens the `confirmMode` popup - the actual disconnect runs from `confirmDisconnect` once the user confirms there. */
+	/** Opens the `confirmMode` popup. */
 	const disconnectAndResetPickers = () => {
 		setConfirmDisconnectOpen( true );
 	};

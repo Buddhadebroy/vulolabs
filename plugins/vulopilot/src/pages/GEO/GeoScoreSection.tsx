@@ -30,9 +30,7 @@ const ratingClass = (score: number): string => {
 	return 'red';
 };
 
-/**
- * This card's own 7 `SIGNAL_META` keys → GeoTab.tsx's own 5 real `GEO_TOPICS` keys.
- */
+/** This card's own 7 `SIGNAL_META` keys → GeoTab.tsx's own 5 real `GEO_TOPICS` keys. */
 const SIGNAL_TO_TOPIC_KEY: Record<string, string> = {
 	'ai-summary': 'ai-summary',
 	'question-coverage': 'faq-questions',
@@ -43,10 +41,7 @@ const SIGNAL_TO_TOPIC_KEY: Record<string, string> = {
 	'other-geo-signals': 'other-signals',
 };
 
-/**
- * The 7 real signals `Geo.php`'s own `SIGNAL_SCANNER_IDS` (+ the separately computed `content-
- * freshness`) return.
- */
+/** The 7 real signals `Geo.php`'s own `SIGNAL_SCANNER_IDS` return. */
 const SIGNAL_META: { key: keyof import('./useGeoScore').GeoScoreResponse['signals']; label: string; icon: string; description: string }[] = [
 	{
 		key: 'ai-summary',
@@ -128,9 +123,7 @@ const scrollToBreakdown = () => {
 		?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
-/**
- * Real per-signal score change - same real "current score minus the oldest point in this signal's own real `trend`" shape `SeoTab.tsx`'s own `categoryScoreDelta()` already established, now backed by `Geo.php`'s own real `signal.trend` (added alongside this).
- */
+/** Real per-signal score change. */
 const signalScoreDelta = (signal: GeoSignalScore): number | null =>
 	null !== signal.score && signal.trend && signal.trend.length > 0
 		? signal.score - signal.trend[0]
@@ -149,14 +142,10 @@ const mainProblemText = (key: string, signal: GeoSignalScore): string => {
 };
 
 /**
- * Layout: GEO Score ring + "How this score is calculated" signal list (top left) / Score Snapshot
- * real day trend (top right) / GEO Score Breakdown table - Signal, Score, Status, Main Problem
- * (bottom left).
+ * Layout: GEO Score ring + "How this score is calculated" signal list / Score Snapshot real day trend / GEO Score Breakdown table.
  */
 interface GeoScoreSectionProps {
-	/**
-	 * GeoTab.tsx's own real `goToIssuesTable()` (its `setCategoryFocus` wrapper).
-	 */
+	/** GeoTab.tsx's own real `goToIssuesTable()` (its `setCategoryFocus` wrapper). */
 	// eslint-disable-next-line no-unused-vars
 	onSelectSignal?: (topicKey: string) => void;
 }
@@ -197,8 +186,7 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 								<ChartComponent
 									type="ring"
 									height={200}
-									// Top-level `color` - `type="ring"` only ever paints its stroke
-									// from this prop.
+									// Top-level `color` - `type="ring"` only ever paints its stroke from this prop.
 									color={
 										COLOR_PALETTE[
 											ratingClass(overall) as keyof typeof COLOR_PALETTE
@@ -218,9 +206,7 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 										{
 											label: __('Score', 'vulopilot'),
 											value: overall,
-											// Same real rating color the ring's own Good/Needs
-											// Work/Poor label above already uses
-											// (`ratingClass()`/`getRating()`).
+											// Same real rating color the ring's own Good/Needs Work/Poor label above already uses (`ratingClass()`/`getRating()`).
 											color: COLOR_PALETTE[
 												ratingClass(overall) as keyof typeof COLOR_PALETTE
 											],
@@ -324,9 +310,7 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 									iconClass: 'admin-bg-color2',
 								},
 								{
-									// Real sum of every signal's own real `open_count` -
-									// `GeoScoreResponse` has no single "total open" field the way
-									// `SeoScoreResponse.total_open` does.
+									// Real sum of every signal's own real `open_count`.
 									number: Object.values(score.signals).reduce(
 										(sum, signal) => sum + (signal.open_count ?? 0),
 										0

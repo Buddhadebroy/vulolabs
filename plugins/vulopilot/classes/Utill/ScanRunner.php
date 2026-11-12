@@ -22,10 +22,10 @@ class ScanRunner {
 
 	private const BATCH_HOOK = 'vulopilot_scan_process_batch';
 
-	/** Elapsed-time budget per batch tick, in seconds - same shape and reasoning as BackupManager::BATCH_SECONDS_BUDGET: */
+	/** Elapsed-time budget per batch tick, in seconds. */
 	private const BATCH_SECONDS_BUDGET = 20;
 
-	/** Transient-based mutex name - WP-Cron has no built-in protection against the same due event firing from more than one overlapping loopback request (observed live: */
+	/** Transient-based mutex name. */
 	private const LOCK_TRANSIENT = 'vulopilot_scan_batch_lock';
 
 	/**
@@ -43,11 +43,11 @@ class ScanRunner {
 	}
 
 	/**
-	 * Queues the given scanners to run across one or more background batch ticks - never blocks the calling request.
+	 * Queues the given scanners to run across one or more background batch ticks.
 	 *
 	 * @param string[] $scanner_ids Scanner ids to run, in order.
 	 * @param bool     $force       See run()'s own docblock.
-	 * @return array{total: int} Real total scanner count now queued.
+	 * @return array Real total scanner count now queued.
 	 */
 	public function run_queued( array $scanner_ids, bool $force = false ): array {
 		$scanner_ids = array_values( array_unique( $scanner_ids ) );
@@ -70,9 +70,9 @@ class ScanRunner {
 	}
 
 	/**
-	 * Real status of the current (if any) queued run - polled by the frontend instead of the REST request blocking until every scanner finishes.
+	 * Real status of the current.
 	 *
-	 * @return array{running: bool, total: int, remaining: int}
+	 * @return array
 	 */
 	public function get_queue_status(): array {
 		$queue = get_option( self::QUEUE_OPTION, null );
@@ -115,9 +115,7 @@ class ScanRunner {
 		$force       = ! empty( $queue['force'] );
 		$started_at  = microtime( true );
 
-		// Progress is persisted after every scanner, not only once the loop ends - so a
-		// tick that dies partway through (fatal error, process kill) still leaves the
-		// queue advanced past whatever it already ran, instead of re-running it next tick.
+		// Progress is persisted after every scanner, not only once the loop ends.
 		while ( $scanner_ids && ( microtime( true ) - $started_at ) < self::BATCH_SECONDS_BUDGET ) {
 			$this->run( array_shift( $scanner_ids ), $force );
 
@@ -139,7 +137,7 @@ class ScanRunner {
 	 * Runs a single scanner by id.
 	 *
 	 * @param string $scanner_id A scanner's get_id().
-	 * @param bool   $force      True for a user-initiated "Run scan" - forces a scanner implementing SupportsForceRunInterface to bypass its own rate limit.
+	 * @param bool   $force      True for a user-initiated "Run scan".
 	 * @return ScanResult|null Null if no scanner is registered under that id.
 	 */
 	public function run( string $scanner_id, bool $force = false ): ?ScanResult {
@@ -184,7 +182,7 @@ class ScanRunner {
 	 * Runs every registered scanner.
 	 *
 	 * @param bool $force See run()'s own docblock.
-	 * @return array<string, ScanResult> Keyed by scanner id.
+	 * @return array Keyed by scanner id.
 	 */
 	public function run_all( bool $force = false ): array {
 		$results = array();
@@ -200,8 +198,8 @@ class ScanRunner {
 	 * Runs every registered scanner except those in the given categories.
 	 *
 	 * @param string[] $excluded_categories Category strings to leave out.
-	 * @param bool     $force                See run()'s own docblock.
-	 * @return array<string, ScanResult> Keyed by scanner id.
+	 * @param bool     $force               See run()'s own docblock.
+	 * @return array Keyed by scanner id.
 	 */
 	public function run_all_except( array $excluded_categories, bool $force = false ): array {
 		$results = array();
@@ -218,7 +216,7 @@ class ScanRunner {
 	 *
 	 * @param string $category e.g. 'seo', 'security'.
 	 * @param bool   $force    See run()'s own docblock.
-	 * @return array<string, ScanResult> Keyed by scanner id.
+	 * @return array Keyed by scanner id.
 	 */
 	public function run_category( string $category, bool $force = false ): array {
 		$results = array();

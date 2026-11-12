@@ -7,10 +7,7 @@ use VuloPilot\Content\RedirectRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Backs the Redirects page's "404 Log" table: GET /not-found-logs, POST .../delete
- * (dismiss), POST .../convert (turn into a redirect). `convert_item()` creates the
- * redirect and removes the log row atomically, so a failed second call can't leave
- * an already-redirected entry looking unhandled.
+ * Backs the Redirects page's "404 Log" table.
  *
  * @class       NotFoundLogs controller
  * @version     1.0.0

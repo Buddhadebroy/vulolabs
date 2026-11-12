@@ -6,7 +6,7 @@ interface TypographyComponentProps {
 	variant?: string;
 	className?: string;
 	children?: ReactNode;
-	/** Forwarded to the real rendered tag as-is - e.g. BrokenLinksSection.tsx's own `onClick={toggleRowExpansion}` on an `as="span"` real click target. */
+	/** Forwarded to the real rendered tag as-is. */
 	[extraProp: string]: unknown;
 }
 

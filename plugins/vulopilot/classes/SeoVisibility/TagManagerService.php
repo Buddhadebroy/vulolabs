@@ -14,9 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class TagManagerService {
 
-	/**
-	 * TagManagerService constructor.
-	 */
+	/** TagManagerService constructor. */
 	public function __construct() {
 		add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_head_script' ), 1 );
 		add_action( 'wp_body_open', array( $this, 'maybe_output_body_noscript' ) );
@@ -65,7 +63,7 @@ class TagManagerService {
 	}
 
 	/**
-	 * Real, trimmed GTM Container ID - empty when the toggle is off or no id has been entered yet.
+	 * Real, trimmed GTM Container ID.
 	 *
 	 * @return string
 	 */

@@ -10,7 +10,7 @@ use VuloPilot\Utill\ScanRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * REST controller for the AI Copilot page's History tab: a day-groupable activity timeline scoped to `scan.completed`/`ai_action.*`/conversation events, each enriched from its source table.
+ * REST controller for the AI Copilot page's History tab.
  *
  * @class       History controller
  * @version     1.0.0
@@ -24,7 +24,7 @@ class History extends \WP_REST_Controller {
 	protected $rest_base = 'history';
 
 	/**
-	 * @var array<string, string[]>
+	 * @var array
 	 */
 	private const EVENT_TYPES_BY_CATEGORY = array(
 		'scan'   => array( 'scan.completed', 'scan.completed.security' ),
@@ -37,9 +37,7 @@ class History extends \WP_REST_Controller {
 		),
 	);
 
-	/**
-	 * Window for matching an AI action to the conversation turn that triggered it.
-	 */
+	/** Window for matching an AI action to the conversation turn that triggered it. */
 	private const RELATED_ACTION_WINDOW_SECONDS = 30;
 
 	/**
@@ -125,7 +123,7 @@ class History extends \WP_REST_Controller {
 			return rest_ensure_response( $result );
 		}
 
-		// A single category filters activity_logs alone; 'all' also needs conversations, a separate table.
+		// A single category filters activity_logs alone.
 		if ( isset( self::EVENT_TYPES_BY_CATEGORY[ $category ] ) ) {
 			$result = $repository->get_timeline(
 				array(
@@ -163,10 +161,10 @@ class History extends \WP_REST_Controller {
 	}
 
 	/**
-	 * The 'all' tab's timeline: activity_logs and ai_history merged via UNION ALL and ordered by created_at, so pagination stays correct across both sources.
+	 * The 'all' tab's timeline.
 	 *
-	 * @param array{search?: string, date_from?: string, date_to?: string, page?: int, per_page?: int, around_id?: int} $args
-	 * @return array{data: array<int, array<string, mixed>>, total: int, pages_loaded: int}
+	 * @param array $args
+	 * @return array
 	 */
 	private function get_combined_timeline( array $args ): array {
 		global $wpdb;
@@ -240,8 +238,7 @@ class History extends \WP_REST_Controller {
 		$pages_loaded = $page;
 		$around_id    = absint( $args['around_id'] ?? 0 );
 
-		// A deep link always points at an activity_logs row. Count how many rows across
-		// both sources are newer and jump straight to that page.
+		// A deep link always points at an activity_logs row.
 		if ( $around_id > 0 ) {
 			$target_created_at = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- the query is prepared.
 				$wpdb->prepare( "SELECT created_at FROM %i WHERE {$log_where} AND id = %d", $log_table, ...array_merge( $log_values, array( $around_id ) ) ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- same runtime-sized-array case as above.
@@ -287,8 +284,7 @@ class History extends \WP_REST_Controller {
 			);
 		}
 
-		// Reserve a small per-page quota for conversations, since a single scan can log
-		// many rows and would otherwise bury conversations for pages at a time.
+		// Reserve a small per-page quota for conversations, since a single scan can log many rows and would otherwise bury conversations for pages at a time.
 		$conversation_quota = max( 1, (int) round( $per_page * 0.2 ) );
 
 		$ai_offset     = 0;
@@ -328,8 +324,7 @@ class History extends \WP_REST_Controller {
 			);
 		}
 
-		// Both slices are independently newest-first; interleave them back into one
-		// newest-first page so day-grouping and read order stay sensible.
+		// Both slices are independently newest-first.
 		usort(
 			$page_rows,
 			static function ( $a, $b ) {
@@ -357,7 +352,7 @@ class History extends \WP_REST_Controller {
 	 * @param int $conversation_quota This page's conversation reservation, before checking what's left.
 	 * @param int $ai_remaining       Conversation rows not yet handed out to an earlier page.
 	 * @param int $log_remaining      Log rows not yet handed out to an earlier page.
-	 * @return array{0: int, 1: int} [ai_take, log_take].
+	 * @return array [ai_take, log_take].
 	 */
 	private function split_page_quota( int $per_page, int $conversation_quota, int $ai_remaining, int $log_remaining ): array {
 		$ai_take  = min( $conversation_quota, $ai_remaining );
@@ -372,12 +367,12 @@ class History extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Turns get_combined_timeline()'s around_id branch's (id, src) pairs back into full, enriched rows, in the same order.
+	 * Turns get_combined_timeline()'s around_id branch's.
 	 *
-	 * @param array<int, array{id: string, src: string}> $ordered
-	 * @param string                                     $log_table
-	 * @param string                                     $ai_table
-	 * @return array<int, array<string, mixed>>
+	 * @param array  $ordered
+	 * @param string $log_table
+	 * @param string $ai_table
+	 * @return array
 	 */
 	private function hydrate_combined_rows( array $ordered, string $log_table, string $ai_table ): array {
 		global $wpdb;
@@ -454,7 +449,7 @@ class History extends \WP_REST_Controller {
 	 *
 	 * @param ActivityLogRepository $repository   Repository to count scan/change from.
 	 * @param AiHistoryRepository   $history_repo Repository to count conversations from.
-	 * @return array{all: int, scan: int, change: int, conversation: int, automations: int}
+	 * @return array
 	 */
 	private function get_type_counts( ActivityLogRepository $repository, AiHistoryRepository $history_repo ): array {
 		$raw = $repository->count_by_column( 'event_type' );
@@ -480,8 +475,8 @@ class History extends \WP_REST_Controller {
 	/**
 	 * Adds a real `conversation` sub-object to one `vulopilot_ai_history` row.
 	 *
-	 * @param array<string, mixed> $row One vulopilot_ai_history row.
-	 * @return array<string, mixed>
+	 * @param array $row One vulopilot_ai_history row.
+	 * @return array
 	 */
 	private function enrich_conversation_row( array $row ): array {
 		return array(
@@ -508,8 +503,8 @@ class History extends \WP_REST_Controller {
 	/**
 	 * Real `ai_action.*` rows this conversation turn caused, if any.
 	 *
-	 * @param array<string, mixed> $row One vulopilot_ai_history row.
-	 * @return array<int, array{id: int, label: string, created_at: string}>
+	 * @param array $row One vulopilot_ai_history row.
+	 * @return array
 	 */
 	private function build_related_actions( array $row ): array {
 		$requested_by = isset( $row['requested_by'] ) ? (int) $row['requested_by'] : 0;
@@ -552,8 +547,8 @@ class History extends \WP_REST_Controller {
 	/**
 	 * Adds a real `scan` or `change` sub-object to one activity_logs row, joined back to its source table by `object_id`.
 	 *
-	 * @param array<string, mixed> $row One vulopilot_activity_logs row.
-	 * @return array<string, mixed>
+	 * @param array $row One vulopilot_activity_logs row.
+	 * @return array
 	 */
 	private function enrich_row( array $row ): array {
 		$row['category'] = 0 === strpos( (string) $row['event_type'], 'scan.' ) ? 'scan' : 'change';
@@ -573,7 +568,7 @@ class History extends \WP_REST_Controller {
 	 * Real detail for one scan.completed timeline row, joined back to its vulopilot_scans source row.
 	 *
 	 * @param int $scan_id vulopilot_scans.id.
-	 * @return array<string, mixed>|null Null if the source scan row is gone.
+	 * @return array|null Null if the source scan row is gone.
 	 */
 	private function build_scan_detail( int $scan_id ): ?array {
 		$scan = ( new ScanRepository() )->find( $scan_id );
@@ -604,8 +599,8 @@ class History extends \WP_REST_Controller {
 	/**
 	 * Real pages/posts a scan considered but found nothing wrong with.
 	 *
-	 * @param array<string, mixed> $scan One vulopilot_scans row.
-	 * @return array<int, array{id: int, title: string, link: string|null, edit_link: string}>
+	 * @param array $scan One vulopilot_scans row.
+	 * @return array
 	 */
 	private function build_scanned_pages( array $scan ): array {
 		$post_ids = json_decode( (string) ( $scan['scanned_objects'] ?? '' ), true );
@@ -642,7 +637,7 @@ class History extends \WP_REST_Controller {
 	 * Real pages/posts this scan run found an issue on.
 	 *
 	 * @param int $scan_id vulopilot_scans.id.
-	 * @return array<int, array{id: int, title: string, link: string|null, edit_link: string|null, count: int}>
+	 * @return array
 	 */
 	private function build_affected_pages( int $scan_id ): array {
 		$refs = ( new FindingRepository() )->get_object_refs_for_scan( $scan_id );
@@ -699,11 +694,11 @@ class History extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real numeric post ids one finding's `object_type`/`object_ref` points at - empty for anything not page/post-scoped (a URL/site-wide finding).
+	 * Real numeric post ids one finding's `object_type`/`object_ref` points at.
 	 *
 	 * @param string|null $object_type e.g. 'post'.
 	 * @param string|null $object_ref  A post id, or a comma-joined list of post ids.
-	 * @return array<int, int>
+	 * @return array
 	 */
 	private function extract_post_ids( ?string $object_type, ?string $object_ref ): array {
 		if ( 'post' !== $object_type || null === $object_ref || '' === $object_ref ) {
@@ -721,7 +716,7 @@ class History extends \WP_REST_Controller {
 	 * Real detail for one ai_action.* timeline row, joined back to its vulopilot_ai_action_runs source row.
 	 *
 	 * @param int $run_id vulopilot_ai_action_runs.id.
-	 * @return array<string, mixed>|null Null if the source run row is gone.
+	 * @return array|null Null if the source run row is gone.
 	 */
 	private function build_change_detail( int $run_id ): ?array {
 		$run = ( new ActionRunRepository() )->find( $run_id );

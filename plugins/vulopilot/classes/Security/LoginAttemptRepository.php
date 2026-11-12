@@ -21,9 +21,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class LoginAttemptRepository extends RepositoryUtil {
 
-	/**
-	 * This repository's `event_type` in the shared `vulopilot_security_events` table.
-	 */
+	/** This repository's `event_type` in the shared `vulopilot_security_events` table. */
 	private const EVENT_TYPE = 'login_attempt';
 
 	/**
@@ -48,10 +46,10 @@ class LoginAttemptRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Real failed-attempt count for one IP within a rolling time window - LoginProtectionGuard::block_if_locked_out()'s only query.
+	 * Real failed-attempt count for one IP within a rolling time window.
 	 *
-	 * @param string $ip_address   Real client IP.
-	 * @param int    $minutes      Rolling window size.
+	 * @param string $ip_address Real client IP.
+	 * @param int    $minutes    Rolling window size.
 	 * @return int
 	 */
 	public function count_recent_failures( string $ip_address, int $minutes ): int {
@@ -71,9 +69,9 @@ class LoginAttemptRepository extends RepositoryUtil {
 	/**
 	 * Every distinct IP that actually tripped the lockout threshold at some point in the last N days, with its own real failure count in that window.
 	 *
-	 * @param int $days       Real lookback window.
-	 * @param int $threshold  Real, current `login_max_attempts` setting value.
-	 * @return array<int, array{ip_address: string, failure_count: int}>
+	 * @param int $days      Real lookback window.
+	 * @param int $threshold Real, current `login_max_attempts` setting value.
+	 * @return array
 	 */
 	public function get_recent_lockouts( int $days, int $threshold ): array {
 		global $wpdb;

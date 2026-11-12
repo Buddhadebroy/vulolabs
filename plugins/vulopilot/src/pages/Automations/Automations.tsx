@@ -61,9 +61,7 @@ interface AutomationSlotValue {
 	Activity?: ComponentType<AutomationsActivityComponentProps>;
 }
 
-/**
- * "Automate Work" - Free gets exactly 2 fixed, schedule-only automations.
- */
+/** "Automate Work" - Free gets exactly 2 fixed, schedule-only automations. */
 const Automations = () => {
 	const slot = useFilterSlot<AutomationSlotValue>('vulopilot_automations_panel');
 	const Wizard = slot?.Wizard;
@@ -80,10 +78,7 @@ const Automations = () => {
 	const [viewingRow, setViewingRow] = useState<AutomationRow | null>(null);
 	const [pendingTemplate, setPendingTemplate] = useState<AutomationTemplate | null>(null);
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
-	// Header button row starts collapsed to "Build with AI" + one common "create" button; clicking
-	// that common button expands it into "Create Your Own"/"Choose a Template" (Build with AI
-	// hidden meanwhile), per direct instruction - collapses back to the default pair once either
-	// of those two is actually clicked.
+	// Header button row starts collapsed to "Build with AI" + one common "create" button.
 	const [isCreateMenuExpanded, setIsCreateMenuExpanded] = useState(false);
 
 	const openProPopup = () => setIsProPopupOpen(true);
@@ -145,8 +140,7 @@ const Automations = () => {
 		setWizardOpenSignal((n) => n + 1);
 	};
 
-	// AI Copilot's Chat tab (AIAssistant.tsx's own AutomationsTemplatesCard preview) deep-links
-	// here as `?...#tab=automations&automation_template={id}`.
+	// AI Copilot's Chat tab deep-links here as `?...#tab=automations&automation_template={id}`.
 	const [initialTemplateId] = useState<string | null>(() =>
 		new URLSearchParams(window.location.hash.substring(1)).get('automation_template')
 	);
@@ -176,7 +170,7 @@ const Automations = () => {
 
 		firedInitialTemplateRef.current = true;
 		openTemplate(template);
-		// deliberately re-checks only when Wizard itself resolves (useFilterSlot's own real script-load-order race - see that hook's docblock) or initialTemplateId (set once, stable); openTemplate is redefined every render and the ref guard already makes this safely re-runnable.
+		// Deliberately re-checks only when Wizard itself resolves or initialTemplateId.
 	}, [Wizard, initialTemplateId]);
 
 	// "View all issues →" (AutomationAttentionCard) jumps to the automations list.

@@ -13,8 +13,7 @@ use VuloPilot\Utill\RepositoryUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for `vulopilot_performance_samples` (type `request`) - one row per sampled
- * real front-end request, written by PerformanceRequestLogger.
+ * Persistence for `vulopilot_performance_samples`.
  *
  * @class       PerformanceRequestRepository class
  * @version     1.0.0
@@ -22,9 +21,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class PerformanceRequestRepository extends RepositoryUtil {
 
-	/**
-	 * This repository's `sample_type` in the shared `vulopilot_performance_samples` table.
-	 */
+	/** This repository's `sample_type` in the shared `vulopilot_performance_samples` table. */
 	private const SAMPLE_TYPE = 'request';
 
 	/**
@@ -46,7 +43,7 @@ class PerformanceRequestRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * @return array{avg_response_time_ms: int|null, page_views_last_5_min: int, samples_last_hour: int}
+	 * @return array
 	 */
 	public function get_realtime_stats(): array {
 		global $wpdb;
@@ -88,7 +85,7 @@ class PerformanceRequestRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Deletes rows older than the given retention window - called by PerformanceRequestLogger's own daily cleanup cron.
+	 * Deletes rows older than the given retention window.
 	 *
 	 * @param int $days Retention window, in days.
 	 * @return void

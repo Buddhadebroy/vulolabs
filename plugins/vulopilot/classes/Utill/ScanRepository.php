@@ -31,11 +31,11 @@ class ScanRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Scan-run counts by status for one date range - what Reports\Types\ScanSummaryReport's headline summary reads.
+	 * Scan-run counts by status for one date range.
 	 *
 	 * @param string $period_start Y-m-d, inclusive.
 	 * @param string $period_end   Y-m-d, inclusive.
-	 * @return array{total: int, by_status: array<string, int>}
+	 * @return array
 	 */
 	public function get_stats_for_period( string $period_start, string $period_end ): array {
 		global $wpdb;
@@ -66,7 +66,7 @@ class ScanRepository extends RepositoryUtil {
 	 * Most recent successfully-finished `vulopilot_scans` row for any of the given scanner ids.
 	 *
 	 * @param string[] $scanner_ids e.g. array( 'broken-links', 'broken-images' ).
-	 * @return array{duration_ms: int, finished_at: int}|null Null when neither scanner has ever completed a run.
+	 * @return array|null Null when neither scanner has ever completed a run.
 	 */
 	public function get_latest_completed( array $scanner_ids ): ?array {
 		if ( ! $scanner_ids ) {

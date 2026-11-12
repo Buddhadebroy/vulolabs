@@ -46,10 +46,8 @@ class AllInOneSeoMigrator implements MigratorInterface {
 
 	/**
 	 * AIOSEO's own `#token` template syntax for each VuloPilot `%token%` TitleFormatter resolves.
-	 * Anything else (`#post_excerpt`, `#author_bio`, `#taxonomy_description`, ...) is dropped
-	 * rather than left as literal, unresolved `#...` text in a migrated title/description.
 	 *
-	 * @var array<string, string>
+	 * @var array
 	 */
 	private const TOKEN_MAP = array(
 		'#site_title'     => '%site_title%',
@@ -104,9 +102,7 @@ class AllInOneSeoMigrator implements MigratorInterface {
 		);
 	}
 
-	// ---------------------------------------------------------------------
-	// Robots.txt rules.
-	// ---------------------------------------------------------------------
+	// --------------------------------------------------------------------- Robots.txt rules.
 
 	/**
 	 * @param bool $overwrite Passed through from migrate().
@@ -185,9 +181,7 @@ class AllInOneSeoMigrator implements MigratorInterface {
 		return trim( implode( "\n", $lines ) );
 	}
 
-	// ---------------------------------------------------------------------
-	// Per-post SEO data.
-	// ---------------------------------------------------------------------
+	// --------------------------------------------------------------------- Per-post SEO data.
 
 	/**
 	 * @return int
@@ -254,7 +248,7 @@ class AllInOneSeoMigrator implements MigratorInterface {
 
 	/**
 	 * @param int       $post_id Post id.
-	 * @param \stdClass $row    One `wp_aioseo_posts` row.
+	 * @param \stdClass $row     One `wp_aioseo_posts` row.
 	 * @return void
 	 */
 	private function migrate_post_row( int $post_id, \stdClass $row ): void {
@@ -281,7 +275,7 @@ class AllInOneSeoMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * AIOSEO stores `keyphrases` as a JSON blob: `{"focus":{"keyphrase":"..."},"additional":[...]}`.
+	 * AIOSEO stores `keyphrases` as a JSON blob.
 	 *
 	 * @param string $json_keyphrases Raw `keyphrases` column value.
 	 * @return string
@@ -292,9 +286,7 @@ class AllInOneSeoMigrator implements MigratorInterface {
 		return is_array( $decoded ) ? (string) ( $decoded['focus']['keyphrase'] ?? '' ) : '';
 	}
 
-	// ---------------------------------------------------------------------
-	// Sitewide settings.
-	// ---------------------------------------------------------------------
+	// --------------------------------------------------------------------- Sitewide settings.
 
 	/**
 	 * @param bool $overwrite Passed through from migrate().
@@ -332,7 +324,7 @@ class AllInOneSeoMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function build_settings_values(): array {
 		$options = json_decode( (string) get_option( 'aioseo_options', '' ), true );

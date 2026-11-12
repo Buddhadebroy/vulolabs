@@ -10,8 +10,7 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Optional companion to ScannerInterface, implemented only by scanners that iterate
- * individual posts/pages (ScannedPostsTrait).
+ * Optional companion to ScannerInterface, implemented only by scanners that iterate individual posts/pages.
  *
  * @class       TracksScannedObjectsInterface interface
  * @version     1.0.0

@@ -13,8 +13,7 @@ use VuloPilot\Utill\RepositoryUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for vulopilot_redirects - the "Redirects & 404s" feature's user-managed
- * 301/302 redirect table.
+ * Persistence for vulopilot_redirects.
  *
  * @class       RedirectRepository class
  * @version     1.0.0
@@ -49,7 +48,7 @@ class RedirectRepository extends RepositoryUtil {
 	 * Looks up a redirect row by its exact source path.
 	 *
 	 * @param string $source_path Already-normalized path (see normalize_path()).
-	 * @return array<string, mixed>|null
+	 * @return array|null
 	 */
 	public function find_by_source_path( string $source_path ): ?array {
 		global $wpdb;
@@ -85,7 +84,7 @@ class RedirectRepository extends RepositoryUtil {
 	 * Finds the active redirect this request path matches.
 	 *
 	 * @param string $requested_path Already-normalized path (see normalize_path()).
-	 * @return array<string, mixed>|null
+	 * @return array|null
 	 */
 	public function find_matching( string $requested_path ): ?array {
 		$exact = $this->find_by_source_path( $requested_path );
@@ -128,8 +127,7 @@ class RedirectRepository extends RepositoryUtil {
 				return '' !== $pattern && str_ends_with( $requested_path, $pattern );
 
 			case 'regex':
-				// A rule-author-supplied regex that fails to compile just never matches, rather
-				// than fataling every request on the site.
+				// A rule-author-supplied regex that fails to compile just never matches, rather than fataling every request on the site.
 				return @preg_match( '#' . str_replace( '#', '\#', $pattern ) . '#', $requested_path ) > 0; // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- an invalid admin-authored pattern must degrade to "no match", not a fatal on every page load.
 
 			default:
@@ -138,9 +136,9 @@ class RedirectRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Normalizes a request path (strips the subdirectory prefix, forces a leading slash, drops trailing slashes) so redirects and 404 log entries compare equal.
+	 * Normalizes a request path.
 	 *
-	 * @param string $raw_path A raw REQUEST_URI path component (no query string) or a user-typed path.
+	 * @param string $raw_path A raw REQUEST_URI path component.
 	 * @return string
 	 */
 	public static function normalize_path( string $raw_path ): string {

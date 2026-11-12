@@ -22,9 +22,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class DuplicateContentScanner extends ScannerUtil {
 
-	/**
-	 * How many of the most recently modified posts/pages to consider.
-	 */
+	/** How many of the most recently modified posts/pages to consider. */
 	private const BATCH_SIZE = 200;
 
 	/**
@@ -54,8 +52,7 @@ class DuplicateContentScanner extends ScannerUtil {
 	public function scan(): array {
 		$settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
-		// Flat, standalone key - Settings → Scanning → SEO & Content → "Titles & meta"
-		// (SeoContent.ts).
+		// Flat, standalone key - Settings → Scanning → SEO & Content → "Titles & meta".
 		if ( empty( $settings['flag_duplicate_titles'] ) ) {
 			return array();
 		}
@@ -83,8 +80,7 @@ class DuplicateContentScanner extends ScannerUtil {
 				continue; // An empty/untitled draft-like title isn't a meaningful duplicate.
 			}
 
-			// ORDER BY ID is load-bearing, not cosmetic: this result feeds straight into
-			// object_ref below (implode(',', $matching_ids)).
+			// ORDER BY ID is load-bearing, not cosmetic.
 			$matching_ids = $wpdb->get_col(  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching  -- {$this->get_table()}/$table-style variables here are always this plugin's own hardcoded table name(s), never user input; dynamic placeholder counts (IN (...) lists, optional WHERE fragments) are sized correctly at runtime, just not statically visible to this sniff.
 				$wpdb->prepare(
 					"SELECT ID FROM {$wpdb->posts} WHERE post_title = %s AND post_status = 'publish' AND post_type IN ('post', 'page') ORDER BY ID ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared

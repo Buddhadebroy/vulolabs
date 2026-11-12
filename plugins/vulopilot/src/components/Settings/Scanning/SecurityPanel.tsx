@@ -86,8 +86,7 @@ const SCAN_ROWS: Row[] = [
 		flatKey: 'enable_rest_api_scanner',
 		icon: 'person pink',
 		label: __('Exposed usernames', 'vulopilot'),
-		// The mockup's own copy here ("risky roles or unnecessary access") doesn't describe any
-		// real scanner this codebase has.
+		// The mockup's own copy here doesn't describe any real scanner this codebase has.
 		desc: __(
 			'Checks whether a part of WordPress that other plugins and apps talk to automatically (the REST API) is publicly revealing usernames — often the first step in a brute-force login attack.',
 			'vulopilot'

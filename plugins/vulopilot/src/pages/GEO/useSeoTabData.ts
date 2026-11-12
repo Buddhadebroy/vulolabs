@@ -2,9 +2,7 @@
 import { useEffect, useState } from 'react';
 import { getApiLink, getApiResponse } from '@zyra/core';
 
-/**
- * SeoTab.tsx's own 2 data-fetching hooks (`useSeoScore`/`useSeoProgress`).
- */
+/** SeoTab.tsx's own 2 data-fetching hooks (`useSeoScore`/`useSeoProgress`). */
 
 export interface SeoCategoryScore {
 	score: number;
@@ -42,9 +40,7 @@ export interface SeoScoreResponse {
 	};
 }
 
-/**
- * `GET /seo/score` - Seo.php's own real, deterministic weighted-severity score (same formula BrandIntelligence's own Brand Score uses).
- */
+/** `GET /seo/score`. */
 export const useSeoScore = (): {
 	score: SeoScoreResponse | null;
 	isLoading: boolean;

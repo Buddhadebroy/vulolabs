@@ -21,10 +21,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class AiHistoryRepository extends RepositoryUtil {
 
-	/**
-	 * The only 2 `surface` values that represent a real chat turn a human had with
-	 * VuloPilot (Copilot.php/ContentAssistant.php).
-	 */
+	/** The only 2 `surface` values that represent a real chat turn a human had with VuloPilot. */
 	private const CHAT_SURFACES = array( 'copilot_chat', 'content_assistant_chat' );
 
 	/**
@@ -45,9 +42,9 @@ class AiHistoryRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Success/failure counts, zero-filled - backs the AI Assistant table's status-count pill bar (same reasoning as AutomationsRepository::get_status_counts()).
+	 * Success/failure counts, zero-filled.
 	 *
-	 * @return array{success: int, failure: int}
+	 * @return array
 	 */
 	public function get_status_counts(): array {
 		return array_merge(
@@ -60,11 +57,11 @@ class AiHistoryRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Call counts and real credits spent for one date range - what Reports\Types\AiUsageReport's headline summary reads.
+	 * Call counts and real credits spent for one date range.
 	 *
 	 * @param string $period_start Y-m-d, inclusive.
 	 * @param string $period_end   Y-m-d, inclusive.
-	 * @return array{total_calls: int, successful_calls: int, failed_calls: int, credits_used: float}
+	 * @return array
 	 */
 	public function get_stats_for_period( string $period_start, string $period_end ): array {
 		global $wpdb;
@@ -94,8 +91,8 @@ class AiHistoryRepository extends RepositoryUtil {
 	/**
 	 * Paginated, searchable, date-ranged real chat turns.
 	 *
-	 * @param array{search?: string, date_from?: string, date_to?: string, page?: int, per_page?: int} $args
-	 * @return array{data: array<int, array<string, mixed>>, total: int}
+	 * @param array $args
+	 * @return array
 	 */
 	public function get_conversations( array $args ): array {
 		global $wpdb;
@@ -156,7 +153,7 @@ class AiHistoryRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Real conversation count for History's "Conversations" filter pill - same CHAT_SURFACES scope as get_conversations() above.
+	 * Real conversation count for History's "Conversations" filter pill.
 	 *
 	 * @return int
 	 */

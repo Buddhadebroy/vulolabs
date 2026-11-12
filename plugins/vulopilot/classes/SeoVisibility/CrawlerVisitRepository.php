@@ -59,7 +59,7 @@ class CrawlerVisitRepository extends RepositoryUtil {
 	/**
 	 * Visit counts per bot - backs the Crawler Traffic page's filter-pill bar.
 	 *
-	 * @return array<string, int>
+	 * @return array
 	 */
 	public function get_bot_counts(): array {
 		return $this->count_by_column( 'bot_name' );
@@ -68,7 +68,7 @@ class CrawlerVisitRepository extends RepositoryUtil {
 	/**
 	 * Most recent visit timestamp per bot.
 	 *
-	 * @return array<int, array{bot_name: string, last_seen_at: string}>
+	 * @return array
 	 */
 	public function get_bot_last_seen(): array {
 		global $wpdb;
@@ -85,7 +85,7 @@ class CrawlerVisitRepository extends RepositoryUtil {
 	 * Most-requested URLs across every bot.
 	 *
 	 * @param int $limit Max rows to return.
-	 * @return array<int, array{requested_url: string, total: int}>
+	 * @return array
 	 */
 	public function get_most_crawled_pages( int $limit = 10 ): array {
 		global $wpdb;
@@ -106,7 +106,7 @@ class CrawlerVisitRepository extends RepositoryUtil {
 	 * Visit counts per calendar day over a trailing window, zero-filled for days with no visits.
 	 *
 	 * @param int $days Trailing window size.
-	 * @return array<int, array{date: string, total: int}> Oldest first.
+	 * @return array Oldest first.
 	 */
 	public function get_daily_volume( int $days = 30 ): array {
 		global $wpdb;
@@ -141,7 +141,7 @@ class CrawlerVisitRepository extends RepositoryUtil {
 
 	/**
 	 * @param int $days Trailing window size.
-	 * @return array<string, array<int, array{date: string, total: int}>> Bot name => daily volume, oldest first.
+	 * @return array Bot name => daily volume, oldest first.
 	 */
 	public function get_daily_volume_by_bot( int $days = 30 ): array {
 		global $wpdb;
@@ -181,7 +181,7 @@ class CrawlerVisitRepository extends RepositoryUtil {
 	/**
 	 * @param string $period_start Y-m-d, inclusive.
 	 * @param string $period_end   Y-m-d, inclusive.
-	 * @return array{total: int, by_bot: array<string, int>, top_pages: array<int, array{requested_url: string, total: int}>}
+	 * @return array
 	 */
 	public function get_stats_for_period( string $period_start, string $period_end ): array {
 		global $wpdb;
@@ -230,8 +230,8 @@ class CrawlerVisitRepository extends RepositoryUtil {
 	/**
 	 * Current-versus-previous-period comparison for the Crawler Traffic tab, with percent change against the preceding period of equal length.
 	 *
-	 * @param int $days Trailing window size (also the length of the "previous" comparison window).
-	 * @return array{
+	 * @param int $days Trailing window size.
+	 * @return array
 	 */
 	public function get_period_comparison( int $days = 30 ): array {
 		global $wpdb;
@@ -300,10 +300,10 @@ class CrawlerVisitRepository extends RepositoryUtil {
 	/**
 	 * 404 rate for one bot's most recent visits.
 	 *
-	 * @param string $bot_name  Display name.
-	 * @param int    $recent_n  How many of the bot's most recent visits to look at.
+	 * @param string $bot_name   Display name.
+	 * @param int    $recent_n   How many of the bot's most recent visits to look at.
 	 * @param int    $min_sample Minimum visits required before a rate is considered meaningful.
-	 * @return array{rate_percent: int, sample_size: int}|null
+	 * @return array|null
 	 */
 	public function get_404_rate_for_bot( string $bot_name, int $recent_n = 20, int $min_sample = 5 ): ?array {
 		global $wpdb;
@@ -335,9 +335,9 @@ class CrawlerVisitRepository extends RepositoryUtil {
 	/**
 	 * Per-bot visit counts and last-seen time for one specific URL.
 	 *
-	 * @param string $requested_url Exact path this plugin logs visits under (e.g. post permalink path).
+	 * @param string $requested_url Exact path this plugin logs visits under.
 	 * @param int    $days          Trailing window size.
-	 * @return array{total: int, by_bot: array<int, array{bot_name: string, total: int, last_seen_at: string}>, is_404_rate_percent: int|null}
+	 * @return array
 	 */
 	public function get_stats_for_url( string $requested_url, int $days = 90 ): array {
 		global $wpdb;

@@ -29,10 +29,7 @@ class GeoSummaryBlockScanner extends ScannerUtil implements TracksScannedObjects
 	private const BATCH_SIZE              = 50;
 	private const MIN_WORD_COUNT_TO_CHECK = 300;
 
-	/**
-	 * Rough average word length, used to convert the minimum word count into the character
-	 * window that is scanned.
-	 */
+	/** Rough average word length, used to convert the minimum word count into the character window that is scanned. */
 	private const CHARS_PER_WORD = 6;
 
 	private const SUMMARY_MARKERS = array( 'tl;dr', 'tldr', 'key takeaways', 'in summary', 'quick summary', 'summary:' );

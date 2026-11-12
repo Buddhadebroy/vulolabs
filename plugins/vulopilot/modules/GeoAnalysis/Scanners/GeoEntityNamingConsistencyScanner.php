@@ -16,8 +16,7 @@ use VuloPilot\Utill\ScannedPostsTrait;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags published posts/pages that mention the site's own name (the brand entity) in more
- * than one distinct casing/spacing variant.
+ * Flags published posts/pages that mention the site's own name in more than one distinct casing/spacing variant.
  *
  * @class       GeoEntityNamingConsistencyScanner class
  * @version     1.0.0

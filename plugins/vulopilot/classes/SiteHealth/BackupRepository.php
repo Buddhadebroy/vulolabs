@@ -13,8 +13,7 @@ use VuloPilot\Utill\RepositoryUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for `vulopilot_backups` - BackupManager/BackupScheduler's own real backup-
- * run log, backing "Backups"/"Recovery".
+ * Persistence for `vulopilot_backups`.
  *
  * @class       BackupRepository class
  * @version     1.0.0
@@ -35,9 +34,9 @@ class BackupRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * The single most recent backup row of any status - BackupHealthScanner's own "is the latest run healthy" check.
+	 * The single most recent backup row of any status.
 	 *
-	 * @return array<string, mixed>|null
+	 * @return array|null
 	 */
 	public function get_latest(): ?array {
 		global $wpdb;
@@ -50,7 +49,7 @@ class BackupRepository extends RepositoryUtil {
 	/**
 	 * The single most recent successfully-completed backup row.
 	 *
-	 * @return array<string, mixed>|null
+	 * @return array|null
 	 */
 	public function get_latest_completed(): ?array {
 		global $wpdb;
@@ -64,10 +63,10 @@ class BackupRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Every completed backup row beyond the newest `$keep_count` - BackupManager's own retention cleanup after each successful run.
+	 * Every completed backup row beyond the newest `$keep_count`.
 	 *
 	 * @param int $keep_count Real, current `backup_retention_count` setting value.
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function get_completed_beyond_retention( int $keep_count ): array {
 		global $wpdb;

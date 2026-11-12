@@ -4,8 +4,7 @@ namespace VuloPilot\SeoVisibility;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The post-editor metabox's General tab noindex/nofollow toggles
- * (PostSeoMetaFields::META_KEYS).
+ * The post-editor metabox's General tab noindex/nofollow toggles.
  *
  * @class       PostRobotsMetaManager class
  * @version     1.0.0
@@ -13,9 +12,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class PostRobotsMetaManager {
 
-	/**
-	 * PostRobotsMetaManager constructor.
-	 */
+	/** PostRobotsMetaManager constructor. */
 	public function __construct() {
 		add_filter( 'wp_robots', array( $this, 'maybe_filter_robots' ) );
 	}
@@ -23,8 +20,8 @@ class PostRobotsMetaManager {
 	/**
 	 * Adds noindex/nofollow to core's robots directives when this post's metabox flags are set.
 	 *
-	 * @param array<string, bool> $robots Core's own robots directives array.
-	 * @return array<string, bool>
+	 * @param array $robots Core's own robots directives array.
+	 * @return array
 	 */
 	public function maybe_filter_robots( array $robots ): array {
 		if ( ! is_singular() ) {

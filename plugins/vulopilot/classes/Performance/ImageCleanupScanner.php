@@ -8,8 +8,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags unused image attachments the same way real media-cleaner plugins define
- * "orphaned": unattached (`post_parent = 0`).
+ * Flags unused image attachments the same way real media-cleaner plugins define "orphaned".
  *
  * @class       ImageCleanupScanner class
  * @version     1.0.0
@@ -17,15 +16,10 @@ defined( 'ABSPATH' ) || exit;
  */
 class ImageCleanupScanner extends ScannerUtil {
 
-	/**
-	 * How old an unattached image must be before it's flagged - avoids
-	 * catching images uploaded moments ago for a post that isn't saved yet.
-	 */
+	/** How old an unattached image must be before it's flagged. */
 	const MIN_AGE_DAYS = 30;
 
-	/**
-	 * Orphaned-image count above which this is worth flagging.
-	 */
+	/** Orphaned-image count above which this is worth flagging. */
 	private const THRESHOLD = 5;
 
 	/**
@@ -91,9 +85,9 @@ class ImageCleanupScanner extends ScannerUtil {
 	}
 
 	/**
-	 * Unattached image attachments older than MIN_AGE_DAYS, minus anything currently protected (see get_protected_image_ids()).
+	 * Unattached image attachments older than MIN_AGE_DAYS, minus anything currently protected.
 	 *
-	 * @return array<int, int> Attachment ids.
+	 * @return array Attachment ids.
 	 */
 	public static function get_orphaned_image_ids(): array {
 		global $wpdb;
@@ -122,7 +116,7 @@ class ImageCleanupScanner extends ScannerUtil {
 	/**
 	 * Image attachment ids that must never be treated as orphaned, even if `post_parent` happens to be 0.
 	 *
-	 * @return array<int, int>
+	 * @return array
 	 */
 	private static function get_protected_image_ids(): array {
 		global $wpdb;
@@ -154,7 +148,7 @@ class ImageCleanupScanner extends ScannerUtil {
 	}
 
 	/**
-	 * @param array<int, int> $attachment_ids Attachment ids.
+	 * @param array $attachment_ids Attachment ids.
 	 * @return int Total bytes across the original files currently on disk.
 	 */
 	public static function sum_attachment_file_sizes( array $attachment_ids ): int {

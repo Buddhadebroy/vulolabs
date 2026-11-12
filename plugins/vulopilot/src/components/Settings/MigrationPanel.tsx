@@ -20,9 +20,7 @@ interface MigrationResult {
 
 type ImportStatus = 'idle' | 'running' | 'completed' | 'failed';
 
-/**
- * The select box's per-option label.
- */
+/** The select box's per-option label. */
 const sourceCountLabel = (source: MigrationSource): string =>
 	sprintf(
 		/* translators: 1: plugin name, 2: number of items found. */
@@ -32,7 +30,7 @@ const sourceCountLabel = (source: MigrationSource): string =>
 	);
 
 /**
- * Settings → Migration tab, built to the same "card row + wizard popup" shape MultiVendorX's own Status & Tools → Migration tab uses: a plain card with a "Run Migration Wizard" button, which opens a popup listing the detected SEO plugins in a select box plus an Import button.
+ * Settings → Migration tab, built to the same "card row + wizard popup" shape MultiVendorX's own Status & Tools → Migration tab uses.
  */
 const MigrationPanel = () => {
 	const [sources, setSources] = useState<MigrationSource[]>([]);

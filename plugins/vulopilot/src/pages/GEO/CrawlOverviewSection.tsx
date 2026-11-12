@@ -34,9 +34,7 @@ interface CrawlerVisitRow extends TableRow {
 	is_404: string | number | boolean;
 }
 
-/**
- * Used to also render a separate "Last seen" tiles card (CrawlerSummaryCard.tsx) right here.
- */
+/** Used to also render a separate "Last seen" tiles card (CrawlerSummaryCard.tsx) right here. */
 /** Same real 7/30/90-day trio `SeoProgressCard.tsx`'s/`GeoScoreSection.tsx`'s own identical period toggles already use. */
 const PERIOD_OPTIONS = [
 	{ key: '7', value: '7', label: __('7D', 'vulopilot') },

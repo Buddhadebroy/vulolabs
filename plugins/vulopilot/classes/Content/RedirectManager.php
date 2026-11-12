@@ -7,8 +7,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Readme.txt's "Redirects & 404s" - a real 301/302 redirect manager over the
- * `vulopilot_redirects` table.
+ * Readme.txt's "Redirects & 404s".
  *
  * @class       RedirectManager class
  * @version     1.0.0
@@ -16,9 +15,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class RedirectManager {
 
-	/**
-	 * RedirectManager constructor.
-	 */
+	/** RedirectManager constructor. */
 	public function __construct() {
 		add_action( 'template_redirect', array( $this, 'maybe_apply_redirect' ), 1 );
 		add_action( 'post_updated', array( $this, 'maybe_auto_create_redirect' ), 10, 3 );
@@ -69,8 +66,8 @@ class RedirectManager {
 	/**
 	 * Creates or updates a redirect from a post's old permalink when its slug changes.
 	 *
-	 * @param int      $post_id    Post id (unused - $post_before/$post_after already carry everything needed).
-	 * @param \WP_Post $post_after Post object after the save.
+	 * @param int      $post_id     Post id.
+	 * @param \WP_Post $post_after  Post object after the save.
 	 * @param \WP_Post $post_before Post object as it was before the save.
 	 * @return void
 	 */
@@ -79,17 +76,12 @@ class RedirectManager {
 			return;
 		}
 
-		// Only a slug change on a post that was ALREADY publicly published has a real, previously-
-		// indexable URL worth protecting with a redirect.
+		// Only a slug change on a post that was ALREADY publicly published has a real, previously- indexable URL worth protecting with a redirect.
 		if ( 'publish' !== $post_before->post_status || $post_before->post_name === $post_after->post_name ) {
 			return;
 		}
 
-		// Trashing a post renames its slug internally (appends '__trashed') to free it up for
-		// reuse, which fires this same 'post_updated' hook with a "slug change" that isn't one -
-		// without this guard, get_permalink($post_after) on an already-trashed post returns a
-		// '?page_id=' fallback URL, which would overwrite TrashedPostRedirector's own
-		// home-page redirect for the same path with that useless self-reference.
+		// Trashing a post renames its slug internally to free it up for reuse, which fires this same 'post_updated' hook with a "slug change" that isn't one.
 		if ( 'trash' === $post_after->post_status ) {
 			return;
 		}

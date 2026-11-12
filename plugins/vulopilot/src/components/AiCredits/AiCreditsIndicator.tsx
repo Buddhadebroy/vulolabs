@@ -8,9 +8,7 @@ import { CREDITS_SPENT_EVENT, INSUFFICIENT_CREDITS_EVENT } from './insufficientC
 import { useConnectVuloCloud } from '../../services/useConnectVuloCloud';
 import './AiCreditsIndicator.scss';
 
-/**
- * The persistent "⚡ N AI Credits" indicator (architecture plan §21).
- */
+/** The persistent "⚡ N AI Credits" indicator (architecture plan §21). */
 const AiCreditsIndicator = () => {
 	const { status, isLoading, refresh } = useAiCredits();
 	const { isConnecting, handleConnect } = useConnectVuloCloud();

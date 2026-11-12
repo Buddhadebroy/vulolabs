@@ -10,8 +10,7 @@ use VuloPilot\Utill\ScannedPostsTrait;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags input/textarea/select elements in published content with no associated label
- * - no label, aria-label, or aria-labelledby.
+ * Flags input/textarea/select elements in published content with no associated label.
  *
  * @class       FormLabelsScanner class
  * @version     1.0.0
@@ -21,9 +20,7 @@ class FormLabelsScanner extends ScannerUtil implements TracksScannedObjectsInter
 
 	use ScannedPostsTrait;
 
-	/**
-	 * How many of the most recently published posts/pages to check per run.
-	 */
+	/** How many of the most recently published posts/pages to check per run. */
 	private const BATCH_SIZE = 50;
 
 	/**

@@ -16,9 +16,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class SiteAvailabilityScanner extends ScannerUtil {
 
-	/**
-	 * How long to wait for the homepage to respond before treating it as unreachable.
-	 */
+	/** How long to wait for the homepage to respond before treating it as unreachable. */
 	private const REQUEST_TIMEOUT_SECONDS = 15;
 
 	/**

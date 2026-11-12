@@ -7,30 +7,22 @@ import type { CategoryCount } from '@zyra/table';
 export interface ApiListResult<T> {
 	data: T[];
 	total: number;
-	/**
-	 * `[{value, label, count}, ...]`, one entry per `categoryFilter.options` entry (no "All" pill
-	 * - every list page's pill bar is real categories only now) - only populated when a
-	 * `categoryFilter` config is passed in; empty otherwise.
-	 */
+	/** `[{value, label, count},...]`, one entry per `categoryFilter.options` entry. */
 	categoryCounts: CategoryCount[];
 	isLoading: boolean;
 	error: string | null;
-	/** `{ silent: true }` reloads in the background - rows stay on screen and no loading state shows (used by live-status polling). */
+	/** `{ silent: true }` reloads in the background. */
 	 
 	// eslint-disable-next-line no-unused-vars
 	refetch: (options?: { silent?: boolean }) => void;
-	/**
-	 * Pass straight through to TableCard's `onQueryUpdate` prop.
-	 */
+	/** Pass straight through to TableCard's `onQueryUpdate` prop. */
 	// Base no-unused-vars doesn't understand TS function-type parameters; @typescript-eslint's does.
 	 
 	// eslint-disable-next-line no-unused-vars
 	onQueryUpdate: (query: TableCardQuery) => void;
 }
 
-/**
- * The subset of zyra TableCard's internal query state this hook forwards to the REST request.
- */
+/** The subset of zyra TableCard's internal query state this hook forwards to the REST request. */
 interface TableCardQuery {
 	paged?: number | string;
 	per_page?: number | string;
@@ -41,11 +33,7 @@ interface TableCardQuery {
 	order?: string;
 }
 
-/**
- * A status-like categorical dimension a list page wants surfaced as a TableCard status-count pill
- * bar (Findings' status, Automation's status, Activity's actor_type, etc.) - `options` is the full
- * real pill list this hook renders (no "All" pill prepended).
- */
+/** A status-like categorical dimension a list page wants surfaced as a TableCard status-count pill bar. */
 export interface CategoryFilterConfig {
 	key: string;
 	options: { label: string; value: string }[];
@@ -54,13 +42,12 @@ export interface CategoryFilterConfig {
 type ListResponse<T> = T[] | { data?: T[]; total?: number; [key: string]: unknown };
 
 /**
- * Fetches a VuloPilot REST list endpoint (`vulopilot/v1/{endpoint}`) and tracks loading/error/empty state.
+ * Fetches a VuloPilot REST list endpoint.
  *
- * @param endpoint       REST resource path relative to the vulopilot/v1 namespace, e.g. 'findings'.
- * @param params         Optional static query params (e.g. a fixed category for a params are owned by TableCard itself - see onQueryUpdate.
- *                       category-scoped page). Pagination/per-page/select-filter
- * @param categoryFilter Optional status-count pill bar config - see CategoryFilterConfig.
- * @param enabled        When false, no request is made (e.g. the endpoint only exists while an optional module is active).
+ * @param endpoint REST resource path relative to the vulopilot/v1 namespace.
+ * @param params Optional static query params.
+ * @param categoryFilter Optional status-count pill bar config.
+ * @param enabled When false, no request is made.
  */
 export const useApiList = <T = Record<string, unknown>>(
 	endpoint: string,
@@ -89,8 +76,7 @@ export const useApiList = <T = Record<string, unknown>>(
 	const mergedParams: Record<string, string | number | undefined> = {
 		...params,
 		page: tableQuery.paged,
-		// A caller-supplied static per_page (every non-TableCard compact widget list -
-		// RecentActivityWidget, NeedsAttentionWidget, etc.) wins over tableQuery's own per_page.
+		// A caller-supplied static per_page wins over tableQuery's own per_page.
 		per_page: params.per_page ?? tableQuery.per_page,
 		search: tableQuery.searchValue,
 		orderby: tableQuery.orderby || params.orderby,
@@ -123,8 +109,7 @@ export const useApiList = <T = Record<string, unknown>>(
 		}
 		setError(null);
 
-		// getApiLink() already returns a URL containing its own `?` on sites with plain permalinks
-		// (rest_url() resolves to `index.php?rest_route=/…`).
+		// getApiLink() already returns a URL containing its own `?` on sites with plain permalinks (rest_url() resolves to `index.php?rest_route=/…`).
 		const baseUrl = getApiLink(vulopilotAppLocalizer, endpoint);
 		const separator = baseUrl.includes('?') ? '&' : '?';
 		const url = baseUrl + (query ? `${separator}${query}` : '');

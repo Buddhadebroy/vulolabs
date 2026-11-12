@@ -10,7 +10,7 @@ use VuloPilot\Utill\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * REST controller for `/dashboard`: one aggregate payload for the Dashboard page's widgets (src/dashboard-widgets/registry.ts's DashboardSummary), using cheap COUNT/GROUP BY queries.
+ * REST controller for `/dashboard`.
  *
  * @class       Dashboard controller
  * @version     1.0.0
@@ -85,9 +85,9 @@ class Dashboard extends \WP_REST_Controller {
 	}
 
 	/**
-	 * "Site snapshot" - counts read directly from WordPress core functions, not from scan findings.
+	 * "Site snapshot".
 	 *
-	 * @return array{posts: int, pages: int, comments: int, users: int, plugins_active: int, plugins_total: int, wp_version: string, php_version: string}
+	 * @return array
 	 */
 	private function build_site_snapshot(): array {
 		if ( ! function_exists( 'get_plugins' ) ) {
@@ -115,7 +115,7 @@ class Dashboard extends \WP_REST_Controller {
 	/**
 	 * Real AI usage for the current calendar month, read from `vulopilot_ai_history`.
 	 *
-	 * @return array{ai_jobs_used: int, ai_jobs_quota: int}
+	 * @return array
 	 */
 	private function build_ai_usage_this_month(): array {
 		$stats = ( new AiHistoryRepository() )->get_stats_for_period( gmdate( 'Y-m-01' ), gmdate( 'Y-m-d' ) );
@@ -130,7 +130,7 @@ class Dashboard extends \WP_REST_Controller {
 	 * Per-domain widget scores (SEO/Performance/Security/Accessibility/ Commerce).
 	 *
 	 * @param FindingRepository $findings Repository to read category breakdowns from.
-	 * @return array<string, int|null> Category id => 0-100 score.
+	 * @return array Category id => 0-100 score.
 	 */
 	private function build_category_scores( FindingRepository $findings ): array {
 		$categories = array( 'seo', 'performance', 'security', 'accessibility', 'geo' );
@@ -154,8 +154,8 @@ class Dashboard extends \WP_REST_Controller {
 	 * Same 8 keys/same weighting as build_category_scores().
 	 *
 	 * @param FindingRepository $findings Repository to read category breakdowns from.
-	 * @param string            $as_of    MySQL datetime (UTC) to reconstruct every category's open set as of.
-	 * @return array<string, int|null> Category id => 0-100 score.
+	 * @param string            $as_of    MySQL datetime.
+	 * @return array Category id => 0-100 score.
 	 */
 	private function build_category_scores_as_of( FindingRepository $findings, string $as_of ): array {
 		$categories = array( 'seo', 'performance', 'security', 'accessibility', 'geo' );
@@ -198,7 +198,7 @@ class Dashboard extends \WP_REST_Controller {
 	/**
 	 * Shared weighting formula for the overall, category, content and brand scores.
 	 *
-	 * @param array{critical: int, high: int, medium: int, low: int} $breakdown Severity counts to score.
+	 * @param array $breakdown Severity counts to score.
 	 * @return int 0-100.
 	 */
 	private function score_from_breakdown( array $breakdown ): int {
@@ -261,7 +261,7 @@ class Dashboard extends \WP_REST_Controller {
 	/**
 	 * Real Google PageSpeed Insights Mobile/Desktop scores.
 	 *
-	 * @return array{mobile: int|null, desktop: int|null, checked_at: string|null}
+	 * @return array
 	 */
 	private function build_psi_speed_scores(): array {
 		$mobile     = get_option( 'vulopilot_psi_mobile_score', null );
@@ -307,7 +307,7 @@ class Dashboard extends \WP_REST_Controller {
 	 * Open finding count per severity - backs the Dashboard's issue distribution chart.
 	 *
 	 * @param FindingRepository $findings Repository to count from.
-	 * @return array{critical: int, high: int, medium: int, low: int}
+	 * @return array
 	 */
 	private function build_findings_by_severity( FindingRepository $findings ): array {
 		return array(
@@ -321,7 +321,7 @@ class Dashboard extends \WP_REST_Controller {
 	/**
 	 * "Overall Health" - the average of every applicable category's own already-computed.
 	 *
-	 * @param array<string, int|null> $category_scores build_category_scores()'s own return value.
+	 * @param array $category_scores build_category_scores()'s own return value.
 	 * @return int 0-100.
 	 */
 	private function calculate_overall_score( array $category_scores ): int {

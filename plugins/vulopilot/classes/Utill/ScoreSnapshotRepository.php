@@ -10,8 +10,7 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The free tier's daily category score history behind the Performance "Speed History" and
- * Security "Security Trend" cards.
+ * The free tier's daily category score history behind the Performance "Speed History" and Security "Security Trend" cards.
  *
  * @class       ScoreSnapshotRepository class
  * @version     1.0.0

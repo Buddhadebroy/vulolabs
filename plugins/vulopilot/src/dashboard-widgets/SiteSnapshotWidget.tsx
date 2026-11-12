@@ -14,7 +14,7 @@ const isEntityExtractionModuleActive = () =>
 	vulopilotAppLocalizer.active_modules?.includes('knowledge-graph') ?? false;
 
 const NOT_SET = '-';
-/** `score`/`open_count` are `null` for a signal with no real data to compute from yet (GeoSignalScore's own docblock). */
+/** `score`/`open_count` are `null` for a signal with no real data to compute from yet. */
 const formatScore = (score: number | null): string =>
 	null === score
 		? NOT_SET
@@ -23,9 +23,7 @@ const formatScore = (score: number | null): string =>
 const formatCount = (count: number | null): string =>
 	null === count ? NOT_SET : String(count);
 
-/**
- * A public site's homepage screenshot from WordPress.com's mShots service (the same one WP.org uses for plugin/theme previews).
- */
+/** A public site's homepage screenshot from WordPress.com's mShots service. */
 const getHomeScreenshotUrl = (siteUrl: string): string => {
 	try {
 		const { hostname } = new URL(siteUrl);
@@ -43,9 +41,7 @@ const getHomeScreenshotUrl = (siteUrl: string): string => {
 	}
 };
 
-/**
- * "Site snapshot" - real WordPress core counts (`summary.site_snapshot`, Dashboard controller's own `build_site_snapshot()`).
- */
+/** "Site snapshot". */
 const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 	summary,
 	isLoading,
@@ -80,10 +76,7 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 			? entities.services.map((service: Entity) => service.name).join(', ')
 			: NOT_SET;
 
-	/**
-	 * Widget rows organised into six groups (Company Details, Content, SEO & Visibility, Users &
-	 * Audience, Technology, Products & Services).
-	 */
+	/** Widget rows organised into six groups. */
 	const groups: {
 		id: string;
 		title: string;

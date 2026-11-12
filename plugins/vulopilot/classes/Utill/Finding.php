@@ -10,8 +10,7 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * A single issue surfaced by a Scanner. Immutable - every field is set at
- * construction time by the scanner that produced it.
+ * A single issue surfaced by a Scanner.
  *
  * @class       Finding class
  * @version     1.0.0
@@ -50,7 +49,7 @@ final class Finding {
 	private ?string $object_ref;
 
 	/**
-	 * @var array<string, mixed>
+	 * @var array
 	 */
 	private array $meta;
 
@@ -67,7 +66,7 @@ final class Finding {
 	 * @param string|null $object_type What kind of thing this finding is about, if any.
 	 * @param string|null $object_ref  Reference to the specific object, if any.
 	 * @param array       $meta        Arbitrary scanner-specific extra data.
-	 * @param string|null $dedupe_key  Stable identity for matching across rescans when `$title` contains a fluctuating value (word count, score, etc.).
+	 * @param string|null $dedupe_key  Stable identity for matching across rescans when `$title` contains a fluctuating value.
 	 */
 	public function __construct(
 		string $title,
@@ -132,7 +131,7 @@ final class Finding {
 	}
 
 	/**
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function get_meta(): array {
 		return $this->meta;

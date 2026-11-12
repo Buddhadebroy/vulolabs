@@ -25,9 +25,7 @@ interface StructuredDataSectionProps {
 	};
 }
 
-/**
- * Per real schema.org @type icon - purely cosmetic, every value here is a real.
- */
+/** Per real schema.org @type icon - purely cosmetic, every value here is a real. */
 /** Same 5 schema-related scanners IssuesSection.tsx's own "Schema Problems" table reads. */
 const SCHEMA_ISSUE_SCANNER_IDS = [
 	'schema',
@@ -37,7 +35,7 @@ const SCHEMA_ISSUE_SCANNER_IDS = [
 	'author-schema',
 ];
 
-/** Where a row's click goes: that page's editor (with the scanner's own field highlighted when one is mapped). */
+/** Where a row's click goes. */
 const getIssueLink = (page: SchemaCoveragePage, finding: RawFinding): string => {
 	if (!page.id) {
 		return page.url;
@@ -59,9 +57,7 @@ const TYPE_ICONS: Record<string, string> = {
 };
 const getTypeIcon = (type: string): string => TYPE_ICONS[type] ?? 'attachment';
 
-/**
- * Three-tier status per row, computed from the `found_on` and `problems` numbers the table shows.
- */
+/** Three-tier status per row, computed from the `found_on` and `problems` numbers the table shows. */
 type CoverageStatus = 'good' | 'check' | 'problems';
 
 const getRowStatus = (row: SchemaCoverageRow): CoverageStatus => {
@@ -82,8 +78,7 @@ const STATUS_CONFIG: Record<
 };
 
 /**
- * Maps this table's own 3-tier status to the real `badge-{severity}` CSS classes zyra's Table.scss
- * actually defines.
+ * Maps this table's own 3-tier status to the real `badge-{severity}` CSS classes zyra's Table.scss actually defines.
  */
 const STATUS_SEVERITY_CLASS: Record<CoverageStatus, string> = {
 	good: 'resolved',
@@ -91,9 +86,7 @@ const STATUS_SEVERITY_CLASS: Record<CoverageStatus, string> = {
 	problems: 'critical',
 };
 
-/**
- * "Structured Data" section of the merged "Schema & Knowledge" tab.
- */
+/** "Structured Data" section of the merged "Schema & Knowledge" tab. */
 const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 	const { snapshot, isLoading } = coverage;
 	// The real row the side detail panel is showing.
@@ -101,8 +94,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 		null
 	);
 
-	// Auto-selects the first real row once a snapshot loads (or after a re-analyze), so the detail
-	// panel always has something real to show.
+	// Auto-selects the first real row once a snapshot loads, so the detail panel always has something real to show.
 	useEffect(() => {
 		if (!snapshot) {
 			return;
@@ -127,8 +119,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 		scrollToId('structured-data-detail-panel');
 	};
 
-	// Real open schema findings, fetched once - matched to each selected
-	// type's own pages below (a finding is scoped to a page, not a @type).
+	// Real open schema findings, fetched once - matched to each selected type's own pages below.
 	const [schemaFindings, setSchemaFindings] = useState<RawFinding[]>([]);
 	useEffect(() => {
 		fetchOpenFindingsFor(SCHEMA_ISSUE_SCANNER_IDS)
@@ -210,8 +201,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 										},
 										action: {
 											label: __('Action', 'vulopilot'),
-											// `type: 'more-action'` no longer exists in
-											// @zyra/table.
+											// `type: 'more-action'` no longer exists in @zyra/table.
 											type: 'action',
 											actions: [
 												{
@@ -228,8 +218,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 														row.type === selectedRow?.type
 															? 'eye'
 															: 'pagination-next-arrow',
-													// The panel is never closed - clicking the row
-													// already showing just keeps it open.
+													// The panel is never closed - clicking the row already showing just keeps it open.
 													onClick: handleSelectRow,
 												},
 											],
@@ -249,8 +238,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 									totalRows={snapshot.coverage.length}
 									isLoading={isLoading}
 									activeRowId={selectedRow?.type}
-									// A click anywhere on the row now opens the detail panel too,
-									// not just the action cell's own small "More Details" button.
+									// A click anywhere on the row now opens the detail panel too, not just the action cell's own small "More Details" button.
 									onRowClick={(row: Record<string, unknown>) =>
 										handleSelectRow(row as unknown as SchemaCoverageRow)
 									}
@@ -357,8 +345,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 									id: String(finding.id),
 									title: finding.title,
 									desc: page.title,
-									// Same "click the row → open that page's editor" behaviour as
-									// the GEO/AEO issue tables.
+									// Same "click the row → open that page's editor" behaviour as the GEO/AEO issue tables.
 									action: () => {
 										window.location.href = getIssueLink(page, finding);
 									},

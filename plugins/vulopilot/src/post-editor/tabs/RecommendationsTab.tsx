@@ -11,9 +11,7 @@ interface RecommendationsTabProps {
 	onDismiss?: () => void;
 }
 
-/**
- * Union of every real, already-computed recommendation this post has: SeoScoreEngine's own fail/warning rules.
- */
+/** Union of every real, already-computed recommendation this post has. */
 export default function RecommendationsTab( { onNavigate, onDismiss }: RecommendationsTabProps ) {
 	const { postId } = usePostData();
 	const [ seoScore, setSeoScore ] = useState< SeoScoreResponse | null >( null );

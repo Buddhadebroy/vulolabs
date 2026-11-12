@@ -45,8 +45,7 @@ const SetupWizard = () => {
 				);
 
 				if (0 === found.length) {
-					// Nothing left to migrate (e.g. the admin already ran it manually before this
-					// page loaded) - no reason to show an empty wizard.
+					// Nothing left to migrate - no reason to show an empty wizard.
 					goToDashboard();
 					return;
 				}

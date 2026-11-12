@@ -25,7 +25,7 @@ interface BackupRow {
 	trigger_type: 'manual' | 'scheduled' | 'pre_restore_safety';
 	has_file: boolean;
 	file_size: number | null;
-	/** 'local' (the default - every backup always saves here) or the remote destination active when this backup finished (BackupStorageManager). */
+	/** 'local' or the remote destination active when this backup finished. */
 	destination: 'local' | 's3' | 'google_drive';
 	/** Null for a 'local'-only row (nothing else to track). */
 	destination_status: 'uploading' | 'uploaded' | 'failed' | 'skipped_not_configured' | null;
@@ -50,9 +50,7 @@ const STATUS_ICON: Record<string, string> = {
 	failed: 'error',
 };
 
-/**
- * Real HH:MM:SS between two real timestamps - same padding technique BrokenLinksSection.tsx's own `formatDurationMs()` already uses.
- */
+/** Real HH:MM:SS between two real timestamps. */
 const formatDuration = (startIso: string, endIso: string): string => {
 	const totalSeconds = Math.max(
 		0,
@@ -68,9 +66,7 @@ const formatDuration = (startIso: string, endIso: string): string => {
 	return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 };
 
-/**
- * Real "Finished in/Failed after/Elapsed" sub-line under the Status badge (reference mockup).
- */
+/** Real "Finished in/Failed after/Elapsed" sub-line under the Status badge. */
 const statusSubtext = (row: BackupRow): string | null => {
 	if ('completed' === row.status && row.started_at && row.finished_at) {
 		return sprintf(
@@ -110,9 +106,7 @@ const DESTINATION_PROVIDER_LABEL: Record<string, string> = {
 	google_drive: __('Google Drive', 'vulopilot'),
 };
 
-/**
- * A real remote destination's own upload badge - `null` for a `'local'` row.
- */
+/** A real remote destination's own upload badge - `null` for a `'local'` row. */
 const destinationBadge = (
 	row: BackupRow
 ): { text: string; className: string } | null => {
@@ -153,7 +147,7 @@ const destinationBadge = (
 };
 
 
-/** Real file size, human-scaled - same rounding convention this codebase's other byte-count displays already use. */
+/** Real file size, human-scaled. */
 const formatFileSize = (bytes: number | null): string => {
 	if (!bytes) {
 		return '-';
@@ -170,22 +164,17 @@ const formatFileSize = (bytes: number | null): string => {
 const RESTORE_CONFIRM_PHRASE = 'RESTORE';
 
 export interface BackupsTabHandle {
-	/**
-	 * Same real `handleCreate` this card's own "Create Backup Now" header button (`action`, below)
-	 * calls directly.
-	 */
+	/** Same real `handleCreate` this card's own "Create Backup Now" header button calls directly. */
 	createBackup: () => void;
 }
 
 interface BackupsTabProps {
-	/** Mirrors this card's own real `isCreating` state (driving its header button's label/disabled state) out to a parent. */
+	/** Mirrors this card's own real `isCreating` state out to a parent. */
 	// eslint-disable-next-line no-unused-vars
 	onCreatingChange?: (isCreating: boolean) => void;
 }
 
-/**
- * "Backups" tab of "Protect My Site" - real backup creation, listing, download, delete.
- */
+/** "Backups" tab of "Protect My Site" - real backup creation, listing, download, delete. */
 const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 	onCreatingChange,
 }, ref) => {
@@ -203,8 +192,7 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 	/** Row pending deletion, shown via the `confirmMode` popup below instead of `window.confirm()`. */
 	const [deleteTarget, setDeleteTarget] = useState<BackupRow | null>(null);
 
-	// Real "All triggers"/"All statuses"/"All destinations" filters + search (mockup's own filter
-	// row).
+	// Real "All triggers"/"All statuses"/"All destinations" filters + search.
 	const [searchValue, setSearchValue] = useState('');
 	const [triggerFilter, setTriggerFilter] = useState('');
 	const [statusFilter, setStatusFilter] = useState('');
@@ -255,9 +243,7 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 		(row) => 'queued' === row.status || 'running' === row.status
 	);
 
-	/**
-	 * Real live-refresh while a backup is queued/running.
-	 */
+	/** Real live-refresh while a backup is queued/running. */
 	useEffect(() => {
 		if (!hasPendingBackup) {
 			return;
@@ -303,14 +289,13 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 	useImperativeHandle(ref, () => ({ createBackup: handleCreate }));
 
 	const handleDownload = (row: BackupRow) => {
-		// Real browser navigation, not an XHR - the nonce travels as a query param instead of the
-		// X-WP-Nonce header.
+		// Real browser navigation, not an XHR.
 		const baseUrl = getApiLink(vulopilotAppLocalizer, `backups/${row.id}/download`);
 		const separator = baseUrl.includes('?') ? '&' : '?';
 		window.open(`${baseUrl}${separator}_wpnonce=${vulopilotAppLocalizer.nonce}`, '_blank');
 	};
 
-	/** Opens the `confirmMode` popup - the actual delete runs from `handleConfirmDelete` once the user confirms there. */
+	/** Opens the `confirmMode` popup. */
 	const handleDelete = (row: BackupRow) => {
 		setDeleteTarget(row);
 	};
@@ -437,8 +422,7 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 							placeholder: __('Search backups…', 'vulopilot'),
 						}}
 						filtersBeforeSearch
-						// Real toolbar order - puts "Create Backup Now" after the search box
-						// instead of up in the card's own header.
+						// Real toolbar order - puts "Create Backup Now" after the search box instead of up in the card's own header.
 						buttonActions={[
 							{
 								label: isCreating
@@ -528,8 +512,7 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 							},
 							action: {
 								label: __('Action', 'vulopilot'),
-								// Button actions, not icon-only/badges - each action below sets
-								// its own real `type: 'button'` (TableRowActions.tsx).
+								// Button actions, not icon-only/badges.
 								type: 'action',
 								actions: [
 									{
@@ -583,8 +566,7 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 							},
 						}}
 						rows={filteredData.map((row) => {
-							// Real trigger/status badges + the same real "Finished in/Failed
-							// after/Elapsed" subtext `statusSubtext()` already computes.
+							// Real trigger/status badges + the same real "Finished in/Failed after/Elapsed" subtext `statusSubtext()` already computes.
 							const statusBadge =
 								STATUS_BADGE[row.status] ?? STATUS_BADGE.queued;
 							const subtext = statusSubtext(row);

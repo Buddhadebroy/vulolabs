@@ -26,24 +26,18 @@ class EntityExtractor {
 	private const PRODUCT_BATCH_SIZE = 200;
 
 	/**
-	 * Same real slug list Geo\Scanners\GeoTrustSignalsScanner already checks for its own
-	 * "site is missing a Contact page" finding.
+	 * Same real slug list Geo\Scanners\GeoTrustSignalsScanner already checks for its own "site is missing a Contact page" finding.
 	 */
 	private const CONTACT_SLUGS = array( 'contact', 'contact-us' );
 
-	/**
-	 * Real slug list checked for `get_business_name_sources()`'s own "About page" source.
-	 */
+	/** Real slug list checked for `get_business_name_sources()`'s own "About page" source. */
 	private const ABOUT_SLUGS = array( 'about', 'about-us' );
 
-	/**
-	 * Real relationship sentences the "Knowledge Graph" section's own "Suggested
-	 * relationships" panel shows.
-	 */
+	/** Real relationship sentences the "Knowledge Graph" section's own "Suggested relationships" panel shows. */
 	private const MAX_SUGGESTED_RELATIONSHIPS = 6;
 
 	/**
-	 * @return array{people: array, organizations: array, products: array|null, services: array, locations: array, categories: array, business_type: string, business_name: string, business_logo_url: string|null, has_contact_page: bool, contact_page_url: string|null, suggested_relationships: array<int, string>}
+	 * @return array
 	 */
 	public function extract_all(): array {
 		$cached = get_transient( self::CACHE_KEY );
@@ -102,7 +96,7 @@ class EntityExtractor {
 	}
 
 	/**
-	 * @return string Real, owner-provided `entity_business_type` setting - empty until set, never guessed.
+	 * @return string Real, owner-provided `entity_business_type` setting.
 	 */
 	private function get_business_type_setting(): string {
 		$settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
@@ -111,7 +105,7 @@ class EntityExtractor {
 	}
 
 	/**
-	 * @return string Real, owner-provided `entity_business_name` override - empty when unset, so callers fall back to the first extracted organization's name, then the site title.
+	 * @return string Real, owner-provided `entity_business_name` override.
 	 */
 	private function get_business_name_setting(): string {
 		$settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
@@ -151,8 +145,8 @@ class EntityExtractor {
 	}
 
 	/**
-	 * @param bool $refresh Bust EntityExtractor's own 1-hour cache first - real "Scan Again" semantics (re-reads every real source now).
-	 * @return array{business_name: string, confidence: string, sources: array<int, array{key: string, label: string, value: string|null, found: bool, url: string|null}>, sources_checked: int, is_consistent: bool, consistent_count: int}
+	 * @param bool $refresh Bust EntityExtractor's own 1-hour cache first.
+	 * @return array
 	 */
 	public function get_business_name_sources( bool $refresh = false ): array {
 		if ( $refresh ) {
@@ -213,15 +207,14 @@ class EntityExtractor {
 			'confidence'       => '' !== $business_name ? 'high' : 'n/a',
 			'sources'          => $sources,
 			'sources_checked'  => count( $sources ),
-			// A single found source (or none) is trivially "consistent" -
-			// there's nothing real to disagree with it yet.
+			// A single found source is trivially "consistent".
 			'is_consistent'    => count( $unique_values ) <= 1,
 			'consistent_count' => count( $found_values ),
 		);
 	}
 
 	/**
-	 * The homepage's display name: the static front page's title, or the site title for a latest-posts homepage.
+	 * The homepage's display name.
 	 *
 	 * @return string|null
 	 */
@@ -247,7 +240,7 @@ class EntityExtractor {
 	 * Whether the real business name shows up in a real, published About page's own content.
 	 *
 	 * @param string $business_name The real, already-resolved business name to check for.
-	 * @return array{value: string|null, url: string|null} `value` is the real business name when a published About page's content actually contains it, null otherwise (no About page, or one that doesn't mention it). `url` is that page's own real permalink whenever a published About page exists at all - even when its content doesn't mention the name, so "View" can still send someone to the real page to check for themselves.
+	 * @return array `value` is the real business name when a published About page's content actually contains it, null otherwise.
 	 */
 	private function find_about_page_name_match( string $business_name ): array {
 		foreach ( self::ABOUT_SLUGS as $slug ) {
@@ -274,13 +267,13 @@ class EntityExtractor {
 	}
 
 	/**
-	 * Real, deterministic, template-built candidate relationships - never AI-generated (no AI call, no cost).
+	 * Real, deterministic, template-built candidate relationships.
 	 *
-	 * @param string     $business_name Real organization name (extract_organizations()'s own first entry).
+	 * @param string     $business_name Real organization name.
 	 * @param array      $services      extract_services()'s own real rows.
-	 * @param array|null $products   extract_products()'s own real rows (null when the store platform isn't active).
+	 * @param array|null $products      extract_products()'s own real rows.
 	 * @param array      $categories    extract_categories()'s own real rows.
-	 * @return array<int, string>
+	 * @return array
 	 */
 	private function build_suggested_relationships( string $business_name, array $services, ?array $products, array $categories ): array {
 		$relationships = array();
@@ -303,8 +296,7 @@ class EntityExtractor {
 			);
 		}
 
-		// Only real categories with real published content in them (`extract_categories()` already
-		// filters to `hide_empty`) and only the taxonomy WordPress core itself calls "categories".
+		// Only real categories with real published content in them (`extract_categories()` already filters to `hide_empty`) and only the taxonomy WordPress core itself calls "categories".
 		foreach ( $categories as $category ) {
 			if ( 'category' !== ( $category['meta']['taxonomy'] ?? '' ) ) {
 				continue;
@@ -336,9 +328,9 @@ class EntityExtractor {
 	}
 
 	/**
-	 * Real site "People" - every published post/page's author (as before) plus every real WordPress Administrator, even one who's never authored anything.
+	 * Real site "People".
 	 *
-	 * @return array<int, array{id: string, type: string, name: string, url: string|null, source_object_type: string.
+	 * @return array
 	 */
 	private function extract_people(): array {
 		global $wpdb;
@@ -404,7 +396,7 @@ class EntityExtractor {
 	}
 
 	/**
-	 * @return array<int, array{id: string, type: string, name: string, url: string|null, source_object_type: string.
+	 * @return array
 	 */
 	private function extract_organizations(): array {
 		$organizations = array();
@@ -428,7 +420,7 @@ class EntityExtractor {
 	}
 
 	/**
-	 * @return array{name?: string, url?: string, logo?: string}|null
+	 * @return array|null
 	 */
 	private function get_homepage_publisher(): ?array {
 		$raw = get_option( 'vulopilot_homepage_schema_json', '' );
@@ -447,7 +439,7 @@ class EntityExtractor {
 	}
 
 	/**
-	 * @return array<int, array{id: string, type: string, name: string, url: string|null, source_object_type: string.
+	 * @return array
 	 */
 	private function extract_products(): ?array {
 		if ( ! class_exists( 'WooCommerce' ) || ! function_exists( 'wc_get_products' ) ) {
@@ -490,7 +482,7 @@ class EntityExtractor {
 	/**
 	 * "Product Details" panel data - real published store-platform products, each with a real.
 	 *
-	 * @return array<int, array{id: int, name: string, url: string, edit_url: string|null, issues: array<int, string>.
+	 * @return array
 	 */
 	public function get_product_schema_details(): array {
 		if ( ! class_exists( 'WooCommerce' ) || ! function_exists( 'wc_get_products' ) ) {
@@ -547,9 +539,9 @@ class EntityExtractor {
 	}
 
 	/**
-	 * Owner-curated, newline-separated page URLs/ids (Site Identity → Business Information's `entity_service_pages` setting).
+	 * Owner-curated, newline-separated page URLs/ids.
 	 *
-	 * @return array<int, array{id: string, type: string, name: string, url: string|null, source_object_type: string.
+	 * @return array
 	 */
 	private function extract_services(): array {
 		return $this->extract_pages_from_setting( 'entity_service_pages', 'service' );
@@ -558,7 +550,7 @@ class EntityExtractor {
 	/**
 	 * @param string $setting_key Utill::VULOPILOT_SETTINGS_DEFAULTS key.
 	 * @param string $entity_type 'service' or reused for other page-list entity types.
-	 * @return array<int, array{id: string, type: string, name: string, url: string|null, source_object_type: string.
+	 * @return array
 	 */
 	private function extract_pages_from_setting( string $setting_key, string $entity_type ): array {
 		$settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
@@ -588,9 +580,9 @@ class EntityExtractor {
 	}
 
 	/**
-	 * `url_to_postid()` alone (this method's only resolution path until this fix) silently fails for a real, live.
+	 * `url_to_postid()` alone.
 	 *
-	 * @param string $line One raw line from the setting - either a numeric post ID or a URL.
+	 * @param string $line One raw line from the setting.
 	 * @return int 0 if nothing resolves.
 	 */
 	private function resolve_post_id_from_setting_line( string $line ): int {
@@ -616,9 +608,9 @@ class EntityExtractor {
 	}
 
 	/**
-	 * Owner-curated, newline-separated `Name | Address` lines (Site Identity → Business Information's `entity_business_locations` setting).
+	 * Owner-curated, newline-separated `Name | Address` lines.
 	 *
-	 * @return array<int, array{id: string, type: string, name: string, url: null, source_object_type: string.
+	 * @return array
 	 */
 	private function extract_locations(): array {
 		$settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
@@ -652,7 +644,7 @@ class EntityExtractor {
 	}
 
 	/**
-	 * @return array<int, array{id: string, type: string, name: string, url: string|null, source_object_type: string.
+	 * @return array
 	 */
 	private function extract_categories(): array {
 		$taxonomies = array( 'category' );

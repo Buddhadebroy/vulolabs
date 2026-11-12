@@ -39,7 +39,7 @@ class AutomationsRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * @return int Count of currently enabled automations - what the dashboard's "active automations" stat card reads.
+	 * @return int Count of currently enabled automations.
 	 */
 	public function count_enabled(): int {
 		global $wpdb;
@@ -52,7 +52,7 @@ class AutomationsRepository extends RepositoryUtil {
 	/**
 	 * Enabled/disabled/draft counts, zero-filled, keyed by status.
 	 *
-	 * @return array{enabled: int, disabled: int, draft: int}
+	 * @return array
 	 */
 	public function get_status_counts(): array {
 		return array_merge(
@@ -67,7 +67,7 @@ class AutomationsRepository extends RepositoryUtil {
 
 	/**
 	 * @param string $marker The exact `system_default` value to look for.
-	 * @return array<string, mixed>|null
+	 * @return array|null
 	 */
 	public function find_by_system_default_marker( string $marker ): ?array {
 		global $wpdb;

@@ -17,14 +17,14 @@ import { formatAffected } from '../components/Issues/issuesTypes';
 import type { FindingGroup } from '../components/Issues/issuesTypes';
 import { WidgetProps } from './types';
 
-/** `write-meta-title` → "Write meta title" - the action ids the approval queue carries are internal slugs. */
+/** `write-meta-title` → "Write meta title". */
 const humanizeActionId = (actionId: string): string => {
 	const words = actionId.replace(/[-_]+/g, ' ').trim();
 
 	return words.charAt(0).toUpperCase() + words.slice(1);
 };
 
-/** First sentence of a finding's own description, capped - the "what's wrong" line under each issue type. */
+/** First sentence of a finding's own description, capped. */
 const summarize = (text?: string | null): string => {
 	const first = (text ?? '').split(/(?<=[.!?])\s/)[0].trim();
 
@@ -37,9 +37,7 @@ interface ActionRunRow {
 	created_at: string;
 }
 
-/**
- * "Needs your attention" - the three real, honest data sources that used to be three separate cards.
- */
+/** "Needs your attention". */
 const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 	onHide,
 	isCustomizing,

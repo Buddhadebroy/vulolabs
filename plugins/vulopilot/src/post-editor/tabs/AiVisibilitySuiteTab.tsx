@@ -8,15 +8,13 @@ import AiVisibilityCrawlerTab from './AiVisibilityCrawlerTab';
 import ContentAnalysisTab from './ContentAnalysisTab';
 
 interface AiVisibilitySuiteTabProps {
-	/** None of this suite's sub-tabs use highlight targets - accepted only so `PostSeoPanel.tsx` can pass the same props shape to every tab component uniformly. */
+	/** None of this suite's sub-tabs use highlight targets. */
 	highlightTarget?: string;
 	// eslint-disable-next-line no-unused-vars
 	onNavigate?: ( tab: string, target?: string ) => void;
 }
 
-/**
- * Groups the six "AI Visibility Score" sidebar tabs.
- */
+/** Groups the six "AI Visibility Score" sidebar tabs. */
 export default function AiVisibilitySuiteTab( { onNavigate }: AiVisibilitySuiteTabProps ) {
 	return (
 		<div className="vulopilot-seo-tab vulopilot-seo-tab--ai-visibility-suite">

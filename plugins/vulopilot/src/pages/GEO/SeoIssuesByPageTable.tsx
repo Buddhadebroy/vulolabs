@@ -15,10 +15,7 @@ import {
 	VisibilityCell,
 } from './seoIssuesShared';
 
-/**
- * One inline sub-row under a page's row - zyra `TableCard`'s own native `expandable` mechanism
- * (`row.variation: FindingRow[]`).
- */
+/** One inline sub-row under a page's row. */
 interface FindingRow {
 	id: number;
 	isFinding: true;
@@ -37,8 +34,7 @@ type TableRow = PageRow | FindingRow;
 const isFindingRow = (row: TableRow): row is FindingRow => true === row.isFinding;
 
 /**
- * The fields of zyra TableCard's own internal query state this table reads back out of its
- * `onQueryUpdate` callback.
+ * The fields of zyra TableCard's own internal query state this table reads back out of its `onQueryUpdate` callback.
  */
 interface TableCardQuery {
 	searchValue?: string;
@@ -48,8 +44,7 @@ interface TableCardQuery {
 
 /** Same navigate-and-highlight deep link `post-editor/index.tsx` reads. */
 const buildFixWithAiLink = (editLink: string, finding: RawFinding): string =>
-	// Scanner ids with no `SEO_ISSUE_EDITOR_TARGETS` entry (most GEO/AEO ones) fall back to the
-	// finding's own id so the editor's Page Analysis tab can still highlight it.
+	// Scanner ids with no `SEO_ISSUE_EDITOR_TARGETS` entry fall back to the finding's own id so the editor's Page Analysis tab can still highlight it.
 	getEditorTargetForScanner(finding.scanner_id)
 		? `${editLink}&${SEO_ISSUE_QUERY_PARAM}=${encodeURIComponent(finding.scanner_id)}`
 		: `${editLink}&${FINDING_ID_QUERY_PARAM}=${finding.id}`;
@@ -72,9 +67,7 @@ const ChangeCell = ({ change }: { change: number }) => {
 	);
 };
 
-/**
- * zyra `Table.tsx`'s own expand/collapse state (`expandedRows`) is fully internal.
- */
+/** Zyra `Table.tsx`'s own expand/collapse state (`expandedRows`) is fully internal. */
 const toggleRowExpansion = (event: React.MouseEvent<HTMLElement>) => {
 	const rowEl = event.currentTarget.closest('tr.admin-row');
 	const expandIcon = rowEl?.querySelector<HTMLElement>(':scope > td.admin-column.expand > i');
@@ -101,16 +94,16 @@ interface SeoIssuesByPageTableProps {
 	hasError: boolean;
 	/** "SEO Issues" by default - IssuesSection.tsx's own AEO/GEO callers pass "AEO Issues"/"GEO Issues" so this column reads correctly for whichever real check set is showing. */
 	issuesColumnLabel?: string;
-	/** Only set when `IssuesSection.tsx` itself got a `pageAnalysis` prop (GeoTab.tsx/AeoTab.tsx). */
+	/** Only set when `IssuesSection.tsx` itself got a `pageAnalysis` prop. */
 	visibilityColumnLabel?: string;
-	/** Only set alongside `visibilityColumnLabel` - shows a real "Export CSV" action in this card's header. */
+	/** Only set alongside `visibilityColumnLabel`. */
 	onExportCsv?: () => void;
-	/** Only set by SeoTab.tsx's own SEO usage - adds a real "Analyze" row action opening its own PageAnalysisPanel for that page. */
+	/** Only set by SeoTab.tsx's own SEO usage. */
 	// eslint-disable-next-line no-unused-vars
 	onAnalyze?: (postId: number) => void;
 	/** SeoTab.tsx's own `analyzingPostId` - which row's panel (if any) is currently open. */
 	activePostId?: number | null;
-	/** Called with `true` when this tab's "Pages & Posts" list has nothing to show (and no search is active), `false` otherwise - lets the host close an open page-analysis panel that no longer applies to the selected tab. */
+	/** Called with `true` when this tab's "Pages & Posts" list has nothing to show, `false` otherwise. */
 	// eslint-disable-next-line no-unused-vars
 	onEmptyChange?: (isEmpty: boolean) => void;
 	/** Only set by SeoTab.tsx's own SEO usage (`IssuesSection.tsx`'s own `pageScore` prop). */
@@ -126,9 +119,7 @@ interface SeoIssuesByPageTableProps {
 	deletingId?: number | null;
 }
 
-/**
- * Page/post-wise table - the other of the two real tables that replace the old combined "All SEO Issues" card, split apart.
- */
+/** Page/post-wise table. */
 const SeoIssuesByPageTable = ({
 	rows,
 	activeScannerIds,
@@ -148,16 +139,13 @@ const SeoIssuesByPageTable = ({
 	onDelete,
 	deletingId,
 }: SeoIssuesByPageTableProps) => {
-	/** This table's OWN "Search pages…" box (TableCard's built-in search, filtering by PAGE title). */
+	/** This table's OWN "Search pages…" box. */
 	const [searchValue, setSearchValue] = useState('');
-	/** This table's OWN sort state, read back out of TableCard's `onQueryUpdate` (same callback `searchValue` above already uses). */
+	/** This table's OWN sort state, read back out of TableCard's `onQueryUpdate`. */
 	const [sortBy, setSortBy] = useState<string | null>(null);
 	const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-	/**
-	 * The category tab bar/priority stat cards (both owned by IssuesSection.tsx) narrow which
-	 * PAGES appear (`rowMatchesFilter` below).
-	 */
+	/** The category tab bar/priority stat cards narrow which PAGES appear. */
 	const isAnyFilterActive = 'all' !== activeScannerIds || 'all' !== activePriority;
 
 	const findingMatchesActiveFilters = (finding: PageRow['findings'][number]): boolean =>
@@ -188,9 +176,7 @@ const SeoIssuesByPageTable = ({
 		'' === searchValue.trim() ||
 		row.title.toLowerCase().includes(searchValue.trim().toLowerCase());
 
-	/**
-	 * `Table.tsx` does not re-sort `rows`; a sortable header only reports the new `orderby`/`order` via `onQueryUpdate`.
-	 */
+	/** `Table.tsx` does not re-sort `rows`. */
 	const sortRowsByVisibility = (unsorted: PageRow[]): PageRow[] => {
 		if ('visibility_score' !== sortBy) {
 			return unsorted;
@@ -301,10 +287,7 @@ const SeoIssuesByPageTable = ({
 						title: {
 							label: __('Page', 'vulopilot'),
 							width: '65%',
-							/**
-							 * Status and Issues used to be their own columns - consolidated here
-							 * as InformationItemComponent's own `badges` prop instead.
-							 */
+							/** Status and Issues used to be their own columns. */
 							render: (row: TableRow) =>
 								isFindingRow(row) ? (
 									<div className="seo-issues-finding-title">
@@ -411,8 +394,7 @@ const SeoIssuesByPageTable = ({
 										label: visibilityColumnLabel,
 										width: '3rem',
 										isSortable: true,
-										// Same real ring `showScoreChange`'s own `seo_score`
-										// column below renders.
+										// Same real ring `showScoreChange`'s own `seo_score` column below renders.
 										render: (row: TableRow) =>
 											isFindingRow(row) ? null : (
 												<span
@@ -439,9 +421,7 @@ const SeoIssuesByPageTable = ({
 									},
 								}
 							: {}),
-						// Real per-page SEO score/week-over-week change -
-						// `PagesNeedingAttentionTable.tsx`'s own former 2 columns, folded into
-						// "Pages & Posts".
+						// Real per-page SEO score/week-over-week change.
 						...(showScoreChange
 							? {
 									seo_score: {
@@ -510,8 +490,7 @@ const SeoIssuesByPageTable = ({
 							actions: [
 								{
 									type: 'button',
-									// Same "More Details"/"Showing" toggle wording as the other issues tables (SectionedIssuesTable,
-									// IssuesList, SlowPagesTab, SchemaKnowledge's IssuesSection and StructuredDataSection).
+									// Same "More Details"/"Showing" toggle wording as the other issues tables.
 									label: (row: Record<string, unknown>) =>
 										(row as unknown as PageRow).id === activePostId
 											? __('Showing', 'vulopilot')

@@ -39,9 +39,7 @@ const formatAbbreviated = (count: number): string =>
 		? `${(count / 1000).toFixed(1)}K`
 		: count.toLocaleString();
 
-/**
- * "Content Stats": content created and words generated for the selected period, from `GET /content-intelligence/stats`, with change against the previous period.
- */
+/** "Content Stats". */
 const ContentStatsCard = () => {
 	const [period, setPeriod] = useState<StatsPeriod>('30');
 	const [stats, setStats] = useState<StatsResponse | null>(null);

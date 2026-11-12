@@ -24,10 +24,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class WriteMetaDescriptionAction extends AbstractCloudAction {
 
-	/**
-	 * Search snippets are truncated well before this; a description
-	 * longer than this reads as the AI padding rather than summarizing.
-	 */
+	/** Search snippets are truncated well before this. */
 	private const MAX_LENGTH = 160;
 
 	/**

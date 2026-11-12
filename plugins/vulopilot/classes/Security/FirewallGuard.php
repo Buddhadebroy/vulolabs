@@ -31,9 +31,7 @@ class FirewallGuard {
 		'/%00/i'                                  => 'null-byte-injection',
 	);
 
-	/**
-	 * FirewallGuard constructor.
-	 */
+	/** FirewallGuard constructor. */
 	public function __construct() {
 		add_action( 'init', array( $this, 'inspect_request' ), 1 );
 	}
@@ -85,8 +83,7 @@ class FirewallGuard {
 				);
 			}
 
-			// One matched rule is enough to act on - no need to keep
-			// checking the remaining rules against this same request.
+			// One matched rule is enough to act on.
 			return;
 		}
 	}

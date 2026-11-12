@@ -59,9 +59,7 @@ interface RecentConversationsCardProps {
 	onSelectConversation: (id: number) => void;
 }
 
-/**
- * AI Copilot's "Recent conversations" card - the 5 most recently-updated real.
- */
+/** AI Copilot's "Recent conversations" card - the 5 most recently-updated real. */
 const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 	onSelectConversation,
 }) => {

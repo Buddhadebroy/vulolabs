@@ -10,9 +10,7 @@ namespace VuloPilot\AiCopilot;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Collects a blog post's fields inside a chat with fixed questions - topic, then word count,
- * then tone - and hands back one complete `generate-blog` request. No AI is involved until
- * every field is known. Progress is kept per user and chat in a short-lived transient.
+ * Collects a blog post's fields inside a chat with fixed questions.
  *
  * @class       BlogIntake class
  * @version     1.0.0
@@ -20,27 +18,19 @@ defined( 'ABSPATH' ) || exit;
  */
 class BlogIntake {
 
-	/**
-	 * An unfinished intake is forgotten after this long.
-	 */
+	/** An unfinished intake is forgotten after this long. */
 	private const TTL = 30 * MINUTE_IN_SECONDS;
 
-	/**
-	 * Fields in the order they are asked for.
-	 */
+	/** Fields in the order they are asked for. */
 	private const FIELDS = array( 'topic', 'word_count', 'tone' );
 
-	/**
-	 * Same bounds GenerateBlogAction::validate_input() applies.
-	 */
+	/** Same bounds GenerateBlogAction::validate_input() applies. */
 	private const MIN_TOPIC_LENGTH = 5;
 	private const MIN_WORDS        = 100;
 	private const MAX_WORDS        = 5000;
 	private const MAX_TONE_LENGTH  = 60;
 
-	/**
-	 * Tone words recognized when the first message already names one.
-	 */
+	/** Tone words recognized when the first message already names one. */
 	private const TONES = array( 'professional', 'friendly', 'informative', 'casual', 'formal', 'conversational', 'persuasive', 'technical', 'humorous', 'enthusiastic' );
 
 	/**
@@ -61,7 +51,7 @@ class BlogIntake {
 	 * Handles a chat message if it starts or continues a blog request.
 	 *
 	 * @param string $message The user's message.
-	 * @return array<string, mixed>|null A decision - `question`/`respond` with a `message`, or `ready_action` with `generate-blog`'s complete `input`.
+	 * @return array|null A decision - `question`/`respond` with a `message`, or `ready_action` with `generate-blog`'s complete `input`.
 	 */
 	public function handle( string $message ): ?array {
 		$state = $this->load();
@@ -111,7 +101,7 @@ class BlogIntake {
 	}
 
 	/**
-	 * `/blog ...`, or a request to write/create a blog or article that isn't a how/what/why question.
+	 * `/blog...`, or a request to write/create a blog or article that isn't a how/what/why question.
 	 *
 	 * @param string $message The user's message.
 	 * @return bool
@@ -138,7 +128,7 @@ class BlogIntake {
 	 * Fields the first message already states; null for each one still to ask.
 	 *
 	 * @param string $message The user's first message.
-	 * @return array{topic: string|null, word_count: int|null, tone: string|null}
+	 * @return array
 	 */
 	private function prefill( string $message ): array {
 		$fields = array_fill_keys( self::FIELDS, null );
@@ -175,9 +165,9 @@ class BlogIntake {
 	/**
 	 * Records the answer to the field that was asked, or a hint to ask again.
 	 *
-	 * @param array<string, mixed> $state   Stored intake state.
-	 * @param string               $message The user's answer.
-	 * @return array<string, mixed>
+	 * @param array  $state   Stored intake state.
+	 * @param string $message The user's answer.
+	 * @return array
 	 */
 	private function apply_answer( array $state, string $message ): array {
 		$field  = $state['asking'] ?? $this->next_field( $state['fields'] );
@@ -210,7 +200,7 @@ class BlogIntake {
 	}
 
 	/**
-	 * @param array<string, mixed> $fields Collected fields.
+	 * @param array $fields Collected fields.
 	 * @return string|null The first field still unanswered.
 	 */
 	private function next_field( array $fields ): ?string {
@@ -246,7 +236,7 @@ class BlogIntake {
 	}
 
 	/**
-	 * @return array<string, mixed>|null
+	 * @return array|null
 	 */
 	private function load(): ?array {
 		$state = get_transient( $this->key() );
@@ -255,7 +245,7 @@ class BlogIntake {
 	}
 
 	/**
-	 * @param array<string, mixed> $state Intake state.
+	 * @param array $state Intake state.
 	 * @return void
 	 */
 	private function save( array $state ): void {

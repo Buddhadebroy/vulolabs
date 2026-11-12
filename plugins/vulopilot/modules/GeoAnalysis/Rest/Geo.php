@@ -13,9 +13,7 @@ use VuloPilot\Utill\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * REST controller for the GEO tab: deterministic GEO score (7 signal rows),
- * progress trend, and content-freshness. Same scoring pattern as
- * `Controllers\Seo::get_score()`, applied to GeoTab.tsx's GEO scanner ids.
+ * REST controller for the GEO tab.
  *
  * @class       Geo controller
  * @version     1.0.0
@@ -29,12 +27,9 @@ class Geo extends \WP_REST_Controller {
 	protected $rest_base = 'geo';
 
 	/**
-	 * GEO scanner ids (`modules/GeoAnalysis/Scanners/`), regrouped against
-	 * this card's 7 rows. Keep in sync manually with GeoTab.tsx's
-	 * `GEO_TOPICS`. `content-freshness` is computed separately in
-	 * `get_content_freshness()` instead of listed here.
+	 * GEO scanner ids (`modules/GeoAnalysis/Scanners/`), regrouped against this card's 7 rows.
 	 *
-	 * @var array<string, string[]>
+	 * @var array
 	 */
 	private const SIGNAL_SCANNER_IDS = array(
 		'ai-summary'            => array( 'geo-summary-block' ),
@@ -53,8 +48,7 @@ class Geo extends \WP_REST_Controller {
 	private const DELTA_LOOKBACK_DAYS = 7;
 
 	/**
-	 * Per-signal daily score trend length for `get_score()`'s
-	 * `signals[*].trend`, feeding each row's up/down delta arrow.
+	 * Per-signal daily score trend length for `get_score()`'s `signals[*].trend`, feeding each row's up/down delta arrow.
 	 *
 	 * @var int
 	 */
@@ -160,7 +154,7 @@ class Geo extends \WP_REST_Controller {
 	/**
 	 * Same weighting `Seo::calculate_score()`/ BrandIntelligence::calculate_score() already use.
 	 *
-	 * @param array{critical: int, high: int, medium: int, low: int} $breakdown Severity breakdown to score.
+	 * @param array $breakdown Severity breakdown to score.
 	 * @return int 0-100.
 	 */
 	private function calculate_score( array $breakdown ): int {
@@ -226,7 +220,7 @@ class Geo extends \WP_REST_Controller {
 	/**
 	 * Sitewide "Content Freshness" signal: 4-tier recency banding.
 	 *
-	 * @return array{score: int|null, open_count: null, affected_pages: int, main_problem: string|null, trend: null}
+	 * @return array
 	 */
 	private function get_content_freshness(): array {
 		global $wpdb;

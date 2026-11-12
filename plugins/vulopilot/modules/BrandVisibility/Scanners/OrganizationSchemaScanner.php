@@ -14,8 +14,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Fetches the live homepage and checks it has an `Organization` or `LocalBusiness` schema,
- * including one added by a theme or another plugin.
+ * Fetches the live homepage and checks it has an `Organization` or `LocalBusiness` schema, including one added by a theme or another plugin.
  *
  * @class       OrganizationSchemaScanner class
  * @version     1.0.0

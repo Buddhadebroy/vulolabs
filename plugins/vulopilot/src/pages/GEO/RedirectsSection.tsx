@@ -78,9 +78,7 @@ const ratingColor = (score: number): string => {
 	return 'red';
 };
 
-/**
- * `$wpdb`'s own raw row shape - every numeric column comes back as a PHP string once JSON-encoded (confirmed live: `redirect_type: "307"`, not `307`).
- */
+/** `$wpdb`'s own raw row shape. */
 const normalizeRedirectRow = (row: RedirectRow): RedirectRow => ({
 	...row,
 	id: Number(row.id),
@@ -118,9 +116,7 @@ const fetchAllRedirects = async (): Promise<RedirectRow[]> => {
 	return all;
 };
 
-/**
- * A redirect's `target_url` resolved down to a real, comparable path - same-origin check as BrokenLinksSection.tsx's own `deriveSourcePath()`.
- */
+/** A redirect's `target_url` resolved down to a real, comparable path. */
 const resolveTargetPath = (targetUrl: string): string | null => {
 	try {
 		const target = new URL(targetUrl, vulopilotAppLocalizer.site_url);
@@ -137,9 +133,7 @@ const resolveTargetPath = (targetUrl: string): string | null => {
 	}
 };
 
-/**
- * Real chain detection over the actual `vulopilot_redirects` rows.
- */
+/** Real chain detection over the actual `vulopilot_redirects` rows. */
 const detectChains = (rows: RedirectRow[]): Map<number, RedirectRow> => {
 	const bySourcePath = new Map<string, RedirectRow>();
 	rows.forEach((row) => bySourcePath.set(row.source_path, row));
@@ -166,9 +160,7 @@ const detectChains = (rows: RedirectRow[]): Map<number, RedirectRow> => {
 type TypeFilter = 'all' | 301 | 302 | 307;
 type StatusFilter = 'all' | 'active' | 'inactive' | 'broken';
 
-/**
- * "Redirects" inner section of the "Crawl & URLs" tab.
- */
+/** "Redirects" inner section of the "Crawl & URLs" tab. */
 const RedirectsSection = () => {
 	const [allRedirects, setAllRedirects] = useState<RedirectRow[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -307,7 +299,7 @@ const RedirectsSection = () => {
 		});
 	};
 
-	/** Opens the `confirmMode` popup - the actual delete runs from `handleConfirmDeleteRedirect` once the user confirms there. */
+	/** Opens the `confirmMode` popup. */
 	const handleDeleteRedirect = (row: RedirectRow) => {
 		setDeleteTarget(row);
 	};
@@ -501,8 +493,7 @@ const RedirectsSection = () => {
 	};
 
 	const headers = {
-		// Same real `InformationItemComponent` "title + badges" shape BrokenLinksSection.tsx's own
-		// row cell already uses.
+		// Same real `InformationItemComponent` "title + badges" shape BrokenLinksSection.tsx's own row cell already uses.
 		source_path: {
 			label: __('From (Old URL)', 'vulopilot'),
 			width: "65%",
@@ -633,8 +624,7 @@ const RedirectsSection = () => {
 	}
 
 
-	// Real percentage of redirects that are active - the one real 0-100 figure these 5 stats
-	// naturally produce (the other 4 are plain counts or a date).
+	// Real percentage of redirects that are active.
 	const activePercent = totalCount
 		? Math.round((activeCount / totalCount) * 100)
 		: 0;
@@ -646,9 +636,7 @@ const RedirectsSection = () => {
 					title={__('Redirect Health', 'vulopilot')}
 					titleIcon="link"
 					desc={__('How many of your redirects are active and working.', 'vulopilot')}
-					// Grid-wide, not per-tile - same real "both real fetches start together"
-					// reasoning the old `MetricTileComponent`'s own combined `isLoading` docblock
-					// already gave.
+					// Grid-wide, not per-tile - same real "both real fetches start together" reasoning the old `MetricTileComponent`'s own combined `isLoading` docblock already gave.
 					isLoading={isLoading || isCheckingHealth}
 				>
 					<div className="overall-score-wrapper">
@@ -656,8 +644,7 @@ const RedirectsSection = () => {
 								<ChartComponent
 									type="ring"
 									height={200}
-									// Top-level `color` - `type="ring"` only ever paints its stroke
-									// from this prop.
+									// Top-level `color` - `type="ring"` only ever paints its stroke from this prop.
 									color={
 										COLOR_PALETTE[
 											ratingColor(activePercent) as keyof typeof COLOR_PALETTE

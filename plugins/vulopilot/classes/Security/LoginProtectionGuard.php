@@ -8,8 +8,7 @@ use VuloPilot\Utill\ServerRequest;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real, always-on brute-force login protection - Protect My Site's "Login Protection"
- * tile.
+ * Real, always-on brute-force login protection - Protect My Site's "Login Protection" tile.
  *
  * @class       LoginProtectionGuard class
  * @version     1.0.0
@@ -17,9 +16,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class LoginProtectionGuard {
 
-	/**
-	 * LoginProtectionGuard constructor.
-	 */
+	/** LoginProtectionGuard constructor. */
 	public function __construct() {
 		add_filter( 'authenticate', array( $this, 'block_if_locked_out' ), 30, 3 );
 		add_action( 'wp_login_failed', array( $this, 'record_failure' ), 10, 1 );
@@ -27,9 +24,9 @@ class LoginProtectionGuard {
 	}
 
 	/**
-	 * Real settings, parsed with defaults - same `wp_parse_args()` shape every scanner in this codebase already reads settings with.
+	 * Real settings, parsed with defaults.
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function get_settings(): array {
 		return wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
@@ -44,8 +41,7 @@ class LoginProtectionGuard {
 	 * @return \WP_User|\WP_Error|null
 	 */
 	public function block_if_locked_out( $user, string $username, string $password ) {
-		// No credentials submitted yet (e.g. the login form's first load) -
-		// nothing to check.
+		// No credentials submitted yet (e.g. the login form's first load) - nothing to check.
 		if ( '' === $username && '' === $password ) {
 			return $user;
 		}

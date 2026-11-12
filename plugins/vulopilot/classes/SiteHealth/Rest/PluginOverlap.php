@@ -4,7 +4,7 @@ namespace VuloPilot\SiteHealth\Rest;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Fetches `/plugin-overlap` - backs "Protect My Site" → Files & Plugins' own "VuloPilot already covers this" card. Deliberately NOT tied to any vulnerability finding:
+ * Fetches `/plugin-overlap`.
  *
  * @class       PluginOverlap controller
  * @version     1.0.0
@@ -18,7 +18,7 @@ class PluginOverlap extends \WP_REST_Controller {
 	protected $rest_base = 'plugin-overlap';
 
 	/**
-	 * @var array<string, array{plugin_name: string, category: string, vulopilot_feature: string, module_id: string|null, link_tab: string}>
+	 * @var array
 	 */
 	private const KNOWN_OVERLAPS = array(
 		'wordpress-seo/wp-seo.php'                    => array(

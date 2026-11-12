@@ -8,9 +8,7 @@ use VuloPilot\Utill\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Keeps `vulopilot_site_tone` (the placeholder field added earlier this session - sent as
- * a `site_tone` hint on every direct AI request, see AiAssistant\AiRequestSender) learned
- * automatically from the site's own recent content instead of starting permanently empty.
+ * Keeps `vulopilot_site_tone` learned automatically from the site's own recent content instead of starting permanently empty.
  *
  * @class       SiteToneLearner class
  * @version     1.0.0
@@ -57,19 +55,16 @@ class SiteToneLearner {
 		}
 
 		if ( wp_next_scheduled( self::RELEARN_HOOK ) ) {
-			// Already a real re-learn pending - several quick edits in a row (WordPress can fire
-			// save_post more than once for one real edit, too) should still only trigger one
-			// analysis.
+			// Already a real re-learn pending.
 			return;
 		}
 
-		// A short delay, not time() - lets a flurry of edits in the same real save settle before
-		// the one job that actually runs samples the site's content.
+		// A short delay, not time().
 		wp_schedule_single_event( time() + 30, self::RELEARN_HOOK );
 	}
 
 	/**
-	 * Registered on `self::RELEARN_HOOK`, run via WP-Cron only - the real AI call happens here, never inline with the triggering save.
+	 * Registered on `self::RELEARN_HOOK`, run via WP-Cron only.
 	 *
 	 * @return void
 	 */
@@ -77,8 +72,7 @@ class SiteToneLearner {
 		$samples = $this->sample_recent_content();
 
 		if ( count( $samples ) < 2 ) {
-			// Nothing meaningful to learn from yet - quietly wait for more
-			// content, not an error.
+			// Nothing meaningful to learn from yet - quietly wait for more content, not an error.
 			return;
 		}
 
@@ -100,7 +94,7 @@ class SiteToneLearner {
 	/**
 	 * Same query shape as ContentIntelligence\ContentGapAnalyzer::sample_own_titles(), extended to also carry each post's full body text.
 	 *
-	 * @return array<int, array{title: string, content: string}>
+	 * @return array
 	 */
 	private function sample_recent_content(): array {
 		$posts = get_posts(

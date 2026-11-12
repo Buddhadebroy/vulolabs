@@ -19,10 +19,9 @@ defined( 'ABSPATH' ) || exit;
 class Admin {
 
 	/**
-	 * Dashicon class per collapsible group id (matches each submenu entry's own 'group'
-	 * value below).
+	 * Dashicon class per collapsible group id.
 	 *
-	 * @var array<string, string>
+	 * @var array
 	 */
 	const GROUPS = array(
 		'ai-visibility' => 'dashicons-lightbulb',
@@ -31,9 +30,7 @@ class Admin {
 		'tools'         => 'dashicons-admin-tools',
 	);
 
-	/**
-	 * Admin constructor.
-	 */
+	/** Admin constructor. */
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'add_menus' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_script' ) );
@@ -43,7 +40,7 @@ class Admin {
 	}
 
 	/**
-	 * Consumes `activate()`'s one-shot `vulopilot_activation_redirect` flag: redirects straight to the Migration setup wizard, but only when there's real migratable data waiting (a Rank Math/Yoast/AIOSEO install) - no point interrupting a fresh install's first admin page load with a migration wizard that would find nothing to do.
+	 * Consumes `activate()`'s one-shot `vulopilot_activation_redirect` flag.
 	 *
 	 * @return void
 	 */
@@ -94,8 +91,7 @@ class Admin {
 			56
 		);
 
-		// Flat top-level IA - each entry reuses an existing tab slug/route (src/routes.ts) so no
-		// new pages were needed, just new labels.
+		// Flat top-level IA - each entry reuses an existing tab slug/route so no new pages were needed, just new labels.
 		$submenus = apply_filters(
 			'vulopilot_submenus',
 			array(
@@ -124,8 +120,7 @@ class Admin {
 					'priority' => 50,
 					'icon'     => 'dashicons-performance',
 				),
-				// Promoted out of "Protect My Site"'s own former 3-tab shell (Security.tsx) along
-				// with Backups, which is now merged into this page.
+				// Promoted out of "Protect My Site"'s own former 3-tab shell along with Backups, which is now merged into this page.
 				'site-health'     => array(
 					'name'     => __( 'Site Health', 'vulopilot' ),
 					'priority' => 55,
@@ -136,8 +131,7 @@ class Admin {
 					'priority' => 65,
 					'icon'     => 'dashicons-universal-access',
 				),
-				// "Protect My Site"'s own remaining tab, now standalone -
-				// see pages/Security/Security.tsx's own docblock.
+				// "Protect My Site"'s own remaining tab, now standalone.
 				'security'        => array(
 					'name'     => __( 'Security', 'vulopilot' ),
 					'priority' => 67,
@@ -153,8 +147,7 @@ class Admin {
 					'priority' => 80,
 					'icon'     => 'dashicons-update',
 				),
-				// 'divider' draws a thin rule before this item in the native submenu (admin-menu-
-				// groups.js's addDividers()).
+				// 'divider' draws a thin rule before this item in the native submenu (admin-menu- groups.js's addDividers()).
 				'reports'         => array(
 					'name'     => __( 'Reports', 'vulopilot' ),
 					'priority' => 90,
@@ -166,8 +159,7 @@ class Admin {
 					'priority' => 100,
 					'icon'     => 'dashicons-admin-generic',
 				),
-				// 'modules' used to sit here too (always last, pinned via PHP_INT_MAX so a filter
-				// adding a higher-priority item later couldn't push it out of the last slot).
+				// 'modules' used to sit here too.
 			)
 		);
 
@@ -193,8 +185,7 @@ class Admin {
 			);
 		}
 
-		// The top-level menu click target duplicates the "Dashboard" submenu it was auto-registered
-		// as by add_menu_page().
+		// The top-level menu click target duplicates the "Dashboard" submenu it was auto-registered as by add_menu_page().
 		remove_submenu_page( 'vulopilot', 'vulopilot' );
 
 		// Stash the same $submenus this method just built.
@@ -222,9 +213,7 @@ class Admin {
 			return;
 		}
 
-		// Needed so zyra's FileInput component (AI Copilot's "Attach" button, ChatTab.tsx) can open
-		// WordPress's real media library picker/uploader (wp.media()) instead of silently falling
-		// back to a local-only blob preview that the server could never read back.
+		// Needed so zyra's FileInput component can open WordPress's real media library picker/uploader (wp.media()) instead of silently falling back to a local-only blob preview that the server could never read back.
 		wp_enqueue_media();
 
 		wp_enqueue_script( 'wp-element' );
@@ -294,8 +283,7 @@ class Admin {
 			}
 		}
 
-		// Built from literal __() calls (never GROUPS's own label strings fed through __()
-		// dynamically) so the i18n string-extraction tooling can actually find these.
+		// Built from literal __() calls (never GROUPS's own label strings fed through __() dynamically) so the i18n string-extraction tooling can actually find these.
 		$translated_labels = array(
 			'ai-visibility' => __( 'AI Visibility', 'vulopilot' ),
 			'seo-content'   => __( 'SEO & Content', 'vulopilot' ),
@@ -341,8 +329,7 @@ class Admin {
 	}
 
 	/**
-	 * The $submenus list add_menus() built, stashed for enqueue_menu_grouping_assets() to
-	 * read.
+	 * The $submenus list add_menus() built, stashed for enqueue_menu_grouping_assets() to read.
 	 *
 	 * @var array
 	 */

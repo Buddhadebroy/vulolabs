@@ -10,14 +10,12 @@ interface StatusCounts {
 	disabled: number;
 }
 
-/** The 2 free built-in rows (Automations\BuiltinAutomationSeeder) - everything else in `GET /automations` is a custom automation. */
+/** The 2 free built-in rows - everything else in `GET /automations` is a custom automation. */
 const BUILTIN_TRIGGERS = [ 'free_full_site_scan', 'free_visibility_report' ];
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
-/**
- * "Automation status" - a quick 4-tile health overview.
- */
+/** "Automation status" - a quick 4-tile health overview. */
 const AutomationsStatusCard = ( { refetchSignal }: { refetchSignal: number } ) => {
 	const [ counts, setCounts ] = useState<StatusCounts>( { enabled: 0, disabled: 0 } );
 	const [ custom, setCustom ] = useState( 0 );

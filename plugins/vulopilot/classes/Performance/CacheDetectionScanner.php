@@ -8,8 +8,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags a site with no detectable caching layer - checks a short list of well-known
- * caching plugins.
+ * Flags a site with no detectable caching layer.
  *
  * @class       CacheDetectionScanner class
  * @version     1.0.0
@@ -17,9 +16,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class CacheDetectionScanner extends ScannerUtil {
 
-	/**
-	 * Main plugin files of well-known caching plugins.
-	 */
+	/** Main plugin files of well-known caching plugins. */
 	private const KNOWN_CACHING_PLUGINS = array(
 		'wp-rocket/wp-rocket.php',
 		'w3-total-cache/w3-total-cache.php',

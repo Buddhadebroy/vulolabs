@@ -14,8 +14,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real WP-CLI commands - `wp vulopilot scan run|list`, `wp vulopilot report generate`, `wp
- * vulopilot extensions list`, `wp vulopilot settings get|set|reset`.
+ * Real WP-CLI commands - `wp vulopilot scan run|list`, `wp vulopilot report generate`, `wp vulopilot extensions list`, `wp vulopilot settings get|set|reset`.
  *
  * @class       VuloPilotCli class
  * @version     1.0.0
@@ -24,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
 class VuloPilotCli {
 
 	/**
-	 * Registers every subcommand - one `WP_CLI::add_command()` call per command path, so `wp vulopilot scan run` and `wp vulopilot scan list` are distinct.
+	 * Registers every subcommand.
 	 *
 	 * @return void
 	 */
@@ -43,8 +42,8 @@ class VuloPilotCli {
 	/**
 	 * Runs one scanner, every scanner in a category, or every scanner.
 	 *
-	 * @param string[]             $args       Positional arguments.
-	 * @param array<string, mixed> $assoc_args Associative (--flag) arguments.
+	 * @param string[] $args       Positional arguments.
+	 * @param array    $assoc_args Associative (--flag) arguments.
 	 * @return void
 	 */
 	public function scan_run( array $args, array $assoc_args ): void {
@@ -90,8 +89,8 @@ class VuloPilotCli {
 	/**
 	 * Lists recent scans.
 	 *
-	 * @param string[]             $args       Positional arguments.
-	 * @param array<string, mixed> $assoc_args Associative (--flag) arguments.
+	 * @param string[] $args       Positional arguments.
+	 * @param array    $assoc_args Associative (--flag) arguments.
 	 * @return void
 	 */
 	public function scan_list( array $args, array $assoc_args ): void {
@@ -116,8 +115,8 @@ class VuloPilotCli {
 	/**
 	 * Generates a report synchronously.
 	 *
-	 * @param string[]             $args       Positional arguments.
-	 * @param array<string, mixed> $assoc_args Associative (--flag) arguments.
+	 * @param string[] $args       Positional arguments.
+	 * @param array    $assoc_args Associative (--flag) arguments.
 	 * @return void
 	 */
 	public function report_generate( array $args, array $assoc_args ): void {

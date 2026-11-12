@@ -8,8 +8,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Wraps 3 of WordPress core's own `WP_Site_Health` tests - the same class and same cached
- * results Tools → Site Health already computes.
+ * Wraps 3 of WordPress core's own `WP_Site_Health` tests.
  *
  * @class       WordPressHealthScanner class
  * @version     1.0.0
@@ -122,8 +121,7 @@ class WordPressHealthScanner extends ScannerUtil {
 				'inactive_plugins'      => $inactive_names,
 				'inactive_plugin_files' => $inactive_files,
 			),
-			// The title's own count legitimately fluctuates scan to scan (a plugin gets
-			// deactivated/deleted).
+			// The title's own count legitimately fluctuates scan to scan.
 			'wordpress_inactive_plugins'
 		);
 	}
@@ -174,10 +172,10 @@ class WordPressHealthScanner extends ScannerUtil {
 	}
 
 	/**
-	 * `WP_Site_Health`'s own test descriptions are built from separate real HTML `p` blocks (confirmed by reading `WP_Site_Health`'s own core source).
+	 * `WP_Site_Health`'s own test descriptions are built from separate real HTML `p` blocks.
 	 *
 	 * @param string $html_description Raw HTML `description` from a `WP_Site_Health` test result.
-	 * @return array<int, string> Plain-text paragraphs, in order, empty ones dropped.
+	 * @return array Plain-text paragraphs, in order, empty ones dropped.
 	 */
 	private function split_into_paragraphs( string $html_description ): array {
 		$chunks = preg_split( '/<\/p>\s*/i', $html_description ) ? preg_split( '/<\/p>\s*/i', $html_description ) : array();

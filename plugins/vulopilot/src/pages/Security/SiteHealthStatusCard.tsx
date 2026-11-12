@@ -2,10 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { ListComponent, BadgeComponent } from '@zyra/components';
 import { useSectionStatus } from '../../services/useSectionStatus';
 
-/**
- * "Site Health Status" - same real per-section status-badge list shape used elsewhere on this
- * page.
- */
+/** "Site Health Status" - same real per-section status-badge list shape used elsewhere on this page. */
 interface SiteHealthStatusCardProps {
 	// eslint-disable-next-line no-unused-vars
 	onSectionClick?: (key: string) => void;
@@ -18,9 +15,7 @@ const SiteHealthStatusCard = ({ onSectionClick }: SiteHealthStatusCardProps) => 
 	const database = useSectionStatus('database', ['database']);
 	const server = useSectionStatus('', ['server-health', 'php-warnings']);
 
-	/**
-	 * Real `adminfont-*` icon + real `$color-palette` key + one-line `desc` per row.
-	 */
+	/** Real `adminfont-*` icon + real `$color-palette` key + one-line `desc` per row. */
 	const rows = [
 		{
 			id: 'wordpress',
@@ -69,8 +64,7 @@ const SiteHealthStatusCard = ({ onSectionClick }: SiteHealthStatusCardProps) => 
 					title: row.label,
 					desc: row.desc,
 					action: onSectionClick ? () => onSectionClick(row.id) : undefined,
-					// 2 real separate badges (total open + top-severity breakdown), not 1 merged
-					// "N Open · N {Severity} Severity" pill.
+					// 2 real separate badges, not 1 merged "N Open · N {Severity} Severity" pill.
 					tags: row.status.badges ? (
 						<>
 							{row.status.badges.map((badge, index) => (

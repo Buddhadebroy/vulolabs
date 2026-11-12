@@ -24,8 +24,7 @@ defined( 'ABSPATH' ) || exit;
 class ImproveReadabilityAction extends AbstractCloudAction {
 
 	/**
-	 * A rewrite shorter than this fraction of the original is treated as a likely
-	 * truncation/summarization rather than a genuine readability pass, and rejected.
+	 * A rewrite shorter than this fraction of the original is treated as a likely truncation/summarization rather than a genuine readability pass, and rejected.
 	 */
 	private const MIN_LENGTH_RATIO = 0.5;
 

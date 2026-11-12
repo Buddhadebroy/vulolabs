@@ -19,11 +19,7 @@ use VuloPilot\AiCopilot\Repositories\AiConversationRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * REST controller for the AI Copilot chat. Sends the AI service the conversation
- * plus a live snapshot of the site's findings/automation counts (build_site_snapshot())
- * so answers reason from actual open issues. A "write a blog about X"
- * request creates a real draft via ContentCreationOrchestrator
- * (auto-approved); every other kind of change stays advice-only.
+ * REST controller for the AI Copilot chat.
  *
  * @class       Copilot controller
  * @version     1.0.0
@@ -39,33 +35,24 @@ class Copilot extends \WP_REST_Controller {
 	protected $rest_base = 'copilot';
 
 	/**
-	 * Shared with ContentAssistant.php - see ContentCreationOrchestrator's
-	 * own docblock for why this logic lives outside both controllers.
+	 * Shared with ContentAssistant.php.
 	 *
 	 * @var ContentCreationOrchestrator
 	 */
 	private ContentCreationOrchestrator $orchestrator;
 
-	/**
-	 * Copilot constructor.
-	 */
+	/** Copilot constructor. */
 	public function __construct() {
 		$this->orchestrator = new ContentCreationOrchestrator();
 	}
 
-	/**
-	 * Max "Add context" refs (findings/automations) accepted per turn.
-	 */
+	/** Max "Add context" refs (findings/automations) accepted per turn. */
 	private const MAX_CONTEXT_REFS = 5;
 
-	/**
-	 * Max "Attach" file refs accepted per turn.
-	 */
+	/** Max "Attach" file refs accepted per turn. */
 	private const MAX_ATTACHMENTS = 3;
 
-	/**
-	 * Mime types this plugin will actually read the *content* of for an attached file.
-	 */
+	/** Mime types this plugin will actually read the *content* of for an attached file. */
 	private const ATTACHMENT_TEXT_MIME_TYPES = array( 'text/plain', 'text/csv' );
 
 	/**
@@ -86,8 +73,7 @@ class Copilot extends \WP_REST_Controller {
 			)
 		);
 
-		// RecentConversationsCard.tsx's own list of this admin's recent,
-		// real, reloadable conversation threads - see get_conversations().
+		// RecentConversationsCard.tsx's own list of this admin's recent, real, reloadable conversation threads.
 		register_rest_route(
 			VuloPilot()->rest_namespace,
 			'/' . $this->rest_base . '/conversations',
@@ -100,8 +86,7 @@ class Copilot extends \WP_REST_Controller {
 			)
 		);
 
-		// useCopilotChat.ts's own loadConversation() - one thread's real,
-		// full, untruncated turns, read back into the composer.
+		// useCopilotChat.ts's own loadConversation().
 		register_rest_route(
 			VuloPilot()->rest_namespace,
 			'/' . $this->rest_base . '/conversations/(?P<id>\d+)',
@@ -242,10 +227,10 @@ class Copilot extends \WP_REST_Controller {
 	/**
 	 * Saves this turn to a real, reloadable conversation thread (`vulopilot_ai_conversations`).
 	 *
-	 * @param int|null             $conversation_id Client-supplied existing conversation id, or null for a new one.
-	 * @param string               $user_message    This turn's real, full user message - never the context-appended version sent to the AI service.
-	 * @param array<int, mixed>    $client_history   The client's own prior turns, as sent on `history`.
-	 * @param array<string, mixed> $assistant_turn   `{role: 'assistant', content, link, run_id}` for this turn's real reply.
+	 * @param int|null $conversation_id Client-supplied existing conversation id, or null for a new one.
+	 * @param string   $user_message    This turn's real, full user message.
+	 * @param array    $client_history  The client's own prior turns, as sent on `history`.
+	 * @param array    $assistant_turn  `{role: 'assistant', content, link, run_id}` for this turn's real reply.
 	 * @return int The conversation id this turn was saved under.
 	 */
 	private function persist_conversation( ?int $conversation_id, string $user_message, array $client_history, array $assistant_turn ): int {
@@ -276,8 +261,8 @@ class Copilot extends \WP_REST_Controller {
 	/**
 	 * Sanitizes client-supplied history turns to {role, content}.
 	 *
-	 * @param array<int, mixed> $raw_history Client-supplied {role, content} turns.
-	 * @return array<int, array{role: string, content: string}>
+	 * @param array $raw_history Client-supplied {role, content} turns.
+	 * @return array
 	 */
 	private function sanitize_client_turns( array $raw_history ): array {
 		$turns = array();
@@ -297,7 +282,7 @@ class Copilot extends \WP_REST_Controller {
 	}
 
 	/**
-	 * `GET /copilot/conversations` - RecentConversationsCard.tsx's own list of this admin's most recent real conversation threads.
+	 * `GET /copilot/conversations`.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
@@ -315,7 +300,7 @@ class Copilot extends \WP_REST_Controller {
 	}
 
 	/**
-	 * `GET /copilot/conversations/{id}` - one thread's real, full, untruncated turns, read back into the composer by useCopilotChat.ts's own loadConversation().
+	 * `GET /copilot/conversations/{id}`.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
@@ -338,9 +323,9 @@ class Copilot extends \WP_REST_Controller {
 	}
 
 	/**
-	 * "Auto-applies (with approval)" turned off - describes what would have been created instead of creating it.
+	 * "Auto-applies.
 	 *
-	 * @param array{action_id: string, input: array<string, mixed>} $decision BlogIntake::handle()'s "ready_action" decision.
+	 * @param array $decision BlogIntake::handle()'s "ready_action" decision.
 	 * @return string
 	 */
 	private function describe_pending_action( array $decision ): string {
@@ -366,7 +351,7 @@ class Copilot extends \WP_REST_Controller {
 	/**
 	 * Sends one chat message, with everything the chat may use, and returns the AI's answer.
 	 *
-	 * @param array<string, mixed> $context build_chat_context()'s result.
+	 * @param array $context build_chat_context()'s result.
 	 * @return string|\WP_Error
 	 */
 	private function ask( array $context ) {
@@ -403,13 +388,13 @@ class Copilot extends \WP_REST_Controller {
 	}
 
 	/**
-	 * The chat feature's input: the new message, the whole conversation so far, and the site data the chat may use.
+	 * The chat feature's input.
 	 *
-	 * @param string            $message          The new user message.
-	 * @param array<int, mixed> $raw_history      Client-supplied {role, content} turns, oldest first.
-	 * @param array<int, mixed> $raw_context_refs Client-supplied finding-group/automation references.
-	 * @param array<int, mixed> $raw_attachments  Client-supplied Media Library attachment references.
-	 * @return array<string, mixed>
+	 * @param string $message          The new user message.
+	 * @param array  $raw_history      Client-supplied {role, content} turns, oldest first.
+	 * @param array  $raw_context_refs Client-supplied finding-group/automation references.
+	 * @param array  $raw_attachments  Client-supplied Media Library attachment references.
+	 * @return array
 	 */
 	private function build_chat_context( string $message, array $raw_history, array $raw_context_refs, array $raw_attachments ): array {
 		return array(
@@ -425,8 +410,8 @@ class Copilot extends \WP_REST_Controller {
 	/**
 	 * The finding groups and automations the user attached, each resolved from the database.
 	 *
-	 * @param array<int, mixed> $raw_refs Client-supplied references.
-	 * @return array<int, array<string, mixed>>
+	 * @param array $raw_refs Client-supplied references.
+	 * @return array
 	 */
 	private function build_context_refs( array $raw_refs ): array {
 		$findings    = new FindingRepository();
@@ -478,10 +463,10 @@ class Copilot extends \WP_REST_Controller {
 	}
 
 	/**
-	 * The Media Library files the user attached: a text file's contents, or just its name and type.
+	 * The Media Library files the user attached.
 	 *
-	 * @param array<int, mixed> $raw_attachments Client-supplied attachment references.
-	 * @return array<int, array<string, mixed>>
+	 * @param array $raw_attachments Client-supplied attachment references.
+	 * @return array
 	 */
 	private function build_attachments( array $raw_attachments ): array {
 		$files = array();
@@ -526,7 +511,7 @@ class Copilot extends \WP_REST_Controller {
 	/**
 	 * Live site health counts the chat can refer to.
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function build_site_snapshot(): array {
 		$findings    = new FindingRepository();

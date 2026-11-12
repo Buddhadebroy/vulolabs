@@ -3,15 +3,11 @@ import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from 'react';
 import { getApiLink, getApiResponse } from '@zyra/core';
 
-/** Same 3-preset shape WebsiteProgressChart.tsx already established for this page - no arbitrary calendar range picker. */
+/** Same 3-preset shape WebsiteProgressChart.tsx already established for this page. */
 export const DAY_OPTIONS = [7, 30, 90] as const;
 
 
-/**
- * Fabricated "Recent Reports"/"Report History" rows - same "obviously fake, never mistaken for
- * this site's own real data" reasoning VuloPilotActivityWidget.tsx's own `DUMMY_HEALTH_TIMELINE`
- * documents.
- */
+/** Fabricated "Recent Reports"/"Report History" rows. */
 export interface DummyReportRow {
 	id: string;
 	name: string;
@@ -153,9 +149,7 @@ export interface ReportsOverviewResponse {
 	next_priorities: NextPriority[];
 }
 
-/**
- * `GET /reports-overview?days=N` (ReportsOverview.php).
- */
+/** `GET /reports-overview?days=N` (ReportsOverview.php). */
 export const useReportsOverview = (days: number, enabled = true) => {
 	const [data, setData] = useState<ReportsOverviewResponse | null>(null);
 	const [isLoading, setIsLoading] = useState(enabled);

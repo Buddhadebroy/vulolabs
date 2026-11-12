@@ -21,28 +21,19 @@ defined( 'ABSPATH' ) || exit;
  */
 class AiRequestSender {
 
-	/**
-	 * Requests this site may send per minute (a local, pre-emptive guard
-	 * against burning through AI credits too fast).
-	 */
+	/** Requests this site may send per minute. */
 	private const MAX_REQUESTS_PER_MINUTE = 20;
 
-	/**
-	 * Total attempts including the first; the delay doubles after each failure.
-	 * Kept low since a chat reply already waits on one non-streamed AI generation.
-	 */
+	/** Total attempts including the first; the delay doubles after each failure. */
 	private const MAX_ATTEMPTS = 2;
 
 	private const BASE_RETRY_DELAY_MS = 500;
 
-	/**
-	 * `response_excerpt`/`prompt_excerpt` are an audit trail, not a cache -
-	 * bounds how much of a real prompt or reply gets persisted per call.
-	 */
+	/** `response_excerpt`/`prompt_excerpt` are an audit trail, not a cache. */
 	private const EXCERPT_MAX_LENGTH = 300;
 
 	/**
-	 * Regex patterns matching common API-key shapes. Deliberately conservative, not exhaustive.
+	 * Regex patterns matching common API-key shapes.
 	 *
 	 * @var string[]
 	 */
@@ -52,10 +43,7 @@ class AiRequestSender {
 		'/-----BEGIN (RSA |EC )?PRIVATE KEY-----/',
 	);
 
-	/**
-	 * Most characters one request may carry. Content is never shortened to fit: a larger
-	 * request is refused with a message instead.
-	 */
+	/** Most characters one request may carry. */
 	private const MAX_PROMPT_LENGTH = 800000;
 
 	private AiHistoryRepository $history;
@@ -74,14 +62,13 @@ class AiRequestSender {
 	}
 
 	/**
-	 * @param array<int, array{role: string, content: string}> $messages Chat-style prompt messages.
-	 * @param array{mime_type: string, data: string}|null      $image    Optional inline image for the current turn. The gateway's wire contract doesn't carry one today, so it is recorded on the request but never sent.
-	 * @param string|null                                      $surface  Optional real feature label recorded to `vulopilot_ai_history.surface`.
-	 * @param string|null                                      $label    Optional human task name for the site owner's credit history (e.g. an AI action's own label).
+	 * @param array       $messages Chat-style prompt messages.
+	 * @param array|null  $image    Optional inline image for the current turn.
+	 * @param string|null $surface  Optional real feature label recorded to `vulopilot_ai_history.surface`.
+	 * @param string|null $label    Optional human task name for the site owner's credit history.
 	 * @return AIResponse
-	 *
-	 * @throws VuloPilotException If the prompt fails safety validation, this minute's request budget is already spent, the site owner's AI credits can't cover the request (TYPE_INSUFFICIENT_CREDITS), no AI key is configured for this site's Organization, or the gateway rejects or fails the request.
-	 * @throws \RuntimeException  If no AI connection is configured.
+	 * @throws VuloPilotException If the prompt fails safety validation, this minute's request budget is already spent, the site owner's AI credits can't cover the request.
+	 * @throws \RuntimeException If no AI connection is configured.
 	 */
 	public function send( array $messages, ?array $image = null, ?string $surface = null, ?string $label = null ): AIResponse {
 		$this->validate_prompt( implode( "\n", array_column( $messages, 'content' ) ) );
@@ -106,15 +93,15 @@ class AiRequestSender {
 	/**
 	 * Runs an AI-service feature from its structured input instead of a plugin-built prompt.
 	 *
-	 * @param string               $feature_id Feature id, e.g. 'rewrite_content'.
-	 * @param string               $action     Feature action, e.g. 'rewrite'.
-	 * @param array<string, mixed> $context    The feature's structured input.
-	 * @param string|null          $surface    Optional feature label recorded to `vulopilot_ai_history.surface`.
-	 * @param string|null          $label      Optional human task name, recorded as the history row's prompt excerpt.
-	 * @param bool                 $allow_html True keeps post-safe HTML (wp_kses_post()), for replies written into content; false strips all tags, as send() does, for plain text and JSON.
+	 * @param string      $feature_id Feature id, e.g. 'rewrite_content'.
+	 * @param string      $action     Feature action, e.g. 'rewrite'.
+	 * @param array       $context    The feature's structured input.
+	 * @param string|null $surface    Optional feature label recorded to `vulopilot_ai_history.surface`.
+	 * @param string|null $label      Optional human task name, recorded as the history row's prompt excerpt.
+	 * @param bool        $allow_html True keeps post-safe HTML.
 	 * @return AIResponse
 	 * @throws VuloPilotException Same as send(), plus TYPE_INVALID_ACTION_OUTPUT if the reply is still incomplete.
-	 * @throws \RuntimeException  If no AI connection is configured.
+	 * @throws \RuntimeException If no AI connection is configured.
 	 */
 	public function send_feature( string $feature_id, string $action, array $context, ?string $surface = null, ?string $label = null, bool $allow_html = true ): AIResponse {
 		$this->validate_prompt( implode( "\n", $this->context_strings( $context ) ) );
@@ -150,7 +137,6 @@ class AiRequestSender {
 
 	/**
 	 * @return void
-	 *
 	 * @throws \RuntimeException If no AI connection is configured.
 	 */
 	private function assert_connected(): void {
@@ -180,7 +166,7 @@ class AiRequestSender {
 	/**
 	 * Every string inside a feature context, so validate_prompt() sees exactly what is sent.
 	 *
-	 * @param array<mixed> $context Feature context.
+	 * @param array $context Feature context.
 	 * @return string[]
 	 */
 	private function context_strings( array $context ): array {
@@ -228,11 +214,10 @@ class AiRequestSender {
 	}
 
 	/**
-	 * Only a TYPE_TRANSIENT_GATEWAY failure is retried; other exception types are rethrown immediately.
+	 * Only a TYPE_TRANSIENT_GATEWAY failure is retried.
 	 *
-	 * @param callable(): AIResponse $attempt One attempt, reusing the same request id each time.
+	 * @param callable():  AIResponse $attempt One attempt, reusing the same request id each time.
 	 * @return AIResponse
-	 *
 	 * @throws VuloPilotException If every attempt is exhausted.
 	 */
 	private function send_with_retries( callable $attempt ): AIResponse {
@@ -263,7 +248,6 @@ class AiRequestSender {
 	 * Uses a WP transient as a lightweight per-minute request counter.
 	 *
 	 * @return void
-	 *
 	 * @throws VuloPilotException If this minute's budget is already spent.
 	 */
 	private function enforce_rate_limit(): void {
@@ -287,13 +271,12 @@ class AiRequestSender {
 	/**
 	 * Sends one attempt to the AI gateway and returns the finished text.
 	 *
-	 * @param array<int, array{role: string, content: string}> $messages   Chat-style prompt messages.
-	 * @param string|null                                      $surface    Optional real feature label.
-	 * @param string|null                                      $label      Optional human task name.
-	 * @param string                                           $request_id Idempotency key shared by every attempt.
+	 * @param array       $messages   Chat-style prompt messages.
+	 * @param string|null $surface    Optional real feature label.
+	 * @param string|null $label      Optional human task name.
+	 * @param string      $request_id Idempotency key shared by every attempt.
 	 * @return AIResponse
-	 *
-	 * @throws VuloPilotException TYPE_INSUFFICIENT_CREDITS, TYPE_VULOCLOUD_AI_NOT_CONFIGURED, TYPE_TRANSIENT_GATEWAY (retried) or TYPE_GATEWAY_REQUEST.
+	 * @throws VuloPilotException TYPE_INSUFFICIENT_CREDITS, TYPE_VULOCLOUD_AI_NOT_CONFIGURED, TYPE_TRANSIENT_GATEWAY.
 	 */
 	private function call_gateway( array $messages, ?string $surface, ?string $label, string $request_id ): AIResponse {
 		$result = $this->credits_connection->execute(
@@ -310,11 +293,10 @@ class AiRequestSender {
 	/**
 	 * Turns an AiCreditsConnection result into a response or the matching exception.
 	 *
-	 * @param array<string, mixed>|\WP_Error $result     AiCreditsConnection::execute()/execute_feature() result.
-	 * @param string                         $request_id The request's idempotency key.
+	 * @param array|\WP_Error $result     AiCreditsConnection::execute()/execute_feature() result.
+	 * @param string          $request_id The request's idempotency key.
 	 * @return AIResponse
-	 *
-	 * @throws VuloPilotException TYPE_INSUFFICIENT_CREDITS, TYPE_VULOCLOUD_AI_NOT_CONFIGURED, TYPE_TRANSIENT_GATEWAY (retried) or TYPE_GATEWAY_REQUEST.
+	 * @throws VuloPilotException TYPE_INSUFFICIENT_CREDITS, TYPE_VULOCLOUD_AI_NOT_CONFIGURED, TYPE_TRANSIENT_GATEWAY.
 	 */
 	private function to_response( $result, string $request_id ): AIResponse {
 		if ( is_wp_error( $result ) ) {
@@ -352,7 +334,7 @@ class AiRequestSender {
 	}
 
 	/**
-	 * @param array<int, array{role: string, content: string}> $messages Chat-style prompt messages.
+	 * @param array $messages Chat-style prompt messages.
 	 * @return string
 	 */
 	private function flatten_messages( array $messages ): string {
@@ -385,7 +367,7 @@ class AiRequestSender {
 	/**
 	 * @param string|null $prompt_excerpt What was asked, already excerpted.
 	 * @param string|null $surface        Originating request's own feature label.
-	 * @param string      $request_id     The request's idempotency key (nothing was charged on failure).
+	 * @param string      $request_id     The request's idempotency key.
 	 * @return void
 	 */
 	private function record_failure( ?string $prompt_excerpt, ?string $surface, string $request_id ): void {
@@ -420,7 +402,7 @@ class AiRequestSender {
 	/**
 	 * The real, human-typed question this call is answering.
 	 *
-	 * @param array<int, array{role: string, content: string}> $messages Originating request messages.
+	 * @param array $messages Originating request messages.
 	 * @return string|null Null if the request genuinely has no user message.
 	 */
 	private function build_prompt_excerpt( array $messages ): ?string {

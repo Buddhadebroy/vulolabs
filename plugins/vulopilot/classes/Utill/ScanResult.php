@@ -10,8 +10,7 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The outcome of running a single ScannerInterface - fired as
- * `do_action('vulopilot_scan_completed', $result)` by ScanRunner.
+ * The outcome of running a single ScannerInterface.
  *
  * @class       ScanResult class
  * @version     1.0.0
@@ -48,10 +47,7 @@ final class ScanResult {
 	private ?string $error_message;
 
 	/**
-	 * @var int[] Post/page IDs the scanner considered, whether or not each
-	 *            one produced a Finding - empty for a scanner that doesn't
-	 *            implement Contracts\Scanner\TracksScannedObjectsInterface
-	 *            (e.g. a site-wide, non-per-post check).
+	 * @var int[] Post/page IDs the scanner considered, whether or not each one produced a Finding.
 	 */
 	private array $scanned_post_ids;
 
@@ -124,7 +120,7 @@ final class ScanResult {
 	/**
 	 * Counts by severity/category, computed on demand rather than stored.
 	 *
-	 * @return array{by_severity: array<string, int>, by_category: array<string, int>, total: int}
+	 * @return array
 	 */
 	public function get_summary(): array {
 		$by_severity = array();

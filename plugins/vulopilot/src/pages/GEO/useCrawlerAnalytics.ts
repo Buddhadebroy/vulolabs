@@ -32,9 +32,7 @@ export interface CrawlerAnalytics {
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
-/**
- * Shared `GET /crawler-traffic/analytics` fetch - real current-vs-previous period comparison (CrawlerTraffic.php's own `get_analytics()`).
- */
+/** Shared `GET /crawler-traffic/analytics` fetch. */
 export const useCrawlerAnalytics = (
 	days = 30
 ): { analytics: CrawlerAnalytics | null; isLoading: boolean } => {

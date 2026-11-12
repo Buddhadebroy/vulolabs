@@ -23,10 +23,7 @@ const SECTION_IDS: CrawlUrlsSectionId[] = [
 	'robots-sitemap',
 ];
 
-/**
- * `NavigatorComponent`'s own compact icon-over-title tab bar needs a real `headerIcon` per
- * section.
- */
+/** `NavigatorComponent`'s own compact icon-over-title tab bar needs a real `headerIcon` per section. */
 const SECTION_META: Record<
 	CrawlUrlsSectionId,
 	{ headerTitle: string; headerIcon: string }
@@ -39,21 +36,13 @@ const SECTION_META: Record<
 };
 
 interface CrawlUrlsTabProps {
-	/**
-	 * Which inner tab to land on when this whole "Crawl & URLs" tab is first mounted.
-	 */
+	/** Which inner tab to land on when this whole "Crawl & URLs" tab is first mounted. */
 	initialSection?: CrawlUrlsSectionId;
 }
 
-/**
- * "Crawl & URLs" tab of "SEO & Visibility".
- */
+/** "Crawl & URLs" tab of "SEO & Visibility". */
 const CrawlUrlsTab = ({ initialSection = 'overview' }: CrawlUrlsTabProps) => {
-	// Same real `currentSetting`/`onNavigate` wiring SiteHealth.tsx's own tab bar already uses - a
-	// real tab-pill click inside `NavigatorComponent` doesn't go through react-router at all, so
-	// without `onNavigate` here the URL never updated on click (it only ever reflected whichever
-	// section this tab first mounted on). `useLocation()` re-reads `location.hash` on every
-	// navigation so this stays in sync with the real URL, not just this component's own state.
+	// Same real `currentSetting`/`onNavigate` wiring SiteHealth.tsx's own tab bar already uses.
 	const location = useLocation();
 	const section = new URLSearchParams(location.hash.substring(1)).get(
 		'section'

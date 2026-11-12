@@ -25,9 +25,7 @@ interface TestResult {
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
-/**
- * Settings → Connections' own PageSpeed Insights section.
- */
+/** Settings → Connections' own PageSpeed Insights section. */
 const AUTOSAVE_DEBOUNCE_MS = 1000;
 
 const PageSpeedStatusPanel = () => {
@@ -71,7 +69,7 @@ const PageSpeedStatusPanel = () => {
 
 	useEffect(loadStatus, []);
 
-	// The test reads the key stored on the server, so save what's typed first - the debounced autosave may not have fired yet.
+	// The test reads the key stored on the server, so save what's typed first.
 	const testConnection = () => {
 		setIsTesting(true);
 
@@ -95,8 +93,7 @@ const PageSpeedStatusPanel = () => {
 				if (!response) {
 					return;
 				}
-				// Floating notice (NoticeReceiverComponent position="float", already mounted app-
-				// wide by zyra's own HeaderComponent).
+				// Floating notice.
 				NoticeManager.add({
 					message: response.message,
 					type: response.success ? 'success' : 'error',

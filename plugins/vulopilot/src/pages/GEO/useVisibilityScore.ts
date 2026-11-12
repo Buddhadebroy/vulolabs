@@ -24,9 +24,7 @@ export interface VisibilityScoreResponse {
 	crawler_by_vendor: Record<string, number>;
 }
 
-/**
- * `GET /visibility/score` - Visibility.php's own real combined score across the 4 real free-tier areas (Brand/SEO/GEO/Crawl & URLs).
- */
+/** `GET /visibility/score`. */
 export const useVisibilityScore = (): {
 	score: VisibilityScoreResponse | null;
 	isLoading: boolean;

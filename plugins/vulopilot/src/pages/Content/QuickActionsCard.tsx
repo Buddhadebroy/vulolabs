@@ -10,10 +10,7 @@ import ShowProPopup, { VuloCloudInlineNotice } from '../../components/Popup/Popu
 import { useAiCredits } from '../../services/useAiCredits';
 import { useContentToolsEnabled } from '../../services/useContentToolsEnabled';
 
-/**
- * "Quick Actions" card, same propose/preview/approve flow as ContentToolsGrid.tsx. The 2 Pro
- * tiles are display shells only - real fields/runner come from the `vulopilot_content_tools_pro` slot.
- */
+/** "Quick Actions" card, same propose/preview/approve flow as ContentToolsGrid.tsx. */
 const QUICK_ACTION_TOOLS: ContentTool[] = [
 	{
 		id: 'content-audit',

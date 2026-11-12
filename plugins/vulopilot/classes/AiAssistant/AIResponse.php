@@ -24,16 +24,14 @@ final class AIResponse {
 	private string $content;
 
 	/**
-	 * Real AI credits this call spent, exactly as the server reported it - fractional and
-	 * rounded to 3 decimals for display.
+	 * Real AI credits this call spent, exactly as the server reported it.
 	 *
 	 * @var float
 	 */
 	private float $credits_used;
 
 	/**
-	 * The server's own request id for this call, when the gateway that produced this
-	 * response returns one - null when it doesn't (never fabricated).
+	 * The server's own request id for this call, when the gateway that produced this response returns one.
 	 *
 	 * @var string|null
 	 */
@@ -93,7 +91,7 @@ final class AIResponse {
 	}
 
 	/**
-	 * Returns a copy of this response with different content - used to apply sanitization without mutating the original.
+	 * Returns a copy of this response with different content.
 	 *
 	 * @param string $new_content Replacement content.
 	 * @return self

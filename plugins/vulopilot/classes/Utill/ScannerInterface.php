@@ -27,7 +27,7 @@ interface ScannerInterface {
 	public function get_label(): string;
 
 	/**
-	 * @return string Category this scanner's findings belong to (e.g. 'seo', 'geo', 'security').
+	 * @return string Category this scanner's findings belong to.
 	 */
 	public function get_category(): string;
 

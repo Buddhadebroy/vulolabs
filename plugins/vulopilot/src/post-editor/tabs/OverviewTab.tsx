@@ -19,9 +19,7 @@ const ratingColor = ( score: number ): string => {
 	return 'bad';
 };
 
-/**
- * Side-by-side summary of the three real, already-computed scores this post has: mechanical SEO score.
- */
+/** Side-by-side summary of the three real, already-computed scores this post has. */
 export default function OverviewTab( { onNavigate }: OverviewTabProps ) {
 	const { postId } = usePostData();
 	const [ seoScore, setSeoScore ] = useState< SeoScoreResponse | null >( null );

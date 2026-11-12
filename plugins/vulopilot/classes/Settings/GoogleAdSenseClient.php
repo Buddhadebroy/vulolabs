@@ -4,8 +4,7 @@ namespace VuloPilot\Settings;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real Google AdSense Management API (v2) client - backs the "Analytics" settings panel's
- * own AdSense account dropdown (GoogleServicesPanel.tsx).
+ * Real Google AdSense Management API client.
  *
  * @class       GoogleAdSenseClient class
  * @version     1.0.0
@@ -28,9 +27,9 @@ class GoogleAdSenseClient {
 	}
 
 	/**
-	 * Real `GET https://adsense.googleapis.com/v2/accounts` - every AdSense account this Google user can access.
+	 * Real `GET https://adsense.googleapis.com/v2/accounts`.
 	 *
-	 * @return array<int, array{account_id: string, display_name: string}>|\WP_Error
+	 * @return array|\WP_Error
 	 */
 	public function list_accounts() {
 		$token = $this->connection->get_valid_access_token();
@@ -53,8 +52,7 @@ class GoogleAdSenseClient {
 
 		$status_code = (int) wp_remote_retrieve_response_code( $response );
 
-		// A site owner with no AdSense account at all gets a real 403 ("PERMISSION_DENIED"/no
-		// accounts) from this endpoint.
+		// A site owner with no AdSense account at all gets a real 403 from this endpoint.
 		if ( 403 === $status_code ) {
 			return array();
 		}

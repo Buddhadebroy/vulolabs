@@ -1,8 +1,7 @@
 import type { GeoVisibilityHistoryRow } from './useGeoTabData';
 
 /**
- * What used to be `GeoTrendCompactCard.tsx`'s own real "first vs. latest, out of every historical
- * day with a real score" computation.
+ * What used to be `GeoTrendCompactCard.tsx`'s own real "first vs. latest, out of every historical day with a real score" computation.
  */
 
 const defaultGetScore = (row: GeoVisibilityHistoryRow): number | null => row.overall_score;
@@ -18,9 +17,7 @@ export interface TrendChange {
 	series: { date: string; score: number }[];
 }
 
-/**
- * Returns `null` when there isn't at least 2 real sampled days to compare.
- */
+/** Returns `null` when there isn't at least 2 real sampled days to compare. */
 export const computeTrendChange = (
 	history: GeoVisibilityHistoryRow[],
 	// eslint-disable-next-line no-unused-vars

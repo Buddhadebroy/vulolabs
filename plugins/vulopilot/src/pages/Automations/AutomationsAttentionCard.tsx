@@ -7,11 +7,11 @@ import type { AutomationRow } from './automationsTypes';
 
 interface AutomationsAttentionCardProps {
 	onViewAll: () => void;
-	/** Bumped by the host after something changes elsewhere on the page (a new automation created, a status toggled). */
+	/** Bumped by the host after something changes elsewhere on the page. */
 	refetchSignal: number;
 }
 
-/** Cron-based trigger types `with_next_run()` (Automations.php) resolves - any other trigger type never gets a `next_run_at`, so it's excluded from the "missed schedule" check below. */
+/** Cron-based trigger types `with_next_run()` resolves. */
 const CRON_TRIGGER_TYPES = ['hourly', 'daily', 'weekly', 'monthly'];
 
 interface AttentionGroup {
@@ -21,15 +21,12 @@ interface AttentionGroup {
 	desc: string;
 }
 
-/**
- * "Needs your attention" - flags only what actually blocks an automation, grouped by flag type.
- */
+/** "Needs your attention". */
 const AutomationsAttentionCard = ({ onViewAll, refetchSignal }: AutomationsAttentionCardProps) => {
 	const [rows, setRows] = useState<AutomationRow[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 
-	// `isLoading` is only true for the first load - a refetch (after a toggle
-	// elsewhere on the page) shouldn't flash this card back into its skeleton.
+	// `isLoading` is only true for the first load.
 	useEffect(() => {
 		getApiResponse<{ data: AutomationRow[] } | AutomationRow[]>(
 			`${getApiLink(vulopilotAppLocalizer, 'automations')}?per_page=100`,

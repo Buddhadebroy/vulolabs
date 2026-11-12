@@ -8,9 +8,7 @@ import QuickActionsCard from './QuickActionsCard';
 import AiContentAssistantSidebar from './AiContentAssistantSidebar';
 import './CreateContent.scss';
 
-/**
- * "Content" (WP menu slug `content`) - used to be a tab shell over Overview.
- */
+/** "Content" (WP menu slug `content`) - used to be a tab shell over Overview. */
 const Content = () => {
 	return (
 		<>

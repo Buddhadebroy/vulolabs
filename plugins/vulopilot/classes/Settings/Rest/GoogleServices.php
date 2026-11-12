@@ -8,9 +8,7 @@ use VuloPilot\Settings\GoogleServicesConnection;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Backs Settings → Connections → Google Services' real "Connect Google Services" flow
- * (GoogleServicesPanel.tsx) and the Keywords tab's own real connection-status read
- * (KeywordsTab.tsx).
+ * Backs Settings → Connections → Google Services' real "Connect Google Services" flow and the Keywords tab's own real connection-status read.
  *
  * @class       GoogleServices controller
  * @version     1.0.0
@@ -181,7 +179,7 @@ class GoogleServices extends \WP_REST_Controller {
 	}
 
 	/**
-	 * `return_to` is only sanitized here; the allow-list check is in GoogleServicesConnection::get_authorization_url().
+	 * `return_to` is only sanitized here.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
@@ -197,8 +195,7 @@ class GoogleServices extends \WP_REST_Controller {
 		$connection = new GoogleServicesConnection();
 
 		if ( $connection->has_broker() ) {
-			// Ask the broker first, so a broker that isn't fully set up answers with its own
-			// message here instead of sending the browser to a raw JSON error page.
+			// Ask the broker first, so a broker that isn't fully set up answers with its own message here instead of sending the browser to a raw JSON error page.
 			$probe = wp_remote_get(
                 $url,
                 array(

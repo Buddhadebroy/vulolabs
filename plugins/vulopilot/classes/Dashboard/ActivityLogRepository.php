@@ -21,10 +21,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class ActivityLogRepository extends RepositoryUtil {
 
-	/**
-	 * Most rows get_timeline() will return in one response when seeking to a deep-linked
-	 * row (`around_id`).
-	 */
+	/** Most rows get_timeline() will return in one response when seeking to a deep-linked row. */
 	private const MAX_AROUND_ROWS = 1000;
 
 	/**
@@ -45,9 +42,9 @@ class ActivityLogRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * User/system/automation counts, zero-filled - backs the Activity table's status-count pill bar.
+	 * User/system/automation counts, zero-filled.
 	 *
-	 * @return array{user: int, system: int, automation: int}
+	 * @return array
 	 */
 	public function get_actor_type_counts(): array {
 		return array_merge(
@@ -63,8 +60,8 @@ class ActivityLogRepository extends RepositoryUtil {
 	/**
 	 * Newest-first page of the activity timeline.
 	 *
-	 * @param array{event_types: string[], search?: string, date_from?: string, date_to?: string, page?: int, per_page?: int, around_id?: int} $args `event_types` is required and never empty - an empty allow-list would mean "every event type," which no caller here wants.
-	 * @return array{data: array<int, array<string, mixed>>, total: int, pages_loaded: int}
+	 * @param array $args `event_types` is required and never empty.
+	 * @return array
 	 */
 	public function get_timeline( array $args ): array {
 		global $wpdb;
@@ -137,11 +134,11 @@ class ActivityLogRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Placeholder values for the timeline's WHERE clause, in the order the clause's own placeholders appear: event types, then the search term.
+	 * Placeholder values for the timeline's WHERE clause, in the order the clause's own placeholders appear.
 	 *
-	 * @param string[]             $event_types Event types the timeline is limited to.
-	 * @param array<string, mixed> $args        Same filters `get_timeline()` takes.
-	 * @return array<int, string>
+	 * @param string[] $event_types Event types the timeline is limited to.
+	 * @param array    $args        Same filters `get_timeline()` takes.
+	 * @return array
 	 */
 	private function timeline_values( array $event_types, array $args ): array {
 		global $wpdb;
@@ -166,11 +163,11 @@ class ActivityLogRepository extends RepositoryUtil {
 	/**
 	 * How many `$per_page`-sized pages, counted from the newest row, it takes to include row `$id` under the same filters as the timeline query.
 	 *
-	 * @param string               $table       This plugin's own activity-log table name.
-	 * @param string[]             $event_types Event types the timeline is limited to.
-	 * @param array<string, mixed> $args        Same filters `get_timeline()` takes.
-	 * @param int                  $id          Row to reach.
-	 * @param int                  $per_page    Page size.
+	 * @param string   $table       This plugin's own activity-log table name.
+	 * @param string[] $event_types Event types the timeline is limited to.
+	 * @param array    $args        Same filters `get_timeline()` takes.
+	 * @param int      $id          Row to reach.
+	 * @param int      $per_page    Page size.
 	 * @return int
 	 */
 	private function get_pages_down_to( string $table, array $event_types, array $args, int $id, int $per_page ): int {
@@ -212,7 +209,7 @@ class ActivityLogRepository extends RepositoryUtil {
 	 * @param string[] $event_types    e.g. History::EVENT_TYPES_BY_CATEGORY['change'].
 	 * @param string   $after          Y-m-d H:i:s, inclusive.
 	 * @param int      $window_seconds How far past `$after` to look.
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function find_actions_in_window( array $event_types, string $after, int $window_seconds ): array {
 		global $wpdb;
@@ -241,10 +238,10 @@ class ActivityLogRepository extends RepositoryUtil {
 	/**
 	 * Records one activity log entry.
 	 *
-	 * @param string      $event_type e.g. 'scan.completed'.
-	 * @param string      $message    Human-readable description.
-	 * @param string      $severity   One of Severity's constants.
-	 * @param string      $actor_type 'user'|'system'|'automation'.
+	 * @param string      $event_type  e.g. 'scan.completed'.
+	 * @param string      $message     Human-readable description.
+	 * @param string      $severity    One of Severity's constants.
+	 * @param string      $actor_type  'user'|'system'|'automation'.
 	 * @param string|null $object_type What kind of thing this is about.
 	 * @param string|null $object_id   Identifies the specific object.
 	 * @return int The new row's id.

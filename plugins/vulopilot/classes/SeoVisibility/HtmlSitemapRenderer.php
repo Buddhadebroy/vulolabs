@@ -17,7 +17,7 @@ class HtmlSitemapRenderer {
 	/**
 	 * Real post_type slug => display label.
 	 *
-	 * @return array<string, string>
+	 * @return array
 	 */
 	private static function get_post_type_labels(): array {
 		return array(
@@ -31,7 +31,7 @@ class HtmlSitemapRenderer {
 	/**
 	 * Taxonomy slug => display label.
 	 *
-	 * @return array<string, string>
+	 * @return array
 	 */
 	private static function get_taxonomy_labels(): array {
 		return array(
@@ -42,15 +42,13 @@ class HtmlSitemapRenderer {
 		);
 	}
 
-	/**
-	 * HtmlSitemapRenderer constructor.
-	 */
+	/** HtmlSitemapRenderer constructor. */
 	public function __construct() {
 		add_shortcode( 'vulopilot_html_sitemap', array( $this, 'render_shortcode' ) );
 	}
 
 	/**
-	 * @return array<string, mixed> Effective settings, defaults filled in.
+	 * @return array Effective settings, defaults filled in.
 	 */
 	private function get_settings(): array {
 		return wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
@@ -82,7 +80,7 @@ class HtmlSitemapRenderer {
 	}
 
 	/**
-	 * @param array<string, mixed> $settings Effective plugin settings.
+	 * @param array $settings Effective plugin settings.
 	 * @return string[] One rendered `section` per included, non-empty post type.
 	 */
 	private function render_post_type_sections( array $settings ): array {
@@ -126,7 +124,7 @@ class HtmlSitemapRenderer {
 	}
 
 	/**
-	 * @param array<string, mixed> $settings Effective plugin settings.
+	 * @param array $settings Effective plugin settings.
 	 * @return string[] One rendered `section` per included, non-empty taxonomy.
 	 */
 	private function render_taxonomy_sections( array $settings ): array {
@@ -167,8 +165,8 @@ class HtmlSitemapRenderer {
 	}
 
 	/**
-	 * @param \WP_Post             $post     Post to render one `li` for.
-	 * @param array<string, mixed> $settings Effective plugin settings.
+	 * @param \WP_Post $post     Post to render one `li` for.
+	 * @param array    $settings Effective plugin settings.
 	 * @return string
 	 */
 	private function render_post_item( \WP_Post $post, array $settings ): string {
@@ -190,7 +188,7 @@ class HtmlSitemapRenderer {
 	}
 
 	/**
-	 * @param array<string, mixed> $settings Effective plugin settings.
+	 * @param array $settings Effective plugin settings.
 	 * @return string WP_Query-compatible orderby value.
 	 */
 	private function get_post_orderby( array $settings ): string {

@@ -13,8 +13,7 @@ use VuloPilot\Utill\RepositoryUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for vulopilot_ai_action_runs - the record of one AIAction going through
- * propose → approve/reject → execute → rollback.
+ * Persistence for vulopilot_ai_action_runs.
  *
  * @class       ActionRunRepository class
  * @version     1.0.0
@@ -35,12 +34,12 @@ class ActionRunRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Real content-creation stats for one date range - how many of the given actions actually ran to completion (`status = 'executed'`).
+	 * Real content-creation stats for one date range.
 	 *
 	 * @param string   $period_start Y-m-d, inclusive.
 	 * @param string   $period_end   Y-m-d, inclusive.
 	 * @param string[] $action_ids   Content-creation action ids to scope to.
-	 * @return array{content_created: int, words_generated: int}
+	 * @return array
 	 */
 	public function get_content_creation_stats_for_period( string $period_start, string $period_end, array $action_ids ): array {
 		global $wpdb;

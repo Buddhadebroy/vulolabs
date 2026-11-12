@@ -5,9 +5,7 @@ import { SECURITY_FINDINGS_SCANNER_IDS } from './securityScannerIds';
 import type { SectionedIssuesTab } from './SectionedIssuesTable';
 import './ProtectMySite.scss';
 
-/**
- * Where each of the 7 real (scanner-backed) tiles' row click goes.
- */
+/** Where each of the 7 real (scanner-backed) tiles' row click goes. */
 const VIEW_TARGET_BY_TILE_ID: Record<
 	string,
 	{ type: 'section'; sectionKey: SectionedIssuesTab }
@@ -77,9 +75,7 @@ const NOT_TRACKED_BADGES = [
 	{ text: __('Not tracked yet', 'vulopilot'), color: 'indigo' },
 ];
 
-/**
- * Security tile grid, rendered as a `ListComponent` of per-section rows.
- */
+/** Security tile grid, rendered as a `ListComponent` of per-section rows. */
 const SecurityMetricsGrid = ({
 	onViewSection,
 }: {
@@ -87,7 +83,7 @@ const SecurityMetricsGrid = ({
 	// eslint-disable-next-line no-unused-vars
 	onViewSection: (tab: SectionedIssuesTab) => void;
 }) => {
-	// No category filter: "All" in the issues table also includes SSL (category 'ssl'), so this row must too or the two counts disagree.
+	// No category filter: "All" in the issues table also includes SSL, so this row must too or the two counts disagree.
 	const securityScan = useSectionStatus('', SECURITY_FINDINGS_SCANNER_IDS);
 	const pluginVulnerabilities = useSectionStatus('security', [
 		'basic-vulnerabilities',
@@ -144,8 +140,7 @@ const SecurityMetricsGrid = ({
 				const isTracked = Boolean(VIEW_TARGET_BY_TILE_ID[tile.id]);
 				const badges = badgesFor(tile.id);
 
-				// 2 real badges (total open + top-severity breakdown) split one after the title,
-				// one on the row's far right.
+				// 2 real badges split one after the title, one on the row's far right.
 				const [rightBadge, titleBadge] = badges ?? [];
 
 				return {

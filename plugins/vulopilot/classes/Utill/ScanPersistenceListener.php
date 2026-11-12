@@ -16,18 +16,16 @@ defined( 'ABSPATH' ) || exit;
 class ScanPersistenceListener {
 
 	/**
-	 * Scanner ids that never dedupe on rescan - always inserted fresh, every run, even if
-	 * the exact same object_type/object_ref/title combination is already open.
+	 * Scanner ids that never dedupe on rescan.
 	 *
 	 * @var string[]
 	 */
 	private const NEVER_DEDUPE_ON_RESCAN = array();
 
 	/**
-	 * Maps a "Notify me about" checklist type (Settings → Notifications → Website Alerts,
-	 * 'critical_alert_types') to the real finding categories that back it.
+	 * Maps a "Notify me about" checklist type to the real finding categories that back it.
 	 *
-	 * @var array<string, string[]>
+	 * @var array
 	 */
 	private const CRITICAL_ALERT_CATEGORIES = array(
 		'security'     => array( 'security', 'ssl' ),
@@ -58,9 +56,7 @@ class ScanPersistenceListener {
 	 */
 	private ActivityLogRepository $activity_logs;
 
-	/**
-	 * ScanPersistenceListener constructor.
-	 */
+	/** ScanPersistenceListener constructor. */
 	public function __construct() {
 		$this->scans         = new ScanRepository();
 		$this->findings      = new FindingRepository();
@@ -141,9 +137,9 @@ class ScanPersistenceListener {
 			);
 
 			/**
-			 * @param int    $finding_id  The just-inserted `vulopilot_findings` row id.
-			 * @param string $severity    Severity::* constant.
-			 * @param string $category    Real finding category.
+			 * @param int         $finding_id  The just-inserted `vulopilot_findings` row id.
+			 * @param string      $severity    Severity::* constant.
+			 * @param string      $category    Real finding category.
 			 * @param string|null $object_type From the triggering Finding, if any.
 			 * @param string|null $object_ref  From the triggering Finding, if any.
 			 */
@@ -157,8 +153,7 @@ class ScanPersistenceListener {
 			);
 		}
 
-		// Auto-resolve every finding this scanner previously had open that this run didn't
-		// reproduce.
+		// Auto-resolve every finding this scanner previously had open that this run didn't reproduce.
 		if ( ScanResult::STATUS_COMPLETED === $scan_result->get_status() ) {
 			foreach ( array_keys( $previously_open_ids ) as $stale_id ) {
 				$this->findings->update(
@@ -285,9 +280,7 @@ class ScanPersistenceListener {
 			$headers[] = sprintf( 'From: %s <%s>', $from_name, $settings['email_from_address'] );
 		}
 
-		// Scheduled instead of sent inline: a scan's POST request has only ~30s to finish, and a
-		// slow or unreachable mail server (SMTP connect timeout inside wp_mail()) would eat that
-		// whole budget and 500 the scan itself. WP-Cron's own (separate) request sends it instead.
+		// Scheduled instead of sent inline.
 		wp_schedule_single_event(
 			time(),
 			'vulopilot_send_critical_alert_email',
@@ -306,7 +299,7 @@ class ScanPersistenceListener {
 	}
 
 	/**
-	 * Cron callback for `vulopilot_send_critical_alert_email` - the actual wp_mail() call, off the scan request's own thread.
+	 * Cron callback for `vulopilot_send_critical_alert_email`.
 	 *
 	 * @param string   $recipient
 	 * @param string   $subject

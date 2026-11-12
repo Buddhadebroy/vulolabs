@@ -26,9 +26,7 @@ class Module {
 	 */
 	private EntityExtractor $extractor;
 
-	/**
-	 * Module constructor.
-	 */
+	/** Module constructor. */
 	public function __construct() {
 		$this->extractor = new EntityExtractor();
 

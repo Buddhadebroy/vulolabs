@@ -2,9 +2,7 @@ import { COLOR_PALETTE } from '@zyra/core';
 
 export type FindingSeverity = 'critical' | 'high' | 'medium' | 'low' | 'info';
 
-/**
- * The one canonical severity → zyra palette color name mapping.
- */
+/** The one canonical severity → zyra palette color name mapping. */
 const SEVERITY_COLOR_NAME: Record<FindingSeverity, keyof typeof COLOR_PALETTE> = {
 	critical: 'critical',
 	high: 'red',
@@ -13,9 +11,7 @@ const SEVERITY_COLOR_NAME: Record<FindingSeverity, keyof typeof COLOR_PALETTE> =
 	info: 'blue',
 };
 
-/**
- * Plain color-name modifier classes, as HealthPillarsWidget's `admin-badge` uses (`green`/`red`/ `yellow`).
- */
+/** Plain color-name modifier classes, as HealthPillarsWidget's `admin-badge` uses. */
 export const getSeverityClass = (severity: FindingSeverity): string =>
 	SEVERITY_COLOR_NAME[severity] ?? '';
 

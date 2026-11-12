@@ -14,9 +14,7 @@ interface ReportsOverviewActionsProps {
 	onDataChanged: () => void;
 }
 
-/**
- * The Overview tab's own "Last N days" range + Create Report/Schedule Report/Download PDF action row.
- */
+/** The Overview tab's own "Last N days" range + Create Report/Schedule Report/Download PDF action row. */
 const ReportsOverviewActions = ({
 	days,
 	onDaysChange,

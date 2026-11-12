@@ -62,8 +62,7 @@ class Settings extends \WP_REST_Controller {
 			)
 		);
 
-		// Settings → Developer Tools' "Clear cache" - same `type: 'button'` + `apilink` shape as
-		// /reset above.
+		// Settings → Developer Tools' "Clear cache".
 		register_rest_route(
 			VuloPilot()->rest_namespace,
 			'/' . $this->rest_base . '/clear-cache',
@@ -113,9 +112,7 @@ class Settings extends \WP_REST_Controller {
 			)
 		);
 
-		// Settings → Connections → PageSpeed Insights: GET returns the real on-load "Connected"
-		// pill/usage-bar state without calling Google's API
-		// (PageSpeedInsightsFetcher::get_status()).
+		// Settings → Connections → PageSpeed Insights.
 		register_rest_route(
 			VuloPilot()->rest_namespace,
 			'/' . $this->rest_base . '/test-pagespeed',
@@ -207,8 +204,7 @@ class Settings extends \WP_REST_Controller {
 	public function update_item( $request ) {
 		$tab_fields = $request->get_param( 'setting' );
 
-		// Fall back to treating the whole body as the field set when no `setting` wrapper is
-		// present (e.g. a direct API call rather than InputRenderer's own auto-save).
+		// Fall back to treating the whole body as the field set when no `setting` wrapper is present.
 		if ( ! is_array( $tab_fields ) ) {
 			$tab_fields = $request->get_json_params();
 		}
@@ -221,8 +217,7 @@ class Settings extends \WP_REST_Controller {
 		$updated = array_merge( $stored, $tab_fields );
 		$changed = $updated !== $stored;
 
-		// General tab's own "Site tone" field autosaving a real, human- typed value means it's no
-		// longer SiteToneLearner's own auto-detected phrase.
+		// General tab's own "Site tone" field autosaving a real, human- typed value means it's no longer SiteToneLearner's own auto-detected phrase.
 		if ( array_key_exists( 'site_tone', $tab_fields ) ) {
 			$updated['site_tone_source'] = 'manual';
 		}
@@ -237,21 +232,18 @@ class Settings extends \WP_REST_Controller {
 			VuloPilot()->sitemap_url_rewriter->request_flush();
 		}
 
-		// InputRenderer autosaves a tab whenever it opens, even with nothing edited, so only
-		// report a save when something actually changed.
+		// InputRenderer autosaves a tab whenever it opens, even with nothing edited, so only report a save when something actually changed.
 		$response = array(
 			'success' => true,
 			'message' => $changed ? __( 'Settings saved.', 'vulopilot' ) : '',
 		);
 
-		// Editing llms.txt's content is meant to take effect immediately, not just on the next
-		// dynamic /llms.txt request.
+		// Editing llms.txt's content is meant to take effect immediately, not just on the next dynamic /llms.txt request.
 		if ( array_key_exists( 'llms_txt_content', $tab_fields ) ) {
 			$response['file_saved'] = VuloPilot()->llms_txt_generator->write_file( $updated['llms_txt_content'] );
 		}
 
-		// Instant Indexing tab's "Change key" button - same "an edited field also needs an
-		// immediate side-effect on save" precedent as llms_txt_content above.
+		// Instant Indexing tab's "Change key" button.
 		if ( array_key_exists( 'indexnow_api_key', $tab_fields ) && ! empty( $updated['indexnow_api_key'] ) ) {
 			VuloPilot()->indexnow_key_file_server->write_key_file( $updated['indexnow_api_key'] );
 		}
@@ -260,7 +252,7 @@ class Settings extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Deletes the stored option entirely, reverting every setting to Utill::VULOPILOT_SETTINGS_DEFAULTS - the "Reset to defaults" action.
+	 * Deletes the stored option entirely, reverting every setting to Utill::VULOPILOT_SETTINGS_DEFAULTS.
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return \WP_REST_Response
@@ -331,8 +323,7 @@ class Settings extends \WP_REST_Controller {
 		);
 
 		if ( $sent ) {
-			// Same real "Last test … sent on …" persistence send_test_report() already keeps (own
-			// key, unrelated to that one).
+			// Same real "Last test … sent on …" persistence send_test_report() already keeps.
 			$updated = array_merge( $this->get_stored_settings(), array( 'email_last_test_sent' => current_time( 'mysql', true ) ) );
 			update_option( Utill::VULOPILOT_SETTINGS_KEY, $updated );
 		}
@@ -458,7 +449,7 @@ class Settings extends \WP_REST_Controller {
 	}
 
 	/**
-	 * The real on-load "Connected" pill/usage-bar state, without calling Google's API - see PageSpeedInsightsFetcher::get_status()'s own docblock.
+	 * The real on-load "Connected" pill/usage-bar state, without calling Google's API.
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return \WP_REST_Response
@@ -468,7 +459,7 @@ class Settings extends \WP_REST_Controller {
 	}
 
 	/**
-	 * "Verify"/"Verify with Bing"/"Verify with Pinterest" (Settings → Connections → Site Verification).
+	 * "Verify"/"Verify with Bing"/"Verify with Pinterest".
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return \WP_REST_Response
@@ -595,29 +586,26 @@ class Settings extends \WP_REST_Controller {
 	}
 
 	/**
-	 * @return array<string, mixed> Stored settings, defaults filled in for anything never saved.
+	 * @return array Stored settings, defaults filled in for anything never saved.
 	 */
 	private function get_stored_settings(): array {
 		$saved = get_option( Utill::VULOPILOT_SETTINGS_KEY, array() );
 
 		$settings = wp_parse_args( is_array( $saved ) ? $saved : array(), Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
-		// Sites that saved a checkbox setting before this option's defaults moved to zyra's own
-		// wire shape still have a raw PHP boolean sitting in the stored option for that key.
+		// Sites that saved a checkbox setting before this option's defaults moved to zyra's own wire shape still have a raw PHP boolean sitting in the stored option for that key.
 		foreach ( $settings as $key => $value ) {
 			if ( is_bool( $value ) ) {
 				$settings[ $key ] = $value ? array( $key ) : array();
 			}
 		}
 
-		// 'llms_txt_content' can't live in VULOPILOT_SETTINGS_DEFAULTS as anything but '' (a class
-		// const array can't call a method).
+		// 'llms_txt_content' can't live in VULOPILOT_SETTINGS_DEFAULTS as anything but ''.
 		if ( empty( $settings['llms_txt_content'] ) ) {
 			$settings['llms_txt_content'] = VuloPilot()->llms_txt_generator->generate();
 		}
 
-		// Unlike llms_txt_content above (display-only until an admin explicitly edits/saves),
-		// `indexnow_api_key` needs a real.
+		// Unlike llms_txt_content above, `indexnow_api_key` needs a real.
 		if ( empty( $settings['indexnow_api_key'] ) ) {
 			$settings['indexnow_api_key'] = \VuloPilot\SeoVisibility\IndexNowKeyFileServer::generate_new_key();
 			update_option( Utill::VULOPILOT_SETTINGS_KEY, $settings );
@@ -628,7 +616,7 @@ class Settings extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Activates or deactivates one module - the same request shape zyra's `ModuleGridComponent` sends regardless of which plugin it's talking to.
+	 * Activates or deactivates one module.
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return \WP_REST_Response|\WP_Error
@@ -656,7 +644,7 @@ class Settings extends \WP_REST_Controller {
 	}
 
 	/**
-	 * @return array Every currently active module's id - zyra's `initializeModules()`/`useModules()` expect this exact flat-array shape.
+	 * @return array Every currently active module's id.
 	 */
 	public function get_modules() {
 		return VuloPilot()->modules->get_active_modules();

@@ -32,9 +32,9 @@ const BlurredDummyContent = ({
 	title: string;
 	titleIcon: string;
 	desc: string;
-	/** `CardComponent`'s own header `action` slot - the "Optimize Knowledge Panel"/"Add competitors"+"Analyze competitors" buttons 2 of the 4 dummies pass. */
+	/** `CardComponent`'s own header `action` slot. */
 	action?: ReactNode;
-	/** This dummy's own content class (e.g. `brand-authority-trends-dummy`) - `blur-wrapper-content` is appended automatically. */
+	/** This dummy's own content class - `blur-wrapper-content` is appended automatically. */
 	contentClassName: string;
 	onClick: () => void;
 	children: ReactNode;
@@ -107,9 +107,7 @@ export const AuthorityTrendsDummy = ({ onClick }: DummyCardProps) => (
 	</BlurredDummyContent>
 );
 
-/**
- * Placeholder titles like "(Example post N)" so the list is never mistaken for real findings.
- */
+/** Placeholder titles like "(Example post N)" so the list is never mistaken for real findings. */
 const DUMMY_KNOWLEDGE_PANEL_FINDINGS: { title: string }[] = [
 	{ title: __('No author schema found: (Example post 1)', 'vulopilot') },
 	{ title: __('No author schema found: (Example post 2)', 'vulopilot') },

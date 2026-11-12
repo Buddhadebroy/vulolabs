@@ -2,9 +2,7 @@ import React from 'react';
 import { __ } from '@wordpress/i18n';
 import BannerCard from '../../components/BannerCard';
 
-/**
- * Compact, dismissible "finish setup" banner.
- */
+/** Compact, dismissible "finish setup" banner. */
 const GettingStartedCard: React.FC = () => (
 	<BannerCard
 		dismissible

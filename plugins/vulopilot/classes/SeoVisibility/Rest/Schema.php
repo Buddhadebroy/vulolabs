@@ -7,8 +7,7 @@ use VuloPilot\SeoVisibility\SchemaPageInspector;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `POST /schema/inspect` backs the Inspector section's real single-page checker
- * (SchemaPageInspector).
+ * `POST /schema/inspect` backs the Inspector section's real single-page checker.
  *
  * @class       Schema controller
  * @version     1.0.0
@@ -127,7 +126,7 @@ class Schema extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Inspector section's "Inspect a specific page" - resolves either a given `url` or a `post_id`'s real permalink.
+	 * Inspector section's "Inspect a specific page".
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
@@ -155,7 +154,7 @@ class Schema extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real posts/pages/products the Inspector's own page-picker dropdown offers (InspectorSection.tsx).
+	 * Real posts/pages/products the Inspector's own page-picker dropdown offers.
 	 *
 	 * @return \WP_REST_Response
 	 */
@@ -172,8 +171,7 @@ class Schema extends \WP_REST_Controller {
 			)
 		);
 
-		// A static front page (Settings → Reading) is the homepage, which is
-		// added separately below - keep it out so it isn't listed twice.
+		// A static front page is the homepage, which is added separately below.
 		$post_ids = array_slice( array_values( array_diff( $post_ids, array( (int) get_option( 'page_on_front' ) ) ) ), 0, 30 );
 
 		$pages = array_map(

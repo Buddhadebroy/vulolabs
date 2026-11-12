@@ -17,10 +17,7 @@ import {
 } from './useGeoTabData';
 import { useAeoPageAnalysis } from './useAeoPageAnalysis';
 
-/**
- * Section → scanner_id grouping for AEO's 6 topics - every scanner_id is a real, already-running
- * scanner; no topic invents a signal.
- */
+/** Section → scanner_id grouping for AEO's 6 topics. */
 const AEO_SECTIONS: {
 	key: string;
 	title: string;
@@ -81,9 +78,7 @@ const average = (values: number[]): number =>
 		? Math.round(values.reduce((sum, n) => sum + n, 0) / values.length)
 		: 0;
 
-/**
- * The same 3-dimension average the "AEO Score" ring computes for "today" (`answer_first_structure`/`question_coverage`/`citation_readiness`).
- */
+/** The same 3-dimension average the "AEO Score" ring computes for "today". */
 const getAeoTrendScore = (row: GeoVisibilityHistoryRow): number | null =>
 	row.ai_scores && row.sub_scores
 		? average([
@@ -96,9 +91,7 @@ const getAeoTrendScore = (row: GeoVisibilityHistoryRow): number | null =>
 /** Real backend module id (Settings → Modules) - Pro-only, no matching Free module folder. */
 const AEO_MODULE_ID = 'answer-engine-optimization';
 
-/**
- * Whether GeoInsights' Rest.php class is registered - either 'geo-insights' or 'aeo-insights' being active is enough.
- */
+/** Whether GeoInsights' Rest.php class is registered. */
 const isCitationCheckActive = (modules: string[]): boolean =>
 	Boolean(vulopilotAppLocalizer.khali_dabba) &&
 	(modules.includes('geo-analysis') || modules.includes(AEO_MODULE_ID));
@@ -107,9 +100,7 @@ const isCitationCheckActive = (modules: string[]): boolean =>
 const isAeoModuleActive = (modules: string[]): boolean =>
 	Boolean(vulopilotAppLocalizer.khali_dabba) && modules.includes(AEO_MODULE_ID);
 
-/**
- * AEO = Answer Engine Optimization - whether AI systems can extract, structure.
- */
+/** AEO = Answer Engine Optimization - whether AI systems can extract, structure. */
 const AeoTab = () => {
 	const [categoryFocus, setCategoryFocus] = useState<{
 		key: string;
@@ -124,20 +115,16 @@ const AeoTab = () => {
 	const { pages: aeoPages, total: totalPages, isLoading: isLoadingPages } =
 		useAeoPageAnalysis(ALL_AEO_SCANNER_IDS);
 
-	// "Questions Answered" - real published pages minus the real count of pages with an open geo-
-	// faq-opportunity finding (i.e. pages that already have adequate question coverage).
+	// "Questions Answered" - real published pages minus the real count of pages with an open geo- faq-opportunity finding.
 	const openFaqFindings = sumGroupCounts(groups, ['geo-faq-opportunity']);
 	const questionsAnswered = totalPages
 		? Math.max(0, totalPages - openFaqFindings)
 		: 0;
 
-	// "Pages Ready" - real published pages with zero open AEO findings (across all 6 topics
-	// above), out of the real total.
+	// "Pages Ready" - real published pages with zero open AEO findings, out of the real total.
 	const pagesReady = aeoPages.filter((page) => 0 === page.open_findings).length;
 
-	/**
-	 * Sets a fresh `categoryFocus` (a new `token` even for the same `key` twice in a row).
-	 */
+	/** Sets a fresh `categoryFocus` (a new `token` even for the same `key` twice in a row). */
 	const goToIssuesTable = (key: string = 'all') => {
 		setCategoryFocus({ key, token: Date.now() });
 	};

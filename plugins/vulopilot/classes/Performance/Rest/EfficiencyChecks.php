@@ -4,7 +4,7 @@ namespace VuloPilot\Performance\Rest;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * REST controller for `/efficiency-checks`, backing "Protect My Site" → Performance tab. Unlike other tabs, this isn't read from `vulopilot_scan_findings` (which only stores problems):
+ * REST controller for `/efficiency-checks`, backing "Protect My Site" → Performance tab.
  *
  * @class       EfficiencyChecks controller
  * @version     1.0.0
@@ -17,9 +17,7 @@ class EfficiencyChecks extends \WP_REST_Controller {
 	 */
 	protected $rest_base = 'efficiency-checks';
 
-	/**
-	 * Timeout for a probe request, in seconds.
-	 */
+	/** Timeout for a probe request, in seconds. */
 	private const REQUEST_TIMEOUT_SECONDS = 8;
 
 	/**

@@ -1,12 +1,9 @@
 import { __ } from '@wordpress/i18n';
 
-/**
- * Settings → Scanning → SEO & Content - first tab under Scanning (`priority: 0` below).
- */
+/** Settings → Scanning → SEO & Content - first tab under Scanning (`priority: 0` below). */
 export default {
 	id: 'seo-content',
-	// First tab under Scanning, now that Content & Search (previously priority 0) was removed
-	// entirely and this tab absorbed its real settings.
+	// First tab under Scanning, now that Content & Search was removed entirely and this tab absorbed its real settings.
 	priority: 0,
 	headerTitle: __('SEO & Content', 'vulopilot'),
 	settingTitle: __('Titles & meta', 'vulopilot'),
@@ -39,8 +36,7 @@ export default {
             ),
         },
         {
-            // Not a real, independently-writable field here - same treatment as `kg-health-drop-
-            // threshold-note` above.
+            // Not a real, independently-writable field here.
             key: 'brand-drop-threshold-note',
             type: 'notice',
             noticeType: 'info',
@@ -326,8 +322,7 @@ export default {
 			),
 			options: [{ key: 'log_404s', label: '', value: 'log_404s' }],
 		},
-		// { key: 'content-section', type: 'section', title: __('Content Intelligence',
-		// 'vulopilot'), },
+		// { key: 'content-section', type.
 		{
 			key: 'seo-section-readability',
 			type: 'section',

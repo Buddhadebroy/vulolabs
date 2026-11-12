@@ -6,9 +6,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Settings → Scanning → SEO → Robots' sitewide robots-meta conditions - real `wp_robots` noindex
- * flags for specific site-wide conditions, plus one blunt "noindex everything" switch. Separate
- * from PostRobotsMetaManager, which only applies a single post's own metabox flags.
+ * Settings → Scanning → SEO → Robots' sitewide robots-meta conditions.
  *
  * @class       DefaultRobotsManager class
  * @version     1.0.0
@@ -16,19 +14,15 @@ defined( 'ABSPATH' ) || exit;
  */
 class DefaultRobotsManager {
 
-	/**
-	 * DefaultRobotsManager constructor.
-	 */
+	/** DefaultRobotsManager constructor. */
 	public function __construct() {
-		// After PostRobotsMetaManager's priority (10, the default) - a per-post noindex should
-		// never be un-set by a sitewide condition, but these only ever add noindex, never remove
-		// it, so hook order doesn't actually matter here; kept at the default for simplicity.
+		// After PostRobotsMetaManager's priority.
 		add_filter( 'wp_robots', array( $this, 'maybe_filter_robots' ) );
 	}
 
 	/**
-	 * @param array<string, bool> $robots Core's own robots directives array.
-	 * @return array<string, bool>
+	 * @param array $robots Core's own robots directives array.
+	 * @return array
 	 */
 	public function maybe_filter_robots( array $robots ): array {
 		$settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );

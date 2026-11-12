@@ -15,8 +15,7 @@ use VuloPilot\AiAssistant\AIResponse;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Fixes HeadingStructureScanner's finding: 300+ word content with no `h2`-`h6` tag
- * anywhere in it.
+ * Fixes HeadingStructureScanner's finding.
  *
  * @class       AddSubheadingsAction class
  * @version     1.0.0
@@ -25,8 +24,7 @@ defined( 'ABSPATH' ) || exit;
 class AddSubheadingsAction extends AbstractCloudAction {
 
 	/**
-	 * A rewrite shorter than this fraction of the original is treated as more than
-	 * subheadings being inserted and rejected.
+	 * A rewrite shorter than this fraction of the original is treated as more than subheadings being inserted and rejected.
 	 */
 	private const MIN_LENGTH_RATIO = 0.9;
 

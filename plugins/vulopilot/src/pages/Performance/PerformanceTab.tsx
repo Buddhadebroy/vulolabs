@@ -5,12 +5,10 @@ import SectionedIssuesTable, {
 } from '../Security/SectionedIssuesTable';
 import PluginOverlapCard from '../Security/PluginOverlapCard';
 
-/** DOM anchor id the merged table below carries - what AiSpeedAssistantCard's "Review First" button scrolls to (via OverviewTab.tsx's own `#performance-section-findings` wrapper). */
+/** DOM anchor id the merged table below carries. */
 const ISSUES_TABLE_ID = 'performance-top-issues-table';
 
-/**
- * The 11 real category-'performance' scanner ids (`classes/Scanners/Basic/`).
- */
+/** The 11 real category-'performance' scanner ids (`classes/Scanners/Basic/`). */
 export const SECTIONS: FindingsSection[] = [
 	{
 		key: 'server-response',
@@ -91,8 +89,7 @@ export const SECTIONS: FindingsSection[] = [
 
 interface PerformanceTabProps {
 	/**
-	 * Owned by OverviewTab.tsx (not internal state) so MetricsGrid.tsx's own per-tile "View"
-	 * buttons can jump this table straight to a specific section.
+	 * Owned by OverviewTab.tsx so MetricsGrid.tsx's own per-tile "View" buttons can jump this table straight to a specific section.
 	 */
 	activeTab: SectionedIssuesTab;
 	 
@@ -100,9 +97,7 @@ interface PerformanceTabProps {
 	onTabChange: (tab: SectionedIssuesTab) => void;
 }
 
-/**
- * "Top Issues" - Performance's own OverviewTab.tsx (wrapped in `#performance-section-findings`) is this component's only call site.
- */
+/** "Top Issues". */
 const PerformanceTab = ({ activeTab, onTabChange }: PerformanceTabProps) => {
 	return (
 		<>

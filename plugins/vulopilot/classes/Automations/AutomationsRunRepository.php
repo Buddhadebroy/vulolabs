@@ -14,8 +14,7 @@ use VuloPilot\Utill as CoreUtill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for vulopilot_automations_runs - one row per time AutomationEngine ran (or
- * attempted to run) an automation's actions.
+ * Persistence for vulopilot_automations_runs.
  *
  * @class       AutomationsRunRepository class
  * @version     1.0.0
@@ -36,11 +35,11 @@ class AutomationsRunRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Run/success/failure counts for one date range - what Reports\Types\AutomationsReport's headline summary reads.
+	 * Run/success/failure counts for one date range.
 	 *
 	 * @param string $period_start Y-m-d, inclusive.
 	 * @param string $period_end   Y-m-d, inclusive.
-	 * @return array{total: int, by_status: array<string, int>}
+	 * @return array
 	 */
 	public function get_stats_for_period( string $period_start, string $period_end ): array {
 		global $wpdb;
@@ -72,7 +71,7 @@ class AutomationsRunRepository extends RepositoryUtil {
 	 *
 	 * @param string $period_start Y-m-d, inclusive.
 	 * @param string $period_end   Y-m-d, inclusive.
-	 * @return array{executed: int, failed: int, changes_made: int}
+	 * @return array
 	 */
 	public function get_action_totals_for_period( string $period_start, string $period_end ): array {
 		global $wpdb;
@@ -99,7 +98,7 @@ class AutomationsRunRepository extends RepositoryUtil {
 	 *
 	 * @param string $period_start Y-m-d, inclusive.
 	 * @param string $period_end   Y-m-d, inclusive.
-	 * @return array<string, int> Real action id => successful-execution count.
+	 * @return array Real action id => successful-execution count.
 	 */
 	public function get_action_type_totals_for_period( string $period_start, string $period_end ): array {
 		global $wpdb;
@@ -139,7 +138,7 @@ class AutomationsRunRepository extends RepositoryUtil {
 	 * The single most recent run per automation, for however many of `$automation_ids` actually have one.
 	 *
 	 * @param int[] $automation_ids Real automation ids to look up; empty returns empty.
-	 * @return array<int, array{status: string, actions_executed: int, actions_failed: int, changes_made: int, started_at: string.
+	 * @return array
 	 */
 	public function get_latest_by_automation_ids( array $automation_ids ): array {
 		global $wpdb;
@@ -175,8 +174,7 @@ class AutomationsRunRepository extends RepositoryUtil {
 
 		$by_automation_id = array();
 
-		// A tie on started_at (two runs the same second) would return two rows for one
-		// automation_id.
+		// A tie on started_at would return two rows for one automation_id.
 		foreach ( (array) $rows as $row ) {
 			$automation_id = (int) $row['automation_id'];
 
@@ -235,7 +233,7 @@ class AutomationsRunRepository extends RepositoryUtil {
 	 *
 	 * @param string $period_start Y-m-d, inclusive.
 	 * @param string $period_end   Y-m-d, inclusive.
-	 * @return array<int, array{automation_id: int, name: string, runs: int, succeeded: int, failed: int}>
+	 * @return array
 	 */
 	public function get_breakdown_by_automation_for_period( string $period_start, string $period_end ): array {
 		global $wpdb;

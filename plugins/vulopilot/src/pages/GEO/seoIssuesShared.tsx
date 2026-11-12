@@ -2,9 +2,7 @@
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { SEO_SECTIONS } from './seoSections';
 
-/**
- * Truly shared pieces between `SeoSiteWideIssuesTable.tsx` and `SeoIssuesByPageTable.tsx`.
- */
+/** Truly shared pieces between `SeoSiteWideIssuesTable.tsx` and `SeoIssuesByPageTable.tsx`. */
 
 export const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
@@ -14,14 +12,14 @@ export const ALL_SEO_SCANNER_IDS = Array.from(
 );
 
 const FINDINGS_PAGE_SIZE = 100;
-/** Safety ceiling for the pagination loop below - a real site would need >1,000 open SEO findings to ever hit this. */
+/** Safety ceiling for the pagination loop below. */
 const MAX_FINDINGS = 1000;
 
 export type FindingSeverity = 'critical' | 'high' | 'medium' | 'low' | 'info';
 
 export type { Priority } from '../../components/Issues/IssuesSummaryCards';
 
-/** Same 3-tier critical→high/info→low fold `SectionedIssuesTable.tsx`'s own local copy (Security/Accessibility/WooCommerce's shared issues table) and Findings.php's own `PRIORITY_SEVERITY_RANKS` use - kept here too so `IssuesSection.tsx`'s own priority stat cards and its two tables filter findings the exact same way that component already does. */
+/** Same 3-tier critical→high/info→low fold `SectionedIssuesTable.tsx`'s own local copy and Findings.php's own `PRIORITY_SEVERITY_RANKS` use. */
 export const PRIORITY_SEVERITIES: Record<'high' | 'medium' | 'low', FindingSeverity[]> = {
 	high: ['critical', 'high'],
 	medium: ['medium'],
@@ -31,14 +29,14 @@ export const PRIORITY_SEVERITIES: Record<'high' | 'medium' | 'low', FindingSever
 export interface RawFinding {
 	id: number;
 	title: string;
-	/** The scanner's own longer explanation of the finding - already returned by `find_all()`'s own `SELECT *`, same as `created_at` below. */
+	/** The scanner's own longer explanation of the finding. */
 	description?: string;
 	severity: FindingSeverity;
 	status: 'open' | 'resolved' | 'ignored' | 'snoozed';
 	scanner_id: string;
 	object_type: string;
 	object_ref: string;
-	/** Real column (`FindingRepository`'s table), already returned by `find_all()`'s own `SELECT *`. */
+	/** Real column, already returned by `find_all()`'s own `SELECT *`. */
 	created_at: string;
 }
 
@@ -64,9 +62,7 @@ export const worstFinding = (findings: RawFinding[]): RawFinding =>
 		findings[0]
 	);
 
-/**
- * `GET /findings` is hard-capped at 100 rows/request server-side (AbstractRepository::find_all()).
- */
+/** `GET /findings` is hard-capped at 100 rows/request server-side. */
 export const fetchOpenFindingsFor = async (
 	scannerIds: string[]
 ): Promise<RawFinding[]> => {
@@ -120,9 +116,7 @@ const dedupeSiteWideFindings = (findings: RawFinding[]): RawFinding[] => {
 	return Array.from(byKey.values());
 };
 
-/**
- * Splits findings into per-page buckets (keyed by real numeric post/page id) and a `siteWide` bucket.
- */
+/** Splits findings into per-page buckets. */
 export const bucketFindingsByPage = (
 	findings: RawFinding[]
 ): { byPostId: Map<number, RawFinding[]>; siteWide: RawFinding[] } => {
@@ -172,17 +166,17 @@ export interface PageRow {
 	findings: RawFinding[];
 	/** Only set when `IssuesSection.tsx` was given a `pageAnalysis` prop (GeoTab.tsx/AeoTab.tsx). */
 	visibilityScore?: number | null;
-	/** Only set when `IssuesSection.tsx` was given `pageScore: true` (SeoTab.tsx's own SEO usage). */
+	/** Only set when `IssuesSection.tsx` was given `pageScore: true`. */
 	seoScore?: number;
 	seoScoreChange?: number;
-	/** Only set when `IssuesSection.tsx` was given a `content` config (`RecentContentCard.tsx`'s own real Blog Post/Landing Page/Product Description/Other split). */
+	/** Only set when `IssuesSection.tsx` was given a `content` config. */
 	categoryKey?: string;
-	/** Real display label/icon for `categoryKey` above - the same real category badge/icon that table's own hand-rolled `InformationItemComponent` used to render. */
+	/** Real display label/icon for `categoryKey` above. */
 	categoryLabel?: string;
 	categoryIcon?: string;
-	/** Only set alongside `categoryLabel` - real client-computed word count (`RecentContentCard.tsx`'s own `countWords()`). */
+	/** Only set alongside `categoryLabel`. */
 	wordCount?: number;
-	/** Only set when `IssuesSection.tsx`'s own `content` mode also fetched this row's real readability score (`GET /content-intelligence/quality?post_id=`'s own `readability.score` - the same real Flesch Reading Ease number `ContentQualityCard.tsx`'s own ring plots) - one real request per row, since no bulk equivalent of that endpoint exists. */
+	/** Only set when `IssuesSection.tsx`'s own `content` mode also fetched this row's real readability score. */
 	contentQualityScore?: number;
 }
 
@@ -197,9 +191,7 @@ export interface GeoAnalysisPageRow {
 	visibility_score: number | null;
 }
 
-/**
- * Every published page/post with its real, deterministic visibility %.
- */
+/** Every published page/post with its real, deterministic visibility %. */
 export const fetchAllPagesWithScores = async (
 	scannerIds: string[]
 ): Promise<GeoAnalysisPageRow[]> => {
@@ -240,7 +232,7 @@ export const VisibilityCell = ({ score }: { score: number | null | undefined }) 
 	);
 };
 
-/** Fetches only the specific posts/pages that actually have an open finding (via WP core's own `include` param). */
+/** Fetches only the specific posts/pages that actually have an open finding. */
 export const fetchPagesByIds = async (
 	endpoint: 'posts' | 'pages',
 	ids: number[]

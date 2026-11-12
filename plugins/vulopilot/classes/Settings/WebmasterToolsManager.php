@@ -6,8 +6,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Scanning → Webmaster Tools tab's real backing - outputs one `meta` verification tag
- * per configured provider on `wp_head`.
+ * Scanning → Webmaster Tools tab's real backing.
  *
  * @class       WebmasterToolsManager class
  * @version     1.0.0
@@ -29,9 +28,7 @@ class WebmasterToolsManager {
 		'webmaster_norton_verification'    => 'norton-safeweb-site-verification',
 	);
 
-	/**
-	 * WebmasterToolsManager constructor.
-	 */
+	/** WebmasterToolsManager constructor. */
 	public function __construct() {
 		add_action( 'wp_head', array( $this, 'maybe_output_tags' ), 5 );
 	}
@@ -71,7 +68,7 @@ class WebmasterToolsManager {
 	}
 
 	/**
-	 * Rebuilds `webmaster_custom_tags` from scratch as safe `meta` tags only - never echoes the admin's raw input string.
+	 * Rebuilds `webmaster_custom_tags` from scratch as safe `meta` tags only.
 	 *
 	 * @param string $raw Raw admin-entered textarea content.
 	 * @return string Rebuilt, safe `meta` tags only.
@@ -106,7 +103,7 @@ class WebmasterToolsManager {
 	 * Parses `name="x" content="y"`-style attribute pairs out of one matched `meta` tag's inner attribute string.
 	 *
 	 * @param string $attributes_string Raw attribute text between `<meta` and `/>`.
-	 * @return array<string, string>
+	 * @return array
 	 */
 	private function parse_attributes( string $attributes_string ): array {
 		$attributes = array();

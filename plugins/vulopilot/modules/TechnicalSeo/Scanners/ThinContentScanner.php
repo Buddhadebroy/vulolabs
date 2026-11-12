@@ -16,8 +16,7 @@ use VuloPilot\Utill\ScannedPostsTrait;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags published posts and pages under a minimum word count, a cheap proxy for thin
- * content.
+ * Flags published posts and pages under a minimum word count, a cheap proxy for thin content.
  *
  * @class       ThinContentScanner class
  * @version     1.0.0
@@ -29,9 +28,7 @@ class ThinContentScanner extends ScannerUtil implements TracksScannedObjectsInte
 
 	private const BATCH_SIZE = 50;
 
-	/**
-	 * Fallback only; the threshold is the `thin_content_word_threshold` setting.
-	 */
+	/** Fallback only; the threshold is the `thin_content_word_threshold` setting. */
 	private const DEFAULT_MIN_WORD_COUNT = 300;
 
 	/**

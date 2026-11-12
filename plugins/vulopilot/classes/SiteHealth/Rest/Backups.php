@@ -6,8 +6,7 @@ use VuloPilot\SiteHealth\BackupRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Backups REST routes: list, start a manual backup, download, delete and restore. Restore
- * always takes a pre-restore safety snapshot first.
+ * Backups REST routes: list, start a manual backup, download, delete and restore.
  *
  * @class       Backups controller
  * @version     1.0.0
@@ -109,8 +108,7 @@ class Backups extends \WP_REST_Controller {
 			)
 		);
 
-		// file_path is deliberately never exposed to the client - same
-		// posture Reports.php::get_items() already established.
+		// file_path is deliberately never exposed to the client.
 		$result['data'] = array_map(
 			static function ( array $row ): array {
 				$row['has_file'] = ! empty( $row['file_path'] );
@@ -164,8 +162,7 @@ class Backups extends \WP_REST_Controller {
 			}
 		}
 
-		// Real remote-copy cleanup (S3/Google Drive) - a no-op for a 'local'-only backup or one
-		// whose upload never finished.
+		// Real remote-copy cleanup - a no-op for a 'local'-only backup or one whose upload never finished.
 		VuloPilot()->backup_storage_manager->delete_remote_copy( $backup );
 
 		$repository->delete( $id );

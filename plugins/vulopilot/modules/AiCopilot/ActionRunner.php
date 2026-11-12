@@ -54,12 +54,11 @@ class ActionRunner {
 	/**
 	 * Validates input, sends the prompt, then validates and previews the result.
 	 *
-	 * @param string               $action_id  e.g. 'generate-alt'.
-	 * @param array<string, mixed> $raw_input Raw input (REST params, or built from a Recommendation).
-	 * @return array{run_id: int, preview: array<string, mixed>, auto_approved: bool, approval_method: string|null}
-	 *
+	 * @param string $action_id e.g. 'generate-alt'.
+	 * @param array  $raw_input Raw input (REST params, or built from a Recommendation).
+	 * @return array
 	 * @throws \InvalidArgumentException If $action_id isn't registered.
-	 * @throws \RuntimeException         If no AI connection is configured.
+	 * @throws \RuntimeException If no AI connection is configured.
 	 */
 	public function propose( string $action_id, array $raw_input ): array {
 		$action = $this->get_action_or_fail( $action_id );
@@ -110,13 +109,13 @@ class ActionRunner {
 	}
 
 	/**
-	 * Gets the AI completion for a proposed action: the AI-service feature of a CloudAIActionInterface action, the action's own prompt otherwise.
+	 * Gets the AI completion for a proposed action.
 	 *
 	 * @param \VuloPilot\Utill\AIActionInterface $action Resolved action instance.
 	 * @param array                              $input  Normalized input.
 	 * @return AIResponse
 	 * @throws VuloPilotException If credits can't cover the request, or the AI request fails.
-	 * @throws \RuntimeException  If no AI connection is configured.
+	 * @throws \RuntimeException If no AI connection is configured.
 	 */
 	private function send( $action, array $input ): AIResponse {
 		if ( $action instanceof CloudAIActionInterface ) {
@@ -158,7 +157,7 @@ class ActionRunner {
 	 *
 	 * @param int    $run_id A propose()-returned run_id.
 	 * @param string $method 'manual', 'auto_automation', or 'auto_unattended'.
-	 * @return array<string, mixed> ActionExecutionResult::to_array().
+	 * @return array ActionExecutionResult::to_array().
 	 * @throws \RuntimeException If $run_id doesn't exist or isn't pending approval.
 	 */
 	public function approve( int $run_id, string $method = 'manual' ): array {
@@ -210,7 +209,6 @@ class ActionRunner {
 	 *
 	 * @param int $run_id A propose()-returned run_id.
 	 * @return void
-	 *
 	 * @throws \RuntimeException If $run_id doesn't exist or isn't pending approval.
 	 */
 	public function reject( int $run_id ): void {
@@ -226,7 +224,6 @@ class ActionRunner {
 	 *
 	 * @param int $run_id A propose()-returned, subsequently approve()'d run_id.
 	 * @return void
-	 *
 	 * @throws \RuntimeException If $run_id doesn't exist or wasn't successfully executed.
 	 */
 	public function rollback( int $run_id ): void {
@@ -254,7 +251,6 @@ class ActionRunner {
 	/**
 	 * @param string $action_id Action id to resolve.
 	 * @return \VuloPilot\Utill\AIActionInterface
-	 *
 	 * @throws \InvalidArgumentException If unregistered.
 	 */
 	private function get_action_or_fail( string $action_id ) {
@@ -269,8 +265,7 @@ class ActionRunner {
 
 	/**
 	 * @param int $run_id Run id to fetch.
-	 * @return array<string, mixed>
-	 *
+	 * @return array
 	 * @throws \RuntimeException If missing or not pending approval.
 	 */
 	private function get_pending_run_or_fail( int $run_id ): array {
@@ -284,10 +279,10 @@ class ActionRunner {
 	}
 
 	/**
-	 * @param int    $run_id   Run id this event is about.
+	 * @param int    $run_id     Run id this event is about.
 	 * @param string $event_type e.g. 'ai_action.executed'.
-	 * @param string $severity One of Severity's constants.
-	 * @param string $message  Human-readable description.
+	 * @param string $severity   One of Severity's constants.
+	 * @param string $message    Human-readable description.
 	 * @return void
 	 */
 	private function log( int $run_id, string $event_type, string $severity, string $message ): void {

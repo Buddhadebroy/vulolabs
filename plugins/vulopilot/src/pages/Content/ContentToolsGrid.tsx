@@ -22,7 +22,7 @@ export interface ToolField {
 	type: ToolFieldType;
 	/** Only for 'post-picker' - restricts which real post types are offered. */
 	postTypes?: ('post' | 'page')[];
-	/** Only for 'select' - a fixed, static option list rendered directly (no network fetch), unlike the other picker types. */
+	/** Only for 'select' - a fixed, static option list rendered directly, unlike the other picker types. */
 	options?: { value: string; label: string }[];
 }
 
@@ -38,10 +38,7 @@ export interface ContentTool {
 	pro?: boolean;
 }
 
-/**
- * The 12 tool tiles each run a real AI action end-to-end: pick the real input it needs (an
- * existing post, an image, a topic - see `fields`).
- */
+/** The 12 tool tiles each run a real AI action end-to-end: pick the real input it needs. */
 export const CONTENT_TOOLS: ContentTool[] = [
 	{
 		id: 'ai-writer',
@@ -223,8 +220,7 @@ const ContentToolsGrid = () => {
 					className="tool-grid"
 					items={CONTENT_TOOLS.map((tool) => ({
 						id: tool.id,
-						// "{adminfont name} {color-palette key}" - same icon-name-plus-palette- key
-						// convention MetricsGrid.tsx/ SecurityMetricsGrid.tsx already use.
+						// "{adminfont name} {color-palette key}".
 						icon: `${tool.icon} ${tool.color}`,
 						title: tool.title,
 						desc: tool.desc,

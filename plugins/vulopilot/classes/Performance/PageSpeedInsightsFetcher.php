@@ -6,8 +6,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real Mobile/Desktop performance scores for "Performance" Overview's
- * PerformanceScoreCard.tsx, via Google's real PageSpeed Insights API.
+ * Real Mobile/Desktop performance scores for "Performance" Overview's PerformanceScoreCard.tsx, via Google's real PageSpeed Insights API.
  *
  * @class       PageSpeedInsightsFetcher class
  * @version     1.0.0
@@ -25,9 +24,7 @@ class PageSpeedInsightsFetcher {
 
 	private const USAGE_DATE_OPTION = 'vulopilot_psi_requests_date';
 
-	/**
-	 * PageSpeedInsightsFetcher constructor.
-	 */
+	/** PageSpeedInsightsFetcher constructor. */
 	public function __construct() {
 		add_action( 'init', array( $this, 'ensure_daily_fetch_scheduled' ) );
 		add_action( self::CRON_HOOK, array( $this, 'fetch_and_store' ) );
@@ -91,9 +88,9 @@ class PageSpeedInsightsFetcher {
 	}
 
 	/**
-	 * Settings → Connections → PageSpeed Insights' own "Test Connection" button - the one place besides the daily cron that ever calls Google's real API.
+	 * Settings → Connections → PageSpeed Insights' own "Test Connection" button.
 	 *
-	 * @return array{success: bool, message: string, mobile: int|null, desktop: int|null}
+	 * @return array
 	 */
 	public function test_connection(): array {
 		$settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
@@ -148,9 +145,9 @@ class PageSpeedInsightsFetcher {
 	}
 
 	/**
-	 * Settings → Connections → PageSpeed Insights' own on-load state - the real "Connected"/"Not Connected" pill and "Daily API Usage" bar.
+	 * Settings → Connections → PageSpeed Insights' own on-load state.
 	 *
-	 * @return array{connected: bool, mobile: int|null, desktop: int|null, checked_at: string|null, requests_today: int, daily_limit: int}
+	 * @return array
 	 */
 	public function get_status(): array {
 		$settings   = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
@@ -168,7 +165,7 @@ class PageSpeedInsightsFetcher {
 	}
 
 	/**
-	 * Real daily request counter behind "Daily API Usage" - rolls over the moment the stored date no longer matches today's.
+	 * Real daily request counter behind "Daily API Usage".
 	 *
 	 * @return void
 	 */

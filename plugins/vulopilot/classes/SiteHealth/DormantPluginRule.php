@@ -16,8 +16,7 @@ use VuloPilot\Utill\RuleType;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Turns PluginsScanner's "inactive plugin installed" Finding into a recommendation to
- * remove or reactivate it.
+ * Turns PluginsScanner's "inactive plugin installed" Finding into a recommendation to remove or reactivate it.
  *
  * @class       DormantPluginRule class
  * @version     1.0.0

@@ -11,7 +11,7 @@ use VuloPilot\Settings\GoogleServicesConnection;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * REST controller for "SEO & Visibility → Overview": a combined score across Brand/SEO/GEO/Crawl & URLs, read directly from each area's own controller method so the numbers can never disagree.
+ * REST controller for "SEO & Visibility → Overview".
  *
  * @class       Visibility controller
  * @version     1.0.0
@@ -25,9 +25,9 @@ class Visibility extends \WP_REST_Controller {
 	protected $rest_base = 'visibility';
 
 	/**
-	 * Scanner ids behind each area's score, kept in sync manually with each source controller's own list (`content-freshness` excluded, same reasoning as GEO's own progress trend).
+	 * Scanner ids behind each area's score, kept in sync manually with each source controller's own list.
 	 *
-	 * @var array<string, string[]>
+	 * @var array
 	 */
 	private const AREA_SCANNER_IDS = array(
 		'brand' => array( 'geo-trust-signals', 'about-page-analysis', 'geo-eeat-signals', 'geo-author-info', 'author-schema' ),
@@ -64,10 +64,9 @@ class Visibility extends \WP_REST_Controller {
 	);
 
 	/**
-	 * Real, human-facing label per area - same 4 areas the "Visibility
-	 * Breakdown" table's own rows show.
+	 * Real, human-facing label per area.
 	 *
-	 * @var array<string, string>
+	 * @var array
 	 */
 	private const AREA_LABELS = array(
 		'brand' => 'Brand Visibility',
@@ -77,26 +76,21 @@ class Visibility extends \WP_REST_Controller {
 	);
 
 	/**
-	 * Same 7-day lookback every other real score delta in this codebase
-	 * uses (`Seo::DELTA_LOOKBACK_DAYS`, `Geo::DELTA_LOOKBACK_DAYS`).
+	 * Same 7-day lookback every other real score delta in this codebase uses.
 	 *
 	 * @var int
 	 */
 	private const DELTA_LOOKBACK_DAYS = 7;
 
 	/**
-	 * Real day-range options "Visibility Trend"'s own period dropdown offers, same trio
-	 * `Geo::ALLOWED_PROGRESS_DAYS` already uses.
+	 * Real day-range options "Visibility Trend"'s own period dropdown offers, same trio `Geo::ALLOWED_PROGRESS_DAYS` already uses.
 	 *
 	 * @var int[]
 	 */
 	private const ALLOWED_PROGRESS_DAYS = array( 7, 30, 90 );
 
 	/**
-	 * Real GA4 traffic-source lookback window for "Visibility by Source" -
-	 * fixed rather than user-selectable (unlike "Visibility Trend"'s own
-	 * 7/30/90 dropdown above) since this card has no period control of its
-	 * own in the reference layout it matches.
+	 * Real GA4 traffic-source lookback window for "Visibility by Source".
 	 *
 	 * @var int
 	 */
@@ -207,7 +201,7 @@ class Visibility extends \WP_REST_Controller {
 	/**
 	 * Same weighting every other real score in this codebase uses.
 	 *
-	 * @param array{critical: int, high: int, medium: int, low: int} $breakdown Severity breakdown to score.
+	 * @param array $breakdown Severity breakdown to score.
 	 * @return int 0-100.
 	 */
 	private function calculate_score( array $breakdown ): int {
@@ -257,7 +251,7 @@ class Visibility extends \WP_REST_Controller {
 	}
 
 	/**
-	 * "Visibility by Source": GA4 sessions grouped by `sessionDefaultChannelGroup` over the last `TRAFFIC_SOURCE_WINDOW_DAYS` days.
+	 * "Visibility by Source".
 	 *
 	 * @return \WP_REST_Response
 	 */

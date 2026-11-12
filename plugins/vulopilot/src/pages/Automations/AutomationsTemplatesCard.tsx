@@ -14,9 +14,7 @@ interface AutomationsTemplatesCardProps {
 	isAutomationsActive: boolean;
 }
 
-/**
- * "Create new automation" - a real entry point into Automate Work's existing create-automation flow, not a decorative mockup.
- */
+/** "Create new automation". */
 const AutomationsTemplatesCard: React.FC<AutomationsTemplatesCardProps> = ({
 	onSelectTemplate,
 	isAutomationsActive,

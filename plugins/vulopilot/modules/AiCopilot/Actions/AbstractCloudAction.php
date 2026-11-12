@@ -25,7 +25,6 @@ abstract class AbstractCloudAction extends AbstractBasicAction implements CloudA
 	 *
 	 * @param array $input Normalized input.
 	 * @return array
-	 *
 	 * @throws \LogicException Always.
 	 */
 	public function build_prompt( array $input ): array {

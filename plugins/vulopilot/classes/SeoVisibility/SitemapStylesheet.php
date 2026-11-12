@@ -12,14 +12,6 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Restyles WordPress core's own native `/wp-sitemap.xml` browser view.
  *
- * Browsers are removing client-side XSLT support, so core's own approach - an
- * `<?xml-stylesheet type="text/xsl" ...?>` processing instruction that the browser transforms -
- * no longer works and logs a deprecation warning in the console. We turn that PI off entirely
- * (`wp_sitemaps_stylesheet_url`/`wp_sitemaps_stylesheet_index_url` returning false, same as core's
- * own documented way to disable it) and instead render the same look as a real server-side HTML
- * page, swapped in only when a browser is navigating directly to a sitemap URL - crawlers and the
- * raw XML every other consumer reads are completely unaffected.
- *
  * @class       SitemapStylesheet class
  * @version     2.0.0
  * @author      VuloLabs
@@ -33,16 +25,13 @@ class SitemapStylesheet {
 	 */
 	private const STYLE_FILE = 'assets/styles/public/vulopilot-sitemap-stylesheet.min.css';
 
-	/**
-	 * SitemapStylesheet constructor.
-	 */
+	/** SitemapStylesheet constructor. */
 	public function __construct() {
 		// Core's own escape hatch - a falsey URL means no xml-stylesheet PI is emitted at all.
 		add_filter( 'wp_sitemaps_stylesheet_url', '__return_false' );
 		add_filter( 'wp_sitemaps_stylesheet_index_url', '__return_false' );
 
-		// Earlier than core's own `render_sitemaps()` (added at the default priority, 10), so we
-		// can swap in an HTML response before core ever writes an XML one.
+		// Earlier than core's own `render_sitemaps()`, so we can swap in an HTML response before core ever writes an XML one.
 		add_action( 'template_redirect', array( $this, 'maybe_render_html' ), 5 );
 	}
 
@@ -98,8 +87,8 @@ class SitemapStylesheet {
 	/**
 	 * Builds the table rows for a single sitemap's URL list.
 	 *
-	 * @param array $url_list Core's own per-URL array (`loc`, optionally `lastmod`, `changefreq`, `priority`).
-	 * @return array{rows: string, has_lastmod: bool, has_changefreq: bool, has_priority: bool}
+	 * @param array $url_list Core's own per-URL array.
+	 * @return array
 	 */
 	private function url_rows( array $url_list ) {
 		$has_lastmod    = false;
@@ -137,7 +126,7 @@ class SitemapStylesheet {
 	 * Builds the table rows for the top-level sitemap index.
 	 *
 	 * @param array $sitemap_list Core's own index array (`loc`, optionally `lastmod`).
-	 * @return array{rows: string}
+	 * @return array
 	 */
 	private function index_rows( array $sitemap_list ) {
 		$rows = '';

@@ -10,9 +10,7 @@ interface ResetResult {
 	ai_visibility_scans?: Record<string, unknown>;
 }
 
-/**
- * Settings → Scanning → AI Visibility's own "Restore Defaults" button.
- */
+/** Settings → Scanning → AI Visibility's own "Restore Defaults" button. */
 const AiVisibilityScansHeader = () => {
 	const { updateSetting } = useSetting();
 	const [isResetting, setIsResetting] = useState(false);

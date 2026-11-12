@@ -22,9 +22,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class ImagesScanner extends ScannerUtil {
 
-	/**
-	 * How many of the most recent image attachments to check per run.
-	 */
+	/** How many of the most recent image attachments to check per run. */
 	private const BATCH_SIZE = 100;
 
 	/**

@@ -14,9 +14,7 @@ interface ProductSchemaDetail {
 	issue_count: number;
 }
 
-/**
- * "Product Details" - `BusinessProfileCard.tsx`'s "Products" row, same real slide-in-panel shape `BusinessNameDetailsPanel.tsx` already established.
- */
+/** "Product Details". */
 const ProductDetailsPanel = ({
 	open,
 	onClose,
