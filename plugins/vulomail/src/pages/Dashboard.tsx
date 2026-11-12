@@ -273,7 +273,7 @@ const Dashboard = () => {
 						{
 							text: __('Send a test', 'vulomail'),
 							icon: 'send',
-							color: 'purple',
+							color: 'white',
 							onClick: () => goTo('tools'),
 						},
 						{

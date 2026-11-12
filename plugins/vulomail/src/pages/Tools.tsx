@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import {
+	AnalyticsComponent,
 	BadgeComponent,
 	CardComponent,
 	ColumnComponent,
@@ -407,18 +408,15 @@ const Tools = () => {
 										</div>
 									</div>
 									<div className="vulomail-diag-stats">
-										<div className="vulomail-diag-stat is-red">
-											<strong className="vulomail-diag-stat-number">{problems}</strong>
-											<span className="vulomail-diag-stat-label">{__('Problems', 'vulomail')}</span>
-										</div>
-										<div className="vulomail-diag-stat is-amber">
-											<strong className="vulomail-diag-stat-number">{attention}</strong>
-											<span className="vulomail-diag-stat-label">{__('Need attention', 'vulomail')}</span>
-										</div>
-										<div className="vulomail-diag-stat is-green">
-											<strong className="vulomail-diag-stat-number">{passed}</strong>
-											<span className="vulomail-diag-stat-label">{__('Passed', 'vulomail')}</span>
-										</div>
+										<AnalyticsComponent
+											variant="tinted"
+											cols={3}
+											data={[
+												{ colorClass: 'red', number: problems, text: __('Problems', 'vulomail') },
+												{ colorClass: 'yellow', number: attention, text: __('Need attention', 'vulomail') },
+												{ colorClass: 'green', number: passed, text: __('Passed', 'vulomail') },
+											]}
+										/>
 									</div>
 								</div>
 

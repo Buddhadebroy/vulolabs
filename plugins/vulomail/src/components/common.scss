@@ -303,59 +303,6 @@
 	gap: 0.75rem;
 }
 
-.vulomail-diag-stat {
-	border-radius: 0.75rem;
-	padding: 0.875rem 1rem;
-
-	&.is-red {
-		background: #fef3f2;
-	}
-
-	&.is-amber {
-		background: #fffaeb;
-	}
-
-	&.is-green {
-		background: #ecfdf3;
-	}
-}
-
-.vulomail-diag-stat-number {
-	display: block;
-	font-size: 1.75rem;
-	line-height: 2rem;
-	font-weight: 700;
-
-	.is-red & {
-		color: #b42318;
-	}
-
-	.is-amber & {
-		color: #b54708;
-	}
-
-	.is-green & {
-		color: #067647;
-	}
-}
-
-.vulomail-diag-stat-label {
-	font-size: 0.8125rem;
-	font-weight: 500;
-
-	.is-red & {
-		color: #912018;
-	}
-
-	.is-amber & {
-		color: #93370d;
-	}
-
-	.is-green & {
-		color: #05603a;
-	}
-}
-
 // One severity group ("Fix these first" / "Needs attention" / "For your information" / "Passed").
 .vulomail-diag-group + .vulomail-diag-group {
 	margin-top: 1.5rem;
