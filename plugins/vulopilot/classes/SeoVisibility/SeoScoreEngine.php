@@ -10,7 +10,7 @@ namespace VuloPilot\SeoVisibility;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloPilot's own SEO score engine - a diagnostic metric (not Google's score, not a ranking prediction), built against Google's own general guidance (developers.google.com/search/docs/ essentials, .../fundamentals/seo-starter-guide, .../crawling-indexing/overview-google-crawlers) rather than any other plugin's proprietary formula.
+ * VuloPilot's own SEO score engine.
  *
  * @class       SeoScoreEngine class
  * @version     1.0.0
@@ -21,7 +21,7 @@ class SeoScoreEngine {
 	public const RULESET_VERSION = '1.0.0';
 
 	/**
-	 * @var array<string, int>
+	 * @var array
 	 */
 	public const CATEGORY_WEIGHTS = array(
 		'on_page'              => 25,
@@ -53,20 +53,18 @@ class SeoScoreEngine {
 	 */
 	private PageTechnicalChecks $technical;
 
-	/**
-	 * SeoScoreEngine constructor.
-	 */
+	/** SeoScoreEngine constructor. */
 	public function __construct() {
 		$this->technical = new PageTechnicalChecks();
 	}
 
 	/**
-	 * Runs every rule against one post's current (possibly live/unsaved) field values. the real stored object (ID, post_type, post_status, attachments).
+	 * Runs every rule against one post's current (possibly live/unsaved) field values.
 	 *
-	 * @param \WP_Post                                                                                    $post          Saved post - used for technical/link/image checks that need
-	 * @param array{title: string, content: string, excerpt: string, slug: string, focus_keyword: string} $live
-	 * @return array<int, array<string, mixed>>
-	 * @param bool                                                                                        $skip_fetch Skip the one real HTTP self-fetch this evaluation would otherwise
+	 * @param \WP_Post $post       Saved post - used for technical/link/image checks that need.
+	 * @param array    $live
+	 * @return array
+	 * @param bool     $skip_fetch Skip the one real HTTP self-fetch this evaluation would otherwise.
 	 */
 	public function evaluate( \WP_Post $post, array $live, bool $skip_fetch = false ): array {
 		$title         = trim( (string) $live['title'] );
@@ -115,20 +113,12 @@ class SeoScoreEngine {
 		$results[] = $this->rule_image_alt_text( $images, $focus_keyword );
 		$results[] = $this->rule_image_optimization( $images );
 
-		// F. Technical SEO (15). Indexability/sitemap are cheap (settings/post-status reads, no
-		// network) and always run; http_status/canonical/structured_data need a real HTTP
-		// round trip to the live permalink, skipped for live-typing calls (see `$skip_fetch`'s own
-		// docblock above).
+		// F.
 		$results[] = $this->rule_indexability( $post );
 		$results[] = $this->rule_sitemap_discovery( $post );
 
 		if ( $skip_fetch ) {
-			// Omitted entirely rather than reported `unknown` - `unknown` still counts against the
-			// coverage denominator (rightly so for a rule that genuinely couldn't be verified), but
-			// these 3 weren't un-verifiable, they were deliberately not re-run this call. Counting
-			// them as unknown on every single keystroke pushed coverage below the 70% floor
-			// permanently while typing, which is exactly what made the score show 0 the whole time
-			// (#bug - a stricter regression than the original "frozen" complaint this was fixing).
+			// Omitted entirely rather than reported `unknown`.
 		} else {
 			$fetch     = $this->technical->fetch( (string) get_permalink( $post ) );
 			$results[] = $this->rule_http_status( $fetch );
@@ -143,19 +133,15 @@ class SeoScoreEngine {
 	}
 
 	/**
-	 * Applies the formula: (sum earned / sum applicable weight) × 100, excluding `not_applicable`
-	 * and `unknown` rules from both sums. Rounds only the final displayed score.
+	 * Applies the formula.
 	 *
-	 * @param array<int, array<string, mixed>> $results `evaluate()`'s own return value.
-	 * @return array{score: int|null, insufficient_data: bool, coverage_percent: float, applicable_weight: float, earned_points: float, evaluated_count: int, unknown_count: int, not_applicable_count: int, categories: array<string, array{max: int, earned: float, applicable: float}>}
+	 * @param array $results `evaluate()`'s own return value.
+	 * @return array
 	 */
 	public function calculate_score( array $results ): array {
 		$earned            = 0.0;
 		$applicable_weight = 0.0;
-		// Coverage denominator: applicable + genuinely-unknown weight only. `not_applicable` is
-		// excluded from BOTH sides entirely (spec, explicitly) - a rule that plainly doesn't apply
-		// (e.g. image alt text on a page with no images) isn't a gap in what this engine knows, so
-		// it must not count against coverage the way a real "couldn't verify" unknown does.
+		// Coverage denominator: applicable + genuinely-unknown weight only.
 		$unknown_weight       = 0.0;
 		$evaluated_count      = 0;
 		$unknown_count        = 0;
@@ -205,15 +191,7 @@ class SeoScoreEngine {
 		$coverage_denominator = $applicable_weight + $unknown_weight;
 		$coverage_percent     = $coverage_denominator > 0 ? round( ( $applicable_weight / $coverage_denominator ) * 100, 1 ) : 0.0;
 
-		// 50%, not the spec's own suggested starting point of 70% - this engine permanently
-		// reports 5 rules (23 of 100 points: search intent, content usefulness, originality,
-		// topic coverage, freshness) as unknown by design, since it has no AI/semantic capability
-		// wired in to evaluate them honestly. 70% coverage is close to unreachable once that fixed
-		// 23-point gap is combined with any real not_applicable/unknown rule on top of it, which
-		// made the engine report "insufficient data" for nearly every real post (#bug - the user's
-		// own "score is not changing at all" was this: coverage never cleared 70%, so `score`
-		// stayed null/0 regardless of what changed). 50% still means more than half of what COULD
-		// be evaluated actually was.
+		// 50%, not the spec's own suggested starting point of 70%.
 		$insufficient_data = $coverage_percent < 50.0;
 
 		return array(
@@ -231,9 +209,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	// ---------------------------------------------------------------------
-	// Shared helpers.
-	// ---------------------------------------------------------------------
+	// --------------------------------------------------------------------- Shared helpers.
 
 	/**
 	 * @param string      $id             Stable rule id.
@@ -243,9 +219,9 @@ class SeoScoreEngine {
 	 * @param float       $earned_points  Points actually earned (0 for not_applicable/unknown).
 	 * @param string      $reason         Human-readable explanation.
 	 * @param array       $evidence       Real data this rule's decision was based on.
-	 * @param string      $data_source    Where the evidence came from (e.g. 'post_content', 'live_http_fetch', 'postmeta').
+	 * @param string      $data_source    Where the evidence came from.
 	 * @param string|null $recommendation Actionable fix, when status isn't 'pass'.
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function rule_result( string $id, string $category, string $status, float $max_points, float $earned_points, string $reason, array $evidence, string $data_source, ?string $recommendation = null ): array {
 		return array(
@@ -262,7 +238,7 @@ class SeoScoreEngine {
 	}
 
 	/**
-	 * Case-insensitive substring match - same convention `OnPageAnalyzer::contains()` already uses.
+	 * Case-insensitive substring match.
 	 *
 	 * @param string $keyword  Focus keyword.
 	 * @param string $haystack Text to search within.
@@ -291,7 +267,7 @@ class SeoScoreEngine {
 
 	/**
 	 * @param string $content_html Raw post content.
-	 * @return array{internal: int, external: int}
+	 * @return array
 	 */
 	private function count_links( string $content_html ): array {
 		if ( ! preg_match_all( '/<a\s[^>]*href=["\']([^"\']+)["\']/i', $content_html, $matches ) ) {
@@ -322,7 +298,7 @@ class SeoScoreEngine {
 
 	/**
 	 * @param string $content_html Raw post content.
-	 * @return array<int, array{src: string, alt: string|null}>
+	 * @return array
 	 */
 	private function extract_images( string $content_html ): array {
 		if ( ! preg_match_all( '/<img\s[^>]*>/i', $content_html, $tags ) ) {
@@ -344,13 +320,9 @@ class SeoScoreEngine {
 		return $images;
 	}
 
-	// ---------------------------------------------------------------------
-	// A. On-page SEO (25 points).
-	// ---------------------------------------------------------------------
+	// --------------------------------------------------------------------- A.
 
-	/**
-	 * Rule 1 - SEO title (5 pts: 2 non-empty, 2 concise length, 1 no obvious stuffing).
-	 */
+	/** Rule 1 - SEO title (5 pts: 2 non-empty, 2 concise length, 1 no obvious stuffing). */
 	private function rule_seo_title( string $title, string $focus_keyword ): array {
 		$earned  = 0.0;
 		$reasons = array();
@@ -398,9 +370,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * Rule 2 - meta description (5 pts: 2 non-empty, 2 concise length, 1 summarizes content).
-	 */
+	/** Rule 2 - meta description (5 pts: 2 non-empty, 2 concise length, 1 summarizes content). */
 	private function rule_meta_description( string $excerpt, string $focus_keyword ): array {
 		$earned  = 0.0;
 		$reasons = array();
@@ -420,9 +390,7 @@ class SeoScoreEngine {
 			$reasons[] = sprintf( /* translators: %d: real character count. */ __( 'Description is %d characters - aim for roughly 120-160.', 'vulopilot' ), $length );
 		}
 
-		// "Summarizes the content" can't be judged without semantic comparison - credit this
-		// point only on the deterministic proxy available: it mentions the focus keyword (when
-		// one is set) or is simply present (when there's no keyword to check against).
+		// "Summarizes the content" can't be judged without semantic comparison.
 		if ( '' !== $excerpt && ( '' === $focus_keyword || $this->contains( $focus_keyword, $excerpt ) ) ) {
 			$earned   += 1;
 			$reasons[] = __( 'Description appears relevant to the page topic.', 'vulopilot' );
@@ -446,10 +414,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * Rule 3 - URL slug quality (4 pts). Readable, not just numeric/auto-generated, no excessive
-	 * length or repeated separators - does not require exact keyword inclusion (spec).
-	 */
+	/** Rule 3 - URL slug quality (4 pts). */
 	private function rule_url_slug( string $slug ): array {
 		if ( '' === $slug ) {
 			return $this->rule_result(
@@ -496,10 +461,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * Rule 4 - focus keyword placement (4 pts, split across title/description/opening paragraph).
-	 * not_applicable when no focus keyword is configured (spec: exclude, don't fail).
-	 */
+	/** Rule 4 - focus keyword placement. */
 	private function rule_focus_keyword_placement( string $keyword, string $title, string $excerpt, string $content_text ): array {
 		if ( '' === $keyword ) {
 			return $this->rule_result(
@@ -553,12 +515,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * Rule 5 - heading structure (4 pts). H1 is the theme's own rendered post title, not something
-	 * `post_content` itself should contain - checked for subheadings and basic H2-before-H3 order
-	 * instead of re-litigating whether an H1 exists in content (spec: "do not incorrectly penalize
-	 * a valid theme-generated H1").
-	 */
+	/** Rule 5 - heading structure (4 pts). */
 	private function rule_heading_structure( string $content_html ): array {
 		$has_h2 = (bool) preg_match( '/<h2[\s>]/i', $content_html );
 		$has_h3 = (bool) preg_match( '/<h3[\s>]/i', $content_html );
@@ -617,12 +574,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * Rule 6 - search intent alignment (3 pts). Judging whether a page actually answers the query
-	 * it targets needs real language understanding this codebase has no built-in capability for
-	 * (no AI call is wired into this engine) - reporting a pass/fail here without one would be
-	 * exactly the fabrication the spec says not to do.
-	 */
+	/** Rule 6 - search intent alignment (3 pts). */
 	private function rule_search_intent_alignment(): array {
 		return $this->rule_result(
 			'search_intent_alignment',
@@ -636,16 +588,9 @@ class SeoScoreEngine {
 		);
 	}
 
-	// ---------------------------------------------------------------------
-	// B. Content quality (25 points).
-	// ---------------------------------------------------------------------
+	// --------------------------------------------------------------------- B.
 
-	/**
-	 * Rule 7 - content usefulness/completeness (8 pts). Whether content "addresses the reader's
-	 * likely question" or "demonstrates appropriate depth for the search intent" needs real
-	 * reading comprehension this engine doesn't have - reported unknown rather than inferred from
-	 * word count alone (spec explicitly: "Do not reward length alone").
-	 */
+	/** Rule 7 - content usefulness/completeness (8 pts). */
 	private function rule_content_usefulness(): array {
 		return $this->rule_result(
 			'content_usefulness',
@@ -659,11 +604,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * Rule 8 - content originality/value (5 pts). Detecting duplication against the rest of the
-	 * web needs a real plagiarism/similarity service this codebase doesn't integrate - reported
-	 * unknown rather than a guess (spec: "Do not claim plagiarism... without sufficient evidence").
-	 */
+	/** Rule 8 - content originality/value (5 pts). */
 	private function rule_content_originality(): array {
 		return $this->rule_result(
 			'content_originality',
@@ -677,11 +618,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * Rule 9 - content length (4 pts), graduated against a configurable target (default 1000
-	 * words) rather than Rank Math's own tiers - a short but complete answer should not
-	 * automatically fail (spec), so this is deliberately gentler than a hard cliff.
-	 */
+	/** Rule 9 - content length (4 pts), graduated against a configurable target. */
 	private function rule_content_length( int $word_count ): array {
 		$target = self::CONTENT_LENGTH_TARGET_WORDS;
 		$ratio  = $target > 0 ? min( 1.0, $word_count / $target ) : 1.0;
@@ -710,11 +647,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * Rule 10 - readability/paragraph length (4 pts). Specific, deterministic sub-check: no
-	 * editorial `<p>` paragraph exceeds 120 words. Headings/captions/code excluded by only
-	 * scanning `<p>` tag contents.
-	 */
+	/** Rule 10 - readability/paragraph length (4 pts). */
 	private function rule_readability_paragraphs( string $content_html ): array {
 		preg_match_all( '/<p[^>]*>(.*?)<\/p>/is', $content_html, $matches );
 		$long_paragraphs = array();
@@ -761,12 +694,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * Rule 11 - table of contents (2 pts). Detects VuloPilot's own TOC block, common third-party
-	 * TOC plugin output classes, or a list of same-page anchor links near the top of the content.
-	 * not_applicable below the recommendation threshold (default 1200 words) - a short article
-	 * doesn't need one (spec).
-	 */
+	/** Rule 11 - table of contents (2 pts). */
 	private function rule_table_of_contents( string $content_html, int $word_count ): array {
 		if ( $word_count < self::TOC_RECOMMEND_WORDS ) {
 			return $this->rule_result(
@@ -812,12 +740,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * Rule 12 - freshness/accuracy (2 pts). Whether facts are current or claims are supportable
-	 * needs real-world verification this engine can't perform, and the spec explicitly forbids
-	 * using the publish/modified date alone as a proxy ("do not reward changing publication dates
-	 * without substantive updates") - reported unknown.
-	 */
+	/** Rule 12 - freshness/accuracy (2 pts). */
 	private function rule_freshness(): array {
 		return $this->rule_result(
 			'freshness_accuracy',
@@ -831,14 +754,9 @@ class SeoScoreEngine {
 		);
 	}
 
-	// ---------------------------------------------------------------------
-	// C. Keyword optimization (15 points).
-	// ---------------------------------------------------------------------
+	// --------------------------------------------------------------------- C.
 
-	/**
-	 * Rule 13 - natural keyword usage (4 pts), scored against density. not_applicable with no
-	 * keyword configured.
-	 */
+	/** Rule 13 - natural keyword usage (4 pts), scored against density. */
 	private function rule_natural_keyword_usage( string $keyword, ?float $density ): array {
 		if ( null === $density ) {
 			return $this->rule_result(
@@ -902,12 +820,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * Rule 14 - related terms/topic coverage (5 pts). Judging real semantic topic coverage needs
-	 * an entity/NLP model this engine doesn't have - a keyword-overlap heuristic would be low
-	 * enough confidence to mislead rather than help, so this is reported unknown rather than
-	 * invented (spec: "Do not require an arbitrary list of keywords").
-	 */
+	/** Rule 14 - related terms/topic coverage (5 pts). */
 	private function rule_topic_coverage(): array {
 		return $this->rule_result(
 			'topic_coverage',
@@ -921,10 +834,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * Rule 15 - keyword distribution (2 pts). Splits the content into thirds and checks the
-	 * keyword appears in more than one, so it isn't concentrated entirely in one section.
-	 */
+	/** Rule 15 - keyword distribution (2 pts). */
 	private function rule_keyword_distribution( string $keyword, string $content_text ): array {
 		if ( '' === $keyword ) {
 			return $this->rule_result(
@@ -994,10 +904,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * Rule 16 - keyword stuffing (2 pts), distinct threshold from Rule 13's "is density natural"
-	 * - this one only flags egregious, clearly manipulative repetition.
-	 */
+	/** Rule 16 - keyword stuffing. */
 	private function rule_keyword_stuffing( string $keyword, ?float $density ): array {
 		if ( null === $density ) {
 			return $this->rule_result(
@@ -1044,10 +951,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * Rule 17 - duplicate keyword targeting (2 pts). Real DB check against this site's other
-	 * published posts/pages sharing the same focus keyword - deterministic, not a guess.
-	 */
+	/** Rule 17 - duplicate keyword targeting (2 pts). */
 	private function rule_duplicate_keyword_targeting( int $post_id, string $keyword ): array {
 		if ( '' === $keyword ) {
 			return $this->rule_result(
@@ -1109,13 +1013,9 @@ class SeoScoreEngine {
 		);
 	}
 
-	// ---------------------------------------------------------------------
-	// D. Links (10 points).
-	// ---------------------------------------------------------------------
+	// --------------------------------------------------------------------- D.
 
-	/**
-	 * Rule 18 - internal links (5 pts).
-	 */
+	/** Rule 18 - internal links (5 pts). */
 	private function rule_internal_links( int $count ): array {
 		$status = $count > 0 ? 'pass' : 'warning';
 
@@ -1134,9 +1034,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * Rule 19 - external links (2 pts).
-	 */
+	/** Rule 19 - external links (2 pts). */
 	private function rule_external_links( int $count ): array {
 		$status = $count > 0 ? 'pass' : 'warning';
 
@@ -1155,10 +1053,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * Rule 20 - broken links (3 pts). Delegates to `PageTechnicalChecks::check_broken_links()`
-	 * (shared with `Seo::get_page_analysis()`) rather than re-verifying link destinations here.
-	 */
+	/** Rule 20 - broken links (3 pts). */
 	private function rule_broken_links( int $post_id ): array {
 		$check = $this->technical->check_broken_links( $post_id );
 
@@ -1175,15 +1070,9 @@ class SeoScoreEngine {
 		);
 	}
 
-	// ---------------------------------------------------------------------
-	// E. Images and media (10 points).
-	// ---------------------------------------------------------------------
+	// --------------------------------------------------------------------- E.
 
-	/**
-	 * Rule 21 - relevant images (3 pts). Can't judge "relevant" without visual/semantic analysis,
-	 * so this only checks presence (featured image or inline) and reports a warning (not a fail)
-	 * when there's none, since a text-only article may legitimately need none (spec).
-	 */
+	/** Rule 21 - relevant images (3 pts). */
 	private function rule_relevant_images( \WP_Post $post, array $images ): array {
 		$has_featured = has_post_thumbnail( $post );
 		$has_inline   = ! empty( $images );
@@ -1219,9 +1108,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * Rule 22 - image alt text (4 pts). not_applicable with zero images (spec, explicitly).
-	 */
+	/** Rule 22 - image alt text (4 pts). */
 	private function rule_image_alt_text( array $images, string $focus_keyword ): array {
 		if ( empty( $images ) ) {
 			return $this->rule_result(
@@ -1244,7 +1131,7 @@ class SeoScoreEngine {
 			}
 		}
 
-		// An empty alt="" is a legitimate decorative-image marker (spec) - only a MISSING attribute counts against this.
+		// An empty alt="" is a legitimate decorative-image marker.
 		if ( 0 === $missing ) {
 			return $this->rule_result(
 				'image_alt_text',
@@ -1277,11 +1164,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * Rule 23 - image optimization (3 pts). Checks local attachments' file size where the content
-	 * references a real Media Library attachment; remote/external images can't be inspected this
-	 * way and are excluded from the denominator-affecting evidence (not silently passed or failed).
-	 */
+	/** Rule 23 - image optimization (3 pts). */
 	private function rule_image_optimization( array $images ): array {
 		if ( empty( $images ) ) {
 			return $this->rule_result(
@@ -1372,13 +1255,9 @@ class SeoScoreEngine {
 		);
 	}
 
-	// ---------------------------------------------------------------------
-	// F. Technical SEO (15 points).
-	// ---------------------------------------------------------------------
+	// --------------------------------------------------------------------- F.
 
-	/**
-	 * Rule 24 - indexability and crawl access (5 pts).
-	 */
+	/** Rule 24 - indexability and crawl access (5 pts). */
 	private function rule_indexability( \WP_Post $post ): array {
 		$check  = $this->technical->check_indexability( $post );
 		$earned = 'pass' === $check['status'] ? 5 : 0;
@@ -1398,9 +1277,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * Rule 25 - HTTP status (3 pts).
-	 */
+	/** Rule 25 - HTTP status (3 pts). */
 	private function rule_http_status( array $fetch ): array {
 		$check  = $this->technical->check_http_status( $fetch );
 		$earned = 'pass' === $check['status'] ? 3 : ( 'warning' === $check['status'] ? 1.5 : 0 );
@@ -1417,9 +1294,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * Rule 26 - canonical URL (3 pts).
-	 */
+	/** Rule 26 - canonical URL (3 pts). */
 	private function rule_canonical( array $fetch ): array {
 		$check  = $this->technical->check_canonical( $fetch );
 		$earned = 'pass' === $check['status'] ? 3 : 0;
@@ -1437,9 +1312,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * Rule 27 - structured data (2 pts).
-	 */
+	/** Rule 27 - structured data (2 pts). */
 	private function rule_structured_data( array $fetch ): array {
 		$check  = $this->technical->check_structured_data( $fetch );
 		$earned = 'pass' === $check['status'] ? 2 : 0;
@@ -1456,9 +1329,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * Rule 28 - sitemap discovery (2 pts).
-	 */
+	/** Rule 28 - sitemap discovery (2 pts). */
 	private function rule_sitemap_discovery( \WP_Post $post ): array {
 		$check  = $this->technical->check_sitemap_discovery( $post );
 		$earned = 'pass' === $check['status'] ? 2 : 0;
@@ -1476,10 +1347,7 @@ class SeoScoreEngine {
 		);
 	}
 
-	/**
-	 * URL length advisory (section 4 of the spec) - 0 points by design, to avoid double-counting
-	 * with `rule_url_slug()`'s own length consideration.
-	 */
+	/** URL length advisory. */
 	private function rule_url_length( \WP_Post $post ): array {
 		$url    = (string) get_permalink( $post );
 		$length = mb_strlen( $url );

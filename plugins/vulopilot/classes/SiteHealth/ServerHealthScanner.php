@@ -107,11 +107,10 @@ class ServerHealthScanner extends ScannerUtil {
 	}
 
 	/**
-	 * Same real paragraph-recovery (and same `br`-within-a-paragraph handling)
-	 * `WordPressHealthScanner`'s own `split_into_paragraphs()` documents.
+	 * Same real paragraph-recovery.
 	 *
 	 * @param string $html_description Raw HTML `description` from a `WP_Site_Health` test result.
-	 * @return array<int, string> Plain-text paragraphs, in order, empty ones dropped.
+	 * @return array Plain-text paragraphs, in order, empty ones dropped.
 	 */
 	private function split_into_paragraphs( string $html_description ): array {
 		$chunks = preg_split( '/<\/p>\s*/i', $html_description ) ? preg_split( '/<\/p>\s*/i', $html_description ) : array();

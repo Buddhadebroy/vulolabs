@@ -7,14 +7,10 @@ import { __ } from '@wordpress/i18n';
 import PostSeoPanel from './PostSeoPanel';
 import ToolbarScorePills from './ToolbarScorePills';
 
-// The text-selection AI toolbar is Pro-only - vulopilot-pro's own post-editor bundle registers
-// it directly (TextSelectionActionsPanel.tsx), only while licensed.
+// The text-selection AI toolbar is Pro-only.
 
 /**
- * `PluginSidebar`'s `icon` prop can't fit our two text pills, so this portals them straight into
- * the header's settings row (`.editor-header__settings`) instead. That row is a hardcoded
- * `Fragment` with no public Slot/Fill, and React wipes a plain `insertBefore()` on its next
- * re-render - so a MutationObserver re-inserts the container every time it gets evicted.
+ * `PluginSidebar`'s `icon` prop can't fit our two text pills, so this portals them straight into the header's settings row.
  */
 const useToolbarScorePillsPortal = () => {
 	const [ container, setContainer ] = useState< HTMLElement | null >( null );
@@ -82,8 +78,7 @@ interface DeepLinkTarget {
 }
 
 /**
- * Two independent deep-link sources land here, both stripped from the URL immediately so a page
- * refresh doesn't keep re-triggering the highlight.
+ * Two independent deep-link sources land here, both stripped from the URL immediately so a page refresh doesn't keep re-triggering the highlight.
  */
 const readDeepLinkTarget = (): DeepLinkTarget => {
 	const params = new URLSearchParams( window.location.search );
@@ -117,16 +112,10 @@ const readDeepLinkTarget = (): DeepLinkTarget => {
 	return { wasPresent: true, tab: resolved?.tab, target: resolved?.target };
 };
 
-// Read once at module scope, before first render - deep-link state is static for the lifetime of
-// this editor page load.
+// Read once at module scope, before first render.
 const { wasPresent: shouldOpenSidebar, tab: deepLinkTab, target: deepLinkHighlight } = readDeepLinkTarget();
 
-/**
- * Opens the SEO sidebar the first time the user clicks into the title field. The editor canvas
- * (title included) renders in its own iframe since WP 5.9, so this polls for `contentDocument`
- * the same way `useToolbarScorePillsPortal` does, and attaches the listener there instead of on
- * the top-level `document`. Fires once per page load, never re-opens after the user closes it.
- */
+/** Opens the SEO sidebar the first time the user clicks into the title field. */
 const useOpenSidebarOnTitleClick = () => {
 	useEffect( () => {
 		let cancelled = false;
@@ -175,21 +164,14 @@ const useOpenSidebarOnTitleClick = () => {
 	}, [] );
 };
 
-/**
- * The post-editor SEO metabox, mounted separately from the dashboard app.
- */
+/** The post-editor SEO metabox, mounted separately from the dashboard app. */
 const VuloPilotIcon = () => (
 	<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 64 64" class="" aria-hidden="true"><path d="M14 0h36a14 14 0 0 1 14 14v36a14 14 0 0 1-14 14H14A14 14 0 0 1 0 50V14A14 14 0 0 1 14 0z" fill="#002991"/><g fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 31.5 L27 42 L46.5 22.5"/><path d="M35.5 21.5 H47.5 V33.5"/></g><circle cx="16.5" cy="31.5" r="4.6" fill="#D8362B"/></svg>);
 
-/**
- * VuloPilot SEO sidebar.
- */
+/** VuloPilot SEO sidebar. */
 const VuloPilotSeoPlugin = () => {
 	const toolbarPortalContainer = useToolbarScorePillsPortal();
-	// Toolbar score pills live in a separate portaled tree from PostSeoPanel below, so a click
-	// on one needs to reach the panel's tab state from here, the shared parent - `requestedTab`
-	// bridges the two. Re-keys on every click (`Date.now()`) so clicking the same pill twice in a
-	// row still re-navigates even though the tab name itself didn't change.
+	// Toolbar score pills live in a separate portaled tree from PostSeoPanel below, so a click on one needs to reach the panel's tab state from here, the shared parent.
 	const [ requestedTab, setRequestedTab ] = useState< { tab: 'general' | 'ai-visibility'; target?: string; nonce: number } | null >( null );
 
 	const openSidebarToTab = ( tab: 'general' | 'ai-visibility', target?: string ) => {
@@ -204,10 +186,7 @@ const VuloPilotSeoPlugin = () => {
 			return;
 		}
 
-		/**
-		 * Open VuloPilot's sidebar when arriving through
-		 * one of the SEO/GEO/AEO deep links.
-		 */
+		/** Open VuloPilot's sidebar when arriving through one of the SEO/GEO/AEO deep links. */
 		const open = () => {
 			dispatch( 'core/edit-post' ).openGeneralSidebar(
 				`vulopilot-seo/${ SIDEBAR_NAME }`
@@ -216,9 +195,7 @@ const VuloPilotSeoPlugin = () => {
 
 		open();
 
-		/**
-		 * WordPress may restore the previously selected sidebar during editor initialization.
-		 */
+		/** WordPress may restore the previously selected sidebar during editor initialization. */
 		const timeout = setTimeout( open, 500 );
 
 		return () => clearTimeout( timeout );

@@ -10,8 +10,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags a problem with automatic backups: the latest run failed, or none completed in over
- * twice the `backup_frequency` interval.
+ * Flags a problem with automatic backups.
  *
  * @class       BackupHealthScanner class
  * @version     1.0.0
@@ -20,10 +19,9 @@ defined( 'ABSPATH' ) || exit;
 class BackupHealthScanner extends ScannerUtil {
 
 	/**
-	 * Real days-per-cadence, matching BackupScheduler's own
-	 * `wp_schedule_event()` interval choices.
+	 * Real days-per-cadence, matching BackupScheduler's own `wp_schedule_event()` interval choices.
 	 *
-	 * @var array<string, int>
+	 * @var array
 	 */
 	private const FREQUENCY_DAYS = array(
 		'daily'  => 1,

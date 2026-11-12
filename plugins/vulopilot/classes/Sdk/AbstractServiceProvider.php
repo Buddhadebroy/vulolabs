@@ -19,18 +19,17 @@ defined( 'ABSPATH' ) || exit;
 abstract class AbstractServiceProvider {
 
 	/**
-	 * @var array<string, callable>
+	 * @var array
 	 */
 	private array $factories = array();
 
 	/**
-	 * @var array<string, mixed>
+	 * @var array
 	 */
 	private array $resolved = array();
 
 	/**
-	 * Registers this provider's services - call bind() here for
-	 * everything the extension wants resolvable through make().
+	 * Registers this provider's services.
 	 *
 	 * @return void
 	 */

@@ -13,11 +13,9 @@ interface DashboardGridProps {
 	isLoading: boolean;
 	/** Gates drag/hide affordances - see Dashboard.tsx's own state comment. */
 	isCustomizing: boolean;
-	/**
-	 * Incremented by Dashboard.tsx's "Restore default" header button.
-	 */
+	/** Incremented by Dashboard.tsx's "Restore default" header button. */
 	restoreDefaultSignal?: number;
-	/** Forwarded straight through to every widget's own `onRefreshSummary` (WidgetProps' own docblock) - Dashboard.tsx's own `loadDashboard`. */
+	/** Forwarded straight through to every widget's own `onRefreshSummary`. */
 	onRefreshSummary: () => void;
 }
 
@@ -30,10 +28,7 @@ const WIDGETS_BY_ID = new Map(
 	DEFAULT_DASHBOARD_WIDGETS.map((widget) => [widget.id, widget])
 );
 
-/**
- * Drag-and-drop widget grid: loads the user's saved layout, renders enabled widgets in order and
- * saves a new order on drag.
- */
+/** Drag-and-drop widget grid. */
 const DashboardGrid: React.FC<DashboardGridProps> = ({
 	summary,
 	isLoading,
@@ -50,8 +45,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 		)
 			.then((response) => {
-				// DashboardLayout.php's get_items() always reconciles against every registered
-				// widget id and returns a non-empty array on success.
+				// DashboardLayout.php's get_items() always reconciles against every registered widget id and returns a non-empty array on success.
 				if (response && response.length > 0) {
 					setLayout(response);
 				} else {
@@ -75,8 +69,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 		);
 	};
 
-	// `restoreDefaultSignal` starts at 0 and only ever increments from a real button click
-	// (Dashboard.tsx).
+	// `restoreDefaultSignal` starts at 0 and only ever increments from a real button click.
 	const isFirstRestoreRender = useRef(true);
 	useEffect(() => {
 		if (isFirstRestoreRender.current) {
@@ -174,8 +167,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 	return (
 		<>
 			{isCustomizing ? (
-				// ReactSortable needs to own the actual sortable DOM node itself (it takes a ref
-				// to it).
+				// ReactSortable needs to own the actual sortable DOM node itself (it takes a ref to it).
 				<ReactSortable
 					list={visible}
 					setList={handleReorder}

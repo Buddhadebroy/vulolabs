@@ -7,9 +7,7 @@ interface SnippetPreviewProps {
 	siteName: string;
 }
 
-/**
- * A Google-results-style preview.
- */
+/** A Google-results-style preview. */
 export default function SnippetPreview( { title, description, url, siteName }: SnippetPreviewProps ) {
 	const displayTitle = title || __( '(No title yet)', 'vulopilot' );
 	const displayDescription = description || __( '(No meta description yet - search engines will pick an excerpt from the page automatically.)', 'vulopilot' );

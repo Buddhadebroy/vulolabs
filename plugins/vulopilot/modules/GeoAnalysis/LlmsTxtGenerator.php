@@ -20,14 +20,10 @@ class LlmsTxtGenerator {
 
 	private const QUERY_VAR = 'vulopilot_llms_txt';
 
-	/**
-	 * Max pages/posts listed in each section - a curated index.
-	 */
+	/** Max pages/posts listed in each section - a curated index. */
 	private const MAX_ITEMS_PER_SECTION = 20;
 
-	/**
-	 * LlmsTxtGenerator constructor.
-	 */
+	/** LlmsTxtGenerator constructor. */
 	public function __construct() {
 		add_action( 'init', array( $this, 'register_rewrite_rule' ) );
 		add_filter( 'query_vars', array( $this, 'add_query_var' ) );
@@ -152,11 +148,11 @@ class LlmsTxtGenerator {
 	/**
 	 * Appends one `## Heading` + list-of-links section for one post type.
 	 *
-	 * @param string[] $lines   Lines built so far, appended to by reference.
-	 * @param string   $heading Markdown heading text (no leading `##`).
+	 * @param string[] $lines     Lines built so far, appended to by reference.
+	 * @param string   $heading   Markdown heading text (no leading `##`).
 	 * @param string   $post_type WordPress post type to query.
-	 * @param string   $orderby WP_Query orderby.
-	 * @param string   $order   WP_Query order.
+	 * @param string   $orderby   WP_Query orderby.
+	 * @param string   $order     WP_Query order.
 	 * @return void
 	 */
 	private function append_section( array &$lines, string $heading, string $post_type, string $orderby, string $order ): void {

@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
 abstract class RepositoryUtil implements RepositoryInterface {
 
 	/**
-	 * @var array<int, array<string, mixed>|null>
+	 * @var array
 	 */
 	private array $cache = array();
 
@@ -31,7 +31,7 @@ abstract class RepositoryUtil implements RepositoryInterface {
 	protected array $filterable_columns = array();
 
 	/**
-	 * @var string[] Text columns an incoming `search` arg is LIKE-matched against (OR'd together).
+	 * @var string[] Text columns an incoming `search` arg is LIKE-matched against.
 	 */
 	protected array $searchable_columns = array();
 
@@ -139,12 +139,11 @@ abstract class RepositoryUtil implements RepositoryInterface {
 	}
 
 	/**
-	 * Row counts grouped by one column, scoped by the other filterable columns in `$args`
-	 * but not by `search`.
+	 * Row counts grouped by one column, scoped by the other filterable columns in `$args` but not by `search`.
 	 *
-	 * @param string               $column Column to GROUP BY.
-	 * @param array<string, mixed> $args   Same shape as find_all()'s $args.
-	 * @return array<string, int> value => count, only for values with >=1 row.
+	 * @param string $column Column to GROUP BY.
+	 * @param array  $args   Same shape as find_all()'s $args.
+	 * @return array Value => count, only for values with >=1 row.
 	 */
 	public function count_by_column( string $column, array $args = array() ): array {
 		global $wpdb;
@@ -218,11 +217,10 @@ abstract class RepositoryUtil implements RepositoryInterface {
 	}
 
 	/**
-	 * Applies the same update to a bounded set of rows (e.g. rows checked via a table's
-	 * bulk-action UI).
+	 * Applies the same update to a bounded set of rows.
 	 *
-	 * @param int[]                $ids  Row ids to update.
-	 * @param array<string, mixed> $data Column => value pairs to set on every row.
+	 * @param int[] $ids  Row ids to update.
+	 * @param array $data Column => value pairs to set on every row.
 	 * @return int Number of rows actually updated.
 	 */
 	public function bulk_update( array $ids, array $data ): int {

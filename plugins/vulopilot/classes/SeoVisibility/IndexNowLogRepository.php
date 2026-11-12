@@ -25,8 +25,7 @@ class IndexNowLogRepository {
 	private const MAX_ROWS = 100;
 
 	/**
-	 * Records one submission in the shared activity log (`vulopilot_activity_logs`) - the
-	 * URL as the message, the rest as JSON in `meta`.
+	 * Records one submission in the shared activity log.
 	 *
 	 * @param string   $url             Submitted URL.
 	 * @param int|null $response_code   HTTP status from the IndexNow endpoint.
@@ -57,9 +56,9 @@ class IndexNowLogRepository {
 	}
 
 	/**
-	 * Newest first: `id`, `url`, `response_code`, `response_status`, `trigger_type`, `created_at`.
+	 * Newest first.
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function get_recent(): array {
 		$rows = ( new ActivityLogRepository() )->find_all(

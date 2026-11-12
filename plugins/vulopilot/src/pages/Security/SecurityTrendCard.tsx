@@ -24,10 +24,7 @@ const PERIOD_OPTIONS = [
 	{ key: '90', value: '90', label: __('90D', 'vulopilot') },
 ];
 
-/**
- * `days` is a real 7/30/90 toggle now (same `PERIOD_OPTIONS`/`ToggleInput` shape
- * GeoScoreSection.tsx's own card action already uses).
- */
+/** `days` is a real 7/30/90 toggle now. */
 const SecurityTrendCard = () => {
 	const [period, setPeriod] = useState<PeriodDays>('30');
 	const { data: snapshots, isLoading } = useApiList<SecurityScoreSnapshot>(

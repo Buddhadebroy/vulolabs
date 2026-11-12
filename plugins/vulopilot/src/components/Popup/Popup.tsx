@@ -210,8 +210,7 @@ const ShowProPopup: React.FC<PopupProps> = (props) => {
 								icon: 'eye',
 								text: __('Enable Now', 'vulopilot'),
 								onClick: () => {
-									// Same admin page, just a different hash tab - '_self' matches
-									// this plugin's own same-page navigation convention.
+									// Same admin page, just a different hash tab.
 									window.open(
 										`${vulopilotAppLocalizer.admin_url}#&tab=settings&subtab=modules&module=${props.moduleName}`,
 										'_self'

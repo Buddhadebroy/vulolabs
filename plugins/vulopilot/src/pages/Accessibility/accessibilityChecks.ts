@@ -13,9 +13,7 @@ export interface AccessibilityCheck {
 	emptyMessage: string;
 }
 
-/**
- * The reference mockup's 5-tile "Accessibility Checks" grid.
- */
+/** The reference mockup's 5-tile "Accessibility Checks" grid. */
 const REAL_ACCESSIBILITY_CHECKS: AccessibilityCheck[] = [
 	{
 		key: 'page-structure',
@@ -88,14 +86,12 @@ const REAL_ACCESSIBILITY_CHECKS: AccessibilityCheck[] = [
 	},
 ];
 
-/** Every real scanner id any of the 5 buckets above covers - the hero card's own combined counts. */
+/** Every real scanner id any of the 5 buckets above covers. */
 export const ACCESSIBILITY_SCANNER_IDS = REAL_ACCESSIBILITY_CHECKS.flatMap(
 	(check) => check.scannerIds
 );
 
-/**
- * The 5 real buckets above, plus a 6th synthetic `'all'` tile.
- */
+/** The 5 real buckets above, plus a 6th synthetic `'all'` tile. */
 export const ACCESSIBILITY_CHECKS: AccessibilityCheck[] = [
 	...REAL_ACCESSIBILITY_CHECKS,
 	{

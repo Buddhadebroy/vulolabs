@@ -16,8 +16,7 @@ use VuloPilot\Utill\RuleType;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Turns RobotsTxtScanner's "robots.txt blocks every crawler" HIGH-severity Finding into a
- * critical recommendation.
+ * Turns RobotsTxtScanner's "robots.txt blocks every crawler" HIGH-severity Finding into a critical recommendation.
  *
  * @class       RobotsBlockingCrawlersRule class
  * @version     1.0.0
@@ -85,8 +84,7 @@ class RobotsBlockingCrawlersRule extends AbstractBasicRule {
 	 * @inheritDoc
 	 */
 	public function applies_to( Finding $finding ): bool {
-		// Matched on the `blocks_all_crawlers` meta key RobotsTxtScanner attaches only to this
-		// specific finding.
+		// Matched on the `blocks_all_crawlers` meta key RobotsTxtScanner attaches only to this specific finding.
 		return 'seo' === $finding->get_category() && array_key_exists( 'blocks_all_crawlers', $finding->get_meta() );
 	}
 

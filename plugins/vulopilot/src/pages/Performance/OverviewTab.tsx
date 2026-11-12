@@ -10,8 +10,7 @@ import PerformanceTab from './PerformanceTab';
 import './Performance.scss';
 
 /**
- * "Performance" Overview tab, composed of PerformanceScoreCard, MetricsGrid, SpeedHistoryCard and
- * BiggestSpeedOpportunityCard.
+ * "Performance" Overview tab, composed of PerformanceScoreCard, MetricsGrid, SpeedHistoryCard and BiggestSpeedOpportunityCard.
  */
 interface OverviewTabProps {
 	onNavigateToSlowPages: () => void;
@@ -23,7 +22,7 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 
 	const scrollToFindings = () => scrollToId('performance-section-findings');
 
-	/** MetricsGrid's own scanner-backed tiles - switches the Top Issues table to that tile's section, then scrolls to it. */
+	/** MetricsGrid's own scanner-backed tiles. */
 	const goToIssuesSection = (sectionKey: string) => {
 		setActiveIssuesTab(sectionKey);
 		setTimeout(scrollToFindings, 50);

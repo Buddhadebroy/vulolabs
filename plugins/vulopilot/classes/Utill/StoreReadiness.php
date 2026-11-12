@@ -61,7 +61,7 @@ class StoreReadiness extends \WP_REST_Controller {
 	}
 
 	/**
-	 * @return array<string, bool>
+	 * @return array
 	 */
 	private function build_readiness(): array {
 		if ( ! class_exists( 'WooCommerce' ) || ! function_exists( 'wc_get_page_id' ) ) {

@@ -14,8 +14,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Fetches `/robots.txt` and flags two real, high-impact problems: the file isn't reachable
- * at all.
+ * Fetches `/robots.txt` and flags two real, high-impact problems.
  *
  * @class       RobotsTxtScanner class
  * @version     1.0.0

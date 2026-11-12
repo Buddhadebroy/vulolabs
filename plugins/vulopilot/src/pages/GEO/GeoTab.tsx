@@ -64,10 +64,7 @@ const GEO_TOPICS: {
 		},
 	];
 
-/**
- * GEO = Generative Engine Optimization - how discoverable/citable this site is to AI answer
- * engines (distinct from classic search-engine SEO).
- */
+/** GEO = Generative Engine Optimization. */
 const GeoTab = () => {
 	const [categoryFocus, setCategoryFocus] = useState<{
 		key: string;
@@ -79,9 +76,7 @@ const GeoTab = () => {
 	/** Set by a real "Analyze" click in the "Pages & Posts" table below. */
 	const [analyzingPostId, setAnalyzingPostId] = useState<number | null>(null);
 
-	/**
-	 * Sets a fresh `categoryFocus` (a new `token` even for the same `key` twice in a row).
-	 */
+	/** Sets a fresh `categoryFocus` (a new `token` even for the same `key` twice in a row). */
 	const goToIssuesTable = (key: string = 'all') => {
 		setCategoryFocus({ key, token: Date.now() });
 	};

@@ -6,8 +6,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Scanning → SEO's "Auto-generate robots.txt" toggle, plus Crawl & URLs → Robots &
- * Sitemap's own "Edit" action (RobotsSitemap).
+ * Scanning → SEO's "Auto-generate robots.txt" toggle, plus Crawl & URLs → Robots & Sitemap's own "Edit" action.
  *
  * @class       RobotsTxtManager class
  * @version     1.0.0
@@ -15,14 +14,10 @@ defined( 'ABSPATH' ) || exit;
  */
 class RobotsTxtManager {
 
-	/**
-	 * Admin-authored robots.txt override; empty/absent falls back to WordPress's default output.
-	 */
+	/** Admin-authored robots.txt override; empty/absent falls back to WordPress's default output. */
 	private const CUSTOM_CONTENT_OPTION = 'vulopilot_custom_robots_txt';
 
-	/**
-	 * RobotsTxtManager constructor.
-	 */
+	/** RobotsTxtManager constructor. */
 	public function __construct() {
 		add_filter( 'robots_txt', array( $this, 'maybe_use_custom_robots_txt' ), 5, 1 );
 		add_filter( 'robots_txt', array( $this, 'maybe_strip_admin_ajax_allow' ), 15, 1 );
@@ -30,10 +25,7 @@ class RobotsTxtManager {
 	}
 
 	/**
-	 * Core's own `do_robots()` always adds `Allow: /wp-admin/admin-ajax.php` under the
-	 * `Disallow: /wp-admin/` block it generates; strip it when we're auto-generating, since a
-	 * crawlable ajax endpoint has no SEO value and only the custom override (already applied
-	 * at priority 5) should ever keep it.
+	 * Core's own `do_robots()` always adds `Allow: /wp-admin/admin-ajax.php` under the `Disallow: /wp-admin/` block it generates.
 	 *
 	 * @param string $output The robots.txt content built so far.
 	 * @return string
@@ -59,8 +51,8 @@ class RobotsTxtManager {
 	}
 
 	/**
-	 * @param string $output       The robots.txt content built so far.
-	 * @param bool   $is_public    Whether the site is set to be publicly indexed.
+	 * @param string $output    The robots.txt content built so far.
+	 * @param bool   $is_public Whether the site is set to be publicly indexed.
 	 * @return string
 	 */
 	public function maybe_append_sitemap_line( $output, $is_public ) {

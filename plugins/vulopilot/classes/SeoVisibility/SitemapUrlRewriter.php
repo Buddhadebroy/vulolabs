@@ -4,9 +4,7 @@ namespace VuloPilot\SeoVisibility;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Rewrites WordPress core's native sitemap URLs from `/wp-sitemap.xml`/`/wp-
- * sitemap-{provider}-{subtype}-{page}.xml` to the more familiar
- * `/sitemap_index.xml`/`/{subtype}-sitemap{page}.xml`.
+ * Rewrites WordPress core's native sitemap URLs from `/wp-sitemap.xml`/`/wp- sitemap-{provider}-{subtype}-{page}.xml` to the more familiar `/sitemap_index.xml`/`/{subtype}-sitemap{page}.xml`.
  *
  * @class       SitemapUrlRewriter class
  * @version     1.0.0
@@ -26,9 +24,7 @@ class SitemapUrlRewriter {
 	 */
 	private const REWRITE_VERSION_OPTION = 'vulopilot_sitemap_rewrite_version';
 
-	/**
-	 * SitemapUrlRewriter constructor.
-	 */
+	/** SitemapUrlRewriter constructor. */
 	public function __construct() {
 		add_action( 'wp_sitemaps_init', array( $this, 'register_pretty_rewrites' ) );
 		add_action( 'init', array( $this, 'maybe_flush_rewrite_rules' ), 20 );
@@ -63,15 +59,14 @@ class SitemapUrlRewriter {
 	}
 
 	/**
-	 * Pretty name per provider: the registered subtype name when one exists (`page`, `post`, `category`,
-	 * a custom post type slug, …), else the provider name itself (`users`).
+	 * Pretty name per provider: the registered subtype name when one exists, else the provider name itself.
 	 *
-	 * @param string      $provider Real provider name (`posts`/`taxonomies`/`users`/a 3rd-party-registered one).
+	 * @param string      $provider Real provider name.
 	 * @param string|null $subtype  Real object subtype, or null/empty for a provider with none.
 	 * @return string
 	 */
 	/**
-	 * @return bool Whether the site uses pretty permalinks (rewrite rules can resolve).
+	 * @return bool Whether the site uses pretty permalinks.
 	 */
 	private function uses_pretty_permalinks(): bool {
 		return '' !== (string) get_option( 'permalink_structure' );
@@ -93,8 +88,7 @@ class SitemapUrlRewriter {
 	}
 
 	/**
-	 * Rewrites each real child sitemap's own `loc` on the INDEX page (`sitemap_index.xml`)
-	 * to its real new pretty URL directly.
+	 * Rewrites each real child sitemap's own `loc` on the INDEX page.
 	 *
 	 * @param array  $sitemap_entry  Core's own real sitemap-index entry (`['loc' => …]`).
 	 * @param string $object_type    Core's own real generic object type (`post`/`term`/`user`).
@@ -102,8 +96,7 @@ class SitemapUrlRewriter {
 	 * @return array
 	 */
 	public function filter_index_entry_loc( $sitemap_entry, $object_type, $object_subtype ) {
-		// Pretty sitemap URLs are rewrite rules; with plain permalinks they cannot
-		// resolve, so keep the core `?sitemap=` addresses that do work.
+		// Pretty sitemap URLs are rewrite rules.
 		if ( ! isset( $sitemap_entry['loc'] ) || ! $this->uses_pretty_permalinks() || ! $this->pretty_rules_registered() ) {
 			return $sitemap_entry;
 		}
@@ -114,8 +107,7 @@ class SitemapUrlRewriter {
 			$paged = (int) $matches[1];
 		}
 
-		// Real `object_type` → real registry provider name, for the one real core provider with no
-		// real subtype (`users`).
+		// Real `object_type` → real registry provider name, for the one real core provider with no real subtype.
 		$name = $object_subtype ? $object_subtype : ( 'user' === $object_type ? 'users' : $object_type );
 
 		$sitemap_entry['loc'] = home_url( '/' . $name . '-sitemap' . ( $paged > 1 ? $paged : '' ) . '.xml' );
@@ -138,8 +130,7 @@ class SitemapUrlRewriter {
 	}
 
 	/**
-	 * Core has no `get_lastpostmodified()` equivalent scoped to a taxonomy, so this finds it
-	 * directly: the most recently modified published post carrying any term of `$taxonomy`.
+	 * Core has no `get_lastpostmodified()` equivalent scoped to a taxonomy, so this finds it directly.
 	 *
 	 * @param string $taxonomy Taxonomy slug.
 	 * @return string Post's `post_modified_gmt`, or '' when nothing is published yet.
@@ -167,8 +158,7 @@ class SitemapUrlRewriter {
 	}
 
 	/**
-	 * Registers the real new pretty-URL rewrite rules - one pair (page-1-implicit + page-
-	 * N-suffixed) per real registered provider/ subtype combination.
+	 * Registers the real new pretty-URL rewrite rules.
 	 *
 	 * @return void
 	 */
@@ -180,16 +170,14 @@ class SitemapUrlRewriter {
 		// Real new index route.
 		add_rewrite_rule( '^sitemap_index\.xml$', 'index.php?sitemap=index', 'top' );
 
-		// Real legacy index route - same real pattern core's own
-		// `WP_Sitemaps::register_rewrites()` already registers for `wp-sitemap.xml`.
+		// Real legacy index route - same real pattern core's own `WP_Sitemaps::register_rewrites()` already registers for `wp-sitemap.xml`.
 		add_rewrite_rule(
 			'^wp-sitemap\.xml$',
 			'index.php?sitemap=index&vulopilot_legacy_sitemap=1',
 			'top'
 		);
 
-		// Real legacy provider routes - same 2 real patterns core's own `register_rewrites()` uses
-		// (with/without a real subtype), same extra flag.
+		// Real legacy provider routes.
 		add_rewrite_rule(
 			'^wp-sitemap-([a-z]+?)-([a-z\d_-]+?)-(\d+?)\.xml$',
 			'index.php?sitemap=$matches[1]&sitemap-subtype=$matches[2]&paged=$matches[3]&vulopilot_legacy_sitemap=1',
@@ -201,8 +189,7 @@ class SitemapUrlRewriter {
 			'top'
 		);
 
-		// Real new pretty provider routes - one pair per real registered provider/subtype, built
-		// from the real registry.
+		// Real new pretty provider routes.
 		foreach ( wp_get_sitemap_providers() as $provider_name => $provider ) {
 			$subtypes = $provider->get_object_subtypes();
 
@@ -239,8 +226,7 @@ class SitemapUrlRewriter {
 	}
 
 	/**
-	 * Flushes rewrite rules once, gated on `REWRITE_VERSION`, so new sitemap rules reach
-	 * already-active installs.
+	 * Flushes rewrite rules once, gated on `REWRITE_VERSION`, so new sitemap rules reach already-active installs.
 	 *
 	 * @return void
 	 */
@@ -251,8 +237,7 @@ class SitemapUrlRewriter {
 
 		$rules = get_option( 'rewrite_rules' );
 
-		// Flush when the version changed, or when the stored rules no longer contain ours
-		// (another plugin or a permalink reset can rebuild them without our rules).
+		// Flush when the version changed, or when the stored rules no longer contain ours.
 		if ( get_option( self::REWRITE_VERSION_OPTION ) === self::REWRITE_VERSION && ( ! is_array( $rules ) || isset( $rules['^sitemap_index\.xml$'] ) ) ) {
 			return;
 		}
@@ -261,8 +246,7 @@ class SitemapUrlRewriter {
 	}
 
 	/**
-	 * Rebuilds the rewrite rules with this class's sitemap rules included and records that
-	 * it did.
+	 * Rebuilds the rewrite rules with this class's sitemap rules included and records that it did.
 	 *
 	 * @return void
 	 */
@@ -285,8 +269,7 @@ class SitemapUrlRewriter {
 	}
 
 	/**
-	 * The real index sitemap URL as it actually resolves right now - the pretty
-	 * `/sitemap_index.xml` when pretty rules are registered, else core's own `/wp-sitemap.xml`.
+	 * The real index sitemap URL as it actually resolves right now.
 	 *
 	 * @return string
 	 */

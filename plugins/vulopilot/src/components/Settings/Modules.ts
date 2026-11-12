@@ -1,8 +1,6 @@
 import { __ } from '@wordpress/i18n';
 
-/**
- * Only `id`/`priority`/`headerTitle`/`headerIcon` are actually used.
- */
+/** Only `id`/`priority`/`headerTitle`/`headerIcon` are actually used. */
 export default {
 	id: 'modules',
 	priority: 10,

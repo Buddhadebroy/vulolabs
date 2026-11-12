@@ -10,10 +10,7 @@ import ShowProPopup, { VuloCloudInlineNotice } from '../../components/Popup/Popu
 import { useAiCredits } from '../../services/useAiCredits';
 import { useContentToolsEnabled } from '../../services/useContentToolsEnabled';
 
-/**
- * "Quick Actions" card, same propose/preview/approve flow as ContentToolsGrid.tsx. The 2 Pro
- * tiles are display shells only - real fields/runner come from the `vulopilot_content_tools_pro` slot.
- */
+/** "Quick Actions" card, same propose/preview/approve flow as ContentToolsGrid.tsx. */
 const QUICK_ACTION_TOOLS: ContentTool[] = [
 	{
 		id: 'content-audit',
@@ -58,6 +55,7 @@ const QuickActionsCard = () => {
 	const hasContentPlanner = useIsRouteRegistered('content-planner');
 	const { status: creditsStatus } = useAiCredits();
 	const isContentToolsEnabled = useContentToolsEnabled();
+	const isToolLocked = (tool: ContentTool) => Boolean(tool.pro) && (!isContentToolsEnabled || !proSlot);
 	const [isCloudConnectPromptOpen, setIsCloudConnectPromptOpen] = useState(false);
 	const [isProLocked, setIsProLocked] = useState(false);
 	const dismissProLocked = () => setIsProLocked(false);
@@ -76,7 +74,7 @@ const QuickActionsCard = () => {
 	};
 
 	const handleToolClick = (tool: ContentTool) => {
-		if (tool.pro && (!isContentToolsEnabled || !proSlot)) {
+		if (isToolLocked(tool)) {
 			setIsProLocked(true);
 			return;
 		}
@@ -89,8 +87,11 @@ const QuickActionsCard = () => {
 		setActiveTool(tool.pro ? (proSlot?.tools.find((t) => t.id === tool.id) ?? tool) : tool);
 	};
 
+	// Licensed sites skip the tag - a click there opens the "enable module" prompt instead.
+	const showProTag = (locked: boolean) => locked && !vulopilotAppLocalizer.khali_dabba;
+
 	const proBadge = (tool: ContentTool) =>
-		tool.pro && (!isContentToolsEnabled || !proSlot) ? (
+		showProTag(isToolLocked(tool)) ? (
 			<span className="admin-tag pro-tag pro-tag-inline">
 				<i className="adminfont-pro-tag" />
 				{__('Pro', 'vulopilot')}
@@ -125,13 +126,13 @@ const QuickActionsCard = () => {
 						className: 'icon-blue',
 						title: __('Content Planner', 'vulopilot'),
 						desc: __('Plan and schedule content', 'vulopilot'),
-						tags: hasContentPlanner ? (
-							<i className="adminfont-arrow-right" />
-						) : (
+						tags: showProTag(!hasContentPlanner) ? (
 							<span className="admin-tag pro-tag pro-tag-inline">
 								<i className="adminfont-pro-tag" />
 								{__('Pro', 'vulopilot')}
 							</span>
+						) : (
+							<i className="adminfont-arrow-right" />
 						),
 						action: openPlanner,
 					},

@@ -18,19 +18,14 @@ class GoogleServicesConnection {
 
 	private const SITES_URL = 'https://www.googleapis.com/webmasters/v3/sites';
 
-	/**
-	 * Google access tokens are typically valid ~3600s - refreshed a minute
-	 * early so a request never races an in-flight expiry.
-	 */
+	/** Google access tokens are typically valid ~3600s. */
 	private const EXPIRY_SAFETY_MARGIN = 60;
 
-	/**
-	 * SPA destinations the OAuth redirect is allowed to land back on.
-	 */
+	/** SPA destinations the OAuth redirect is allowed to land back on. */
 	private const RETURN_TARGETS = array( 'settings', 'keywords' );
 
 	/**
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function get_connection(): array {
 		return wp_parse_args(
@@ -53,7 +48,7 @@ class GoogleServicesConnection {
 	}
 
 	/**
-	 * @param array<string, mixed> $data Partial fields to merge into the stored connection.
+	 * @param array $data Partial fields to merge into the stored connection.
 	 * @return void
 	 */
 	private function save_connection( array $data ): void {
@@ -61,8 +56,7 @@ class GoogleServicesConnection {
 	}
 
 	/**
-	 * The redirect_uri registered with Google must be EXACTLY this URL (down to trailing
-	 * slashes/scheme).
+	 * The redirect_uri registered with Google must be EXACTLY this URL.
 	 *
 	 * @return string
 	 */
@@ -71,8 +65,7 @@ class GoogleServicesConnection {
 	}
 
 	/**
-	 * Whether the broker-based Google connect flow is configured. This is the only way the
-	 * plugin ever obtains Google OAuth tokens - the Client ID/Secret live solely in VuloCloud.
+	 * Whether the broker-based Google connect flow is configured.
 	 *
 	 * @return bool
 	 */
@@ -82,10 +75,9 @@ class GoogleServicesConnection {
 	}
 
 	/**
-	 * Builds the Google OAuth URL (offline access, forced consent) with a `state` carrying
-	 * a nonce and the tab to return to.
+	 * Builds the Google OAuth URL.
 	 *
-	 * @param string $return_to One of self::RETURN_TARGETS; anything else silently falls back to 'settings'.
+	 * @param string $return_to One of self::RETURN_TARGETS.
 	 * @return string|null Null if the broker isn't configured for this build yet.
 	 */
 	public function get_authorization_url( string $return_to = 'settings' ): ?string {
@@ -105,7 +97,7 @@ class GoogleServicesConnection {
 
 	/**
 	 * @param string $return_to Already validated against self::RETURN_TARGETS by the caller.
-	 * @return string Base64'd JSON - a real WP nonce plus the plain, allow-listed return target.
+	 * @return string Base64'd JSON.
 	 */
 	private static function encode_state( string $return_to ): string {
 		return base64_encode( // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- URL-safe transport encoding for an opaque `state` value, not obfuscation; every field inside is either a real WP nonce (verified below) or an allow-listed plain string.
@@ -120,7 +112,7 @@ class GoogleServicesConnection {
 
 	/**
 	 * @param string $state The `state` query param Google's redirect carried back.
-	 * @return array{nonce: string, return_to: string}
+	 * @return array
 	 */
 	private static function decode_state( string $state ): array {
 		$decoded = json_decode( (string) base64_decode( $state, true ), true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- decoding this class's own encode_state(), not obfuscation.
@@ -225,7 +217,7 @@ class GoogleServicesConnection {
 	}
 
 	/**
-	 * @return string|null A real, currently-valid access token, refreshing first if needed. Null if not connected or refresh failed.
+	 * @return string|null A real, currently-valid access token, refreshing first if needed.
 	 */
 	public function get_valid_access_token(): ?string {
 		$connection = $this->get_connection();
@@ -257,7 +249,7 @@ class GoogleServicesConnection {
 	/**
 	 * GET https://www.googleapis.com/webmasters/v3/sites call.
 	 *
-	 * @return array<int, array{site_url: string, permission_level: string}>|\WP_Error
+	 * @return array|\WP_Error
 	 */
 	public function list_search_console_sites() {
 		$token = $this->get_valid_access_token();
@@ -302,7 +294,7 @@ class GoogleServicesConnection {
 	}
 
 	/**
-	 * @param array{account_id: string, account_name: string, property_id: string, property_name: string, measurement_id: string} $property One of GoogleAnalyticsClient::list_account_summaries()'s own real data-stream rows.
+	 * @param array $property One of GoogleAnalyticsClient::list_account_summaries()'s own real data-stream rows.
 	 * @return void
 	 */
 	public function select_ga4_property( array $property ): void {
@@ -356,7 +348,7 @@ class GoogleServicesConnection {
 	}
 
 	/**
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function get_status(): array {
 		$connection = $this->get_connection();

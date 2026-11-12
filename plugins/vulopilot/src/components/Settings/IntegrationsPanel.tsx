@@ -27,9 +27,7 @@ const SectionRow = ({
 	</div>
 );
 
-/**
- * Settings → Get Started → Connections.
- */
+/** Settings → Get Started → Connections. */
 const IntegrationsPanel = () => {
 	return (
 		<>

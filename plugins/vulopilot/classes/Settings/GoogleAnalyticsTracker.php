@@ -6,8 +6,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Outputs `gtag.js` on the front end, honoring the Analytics panel toggles (anonymize IP,
- * exclude logged-in users, self-hosted JS file).
+ * Outputs `gtag.js` on the front end, honoring the Analytics panel toggles.
  *
  * @class       GoogleAnalyticsTracker class
  * @version     1.0.0
@@ -27,8 +26,7 @@ class GoogleAnalyticsTracker {
 	public function maybe_output_tracking_code(): void {
 		$settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
-		// Same `array('key')`-means-on/`array()`-means-off toggle-checkbox convention every other
-		// single ToggleInput-driven setting in this codebase uses.
+		// Same `array('key')`-means-on/`array()`-means-off toggle-checkbox convention every other single ToggleInput-driven setting in this codebase uses.
 		if ( empty( $settings['ga_install_tracking_code'] ) ) {
 			return;
 		}
@@ -73,8 +71,7 @@ class GoogleAnalyticsTracker {
 	}
 
 	/**
-	 * Fetches (once, then caches) Google's own real gtag.js for this property and returns
-	 * the local URL to serve it from.
+	 * Fetches Google's own real gtag.js for this property and returns the local URL to serve it from.
 	 *
 	 * @param string $measurement_id Real GA4 Measurement ID (e.g. "G-XXXXXXX").
 	 * @return string

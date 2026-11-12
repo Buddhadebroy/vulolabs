@@ -14,8 +14,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * A sitewide (not per-post) check: does this site have a published page whose slug
- * identifies it as an About or Contact page.
+ * A sitewide check: does this site have a published page whose slug identifies it as an About or Contact page.
  *
  * @class       GeoTrustSignalsScanner class
  * @version     1.0.0
@@ -23,10 +22,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class GeoTrustSignalsScanner extends ScannerUtil {
 
-	/**
-	 * Common slugs for these two page types - a real, bounded check against the
-	 * conventional naming almost every site uses, not a content-based guess.
-	 */
+	/** Common slugs for these two page types. */
 	private const ABOUT_SLUGS   = array( 'about', 'about-us', 'about-me' );
 	private const CONTACT_SLUGS = array( 'contact', 'contact-us' );
 

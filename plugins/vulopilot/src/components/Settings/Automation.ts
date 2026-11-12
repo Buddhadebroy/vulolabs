@@ -2,9 +2,7 @@ import { createElement } from 'react';
 import { __ } from '@wordpress/i18n';
 import EnableAutomationModuleAction from './Automation/EnableAutomationModuleAction';
 
-/**
- * Settings → Automation ("Advanced Automation Settings").
- */
+/** Settings → Automation ("Advanced Automation Settings"). */
 export default {
 	id: 'automation',
 	priority: 4,
@@ -61,8 +59,7 @@ export default {
 			proSetting: true,
 		},
 		{
-			// Same real `type: 'notice'` field Scanning/SeoContent.ts's own
-			// sitemap tips already use.
+			// Same real `type: 'notice'` field Scanning/SeoContent.ts's own sitemap tips already use.
 			key: 'advanced-automation-notice',
 			type: 'notice',
 			noticeType: 'info',

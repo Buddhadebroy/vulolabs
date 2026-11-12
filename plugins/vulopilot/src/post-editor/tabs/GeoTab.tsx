@@ -9,7 +9,7 @@ interface GeoTabProps {
 	onNavigate?: ( tab: string, target?: string ) => void;
 }
 
-/** AI Visibility (GEO) score - Pro-only. Card shell only; the real score lives in Pro's `GeoVisibilityPanel.tsx`. */
+/** AI Visibility (GEO) score - Pro-only. */
 export default function GeoTab( _props: GeoTabProps ) {
 	const { postId } = usePostData();
 	const Panel = useFilterSlot< ComponentType< { postId: number } > >(

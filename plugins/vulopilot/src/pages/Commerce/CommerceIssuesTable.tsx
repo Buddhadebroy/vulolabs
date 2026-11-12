@@ -41,16 +41,11 @@ interface CommerceIssuesTableProps {
 
 	// eslint-disable-next-line no-unused-vars
 	onTabChange: (tab: CommerceIssueTab) => void;
-	/** Re-fetches `groups` (the caller's own `useWooCommerceFindingGroups`) after a Resolve/Ignore/Fix below. */
+	/** Re-fetches `groups` after a Resolve/Ignore/Fix below. */
 	onGroupsChanged?: () => void;
 }
 
-/**
- * "All WooCommerce Issues" - a real category-tab bar over a real grouped-findings table +
- * detail panel, same table+detail pattern `IssuesList.tsx`/`SectionedIssuesTable.tsx` already use
- * elsewhere for `GET /findings/groups` data, instead of the bare info popup `useFindingsTable.tsx`
- * gives its own flat `GET /findings` rows.
- */
+/** "All WooCommerce Issues". */
 const CommerceIssuesTable = ({
 	groups,
 	activeTab,
@@ -103,8 +98,7 @@ const CommerceIssuesTable = ({
 
 	const pageRows = tabGroups.slice((paged - 1) * PER_PAGE, paged * PER_PAGE);
 
-	// Keeps the current selection if it's still visible, else falls back to the first row of
-	// this tab - same reasoning IssuesList.tsx's/SectionedIssuesTable.tsx's own fetch effects give.
+	// Keeps the current selection if it's still visible, else falls back to the first row of this tab.
 	useEffect(() => {
 		setSelectedGroup((current) => {
 			if (

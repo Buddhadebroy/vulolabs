@@ -14,7 +14,7 @@ export const PRODUCT_SCANNER_IDS = [
 	'product-seo',
 ];
 
-/** The 4 new "Checkout & Payments"/"Orders" scanners (WooCommerceCheckoutScanner + its 3 order-health siblings). */
+/** The 4 new "Checkout & Payments"/"Orders" scanners. */
 export const CHECKOUT_SCANNER_IDS = [
 	'woocommerce-checkout',
 	'woocommerce-failed-orders',
@@ -22,5 +22,5 @@ export const CHECKOUT_SCANNER_IDS = [
 	'woocommerce-stale-onhold-orders',
 ];
 
-/** General store setup (the original WooCommerceScanner) + the new template-compatibility check. */
+/** General store setup + the new template-compatibility check. */
 export const STORE_SCANNER_IDS = ['woocommerce', 'woocommerce-compatibility'];

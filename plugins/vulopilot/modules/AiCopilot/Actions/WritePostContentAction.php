@@ -16,14 +16,13 @@ use VuloPilot\Utill\Impact;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Create Content's "AI Writer" tool (ContentToolsGrid.tsx) - given a short brief of what
- * to write, creates a new draft post with AI-written body copy.
+ * Create Content's "AI Writer" tool.
  *
  * @class       WritePostContentAction class
  * @version     1.0.0
  * @author      VuloLabs
  */
-class WritePostContentAction extends AbstractBasicAction {
+class WritePostContentAction extends AbstractCloudAction {
 
 	/**
 	 * @inheritDoc
@@ -55,8 +54,7 @@ class WritePostContentAction extends AbstractBasicAction {
 		$post_id = absint( $input['post_id'] ?? 0 );
 		$post    = $post_id ? get_post( $post_id ) : null;
 
-		// No post_id = the AI Writer tool's own "write something new" case (a draft is created in
-		// execute()).
+		// No post_id = the AI Writer tool's own "write something new" case (a draft is created in execute()).
 		if ( $post_id && ( ! $post || ! in_array( $post->post_type, array( 'post', 'page' ), true ) ) ) {
 			VuloPilotException::raise( esc_html__( 'post_id must refer to an existing post or page.', 'vulopilot' ), VuloPilotException::TYPE_INVALID_ACTION_INPUT );
 		}
@@ -78,21 +76,18 @@ class WritePostContentAction extends AbstractBasicAction {
 	/**
 	 * @inheritDoc
 	 */
-	public function build_prompt( array $input ): array {
+	public function get_cloud_feature(): array {
+		return array( 'post_content', 'write' );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function build_cloud_context( array $input ): array {
 		return array(
-			array(
-				'role'    => 'system',
-				'content' => 'You write WordPress page/post body content as HTML paragraphs. '
-					. 'Respond with ONLY the body HTML - no title, no preamble, no code fences.',
-			),
-			array(
-				'role'    => 'user',
-				'content' => sprintf(
-					"Page title: %s\n\nWrite the body content for this brief: %s",
-					$input['post_title'],
-					$input['brief']
-				),
-			),
+			'title'   => $input['post_title'],
+			'brief'   => $input['brief'],
+			'content' => $input['previous_content'],
 		);
 	}
 

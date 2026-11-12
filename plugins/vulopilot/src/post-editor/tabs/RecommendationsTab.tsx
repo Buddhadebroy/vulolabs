@@ -11,13 +11,7 @@ interface RecommendationsTabProps {
 	onDismiss?: () => void;
 }
 
-/**
- * Union of every real, already-computed recommendation this post has: SeoScoreEngine's own
- * fail/warning rules (same source ScoreImprovementCard's auto-fix list uses) and GeoAnalyzer's
- * own `suggestions[]`, if a GEO analysis has been run. No new recommendation logic - this tab
- * is pure aggregation of two existing arrays, so it never recommends anything the SEO Score or
- * GEO tabs wouldn't already show individually.
- */
+/** Union of every real, already-computed recommendation this post has. */
 export default function RecommendationsTab( { onNavigate, onDismiss }: RecommendationsTabProps ) {
 	const { postId } = usePostData();
 	const [ seoScore, setSeoScore ] = useState< SeoScoreResponse | null >( null );

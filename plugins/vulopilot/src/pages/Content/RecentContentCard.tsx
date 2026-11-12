@@ -58,7 +58,7 @@ const RESOURCE_TABS: ContentRowTab[] = [
 	},
 ];
 
-/** "Recent Content" - a thin wrapper around the same IssuesSection the SEO/AEO/GEO "All Issues" tables use. */
+/** "Recent Content". */
 const RecentContentCard = () => {
 	/** Set by a real "Analyze" click in the "Pages & Posts" table below. */
 	const [analyzingId, setAnalyzingId] = useState<number | null>(null);
@@ -67,8 +67,7 @@ const RecentContentCard = () => {
 		landingPageMetaKey: LANDING_PAGE_META_KEY,
 		categories: CATEGORIES,
 		rowTabs: RESOURCE_TABS,
-		// This card's own original bespoke toolbar (search + severity/ resource selects + Show
-		// ignored + Export CSV).
+		// This card's own original bespoke toolbar.
 		toolbarFilters: true,
 	};
 

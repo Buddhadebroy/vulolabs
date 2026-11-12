@@ -13,8 +13,7 @@ use VuloPilot\AiAssistant\AIResponse;
 use VuloPilot\AiAssistant\AiRequestSender;
 use VuloPilot\AiAssistant\ActionRunRepository;
 use VuloPilot\Dashboard\ActivityLogRepository;
-use VuloPilot\AiCopilot\Services\AiCreditGatewayClient;
-use VuloPilot\AiAssistant\AiCreditsConnection;
+use VuloPilot\Utill\CloudAIActionInterface;
 use VuloPilot\Utill\VuloPilotException;
 use VuloPilot\Utill;
 
@@ -33,58 +32,39 @@ class ActionRunner {
 	private AiRequestSender $request_sender;
 	private ActionRunRepository $runs;
 	private ActivityLogRepository $activity_logs;
-	private AiCreditGatewayClient $credit_gateway;
-	private AiCreditsConnection $credits_connection;
-
-	private const CREDIT_FEATURE_MAP = array(
-		'write-meta-title'              => array( 'seo_title', 'generate' ),
-		'write-meta-description'        => array( 'meta_description', 'generate' ),
-		'improve-readability'           => array( 'content_improvement', 'rewrite' ),
-		'write-post-content'            => array( 'post_content', 'write' ),
-		'generate-blog'                 => array( 'blog_post', 'generate' ),
-		'differentiate-duplicate-title' => array( 'duplicate_title', 'differentiate' ),
-	);
-
 
 	/**
-	 * @param ActionRegistry             $registry           Action id registry.
-	 * @param AiRequestSender            $request_sender      Sends prompts through validate → send → sanitize.
+	 * @param ActionRegistry             $registry       Action id registry.
+	 * @param AiRequestSender            $request_sender Sends every action's AI request.
 	 * @param ActionRunRepository|null   $runs           Defaults to a new instance.
-	 * @param ActivityLogRepository|null $activity_logs Defaults to a new instance.
-	 * @param AiCreditGatewayClient|null $credit_gateway Defaults to a new instance.
-	 * @param AiCreditsConnection|null   $credits_connection Defaults to a new instance.
+	 * @param ActivityLogRepository|null $activity_logs  Defaults to a new instance.
 	 */
 	public function __construct(
 		ActionRegistry $registry,
 		AiRequestSender $request_sender,
 		?ActionRunRepository $runs = null,
-		?ActivityLogRepository $activity_logs = null,
-		?AiCreditGatewayClient $credit_gateway = null,
-		?AiCreditsConnection $credits_connection = null
+		?ActivityLogRepository $activity_logs = null
 	) {
-		$this->registry           = $registry;
-		$this->request_sender     = $request_sender;
-		$this->runs               = $runs ?? new ActionRunRepository();
-		$this->activity_logs      = $activity_logs ?? new ActivityLogRepository();
-		$this->credits_connection = $credits_connection ?? new AiCreditsConnection();
-		$this->credit_gateway     = $credit_gateway ?? new AiCreditGatewayClient( $this->credits_connection );
+		$this->registry       = $registry;
+		$this->request_sender = $request_sender;
+		$this->runs           = $runs ?? new ActionRunRepository();
+		$this->activity_logs  = $activity_logs ?? new ActivityLogRepository();
 	}
 
 	/**
 	 * Validates input, sends the prompt, then validates and previews the result.
 	 *
-	 * @param string               $action_id  e.g. 'generate-alt'.
-	 * @param array<string, mixed> $raw_input Raw input (REST params, or built from a Recommendation).
-	 * @return array{run_id: int, preview: array<string, mixed>, auto_approved: bool, approval_method: string|null}
-	 *
+	 * @param string $action_id e.g. 'generate-alt'.
+	 * @param array  $raw_input Raw input (REST params, or built from a Recommendation).
+	 * @return array
 	 * @throws \InvalidArgumentException If $action_id isn't registered.
-	 * @throws \RuntimeException         If no AI connection is configured.
+	 * @throws \RuntimeException If no AI connection is configured.
 	 */
 	public function propose( string $action_id, array $raw_input ): array {
 		$action = $this->get_action_or_fail( $action_id );
 
 		$input    = $action->validate_input( $raw_input );
-		$response = $this->send_prompt_or_credits( $action_id, $action, $input );
+		$response = $this->send( $action, $input );
 
 		$output = $action->parse_response( $response );
 		$action->validate_output( $output, $input );
@@ -131,91 +111,26 @@ class ActionRunner {
 	/**
 	 * Gets the AI completion for a proposed action.
 	 *
-	 * @param string                             $action_id Registered action id.
-	 * @param \VuloPilot\Utill\AIActionInterface $action    Resolved action instance.
-	 * @param array                              $input     Normalized input.
-	 * @return \VuloPilot\AiAssistant\AIResponse
-	 *
+	 * @param \VuloPilot\Utill\AIActionInterface $action Resolved action instance.
+	 * @param array                              $input  Normalized input.
+	 * @return AIResponse
 	 * @throws VuloPilotException If credits can't cover the request, or the AI request fails.
-	 * @throws \RuntimeException  If no AI connection is configured.
+	 * @throws \RuntimeException If no AI connection is configured.
 	 */
-	private function send_prompt_or_credits( string $action_id, $action, array $input ): AIResponse {
-		if ( ! isset( self::CREDIT_FEATURE_MAP[ $action_id ] ) ) {
-			return $this->request_sender->send( $action->build_prompt( $input ), null, 'ai_action', $action->get_label() );
-		}
+	private function send( $action, array $input ): AIResponse {
+		if ( $action instanceof CloudAIActionInterface ) {
+			list( $feature_id, $feature_action ) = $action->get_cloud_feature();
 
-		if ( ! $this->credits_connection->is_connected() ) {
-			throw new \RuntimeException( esc_html__( 'No AI connection is configured.', 'vulopilot' ) );
-		}
-
-		list( $feature_id, $credit_action ) = self::CREDIT_FEATURE_MAP[ $action_id ];
-		$context                            = $this->build_credit_context( $action_id, $input );
-
-		$result = $this->credit_gateway->execute( $feature_id, $credit_action, $context );
-
-		if ( $result instanceof \WP_Error ) {
-			VuloPilotException::raise( esc_html( $result->get_error_message() ), VuloPilotException::TYPE_GATEWAY_REQUEST );
-		}
-
-		if ( empty( $result['success'] ) ) {
-			$credit_context = array(
-				'credits_remaining' => (float) ( $result['credits_remaining'] ?? 0 ),
-				'can_buy_credits'   => (bool) ( $result['can_buy_credits'] ?? false ),
-				'can_upgrade'       => (bool) ( $result['can_upgrade'] ?? false ),
-				'buy_credits_url'   => esc_url_raw( (string) ( $result['buy_credits_url'] ?? '' ) ),
+			return $this->request_sender->send_feature(
+				$feature_id,
+				$feature_action,
+				$action->build_cloud_context( $input ),
+				'ai_action',
+				$action->get_label()
 			);
-
-			VuloPilotException::raise( esc_html__( 'You don’t have enough credits to complete this request.', 'vulopilot' ), VuloPilotException::TYPE_INSUFFICIENT_CREDITS, $credit_context );
 		}
 
-		return new AIResponse( $result['response'], (float) ( $result['credits_used'] ?? 0 ), $result['request_id'] ?? null );
-	}
-
-	/**
-	 * Builds the structured context for a credit-metered action.
-	 *
-	 * @param string $action_id Action id, a key of CREDIT_FEATURE_MAP.
-	 * @param array  $input     Normalized input for that action.
-	 * @return array<string, mixed>
-	 */
-	private function build_credit_context( string $action_id, array $input ): array {
-		switch ( $action_id ) {
-			case 'write-meta-title':
-				return array(
-					'title'   => $input['previous_title'],
-					'content' => $input['content'],
-				);
-			case 'write-meta-description':
-				return array(
-					'title'   => $input['title'],
-					'content' => $input['content'],
-				);
-			case 'improve-readability':
-				return array(
-					'content' => $input['original_content'],
-					'goal'    => 'improve readability',
-				);
-			case 'write-post-content':
-				return array(
-					'title'   => $input['post_title'],
-					'brief'   => $input['brief'],
-					'content' => $input['previous_content'],
-				);
-			case 'generate-blog':
-				return array(
-					'topic'      => $input['topic'],
-					'word_count' => $input['word_count'],
-					'tone'       => $input['tone'],
-				);
-			case 'differentiate-duplicate-title':
-				return array(
-					'title'         => $input['previous_title'],
-					'content'       => $input['content'],
-					'sibling_count' => count( $input['sibling_titles'] ),
-				);
-			default:
-				return array();
-		}
+		return $this->request_sender->send( $action->build_prompt( $input ), null, 'ai_action', $action->get_label() );
 	}
 
 	/**
@@ -241,11 +156,8 @@ class ActionRunner {
 	 * Applies a previously proposed, still-pending action.
 	 *
 	 * @param int    $run_id A propose()-returned run_id.
-	 * @param string $method 'manual', 'auto_automation', or 'auto_unattended'. For the
-	 *                       latter two, `approved_by` is left null since no human was
-	 *                       involved, and the exact method is persisted for History.
-	 * @return array<string, mixed> ActionExecutionResult::to_array().
-	 *
+	 * @param string $method 'manual', 'auto_automation', or 'auto_unattended'.
+	 * @return array ActionExecutionResult::to_array().
 	 * @throws \RuntimeException If $run_id doesn't exist or isn't pending approval.
 	 */
 	public function approve( int $run_id, string $method = 'manual' ): array {
@@ -297,7 +209,6 @@ class ActionRunner {
 	 *
 	 * @param int $run_id A propose()-returned run_id.
 	 * @return void
-	 *
 	 * @throws \RuntimeException If $run_id doesn't exist or isn't pending approval.
 	 */
 	public function reject( int $run_id ): void {
@@ -313,7 +224,6 @@ class ActionRunner {
 	 *
 	 * @param int $run_id A propose()-returned, subsequently approve()'d run_id.
 	 * @return void
-	 *
 	 * @throws \RuntimeException If $run_id doesn't exist or wasn't successfully executed.
 	 */
 	public function rollback( int $run_id ): void {
@@ -341,7 +251,6 @@ class ActionRunner {
 	/**
 	 * @param string $action_id Action id to resolve.
 	 * @return \VuloPilot\Utill\AIActionInterface
-	 *
 	 * @throws \InvalidArgumentException If unregistered.
 	 */
 	private function get_action_or_fail( string $action_id ) {
@@ -356,8 +265,7 @@ class ActionRunner {
 
 	/**
 	 * @param int $run_id Run id to fetch.
-	 * @return array<string, mixed>
-	 *
+	 * @return array
 	 * @throws \RuntimeException If missing or not pending approval.
 	 */
 	private function get_pending_run_or_fail( int $run_id ): array {
@@ -371,10 +279,10 @@ class ActionRunner {
 	}
 
 	/**
-	 * @param int    $run_id   Run id this event is about.
+	 * @param int    $run_id     Run id this event is about.
 	 * @param string $event_type e.g. 'ai_action.executed'.
-	 * @param string $severity One of Severity's constants.
-	 * @param string $message  Human-readable description.
+	 * @param string $severity   One of Severity's constants.
+	 * @param string $message    Human-readable description.
 	 * @return void
 	 */
 	private function log( int $run_id, string $event_type, string $severity, string $message ): void {

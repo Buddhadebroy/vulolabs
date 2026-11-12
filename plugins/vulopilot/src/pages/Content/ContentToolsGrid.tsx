@@ -22,7 +22,7 @@ export interface ToolField {
 	type: ToolFieldType;
 	/** Only for 'post-picker' - restricts which real post types are offered. */
 	postTypes?: ('post' | 'page')[];
-	/** Only for 'select' - a fixed, static option list rendered directly (no network fetch), unlike the other picker types. */
+	/** Only for 'select' - a fixed, static option list rendered directly, unlike the other picker types. */
 	options?: { value: string; label: string }[];
 }
 
@@ -38,10 +38,7 @@ export interface ContentTool {
 	pro?: boolean;
 }
 
-/**
- * The 12 tool tiles each run a real AI action end-to-end: pick the real input it needs (an
- * existing post, an image, a topic - see `fields`).
- */
+/** The 12 tool tiles each run a real AI action end-to-end: pick the real input it needs. */
 export const CONTENT_TOOLS: ContentTool[] = [
 	{
 		id: 'ai-writer',
@@ -191,12 +188,13 @@ const ContentToolsGrid = () => {
 	const proSlot = useFilterSlot<ProToolsSlot>('vulopilot_content_tools_pro');
 	const { status: creditsStatus } = useAiCredits();
 	const isContentToolsEnabled = useContentToolsEnabled();
+	const isToolLocked = (tool: ContentTool) => Boolean(tool.pro) && (!isContentToolsEnabled || !proSlot);
 	const [isCloudConnectPromptOpen, setIsCloudConnectPromptOpen] = useState(false);
 	const [isProLocked, setIsProLocked] = useState(false);
 	const dismissProLocked = () => setIsProLocked(false);
 
 	const handleToolClick = (tool: ContentTool) => {
-		if (tool.pro && (!isContentToolsEnabled || !proSlot)) {
+		if (isToolLocked(tool)) {
 			setIsProLocked(true);
 			return;
 		}
@@ -222,14 +220,14 @@ const ContentToolsGrid = () => {
 					className="tool-grid"
 					items={CONTENT_TOOLS.map((tool) => ({
 						id: tool.id,
-						// "{adminfont name} {color-palette key}" - same icon-name-plus-palette- key
-						// convention MetricsGrid.tsx/ SecurityMetricsGrid.tsx already use.
+						// "{adminfont name} {color-palette key}".
 						icon: `${tool.icon} ${tool.color}`,
 						title: tool.title,
 						desc: tool.desc,
 						tags: (
 							<>
-								{tool.pro && (!isContentToolsEnabled || !proSlot) && (
+								{/* Licensed sites skip the tag - a click there opens the "enable module" prompt instead. */}
+								{isToolLocked(tool) && !vulopilotAppLocalizer.khali_dabba && (
 									<span className="admin-tag pro-tag">
 										<i className="adminfont-pro-tag" />
 										{__('Pro', 'vulopilot')}

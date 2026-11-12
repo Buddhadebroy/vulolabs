@@ -14,8 +14,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real WP-CLI commands - `wp vulopilot scan run|list`, `wp vulopilot report generate`, `wp
- * vulopilot extensions list`, `wp vulopilot settings get|set|reset`.
+ * Real WP-CLI commands - `wp vulopilot scan run|list`, `wp vulopilot report generate`, `wp vulopilot extensions list`, `wp vulopilot settings get|set|reset`.
  *
  * @class       VuloPilotCli class
  * @version     1.0.0
@@ -24,8 +23,7 @@ defined( 'ABSPATH' ) || exit;
 class VuloPilotCli {
 
 	/**
-	 * Registers every subcommand - one `WP_CLI::add_command()` call per command path, so
-	 * `wp vulopilot scan run` and `wp vulopilot scan list` are distinct.
+	 * Registers every subcommand.
 	 *
 	 * @return void
 	 */
@@ -42,11 +40,10 @@ class VuloPilotCli {
 	}
 
 	/**
-	 * Runs one scanner, every scanner in a category, or every scanner. ## OPTIONS
-	 * [<scanner-id>] : A specific scanner's id.
+	 * Runs one scanner, every scanner in a category, or every scanner.
 	 *
-	 * @param string[]             $args       Positional arguments.
-	 * @param array<string, mixed> $assoc_args Associative (--flag) arguments.
+	 * @param string[] $args       Positional arguments.
+	 * @param array    $assoc_args Associative (--flag) arguments.
 	 * @return void
 	 */
 	public function scan_run( array $args, array $assoc_args ): void {
@@ -90,11 +87,10 @@ class VuloPilotCli {
 	}
 
 	/**
-	 * Lists recent scans. ## OPTIONS [--status=<status>] : Filter by status (queued,
-	 * running, completed, failed, cancelled). [--per-page=<per-page>] : Max rows to show.
+	 * Lists recent scans.
 	 *
-	 * @param string[]             $args       Positional arguments.
-	 * @param array<string, mixed> $assoc_args Associative (--flag) arguments.
+	 * @param string[] $args       Positional arguments.
+	 * @param array    $assoc_args Associative (--flag) arguments.
 	 * @return void
 	 */
 	public function scan_list( array $args, array $assoc_args ): void {
@@ -117,12 +113,10 @@ class VuloPilotCli {
 	}
 
 	/**
-	 * Generates a report synchronously. ## OPTIONS --type=<type> : Report type id
-	 * (REPORTS' own `GET /reports/types`, or 'custom'). [--format=<format>] : csv, json,
-	 * or pdf.
+	 * Generates a report synchronously.
 	 *
-	 * @param string[]             $args       Positional arguments.
-	 * @param array<string, mixed> $assoc_args Associative (--flag) arguments.
+	 * @param string[] $args       Positional arguments.
+	 * @param array    $assoc_args Associative (--flag) arguments.
 	 * @return void
 	 */
 	public function report_generate( array $args, array $assoc_args ): void {
@@ -183,8 +177,7 @@ class VuloPilotCli {
 	}
 
 	/**
-	 * Prints one setting, or every setting as JSON when no key is given. ## OPTIONS
-	 * [<key>] : A settings key (see the Settings screen).
+	 * Prints one setting, or every setting as JSON when no key is given.
 	 *
 	 * @param string[] $args Positional arguments.
 	 * @return void
@@ -206,8 +199,7 @@ class VuloPilotCli {
 	}
 
 	/**
-	 * Sets one setting. ## OPTIONS <key> : A settings key (see the Settings screen).
-	 * <value> : The new value.
+	 * Sets one setting.
 	 *
 	 * @param string[] $args Positional arguments.
 	 * @return void

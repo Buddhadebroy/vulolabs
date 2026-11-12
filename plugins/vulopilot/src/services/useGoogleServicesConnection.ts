@@ -7,7 +7,7 @@ import { NoticeManager } from '@zyra/components';
 
 export interface GoogleServicesStatus {
 	connected: boolean;
-	/** Whether VuloCloud's Google OAuth broker is configured; "Connect Google Services" always routes through it. */
+	/** Whether VuloCloud's Google OAuth broker is configured. */
 	has_broker: boolean;
 	search_console_site: string;
 	ga4_account_id: string;
@@ -20,17 +20,12 @@ export interface GoogleServicesStatus {
 	connected_at: string;
 }
 
-/**
- * Same real, allow-listed set GoogleServicesConnection.php's own `RETURN_TARGETS` enforces server-
- * side.
- */
+/** Same real, allow-listed set GoogleServicesConnection.php's own `RETURN_TARGETS` enforces server- side. */
 export type GoogleConnectReturnTo = 'settings' | 'keywords';
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
-/**
- * Shared real Google OAuth 2.0 status/connect/disconnect logic.
- */
+/** Shared real Google OAuth 2.0 status/connect/disconnect logic. */
 export const useGoogleServicesConnection = (
 	returnTo: GoogleConnectReturnTo = 'settings'
 ) => {
@@ -58,9 +53,7 @@ export const useGoogleServicesConnection = (
 		setIsLoading(true);
 		refreshStatus().finally(() => setIsLoading(false));
 
-		// Google's own OAuth redirect lands back on this exact URL
-		// (GoogleSearchConsoleOAuthCallbackHandler.php builds it) carrying
-		// `gsc_status=connected|error` as a real signal.
+		// Google's own OAuth redirect lands back on this exact URL carrying `gsc_status=connected|error` as a real signal.
 		const params = new URLSearchParams(
 			window.location.hash.split('?')[1] || window.location.hash.substring(1)
 		);
@@ -92,8 +85,7 @@ export const useGoogleServicesConnection = (
 		setIsConnecting(true);
 		setConnectError(null);
 
-		// Raw axios (not getApiResponse): a failing broker answers 502 with its own reason, and
-		// getApiResponse would swallow that body.
+		// Raw axios: a failing broker answers 502 with its own reason, and getApiResponse would swallow that body.
 		axios
 			.get<{ url?: string }>(
 				getApiLink(

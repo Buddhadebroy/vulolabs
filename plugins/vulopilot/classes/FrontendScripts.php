@@ -20,9 +20,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class FrontendScripts {
 
-	/**
-	 * FrontendScripts constructor.
-	 */
+	/** FrontendScripts constructor. */
 	public function __construct() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_load_scripts' ) );
 	}
@@ -140,32 +138,22 @@ class FrontendScripts {
 				'plugin_url'                => VuloPilot()->plugin_url,
 				'admin_url'                 => admin_url( 'admin.php?page=vulopilot' ),
 				'site_url'                  => site_url(),
-				// Settings → Site Identity → Title Formats' own Live Title Preview reads these
-				// directly.
+				// Settings → Site Identity → Title Formats' own Live Title Preview reads these directly.
 				'site_title'                => get_bloginfo( 'name' ),
 				'site_description'          => get_bloginfo( 'description' ),
-				// Dashboard → Site overview's homepage thumbnail: the static front page's featured
-				// image, else the site logo, else the site icon.
+				// Dashboard → Site overview's homepage thumbnail.
 				'home_preview_image'        => self::get_home_preview_image(),
-				// The real logged-in user's own display name - e.g. the AI Content Assistant's
-				// greeting (AiContentAssistantSidebar.tsx) reads this to say "Hi {name}!" instead
-				// of a generic "Hi!".
+				// The real logged-in user's own display name.
 				'current_user_display_name' => wp_get_current_user()->display_name,
 				'version'                   => VuloPilot()->version,
 				'plugin_slug'               => VuloPilot()->plugin_slug,
 				'text_domain'               => VULOPILOT_PLUGIN_TEXTDOMAIN,
 				'date_format'               => get_option( 'date_format' ) . ' ' . get_option( 'time_format' ),
-				// Settings → General → Date Format, translated into zyra's own token syntax
-				// (YYYY/MM/DD/…).
+				// Settings → General → Date Format, translated into zyra's own token syntax (YYYY/MM/DD/…).
 				'date_format_js'            => self::convert_date_format_to_js( get_option( 'date_format' ) ),
-				// Settings → General → Time Format, converted like 'date_format_js' above but with its own call
-				// (that helper assumes no time tokens). zyra has no am/pm token, so a 12-hour 'g:i a' format still
-				// renders without AM/PM, the same limitation 'date_format_js' has for 'a'/'A'.
+				// Settings → General → Time Format, converted like 'date_format_js' above but with its own call.
 				'time_format_js'            => self::convert_date_format_to_js( get_option( 'time_format' ) ),
-				// Settings → General → Timezone as a minute offset from UTC (`wp_timezone()` resolves both a
-				// `timezone_string` and a `gmt_offset` fallback, DST included). The REST layer returns raw UTC
-				// timestamps, so formatWpDate.ts/formatWpTime() need this to shift them to site time; a JS
-				// `new Date()` on a naive "Y-m-d H:i:s" string would parse it in the visitor's browser zone.
+				// Settings → General → Timezone as a minute offset from UTC (`wp_timezone()` resolves both a `timezone_string` and a `gmt_offset` fallback, DST included).
 				'gmt_offset_minutes'        => (int) round(
 					wp_timezone()->getOffset( new \DateTime( 'now', new \DateTimeZone( 'UTC' ) ) ) / 60
 				),
@@ -183,19 +171,16 @@ class FrontendScripts {
 				),
 				// Settings → Sitemap's own "Post types in sitemap" checkbox list (SEO/Sitemap.ts).
 				'sitemap_custom_post_types' => self::get_sitemap_custom_post_types(),
-				// Whether WooCommerce is active on this site at all - same real `class_exists(
-				// 'WooCommerce' )` check StoreReadiness.php/Dashboard.php/ReportsOverview.php
-				// already use server-side.
+				// Whether WooCommerce is active on this site at all.
 				'has_woocommerce'           => class_exists( 'WooCommerce' ),
 			)
 		);
 	}
 
 	/**
-	 * Real, currently-registered public post types beyond the 4 this plugin's own Sitemap
-	 * settings tab already hardcodes as fixed checkboxes.
+	 * Real, currently-registered public post types beyond the 4 this plugin's own Sitemap settings tab already hardcodes as fixed checkboxes.
 	 *
-	 * @return array<int, array{value: string, label: string}>
+	 * @return array
 	 */
 	private static function get_sitemap_custom_post_types() {
 		$builtin        = array( 'post', 'page', 'attachment', 'product' );
@@ -218,10 +203,9 @@ class FrontendScripts {
 	}
 
 	/**
-	 * Converts a PHP `date()` format string into the token syntax zyra's table `date`
-	 * column understands.
+	 * Converts a PHP `date()` format string into the token syntax zyra's table `date` column understands.
 	 *
-	 * @param string $php_format A PHP `date()` format string, e.g. get_option( 'date_format' ).
+	 * @param string $php_format A PHP `date()` format string.
 	 * @return string The same format expressed in zyra's token syntax.
 	 */
 	private static function convert_date_format_to_js( string $php_format ): string {
@@ -248,8 +232,7 @@ class FrontendScripts {
 		for ( $i = 0; $i < $length; $i++ ) {
 			$char = $php_format[ $i ];
 
-			// A backslash escapes the next character as a literal in
-			// PHP's date() syntax (e.g. custom formats like 'jS \o\f F').
+			// A backslash escapes the next character as a literal in PHP's date() syntax.
 			if ( '\\' === $char && $i + 1 < $length ) {
 				$js_format .= $php_format[ ++$i ];
 				continue;
@@ -266,8 +249,7 @@ class FrontendScripts {
 	}
 
 	/**
-	 * Best real image to represent the homepage: the static front page's featured image,
-	 * else the custom logo, else the site icon.
+	 * Best real image to represent the homepage.
 	 *
 	 * @return string Image URL, or '' when the site has none of them.
 	 */
@@ -298,8 +280,7 @@ class FrontendScripts {
 			return esc_url_raw( $site_icon );
 		}
 
-		// Sites that show their latest posts (no static front page) have none of the above by
-		// default.
+		// Sites that show their latest posts have none of the above by default.
 		$posts_with_image = get_posts(
 			array(
 				'post_type'      => array( 'post', 'page' ),

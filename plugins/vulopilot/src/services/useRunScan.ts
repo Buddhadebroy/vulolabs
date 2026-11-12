@@ -13,9 +13,7 @@ interface ScanQueueStatus {
 /** How often to re-check `/scans/status` while a queued run is in progress. */
 const POLL_INTERVAL_MS = 1500;
 
-/** `POST /scans` only queues scanners now (ScanRunner::run_queued()) - this polls
- * `/scans/status` until the background batch runner (ScanRunner::process_batch(), via
- * WP-Cron) has drained the queue. */
+/** `POST /scans` only queues scanners now (ScanRunner::run_queued()). */
 const pollUntilDone = (onDone: () => void) => {
 	const tick = () => {
 		getApiResponse<ScanQueueStatus>(
@@ -35,23 +33,15 @@ const pollUntilDone = (onDone: () => void) => {
 };
 
 interface UseRunScanOptions {
-	/**
-	 * Category ids (e.g. `['security', 'accessibility']`) to scope the scan to, via `POST /scans`'
-	 * `category` param.
-	 */
+	/** Category ids to scope the scan to, via `POST /scans`' `category` param. */
 	categories?: string[];
-	/**
-	 * Called after a successful scan completes - pages pass their own refetch (e.g.
-	 * FindingsTable's `refetch`) so results show up without a manual page refresh.
-	 */
+	/** Called after a successful scan completes. */
 	onSuccess?: () => void;
 }
 
 const defaultOnSuccess = () => window.location.reload();
 
-/**
- * "Run scan" - same `POST /scans` call Dashboard's Run Audit widget already uses.
- */
+/** "Run scan" - same `POST /scans` call Dashboard's Run Audit widget already uses. */
 export const useRunScan = ({ categories, onSuccess = defaultOnSuccess }: UseRunScanOptions = {}) => {
 	const [isScanning, setIsScanning] = useState(false);
 
@@ -83,9 +73,7 @@ export const useRunScan = ({ categories, onSuccess = defaultOnSuccess }: UseRunS
 							'vulopilot'
 						),
 					});
-					// The request above only confirms the scan was queued (ScanRunner::run_queued()) -
-					// real results land across background batch ticks, so this polls for completion
-					// instead of assuming they're already in the database.
+					// The request above only confirms the scan was queued (ScanRunner::run_queued()).
 					pollUntilDone(() => {
 						setIsScanning(false);
 						NoticeManager.add({

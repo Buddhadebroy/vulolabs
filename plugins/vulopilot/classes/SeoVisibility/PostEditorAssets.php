@@ -4,8 +4,7 @@ namespace VuloPilot\SeoVisibility;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Enqueues the post-editor SEO metabox - src/post-editor/index.tsx, a `@wordpress/plugins`
- * PluginSidebar registered into the Block Editor.
+ * Enqueues the post-editor SEO metabox.
  *
  * @class       PostEditorAssets class
  * @version     1.0.0
@@ -13,16 +12,13 @@ defined( 'ABSPATH' ) || exit;
  */
 class PostEditorAssets {
 
-	/**
-	 * PostEditorAssets constructor.
-	 */
+	/** PostEditorAssets constructor. */
 	public function __construct() {
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_assets' ) );
 	}
 
 	/**
-	 * Enqueues the post-editor sidebar assets on post/page/product edit
-	 * screens.
+	 * Enqueues the post-editor sidebar assets on post/page/product edit screens.
 	 *
 	 * @return void
 	 */

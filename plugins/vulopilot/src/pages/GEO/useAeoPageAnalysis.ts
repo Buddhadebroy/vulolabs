@@ -16,9 +16,7 @@ interface AeoPageAnalysisResponse {
 	total: number;
 }
 
-/**
- * One unpaginated `GET /geo-analysis/pages` fetch scoped to the AEO scanner ids.
- */
+/** One unpaginated `GET /geo-analysis/pages` fetch scoped to the AEO scanner ids. */
 export const useAeoPageAnalysis = (
 	scannerIds: string[]
 ): {

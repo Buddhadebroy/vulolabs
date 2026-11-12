@@ -4,7 +4,7 @@ namespace VuloPilot\Performance\Rest;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * REST controller for `/efficiency-checks`, backing "Protect My Site" → Performance tab. Unlike other tabs, this isn't read from `vulopilot_scan_findings` (which only stores problems):
+ * REST controller for `/efficiency-checks`, backing "Protect My Site" → Performance tab.
  *
  * @class       EfficiencyChecks controller
  * @version     1.0.0
@@ -17,9 +17,7 @@ class EfficiencyChecks extends \WP_REST_Controller {
 	 */
 	protected $rest_base = 'efficiency-checks';
 
-	/**
-	 * Timeout for a probe request, in seconds.
-	 */
+	/** Timeout for a probe request, in seconds. */
 	private const REQUEST_TIMEOUT_SECONDS = 8;
 
 	/**
@@ -305,8 +303,7 @@ class EfficiencyChecks extends \WP_REST_Controller {
 
 	/**
 	 * @param string $url URL to request.
-	 * @return array|null The raw `wp_remote_get()` response, or null on failure. Read
-	 *                     headers with `wp_remote_retrieve_header()`, not an `(array)` cast.
+	 * @return array|null The raw `wp_remote_get()` response, or null on failure.
 	 */
 	private function probe( string $url ): ?array {
 		$response = wp_remote_get(
@@ -343,8 +340,7 @@ class EfficiencyChecks extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Wraps `WP_Site_Health::should_suggest_persistent_object_cache()`'s
-	 * own thresholds rather than re-deriving them.
+	 * Wraps `WP_Site_Health::should_suggest_persistent_object_cache()`'s own thresholds rather than re-deriving them.
 	 *
 	 * @return bool
 	 */

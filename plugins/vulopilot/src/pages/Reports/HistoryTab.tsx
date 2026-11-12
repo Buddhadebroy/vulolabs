@@ -17,8 +17,7 @@ import {
 	HistoryRow,
 	rowTitle,
 } from '../../services/historyTypes';
-// Reports' own page moved here from AI Copilot (History is a general activity timeline, not
-// specific to that page's own conversational surface).
+// Reports' own page moved here from AI Copilot.
 import '../AIAssistant/AICopilot.scss';
 import '../../components/common.scss';
 import './Reports.scss';
@@ -40,9 +39,7 @@ const DATE_RANGE_OPTIONS = [
 	{ value: '30d', label: __('30D', 'vulopilot') },
 ];
 
-/**
- * Real `date_from` (Y-m-d), computed client-side from a preset.
- */
+/** Real `date_from` (Y-m-d), computed client-side from a preset. */
 const resolveDateFrom = (preset: DateRangePreset): string | undefined => {
 	if ('all' === preset) {
 		return undefined;
@@ -55,10 +52,7 @@ const resolveDateFrom = (preset: DateRangePreset): string | undefined => {
 	return date.toISOString().slice(0, 10);
 };
 
-/**
- * RecentActivityWidget.tsx's (Dashboard tab) own "Recent activity" arrow lands here with a real
- * `?vulopilot_history_id=`.
- */
+/** RecentActivityWidget.tsx's. */
 const getDeepLinkHistoryId = (): number | null => {
 	const params = new URLSearchParams(
 		window.location.hash.split('?')[1] || window.location.hash.substring(1)
@@ -77,10 +71,7 @@ const EMPTY_TYPE_COUNTS: Record<HistoryFilter, number> = {
 	automations: 0,
 };
 
-/**
- * Reports' History tab - a real, day-grouped activity timeline built from `GET /history`
- * (Controllers/History.php).
- */
+/** Reports' History tab. */
 const HistoryTab = () => {
 	const [activeFilter, setActiveFilter] = useState<HistoryFilter>('all');
 	const [search, setSearch] = useState('');
@@ -98,7 +89,7 @@ const HistoryTab = () => {
 	const [isLoadingMore, setIsLoadingMore] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [selectedRow, setSelectedRow] = useState<HistoryRow | null>(null);
-	/** Set post-mount by handleSelectRelatedAction() below (jumping to a related "change" row from within the panel). */
+	/** Set post-mount by handleSelectRelatedAction() below. */
 	const pendingSelectId = useRef<number | null>(getDeepLinkHistoryId());
 	/** The real deep-linked id itself, kept separately from `pendingSelectId` (which gets consumed/cleared by `fetchPage()`). */
 	const deepLinkRowId = useRef<number | null>(getDeepLinkHistoryId());
@@ -130,8 +121,7 @@ const HistoryTab = () => {
 			params.set('search', search);
 		}
 
-		// A deep-linked row can sit many pages down (one scan logs a row per scanner), so ask the
-		// server for everything down through it.
+		// A deep-linked row can sit many pages down, so ask the server for everything down through it.
 		if (
 			!append &&
 			deepLinkRowId.current &&
@@ -182,8 +172,7 @@ const HistoryTab = () => {
 				});
 
 				if (!append) {
-					// Keeps "Load more" paging on from where the (possibly
-					// extended) first response ended.
+					// Keeps "Load more" paging on from where the (possibly extended) first response ended.
 					setPage(response.pages_loaded ?? 1);
 
 					const wantedId = pendingSelectId.current;
@@ -193,9 +182,7 @@ const HistoryTab = () => {
 						? nextRows.find((row) => String(row.id) === String(wantedId))
 						: undefined;
 
-					// A refetch with nothing pending (this tab fires a few on mount - filter
-					// change, then the debounced search effect) keeps whatever row is already open
-					// instead of snapping back to the first one.
+					// A refetch with nothing pending keeps whatever row is already open instead of snapping back to the first one.
 					setSelectedRow(
 						(current) =>
 							wantedRow ??
@@ -222,7 +209,7 @@ const HistoryTab = () => {
 			return;
 		}
 
-		// `GET /history` returns `id` as a string (raw DB row), the deep link's is a number - compare as strings.
+		// `GET /history` returns `id` as a string, the deep link's is a number - compare as strings.
 		const match = rows.find(
 			(row) => String(row.id) === String(deepLinkRowId.current)
 		);
@@ -257,18 +244,14 @@ const HistoryTab = () => {
 	};
 
 	/**
-	 * Same real "scroll the right-side detail panel into view" affordance SeoTitlesPanel.tsx's own
-	 * `handleEditRow()`/IssuesList.tsx's row select already establish.
+	 * Same real "scroll the right-side detail panel into view" affordance SeoTitlesPanel.tsx's own `handleEditRow()`/IssuesList.tsx's row select already establish.
 	 */
 	const handleSelectRow = (row: HistoryRow) => {
 		setSelectedRow(row);
 		scrollToId('history-detail-panel');
 	};
 
-	/**
-	 * "Related actions (from this conversation)" (HistoryDetailPanel.tsx) jumps to a real 'change'
-	 * row elsewhere in this same timeline.
-	 */
+	/** "Related actions. */
 	const handleSelectRelatedAction = (id: number) => {
 		pendingSelectId.current = id;
 		setActiveFilter('change');
@@ -283,9 +266,7 @@ const HistoryTab = () => {
 		}
 	};
 
-	/**
-	 * Every field here is already real (loaded, not re-fetched).
-	 */
+	/** Every field here is already real (loaded, not re-fetched). */
 	const handleExport = () => {
 		const header = ['Date', 'Type', 'Title', 'Details'];
 		const csvRows = rows.map((row) => [

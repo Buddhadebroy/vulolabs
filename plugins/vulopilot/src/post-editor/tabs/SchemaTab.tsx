@@ -7,15 +7,11 @@ import { useFieldHighlight } from '../useFieldHighlight';
 
 const SCHEMA_TYPES = [ 'Article', 'Product', 'FAQPage', 'Recipe', 'Event', 'JobPosting', 'Organization', 'LocalBusiness', 'Review' ];
 
-/**
- * The metabox's Schema tab: a UI-only schema type hint, plus the schema JSON editor.
- */
+/** The metabox's Schema tab: a UI-only schema type hint, plus the schema JSON editor. */
 interface SchemaTabProps {
-	/**
-	 * Resolved deep-link target: every schema-related scanner id resolves to 'schema_json'.
-	 */
+	/** Resolved deep-link target: every schema-related scanner id resolves to 'schema_json'. */
 	highlightTarget?: string;
-	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch - accepted for prop-shape parity with every other tab, unused here. */
+	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch. */
 	 
 	// eslint-disable-next-line no-unused-vars
 	onNavigate?: ( tab: string, target?: string ) => void;

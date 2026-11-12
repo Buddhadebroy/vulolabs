@@ -1,8 +1,4 @@
-/**
- * Every scanner id "Security Findings" rolls up (rather than `category="security"` alone, so it
- * doesn't silently drop RestApiScanner's findings - its own category is `rest-api`, not
- * `security`, see that scanner's own docblock).
- */
+/** Every scanner id "Security Findings" rolls up. */
 export const SECURITY_FINDINGS_SCANNER_IDS = [
 	'weak-passwords',
 	'rest-api',

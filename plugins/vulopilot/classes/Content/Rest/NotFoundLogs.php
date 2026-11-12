@@ -7,10 +7,7 @@ use VuloPilot\Content\RedirectRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Backs the Redirects page's "404 Log" table: GET /not-found-logs, POST .../delete
- * (dismiss), POST .../convert (turn into a redirect). `convert_item()` creates the
- * redirect and removes the log row atomically, so a failed second call can't leave
- * an already-redirected entry looking unhandled.
+ * Backs the Redirects page's "404 Log" table.
  *
  * @class       NotFoundLogs controller
  * @version     1.0.0
@@ -79,10 +76,7 @@ class NotFoundLogs extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Lists 404 log entries, paginated/searched, newest first by default, plus
-	 * content/system counts for the status pill bar. `is_system` ('0'/'1') scopes to
-	 * real missing pages vs. the "system" bucket (NotFoundLogger::is_system_path());
-	 * omitted, both are returned mixed.
+	 * Lists 404 log entries, paginated/searched, newest first by default, plus content/system counts for the status pill bar.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
@@ -131,9 +125,7 @@ class NotFoundLogs extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Creates a real redirect from this 404 log entry, then removes the
-	 * log row - see this class's own docblock for why both steps happen
-	 * here rather than as two separate frontend calls.
+	 * Creates a real redirect from this 404 log entry, then removes the log row.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error

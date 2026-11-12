@@ -1,8 +1,6 @@
 import { __ } from '@wordpress/i18n';
 
-/**
- * Settings → Backups.
- */
+/** Settings → Backups. */
 export const CLOUD_STORAGE_LOCKED_METHODS = [
 	{
 		id: 's3',

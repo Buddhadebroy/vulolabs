@@ -18,9 +18,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Install {
 
-	/**
-	 * Class constructor - runs the install immediately.
-	 */
+	/** Class constructor - runs the install immediately. */
 	public function __construct() {
 		$this->install();
 	}
@@ -72,9 +70,7 @@ class Install {
             KEY `idx_created` (`created_at`)
         ) $collate;";
 
-		// No "IF NOT EXISTS": dbDelta's `preg_match( '|CREATE TABLE ([^ ]*)|', ... )` would capture "IF" as
-		// the table name (see $sql_redirects' docblock), never diffing the real table, so a new column
-		// wouldn't reach an installed site.
+		// No "IF NOT EXISTS": dbDelta's `preg_match( '|CREATE TABLE|',... )` would capture "IF" as the table name, never diffing the real table, so a new column wouldn't reach an installed site.
 		$sql_scan_findings = "CREATE TABLE `{$wpdb->prefix}" . Utill::TABLES['scan_finding'] . "` (
             `id`           bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             `scan_id`      bigint(20) unsigned NOT NULL,
@@ -193,8 +189,7 @@ class Install {
             KEY `idx_created` (`created_at`)
         ) $collate;";
 
-		// No "IF NOT EXISTS" here - same dbDelta()/"IF NOT EXISTS" ALTER-path bug documented above
-		// ai_history's own CREATE.
+		// No "IF NOT EXISTS" here - same dbDelta()/"IF NOT EXISTS" ALTER-path bug documented above ai_history's own CREATE.
 		$sql_ai_action_runs = "CREATE TABLE `{$wpdb->prefix}" . Utill::TABLES['ai_action_run'] . "` (
             `id`              bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             `action_id`       varchar(100) NOT NULL,
@@ -241,8 +236,7 @@ class Install {
 
 
 	/**
-	 * Creates `vulopilot_ai_conversations` - AI Copilot's own persisted chat threads
-	 * (Copilot.php, RecentConversationsCard.tsx's "click to load full history" feature).
+	 * Creates `vulopilot_ai_conversations` - AI Copilot's own persisted chat threads.
 	 *
 	 * @return void
 	 */
@@ -271,8 +265,7 @@ class Install {
 	}
 
 	/**
-	 * Creates `vulopilot_redirects` and `vulopilot_not_found_logs` - own method, same
-	 * shape as create_crawler_visits_table() below.
+	 * Creates `vulopilot_redirects` and `vulopilot_not_found_logs`.
 	 *
 	 * @return void
 	 */
@@ -347,8 +340,7 @@ class Install {
 	}
 
 	/**
-	 * Creates `vulopilot_performance_samples` - "Performance" Overview's real-time data,
-	 * one row per sample, `sample_type` saying which kind: - `request`.
+	 * Creates `vulopilot_performance_samples`.
 	 *
 	 * @return void
 	 */
@@ -379,9 +371,7 @@ class Install {
 	}
 
 	/**
-	 * Creates `vulopilot_page_speed` - "Performance" › Slow Pages' per-page speed table
-	 * (PageSpeedScanner writes here, one row per real page it has checked, replaced on
-	 * every rescan).
+	 * Creates `vulopilot_page_speed` - "Performance" › Slow Pages' per-page speed table.
 	 *
 	 * @return void
 	 */
@@ -425,8 +415,7 @@ class Install {
 	}
 
 	/**
-	 * Creates `vulopilot_security_events` - Protect My Site's IP-based event log, one row
-	 * per event, `event_type` saying which kind: - `login_attempt`.
+	 * Creates `vulopilot_security_events`.
 	 *
 	 * @return void
 	 */
@@ -458,8 +447,7 @@ class Install {
 	}
 
 	/**
-	 * Creates `vulopilot_backups` - Protect My Site's "Backups"/"Recovery" tiles
-	 * (BackupManager/BackupScheduler).
+	 * Creates `vulopilot_backups`.
 	 *
 	 * @return void
 	 */
@@ -496,8 +484,7 @@ class Install {
 	}
 
 	/**
-	 * Creates `vulopilot_crawler_visits` - its own method, same shape as every other
-	 * create_*_table() method below create_database_tables().
+	 * Creates `vulopilot_crawler_visits`.
 	 *
 	 * @return void
 	 */
@@ -510,8 +497,7 @@ class Install {
 
 		$collate = $wpdb->get_charset_collate();
 
-		// No "IF NOT EXISTS" - same dbDelta()-misparses-the-table-name limitation documented at
-		// length on create_backups_table() below.
+		// No "IF NOT EXISTS" - same dbDelta()-misparses-the-table-name limitation documented at length on create_backups_table() below.
 		$sql_crawler_visits = "CREATE TABLE `{$wpdb->prefix}" . Utill::TABLES['crawler_visit'] . "` (
             `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             `bot_name`       varchar(50) NOT NULL,

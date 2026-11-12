@@ -5,22 +5,16 @@ import { getApiLink, sendApiResponse, useModules } from '@zyra/core';
 import { NoticeManager } from '@zyra/components';
 import { MultiCheckboxInput } from '@zyra/inputs';
 
-/**
- * Real backend module id - Modules/index.ts's own `id: 'automations'` entry docblock:
- * "Automation's folder name kebab-cased (no 'Engine' suffix in the real folder name)".
- */
+/** Real backend module id - Modules/index.ts's own `id: 'automations'` entry docblock. */
 const AUTOMATION_MODULE_ID = 'workflow-automation';
 
-/**
- * Header action with a toggle that activates or deactivates the `automations` module.
- */
+/** Header action with a toggle that activates or deactivates the `automations` module. */
 const EnableAutomationModuleAction: React.FC = () => {
 	const [isActive, setIsActive] = useState(
 		(vulopilotAppLocalizer.active_modules ?? []).includes(AUTOMATION_MODULE_ID)
 	);
 	const [isToggling, setIsToggling] = useState(false);
-	// Same real zustand store ModuleGridComponent.tsx's own toggle already writes to on
-	// activate/deactivate.
+	// Same real zustand store ModuleGridComponent.tsx's own toggle already writes to on activate/deactivate.
 	const { insertModule, removeModule } = useModules();
 
 	const handleToggle = () => {

@@ -39,10 +39,7 @@ export interface SchemaInspectorResult {
 	preview: SchemaInspectorPreview | null;
 }
 
-/**
- * `POST /schema/inspect` - a real, on-demand single-page JSON-LD check (SchemaPageInspector, real
- * outbound HTTP + extraction, no AI).
- */
+/** `POST /schema/inspect`. */
 export const useSchemaInspector = (): {
 	result: SchemaInspectorResult | null;
 	isInspecting: boolean;

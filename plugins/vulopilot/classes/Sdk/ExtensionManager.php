@@ -12,8 +12,7 @@ use VuloPilot\Dashboard\ActivityLogRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Collects every registered extension (`vulopilot_extension_sources` filter) and calls its
- * register().
+ * Collects every registered extension and calls its register().
  *
  * @class       ExtensionManager class
  * @version     1.0.0
@@ -24,29 +23,25 @@ class ExtensionManager {
 	/**
 	 * Registered, compatible extensions, keyed by their own get_id().
 	 *
-	 * @var array<string, ExtensionInterface>
+	 * @var array
 	 */
 	private array $extensions = array();
 
 	/**
-	 * Extensions found but skipped for failing the version check, keyed by their own
-	 * get_id().
+	 * Extensions found but skipped for failing the version check, keyed by their own get_id().
 	 *
-	 * @var array<string, array{name: string, version: string, required: string}>
+	 * @var array
 	 */
 	private array $incompatible = array();
 
-	/**
-	 * ExtensionManager constructor.
-	 */
+	/** ExtensionManager constructor. */
 	public function __construct() {
 		add_action( 'init', array( $this, 'register_extensions' ), 15 );
 		add_action( 'admin_notices', array( $this, 'render_incompatible_notice' ) );
 	}
 
 	/**
-	 * Instantiates every registered extension class, gates each on
-	 * VersionGuard::meets_minimum(), and calls register() on the ones that pass.
+	 * Instantiates every registered extension class, gates each on VersionGuard::meets_minimum(), and calls register() on the ones that pass.
 	 *
 	 * @return void
 	 */
@@ -89,14 +84,14 @@ class ExtensionManager {
 	}
 
 	/**
-	 * @return array<string, ExtensionInterface>
+	 * @return array
 	 */
 	public function get_all_extensions(): array {
 		return $this->extensions;
 	}
 
 	/**
-	 * @return array<string, array{name: string, version: string, required: string}>
+	 * @return array
 	 */
 	public function get_incompatible_extensions(): array {
 		return $this->incompatible;

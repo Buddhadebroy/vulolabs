@@ -51,8 +51,7 @@ class SnoozeFindingAction implements ActionInterface {
 	 * @inheritDoc
 	 */
 	public function changes_site_state(): bool {
-		// A real UPDATE to the finding's own status column when it succeeds
-		// - same as ResolveFindingAction's own answer, for the same reason.
+		// A real UPDATE to the finding's own status column when it succeeds.
 		return true;
 	}
 

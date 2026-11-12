@@ -8,9 +8,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags database bloat relevant to the "Performance" page specifically: expired transients
- * (rows WordPress itself considers stale, safe to delete) plus revisions beyond the most
- * recent 5 per post.
+ * Flags database bloat relevant to the "Performance" page specifically.
  *
  * @class       DatabaseCleanupScanner class
  * @version     1.0.0
@@ -18,16 +16,10 @@ defined( 'ABSPATH' ) || exit;
  */
 class DatabaseCleanupScanner extends ScannerUtil {
 
-	/**
-	 * How many of the most recent revisions to keep per post before the
-	 * rest count as bloat.
-	 */
+	/** How many of the most recent revisions to keep per post before the rest count as bloat. */
 	const KEEP_REVISIONS_PER_POST = 5;
 
-	/**
-	 * Combined (expired transients + excess revisions) count above which
-	 * this is worth flagging.
-	 */
+	/** Combined (expired transients + excess revisions) count above which this is worth flagging. */
 	private const COMBINED_THRESHOLD = 50;
 
 	/**
@@ -107,8 +99,7 @@ class DatabaseCleanupScanner extends ScannerUtil {
 	}
 
 	/**
-	 * Counts revisions beyond the most recent KEEP_REVISIONS_PER_POST for each post that
-	 * has any.
+	 * Counts revisions beyond the most recent KEEP_REVISIONS_PER_POST for each post that has any.
 	 *
 	 * @return int
 	 */

@@ -7,7 +7,6 @@
 
 namespace VuloPilot\SiteHealth;
 
-use VuloPilot\Dashboard\ActivityLogRepository;
 use VuloPilot\Utill;
 
 defined( 'ABSPATH' ) || exit;
@@ -25,19 +24,13 @@ class BackupManager {
 
 	private const BATCH_HOOK = 'vulopilot_backup_process_batch';
 
-	/**
-	 * Elapsed-time budget per batch tick, in seconds.
-	 */
+	/** Elapsed-time budget per batch tick, in seconds. */
 	private const BATCH_SECONDS_BUDGET = 15;
 
-	/**
-	 * Max files enumerated across uploads/theme/plugins combined, per backup.
-	 */
+	/** Max files enumerated across uploads/theme/plugins combined, per backup. */
 	private const MAX_BACKUP_FILES = 5000;
 
-	/**
-	 * Rows read per table dump chunk, to bound peak memory.
-	 */
+	/** Rows read per table dump chunk, to bound peak memory. */
 	private const DB_CHUNK_SIZE = 500;
 
 	/**
@@ -60,9 +53,7 @@ class BackupManager {
 		'Z' => "\x1a",
 	);
 
-	/**
-	 * BackupManager constructor.
-	 */
+	/** BackupManager constructor. */
 	public function __construct() {
 		add_action( self::BATCH_HOOK, array( $this, 'process_batch' ) );
 	}
@@ -131,7 +122,7 @@ class BackupManager {
 			array(
 				'backup_id' => $backup_id,
 				'zip_path'  => $zip_path,
-				// Kept in the system temp dir, not the web-accessible uploads folder: it holds a raw SQL dump until it is folded into the (protected) zip.
+				// Kept in the system temp dir, not the web-accessible uploads folder.
 				'sql_path'  => trailingslashit( get_temp_dir() ) . 'vulopilot-tmp-' . wp_generate_password( 16, false, false ) . '.sql',
 				'steps'     => $this->build_steps(),
 				'started'   => false,
@@ -149,7 +140,7 @@ class BackupManager {
 	/**
 	 * Every real step this backup needs to perform, enumerated up front.
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	private function build_steps(): array {
 		global $wpdb;
@@ -201,11 +192,11 @@ class BackupManager {
 	/**
 	 * Appends a `file` step for every real file under `$directory`.
 	 *
-	 * @param array<int, array<string, mixed>> $steps              Step list to append to, by reference.
-	 * @param string                           $directory          Real absolute directory path.
-	 * @param string                           $entry_prefix       Zip entry path prefix for this directory's own files.
-	 * @param int                              $remaining_budget   Real remaining file budget, by reference.
-	 * @param string|null                      $exclude_dir_prefix Real absolute path prefix to skip (this plugin's own backups directory).
+	 * @param array       $steps              Step list to append to, by reference.
+	 * @param string      $directory          Real absolute directory path.
+	 * @param string      $entry_prefix       Zip entry path prefix for this directory's own files.
+	 * @param int         $remaining_budget   Real remaining file budget, by reference.
+	 * @param string|null $exclude_dir_prefix Real absolute path prefix to skip.
 	 * @return void
 	 */
 	private function enumerate_directory( array &$steps, string $directory, string $entry_prefix, int &$remaining_budget, ?string $exclude_dir_prefix = null ): void {
@@ -266,8 +257,7 @@ class BackupManager {
 	}
 
 	/**
-	 * Processes as many queued steps as fit in `BATCH_SECONDS_BUDGET`, then either
-	 * reschedules itself or finalizes the archive once the queue is drained.
+	 * Processes as many queued steps as fit in `BATCH_SECONDS_BUDGET`, then either reschedules itself or finalizes the archive once the queue is drained.
 	 *
 	 * @return void
 	 */
@@ -353,9 +343,9 @@ class BackupManager {
 	/**
 	 * Executes one real step against the open archive.
 	 *
-	 * @param array<string, mixed> $step     One entry from the queue's own step list.
-	 * @param \ZipArchive          $zip      Currently-open archive.
-	 * @param string               $sql_path Real path to this backup's shared temp `.sql` file.
+	 * @param array       $step     One entry from the queue's own step list.
+	 * @param \ZipArchive $zip      Currently-open archive.
+	 * @param string      $sql_path Real path to this backup's shared temp `.sql` file.
 	 * @return void
 	 * @throws \RuntimeException When a table dump can't be written.
 	 */
@@ -371,10 +361,9 @@ class BackupManager {
 	}
 
 	/**
-	 * Appends one real table's own `DROP TABLE`/`CREATE TABLE`/`INSERT` statements to the
-	 * shared temp `.sql` file.
+	 * Appends one real table's own `DROP TABLE`/`CREATE TABLE`/`INSERT` statements to the shared temp `.sql` file.
 	 *
-	 * @param string $table    Real, already-known table name (from `SHOW TABLES`, never client input).
+	 * @param string $table    Real, already-known table name.
 	 * @param string $sql_path Real path to this backup's shared temp `.sql` file.
 	 * @return void
 	 * @throws \RuntimeException When the temp file can't be opened.
@@ -439,11 +428,10 @@ class BackupManager {
 	}
 
 	/**
-	 * Folds the accumulated `.sql` dump into the archive as `database.sql`, marks the row
-	 * `completed` with its real file size, and applies retention cleanup.
+	 * Folds the accumulated `.sql` dump into the archive as `database.sql`, marks the row `completed` with its real file size, and applies retention cleanup.
 	 *
-	 * @param int                  $backup_id Real `vulopilot_backups` row id.
-	 * @param array<string, mixed> $queue     The now-drained queue option's own array.
+	 * @param int   $backup_id Real `vulopilot_backups` row id.
+	 * @param array $queue     The now-drained queue option's own array.
 	 * @return void
 	 */
 	private function finalize_backup( int $backup_id, array $queue ): void {
@@ -722,11 +710,10 @@ class BackupManager {
 	}
 
 	/**
-	 * Reads the value list of one dumped `INSERT` - `NULL` or a single-quoted
-	 * string with backslash escapes, separated by commas - back into an array.
+	 * Reads the value list of one dumped `INSERT`.
 	 *
 	 * @param string $value_list The text between `VALUES (` and the closing `)`.
-	 * @return array<int, string|null>|null Null when the text is not in that format.
+	 * @return array|null Null when the text is not in that format.
 	 */
 	private function parse_sql_values( string $value_list ): ?array {
 		$values = array();
@@ -742,8 +729,7 @@ class BackupManager {
 				++$i;
 
 				while ( $i < $length && "'" !== $value_list[ $i ] ) {
-					// Plain text is copied up to the next quote or backslash in one step
-					// instead of a character at a time - post content can be megabytes.
+					// Plain text is copied up to the next quote or backslash in one step instead of a character at a time.
 					$run = strcspn( $value_list, "'\\", $i );
 
 					if ( $run > 0 ) {
@@ -814,8 +800,7 @@ class BackupManager {
 	}
 
 	/**
-	 * Deletes the oldest completed backups (row + real file) beyond
-	 * `backup_retention_count`, so disk usage stays bounded.
+	 * Deletes the oldest completed backups.
 	 *
 	 * @return void
 	 */

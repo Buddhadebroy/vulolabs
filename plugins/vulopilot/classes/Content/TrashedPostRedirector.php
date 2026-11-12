@@ -12,8 +12,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Shows a one-time admin notice when a post/page is trashed, pointing to the Redirects tab
- * to add one manually rather than guessing a target. Gated on `enable_redirect_manager`.
+ * Shows a one-time admin notice when a post/page is trashed, pointing to the Redirects tab to add one manually rather than guessing a target.
  *
  * @class       TrashedPostRedirector class
  * @version     2.0.0
@@ -28,9 +27,7 @@ class TrashedPostRedirector {
 	 */
 	private const NOTICES_OPTION = 'vulopilot_trash_redirect_notices';
 
-	/**
-	 * TrashedPostRedirector constructor.
-	 */
+	/** TrashedPostRedirector constructor. */
 	public function __construct() {
 		add_action( 'wp_trash_post', array( $this, 'maybe_queue_notice' ) );
 		add_action( 'admin_notices', array( $this, 'render_notices' ) );
@@ -39,8 +36,7 @@ class TrashedPostRedirector {
 	}
 
 	/**
-	 * Queues a one-time notice for the just-trashed post, if it had a real, previously-public URL
-	 * worth offering a redirect for.
+	 * Queues a one-time notice for the just-trashed post, if it had a real, previously-public URL worth offering a redirect for.
 	 *
 	 * @param int $post_id Post id being trashed.
 	 * @return void
@@ -73,7 +69,6 @@ class TrashedPostRedirector {
 
 	/**
 	 * Renders one dismissible notice per pending entry, linking to the Redirects tab.
-	 * Dismissal is persisted via AJAX (`ajax_dismiss_notice()`).
 	 *
 	 * @return void
 	 */
@@ -108,8 +103,7 @@ class TrashedPostRedirector {
 	}
 
 	/**
-	 * Reports the dismiss click back to storage - otherwise core only hides it in the
-	 * current page's DOM and it reappears on the next load.
+	 * Reports the dismiss click back to storage.
 	 *
 	 * @return void
 	 */

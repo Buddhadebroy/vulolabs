@@ -17,8 +17,7 @@ use VuloPilot\Utill\ScannedPostsTrait;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Extracts links from the most recently published posts/pages and checks each one for a
- * non-2xx/3xx HTTP response, flagging ones that appear broken.
+ * Extracts links from the most recently published posts/pages and checks each one for a non-2xx/3xx HTTP response, flagging ones that appear broken.
  *
  * @class       BrokenLinksScanner class
  * @version     1.0.0
@@ -32,21 +31,13 @@ class BrokenLinksScanner extends ScannerUtil implements TracksScannedObjectsInte
 	private const MAX_LINKS_PER_RUN       = 40;
 	private const REQUEST_TIMEOUT_SECONDS = 5;
 
-	/**
-	 * Stores when this scanner last genuinely ran - see due_to_run()'s own docblock for
-	 * why this scanner self-rate-limits instead of the cadence being scheduled externally.
-	 */
+	/** Stores when this scanner last genuinely ran. */
 	private const LAST_RUN_OPTION = 'vulopilot_broken_links_last_checked';
 
-	/**
-	 * Set via set_force_run() (SupportsForceRunInterface) - true for the scan() call this
-	 * triggers, bypassing due_to_run()'s own cadence check.
-	 */
+	/** Set via set_force_run() - true for the scan() call this triggers, bypassing due_to_run()'s own cadence check. */
 	private bool $force_run = false;
 
-	/**
-	 * Real per-run coverage stats (pages scanned/links checked/healthy count this run).
-	 */
+	/** Real per-run coverage stats (pages scanned/links checked/healthy count this run). */
 	public const STATS_OPTION = 'vulopilot_broken_links_last_run_stats';
 
 	/**
@@ -83,8 +74,7 @@ class BrokenLinksScanner extends ScannerUtil implements TracksScannedObjectsInte
 	public function scan(): array {
 		$settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
-		// Flat, standalone key - Settings → Scanning → SEO & Content → "Links & schema"
-		// (SeoContent.ts).
+		// Flat, standalone key - Settings → Scanning → SEO & Content → "Links & schema".
 		if ( empty( $settings['flag_broken_links'] ) ) {
 			return array();
 		}
@@ -158,10 +148,9 @@ class BrokenLinksScanner extends ScannerUtil implements TracksScannedObjectsInte
 	}
 
 	/**
-	 * Pulls every http(s) link out of the most recently published content, deduped, capped
-	 * at MAX_LINKS_PER_RUN.
+	 * Pulls every http(s) link out of the most recently published content, deduped, capped at MAX_LINKS_PER_RUN.
 	 *
-	 * @return array<string, array{post_id: int, text: string, context_before: string, context_after: string}> URL => post ID, anchor text, surrounding context.
+	 * @return array URL => post ID, anchor text, surrounding context.
 	 */
 	private function extract_links_from_recent_content(): array {
 		$posts = get_posts(
@@ -192,8 +181,7 @@ class BrokenLinksScanner extends ScannerUtil implements TracksScannedObjectsInte
 					break;
 				}
 
-				// post_content encodes "&" as an entity - decode it, or any URL with more
-				// than one query param breaks.
+				// post_content encodes "&" as an entity.
 				$url = html_entity_decode( $match[1][0], ENT_QUOTES );
 
 				if ( 0 !== strpos( $url, 'http://' ) && 0 !== strpos( $url, 'https://' ) ) {
@@ -238,7 +226,7 @@ class BrokenLinksScanner extends ScannerUtil implements TracksScannedObjectsInte
 
 	/**
 	 * @param string $url URL to check.
-	 * @return array{reason: string, detail: string}|null 'reason' is 'unverified' (network/timeout/DNS failure - is_wp_error()) or 'broken' (a real non-2xx/3xx HTTP response); null if the link looks fine.
+	 * @return array|null 'reason' is 'unverified'.
 	 */
 	private function check_link( string $url ): ?array {
 		$response = wp_remote_head(

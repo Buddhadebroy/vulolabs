@@ -56,9 +56,7 @@ const PERIOD_OPTIONS = [
 	{ key: '90', value: '90', label: __('90D', 'vulopilot') },
 ];
 
-/**
- * `ACCESSIBILITY_CHECKS` minus its synthetic `'all'` tile.
- */
+/** `ACCESSIBILITY_CHECKS` minus its synthetic `'all'` tile. */
 const ISSUES_TABLE_SECTIONS = ACCESSIBILITY_CHECKS.filter(
 	(check) => 'all' !== check.key
 );
@@ -137,10 +135,7 @@ const AccessibilityHistoryDummy = () => {
 	);
 };
 
-/**
- * "Accessibility" top-level page (WP menu slug `accessibility`, `classes/Admin.php`'s
- * `$submenus`).
- */
+/** "Accessibility" top-level page. */
 const Accessibility = () => {
 	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');
 	const AccessibilityHistoryPanel = useFilterSlot(

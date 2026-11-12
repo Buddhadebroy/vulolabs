@@ -8,8 +8,7 @@
 namespace VuloPilot\ContentOptimization\ValueObjects;
 
 /**
- * A single post's Content Intelligence score, combining scanner findings with an AI-judged
- * Topic Authority dimension.
+ * A single post's Content Intelligence score, combining scanner findings with an AI-judged Topic Authority dimension.
  *
  * @class       ContentScore class
  * @version     1.0.0
@@ -28,7 +27,7 @@ final class ContentScore {
 	private ?int $deterministic_score;
 
 	/**
-	 * @var int 0-100. How authoritatively/thoroughly this content covers its own topic.
+	 * @var int 0-100.
 	 */
 	private int $topic_authority;
 
@@ -107,7 +106,7 @@ final class ContentScore {
 	}
 
 	/**
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function to_array(): array {
 		return array(

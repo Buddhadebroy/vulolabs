@@ -33,7 +33,7 @@ const PERIOD_OPTIONS = [
 ];
 
 
-/** Fabricated 7-day score trend - same "obviously fake, never mistaken for a real scan result" reasoning Accessibility.tsx's own `DUMMY_ACCESSIBILITY_HISTORY` documents. */
+/** Fabricated 7-day score trend. */
 const DUMMY_HEALTH_TIMELINE = [
 	{ day: __('Day 1', 'vulopilot'), score: 58 },
 	{ day: __('Day 2', 'vulopilot'), score: 63 },
@@ -44,9 +44,7 @@ const DUMMY_HEALTH_TIMELINE = [
 	{ day: __('Day 7', 'vulopilot'), score: 79 },
 ];
 
-/**
- * "VuloPilot activity" - a real 5-tile activity strip.
- */
+/** "VuloPilot activity" - a real 5-tile activity strip. */
 const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 	summary,
 	isLoading,

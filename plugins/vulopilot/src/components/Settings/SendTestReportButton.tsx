@@ -19,9 +19,7 @@ interface StoredSettings {
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
-/**
- * Settings → Reports' own "Send Test Report" button.
- */
+/** Settings → Reports' own "Send Test Report" button. */
 const SendTestReportButton = () => {
 	const isPro = Boolean(vulopilotAppLocalizer.khali_dabba);
 	const [lastSentAt, setLastSentAt] = useState<string | null>(null);

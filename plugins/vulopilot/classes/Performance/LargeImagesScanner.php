@@ -8,8 +8,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags oversized image attachments - distinct from ImagesScanner, which only checks for
- * missing alt text and never inspects file size.
+ * Flags oversized image attachments.
  *
  * @class       LargeImagesScanner class
  * @version     1.0.0
@@ -17,14 +16,10 @@ defined( 'ABSPATH' ) || exit;
  */
 class LargeImagesScanner extends ScannerUtil {
 
-	/**
-	 * How many of the most recent image attachments to check per run.
-	 */
+	/** How many of the most recent image attachments to check per run. */
 	private const BATCH_SIZE = 100;
 
-	/**
-	 * File size, in bytes, above which an image is worth flagging.
-	 */
+	/** File size, in bytes, above which an image is worth flagging. */
 	private const SIZE_THRESHOLD_BYTES = 512000; // 500KB.
 
 	/**

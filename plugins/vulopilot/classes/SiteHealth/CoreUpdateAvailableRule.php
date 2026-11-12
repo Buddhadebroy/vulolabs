@@ -16,8 +16,7 @@ use VuloPilot\Utill\RuleType;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Turns UpdatesScanner's WordPress-core-update Finding (object_type 'core') into a
- * recommendation to update now.
+ * Turns UpdatesScanner's WordPress-core-update Finding into a recommendation to update now.
  *
  * @class       CoreUpdateAvailableRule class
  * @version     1.0.0

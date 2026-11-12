@@ -32,13 +32,12 @@ interface ExtensionInterface {
 	public function get_version(): string;
 
 	/**
-	 * @return string Lowest core VuloPilot version this extension is known to work against, e.g. '1.1.0'.
+	 * @return string Lowest core VuloPilot version this extension is known to work against.
 	 */
 	public function get_minimum_vulopilot_version(): string;
 
 	/**
-	 * Called once, only after ExtensionManager has confirmed
-	 * get_minimum_vulopilot_version() is satisfied by the running core version.
+	 * Called once, only after ExtensionManager has confirmed get_minimum_vulopilot_version() is satisfied by the running core version.
 	 *
 	 * @return void
 	 */

@@ -6,7 +6,7 @@ import { getApiLink, getApiResponse } from '@zyra/core';
 import { NoticeManager } from '@zyra/components';
 import { useAiCredits } from './useAiCredits';
 
-/** A real, clickable edit link for content the AI just created and saved - see CopilotChatResponse's own docblock. */
+/** A real, clickable edit link for content the AI just created and saved. */
 export interface CopilotChatLink {
 	url: string;
 	label: string;
@@ -24,10 +24,7 @@ export interface CopilotChatTurn {
 	attachments?: CopilotAttachment[];
 }
 
-/**
- * A user-picked "Add context" item - always re-resolved against real, current data server-side
- * (Copilot.php's build_context_refs_block()).
- */
+/** A user-picked "Add context" item. */
 export type CopilotContextRef =
 	| {
 			type: 'finding_group';
@@ -43,7 +40,7 @@ export type CopilotContextRef =
 			name: string;
 	  };
 
-/** A user-picked "Attach" file - a real WP Media Library attachment (zyra FileInput's wp.media() picker always returns a real id, never a client-only blob). */
+/** A user-picked "Attach" file. */
 export interface CopilotAttachment {
 	id: number;
 	url: string;
@@ -52,15 +49,15 @@ export interface CopilotAttachment {
 
 interface CopilotChatResponse {
 	content: string;
-	/** Set when this turn really created a WordPress draft (Copilot.php's own ContentCreationOrchestrator hand-off). */
+	/** Set when this turn really created a WordPress draft. */
 	link: CopilotChatLink | null;
-	/** The real action run id behind that same draft - see CopilotChatTurn's own `runId` docblock. */
+	/** The real action run id behind that same draft. */
 	run_id: number | null;
 	/** The real `vulopilot_ai_conversations.id` this turn was just saved under (Copilot.php's own persist_conversation()). */
 	conversation_id: number;
 }
 
-/** One turn as `GET /copilot/conversations/{id}` returns it - see CopilotChatTurn's own docblock for the client-side shape this maps onto. */
+/** One turn as `GET /copilot/conversations/{id}` returns it. */
 interface StoredConversationTurn {
 	role: 'user' | 'assistant';
 	content: string;
@@ -75,9 +72,7 @@ interface StoredConversation {
 	turns: StoredConversationTurn[];
 }
 
-/**
- * The shape WP_REST_Server::error_to_response() gives a WP_Error.
- */
+/** The shape WP_REST_Server::error_to_response() gives a WP_Error. */
 interface WpRestErrorBody {
 	code?: string;
 	message?: string;
@@ -94,12 +89,12 @@ export const useCopilotChat = ( noticeKey: string ) => {
 	/** The real `vulopilot_ai_conversations.id` this session is saving to. */
 	const [ conversationId, setConversationId ] = useState< number | null >( null );
 	const [ isLoadingConversation, setIsLoadingConversation ] = useState( false );
-	/** True right after a real send was blocked (or failed) because no AI connection is configured - see this hook's own docblock. */
+	/** True right after a real send was blocked because no AI connection is configured. */
 	const [ isCloudConnectPromptOpen, setIsCloudConnectPromptOpen ] = useState( false );
 	const { status: creditsStatus } = useAiCredits();
 
 	const dismissCloudConnectPrompt = () => setIsCloudConnectPromptOpen( false );
-	/** Bumped by `startNewConversation()` - a reply still in flight from before that reset belongs to the abandoned thread and must not land in the fresh one. */
+	/** Bumped by `startNewConversation()`. */
 	const chatGeneration = useRef( 0 );
 
 	const send = (
@@ -200,9 +195,7 @@ export const useCopilotChat = ( noticeKey: string ) => {
 			} );
 	};
 
-	/**
-	 * Marks one turn's own run as rolled back - called by ChatTab.tsx after a real.
-	 */
+	/** Marks one turn's own run as rolled back - called by ChatTab.tsx after a real. */
 	const markTurnUndone = ( runId: number ) => {
 		setTurns( ( current ) =>
 			current.map( ( turn ) =>
@@ -211,10 +204,7 @@ export const useCopilotChat = ( noticeKey: string ) => {
 		);
 	};
 
-	/**
-	 * Loads a real, past conversation's full turns back into this composer (`GET
-	 * /copilot/conversations/{id}`, Copilot.php's own get_conversation()).
-	 */
+	/** Loads a real, past conversation's full turns back into this composer. */
 	const loadConversation = ( id: number ) => {
 		setIsLoadingConversation( true );
 
@@ -241,10 +231,7 @@ export const useCopilotChat = ( noticeKey: string ) => {
 			.finally( () => setIsLoadingConversation( false ) );
 	};
 
-	/**
-	 * "New Chat": clears `turns` and drops `conversationId`, so the next `send()` starts a new
-	 * conversation.
-	 */
+	/** "New Chat": clears `turns` and drops `conversationId`, so the next `send()` starts a new conversation. */
 	const startNewConversation = () => {
 		chatGeneration.current += 1;
 		setTurns( [] );

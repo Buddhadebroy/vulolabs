@@ -8,13 +8,9 @@ interface PerformanceScoreSnapshot {
 	performance_score: number;
 }
 
-/**
- * "Speed History" - real daily `performance_score` snapshots from `GET /performance-score-
- * snapshots?days=N` (`classes/Repositories/PerformanceScoreSnapshotRepository.php`, written by
- * `Services\PerformanceScoreSnapshotRecorder` after every scan plus once daily via cron).
- */
+/** "Speed History" - real daily `performance_score` snapshots from `GET /performance-score- snapshots?days=N`. */
 interface SpeedHistoryCardProps {
-	/** Real 7/30/90 range, controlled by the parent "Core Web Vitals" card's own period toggle (PerformanceScoreCard.tsx). */
+	/** Real 7/30/90 range, controlled by the parent "Core Web Vitals" card's own period toggle. */
 	days?: number;
 }
 
