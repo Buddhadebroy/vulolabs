@@ -8,8 +8,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Tails WordPress's own debug.log (when WP_DEBUG_LOG is enabled) for recent PHP
- * warnings/notices/deprecated/fatal messages, deduped by message text.
+ * Tails WordPress's own debug.log for recent PHP warnings/notices/deprecated/fatal messages, deduped by message text.
  *
  * @class       PhpWarningScanner class
  * @version     1.0.0
@@ -62,8 +61,7 @@ class PhpWarningScanner extends ScannerUtil {
 				continue;
 			}
 
-			// Dedupe by message text - the same warning firing on every page load would otherwise
-			// flood findings with near-identical rows.
+			// Dedupe by message text - the same warning firing on every page load would otherwise flood findings with near-identical rows.
 			$messages[ $parsed['message'] ] = $parsed;
 		}
 
@@ -90,8 +88,7 @@ class PhpWarningScanner extends ScannerUtil {
 	}
 
 	/**
-	 * Resolves WP_DEBUG_LOG's effective log file path - it's either a boolean (defaulting
-	 * to WP_CONTENT_DIR . '/debug.log') or a custom path string.
+	 * Resolves WP_DEBUG_LOG's effective log file path.
 	 *
 	 * @return string|null
 	 */
@@ -108,8 +105,7 @@ class PhpWarningScanner extends ScannerUtil {
 	}
 
 	/**
-	 * Reads the last MAX_BYTES_READ bytes of the log file and returns up
-	 * to MAX_LINES_CHECKED of its most recent lines.
+	 * Reads the last MAX_BYTES_READ bytes of the log file and returns up to MAX_LINES_CHECKED of its most recent lines.
 	 *
 	 * @param string $log_path Absolute path to the debug log.
 	 * @return string[]
@@ -139,11 +135,10 @@ class PhpWarningScanner extends ScannerUtil {
 	}
 
 	/**
-	 * Parses one debug.log line into a level/message pair. WordPress's
-	 * own format is "[date] PHP Warning:  message in file on line N".
+	 * Parses one debug.log line into a level/message pair.
 	 *
 	 * @param string $line Raw log line.
-	 * @return array{level: string, message: string}|null
+	 * @return array|null
 	 */
 	private function parse_log_line( string $line ): ?array {
 		if ( ! preg_match( '/PHP (Warning|Notice|Deprecated|Fatal error|Parse error):\s*(.+?)\s+in\s+\S+\s+on line \d+/', $line, $matches ) ) {

@@ -17,13 +17,11 @@ interface ChatInputProps {
 		label: React.ReactNode;
 	};
 	disabled?: boolean;
-	/** When set, the send button renders visibly but inert with this explanation in a tooltip - e.g. no chat backend wired up yet. */
+	/** When set, the send button renders visibly but inert with this explanation in a tooltip. */
 	sendDisabledReason?: string;
 }
 
-/**
- * The chat composer bar - free-text input plus an Attach pill button on one row and a send button.
- */
+/** The chat composer bar. */
 const ChatInput: React.FC<ChatInputProps> = ({
 	value,
 	onChange,

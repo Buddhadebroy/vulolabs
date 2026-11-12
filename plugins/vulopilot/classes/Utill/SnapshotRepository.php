@@ -45,8 +45,8 @@ class SnapshotRepository extends RepositoryUtil {
 	/**
 	 * Inserts or replaces one day's values.
 	 *
-	 * @param string               $date   `Y-m-d`.
-	 * @param array<string, mixed> $values Everything to store for that day.
+	 * @param string $date   `Y-m-d`.
+	 * @param array  $values Everything to store for that day.
 	 * @return void
 	 */
 	protected function store( string $date, array $values ): void {
@@ -68,7 +68,7 @@ class SnapshotRepository extends RepositoryUtil {
 	/**
 	 * Stores today's values (site-local date).
 	 *
-	 * @param array<string, mixed> $values Everything to store for today.
+	 * @param array $values Everything to store for today.
 	 * @return void
 	 */
 	protected function store_today( array $values ): void {
@@ -79,7 +79,7 @@ class SnapshotRepository extends RepositoryUtil {
 	 * Oldest-first rows for the last `$days` days.
 	 *
 	 * @param int $days Look-back window.
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function get_recent( int $days = 30 ): array {
 		return $this->query_rows( 'recent', array( gmdate( 'Y-m-d', strtotime( "-{$days} days" ) ) ) );
@@ -90,14 +90,14 @@ class SnapshotRepository extends RepositoryUtil {
 	 *
 	 * @param string $period_start `Y-m-d`.
 	 * @param string $period_end   `Y-m-d`.
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function get_between( string $period_start, string $period_end ): array {
 		return $this->query_rows( 'between', array( $period_start, $period_end ) );
 	}
 
 	/**
-	 * @return array<string, mixed>|null Newest row, or null.
+	 * @return array|null Newest row, or null.
 	 */
 	public function get_latest(): ?array {
 		return $this->query_rows( 'latest', array() )[0] ?? null;
@@ -106,9 +106,9 @@ class SnapshotRepository extends RepositoryUtil {
 	/**
 	 * Runs one of this class's own fixed snapshot queries and flattens each row.
 	 *
-	 * @param string            $query One of 'latest', 'recent', 'between'.
-	 * @param array<int, mixed> $args  Values for that query's date placeholders.
-	 * @return array<int, array<string, mixed>>
+	 * @param string $query One of 'latest', 'recent', 'between'.
+	 * @param array  $args  Values for that query's date placeholders.
+	 * @return array
 	 */
 	private function query_rows( string $query, array $args ): array {
 		global $wpdb;
@@ -138,8 +138,8 @@ class SnapshotRepository extends RepositoryUtil {
 	/**
 	 * `{id, snapshot_date, data, created_at}` → one flat row.
 	 *
-	 * @param array<string, mixed> $row Raw table row.
-	 * @return array<string, mixed>
+	 * @param array $row Raw table row.
+	 * @return array
 	 */
 	protected function flatten( array $row ): array {
 		$values = json_decode( (string) $row['data'], true );

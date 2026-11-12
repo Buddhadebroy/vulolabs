@@ -14,9 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class SocialMetaTagsManager {
 
-	/**
-	 * SocialMetaTagsManager constructor.
-	 */
+	/** SocialMetaTagsManager constructor. */
 	public function __construct() {
 		add_action( 'wp_head', array( $this, 'maybe_output_tags' ), 5 );
 	}
@@ -30,8 +28,7 @@ class SocialMetaTagsManager {
 		$settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
 		$post_id  = is_singular() ? get_queried_object_id() : 0;
 
-		// A per-post override from the post-editor metabox's Social tab is a deliberate, explicit
-		// action for THAT post.
+		// A per-post override from the post-editor metabox's Social tab is a deliberate, explicit action for THAT post.
 		if ( empty( $settings['social_meta_tags_enabled'] ) && ! ( $post_id && $this->has_post_override( $post_id ) ) ) {
 			return;
 		}
@@ -76,7 +73,7 @@ class SocialMetaTagsManager {
 	/**
 	 * Builds the property/name => content map to output, or null off singular/home.
 	 *
-	 * @return array<string, string>|null
+	 * @return array|null
 	 */
 	private function build_tags(): ?array {
 		$settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );

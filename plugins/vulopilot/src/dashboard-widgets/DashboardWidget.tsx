@@ -14,15 +14,11 @@ interface DashboardWidgetProps {
 	borderColor?: string;
 	/** Passed straight through to CardComponent - a short subtitle under the title. */
 	desc?: React.ReactNode;
-	/**
-	 * An optional always-visible header link (e.g. "Show details" linking to another page).
-	 */
+	/** An optional always-visible header link (e.g. "Show details" linking to another page). */
 	headerAction?: React.ReactNode;
 }
 
-/**
- * The one reusable shell every dashboard widget renders inside.
- */
+/** The one reusable shell every dashboard widget renders inside. */
 const DashboardWidget: React.FC<DashboardWidgetProps> = ({
 	title,
 	icon,

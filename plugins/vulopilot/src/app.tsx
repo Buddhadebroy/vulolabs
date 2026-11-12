@@ -12,15 +12,10 @@ import InsufficientCreditsNotice from './components/AiCredits/InsufficientCredit
 import './routeRegistry';
 import './routes';
 
-// Forces initializeModules() (called in index.tsx, right after this module is imported) to actually
-// fetch active modules from the server on every load.
+// Forces initializeModules() to actually fetch active modules from the server on every load.
 localStorage.setItem('force_vulopilot_context_reload', 'true');
 
-/**
- * Reads the active tab from the URL hash (`?page=vulopilot#&tab=dashboard`) and renders the
- * component registered for it in routes.ts. Uses the hash rather than path routes, since every
- * admin URL is `admin.php?page=vulopilot`.
- */
+/** Reads the active tab from the URL hash. */
 const Route = () => {
 	const location = useLocation();
 	const [routes, setRoutes] = useState([...window.VULOPILOT_ROUTES]);
@@ -87,10 +82,7 @@ const App = () => {
 		setResults(filtered);
 	};
 
-	/**
-	 * A page-section result's target tab may not be mounted yet at click time (the hash change
-	 * above triggers Route's own async re-render).
-	 */
+	/** A page-section result's target tab may not be mounted yet at click time. */
 	const scrollToSectionWhenReady = (sectionId: string, attempt = 0) => {
 		if (document.getElementById(sectionId)) {
 			scrollToId(sectionId);
@@ -113,8 +105,10 @@ const App = () => {
 		}
 	};
 
-	// Highlight the active tab in the WP admin sidebar submenu.
+	// Highlight the active tab in the sidebar; Content Planner (no menu entry) highlights Content.
 	useEffect(() => {
+		const menuTab = currentTab === 'content-planner' ? 'content' : currentTab;
+
 		document
 			.querySelectorAll('#toplevel_page_vulopilot > ul > li > a')
 			.forEach((menuItem) => {
@@ -131,7 +125,7 @@ const App = () => {
 					);
 				}
 
-				if (menuItemHashParams.get('tab') === currentTab) {
+				if (menuItemHashParams.get('tab') === menuTab) {
 					(menuItem.parentNode as HTMLElement).classList.add(
 						'current'
 					);

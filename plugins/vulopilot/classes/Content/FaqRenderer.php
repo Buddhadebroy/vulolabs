@@ -4,9 +4,7 @@ namespace VuloPilot\Content;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Render logic for the `vulopilot/faq` block. Uses native `<details name="…">` exclusive-group
- * accordion markup when `allowMultipleOpen` is false; `layoutMode: 'expanded'` renders plain
- * always-visible `<div>`s instead, matching `FaqAccordion.js`'s editor branch.
+ * Render logic for the `vulopilot/faq` block.
  *
  * @class       FaqRenderer class
  * @version     1.0.0
@@ -32,8 +30,8 @@ class FaqRenderer {
 	);
 
 	/**
-	 * @param array<string, mixed> $attributes Real block attributes - `questions: array<{question,answer}>`.
-	 * @return string Visible HTML (details UI, safe to pass through `wp_kses_post()`), or '' if every row was blank.
+	 * @param array $attributes Real block attributes.
+	 * @return string Visible HTML.
 	 */
 	public static function render( array $attributes ): string {
 		$questions = self::sanitize_questions( $attributes['questions'] ?? array() );
@@ -51,8 +49,7 @@ class FaqRenderer {
 		$icon_position       = 'left' === ( $attributes['iconPosition'] ?? 'right' ) ? 'left' : 'right';
 		$heading_level       = isset( $attributes['headingLevel'] ) ? (int) $attributes['headingLevel'] : 0;
 		$heading_level       = ( $heading_level >= 2 && $heading_level <= 6 ) ? $heading_level : 0;
-		// Real exclusive-group name, unique per block instance so independent FAQ blocks on the
-		// same page (or two instances of this same block) never fight over which item is open.
+		// Real exclusive-group name, unique per block instance so independent FAQ blocks on the same page never fight over which item is open.
 		$group_name = wp_unique_id( 'vulopilot-faq-' );
 
 		$appearance         = sanitize_html_class( (string) ( $attributes['appearance'] ?? 'cards' ) );
@@ -126,11 +123,9 @@ class FaqRenderer {
 	}
 
 	/**
-	 * PHP mirror of `faqStyleVars.js`'s `buildFaqStyleVars()`. Keeps the legacy
-	 * `questionColor`/`questionFontSize`/`answerColor`/`answerFontSize` fallback for FAQ
-	 * blocks saved before the `style` attribute existed.
+	 * PHP mirror of `faqStyleVars.js`'s `buildFaqStyleVars()`.
 	 *
-	 * @param array<string, mixed> $attributes Real block attributes.
+	 * @param array $attributes Real block attributes.
 	 * @return string A `--name:value;` CSS custom-property declaration list, or '' if nothing is set.
 	 */
 	private static function build_style_attribute( array $attributes ): string {
@@ -250,10 +245,9 @@ class FaqRenderer {
 	}
 
 	/**
-	 * Prints the FAQPage JSON-LD for the same rows render() shows - nothing when
-	 * `enableSchema` is off, or every row was blank.
+	 * Prints the FAQPage JSON-LD for the same rows render() shows.
 	 *
-	 * @param array<string, mixed> $attributes Real block attributes - `questions: array<{question,answer}>`.
+	 * @param array $attributes Real block attributes.
 	 * @return void
 	 */
 	public static function print_schema( array $attributes ): void {
@@ -269,11 +263,10 @@ class FaqRenderer {
 	}
 
 	/**
-	 * Never lets a blank question/answer row reach EITHER the visible markup or the JSON-
-	 * LD.
+	 * Never lets a blank question/answer row reach EITHER the visible markup or the JSON- LD.
 	 *
 	 * @param mixed $raw The block's own `questions` attribute value.
-	 * @return array<int, array{question: string, answer: string}>
+	 * @return array
 	 */
 	private static function sanitize_questions( $raw ): array {
 		if ( ! is_array( $raw ) ) {
@@ -304,7 +297,7 @@ class FaqRenderer {
 	}
 
 	/**
-	 * @param array<int, array{question: string, answer: string}> $questions Already sanitized, never empty.
+	 * @param array $questions Already sanitized, never empty.
 	 * @return void
 	 */
 	private static function print_schema_tag( array $questions ): void {

@@ -20,9 +20,7 @@ interface SchemaKnowledgeTabProps {
 	initialSection?: SchemaKnowledgeSectionId;
 }
 
-/**
- * "Business Identity & Schema" tab of "SEO & Visibility".
- */
+/** "Business Identity & Schema" tab of "SEO & Visibility". */
 const SchemaKnowledgeTab = ({
 	initialSection = 'overview',
 }: SchemaKnowledgeTabProps) => {
@@ -33,8 +31,7 @@ const SchemaKnowledgeTab = ({
 		if ('overview' !== initialSection) {
 			scrollToId(`schema-knowledge-${initialSection}`);
 		}
-		// Only the initial mount-time value matters - this never re-runs
-		// on a later, unrelated re-render.
+		// Only the initial mount-time value matters.
 	}, []);
 
 	return (

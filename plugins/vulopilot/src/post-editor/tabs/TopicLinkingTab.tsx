@@ -9,7 +9,7 @@ interface TopicLinkingTabProps {
 	onNavigate?: ( tab: string, target?: string ) => void;
 }
 
-/** Topic & Internal Linking - Pro-only. Card shell only; the real panel lives in Pro's `TopicLinkingPanel.tsx`. */
+/** Topic & Internal Linking - Pro-only. */
 export default function TopicLinkingTab( _props: TopicLinkingTabProps ) {
 	const { postId, content } = usePostData();
 	const Panel = useFilterSlot< ComponentType< { postId: number; content: string } > >(

@@ -4,8 +4,7 @@ namespace VuloPilot\SeoVisibility;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Stateless on-page SEO checklist for the post-editor metabox
- * (RestAPI\Controllers\PostSeo::analyze_item()).
+ * Stateless on-page SEO checklist for the post-editor metabox (RestAPI\Controllers\PostSeo::analyze_item()).
  *
  * @class       OnPageAnalyzer class
  * @version     1.0.0
@@ -13,31 +12,24 @@ defined( 'ABSPATH' ) || exit;
  */
 class OnPageAnalyzer {
 
-	/**
-	 * Matches SeoScanner::TITLE_MIN_LENGTH/TITLE_MAX_LENGTH and
-	 * WriteMetaTitleAction::MIN_LENGTH/MAX_LENGTH.
-	 */
+	/** Matches SeoScanner::TITLE_MIN_LENGTH/TITLE_MAX_LENGTH and WriteMetaTitleAction::MIN_LENGTH/MAX_LENGTH. */
 	private const TITLE_MIN_LENGTH = 10;
 	private const TITLE_MAX_LENGTH = 60;
 
-	/**
-	 * Matches WriteMetaDescriptionAction::MAX_LENGTH.
-	 */
+	/** Matches WriteMetaDescriptionAction::MAX_LENGTH. */
 	private const DESCRIPTION_MIN_LENGTH = 120;
 	private const DESCRIPTION_MAX_LENGTH = 160;
 
 	/**
-	 * Words from the start of the content the focus keyword should appear within for the
-	 * "keyword in first paragraph" check.
+	 * Words from the start of the content the focus keyword should appear within for the "keyword in first paragraph" check.
 	 */
 	private const FIRST_PARAGRAPH_WORDS = 100;
 
 	/**
-	 * Runs every check against the editor's current (possibly unsaved)
-	 * field values.
+	 * Runs every check against the editor's current (possibly unsaved) field values.
 	 *
-	 * @param array<string, string> $fields Live editor state - 'title', 'content', 'excerpt', 'slug'.
-	 * @return array<int, array<string, mixed>> Each entry shaped like result()'s own return value.
+	 * @param array $fields Live editor state - 'title', 'content', 'excerpt', 'slug'.
+	 * @return array Each entry shaped like result()'s own return value.
 	 */
 	public function analyze( array $fields ): array {
 		$title        = trim( (string) ( $fields['title'] ?? '' ) );
@@ -65,13 +57,7 @@ class OnPageAnalyzer {
 			$results[] = $density_result;
 		}
 
-		// Always run, even with no focus keyword set - contains() already returns false for an
-		// empty keyword, so each one legitimately (not just nominally) fails on its own, the same
-		// way Rank Math's own equivalent tests each fail independently when no keyword is set,
-		// rather than being skipped/exempted or collapsed into one substitute check. A missing
-		// keyword is exactly what each of these 6 checks exists to catch - skipping them used to
-		// make an unoptimized, keyword-less post score easier than one that tried and partially
-		// failed.
+		// Always run, even with no focus keyword set.
 		$results[] = $this->check_keyword_in_title( $focus_keyword, $title );
 		$results[] = $this->check_keyword_in_description( $focus_keyword, $excerpt );
 		$results[] = $this->check_keyword_in_slug( $focus_keyword, $slug );
@@ -88,7 +74,7 @@ class OnPageAnalyzer {
 	 * Checks the SEO title's length against SeoScanner/WriteMetaTitleAction's own thresholds.
 	 *
 	 * @param string $title Current post title.
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function check_title_length( string $title ): array {
 		$length = mb_strlen( $title );
@@ -112,7 +98,7 @@ class OnPageAnalyzer {
 	 * Checks the meta description's length against the recommended window.
 	 *
 	 * @param string $excerpt Current post excerpt (used as the meta description).
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function check_description_length( string $excerpt ): array {
 		$length = mb_strlen( $excerpt );
@@ -132,7 +118,7 @@ class OnPageAnalyzer {
 		return $this->result( 'description_length', 'basic', 'pass', __( 'Meta description length is good.', 'vulopilot' ) );
 	}
 
-	/** Content-depth tiers, word count => fraction of full credit - Rank Math's own published tiers (rankmath.com/kb/seo-score-vs-content-ai-score/: */
+	/** Content-depth tiers, word count => fraction of full credit. */
 	private const CONTENT_DEPTH_TIERS = array(
 		2500 => 1.0,
 		2000 => 0.7,
@@ -143,10 +129,10 @@ class OnPageAnalyzer {
 	);
 
 	/**
-	 * Scores the content's own depth against `CONTENT_DEPTH_TIERS` - not the flat `thin_content_word_threshold` pass/fail the Thin Content scanner uses elsewhere, which only ever gates a single low bar (300 words by default) and gave full score credit to anything past it, even content far short of what actually ranks (#bug:
+	 * Scores the content's own depth against `CONTENT_DEPTH_TIERS`.
 	 *
 	 * @param string $content_text Plain-text content.
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function check_content_length( string $content_text ): array {
 		$count = str_word_count( $content_text );
@@ -191,9 +177,7 @@ class OnPageAnalyzer {
 	}
 
 	/**
-	 * The word count the next tier up from `$tier_min` starts at, for the "aim for X+ words"
-	 * message - 2500 (the top tier) has no "next" tier, so that case is never reached by a caller
-	 * already short of full credit.
+	 * The word count the next tier up from `$tier_min` starts at, for the "aim for X+ words" message.
 	 *
 	 * @param int $tier_min Current tier's own minimum word count.
 	 * @return int
@@ -212,7 +196,7 @@ class OnPageAnalyzer {
 	 *
 	 * @param string $keyword Focus keyword.
 	 * @param string $title   Current post title.
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function check_keyword_in_title( string $keyword, string $title ): array {
 		// Deliberately not wired to 'write-meta-title'.
@@ -226,7 +210,7 @@ class OnPageAnalyzer {
 	 *
 	 * @param string $keyword Focus keyword.
 	 * @param string $excerpt Current meta description.
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function check_keyword_in_description( string $keyword, string $excerpt ): array {
 		return $this->contains( $keyword, $excerpt )
@@ -239,7 +223,7 @@ class OnPageAnalyzer {
 	 *
 	 * @param string $keyword Focus keyword.
 	 * @param string $slug    Post slug.
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function check_keyword_in_slug( string $keyword, string $slug ): array {
 		return $this->contains( $keyword, str_replace( '-', ' ', $slug ) )
@@ -252,7 +236,7 @@ class OnPageAnalyzer {
 	 *
 	 * @param string $keyword      Focus keyword.
 	 * @param string $content_text Plain-text content.
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function check_keyword_in_content( string $keyword, string $content_text ): array {
 		return $this->contains( $keyword, $content_text )
@@ -265,7 +249,7 @@ class OnPageAnalyzer {
 	 *
 	 * @param string $keyword      Focus keyword.
 	 * @param string $content_text Plain-text content.
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function check_keyword_in_first_paragraph( string $keyword, string $content_text ): array {
 		$words = preg_split( '/\s+/', $content_text );
@@ -280,7 +264,7 @@ class OnPageAnalyzer {
 	 * Checks whether the content has any h2-h6 subheadings.
 	 *
 	 * @param string $content_html Raw post content (blocks/HTML).
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function check_subheadings( string $content_html ): array {
 		return (bool) preg_match( '/<h[2-6][\s>]/i', $content_html )
@@ -289,13 +273,10 @@ class OnPageAnalyzer {
 	}
 
 	/**
-	 * Checks whether the content contains at least one link - kept for the existing
-	 * `has_links`/`suggest-internal-links` UI deep link; `check_internal_link()`/
-	 * `check_external_link()` below score the real distinction Rank Math's own tests make
-	 * (linking anywhere at all isn't equivalent to having both an internal and an external one).
+	 * Checks whether the content contains at least one link.
 	 *
 	 * @param string $content_html Raw post content.
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function check_links( string $content_html ): array {
 		return (bool) preg_match( '/<a\s[^>]*href=/i', $content_html )
@@ -304,11 +285,10 @@ class OnPageAnalyzer {
 	}
 
 	/**
-	 * Every `href` found in the content, normalized to "internal" (same host as this site, or a
-	 * root-relative path) or "external".
+	 * Every `href` found in the content, normalized to "internal".
 	 *
 	 * @param string $content_html Raw post content.
-	 * @return array{internal: int, external: int}
+	 * @return array
 	 */
 	private function count_links_by_scope( string $content_html ): array {
 		if ( ! preg_match_all( '/<a\s[^>]*href=["\']([^"\']+)["\']/i', $content_html, $matches ) ) {
@@ -343,11 +323,10 @@ class OnPageAnalyzer {
 	}
 
 	/**
-	 * Rank Math's own "linking to internal resources" test - at least one link to this site
-	 * itself, distinct from `has_links`, which a page with only external links already satisfies.
+	 * Rank Math's own "linking to internal resources" test.
 	 *
 	 * @param string $content_html Raw post content.
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function check_internal_link( string $content_html ): array {
 		$counts = $this->count_links_by_scope( $content_html );
@@ -361,7 +340,7 @@ class OnPageAnalyzer {
 	 * Rank Math's own "linking to external sources" test - at least one link to another site.
 	 *
 	 * @param string $content_html Raw post content.
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function check_external_link( string $content_html ): array {
 		$counts = $this->count_links_by_scope( $content_html );
@@ -375,7 +354,7 @@ class OnPageAnalyzer {
 	 * Checks whether every image in the content has alt text.
 	 *
 	 * @param string $content_html Raw post content.
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function check_image_alt( string $content_html ): array {
 		if ( ! preg_match_all( '/<img\s[^>]*>/i', $content_html, $images ) ) {
@@ -392,14 +371,11 @@ class OnPageAnalyzer {
 	}
 
 	/**
-	 * Rank Math's own keyword-density test ("about 1-1.5% is sufficient... Warning above 2.5%" -
-	 * rankmath.com/kb/seo-score-vs-content-ai-score/). Counted as whole-phrase occurrences of the
-	 * (possibly multi-word) focus keyword against the total word count, same convention
-	 * `contains()` already uses for every other keyword check in this class.
+	 * Rank Math's own keyword-density test ("about 1-1.5% is sufficient...
 	 *
 	 * @param string $keyword      Focus keyword.
 	 * @param string $content_text Plain-text content.
-	 * @return array<string, mixed>|null Null when there's no keyword to measure density for.
+	 * @return array|null Null when there's no keyword to measure density for.
 	 */
 	private function check_keyword_density( string $keyword, string $content_text ): ?array {
 		if ( '' === $keyword ) {
@@ -446,7 +422,7 @@ class OnPageAnalyzer {
 	 *
 	 * @param string $keyword Focus keyword.
 	 * @param string $title   Current post title.
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function check_keyword_at_title_start( string $keyword, string $title ): array {
 		$half = mb_substr( $title, 0, (int) ceil( mb_strlen( $title ) / 2 ) );
@@ -457,11 +433,10 @@ class OnPageAnalyzer {
 	}
 
 	/**
-	 * Titles with a number (a year, a count, "7 ways to…") measurably
-	 * get more clicks.
+	 * Titles with a number (a year, a count, "7 ways to…") measurably get more clicks.
 	 *
 	 * @param string $title Current post title.
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function check_title_has_number( string $title ): array {
 		return (bool) preg_match( '/\d/', $title )
@@ -470,8 +445,7 @@ class OnPageAnalyzer {
 	}
 
 	/**
-	 * Case-insensitive substring match, not word-boundary, since a focus
-	 * keyword is often a multi-word phrase.
+	 * Case-insensitive substring match, not word-boundary, since a focus keyword is often a multi-word phrase.
 	 *
 	 * @param string $keyword  Focus keyword.
 	 * @param string $haystack Text to search within.
@@ -489,7 +463,7 @@ class OnPageAnalyzer {
 	 * @param string      $status    'pass'|'warning'|'fail'.
 	 * @param string      $message   Human-readable explanation.
 	 * @param string|null $action_id AIActions id that can fix this, if any.
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function result( string $id, string $group, string $status, string $message, ?string $action_id = null ): array {
 		return array(

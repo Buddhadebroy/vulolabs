@@ -4,7 +4,7 @@ import type { ComponentType } from 'react';
 import { usePostData } from './usePostData';
 import { useFilterSlot } from '../services/useFilterSlot';
 
-/** Content Intelligence - Pro-only. Card shell only; the real panel lives in Pro's `ContentIntelligencePanel.tsx`. */
+/** Content Intelligence - Pro-only. */
 export default function ContentIntelligencePanel() {
 	const { postId, title } = usePostData();
 	const Panel = useFilterSlot< ComponentType< { postId: number; title: string } > >(

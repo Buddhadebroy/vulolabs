@@ -10,8 +10,7 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Reads web-server-provided request values (client IP, raw request URI, user agent, server
- * software) that WordPress core has no accessor for.
+ * Reads web-server-provided request values that WordPress core has no accessor for.
  *
  * @class       ServerRequest class
  * @version     1.0.0
@@ -36,10 +35,9 @@ class ServerRequest {
 	}
 
 	/**
-	 * Real client IP - the connecting address only, never a client-supplied `X-Forwarded-
-	 * For`-style header.
+	 * Real client IP.
 	 *
-	 * @return string Real IP, or '0.0.0.0' if genuinely unavailable (e.g. CLI context).
+	 * @return string Real IP, or '0.0.0.0' if genuinely unavailable.
 	 */
 	public static function client_ip(): string {
 		$valid = filter_var( self::get( 'REMOTE_ADDR' ), FILTER_VALIDATE_IP );

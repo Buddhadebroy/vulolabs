@@ -67,8 +67,7 @@ const getAffectedItemLink = (
 		return undefined;
 	}
 
-	// admin_url is `.../admin.php?page=vulopilot` (built for appending `#&tab=...` hashes
-	// elsewhere in this app) - not a base to prefix a *different* admin.php query onto.
+	// admin_url is `.../admin.php?page=vulopilot`.
 	return `${vulopilotAppLocalizer.site_url}/wp-admin/post.php?post=${encodeURIComponent(row.object_ref)}&action=edit`;
 };
 
@@ -144,7 +143,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				? (applyFilters('vulopilot_fixed_group_outcome', null, group) as FixOutcome | null) ?? undefined
 				: undefined
 		);
-		// `showPanelNotice` is re-created every render and only calls a state setter; re-run only when the selected issue changes.
+		// `showPanelNotice` is re-created every render and only calls a state setter.
 	}, [group?.scanner_id]);
 
 	/** The group response only ever carries a count + one sample. */
@@ -157,8 +156,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		setIsLoadingAffected(true);
 		setAffectedItems(null);
 
-		// Scoped by object_type too, not just scanner_id - one scanner can report several
-		// unrelated finding types under the same scanner_id.
+		// Scoped by object_type too, not just scanner_id.
 		const objectTypeParam = group.object_type
 			? `&object_type=${encodeURIComponent(group.object_type)}`
 			: '';
@@ -236,7 +234,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 			: '';
 	const showWhatHappened = !showRecommendedFix && '' !== whatHappened;
 
-	/** group.sample is already shown in full above ("Recommended fix"/"What happened"/"Example finding"). */
+	/** group.sample is already shown in full above. */
 	const otherAffectedItems = (affectedItems ?? []).filter(
 		(row) => row.id !== group.sample?.id
 	);
@@ -391,8 +389,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 
 				const failed = total - succeeded;
 
-				// Single batch: the handler's own message already says exactly the right thing
-				// (including the "no automatic fix exists yet" honest case).
+				// Single batch: the handler's own message already says exactly the right thing.
 				if (batches.length <= 1) {
 					return {
 						success: 0 === failed,
@@ -722,8 +719,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 											row.page || __('Site-wide', 'vulopilot'),
 											formatWpDate(row.last_seen_at ?? row.created_at)
 										),
-										// `action` (not `link`) - ListComponent's own `<a>` branch
-										// for `link` drops the `desc` line entirely.
+										// `action` - ListComponent's own `<a>` branch for `link` drops the `desc` line entirely.
 										action: pageLink
 											? () =>
 												window.open(

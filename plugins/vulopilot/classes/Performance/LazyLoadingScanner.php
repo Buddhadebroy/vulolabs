@@ -8,8 +8,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags a site where WordPress core's own native lazy-loading (`loading="lazy"`, on by
- * default since WP 5.5) has been disabled by a theme or plugin.
+ * Flags a site where WordPress core's own native lazy-loading has been disabled by a theme or plugin.
  *
  * @class       LazyLoadingScanner class
  * @version     1.0.0

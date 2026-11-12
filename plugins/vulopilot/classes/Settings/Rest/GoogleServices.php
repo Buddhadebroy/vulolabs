@@ -8,9 +8,7 @@ use VuloPilot\Settings\GoogleServicesConnection;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Backs Settings → Connections → Google Services' real "Connect Google Services" flow
- * (GoogleServicesPanel.tsx) and the Keywords tab's own real connection-status read
- * (KeywordsTab.tsx).
+ * Backs Settings → Connections → Google Services' real "Connect Google Services" flow and the Keywords tab's own real connection-status read.
  *
  * @class       GoogleServices controller
  * @version     1.0.0
@@ -181,8 +179,7 @@ class GoogleServices extends \WP_REST_Controller {
 	}
 
 	/**
-	 * `return_to` is only sanitized here; the allow-list check is in
-	 * GoogleServicesConnection::get_authorization_url().
+	 * `return_to` is only sanitized here.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
@@ -198,8 +195,7 @@ class GoogleServices extends \WP_REST_Controller {
 		$connection = new GoogleServicesConnection();
 
 		if ( $connection->has_broker() ) {
-			// Ask the broker first, so a broker that isn't fully set up answers with its own
-			// message here instead of sending the browser to a raw JSON error page.
+			// Ask the broker first, so a broker that isn't fully set up answers with its own message here instead of sending the browser to a raw JSON error page.
 			$probe = wp_remote_get(
                 $url,
                 array(
@@ -246,8 +242,7 @@ class GoogleServices extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Pings each Google service once, since a revoked refresh token would still read as
-	 * connected from `get_status()`.
+	 * Pings each Google service once, since a revoked refresh token would still read as connected from `get_status()`.
 	 *
 	 * @return \WP_REST_Response
 	 */
@@ -281,8 +276,7 @@ class GoogleServices extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Uses `sanitize_text_field()`, not `esc_url_raw()`, which would strip valid `sc-
-	 * domain:` property values.
+	 * Uses `sanitize_text_field()`, not `esc_url_raw()`, which would strip valid `sc- domain:` property values.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
@@ -344,8 +338,7 @@ class GoogleServices extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Validated against a fresh real `list_account_summaries()`/ `list_data_streams()`
-	 * pair rather than trusting the posted account/property names as-is.
+	 * Validated against a fresh real `list_account_summaries()`/ `list_data_streams()` pair rather than trusting the posted account/property names as-is.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error

@@ -1,9 +1,6 @@
 import { __ } from '@wordpress/i18n';
 
-/**
- * `id`/`priority`/`headerTitle`/`headerIcon` are read by NavigatorComponent to list the tab and
- * route to it.
- */
+/** `id`/`priority`/`headerTitle`/`headerIcon` are read by NavigatorComponent to list the tab and route to it. */
 export default {
 	id: 'developer-tools',
 	priority: 9,

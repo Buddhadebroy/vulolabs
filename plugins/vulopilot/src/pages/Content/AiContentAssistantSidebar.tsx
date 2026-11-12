@@ -124,20 +124,14 @@ const AiContentAssistantSidebar = () => {
 	const [message, setMessage] = useState('');
 	const [turns, setTurns] = useState<ChatTurn[]>([]);
 	const [isSending, setIsSending] = useState(false);
-	// Set the moment a chip is picked; cleared once the user's next message
-	// has been folded into that chip's own build() and sent for real.
+	// Set the moment a chip is picked.
 	const [pendingChip, setPendingChip] = useState<PromptChip | null>(null);
 	const [isCloudConnectPromptOpen, setIsCloudConnectPromptOpen] = useState(false);
 	const [pageOptions, setPageOptions] = useState<PageOption[]>([]);
 	const [isLoadingPageOptions, setIsLoadingPageOptions] = useState(false);
 	const { status: creditsStatus } = useAiCredits();
 
-	/**
-	 * "Create meta title" is the one chip whose answer is a real page/post, not free text -
-	 * load a searchable list the moment it's picked (SelectInput filters the typed text against
-	 * `label` itself, so this alone gives real search-as-you-type, same as ContentToolPopup.tsx's
-	 * own `post-picker` field).
-	 */
+	/** "Create meta title" is the one chip whose answer is a real page/post, not free text. */
 	useEffect(() => {
 		if ('meta-title' !== pendingChip?.id) {
 			return;
@@ -216,9 +210,7 @@ const AiContentAssistantSidebar = () => {
 			.finally(() => setIsSending(false));
 	};
 
-	/**
-	 * Picking a chip doesn't send anything to the AI yet.
-	 */
+	/** Picking a chip doesn't send anything to the AI yet. */
 	const handleChipClick = (chip: PromptChip) => {
 		if (isSending || pendingChip) {
 			return;
@@ -237,11 +229,7 @@ const AiContentAssistantSidebar = () => {
 		]);
 	};
 
-	/**
-	 * Shared by both answer paths: typing free text (`handleSend`) and picking a page from the
-	 * search dropdown (`handlePagePicked`) - either way, `answer` is folded into the pending
-	 * chip's own build() the same way.
-	 */
+	/** Shared by both answer paths: typing free text. */
 	const submitAnswer = (answer: string) => {
 		if ('' === answer || isSending) {
 			return;
@@ -264,10 +252,7 @@ const AiContentAssistantSidebar = () => {
 
 	const handleSend = () => submitAnswer(message.trim());
 
-	/**
-	 * Selecting a page submits immediately - there's nothing left to type once a real page is
-	 * picked.
-	 */
+	/** Selecting a page submits immediately. */
 	const handlePagePicked = (pageId: string) => {
 		const picked = pageOptions.find((option) => option.value === pageId);
 
@@ -276,8 +261,7 @@ const AiContentAssistantSidebar = () => {
 		}
 	};
 
-	// AiChatCard's own onSelectPrompt only hands back a prompt's title (the shape every real
-	// composer's prompt grid shares).
+	// AiChatCard's own onSelectPrompt only hands back a prompt's title.
 	const handleSelectPrompt = (title: string) => {
 		const chip = PROMPT_CHIPS.find((c) => c.title === title);
 
@@ -286,18 +270,14 @@ const AiContentAssistantSidebar = () => {
 		}
 	};
 
-	/**
-	 * "New Chat": clears the local turns, the typed text and any unanswered chip question.
-	 */
+	/** "New Chat": clears the local turns, the typed text and any unanswered chip question. */
 	const handleNewChat = () => {
 		setTurns([]);
 		setMessage('');
 		setPendingChip(null);
 	};
 
-	/**
-	 * "Chat History" - unlike AI Copilot's own per-conversation popup.
-	 */
+	/** "Chat History" - unlike AI Copilot's own per-conversation popup. */
 	const handleOpenHistory = () => {
 		window.location.hash = '#&tab=reports&subtab=history';
 	};

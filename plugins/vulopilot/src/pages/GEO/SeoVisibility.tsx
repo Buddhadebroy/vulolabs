@@ -25,10 +25,7 @@ const TAB_IDS = [
 	'schema-knowledge',
 ] as const;
 
-/**
- * A bookmarked `?subtab=schema` or `?subtab=knowledge-graph` link (both former standalone tabs,
- * now sections inside `schema-knowledge`).
- */
+/** A bookmarked `?subtab=schema` or `?subtab=knowledge-graph` link. */
 const SUBTAB_ALIASES: Record<string, (typeof TAB_IDS)[number]> = {
 	schema: 'schema-knowledge',
 	'knowledge-graph': 'schema-knowledge',
@@ -37,10 +34,7 @@ const SUBTAB_ALIASES: Record<string, (typeof TAB_IDS)[number]> = {
 	redirects: 'crawl-urls',
 };
 
-/**
- * `NavigatorComponent`'s own `variant="compact"` icon-over-title tab bar needs a real `headerIcon`
- * per tab.
- */
+/** `NavigatorComponent`'s own `variant="compact"` icon-over-title tab bar needs a real `headerIcon` per tab. */
 const TAB_META: Record<
 	(typeof TAB_IDS)[number],
 	{ headerTitle: string; headerIcon: string }
@@ -58,9 +52,7 @@ const TAB_META: Record<
 	},
 };
 
-/**
- * "SEO & Visibility" (WP menu slug `seo-visibility`).
- */
+/** "SEO & Visibility" (WP menu slug `seo-visibility`). */
 const SeoVisibility = () => {
 	const rawSubtab = new URLSearchParams(
 		useLocation().hash.substring(1)
@@ -94,11 +86,9 @@ const SeoVisibility = () => {
 	// Which inner tab `CrawlUrlsTab` should land on the next time it's (re)mounted.
 	const [crawlUrlsJumpSection, setCrawlUrlsJumpSection] =
 		useState<CrawlUrlsSectionId>(initialCrawlUrlsSection);
-	// Scanner whose findings the destination tab should pre-select and scroll to (Overview's "Top Opportunities" View buttons); read once at mount by BrandVisibilityTab.
+	// Scanner whose findings the destination tab should pre-select and scroll to.
 	const [jumpScannerId, setJumpScannerId] = useState<string | undefined>();
-	/**
-	 * `crawlUrlsSection` is only meaningful when `tab` is `'crawl-urls'`.
-	 */
+	/** `crawlUrlsSection` is only meaningful when `tab` is `'crawl-urls'`. */
 	const goToTab = (
 		tab: string,
 		crawlUrlsSection?: CrawlUrlsSectionId,

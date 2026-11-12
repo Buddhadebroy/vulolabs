@@ -1,8 +1,6 @@
 import { __ } from '@wordpress/i18n';
 
-/**
- * Settings → SEO → Instant Indexing (IndexNow).
- */
+/** Settings → SEO → Instant Indexing (IndexNow). */
 export default {
 	id: 'indexnow',
 	priority: 3,

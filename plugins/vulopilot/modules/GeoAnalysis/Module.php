@@ -20,9 +20,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Module {
 
-	/**
-	 * Module constructor.
-	 */
+	/** Module constructor. */
 	public function __construct() {
 		add_action( 'save_post', array( $this, 'maybe_regenerate_llms_txt' ), 10, 2 );
 	}
@@ -51,8 +49,7 @@ class Module {
 
 		VuloPilot()->llms_txt_generator->write_file( $content );
 
-		// Keeps Settings → GEO's textarea showing the same content the live file now has, not the
-		// pre-publish version, next time an admin opens it.
+		// Keeps Settings → GEO's textarea showing the same content the live file now has, not the pre-publish version, next time an admin opens it.
 		$settings['llms_txt_content'] = $content;
 		update_option( Utill::VULOPILOT_SETTINGS_KEY, $settings );
 	}

@@ -18,9 +18,7 @@ class CoreWebVitalsBeacon {
 
 	private const RETENTION_DAYS = 28;
 
-	/**
-	 * CoreWebVitalsBeacon constructor.
-	 */
+	/** CoreWebVitalsBeacon constructor. */
 	public function __construct() {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_beacon_script' ) );
 		add_action( 'init', array( $this, 'ensure_cleanup_scheduled' ) );

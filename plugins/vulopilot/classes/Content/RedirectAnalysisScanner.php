@@ -16,16 +16,10 @@ defined( 'ABSPATH' ) || exit;
  */
 class RedirectAnalysisScanner extends ScannerUtil {
 
-	/**
-	 * A chain this long or shorter is normal (e.g. http -> https, or a
-	 * single canonical www/non-www redirect) and isn't worth flagging.
-	 */
+	/** A chain this long or shorter is normal and isn't worth flagging. */
 	private const MAX_HEALTHY_HOPS = 2;
 
-	/**
-	 * Hard cap on hops followed before giving up and treating the chain
-	 * as a likely loop - bounds the request count this scanner can make.
-	 */
+	/** Hard cap on hops followed before giving up and treating the chain as a likely loop. */
 	private const MAX_HOPS_CHECKED = 5;
 
 	private const REQUEST_TIMEOUT_SECONDS = 5;

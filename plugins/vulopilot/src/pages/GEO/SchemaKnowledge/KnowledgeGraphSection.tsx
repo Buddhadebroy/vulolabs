@@ -9,7 +9,7 @@ import {
 } from '@zyra/components';
 import { useFilterSlot } from '../../../services/useFilterSlot';
 
-/** Real Settings → Get Started → Business Information subtab id (Settings.tsx's own `currentTab === 'business-information'` branch). */
+/** Real Settings → Get Started → Business Information subtab id. */
 export const ENTITY_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=business-information';
 
 
@@ -30,9 +30,9 @@ export interface EntitiesResponse {
 	services: Entity[];
 	locations: Entity[];
 	categories: Entity[];
-	/** Real, owner-provided `entity_business_type` setting (Settings → Site Identity → Business Information). */
+	/** Real, owner-provided `entity_business_type` setting. */
 	business_type: string;
-	/** Real, deterministic check - a published page at `/contact/` or `/contact-us/` (EntityExtractor::find_contact_page(), same slug list GeoTrustSignalsScanner's own "missing Contact page" finding already checks). */
+	/** Real, deterministic check. */
 	has_contact_page: boolean;
 	contact_page_url: string | null;
 	/** The site admin's real account email (`get_option('admin_email')`, matched to a real \WP_User). */
@@ -45,10 +45,7 @@ export interface EntitiesResponse {
 }
 
 
-/**
- * Same "genuinely gates the underlying data" posture SeoTab.tsx's own isSeoModuleActive() already
- * documents.
- */
+/** Same "genuinely gates the underlying data" posture SeoTab.tsx's own isSeoModuleActive() already documents. */
 const isEntityExtractionModuleActive = () =>
 	vulopilotAppLocalizer.active_modules?.includes('knowledge-graph') ?? false;
 
@@ -56,9 +53,7 @@ const isEntityExtractionModuleActive = () =>
 
 
 
-/**
- * "Knowledge Graph" section of the merged "Business Identity & Schema" tab.
- */
+/** "Knowledge Graph" section of the merged "Business Identity & Schema" tab. */
 const KnowledgeGraphSection = () => {
 	const [error, setError] = useState<string | null>(null);
 

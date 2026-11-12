@@ -1,8 +1,6 @@
 import React, { createContext, useReducer, useContext, ReactNode } from 'react';
 
-/**
- * Small reducer-backed context holding per-tab settings state, which zyra does not export.
- */
+/** Small reducer-backed context holding per-tab settings state, which zyra does not export. */
 type SettingState = {
 	settingName: string;
 	setting: Record<string, unknown>;

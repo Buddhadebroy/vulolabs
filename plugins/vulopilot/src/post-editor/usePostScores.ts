@@ -20,19 +20,14 @@ const calculateAeoScore = ( breakdown: { critical: number; high: number; medium:
 /** Matches PageAnalysisTab.tsx's own live-recheck debounce. */
 const LIVE_SCORE_DEBOUNCE_MS = 600;
 
-/**
- * Real SEO score (live against current editor fields, same `OnPageAnalyzer` engine as the Page
- * Analysis tab) and real AEO score (this post's open AEO findings) - shared by the in-panel
- * badges and the toolbar score pill, so both read one fetch pair. Reacts to typing (debounced)
- * and to every successful save.
- */
+/** Real SEO score. */
 export function usePostScores( postId: number ) {
 	const [ seoScore, setSeoScore ] = useState< number | null >( null );
 	const [ aeoScore, setAeoScore ] = useState< number | null >( null );
 	/** Last full evaluation's rules - ScoreImprovementCard's "reach 100 by fixing these" list. */
 	const [ seoScoreRules, setSeoScoreRules ] = useState< SeoScoreRule[] >( [] );
 
-	// The editor's own live, possibly-unsaved field values - same shape PageAnalysisTab's analyzePost() sends.
+	// The editor's own live, possibly-unsaved field values.
 	const live = useSelect( ( select ) => {
 		const editor = select( 'core/editor' ) as any;
 		const meta = editor.getEditedPostAttribute( 'meta' ) || {};

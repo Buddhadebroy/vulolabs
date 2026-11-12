@@ -19,8 +19,7 @@ use VuloPilot\Utill\ScannedPostsTrait;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * AI Crawler Analytics' Free "Blocked Pages" - flags real published pages that robots.txt
- * disallows for a SPECIFIC known AI bot.
+ * AI Crawler Analytics' Free "Blocked Pages".
  *
  * @class       AiCrawlerBlockedPagesScanner class
  * @version     1.0.0
@@ -84,8 +83,7 @@ class AiCrawlerBlockedPagesScanner extends ScannerUtil implements TracksScannedO
 		foreach ( $bot_signatures as $bot_token => $bot_name ) {
 			$disallowed_paths = $robots->get_disallowed_paths_for_bot( $bot_token );
 
-			// A bare `/` disallow is already RobotsTxtScanner's own sitewide finding when it
-			// applies to the wildcard group.
+			// A bare `/` disallow is already RobotsTxtScanner's own sitewide finding when it applies to the wildcard group.
 			$disallowed_paths = array_diff( $disallowed_paths, array( '/' ) );
 
 			if ( empty( $disallowed_paths ) ) {

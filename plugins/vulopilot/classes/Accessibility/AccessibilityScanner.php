@@ -20,9 +20,7 @@ class AccessibilityScanner extends ScannerUtil implements TracksScannedObjectsIn
 
 	use ScannedPostsTrait;
 
-	/**
-	 * How many of the most recently published posts/pages to check per run.
-	 */
+	/** How many of the most recently published posts/pages to check per run. */
 	private const BATCH_SIZE = 50;
 
 	/**

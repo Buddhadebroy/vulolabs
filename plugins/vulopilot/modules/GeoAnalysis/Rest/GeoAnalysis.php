@@ -24,17 +24,10 @@ class GeoAnalysis extends \WP_REST_Controller {
 	 */
 	protected $rest_base = 'geo-analysis';
 
-	/**
-	 * Posts with zero open findings aren't returned by the SQL grouping below (there's no
-	 * row to group), so they're appended separately.
-	 */
+	/** Posts with zero open findings aren't returned by the SQL grouping below, so they're appended separately. */
 	private const MAX_ZERO_FINDING_FILL = 20;
 
-	/**
-	 * Safety bound on `get_pages()`'s `WP_Query` - its sort key is computed,
-	 * not a native post column, so every matching post must be pulled into
-	 * memory, scored, then sorted/paginated in PHP.
-	 */
+	/** Safety bound on `get_pages()`'s `WP_Query`. */
 	private const MAX_PAGES_QUERY = 1000;
 
 	/**
@@ -84,8 +77,7 @@ class GeoAnalysis extends \WP_REST_Controller {
 		$requested_limit = absint( $request->get_param( 'limit' ) );
 		$limit           = min( 20, max( 1, $requested_limit ? $requested_limit : 5 ) );
 		$scanner_ids     = $this->parse_scanner_ids( $request );
-		// `scope=all` (Dashboard's "Key pages at a glance" widget) ranks by
-		// open findings of any category, not just GEO.
+		// `scope=all` ranks by open findings of any category, not just GEO.
 		$sitewide = 'all' === $request->get_param( 'scope' );
 		$counts   = ( new FindingRepository() )->count_by_column(
 			'object_ref',
@@ -121,13 +113,7 @@ class GeoAnalysis extends \WP_REST_Controller {
 		$top     = array_slice( $ranked, 0, $limit );
 		$top_ids = array_column( $top, 'post_id' );
 
-		// A site with fewer published pages than `2 * $limit` would otherwise
-		// show the same pages in both "top" and "bottom" - fixed by
-		// excluding whatever's already in `top` before
-		// ranking the worst, so "bottom" only ever shows pages `top`
-		// hasn't already claimed (naturally shorter, even empty, on a very
-		// small site, which TopPagesCard.tsx already handles via its own
-		// `data.bottom.length > 0` check).
+		// A site with fewer published pages than `2 * $limit` would otherwise show the same pages in both "top" and "bottom".
 		$remaining = array_values(
 			array_filter(
 				$ranked,
@@ -144,7 +130,7 @@ class GeoAnalysis extends \WP_REST_Controller {
 	}
 
 	/**
-	 * `GET /geo-analysis/pages` - every published page/post with its open GEO finding count and a deterministic visibility percentage.
+	 * `GET /geo-analysis/pages`.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
@@ -216,8 +202,7 @@ class GeoAnalysis extends \WP_REST_Controller {
 				$a_value = $a[ $sort_key ];
 				$b_value = $b[ $sort_key ];
 
-				// Nulls (no GEO history) always sort last regardless of direction -
-				// "unscored" isn't meaningfully higher or lower than a real number.
+				// Nulls always sort last regardless of direction.
 				if ( null === $a_value && null === $b_value ) {
 					return 0;
 				}
@@ -247,10 +232,7 @@ class GeoAnalysis extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Optional `scanner_ids` request param (comma-separated) - when present,
-	 * ranks/scores by open findings against that set instead of the
-	 * default `category = geo`. Lets AeoTab.tsx reuse this endpoint with
-	 * its own AEO scanner ids.
+	 * Optional `scanner_ids` request param.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return string[] Sanitized scanner ids, empty if the param was absent/empty.
@@ -268,7 +250,7 @@ class GeoAnalysis extends \WP_REST_Controller {
 	/**
 	 * @param int $post_id       Post to build a row for.
 	 * @param int $open_findings Its already-known open GEO finding count.
-	 * @return array{post_id: int, title: string, edit_link: string, permalink: string, open_findings: int}|null Null if the post no longer exists.
+	 * @return array|null Null if the post no longer exists.
 	 */
 	private function build_row( int $post_id, int $open_findings ): ?array {
 		$post = get_post( $post_id );
@@ -287,10 +269,9 @@ class GeoAnalysis extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Published posts/pages with no open GEO finding at all, capped to
-	 * MAX_ZERO_FINDING_FILL.
+	 * Published posts/pages with no open GEO finding at all, capped to MAX_ZERO_FINDING_FILL.
 	 *
-	 * @param int[] $exclude_post_ids Post ids already counted (have at least one open finding), skip these.
+	 * @param int[] $exclude_post_ids Post ids already counted.
 	 * @return int[]
 	 */
 	private function get_zero_finding_posts( array $exclude_post_ids ): array {

@@ -10,8 +10,7 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Finding severity levels. Matches the `severity varchar(20)` column
- * Free's Install.php creates (DEFAULT 'info').
+ * Finding severity levels.
  *
  * @class       Severity class
  * @version     1.0.0

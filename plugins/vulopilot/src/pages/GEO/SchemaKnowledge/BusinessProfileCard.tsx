@@ -19,9 +19,7 @@ const isBrandModuleActive = () =>
 const isEntityExtractionModuleActive = () =>
 	vulopilotAppLocalizer.active_modules?.includes('knowledge-graph') ?? false;
 
-/**
- * Understanding-language labels for the real `entity_score` gauge.
- */
+/** Understanding-language labels for the real `entity_score` gauge. */
 const getRating = (score: number): string => {
 	if (score >= 90) {
 		return __('Excellent', 'vulopilot');
@@ -42,16 +40,13 @@ interface ProfileRow {
 	key: string;
 	label: string;
 	found: boolean;
-	/** True only for Products with no WooCommerce active - a real "doesn't apply to this site" state. */
+	/** True only for Products with no WooCommerce active. */
 	notApplicable?: boolean;
 	value: string;
 	confidence: 'high' | 'medium' | 'n/a';
 }
 
-/**
- * Real "confidence" a site owner should place in each row, disclosed here rather than left
- * implicit: - Business name: always "high".
- */
+/** Real "confidence" a site owner should place in each row, disclosed here rather than left implicit. */
 const buildRows = (entities: EntitiesResponse): ProfileRow[] => {
 	const businessName = entities.organizations[0]?.name ?? '';
 
@@ -173,20 +168,17 @@ const ROW_ICON: Record<string, string> = {
 	contact_details: 'mail indigo',
 };
 
-/**
- * "Business Information" / "Key Information Found by AI".
- */
+/** "Business Information" / "Key Information Found by AI". */
 const BusinessProfileCard = () => {
 	const [entityScore, setEntityScore] = useState<number | null>(null);
 	const [entities, setEntities] = useState<EntitiesResponse | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
-	// The real "Business Name Details" side panel (BusinessNameDetailsPanel.tsx) is the only row
-	// here with a real multi-source cross-check behind it.
+	// The real "Business Name Details" side panel is the only row here with a real multi-source cross-check behind it.
 	const [isNamePanelOpen, setIsNamePanelOpen] = useState(false);
 	// The real "Product Details" side panel (ProductDetailsPanel.tsx).
 	const [isProductsPanelOpen, setIsProductsPanelOpen] = useState(false);
 	const [isCustomSchemaProPopupOpen, setIsCustomSchemaProPopupOpen] = useState(false);
-	/** The "People" row's own real popup - same `PopupComponent` pattern `business_name`/`products` already use. */
+	/** The "People" row's own real popup. */
 	const [isPeopleDropdownOpen, setIsPeopleDropdownOpen] = useState(false);
 	/** The "Categories" row's own real popup - same pattern as `isPeopleDropdownOpen` above. */
 	const [isCategoriesPopupOpen, setIsCategoriesPopupOpen] = useState(false);
@@ -229,8 +221,7 @@ const BusinessProfileCard = () => {
 	const rows = entities ? buildRows(entities) : [];
 	// Excludes `notApplicable` rows (Products with no WooCommerce active).
 	const missingCount = rows.filter((row) => !row.found && !row.notApplicable).length;
-	// The "Products" row's own real "View" action opens `ProductDetailsPanel`, which has nothing
-	// real to show without at least 1 real product.
+	// The "Products" row's own real "View" action opens `ProductDetailsPanel`, which has nothing real to show without at least 1 real product.
 	const visibleRows = rows.filter(
 		(row) => 'products' !== row.key || row.found
 	);
@@ -281,9 +272,7 @@ const BusinessProfileCard = () => {
 									ratingColor(entityScore) as keyof typeof COLOR_PALETTE
 									]
 								}
-								// Same `TypographyComponent` h1/h4 centerLabel shape every other
-								// real score ring in this plugin uses
-								// (OverallScoreWidget.tsx/SeoTab.tsx/ GeoScoreSection.tsx/etc.).
+								// Same `TypographyComponent` h1/h4 centerLabel shape every other real score ring in this plugin uses.
 								centerLabel={
 									<>
 										<TypographyComponent
@@ -301,8 +290,7 @@ const BusinessProfileCard = () => {
 									{
 										label: __('Score', 'vulopilot'),
 										value: entityScore,
-										// Same real rating color the ring's own label above
-										// already uses (`ratingColor()`/`getRating()`).
+										// Same real rating color the ring's own label above already uses (`ratingColor()`/`getRating()`).
 										color: COLOR_PALETTE[
 											ratingColor(entityScore) as keyof typeof COLOR_PALETTE
 										],
@@ -418,8 +406,7 @@ const BusinessProfileCard = () => {
 												}}
 											/>
 										) : 'contact_details' === row.key ? (
-											// Always "View" (never "Add Details") regardless of
-											// `row.found`.
+											// Always "View" (never "Add Details") regardless of `row.found`.
 											entities.contact_email.edit_url && (
 												<ButtonInput
 													buttons={{
@@ -443,7 +430,7 @@ const BusinessProfileCard = () => {
 													icon: row.found
 														? __('eye', 'vulopilot')
 														: __('plus', 'vulopilot'),
-													// Was 'text-purple', which rendered darker than the explicit branches above (all 'text-blue').
+													// Was 'text-purple', which rendered darker than the explicit branches above.
 													color: 'text-blue',
 													onClick: () =>
 														window.open(ENTITY_SETTINGS_URL, '_self'),

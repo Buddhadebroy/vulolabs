@@ -10,7 +10,7 @@ interface ActivityLogRow {
 	id: number;
 	message: string;
 	created_at: string;
-	/** Real column on every `activity-logs` row (a plain `SELECT *`) - this local interface just didn't type it before, since nothing here read it. */
+	/** Real column on every `activity-logs` row. */
 	event_type: string;
 }
 
@@ -20,22 +20,16 @@ const SECURITY_ACTIVITY_EVENT_TYPES = [
 	'security.new_user',
 ].join(',');
 
-/**
- * The only event types above that Reports → History lists (Reports\Rest\History's
- * EVENT_TYPES_BY_CATEGORY: scans and AI actions).
- */
+/** The only event types above that Reports → History lists. */
 const HISTORY_LISTED_EVENT_TYPES = ['scan.completed', 'scan.completed.security'];
 
-/**
- * "Recent Activity" - `GET activity-logs` is real and generic (`ActivityLogs.php`).
- */
+/** "Recent Activity" - `GET activity-logs` is real and generic (`ActivityLogs.php`). */
 const RecentActivityCard = () => {
 	const { data, isLoading } = useApiList<ActivityLogRow>('activity-logs', {
 		event_type: SECURITY_ACTIVITY_EVENT_TYPES,
 		per_page: 4,
 	});
-	// Purely local UI state - this card shows no side detail panel for a selected row (unlike
-	// HistoryTab.tsx's own real use of this same selection).
+	// Purely local UI state - this card shows no side detail panel for a selected row.
 	const [selectedRow, setSelectedRow] = useState<ReturnType<
 		typeof toHistoryRow
 	> | null>(null);
@@ -67,9 +61,7 @@ const RecentActivityCard = () => {
 					onSelectRow={setSelectedRow}
 					isLoadingMore={false}
 					onLoadMore={() => {}}
-					// "More Details" opens this exact row in Reports → History (this card has no
-					// detail panel of its own): the row's own id rides along as
-					// `vulopilot_history_id`.
+					// "More Details" opens this exact row in Reports → History.
 					onArrowClick={(row) => {
 						if (!HISTORY_LISTED_EVENT_TYPES.includes(row.event_type)) {
 							setSelectedRow(row);

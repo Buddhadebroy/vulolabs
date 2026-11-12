@@ -12,14 +12,6 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Restyles WordPress core's own native `/wp-sitemap.xml` browser view.
  *
- * Browsers are removing client-side XSLT support, so core's own approach - an
- * `<?xml-stylesheet type="text/xsl" ...?>` processing instruction that the browser transforms -
- * no longer works and logs a deprecation warning in the console. We turn that PI off entirely
- * (`wp_sitemaps_stylesheet_url`/`wp_sitemaps_stylesheet_index_url` returning false, same as core's
- * own documented way to disable it) and instead render the same look as a real server-side HTML
- * page, swapped in only when a browser is navigating directly to a sitemap URL - crawlers and the
- * raw XML every other consumer reads are completely unaffected.
- *
  * @class       SitemapStylesheet class
  * @version     2.0.0
  * @author      VuloLabs
@@ -33,22 +25,18 @@ class SitemapStylesheet {
 	 */
 	private const STYLE_FILE = 'assets/styles/public/vulopilot-sitemap-stylesheet.min.css';
 
-	/**
-	 * SitemapStylesheet constructor.
-	 */
+	/** SitemapStylesheet constructor. */
 	public function __construct() {
 		// Core's own escape hatch - a falsey URL means no xml-stylesheet PI is emitted at all.
 		add_filter( 'wp_sitemaps_stylesheet_url', '__return_false' );
 		add_filter( 'wp_sitemaps_stylesheet_index_url', '__return_false' );
 
-		// Earlier than core's own `render_sitemaps()` (added at the default priority, 10), so we
-		// can swap in an HTML response before core ever writes an XML one.
+		// Earlier than core's own `render_sitemaps()`, so we can swap in an HTML response before core ever writes an XML one.
 		add_action( 'template_redirect', array( $this, 'maybe_render_html' ), 5 );
 	}
 
 	/**
-	 * If this request is a browser navigating straight to a sitemap URL, renders the same page as
-	 * real HTML and exits; otherwise does nothing and lets core's own XML rendering run as normal.
+	 * If this request is a browser navigating straight to a sitemap URL, renders the same page as real HTML and exits.
 	 *
 	 * @return void
 	 */
@@ -86,8 +74,7 @@ class SitemapStylesheet {
 	}
 
 	/**
-	 * A direct browser visit asks for `text/html`; a crawler or any other XML consumer does not -
-	 * same heuristic the WordPress ecosystem settled on for this exact browser change.
+	 * A direct browser visit asks for `text/html`.
 	 *
 	 * @return bool
 	 */
@@ -100,8 +87,8 @@ class SitemapStylesheet {
 	/**
 	 * Builds the table rows for a single sitemap's URL list.
 	 *
-	 * @param array $url_list Core's own per-URL array (`loc`, optionally `lastmod`, `changefreq`, `priority`).
-	 * @return array{rows: string, has_lastmod: bool, has_changefreq: bool, has_priority: bool}
+	 * @param array $url_list Core's own per-URL array.
+	 * @return array
 	 */
 	private function url_rows( array $url_list ) {
 		$has_lastmod    = false;
@@ -139,7 +126,7 @@ class SitemapStylesheet {
 	 * Builds the table rows for the top-level sitemap index.
 	 *
 	 * @param array $sitemap_list Core's own index array (`loc`, optionally `lastmod`).
-	 * @return array{rows: string}
+	 * @return array
 	 */
 	private function index_rows( array $sitemap_list ) {
 		$rows = '';
@@ -155,9 +142,7 @@ class SitemapStylesheet {
 	}
 
 	/**
-	 * Writes the real HTML page and ends the request, same markup/CSS classes
-	 * (`#sitemap__header`/`#sitemap__table`) the old XSL output used, so the compiled stylesheet
-	 * applies unchanged.
+	 * Writes the real HTML page and ends the request, same markup/CSS classes.
 	 *
 	 * @param array $table    From `url_rows()`/`index_rows()`.
 	 * @param bool  $is_index Whether this is the top-level sitemap index.
@@ -230,8 +215,7 @@ class SitemapStylesheet {
 	}
 
 	/**
-	 * Address of the compiled file, with the plugin version appended. Empty when the file has not
-	 * been built.
+	 * Address of the compiled file, with the plugin version appended.
 	 *
 	 * @return string
 	 */

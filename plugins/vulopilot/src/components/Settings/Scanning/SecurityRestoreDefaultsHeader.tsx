@@ -6,9 +6,7 @@ import { NoticeManager } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useSetting } from '../../../contexts/SettingContext';
 
-/**
- * Settings → Scanning → Security's own "Restore Defaults" button.
- */
+/** Settings → Scanning → Security's own "Restore Defaults" button. */
 const DEFAULTS: Record<string, unknown> = {
 	enable_weak_password_scanner: ['enable_weak_password_scanner'],
 	enable_basic_vulnerabilities_scanner: ['enable_basic_vulnerabilities_scanner'],

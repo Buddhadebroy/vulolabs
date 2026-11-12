@@ -8,8 +8,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Times a real request to the site's own homepage and flags a slow response - no existing
- * scanner measures request timing.
+ * Times a real request to the site's own homepage and flags a slow response.
  *
  * @class       SlowPageScanner class
  * @version     1.0.0
@@ -17,9 +16,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class SlowPageScanner extends ScannerUtil {
 
-	/**
-	 * Response time, in seconds, above which the homepage is considered slow.
-	 */
+	/** Response time, in seconds, above which the homepage is considered slow. */
 	private const SLOW_THRESHOLD_SECONDS = 2.0;
 
 	private const REQUEST_TIMEOUT_SECONDS = 10;

@@ -5,11 +5,11 @@ import { useFilterSlot } from '../../services/useFilterSlot';
 import type { ComponentType } from 'react';
 
 interface AeoCitationCoverageCardProps {
-	/** Whether GeoInsights' own Rest.php class is registered at all (either 'geo-insights' or 'aeo-insights' active - both register the same class, so either is enough). */
+	/** Whether GeoInsights' own Rest.php class is registered at all. */
 	isActive: boolean;
 }
 
-/** Card shell only - plugs in via the `vulopilot_aeo_citation_coverage_panel` filter, else inert placeholders render. */
+/** Card shell only. */
 const AeoCitationCoverageCard = ({ isActive }: AeoCitationCoverageCardProps) => {
 	const Panel = useFilterSlot<ComponentType>('vulopilot_aeo_citation_coverage_panel');
 

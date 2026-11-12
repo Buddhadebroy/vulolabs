@@ -55,9 +55,7 @@ interface ContentToolPopupProps {
 	onClose: () => void;
 }
 
-/**
- * Uses a raw `fetch()` for the propose() call specifically rather than zyra's `sendApiResponse()`.
- */
+/** Uses a raw `fetch()` for the propose() call specifically rather than zyra's `sendApiResponse()`. */
 const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 	tool,
 	onClose,
@@ -230,8 +228,7 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 				return body as ProposeResponse;
 			})
 			.then((body) => {
-				// Settings → Automation → Approval Settings' risk-based/ "Do not ask" modes can
-				// make propose() itself apply this change immediately.
+				// Settings → Automation → Approval Settings' risk-based/ "Do not ask" modes can make propose() itself apply this change immediately.
 				if (body.auto_approved) {
 					NoticeManager.add({
 						uniqueKey: `content-tool-approve-${body.run_id}`,

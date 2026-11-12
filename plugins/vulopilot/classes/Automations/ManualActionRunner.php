@@ -23,9 +23,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class ManualActionRunner {
 
-	/**
-	 * Synthetic rule_id stamped on every Recommendation this class builds.
-	 */
+	/** Synthetic rule_id stamped on every Recommendation this class builds. */
 	private const MANUAL_RULE_ID = 'manual';
 
 	/**
@@ -51,7 +49,6 @@ class ManualActionRunner {
 	 * @param int    $finding_id A `vulopilot_scan_findings` row id.
 	 * @param string $action_id  A registered ActionInterface's get_id().
 	 * @return \VuloPilot\Automations\AutomationsRunResult
-	 *
 	 * @throws \InvalidArgumentException If the finding or the action isn't found.
 	 */
 	public function run( int $finding_id, string $action_id ) {
@@ -71,7 +68,7 @@ class ManualActionRunner {
 	}
 
 	/**
-	 * @param array<string, mixed> $finding_row A `vulopilot_scan_findings` row.
+	 * @param array $finding_row A `vulopilot_scan_findings` row.
 	 * @return Recommendation
 	 */
 	private function build_recommendation( array $finding_row ): Recommendation {

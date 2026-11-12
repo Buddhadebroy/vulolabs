@@ -66,7 +66,7 @@ final class AutomationsRunResult {
 	}
 
 	/**
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function to_array(): array {
 		return array(

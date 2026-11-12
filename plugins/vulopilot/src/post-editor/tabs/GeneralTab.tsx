@@ -8,33 +8,25 @@ import { useFieldHighlight } from '../useFieldHighlight';
 import { useFilterSlot } from '../../services/useFilterSlot';
 
 interface GeneralTabProps {
-	/** "All SEO Issues" table's "Fix with AI" deep link - currently only ever resolves to 'canonical_url' on this tab (see seoIssueEditorTarget.ts). */
+	/** "All SEO Issues" table's "Fix with AI" deep link. */
 	highlightTarget?: string;
-	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch - accepted for prop-shape parity with every other tab, unused here. */
+	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch. */
 	// eslint-disable-next-line no-unused-vars
 	onNavigate?: ( tab: string, target?: string ) => void;
 }
 
-/**
- * The metabox's General tab - focus keyword, SEO title (its own `_vulopilot_seo_title` postmeta,
- * independent of the real `post_title`), meta description (native `post_excerpt`), a live
- * snippet preview.
- */
+/** The metabox's General tab - focus keyword, SEO title. */
 export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
 	const { postId, title, excerpt, slug, meta, setExcerpt, setMeta } = usePostData();
 	const { metaKeys, shopUrl } = window.vulopilotPostSeo;
-	// Independent of the real post title (the editor's own Title field/`post_title`) - an empty
-	// override here just means "use the page's own title", same fallback every other SEO plugin's
-	// per-post title field uses.
+	// Independent of the real post title (the editor's own Title field/`post_title`).
 	const seoTitle = ( meta[ metaKeys.seo_title ] as string ) || '';
 	const setSeoTitle = ( value: string ) => setMeta( { [ metaKeys.seo_title ]: value } );
 	const canonicalUrl = ( meta[ metaKeys.canonical_url ] as string ) || '';
 	const noindex = Boolean( meta[ metaKeys.robots_noindex ] );
 	const nofollow = Boolean( meta[ metaKeys.robots_nofollow ] );
 	const isCanonicalHighlighted = useFieldHighlight( highlightTarget, 'canonical_url' );
-	// Stored as one comma-separated string (PostSeoMetaFields::split_keywords()'s own docblock) -
-	// the first is the "primary" keyword every check on the Page Analysis tab scores against,
-	// same primary/additional distinction Rank Math's own focus keyword field uses.
+	// Stored as one comma-separated string (PostSeoMetaFields::split_keywords()'s own docblock).
 	const focusKeywordRaw = ( meta[ window.vulopilotPostSeo.metaKeys.focus_keyword ] as string ) || '';
 	const focusKeywords = focusKeywordRaw
 		.split( ',' )
@@ -46,10 +38,7 @@ export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
 	const [ keywordDraft, setKeywordDraft ] = useState( '' );
 	const [ isSnippetPulsing, setIsSnippetPulsing ] = useState( false );
 
-	// Score pill deep link (`snippet-<nonce>` target) - opens the collapsed snippet editor and
-	// pulses it. Not `useFieldHighlight` directly, since this must open `isEditingSnippet` first
-	// before the target element exists; the nonce suffix lets a second click re-trigger even
-	// without a remount.
+	// Score pill deep link - opens the collapsed snippet editor and pulses it.
 	useEffect( () => {
 		if ( ! highlightTarget?.startsWith( 'snippet' ) ) {
 			return;

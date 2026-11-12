@@ -4,9 +4,7 @@ namespace VuloPilot\Settings;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real Google Analytics Admin API (GA4) client - backs the "Analytics" settings panel's
- * own Account/Property/Data Stream dropdowns (GoogleServicesPanel.tsx), reusing
- * GoogleServicesConnection's shared OAuth token rather than its own separate connection.
+ * Real Google Analytics Admin API client.
  *
  * @class       GoogleAnalyticsClient class
  * @version     1.0.0
@@ -18,10 +16,7 @@ class GoogleAnalyticsClient {
 
 	private const DATA_STREAMS_URL = 'https://analyticsadmin.googleapis.com/v1beta/%s/dataStreams';
 
-	/**
-	 * A different real Google API entirely from the two above (GA4 Data API, not Admin
-	 * API).
-	 */
+	/** A different real Google API entirely from the two above (GA4 Data API, not Admin API). */
 	private const RUN_REPORT_URL = 'https://analyticsdata.googleapis.com/v1beta/%s:runReport';
 
 	/**
@@ -37,10 +32,9 @@ class GoogleAnalyticsClient {
 	}
 
 	/**
-	 * Real `GET .../v1beta/accountSummaries` - every GA4 account this Google user can
-	 * access, each with its own real properties.
+	 * Real `GET .../v1beta/accountSummaries`.
 	 *
-	 * @return array<int, array{account_id: string, account_name: string, properties: array<int, array{property_id: string.
+	 * @return array
 	 */
 	public function list_account_summaries() {
 		$token = $this->connection->get_valid_access_token();
@@ -84,11 +78,10 @@ class GoogleAnalyticsClient {
 	}
 
 	/**
-	 * Lists a property's web data streams (app streams are skipped, as only a browser
-	 * `gtag.js` snippet is injected).
+	 * Lists a property's web data streams.
 	 *
 	 * @param string $property_id A real `property_id` from `list_account_summaries()`.
-	 * @return array<int, array{data_stream_id: string, display_name: string, measurement_id: string}>|\WP_Error
+	 * @return array|\WP_Error
 	 */
 	public function list_data_streams( string $property_id ) {
 		$token = $this->connection->get_valid_access_token();
@@ -133,10 +126,10 @@ class GoogleAnalyticsClient {
 	}
 
 	/**
-	 * @param string $property_id A real `property_id` (GoogleServicesConnection::get_status()'s own `ga4_property_id`).
+	 * @param string $property_id A real `property_id`.
 	 * @param string $start_date  `Y-m-d`.
 	 * @param string $end_date    `Y-m-d`.
-	 * @return array<string, int>|\WP_Error `Y-m-d` => real session count, only for days GA4 actually returned a row.
+	 * @return array|\WP_Error `Y-m-d` => real session count, only for days GA4 actually returned a row.
 	 */
 	public function run_sessions_report( string $property_id, string $start_date, string $end_date ) {
 		$token = $this->connection->get_valid_access_token();
@@ -198,10 +191,10 @@ class GoogleAnalyticsClient {
 	}
 
 	/**
-	 * @param string $property_id A real `property_id` (GoogleServicesConnection::get_status()'s own `ga4_property_id`).
+	 * @param string $property_id A real `property_id`.
 	 * @param string $start_date  `Y-m-d`.
 	 * @param string $end_date    `Y-m-d`.
-	 * @return array<string, int>|\WP_Error Real channel label => real session count.
+	 * @return array|\WP_Error Real channel label => real session count.
 	 */
 	public function run_channel_group_report( string $property_id, string $start_date, string $end_date ) {
 		$token = $this->connection->get_valid_access_token();

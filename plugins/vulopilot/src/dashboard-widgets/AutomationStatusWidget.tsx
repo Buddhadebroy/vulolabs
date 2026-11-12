@@ -48,8 +48,7 @@ const AutomationStatusWidget: React.FC<WidgetProps> = ({
 	})).filter((item) => item.row);
 	const enabledCount = rows.filter((item) => 'enabled' === item.row?.status).length;
 
-	// Same real `PATCH /automations/{id}` toggle BuiltinAutomationCards.tsx's
-	// own `handleToggle` already uses - reused here rather than a second path.
+	// Same real `PATCH /automations/{id}` toggle BuiltinAutomationCards.tsx's own `handleToggle` already uses.
 	const handleToggle = (row: AutomationRow) => {
 		sendApiResponse(
 			vulopilotAppLocalizer,
@@ -57,8 +56,7 @@ const AutomationStatusWidget: React.FC<WidgetProps> = ({
 			{ status: 'enabled' === row.status ? 'disabled' : 'enabled' }
 		).then(() => {
 			refetch();
-			// Keeps sibling payloads (`summary.automation_status`) in step - see
-			// `onRefreshSummary`'s own docblock (types.ts).
+			// Keeps sibling payloads in step - see `onRefreshSummary`'s own docblock.
 			onRefreshSummary();
 		});
 	};

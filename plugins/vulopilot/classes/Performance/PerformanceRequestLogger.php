@@ -6,8 +6,7 @@ use VuloPilot\Performance\PerformanceRequestRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real-time "Performance" telemetry - logs one response-time sample for a real front-end
- * request.
+ * Real-time "Performance" telemetry.
  *
  * @class       PerformanceRequestLogger class
  * @version     1.0.0
@@ -21,9 +20,7 @@ class PerformanceRequestLogger {
 
 	private const RETENTION_DAYS = 3;
 
-	/**
-	 * PerformanceRequestLogger constructor.
-	 */
+	/** PerformanceRequestLogger constructor. */
 	public function __construct() {
 		add_action( 'shutdown', array( $this, 'maybe_log' ) );
 		add_action( 'init', array( $this, 'ensure_cleanup_scheduled' ) );
@@ -46,8 +43,7 @@ class PerformanceRequestLogger {
 		$response_time_ms = (int) round( timer_float() * 1000 );
 
 		if ( $response_time_ms <= 0 || $response_time_ms > 65535 ) {
-			// Out of the column's smallint unsigned range, or clearly
-			// bogus (a clock anomaly) - skip rather than truncate silently.
+			// Out of the column's smallint unsigned range, or clearly bogus.
 			return;
 		}
 

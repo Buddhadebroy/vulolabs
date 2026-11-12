@@ -28,7 +28,7 @@ class BackupStorageManager {
 	}
 
 	/**
-	 * @return string One of self::VALID_DESTINATIONS - the real, currently-active setting.
+	 * @return string One of self::VALID_DESTINATIONS.
 	 */
 	public function get_active_destination(): string {
 		$settings    = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
@@ -38,9 +38,7 @@ class BackupStorageManager {
 	}
 
 	/**
-	 * `vulopilot_backup_completed` callback - marks the row's real destination immediately
-	 * (so BackupsTab.tsx shows "Uploading…" without waiting for the next cron tick) and
-	 * schedules the actual upload.
+	 * `vulopilot_backup_completed` callback - marks the row's real destination immediately.
 	 *
 	 * @param int $backup_id Real `vulopilot_backups` row id.
 	 * @return void
@@ -64,11 +62,10 @@ class BackupStorageManager {
 	}
 
 	/**
-	 * Registered on `self::UPLOAD_HOOK`, run via WP-Cron only. Performs the
-	 * real upload and writes back the real, final outcome.
+	 * Registered on `self::UPLOAD_HOOK`, run via WP-Cron only.
 	 *
 	 * @param int    $backup_id   Real `vulopilot_backups` row id.
-	 * @param string $destination One of self::VALID_DESTINATIONS (never `'local'` - schedule_upload() never schedules this hook for that case).
+	 * @param string $destination One of self::VALID_DESTINATIONS.
 	 * @return void
 	 */
 	public function upload_to_remote( int $backup_id, string $destination ): void {
@@ -115,11 +112,9 @@ class BackupStorageManager {
 	}
 
 	/**
-	 * Real remote-copy cleanup - called by `Backups::delete_item()` and
-	 * `BackupManager::apply_retention()` right alongside their own local unlink()+row-
-	 * delete, with the real row they already have in hand (no second DB read here).
+	 * Real remote-copy cleanup.
 	 *
-	 * @param array<string, mixed> $backup Real `vulopilot_backups` row (the same one the caller already fetched).
+	 * @param array $backup Real `vulopilot_backups` row.
 	 * @return void
 	 */
 	public function delete_remote_copy( array $backup ): void {

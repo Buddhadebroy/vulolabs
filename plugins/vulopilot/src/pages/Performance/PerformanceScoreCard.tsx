@@ -50,9 +50,7 @@ const getScoreRating = (score: number): Rating => {
 	return { label: __('At Risk', 'vulopilot'), className: 'poor' };
 };
 
-/**
- * Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`).
- */
+/** Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`). */
 const RATING_COLOR: Record<Rating['className'], string> = {
 	good: COLOR_PALETTE.green,
 	'needs-improvement': COLOR_PALETTE.orange,
@@ -77,9 +75,7 @@ const TEXT_COLOR: Record<Rating['className'], string> = {
 
 
 
-/**
- * "Performance Score": an Overall Speed Score card (from `GET /dashboard`) plus Core Web Vitals.
- */
+/** "Performance Score". */
 const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 	const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
@@ -87,10 +83,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 	/** Drives SpeedHistoryCard's own real `days` param below. */
 	const [period, setPeriod] = useState<PeriodDays>('30');
 
-	/**
-	 * Real objects only - `getApiResponse` (zyra) hands back whatever axios parsed `response.data`
-	 * into.
-	 */
+	/** Real objects only. */
 	const isPlainObject = (value: unknown): value is Record<string, unknown> =>
 		null !== value && 'object' === typeof value && !Array.isArray(value);
 
@@ -129,9 +122,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 		'number' === typeof psi.mobile &&
 		'number' === typeof psi.desktop;
 
-	/**
-	 * Real score the hero ring plots - same number the old `ScoreTile` row showed.
-	 */
+	/** Real score the hero ring plots - same number the old `ScoreTile` row showed. */
 	const overallScore = hasPsi && psi
 		? Math.round(((psi.mobile as number) + (psi.desktop as number)) / 2)
 		: dashboard?.category_scores.performance ?? 0;

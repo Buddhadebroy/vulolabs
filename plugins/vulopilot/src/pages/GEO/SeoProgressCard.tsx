@@ -34,9 +34,7 @@ const PERIOD_OPTIONS = [
 	{ key: '90', value: '90', label: __('90D', 'vulopilot') },
 ];
 
-/**
- * "SEO progress" - a new, additive card.
- */
+/** "SEO progress" - a new, additive card. */
 const SeoProgressCard = () => {
 	const [data, setData] = useState<SeoProgressResponse | null>(null);
 	const [isLoading, setIsLoading] = useState(true);

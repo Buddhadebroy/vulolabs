@@ -8,8 +8,7 @@ use VuloPilot\TechnicalSeo\Scanners\BrokenLinksScanner;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /broken-links/stats` - coverage numbers for the Broken Links tab, read from the
- * scanners' stats options.
+ * `GET /broken-links/stats`.
  *
  * @class       BrokenLinksStats controller
  * @version     1.0.0
@@ -64,7 +63,7 @@ class BrokenLinksStats extends \WP_REST_Controller {
 
 	/**
 	 * @param string $option_name One of the two scanners' own STATS_OPTION constants.
-	 * @return array{pages_scanned: int, links_checked: int, healthy_count: int, checked_at: int|null} `checked_at` is null (never a fabricated 0/"just now") when this scanner has never genuinely run yet.
+	 * @return array `checked_at` is null.
 	 */
 	private function read_stats( string $option_name ): array {
 		$stats = get_option( $option_name, array() );

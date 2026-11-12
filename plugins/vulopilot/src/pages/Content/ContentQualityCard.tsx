@@ -69,10 +69,7 @@ const STATUS_BADGE: Record<OnPageCheck['status'], { color: string; label: string
 	fail: { color: 'red', label: __('High', 'vulopilot') },
 };
 
-/**
- * Maps OnPageAnalyzer check ids to scanner ids, so a row click reuses the post-editor deep-link
- * contract.
- */
+/** Maps OnPageAnalyzer check ids to scanner ids, so a row click reuses the post-editor deep-link contract. */
 const CHECK_ID_TO_SCANNER_ID: Record<string, string> = {
 	title_length: 'seo',
 	description_length: 'meta-description',
@@ -80,9 +77,7 @@ const CHECK_ID_TO_SCANNER_ID: Record<string, string> = {
 	has_subheadings: 'heading-structure',
 };
 
-/**
- * One real on-page check - zyra's own `ListComponent`, one item per check.
- */
+/** One real on-page check - zyra's own `ListComponent`, one item per check. */
 const CheckRow: FC<{ check: OnPageCheck; onClick?: () => void }> = ({
 	check,
 	onClick,
@@ -106,10 +101,7 @@ const CheckRow: FC<{ check: OnPageCheck; onClick?: () => void }> = ({
 	/>
 );
 
-/**
- * Create Content's "Content Quality" card - real, per-piece-of-content signals for whichever post
- * the picker selects.
- */
+/** Create Content's "Content Quality" card. */
 interface ContentQualityCardProps {
 	postId?: number;
 	/** Real row title `RecentContentCard.tsx` already has on hand (no extra fetch needed). */
@@ -160,11 +152,10 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 				}
 			})
 			.finally(() => setIsLoadingOptions(false));
-		// `isExternal`/`externalPostId` are fixed for this component instance's whole lifetime (RecentContentCard.tsx always mounts a fresh instance per `analyzingId`, same as PageAnalysisPanel.tsx's own `postId` prop) - this effect only ever needs to run once, for the picker-driven case.
+		// `isExternal`/`externalPostId` are fixed for this component instance's whole lifetime.
 	}, []);
 
-	// Externally driven: track a later `postId` prop change too (e.g. the host clicking "Analyze"
-	// on a *different* row while this panel is already open).
+	// Externally driven: track a later `postId` prop change too.
 	useEffect(() => {
 		if (isExternal) {
 			setSelectedId(externalPostId);
@@ -192,8 +183,7 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 
 	const isLoading = isLoadingOptions || isLoadingQuality;
 
-	// Same real edit-screen link ContentRow.editLink/RecentContentCard.tsx already build for this
-	// exact post id.
+	// Same real edit-screen link ContentRow.editLink/RecentContentCard.tsx already build for this exact post id.
 	const editLink = selectedId
 		? `${vulopilotAppLocalizer.site_url}/wp-admin/post.php?post=${selectedId}&action=edit`
 		: '';
@@ -205,13 +195,11 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 			: 0;
 	const completenessTone = getScoreTone(completenessPercent);
 
-	// Local `const` (not a repeated `data.structure` property access) so
-	// TypeScript's null-narrowing survives into the `onClick` closure below.
+	// Local `const` so TypeScript's null-narrowing survives into the `onClick` closure below.
 	const structureCheck = data?.structure ?? null;
 
 	/**
-	 * Same `post.php?post={id}&action=edit&vulopilot_seo_issue={scannerId}` shape
-	 * `SeoIssuesByPageTable.tsx`/`GEO/PageAnalysisPanel.tsx` build.
+	 * Same `post.php?post={id}&action=edit&vulopilot_seo_issue={scannerId}` shape `SeoIssuesByPageTable.tsx`/`GEO/PageAnalysisPanel.tsx` build.
 	 */
 	const goToCheckInEditor = (checkId: string) => {
 		if (!editLink) {

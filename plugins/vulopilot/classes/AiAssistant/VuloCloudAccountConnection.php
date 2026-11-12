@@ -14,7 +14,7 @@ class VuloCloudAccountConnection {
 	private const OPTION_KEY = 'vulopilot_vulocloud_account';
 
 	/**
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function get_connection(): array {
 		return wp_parse_args(
@@ -37,7 +37,7 @@ class VuloCloudAccountConnection {
 	/**
 	 * Account status; never includes a token.
 	 *
-	 * @return array{connected: bool, email: string, connected_at: string}
+	 * @return array
 	 */
 	public function get_status(): array {
 		$connection = $this->get_connection();

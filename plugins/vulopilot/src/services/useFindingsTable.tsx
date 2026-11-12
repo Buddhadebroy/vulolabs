@@ -22,9 +22,7 @@ const CATEGORY_ACRONYMS: Record<string, string> = {
 	wordpress: 'WordPress',
 };
 
-/**
- * `Finding.category` is the raw scanner category string ('security', 'wordpress', 'ssl', …).
- */
+/** `Finding.category` is the raw scanner category string ('security', 'wordpress', 'ssl', …). */
 export const humanizeCategory = (category: string): string =>
 	category
 		.split('-')
@@ -42,20 +40,11 @@ export interface Finding extends TableRow {
 	category: string;
 	status: 'open' | 'resolved' | 'ignored' | 'snoozed';
 	created_at: string;
-	/**
-	 * The scanner's own longer explanation of the finding (Finding:: get_description() server-
-	 * side).
-	 */
+	/** The scanner's own longer explanation of the finding (Finding:: get_description() server- side). */
 	description?: string;
-	/**
-	 * Resolved page path (e.g. '/pricing') for a per-post finding, or 'Site-wide' for a sitewide
-	 * check.
-	 */
+	/** Resolved page path for a per-post finding, or 'Site-wide' for a sitewide check. */
 	page?: string;
-	/**
-	 * The real post's own title (`get_the_title()`), added alongside `page` by the same
-	 * `add_page_field()`.
-	 */
+	/** The real post's own title (`get_the_title()`), added alongside `page` by the same `add_page_field()`. */
 	page_title?: string | null;
 	fix_action_id?: string | null;
 }
@@ -64,53 +53,38 @@ export const getFindingFixHandler = () =>
 	applyFilters('vulopilot_finding_fix_handler', null);
 
 /**
- * @return A function(ids: number[]): Promise<FixOutcome>, or null when no fix handler is available.
+ * @return
  */
 const getFindingBulkFixHandler = () =>
 	applyFilters('vulopilot_finding_bulk_fix_handler', null);
 
 export interface UseFindingsTableProps {
-	/** Restricts the list to one finding category (e.g. 'seo', 'geo', 'woocommerce'). Omit to show every category (Health). */
+	/** Restricts the list to one finding category (e.g. 'seo', 'geo', 'woocommerce'). */
 	category?: string;
-	/**
-	 * Further restricts the list to a specific set of scanner ids within `category`.
-	 */
+	/** Further restricts the list to a specific set of scanner ids within `category`. */
 	scannerIds?: string[];
-	/**
-	 * Compact layout: each row is one InformationItemComponent with title, page and detected date.
-	 */
+	/** Compact layout: each row is one InformationItemComponent with title, page and detected date. */
 	layout?: 'default' | 'compact';
 	/** Empty-state message - shown by TableCard's own `emptyMessage` when there's nothing to list. */
 	description?: string;
-	/**
-	 * Which categorical dimension drives the pill bar above the table.
-	 */
+	/** Which categorical dimension drives the pill bar above the table. */
 	pillDimension?: 'status' | 'priority';
 }
 
 export interface UseFindingsTableResult {
-	/**
-	 * Spread straight onto Zyra's `TableCard` - every prop this hook derives from `/findings`
-	 * plus the row actions/bulk actions/filters.
-	 */
+	/** Spread straight onto Zyra's `TableCard`. */
 	tableCardProps: Omit<TableCardProps, 'title'>;
-	/** Real fetch error (`useApiList`'s own) - render an error state (e.g. ModuleGuardComponent) instead of `TableCard` when set. */
+	/** Real fetch error - render an error state instead of `TableCard` when set. */
 	error: string | null;
 	/** Retry the fetch - wire to the error state's own retry action. */
 	refetch: () => void;
 	isProPopupOpen: boolean;
 	closeProPopup: () => void;
-	/**
-	 * The "View" row action's own detail popup, already wired to `viewingFinding`/`closeView` -
-	 * render it once alongside `tableCardProps` (same pattern as `fixNotice`).
-	 */
+	/** The "View" row action's own detail popup, already wired to `viewingFinding`/`closeView`. */
 	viewPopup: ReactElement;
 }
 
-/**
- * Shared findings-list logic - the Health, SEO, GEO, and WooCommerce pages are all
- * "vulopilot_scan_findings filtered to a category".
- */
+/** Shared findings-list logic. */
 export const useFindingsTable = ({
 	category,
 	scannerIds,
@@ -161,9 +135,7 @@ export const useFindingsTable = ({
 
 	const { show: showFix, fixNotice } = useFixNotice(refetch);
 
-	/**
-	 * Whether the user currently has a search term typed in.
-	 */
+	/** Whether the user currently has a search term typed in. */
 	const [hasSearchTerm, setHasSearchTerm] = useState(false);
 
 	const handleQueryUpdate: typeof onQueryUpdate = (query) => {

@@ -1,10 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { formatWpDate, formatWpTime } from './formatWpDate';
 
-/**
- * Shared `HistoryRow`/`toHistoryRow()` (a `vulopilot_ai_history` row → this shared day-grouped-
- * timeline row shape) behind every real History surface in this plugin.
- */
+/** Shared `HistoryRow`/`toHistoryRow()` behind every real History surface in this plugin. */
 export type HistoryFilter = 'all' | 'conversation' | 'scan' | 'change' | 'automations';
 
 export interface RelatedAction {
@@ -21,7 +18,7 @@ export interface ConversationDetail {
 	request_id: string | null;
 	status: 'success' | 'failure';
 	excerpt: string | null;
-	/** The real, human-typed question this reply answers - null for any row logged before this column existed (AiRequestSender.php's own build_prompt_excerpt()), never fabricated. */
+	/** The real, human-typed question this reply answers. */
 	prompt_excerpt: string | null;
 	/** Real `ai_action.*` history rows this exact turn caused, if any. */
 	related_actions: RelatedAction[];
@@ -98,20 +95,14 @@ const CONTENT_CREATION_NOUNS: Record<string, string> = {
 	'generate-product-description': __('product description', 'vulopilot'),
 };
 
-/**
- * A parsed orchestrator decision - the exact 3-shape JSON contract both Copilot.php and
- * ContentAssistant.php's system prompts require (`{"status":"question"|"ready_action"|"respond",
- * ...}`, ContentCreationOrchestrator::parse_response()'s own PHP-side contract).
- */
+/** A parsed orchestrator decision. */
 interface OrchestratorDecision {
 	status: 'question' | 'ready_action' | 'respond';
 	message?: string;
 	action_id?: string;
 }
 
-/**
- * Turns a real `vulopilot_ai_history.response_excerpt` into what a human should actually read.
- */
+/** Turns a real `vulopilot_ai_history.response_excerpt` into what a human should actually read. */
 export const humanizeConversationExcerpt = (
 	excerpt: string | null,
 	status: 'success' | 'failure'
@@ -149,8 +140,7 @@ export const humanizeConversationExcerpt = (
 			return decision.message;
 		}
 	} catch {
-		// Either not actually the orchestrator's JSON shape, or - very commonly for a real
-		// "respond" reply with substantial content.
+		// Either not actually the orchestrator's JSON shape, or.
 		const messageMatch = trimmed.match(/"message"\s*:\s*"((?:[^"\\]|\\.)*)/);
 
 		if (messageMatch) {
@@ -159,8 +149,7 @@ export const humanizeConversationExcerpt = (
 				.replace(/\\"/g, '"')
 				.trim();
 
-			// build_excerpt() (AiRequestSender.php) already appends its
-			// own '…' when it truncates - don't double it up.
+			// build_excerpt() already appends its own '…' when it truncates - don't double it up.
 			return recovered.endsWith('…') ? recovered : recovered + '…';
 		}
 	}
@@ -183,9 +172,7 @@ const SCANNER_ACRONYMS: Record<string, string> = {
 	aria: 'ARIA',
 };
 
-/**
- * The compact "Recent activity" lists (dashboard widget, Security, …) feed rows with no scan join.
- */
+/** The compact "Recent activity" lists. */
 const scannerTitleFromMessage = (row: HistoryRow): string | null => {
 	if (!row.event_type.startsWith('scan.')) {
 		return null;
@@ -207,10 +194,7 @@ const scannerTitleFromMessage = (row: HistoryRow): string | null => {
 		.join(' ');
 };
 
-/**
- * Every real row title comes straight from its real scan/change/ conversation label - never
- * invented copy.
- */
+/** Every real row title comes straight from its real scan/change/ conversation label. */
 export const rowTitle = (row: HistoryRow): string => {
 	if (row.scan) {
 		return row.scan.label;
@@ -236,8 +220,7 @@ const CHANGE_ICON_BY_EVENT: Record<string, string> = {
 	'ai_action.failed': 'error red',
 	'ai_action.rejected': 'close red',
 	'ai_action.rolled_back': 'undo pink',
-	// Synthesized by `toHistoryRow()` below for a real `GET /automation-runs` row
-	// (AutomationsActivityCard.tsx).
+	// Synthesized by `toHistoryRow()` below for a real `GET /automation-runs` row.
 	'automation.completed': 'check green',
 	'automation.failed': 'error red',
 	'automation.running': 'clock gray',
@@ -255,9 +238,7 @@ export const rowIcon = (row: HistoryRow): string => {
 	return CHANGE_ICON_BY_EVENT[row.event_type] ?? 'update';
 };
 
-/**
- * The mockup's bottom-left pale category tag ("Conversation"/"Scan"/ "Change"/"Automation").
- */
+/** The mockup's bottom-left pale category tag ("Conversation"/"Scan"/ "Change"/"Automation"). */
 export const rowTag = (row: HistoryRow): { text: string; className: string } => {
 	if ('scan' === row.category) {
 		return { text: __('Scan', 'vulopilot'), className: 'blue' };
@@ -281,9 +262,7 @@ const CHANGE_STATUS_BADGE_BY_EVENT: Record<string, string> = {
 	'automation.running': __('Running', 'vulopilot'),
 };
 
-/**
- * The mockup's top-right status pill ("Applied") - change rows only.
- */
+/** The mockup's top-right status pill ("Applied") - change rows only. */
 export const rowStatusBadge = (
 	row: HistoryRow
 ): { text: string; className: string } | null => {
@@ -306,20 +285,12 @@ export const rowStatusBadge = (
 	return { text, className: classByEvent[row.event_type] ?? 'grey' };
 };
 
-/**
- * Real time-of-day, in this site's own real Settings → General → Time Format (`formatWpTime()`,
- * previously a hardcoded `toLocaleTimeString()` that ignored that setting) - the day heading
- * already carries the date, so the row itself only needs the time.
- */
+/** Real time-of-day, in this site's own real Settings → General → Time Format. */
 export const rowTime = (createdAt: string): string => formatWpTime(createdAt);
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/**
- * "Today"/"Yesterday"/this site's own real Settings → General → Date Format (`formatWpDate()`,
- * previously a hardcoded `toLocaleDateString()` that ignored that setting - same real fix
- * `rowTime()` above already applies for the time half).
- */
+/** "Today"/"Yesterday"/this site's own real Settings → General → Date Format. */
 export const dayLabel = (createdAt: string): string => {
 	const date = new Date(createdAt);
 	const today = new Date();
@@ -348,9 +319,7 @@ export const dayLabel = (createdAt: string): string => {
 	return formatWpDate(createdAt);
 };
 
-/**
- * Groups already-desc-sorted rows into consecutive day buckets.
- */
+/** Groups already-desc-sorted rows into consecutive day buckets. */
 export const groupByDay = (
 	rows: HistoryRow[]
 ): { label: string; rows: HistoryRow[] }[] => {
@@ -370,10 +339,7 @@ export const groupByDay = (
 	return groups;
 };
 
-/**
- * Adapts an activity-style row (from `GET /activity-logs` or `GET /automation-runs`) into a
- * `HistoryRow` for HistoryTimeline.tsx.
- */
+/** Adapts an activity-style row. */
 export const toHistoryRow = (row: {
 	id: number | string;
 	message: string;

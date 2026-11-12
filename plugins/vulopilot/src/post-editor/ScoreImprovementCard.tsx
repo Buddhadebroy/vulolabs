@@ -27,10 +27,7 @@ const RESULT_ICON: Record< AutoFixScoreResult[ 'status' ], string > = {
 	skipped: 'minus',
 };
 
-/**
- * Lists every actually-scored fail/warning rule, so fixing all of them genuinely reaches 100.
- * Free shows a marketing CTA only; Pro's button runs a real auto-fix with per-issue outcomes.
- */
+/** Lists every actually-scored fail/warning rule, so fixing all of them genuinely reaches 100. */
 export default function ScoreImprovementCard( { score, rules, postId, onScoreUpdated }: ScoreImprovementCardProps ) {
 	const [ isFixing, setIsFixing ] = useState( false );
 	const [ results, setResults ] = useState< AutoFixScoreResult[] | null >( null );

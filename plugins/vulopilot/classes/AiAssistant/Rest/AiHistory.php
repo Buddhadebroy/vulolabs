@@ -7,8 +7,6 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Fetches `/ai-history`, backing src/pages/AIAssistant/AIAssistant.tsx's table.
- * Read-only - rows are only ever written by AI\AiRequestSender (one per real
- * AI call), never by this controller.
  *
  * @class       AiHistory controller
  * @version     1.0.0

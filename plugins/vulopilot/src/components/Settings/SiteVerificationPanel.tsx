@@ -33,7 +33,7 @@ interface ProviderCardProps {
 	children: ReactNode;
 }
 
-/** One provider card - the shared `CardHeader` layout, with the guide link in the description. */
+/** One provider card. */
 const ProviderCard = ({ icon, title, badge, steps, guideLabel, guideUrl, children }: ProviderCardProps) => (
 	<CardHeader
 		className="compact"
@@ -163,8 +163,7 @@ const ProviderRow = ({ provider, icon, title, steps, guideLabel, guideUrl }: Pro
 				if (!response) {
 					return;
 				}
-				// Floating notice (NoticeReceiverComponent position="float", already mounted app-
-				// wide by zyra's own HeaderComponent).
+				// Floating notice.
 				NoticeManager.add({
 					message: response.message,
 					type: response.success ? 'success' : 'error',
@@ -230,7 +229,7 @@ const ProviderRow = ({ provider, icon, title, steps, guideLabel, guideUrl }: Pro
 	);
 };
 
-/** Custom meta tags - free text, only `meta` tags are kept (WebmasterToolsManager sanitizes them). */
+/** Custom meta tags. */
 const CustomTagsField = () => {
 	const { setting, updateSetting } = useSetting();
 	const [value, setValue] = useState<string>((setting.webmaster_custom_tags as string | undefined) ?? '');
@@ -292,9 +291,7 @@ const CustomTagsField = () => {
 	);
 };
 
-/**
- * Settings → Integrations → Webmaster Tools.
- */
+/** Settings → Integrations → Webmaster Tools. */
 const SiteVerificationPanel = () => {
 	return (
 		<FormGroupWrapperComponent>

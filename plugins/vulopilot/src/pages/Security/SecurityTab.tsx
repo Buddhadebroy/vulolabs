@@ -11,19 +11,13 @@ import SecurityMockupHeader from './SecurityMockupHeader';
 import PluginOverlapCard from './PluginOverlapCard';
 import { SECURITY_FINDINGS_SCANNER_IDS } from './securityScannerIds';
 
-/**
- * "Incident Reports" panel - was "Old Security"'s own footer before that tab was removed and
- * folded into this one.
- */
+/** "Incident Reports" panel - was "Old Security"'s own footer before that tab was removed and folded into this one. */
 const SecurityIncidentReportsPanel = applyFilters(
 	'vulopilot_security_incident_reports_panel',
 	null
 ) as ComponentType | null;
 
-/**
- * The 4 detail sections formerly on "Old Security" (SecurityDetailTab.tsx) - moved here, appended
- * last on this tab.
- */
+/** The 4 detail sections formerly on "Old Security" - moved here, appended last on this tab. */
 const SECTIONS: FindingsSection[] = [
 	{
 		key: 'login-accounts',
@@ -135,9 +129,7 @@ const SECTIONS: FindingsSection[] = [
 /** DOM anchor id the merged table below carries - what "Review Issues" scrolls to. */
 const ISSUES_TABLE_ID = 'protect-my-site-security-issues-table';
 
-/**
- * - Hero/status/tile-grid: SecurityMockupHeader.
- */
+/** - Hero/status/tile-grid: SecurityMockupHeader. */
 const SecurityTab = () => {
 	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');
 
@@ -168,9 +160,7 @@ const SecurityTab = () => {
 					id={ISSUES_TABLE_ID}
 					title={__('All Security Issues', 'vulopilot')}
 					sections={SECTIONS}
-					// The 4 named sections below don't cover every real scanner id in
-					// SECURITY_FINDINGS_SCANNER_IDS (e.g. core-file-integrity has no dedicated
-					// section).
+					// The 4 named sections below don't cover every real scanner id in SECURITY_FINDINGS_SCANNER_IDS.
 					allScannerIds={SECURITY_FINDINGS_SCANNER_IDS}
 					activeTab={activeTab}
 					onTabChange={setActiveTab}

@@ -7,8 +7,7 @@ use VuloPilot\Utill\FindingRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Backs src/pages/CrawlerTraffic/CrawlerTraffic.tsx (AI Crawler Traffic Monitoring,
- * readme.txt).
+ * Backs src/pages/CrawlerTraffic/CrawlerTraffic.tsx.
  *
  * @class       CrawlerTraffic controller
  * @version     1.0.0
@@ -77,8 +76,7 @@ class CrawlerTraffic extends \WP_REST_Controller {
 	}
 
 	/**
-	 * `GET /crawler-traffic/post/{post_id}` - real per-post bot-visit counts, scoped by the
-	 * post's own permalink path (not a sitewide aggregate).
+	 * `GET /crawler-traffic/post/{post_id}`.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
@@ -126,9 +124,7 @@ class CrawlerTraffic extends \WP_REST_Controller {
 	}
 
 	/**
-	 * `GET /crawler-traffic/analytics` - real current-vs-previous-period comparison
-	 * (CrawlerVisitRepository::get_period_comparison()) plus a real "by AI lab" breakdown
-	 * and the real open blocked-pages count.
+	 * `GET /crawler-traffic/analytics` - real current-vs-previous-period comparison.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
@@ -157,8 +153,7 @@ class CrawlerTraffic extends \WP_REST_Controller {
 			)
 		)['total'];
 
-		// Same real weighted-severity formula Seo::calculate_score()/ Geo::calculate_score()
-		// already use.
+		// Same real weighted-severity formula Seo::calculate_score()/ Geo::calculate_score() already use.
 		$crawl_scanner_ids  = array( 'robots-txt', 'sitemap', 'sitemap-validation', 'ai-crawler-blocked-pages' );
 		$crawl_health_score = $this->calculate_score( $findings->get_severity_breakdown_for_scanner_ids( $crawl_scanner_ids ) );
 
@@ -178,7 +173,7 @@ class CrawlerTraffic extends \WP_REST_Controller {
 	/**
 	 * Same weighting `Seo::calculate_score()`/ `Geo::calculate_score()` already use.
 	 *
-	 * @param array{critical: int, high: int, medium: int, low: int} $breakdown Severity breakdown to score.
+	 * @param array $breakdown Severity breakdown to score.
 	 * @return int 0-100.
 	 */
 	private function calculate_score( array $breakdown ): int {

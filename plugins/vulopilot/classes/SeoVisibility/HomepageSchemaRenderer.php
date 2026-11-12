@@ -17,9 +17,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class HomepageSchemaRenderer {
 
-	/**
-	 * HomepageSchemaRenderer constructor.
-	 */
+	/** HomepageSchemaRenderer constructor. */
 	public function __construct() {
 		add_action( 'wp_head', array( $this, 'maybe_output_schema' ) );
 	}

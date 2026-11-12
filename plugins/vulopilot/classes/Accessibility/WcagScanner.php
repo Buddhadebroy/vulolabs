@@ -10,8 +10,7 @@ use VuloPilot\Utill\ScannedPostsTrait;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * "WCAG Scanner" (readme.txt Phase 8) - flags links whose entire visible text is a
- * generic.
+ * "WCAG Scanner" (readme.txt Phase 8) - flags links whose entire visible text is a generic.
  *
  * @class       WcagScanner class
  * @version     1.0.0
@@ -21,14 +20,11 @@ class WcagScanner extends ScannerUtil implements TracksScannedObjectsInterface {
 
 	use ScannedPostsTrait;
 
-	/**
-	 * How many of the most recently published posts/pages to check per run.
-	 */
+	/** How many of the most recently published posts/pages to check per run. */
 	private const BATCH_SIZE = 50;
 
 	/**
-	 * A link's entire visible text (trimmed, lowercased) matching one of these exactly -
-	 * not merely containing it.
+	 * A link's entire visible text matching one of these exactly - not merely containing it.
 	 *
 	 * @var string[]
 	 */

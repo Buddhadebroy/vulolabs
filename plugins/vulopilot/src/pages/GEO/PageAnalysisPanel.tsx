@@ -31,16 +31,14 @@ interface PageAnalysisPanelProps {
 	postId: number;
 }
 
-/**
- * zyra's own icon font only ever ships glyphs for 4 classes.
- */
+/** zyra's own icon font only ever ships glyphs for 4 classes. */
 const STATUS_ICON: Record<CheckStatus, string> = {
 	pass: 'check green',
 	warn: 'error red',
 	fail: 'close red',
 };
 
-/** Real per-check status pill (reference mockup) - reuses `BadgeComponent`'s own `border` outline look. */
+/** Real per-check status pill - reuses `BadgeComponent`'s own `border` outline look. */
 const STATUS_BADGE: Record<CheckStatus, { text: string; color: string }> = {
 	pass: { text: __('Passed', 'vulopilot'), color: 'green' },
 	warn: { text: __('Needs work', 'vulopilot'), color: 'orange' },
@@ -57,16 +55,11 @@ const STATUS_RANK: Record<CheckStatus, number> = {
 const sortByStatus = (checks: PageCheck[]): PageCheck[] =>
 	[...checks].sort((a, b) => STATUS_RANK[a.status] - STATUS_RANK[b.status]);
 
-/**
- * Builds a deep link that navigates to the editor and highlights the check's field.
- */
+/** Builds a deep link that navigates to the editor and highlights the check's field. */
 const buildCheckEditLink = (postId: number, checkKey: string): string =>
 	`${buildEditLink(postId)}&${PAGE_ANALYSIS_CHECK_QUERY_PARAM}=${encodeURIComponent(checkKey)}`;
 
-/**
- * "Page Analysis" (SEO & Visibility → SEO's own "Pages & Posts" table, a new "Analyze" row
- * action).
- */
+/** "Page Analysis". */
 const PageAnalysisPanel = ({ postId }: PageAnalysisPanelProps) => {
 	const [data, setData] = useState<PageAnalysisResponse | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
@@ -98,10 +91,7 @@ const PageAnalysisPanel = ({ postId }: PageAnalysisPanelProps) => {
 			.finally(() => setIsLoading(false));
 	}, [postId]);
 
-	/**
-	 * "Fix with AI" for this whole page - same real "pick the worst one" posture
-	 * `SeoIssuesByPageTable.tsx`'s own now-removed per-row action used (`worstFinding()`).
-	 */
+	/** "Fix with AI" for this whole page. */
 	const primaryFixCheck =
 		data?.checks.find((check: PageCheck) => 'fail' === check.status) ??
 		data?.checks.find((check: PageCheck) => 'warn' === check.status) ??

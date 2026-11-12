@@ -2,9 +2,7 @@ import { createElement } from 'react';
 import { __ } from '@wordpress/i18n';
 import SendTestReportButton from './SendTestReportButton';
 
-/**
- * Settings → Reports.
- */
+/** Settings → Reports. */
 export default {
 	id: 'reports',
 	priority: 5,

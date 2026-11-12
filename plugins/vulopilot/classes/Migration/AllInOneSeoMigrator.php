@@ -46,10 +46,8 @@ class AllInOneSeoMigrator implements MigratorInterface {
 
 	/**
 	 * AIOSEO's own `#token` template syntax for each VuloPilot `%token%` TitleFormatter resolves.
-	 * Anything else (`#post_excerpt`, `#author_bio`, `#taxonomy_description`, ...) is dropped
-	 * rather than left as literal, unresolved `#...` text in a migrated title/description.
 	 *
-	 * @var array<string, string>
+	 * @var array
 	 */
 	private const TOKEN_MAP = array(
 		'#site_title'     => '%site_title%',
@@ -104,9 +102,7 @@ class AllInOneSeoMigrator implements MigratorInterface {
 		);
 	}
 
-	// ---------------------------------------------------------------------
-	// Robots.txt rules.
-	// ---------------------------------------------------------------------
+	// --------------------------------------------------------------------- Robots.txt rules.
 
 	/**
 	 * @param bool $overwrite Passed through from migrate().
@@ -133,9 +129,7 @@ class AllInOneSeoMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * Raw-copies AIOSEO's own robots.txt rules into plain `User-agent:`/directive lines - the same
-	 * grouped-by-user-agent shape `RobotsTxt::stringifyRuleset()` itself would output, built from
-	 * the rules array directly rather than by re-running AIOSEO's own merge/override logic.
+	 * Raw-copies AIOSEO's own robots.txt rules into plain `User-agent:`/directive lines.
 	 *
 	 * @return string
 	 */
@@ -187,9 +181,7 @@ class AllInOneSeoMigrator implements MigratorInterface {
 		return trim( implode( "\n", $lines ) );
 	}
 
-	// ---------------------------------------------------------------------
-	// Per-post SEO data.
-	// ---------------------------------------------------------------------
+	// --------------------------------------------------------------------- Per-post SEO data.
 
 	/**
 	 * @return int
@@ -256,7 +248,7 @@ class AllInOneSeoMigrator implements MigratorInterface {
 
 	/**
 	 * @param int       $post_id Post id.
-	 * @param \stdClass $row    One `wp_aioseo_posts` row.
+	 * @param \stdClass $row     One `wp_aioseo_posts` row.
 	 * @return void
 	 */
 	private function migrate_post_row( int $post_id, \stdClass $row ): void {
@@ -283,7 +275,7 @@ class AllInOneSeoMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * AIOSEO stores `keyphrases` as a JSON blob: `{"focus":{"keyphrase":"..."},"additional":[...]}`.
+	 * AIOSEO stores `keyphrases` as a JSON blob.
 	 *
 	 * @param string $json_keyphrases Raw `keyphrases` column value.
 	 * @return string
@@ -294,9 +286,7 @@ class AllInOneSeoMigrator implements MigratorInterface {
 		return is_array( $decoded ) ? (string) ( $decoded['focus']['keyphrase'] ?? '' ) : '';
 	}
 
-	// ---------------------------------------------------------------------
-	// Sitewide settings.
-	// ---------------------------------------------------------------------
+	// --------------------------------------------------------------------- Sitewide settings.
 
 	/**
 	 * @param bool $overwrite Passed through from migrate().
@@ -334,7 +324,7 @@ class AllInOneSeoMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function build_settings_values(): array {
 		$options = json_decode( (string) get_option( 'aioseo_options', '' ), true );
@@ -525,9 +515,7 @@ class AllInOneSeoMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * AIOSEO's Schema settings (`searchAppearance.global.schema`) - the same business-identity
-	 * concept RankMathMigrator's `knowledgegraph_type` mapping and YoastSeoMigrator's
-	 * `company_or_person` mapping both write into.
+	 * AIOSEO's Schema settings (`searchAppearance.global.schema`).
 	 *
 	 * @param array $values  Field values being built, by reference.
 	 * @param array $options The decoded `aioseo_options` blob.
@@ -562,11 +550,7 @@ class AllInOneSeoMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * Every real post type's/taxonomy's own title/description template, from
-	 * `aioseo_options_dynamic`'s `searchAppearance.postTypes`/`taxonomies` (keyed by the real
-	 * WordPress slug already - no separate lookup needed). 'post'/'page' and 'category'/'post_tag'
-	 * route to VuloPilot's own flat fields, everything else into the
-	 * `title_format_post_types`/`title_format_taxonomies` maps.
+	 * Every real post type's/taxonomy's own title/description template, from `aioseo_options_dynamic`'s `searchAppearance.postTypes`/`taxonomies`.
 	 *
 	 * @param array $values  Field values being built, by reference.
 	 * @param array $dynamic The decoded `aioseo_options_dynamic` blob.
@@ -669,9 +653,7 @@ class AllInOneSeoMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * AIOSEO's `#token` template syntax into VuloPilot's `%token%` one - unsupported tokens are
-	 * dropped rather than left as literal `#...` text (same policy as YoastSeoMigrator's own
-	 * `%%token%%` translator).
+	 * AIOSEO's `#token` template syntax into VuloPilot's `%token%` one.
 	 *
 	 * @param string $template Raw AIOSEO template.
 	 * @return string
@@ -689,10 +671,7 @@ class AllInOneSeoMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * AIOSEO stores its default social image and Schema logo as a real attachment URL, not an id
-	 * (unlike Rank Math's/Yoast's own `*_id` companion fields) - resolved back to a local
-	 * attachment id via core's own `attachment_url_to_postid()` when the URL is one of this site's
-	 * own uploads; a remote or otherwise unresolvable URL is left unmigrated rather than guessed.
+	 * AIOSEO stores its default social image and Schema logo as a real attachment URL, not an id.
 	 *
 	 * @param array  $values Field values being built, by reference.
 	 * @param string $field  VuloPilot settings field name (an `*_id` field).

@@ -45,9 +45,7 @@ const PRIORITY_SEVERITIES: Record<Exclude<Priority, 'all'>, FindingGroup['severi
 	low: ['low', 'info'],
 };
 
-/**
- * Truncates a real finding's own `sample.description` to `maxLength` characters.
- */
+/** Truncates a real finding's own `sample.description` to `maxLength` characters. */
 const truncateDescription = (text: string, maxLength = 50): string => {
 	if (!text || text.length <= maxLength) {
 		return text;
@@ -56,8 +54,7 @@ const truncateDescription = (text: string, maxLength = 50): string => {
 	const sliced = text.slice(0, maxLength);
 	const lastSpace = sliced.lastIndexOf(' ');
 
-	// Only cut at the last space if it's reasonably close to the end -
-	// otherwise a single very long word would truncate to nothing.
+	// Only cut at the last space if it's reasonably close to the end.
 	const cut = lastSpace > maxLength * 0.6 ? sliced.slice(0, lastSpace) : sliced;
 
 	return `${cut.trimEnd()}…`;
@@ -67,24 +64,19 @@ const truncateDescription = (text: string, maxLength = 50): string => {
 export type SectionedIssuesTab = 'all' | 'important' | string;
 
 interface SectionedIssuesTableProps {
-	/** DOM anchor id for the whole merged table - what a "Review Issues"-style button elsewhere on the tab scrolls to. */
+	/** DOM anchor id for the whole merged table. */
 	id: string;
 	/** Card title, e.g. "All Security Issues". */
 	title: string;
 	sections: FindingsSection[];
-	/**
-	 * The full real scope of "All", when it's wider than the union of `sections`' own scanner ids.
-	 */
+	/** The full real scope of "All", when it's wider than the union of `sections`' own scanner ids. */
 	allScannerIds?: string[];
 	activeTab: SectionedIssuesTab;
 	// eslint-disable-next-line no-unused-vars
 	onTabChange: (tab: SectionedIssuesTab) => void;
 }
 
-/**
- * One real, unified issues table - same design as AI Copilot's own "Issues" tab
- * (src/pages/AIAssistant/IssuesList.tsx).
- */
+/** One real, unified issues table. */
 const SectionedIssuesTable = ({
 	id,
 	sections,
@@ -93,9 +85,9 @@ const SectionedIssuesTable = ({
 	onTabChange,
 }: SectionedIssuesTableProps) => {
 	const [fetchedGroups, setFetchedGroups] = useState<FindingGroup[]>([]);
-	// Fixed issues whose fix can still be undone, so they stay listed after a reload (empty when the feature isn't unlocked).
+	// Fixed issues whose fix can still be undone, so they stay listed after a reload.
 	const [fixedGroups, setFixedGroups] = useState<FindingGroup[]>([]);
-	// Groups fixed this session: kept listed as Fixed (with Undo in the panel) after the refetch drops them.
+	// Groups fixed this session: kept listed as Fixed after the refetch drops them.
 	const [keptGroups, setKeptGroups] = useState<FindingGroup[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [reloadToken, setReloadToken] = useState(0);
@@ -282,9 +274,7 @@ const SectionedIssuesTable = ({
 		paged * PER_PAGE
 	);
 
-	// Keep the current selection if still on screen, else fall back to the first visible row (as
-	// IssuesSection.tsx and IssuesList.tsx do in their fetch handlers). An effect here because
-	// `pageRows` is derived client-side from one `findings/groups` fetch.
+	// Keep the current selection if still on screen, else fall back to the first visible row.
 	useEffect(() => {
 		setSelectedGroup((current) => {
 			if (
@@ -307,9 +297,7 @@ const SectionedIssuesTable = ({
 		setPaged(1);
 	};
 
-	/**
-	 * Shared by the row click and the action cell's own "More Details"/ "Showing" button below.
-	 */
+	/** Shared by the row click and the action cell's own "More Details"/ "Showing" button below. */
 	const handleSelectGroup = (group: FindingGroup) => {
 		const isDeselecting =
 			selectedGroup !== null && groupKey(group) === groupKey(selectedGroup);
@@ -371,8 +359,7 @@ const SectionedIssuesTable = ({
 								showMenu={false}
 								hideHeader={true}
 								variant="transparent"
-								// Real "All resources" filter rendered in the table's own action
-								// row, before the search field.
+								// Real "All resources" filter rendered in the table's own action row, before the search field.
 								filtersBeforeSearch
 								search={{
 									placeholder: __(
@@ -390,8 +377,7 @@ const SectionedIssuesTable = ({
 									},
 								]}
 								activeRowId={selectedGroup ? groupKey(selectedGroup) : undefined}
-								// Same toggle the action cell's own "More Details"/"Showing"
-								// button already does.
+								// Same toggle the action cell's own "More Details"/"Showing" button already does.
 								onRowClick={(row: Record<string, unknown>) => {
 									handleSelectGroup(row as unknown as FindingGroup);
 								}}
@@ -403,8 +389,7 @@ const SectionedIssuesTable = ({
 										width: '65%',
 										descriptionKey: 'descriptionText',
 										badgesKey: 'issueBadges',
-										// Per-row `category` icon, from the same `CATEGORY_ICONS` map as IssuesList.tsx (icon name +
-										// palette class in one string, e.g. "security lime").
+										// Per-row `category` icon, from the same `CATEGORY_ICONS` map as IssuesList.tsx.
 										iconKey: 'issueIcon',
 									},
 									affected: {
@@ -450,9 +435,7 @@ const SectionedIssuesTable = ({
 								}}
 								rows={pageRows.map((row) => ({
 									...row,
-									// Bounded to 50 chars (word-boundary safe) so a long
-									// `sample.description` doesn't stretch the Issue column past
-									// its own 65% width.
+									// Bounded to 50 chars so a long `sample.description` doesn't stretch the Issue column past its own 65% width.
 									descriptionText: truncateDescription(
 										row.sample?.description || '',
 										80
@@ -466,9 +449,7 @@ const SectionedIssuesTable = ({
 										{
 											text: CATEGORY_LABELS[row.category] ?? row.category,
 											color: 'blue',
-											// Real, working "filter by clicking a badge" - jumps to
-											// the exact same real section the tab bar above drives
-											// (`onTabChange`).
+											// Real, working "filter by clicking a badge".
 											onClick: (event: MouseEvent<HTMLSpanElement>) => {
 												event.stopPropagation();
 												onTabChange(

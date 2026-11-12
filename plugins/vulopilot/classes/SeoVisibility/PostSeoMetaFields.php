@@ -16,7 +16,7 @@ class PostSeoMetaFields {
 	/**
 	 * Postmeta key strings, keyed by field name.
 	 *
-	 * @var array<string, string>
+	 * @var array
 	 */
 	public const META_KEYS = array(
 		'focus_keyword'                    => '_vulopilot_focus_keyword',
@@ -28,11 +28,9 @@ class PostSeoMetaFields {
 		'social_description'               => '_vulopilot_social_description',
 		'social_image_id'                  => '_vulopilot_social_image_id',
 		'schema_type'                      => '_vulopilot_schema_type',
-		// Closes the Recommendations tab in the post-editor metabox for THIS post only - the admin
-		// never decided to hide it for every post, just this one (PostSeoPanel.tsx).
+		// Closes the Recommendations tab in the post-editor metabox for THIS post only.
 		'recommendations_dismissed'        => '_vulopilot_recommendations_dismissed',
-		// Same per-post "close" for the Content Intelligence panel's "Analyze your website" prompt
-		// (ContentIntelligencePanel.tsx).
+		// Same per-post "close" for the Content Intelligence panel's "Analyze your website" prompt.
 		'analyze_website_prompt_dismissed' => '_vulopilot_analyze_website_prompt_dismissed',
 		// "Keep Current Topic" on the Rethink-topic outcome, same panel - closes it for THIS post only.
 		'rethink_topic_closed'             => '_vulopilot_rethink_topic_closed',
@@ -45,9 +43,7 @@ class PostSeoMetaFields {
 	 */
 	public const POST_TYPES = array( 'post', 'page', 'product' );
 
-	/**
-	 * PostSeoMetaFields constructor.
-	 */
+	/** PostSeoMetaFields constructor. */
 	public function __construct() {
 		add_action( 'init', array( $this, 'register_meta_fields' ) );
 	}
@@ -65,9 +61,7 @@ class PostSeoMetaFields {
 				$this->string_field_args()
 			);
 
-			// The title shown in search results/`<title>` - independent of the real `post_title`,
-			// which stays whatever the editor's own Title field says (#bug: this used to be bound
-			// straight to `post_title`, so typing an "SEO title" silently renamed the page itself).
+			// The title shown in search results/`<title>`.
 			register_post_meta( $post_type, self::META_KEYS['seo_title'], $this->string_field_args() );
 
 			register_post_meta(
@@ -133,7 +127,7 @@ class PostSeoMetaFields {
 	 * Shared register_post_meta() args for every plain-string field.
 	 *
 	 * @param callable|string $sanitize_callback Defaults to sanitize_text_field.
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function string_field_args( $sanitize_callback = 'sanitize_text_field' ): array {
 		return array(
@@ -149,7 +143,7 @@ class PostSeoMetaFields {
 	/**
 	 * Shared register_post_meta() args for the two robots toggle fields.
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function boolean_field_args(): array {
 		return array(
@@ -164,7 +158,7 @@ class PostSeoMetaFields {
 	/**
 	 * The register_post_meta() args for the social image attachment id field.
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function integer_field_args(): array {
 		return array(
@@ -179,7 +173,7 @@ class PostSeoMetaFields {
 	/**
 	 * The auth_callback every register_post_meta() call above passes.
 	 *
-	 * @param bool   $allowed Whether the value is allowed to be edited.
+	 * @param bool   $allowed  Whether the value is allowed to be edited.
 	 * @param string $meta_key Meta key.
 	 * @param int    $post_id  Post id.
 	 * @return bool

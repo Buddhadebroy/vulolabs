@@ -1,8 +1,6 @@
 import { __ } from '@wordpress/i18n';
 
-/**
- * Header search index, built by walking the declarative Settings tab and Modules configs.
- */
+/** Header search index, built by walking the declarative Settings tab and Modules configs. */
 const contextSettings = require.context(
 	'./components/Settings',
 	true,
@@ -12,20 +10,15 @@ const contextModules = require.context('./components/Modules', true, /\.ts$/);
 
 export type SearchItem = {
 	id: string;
-	/** Real destination tab this result navigates to (`link`'s own `#&tab=…`) - e.g. `'security'`, `'performance'`. */
+	/** Real destination tab this result navigates to - e.g. `'security'`, `'performance'`. */
 	tab: string;
-	/**
-	 * Which of app.tsx's own search dropdown options (`'modules'`/ `'settings'`/`'sections'`) this
-	 * result belongs to.
-	 */
+	/** Which of app.tsx's own search dropdown options this result belongs to. */
 	category: 'modules' | 'settings' | 'sections';
 	name: string;
 	desc?: string;
 	link: string;
 	icon?: string;
-	/**
-	 * Real DOM id of the card this result should land on.
-	 */
+	/** Real DOM id of the card this result should land on. */
 	sectionId?: string;
 };
 
@@ -57,8 +50,7 @@ interface ModuleConfig extends BaseConfig {
 	modules?: ModuleItem[];
 }
 
-// Matches templateService.ts's own `Record<string, any>` require.context typing in this same
-// plugin.
+// Matches templateService.ts's own `Record<string, any>` require.context typing in this same plugin.
 function buildIndexFromContext(
 	context: any,
 	category: 'modules' | 'settings'
@@ -67,8 +59,7 @@ function buildIndexFromContext(
 		.keys()
 		.map((key) => context(key).default as ModuleConfig)
 		.flatMap((cfg) => {
-			// Not every `.ts`/`.tsx` under this require.context glob is a Settings-tab config or a
-			// Modules catalog.
+			// Not every `.ts`/`.tsx` under this require.context glob is a Settings-tab config or a Modules catalog.
 			if (!cfg) {
 				return [];
 			}
@@ -90,8 +81,7 @@ function buildIndexFromContext(
 					}));
 			}
 
-			// A Settings tab - its config uses headerTitle/headerIcon, which are
-			// mapped into the shared SearchItem shape below.
+			// A Settings tab - its config uses headerTitle/headerIcon, which are mapped into the shared SearchItem shape below.
 			if (cfg.id && (cfg.tab || cfg.submitUrl)) {
 				const baseLink = `#&tab=${baseTab}&subtab=${cfg.id}`;
 
@@ -131,9 +121,7 @@ function buildIndexFromContext(
 		});
 }
 
-/**
- * Real dashboard cards worth deep-linking to by title/content.
- */
+/** Real dashboard cards worth deep-linking to by title/content. */
 const PAGE_SECTIONS: SearchItem[] = [
 	{
 		id: 'page-section-site-overview',
@@ -161,8 +149,7 @@ const PAGE_SECTIONS: SearchItem[] = [
 		sectionId: 'create-new-automation-card',
 		icon: 'analytics',
 	},
-	// The rest of this list: sections that carry a real DOM id, so `handleResultClick` can
-	// scroll to and highlight them.
+	// The rest of this list: sections that carry a real DOM id, so `handleResultClick` can scroll to and highlight them.
 	{
 		id: 'page-section-seo-findings',
 		tab: 'seo-visibility',
@@ -301,8 +288,7 @@ const PAGE_SECTIONS: SearchItem[] = [
 		sectionId: 'reports-schedules',
 		icon: 'calendar',
 	},
-	// Batch added for a broad search-coverage pass across every page that previously had zero
-	// (Security) or only 1-2 (Performance, Accessibility, Commerce, Content) PAGE_SECTIONS entries.
+	// Batch added for a broad search-coverage pass across every page that previously had zero or only 1-2 PAGE_SECTIONS entries.
 	{
 		id: 'page-section-security-trend',
 		tab: 'security',

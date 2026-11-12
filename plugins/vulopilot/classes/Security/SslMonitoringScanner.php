@@ -16,14 +16,10 @@ defined( 'ABSPATH' ) || exit;
  */
 class SslMonitoringScanner extends ScannerUtil {
 
-	/**
-	 * Flag a certificate as "expiring soon" inside this many days.
-	 */
+	/** Flag a certificate as "expiring soon" inside this many days. */
 	private const EXPIRY_WARNING_DAYS = 30;
 
-	/**
-	 * How long to wait for the TLS handshake before giving up.
-	 */
+	/** How long to wait for the TLS handshake before giving up. */
 	private const CONNECT_TIMEOUT_SECONDS = 5;
 
 	/**
@@ -76,11 +72,10 @@ class SslMonitoringScanner extends ScannerUtil {
 	}
 
 	/**
-	 * Opens a TLS connection to the site's own host and reads back the
-	 * peer certificate WordPress's own HTTP API doesn't expose directly.
+	 * Opens a TLS connection to the site's own host and reads back the peer certificate WordPress's own HTTP API doesn't expose directly.
 	 *
 	 * @param string $host Hostname to connect to.
-	 * @return array<string, mixed>|null Parsed certificate fields, or null on any connection/parse failure.
+	 * @return array|null Parsed certificate fields, or null on any connection/parse failure.
 	 */
 	private function fetch_certificate( string $host ): ?array {
 		$context = stream_context_create(
@@ -93,8 +88,7 @@ class SslMonitoringScanner extends ScannerUtil {
 			)
 		);
 
-		// stream_socket_client() warns on connection failure as well as returning false; the boolean return
-		// is how failure is handled here, so the warning is expected noise.
+		// stream_socket_client() warns on connection failure as well as returning false.
         // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_stream_socket_client, WordPress.PHP.NoSilencedErrors.Discouraged
 		$client = @stream_socket_client(
 			sprintf( 'ssl://%s:443', $host ),
@@ -122,8 +116,8 @@ class SslMonitoringScanner extends ScannerUtil {
 	}
 
 	/**
-	 * @param array<string, mixed> $certificate Parsed certificate from openssl_x509_parse().
-	 * @param string               $host        Hostname the certificate was fetched for.
+	 * @param array  $certificate Parsed certificate from openssl_x509_parse().
+	 * @param string $host        Hostname the certificate was fetched for.
 	 * @return Finding[]
 	 */
 	private function check_certificate_expiry( array $certificate, string $host ): array {

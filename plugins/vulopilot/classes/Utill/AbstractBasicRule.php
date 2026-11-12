@@ -10,8 +10,7 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Base class for free-tier rules, with defaults for tags, fixability, AI requirement,
- * impact and estimated time.
+ * Base class for free-tier rules, with defaults for tags, fixability, AI requirement, impact and estimated time.
  *
  * @class       AbstractBasicRule class
  * @version     1.0.0

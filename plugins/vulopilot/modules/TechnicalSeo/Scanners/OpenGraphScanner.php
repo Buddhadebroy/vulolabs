@@ -14,9 +14,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Fetches the homepage and flags any of the three Open Graph tags that make a shared link
- * look correct on Facebook/LinkedIn/etc. (`og:title`, `og:description`, `og:image`) that
- * aren't present.
+ * Fetches the homepage and flags any of the three Open Graph tags that make a shared link look correct on Facebook/LinkedIn/etc. that aren't present.
  *
  * @class       OpenGraphScanner class
  * @version     1.0.0

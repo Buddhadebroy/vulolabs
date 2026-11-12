@@ -9,7 +9,7 @@ interface AiReadinessTabProps {
 	onNavigate?: ( tab: string, target?: string ) => void;
 }
 
-/** AI Readiness score - Pro-only. Card shell only; the real score lives in Pro's `AiReadinessPanel.tsx`. */
+/** AI Readiness score - Pro-only. */
 export default function AiReadinessTab( _props: AiReadinessTabProps ) {
 	const { postId } = usePostData();
 	const Panel = useFilterSlot< ComponentType< { postId: number } > >(

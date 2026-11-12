@@ -43,7 +43,7 @@ class FindingRepository extends RepositoryUtil {
 	 * @param string|null $object_ref  Finding::get_object_ref().
 	 * @param string      $title       Finding::get_title().
 	 * @param string|null $dedupe_key  Finding::get_dedupe_key().
-	 * @return array<string, mixed>|null
+	 * @return array|null
 	 */
 	public function find_open_duplicate( string $scanner_id, ?string $object_type, ?string $object_ref, string $title, ?string $dedupe_key = null ): ?array {
 		global $wpdb;
@@ -114,7 +114,7 @@ class FindingRepository extends RepositoryUtil {
 	 *
 	 * @param string|null   $category    Category to scope to, or null for all.
 	 * @param string[]|null $scanner_ids Scanner ids to scope to, or null for all.
-	 * @return array{open: int, resolved: int, ignored: int, snoozed: int}
+	 * @return array
 	 */
 	public function get_status_counts( ?string $category = null, ?array $scanner_ids = null ): array {
 		$args = array();
@@ -142,7 +142,7 @@ class FindingRepository extends RepositoryUtil {
 	 * Open findings bucketed into the 3-tier High/Medium/Low priority.
 	 *
 	 * @param string|null $category Category to scope to, or null for sitewide.
-	 * @return array{high: int, medium: int, low: int}
+	 * @return array
 	 */
 	public function get_priority_counts( ?string $category = null ): array {
 		$raw = array_merge(
@@ -173,7 +173,7 @@ class FindingRepository extends RepositoryUtil {
 	 * Same as get_priority_counts(), scoped to a scanner_id set.
 	 *
 	 * @param string[] $scanner_ids Scanner ids to scope to.
-	 * @return array{high: int, medium: int, low: int}
+	 * @return array
 	 */
 	public function get_priority_counts_for_scanner_ids( array $scanner_ids ): array {
 		$raw = $this->get_severity_breakdown_for_scanner_ids( $scanner_ids );
@@ -190,7 +190,7 @@ class FindingRepository extends RepositoryUtil {
 	 *
 	 * @param int      $limit      Max groups to return.
 	 * @param string[] $categories Categories to scope to; empty means sitewide.
-	 * @return array<int, array{scanner_id: string, count: int, severity: string, category: string, object_type: ?string}>
+	 * @return array
 	 */
 	public function get_top_finding_groups( int $limit = 3, array $categories = array() ): array {
 		$scope = array( 'status' => 'open' );
@@ -282,7 +282,7 @@ class FindingRepository extends RepositoryUtil {
 	 * The single top open finding-type group within a fixed set of categories.
 	 *
 	 * @param string[] $categories Category values to scope to.
-	 * @return array{scanner_id: string, count: int, severity: string, category: string, object_type: ?string}|null
+	 * @return array|null
 	 */
 	public function get_top_finding_group_for_categories( array $categories ): ?array {
 		$groups = $this->get_top_finding_groups( 1, $categories );
@@ -294,7 +294,7 @@ class FindingRepository extends RepositoryUtil {
 	 * Same worst-severity grouping as get_finding_groups(), for one scanner_id.
 	 *
 	 * @param string $scanner_id Scanner id to look up.
-	 * @return array{scanner_id: string, category: string, count: int, severity: string}|null Null if no open findings.
+	 * @return array|null Null if no open findings.
 	 */
 	public function get_group_by_scanner_id( string $scanner_id ): ?array {
 		global $wpdb;
@@ -332,7 +332,7 @@ class FindingRepository extends RepositoryUtil {
 	/**
 	 * Open group counts per category (distinct scanner_id/category/object_type rows).
 	 *
-	 * @return array<string, int> category => open group count.
+	 * @return array Category => open group count.
 	 */
 	public function get_category_group_counts(): array {
 		global $wpdb;
@@ -352,8 +352,8 @@ class FindingRepository extends RepositoryUtil {
 	/**
 	 * Paginated version of get_top_finding_groups(), with explicit filters.
 	 *
-	 * @param array{status?: string, category?: string|string[], scanner_ids?: string[], priority_ranks?: int[], page?: int, per_page?: int} $args `category` accepts several values (IN-matched); `scanner_ids` scopes to an explicit scanner set (ANDed with `category`); `priority_ranks` filters by worst-severity rank (0=critical..4=info).
-	 * @return array{data: array<int, array{scanner_id: string, category: string, count: int, severity: string, object_type: ?string}>, total: int}
+	 * @param array $args `category` accepts several values.
+	 * @return array
 	 */
 	public function get_finding_groups( array $args = array() ): array {
 		global $wpdb;
@@ -573,7 +573,7 @@ class FindingRepository extends RepositoryUtil {
 	 * Open-finding counts by severity within a single category.
 	 *
 	 * @param string $category One of the scanner category strings.
-	 * @return array{critical: int, high: int, medium: int, low: int}
+	 * @return array
 	 */
 	public function get_severity_breakdown_for_category( string $category ): array {
 		global $wpdb;
@@ -602,7 +602,7 @@ class FindingRepository extends RepositoryUtil {
 	 * Same shape as get_severity_breakdown_for_category(), scoped to scanner ids.
 	 *
 	 * @param string[] $scanner_ids Scanner ids to scope to.
-	 * @return array{critical: int, high: int, medium: int, low: int, info: int}
+	 * @return array
 	 */
 	public function get_severity_breakdown_for_scanner_ids( array $scanner_ids ): array {
 		global $wpdb;
@@ -637,8 +637,8 @@ class FindingRepository extends RepositoryUtil {
 	 * Same shape as get_severity_breakdown_for_scanner_ids(), scoped to one post.
 	 *
 	 * @param string[] $scanner_ids Scanner ids to scope to.
-	 * @param int      $post_id    Post id to scope to.
-	 * @return array{critical: int, high: int, medium: int, low: int, info: int}
+	 * @param int      $post_id     Post id to scope to.
+	 * @return array
 	 */
 	public function get_severity_breakdown_for_scanner_ids_by_post_id( array $scanner_ids, int $post_id ): array {
 		global $wpdb;
@@ -671,7 +671,7 @@ class FindingRepository extends RepositoryUtil {
 	/**
 	 * @param string $category One of the scanner category strings.
 	 * @param string $as_of    MySQL datetime (UTC) to reconstruct the open set as of.
-	 * @return array{critical: int, high: int, medium: int, low: int}
+	 * @return array
 	 */
 	public function get_severity_breakdown_for_category_as_of( string $category, string $as_of ): array {
 		global $wpdb;
@@ -708,7 +708,7 @@ class FindingRepository extends RepositoryUtil {
 	 *
 	 * @param string[] $scanner_ids Scanner ids to scope to.
 	 * @param string   $as_of       MySQL datetime (UTC) to reconstruct the open set as of.
-	 * @return array{critical: int, high: int, medium: int, low: int}
+	 * @return array
 	 */
 	public function get_severity_breakdown_for_scanner_ids_as_of( array $scanner_ids, string $as_of ): array {
 		global $wpdb;
@@ -748,8 +748,8 @@ class FindingRepository extends RepositoryUtil {
 	 * Open findings among $scanner_ids tied to a page or post, bucketed by post id.
 	 *
 	 * @param string[]    $scanner_ids Scanner ids to scope to.
-	 * @param string|null $as_of       MySQL datetime (UTC) to reconstruct as of; null for the current open set.
-	 * @return array<int, array<int, array{id: int, title: string, severity: string}>> post_id => its open findings.
+	 * @param string|null $as_of       MySQL datetime.
+	 * @return array post_id => its open findings.
 	 */
 	public function get_open_findings_for_scanner_ids_by_post( array $scanner_ids, ?string $as_of = null ): array {
 		global $wpdb;
@@ -837,7 +837,7 @@ class FindingRepository extends RepositoryUtil {
 	 * @param string        $period_end   Y-m-d, inclusive.
 	 * @param string|null   $category     One of the scanner category strings, or null for all.
 	 * @param string[]|null $scanner_ids  Scanner ids to additionally scope to, or null for every scanner in $category.
-	 * @return array{total: int, by_severity: array<string, int>, by_category: array<string, int>, by_status: array<string, int>}
+	 * @return array
 	 */
 	public function get_stats_for_period( string $period_start, string $period_end, ?string $category = null, ?array $scanner_ids = null ): array {
 		global $wpdb;
@@ -911,7 +911,7 @@ class FindingRepository extends RepositoryUtil {
 	 * Every object_type/object_ref pair from one scan run.
 	 *
 	 * @param int $scan_id Scan id.
-	 * @return array<int, array{object_type: string|null, object_ref: string|null}>
+	 * @return array
 	 */
 	public function get_object_refs_for_scan( int $scan_id ): array {
 		global $wpdb;
@@ -932,7 +932,7 @@ class FindingRepository extends RepositoryUtil {
 	 * The highest-severity currently-open findings, worst-first.
 	 *
 	 * @param int $limit Max rows to return.
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function get_top_open_findings( int $limit = 10 ): array {
 		global $wpdb;
@@ -957,7 +957,7 @@ class FindingRepository extends RepositoryUtil {
 	 * @param string|null   $category     One of the scanner category strings, or null for all.
 	 * @param int           $limit        Max rows to return.
 	 * @param string[]|null $scanner_ids  Scanner ids to additionally scope to.
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	public function get_top_findings_for_period( string $period_start, string $period_end, ?string $category = null, int $limit = 10, ?array $scanner_ids = null ): array {
 		global $wpdb;

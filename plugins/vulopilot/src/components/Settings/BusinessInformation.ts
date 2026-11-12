@@ -1,8 +1,6 @@
 import { __ } from '@wordpress/i18n';
 
-/**
- * Settings → Business Information, a standalone top-level tab defined as a declarative `modal`.
- */
+/** Settings → Business Information, a standalone top-level tab defined as a declarative `modal`. */
 export default {
     id: 'business-information',
     priority: 1,

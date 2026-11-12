@@ -10,8 +10,7 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * What RuleEngine\RuleEngine turns a Finding into, via a matching
- * RuleInterface::get_recommendation().
+ * What RuleEngine\RuleEngine turns a Finding into, via a matching RuleInterface::get_recommendation().
  *
  * @class       Recommendation class
  * @version     1.0.0
@@ -85,19 +84,19 @@ final class Recommendation {
 	private ?string $object_ref;
 
 	/**
-	 * @param string      $rule_id                 Rule that produced this recommendation.
-	 * @param string      $title                   Human-readable summary.
-	 * @param string      $description             Longer explanation.
-	 * @param string      $type                    One of RuleType's constants.
-	 * @param int         $priority                Higher sorts first.
-	 * @param string[]    $categories              Categories this recommendation belongs to.
-	 * @param string[]    $tags                    Freeform tags.
-	 * @param bool        $is_fixable              Whether an AIAction can automatically resolve this.
-	 * @param bool        $requires_ai             Whether resolving this requires an AI call.
-	 * @param string      $estimated_impact        One of Impact's constants.
-	 * @param int         $estimated_time_minutes  Estimated time to resolve.
-	 * @param string|null $object_type             From the triggering Finding, if any.
-	 * @param string|null $object_ref              From the triggering Finding, if any.
+	 * @param string      $rule_id                Rule that produced this recommendation.
+	 * @param string      $title                  Human-readable summary.
+	 * @param string      $description            Longer explanation.
+	 * @param string      $type                   One of RuleType's constants.
+	 * @param int         $priority               Higher sorts first.
+	 * @param string[]    $categories             Categories this recommendation belongs to.
+	 * @param string[]    $tags                   Freeform tags.
+	 * @param bool        $is_fixable             Whether an AIAction can automatically resolve this.
+	 * @param bool        $requires_ai            Whether resolving this requires an AI call.
+	 * @param string      $estimated_impact       One of Impact's constants.
+	 * @param int         $estimated_time_minutes Estimated time to resolve.
+	 * @param string|null $object_type            From the triggering Finding, if any.
+	 * @param string|null $object_ref             From the triggering Finding, if any.
 	 */
 	public function __construct(
 		string $rule_id,
@@ -221,7 +220,7 @@ final class Recommendation {
 	}
 
 	/**
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function to_array(): array {
 		return array(

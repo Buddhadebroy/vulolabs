@@ -5,18 +5,13 @@ import { getApiLink, getApiResponse } from '@zyra/core';
 import { GUIDED_FLOWS, GuidedOption } from './copilotGuidedFlows';
 import { FindingGroup } from '../components/Issues/issuesTypes';
 
-/** One line already shown in the guided flow - a question, the real findings that stood in for one, or the user's picked answer. */
+/** One line already shown in the guided flow. */
 export interface GuidedTurn {
 	role: 'assistant' | 'user';
 	content: string;
 }
 
-/**
- * Walks one `GUIDED_FLOWS` tree entirely client-side - every question and option is static copy
- * or real site data (`findings/groups`), never an AI call. AI is called exactly once, by
- * `onComplete`, after the last step, with every collected answer folded into one message - the
- * "ask the fixed questions first, only call AI at the end" behaviour the whole panel now follows.
- */
+/** Walks one `GUIDED_FLOWS` tree entirely client-side. */
 export const useGuidedCopilotFlow = (
 	// eslint-disable-next-line no-unused-vars
 	onComplete: (message: string) => void
@@ -111,8 +106,7 @@ export const useGuidedCopilotFlow = (
 		);
 		setStepIndex(0);
 
-		// presentStep reads `steps`/`flow` off state, which hasn't committed yet this tick - call
-		// it straight off `nextFlow` instead for the very first step.
+		// presentStep reads `steps`/`flow` off state, which hasn't committed yet this tick.
 		const firstStep = nextFlow.steps[0];
 		setTurns((current) => [...current, { role: 'assistant', content: firstStep.question }]);
 

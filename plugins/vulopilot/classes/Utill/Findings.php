@@ -4,7 +4,7 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Fetches `/findings`, backing the shared FindingsTable component (Health/SEO/GEO/ Commerce/Dashboard pages - src/components/FindingsTable.tsx).
+ * Fetches `/findings`, backing the shared FindingsTable component.
  *
  * @class       Findings controller
  * @version     1.0.0
@@ -18,9 +18,9 @@ class Findings extends \WP_REST_Controller {
     protected $rest_base = 'findings';
 
     /**
-     * The `/findings/groups` route's own `priority` param (one of the Issues table's High/Medium/Low stat tiles) mapped to FindingRepository::get_finding_groups()'s severity->rank scale - same 3-tier collapse get_priority_counts() already applies for those tiles' own counts (critical folds into "high", info folds into "low"), kept here rather than in the repository since it's a request-param translation, not persistence.
+     * The `/findings/groups` route's own `priority` param mapped to FindingRepository::get_finding_groups()'s severity->rank scale.
      *
-     * @var array<string, int[]>
+     * @var array
      */
     private const PRIORITY_SEVERITY_RANKS = array(
         'high'   => array( 0, 1 ),
@@ -29,9 +29,9 @@ class Findings extends \WP_REST_Controller {
     );
 
     /**
-     * The `/findings` route's own `priority` param (the "Schema & Knowledge" tab's Issues section - its Critical/Important/Minor pill bar) mapped to a real `severity` IN(...) filter - same 3-tier collapse PRIORITY_SEVERITY_RANKS above already applies for `get_finding_groups()`, expressed here as real severity values (not ranks) since get_items() filters through FindingRepository::find_all()'s own `severity` filterable column, which RepositoryUtil::build_column_where_clause() already turns into a real `IN (...)` clause when given an array.
+     * The `/findings` route's own `priority` param mapped to a real `severity` IN(...) filter.
      *
-     * @var array<string, string[]>
+     * @var array
      */
     private const PRIORITY_SEVERITY_LABELS = array(
         'high'   => array( 'critical', 'high' ),
@@ -79,11 +79,7 @@ class Findings extends \WP_REST_Controller {
             )
         );
 
-        // AI Copilot's "Needs your attention" card (NeedsAttentionCard.tsx)
-        // - a dedicated summary shape (priority-bucketed counts + top
-        // issue-type groups) rather than overloading this controller's own
-        // GET /findings row-list contract, which FindingsTable/every
-        // category page already depends on unchanged.
+        // AI Copilot's "Needs your attention" card.
         register_rest_route(
             VuloPilot()->rest_namespace,
             '/' . $this->rest_base . '/attention-summary',
@@ -96,14 +92,7 @@ class Findings extends \WP_REST_Controller {
             )
         );
 
-        // AI Copilot's Issues table (IssuesList.tsx) - every
-        // open finding grouped by issue type (scanner_id), paginated,
-        // instead of GET /findings' own one-row-per-individual-finding
-        // shape. Its own route, not a `group_by` param on GET /findings
-        // itself, since the response shape is fundamentally different
-        // (grouped counts + a representative sample, not a row list) and
-        // every existing GET /findings consumer (FindingsTable.tsx et al.)
-        // depends on the row-list shape unchanged.
+        // AI Copilot's Issues table.
         register_rest_route(
             VuloPilot()->rest_namespace,
             '/' . $this->rest_base . '/groups',
@@ -155,25 +144,14 @@ class Findings extends \WP_REST_Controller {
         $search      = sanitize_text_field( (string) $request->get_param( 'search' ) );
         $scanner_ids = $this->parse_comma_separated_list( $request->get_param( 'scanner_id' ) );
         $priority    = sanitize_key( (string) $request->get_param( 'priority' ) );
-        // One scanner_id can legitimately report several unrelated `object_type`s as separate
-        // groups (FindingRepository::get_finding_groups()'s own `GROUP BY scanner_id, category,
-        // object_type` - e.g. WordPressHealthScanner's site_health_test findings vs its own
-        // wordpress_inactive_plugins findings, both scanner_id 'wordpress-health') - without this,
-        // a scanner_id-only fetch here silently mixes a DIFFERENT group's findings into whichever
-        // one group a caller actually meant (IssueDetailPanel.tsx's own "Affected items"/bulk
-        // Fix-Resolve-Ignore fetches, both scoped by scanner_id alone until now).
+        // One scanner_id can legitimately report several unrelated `object_type`s as separate groups (FindingRepository::get_finding_groups()'s own `GROUP BY scanner_id, category, object_type` - e.g. WordPressHealthScanner's site_health_test findings vs its own wordpress_inactive_plugins findings, both scanner_id 'wordpress-health').
         $object_type = sanitize_key( (string) $request->get_param( 'object_type' ) );
 
         if ( '' !== $severity && ! Severity::is_valid( $severity ) ) {
             return new \WP_Error( 'vulopilot_invalid_severity', __( 'Invalid severity filter.', 'vulopilot' ), array( 'status' => 400 ) );
         }
 
-        // `priority` (the "Schema & Knowledge" tab's Issues section -
-        // Critical/Important/Minor pills) is a display-only relabeling of
-        // the same real severity values - never both at once in practice,
-        // but `severity` wins if a caller somehow sends both, same
-        // "explicit single value beats a derived one" precedence every
-        // other param on this endpoint already has.
+        // `priority` is a display-only relabeling of the same real severity values.
         $severity_filter = $severity;
         if ( '' === $severity_filter && '' !== $priority && isset( self::PRIORITY_SEVERITY_LABELS[ $priority ] ) ) {
             $severity_filter = self::PRIORITY_SEVERITY_LABELS[ $priority ];
@@ -196,14 +174,7 @@ class Findings extends \WP_REST_Controller {
         $result['status_counts'] = $repository->get_status_counts( '' !== $category ? $category : null, $scanner_ids );
         $result['data']          = array_map( array( $this, 'add_page_field' ), $result['data'] );
 
-        // Real Critical/Important/Minor pill counts, scoped to this
-        // request's own scanner_id set - reuses
-        // get_severity_breakdown_for_scanner_ids(), the same method
-        // SchemaCoverageAnalyzer already calls for its own "open problems"
-        // total. Only populated when scanner_id was given: this method's
-        // sitewide `priority_counts` already exists via `get_priority_counts()`
-        // elsewhere, so a scanner-agnostic caller has no use for a second,
-        // differently-scoped copy of the same shape.
+        // Real Critical/Important/Minor pill counts, scoped to this request's own scanner_id set.
         if ( $scanner_ids ) {
             $breakdown                 = $repository->get_severity_breakdown_for_scanner_ids( $scanner_ids );
             $result['priority_counts'] = array(
@@ -230,7 +201,7 @@ class Findings extends \WP_REST_Controller {
     );
 
     /**
-     * Fetches `/findings/attention-summary` - real open-findings counts bucketed into 3 priority tiers, the top 3 issue types sitewide (grouped by scanner_id, most severe first), and one top issue per RECOMMENDATION_BUCKETS bucket - every group/recommendation annotated with its scanner's human `get_label()` so the client never has to hardcode a scanner_id => label map.
+     * Fetches `/findings/attention-summary`.
      *
      * @param \WP_REST_Request $request Full details about the request.
      * @return \WP_REST_Response
@@ -272,7 +243,7 @@ class Findings extends \WP_REST_Controller {
     }
 
     /**
-     * Fetches `/findings/groups` - AI Copilot's Issues table (IssuesList.tsx):
+     * Fetches `/findings/groups` - AI Copilot's Issues table (IssuesList.tsx).
      *
      * @param \WP_REST_Request $request Full details about the request.
      * @return \WP_REST_Response
@@ -283,13 +254,7 @@ class Findings extends \WP_REST_Controller {
         $scanner_ids = $this->parse_comma_separated_list( $request->get_param( 'scanner_id' ) );
         $priority    = sanitize_key( (string) $request->get_param( 'priority' ) );
 
-        // Real group-level status filter - 'open' (default, unchanged
-        // behavior for every existing caller that never passes this) or
-        // 'all' (SectionedIssuesTable.tsx's own real "Show ignored"
-        // toggle: every real status together, not a second, separate
-        // "ignored only" view) - never an arbitrary caller-supplied
-        // string, so this can't become a SQL-injection vector via
-        // FindingRepository::get_finding_groups()'s own `WHERE status = %s`.
+        // Real group-level status filter.
         $requested_status = sanitize_key( (string) $request->get_param( 'status' ) );
         $status           = in_array( $requested_status, array( 'open', 'all' ), true ) ? $requested_status : 'open';
 
@@ -342,10 +307,10 @@ class Findings extends \WP_REST_Controller {
     }
 
     /**
-     * Resolves each row's raw `object_type`/`object_ref` DB columns into a human-readable `page` field the client can display directly (GEO.tsx's compact FindingsTable layout - "$page · Detected $date", the same meta line the dashboard mockup's own FindingRow shows) rather than a bare post ID or the `home_url('/')` placeholder ref sitewide scanners write (see GeoAnalysis\GeoAnalyzer::calculate_deterministic_score()'s own docblock on that placeholder).
+     * Resolves each row's raw `object_type`/`object_ref` DB columns into a human-readable `page` field the client can display directly.
      *
-     * @param array<string, mixed> $row One row from FindingRepository::find_all()'s `data`.
-     * @return array<string, mixed> Same row, with a `page` key added.
+     * @param array $row One row from FindingRepository::find_all()'s `data`.
+     * @return array Same row, with a `page` key added.
      */
     private function add_page_field( array $row ): array {
         $object_type = $row['object_type'] ?? null;
@@ -355,11 +320,7 @@ class Findings extends \WP_REST_Controller {
             $post_id     = (int) $object_ref;
             $permalink   = get_permalink( $post_id );
             $row['page'] = $permalink ? wp_make_link_relative( $permalink ) : __( 'Site-wide', 'vulopilot' );
-            // Real post title (`get_the_title()`), for callers that show a
-            // human-readable page name instead of/alongside the real path
-            // above (e.g. BrokenLinksSection.tsx's own "Source page"
-            // column) - null when there's no real post behind this row to
-            // name (falls back to `page` itself either way, never a
+            // Real post title (`get_the_title()`), for callers that show a human-readable page name instead of/alongside the real path above.
             $title             = html_entity_decode( html_entity_decode( get_the_title( $post_id ), ENT_QUOTES ), ENT_QUOTES );
             $row['page_title'] = $permalink && '' !== $title ? $title : null;
 
@@ -477,8 +438,7 @@ class Findings extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Backs FindingsTable.tsx's "Snooze" row action (and any other
-	 * registered manual action) via Automations\ManualActionRunner.
+	 * Backs FindingsTable.tsx's "Snooze" row action.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error

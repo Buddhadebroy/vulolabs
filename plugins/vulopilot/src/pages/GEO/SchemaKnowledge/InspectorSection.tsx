@@ -63,7 +63,7 @@ const prettyPrint = (raw: string): string => {
 	}
 };
 
-/** The real path portion of a real, already-known-good site URL - falls back to the full URL on anything unparseable rather than throwing. */
+/** The real path portion of a real, already-known-good site URL. */
 const pathOf = (url: string): string => {
 	try {
 		return new URL(url).pathname;
@@ -72,11 +72,9 @@ const pathOf = (url: string): string => {
 	}
 };
 
-/**
- * "Inspector" section of the merged "Schema & Knowledge" tab.
- */
+/** "Inspector" section of the merged "Schema & Knowledge" tab. */
 interface InspectorSectionProps {
-	/** Latest schema coverage sample - tells which inspectable pages have structured data and which don't. */
+	/** Latest schema coverage sample. */
 	snapshot: SchemaCoverageSnapshot | null;
 	pageFilter: SchemaPageFilter;
 	// eslint-disable-next-line no-unused-vars
@@ -104,8 +102,7 @@ const InspectorSection = ({
 				const list = response ?? [];
 				setPages(list);
 
-				// Opens the first real row by default rather than leaving the result panel on its
-				// "Select a page" placeholder.
+				// Opens the first real row by default rather than leaving the result panel on its "Select a page" placeholder.
 				if (list.length > 0) {
 					handleSelectPage(list[0].url);
 				}
@@ -113,8 +110,7 @@ const InspectorSection = ({
 			.finally(() => setIsLoadingPages(false));
 	}, []);
 
-	// Pages the last coverage sample found schema on (or not) - keyed by
-	// URL; a page outside that sample matches only the "All" filter.
+	// Pages the last coverage sample found schema on.
 	const schemaByUrl = new Map(
 		(snapshot?.pages ?? []).map((page) => [
 			normalizeUrl(page.url),
@@ -153,10 +149,7 @@ const InspectorSection = ({
 		},
 	];
 
-	// Real page title (`InspectablePage.title`, same list the left-hand
-	// table already rows from) - falls back to the URL path only if the
-	// selected page somehow isn't in that list, same as `pathOf()`'s own
-	// fallback on an unparseable URL.
+	// Real page title - falls back to the URL path only if the selected page somehow isn't in that list, same as `pathOf()`'s own fallback on an unparseable URL.
 	const selectedPage = pages.find((page) => page.url === selectedUrl);
 
 	const handleSelectPage = (url: string) => {
@@ -221,9 +214,7 @@ const InspectorSection = ({
 								width: '70%',
 								iconKey: 'typeIcon',
 								badgesKey: 'typeBadges',
-								// Real URL path under the title - the one honest per-row detail
-								// already available here (`InspectablePage` carries no
-								// excerpt/summary field to show instead).
+								// Real URL path under the title - the one honest per-row detail already available here.
 								descriptionKey: 'pageDesc',
 							},
 							action: {
@@ -258,8 +249,7 @@ const InspectorSection = ({
 						rows={visiblePages.map((page) => ({
 							...page,
 							id: page.url,
-							// Real page/post/product type this row's own real `type_label` already
-							// carries.
+							// Real page/post/product type this row's own real `type_label` already carries.
 							typeBadges: [
 								{
 									text: page.type_label,
@@ -267,8 +257,7 @@ const InspectorSection = ({
 								},
 							],
 							typeIcon: TYPE_ICON[page.type] ?? 'document',
-							// Real URL path - the info column's own
-							// description line under the title.
+							// Real URL path - the info column's own description line under the title.
 							pageDesc: pathOf(page.url),
 						}))}
 						ids={visiblePages.map((page) => page.url)}

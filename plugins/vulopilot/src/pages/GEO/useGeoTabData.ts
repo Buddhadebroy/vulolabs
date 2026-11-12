@@ -4,8 +4,7 @@ import { getApiLink, getApiResponse } from '@zyra/core';
 import type { FindingGroup } from '../../components/Issues/issuesTypes';
 
 /**
- * GeoTab.tsx's/AeoTab.tsx's own family of small `GET /findings/groups`- shaped and `/geo-
- * visibility-*`-shaped data-fetching hooks.
+ * GeoTab.tsx's/AeoTab.tsx's own family of small `GET /findings/groups`- shaped and `/geo- visibility-*`-shaped data-fetching hooks.
  */
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
