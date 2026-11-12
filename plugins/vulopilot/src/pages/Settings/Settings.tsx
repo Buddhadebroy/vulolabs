@@ -6,13 +6,13 @@ import { useLocation, Link } from 'react-router-dom';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { getAvailableSettings, getSettingById } from '@zyra/core';
 import { ExpandablePanelInput, InputRenderer } from '@zyra/inputs';
-import type { SaveStatus } from '@zyra/components';
 import {
 	CardComponent,
 	FormGroupComponent,
 	FormGroupWrapperComponent,
 	ModuleGuardComponent,
 	NavigatorComponent,
+	type SaveStatus,
 	PopupComponent,
 	SectionComponent,
 } from '@zyra/components';

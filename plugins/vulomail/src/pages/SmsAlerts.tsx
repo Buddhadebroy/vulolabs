@@ -2,8 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { Link } from 'react-router-dom';
-import { CardComponent, ModuleGuardComponent, NavigatorComponent } from '@zyra/components';
-import type { SaveStatus } from '@zyra/components';
+import { CardComponent, ModuleGuardComponent, NavigatorComponent, type SaveStatus } from '@zyra/components';
 import { InputRenderer } from '@zyra/inputs';
 import { SettingProvider, useSetting } from '../contexts/SettingContext';
 import { notificationsSchema as schema } from '../components/Settings';
