@@ -46,36 +46,6 @@
 	flex-wrap: wrap;
 }
 
-// "Migrate forms" popup (Forms.tsx): one row per detected source plugin, then a result summary.
-.vuloform-migration-source {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 1rem;
-	padding: 0.875rem 0;
-	border-bottom: 0.063rem solid var(--border-color);
-
-	&:first-child {
-		padding-top: 0;
-	}
-
-	&:last-child {
-		border-bottom: none;
-	}
-
-	strong {
-		display: block;
-		color: var(--text-color);
-	}
-
-	span {
-		display: block;
-		margin-top: 0.125rem;
-		font-size: 0.8125rem;
-		color: var(--sub-text-color);
-	}
-}
-
 // Forms.tsx: shown in the table body when a competitor plugin with forms is detected, independent
 // of the "Migrate forms" header button which always stays visible.
 .vuloform-migration-banner {
@@ -116,27 +86,6 @@
 	border: 0.063rem solid var(--color-primary);
 	border-radius: 0.5rem;
 	background: color-mix(in srgb, var(--color-primary) 6%, transparent);
-}
-
-.vuloform-migration-result {
-	margin-top: 1rem;
-	padding-top: 1rem;
-	border-top: 0.063rem solid var(--border-color);
-
-	p {
-		margin: 0 0 0.5rem;
-	}
-}
-
-.vuloform-migration-errors {
-	margin: 0;
-	padding-left: 1.125rem;
-	color: var(--sub-text-color);
-	font-size: 0.8125rem;
-
-	li {
-		margin-bottom: 0.375rem;
-	}
 }
 
 .vuloform-cell {
@@ -254,13 +203,6 @@
 	align-items: center;
 	gap: 0.5rem;
 	flex-wrap: wrap;
-}
-
-.vuloform-row-actions .buttons-wrapper,
-.vuloform-row-actions {
-	display: flex;
-	flex-wrap: nowrap;
-	justify-content: flex-end;
 }
 
 // "New form" chooser: a category sidebar beside the template grid, like WPForms' own picker.
@@ -1086,10 +1028,6 @@
 	}
 }
 
-.vuloform-placeholders code {
-	margin-right: 0.375rem;
-}
-
 // One notification or webhook in the form settings: a line that opens to edit.
 .vuloform-item {
 	border: 0.063rem solid var(--border-color);
@@ -1335,23 +1273,6 @@
 	}
 }
 
-.vuloform-detail {
-	display: grid;
-	gap: 0.75rem;
-	margin: 0 0 1rem;
-
-	dt {
-		font-size: 0.8125rem;
-		color: var(--sub-text-color);
-	}
-
-	dd {
-		margin: 0.125rem 0 0;
-		white-space: pre-wrap;
-		overflow-wrap: anywhere;
-	}
-}
-
 // A submission's answers: one row each, the question on the left and what was answered on the right.
 .vuloform-answers {
 	border: 0.063rem solid var(--border-color);
@@ -1562,23 +1483,6 @@
 	width: 100%;
 }
 
-// Removes one notification or webhook. Quiet, under the section's description.
-.vuloform-remove {
-	padding: 0;
-	border: 0;
-	background: none;
-	color: #e35047;
-	font: inherit;
-	font-size: 0.8125rem;
-	text-decoration: underline;
-	cursor: pointer;
-
-	&:focus-visible {
-		outline: 0.125rem solid #e35047;
-		outline-offset: 0.125rem;
-	}
-}
-
 .vuloform-wide .vuloform-switch-row {
 	width: 100%;
 	box-sizing: border-box;
@@ -1774,29 +1678,6 @@
 		> :not(.vuloform-icon-button) {
 			grid-column: 1;
 		}
-	}
-}
-
-// A quiet text button, for a secondary action beside a section's description.
-.vuloform-link-button {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.375rem;
-	padding: 0;
-	border: 0;
-	background: none;
-	color: var(--color-primary);
-	font: inherit;
-	font-size: 0.8125rem;
-	cursor: pointer;
-
-	&.is-danger {
-		color: #d63638;
-	}
-
-	&:hover,
-	&:focus-visible {
-		text-decoration: underline;
 	}
 }
 
