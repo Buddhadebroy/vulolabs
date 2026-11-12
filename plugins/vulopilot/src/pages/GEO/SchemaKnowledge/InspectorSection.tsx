@@ -479,44 +479,50 @@ const InspectorSection = ({
 									</FormGroupComponent>
 								)}
 
-								<FormGroupComponent label={__('JSON-LD', 'vulopilot')}>
-									{/* Same "solid action button sitting right above the code
-									block it acts on" shape CrawlRobotsSitemapSection.tsx's own
-									"Test robots.txt" button already establishes for its robots.txt
-									editor - these two act on the JSON-LD below, not the page as a
-									whole, so they sit here rather than in the page-level footer
-									actions below. Copy is a real `ClipboardComponent` (`variant="button"`)
-									instead of a plain `ButtonInput` + hand-rolled notice - it shows its
-									own "Copied!" state on the button itself, no separate notice needed. */}
-									<div className="schema-inspector-jsonld-actions">
-										<ClipboardComponent
-											variant="button"
-											copyButtonLabel={__('Copy', 'vulopilot')}
-											copiedLabel={__('Copied!', 'vulopilot')}
-											onCopy={() =>
-												result.blocks
-													.map((block) => prettyPrint(block.raw))
-													.join('\n\n')
-											}
-										/>
-										<ButtonInput
-											buttons={{
-												text: __('Export', 'vulopilot'),
-												icon: 'export',
-												onClick: handleExport,
-											}}
-										/>
-									</div>
-
-									{result.blocks.map((block) => (
-										<div key={block.index} className="schema-inspector-jsonld-block">
-											<RobotsTxtEditor
-												value={prettyPrint(block.raw)}
-												readOnly
+								{result.blocks.length > 0 && (
+									<FormGroupComponent label={__('JSON-LD', 'vulopilot')}>
+										{/* Same "solid action button sitting right above the code
+										block it acts on" shape CrawlRobotsSitemapSection.tsx's own
+										"Test robots.txt" button already establishes for its robots.txt
+										editor - these two act on the JSON-LD below, not the page as a
+										whole, so they sit here rather than in the page-level footer
+										actions below. Copy is a real `ClipboardComponent` (`variant="button"`)
+										instead of a plain `ButtonInput` + hand-rolled notice - it shows its
+										own "Copied!" state on the button itself, no separate notice needed.
+										Only rendered when there's a real block - with none, Copy has
+										nothing to copy (silent no-op on an empty string) and Export would
+										just download an empty "[]", neither of which reads as "working" next
+										to "No structured data was found" above. */}
+										<div className="schema-inspector-jsonld-actions">
+											<ClipboardComponent
+												variant="button"
+												copyButtonLabel={__('Copy', 'vulopilot')}
+												copiedLabel={__('Copied!', 'vulopilot')}
+												onCopy={() =>
+													result.blocks
+														.map((block) => prettyPrint(block.raw))
+														.join('\n\n')
+												}
+											/>
+											<ButtonInput
+												buttons={{
+													text: __('Export', 'vulopilot'),
+													icon: 'export',
+													onClick: handleExport,
+												}}
 											/>
 										</div>
-									))}
-								</FormGroupComponent>
+
+										{result.blocks.map((block) => (
+											<div key={block.index} className="schema-inspector-jsonld-block">
+												<RobotsTxtEditor
+													value={prettyPrint(block.raw)}
+													readOnly
+												/>
+											</div>
+										))}
+									</FormGroupComponent>
+								)}
 
 								{/* Page-level actions (not JSON-LD-specific) - real full-width
 								stacked buttons at the bottom of the card, same shape

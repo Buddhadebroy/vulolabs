@@ -28,7 +28,7 @@ export default {
         },
         {
             key: 'site_tone',
-            type: 'text',
+            type: 'textarea',
             label: __('Site tone', 'vulopilot'),
             settingDescription: __(
                 'A short description of how this site should sound (e.g. "Friendly and casual" or "Formal and technical") - included with every AI request.',
@@ -37,7 +37,7 @@ export default {
         },
         {
             key: 'entity_business_type',
-            type: 'text',
+            type: 'textarea',
             label: __('Business type', 'vulopilot'),
             settingDescription: __(
                 'e.g. Software Company, Online Store, Consulting Agency.',
