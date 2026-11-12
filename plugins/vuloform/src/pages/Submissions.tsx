@@ -310,12 +310,12 @@ const Submissions = () => {
 				{!error && forms && forms.length > 0 && (
 					<ColumnComponent>
 						<AnalyticsComponent
-							variant="small"
+							variant="trend-stat"
 							cols={3}
 							data={[
-								{ icon: 'mail blue', number: counts.unread, text: __('New', 'vuloform') },
-								{ icon: 'check green', number: counts.read, text: __('Read', 'vuloform') },
-								{ icon: 'error red', number: counts.spam, text: __('Spam', 'vuloform') },
+								{ icon: 'mail', number: counts.unread, text: __('New', 'vuloform'), desc: __('Not opened yet', 'vuloform') },
+								{ icon: 'check', number: counts.read, text: __('Read', 'vuloform'), desc: __('Already opened', 'vuloform') },
+								{ icon: 'error', number: counts.spam, text: __('Spam', 'vuloform'), desc: __('Caught by spam protection', 'vuloform') },
 							]}
 						/>
 					</ColumnComponent>
