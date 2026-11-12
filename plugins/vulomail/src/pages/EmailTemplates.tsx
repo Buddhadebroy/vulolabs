@@ -534,12 +534,14 @@ const EmailTemplates = () => {
 							variant="chips"
 							value={audienceFilter}
 							onChange={(value) => setAudienceFilter(String(value) as 'any' | Audience)}
-							options={Object.entries(audienceFilterLabel).map(([value, label]) => ({
-								key: value,
-								value,
-								label,
-								count: 'any' === value ? totals.total : totals[value as Audience],
-							}))}
+							options={Object.entries(audienceFilterLabel)
+								.map(([value, label]) => ({
+									key: value,
+									value,
+									label,
+									count: 'any' === value ? totals.total : totals[value as Audience],
+								}))
+								.filter((option) => option.count > 0 || option.value === audienceFilter)}
 						/>
 					}
 				/>

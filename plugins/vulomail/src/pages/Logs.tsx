@@ -292,30 +292,18 @@ const Logs = () => {
 				headerIcon="clock"
 				headerTitle={__('Logs', 'vulomail')}
 				headerDescription={__('Every email and text message this site has tried to send.', 'vulomail')}
-				headerCustomContent={
-					<div className="vulomail-inline">
-						<ButtonInput
-							buttons={{
-								text: __('Delete all logs', 'vulomail'),
-								icon: 'delete',
-								color: 'border-red',
-								disabled: 0 === sent + failed,
-								onClick: () => setConfirmClear(true),
-							}}
-						/>
-					</div>
-				}
 			/>
 			<ContainerComponent general>
 				<ColumnComponent>
 					<AnalyticsComponent
-						variant="small"
+						variant="with-out-boxshadow"
 						cols={3}
 						data={[
-							{ icon: 'check green', number: sent, text: __('Sent', 'vulomail') },
-							{ icon: 'error red', number: failed, text: __('Failed', 'vulomail') },
+							{ icon: 'check', iconClass: 'green', number: sent, text: __('Sent', 'vulomail') },
+							{ icon: 'error', iconClass: 'red', number: failed, text: __('Failed', 'vulomail') },
 							{
-								icon: 'analytics blue',
+								icon: 'analytics',
+								iconClass: 'blue',
 								number: 0 === sent + failed ? '—' : `${Math.round((sent / (sent + failed)) * 100)}%`,
 								text: __('Delivery rate', 'vulomail'),
 							},
@@ -333,6 +321,12 @@ const Logs = () => {
 							filters={[{ key: 'date', type: 'date', label: __('Date range', 'vulomail') }]}
 							// Inline beside the search box, rather than zyra's floating filter bar.
 							filtersBeforeSearch
+							// After the search box. Nothing to delete until something has been logged.
+							buttonActions={
+								sent + failed > 0
+									? [{ label: __('Delete all logs', 'vulomail'), icon: 'delete', color: 'border-red', onClick: () => setConfirmClear(true) }]
+									: undefined
+							}
 							format={vulomailAppLocalizer.date_format_js}
 							headers={{
 								subject: {

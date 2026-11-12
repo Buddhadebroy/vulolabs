@@ -407,7 +407,6 @@ const Tools = () => {
 											<span className="is-green" style={{ flexGrow: passed }} />
 										</div>
 									</div>
-									<div className="vulomail-diag-stats">
 										<AnalyticsComponent
 											variant="tinted"
 											cols={3}
@@ -417,7 +416,6 @@ const Tools = () => {
 												{ colorClass: 'green', number: passed, text: __('Passed', 'vulomail') },
 											]}
 										/>
-									</div>
 								</div>
 
 								{bySeverity('error').length > 0 && (
