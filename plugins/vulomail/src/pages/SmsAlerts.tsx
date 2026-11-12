@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ContainerComponent, ModuleGuardComponent, NavigatorHeaderComponent } from '@zyra/components';
+import type { SaveStatus } from '@zyra/components';
 import { InputRenderer } from '@zyra/inputs';
 import { SettingProvider, useSetting } from '../contexts/SettingContext';
 import { notificationsSchema as schema } from '../components/Settings';
@@ -10,7 +11,7 @@ import { errorMessage } from '../services/notify';
 import type { Settings as StoredSettings } from '../services/types';
 import { schemaValues } from './Settings';
 
-const Form = ({ values }: { values: Record<string, unknown> }) => {
+const Form = ({ values, onSaveStatusChange }: { values: Record<string, unknown>; onSaveStatusChange: (status: SaveStatus) => void }) => {
 	const { setting, settingName, setSetting, updateSetting } = useSetting();
 
 	useEffect(() => {
@@ -28,6 +29,7 @@ const Form = ({ values }: { values: Record<string, unknown> }) => {
 			updateSetting={updateSetting}
 			Popup={RequiredPluginPopup}
 			groupBySections={schema.groupBySections}
+			onSaveStatusChange={onSaveStatusChange}
 		/>
 	);
 };
@@ -39,6 +41,7 @@ const Form = ({ values }: { values: Record<string, unknown> }) => {
 const SmsAlerts = () => {
 	const [values, setValues] = useState<Record<string, unknown> | null>(null);
 	const [error, setError] = useState('');
+	const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
 
 	useEffect(() => {
 		apiGet<StoredSettings>('settings')
@@ -57,7 +60,7 @@ const SmsAlerts = () => {
 	} else if (values) {
 		content = (
 			<SettingProvider>
-				<Form values={values} />
+				<Form values={values} onSaveStatusChange={setSaveStatus} />
 			</SettingProvider>
 		);
 	}
@@ -68,6 +71,7 @@ const SmsAlerts = () => {
 				headerIcon={schema.headerIcon}
 				headerTitle={schema.headerTitle}
 				headerDescription={schema.headerDescription}
+				saveStatus={saveStatus}
 			/>
 			<ContainerComponent general>
 				{values && !error ? (

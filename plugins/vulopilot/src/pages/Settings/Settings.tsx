@@ -6,6 +6,7 @@ import { useLocation, Link } from 'react-router-dom';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { getAvailableSettings, getSettingById } from '@zyra/core';
 import { ExpandablePanelInput, InputRenderer } from '@zyra/inputs';
+import type { SaveStatus } from '@zyra/components';
 import {
 	CardComponent,
 	FormGroupComponent,
@@ -33,6 +34,7 @@ import type { ComponentType } from 'react';
 const Settings = () => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
 	const settingsRef = useRef<Record<string, unknown>>({});
 	// Remounts the navigator (via `key`) when a filter adds tabs after this page first rendered.
 	const [proTabsTick, setProTabsTick] = useState(0);
@@ -162,6 +164,7 @@ const Settings = () => {
 								// Per-tab opt-in (General.ts's own `groupBySections: true` is the
 								// first) into InputRenderer's card-grouped layout.
 								groupBySections={settingModal.groupBySections}
+								onSaveStatusChange={setSaveStatus}
 							/>
 						) : (
 							<ModuleGuardComponent
@@ -277,6 +280,7 @@ const Settings = () => {
 				Link={Link}
 				settingName={'Settings'}
 				className="admin-settings"
+				saveStatus={saveStatus}
 			/>
 		</SettingProvider>
 	);
