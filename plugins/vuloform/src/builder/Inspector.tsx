@@ -1,13 +1,15 @@
 /* global vuloformAppLocalizer */
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import type { ReactNode } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { NoticeComponent } from '@zyra/components';
+import { FormGroupComponent, NoticeComponent } from '@zyra/components';
 import {
 	ButtonInput,
+	MultiCheckboxInput,
 	SelectInput,
 	TextAreaInput,
 	TextInput,
+	ToggleInput,
 } from '@zyra/inputs';
 import type { Field, Option, Rule } from '../services/types';
 import { lockOf, createField, explainFormula, fieldType, fieldTypes, slug, supports, uniqueKey } from './fields';
@@ -37,13 +39,12 @@ interface InspectorProps {
 // Four choices that are always worth seeing at once, so they are buttons rather than a dropdown.
 const WIDTHS = [
 	{
-		value: '100',
+		key: '100', value: '100',
 		label: __('Full', 'vuloform'),
-		title: __('Full width', 'vuloform'),
 	},
-	{ value: '66', label: '2/3', title: __('Two thirds', 'vuloform') },
-	{ value: '50', label: '1/2', title: __('Half', 'vuloform') },
-	{ value: '33', label: '1/3', title: __('One third', 'vuloform') },
+	{ key: '66', value: '66', label: '2/3' },
+	{ key: '50', value: '50', label: '1/2' },
+	{ key: '33', value: '33', label: '1/3' },
 ];
 
 const OPERATORS = [
@@ -58,9 +59,9 @@ const OPERATORS = [
 ];
 
 const ACTIONS = [
-	{ value: 'show', label: __('Shown', 'vuloform') },
-	{ value: 'hide', label: __('Hidden', 'vuloform') },
-	{ value: 'require', label: __('Required', 'vuloform') },
+	{ key: 'show', value: 'show', label: __('Shown', 'vuloform') },
+	{ key: 'hide', value: 'hide', label: __('Hidden', 'vuloform') },
+	{ key: 'require', value: 'require', label: __('Required', 'vuloform') },
 ];
 
 // Which sections are open is remembered, so the panel looks the same from one field to the next.
@@ -204,54 +205,22 @@ const SwitchRow = ({
 	locked?: boolean;
 	// eslint-disable-next-line no-unused-vars
 	onChange: (checked: boolean) => void;
-}) => (
-	<label className="vuloform-switch-row">
-		<span className="vuloform-switch-text">
-			<span className="vuloform-control-label">{label}</span>
-			{desc && <span className="vuloform-control-desc">{desc}</span>}
-		</span>
-		<button
-			type="button"
-			role="switch"
-			aria-checked={checked}
-			className={`vuloform-switch${checked ? ' is-on' : ''}`}
-			disabled={locked}
-			onClick={() => onChange(!checked)}
-		>
-			<span aria-hidden="true" />
-		</button>
-	</label>
-);
+}) => {
+	// Each switch needs its own id, or its label would toggle another one.
+	const id = useId();
 
-/** A few mutually exclusive choices shown as one row of buttons. */
-const Segmented = ({
-	label,
-	options,
-	value,
-	onChange,
-}: {
-	label: string;
-	options: { value: string; label: string; title?: string }[];
-	value: string;
-	// eslint-disable-next-line no-unused-vars
-	onChange: (value: string) => void;
-}) => (
-	<div className="vuloform-segmented" role="radiogroup" aria-label={label}>
-		{options.map((option) => (
-			<button
-				type="button"
-				role="radio"
-				key={option.value}
-				aria-checked={option.value === value}
-				title={option.title}
-				className={option.value === value ? 'is-active' : ''}
-				onClick={() => onChange(option.value)}
-			>
-				{option.label}
-			</button>
-		))}
-	</div>
-);
+	return (
+		<FormGroupComponent label={label} desc={desc} row>
+			<MultiCheckboxInput
+				look="toggle"
+				modules={[]}
+				options={[{ key: id, value: id, disabled: locked }]}
+				value={checked ? [id] : []}
+				onChange={(values) => onChange(values.length > 0)}
+			/>
+		</FormGroupComponent>
+	);
+};
 
 /**
  * Settings for the selected field. Only the controls that apply to its type are shown.
@@ -635,11 +604,11 @@ const Inspector = ({ template, field, fields, onChange, onAddField }: InspectorP
 										'vuloform'
 									)}
 								>
-									<Segmented
-										label={__('Heading size', 'vuloform')}
+									<ToggleInput
 										options={[2, 3, 4, 5, 6].map(
 											(level) => ({
-												value: String(level),
+												key: String(level),
+								value: String(level),
 												label: `H${level}`,
 											})
 										)}
@@ -1436,8 +1405,7 @@ const Inspector = ({ template, field, fields, onChange, onAddField }: InspectorP
 									'vuloform'
 								)}
 							>
-								<Segmented
-									label={__('Field width', 'vuloform')}
+								<ToggleInput
 									options={WIDTHS}
 									value={String(field.width)}
 									onChange={(value) =>
@@ -1507,8 +1475,7 @@ const Inspector = ({ template, field, fields, onChange, onAddField }: InspectorP
 								<Control
 									label={__('This field is', 'vuloform')}
 								>
-									<Segmented
-										label={__('This field is', 'vuloform')}
+									<ToggleInput
 										options={
 											'divider' === field.type || isLayout
 												? ACTIONS.slice(0, 2)
@@ -1533,21 +1500,17 @@ const Inspector = ({ template, field, fields, onChange, onAddField }: InspectorP
 									}
 								>
 									{conditions.rules.length > 1 && (
-										<Segmented
-											label={__(
-												'How many rules must be true',
-												'vuloform'
-											)}
+										<ToggleInput
 											options={[
 												{
-													value: 'all',
+													key: 'all', value: 'all',
 													label: __(
 														'All of these are true',
 														'vuloform'
 													),
 												},
 												{
-													value: 'any',
+													key: 'any', value: 'any',
 													label: __(
 														'Any of these is true',
 														'vuloform'

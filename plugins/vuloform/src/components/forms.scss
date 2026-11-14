@@ -220,12 +220,6 @@
 	flex-wrap: wrap;
 }
 
-.vuloform-builder-history {
-	display: flex;
-	align-items: center;
-	gap: 0.125rem;
-}
-
 .vuloform-builder-problems {
 	padding: 1rem 1.25rem 0;
 }
@@ -746,95 +740,6 @@
 	gap: 0.75rem;
 }
 
-.vuloform-switch-row {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 0.75rem;
-	cursor: pointer;
-}
-
-.vuloform-switch-text {
-	display: flex;
-	flex-direction: column;
-	gap: 0.125rem;
-	min-width: 0;
-}
-
-.vuloform-switch {
-	position: relative;
-	flex: none;
-	width: 2.25rem;
-	height: 1.25rem;
-	padding: 0;
-	border: 0;
-	border-radius: 1rem;
-	background: var(--border-color);
-	cursor: pointer;
-	transition: background 0.15s ease;
-
-	span {
-		position: absolute;
-		top: 0.125rem;
-		left: 0.125rem;
-		width: 1rem;
-		height: 1rem;
-		border-radius: 50%;
-		background: #fff;
-		box-shadow: 0 0.063rem 0.125rem rgb(0 0 0 / 25%);
-		transition: transform 0.15s ease;
-	}
-
-	&.is-on {
-		background: var(--color-primary);
-
-		span {
-			transform: translateX(1rem);
-		}
-	}
-
-	&:focus-visible {
-		outline: 0.125rem solid var(--color-primary);
-		outline-offset: 0.125rem;
-	}
-}
-
-.vuloform-segmented {
-	display: flex;
-	padding: 0.1875rem;
-	border-radius: 0.5rem;
-	background: color-mix(in srgb, var(--text-color) 6%, transparent);
-
-	button {
-		flex: 1;
-		padding: 0.375rem 0.25rem;
-		border: 0;
-		border-radius: 0.375rem;
-		background: none;
-		font-size: 0.8125rem;
-		color: var(--sub-text-color);
-		cursor: pointer;
-
-		&.is-active {
-			background: var(--background-white);
-			box-shadow: 0 0.063rem 0.125rem rgb(0 0 0 / 15%);
-			font-weight: 600;
-			color: var(--color-primary);
-		}
-
-		&:focus-visible {
-			outline: 0.125rem solid var(--color-primary);
-		}
-	}
-}
-
-@media (prefers-reduced-motion: reduce) {
-	.vuloform-switch,
-	.vuloform-switch span {
-		transition: none;
-	}
-}
-
 .vuloform-option,
 .vuloform-rule {
 	display: flex;
@@ -920,6 +825,7 @@
 	background: none;
 	cursor: pointer;
 	place-items: center;
+	background: var(--background-color);
 
 	> i {
 		font-size: 1.25rem;
@@ -1048,50 +954,6 @@
 	color: var(--sub-text-color);
 }
 
-// In the settings column a segmented choice is as wide as its options, not the column.
-.settings-input-content > .vuloform-segmented {
-	display: inline-flex;
-	max-width: 100%;
-
-	button {
-		padding-inline: 0.875rem;
-		white-space: nowrap;
-	}
-}
-
-.vuloform-builder-history .is-mirrored {
-	display: inline-block;
-	transform: scaleX(-1);
-}
-
-// Undo and redo: always at hand, never competing with Save.
-.vuloform-builder-history {
-	display: flex;
-	margin-left: auto;
-}
-
-.vuloform-builder-history + .vuloform-builder-actions {
-	margin-left: 0;
-}
-
-.vuloform-code {
-	display: flex;
-	align-items: flex-start;
-	gap: 0.5rem;
-
-	textarea {
-		flex: 1;
-		min-width: 0;
-		padding: 0.625rem;
-		border: 0.063rem solid var(--border-color);
-		border-radius: 0.375rem;
-		background: var(--background-color);
-		font-family: ui-monospace, Menlo, Consolas, monospace;
-		font-size: 0.8125rem;
-		resize: vertical;
-	}
-}
-
 .vuloform-steps {
 	margin: 1rem 0 0 1.25rem;
 	color: var(--sub-text-color);
@@ -1133,55 +995,7 @@
 	}
 }
 
-.vuloform-sections {
-	background: var(--background-white);
-}
-
-.vuloform-section-action {
-	margin-top: 0.75rem;
-}
-
-.vuloform-sections .typography-desc {
-	overflow-wrap: anywhere;
-}
-
-// A switch or notice that spans the settings column.
-.vuloform-wide {
-	width: 100%;
-}
-
-.vuloform-wide .vuloform-switch-row {
-	width: 100%;
-	box-sizing: border-box;
-	padding: 0.75rem 1rem;
-	border: 0.063rem solid var(--border-color);
-	border-radius: 0.5rem;
-}
-
-// Narrow screens: a section's settings go under its title instead of beside it.
-@media (max-width: 782px) {
-	.vuloform-sections .settings-section-group {
-		flex-direction: column;
-	}
-
-	.admin-settings.vuloform-sections .settings-section-group > .settings-left-section,
-	.admin-settings.vuloform-sections .settings-section-group > .settings-right-section {
-		flex: none;
-		width: 100%;
-		max-width: none;
-		min-width: 0;
-		padding-inline: 0;
-		border: 0;
-		box-sizing: border-box;
-	}
-}
-
-// A code box in a section fills the settings column.
-.vuloform-wide .vuloform-code {
-	width: 100%;
-}
-
-.vuloform-wide .vuloform-steps {
+.settings-wide .vuloform-steps {
 	margin-left: 1.25rem;
 }
 
@@ -1310,7 +1124,7 @@
 	width: 100%;
 }
 
-.vuloform-when .vuloform-segmented button {
+.vuloform-when .choice-toggle-wrapper .toggle-option label {
 	padding-inline: 0.75rem;
 	white-space: nowrap;
 }
@@ -1406,6 +1220,7 @@
 	flex-direction: column;
 	align-items: stretch;
 	gap: 0.75rem;
+	width: 100%;
 }
 
 .vuloform-exceptions-head {
@@ -1430,10 +1245,10 @@
 	align-items: stretch;
 	gap: 0.5rem;
 
-	> .vuloform-segmented {
+	> .choice-toggle-container {
 		align-self: flex-start;
 
-		button {
+		.toggle-option label {
 			padding-inline: 0.875rem;
 			white-space: nowrap;
 		}
