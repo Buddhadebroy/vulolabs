@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { BadgeComponent, CardComponent, ContainerComponent, ModuleGuardComponent, PopupComponent } from '@zyra/components';
+import { BreadcrumbTrail, CardComponent, ContainerComponent, ModuleGuardComponent, NavigatorHeaderComponent, PopupComponent, TabsComponent, type SaveStatus } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { apiGet, apiPost } from '../services/api';
 import { errorMessage, notify } from '../services/notify';
@@ -72,6 +72,8 @@ const Builder = ({ formId }: { formId: number }) => {
 	// Undoing back to what was saved is not an unsaved change.
 	const isDirty = null !== present && fingerprint(present) !== savedSnapshot.current;
 	const previewRef = useRef<HTMLDivElement>(null);
+	// What zyra's save-status pill shows. A change waiting for its autosave counts as saving.
+	const saveStatus: SaveStatus = 'error' === saveState ? 'error' : isSaving ? 'saving' : isDirty ? 'pending' : 'saved' === saveState ? 'saved' : 'idle';
 
 	latest.current = { form, present };
 
@@ -313,94 +315,63 @@ const Builder = ({ formId }: { formId: number }) => {
 
 	return (
 		<div className="vuloform-builder settings-wrapper tabs" data-template="default">
-			{/* The same page header and tab strip as the other VuloLabs screens, drawn with zyra's own classes. */}
-			<div className="title-section">
-				<div className="title-wrapper">
-					<div className="typography typography-title vuloform-builder-heading">
-						<i className="adminfont-form title-icon" aria-hidden="true" />
-						<input
-							type="text"
-							className="vuloform-builder-name"
-							name="form-title"
-							value={present.title}
-							placeholder={__('Form name', 'vuloform')}
-							aria-label={__('Form name', 'vuloform')}
-							size={Math.max(8, present.title.length + 1)}
-							onChange={(event) => commit({ title: event.target.value })}
-						/>
-						{'published' === form.status ? (
-							<BadgeComponent color="green" text={__('Published', 'vuloform')} />
-						) : (
-							<BadgeComponent color="yellow" text={__('Draft', 'vuloform')} />
-						)}
-					</div>
-					<div className="breadcrumbs">
-						<span>
-							<a href="#&tab=forms">{__('Forms', 'vuloform')}</a>
-						</span>
-						<span> / {present.title || __('Untitled form', 'vuloform')}</span>
-						{/* Changes save by themselves; this says where that stands, and nothing when there is nothing to say. */}
-						<span className={`vuloform-builder-dirty is-${saveState}`} aria-live="polite">
-							{(() => {
-								if (isSaving) {
-									return __('Saving…', 'vuloform');
-								}
-
-								if ('error' === saveState) {
-									return __('Could not save. Trying again shortly.', 'vuloform');
-								}
-
-								if (isDirty) {
-									return __('Unsaved changes', 'vuloform');
-								}
-
-								return 'saved' === saveState ? __('Saved', 'vuloform') : '';
-							})()}
-						</span>
-					</div>
-				</div>
-				<div className="title-custom-section vuloform-builder-actions">
-					<div className="vuloform-builder-history">
-						<button type="button" className="vuloform-icon-button" disabled={!past.length} onClick={undo} aria-label={__('Undo', 'vuloform')} title={__('Undo', 'vuloform')}>
-							<i className="adminfont-undo" aria-hidden="true" />
-						</button>
-						<button type="button" className="vuloform-icon-button" disabled={!future.length} onClick={redo} aria-label={__('Redo', 'vuloform')} title={__('Redo', 'vuloform')}>
-							<i className="adminfont-undo is-mirrored" aria-hidden="true" />
-						</button>
-					</div>
-					<ButtonInput
-						buttons={[
-							{ text: __('Preview', 'vuloform'), icon: 'eye', color: 'purple', onClick: preview },
-							'published' === form.status
-								? { text: __('Unpublish', 'vuloform'), color: 'purple', disabled: isSaving, onClick: () => publish('draft') }
-								: { text: __('Publish', 'vuloform'), icon: 'check', disabled: isSaving, onClick: () => publish('published') },
-						]}
+			<NavigatorHeaderComponent
+				headerDescription={__('Build the form, then publish it. Your changes are saved as you make them.', 'vuloform')}
+				headerTitle={
+					<input
+						type="text"
+						className="vuloform-builder-name"
+						name="form-title"
+						value={present.title}
+						placeholder={__('Form name', 'vuloform')}
+						aria-label={__('Form name', 'vuloform')}
+						size={Math.max(8, present.title.length + 1)}
+						onChange={(event) => commit({ title: event.target.value })}
 					/>
-				</div>
-			</div>
+				}
+				badges={[{ text: 'published' === form.status ? __('Published', 'vuloform') : __('Draft', 'vuloform'), color: 'published' === form.status ? 'green' : 'yellow' }]}
+				breadcrumbs={
+					<BreadcrumbTrail
+						ariaLabel={__('Breadcrumb', 'vuloform')}
+						items={[{ label: __('Forms', 'vuloform'), href: '#&tab=forms' }, { label: present.title || __('Untitled form', 'vuloform') }]}
+					/>
+				}
+				saveStatus={saveStatus}
+				saveStatusLabels={{
+					idle: __('Changes save automatically', 'vuloform'),
+					saving: __('Saving…', 'vuloform'),
+					saved: __('Saved', 'vuloform'),
+					error: __('Could not save. Trying again shortly.', 'vuloform'),
+				}}
+				headerCustomContent={
+					<div className="vuloform-builder-actions">
+						<div className="vuloform-builder-history">
+							<button type="button" className="vuloform-icon-button" disabled={!past.length} onClick={undo} aria-label={__('Undo', 'vuloform')} title={__('Undo', 'vuloform')}>
+								<i className="adminfont-undo" aria-hidden="true" />
+							</button>
+							<button type="button" className="vuloform-icon-button" disabled={!future.length} onClick={redo} aria-label={__('Redo', 'vuloform')} title={__('Redo', 'vuloform')}>
+								<i className="adminfont-undo is-mirrored" aria-hidden="true" />
+							</button>
+						</div>
+						<ButtonInput
+							buttons={[
+								{ text: __('Preview', 'vuloform'), icon: 'eye', color: 'purple', onClick: preview },
+								'published' === form.status
+									? { text: __('Unpublish', 'vuloform'), color: 'purple', disabled: isSaving, onClick: () => publish('draft') }
+									: { text: __('Publish', 'vuloform'), icon: 'check', disabled: isSaving, onClick: () => publish('published') },
+							]}
+						/>
+					</div>
+				}
+			/>
 
-			<div className="tabs-wrapper settings-tab">
-				<div className="tabs-item" role="tablist">
-					{TABS.map((item) => (
-						<a
-							href={`#${builderHash(item.id, 'settings' === item.id ? lastSection() : '')}`}
-							role="tab"
-							key={item.id}
-							aria-selected={tab === item.id}
-							className={`tab ${tab === item.id ? 'active-tab' : ''}`}
-							onClick={(event) => {
-								event.preventDefault();
-								setTab(item.id);
-							}}
-						>
-							<div className="tab-name">
-								<i className={`adminfont-${item.icon}`} aria-hidden="true" />
-								{item.label}
-							</div>
-						</a>
-					))}
-				</div>
-			</div>
+			{/* Only the strip: each pane is drawn below, so the list of problems can sit between them. */}
+			<TabsComponent
+				className="settings-tab"
+				tabs={TABS.map((item) => ({ label: item.label, icon: item.icon }))}
+				activeIndex={TABS.findIndex((item) => item.id === tab)}
+				onTabChange={(index) => setTab(TABS[index].id)}
+			/>
 
 			{problems.length > 0 && (triedToPublish || 'published' === form.status) && (
 				<div className="vuloform-builder-problems">

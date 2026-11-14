@@ -289,7 +289,7 @@ const Submissions = () => {
 								buttons={{
 									text: __('Export CSV', 'vuloform'),
 									icon: 'export',
-									color: 'purple',
+									color: 'white',
 									disabled: 0 === list.total,
 									tooltip: 0 === list.total ? __('There is nothing to export.', 'vuloform') : undefined,
 									onClick: () => download('submissions/export', filters, 'submissions.csv'),

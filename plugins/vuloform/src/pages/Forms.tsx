@@ -14,6 +14,7 @@ import { TableCard } from '@zyra/table';
 import { apiDelete, apiGet, apiPost } from '../services/api';
 import { errorMessage, notify } from '../services/notify';
 import type { Form } from '../services/types';
+import '../components/forms.scss';
 
 interface FormRow {
 	id: number;
@@ -90,16 +91,20 @@ const Forms = () => {
 		(source) => source.plugin_file && source.forms.some((form) => form.already_migrated)
 	);
 
+	// A template a plugin supplies is grouped under that plugin's name instead of its own category.
+	const categoryOf = (template: { category?: string; plugin?: string }) => template.plugin || template.category || '';
+
 	// Categories in first-seen order, each with how many templates it holds.
 	const templateCategories = vuloformAppLocalizer.templates.reduce<
 		Array<{ id: string; label: string; count: number }>
 	>((categories, template) => {
-		const existing = categories.find((category) => category.label === template.category);
+		const label = categoryOf(template);
+		const existing = categories.find((category) => category.label === label);
 
 		if (existing) {
 			existing.count++;
 		} else {
-			categories.push({ id: template.category, label: template.category, count: 1 });
+			categories.push({ id: label, label, count: 1 });
 		}
 
 		return categories;
@@ -109,7 +114,7 @@ const Forms = () => {
 		'all' === templateCategory
 			? vuloformAppLocalizer.templates
 			: vuloformAppLocalizer.templates.filter(
-					(template) => template.category === templateCategory
+					(template) => categoryOf(template) === templateCategory
 				);
 
 	const onQueryUpdate = useCallback((next: TableQuery) => setQuery(next), []);
@@ -555,6 +560,7 @@ const Forms = () => {
 										aria-hidden="true"
 									/>
 									<strong>{template.title}</strong>
+									{template.plugin && <BadgeComponent color="purple" text={template.plugin} />}
 									<span>{template.desc}</span>
 								</button>
 							))}

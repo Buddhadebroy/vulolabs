@@ -611,7 +611,9 @@ const EmailTemplates = () => {
 				headerTitle={__('Email Templates', 'vulomail')}
 				headerDescription={__('Every email and text message this site has tried to send.', 'vulomail')}
 			/>
-			<ContainerComponent general>{content}</ContainerComponent>
+			<ContainerComponent general>
+				{content}
+			</ContainerComponent>
 			{editing && (
 				<EmailTemplateEditorPopup
 					open

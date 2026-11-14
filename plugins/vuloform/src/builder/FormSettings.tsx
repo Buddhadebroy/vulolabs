@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import type { Dispatch, ReactNode } from 'react';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { NoticeComponent } from '@zyra/components';
+import { ModuleGuardComponent, NoticeComponent, TabsComponent } from '@zyra/components';
 import { ButtonInput, SelectInput, TextAreaInput, TextInput } from '@zyra/inputs';
 import Switch from './Switch';
 import { Row, Section, Sections, Segmented, Wide } from './Section';
@@ -466,21 +466,12 @@ const FormSettings = ({ settings, fields, onChange, onChangeWithEmailField }: Fo
 				/>
 			)}
 
-			<div className="vuloform-subtabs" role="tablist" aria-label={__('Form settings', 'vuloform')}>
-				{groups.map((item) => (
-					<button
-						key={item.id}
-						type="button"
-						role="tab"
-						aria-selected={current === item.id}
-						className={current === item.id ? 'is-active' : ''}
-						onClick={() => setGroup(item.id)}
-					>
-						<i className={`adminfont-${item.icon}`} aria-hidden="true" />
-						{item.title}
-					</button>
-				))}
-			</div>
+			{/* Only the strip: each group is drawn below. */}
+			<TabsComponent
+				tabs={groups.map((item) => ({ label: item.title, icon: item.icon }))}
+				activeIndex={Math.max(0, groups.findIndex((item) => item.id === current))}
+				onTabChange={(index) => setGroup(groups[index].id)}
+			/>
 
 			{'notifications' === current && (
 				<>
@@ -500,33 +491,27 @@ const FormSettings = ({ settings, fields, onChange, onChangeWithEmailField }: Fo
 						)}
 					</div>
 					{0 === settings.notifications.length && (
-						<div className="vuloform-empty">
-							<i className="adminfont-notification" aria-hidden="true" />
-							<strong>{__('Nobody is told when this form is submitted', 'vuloform')}</strong>
-							<span>
-								{settings.store_submissions
+						// Every form starts with this notification; it is one click to have it back.
+						<ModuleGuardComponent
+							icon="notification"
+							title={__('Nobody is told when this form is submitted', 'vuloform')}
+							desc={
+								settings.store_submissions
 									? __('Submissions are still saved under VuloForm → Submissions. Add a notification to get an email as well.', 'vuloform')
-									: __('Add a notification to get an email for each submission.', 'vuloform')}
-							</span>
-							{/* Every form starts with this one; it is one click to have it back. */}
-							<ButtonInput
-								buttons={{
-									text: sprintf(
-										/* translators: %s: the site's admin email address. */
-										__('Email each submission to %s', 'vuloform'),
-										vuloformAppLocalizer.admin_email
-									),
-									icon: 'mail',
-									color: 'purple',
-									onClick: () => {
-										const added = newNotification({ name: __('Admin notification', 'vuloform'), to: vuloformAppLocalizer.admin_email });
+									: __('Add a notification to get an email for each submission.', 'vuloform')
+							}
+							buttonText={sprintf(
+								/* translators: %s: the site's admin email address. */
+								__('Email each submission to %s', 'vuloform'),
+								vuloformAppLocalizer.admin_email
+							)}
+							onButtonClick={() => {
+								const added = newNotification({ name: __('Admin notification', 'vuloform'), to: vuloformAppLocalizer.admin_email });
 
-										set({ notifications: [added] });
-										setOpenItem('none');
-									},
-								}}
-							/>
-						</div>
+								set({ notifications: [added] });
+								setOpenItem('none');
+							}}
+						/>
 					)}
 					{settings.notifications.map((item, index) => {
 						const isSms = 'sms' === item.channel;
@@ -748,11 +733,11 @@ const FormSettings = ({ settings, fields, onChange, onChangeWithEmailField }: Fo
 									)}
 								</div>
 								{0 === alternatives.length && (
-									<div className="vuloform-empty">
-										<i className="adminfont-filter" aria-hidden="true" />
-										<strong>{__('Everyone sees the same message', 'vuloform')}</strong>
-										<span>{__('For example: people who chose "Sales" go to a booking page, and everyone else is thanked.', 'vuloform')}</span>
-									</div>
+									<ModuleGuardComponent
+										icon="filter"
+										title={__('Everyone sees the same message', 'vuloform')}
+										desc={__('For example: people who chose "Sales" go to a booking page, and everyone else is thanked.', 'vuloform')}
+									/>
 								)}
 								{alternatives.map((item, index) => {
 									const isOpen = openItem === item.id;
@@ -961,11 +946,11 @@ const FormSettings = ({ settings, fields, onChange, onChangeWithEmailField }: Fo
 						</div>
 					)}
 					{0 === integrationCount && !choosing && (
-						<div className="vuloform-empty">
-							<i className="adminfont-link" aria-hidden="true" />
-							<strong>{__('Nothing is connected to this form', 'vuloform')}</strong>
-							<span>{__('Most forms do not need this. Add an integration when submissions should also reach another service.', 'vuloform')}</span>
-						</div>
+						<ModuleGuardComponent
+							icon="link"
+							title={__('Nothing is connected to this form', 'vuloform')}
+							desc={__('Most forms do not need this. Add an integration when submissions should also reach another service.', 'vuloform')}
+						/>
 					)}
 					{integrations.map((item) => (
 						<item.Component

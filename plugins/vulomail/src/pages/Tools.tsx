@@ -92,7 +92,7 @@ const IssueCard = ({ check }: { check: Check }) => (
 					<ButtonInput
 						buttons={{
 							text: check.action.label,
-							color: 'error' === check.status ? 'purple' : 'border-purple',
+							color: 'purple-bg',
 							onClick: () => follow(check.action),
 						}}
 					/>
@@ -126,7 +126,7 @@ const InfoCard = ({ check }: { check: Check }) => (
 		{check.fix && <p className="vulomail-diag-note">{check.fix}</p>}
 		{check.action && (
 			<ButtonInput
-				buttons={{ text: check.action.label, color: 'border-purple', onClick: () => follow(check.action) }}
+				buttons={{ text: check.action.label, color: 'purple-bg', onClick: () => follow(check.action) }}
 			/>
 		)}
 	</div>
@@ -305,7 +305,7 @@ const Tools = () => {
 						buttons={{
 							text: checks ? __('Run diagnostics again', 'vulomail') : __('Running…', 'vulomail'),
 							icon: 'refresh',
-							color: 'purple',
+							color: 'purple-bg',
 							disabled: !checks,
 							onClick: runDiagnostics,
 						}}
