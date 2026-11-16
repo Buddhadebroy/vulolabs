@@ -533,6 +533,7 @@ module.exports = function createWebpackConfig(
 				// upstream in the zyra repo) - BlockBuilder, CanvasEditor,
 				// SettingMetaBox, FormViewer, FreeFormCustomizer, FIELD_REGISTRY.
 				'@zyra/builders': '@multivendorx/zyra',
+				'@zyra/builderform': '@multivendorx/zyra',
 			},
 		},
 
