@@ -469,6 +469,7 @@ Supported one-click fixes require approval. If you enable Pro automation, review
 * Added - Import SEO data from Yoast SEO, Rank Math, All in One SEO and ThinkRank.
 * Added - 0-100 SEO score for every post, with tips in the post editor.
 * Added - Bulk Dismiss and Sort by for the 404 Log.
+* Added - "No. of all inlinks" and "First found at" columns to the 404 Log.
 * Added - Surrounding text snippet for each broken link.
 * Added - Default and Card styles for the FAQ block.
 * Fixed - Redesigned XML sitemap page.

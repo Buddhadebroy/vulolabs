@@ -100,6 +100,17 @@ class NotFoundLogs extends \WP_REST_Controller {
 
 		$result['is_system_counts'] = $repository->count_by_column( 'is_system' );
 
+		// "No. of all inlinks" + "First found at" - rows predating the first_referrer column fall back to the most recent referrer.
+		$result['data'] = array_map(
+			function ( array $row ) use ( $repository ): array {
+				$row['inlink_count']   = $repository->count_inlinks_for_path( (string) $row['requested_path'] );
+				$row['first_referrer'] = ! empty( $row['first_referrer'] ) ? $row['first_referrer'] : ( $row['referrer'] ?? null );
+
+				return $row;
+			},
+			$result['data']
+		);
+
 		return rest_ensure_response( $result );
 	}
 

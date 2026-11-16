@@ -29,6 +29,10 @@ interface NotFoundLogRow extends TableRow {
 	is_system: 0 | 1 | '0' | '1';
 	// NotFoundLogs::get_items() computes this - a real PHP bool, not a `$wpdb`-string field.
 	has_redirect: boolean;
+	// NotFoundLogs::get_items() computes this per request - a live count, not a stored column.
+	inlink_count: number;
+	// The referrer this 404 was FIRST seen from - falls back to the most recent referrer for rows older than this column.
+	first_referrer: string | null;
 }
 
 /** See NotFoundLogRow.is_system's own comment. */
@@ -227,6 +231,41 @@ const NotFoundLogSection = () => {
 									iconKey: 'rowIcon',
 									descriptionKey: 'descriptionItems',
 									badgesKey: 'typeBadges',
+								},
+								inlink_count: {
+									label: __('No. of all inlinks', 'vulopilot'),
+									render: (row: Record<string, unknown>) => {
+										const count = Number(
+											(row as unknown as NotFoundLogRow).inlink_count || 0
+										);
+
+										return (
+											<span className={count ? undefined : 'desc'}>
+												{count}
+											</span>
+										);
+									},
+								},
+								first_found_at: {
+									label: __('First found at', 'vulopilot'),
+									render: (row: Record<string, unknown>) => {
+										const referrer = (row as unknown as NotFoundLogRow)
+											.first_referrer;
+
+										if (!referrer) {
+											return <span className="desc">—</span>;
+										}
+
+										return (
+											<a
+												href={referrer}
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												{referrer}
+											</a>
+										);
+									},
 								},
 								actions: {
 									label: __('Actions', 'vulopilot'),
