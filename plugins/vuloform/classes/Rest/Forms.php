@@ -268,12 +268,6 @@ class Forms extends Controller {
 		);
 	}
 
-	/**
-	 * Deletes a form with its submissions and their files.
-	 *
-	 * @param int $id Form id.
-	 * @return void
-	 */
 	private function remove( $id ) {
 		// In batches, so a form with a large history can't run the request out of memory.
 		do {

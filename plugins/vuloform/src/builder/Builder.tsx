@@ -5,7 +5,6 @@ import type { FormBuilderRoute } from '@zyra/builderform';
 import { apiGet, apiPost } from '../services/api';
 import { errorMessage, notify } from '../services/notify';
 import { formSettingsSections, inspectorSections } from '../services/slots';
-import { i18n } from './strings';
 
 const params = (hash: string) => new URLSearchParams(hash.replace(/^#/, ''));
 
@@ -41,12 +40,11 @@ const route: FormBuilderRoute = {
 
 /**
  * The form builder is zyra's `FormBuilder`; this hands it what is VuloForm's own: its REST client,
- * translations, notices, address scheme, localized data and the extension points VuloForm Pro uses.
+ * notices, address scheme, localized data and the extension points VuloForm Pro uses.
  */
 const Builder = ({ formId }: { formId: number }) => (
 	<FormBuilder
 		formId={formId}
-		i18n={i18n}
 		api={{ get: apiGet, post: apiPost }}
 		notify={notify}
 		route={route}

@@ -234,6 +234,12 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 			: '';
 	const showWhatHappened = !showRecommendedFix && '' !== whatHappened;
 
+	const sampleSectionTitle = showRecommendedFix
+		? __('Recommended fix', 'vulopilot')
+		: showWhatHappened
+			? __('What happened?', 'vulopilot')
+			: __('Example finding', 'vulopilot');
+
 	/** group.sample is already shown in full above. */
 	const otherAffectedItems = (affectedItems ?? []).filter(
 		(row) => row.id !== group.sample?.id

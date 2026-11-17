@@ -221,27 +221,6 @@ function generateStorefrontEntry(rootDir) {
 		: {};
 }
 
-/**
- * A linked local zyra brings its own node_modules, so react-router would be bundled twice and
- * `useLocation()` would not see the router `BrowserRouter` created. Resolve both packages from
- * the plugin's own copy so there is only one. Plugins without react-router-dom are left alone.
- */
-function routerAliases(rootDir) {
-	try {
-		const dom = path.dirname(
-			require.resolve('react-router-dom/package.json', { paths: [rootDir] })
-		);
-
-		return {
-			'react-router-dom$': dom,
-			'react-router$': path.dirname(
-				require.resolve('react-router/package.json', { paths: [dom] })
-			),
-		};
-	} catch (e) {
-		return {};
-	}
-}
 
 module.exports = function createWebpackConfig(
 	rootDir
@@ -323,21 +302,7 @@ module.exports = function createWebpackConfig(
 		},
 
 		watchOptions: {
-			// Everything in node_modules except a linked local zyra. zyra is rebuilt by deleting and then
-			// rewriting its `build/` files; webpack has to see that path to rebuild once the files are back.
-			ignored: /[\\/]node_modules[\\/](?!@multivendorx[\\/]zyra)/,
-			// Without this, a real `node_modules/@multivendorx/zyra` that's
-			// actually a symlink (e.g. `pnpm link`, or the `file:`/workspace
-			// override a contributor uses to develop against a local zyra
-			// checkout) never triggers a rebuild when its *target* content
-			// changes: webpack watches a symlinked module at the symlink's
-			// own path by default, and that path's own mtime never changes
-			// just because what it points to did. `followSymlinks` makes
-			// webpack resolve through the link and watch the real file
-			// instead - the same real resolved path `resolve.symlinks`
-			// (default `true`) already uses to build the module in the
-			// first place, so this just makes watching match resolution.
-			followSymlinks: true,
+			ignored: /node_modules/,
 		},
 
 		module: {
