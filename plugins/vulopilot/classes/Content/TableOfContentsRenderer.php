@@ -4,10 +4,7 @@ namespace VuloPilot\Content;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Render logic for the `vulopilot/table-of-contents` block. Mirrors `index.js`'s own
- * filter/tree/numbering logic by hand; the real anchor is only ever computed here
- * (`HeadingAnchorResolver::collect()`), so `heading_key()`'s `level:text` pair is what
- * both sides key an exclusion on.
+ * Render logic for the `vulopilot/table-of-contents` block.
  *
  * @class       TableOfContentsRenderer class
  * @version     1.0.0
@@ -18,9 +15,9 @@ class TableOfContentsRenderer {
 	use StyleVarsTrait;
 
 	/**
-	 * @param array<string, mixed> $attributes Real block attributes.
-	 * @param int                  $post_id    The post this block instance is rendering on.
-	 * @return string Real HTML, or '' if the post has no matching headings (no empty shell rendered).
+	 * @param array $attributes Real block attributes.
+	 * @param int   $post_id    The post this block instance is rendering on.
+	 * @return string Real HTML, or '' if the post has no matching headings.
 	 */
 	public static function render( array $attributes, int $post_id ): string {
 		if ( ! $post_id ) {
@@ -51,8 +48,7 @@ class TableOfContentsRenderer {
 		$style = self::build_style_attribute(
 			array_merge(
 				$attributes,
-				// 'hierarchical' isn't a real CSS `list-style-type` - numbers render as literal
-				// text instead (`build_number_prefix()`), so the native marker is hidden either way.
+				// 'hierarchical' isn't a real CSS `list-style-type`.
 				array( 'contentListStyle' => $hierarchical ? 'none' : $marker_style )
 			)
 		);
@@ -100,10 +96,9 @@ class TableOfContentsRenderer {
 	}
 
 	/**
-	 * Same `level:text` identifier `headingTree.js`'s `headingKey()` computes - what both
-	 * sides key an `excludedHeadings` entry on.
+	 * Same `level:text` identifier `headingTree.js`'s `headingKey()` computes.
 	 *
-	 * @param array{level: int, text: string} $heading A single real heading.
+	 * @param array $heading A single real heading.
 	 * @return string
 	 */
 	private static function heading_key( array $heading ): string {
@@ -113,9 +108,9 @@ class TableOfContentsRenderer {
 	/**
 	 * Real mirror of `headingTree.js`'s own `filterHeadings()`.
 	 *
-	 * @param array<int, array{level: int, text: string, anchor: string}> $headings   Every real heading, unfiltered.
-	 * @param array<string, mixed>                                        $attributes Real block attributes.
-	 * @return array<int, array{level: int, text: string, anchor: string}>
+	 * @param array $headings   Every real heading, unfiltered.
+	 * @param array $attributes Real block attributes.
+	 * @return array
 	 */
 	private static function filter_headings( array $headings, array $attributes ): array {
 		$included_levels = array_map( 'intval', $attributes['includedLevels'] ?? array() );
@@ -138,11 +133,10 @@ class TableOfContentsRenderer {
 	}
 
 	/**
-	 * Real mirror of `headingTree.js`'s own `buildHeadingTree()` - a heading nests under the
-	 * nearest *preceding* heading with a shallower level.
+	 * Real mirror of `headingTree.js`'s own `buildHeadingTree()`.
 	 *
-	 * @param array<int, array{level: int, text: string, anchor: string}> $headings Already filtered, document order.
-	 * @return array<int, array<string, mixed>> Each node is `$heading + ['children' => [...]]`.
+	 * @param array $headings Already filtered, document order.
+	 * @return array Each node is `$heading + ['children' => [...]]`.
 	 */
 	private static function build_tree( array $headings ): array {
 		$root  = array(
@@ -173,11 +167,10 @@ class TableOfContentsRenderer {
 	/**
 	 * Real mirror of `headingTree.js`'s own `assignHierarchicalNumbers()` + list render.
 	 *
-	 * @param array<int, array<string, mixed>> $nodes        `build_tree()` output (or one node's own 'children').
-	 * @param bool                             $hierarchical Whether to compute "1"/"1.1" numbering.
-	 * @param string                           $prefix       Already-resolved parent number, e.g. '1' - '' at the root.
-	 * @param string                           $list_id      Real `id` attribute - only the top-level `render()` call
-	 *                                                        passes one, so only the outermost `<ul>` gets it.
+	 * @param array  $nodes        `build_tree()` output (or one node's own 'children').
+	 * @param bool   $hierarchical Whether to compute "1"/"1.1" numbering.
+	 * @param string $prefix       Already-resolved parent number, e.g. '1' - '' at the root.
+	 * @param string $list_id      Real `id` attribute.
 	 * @return string
 	 */
 	private static function build_nested_list( array $nodes, bool $hierarchical, string $prefix = '', string $list_id = '' ): string {
@@ -214,9 +207,9 @@ class TableOfContentsRenderer {
 	/**
 	 * Flat (non-nested) list render - every heading at the same `<li>` depth.
 	 *
-	 * @param array<int, array{level: int, text: string, anchor: string}> $headings     Already level/exclusion-filtered.
-	 * @param bool                                                        $hierarchical Whether to number items sequentially (no real nesting here, so always a flat 1/2/3 count).
-	 * @param string                                                      $list_id      Real `id` attribute for the `<ul>` (`aria-controls` target).
+	 * @param array  $headings     Already level/exclusion-filtered.
+	 * @param bool   $hierarchical Whether to number items sequentially.
+	 * @param string $list_id      Real `id` attribute for the `<ul>` (`aria-controls` target).
 	 * @return string
 	 */
 	private static function build_flat_list( array $headings, bool $hierarchical, string $list_id = '' ): string {
@@ -242,9 +235,9 @@ class TableOfContentsRenderer {
 	}
 
 	/**
-	 * Real PHP mirror of `styleVars.js`'s own `buildTocStyleVars()` - same attribute → CSS custom property mapping `public/styles/blocks.scss`'s own `.vulopilot-toc` rules read (`var(--toc-*, <fallback>)`), so a style set in the editor renders identically on the live page.
+	 * Real PHP mirror of `styleVars.js`'s own `buildTocStyleVars()`.
 	 *
-	 * @param array<string, mixed> $attributes Real block attributes.
+	 * @param array $attributes Real block attributes.
 	 * @return string A `--name: value;` CSS custom-property declaration list, or '' if nothing is set.
 	 */
 	private static function build_style_attribute( array $attributes ): string {

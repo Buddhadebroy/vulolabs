@@ -51,8 +51,7 @@ const VuloCloudAiConnectionPanel = () => {
 
 	useEffect(load, []);
 
-	// ConnectBrokerCallbackHandler.php's own redirect lands back on this exact URL carrying
-	// `connect_status=connected|error` as a real signal.
+	// ConnectBrokerCallbackHandler.php's own redirect lands back on this exact URL carrying `connect_status=connected|error` as a real signal.
 	useEffect(() => {
 		const params = new URLSearchParams(
 			window.location.hash.split('?')[1] || window.location.hash.substring(1)

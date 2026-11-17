@@ -55,7 +55,7 @@ interface AIActionInterface {
 	 * Builds the chat-style message list to send to the AI service.
 	 *
 	 * @param array $input Validated input.
-	 * @return array<int, array{role: string, content: string}>
+	 * @return array
 	 */
 	public function build_prompt( array $input ): array;
 

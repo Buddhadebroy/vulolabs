@@ -24,34 +24,42 @@ final class AIResponse {
 	private string $content;
 
 	/**
-	 * Real AI credits this call spent, exactly as the server reported it - fractional and
-	 * rounded to 3 decimals for display.
+	 * Real AI credits this call spent, exactly as the server reported it.
 	 *
 	 * @var float
 	 */
 	private float $credits_used;
 
 	/**
-	 * The server's own request id for this call, when the gateway that produced this
-	 * response returns one - null when it doesn't (never fabricated).
+	 * The server's own request id for this call, when the gateway that produced this response returns one.
 	 *
 	 * @var string|null
 	 */
 	private ?string $request_id;
 
 	/**
+	 * True when the AI stopped at its output limit, so the content is cut off.
+	 *
+	 * @var bool
+	 */
+	private bool $truncated;
+
+	/**
 	 * @param string      $content      Generated content.
 	 * @param float       $credits_used Real AI credits this call spent, as reported by the AI service.
 	 * @param string|null $request_id   The request id for this call, if the gateway returned one.
+	 * @param bool        $truncated    Whether the AI stopped at its output limit.
 	 */
 	public function __construct(
 		string $content,
 		float $credits_used,
-		?string $request_id = null
+		?string $request_id = null,
+		bool $truncated = false
 	) {
 		$this->content      = $content;
 		$this->credits_used = $credits_used;
 		$this->request_id   = $request_id;
+		$this->truncated    = $truncated;
 	}
 
 	/**
@@ -76,8 +84,14 @@ final class AIResponse {
 	}
 
 	/**
-	 * Returns a copy of this response with different content - used to
-	 * apply sanitization without mutating the original.
+	 * @return bool
+	 */
+	public function is_truncated(): bool {
+		return $this->truncated;
+	}
+
+	/**
+	 * Returns a copy of this response with different content.
 	 *
 	 * @param string $new_content Replacement content.
 	 * @return self
@@ -86,7 +100,8 @@ final class AIResponse {
 		return new self(
 			$new_content,
 			$this->credits_used,
-			$this->request_id
+			$this->request_id,
+			$this->truncated
 		);
 	}
 }

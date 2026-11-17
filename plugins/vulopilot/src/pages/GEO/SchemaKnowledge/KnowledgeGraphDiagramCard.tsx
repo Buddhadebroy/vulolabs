@@ -5,21 +5,19 @@ import { ENTITY_SETTINGS_URL } from './KnowledgeGraphSection';
 
 interface DiagramNode {
 	key: string;
-	/** Small label shown above the node's own box - the entity TYPE name (e.g. "Category"), never the value itself. */
+	/** Small label shown above the node's own box - the entity TYPE name, never the value itself. */
 	label: string;
 	found: boolean;
-	/** True only for Products with no WooCommerce active - a real "doesn't apply" state, told apart from a real, fixable "missing" gap. */
+	/** True only for Products with no WooCommerce active. */
 	notApplicable?: boolean;
-	/** The real value shown inside the box once found - a real count ("2 Categories"), a real name ("admin"), or the site's own real URL. */
+	/** The real value shown inside the box once found. */
 	value: string;
-	/** Real, functional "add this" destination - set only for entity types with an actual real place to add one (Category → the real WP admin term-manager screen, Location → the real owner-curated setting, Products → the real WP admin new-product screen). */
+	/** Real, functional "add this" destination. */
 	ctaText?: string;
 	ctaHref?: string;
 }
 
-/**
- * Real node list - one entry per entity type this diagram shows.
- */
+/** Real node list - one entry per entity type this diagram shows. */
 export const buildDiagramNodes = (entities: EntitiesResponse): DiagramNode[] => {
 	const siteUrl = vulopilotAppLocalizer.site_url;
 
@@ -59,15 +57,12 @@ export const buildDiagramNodes = (entities: EntitiesResponse): DiagramNode[] => 
 								peopleCount
 							)
 						: '',
-			// No real "add a person" workflow exists - People are
-			// auto-detected from real post authorship, not owner-curated.
+			// No real "add a person" workflow exists.
 		},
 		{
 			key: 'website',
 			label: __('Website', 'vulopilot'),
-			// The site's own real URL - always real, always found
-			// (Services\EntityExtractor::extract_organizations() always returns a real entry, at
-			// minimum the site's own title/URL).
+			// The site's own real URL - always real, always found (Services\EntityExtractor::extract_organizations() always returns a real entry, at minimum the site's own title/URL).
 			found: true,
 			value: entities.organizations[0]?.url || siteUrl,
 		},
@@ -114,9 +109,7 @@ interface KnowledgeGraphDiagramProps {
 	entities: EntitiesResponse;
 }
 
-/**
- * Node/box design matches a newer reference mockup exactly.
- */
+/** Node/box design matches a newer reference mockup exactly. */
 export const KnowledgeGraphDiagram = ({ entities }: KnowledgeGraphDiagramProps) => {
 	const businessName = entities.organizations[0]?.name || __('Your business', 'vulopilot');
 	const nodes = buildDiagramNodes(entities);

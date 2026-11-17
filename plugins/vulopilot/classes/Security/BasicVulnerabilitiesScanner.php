@@ -69,8 +69,7 @@ class BasicVulnerabilitiesScanner extends ScannerUtil {
 	}
 
 	/**
-	 * The homepage's own `meta` tag advertises the exact WordPress core
-	 * version to anyone viewing the page source.
+	 * The homepage's own `meta` tag advertises the exact WordPress core version to anyone viewing the page source.
 	 *
 	 * @return Finding|null
 	 */
@@ -106,8 +105,7 @@ class BasicVulnerabilitiesScanner extends ScannerUtil {
 	}
 
 	/**
-	 * The bundled `readme.html` at the site root also reveals the exact core version (its
-	 * "Version X.Y" line), independent of the generator meta tag.
+	 * The bundled `readme.html` at the site root also reveals the exact core version.
 	 *
 	 * @return Finding|null
 	 */
@@ -141,8 +139,7 @@ class BasicVulnerabilitiesScanner extends ScannerUtil {
 	}
 
 	/**
-	 * A table prefix left at the WordPress default (`wp_`) makes certain classes of SQL-
-	 * injection attack marginally easier to write.
+	 * A table prefix left at the WordPress default.
 	 *
 	 * @return Finding|null
 	 */

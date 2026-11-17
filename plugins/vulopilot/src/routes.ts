@@ -15,8 +15,7 @@ import Content from './pages/Content/Content';
 import SetupWizard from './pages/SetupWizard/SetupWizard';
 
 registerVuloPilotRoute({ tab: 'dashboard', component: Dashboard });
-// Not listed in Admin.php's $submenus - reached only via the activation redirect
-// (Admin::maybe_redirect_to_setup_wizard()) or a direct link, never shown in the sidebar.
+// Not listed in Admin.php's $submenus.
 registerVuloPilotRoute({ tab: 'setup-wizard', component: SetupWizard });
 registerVuloPilotRoute({ tab: 'performance', component: Performance });
 registerVuloPilotRoute({ tab: 'seo-visibility', component: SeoVisibility });
@@ -30,5 +29,4 @@ registerVuloPilotRoute({ tab: 'security', component: Security });
 registerVuloPilotRoute({ tab: 'site-health', component: SiteHealth });
 registerVuloPilotRoute({ tab: 'accessibility', component: Accessibility });
 registerVuloPilotRoute({ tab: 'content', component: Content });
-// 'content-planner' is registered by vulopilot-pro's ContentOptimization module
-// (modules/ContentOptimization/src/index.tsx) - Pro-only, no Free fallback page.
+// 'content-planner' is registered by vulopilot-pro's ContentOptimization module.

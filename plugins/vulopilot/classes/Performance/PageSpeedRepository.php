@@ -13,8 +13,7 @@ use VuloPilot\Utill\RepositoryUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for `vulopilot_page_speed` - "Performance" › Slow Pages' per-page table,
- * written by PageSpeedScanner.
+ * Persistence for `vulopilot_page_speed`.
  *
  * @class       PageSpeedRepository class
  * @version     1.0.0
@@ -36,20 +35,13 @@ class PageSpeedRepository extends RepositoryUtil {
 	 */
 	protected array $searchable_columns = array( 'title', 'url' );
 
-	/**
-	 * Score, inclusive, at/above which a page counts as "Good".
-	 */
+	/** Score, inclusive, at/above which a page counts as "Good". */
 	public const SCORE_GOOD = 80;
 
-	/**
-	 * Score, inclusive, at/above which a page counts as "Needs Improvement"
-	 * rather than "Poor".
-	 */
+	/** Score, inclusive, at/above which a page counts as "Needs Improvement" rather than "Poor". */
 	public const SCORE_NEEDS_IMPROVEMENT = 50;
 
-	/**
-	 * Score, exclusive upper bound, below which a "Poor" page also counts as "Very Slow".
-	 */
+	/** Score, exclusive upper bound, below which a "Poor" page also counts as "Very Slow". */
 	public const SCORE_VERY_SLOW = 25;
 
 	/**
@@ -64,7 +56,7 @@ class PageSpeedRepository extends RepositoryUtil {
 	/**
 	 * Replaces any existing row for this URL with a fresh one.
 	 *
-	 * @param array<string, mixed> $data Row data, must include 'url'.
+	 * @param array $data Row data, must include 'url'.
 	 * @return int New row id.
 	 */
 	public function replace_for_url( array $data ): int {
@@ -102,7 +94,7 @@ class PageSpeedRepository extends RepositoryUtil {
 	/**
 	 * Counts by score band, plus average desktop and mobile scores.
 	 *
-	 * @return array{total: int, slow: int, very_slow: int, needs_improvement: int, good: int, avg_score: int|null, avg_mobile_score: int|null, avg_load_time_ms: int|null, last_scanned_at: string|null}
+	 * @return array
 	 */
 	public function get_summary(): array {
 		global $wpdb;
@@ -167,7 +159,7 @@ class PageSpeedRepository extends RepositoryUtil {
 	 * The real, deduplicated `main_issue` values across every scanned page.
 	 *
 	 * @param int $limit Real issues to return, ranked by how many pages they affect.
-	 * @return array<int, array{issue: string, affected_pages: int}>
+	 * @return array
 	 */
 	public function get_top_issues( int $limit = 10 ): array {
 		global $wpdb;

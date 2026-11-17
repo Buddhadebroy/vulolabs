@@ -8,7 +8,7 @@ export interface FindingsSection {
 	key: string;
 	title: string;
 	description: string;
-	/** adminfont icon name (no `adminfont-` prefix) shown next to this section's tab-bar title in SectionedIssuesTable's own header. */
+	/** Adminfont icon name shown next to this section's tab-bar title in SectionedIssuesTable's own header. */
 	icon?: string;
 	emptyMessage: string;
 	scannerIds: string[];
@@ -16,7 +16,7 @@ export interface FindingsSection {
 	proModule?: string;
 }
 
-/** DOM anchor id the merged table below carries - what a `header`'s own "Review Issues"-style button scrolls to. */
+/** DOM anchor id the merged table below carries. */
 export const SECTIONED_FINDINGS_TABLE_ID = 'protect-my-site-sectioned-issues-table';
 
 interface SectionedFindingsTabProps {
@@ -29,9 +29,7 @@ interface SectionedFindingsTabProps {
 	footer?: ReactNode;
 }
 
-/**
- * Shared "one real, unified findings table with a category tab bar" shell.
- */
+/** Shared "one real, unified findings table with a category tab bar" shell. */
 const SectionedFindingsTab = ({
 	title,
 	sections,

@@ -60,11 +60,12 @@ class FrontendScripts {
 
 		foreach ( Templates::all() as $id => $template ) {
 			$templates[] = array(
-				'id'     => $id,
-				'title'  => $template['title'],
-				'desc'   => $template['desc'],
-				'icon'   => $template['icon'],
-				'fields' => count( $template['schema']['fields'] ),
+				'id'       => $id,
+				'title'    => $template['title'],
+				'desc'     => $template['desc'],
+				'icon'     => $template['icon'],
+				'category' => $template['category'] ?? __( 'Other', 'vuloform' ),
+				'fields'   => count( $template['schema']['fields'] ),
 			);
 		}
 

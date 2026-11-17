@@ -10,8 +10,7 @@ use VuloPilot\Utill\ScannedPostsTrait;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags interactive-looking elements - a div or span with an onclick handler - that
- * carry no `role` attribute.
+ * Flags interactive-looking elements.
  *
  * @class       AriaAttributesScanner class
  * @version     1.0.0
@@ -21,9 +20,7 @@ class AriaAttributesScanner extends ScannerUtil implements TracksScannedObjectsI
 
 	use ScannedPostsTrait;
 
-	/**
-	 * How many of the most recently published posts/pages to check per run.
-	 */
+	/** How many of the most recently published posts/pages to check per run. */
 	private const BATCH_SIZE = 50;
 
 	/**

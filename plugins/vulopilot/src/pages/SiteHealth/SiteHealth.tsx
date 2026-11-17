@@ -17,10 +17,7 @@ const TAB_META: Record<
 	backups: { headerTitle: __('Backups', 'vulopilot'), headerIcon: 'error' },
 };
 
-/**
- * "Site Health" (WP menu slug `site-health`) - promoted out of the former "Protect My Site" page's
- * own 3-tab shell (Security.tsx).
- */
+/** "Site Health". */
 const SiteHealth = () => {
 	const location = useLocation();
 	const subtab = new URLSearchParams(location.hash.substring(1)).get(
@@ -36,8 +33,7 @@ const SiteHealth = () => {
 		initialTab
 	);
 
-	// "Create Backup Now" lives in the page header's own "Run scan" slot while the Backups tab is
-	// active.
+	// "Create Backup Now" lives in the page header's own "Run scan" slot while the Backups tab is active.
 	const backupsTabRef = useRef<BackupsTabHandle>(null);
 	const [isCreatingBackup, setIsCreatingBackup] = useState(false);
 
@@ -95,8 +91,7 @@ const SiteHealth = () => {
 			headerTitle={__('Site Health', 'vulopilot')}
 			headerCustomContent={
 				'backups' === activeTab ? (
-					// "Create Backup Now" replaces "Run scan" entirely while the Backups tab is
-					// active.
+					// "Create Backup Now" replaces "Run scan" entirely while the Backups tab is active.
 					<ButtonInput
 						buttons={{
 							text: isCreatingBackup
@@ -109,8 +104,7 @@ const SiteHealth = () => {
 						}}
 					/>
 				) : (
-					// Real category ids of every scanner SiteHealthTab.tsx's own SECTIONS cover
-					// (wordpress-health/updates/cron/ database/server-health/php-warnings).
+					// Real category ids of every scanner SiteHealthTab.tsx's own SECTIONS cover.
 					<RunScanHeaderExtra
 						categories={[
 							'wordpress',
@@ -121,8 +115,7 @@ const SiteHealth = () => {
 							'php-warnings',
 						]}
 						label={__('Run Site Health Scan', 'vulopilot')}
-						// None of these 6 scanners has a Settings tab of its own to point the gear
-						// at (all always-on, no per-scanner toggle).
+						// None of these 6 scanners has a Settings tab of its own to point the gear at.
 						settingsSubtab="general"
 						hideSettingsButton
 					/>

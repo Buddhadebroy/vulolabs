@@ -8,8 +8,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Backs the Instant Indexing tab's "Submit URLs" (`POST /indexnow/submit`) and "History"
- * (`GET /indexnow/history`) cards.
+ * Backs the Instant Indexing tab's "Submit URLs" and "History" cards.
  *
  * @class       IndexNow controller
  * @version     1.0.0
@@ -52,8 +51,7 @@ class IndexNow extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Shared permission check for both routes in this controller - same `manage_options`
-	 * gate every other VuloPilot settings-adjacent controller uses.
+	 * Shared permission check for both routes in this controller.
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return bool

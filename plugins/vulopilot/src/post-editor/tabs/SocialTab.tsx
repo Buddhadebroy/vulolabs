@@ -10,14 +10,12 @@ type MediaFrame = any;
 interface SocialTabProps {
 	/** "All SEO Issues" table's "Fix with AI" deep link. */
 	highlightTarget?: string;
-	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch - accepted for prop-shape parity with every other tab, unused here. */
+	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch. */
 	// eslint-disable-next-line no-unused-vars
 	onNavigate?: ( tab: string, target?: string ) => void;
 }
 
-/**
- * The metabox's Social tab - per-post Open Graph/Twitter Card overrides.
- */
+/** The metabox's Social tab - per-post Open Graph/Twitter Card overrides. */
 export default function SocialTab( { highlightTarget }: SocialTabProps ) {
 	const { meta, setMeta } = usePostData();
 	const { metaKeys } = window.vulopilotPostSeo;

@@ -19,9 +19,7 @@ import ShowProPopup from '../../Popup/Popup';
 import { formatWpDate } from '../../../services/formatWpDate';
 import SitemapHowItWorksCard from './SitemapHowItWorksCard';
 
-/**
- * Settings → SEO → Sitemap.
- */
+/** Settings → SEO → Sitemap. */
 const SitemapPanel = () => {
 	const { setting, updateSetting } = useSetting();
 
@@ -35,8 +33,7 @@ const SitemapPanel = () => {
 		});
 	};
 
-	// "Stop typing, then save" debounce - same shape SeoTitlesPanel.tsx's own
-	// `AUTOSAVE_DEBOUNCE_MS`/`scheduleSave()` use.
+	// "Stop typing, then save" debounce.
 	const AUTOSAVE_DEBOUNCE_MS = 1000;
 	const saveTimerRef = useRef<Record<string, ReturnType<typeof setTimeout> | null>>({});
 
@@ -66,7 +63,7 @@ const SitemapPanel = () => {
 	const isPro = Boolean(vulopilotAppLocalizer.khali_dabba);
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
 
-	/** Unlocked settings keep their real controls; otherwise a change opens the upgrade popup instead of saving. */
+	/** Unlocked settings keep their real controls. */
 	const proGuard = (save: () => void) => (isPro ? save() : setIsProPopupOpen(true));
 
 	const lastRun = String(setting.sitemap_health_last_run ?? '');
@@ -76,9 +73,7 @@ const SitemapPanel = () => {
 	const htmlSitemapEnabled = isChecked('html_sitemap_enabled');
 	const sitemapIncludeImages = isChecked('sitemap_include_images');
 
-	/**
-	 * The core post types plus any registered custom post types (`sitemap_custom_post_types`).
-	 */
+	/** The core post types plus any registered custom post types (`sitemap_custom_post_types`). */
 	const POST_TYPE_OPTIONS = [
 		{ key: 'post', label: __('Posts', 'vulopilot'), value: 'post' },
 		{ key: 'page', label: __('Pages', 'vulopilot'), value: 'page' },
@@ -114,9 +109,7 @@ const SitemapPanel = () => {
 		{ label: __('SEO Titles', 'vulopilot'), value: 'seo_title' },
 	];
 
-	/** Single-option `look="toggle"` switch, as in DeveloperToolsPanel.tsx and
-	 * EnableAutomationModuleAction.tsx. Wrapped in `FormGroupComponent` because the toggle look swallows
-	 * `MultiCheckboxInput`'s own `option.label`. */
+	/** Single-option `look="toggle"` switch, as in DeveloperToolsPanel.tsx and EnableAutomationModuleAction.tsx. */
 	const renderToggle = (key: string, label: string, desc?: string) => (
 		<FormGroupComponent row label={label} desc={desc}>
 			<MultiCheckboxInput

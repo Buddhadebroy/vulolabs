@@ -14,13 +14,11 @@ interface PluginOverlapMatch {
 }
 
 interface PluginOverlapCardProps {
-	/** Restricts this instance to one category (seo/security/accessibility/automation/caching), e.g. only `security` on the Security tab. */
+	/** Restricts this instance to one category, e.g. only `security` on the Security tab. */
 	category?: string;
 }
 
-/**
- * Promoted into every page whose category has real matches.
- */
+/** Promoted into every page whose category has real matches. */
 const PluginOverlapCard = ({ category }: PluginOverlapCardProps) => {
 	const { data, isLoading } = useApiList<PluginOverlapMatch>('plugin-overlap');
 	const matches = category

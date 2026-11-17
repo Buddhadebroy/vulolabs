@@ -4,8 +4,7 @@ namespace VuloPilot\AiAssistant;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Encrypts/decrypts third-party secrets (Backups' S3/Drive credentials, the site secret,
- * Google tokens) before they're stored.
+ * Encrypts/decrypts third-party secrets before they're stored.
  *
  * @class       CredentialEncryption class
  * @version     1.0.0

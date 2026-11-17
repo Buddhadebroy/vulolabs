@@ -9,7 +9,7 @@ interface AiVisibilityCrawlerTabProps {
 	onNavigate?: ( tab: string, target?: string ) => void;
 }
 
-/** Logged AI-bot visits to this permalink - separate from GeoTab's content-derived score. Free (no Pro gate here). */
+/** Logged AI-bot visits to this permalink - separate from GeoTab's content-derived score. */
 export default function AiVisibilityCrawlerTab( _props: AiVisibilityCrawlerTabProps ) {
 	const { postId } = usePostData();
 	const [ stats, setStats ] = useState< CrawlerPostStatsResponse | null >( null );

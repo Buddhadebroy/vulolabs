@@ -64,7 +64,7 @@ const getRatingSummary = (score: number): string => {
 	return __('Your visibility needs attention in several areas.', 'vulopilot');
 };
 
-/** Real CSS hex per `ratingClass()` tier - `ChartComponent`'s own ring `data[].color` takes a real CSS color. */
+/** Real CSS hex per `ratingClass()` tier. */
 const RATING_RING_COLOR: Record<string, string> = {
 	green: '#16a34a',
 	blue: '#2563eb',
@@ -89,8 +89,7 @@ const AREA_TILES: Record<
 	crawl: { title: __('Crawl & URLs Score', 'vulopilot'), icon: 'url' },
 };
 
-// Same real `key` field `GeoScoreSection.tsx`'s own identical `ToggleInput` usage already
-// includes.
+// Same real `key` field `GeoScoreSection.tsx`'s own identical `ToggleInput` usage already includes.
 const PERIOD_OPTIONS = [
 	{ key: '7', value: '7', label: __('7D', 'vulopilot') },
 	{ key: '30', value: '30', label: __('30D', 'vulopilot') },
@@ -111,9 +110,7 @@ const CATEGORY_TO_TAB: Record<string, string> = {
 };
 const categoryToTab = (category: string): string => CATEGORY_TO_TAB[category] ?? 'seo';
 
-/**
- * Scanner id → the SEO & Visibility subtab that actually surfaces that scanner's findings.
- */
+/** Scanner id → the SEO & Visibility subtab that actually surfaces that scanner's findings. */
 const SCANNER_TAB_OVERRIDES: Record<string, string> = {
 	'geo-trust-signals': 'brand-visibility',
 	'geo-eeat-signals': 'brand-visibility',
@@ -153,8 +150,7 @@ const CRAWL_SECTION_BY_SCANNER: Record<string, CrawlUrlsSectionId> = {
 const groupToTab = (group: FindingGroup): string =>
 	SCANNER_TAB_OVERRIDES[group.scanner_id] ?? categoryToTab(group.category);
 
-// Same real "icon name" + trailing color modifier convention `SeoTab.tsx`'s own `CATEGORY_CARDS`
-// already establishes (e.g. `'search blue'`).
+// Same real "icon name" + trailing color modifier convention `SeoTab.tsx`'s own `CATEGORY_CARDS` already establishes.
 const QUICK_LINKS: { tab: string; icon: string; title: string; desc: string }[] = [
 	{
 		tab: 'brand-visibility',
@@ -200,10 +196,7 @@ const QUICK_LINKS: { tab: string; icon: string; title: string; desc: string }[] 
 	},
 ];
 
-/**
- * "SEO & Visibility" Overview tab: score cards, trend, breakdown, opportunities, activity and
- * quick links.
- */
+/** "SEO & Visibility" Overview tab. */
 const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 	const { score, isLoading } = useVisibilityScore();
 	const [period, setPeriod] = useState<PeriodDays>('30');
@@ -227,9 +220,7 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 		getApiResponse<{ data: FindingGroup[]; total: number }>(
 			getApiLink(
 				vulopilotAppLocalizer,
-				// Same real category grouping issuesTypes.ts's own CATEGORY_TABS already
-				// establishes for "SEO & Visibility" ('seo','images','schema','links') + "AI
-				// Visibility" ('geo','brand').
+				// Same real category grouping issuesTypes.ts's own CATEGORY_TABS already establishes for "SEO & Visibility" + "AI Visibility".
 				'findings/groups?per_page=5&status=open&category=seo,images,schema,links,geo,brand'
 			),
 			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
@@ -266,8 +257,7 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 									<ChartComponent
 										type="ring"
 										height={200}
-										// Top-level `color`, as OverallScoreWidget.tsx's ring reads: `type="ring"` never reads per-row
-										// `data[].color` (only `type="pie"` does; see BusinessProfileCard.tsx).
+										// Top-level `color`, as OverallScoreWidget.tsx's ring reads.
 										color={RATING_RING_COLOR[ratingClass(score.visibility_score)]}
 										centerLabel={
 											<>

@@ -10,10 +10,7 @@ namespace VuloPilot\SeoVisibility;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Shared, stateless technical-page checks (indexability, canonical, structured data, HTTP
- * status, broken links) that both `Seo::get_page_analysis()` and `SeoScoreEngine` need - pulled
- * out so the score engine doesn't duplicate logic `Seo.php` already has (one real HTTP fetch per
- * check call, one definition of "is this indexable", shared by both).
+ * Shared, stateless technical-page checks that both `Seo::get_page_analysis()` and `SeoScoreEngine` need.
  *
  * @class       PageTechnicalChecks class
  * @version     1.0.0
@@ -27,11 +24,10 @@ class PageTechnicalChecks {
 	private const PAGE_FETCH_TIMEOUT_SECONDS = 5;
 
 	/**
-	 * One real GET against the page's own permalink - canonical/structured-data/HTTP-status all
-	 * read from this single fetch rather than each re-requesting the page.
+	 * One real GET against the page's own permalink.
 	 *
 	 * @param string $url Real permalink to fetch.
-	 * @return array{body: string|null, status: int|null, error: string|null}
+	 * @return array
 	 */
 	public function fetch( string $url ): array {
 		$response = wp_remote_get(
@@ -58,13 +54,10 @@ class PageTechnicalChecks {
 	}
 
 	/**
-	 * Rule 24 - indexability and crawl access. Checks publish status, sitewide
-	 * `blog_public`/"discourage search engines", and VuloPilot's own per-post robots-noindex
-	 * override (`PostSeoMetaFields::META_KEYS['robots_noindex']`) - an intentional noindex must
-	 * never be scored the same as an accidental one, so the message distinguishes them.
+	 * Rule 24 - indexability and crawl access.
 	 *
 	 * @param \WP_Post $post Post being checked.
-	 * @return array{status: string, reason: string, evidence: array<string, mixed>, critical: bool}
+	 * @return array
 	 */
 	public function check_indexability( \WP_Post $post ): array {
 		if ( 'publish' !== $post->post_status ) {
@@ -89,14 +82,7 @@ class PageTechnicalChecks {
 
 		if ( $noindex ) {
 			return array(
-				// `warning`, not `pass` - the spec is explicit that an intentionally noindexed
-				// page "should not be treated as a successful public indexable page". Still not
-				// `critical` (the distinction that matters is accidental vs. deliberate, not
-				// visible vs. hidden), and the reason text says outright that it's a deliberate
-				// per-post choice, not a site-wide/accidental one, so the auto-fix button's
-				// corresponding `clear-post-noindex` fix reads as an offered option, not a flagged
-				// bug (#bug this also fixed: `pass` here made that fix permanently unreachable -
-				// it could never appear as an actionable rule to run it against).
+				// `warning`, not `pass` - the spec is explicit that an intentionally noindexed page "should not be treated as a successful public indexable page".
 				'status'   => 'warning',
 				'reason'   => __( 'This page is set to noindex (General tab → Robots) - deliberate, but still excluded from search results.', 'vulopilot' ),
 				'evidence' => array( 'robots_noindex' => true ),
@@ -119,8 +105,8 @@ class PageTechnicalChecks {
 	/**
 	 * Rule 25 - HTTP status of the live, public permalink.
 	 *
-	 * @param array{body: string|null, status: int|null, error: string|null} $fetch This page's own `fetch()` result.
-	 * @return array{status: string, reason: string, evidence: array<string, mixed>}
+	 * @param array $fetch This page's own `fetch()` result.
+	 * @return array
 	 */
 	public function check_http_status( array $fetch ): array {
 		if ( null !== $fetch['error'] ) {
@@ -157,11 +143,10 @@ class PageTechnicalChecks {
 	}
 
 	/**
-	 * Rule 26 - canonical URL presence (not full conflict/redirect-chain analysis, which would
-	 * need crawling every candidate duplicate - out of scope here and reported as such).
+	 * Rule 26 - canonical URL presence.
 	 *
-	 * @param array{body: string|null, status: int|null, error: string|null} $fetch This page's own `fetch()` result.
-	 * @return array{status: string, reason: string, evidence: array<string, mixed>}
+	 * @param array $fetch This page's own `fetch()` result.
+	 * @return array
 	 */
 	public function check_canonical( array $fetch ): array {
 		if ( null === $fetch['body'] ) {
@@ -189,11 +174,10 @@ class PageTechnicalChecks {
 	}
 
 	/**
-	 * Rule 27 - structured data presence (JSON-LD block detected and is valid JSON; doesn't
-	 * validate individual schema.org properties, which would need a full schema validator).
+	 * Rule 27 - structured data presence (JSON-LD block detected and is valid JSON.
 	 *
-	 * @param array{body: string|null, status: int|null, error: string|null} $fetch This page's own `fetch()` result.
-	 * @return array{status: string, reason: string, evidence: array<string, mixed>}
+	 * @param array $fetch This page's own `fetch()` result.
+	 * @return array
 	 */
 	public function check_structured_data( array $fetch ): array {
 		if ( null === $fetch['body'] ) {
@@ -248,17 +232,15 @@ class PageTechnicalChecks {
 	}
 
 	/**
-	 * Rule 20 - broken links, read from the Broken Links scanner's own stored findings for this post rather than live-checking every link here (that scanner already owns link-destination verification, with its own timeout/retry handling - re-implementing it here would be the exact duplicate logic the spec says to avoid).
+	 * Rule 20 - broken links, read from the Broken Links scanner's own stored findings for this post rather than live-checking every link here.
 	 *
 	 * @param int $post_id Post being checked.
-	 * @return array{status: string, reason: string, evidence: array<string, mixed>}
+	 * @return array
 	 */
 	public function check_broken_links( int $post_id ): array {
 		$findings = new \VuloPilot\Utill\FindingRepository();
 
-		// No row at all for this post+scanner (open or resolved) means the Broken Links scanner
-		// has never actually considered this page, not that it checked and found nothing -
-		// reporting "pass" for an unscanned page would be a false clean bill of health.
+		// No row at all for this post+scanner means the Broken Links scanner has never actually considered this page, not that it checked and found nothing.
 		$ever_scanned = $findings->find_all(
 			array(
 				'scanner_id'  => 'broken-links',
@@ -308,22 +290,16 @@ class PageTechnicalChecks {
 	}
 
 	/**
-	 * Rule 28 - sitemap discovery, derived from VuloPilot's own sitemap settings (post type
-	 * enabled, post not in the exclude list) rather than fetching and parsing the live sitemap
-	 * XML - equivalent in practice (those settings are exactly what the sitemap generator itself
-	 * reads to decide inclusion), without a second live HTTP round trip per score calculation.
+	 * Rule 28 - sitemap discovery, derived from VuloPilot's own sitemap settings.
 	 *
 	 * @param \WP_Post $post Post being checked.
-	 * @return array{status: string, reason: string, evidence: array<string, mixed>}
+	 * @return array
 	 */
 	public function check_sitemap_discovery( \WP_Post $post ): array {
 		$settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
 		if ( empty( $settings['sitemap_enabled'] ) ) {
-			// `warning`, not `unknown` - this is a known, fixable state (VuloPilot's own sitemap
-			// setting is off), not something that genuinely couldn't be verified. Reporting it as
-			// `unknown` made the matching `enable-sitemap` auto-fix permanently unreachable, the
-			// same bug `check_indexability()`'s own noindex branch had (see its docblock).
+			// `warning`, not `unknown` - this is a known, fixable state, not something that genuinely couldn't be verified.
 			return array(
 				'status'   => 'warning',
 				'reason'   => __( 'XML sitemaps are disabled - the page may still be discoverable through crawlable links, but a sitemap makes discovery more reliable.', 'vulopilot' ),

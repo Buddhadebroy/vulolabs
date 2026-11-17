@@ -14,9 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class CanonicalUrlManager {
 
-	/**
-	 * CanonicalUrlManager constructor.
-	 */
+	/** CanonicalUrlManager constructor. */
 	public function __construct() {
 		add_action( 'wp_head', array( $this, 'maybe_output_canonical' ), 5 );
 

@@ -1,10 +1,7 @@
 import React from 'react';
 import './ChatMarkdown.scss';
 
-/**
- * Renders a chat message's own bold/code/list Markdown as real elements instead of literal
- * asterisks and backticks.
- */
+/** Renders a chat message's own bold/code/list Markdown as real elements instead of literal asterisks and backticks. */
 const INLINE_TOKEN_PATTERN = /(\*\*[^*]+\*\*|`[^`]+`)/g;
 
 const renderInline = ( text: string, keyPrefix: string ): React.ReactNode[] =>

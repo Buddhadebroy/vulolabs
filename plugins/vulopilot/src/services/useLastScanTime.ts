@@ -10,8 +10,7 @@ interface ScanRow {
  * The most recent completed scan run's `finished_at` for one scanner group.
  *
  * @param scannerIds Scanner ids to scope to, or omit for site-wide.
- * @param categories Category ids to scope to (e.g. `['security']`), resolved to their
- *                    own scanner ids server-side. Merges with `scannerIds` when both are given.
+ * @param categories Category ids to scope to.
  */
 export const useLastScanTime = (
 	scannerIds?: string[],

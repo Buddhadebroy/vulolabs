@@ -83,7 +83,7 @@ export async function fetchOpenFindings( scannerIds: string[] ): Promise< RawFin
 	return all;
 }
 
-/** Same as fetchOpenFindings() but unfiltered - distinguishes "never scanned" from "scanned, none open". */
+/** Same as fetchOpenFindings() but unfiltered. */
 export async function fetchAllFindings( scannerIds: string[] ): Promise< RawFinding[] > {
 	const scannerParam = scannerIds.join( ',' );
 	let page = 1;
@@ -174,7 +174,7 @@ export interface SeoScoreResponse {
 	rules: SeoScoreRule[];
 }
 
-/** Per-post SEO score, computed from the saved post plus any live (unsaved) editor field values. */
+/** Per-post SEO score, computed from the saved post plus any live. */
 export function getPostSeoScore(
 	postId: number,
 	live?: { title: string; content: string; excerpt: string; slug: string; focus_keyword: string },
@@ -246,8 +246,7 @@ export function getGeoScore( postId: number ): Promise< GeoScoreResponse > {
 	return request( `geo-analysis/${ postId }`, { method: 'GET' } );
 }
 
-// Everything else (analysis, AEO, keyword management, topic linking, content intelligence,
-// text-selection AI toolbar, Content Planner) is Pro-only, resolved via filter slots.
+// Everything else is Pro-only, resolved via filter slots.
 
 export interface CrawlerPostStatsResponse {
 	total: number;
@@ -255,7 +254,7 @@ export interface CrawlerPostStatsResponse {
 	is_404_rate_percent: number | null;
 }
 
-/** Logged AI-bot visits to this post - distinct from the content-derived GEO/AI-Readiness scores above. */
+/** Logged AI-bot visits to this post. */
 export function getCrawlerStatsForPost( postId: number, days = 90 ): Promise< CrawlerPostStatsResponse > {
 	return request( `crawler-traffic/post/${ postId }?days=${ days }`, { method: 'GET' } );
 }

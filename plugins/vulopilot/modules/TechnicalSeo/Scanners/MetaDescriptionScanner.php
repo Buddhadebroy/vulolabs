@@ -55,8 +55,7 @@ class MetaDescriptionScanner extends ScannerUtil implements TracksScannedObjects
 	public function scan(): array {
 		$settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
-		// Flat, standalone key - Settings → Scanning → SEO & Content → "Titles & meta"
-		// (SeoContent.ts).
+		// Flat, standalone key - Settings → Scanning → SEO & Content → "Titles & meta".
 		if ( empty( $settings['flag_missing_meta_description'] ) ) {
 			return array();
 		}

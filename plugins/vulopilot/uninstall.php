@@ -2,12 +2,6 @@
 /**
  * Uninstall handler.
  *
- * Core includes this file directly (no `register_uninstall_hook()`) when the plugin is deleted, right
- * after defining `WP_UNINSTALL_PLUGIN`; its absence means a stray direct request, so refuse to run.
- *
- * Honors Settings → General → "Keep VuloPilot data after uninstall" (`keep_data_uninstall`). Defaults to
- * keep unless the value is exactly 'delete_everything'.
- *
  * @package VuloPilot
  */
 
@@ -26,8 +20,7 @@ if ( ! isset( $vulopilot_uninstall_settings['keep_data_uninstall'] ) || 'delete_
 global $wpdb;
 
 foreach ( Utill::TABLES as $vulopilot_uninstall_table ) {
-	// Table identifiers can't use $wpdb->prepare() placeholders (values only). Safe: the name comes from
-	// this codebase's fixed Utill::TABLES array, never user input.
+	// Table identifiers can't use $wpdb->prepare() placeholders (values only).
     // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.NoCaching
 	$wpdb->query( "DROP TABLE IF EXISTS `{$wpdb->prefix}{$vulopilot_uninstall_table}`" );
 }

@@ -23,10 +23,7 @@ const SECTION_IDS: CrawlUrlsSectionId[] = [
 	'robots-sitemap',
 ];
 
-/**
- * `NavigatorComponent`'s own compact icon-over-title tab bar needs a real `headerIcon` per
- * section.
- */
+/** `NavigatorComponent`'s own compact icon-over-title tab bar needs a real `headerIcon` per section. */
 const SECTION_META: Record<
 	CrawlUrlsSectionId,
 	{ headerTitle: string; headerIcon: string }
@@ -39,23 +36,13 @@ const SECTION_META: Record<
 };
 
 interface CrawlUrlsTabProps {
-	/**
-	 * Which inner tab to land on when this whole "Crawl & URLs" tab is first mounted.
-	 */
+	/** Which inner tab to land on when this whole "Crawl & URLs" tab is first mounted. */
 	initialSection?: CrawlUrlsSectionId;
 }
 
-/**
- * "Crawl & URLs" tab of "SEO & Visibility" - merges 3 former standalone tabs (Crawler Traffic,
- * Broken Links, Redirects) plus the 404 log that used to live bundled inside Broken Links, into
- * one tab with 5 real inner tabs.
- */
+/** "Crawl & URLs" tab of "SEO & Visibility". */
 const CrawlUrlsTab = ({ initialSection = 'overview' }: CrawlUrlsTabProps) => {
-	// Same real `currentSetting`/`onNavigate` wiring SiteHealth.tsx's own tab bar already uses - a
-	// real tab-pill click inside `NavigatorComponent` doesn't go through react-router at all, so
-	// without `onNavigate` here the URL never updated on click (it only ever reflected whichever
-	// section this tab first mounted on). `useLocation()` re-reads `location.hash` on every
-	// navigation so this stays in sync with the real URL, not just this component's own state.
+	// Same real `currentSetting`/`onNavigate` wiring SiteHealth.tsx's own tab bar already uses.
 	const location = useLocation();
 	const section = new URLSearchParams(location.hash.substring(1)).get(
 		'section'
@@ -72,8 +59,7 @@ const CrawlUrlsTab = ({ initialSection = 'overview' }: CrawlUrlsTabProps) => {
 	const prepareUrl = (sectionId: string) =>
 		`?page=vulopilot#&tab=seo-visibility&subtab=crawl-urls&section=${sectionId}`;
 
-	// Same real `window.history.pushState` + hash-parse pattern SiteHealth.tsx's own
-	// `handleNavigate` already uses for an identical `NavigatorComponent` tab bar.
+	// Same real `window.history.pushState` + hash-parse pattern SiteHealth.tsx's own `handleNavigate` already uses for an identical `NavigatorComponent` tab bar.
 	const handleNavigate = (url: string) => {
 		window.history.pushState(null, '', url);
 

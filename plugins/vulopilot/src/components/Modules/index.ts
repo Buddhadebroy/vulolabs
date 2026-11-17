@@ -12,11 +12,11 @@ export interface ModuleCatalogEntry {
 	icon?: string;
 	settingsLink?: string;
 	popupTitle?: string;
-	/** Sentence shown under `popupTitle` in that same popup - independent copy, not derived from `proFeatures`. */
+	/** Sentence shown under `popupTitle` in that same popup. */
 	popupDesc?: string;
 }
 
-/** A category-pill-bar heading, not a real module - `type: 'separator'` is how ModuleGridComponent (zyra) tells the two apart in one flat array. */
+/** A category-pill-bar heading, not a real module. */
 export interface ModuleCatalogSeparator {
 	type: 'separator';
 	id: string;
@@ -256,9 +256,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
             ]
         },
         {
-            /**
-             * Must be the real backend module id - AccessibilityAudits' folder name kebab-cased.
-             */
+            /** Must be the real backend module id - AccessibilityAudits' folder name kebab-cased. */
             id: 'accessibility-checks',
             icon: 'accessibility',
             settingsLink: '?page=vulopilot#&tab=settings&subtab=accessibility',

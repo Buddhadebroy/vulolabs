@@ -24,7 +24,7 @@ interface BusinessNameSourcesResponse {
 	consistent_count: number;
 }
 
-/** Real per-source icon - same convention every other per-row icon in this tab already uses (a name string, e.g. `SIGNAL_META`'s own `icon` field). */
+/** Real per-source icon - same convention every other per-row icon in this tab already uses. */
 const SOURCE_ICON: Record<string, string> = {
 	homepage: 'home',
 	website_title: 'document',
@@ -32,9 +32,7 @@ const SOURCE_ICON: Record<string, string> = {
 	about_page: 'document',
 };
 
-/**
- * Real per-source identity color for the icon box.
- */
+/** Real per-source identity color for the icon box. */
 const SOURCE_COLOR: Record<string, string> = {
 	homepage: 'green',
 	website_title: 'blue',
@@ -42,10 +40,7 @@ const SOURCE_COLOR: Record<string, string> = {
 	about_page: 'purple',
 };
 
-/**
- * "Business Name Details" - the reference mockup's own slide-in panel for
- * `BusinessProfileCard.tsx`'s "Business name" row.
- */
+/** "Business Name Details". */
 const BusinessNameDetailsPanel = ({
 	open,
 	onClose,

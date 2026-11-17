@@ -16,8 +16,7 @@ use VuloPilot\Utill\ScannedPostsTrait;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags long-form published posts/pages with no question-phrased heading anywhere in the
- * content (a real, bounded proxy for "no FAQ-style section").
+ * Flags long-form published posts/pages with no question-phrased heading anywhere in the content.
  *
  * @class       GeoFaqOpportunityScanner class
  * @version     1.0.0

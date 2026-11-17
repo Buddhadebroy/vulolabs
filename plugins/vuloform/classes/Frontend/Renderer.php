@@ -70,7 +70,7 @@ class Renderer {
 		$style    = $settings['style'];
 		$uid      = 'vuloform-' . (int) $form['id'] . '-' . self::$instances;
 		$pages    = self::pages( $form['schema']['fields'] );
-		$has_file = in_array( 'file', array_column( $form['schema']['fields'], 'type' ), true );
+		$has_file = array_intersect( array( 'file', 'signature' ), array_column( $form['schema']['fields'], 'type' ) );
 
 		$classes = array_filter(
 			array(
@@ -156,8 +156,7 @@ class Renderer {
 		}
 
 		if ( ! $args['preview'] && Recaptcha::is_active( $form ) ) {
-			// The form's script fills this in: the v2 checkbox is drawn inside it, a v3 token is put
-			// in the hidden field. Without JavaScript the check can't run, and the visitor is told.
+			// form.js fills these in; without JavaScript the visitor is told reCAPTCHA can't run.
 			$html .= sprintf(
 				'<div class="vuloform-recaptcha"><input type="hidden" name="%s" value=""><noscript><p>%s</p></noscript></div>',
 				esc_attr( Recaptcha::FIELD ),
@@ -202,7 +201,9 @@ class Renderer {
 		}
 
 		// A break at the very start or two in a row would leave an empty page.
-		return array_values( array_filter( $pages ) ) ? array_values( array_filter( $pages ) ) : array( array() );
+		$filtered = array_values( array_filter( $pages ) );
+
+		return $filtered ? $filtered : array( array() );
 	}
 
 	/**
@@ -223,8 +224,7 @@ class Renderer {
 			if ( Registry::is_input( $field['type'] ) ) {
 				$fields[] = array_intersect_key( $field, array_flip( $keep ) );
 
-				// A default that depends on the address bar or the page is worked out again in the
-				// browser, which knows both even on a cached page or another website.
+				// Address/page-dependent defaults are re-resolved in the browser, not here.
 				$template = DynamicValues::browser_template( $field['default'] ?? '' );
 
 				if ( '' !== $template ) {
@@ -236,29 +236,30 @@ class Renderer {
 		$settings = $form['schema']['settings'];
 
 		return array(
-			'id'       => (int) $form['id'],
-			'preview'  => (bool) $preview,
+			'id'        => (int) $form['id'],
+			'preview'   => (bool) $preview,
 			// Present only for a form that uses reCAPTCHA; nothing is loaded from Google otherwise.
 			'recaptcha' => ! $preview && Recaptcha::is_active( $form ) ? Recaptcha::client_config() : null,
-			'endpoint' => esc_url_raw( rest_url( 'vuloform/v1/public/forms/' . (int) $form['id'] . '/submit' ) ),
-			'token'    => esc_url_raw( rest_url( 'vuloform/v1/public/forms/' . (int) $form['id'] . '/token' ) ),
-			'progress' => $settings['progress'],
-			'dynamic'  => $dynamic,
-			'messages' => array_merge(
+			'endpoint'  => esc_url_raw( rest_url( 'vuloform/v1/public/forms/' . (int) $form['id'] . '/submit' ) ),
+			'token'     => esc_url_raw( rest_url( 'vuloform/v1/public/forms/' . (int) $form['id'] . '/token' ) ),
+			'progress'  => $settings['progress'],
+			'dynamic'   => $dynamic,
+			'messages'  => array_merge(
 				$settings['messages'],
 				array(
-					'email'   => __( 'Enter a valid email address.', 'vuloform' ),
-					'url'     => __( 'Enter a valid web address, starting with https://.', 'vuloform' ),
-					'number'  => __( 'Enter a number.', 'vuloform' ),
-					'file'    => __( 'That file is too large or not an allowed type.', 'vuloform' ),
-					'network' => __( 'Something went wrong. Please check your connection and try again.', 'vuloform' ),
-					'sending' => __( 'Sending…', 'vuloform' ),
-					'preview' => __( 'This is a preview. Nothing was sent.', 'vuloform' ),
+					'email'          => __( 'Enter a valid email address.', 'vuloform' ),
+					'url'            => __( 'Enter a valid web address, starting with https://.', 'vuloform' ),
+					'number'         => __( 'Enter a number.', 'vuloform' ),
+					'file'           => __( 'That file is too large or not an allowed type.', 'vuloform' ),
+					'signatureClear' => __( 'Clear', 'vuloform' ),
+					'network'        => __( 'Something went wrong. Please check your connection and try again.', 'vuloform' ),
+					'sending'        => __( 'Sending…', 'vuloform' ),
+					'preview'        => __( 'This is a preview. Nothing was sent.', 'vuloform' ),
 					/* translators: 1: current step, 2: number of steps. */
-					'step'    => __( 'Step %1$s of %2$s', 'vuloform' ),
+					'step'           => __( 'Step %1$s of %2$s', 'vuloform' ),
 				)
 			),
-			'fields'   => $fields,
+			'fields'    => $fields,
 		);
 	}
 
@@ -282,16 +283,18 @@ class Renderer {
 	}
 
 	/**
-	 * @param array  $field Field definition.
-	 * @param string $uid   Form instance id.
-	 * @param mixed  $value Value to prefill, or null for the field's default.
-	 * @param string $error Error to show.
+	 * @param array       $field Field definition.
+	 * @param string      $uid   Form instance id.
+	 * @param mixed       $value Value to prefill, or null for the field's default.
+	 * @param string      $error Error to show.
+	 * @param string|null $name  Override for the submitted name, used for a repeater row's own fields.
+	 * @param string|null $id    Override for the element id, for the same reason.
 	 * @return string
 	 */
-	private static function field( array $field, $uid, $value, $error ) {
+	private static function field( array $field, $uid, $value, $error, $name = null, $id = null ) {
 		$type = $field['type'];
-		$id   = $uid . '-' . $field['id'];
-		$name = 'vf[' . $field['key'] . ']';
+		$id   = $id ?? ( $uid . '-' . $field['id'] );
+		$name = $name ?? ( 'vf[' . $field['key'] . ']' );
 
 		if ( 'hidden' === $type ) {
 			return sprintf( '<input type="hidden" name="%s" value="%s">', esc_attr( $name ), esc_attr( DynamicValues::resolve( $field['default'] ) ) );
@@ -452,14 +455,31 @@ class Renderer {
 				$control = sprintf( '<output class="vuloform-calc" id="%s" aria-live="polite">%s0</output>', esc_attr( $id ), esc_html( $field['prefix'] ) );
 				break;
 
+			case 'signature':
+				// No-JS fallback; form.js replaces it with a drawable pad that writes back into this input.
+				$control = sprintf(
+					'<input class="vuloform-input vuloform-input--signature" type="file" id="%s" name="%s" accept="image/png"%s>',
+					esc_attr( $id ),
+					esc_attr( 'vf_file_' . $field['key'] . '[]' ),
+					$common
+				);
+
+				$field['description'] = trim( $field['description'] . ' ' . __( 'Draw your signature, or upload a PNG image of it.', 'vuloform' ) );
+				$describe             = $id . '-desc ' . $id . '-error';
+				break;
+
+			case 'repeater':
+				return $open . self::repeater( $field, $uid, $id, $name, is_array( $value ) ? $value : array(), $error ) . '</div>';
+
 			default:
 				$types = array(
-					'email'  => 'email',
-					'phone'  => 'tel',
-					'number' => 'number',
-					'url'    => 'url',
-					'date'   => 'date',
-					'time'   => 'time',
+					'email'    => 'email',
+					'phone'    => 'tel',
+					'number'   => 'number',
+					'url'      => 'url',
+					'date'     => 'date',
+					'time'     => 'time',
+					'password' => 'password',
 				);
 				$extra = '';
 
@@ -469,14 +489,15 @@ class Renderer {
 					}
 				}
 
-				if ( 'text' === $type && $field['maxlength'] > 0 ) {
+				if ( in_array( $type, array( 'text', 'password' ), true ) && $field['maxlength'] > 0 ) {
 					$extra .= ' maxlength="' . (int) $field['maxlength'] . '"';
 				}
 
 				$autocomplete = array(
-					'email' => 'email',
-					'phone' => 'tel',
-					'url'   => 'url',
+					'email'    => 'email',
+					'phone'    => 'tel',
+					'url'      => 'url',
+					'password' => 'new-password',
 				);
 
 				$control = sprintf(
@@ -492,7 +513,7 @@ class Renderer {
 				);
 		}
 
-		$error_html = sprintf( '<p class="vuloform-error" id="%s-error"%s>%s</p>', esc_attr( $id ), '' !== $error ? '' : ' hidden', esc_html( $error ) );
+		$error_html = self::error_html( $id, $error );
 
 		if ( $grouped ) {
 			// A group of controls is announced as one question through fieldset and legend.
@@ -503,11 +524,83 @@ class Renderer {
 	}
 
 	/**
+	 * Renders a repeater's rows, between `min_rows` and `max_rows`.
+	 *
+	 * @param array  $field       The repeater field definition.
+	 * @param string $uid         Form instance id.
+	 * @param string $id          This field's own element id.
+	 * @param string $name        This field's own submitted name.
+	 * @param array  $value       Rows to prefill, or empty for the default row count.
+	 * @param string $error       Error to show (from a row's own validation).
+	 * @return string
+	 */
+	private static function repeater( array $field, $uid, $id, $name, array $value, $error ) {
+		$row_count = $value ? count( $value ) : max( 1, (int) $field['min_rows'] );
+		$row_count = max( 1, min( (int) $field['max_rows'], $row_count ) );
+		$html      = sprintf(
+			'<div class="vuloform-repeater" data-min-rows="%d" data-max-rows="%d" data-row-count="%d">',
+			(int) $field['min_rows'],
+			(int) $field['max_rows'],
+			$row_count
+		);
+
+		for ( $row = 0; $row < $row_count; $row++ ) {
+			$html .= self::repeater_row( $field, $uid, $id, $name, $value[ $row ] ?? array(), $row );
+		}
+
+		$html .= sprintf(
+			'<button type="button" class="vuloform-button vuloform-button--secondary vuloform-repeater-add"%s>%s</button>',
+			$row_count >= (int) $field['max_rows'] ? ' hidden' : '',
+			esc_html__( 'Add row', 'vuloform' )
+		);
+
+		return $html . '</div>' . self::description( $field, $id ) . self::error_html( $id, $error );
+	}
+
+	/**
+	 * @param array  $field Repeater field definition.
+	 * @param string $uid   Form instance id.
+	 * @param string $id    The repeater's own element id.
+	 * @param string $name  The repeater's own submitted name.
+	 * @param array  $row   This row's values, by sub-field key.
+	 * @param int    $index Row position (0-based).
+	 * @return string
+	 */
+	private static function repeater_row( array $field, $uid, $id, $name, array $row, $index ) {
+		$html = sprintf( '<div class="vuloform-repeater-row" data-row="%d">', $index );
+
+		foreach ( $field['fields'] as $sub_field ) {
+			// `__N__` so form.js's reindex regex can match the row number unambiguously.
+			$sub_id    = $id . '__' . $index . '__' . $sub_field['id'];
+			$sub_name  = $name . '[' . $index . '][' . $sub_field['key'] . ']';
+			$sub_value = $row[ $sub_field['key'] ] ?? null;
+
+			$html .= self::field( $sub_field, $uid, $sub_value, '', $sub_name, $sub_id );
+		}
+
+		$html .= sprintf(
+			'<button type="button" class="vuloform-button vuloform-button--secondary vuloform-repeater-remove">%s</button>',
+			esc_html__( 'Remove', 'vuloform' )
+		);
+
+		return $html . '</div>';
+	}
+
+	/**
 	 * @param array  $field Field definition.
 	 * @param string $id    Element id prefix.
 	 * @return string
 	 */
 	private static function description( array $field, $id ) {
 		return '' !== $field['description'] ? sprintf( '<p class="vuloform-description" id="%s-desc">%s</p>', esc_attr( $id ), esc_html( $field['description'] ) ) : '';
+	}
+
+	/**
+	 * @param string $id    Element id prefix.
+	 * @param string $error Error to show, '' for none.
+	 * @return string
+	 */
+	private static function error_html( $id, $error ) {
+		return sprintf( '<p class="vuloform-error" id="%s-error"%s>%s</p>', esc_attr( $id ), '' !== $error ? '' : ' hidden', esc_html( $error ) );
 	}
 }

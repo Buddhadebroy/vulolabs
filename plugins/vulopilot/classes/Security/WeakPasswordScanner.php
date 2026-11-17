@@ -9,8 +9,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Checks every administrator's password hash against a small, fixed dictionary of the most
- * commonly used passwords.
+ * Checks every administrator's password hash against a small, fixed dictionary of the most commonly used passwords.
  *
  * @class       WeakPasswordScanner class
  * @version     1.0.0

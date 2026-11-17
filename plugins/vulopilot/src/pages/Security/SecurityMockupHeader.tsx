@@ -11,11 +11,7 @@ interface SecurityMockupHeaderProps {
 	onViewSection: (tab: SectionedIssuesTab) => void;
 }
 
-/**
- * RecentActivityCard/SecurityTrendCard (real daily score history, its own dedicated table - see
- * that component's own docblock) stack directly below SecurityStatusCard in this same grid={4}
- * sidebar column rather than living in SecurityTab.tsx as a standalone row.
- */
+/** RecentActivityCard/SecurityTrendCard (real daily score history, its own dedicated table. */
 const SecurityMockupHeader = ({
 	onViewSection,
 }: SecurityMockupHeaderProps) => {

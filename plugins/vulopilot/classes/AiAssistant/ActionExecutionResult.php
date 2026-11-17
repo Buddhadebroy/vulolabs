@@ -34,7 +34,7 @@ final class ActionExecutionResult {
 	private ?string $object_ref;
 
 	/**
-	 * @var array<string, mixed>
+	 * @var array
 	 */
 	private array $snapshot;
 
@@ -86,7 +86,7 @@ final class ActionExecutionResult {
 	}
 
 	/**
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function get_snapshot(): array {
 		return $this->snapshot;
@@ -100,7 +100,7 @@ final class ActionExecutionResult {
 	}
 
 	/**
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function to_array(): array {
 		return array(

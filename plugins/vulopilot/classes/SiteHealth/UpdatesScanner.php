@@ -8,8 +8,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags any pending WordPress core, plugin, or theme update, using core's own update-check
- * APIs rather than re-implementing version comparison.
+ * Flags any pending WordPress core, plugin, or theme update, using core's own update-check APIs rather than re-implementing version comparison.
  *
  * @class       UpdatesScanner class
  * @version     1.0.0
@@ -66,8 +65,7 @@ class UpdatesScanner extends ScannerUtil {
 
 		$plugin_updates = get_plugin_updates();
 		foreach ( $plugin_updates as $plugin_file => $plugin_data ) {
-			// `$description` was `null` here - Finding::__construct()'s own `$description`
-			// parameter is a non-nullable `string`.
+			// Finding needs a string description, never null.
 			$findings[] = new Finding(
 				sprintf(
 					/* translators: %s is the plugin name. */

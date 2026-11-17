@@ -16,22 +16,18 @@ import { usePostScores } from './usePostScores';
 
 import type { SeoIssueEditorTab } from '../services/seoIssueEditorTarget';
 
-/**
- * Reduced from 12 icon-only tabs to 5 - Social/Schema/Page Analysis now live inside OnPageTab's
- * accordion, and the 6-tab "AI Visibility Score" suite lives inside AiVisibilitySuiteTab's.
- * Every deep-link target below still resolves to one of these 5.
- */
+/** Reduced from 12 icon-only tabs to 5. */
 const TABS = [
 	{ name: 'general', title: __( 'General', 'vulopilot' ), icon: 'admin-generic', Component: GeneralTab },
 	{ name: 'on-page', title: __( 'On-Page & Social', 'vulopilot' ), icon: 'share', Component: OnPageTab },
-	// "AI Visibility Score" suite - composes real data existing engines already compute, no new scoring rules.
+	// "AI Visibility Score" suite.
 	{ name: 'ai-visibility-suite', title: __( 'AI Visibility', 'vulopilot' ), icon: 'visibility', Component: AiVisibilitySuiteTab },
 	{ name: 'recommendations', title: __( 'Recommendations', 'vulopilot' ), icon: 'lightbulb', Component: RecommendationsTab },
-	// Topic Intelligence & Internal Linking - composes real deterministic and AI-backed data, see TopicLinkingTab.tsx.
+	// Topic Intelligence & Internal Linking.
 	{ name: 'topic-linking', title: __( 'Topic & Linking', 'vulopilot' ), icon: 'networking', Component: TopicLinkingTab },
 ];
 
-/** Every original deep-link target (`SEO_ISSUE_EDITOR_TARGETS`) still resolves to one of the 5 tabs above. */
+/** Every original deep-link target still resolves to one of the 5 tabs above. */
 const DEEP_LINK_TAB_GROUP: Record< SeoIssueEditorTab, string > = {
 	general: 'general',
 	social: 'on-page',
@@ -51,19 +47,17 @@ const DEEP_LINK_TAB_GROUP: Record< SeoIssueEditorTab, string > = {
 const RECOMMENDATIONS_DISMISSED_META_KEY = '_vulopilot_recommendations_dismissed';
 
 interface PostSeoPanelProps {
-	/** "All SEO Issues" table's "Fix with AI" deep link (post-editor/index.tsx) - which tab to land on. */
+	/** "All SEO Issues" table's "Fix with AI" deep link - which tab to land on. */
 	initialTabName?: SeoIssueEditorTab;
 	/** Same deep link's specific field/checklist-item id to scroll to and highlight, within whichever tab it names. */
 	highlightTarget?: string;
-	/** Bumped on every pill click so this re-navigates even to the same tab, without remounting (which used to flicker ContentIntelligencePanel's fetched analysis). */
+	/** Bumped on every pill click so this re-navigates even to the same tab, without remounting. */
 	navigationNonce?: number;
-	/** The specific field/section `navigationNonce` should land on within `initialTabName`, e.g. 'snippet' for the SEO pill. */
+	/** The specific field/section `navigationNonce` should land on within `initialTabName`. */
 	navigationTarget?: string;
 }
 
-/**
- * The metabox's tab shell. "Page Analysis" is VuloPilot's own addition.
- */
+/** The metabox's tab shell. */
 export default function PostSeoPanel( { initialTabName, highlightTarget, navigationNonce, navigationTarget }: PostSeoPanelProps ) {
 	const [ navTarget, setNavTarget ] = useState< { tab: SeoIssueEditorTab; target?: string } | null >( null );
 	const { postId, meta, setMeta } = usePostData();
@@ -92,7 +86,7 @@ export default function PostSeoPanel( { initialTabName, highlightTarget, navigat
 	}, [ navigationNonce ] );
 
 	const deepLinkTab = navTarget?.tab ?? initialTabName;
-	// deepLinkTab is one of the 12 fine-grained ids; TabPanel only knows the 5 merged names, so it's translated here.
+	// deepLinkTab is one of the 12 fine-grained ids.
 	const activeTabName = deepLinkTab ? DEEP_LINK_TAB_GROUP[ deepLinkTab ] : undefined;
 	const activeHighlight = navTarget ? navTarget.target : highlightTarget;
 

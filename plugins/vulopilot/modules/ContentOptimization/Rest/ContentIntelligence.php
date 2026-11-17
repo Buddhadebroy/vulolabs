@@ -15,9 +15,7 @@ use VuloPilot\SeoVisibility\OnPageAnalyzer;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * REST controller for the composite, deterministic "Content Score",
- * scoped to a fixed scanner_id list spanning content and seo categories,
- * using the same weighting as Controllers\Dashboard::calculate_category_score().
+ * REST controller for the composite, deterministic "Content Score", scoped to a fixed scanner_id list spanning content and seo categories, using the same weighting as Controllers\Dashboard::calculate_category_score().
  *
  * @class       ContentIntelligence controller
  * @version     1.0.0
@@ -38,8 +36,7 @@ class ContentIntelligence extends \WP_REST_Controller {
 	private const SCANNER_IDS = array( 'readability', 'thin-content', 'duplicate-content', 'heading-structure', 'internal-linking', 'orphan-pages' );
 
 	/**
-	 * Content-creation actions only. `generate-faq` is excluded since it
-	 * appends to an existing post rather than creating new content.
+	 * Content-creation actions only.
 	 *
 	 * @var string[]
 	 */
@@ -61,8 +58,7 @@ class ContentIntelligence extends \WP_REST_Controller {
 			)
 		);
 
-		// "Content Quality" card (ContentQualityCard.tsx) - real, per-post
-		// readability/completeness/structure for one selected piece of content.
+		// "Content Quality" card - real, per-post readability/completeness/structure for one selected piece of content.
 		register_rest_route(
 			VuloPilot()->rest_namespace,
 			'/' . $this->rest_base . '/quality',
@@ -75,8 +71,7 @@ class ContentIntelligence extends \WP_REST_Controller {
 			)
 		);
 
-		// "Content Stats" card (ContentStatsCard.tsx) - real Content-Created/Words-Generated
-		// counts for one period.
+		// "Content Stats" card - real Content-Created/Words-Generated counts for one period.
 		register_rest_route(
 			VuloPilot()->rest_namespace,
 			'/' . $this->rest_base . '/stats',
@@ -121,11 +116,9 @@ class ContentIntelligence extends \WP_REST_Controller {
     }
 
     /**
-     * Real Flesch Reading Ease bands - the same scale
-     * ReadabilityScanner's own docblock already documents (the formula's
-     * original published scale, not an invented cutoff).
+     * Real Flesch Reading Ease bands.
      *
-     * @var array<int, string>
+     * @var array
      */
     private const READABILITY_BANDS = array(
         90 => 'Very Easy',
@@ -138,9 +131,7 @@ class ContentIntelligence extends \WP_REST_Controller {
     );
 
     /**
-     * Per-post quality signals: readability (Flesch reading ease),
-     * completeness (OnPageAnalyzer's basic checks), and structure
-     * (has_subheadings).
+     * Per-post quality signals.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response
@@ -219,10 +210,7 @@ class ContentIntelligence extends \WP_REST_Controller {
     }
 
     /**
-     * Fetches `/content-intelligence/stats` - Content Created/Words
-     * Generated counts for one period (`date_from`/`date_to`, both Y-m-d;
-     * defaults to the current calendar month), plus each metric's percent
-     * change against the immediately preceding period of equal length.
+     * Fetches `/content-intelligence/stats`.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response
@@ -257,11 +245,11 @@ class ContentIntelligence extends \WP_REST_Controller {
     }
 
     /**
-     * The date range immediately preceding [$period_start, $period_end], of the same inclusive day length - same real trend math Reports\AbstractReportType::get_previous_period() already uses for the Reports page (duplicated as a small local method rather than shared, see this class's own register_routes() comment on why).
+     * The date range immediately preceding [$period_start, $period_end], of the same inclusive day length.
      *
      * @param string $period_start Y-m-d, inclusive.
      * @param string $period_end   Y-m-d, inclusive.
-     * @return array{0: string, 1: string} [previous_start, previous_end], both Y-m-d.
+     * @return array [previous_start, previous_end], both Y-m-d.
      */
     private function get_previous_period( string $period_start, string $period_end ): array {
         $start = new \DateTimeImmutable( $period_start );
@@ -279,7 +267,7 @@ class ContentIntelligence extends \WP_REST_Controller {
      *
      * @param int|float $current  This period's value.
      * @param int|float $previous Previous period's value.
-     * @return float|null Percentage change, or null when $previous is 0 (no meaningful percentage to show).
+     * @return float|null Percentage change, or null when $previous is 0.
      */
     private function calculate_change_percent( $current, $previous ): ?float {
         if ( 0 == $previous ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- deliberately loose: catches both int 0 and float 0.0 from either metric type.

@@ -25,9 +25,7 @@ const SEVERITY_LABEL: Record<string, string> = {
 	info: __('Info', 'vulopilot'),
 };
 
-/**
- * Plain-English "what does this actually check" copy, one per `scanner_id`.
- */
+/** Plain-English "what does this actually check" copy, one per `scanner_id`. */
 const SCAN_DESCRIPTIONS: Record<string, string> = {
 	cron: __(
 		'Checks whether WordPress’s own scheduled tasks (WP-Cron) are running on time, or stuck/overdue.',
@@ -108,13 +106,13 @@ const SCAN_DESCRIPTIONS: Record<string, string> = {
 	),
 };
 
-/** Fallback for any `scanner_id` not in SCAN_DESCRIPTIONS above - still honest (doesn't fabricate what the scan does), just generic. */
+/** Fallback for any `scanner_id` not in SCAN_DESCRIPTIONS above - still honest, just generic. */
 const GENERIC_SCAN_DESCRIPTION = __(
 	'A site-wide check - not tied to individual pages or posts.',
 	'vulopilot'
 );
 
-/** `duration_ms` is real (ScanResult::get_duration_ms(), persisted on every scan row) but was never shown anywhere in this panel. */
+/** `duration_ms` is real. */
 const formatScanDuration = (durationMs: number): string =>
 	durationMs < 1000
 		? sprintf(
@@ -148,9 +146,7 @@ interface HistoryDetailPanelProps {
 	onSelectRelatedAction: (id: number) => void;
 }
 
-/**
- * The History timeline's right-side detail panel - real per-type detail only.
- */
+/** The History timeline's right-side detail panel - real per-type detail only. */
 const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 	row,
 	onDeleted,
@@ -299,7 +295,7 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 							items={row.scan.affected_pages.map((page) => ({
 								id: String(page.id),
 								icon: 'document',
-								// `ListComponent` renders a title as HTML, so escape it. Not `link:` - its link branch drops `tags`.
+								// `ListComponent` renders a title as HTML, so escape it.
 								title: escapeHtml(page.title),
 								action: page.edit_link
 									? () => window.open(page.edit_link, '_blank', 'noopener,noreferrer')

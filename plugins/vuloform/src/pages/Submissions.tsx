@@ -73,6 +73,7 @@ const FIELD_ICONS: Record<string, string> = {
 	address: 'form-address',
 	hidden: 'eye-blocked',
 	calculation: 'commission',
+	signature: 'edit',
 };
 
 /** One answer, shown the way its kind deserves: an address you can click, a yes or no, or plain text. */

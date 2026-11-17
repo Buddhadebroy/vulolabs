@@ -12,7 +12,7 @@ interface RunScanHeaderExtraProps {
 	settingsSubtab: string;
 	/** Drops the gear/settings button beside "Run scan". */
 	hideSettingsButton?: boolean;
-	/** Drops the "Run scan" button itself; settings gear, "Last scan" caption, and trailingButtons stay. */
+	/** Drops the "Run scan" button itself. */
 	hideRunScanButton?: boolean;
 	/** Renders in "Run scan"'s place, same button-row slot. */
 	replaceRunScanButton?: {

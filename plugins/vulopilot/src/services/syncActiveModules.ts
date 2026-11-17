@@ -1,9 +1,7 @@
 /* global vulopilotAppLocalizer */
 import { useModules } from '@zyra/core';
 
-/**
- * Without this, `vulopilotAppLocalizer.active_modules` stays the page-load snapshot forever.
- */
+/** Without this, `vulopilotAppLocalizer.active_modules` stays the page-load snapshot forever. */
 export const syncActiveModulesWithModuleToggles = (): void => {
 	useModules.subscribe((state, prevState) => {
 		const added = state.modules.filter((id) => !prevState.modules.includes(id));

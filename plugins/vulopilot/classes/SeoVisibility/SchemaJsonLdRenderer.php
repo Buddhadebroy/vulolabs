@@ -14,9 +14,7 @@ class SchemaJsonLdRenderer {
 
 	private const META_KEY = '_vulopilot_schema_json';
 
-	/**
-	 * SchemaJsonLdRenderer constructor.
-	 */
+	/** SchemaJsonLdRenderer constructor. */
 	public function __construct() {
 		add_action( 'wp_head', array( $this, 'maybe_output_schema' ) );
 	}

@@ -1,9 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import SitemapPanel from './SitemapPanel';
 
-/**
- * Settings → SEO → Sitemap.
- */
+/** Settings → SEO → Sitemap. */
 export default {
 	id: 'sitemap',
 	priority: 2,

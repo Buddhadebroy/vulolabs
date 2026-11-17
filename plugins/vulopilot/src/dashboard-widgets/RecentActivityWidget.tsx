@@ -7,9 +7,7 @@ import HistoryTimeline from '../pages/Reports/HistoryTimeline';
 import DashboardWidget from './DashboardWidget';
 import { WidgetProps } from './types';
 
-/**
- * "Recent activity" - the newest rows of `GET /history`, the exact feed Reports → History shows.
- */
+/** "Recent activity" - the newest rows of `GET /history`, the exact feed Reports → History shows. */
 const ALL_COUNT_FILTER = {
 	key: 'type',
 	options: [{ label: 'All', value: 'all' }],
@@ -26,8 +24,7 @@ const RecentActivityWidget: React.FC<WidgetProps> = ({
 		ALL_COUNT_FILTER
 	);
 	const total = categoryCounts[0]?.count ?? 0;
-	// Purely local UI state - this compact widget shows no side detail panel for a selected row, so
-	// nothing else reads it.
+	// Purely local UI state - this compact widget shows no side detail panel for a selected row, so nothing else reads it.
 	const [selectedRow, setSelectedRow] = useState<HistoryRow | null>(null);
 	const historyRows = data;
 

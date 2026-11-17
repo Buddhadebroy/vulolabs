@@ -10,8 +10,7 @@ use VuloPilot\Utill\ScannedPostsTrait;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Checks whether a bounded batch of recently-modified published posts' OWN permalinks
- * resolve.
+ * Checks whether a bounded batch of recently-modified published posts' OWN permalinks resolve.
  *
  * @class       NotFoundScanner class
  * @version     1.0.0

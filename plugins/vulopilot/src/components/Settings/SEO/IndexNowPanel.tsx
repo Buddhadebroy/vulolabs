@@ -45,10 +45,7 @@ const POST_TYPE_OPTIONS = [
 ];
 
 
-/**
- * Hand-built rather than InputRenderer-driven - same escape hatch other panels already use
- * (Settings.tsx's GetForm() special-cases `currentTab === 'indexnow'`).
- */
+/** Hand-built rather than InputRenderer-driven. */
 const IndexNowPanel = () => {
 	const { setting, updateSetting } = useSetting();
 
@@ -169,8 +166,7 @@ const IndexNowPanel = () => {
 											'vulopilot'
 										)
 							}
-							// zyra palette green, as this codebase's other `.is-good` rules mirror it (no `.scss` source to
-							// `@use` a token from; see BrandVisibilityProDummies.tsx).
+							// Zyra palette green, as this codebase's other `.is-good` rules mirror it.
 							borderColor={apiKey ? '#16a34a' : undefined}
 							action={
 								<span className={`admin-badge ${apiKey ? 'green' : 'blue'}`}>

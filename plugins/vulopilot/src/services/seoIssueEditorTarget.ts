@@ -1,7 +1,5 @@
 /**
- * Single source of truth for the "All SEO Issues" table's "Fix with AI" deep link
- * (`SeoIssuesByPageTable.tsx`) and the block-editor "VuloPilot SEO" sidebar's own handling of it
- * (`post-editor/index.tsx`).
+ * Single source of truth for the "All SEO Issues" table's "Fix with AI" deep link and the block-editor "VuloPilot SEO" sidebar's own handling of it.
  */
 
 export type SeoIssueEditorTab =
@@ -20,7 +18,7 @@ export type SeoIssueEditorTab =
 
 export interface SeoIssueEditorTarget {
 	tab: SeoIssueEditorTab;
-	/** OnPageAnalyzer check id (General tab) or field key (Social/Schema, or a General-tab field). */
+	/** OnPageAnalyzer check id or field key. */
 	target?: string;
 }
 
@@ -41,7 +39,7 @@ export const SEO_ISSUE_EDITOR_TARGETS: Record<string, SeoIssueEditorTarget> = {
 	/** Brand Intelligence's Person/Organization schema checks. */
 	'author-schema': { tab: 'schema', target: 'schema_json' },
 	'organization-schema': { tab: 'schema', target: 'schema_json' },
-	/** AEO's own "Schema Markup" section (AeoTab.tsx) - same real Schema tab every other schema-flavored scanner id above already resolves to. */
+	/** AEO's own "Schema Markup" section. */
 	'aeo-schema': { tab: 'schema', target: 'schema_json' },
 };
 
@@ -53,12 +51,9 @@ export const getEditorTargetForScanner = (
 export const SEO_ISSUE_QUERY_PARAM = 'vulopilot_seo_issue';
 
 /**
- * Separate deep-link param `GEO/PageAnalysisPanel.tsx`'s own checklist uses instead of
- * `SEO_ISSUE_QUERY_PARAM` above.
+ * Separate deep-link param `GEO/PageAnalysisPanel.tsx`'s own checklist uses instead of `SEO_ISSUE_QUERY_PARAM` above.
  */
 export const PAGE_ANALYSIS_CHECK_QUERY_PARAM = 'vulopilot_page_analysis_check';
 
-/**
- * A third deep-link param used by the GEO and AEO open-findings tables.
- */
+/** A third deep-link param used by the GEO and AEO open-findings tables. */
 export const FINDING_ID_QUERY_PARAM = 'vulopilot_finding_id';

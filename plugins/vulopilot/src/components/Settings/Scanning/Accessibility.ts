@@ -1,8 +1,6 @@
 import { __ } from '@wordpress/i18n';
 
-/**
- * Settings → Scanning → Accessibility.
- */
+/** Settings → Scanning → Accessibility. */
 export default {
 	id: 'accessibility',
 	priority: 3,

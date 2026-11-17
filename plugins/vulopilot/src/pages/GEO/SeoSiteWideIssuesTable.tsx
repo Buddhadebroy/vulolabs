@@ -50,10 +50,7 @@ interface SeoSiteWideIssuesTableProps {
 	hasError: boolean;
 }
 
-/**
- * "Site-wide Issues" - one of the two real tables that replace the old combined "All SEO Issues"
- * card, split apart.
- */
+/** "Site-wide Issues". */
 const SeoSiteWideIssuesTable = ({
 	findings,
 	activeScannerIds,
@@ -105,7 +102,7 @@ const SeoSiteWideIssuesTable = ({
 			.finally(() => setFixingFindingId(null));
 	};
 
-	/** Resolve/Ignore - the same real `POST /findings/{id} {status}` RecentContentCard.tsx's own `handleFindingStatus` calls (Findings.php::update_item() has no `object_type` restriction, so this works unmodified here). */
+	/** Resolve/Ignore. */
 	const handleStatus = (
 		finding: RawFinding,
 		status: 'resolved' | 'ignored',
@@ -161,8 +158,7 @@ const SeoSiteWideIssuesTable = ({
 		);
 	}
 
-	// Nothing site-wide to show (either genuinely clean, or filtered out by an active
-	// category/scanner filter that has no site-wide matches).
+	// Nothing site-wide to show.
 	if (!isLoading && 0 === visibleFindings.length) {
 		// Keep the last fix's result (and its Undo) visible even though the table is now empty.
 		return fixNotice;
@@ -228,8 +224,7 @@ const SeoSiteWideIssuesTable = ({
 								color: 'orange-bg',
 								onClick: (row) => {
 									const finding = row as unknown as RawFinding;
-									// Was `onClick: undefined` on the raw `BadgeComponent` badge
-									// to disable the click while a fix is already running.
+									// Was `onClick: undefined` on the raw `BadgeComponent` badge to disable the click while a fix is already running.
 									if (fixingFindingId === finding.id) {
 										return;
 									}

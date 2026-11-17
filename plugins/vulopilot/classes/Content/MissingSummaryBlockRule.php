@@ -16,8 +16,7 @@ use VuloPilot\Utill\RuleType;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Turns Geo\Scanners\GeoSummaryBlockScanner's "no upfront summary" Finding into a
- * recommendation to draft one with AI.
+ * Turns Geo\Scanners\GeoSummaryBlockScanner's "no upfront summary" Finding into a recommendation to draft one with AI.
  *
  * @class       MissingSummaryBlockRule class
  * @version     1.0.0
@@ -99,8 +98,7 @@ class MissingSummaryBlockRule extends AbstractBasicRule {
 	 * @inheritDoc
 	 */
 	public function applies_to( Finding $finding ): bool {
-		// Matched on the `missing_summary_block` meta key GeoSummaryBlockScanner attaches
-		// specifically for this.
+		// Matched on the `missing_summary_block` meta key GeoSummaryBlockScanner attaches specifically for this.
 		return 'geo' === $finding->get_category() && array_key_exists( 'missing_summary_block', $finding->get_meta() );
 	}
 

@@ -62,7 +62,7 @@ const VARIABLES: Array<{ token: string; label: string }> = [
 	{ token: '%sep%', label: __('Separator (e.g. | – -)', 'vulopilot') },
 ];
 
-/** Real, fixed separator characters this field offers - a `SelectInput` instead of a free-text field. */
+/** Real, fixed separator characters this field offers. */
 const SEPARATOR_OPTIONS: Array<{ value: string; label: string; char: string }> = [
 	{ value: 'pipe', label: __('| (Pipe)', 'vulopilot'), char: '|' },
 	{ value: 'dash', label: __('- (Dash)', 'vulopilot'), char: '-' },
@@ -72,10 +72,7 @@ const SEPARATOR_OPTIONS: Array<{ value: string; label: string; char: string }> =
 	{ value: 'tilde', label: __('~ (Tilde)', 'vulopilot'), char: '~' },
 ];
 
-/**
- * Same token-replacement + leading/trailing-separator-trim logic as TitleFormatter::resolve()
- * (PHP).
- */
+/** Same token-replacement + leading/trailing-separator-trim logic as TitleFormatter::resolve(). */
 const resolveTemplate = (template: string, vars: Record<string, string>, separator: string): string => {
 	const resolved = template.replace(/%([a-z_]+)%/g, (_match, token: string) => {
 		if ('sep' === token) {
@@ -93,8 +90,7 @@ const resolveTemplate = (template: string, vars: Record<string, string>, separat
 };
 
 /**
- * Length-based heuristic, graded against real, already-established thresholds elsewhere in this
- * codebase rather than an invented number.
+ * Length-based heuristic, graded against real, already-established thresholds elsewhere in this codebase rather than an invented number.
  */
 const scoreLength = (text: string, max: number, min = 0): LengthScore => {
 	const length = text.trim().length;
@@ -133,9 +129,7 @@ const toBreadcrumb = (urlExample: string): string =>
 		.filter(Boolean)
 		.join(' › ');
 
-/**
- * Settings → SEO → SEO Titles.
- */
+/** Settings → SEO → SEO Titles. */
 const SeoTitlesPanel = () => {
 	const { setting, updateSetting } = useSetting();
 
@@ -259,8 +253,7 @@ const SeoTitlesPanel = () => {
 
 	const [templateValues, setTemplateValues] = useState<Record<string, string>>({});
 
-	// Settings.tsx's own GetForm() seeds SettingContext with this tab's real values (from
-	// `modal[].key`) as a render-phase `setSetting()` call.
+	// Settings.tsx's own GetForm() seeds SettingContext with this tab's real values as a render-phase `setSetting()` call.
 	const hydratedRef = useRef(false);
 
 	useEffect(() => {
@@ -288,9 +281,7 @@ const SeoTitlesPanel = () => {
 		});
 	};
 
-	// "Stop typing, then save" debounce - same shape BackupStoragePanel.tsx's own
-	// `AUTOSAVE_DEBOUNCE_MS`/CrawlRobotsSitemapSection.tsx's own `handleRobotsContentChange`
-	// already use.
+	// "Stop typing, then save" debounce.
 	const AUTOSAVE_DEBOUNCE_MS = 1000;
 	const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -365,10 +356,7 @@ const SeoTitlesPanel = () => {
 
 	const editingRow = previewRows.find((row) => row.key === editingKey) ?? null;
 
-	/**
-	 * One real `%token%` field + its own "click to insert" pill row + a real length
-	 * `BadgeComponent`.
-	 */
+	/** One real `%token%` field + its own "click to insert" pill row + a real length `BadgeComponent`. */
 	const renderTemplateField = (
 		key: string,
 		score: LengthScore

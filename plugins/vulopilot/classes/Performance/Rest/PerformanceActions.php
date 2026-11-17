@@ -25,7 +25,7 @@ class PerformanceActions extends \WP_REST_Controller {
 	/**
 	 * Main plugin files of known caching plugins, mapped to their cache-purge function.
 	 *
-	 * @var array<string, string>
+	 * @var array
 	 */
 	private const CACHE_PLUGIN_FLUSH_FUNCTIONS = array(
 		'WP Rocket'        => 'rocket_clean_domain',
@@ -34,16 +34,10 @@ class PerformanceActions extends \WP_REST_Controller {
 		'WP Fastest Cache' => 'wpfc_clear_all_cache',
 	);
 
-	/**
-	 * Same size threshold LargeImagesScanner.php flags - duplicated rather than made
-	 * public there.
-	 */
+	/** Same size threshold LargeImagesScanner.php flags. */
 	private const LARGE_IMAGE_THRESHOLD_BYTES = 512000; // 500KB.
 
-	/**
-	 * How many oversized images to regenerate per click - bounded so a single request
-	 * can't run away on a media library with thousands of oversized images.
-	 */
+	/** How many oversized images to regenerate per click. */
 	private const MAX_IMAGES_PER_RUN = 10;
 
 	/**
@@ -109,10 +103,9 @@ class PerformanceActions extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Flushes the WordPress object cache plus every known caching plugin's
-	 * own real purge function, if active.
+	 * Flushes the WordPress object cache plus every known caching plugin's own real purge function, if active.
 	 *
-	 * @return array{success: bool, message: string}
+	 * @return array
 	 */
 	private function run_clear_caches(): array {
 		wp_cache_flush();
@@ -132,10 +125,9 @@ class PerformanceActions extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Regenerates minified assets via a known minification-capable plugin's own real
-	 * function - returns an honest failure, not a fabricated success.
+	 * Regenerates minified assets via a known minification-capable plugin's own real function.
 	 *
-	 * @return array{success: bool, message: string}
+	 * @return array
 	 */
 	private function run_minify_css_js(): array {
 		$regenerated = array();
@@ -168,10 +160,9 @@ class PerformanceActions extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Regenerates registered thumbnail sizes (never the original file) for the largest
-	 * oversized image attachments, at a lower JPEG/WebP quality.
+	 * Regenerates registered thumbnail sizes.
 	 *
-	 * @return array{success: bool, message: string}
+	 * @return array
 	 */
 	private function run_optimize_images(): array {
 		if ( ! function_exists( 'wp_generate_attachment_metadata' ) ) {
@@ -233,10 +224,9 @@ class PerformanceActions extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Deletes real expired transients and real excess post revisions -
-	 * the same rows DatabaseCleanupScanner counts.
+	 * Deletes real expired transients and real excess post revisions.
 	 *
-	 * @return array{success: bool, message: string}
+	 * @return array
 	 */
 	private function run_database_cleanup(): array {
 		global $wpdb;
@@ -292,11 +282,9 @@ class PerformanceActions extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Deletes unattached, unused image attachments via
-	 * ImageCleanupScanner::get_orphaned_image_ids(), bounded by
-	 * MAX_IMAGES_PER_RUN per click.
+	 * Deletes unattached, unused image attachments via ImageCleanupScanner::get_orphaned_image_ids(), bounded by MAX_IMAGES_PER_RUN per click.
 	 *
-	 * @return array{success: bool, message: string}
+	 * @return array
 	 */
 	private function run_image_cleanup(): array {
 		$orphaned_ids = ImageCleanupScanner::get_orphaned_image_ids();
@@ -344,10 +332,9 @@ class PerformanceActions extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real, reversible toggle - PerformanceOptimizations reads this option on every
-	 * request and force-enables WordPress's own native lazy-loading filter when set.
+	 * Real, reversible toggle.
 	 *
-	 * @return array{success: bool, message: string}
+	 * @return array
 	 */
 	private function run_enable_lazy_loading(): array {
 		$was_enabled = (bool) get_option( 'vulopilot_force_lazy_loading' );
@@ -363,10 +350,9 @@ class PerformanceActions extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Real, reversible toggle - PerformanceOptimizations reads
-	 * this option on every `wp_head` and outputs real preload tags when set.
+	 * Real, reversible toggle.
 	 *
-	 * @return array{success: bool, message: string}
+	 * @return array
 	 */
 	private function run_enable_preload_resources(): array {
 		$was_enabled = (bool) get_option( 'vulopilot_preload_critical_resources' );
@@ -382,12 +368,9 @@ class PerformanceActions extends \WP_REST_Controller {
 	}
 
 	/**
-	 * One-time `.htaccess` write via `insert_with_markers()`, inside a
-	 * self-contained marker block so re-running never duplicates existing
-	 * rules. Emits `mod_expires` directives. Returns an honest failure
-	 * when `.htaccess` isn't writable.
+	 * One-time `.htaccess` write via `insert_with_markers()`, inside a self-contained marker block so re-running never duplicates existing rules.
 	 *
-	 * @return array{success: bool, message: string}
+	 * @return array
 	 */
 	private function run_enable_browser_caching(): array {
 		if ( ! function_exists( 'get_home_path' ) ) {
@@ -436,7 +419,7 @@ class PerformanceActions extends \WP_REST_Controller {
 	}
 
 	/**
-	 * @return array<int, string> Display names of cache plugins actually flushed.
+	 * @return array Display names of cache plugins actually flushed.
 	 */
 	private function flush_known_cache_plugins(): array {
 		$flushed = array();
@@ -463,7 +446,7 @@ class PerformanceActions extends \WP_REST_Controller {
 
 	/**
 	 * @param int $attachment_id Attachment id.
-	 * @return int Total bytes across every registered (non-original) size file currently on disk.
+	 * @return int Total bytes across every registered.
 	 */
 	private function sum_registered_size_files( int $attachment_id ): int {
 		$metadata = wp_get_attachment_metadata( $attachment_id );
@@ -487,8 +470,7 @@ class PerformanceActions extends \WP_REST_Controller {
 	}
 
 	/**
-	 * `wp_editor_set_quality` filter callback used only for the duration of
-	 * run_optimize_images()'s regeneration loop.
+	 * `wp_editor_set_quality` filter callback used only for the duration of run_optimize_images()'s regeneration loop.
 	 *
 	 * @return int
 	 */

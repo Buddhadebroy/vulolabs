@@ -16,31 +16,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Imports everything VuloPilot can read from a Rank Math SEO install, in one migrator:
- *
- * - Per-post SEO postmeta (`rank_math_*`) into VuloPilot's own `PostSeoMetaFields::META_KEYS`.
- * - Sitewide Settings (`rank-math-options-general/titles/sitemap`) into `vulopilot_settings`
- *   (confirmed against `includes/helpers/class-options.php` in rankmath/seo-by-rank-math).
- * - Real saved redirect rules, from Rank Math's own `{prefix}rank_math_redirections` table
- *   (schema confirmed against `includes/class-installer.php`) into `vulopilot_redirects`,
- *   including `contains`/`start`/`end`/`regex` sources - VuloPilot's own redirect table grew a
- *   `match_type` column (`RedirectRepository::find_matching()`) using the exact same vocabulary
- *   Rank Math's own `sources[].comparison` already uses (confirmed against
- *   `includes/modules/redirections/class-redirection.php`), so this is a direct pass-through now,
- *   not a lossy best-effort mapping.
- * - Real logged 404 hits, from `{prefix}rank_math_404_logs`, into `vulopilot_not_found_logs`.
- * - Webmaster Tools' Facebook App ID/Admin ID, the Knowledge Graph name/logo override, the
- *   sitewide default-robots + 5 noindex conditions, the Sitemap module's Author tab, and
- *   per-custom-post-type/per-custom-taxonomy title/description templates - all newly built in
- *   VuloPilot alongside this migrator (see `Utill::VULOPILOT_SETTINGS_DEFAULTS`'s
- *   `facebook_*`/`entity_business_*`/`robots_noindex_*`/`sitemap_*_author*`/`title_format_post_types`
- *   etc. fields).
- *
- * `migrate()` runs all four and returns their combined counts. Settings fields with no VuloPilot
- * field to write into (Breadcrumbs, social profile URLs beyond Facebook's app-association tags,
- * sitewide default OG image/Twitter card, link settings, RSS content injection, Frontend SEO
- * Score, capitalize titles, pillar/cornerstone flag, primary taxonomy picker) are deliberately
- * left out rather than guessed at.
+ * Imports everything VuloPilot can read from a Rank Math SEO install, in one migrator.
  *
  * @class       RankMathMigrator
  * @version     2.0.0
@@ -51,13 +27,12 @@ class RankMathMigrator implements MigratorInterface {
 	/**
 	 * Rank Math postmeta key for each VuloPilot per-post field it has an equivalent for.
 	 *
-	 * @var array<string, string>
+	 * @var array
 	 */
 	private const POST_META_MAP = array(
 		'focus_keyword'      => 'rank_math_focus_keyword',
 		'canonical_url'      => 'rank_math_canonical_url',
-		// Both robots fields read the same serialized `rank_math_robots` array - normalize_robots()
-		// below picks the right flag out of it either way.
+		// Both robots fields read the same serialized `rank_math_robots` array.
 		'robots_noindex'     => 'rank_math_robots',
 		'robots_nofollow'    => 'rank_math_robots',
 		'social_title'       => 'rank_math_facebook_title',
@@ -66,10 +41,9 @@ class RankMathMigrator implements MigratorInterface {
 	);
 
 	/**
-	 * Rank Math's own `rank-math-options-titles` key for each VuloPilot title/description
-	 * template field it has a direct equivalent for.
+	 * Rank Math's own `rank-math-options-titles` key for each VuloPilot title/description template field it has a direct equivalent for.
 	 *
-	 * @var array<string, string>
+	 * @var array
 	 */
 	private const TITLE_FIELD_MAP = array(
 		'title_format_home'           => 'homepage_title',
@@ -92,7 +66,7 @@ class RankMathMigrator implements MigratorInterface {
 	/**
 	 * Rank Math's own `rank-math-options-general` key for each VuloPilot Webmaster Tools field.
 	 *
-	 * @var array<string, string>
+	 * @var array
 	 */
 	private const WEBMASTER_FIELD_MAP = array(
 		'webmaster_google_verification'    => 'google_verify',
@@ -105,10 +79,9 @@ class RankMathMigrator implements MigratorInterface {
 	);
 
 	/**
-	 * Rank Math's own `rank-math-options-titles` key for each VuloPilot Facebook field - the two
-	 * app-association meta tags SocialMetaTagsManager outputs (not the still-unused App Secret).
+	 * Rank Math's own `rank-math-options-titles` key for each VuloPilot Facebook field.
 	 *
-	 * @var array<string, string>
+	 * @var array
 	 */
 	private const FACEBOOK_FIELD_MAP = array(
 		'facebook_app_id'   => 'facebook_app_id',
@@ -171,10 +144,7 @@ class RankMathMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * Rank Math's "Edit robots.txt" content (`general.robots_txt_content`, confirmed against
-	 * `includes/modules/robots-txt/class-robots-txt.php`) into VuloPilot's own custom robots.txt
-	 * override (`RobotsTxtManager`'s `vulopilot_custom_robots_txt` option - deliberately outside
-	 * `vulopilot_settings`, so it's never touched by migrate_settings() above).
+	 * Rank Math's "Edit robots.txt" content.
 	 *
 	 * @param bool  $overwrite Passed through from migrate().
 	 * @param int   $migrated  Running total, by reference.
@@ -200,10 +170,7 @@ class RankMathMigrator implements MigratorInterface {
 		$manager->save_custom_content( $content );
 		++$migrated;
 
-		// Same WordPress architecture fact YoastSeoMigrator's own robots.txt step warns about: a
-		// real physical robots.txt file at the site root bypasses WordPress's whole virtual
-		// robots.txt system (every plugin's `robots_txt` filter, VuloPilot's own included), so
-		// this copy alone doesn't make it take effect while one exists.
+		// Same WordPress architecture fact YoastSeoMigrator's own robots.txt step warns about.
 		if ( file_exists( trailingslashit( ABSPATH ) . 'robots.txt' ) ) {
 			$errors[] = __(
 				'robots.txt content was copied into VuloPilot, but a real robots.txt file still exists on your server - WordPress serves that file directly and ignores every plugin\'s own robots.txt output (VuloPilot\'s included) while it\'s there. Remove or rename the physical robots.txt file at your site\'s root for VuloPilot\'s version to take effect.',
@@ -212,9 +179,7 @@ class RankMathMigrator implements MigratorInterface {
 		}
 	}
 
-	// ---------------------------------------------------------------------
-	// Per-post SEO data.
-	// ---------------------------------------------------------------------
+	// --------------------------------------------------------------------- Per-post SEO data.
 
 	/**
 	 * @param bool  $overwrite Passed through from migrate().
@@ -296,14 +261,11 @@ class RankMathMigrator implements MigratorInterface {
 			return is_array( $robots ) && in_array( $flag, $robots, true );
 		}
 
-		// Rank Math stores the focus keyword(s) comma-separated already, same contract
-		// `PostSeoMetaFields::split_keywords()` expects.
+		// Rank Math stores the focus keyword(s) comma-separated already, same contract `PostSeoMetaFields::split_keywords()` expects.
 		return $raw_value;
 	}
 
-	// ---------------------------------------------------------------------
-	// Sitewide settings.
-	// ---------------------------------------------------------------------
+	// --------------------------------------------------------------------- Sitewide settings.
 
 	/**
 	 * @param bool $overwrite Passed through from migrate().
@@ -343,7 +305,7 @@ class RankMathMigrator implements MigratorInterface {
 	/**
 	 * Every VuloPilot settings field Rank Math has real, non-empty data for.
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function build_settings_values(): array {
 		$general = get_option( 'rank-math-options-general', array() );
@@ -364,8 +326,7 @@ class RankMathMigrator implements MigratorInterface {
 			$this->maybe_set_string( $values, $vulopilot_field, $titles[ $rank_math_field ] ?? '' );
 		}
 
-		// Rank Math stores the literal separator character already (`sanitize_separator`), same
-		// contract `title_separator` expects - direct pass-through.
+		// Rank Math stores the literal separator character already, same contract `title_separator` expects.
 		$this->maybe_set_string( $values, 'title_separator', $titles['title_separator'] ?? '' );
 
 		if ( isset( $sitemap['items_per_page'] ) && '' !== (string) $sitemap['items_per_page'] ) {
@@ -474,13 +435,10 @@ class RankMathMigrator implements MigratorInterface {
 			}
 		}
 
-		// Rank Math's 'Person/Organization Name' field - VuloPilot's own name OVERRIDE, distinct
-		// from its business_type above.
+		// Rank Math's 'Person/Organization Name' field.
 		$this->maybe_set_string( $values, 'entity_business_name', $titles['knowledgegraph_name'] ?? '' );
 
-		// CMB2's 'file' field type (knowledgegraph_logo's own field type) auto-saves a companion
-		// `{id}_id` key holding the real attachment id alongside the URL - the attachment lives on
-		// this same site either way, so the id is directly reusable.
+		// CMB2's 'file' field type auto-saves a companion `{id}_id` key holding the real attachment id alongside the URL.
 		if ( ! empty( $titles['knowledgegraph_logo_id'] ) ) {
 			$values['entity_business_logo_id'] = absint( $titles['knowledgegraph_logo_id'] );
 		}
@@ -500,12 +458,7 @@ class RankMathMigrator implements MigratorInterface {
 
 		$this->maybe_set_string( $values, 'sitemap_exclude_author_ids', $sitemap['exclude_users'] ?? '' );
 
-		// Per-custom-post-type/taxonomy title & description templates - every `pt_{type}_title`/
-		// `tax_{taxonomy}_title` key beyond the ones TITLE_FIELD_MAP already covers (post/page's
-		// own flat fields handle 'post'/'page'; built-in 'category'/'post_tag' too). Rank Math
-		// names its own post-type/taxonomy keys the exact same way WordPress's own
-		// get_post_types()/get_taxonomies() slugs are spelled, so the Rank Math key suffix doubles
-		// as the real post type/taxonomy slug directly - no separate lookup table needed.
+		// Per-custom-post-type/taxonomy title & description templates.
 		$custom_post_type_titles       = array();
 		$custom_post_type_descriptions = array();
 
@@ -580,9 +533,7 @@ class RankMathMigrator implements MigratorInterface {
 		return 'on' === $raw ? array( $field ) : array();
 	}
 
-	// ---------------------------------------------------------------------
-	// Redirects.
-	// ---------------------------------------------------------------------
+	// --------------------------------------------------------------------- Redirects.
 
 	/**
 	 * @param bool $overwrite Passed through from migrate().
@@ -612,10 +563,7 @@ class RankMathMigrator implements MigratorInterface {
 					continue;
 				}
 
-				// 'exact' is the only comparison type that needs path normalization - the other
-				// four are raw match patterns (a substring, a regex, ...), not real URL paths, so
-				// normalizing them (stripping a subdirectory prefix, forcing a leading slash)
-				// would corrupt the pattern itself.
+				// 'exact' is the only comparison type that needs path normalization.
 				$source_value = 'exact' === $comparison ? RedirectRepository::normalize_path( $pattern ) : $pattern;
 				$match_type   = in_array( $comparison, array( 'exact', 'contains', 'start', 'end', 'regex' ), true ) ? $comparison : 'exact';
 				$existing     = $repository->find_by_source_path( $source_value );
@@ -647,7 +595,7 @@ class RankMathMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	private function get_redirect_rows(): array {
 		global $wpdb;
@@ -661,9 +609,7 @@ class RankMathMigrator implements MigratorInterface {
 		return (array) $wpdb->get_results( "SELECT id, sources, url_to, header_code, hits, status, last_accessed FROM {$table}", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 	}
 
-	// ---------------------------------------------------------------------
-	// 404 logs.
-	// ---------------------------------------------------------------------
+	// --------------------------------------------------------------------- 404 logs.
 
 	/**
 	 * @param bool $overwrite Passed through from migrate().
@@ -707,7 +653,7 @@ class RankMathMigrator implements MigratorInterface {
 	}
 
 	/**
-	 * @return array<int, array<string, mixed>>
+	 * @return array
 	 */
 	private function get_404_log_rows(): array {
 		global $wpdb;

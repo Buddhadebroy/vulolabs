@@ -16,8 +16,7 @@ use VuloPilot\Utill\RuleType;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Turns MetaDescriptionScanner's "no excerpt set" Finding into a recommendation to draft
- * one with AI.
+ * Turns MetaDescriptionScanner's "no excerpt set" Finding into a recommendation to draft one with AI.
  *
  * @class       MissingMetaDescriptionRule class
  * @version     1.0.0

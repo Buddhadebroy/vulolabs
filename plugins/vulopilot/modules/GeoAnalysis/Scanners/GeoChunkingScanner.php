@@ -16,8 +16,7 @@ use VuloPilot\Utill\ScannedPostsTrait;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags published posts/pages containing a single paragraph over MAX_PARAGRAPH_WORD_COUNT
- * words.
+ * Flags published posts/pages containing a single paragraph over MAX_PARAGRAPH_WORD_COUNT words.
  *
  * @class       GeoChunkingScanner class
  * @version     1.0.0

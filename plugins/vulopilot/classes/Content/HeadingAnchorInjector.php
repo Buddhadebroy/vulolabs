@@ -4,8 +4,7 @@ namespace VuloPilot\Content;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Injects `id="..."` onto every real `h1`-`h6` a `vulopilot/table-of- contents`
- * block's own links point to.
+ * Injects `id="..."` onto every real `h1`-`h6` a `vulopilot/table-of- contents` block's own links point to.
  *
  * @class       HeadingAnchorInjector class
  * @version     1.0.0
@@ -13,15 +12,13 @@ defined( 'ABSPATH' ) || exit;
  */
 class HeadingAnchorInjector {
 
-	/**
-	 * HeadingAnchorInjector constructor.
-	 */
+	/** HeadingAnchorInjector constructor. */
 	public function __construct() {
 		add_filter( 'the_content', array( $this, 'inject_anchors' ), 20 );
 	}
 
 	/**
-	 * @param string $content Real, fully block-rendered post content (do_blocks() has already run by priority 20).
+	 * @param string $content Real, fully block-rendered post content.
 	 * @return string
 	 */
 	public function inject_anchors( string $content ): string {

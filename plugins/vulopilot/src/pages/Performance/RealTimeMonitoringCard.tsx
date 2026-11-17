@@ -20,7 +20,7 @@ interface CoreWebVitalsSummary {
 /** Below this many real RUM samples, a p75 isn't trustworthy enough to show. */
 const MIN_SAMPLES = 10;
 
-/** Real byte count → a human string - same MB/KB thresholds SlowPagesTab.tsx's own `formatBytes()` uses, duplicated locally. */
+/** Real byte count → a human string. */
 const formatBytes = (bytes: number): string => {
 	if (bytes >= 1024 * 1024) {
 		return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
@@ -33,10 +33,7 @@ const formatBytes = (bytes: number): string => {
 	return `${bytes} B`;
 };
 
-/**
- * "Real-time Monitoring": server response time, from `GET /performance-realtime`, and the other
- * live sub-metrics.
- */
+/** "Real-time Monitoring". */
 const RealTimeMonitoringCard = () => {
 	const [stats, setStats] = useState<RealtimeStats | null>(null);
 	const [vitals, setVitals] = useState<CoreWebVitalsSummary | null>(null);
@@ -65,10 +62,7 @@ const RealTimeMonitoringCard = () => {
 	const pageLoadMs = vitals?.page_load_ms ?? null;
 	const transferBytes = vitals?.transfer_bytes ?? null;
 
-	// Same real "not enough real visitor samples yet" wording MetricsGrid.tsx's own Core Web
-	// Vitals tile badge already uses ("Collecting data (N)") - rendered here as a small caption
-	// under the title (not in the big bold `number` slot, which read as an oversized sentence
-	// there, per direct instruction), with `number` itself falling back to a plain en dash.
+	// Same real "not enough real visitor samples yet" wording MetricsGrid.tsx's own Core Web Vitals tile badge already uses.
 	const collectingCaption = sprintf(
 		/* translators: %d is how many real visitor samples have been collected so far. */
 		__('Collecting data (%d)', 'vulopilot'),

@@ -39,9 +39,7 @@ const MANUAL_CHECKS: ManualCheck[] = [
 	},
 ];
 
-/**
- * The mockup's "Some accessibility checks need a person" panel.
- */
+/** The mockup's "Some accessibility checks need a person" panel. */
 const AccessibilityManualTestingPanel = () => (
 	<CardComponent
 		id="accessibility-manual-testing-card"

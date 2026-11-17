@@ -40,9 +40,7 @@ const CATEGORY_CARDS: {
 
 
 
-/**
- * Real per-band copy under the "Overall SEO Score" ring.
- */
+/** Real per-band copy under the "Overall SEO Score" ring. */
 const scoreSummary = (score: number): string => {
 	if (score >= 70) {
 		return __(
@@ -62,18 +60,11 @@ const scoreSummary = (score: number): string => {
 	);
 };
 
-/**
- * Real per-category score change - this category's current `score` minus the oldest point in its
- * own real `trend` array (`Seo.php`'s own `get_category_trend()`, oldest-first - same real series
- * `overallCategoryTrend()` above already folds into the "All Areas" tile).
- */
+/** Real per-category score change. */
 const categoryScoreDelta = (category: SeoScoreResponse['category_scores'][keyof SeoScoreResponse['category_scores']]): number | null =>
 	category.trend.length > 0 ? category.score - category.trend[0] : null;
 
-/**
- * Unlike the 'geo' module (whose own scanners run regardless of its active-module state - see
- * modules/Geo/Module.php's docblock).
- */
+/** Unlike the 'geo' module. */
 const isSeoModuleActive = () =>
 	vulopilotAppLocalizer.active_modules?.includes('technical-seo') ?? false;
 
@@ -86,7 +77,7 @@ const SeoTab = () => {
 	/** Set by a real "Analyze" click in the "Pages & Posts" table below. */
 	const [analyzingPostId, setAnalyzingPostId] = useState<number | null>(null);
 
-	/** Same real "scroll the just-opened detail panel into view" fix the other issues tables' own `handleSelectGroup` already establishes (`scrollToId`, not `window.scrollTo` - WP admin's own scrollable wrapper isn't the document). */
+	/** Same real "scroll the just-opened detail panel into view" fix the other issues tables' own `handleSelectGroup` already establishes. */
 	const handleAnalyze = (postId: number) => {
 		setAnalyzingPostId(postId);
 		scrollToId('seo-page-analysis-panel');
@@ -129,8 +120,7 @@ const SeoTab = () => {
 										<ChartComponent
 											type="ring"
 											height={200}
-											// Top-level `color` - `type="ring"` only ever paints
-											// its stroke from this prop.
+											// Top-level `color` - `type="ring"` only ever paints its stroke from this prop.
 											color={
 												COLOR_PALETTE[
 													ratingColor(score.seo_score) as keyof typeof COLOR_PALETTE
@@ -153,9 +143,7 @@ const SeoTab = () => {
 												{
 													label: __('Score', 'vulopilot'),
 													value: score.seo_score,
-													// Same real rating color the ring's own "Needs
-													// Attention"/"Good"/"Poor" label below already
-													// uses (`ratingClass()`/`getRating()`).
+													// Same real rating color the ring's own "Needs Attention"/"Good"/"Poor" label below already uses (`ratingClass()`/`getRating()`).
 													color: COLOR_PALETTE[
 														ratingColor(score.seo_score) as keyof typeof COLOR_PALETTE
 													],

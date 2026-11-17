@@ -4,9 +4,7 @@ import AiVisibilityScansHeader from './AiVisibilityScansHeader';
 
 const STATUS_LABELS = { active: __('Active', 'vulopilot'), inactive: __('Inactive', 'vulopilot') };
 
-/**
- * Settings → Scanning → AI Visibility.
- */
+/** Settings → Scanning → AI Visibility. */
 export default {
 	id: 'ai-visibility',
 	priority: 1,
@@ -139,8 +137,7 @@ export default {
 				'vulopilot'
 			),
 		},
-		// "Competitor URLs" (`geo_competitor_urls`) moved out to Settings → Get Started → Business
-		// Information, right below "Tracked competitors".
+		// "Competitor URLs" moved out to Settings → Get Started → Business Information, right below "Tracked competitors".
 		{
 			key: 'aeo-section-llms-txt',
 			type: 'section',
@@ -199,8 +196,7 @@ export default {
 			dependent: { key: 'enable_llms_txt', value: 'enable_llms_txt', set: true },
 		},
 		{
-			// Not a real, independently-writable field here - the actual enable/threshold live in
-			// the real.
+			// Not a real, independently-writable field here.
 			key: 'aeo-drop-threshold-note',
 			type: 'notice',
 			noticeType: 'info',
@@ -210,8 +206,7 @@ export default {
 			),
 			moduleEnabled: 'geo-analysis',
 		},
-		// "Business"/"Services"/"Locations" (and the Knowledge Graph Health drop-threshold notice) moved to
-		// Settings → Get Started → Business Information (GetStarted/BusinessInformation.ts).
+		// "Business"/"Services"/"Locations" moved to Settings → Get Started → Business Information.
 		{
 			key: 'crawler-traffic',
 			type: 'section',

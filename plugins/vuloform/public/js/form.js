@@ -211,6 +211,14 @@
 
 		config.fields.forEach( function ( field ) {
 			fields[ field.key ] = field;
+
+			if ( field.type === 'signature' ) {
+				setupSignaturePad( field );
+			}
+
+			if ( field.type === 'repeater' ) {
+				setupRepeater( field );
+			}
 		} );
 
 		if ( pageInput ) {
@@ -225,6 +233,213 @@
 			var el = wrapper( field );
 
 			return el ? el.querySelectorAll( 'input, select, textarea' ) : [];
+		}
+
+		/**
+		 * Replaces a signature field's plain file input (the no-JavaScript fallback: upload a PNG)
+		 * with a drawable canvas. The drawing is written back into that same, now-hidden, input via
+		 * the DataTransfer API, so it submits - and validates - exactly like a 'file' field; nothing
+		 * else in this script or on the server needs to know the image was drawn rather than chosen.
+		 */
+		function setupSignaturePad( field ) {
+			var input = wrapper( field ) ? wrapper( field ).querySelector( 'input[type="file"]' ) : null;
+
+			if ( ! input || ! window.HTMLCanvasElement || typeof window.DataTransfer !== 'function' ) {
+				// No JavaScript support for any of this: the plain file input stays, as drawn by the server.
+				return;
+			}
+
+			var canvas = document.createElement( 'canvas' );
+			var clear = document.createElement( 'button' );
+			var ctx = canvas.getContext( '2d' );
+			var drawing = false;
+
+			canvas.className = 'vuloform-signature-pad';
+			canvas.width = 500;
+			canvas.height = 160;
+			canvas.tabIndex = 0;
+			canvas.setAttribute( 'role', 'img' );
+			canvas.setAttribute( 'aria-label', field.label || '' );
+
+			clear.type = 'button';
+			clear.className = 'vuloform-button vuloform-button--secondary vuloform-signature-clear';
+			clear.textContent = config.messages.signatureClear;
+
+			input.hidden = true;
+			input.insertAdjacentElement( 'beforebegin', canvas );
+			input.insertAdjacentElement( 'beforebegin', clear );
+
+			function point( event ) {
+				var rect = canvas.getBoundingClientRect();
+				var source = event.touches && event.touches.length ? event.touches[ 0 ] : event;
+
+				return {
+					x: ( source.clientX - rect.left ) * ( canvas.width / rect.width ),
+					y: ( source.clientY - rect.top ) * ( canvas.height / rect.height ),
+				};
+			}
+
+			function start( event ) {
+				drawing = true;
+				var p = point( event );
+				ctx.beginPath();
+				ctx.moveTo( p.x, p.y );
+				event.preventDefault();
+			}
+
+			function move( event ) {
+				if ( ! drawing ) {
+					return;
+				}
+
+				var p = point( event );
+				ctx.lineWidth = 2;
+				ctx.lineCap = 'round';
+				ctx.strokeStyle = '#111827';
+				ctx.lineTo( p.x, p.y );
+				ctx.stroke();
+				event.preventDefault();
+			}
+
+			function finish() {
+				if ( ! drawing ) {
+					return;
+				}
+
+				drawing = false;
+
+				canvas.toBlob( function ( blob ) {
+					if ( ! blob ) {
+						return;
+					}
+
+					var list = new window.DataTransfer();
+
+					list.items.add( new File( [ blob ], 'signature.png', { type: 'image/png' } ) );
+					input.files = list.files;
+					input.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+				}, 'image/png' );
+			}
+
+			canvas.addEventListener( 'pointerdown', start );
+			canvas.addEventListener( 'pointermove', move );
+			canvas.addEventListener( 'touchstart', start, { passive: false } );
+			canvas.addEventListener( 'touchmove', move, { passive: false } );
+			window.addEventListener( 'pointerup', finish );
+			window.addEventListener( 'touchend', finish );
+
+			clear.addEventListener( 'click', function () {
+				ctx.clearRect( 0, 0, canvas.width, canvas.height );
+				input.value = '';
+				input.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+			} );
+		}
+
+		/**
+		 * Wires a repeater's "Add row"/"Remove row" buttons. The server renders `min_rows` (or one)
+		 * static row(s); adding a row clones the last one and re-indexes its name/id attributes
+		 * (`vf[key][N][subkey]`, `id__N__subid`) to the next index, clearing its values first.
+		 */
+		function setupRepeater( field ) {
+			var el = wrapper( field );
+			var container = el ? el.querySelector( '.vuloform-repeater' ) : null;
+
+			if ( ! container ) {
+				return;
+			}
+
+			var minRows = parseInt( container.getAttribute( 'data-min-rows' ), 10 ) || 0;
+			var maxRows = parseInt( container.getAttribute( 'data-max-rows' ), 10 ) || 10;
+
+			function rows() {
+				return container.querySelectorAll( '.vuloform-repeater-row' );
+			}
+
+			function reindex( row, index ) {
+				row.setAttribute( 'data-row', String( index ) );
+
+				each( row.querySelectorAll( '[name]' ), function ( node ) {
+					node.setAttribute( 'name', node.getAttribute( 'name' ).replace( /\[\d+\]/, '[' + index + ']' ) );
+				} );
+
+				each( row.querySelectorAll( '[id]' ), function ( node ) {
+					node.id = node.id.replace( /__\d+__/, '__' + index + '__' );
+				} );
+
+				each( row.querySelectorAll( '[for]' ), function ( node ) {
+					node.setAttribute( 'for', node.getAttribute( 'for' ).replace( /__\d+__/, '__' + index + '__' ) );
+				} );
+
+				each( row.querySelectorAll( '[aria-describedby]' ), function ( node ) {
+					node.setAttribute( 'aria-describedby', node.getAttribute( 'aria-describedby' ).replace( /__\d+__/g, '__' + index + '__' ) );
+				} );
+			}
+
+			function clearValues( row ) {
+				each( row.querySelectorAll( 'input' ), function ( node ) {
+					node.value = '';
+					node.checked = false;
+				} );
+				each( row.querySelectorAll( 'textarea' ), function ( node ) {
+					node.value = '';
+				} );
+				each( row.querySelectorAll( 'select' ), function ( node ) {
+					node.selectedIndex = 0;
+				} );
+			}
+
+			function updateButtons() {
+				var count = rows().length;
+				var addButton = container.querySelector( '.vuloform-repeater-add' );
+
+				if ( addButton ) {
+					addButton.hidden = count >= maxRows;
+				}
+
+				each( rows(), function ( row ) {
+					var removeButton = row.querySelector( '.vuloform-repeater-remove' );
+
+					if ( removeButton ) {
+						removeButton.hidden = count <= minRows;
+					}
+				} );
+
+				container.setAttribute( 'data-row-count', String( count ) );
+			}
+
+			container.addEventListener( 'click', function ( event ) {
+				var addButton = event.target.closest ? event.target.closest( '.vuloform-repeater-add' ) : null;
+				var removeButton = event.target.closest ? event.target.closest( '.vuloform-repeater-remove' ) : null;
+
+				if ( addButton ) {
+					event.preventDefault();
+
+					var current = rows();
+
+					if ( current.length >= maxRows ) {
+						return;
+					}
+
+					var clone = current[ current.length - 1 ].cloneNode( true );
+
+					reindex( clone, current.length );
+					clearValues( clone );
+					addButton.parentNode.insertBefore( clone, addButton );
+					updateButtons();
+				} else if ( removeButton ) {
+					event.preventDefault();
+
+					var row = removeButton.closest( '.vuloform-repeater-row' );
+
+					if ( row && rows().length > minRows ) {
+						row.parentNode.removeChild( row );
+						each( rows(), reindex );
+						updateButtons();
+					}
+				}
+			} );
+
+			updateButtons();
 		}
 
 		/** The current value of a field, in the shape the server stores. */
@@ -285,7 +500,7 @@
 				return el.getAttribute( 'data-value' ) || '';
 			}
 
-			if ( field.type === 'file' ) {
+			if ( field.type === 'file' || field.type === 'signature' ) {
 				var input = el.querySelector( 'input' );
 
 				return input && input.files ? Array.prototype.slice.call( input.files ) : [];
@@ -438,7 +653,7 @@
 			var value = getValue( field.key );
 			var empty = flat( value ).length === 0;
 
-			if ( field.type === 'file' ) {
+			if ( field.type === 'file' || field.type === 'signature' ) {
 				empty = value.length === 0;
 			} else if ( field.type === 'name' || field.type === 'address' ) {
 				empty = ! value[ 0 ];
@@ -468,11 +683,11 @@
 				}
 			}
 
-			if ( ( field.type === 'text' || field.type === 'textarea' ) && ( ( field.minlength && value.length < field.minlength ) || ( field.maxlength && value.length > field.maxlength ) ) ) {
+			if ( ( field.type === 'text' || field.type === 'textarea' || field.type === 'password' ) && ( ( field.minlength && value.length < field.minlength ) || ( field.maxlength && value.length > field.maxlength ) ) ) {
 				return messages.invalid;
 			}
 
-			if ( field.type === 'file' ) {
+			if ( field.type === 'file' || field.type === 'signature' ) {
 				if ( value.length > ( field.max_files || 1 ) ) {
 					return messages.file;
 				}

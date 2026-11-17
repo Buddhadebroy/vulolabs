@@ -17,8 +17,7 @@ use VuloPilot\SeoVisibility\PostSeoMetaFields;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags published post/page titles outside the length search engines reliably display in
- * full (roughly 10-60 characters).
+ * Flags published post/page titles outside the length search engines reliably display in full.
  *
  * @class       SeoScanner class
  * @version     1.0.0
@@ -77,9 +76,7 @@ class SeoScanner extends ScannerUtil implements TracksScannedObjectsInterface {
 		foreach ( $posts as $post ) {
 			$this->mark_post_scanned( $post->ID );
 
-			// The per-post SEO title override (General tab) always wins over the real post_title -
-			// same source `TitleFormatter::maybe_filter_title()` prefers for the actual `<title>`
-			// tag, so this check scores what search engines will really see.
+			// The per-post SEO title override always wins over the real post_title.
 			$seo_title    = trim( (string) get_post_meta( $post->ID, PostSeoMetaFields::META_KEYS['seo_title'], true ) );
 			$title        = '' !== $seo_title ? $seo_title : $post->post_title;
 			$title_length = mb_strlen( trim( $title ) );

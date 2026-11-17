@@ -4,8 +4,7 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Gives a per-post scanner a one-line way to record every post it actually considered
- * during scan().
+ * Gives a per-post scanner a one-line way to record every post it actually considered during scan().
  *
  * @class       ScannedPostsTrait trait
  * @version     1.0.0

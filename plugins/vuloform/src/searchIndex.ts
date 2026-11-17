@@ -1,6 +1,17 @@
 import { __ } from '@wordpress/i18n';
-import { subtabSchemas } from './pages/Settings';
+import { getAvailableSettings } from '@zyra/core';
 import { adminTabs, settingsTabs } from './services/slots';
+import getTemplateData from './services/templateService';
+
+interface SettingTabSchema {
+	id: string;
+	headerTitle: string;
+	modal: Record<string, unknown>[];
+}
+
+/** Flattens the `components/Settings/` file tree into the tab list this index walks. */
+const flattenSettingTabs = (nodes: ReturnType<typeof getTemplateData>): SettingTabSchema[] =>
+	nodes.flatMap((node) => ('folder' === node.type ? flattenSettingTabs(node.content) : [node.content]));
 
 /**
  * What the header search looks through: the screens, every setting on the Settings screen
@@ -35,8 +46,10 @@ export const staticIndex = (): SearchItem[] => {
 		icon: tab.icon,
 	}));
 
+	const subtabSchemas = flattenSettingTabs(getAvailableSettings(getTemplateData('settings'), []));
+
 	subtabSchemas.forEach((tab) => {
-		items.push({ id: `settings-${tab.id}`, category: 'settings', name: tab.title, link: `&tab=settings&subtab=${tab.id}`, icon: 'setting' });
+		items.push({ id: `settings-${tab.id}`, category: 'settings', name: tab.headerTitle, link: `&tab=settings&subtab=${tab.id}`, icon: 'setting' });
 
 		(tab.modal as Record<string, unknown>[]).forEach((field) => {
 			const rows = Array.isArray(field.rows) ? (field.rows as Record<string, unknown>[]) : [];
@@ -44,7 +57,7 @@ export const staticIndex = (): SearchItem[] => {
 			[...(rows.length ? rows : [field])].forEach((entry, index) => {
 				const name = text(entry.label) || text(entry.title);
 
-				if (name && name !== tab.title) {
+				if (name && name !== tab.headerTitle) {
 					items.push({
 						id: `setting-${text(field.key)}-${index}`,
 						category: 'settings',

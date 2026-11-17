@@ -9,8 +9,6 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * REST controller for automations: list, enable/disable, and run-now.
- * Run-now returns an explicit error since trigger→action execution
- * isn't implemented yet.
  *
  * @class       Automations controller
  * @version     1.0.0
@@ -19,8 +17,7 @@ defined( 'ABSPATH' ) || exit;
 class Automations extends \WP_REST_Controller {
 
 	/**
-	 * Must be `automations`, the path the frontend calls (not the `workflow-automation`
-	 * module id).
+	 * Must be `automations`, the path the frontend calls.
 	 *
 	 * @var string
 	 */
@@ -107,9 +104,8 @@ class Automations extends \WP_REST_Controller {
 	}
 
 	/**
-	 *
-	 * @param array<int, array<string, mixed>> $rows Real automation rows, each with a real 'trigger_type'.
-	 * @return array<int, array<string, mixed>>
+	 * @param array $rows Real automation rows, each with a real 'trigger_type'.
+	 * @return array
 	 */
 	private static function with_next_run( array $rows ): array {
 		$cron_trigger_types = array( 'hourly', 'daily', 'weekly', 'monthly' );
@@ -181,9 +177,9 @@ class Automations extends \WP_REST_Controller {
 	}
 
 	/**
-	 * @param string               $trigger_type   The row's own, already-known trigger_type.
-	 * @param array<string, mixed> $incoming       Raw `trigger_config` from the request body.
-	 * @return array<string, mixed>|\WP_Error
+	 * @param string $trigger_type The row's own, already-known trigger_type.
+	 * @param array  $incoming     Raw `trigger_config` from the request body.
+	 * @return array|\WP_Error
 	 */
 	private function validate_builtin_trigger_config( string $trigger_type, array $incoming ) {
 		$allowed_frequencies = array(
@@ -248,8 +244,8 @@ class Automations extends \WP_REST_Controller {
 	}
 
 	/**
-	 * @param array<int, array<string, mixed>> $rows Real automation rows, each with a real 'id'.
-	 * @return array<int, array<string, mixed>>
+	 * @param array $rows Real automation rows, each with a real 'id'.
+	 * @return array
 	 */
 	private static function with_last_run( array $rows ): array {
 		$ids = array_map(

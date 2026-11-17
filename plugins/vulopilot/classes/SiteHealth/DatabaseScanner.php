@@ -8,9 +8,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags excessive post-revision buildup - a classic, well-understood WordPress database
- * bloat source (every edit of every post/page keeps a full revision row by default) that
- * slows down post-list queries and backups as it grows unbounded.
+ * Flags excessive post-revision buildup.
  *
  * @class       DatabaseScanner class
  * @version     1.0.0
@@ -18,9 +16,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class DatabaseScanner extends ScannerUtil {
 
-	/**
-	 * Revision count above which this is worth flagging.
-	 */
+	/** Revision count above which this is worth flagging. */
 	private const REVISION_COUNT_THRESHOLD = 500;
 
 	/**

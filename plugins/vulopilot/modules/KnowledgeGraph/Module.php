@@ -26,9 +26,7 @@ class Module {
 	 */
 	private EntityExtractor $extractor;
 
-	/**
-	 * Module constructor.
-	 */
+	/** Module constructor. */
 	public function __construct() {
 		$this->extractor = new EntityExtractor();
 
@@ -41,8 +39,7 @@ class Module {
 	}
 
 	/**
-	 * `update_option_{$option}` fires with the old and new full settings array whenever
-	 * `vulopilot_settings` actually changes.
+	 * `update_option_{$option}` fires with the old and new full settings array whenever `vulopilot_settings` actually changes.
 	 *
 	 * @param mixed $old_value Previously stored `vulopilot_settings` value.
 	 * @param mixed $new_value Newly stored `vulopilot_settings` value.

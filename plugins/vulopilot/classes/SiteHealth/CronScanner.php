@@ -16,10 +16,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class CronScanner extends ScannerUtil {
 
-	/**
-	 * How late (in seconds) an event has to be before it's flagged.
-	 * One hour comfortably exceeds normal scheduling jitter.
-	 */
+	/** How late (in seconds) an event has to be before it's flagged. */
 	private const OVERDUE_THRESHOLD_SECONDS = HOUR_IN_SECONDS;
 
 	/**

@@ -18,9 +18,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Module {
 
-	/**
-	 * Module constructor.
-	 */
+	/** Module constructor. */
 	public function __construct() {
 		add_filter( 'vulopilot_scanner_sources', array( $this, 'register_scanners' ) );
 	}

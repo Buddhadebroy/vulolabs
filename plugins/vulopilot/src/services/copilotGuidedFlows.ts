@@ -11,15 +11,12 @@ export interface GuidedStep {
 	question: string;
 	/** Clickable choices. Ignored when `kind: 'findings'` - those are filled from real data. */
 	options?: GuidedOption[];
-	/** Adds a free-text "Other" option alongside `options`. Default true whenever `options` is set. */
+	/** Adds a free-text "Other" option alongside `options`. */
 	allowOther?: boolean;
-	/**
-	 * This step shows real findings instead of a static option list - no AI call, just
-	 * `GET /findings/groups` filtered to `findingsCategory` (IssuesList.tsx's own real data).
-	 */
+	/** This step shows real findings instead of a static option list. */
 	kind?: 'findings';
 	findingsCategory?: string;
-	/** Shown above the options when this step's answers come from already-known site data (business profile, audience, etc.) rather than a blank question. */
+	/** Shown above the options when this step's answers come from already-known site data rather than a blank question. */
 	prefillHint?: string;
 }
 
@@ -33,12 +30,7 @@ export interface GuidedFlow {
 	resultSummary: string;
 }
 
-/**
- * The 9 "Suggested prompt" guided flows (`AIAssistant.tsx`'s `SUGGESTED_PROMPTS`) - a fixed
- * question tree walked entirely client-side (`useGuidedCopilotFlow`), no AI call per question.
- * AI is only called once, on the last step, with every collected answer as context - see that
- * hook's own docblock for why.
- */
+/** The 9 "Suggested prompt" guided flows. */
 export const GUIDED_FLOWS: Record<string, GuidedFlow> = {
 	homepage: {
 		id: 'homepage',
@@ -526,7 +518,7 @@ export const GUIDED_FLOWS: Record<string, GuidedFlow> = {
 	},
 };
 
-/** `SUGGESTED_PROMPTS` id -> `GUIDED_FLOWS` key - identical today, kept separate so a prompt's id can change without touching the flow key. */
+/** `SUGGESTED_PROMPTS` id -> `GUIDED_FLOWS` key. */
 export const GUIDED_FLOW_ID_BY_PROMPT: Record<string, string> = {
 	homepage: 'homepage',
 	traffic: 'traffic',

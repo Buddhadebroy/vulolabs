@@ -27,12 +27,12 @@ final class GeoScore {
 	private ?int $deterministic_score;
 
 	/**
-	 * @var array{entity_coverage: int, question_coverage: int, answer_completeness: int, llm_readability: int, purpose_clarity: int, conversation_readiness: int, knowledge_graph_coverage: int, answer_first_structure: int}
+	 * @var array
 	 */
 	private array $ai_scores;
 
 	/**
-	 * @var array{retrieval_score: int, citation_readiness: int, ai_summary_qa_detection: int, entity_naming_consistency: int, content_freshness: int, data_point_evidence_density: int} The 6 readme.txt AI-Visibility sub-metrics computed without an AI call - see GeoAnalysis\GeoAnalyzer::calculate_sub_scores().
+	 * @var array The 6 readme.txt AI-Visibility sub-metrics computed without an AI call.
 	 */
 	private array $sub_scores;
 
@@ -93,14 +93,14 @@ final class GeoScore {
 	}
 
 	/**
-	 * @return array{entity_coverage: int, question_coverage: int, answer_completeness: int, llm_readability: int, purpose_clarity: int, conversation_readiness: int, knowledge_graph_coverage: int, answer_first_structure: int}
+	 * @return array
 	 */
 	public function get_ai_scores(): array {
 		return $this->ai_scores;
 	}
 
 	/**
-	 * @return array{retrieval_score: int, citation_readiness: int, ai_summary_qa_detection: int, entity_naming_consistency: int, content_freshness: int, data_point_evidence_density: int}
+	 * @return array
 	 */
 	public function get_sub_scores(): array {
 		return $this->sub_scores;
@@ -128,7 +128,7 @@ final class GeoScore {
 	}
 
 	/**
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function to_array(): array {
 		return array(

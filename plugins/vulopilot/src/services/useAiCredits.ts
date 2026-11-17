@@ -2,11 +2,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 
-/**
- * `GET /ai-credits/status` only reads the DB-cached balance, never talks to VuloCloud - only
- * `POST /ai-credits/refresh-balance` does. `refresh()` calls the live endpoint; `loadCached()` is
- * kept only for the instant-paint read on mount.
- */
+/** `GET /ai-credits/status` only reads the DB-cached balance, never talks to VuloCloud. */
 export interface AiCreditsStatus {
 	connected: boolean;
 	/** Fractional - exactly what the server last reported. */
@@ -37,7 +33,7 @@ export const useAiCredits = () => {
 		});
 	}, []);
 
-	// The live sync - the only call that asks VuloCloud for the real balance. A failed sync leaves `status` as whatever was last shown.
+	// The live sync - the only call that asks VuloCloud for the real balance.
 	const refresh = useCallback(() => {
 		setIsLoading(true);
 		return sendApiResponse<AiCreditsStatus>(
@@ -50,7 +46,7 @@ export const useAiCredits = () => {
 	}, []);
 
 	useEffect(() => {
-		// Paint instantly from cache, then resync for real. Skipped when never connected - refresh-balance always 400s then.
+		// Paint instantly from cache, then resync for real.
 		loadCached().then((cached) => {
 			if (cached?.connected) {
 				refresh();

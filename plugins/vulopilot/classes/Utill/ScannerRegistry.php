@@ -24,13 +24,11 @@ class ScannerRegistry {
 	/**
 	 * Instantiated scanners, keyed by their own get_id().
 	 *
-	 * @var array<string, ScannerInterface>
+	 * @var array
 	 */
 	private array $scanners = array();
 
-	/**
-	 * ScannerRegistry constructor.
-	 */
+	/** ScannerRegistry constructor. */
 	public function __construct() {
 		add_action( 'init', array( $this, 'register_scanners' ), 20 );
 	}
@@ -115,22 +113,19 @@ class ScannerRegistry {
 			GeoScanners\GeoChunkingScanner::class,
 			GeoScanners\GeoSemanticStructureScanner::class,
 			GeoScanners\GeoEntityNamingConsistencyScanner::class,
-			// AEO (Answer Engine Optimization) - one new deterministic check: FAQ/HowTo-shaped
-			// content missing its matching schema.org markup.
+			// AEO - one new deterministic check.
 			\VuloPilot\SeoVisibility\AeoSchemaScanner::class,
 			\VuloPilot\Security\SslMonitoringScanner::class,
 			\VuloPilot\Content\RedirectAnalysisScanner::class,
 			\VuloPilot\Content\NotFoundScanner::class,
 			\VuloPilot\SiteHealth\PhpWarningScanner::class,
 			\VuloPilot\SiteHealth\SiteAvailabilityScanner::class,
-			// Website Performance (readme) - category 'performance', joins
-			// the original PerformanceScanner (autoload bloat).
+			// Website Performance - category 'performance', joins the original PerformanceScanner.
 			\VuloPilot\Performance\SlowPageScanner::class,
 			\VuloPilot\Performance\LargeImagesScanner::class,
 			\VuloPilot\SiteHealth\HeavyPluginsScanner::class,
 			\VuloPilot\Performance\CacheDetectionScanner::class,
-			// "Performance" Overview's MetricsGrid tiles - CSS/JavaScript
-			// Optimization, Fonts, Lazy Loading, CDN, Database Cleanup.
+			// "Performance" Overview's MetricsGrid tiles.
 			\VuloPilot\Performance\CssOptimizationScanner::class,
 			\VuloPilot\Performance\JavaScriptOptimizationScanner::class,
 			\VuloPilot\Performance\FontsScanner::class,
@@ -138,16 +133,14 @@ class ScannerRegistry {
 			\VuloPilot\Performance\CdnScanner::class,
 			\VuloPilot\SiteHealth\DatabaseCleanupScanner::class,
 			\VuloPilot\Performance\ImageCleanupScanner::class,
-			// Accessibility Scanner (readme) - category 'accessibility',
-			// joins the original AccessibilityScanner (duplicate h1).
+			// Accessibility Scanner - category 'accessibility', joins the original AccessibilityScanner.
 			\VuloPilot\Accessibility\FormLabelsScanner::class,
 			\VuloPilot\Accessibility\AriaAttributesScanner::class,
 			// "WCAG Scanner" - category 'accessibility', joins the four above.
 			\VuloPilot\Accessibility\WcagScanner::class,
 			// "Keyboard & Assistive Technology" - category 'accessibility', joins the five above.
 			\VuloPilot\Accessibility\KeyboardAccessibilityScanner::class,
-			// "Site Health"'s WordPress/Server sections - two new categories ('wordpress',
-			// 'server').
+			// "Site Health"'s WordPress/Server sections - two new categories ('wordpress', 'server').
 			\VuloPilot\SiteHealth\WordPressHealthScanner::class,
 			\VuloPilot\SiteHealth\ServerHealthScanner::class,
 		);
@@ -162,7 +155,7 @@ class ScannerRegistry {
 	}
 
 	/**
-	 * @return array<string, ScannerInterface>
+	 * @return array
 	 */
 	public function get_all_scanners(): array {
 		return $this->scanners;
@@ -170,7 +163,7 @@ class ScannerRegistry {
 
 	/**
 	 * @param string $category e.g. 'seo', 'security'.
-	 * @return array<string, ScannerInterface>
+	 * @return array
 	 */
 	public function get_scanners_by_category( string $category ): array {
 		return array_filter(
@@ -183,7 +176,7 @@ class ScannerRegistry {
 	 * Every registered scanner except those in the given categories.
 	 *
 	 * @param string[] $excluded_categories Category strings to leave out.
-	 * @return array<string, ScannerInterface>
+	 * @return array
 	 */
 	public function get_all_scanners_except( array $excluded_categories ): array {
 		return array_filter(

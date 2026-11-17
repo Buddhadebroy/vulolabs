@@ -13,8 +13,7 @@ const FREQUENCY_OPTIONS = [
 	{ label: __('Weekly digest', 'vulopilot'), value: 'weekly_digest' },
 ];
 
-// Shared by every row's own `control.toggleStatusLabel` below - "On"/"Off", rather than SettingToggle's own default
-// "Enabled"/"Disabled" flip text.
+// Shared by every row's own `control.toggleStatusLabel` below.
 const TOGGLE_STATUS_LABEL = { on: __('On', 'vulopilot'), off: __('Off', 'vulopilot') };
 
 const DAYS_OPTIONS = [
@@ -25,27 +24,21 @@ const DAYS_OPTIONS = [
 ];
 
 interface CrawlerAlertRow {
-	/** This row's own key within the `crawler_alerts` value object - SettingRowComponent's own `valueKey`. */
+	/** This row's own key within the `crawler_alerts` value object. */
 	valueKey: string;
 	icon: string;
 	title: string;
 	desc: ReactNode;
-	/**
-	 * zyra's real declarative `SettingRowControl` shape (`{ toggle?, select? }`).
-	 */
+	/** zyra's real declarative `SettingRowControl` shape (`{ toggle?, select? }`). */
 	control: {
 		toggle: boolean;
-		// zyra's own SettingRowControl.toggleStatusLabel - a real on/off pair for each row's own
-		// toggle (SettingToggle's own `statusLabel`).
+		// zyra's own SettingRowControl.toggleStatusLabel.
 		toggleStatusLabel?: { on: string; off: string };
 		select?: { key: string; label: string; options: { label: string; value: string }[] };
 	};
 }
 
-/**
- * Same 5 alert types the old `type: 'expandable-panel'` field listed - copy/values ported
- * verbatim.
- */
+/** Same 5 alert types the old `type: 'expandable-panel'` field listed. */
 const CRAWLER_ALERT_ROWS: CrawlerAlertRow[] = [
 	{
 		valueKey: 'blocked',
@@ -80,8 +73,7 @@ const CRAWLER_ALERT_ROWS: CrawlerAlertRow[] = [
 		valueKey: 'traffic_drop',
 		icon: 'bar-chart blue',
 		title: __('AI crawler traffic drop', 'vulopilot'),
-		// `createElement()` (not JSX) - this is a plain `.ts` file, not `.tsx`, same as every
-		// other settings-schema file in this folder.
+		// `createElement()` - this is a plain `.ts` file, not `.tsx`, same as every other settings-schema file in this folder.
 		desc: createElement(
 			Fragment,
 			null,
@@ -129,9 +121,7 @@ const CRAWLER_ALERT_ROWS: CrawlerAlertRow[] = [
 	},
 ];
 
-/**
- * Settings → Notifications, one flat tab (a single file, so it has no inner sub-nav).
- */
+/** Settings → Notifications, one flat tab (a single file, so it has no inner sub-nav). */
 export default {
 	id: 'notifications',
 	priority: 6,
@@ -201,8 +191,7 @@ export default {
 			),
 		},
 		{
-			// Same real `type: 'notice'` field Scanning/SeoContent.ts's own
-			// sitemap tips already use.
+			// Same real `type: 'notice'` field Scanning/SeoContent.ts's own sitemap tips already use.
 			key: 'send-test-email-notice',
 			type: 'notice',
 			noticeType: 'info',
@@ -212,8 +201,7 @@ export default {
 				'vulopilot'
 			),
 		},
-		// One shared "Notification channels" control for all four alert
-		// sections below - see this file's own docblock.
+		// One shared "Notification channels" control for all four alert sections below.
 		{
 			key: 'notification-settings-section',
 			type: 'section',
@@ -350,8 +338,7 @@ export default {
 		},
 
 		{
-			// zyra's real `type: 'setting-row'` field - one flat row per score type, each with its
-			// own threshold select and on/off toggle both visible at once.
+			// zyra's real `type: 'setting-row'` field.
 			label: __('Notify me when', 'vulopilot'),
 			row: false,
 			key: 'visibility_alerts',
@@ -424,8 +411,7 @@ export default {
 			),
 		},
 		{
-			// zyra's real `type: 'setting-row'` field - see this file's own docblock for why
-			// `control: { checkbox: true }` fits this flat multi-select array field.
+			// zyra's real `type: 'setting-row'` field.
 			label: __('Notify me about', 'vulopilot'),
 			key: 'critical_alert_types',
 			row: false,

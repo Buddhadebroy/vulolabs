@@ -1,8 +1,6 @@
 import { useSelect, useDispatch } from '@wordpress/data';
 
-/**
- * Every field the metabox reads/writes lives on `core/editor`'s own edited post attributes/meta.
- */
+/** Every field the metabox reads/writes lives on `core/editor`'s own edited post attributes/meta. */
 export function usePostData() {
 	const { postId, postType, title, excerpt, slug, content, meta } = useSelect(
 		( select ) => {

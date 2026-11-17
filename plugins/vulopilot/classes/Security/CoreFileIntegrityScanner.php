@@ -9,8 +9,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Only flags modified/missing files - the same two states core's own checksum verification
- * reports.
+ * Only flags modified/missing files.
  *
  * @class       CoreFileIntegrityScanner class
  * @version     1.0.0
@@ -59,8 +58,7 @@ class CoreFileIntegrityScanner extends ScannerUtil {
 
 		$checksums = get_core_checksums( $wp_version, get_locale() );
 
-		// api.wordpress.org unreachable, or this version/locale combination isn't published (e.g. a
-		// nightly/custom build).
+		// api.wordpress.org unreachable, or this version/locale combination isn't published.
 		if ( ! is_array( $checksums ) ) {
 			return $findings;
 		}

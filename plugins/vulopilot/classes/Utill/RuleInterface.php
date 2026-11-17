@@ -37,7 +37,7 @@ interface RuleInterface {
 	public function get_priority(): int;
 
 	/**
-	 * @return string[] Categories this rule applies to; an empty array means "any category".
+	 * @return string[] Categories this rule applies to.
 	 */
 	public function get_categories(): array;
 

@@ -17,9 +17,7 @@ use VuloPilot\Utill\ScannedPostsTrait;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags published posts/pages that contain a statistic-shaped claim (a percentage, or a
- * number next to a word like "study"/"survey"/ "report"/"research") but link out to zero
- * external sources anywhere in the content.
+ * Flags published posts/pages that contain a statistic-shaped claim but link out to zero external sources anywhere in the content.
  *
  * @class       GeoCitationOpportunityScanner class
  * @version     1.0.0
@@ -32,8 +30,7 @@ class GeoCitationOpportunityScanner extends ScannerUtil implements TracksScanned
 	private const BATCH_SIZE = 50;
 
 	/**
-	 * Matches a percentage (e.g. "42%") or a number immediately followed by one of a
-	 * handful of words that typically introduce a fact/statistic worth sourcing.
+	 * Matches a percentage or a number immediately followed by one of a handful of words that typically introduce a fact/statistic worth sourcing.
 	 */
 	public const CLAIM_PATTERN = '/\d+\s*%|\d+\s+(?:percent|studies|study|survey|surveys|report|reports|research)/i';
 

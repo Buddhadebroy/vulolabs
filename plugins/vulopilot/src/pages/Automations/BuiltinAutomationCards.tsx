@@ -7,14 +7,11 @@ import { ButtonInput, MultiCheckboxInput, SelectInput } from '@zyra/inputs';
 import { formatWpDate, formatWpTime, isWpToday } from '../../services/formatWpDate';
 import type { AutomationRow } from './automationsTypes';
 
-/** Automations\BuiltinAutomationSeeder's own two TRIGGER_* constants - the only trigger_type values this component ever renders a card for. */
+/** Automations\BuiltinAutomationSeeder's own two TRIGGER_* constants. */
 const FULL_SITE_SCAN_TRIGGER = 'free_full_site_scan';
 const VISIBILITY_REPORT_TRIGGER = 'free_visibility_report';
 
-/**
- * Same ids `automationsTypes.ts`'s own `FREE_TEMPLATES` uses ('run-full-site-scan'/'send-
- * visibility-report').
- */
+/** Same ids `automationsTypes.ts`'s own `FREE_TEMPLATES` uses. */
 const TRIGGER_TYPE_TO_TEMPLATE_ID: Record<string, string> = {
 	[FULL_SITE_SCAN_TRIGGER]: 'run-full-site-scan',
 	[VISIBILITY_REPORT_TRIGGER]: 'send-visibility-report',
@@ -48,11 +45,11 @@ const parseTriggerConfig = (row: BuiltinRow): BuiltinTriggerConfig => {
 	}
 };
 
-/** Same day list `DAY_OPTIONS` above uses, keyed by number - for the "Every Monday" wording on the report card's frequency tile. */
+/** Same day list `DAY_OPTIONS` above uses, keyed by number. */
 const dayLabel = (day: number): string =>
 	DAY_OPTIONS.find((option) => option.value === String(day))?.label ?? '';
 
-/** Human wording for a row's real `trigger_config.frequency` (+ `day_of_week`) - the mockup's own "Every day"/"Every Monday". */
+/** Human wording for a row's real `trigger_config.frequency`. */
 const frequencyLabel = (config: BuiltinTriggerConfig): string => {
 	switch (config.frequency) {
 		case 'daily':
@@ -72,7 +69,7 @@ const frequencyLabel = (config: BuiltinTriggerConfig): string => {
 	}
 };
 
-/** "Today, 9:00 AM" / "September 17, 2026" + time - same real site-timezone formatting helpers the rest of this page already uses. */
+/** "Today, 9:00 AM" / "September 17, 2026" + time. */
 const formatRunTime = (isoDate: string): { primary: string; secondary: string } => {
 	const time = formatWpTime(isoDate);
 
@@ -110,9 +107,9 @@ interface BuiltinAutomationCardProps {
 	description: string;
 	frequencyOptions: { label: string; value: string }[];
 	onChanged: () => void;
-	/** Real DOM id `Automations.tsx`'s own deep-link scroll target looks up (`builtin-automation-${templateId}`). */
+	/** Real DOM id `Automations.tsx`'s own deep-link scroll target looks up. */
 	id: string;
-	/** Briefly true while this card is the deep-linked/highlighted one - added onto `CardComponent`'s own `className` instead of a wrapping `div`. */
+	/** Briefly true while this card is the deep-linked/highlighted one. */
 	isHighlighted: boolean;
 }
 
@@ -127,10 +124,7 @@ const BuiltinAutomationCard = ({
 	isHighlighted,
 }: BuiltinAutomationCardProps) => {
 	const [isRunning, setIsRunning] = useState(false);
-	// Flips immediately on click rather than waiting on the PATCH to finish and the parent's own
-	// refetch to land (2 full round trips) before the switch visually moves - reverted if the PATCH
-	// actually fails. Cleared back to null once a real `row` matching it arrives, so this never
-	// drifts from the server's own truth for longer than the one in-flight request.
+	// Flips immediately on click rather than waiting on the PATCH to finish and the parent's own refetch to land before the switch visually moves.
 	const [optimisticStatus, setOptimisticStatus] = useState<string | null>(null);
 	const config = parseTriggerConfig(row);
 	const isEnabled = 'enabled' === (optimisticStatus ?? row.status);
@@ -191,8 +185,7 @@ const BuiltinAutomationCard = ({
 	const nextRun = row.next_run_at ? formatRunTime(row.next_run_at) : null;
 	const lastRun = row.last_run_finished_at ? formatRunTime(row.last_run_finished_at) : null;
 
-	// The report card's primary button is "Enable report" while it's off (the mockup's own wording)
-	// and only becomes a real "send now" once enabled.
+	// The report card's primary button is "Enable report" while it's off and only becomes a real "send now" once enabled.
 	const isEnableAction = 'report' === kind && !isEnabled;
 	let primaryText = 'scan' === kind ? __('Run scan now', 'vulopilot') : __('Send report now', 'vulopilot');
 
@@ -310,9 +303,9 @@ const BuiltinAutomationCard = ({
 };
 
 interface BuiltinAutomationCardsProps {
-	/** Bumped by the host after something changes elsewhere on the page - refetches this component's own copy of the two rows. */
+	/** Bumped by the host after something changes elsewhere on the page. */
 	refetchSignal: number;
-	/** Called after this component's own mutations (toggle/frequency/run now) so sibling cards (stats, attention, activity) refetch too. */
+	/** Called after this component's own mutations so sibling cards refetch too. */
 	onChanged: () => void;
 	highlightTemplateId?: string | null;
 }
@@ -320,17 +313,14 @@ interface BuiltinAutomationCardsProps {
 /** How long the matched card's own highlight flash stays visible before fading back to normal. */
 const HIGHLIGHT_DURATION_MS = 2500;
 
-/**
- * The real UX the spec calls for - "Automation → Choose frequency → Save".
- */
+/** The real UX the spec calls for - "Automation → Choose frequency → Save". */
 const BuiltinAutomationCards = ({ refetchSignal, onChanged, highlightTemplateId }: BuiltinAutomationCardsProps) => {
 	const [rows, setRows] = useState<BuiltinRow[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	/** Which card (by real template id) is currently showing the highlight flash. */
 	const [flashedTemplateId, setFlashedTemplateId] = useState<string | null>(null);
 
-	// `isLoading` only starts true for the first load - refetches after a toggle/frequency
-	// change/run must NOT flip it back on.
+	// `isLoading` only starts true for the first load.
 	const fetchRows = () => {
 		getApiResponse<{ data: BuiltinRow[] } | BuiltinRow[]>(
 			`${getApiLink(vulopilotAppLocalizer, 'automations')}?per_page=100`,
@@ -347,11 +337,10 @@ const BuiltinAutomationCards = ({ refetchSignal, onChanged, highlightTemplateId 
 			.finally(() => setIsLoading(false));
 	};
 
-	// deliberately re-fetches only on mount and when refetchSignal bumps; fetchRows is redefined every render.
+	// Deliberately re-fetches only on mount and when refetchSignal bumps.
 	useEffect(fetchRows, [refetchSignal]);
 
-	// Scrolls to and flashes the deep-linked card once these 2 rows have really loaded (their own
-	// real DOM ids below only exist post-render).
+	// Scrolls to and flashes the deep-linked card once these 2 rows have really loaded.
 	const hasHighlightedRef = useRef(false);
 
 	useEffect(() => {
@@ -380,8 +369,7 @@ const BuiltinAutomationCards = ({ refetchSignal, onChanged, highlightTemplateId 
 	const scanRow = rows.find((row) => FULL_SITE_SCAN_TRIGGER === row.trigger_type) ?? null;
 	const reportRow = rows.find((row) => VISIBILITY_REPORT_TRIGGER === row.trigger_type) ?? null;
 
-	// `onChanged` bumps the host's `refetchSignal`, which already re-runs
-	// `fetchRows` through the effect above - calling it here too fetched twice.
+	// `onChanged` bumps the host's `refetchSignal`, which already re-runs `fetchRows` through the effect above.
 	const handleChanged = () => {
 		onChanged();
 	};

@@ -8,8 +8,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags installed-but-inactive themes - the same dormant-code concern PluginsScanner
- * checks for plugins, applied to themes.
+ * Flags installed-but-inactive themes.
  *
  * @class       ThemesScanner class
  * @version     1.0.0

@@ -4,9 +4,7 @@ namespace VuloPilot\SeoVisibility\Rest;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * REST controller for live fetch-and-parse of this site's `/robots.txt`
- * and sitemap index, backing RobotsSitemapSection.tsx's "Robots.txt
- * Analysis"/"XML Sitemap Overview" cards.
+ * REST controller for live fetch-and-parse of this site's `/robots.txt` and sitemap index, backing RobotsSitemapSection.tsx's "Robots.txt Analysis"/"XML Sitemap Overview" cards.
  *
  * @class       RobotsSitemap controller
  * @version     1.0.0
@@ -70,8 +68,7 @@ class RobotsSitemap extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Live-fetches this site's own `/robots.txt` and parses every real `User-
-	 * agent`/`Allow`/`Disallow`/`Sitemap`/`Crawl-delay` line.
+	 * Live-fetches this site's own `/robots.txt` and parses every real `User- agent`/`Allow`/`Disallow`/`Sitemap`/`Crawl-delay` line.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
@@ -132,9 +129,7 @@ class RobotsSitemap extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Saves a persisted override of this site's robots.txt output via
-	 * RobotsTxtManager::save_custom_content(). An empty `content` clears
-	 * the override, reverting to core's default.
+	 * Saves a persisted override of this site's robots.txt output via RobotsTxtManager::save_custom_content().
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
@@ -156,7 +151,7 @@ class RobotsSitemap extends \WP_REST_Controller {
 	 * Plain line-by-line real robots.txt directive parser.
 	 *
 	 * @param string $content Raw robots.txt body.
-	 * @return array{rules: array, directives: array}
+	 * @return array
 	 */
 	private function parse_robots_txt( string $content ): array {
 		$lines       = preg_split( '/\r\n|\r|\n/', $content ) ? preg_split( '/\r\n|\r|\n/', $content ) : array();
@@ -215,8 +210,7 @@ class RobotsSitemap extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Live-fetches the site's real sitemap (robots.txt's declared `Sitemap:`, then
-	 * `/wp-sitemap.xml`, then `/sitemap.xml`) and enumerates its child sitemaps/URLs.
+	 * Live-fetches the site's real sitemap.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
@@ -353,7 +347,7 @@ class RobotsSitemap extends \WP_REST_Controller {
 	 * Live-fetches a single child sitemap and counts its real `<url>` entries.
 	 *
 	 * @param string $url Child sitemap's own `loc`.
-	 * @return int|null Null on fetch/parse failure (shown as a real "error" status).
+	 * @return int|null Null on fetch/parse failure.
 	 */
 	private function count_sitemap_urls( string $url ): ?int {
 		$response = wp_remote_get(

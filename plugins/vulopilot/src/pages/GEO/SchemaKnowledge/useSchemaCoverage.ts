@@ -22,7 +22,7 @@ export interface SchemaCoverageRow {
 	meaning: string;
 	found_on: number;
 	problems: number;
-	/** The real, specific sampled pages that actually carried this @type - what "View pages" shows. */
+	/** The real, specific sampled pages that actually carried this @type. */
 	pages: SchemaCoveragePage[];
 }
 
@@ -32,7 +32,7 @@ export interface SchemaCoverageSnapshot {
 	pages_checked: number;
 	/** Real count of `pages_checked` where at least one real `@type` was actually found. */
 	pages_with_valid_schema: number;
-	/** `pages_checked - pages_with_valid_schema` - pages where the real sample found zero structured data at all. */
+	/** `pages_checked - pages_with_valid_schema`. */
 	pages_needing_attention: number;
 	coverage: SchemaCoverageRow[];
 	/** Every checked page with its own found types. */
@@ -41,10 +41,7 @@ export interface SchemaCoverageSnapshot {
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
-/**
- * `GET`/`POST /schema/coverage` - Schema.php's own real per-page JSON-LD sample
- * (SchemaCoverageAnalyzer, real outbound HTTP, no AI).
- */
+/** `GET`/`POST /schema/coverage`. */
 export const useSchemaCoverage = (): {
 	snapshot: SchemaCoverageSnapshot | null;
 	isLoading: boolean;

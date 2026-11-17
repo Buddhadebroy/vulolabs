@@ -15,18 +15,12 @@ interface FindingRow {
 	severity: 'critical' | 'high' | 'medium' | 'low' | 'info';
 }
 
-/**
- * Same canonical weighted-severity formula this codebase's own SEO/Content/ Brand scores already
- * use (`100 - critical*15 - high*8 - medium*3 - low*1`, clamped 0-100).
- */
+/** Same canonical weighted-severity formula this codebase's own SEO/Content/ Brand scores already use. */
 const calculateScore = (high: number, medium: number, low: number): number =>
 	Math.max(0, Math.min(100, 100 - high * 8 - medium * 3 - low * 1));
 
 /** Same real 3-tier band shape `PerformanceScoreCard.tsx`'s own `Rating` interface uses. */
-/**
- * Same 3-tier 0-100 thresholds seoRating.ts's own `getRating()` already establishes elsewhere in
- * this codebase.
- */
+/** Same 3-tier 0-100 thresholds seoRating.ts's own `getRating()` already establishes elsewhere in this codebase. */
 const getScoreRating = (score: number): Rating => {
 	if (score >= 70) {
 		return { label: __('Good', 'vulopilot'), className: 'good' };
@@ -37,10 +31,7 @@ const getScoreRating = (score: number): Rating => {
 	return { label: __('At Risk', 'vulopilot'), className: 'poor' };
 };
 
-/**
- * Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`) - same real source
- * `PerformanceScoreCard.tsx`'s own `RATING_COLOR` reads.
- */
+/** Real zyra palette hex - same real source `PerformanceScoreCard.tsx`'s own `RATING_COLOR` reads. */
 const RATING_COLOR: Record<Rating['className'], string> = {
 	good: COLOR_PALETTE.green,
 	'needs-improvement': COLOR_PALETTE.yellow,
@@ -94,17 +85,15 @@ interface FindingsHeroCardProps {
 	icon: string;
 	/** Used in the headline, e.g. "Site Health". */
 	label: string;
-	/** Combined scanner ids across every section this tab shows - same list SiteHealthTab.tsx builds for its own SectionedFindingsTab sections. */
+	/** Combined scanner ids across every section this tab shows. */
 	scannerIds: string[];
 	/** Scrolls to the tab's own first section. */
-	/** Forwarded straight to SiteHealthStatusCard's own `onSectionClick` - see that file's docblock. */
+	/** Forwarded straight to SiteHealthStatusCard's own `onSectionClick`. */
 	// eslint-disable-next-line no-unused-vars
 	onSectionClick?: (key: string) => void;
 }
 
-/**
- * Shared hero card for a category of findings, with a score ring and section links.
- */
+/** Shared hero card for a category of findings, with a score ring and section links. */
 const FindingsHeroCard = ({
 	icon,
 	label,

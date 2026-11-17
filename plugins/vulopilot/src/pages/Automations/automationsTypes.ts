@@ -33,10 +33,7 @@ export interface AutomationTemplate {
 	linkOnly?: boolean;
 }
 
-/**
- * The 2 real free built-in automations shown first
- * - see `AutomationTemplate.linkOnly`'s own docblock.
- */
+/** The 2 real free built-in automations shown first. */
 const FREE_TEMPLATES: AutomationTemplate[] = [
 	{
 		id: 'run-full-site-scan',

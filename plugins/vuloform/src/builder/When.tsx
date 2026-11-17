@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { NoticeComponent } from '@zyra/components';
 import { ButtonInput, SelectInput, TextInput } from '@zyra/inputs';
-import { Segmented } from '../components/Section';
+import { Segmented } from './Section';
 import type { Field, Rule, When as WhenValue } from '../services/types';
 import { fieldType } from './fields';
 

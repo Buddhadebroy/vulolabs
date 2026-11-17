@@ -2,9 +2,9 @@
 **Contributors:** [vulolabs](https://profiles.wordpress.org/vulolabs/)  
 **Tags:** contact form, form builder, multi-step form, conditional logic, webhooks  
 **Requires at least:** 6.7  
-**Tested up to:** 7.1.3  
+**Tested up to:** 7.1.4  
 **Requires PHP:** 8.1  
-**Stable tag:** 1.0.0  
+**Stable tag:** 1.0.1  
 **License:** GPLv2 or later  
 **License URI:** https://www.gnu.org/licenses/gpl-2.0.html  
 
@@ -161,7 +161,6 @@ Send each submission to another service the moment it arrives, such as a CRM, sp
 * Background delivery, so visitors never wait
 * Automatic retries after 5 and 30 minutes, with every attempt logged on the submission
 * Safety rules: webhooks must use `https://` and cannot target private networks or your own server
-* **VuloForm Pro** adds ready-made connections to mailing lists and CRMs
 
 ### Submissions manager ###
 
@@ -267,10 +266,6 @@ Yes, by default. You can switch off **Save submissions on this site** in a form'
 
 Yes. Use **Export CSV** on the Submissions screen. Your current search, status and date filters are applied.
 
-### Can I send form data to my CRM or other apps? ###
-
-Yes. Add a custom webhook connector in the form's **Integrations** settings. VuloForm Pro adds ready-made connections to mailing lists and CRMs.
-
 ### Does VuloForm send SMS text messages? ###
 
 Yes, through the VuloMail plugin with an SMS connection. Your SMS provider charges for each message.
@@ -325,18 +320,32 @@ If you add a webhook, submission data for the fields you choose is sent to the a
 
 Emails are handed to your site's mail system, or to the VuloMail plugin if active. Text messages are sent through the SMS connection configured in VuloMail, and your provider's terms apply.
 
+## Source Code ##
+
+The files under `assets/` (admin bundle, public form and embed scripts, block editor script) are compiled with webpack. Their human-readable source - everything under `src/`, plus `webpack.config.js` - is public:
+
+https://github.com/vulolabs/vulolabs/tree/main/plugins/vuloform
+
 ## Screenshots ##
 
-1. Drag-and-drop form builder with field library, live form and field settings.
-2. Ready-made form templates: contact, lead generation, survey, event registration and more.
-3. Conditional logic settings to show, hide or require fields.
-4. Multi-step form with Next and Back buttons and a step indicator.
-5. Calculation field for quote and order forms.
-6. Form settings: notifications, confirmation, appearance, spam protection and integrations.
-7. Submissions manager with search, date filter, statuses and CSV export.
-8. Share tab with block, shortcode, embed code and form export.
+1. Form list.
+2. Form configuration.
+3. Form delivery.
+4. Email customization.
+5. Form appearence.
+6. Integration.
+7. Form share.
+8. Form protection.
+9. Spam protection.
+10. Website Activity Timeline.
 
 ## Changelog ##
+
+### 1.0.1 - 2026-11-10 ###
+* Added  - Compatibility of WordPress 7.1.4.
+* Added  - One-click Google connection for easy Google reCAPTCHA integration.
+* Added  - A one-click option to copy form shortcodes directly from the form list.
+* Added  - One-click form migration from WPForms and Forminator and Contact Form 7 and Gravity Forms and Ninja Forms and Formidable and Fluent Forms to VuloForm.
 
 ### 1.0.0 ###
 * Initial release.

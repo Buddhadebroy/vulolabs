@@ -14,8 +14,7 @@ use VuloPilot\Utill\FindingRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Generates a ContentScore for one post - "Topic Authority" (the one Content Intelligence
- * AI capability actually requested).
+ * Generates a ContentScore for one post - "Topic Authority".
  *
  * @class       ContentAnalyzer class
  * @version     1.0.0
@@ -23,10 +22,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class ContentAnalyzer {
 
-	/**
-	 * The 5 real Content Intelligence checks a post can have an open finding for: this
-	 * module's own readability scanner.
-	 */
+	/** The 5 real Content Intelligence checks a post can have an open finding for. */
 	private const SCANNER_IDS = array( 'readability', 'thin-content', 'duplicate-content', 'heading-structure', 'internal-linking' );
 
 	public const META_KEY = '_vulopilot_content_score';
@@ -48,9 +44,8 @@ class ContentAnalyzer {
 	 *
 	 * @param int $post_id Post to analyze.
 	 * @return ContentScore
-	 *
 	 * @throws \InvalidArgumentException If post_id doesn't refer to a published post/page.
-	 * @throws \RuntimeException         If no AI connection is configured, or the AI response is unusable.
+	 * @throws \RuntimeException If no AI connection is configured, or the AI response is unusable.
 	 */
 	public function analyze( int $post_id ): ContentScore {
 		$post = get_post( $post_id );
@@ -60,8 +55,8 @@ class ContentAnalyzer {
 		}
 
 		$deterministic_score = $this->calculate_deterministic_score( $post_id );
-		$messages            = $this->build_prompt( $post, $deterministic_score );
-		$response            = $this->request_sender->send( $messages, null, 'content_intelligence' );
+		$context             = $this->build_context( $post, $deterministic_score );
+		$response            = $this->request_sender->send_feature( 'content_intelligence', 'analyze', $context, 'content_intelligence', null, false );
 		$parsed              = $this->parse_response( $response );
 
 		$overall_score = $this->calculate_overall_score( $deterministic_score, $parsed['topic_authority'] );
@@ -81,11 +76,10 @@ class ContentAnalyzer {
 	}
 
 	/**
-	 * Reads back a previously generated score without spending another AI
-	 * call - what the REST controller's GET route returns.
+	 * Reads back a previously generated score without spending another AI call.
 	 *
 	 * @param int $post_id Post to read a score for.
-	 * @return array<string, mixed>|null
+	 * @return array|null
 	 */
 	public function get_stored_score( int $post_id ): ?array {
 		$stored = get_post_meta( $post_id, self::META_KEY, true );
@@ -132,39 +126,28 @@ class ContentAnalyzer {
 	}
 
 	/**
+	 * The content analysis feature's input.
+	 *
 	 * @param \WP_Post $post                Post being analyzed.
-	 * @param int|null $deterministic_score Already-known deterministic score, if any - given to the AI as context.
-	 * @return array<int, array{role: string, content: string}>
+	 * @param int|null $deterministic_score Already-known deterministic score, if any.
+	 * @return array
 	 */
-	private function build_prompt( \WP_Post $post, ?int $deterministic_score ): array {
-		return array(
-			array(
-				'role'    => 'system',
-				'content' => 'You evaluate how authoritatively a piece of web content covers its own topic. Score '
-					. '"topic_authority" from 0-100: does the content demonstrate real depth and expertise on its subject '
-					. '(specific facts, named examples, nuance beyond a surface-level summary), rather than reading as '
-					. 'generic or superficial. Also give 3-5 concrete, specific suggestions to make the content more '
-					. 'authoritative on its topic. Respond with ONLY raw JSON like {"topic_authority": 65, '
-					. '"suggestions": ["...", "..."]} - no markdown fences, no commentary.',
-			),
-			array(
-				'role'    => 'user',
-				'content' => sprintf(
-					"Title: %s\n\nContent:\n%s%s",
-					$post->post_title,
-					wp_trim_words( wp_strip_all_tags( $post->post_content ), 500 ),
-					null !== $deterministic_score
-						? sprintf( "\n\n(This content already scores %d/100 on separate structural checks - factor that in.)", $deterministic_score )
-						: ''
-				),
-			),
+	private function build_context( \WP_Post $post, ?int $deterministic_score ): array {
+		$context = array(
+			'title'   => $post->post_title,
+			'content' => wp_strip_all_tags( $post->post_content ),
 		);
+
+		if ( null !== $deterministic_score ) {
+			$context['deterministic_score'] = $deterministic_score;
+		}
+
+		return $context;
 	}
 
 	/**
 	 * @param \VuloPilot\AiAssistant\AIResponse $response Raw AI response.
-	 * @return array{topic_authority: int, suggestions: string[]}
-	 *
+	 * @return array
 	 * @throws \RuntimeException If the response isn't usable JSON in the expected shape.
 	 */
 	private function parse_response( \VuloPilot\AiAssistant\AIResponse $response ): array {
@@ -199,8 +182,7 @@ class ContentAnalyzer {
 	}
 
 	/**
-	 * Simple, documented average - same "coarse, not scientific" posture
-	 * GeoAnalyzer::calculate_overall_score() already takes.
+	 * Simple, documented average.
 	 *
 	 * @param int|null $deterministic_score 0-100, or null.
 	 * @param int      $topic_authority     0-100.

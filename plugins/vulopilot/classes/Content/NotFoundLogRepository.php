@@ -13,8 +13,7 @@ use VuloPilot\Utill\RepositoryUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for vulopilot_not_found_logs - one row per unique missing URL visitors
- * actually hit.
+ * Persistence for vulopilot_not_found_logs.
  *
  * @class       NotFoundLogRepository class
  * @version     1.0.0
@@ -23,9 +22,7 @@ defined( 'ABSPATH' ) || exit;
 class NotFoundLogRepository extends RepositoryUtil {
 
 	/**
-	 * Columns find_all() may filter on - `is_system` is what lets RedirectsTab.tsx's main
-	 * 404 log fetch real content pages only (`is_system=0`) while its own "System 404s"
-	 * popup fetches the rest (`is_system=1`), both from this one table.
+	 * Columns find_all() may filter on.
 	 *
 	 * @var string[]
 	 */
@@ -50,8 +47,8 @@ class NotFoundLogRepository extends RepositoryUtil {
 	/**
 	 * Looks up a 404 log row by its exact requested path.
 	 *
-	 * @param string $requested_path Already-normalized path (RedirectRepository::normalize_path()).
-	 * @return array<string, mixed>|null
+	 * @param string $requested_path Already-normalized path.
+	 * @return array|null
 	 */
 	public function find_by_requested_path( string $requested_path ): ?array {
 		global $wpdb;
@@ -65,12 +62,11 @@ class NotFoundLogRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Records one 404 visit - inserts a new row for a path seen for the first time, or
-	 * bumps `hit_count`/`last_seen_at` on an existing one.
+	 * Records one 404 visit.
 	 *
 	 * @param string      $requested_path Already-normalized path.
 	 * @param string|null $referrer       The visit's HTTP referrer, if any.
-	 * @param bool        $is_system      True for a theme/plugin/core-file or static-asset path (NotFoundLogger::is_noise_path()) - a real 404.
+	 * @param bool        $is_system      True for a theme/plugin/core-file or static-asset path.
 	 * @return void
 	 */
 	public function log_or_increment( string $requested_path, ?string $referrer, bool $is_system = false ): void {
@@ -83,8 +79,7 @@ class NotFoundLogRepository extends RepositoryUtil {
 					'hit_count'    => (int) $existing['hit_count'] + 1,
 					'referrer'     => $referrer,
 					'last_seen_at' => current_time( 'mysql' ),
-					// $is_system is recomputed the same way from the same path every time, not
-					// user/environment-dependent.
+					// $is_system is recomputed the same way from the same path every time, not user/environment-dependent.
 					'is_system'    => $is_system ? 1 : 0,
 				)
 			);

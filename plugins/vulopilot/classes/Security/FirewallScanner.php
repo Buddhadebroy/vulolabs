@@ -10,8 +10,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Turns FirewallGuard's block log into one summary Finding when there was activity in the
- * last 7 days (`HIGH` when one IP repeatedly hit exploit rules).
+ * Turns FirewallGuard's block log into one summary Finding when there was activity in the last 7 days.
  *
  * @class       FirewallScanner class
  * @version     1.0.0
@@ -27,8 +26,7 @@ class FirewallScanner extends ScannerUtil {
 	private const LOOKBACK_DAYS = 7;
 
 	/**
-	 * A single IP hitting this many real matched-rule requests in the lookback window is
-	 * escalated to HIGH.
+	 * A single IP hitting this many real matched-rule requests in the lookback window is escalated to HIGH.
 	 *
 	 * @var int
 	 */

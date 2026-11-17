@@ -14,9 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 abstract class AbstractAssetOptimizationScanner extends ScannerUtil {
 
-	/**
-	 * Main plugin files of well-known minification-capable plugins.
-	 */
+	/** Main plugin files of well-known minification-capable plugins. */
 	private const KNOWN_MINIFIER_PLUGINS = array(
 		'autoptimize/autoptimize.php',
 		'wp-rocket/wp-rocket.php',
@@ -66,8 +64,7 @@ abstract class AbstractAssetOptimizationScanner extends ScannerUtil {
 	}
 
 	/**
-	 * Extracts same-host asset URLs from one kind of tag (read with WP_HTML_Tag_Processor)
-	 * that don't already look minified (no `.min.` in the path).
+	 * Extracts same-host asset URLs from one kind of tag.
 	 *
 	 * @param string      $html      Homepage HTML.
 	 * @param string      $tag       Tag name to read.

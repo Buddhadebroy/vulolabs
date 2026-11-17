@@ -12,6 +12,7 @@ VuloForm is a standalone form builder for WordPress. It needs no other plugin, n
 | [REST-API.md](REST-API.md) | Every route, who may call it, what it returns |
 | [HOOKS.md](HOOKS.md) | Actions, filters and public functions for integrations |
 | [EXTENSIONS.md](EXTENSIONS.md) | Modules, per-form extension settings and admin-app slots, as used by VuloForm Pro |
+| [MIGRATION.md](MIGRATION.md) | Importing forms from WPForms, Forminator, Gravity Forms, Contact Form 7, Ninja Forms, Formidable and Fluent Forms |
 | [DATABASE.md](DATABASE.md) | Tables, options, uploads folder, migrations, uninstall |
 | [SECURITY-AND-PRIVACY.md](SECURITY-AND-PRIVACY.md) | Threats considered and how each is handled |
 | [ADMIN-UI.md](ADMIN-UI.md) | The React admin app and the builder |

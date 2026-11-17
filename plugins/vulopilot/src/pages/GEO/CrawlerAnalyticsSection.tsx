@@ -29,7 +29,7 @@ import { formatWpDate, formatWpDay } from '../../services/formatWpDate';
 
 const PIE_COLORS = ['#7C3AED', '#2563EB', '#0D9488', '#EA580C', '#DB2777', '#65A30D'];
 
-/** Same 3-tier 0-100 band this codebase's other real score rings (GeoScoreSection.tsx, GeoVisibilitySummaryCard.tsx) already use. */
+/** Same 3-tier 0-100 band this codebase's other real score rings. */
 const getRating = (score: number): string => {
 	if (score >= 70) {
 		return __('Good', 'vulopilot');
@@ -70,10 +70,7 @@ const ChangeBadge = ({ current, previous }: { current: number; previous: number 
 	);
 };
 
-/**
- * Real "Robots.txt is accessible" / "XML sitemap is accessible" / "No critical AI-bot blocks"
- * checklist.
- */
+/** Real "Robots.txt is accessible" / "XML sitemap is accessible" / "No critical AI-bot blocks" checklist. */
 const CHECKLIST_ITEMS: { key: string; scannerIds: string[]; label: string }[] = [
 	{
 		key: 'robots',
@@ -98,16 +95,14 @@ const isSeoModuleActive = () =>
 interface CrawlerAnalyticsSectionProps {
 	analytics: CrawlerAnalytics | null;
 	isLoading: boolean;
-	/** CrawlOverviewSection.tsx's own real period state - same real `days` `useCrawlerAnalytics()` already fetches with. */
+	/** CrawlOverviewSection.tsx's own real period state. */
 	period: string;
 	periodOptions: { key: string; value: string; label: string }[];
 	// eslint-disable-next-line no-unused-vars
 	onPeriodChange: (value: string) => void;
 }
 
-/**
- * The restyled Crawler Traffic tab's real analytics section.
- */
+/** The restyled Crawler Traffic tab's real analytics section. */
 const CrawlerAnalyticsSection = ({
 	analytics,
 	isLoading,
@@ -214,8 +209,7 @@ const CrawlerAnalyticsSection = ({
 											<ChartComponent
 												type="ring"
 												height={200}
-												// Top-level `color` - `type="ring"` only ever
-												// paints its stroke from this prop.
+												// Top-level `color` - `type="ring"` only ever paints its stroke from this prop.
 												color={
 													COLOR_PALETTE[
 														ratingColor(analytics.crawl_health_score) as keyof typeof COLOR_PALETTE
@@ -238,9 +232,7 @@ const CrawlerAnalyticsSection = ({
 													{
 														label: __('Score', 'vulopilot'),
 														value: analytics.crawl_health_score,
-														// Same real rating color the ring's own
-														// "Good"/"Needs Work"/"At Risk" label above
-														// already uses (`getRating()`).
+														// Same real rating color the ring's own "Good"/"Needs Work"/"At Risk" label above already uses (`getRating()`).
 														color: COLOR_PALETTE[
 															ratingColor(analytics.crawl_health_score) as keyof typeof COLOR_PALETTE
 														],
@@ -339,9 +331,7 @@ const CrawlerAnalyticsSection = ({
 						<div className="dashboard-trend-chart">
 							<ResponsiveContainer width="100%" height="100%">
 								<AreaChart
-									// `date` is a plain calendar day (Y-m-d); pinned to midday so
-									// formatWpDate's timezone shift can't roll it to the
-									// neighbouring day.
+									// `date` is a plain calendar day.
 									data={analytics.daily_volume.map((day) => ({
 										...day,
 										date: formatWpDate(`${day.date} 12:00:00`),

@@ -1,9 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import SeoTitlesPanel from './SeoTitlesPanel';
 
-/**
- * Settings → SEO → SEO Titles.
- */
+/** Settings → SEO → SEO Titles. */
 export default {
 	id: 'seo-titles',
 	priority: 1,

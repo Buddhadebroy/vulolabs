@@ -2,9 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { CardComponent } from '@zyra/components';
 import './SitemapHowItWorksCard.scss';
 
-/**
- * Sitemap tab's own right-side "How it works" explainer card.
- */
+/** Sitemap tab's own right-side "How it works" explainer card. */
 const SITEMAP_STEPS: Array<{ icon: string; color: string; title: string; desc: string }> = [
 	{
 		icon: 'document',

@@ -60,7 +60,6 @@ class TestSubmissions extends TestCase {
 		parent::setUp();
 
 		$this->store = new FakeSubmissions();
-		$_SERVER['REMOTE_ADDR'] = '203.0.113.9';
 	}
 
 	private function form( array $fields, array $settings = array(), $status = 'published' ) {
@@ -218,6 +217,76 @@ class TestSubmissions extends TestCase {
 		$bad = ( new Processor( $this->store ) )->handle( $form, $this->post( array( 'name' => array( 'first' => '' ), 'extras' => array( 'A', 'Z' ) ) ) );
 
 		$this->assertCount( 3, $bad['errors'], 'Empty name, an unknown checkbox value and missing consent.' );
+	}
+
+	public function test_password_field_is_required_and_length_checked() {
+		$form = $this->form(
+			array(
+				array( 'type' => 'password', 'label' => 'PIN', 'key' => 'pin', 'required' => true, 'minlength' => 4 ),
+			)
+		);
+
+		$ok = ( new Processor( $this->store ) )->handle( $form, $this->post( array( 'pin' => '1234' ) ) );
+
+		$this->assertTrue( $ok['success'] );
+		$this->assertSame( '1234', $this->store->rows[1]['data']['pin'] );
+
+		$short = ( new Processor( $this->store ) )->handle( $form, $this->post( array( 'pin' => '12' ) ) );
+
+		$this->assertCount( 1, $short['errors'] );
+
+		$missing = ( new Processor( $this->store ) )->handle( $form, $this->post( array() ) );
+
+		$this->assertCount( 1, $missing['errors'] );
+	}
+
+	public function test_repeater_rows_are_cleaned_validated_and_stored() {
+		$form = $this->form(
+			array(
+				array(
+					'type'     => 'repeater',
+					'label'    => 'Guests',
+					'key'      => 'guests',
+					'required' => true,
+					'min_rows' => 1,
+					'max_rows' => 2,
+					'fields'   => array(
+						array( 'type' => 'text', 'label' => 'Name', 'key' => 'guest_name', 'required' => true ),
+						array( 'type' => 'email', 'label' => 'Email', 'key' => 'guest_email' ),
+					),
+				),
+			)
+		);
+
+		$ok = ( new Processor( $this->store ) )->handle(
+			$form,
+			$this->post(
+				array(
+					'guests' => array(
+						array( 'guest_name' => ' Jane <b>Doe</b> ', 'guest_email' => 'jane@example.com' ),
+						// A third row beyond max_rows is dropped, not an error.
+						array( 'guest_name' => 'Overflow' ),
+						array( 'guest_name' => 'Also overflow' ),
+					),
+				)
+			)
+		);
+
+		$this->assertTrue( $ok['success'] );
+		$this->assertCount( 2, $this->store->rows[1]['data']['guests'], 'Capped at max_rows.' );
+		$this->assertSame( 'Jane Doe', $this->store->rows[1]['data']['guests'][0]['guest_name'] );
+		$this->assertSame( 'jane@example.com', $this->store->rows[1]['data']['guests'][0]['guest_email'] );
+
+		$missing_row_field = ( new Processor( $this->store ) )->handle(
+			$form,
+			$this->post( array( 'guests' => array( array( 'guest_name' => '' ) ) ) )
+		);
+
+		$this->assertCount( 1, $missing_row_field['errors'], 'A required sub-field missing in a row is reported.' );
+
+		$no_rows = ( new Processor( $this->store ) )->handle( $form, $this->post( array() ) );
+
+		$this->assertCount( 1, $no_rows['errors'], 'The repeater itself is required.' );
 	}
 
 	public function test_spam_protection() {
@@ -535,6 +604,33 @@ class TestSubmissions extends TestCase {
 
 		$this->assertSame( '', Uploads::path( array( 'path' => '../../wp-config.php' ) ), 'A stored path can never point outside the upload folder.' );
 		$this->assertSame( array(), Uploads::normalise( array( 'name' => array( '' ), 'tmp_name' => array( '' ), 'size' => array( 0 ), 'error' => array( UPLOAD_ERR_NO_FILE ) ) ) );
+	}
+
+	public function test_signature_field_reuses_the_file_pipeline_with_fixed_constraints() {
+		// A signature's upload constraints are fixed server-side, not builder-configurable - unlike
+		// a real 'file' field, an attacker-supplied override must be ignored.
+		$field = Schema::sanitize(
+			array(
+				'fields' => array(
+					array( 'type' => 'signature', 'label' => 'Sign here', 'required' => true, 'allowed_types' => array( 'php' ), 'max_size_mb' => 999, 'max_files' => 50 ),
+				),
+			)
+		)['fields'][0];
+
+		$this->assertSame( array( 'png' ), $field['allowed_types'] );
+		$this->assertSame( 2, $field['max_size_mb'] );
+		$this->assertSame( 1, $field['max_files'] );
+
+		$form = $this->form( array( array( 'type' => 'signature', 'label' => 'Sign here', 'key' => 'sign', 'required' => true ) ) );
+
+		// Missing: rejected like a required file field, not silently accepted as an empty string.
+		$result = ( new Processor( $this->store ) )->handle( $form, $this->post( array() ) );
+
+		$this->assertFalse( $result['success'] );
+		$this->assertNotEmpty( $result['errors'] );
+
+		// Formatted the same way a 'file' field is: the name only, never the stored path.
+		$this->assertSame( 'signature.png', Formatter::text( $form['schema']['fields'][0], array( array( 'name' => 'signature.png', 'path' => 'abc/def.png' ) ) ) );
 	}
 
 	public function test_formatter_and_placeholders() {

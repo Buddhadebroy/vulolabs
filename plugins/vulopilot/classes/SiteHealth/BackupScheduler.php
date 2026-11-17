@@ -16,9 +16,7 @@ class BackupScheduler {
 
 	private const CRON_HOOK = 'vulopilot_backup_scheduled_run';
 
-	/**
-	 * BackupScheduler constructor.
-	 */
+	/** BackupScheduler constructor. */
 	public function __construct() {
 		add_filter( 'cron_schedules', array( $this, 'register_weekly_schedule' ) ); // phpcs:ignore WordPress.WP.CronInterval.CronSchedulesInterval -- registering a real, standard 7-day interval, not a shorter-than-recommended one.
 		add_action( 'init', array( $this, 'ensure_scheduled' ), 30 );
@@ -26,8 +24,8 @@ class BackupScheduler {
 	}
 
 	/**
-	 * @param array<string, array{interval: int, display: string}> $schedules Real, currently-registered schedules.
-	 * @return array<string, array{interval: int, display: string}>
+	 * @param array $schedules Real, currently-registered schedules.
+	 * @return array
 	 */
 	public function register_weekly_schedule( array $schedules ): array {
 		if ( ! isset( $schedules['weekly'] ) ) {
@@ -41,8 +39,7 @@ class BackupScheduler {
 	}
 
 	/**
-	 * Reconciles the real scheduled cron event against the real, current
-	 * `enable_automatic_backups`/`backup_frequency` settings.
+	 * Reconciles the real scheduled cron event against the real, current `enable_automatic_backups`/`backup_frequency` settings.
 	 *
 	 * @return void
 	 */

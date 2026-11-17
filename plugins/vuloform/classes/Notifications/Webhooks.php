@@ -15,11 +15,8 @@ use VuloForm\Submissions\SubmissionRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Posts a submission to the form's webhook URLs.
- *
- * Delivery runs in the background so a slow endpoint never holds up the visitor. A failed attempt
- * is retried a fixed number of times, and every attempt for one submission carries the same
- * delivery id so the receiver can ignore a repeat.
+ * Posts a submission to the form's webhook URLs, in the background so a slow endpoint never holds
+ * up the visitor. Retries a fixed number of times; every attempt shares one delivery id for dedup.
  */
 class Webhooks {
 

@@ -33,9 +33,7 @@ interface RealtimeStats {
 	samples_last_hour: number;
 }
 
-/**
- * "Live Site Insights" card - moved here from AI Copilot Chat's ChatTab.tsx (pages/AIAssistant/).
- */
+/** "Live Site Insights" card. */
 const LiveSiteInsightsCard: React.FC = () => {
 	const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
 	const [vitals, setVitals] = useState<CoreWebVitalsSummary | null>(null);

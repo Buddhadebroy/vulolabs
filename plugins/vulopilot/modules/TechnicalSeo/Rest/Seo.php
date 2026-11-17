@@ -13,9 +13,7 @@ use VuloPilot\Utill\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * REST controller for the SEO tab: deterministic SEO score, progress trend,
- * pages needing attention, and per-page analysis. Score uses the same
- * weighted-severity formula as BrandIntelligence/ContentIntelligence.
+ * REST controller for the SEO tab.
  *
  * @class       Seo controller
  * @version     1.0.0
@@ -31,7 +29,7 @@ class Seo extends \WP_REST_Controller {
 	/**
 	 * Scanner ids grouped by the SEO tab's category sections.
 	 *
-	 * @var array<string, string[]>
+	 * @var array
 	 */
 	private const CATEGORY_SCANNER_IDS = array(
 		'titles-meta'             => array(
@@ -153,9 +151,7 @@ class Seo extends \WP_REST_Controller {
 			'/' . $this->rest_base . '/post-score',
 			array(
 				array(
-					// CREATABLE (POST) too, same as post-seo/{id}/analyze - the frontend posts the
-					// editor's own live (possibly-unsaved) title/content/excerpt/slug/focus_keyword
-					// as the body so this score reacts to typing, not just to the saved post.
+					// CREATABLE too, same as post-seo/{id}/analyze.
 					'methods'             => array( \WP_REST_Server::READABLE, \WP_REST_Server::CREATABLE ),
 					'callback'            => array( $this, 'get_post_score' ),
 					'permission_callback' => array( $this, 'get_score_permissions_check' ),
@@ -171,14 +167,13 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Block-editor sidebar's SEO score badge, using the same calculate_score() formula
-	 * scoped to one post.
+	 * Block-editor sidebar's SEO score badge, using the same calculate_score() formula scoped to one post.
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
 	 */
 	/**
-	 * VuloPilot's own SEO Score Engine (`SeoScoreEngine`) - 6 categories, 28 rules, weights summing to exactly 100, run against this post's current (possibly live/unsaved) field values.
+	 * VuloPilot's own SEO Score Engine (`SeoScoreEngine`).
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
@@ -195,8 +190,7 @@ class Seo extends \WP_REST_Controller {
 			);
 		}
 
-		// Live, possibly-unsaved editor state - same override pattern analyze_post() already
-		// supports, so the toolbar score pill reacts to typing, not just to the last save.
+		// Live, possibly-unsaved editor state.
 		$seo_title     = trim( (string) get_post_meta( $post_id, \VuloPilot\SeoVisibility\PostSeoMetaFields::META_KEYS['seo_title'], true ) );
 		$focus_keyword = (string) get_post_meta( $post_id, \VuloPilot\SeoVisibility\PostSeoMetaFields::META_KEYS['focus_keyword'], true );
 
@@ -214,8 +208,7 @@ class Seo extends \WP_REST_Controller {
 
 		return rest_ensure_response(
 			array(
-				// Backward-compatible top-level field the toolbar/sidebar badge already reads -
-				// null (insufficient data) reported as 0 rather than breaking that number contract.
+				// Backward-compatible top-level field the toolbar/sidebar badge already reads.
 				'score'                => $summary['score'] ?? 0,
 				'ruleset_version'      => \VuloPilot\SeoVisibility\SeoScoreEngine::RULESET_VERSION,
 				'insufficient_data'    => $summary['insufficient_data'],
@@ -312,7 +305,7 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * @param array{critical: int, high: int, medium: int, low: int} $breakdown Severity breakdown to score.
+	 * @param array $breakdown Severity breakdown to score.
 	 * @return int 0-100.
 	 */
 	private function calculate_score( array $breakdown ): int {
@@ -474,8 +467,8 @@ class Seo extends \WP_REST_Controller {
 	/**
 	 * How many published pages/posts scored better in $current than in $previous.
 	 *
-	 * @param array<int, array<int, array{id: int, title: string.
-	 * @param array<int, array<int, array{id: int, title: string, severity: string}>> $previous Same shape.
+	 * @param array
+	 * @param array $previous Same shape.
 	 * @return int
 	 */
 	private function count_pages_with_improved_score( array $current, array $previous ): int {
@@ -577,7 +570,7 @@ class Seo extends \WP_REST_Controller {
 	 * Checks the title is unique in the database, same query DuplicateContentScanner uses.
 	 *
 	 * @param \WP_Post $post Page being analyzed.
-	 * @return array{key: string, label: string, status: string, message: string}
+	 * @return array
 	 */
 	private function check_title_tag( \WP_Post $post ): array {
 		$label = __( 'Title Tag', 'vulopilot' );
@@ -605,7 +598,7 @@ class Seo extends \WP_REST_Controller {
 
 	/**
 	 * @param \WP_Post $post Page being analyzed.
-	 * @return array{key: string, label: string, status: string, message: string}
+	 * @return array
 	 */
 	private function check_meta_description( \WP_Post $post ): array {
 		$label   = __( 'Meta Description', 'vulopilot' );
@@ -636,7 +629,7 @@ class Seo extends \WP_REST_Controller {
 	 * Checks for an h1 tag anywhere in post_content.
 	 *
 	 * @param \WP_Post $post Page being analyzed.
-	 * @return array{key: string, label: string, status: string, message: string}
+	 * @return array
 	 */
 	private function check_h1_heading( \WP_Post $post ): array {
 		$label = __( 'H1 Heading', 'vulopilot' );
@@ -650,7 +643,7 @@ class Seo extends \WP_REST_Controller {
 
 	/**
 	 * @param \WP_Post $post Page being analyzed.
-	 * @return array{key: string, label: string, status: string, message: string}
+	 * @return array
 	 */
 	private function check_headings( \WP_Post $post ): array {
 		$label = __( 'Subheadings', 'vulopilot' );
@@ -664,7 +657,7 @@ class Seo extends \WP_REST_Controller {
 
 	/**
 	 * @param \WP_Post $post Page being analyzed.
-	 * @return array{key: string, label: string, status: string, message: string}
+	 * @return array
 	 */
 	private function check_content_length( \WP_Post $post ): array {
 		$label             = __( 'Content', 'vulopilot' );
@@ -694,7 +687,7 @@ class Seo extends \WP_REST_Controller {
 	 * Checks each img tag in post_content for alt text.
 	 *
 	 * @param \WP_Post $post Page being analyzed.
-	 * @return array{key: string, label: string, status: string, message: string}
+	 * @return array
 	 */
 	private function check_images_alt_text( \WP_Post $post ): array {
 		$label = __( 'Images', 'vulopilot' );
@@ -732,7 +725,7 @@ class Seo extends \WP_REST_Controller {
 
 	/**
 	 * @param \WP_Post $post Page being analyzed.
-	 * @return array{key: string, label: string, status: string, message: string}|null
+	 * @return array|null
 	 */
 	private function check_featured_image( \WP_Post $post ): ?array {
 		$settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
@@ -754,7 +747,7 @@ class Seo extends \WP_REST_Controller {
 	 * Reads stored broken-links findings scoped to this page.
 	 *
 	 * @param int $post_id Page being analyzed.
-	 * @return array{key: string, label: string, status: string, message: string}
+	 * @return array
 	 */
 	private function check_broken_links( int $post_id ): array {
 		$label    = __( 'Broken Links', 'vulopilot' );
@@ -791,7 +784,7 @@ class Seo extends \WP_REST_Controller {
 	 * Reads the stored orphan-pages finding instead of re-running the scan.
 	 *
 	 * @param int $post_id Page being analyzed.
-	 * @return array{key: string, label: string, status: string, message: string}|null
+	 * @return array|null
 	 */
 	private function check_orphan_page( int $post_id ): ?array {
 		$settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
@@ -826,7 +819,7 @@ class Seo extends \WP_REST_Controller {
 
 	/**
 	 * @param string|null $body Fetched HTML, or null if the fetch failed.
-	 * @return array{key: string, label: string, status: string, message: string}
+	 * @return array
 	 */
 	private function check_canonical( ?string $body ): array {
 		$label = __( 'Canonical', 'vulopilot' );
@@ -844,7 +837,7 @@ class Seo extends \WP_REST_Controller {
 
 	/**
 	 * @param \WP_Post $post Page being analyzed.
-	 * @return array{key: string, label: string, status: string, message: string}
+	 * @return array
 	 */
 	private function check_indexability( \WP_Post $post ): array {
 		$label = __( 'Indexability', 'vulopilot' );
@@ -862,7 +855,7 @@ class Seo extends \WP_REST_Controller {
 
 	/**
 	 * @param string|null $body Fetched HTML, or null if the fetch failed.
-	 * @return array{key: string, label: string, status: string, message: string}
+	 * @return array
 	 */
 	private function check_structured_data( ?string $body ): array {
 		$label = __( 'Structured Data', 'vulopilot' );
@@ -880,7 +873,7 @@ class Seo extends \WP_REST_Controller {
 
 	/**
 	 * @param string|null $body Fetched HTML, or null if the fetch failed.
-	 * @return array{key: string, label: string, status: string, message: string}
+	 * @return array
 	 */
 	private function check_social_metadata( ?string $body ): array {
 		$label = __( 'Social Metadata', 'vulopilot' );
@@ -917,11 +910,11 @@ class Seo extends \WP_REST_Controller {
 	/**
 	 * Builds one row of the `checks` array get_page_analysis() returns.
 	 *
-	 * @param string $key   Stable machine key for this check.
-	 * @param string $label Human-readable check name.
-	 * @param string $status One of 'pass'/'warn'/'fail'.
+	 * @param string $key     Stable machine key for this check.
+	 * @param string $label   Human-readable check name.
+	 * @param string $status  One of 'pass'/'warn'/'fail'.
 	 * @param string $message Specific finding message.
-	 * @return array{key: string, label: string, status: string, message: string}
+	 * @return array
 	 */
 	private function build_check( string $key, string $label, string $status, string $message ): array {
 		return array(
@@ -933,8 +926,7 @@ class Seo extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Fetches the page once, shared by the canonical, structured data and social metadata
-	 * checks.
+	 * Fetches the page once, shared by the canonical, structured data and social metadata checks.
 	 *
 	 * @param string $url Real permalink to fetch.
 	 * @return string|null Response body, or null if the request failed.

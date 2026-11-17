@@ -13,8 +13,7 @@ use VuloPilot\Utill\RepositoryUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for `vulopilot_performance_samples` (type `vital`) - one row per real front-
- * end pageview that reported at least one metric.
+ * Persistence for `vulopilot_performance_samples`.
  *
  * @class       CoreWebVitalsRepository class
  * @version     1.0.0
@@ -22,15 +21,10 @@ defined( 'ABSPATH' ) || exit;
  */
 class CoreWebVitalsRepository extends RepositoryUtil {
 
-	/**
-	 * This repository's `sample_type` in the shared `vulopilot_performance_samples` table.
-	 */
+	/** This repository's `sample_type` in the shared `vulopilot_performance_samples` table. */
 	private const SAMPLE_TYPE = 'vital';
 
-	/**
-	 * How many of the most recent (within the retention window) samples to pull for the
-	 * p75 computation.
-	 */
+	/** How many of the most recent samples to pull for the p75 computation. */
 	private const MAX_SAMPLES = 1000;
 
 	/**
@@ -72,7 +66,7 @@ class CoreWebVitalsRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * @return array{lcp_ms: int|null, cls: float|null, inp_ms: int|null, page_load_ms: int|null, transfer_bytes: int|null, sample_count: int}
+	 * @return array
 	 */
 	public function get_p75_summary(): array {
 		global $wpdb;
@@ -100,7 +94,7 @@ class CoreWebVitalsRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * @param array<int, string|null> $values Raw column values, possibly containing nulls.
+	 * @param array $values Raw column values, possibly containing nulls.
 	 * @return int|null
 	 */
 	private function percentile_75( array $values ): ?int {
@@ -117,10 +111,9 @@ class CoreWebVitalsRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Same percentile logic as percentile_75(), converting the stored
-	 * ×1000 integer back to a real CLS float (e.g. 80 → 0.08).
+	 * Same percentile logic as percentile_75(), converting the stored ×1000 integer back to a real CLS float.
 	 *
-	 * @param array<int, string|null> $values Raw `cls_thousandths` column values.
+	 * @param array $values Raw `cls_thousandths` column values.
 	 * @return float|null
 	 */
 	private function percentile_75_cls( array $values ): ?float {

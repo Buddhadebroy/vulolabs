@@ -18,9 +18,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Module {
 
-	/**
-	 * Module constructor.
-	 */
+	/** Module constructor. */
 	public function __construct() {
 		add_filter( 'vulopilot_scanner_sources', array( $this, 'register_scanners' ) );
 	}
@@ -51,8 +49,7 @@ class Module {
 				Scanners\OrphanPageScanner::class,
 				Scanners\SeoImagesScanner::class,
 				Scanners\StructuredDataValidationScanner::class,
-				// AI Crawler Analytics - "Blocked Pages," the one genuinely new Free scanner that
-				// pass adds.
+				// AI Crawler Analytics - "Blocked Pages," the one genuinely new Free scanner that pass adds.
 				Scanners\AiCrawlerBlockedPagesScanner::class,
 			)
 		);

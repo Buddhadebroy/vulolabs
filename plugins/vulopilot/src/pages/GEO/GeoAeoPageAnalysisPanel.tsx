@@ -24,12 +24,10 @@ interface GeoAeoPageAnalysisPanelProps {
 	onClose: () => void;
 }
 
-/** Same real severity→badge class convention `SeoSiteWideIssuesTable.tsx`'s/`IssuesList.tsx`'s own `titleBadges` already use (`badge-critical`/`badge-high`/…, real CSS classes already shipped for that exact convention) - reused here directly rather than a third copy of a severity→color map. */
+/** Same real severity→badge class convention `SeoSiteWideIssuesTable.tsx`'s/`IssuesList.tsx`'s own `titleBadges` already use. */
 const severityBadgeColor = (severity: FindingSeverity): string => `badge-${severity}`;
 
-/**
- * Uses the `close` and `error` glyphs, the only ones zyra's icon font offers for open findings.
- */
+/** Uses the `close` and `error` glyphs, the only ones zyra's icon font offers for open findings. */
 const SEVERITY_ICON: Record<FindingSeverity, string> = {
 	critical: 'close red',
 	high: 'close red',
@@ -39,17 +37,14 @@ const SEVERITY_ICON: Record<FindingSeverity, string> = {
 };
 
 /**
- * Same real navigate-and-highlight deep link `SeoIssuesByPageTable.tsx`'s own
- * `buildFixWithAiLink()` already establishes.
+ * Same real navigate-and-highlight deep link `SeoIssuesByPageTable.tsx`'s own `buildFixWithAiLink()` already establishes.
  */
 const buildFixWithAiLink = (editLink: string, finding: RawFinding): string =>
 	getEditorTargetForScanner(finding.scanner_id)
 		? `${editLink}&${SEO_ISSUE_QUERY_PARAM}=${encodeURIComponent(finding.scanner_id)}`
 		: `${editLink}&${FINDING_ID_QUERY_PARAM}=${finding.id}`;
 
-/**
- * "Page Analysis" for GEO's/AEO's own "Pages & Posts" table.
- */
+/** "Page Analysis" for GEO's/AEO's own "Pages & Posts" table. */
 const GeoAeoPageAnalysisPanel = ({
 	postId,
 	scannerIds,

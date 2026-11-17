@@ -31,23 +31,13 @@ class BrokenImagesScanner extends ScannerUtil implements TracksScannedObjectsInt
 	private const MAX_IMAGES_PER_RUN      = 40;
 	private const REQUEST_TIMEOUT_SECONDS = 5;
 
-	/**
-	 * Stores when this scanner last genuinely ran - see due_to_run()'s own docblock
-	 * (BrokenLinksScanner.php) for why this scanner self-rate-limits instead of the
-	 * cadence being scheduled externally.
-	 */
+	/** Stores when this scanner last genuinely ran. */
 	private const LAST_RUN_OPTION = 'vulopilot_broken_images_last_checked';
 
-	/**
-	 * Set via set_force_run() (SupportsForceRunInterface) - see
-	 * BrokenLinksScanner::$force_run's own comment.
-	 */
+	/** Set via set_force_run() - see BrokenLinksScanner::$force_run's own comment. */
 	private bool $force_run = false;
 
-	/**
-	 * Real per-run coverage stats - same shape/purpose as
-	 * BrokenLinksScanner::STATS_OPTION.
-	 */
+	/** Real per-run coverage stats - same shape/purpose as BrokenLinksScanner::STATS_OPTION. */
 	public const STATS_OPTION = 'vulopilot_broken_images_last_run_stats';
 
 	/**
@@ -122,8 +112,7 @@ class BrokenImagesScanner extends ScannerUtil implements TracksScannedObjectsInt
 				(string) $post_id,
 				array(
 					'url'    => $url,
-					// Same 'unverified' vs 'broken' distinction BrokenLinksScanner's own
-					// Finding::meta carries.
+					// Same 'unverified' vs 'broken' distinction BrokenLinksScanner's own Finding::meta carries.
 					'reason' => $result['reason'],
 				),
 				md5( $post_id . '|' . $url )
@@ -145,10 +134,9 @@ class BrokenImagesScanner extends ScannerUtil implements TracksScannedObjectsInt
 	}
 
 	/**
-	 * Pulls every http(s) `img` out of the most recently published content, deduped,
-	 * capped at MAX_IMAGES_PER_RUN.
+	 * Pulls every http(s) `img` out of the most recently published content, deduped, capped at MAX_IMAGES_PER_RUN.
 	 *
-	 * @return array<string, int> URL => the post ID it was found in.
+	 * @return array URL => the post ID it was found in.
 	 */
 	private function extract_images_from_recent_content(): array {
 		$posts = get_posts(
@@ -179,10 +167,7 @@ class BrokenImagesScanner extends ScannerUtil implements TracksScannedObjectsInt
 					break;
 				}
 
-				// Stored post_content encodes "&" as an entity (e.g. "&#038;"/"&amp;") - decode
-				// before using this as a real URL, same fix as BrokenLinksScanner's own href
-				// extraction (see that method's own comment for why - the live HTTP check and
-				// "Open URL" both break on every image URL with more than one query param).
+				// Stored post_content encodes "&" as an entity.
 				$url = html_entity_decode( $raw_url, ENT_QUOTES );
 
 				if ( 0 !== strpos( $url, 'http://' ) && 0 !== strpos( $url, 'https://' ) ) {
@@ -199,8 +184,7 @@ class BrokenImagesScanner extends ScannerUtil implements TracksScannedObjectsInt
 	}
 
 	/**
-	 * Same real rate-limit shape as BrokenLinksScanner::due_to_run() -
-	 * see that method's own docblock, including what `$force` does.
+	 * Same real rate-limit shape as BrokenLinksScanner::due_to_run().
 	 *
 	 * @param string $frequency 'daily' or 'weekly'.
 	 * @param bool   $force     True to bypass the interval check (a manual "Run scan").
@@ -221,7 +205,7 @@ class BrokenImagesScanner extends ScannerUtil implements TracksScannedObjectsInt
 
 	/**
 	 * @param string $url Image URL to check.
-	 * @return array{reason: string, detail: string}|null 'reason' is 'unverified' (network/timeout/DNS failure - is_wp_error()) or 'broken' (a real non-2xx/3xx HTTP response); null if the image looks fine.
+	 * @return array|null 'reason' is 'unverified'.
 	 */
 	private function check_image( string $url ): ?array {
 		$response = wp_remote_head(

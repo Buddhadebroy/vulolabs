@@ -10,8 +10,7 @@ namespace VuloPilot\Migration;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `/migration/sources` (list detected plugins + found-data counts) and
- * `/migration/run` (import one of them) - backs the Settings → Migration tab.
+ * `/migration/sources` and `/migration/run` - backs the Settings → Migration tab.
  *
  * @class       Rest class
  * @version     1.0.0
@@ -29,9 +28,7 @@ class Rest extends \WP_REST_Controller {
 	 */
 	private MigrationManager $manager;
 
-	/**
-	 * Rest constructor.
-	 */
+	/** Rest constructor. */
 	public function __construct() {
 		$this->manager = new MigrationManager();
 	}

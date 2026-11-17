@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { NoticeComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import { Section, Sections, Wide } from '../components/Section';
+import { Section, Sections, Wide } from './Section';
 import type { Form } from '../services/types';
 
 /** A read-only code box with a Copy button. */

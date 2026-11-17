@@ -16,14 +16,11 @@ class IndexNowKeyFileServer {
 
 	private const QUERY_VAR = 'vulopilot_indexnow_key_file';
 
-	/**
-	 * IndexNowKeyFileServer constructor.
-	 */
+	/** IndexNowKeyFileServer constructor. */
 	public function __construct() {
 		add_action( 'init', array( $this, 'register_rewrite_rule' ) );
 		add_filter( 'query_vars', array( $this, 'add_query_var' ) );
-		// Priority 1 - must run before WordPress core's own redirect_canonical() (hooked on this
-		// same action at its default priority 10).
+		// Priority 1 - must run before WordPress core's own redirect_canonical().
 		add_action( 'template_redirect', array( $this, 'maybe_serve' ), 1 );
 	}
 
@@ -56,8 +53,7 @@ class IndexNowKeyFileServer {
 		$settings   = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
 		$stored_key = (string) ( $settings['indexnow_api_key'] ?? '' );
 
-		// No stored key yet, or it doesn't match what was requested - force a real 404 rather than
-		// a bare `return`.
+		// No stored key yet, or it doesn't match what was requested.
 		if ( '' === $stored_key || ! hash_equals( $stored_key, $requested_key ) ) {
 			global $wp_query;
 			$wp_query->set_404();

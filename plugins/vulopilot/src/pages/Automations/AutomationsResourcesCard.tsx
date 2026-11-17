@@ -8,9 +8,7 @@ interface AutomationsResourcesCardProps {
 	onCreateCustom: () => void;
 }
 
-/**
- * "Helpful resources" - 3 quick links, per the redesigned Automations mockup.
- */
+/** "Helpful resources" - 3 quick links, per the redesigned Automations mockup. */
 const AutomationsResourcesCard = ( { onCreateCustom }: AutomationsResourcesCardProps ) => {
 	const openDocs = () => window.open( DOCS_URL, '_blank', 'noopener,noreferrer' );
 

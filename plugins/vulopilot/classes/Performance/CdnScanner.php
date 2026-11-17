@@ -8,8 +8,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags a site with no detectable CDN/asset-offloading - checks whether any same-page
- * asset URL resolves to a host other than the site's own.
+ * Flags a site with no detectable CDN/asset-offloading.
  *
  * @class       CdnScanner class
  * @version     1.0.0
@@ -19,9 +18,7 @@ class CdnScanner extends ScannerUtil {
 
 	private const REQUEST_TIMEOUT_SECONDS = 8;
 
-	/**
-	 * Main plugin files of well-known CDN/asset-offload plugins.
-	 */
+	/** Main plugin files of well-known CDN/asset-offload plugins. */
 	private const KNOWN_CDN_PLUGINS = array(
 		'cloudflare/cloudflare.php',
 		'wp-cloudflare-page-cache/wp-cloudflare-super-page-cache.php',

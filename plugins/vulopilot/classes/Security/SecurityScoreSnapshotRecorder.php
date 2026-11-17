@@ -15,9 +15,7 @@ class SecurityScoreSnapshotRecorder {
 
 	private const CRON_HOOK = 'vulopilot_security_snapshot_daily';
 
-	/**
-	 * SecurityScoreSnapshotRecorder constructor.
-	 */
+	/** SecurityScoreSnapshotRecorder constructor. */
 	public function __construct() {
 		add_action( 'vulopilot_scan_completed', array( $this, 'record_today' ), 20 );
 		add_action( 'init', array( $this, 'ensure_daily_snapshot_scheduled' ) );
@@ -31,10 +29,7 @@ class SecurityScoreSnapshotRecorder {
 		$findings  = new FindingRepository();
 		$breakdown = $findings->get_severity_breakdown_for_category( 'security' );
 
-		// Logarithmic, not linear, per-tier penalty - same reasoning/weights as
-		// Dashboard::score_from_breakdown() (kept in sync so the trend chart and the "At Risk"
-		// gauge agree): a linear count*weight penalty saturates to 0 after roughly a dozen
-		// high-severity findings, which is useless for a real first scan.
+		// Logarithmic, not linear, per-tier penalty.
 		$score = 100
 			- ( 15 * log( 1 + $breakdown['critical'] ) )
 			- ( 8 * log( 1 + $breakdown['high'] ) )
@@ -72,8 +67,7 @@ class SecurityScoreSnapshotRecorder {
 	}
 
 	/**
-	 * Standard wp_next_scheduled()-guarded wp_schedule_event() pattern -
-	 * same shape PerformanceScoreSnapshotRecorder already uses.
+	 * Standard wp_next_scheduled()-guarded wp_schedule_event() pattern.
 	 *
 	 * @return void
 	 */

@@ -17,11 +17,8 @@ use VuloForm\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Takes a posted form from request to stored submission.
- *
- * Nothing the browser says about the form is trusted: which fields exist, which are required, which
- * are hidden by a condition and what a calculation comes to are all worked out here from the stored
- * schema.
+ * Takes a posted form from request to stored submission. Nothing the browser says about the form
+ * is trusted - required, visibility and calculations are all worked out here from the stored schema.
  */
 class Processor {
 
@@ -78,66 +75,9 @@ class Processor {
 			return self::failure( $spam['message'] );
 		}
 
-		$raw    = isset( $post['vf'] ) && is_array( $post['vf'] ) ? $post['vf'] : array();
-		$values = array();
-
-		// First pass: clean every value, so conditions can be evaluated against the whole form.
-		foreach ( $form['schema']['fields'] as $field ) {
-			if ( Registry::is_input( $field['type'] ) && 'file' !== $field['type'] && 'calculation' !== $field['type'] ) {
-				$values[ $field['key'] ] = self::clean( $field, $raw[ $field['key'] ] ?? '' );
-			}
-		}
-
-		$errors  = array();
 		$uploads = array();
-
-		// Second pass: validate what is visible, drop what is not.
-		foreach ( $form['schema']['fields'] as $field ) {
-			if ( ! Registry::is_input( $field['type'] ) ) {
-				continue;
-			}
-
-			$key = $field['key'];
-
-			if ( ! Conditions::is_visible( $field, $values ) ) {
-				unset( $values[ $key ] );
-				continue;
-			}
-
-			$required = Conditions::is_required( $field, $values );
-
-			if ( 'calculation' === $field['type'] ) {
-				continue;
-			}
-
-			if ( 'file' === $field['type'] ) {
-				$sent = Uploads::normalise( $files[ 'vf_file_' . $key ] ?? null );
-
-				if ( ! $sent ) {
-					$error = $required ? $settings['messages']['required'] : '';
-				} else {
-					$error           = Uploads::validate( $field, $sent );
-					$uploads[ $key ] = array( $field, $sent );
-				}
-			} else {
-				$error = self::validate( $field, $values[ $key ], $required, $settings['messages'] );
-			}
-
-			/**
-			 * Filters one field's validation error. Return a message to reject the value, '' to accept it.
-			 *
-			 * @param string $error  Current error, '' when valid.
-			 * @param array  $field  Field definition.
-			 * @param mixed  $value  Cleaned value (null for a file field).
-			 * @param array  $values Every cleaned value, by field key.
-			 * @param array  $form   Form.
-			 */
-			$error = (string) apply_filters( 'vuloform_validate_field', $error, $field, $values[ $key ] ?? null, $values, $form );
-
-			if ( '' !== $error ) {
-				$errors[ $field['id'] ] = $error;
-			}
-		}
+		$values  = self::clean_values( $form['schema']['fields'], isset( $post['vf'] ) && is_array( $post['vf'] ) ? $post['vf'] : array() );
+		$errors  = self::validate_values( $form, $values, $files, $uploads );
 
 		if ( $errors ) {
 			$result           = self::failure( $settings['messages']['error'] );
@@ -146,27 +86,12 @@ class Processor {
 			return $result;
 		}
 
-		// Calculations run last, on validated values only.
-		foreach ( $form['schema']['fields'] as $field ) {
-			if ( 'calculation' === $field['type'] && Conditions::is_visible( $field, $values ) ) {
-				$total                   = Calculator::evaluate( $field['formula'], $values );
-				$values[ $field['key'] ] = null === $total ? '' : number_format( $total, (int) $field['decimals'], '.', '' );
-			}
-		}
+		self::apply_calculations( $form['schema']['fields'], $values );
 
-		foreach ( $uploads as $key => $upload ) {
-			$values[ $key ] = Uploads::store( $upload[0], $upload[1] );
+		$stored = self::store_uploads( $uploads, $values );
 
-			if ( ! $values[ $key ] ) {
-				// Nothing was stored for a file that passed validation: the server could not write it.
-				foreach ( $values as $stored ) {
-					if ( is_array( $stored ) && isset( $stored[0]['path'] ) ) {
-						Uploads::delete_for_submission( array( 'data' => array( $stored ) ) );
-					}
-				}
-
-				return self::failure( __( 'Your file could not be saved. Please try again later.', 'vuloform' ) );
-			}
+		if ( ! $stored ) {
+			return self::failure( __( 'Your file could not be saved. Please try again later.', 'vuloform' ) );
 		}
 
 		/**
@@ -226,6 +151,132 @@ class Processor {
 	}
 
 	/**
+	 * First pass: clean every value, so conditions can be evaluated against the whole form.
+	 *
+	 * @param array $fields Form fields.
+	 * @param array $raw    The posted `vf` array.
+	 * @return array Field key => cleaned value.
+	 */
+	private static function clean_values( array $fields, array $raw ) {
+		$values = array();
+
+		foreach ( $fields as $field ) {
+			if ( Registry::is_input( $field['type'] ) && ! in_array( $field['type'], array( 'file', 'signature', 'calculation' ), true ) ) {
+				$values[ $field['key'] ] = self::clean( $field, $raw[ $field['key'] ] ?? '' );
+			}
+		}
+
+		return $values;
+	}
+
+	/**
+	 * Second pass: validate what is visible, drop what is not. Updates `$values` and `$uploads` (a
+	 * field key => `[ field, normalised file ]` map) in place.
+	 *
+	 * @param array $form    Form.
+	 * @param array $values  Cleaned values, updated in place.
+	 * @param array $files   `$_FILES`-shaped uploads, keyed `vf_file_{field key}`.
+	 * @param array $uploads Populated with one entry per field awaiting `store_uploads()`.
+	 * @return array<string, string> Validation errors, by field id.
+	 */
+	private static function validate_values( array $form, array &$values, array $files, array &$uploads ) {
+		$settings = $form['schema']['settings'];
+		$errors   = array();
+
+		foreach ( $form['schema']['fields'] as $field ) {
+			if ( ! Registry::is_input( $field['type'] ) ) {
+				continue;
+			}
+
+			$key = $field['key'];
+
+			if ( ! Conditions::is_visible( $field, $values ) ) {
+				unset( $values[ $key ] );
+				continue;
+			}
+
+			$required = Conditions::is_required( $field, $values );
+
+			if ( 'calculation' === $field['type'] ) {
+				continue;
+			}
+
+			if ( 'file' === $field['type'] || 'signature' === $field['type'] ) {
+				$sent = Uploads::normalise( $files[ 'vf_file_' . $key ] ?? null );
+
+				if ( ! $sent ) {
+					$error = $required ? $settings['messages']['required'] : '';
+				} else {
+					$error           = Uploads::validate( $field, $sent );
+					$uploads[ $key ] = array( $field, $sent );
+				}
+			} else {
+				$error = self::validate( $field, $values[ $key ], $required, $settings['messages'] );
+			}
+
+			/**
+			 * Filters one field's validation error. Return a message to reject the value, '' to accept it.
+			 *
+			 * @param string $error  Current error, '' when valid.
+			 * @param array  $field  Field definition.
+			 * @param mixed  $value  Cleaned value (null for a file field).
+			 * @param array  $values Every cleaned value, by field key.
+			 * @param array  $form   Form.
+			 */
+			$error = (string) apply_filters( 'vuloform_validate_field', $error, $field, $values[ $key ] ?? null, $values, $form );
+
+			if ( '' !== $error ) {
+				$errors[ $field['id'] ] = $error;
+			}
+		}
+
+		return $errors;
+	}
+
+	/**
+	 * Calculations run last, on validated values only. Updates `$values` in place.
+	 *
+	 * @param array $fields Form fields.
+	 * @param array $values Cleaned, validated values, updated in place.
+	 * @return void
+	 */
+	private static function apply_calculations( array $fields, array &$values ) {
+		foreach ( $fields as $field ) {
+			if ( 'calculation' === $field['type'] && Conditions::is_visible( $field, $values ) ) {
+				$total                   = Calculator::evaluate( $field['formula'], $values );
+				$values[ $field['key'] ] = null === $total ? '' : number_format( $total, (int) $field['decimals'], '.', '' );
+			}
+		}
+	}
+
+	/**
+	 * Stores every validated upload, replacing its `$values` entry with the stored file's data.
+	 * Rolls back anything already stored this request when one upload fails to write.
+	 *
+	 * @param array $uploads Field key => `[ field, normalised file ]`, from `validate_values()`.
+	 * @param array $values  Cleaned, validated values, updated in place.
+	 * @return bool Whether every upload was stored.
+	 */
+	private static function store_uploads( array $uploads, array &$values ) {
+		foreach ( $uploads as $key => $upload ) {
+			$values[ $key ] = Uploads::store( $upload[0], $upload[1] );
+
+			if ( ! $values[ $key ] ) {
+				// Nothing was stored for a file that passed validation: the server could not write it.
+				foreach ( $values as $stored ) {
+					if ( is_array( $stored ) && isset( $stored[0]['path'] ) ) {
+						Uploads::delete_for_submission( array( 'data' => array( $stored ) ) );
+					}
+				}
+
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Picks the confirmation for a submission: the first alternative whose conditions its answers
 	 * meet, otherwise the form's usual one.
 	 *
@@ -280,6 +331,26 @@ class Processor {
 			case 'consent':
 				return is_string( $value ) && '' !== $value ? '1' : '';
 
+			case 'repeater':
+				$rows  = array();
+				$limit = max( 1, (int) ( $field['max_rows'] ?? 10 ) );
+
+				foreach ( array_slice( is_array( $value ) ? $value : array(), 0, $limit ) as $row ) {
+					if ( ! is_array( $row ) ) {
+						continue;
+					}
+
+					$clean_row = array();
+
+					foreach ( $field['fields'] as $sub_field ) {
+						$clean_row[ $sub_field['key'] ] = self::clean( $sub_field, $row[ $sub_field['key'] ] ?? '' );
+					}
+
+					$rows[] = $clean_row;
+				}
+
+				return $rows;
+
 			default:
 				return is_string( $value ) ? sanitize_text_field( $value ) : '';
 		}
@@ -295,6 +366,10 @@ class Processor {
 	 * @return string Error message, or ''.
 	 */
 	public static function validate( array $field, $value, $required, array $messages ) {
+		if ( 'repeater' === $field['type'] ) {
+			return self::validate_repeater( $field, $value, $required, $messages );
+		}
+
 		$flat  = Conditions::flatten( $value );
 		$empty = ! $flat;
 
@@ -357,6 +432,7 @@ class Processor {
 
 			case 'text':
 			case 'textarea':
+			case 'password':
 				$length = mb_strlen( $text );
 
 				if ( $field['minlength'] > 0 && $length < $field['minlength'] ) {
@@ -370,6 +446,43 @@ class Processor {
 				}
 
 				return '';
+		}
+
+		return '';
+	}
+
+	/**
+	 * Validates a repeater's rows: each row's own sub-fields, against their own `required`, plus the
+	 * repeater's row-count bounds.
+	 *
+	 * @param array $field    The repeater field definition.
+	 * @param mixed $value    Cleaned rows, as returned by `clean()`.
+	 * @param bool  $required Whether the repeater itself (at least one row) is required.
+	 * @param array $messages The form's `required` and `invalid` messages.
+	 * @return string Error message, or ''.
+	 */
+	private static function validate_repeater( array $field, $value, $required, array $messages ) {
+		$rows = is_array( $value ) ? $value : array();
+
+		if ( ! $rows ) {
+			return $required || (int) $field['min_rows'] > 0 ? $messages['required'] : '';
+		}
+
+		if ( count( $rows ) < (int) $field['min_rows'] ) {
+			/* translators: %d: smallest allowed number of rows. */
+			return sprintf( _n( 'Add at least %d row.', 'Add at least %d rows.', (int) $field['min_rows'], 'vuloform' ), (int) $field['min_rows'] );
+		}
+
+		foreach ( $rows as $index => $row ) {
+			foreach ( $field['fields'] as $sub_field ) {
+				$sub_value = is_array( $row ) ? ( $row[ $sub_field['key'] ] ?? '' ) : '';
+				$sub_error = self::validate( $sub_field, $sub_value, $sub_field['required'], $messages );
+
+				if ( '' !== $sub_error ) {
+					/* translators: 1: row number, 2: error message. */
+					return sprintf( __( 'Row %1$d: %2$s', 'vuloform' ), $index + 1, $sub_error );
+				}
+			}
 		}
 
 		return '';

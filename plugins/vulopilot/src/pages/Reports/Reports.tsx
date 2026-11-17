@@ -15,15 +15,11 @@ const TAB_META: Record<
 	{ headerTitle: string; headerIcon: string }
 > = {
 	overview: { headerTitle: __('Overview', 'vulopilot'), headerIcon: 'bar-chart' },
-	// Moved here from AI Copilot - a real, day-grouped scan/change/ conversation timeline
-	// (HistoryTab.tsx's own docblock).
+	// Moved here from AI Copilot - a real, day-grouped scan/change/ conversation timeline.
 	history: { headerTitle: __('History', 'vulopilot'), headerIcon: 'clock' },
 };
 
-/**
- * "Reports" - a tab shell, now just Overview/History. "Report Builder" (ReportTab.tsx) and
- * "Activity" (ActivityTab.tsx) were fully deleted.
- */
+/** "Reports" - a tab shell, now just Overview/History. */
 const Reports = () => {
 	const subtab = new URLSearchParams(useLocation().hash.substring(1)).get(
 		'subtab'
@@ -34,13 +30,10 @@ const Reports = () => {
 			: 'overview'
 	) as (typeof TAB_IDS)[number];
 
-	// No setter needed - unlike AIAssistant.tsx's own `activeTab`, nothing here ever triggers a
-	// cross-tab jump from inside a tab's own content.
+	// No setter needed - unlike AIAssistant.tsx's own `activeTab`, nothing here ever triggers a cross-tab jump from inside a tab's own content.
 	const [activeTab] = useState<(typeof TAB_IDS)[number]>(initialTab);
 
-	// Lifted up from OverviewTab.tsx so the page header's own `headerCustomContent`
-	// (ReportsOverviewActions.tsx, Overview tab only) and OverviewTab's own cards read the same
-	// real state, not two separate copies of it.
+	// Lifted up from OverviewTab.tsx so the page header's own `headerCustomContent` and OverviewTab's own cards read the same real state, not two separate copies of it.
 	const [days, setDays] = useState<number>(DAY_OPTIONS[1]);
 	const [refreshKey, setRefreshKey] = useState(0);
 
@@ -88,8 +81,7 @@ const Reports = () => {
 					`?page=vulopilot#&tab=reports&subtab=${subTab}`
 				}
 				Link={Link}
-				// Each tab's own real `headerIcon` (TAB_META above) was already being passed
-				// through `settingContent`.
+				// Each tab's own real `headerIcon` was already being passed through `settingContent`.
 				menuIcon
 			/>
 		</>

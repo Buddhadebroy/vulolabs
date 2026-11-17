@@ -18,9 +18,7 @@ import GettingStartedCard from './GettingStartedCard';
 
 import type { DashboardSummary } from '../../dashboard-widgets/types';
 
-/**
- * Empty dashboard summary.
- */
+/** Empty dashboard summary. */
 const EMPTY_SUMMARY: DashboardSummary = {
 	overall_score: 0,
 	open_findings: 0,
@@ -82,9 +80,7 @@ const EMPTY_SUMMARY: DashboardSummary = {
 	},
 };
 
-/**
- * Dashboard greeting.
- */
+/** Dashboard greeting. */
 const getGreeting = (): string => {
 	const hour = new Date().getHours();
 
@@ -99,9 +95,7 @@ const getGreeting = (): string => {
 	return __('Good evening', 'vulopilot');
 };
 
-/**
- * Dashboard page.
- */
+/** Dashboard page. */
 const Dashboard = () => {
 	const [summary, setSummary] =
 		useState<DashboardSummary>(EMPTY_SUMMARY);
@@ -115,9 +109,7 @@ const Dashboard = () => {
 	const [restoreDefaultSignal, setRestoreDefaultSignal] =
 		useState(0);
 
-	/**
-	 * Load dashboard data.
-	 */
+	/** Load dashboard data. */
 	const loadDashboard = (silent = false) => {
 		if (!silent) {
 			setIsLoading(true);
@@ -177,16 +169,12 @@ const Dashboard = () => {
 			});
 	};
 
-	/**
-	 * Initial dashboard load.
-	 */
+	/** Initial dashboard load. */
 	useEffect(() => {
 		loadDashboard();
 	}, []);
 
-	/**
-	 * Dashboard header actions.
-	 */
+	/** Dashboard header actions. */
 	const headerCustomContent = (
 		<RunScanHeaderExtra
 			settingsSubtab="general"
@@ -233,9 +221,7 @@ const Dashboard = () => {
 		/>
 	);
 
-	/**
-	 * Page header.
-	 */
+	/** Page header. */
 	const pageHeader = (
 		<NavigatorHeaderComponent
 			headerTitle={sprintf(
@@ -256,9 +242,7 @@ const Dashboard = () => {
 		/>
 	);
 
-	/**
-	 * Error state.
-	 */
+	/** Error state. */
 	if (error) {
 		return (
 			<>
@@ -278,9 +262,7 @@ const Dashboard = () => {
 		);
 	}
 
-	/**
-	 * Dashboard layout.
-	 */
+	/** Dashboard layout. */
 	return (
 		<>
 			{pageHeader}

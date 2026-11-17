@@ -40,13 +40,11 @@ defined( 'ABSPATH' ) || exit;
 class Rest {
 
 	/**
-	 * @var array<string, \WP_REST_Controller>
+	 * @var array
 	 */
 	private array $controllers = array();
 
-	/**
-	 * Rest constructor.
-	 */
+	/** Rest constructor. */
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}

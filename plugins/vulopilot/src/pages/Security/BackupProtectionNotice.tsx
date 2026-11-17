@@ -6,13 +6,9 @@ import InfoBanner from '../../components/InfoBanner';
 
 const BACKUPS_TAB_HASH = '#&tab=site-health&subtab=backups';
 
-/**
- * "Backup protection: Enabled/Not enabled" - a single real status line with a link.
- */
+/** "Backup protection: Enabled/Not enabled" - a single real status line with a link. */
 interface BackupProtectionNoticeProps {
-	/**
-	 * Switches this same page's own real "Backups" tab in place instead of navigating.
-	 */
+	/** Switches this same page's own real "Backups" tab in place instead of navigating. */
 	onNavigateToBackups?: () => void;
 }
 

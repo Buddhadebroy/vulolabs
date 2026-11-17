@@ -66,9 +66,7 @@ const dummyContent = (
 );
 
 /**
- * "AEO Score" - card shell only, same `useContentGate`/`useFilterSlot` pattern
- * AeoCitationCoverageCard.tsx/AeoEngineTestingCard.tsx already use. Plugs in via the
- * `vulopilot_aeo_score_summary_panel` filter, else the inert ring above renders.
+ * "AEO Score" - card shell only, same `useContentGate`/`useFilterSlot` pattern AeoCitationCoverageCard.tsx/AeoEngineTestingCard.tsx already use.
  */
 const AeoScoreSummaryCard = ({ isActive, ...panelProps }: AeoScoreSummaryCardProps) => {
 	const Panel = useFilterSlot<ComponentType<AeoScoreSummaryPanelProps>>(

@@ -14,9 +14,7 @@ const MODULE_CATALOG_BY_ID = new Map(
 	MODULES_CATALOG.modules.filter(isModuleCatalogEntry).map((module) => [module.id, module])
 );
 
-/**
- * Fallback preview used when a caller doesn't supply `dummyContent` to `wrap()`.
- */
+/** Fallback preview used when a caller doesn't supply `dummyContent` to `wrap()`. */
 const DEFAULT_DUMMY_CONTENT = (
 	<div className="content-gate-dummy-content" aria-hidden="true">
 		<div className="desc">
@@ -29,9 +27,7 @@ const DEFAULT_DUMMY_CONTENT = (
 	</div>
 );
 
-/**
- * Shared logic behind content-gated cards (originally AiSpeedAssistantCard.tsx).
- */
+/** Shared logic behind content-gated cards (originally AiSpeedAssistantCard.tsx). */
 export const useContentGate = (
 	moduleId: string | null,
 	isModuleActive?: boolean

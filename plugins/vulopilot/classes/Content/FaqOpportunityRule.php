@@ -16,8 +16,7 @@ use VuloPilot\Utill\RuleType;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Turns Geo\Scanners\GeoFaqOpportunityScanner's "no FAQ-style questions" Finding into a
- * recommendation to draft one with AI.
+ * Turns Geo\Scanners\GeoFaqOpportunityScanner's "no FAQ-style questions" Finding into a recommendation to draft one with AI.
  *
  * @class       FaqOpportunityRule class
  * @version     1.0.0
@@ -99,8 +98,7 @@ class FaqOpportunityRule extends AbstractBasicRule {
 	 * @inheritDoc
 	 */
 	public function applies_to( Finding $finding ): bool {
-		// Matched on the `faq_opportunity` meta key GeoFaqOpportunityScanner attaches specifically
-		// for this.
+		// Matched on the `faq_opportunity` meta key GeoFaqOpportunityScanner attaches specifically for this.
 		return 'geo' === $finding->get_category() && array_key_exists( 'faq_opportunity', $finding->get_meta() );
 	}
 

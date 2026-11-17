@@ -16,9 +16,7 @@ use VuloPilot\Utill\ScannedPostsTrait;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags published posts/pages whose heading levels skip a level (e.g. an `h2` followed
- * later by an `h4` with no `h3` anywhere between them, ignoring content in between at
- * the same or shallower level).
+ * Flags published posts/pages whose heading levels skip a level.
  *
  * @class       GeoSemanticStructureScanner class
  * @version     1.0.0

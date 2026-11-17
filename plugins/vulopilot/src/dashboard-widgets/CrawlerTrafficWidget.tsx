@@ -28,9 +28,7 @@ interface CrawlerSummaryResponse {
 	daily_volume: { date: string; total: number }[];
 }
 
-/**
- * A Dashboard-level teaser for the Crawler Traffic page.
- */
+/** A Dashboard-level teaser for the Crawler Traffic page. */
 const CrawlerTrafficWidget: React.FC<WidgetProps> = ({
 	onHide,
 	isCustomizing,

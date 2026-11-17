@@ -3,9 +3,7 @@ import { __ } from '@wordpress/i18n';
 import SecurityPanel from './SecurityPanel';
 import SecurityRestoreDefaultsHeader from './SecurityRestoreDefaultsHeader';
 
-/**
- * Settings → Scanning → Security.
- */
+/** Settings → Scanning → Security. */
 export default {
 	id: 'security-scanning',
 	priority: 3,

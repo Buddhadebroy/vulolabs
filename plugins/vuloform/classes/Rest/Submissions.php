@@ -95,7 +95,7 @@ class Submissions extends Controller {
 				'files' => array(),
 			);
 
-			if ( 'file' === $field['type'] && is_array( $value ) ) {
+			if ( in_array( $field['type'], array( 'file', 'signature' ), true ) && is_array( $value ) ) {
 				foreach ( $value as $index => $record ) {
 					// The stored path stays on the server; the file is fetched by position.
 					$entry['files'][] = array(

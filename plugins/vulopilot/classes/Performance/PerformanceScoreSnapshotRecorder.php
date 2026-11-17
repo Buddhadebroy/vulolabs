@@ -7,8 +7,7 @@ use VuloPilot\Utill\ScoreSnapshotRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Writes today's real performance-category score into `vulopilot_score_snapshots`
- * (category `performance`) - the data SpeedHistoryCard.tsx's chart reads.
+ * Writes today's real performance-category score into `vulopilot_score_snapshots`.
  *
  * @class       PerformanceScoreSnapshotRecorder class
  * @version     1.0.0
@@ -18,9 +17,7 @@ class PerformanceScoreSnapshotRecorder {
 
 	private const CRON_HOOK = 'vulopilot_performance_snapshot_daily';
 
-	/**
-	 * PerformanceScoreSnapshotRecorder constructor.
-	 */
+	/** PerformanceScoreSnapshotRecorder constructor. */
 	public function __construct() {
 		add_action( 'vulopilot_scan_completed', array( $this, 'record_today' ), 20 );
 		add_action( 'init', array( $this, 'ensure_daily_snapshot_scheduled' ) );

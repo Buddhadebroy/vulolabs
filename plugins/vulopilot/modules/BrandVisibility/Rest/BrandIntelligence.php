@@ -12,7 +12,7 @@ use VuloPilot\Utill\FindingRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * REST controller for Brand Intelligence's deterministic scores:
+ * REST controller for Brand Intelligence's deterministic scores.
  *
  * @class       BrandIntelligence controller
  * @version     1.0.0
@@ -76,8 +76,7 @@ class BrandIntelligence extends \WP_REST_Controller {
 		$trust_breakdown     = $findings->get_severity_breakdown_for_scanner_ids( self::TRUST_SCANNER_IDS );
 		$authority_breakdown = $findings->get_severity_breakdown_for_scanner_ids( self::AUTHORITY_SCANNER_IDS );
 		$entity_breakdown    = $findings->get_severity_breakdown_for_scanner_ids( self::ENTITY_SCANNER_IDS );
-		// Trust + Authority only - see this class's own docblock for why
-		// Entity no longer blends into the overall Brand Score.
+		// Trust + Authority only - see this class's own docblock for why Entity no longer blends into the overall Brand Score.
 		$overall_breakdown = $findings->get_severity_breakdown_for_scanner_ids(
 			array_merge( self::TRUST_SCANNER_IDS, self::AUTHORITY_SCANNER_IDS )
 		);
@@ -94,10 +93,9 @@ class BrandIntelligence extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Same weighting Dashboard::calculate_category_score()/
-	 * ContentIntelligence::get_score() already use.
+	 * Same weighting Dashboard::calculate_category_score()/ ContentIntelligence::get_score() already use.
 	 *
-	 * @param array{critical: int, high: int, medium: int, low: int} $breakdown Severity breakdown to score.
+	 * @param array $breakdown Severity breakdown to score.
 	 * @return int 0-100.
 	 */
 	private function calculate_score( array $breakdown ): int {

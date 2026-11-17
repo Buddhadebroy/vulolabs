@@ -16,9 +16,7 @@ import './Commerce.scss';
 
 const COMMERCE_MODULE_ID = 'woo-commerce-analytics';
 
-/**
- * Runs once, unconditionally, at this module's own top-level scope.
- */
+/** Runs once, unconditionally, at this module's own top-level scope. */
 addFilter(
 	'vulopilot_commerce_issues_table',
 	'vulopilot/commerce',
@@ -39,9 +37,7 @@ addFilter(
 
 addFilter('vulopilot_banner_card', 'vulopilot/commerce', () => BannerCard);
 
-/**
- * Was previously its own CommercePanel.tsx file, imported only here.
- */
+/** Was previously its own CommercePanel.tsx file, imported only here. */
 const CommercePanel = ({
 	RealPanel,
 	onLockedClick,

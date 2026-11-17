@@ -26,7 +26,7 @@ export interface AiChatCardProps<TTurn> {
 	onNewChat?: () => void;
 	emptyTitle?: ReactNode;
 	emptyDesc?: ReactNode;
-	/** Suggested-prompt pills, rendered right below the empty-state text (only while `turns` is empty). */
+	/** Suggested-prompt pills, rendered right below the empty-state text. */
 	prompts?: AiChatCardPrompt[];
 	 
 	// eslint-disable-next-line no-unused-vars
@@ -39,7 +39,7 @@ export interface AiChatCardProps<TTurn> {
 	sendingSpinnerClassName?: string;
 	/** Whether `composer` renders before or after the turns block. */
 	composerPosition?: 'before-turns' | 'after-turns';
-	/** Extra content rendered right before the composer - attachment/context chips, toggleable picker panels, a pending-chip question, etc.. */
+	/** Extra content rendered right before the composer. */
 	beforeComposer?: ReactNode;
 	/** The fully-built `ChatInput` element - still built by each page itself. */
 	composer: ReactNode;

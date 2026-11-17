@@ -28,17 +28,10 @@ class ReadabilityScanner extends ScannerUtil implements TracksScannedObjectsInte
 
 	private const BATCH_SIZE = 50;
 
-	/**
-	 * A post under this many words is already flagged by ThinContentScanner for a
-	 * different reason (not enough substance).
-	 */
+	/** A post under this many words is already flagged by ThinContentScanner for a different reason. */
 	private const MIN_WORDS_TO_SCORE = 100;
 
-	/**
-	 * Fallback only - the real threshold is Scanning → SEO & Content's flat
-	 * `content_readability_min_score` setting (see that key's own docblock in
-	 * Utill::VULOPILOT_SETTINGS_DEFAULTS).
-	 */
+	/** Fallback only - the real threshold is Scanning → SEO & Content's flat `content_readability_min_score` setting. */
 	private const DEFAULT_MIN_SCORE = 50;
 
 	/**
@@ -147,8 +140,7 @@ class ReadabilityScanner extends ScannerUtil implements TracksScannedObjectsInte
 	}
 
 	/**
-	 * Standard vowel-group heuristic: count transitions into a vowel group (a run of
-	 * a/e/i/o/u/y not preceded by another vowel).
+	 * Standard vowel-group heuristic.
 	 *
 	 * @param string $plain_text Already-stripped-of-HTML content.
 	 * @return int
@@ -164,8 +156,7 @@ class ReadabilityScanner extends ScannerUtil implements TracksScannedObjectsInte
 				continue;
 			}
 
-			// Drop a trailing silent "e" (e.g. "make" -> "mak") since it doesn't form its own
-			// syllable.
+			// Drop a trailing silent "e" (e.g. "make" -> "mak") since it doesn't form its own syllable.
 			if ( strlen( $word ) > 1 && 'e' === substr( $word, -1 ) && 'le' !== substr( $word, -2 ) ) {
 				$word = substr( $word, 0, -1 );
 			}

@@ -21,13 +21,11 @@ class RuleRegistry {
 	/**
 	 * Instantiated rules, keyed by their own get_id().
 	 *
-	 * @var array<string, RuleInterface>
+	 * @var array
 	 */
 	private array $rules = array();
 
-	/**
-	 * RuleRegistry constructor.
-	 */
+	/** RuleRegistry constructor. */
 	public function __construct() {
 		add_action( 'init', array( $this, 'register_rules' ), 20 );
 	}
@@ -86,7 +84,7 @@ class RuleRegistry {
 	}
 
 	/**
-	 * @return array<string, RuleInterface>
+	 * @return array
 	 */
 	public function get_all_rules(): array {
 		return $this->rules;

@@ -15,13 +15,11 @@ class BlockRegistrar {
 	/**
 	 * Discovered blocks, cached for the lifetime of one request.
 	 *
-	 * @var array<int, array{name: string, path: string}>|null
+	 * @var array|null
 	 */
 	private $blocks;
 
-	/**
-	 * BlockRegistrar constructor.
-	 */
+	/** BlockRegistrar constructor. */
 	public function __construct() {
 		add_action( 'init', array( $this, 'register_blocks' ) );
 		add_filter( 'block_categories_all', array( $this, 'register_block_category' ) );
@@ -29,10 +27,10 @@ class BlockRegistrar {
 	}
 
 	/**
-	 * Adds a real "VuloPilot" category to the block inserter so this plugin's own blocks (`faq`/`table-of-contents`, both `"category":
+	 * Adds a real "VuloPilot" category to the block inserter so this plugin's own blocks.
 	 *
-	 * @param array<int, array{slug: string, title: string, icon: ?string}> $categories Core's own already-registered categories.
-	 * @return array<int, array{slug: string, title: string, icon: ?string}>
+	 * @param array $categories Core's own already-registered categories.
+	 * @return array
 	 */
 	public function register_block_category( array $categories ): array {
 		return array_merge(
@@ -50,7 +48,7 @@ class BlockRegistrar {
 	/**
 	 * Scans `assets/js/block/` for built block folders containing a `block.json`.
 	 *
-	 * @return array<int, array{name: string, path: string}>
+	 * @return array
 	 */
 	private function get_blocks(): array {
 		if ( null !== $this->blocks ) {

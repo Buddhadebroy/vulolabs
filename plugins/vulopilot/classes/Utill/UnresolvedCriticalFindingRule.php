@@ -10,8 +10,7 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The cross-cutting rule: applies to any critical Finding regardless of category and gives
- * the highest-priority recommendation.
+ * The cross-cutting rule: applies to any critical Finding regardless of category and gives the highest-priority recommendation.
  *
  * @class       UnresolvedCriticalFindingRule class
  * @version     1.0.0

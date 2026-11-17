@@ -13,7 +13,7 @@ use VuloPilot\Utill\VuloPilotException;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Fetches `/ai-action-runs` to back the Dashboard's "Pending Approval" widget. Creating via `/ai-action-runs` starts the lifecycle (called by ContentToolRunner.tsx).
+ * Fetches `/ai-action-runs` to back the Dashboard's "Pending Approval" widget.
  *
  * @class       AiActionRuns controller
  * @version     1.0.0
@@ -99,10 +99,7 @@ class AiActionRuns extends \WP_REST_Controller {
 	}
 
 	/**
-	 * @inheritDoc
-	 *
-	 * Also requires the AI Copilot module to be active - shared by propose/approve/
-	 * reject/rollback, not just the generation step.
+	 * @inheritDoc Also requires the AI Copilot module to be active - shared by propose/approve/ reject/rollback, not just the generation step.
 	 */
 	public function update_item_permissions_check( $request ) {
 		if ( ! current_user_can( 'manage_options' ) ) {

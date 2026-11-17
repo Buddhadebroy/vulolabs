@@ -8,9 +8,7 @@ import SiteSnapshotWidget from './SiteSnapshotWidget';
 import RecentActivityWidget from './RecentActivityWidget';
 import { WidgetDefinition } from './types';
 
-/**
- * The newer "Good morning" Dashboard mockup's own top section, in its exact order.
- */
+/** The newer "Good morning" Dashboard mockup's own top section, in its exact order. */
 const MOCKUP_WIDGETS: WidgetDefinition[] = [
 	{
 		id: 'overall-score',
@@ -55,10 +53,7 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 	
 ];
 
-/**
- * No config-driven "one number" stat widgets left on the Dashboard - see StatWidget.tsx for why
- * these ever shared one component.
- */
+/** No config-driven "one number" stat widgets left on the Dashboard. */
 
 const STAT_WIDGET_CONFIGS: StatWidgetConfig[] = [];
 
@@ -75,8 +70,7 @@ const STAT_WIDGETS: WidgetDefinition[] = STAT_WIDGET_CONFIGS.map(
 
 export const DEFAULT_DASHBOARD_WIDGETS: WidgetDefinition[] = applyFilters(
 	'vulopilot_dashboard_widgets',
-	// MOCKUP_WIDGETS leads (Vital Pulse through every pre-mockup widget it carries forward, see
-	// its own docblock above).
+	// MOCKUP_WIDGETS leads.
 		[
 			...MOCKUP_WIDGETS,
 			...STAT_WIDGETS,

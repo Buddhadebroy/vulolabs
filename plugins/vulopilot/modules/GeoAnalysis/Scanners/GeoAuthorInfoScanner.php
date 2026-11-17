@@ -16,8 +16,7 @@ use VuloPilot\Utill\ScannedPostsTrait;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags published posts/pages whose author has no bio set
- * (`get_the_author_meta('description')`).
+ * Flags published posts/pages whose author has no bio set (`get_the_author_meta('description')`).
  *
  * @class       GeoAuthorInfoScanner class
  * @version     1.0.0

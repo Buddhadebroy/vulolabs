@@ -247,13 +247,10 @@ class TestSmsTriggers extends TestCase {
 			}
 		);
 
-		$_SERVER['REMOTE_ADDR'] = '203.0.113.9';
-		$triggers               = $this->triggers( array( 'admin_login' ) );
+		$triggers = $this->triggers( array( 'admin_login' ) );
 
-		$triggers->on_login( 'shopper', (object) array( 'is_admin' => false ) );
-		$triggers->on_login( 'boss', (object) array( 'is_admin' => true ) );
-
-		unset( $_SERVER['REMOTE_ADDR'] );
+		$triggers->on_login( 'shopper', (object) array( 'is_admin' => false ), '203.0.113.9' );
+		$triggers->on_login( 'boss', (object) array( 'is_admin' => true ), '203.0.113.9' );
 
 		$this->assertCount( 1, $this->dispatcher->sent );
 		$this->assertSame( 'Administrator boss logged in to Example Shop from 203.0.113.9.', $this->dispatcher->sent[0][1] );
@@ -294,21 +291,6 @@ class TestSmsTriggers extends TestCase {
 	 * @return void
 	 */
 	public function test_email_failure_alerts_are_spaced_out_and_skip_test_emails() {
-		$transients = array();
-
-		Functions\when( 'get_transient' )->alias(
-			static function ( $key ) use ( &$transients ) {
-				return $transients[ $key ] ?? false;
-			}
-		);
-		Functions\when( 'set_transient' )->alias(
-			static function ( $key, $value ) use ( &$transients ) {
-				$transients[ $key ] = $value;
-
-				return true;
-			}
-		);
-
 		$triggers = $this->triggers( array( 'email_failed' ) );
 		$result   = (object) array( 'error_message' => 'SMTP Error: Could not authenticate.' );
 

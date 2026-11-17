@@ -8,8 +8,7 @@ use VuloPilot\Utill\ServerRequest;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Detects known AI crawlers by User-Agent and logs each visit (bot name, user agent and
- * URL only - no IP address or visitor data).
+ * Detects known AI crawlers by User-Agent and logs each visit.
  *
  * @class       CrawlerTrafficLogger class
  * @version     1.0.0
@@ -36,9 +35,7 @@ class CrawlerTrafficLogger {
 		'Amazonbot'             => 'Amazonbot (Amazon)',
 	);
 
-	/**
-	 * CrawlerTrafficLogger constructor.
-	 */
+	/** CrawlerTrafficLogger constructor. */
 	public function __construct() {
 		add_action( 'template_redirect', array( $this, 'maybe_log' ) );
 		add_action( 'init', array( $this, 'ensure_cleanup_scheduled' ) );
@@ -74,7 +71,7 @@ class CrawlerTrafficLogger {
 	}
 
 	/**
-	 * @return array<string, string>
+	 * @return array
 	 */
 	public static function get_bot_signatures(): array {
 		return apply_filters( 'vulopilot_crawler_bot_signatures', self::BOT_SIGNATURES );

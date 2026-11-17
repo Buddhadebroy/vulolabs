@@ -16,8 +16,7 @@ use VuloPilot\Utill\RuleType;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The flagship example: turns ImagesScanner's "image missing alt text"
- * Finding into a concrete "generate an ALT text suggestion" recommendation.
+ * The flagship example: turns ImagesScanner's "image missing alt text" Finding into a concrete "generate an ALT text suggestion" recommendation.
  *
  * @class       MissingAltTextRule class
  * @version     1.0.0

@@ -2,7 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
 import { usePostScores } from './usePostScores';
 
-/** Same 3-tier rating band `PageAnalysisTab.tsx`'s own `IssueSection` summary pill uses, in the colors Rank Math's own toolbar score pill uses (green/orange/red). */
+/** Same 3-tier rating band `PageAnalysisTab.tsx`'s own `IssueSection` summary pill uses, in the colors Rank Math's own toolbar score pill uses. */
 const ratingModifier = ( score: number | null ): string => {
 	if ( null === score ) {
 		return 'loading';
@@ -17,18 +17,13 @@ const ratingModifier = ( score: number | null ): string => {
 };
 
 interface ToolbarScorePillsProps {
-	/** Opens the sidebar on the General tab (SEO title/description live there) - PostScoreBadges.tsx's own `onNavigate('general')` already uses the same target from inside the sidebar. */
+	/** Opens the sidebar on the General tab. */
 	onClickSeo: () => void;
 	/** Opens the sidebar on the AI Visibility tab (AEO/GEO/AI-readiness scoring). */
 	onClickAeo: () => void;
 }
 
-/**
- * Toolbar score pills - same SEO/AEO scores PostScoreBadges.tsx shows in the sidebar, portaled
- * into the header via `useToolbarScorePillsPortal()` (PluginSidebar's `icon` clips anything
- * beyond a small dashicon). Each pill is its own button so clicking one opens straight to that
- * score's own tab.
- */
+/** Toolbar score pills. */
 export default function ToolbarScorePills( { onClickSeo, onClickAeo }: ToolbarScorePillsProps ) {
 	const postId = useSelect( ( select ) => ( select( 'core/editor' ) as any ).getCurrentPostId(), [] );
 	const { seoScore, aeoScore } = usePostScores( postId ?? 0 );

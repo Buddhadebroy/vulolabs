@@ -7,10 +7,7 @@ import { ButtonInput, MultiCheckboxInput, ToggleInput } from '@zyra/inputs';
 import { useSetting } from '../../contexts/SettingContext';
 import CardHeader from '../CardHeader';
 
-/**
- * Hand-built panel (not InputRenderer-driven) for "Keep VuloPilot data after uninstall",
- * "Anonymous usage data" and Reset.
- */
+/** Hand-built panel. */
 const DeveloperToolsPanel = () => {
 	const [isClearing, setIsClearing] = useState(false);
 	const [isResetting, setIsResetting] = useState(false);

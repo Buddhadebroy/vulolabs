@@ -19,7 +19,7 @@ class SchemaPageInspector {
 	/**
 	 * Fields a rich-results consumer expects for each @type.
 	 *
-	 * @var array<string, string[]>
+	 * @var array
 	 */
 	private const EXPECTED_FIELDS = array(
 		'Product'       => array( 'name', 'offers' ),
@@ -33,7 +33,7 @@ class SchemaPageInspector {
 
 	/**
 	 * @param string $url URL to fetch and inspect.
-	 * @return array{url: string, fetched_at: string, types: string[], blocks: array<int, array{index: int, type: string|null, raw: string}>, problems: array<int, array{type: string, block_index: int, field: string, message: string}>, conflicts: array<int, array{type: string, block_indexes: int[]}>, preview: array<string, mixed>|null}|null Null on fetch failure.
+	 * @return array|null Null on fetch failure.
 	 */
 	public function inspect( string $url ): ?array {
 		$response = wp_remote_get(
@@ -162,9 +162,9 @@ class SchemaPageInspector {
 	/**
 	 * Every field is optional; a missing one is left null rather than backfilled.
 	 *
-	 * @param string               $type      'Product'|'Article'|'BlogPosting'.
-	 * @param array<string, mixed> $candidate Decoded JSON-LD object.
-	 * @return array<string, mixed>
+	 * @param string $type      'Product'|'Article'|'BlogPosting'.
+	 * @param array  $candidate Decoded JSON-LD object.
+	 * @return array
 	 */
 	private static function build_preview( string $type, array $candidate ): array {
 		$availability = null;

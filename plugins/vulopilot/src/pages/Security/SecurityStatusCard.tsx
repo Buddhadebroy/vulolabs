@@ -48,10 +48,7 @@ const getScoreRating = (score: number): Rating => {
 	return { label: __('At Risk', 'vulopilot'), className: 'poor' };
 };
 
-/**
- * Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`) - same real source
- * `PerformanceScoreCard.tsx`'s own `RATING_COLOR` reads.
- */
+/** Real zyra palette hex - same real source `PerformanceScoreCard.tsx`'s own `RATING_COLOR` reads. */
 const RATING_COLOR: Record<Rating['className'], string> = {
 	good: COLOR_PALETTE.green,
 	'needs-improvement': COLOR_PALETTE.orange,
@@ -71,17 +68,15 @@ const ratingClass = (score: number): Rating['className'] => {
 };
 
 interface SecurityStatusCardProps {
-	/** Navigates to the Security tab - same handler `VulnerabilityHeroCard`'s own "Review Issues First" button already called. */
+	/** Navigates to the Security tab. */
 	onNavigateToSecurityTab?: () => void;
-	/** Forwarded to `SecurityMetricsGrid`'s own row clicks - switches the merged issues table below to that row's own section. */
+	/** Forwarded to `SecurityMetricsGrid`'s own row clicks. */
 	 
 	// eslint-disable-next-line no-unused-vars
 	onViewSection: (tab: SectionedIssuesTab) => void;
 }
 
-/**
- * "Security Status" card: the `category_scores.security` ring and per-section rows.
- */
+/** "Security Status" card: the `category_scores.security` ring and per-section rows. */
 const SecurityStatusCard = ({
 	onNavigateToSecurityTab,
 	onViewSection,
@@ -111,9 +106,7 @@ const SecurityStatusCard = ({
 			})
 			.finally(() => setIsLoading(false));
 
-		// Scoped to 'security' - the endpoint is sitewide by default (every category combined),
-		// which used to make this card's "I found N security issues" banner show the site's TOTAL
-		// open-finding count across every category, mislabeled as if it were security-specific.
+		// Scoped to 'security' - the endpoint is sitewide by default, which used to make this card's "I found N security issues" banner show the site's TOTAL open-finding count across every category, mislabeled as if it were security-specific.
 		getApiResponse<AttentionSummary>(
 			getApiLink(vulopilotAppLocalizer, 'findings/attention-summary?category=security'),
 			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }

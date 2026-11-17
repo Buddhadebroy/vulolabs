@@ -20,9 +20,7 @@ class KeyboardAccessibilityScanner extends ScannerUtil implements TracksScannedO
 
 	use ScannedPostsTrait;
 
-	/**
-	 * How many of the most recently published posts/pages to check per run.
-	 */
+	/** How many of the most recently published posts/pages to check per run. */
 	private const BATCH_SIZE = 50;
 
 	/**

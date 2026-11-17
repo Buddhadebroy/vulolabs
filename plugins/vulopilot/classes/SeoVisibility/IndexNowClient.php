@@ -30,7 +30,7 @@ class IndexNowClient {
 	 * Submits one or more URLs in a single IndexNow request.
 	 *
 	 * @param string[] $urls Absolute URLs to submit.
-	 * @return array{success: bool, status_code: int|null, status: string, message: string}
+	 * @return array
 	 */
 	public function submit( array $urls ): array {
 		$host       = wp_parse_url( home_url(), PHP_URL_HOST );

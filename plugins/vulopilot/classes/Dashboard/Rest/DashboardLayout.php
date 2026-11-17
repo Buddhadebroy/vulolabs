@@ -6,8 +6,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET/POST /dashboard-layout backs the Dashboard page's drag-and-drop widget grid
- * (src/dashboard-widgets/DashboardGrid.tsx).
+ * GET/POST /dashboard-layout backs the Dashboard page's drag-and-drop widget grid.
  *
  * @class       DashboardLayout controller
  * @version     1.0.0
@@ -43,8 +42,7 @@ class DashboardLayout extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Returns the saved layout, appending widgets added since it was saved and dropping
-	 * ones that no longer exist.
+	 * Returns the saved layout, appending widgets added since it was saved and dropping ones that no longer exist.
 	 *
 	 * @inheritDoc
 	 */
@@ -60,8 +58,7 @@ class DashboardLayout extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Returns the user's saved layout reconciled against Utill::DASHBOARD_WIDGET_IDS: widgets added since
-	 * the last save are appended (enabled), and saved ids that no longer exist are dropped.
+	 * Returns the user's saved layout reconciled against Utill::DASHBOARD_WIDGET_IDS.
 	 *
 	 * @inheritDoc
 	 */
@@ -104,7 +101,7 @@ class DashboardLayout extends \WP_REST_Controller {
 	}
 
 	/**
-	 * @return array<int, array{id: string, enabled: bool}>
+	 * @return array
 	 */
 	private function get_reconciled_layout(): array {
 		$saved = get_user_meta( get_current_user_id(), Utill::DASHBOARD_LAYOUT_META_KEY, true );

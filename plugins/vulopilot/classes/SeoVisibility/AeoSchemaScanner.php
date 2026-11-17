@@ -10,8 +10,7 @@ use VuloPilot\Utill\ScannedPostsTrait;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags posts shaped like an FAQ or HowTo (question headings or numbered steps) that lack
- * the matching `FAQPage`/`HowTo` schema.
+ * Flags posts shaped like an FAQ or HowTo that lack the matching `FAQPage`/`HowTo` schema.
  *
  * @class       AeoSchemaScanner class
  * @version     1.0.0
@@ -23,14 +22,11 @@ class AeoSchemaScanner extends ScannerUtil implements TracksScannedObjectsInterf
 
 	private const BATCH_SIZE = 50;
 
-	/**
-	 * Must match SchemaJsonLdRenderer::META_KEY.
-	 */
+	/** Must match SchemaJsonLdRenderer::META_KEY. */
 	private const SCHEMA_META_KEY = '_vulopilot_schema_json';
 
 	/**
-	 * A numbered/ordered list with at least this many steps reads as a
-	 * genuine "how to" sequence rather than an incidental short list.
+	 * A numbered/ordered list with at least this many steps reads as a genuine "how to" sequence rather than an incidental short list.
 	 */
 	private const MIN_HOWTO_STEPS = 3;
 

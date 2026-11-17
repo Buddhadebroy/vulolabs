@@ -7,7 +7,7 @@ import { TextInput } from '@zyra/inputs';
 import { useSetting } from '../../contexts/SettingContext';
 import CardHeader from '../CardHeader';
 
-/** "Stop typing, then save" debounce - same shape SiteVerificationPanel.tsx's own `PlainCodeField`/`CustomTagsField` already use for a hand-built (non-InputRenderer) panel's plain text field. */
+/** "Stop typing, then save" debounce. */
 const AUTOSAVE_DEBOUNCE_MS = 1000;
 
 /** A real GTM container ID, e.g. GTM-ABC1234. Blank is allowed (turns Tag Manager off). */

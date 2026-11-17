@@ -8,7 +8,7 @@ interface BrandScoreResponse {
 	brand_score: number;
 	trust_score: number;
 	authority_score: number;
-	/** Still real, still returned by this same endpoint - just no longer one of this card's own tiles. */
+	/** Still real, still returned by this same endpoint. */
 	entity_score: number;
 	severity_breakdown: {
 		critical: number;
@@ -28,9 +28,7 @@ const getRating = (score: number): string => {
 	return __('At Risk', 'vulopilot');
 };
 
-/**
- * Same 3-tier thresholds as `getRating()` above, as one of zyra's own `$color-palette` names.
- */
+/** Same 3-tier thresholds as `getRating()` above, as one of zyra's own `$color-palette` names. */
 const ratingColor = (score: number): string => {
 	if (score >= 70) {
 		return 'green';
@@ -85,10 +83,7 @@ const SCORE_TILES: {
 	},
 ];
 
-/**
- * Brand Visibility page's own score cards - `GET /brand-intelligence/score` (BrandIntelligence,
- * Free - deterministic, no AI call).
- */
+/** Brand Visibility page's own score cards. */
 const BrandScoreCard = () => {
 	const [data, setData] = useState<BrandScoreResponse | null>(null);
 	const [isLoading, setIsLoading] = useState(true);

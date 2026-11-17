@@ -13,7 +13,7 @@ interface AeoEngineTestingCardProps {
 	pages: AeoPageRow[];
 }
 
-/** Card shell only - plugs in via the `vulopilot_aeo_engine_testing_panel` filter, else inert placeholders render. */
+/** Card shell only. */
 const AeoEngineTestingCard = ({ isActive, pages }: AeoEngineTestingCardProps) => {
 	const Panel = useFilterSlot<ComponentType<{ pages: AeoPageRow[] }>>(
 		'vulopilot_aeo_engine_testing_panel'

@@ -19,13 +19,11 @@ defined( 'ABSPATH' ) || exit;
 class ActionRegistry {
 
 	/**
-	 * @var array<string, ActionInterface>
+	 * @var array
 	 */
 	private array $actions = array();
 
-	/**
-	 * ActionRegistry constructor.
-	 */
+	/** ActionRegistry constructor. */
 	public function __construct() {
 		add_action( 'init', array( $this, 'register_actions' ), 20 );
 	}
@@ -69,7 +67,7 @@ class ActionRegistry {
 	}
 
 	/**
-	 * @return array<string, ActionInterface>
+	 * @return array
 	 */
 	public function get_all_actions(): array {
 		return $this->actions;

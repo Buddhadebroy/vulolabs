@@ -40,10 +40,7 @@ export interface EfficiencyChecksResponse {
 	review_items: EfficiencyCheck[];
 }
 
-/**
- * `GET /efficiency-checks` (EfficiencyChecks.php) - every check computed live on the server on
- * each call.
- */
+/** `GET /efficiency-checks`. */
 export const useEfficiencyChecks = () => {
 	const [data, setData] = useState<EfficiencyChecksResponse | null>(null);
 	const [isLoading, setIsLoading] = useState(true);

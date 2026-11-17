@@ -10,10 +10,7 @@ namespace VuloPilot\Migration;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Registry of every supported "import from another SEO plugin" migrator - the
- * Status & Tools → Migration tab's own backend. Mirrors the migration-tab pattern other
- * plugins (e.g. MultiVendorX) use: list detected sources with a found-data count, then run one
- * on demand.
+ * Registry of every supported "import from another SEO plugin" migrator.
  *
  * @class       MigrationManager
  * @version     1.0.0
@@ -56,7 +53,7 @@ class MigrationManager {
 	/**
 	 * Every migrator, with its `count_available()` already resolved - the Migration tab's list.
 	 *
-	 * @return array<int, array{id: string, label: string, count: int}>
+	 * @return array
 	 */
 	public function list_sources(): array {
 		$sources = array();

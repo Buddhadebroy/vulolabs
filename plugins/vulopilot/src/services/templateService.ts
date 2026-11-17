@@ -1,8 +1,6 @@
 import { applyFilters } from '@wordpress/hooks';
 
-/**
- * The former `tools` context (`components/StatusAndTools/`) is gone.
- */
+/** The former `tools` context (`components/StatusAndTools/`) is gone. */
 const contexts: Record<string, any> = {
 	settings: require.context('../components/Settings', true, /\.ts$/),
 };
@@ -74,8 +72,7 @@ const importAll = (
 		if (fileName !== 'FolderPriority.ts') {
 			const content = inpContext(key)?.default;
 
-			// Not every `.ts` file under components/Settings/ is a settings-tab config with a real
-			// default export.
+			// Not every `.ts` file under components/Settings/ is a settings-tab config with a real default export.
 			if (content !== undefined) {
 				currentFolder.push({
 					name: fileName!.replace('.ts', ''),
@@ -123,11 +120,7 @@ const getTemplateData = (type: 'settings'): SettingNode[] => {
 	return importAll(ctx);
 };
 
-/**
- * The Modules page's metadata catalog - mirrors the free vulolabs plugin's own `getModuleData()`
- * exactly (a plain `require()`, not a `require.context`, since there's exactly one file to load,
- * not a folder of them).
- */
+/** The Modules page's metadata catalog. */
 const getModuleData = () => {
 	try {
 		const moduleData = require('../components/Modules/index.ts').default;

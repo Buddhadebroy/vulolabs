@@ -48,10 +48,7 @@ const GLANCE_ROWS: GlanceRow[] = [
 	},
 ];
 
-/**
- * "Vital Pulse" - the Dashboard's hero status ring: one real 0-100 `overall_score`, colored by its
- * own real rating band via `ratingColorFor()`.
- */
+/** "Vital Pulse". */
 export const getRating = (score: number): string => {
 	if (score >= 90) {
 		return __('Excellent', 'vulopilot');
@@ -106,8 +103,7 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 	isCustomizing,
 	onRefreshSummary,
 }) => {
-	// Fixed cardinality (always exactly 3 rows), so one real `useApiList`
-	// call each rather than a loop - `per_page: 1` since only `total` is used.
+	// Fixed cardinality, so one real `useApiList` call each rather than a loop.
 	const seoFindings = useApiList<{ id: number }>('findings', {
 		...GLANCE_ROWS[0].params,
 		status: 'open',
@@ -136,8 +132,7 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 	const commerce = cs.woocommerce ?? 0;
 	const performance = cs.performance;
 
-	// Real week-over-week deltas per bucket, diffed against
-	// category_scores_7d_ago.
+	// Real week-over-week deltas per bucket, diffed against category_scores_7d_ago.
 	const cs7 = summary.category_scores_7d_ago;
 	const visibility7d = average([cs7.seo, cs7.geo, cs7.content, cs7.brand]);
 	const health7d = average([cs7.security, cs7.accessibility]);

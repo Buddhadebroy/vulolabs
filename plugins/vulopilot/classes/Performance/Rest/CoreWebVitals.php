@@ -6,8 +6,7 @@ use VuloPilot\Performance\CoreWebVitalsRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /core-web-vitals` - backs "Performance" Overview's PerformanceScoreCard.tsx Core
- * Web Vitals tiles.
+ * `GET /core-web-vitals` - backs "Performance" Overview's PerformanceScoreCard.tsx Core Web Vitals tiles.
  *
  * @class       CoreWebVitals controller
  * @version     1.0.0

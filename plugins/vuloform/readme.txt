@@ -2,9 +2,9 @@
 Contributors: vulolabs
 Tags: contact form, form builder, multi-step form, conditional logic, webhooks
 Requires at least: 6.7
-Tested up to: 7.1.3
+Tested up to: 7.1.4
 Requires PHP: 8.1
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -340,6 +340,12 @@ https://github.com/vulolabs/vulolabs/tree/main/plugins/vuloform
 10. Website Activity Timeline.
 
 == Changelog ==
+
+= 1.0.1 - 2026-11-10 =
+* Added  - Compatibility of WordPress 7.1.4.
+* Added  - One-click Google connection for easy Google reCAPTCHA integration.
+* Added  - A one-click option to copy form shortcodes directly from the form list.
+* Added  - One-click form migration from WPForms and Forminator and Contact Form 7 and Gravity Forms and Ninja Forms and Formidable and Fluent Forms to VuloForm.
 
 = 1.0.0 =
 * Initial release.

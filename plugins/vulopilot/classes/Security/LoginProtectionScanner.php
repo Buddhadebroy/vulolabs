@@ -10,8 +10,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Turns LoginProtectionGuard's own real login-attempt log (`vulopilot_security_events`
- * (type `login_attempt`)) into real Finding rows.
+ * Turns LoginProtectionGuard's own real login-attempt log into real Finding rows.
  *
  * @class       LoginProtectionScanner class
  * @version     1.0.0

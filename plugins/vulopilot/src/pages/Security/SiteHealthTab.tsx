@@ -9,10 +9,7 @@ import { SectionedIssuesTab } from './SectionedIssuesTable';
 import FindingsHeroCard from './FindingsHeroCard';
 import BackupProtectionNotice from './BackupProtectionNotice';
 
-/**
- * "Site Health" tab of "Protect My Site". The WordPress and Server sections wrap core's
- * `WP_Site_Health` tests.
- */
+/** "Site Health" tab of "Protect My Site". */
 const SECTIONS: FindingsSection[] = [
 	{
 		key: 'wordpress',
@@ -83,7 +80,7 @@ const ALL_SCANNER_IDS = Array.from(
 );
 
 interface SiteHealthTabProps {
-	/** Switches SiteHealth.tsx's own `backups` tab in place - see BackupProtectionNotice.tsx's own docblock. */
+	/** Switches SiteHealth.tsx's own `backups` tab in place. */
 	onNavigateToBackups: () => void;
 }
 

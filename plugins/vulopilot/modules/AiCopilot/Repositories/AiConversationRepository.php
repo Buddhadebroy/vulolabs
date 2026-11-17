@@ -18,16 +18,10 @@ defined( 'ABSPATH' ) || exit;
  */
 class AiConversationRepository extends RepositoryUtil {
 
-	/**
-	 * How many leading characters of the first user message become a conversation's
-	 * `title`.
-	 */
+	/** How many leading characters of the first user message become a conversation's `title`. */
 	private const TITLE_MAX_LENGTH = 80;
 
-	/**
-	 * How many leading characters of the first user message become
-	 * get_recent_with_excerpt()'s `excerpt` field.
-	 */
+	/** How many leading characters of the first user message become get_recent_with_excerpt()'s `excerpt` field. */
 	private const EXCERPT_MAX_LENGTH = 140;
 
 	/**
@@ -47,7 +41,7 @@ class AiConversationRepository extends RepositoryUtil {
 	 *
 	 * @param int $user_id Only this user's own conversations.
 	 * @param int $limit   Max rows to return.
-	 * @return array{data: array<int, array<string, mixed>>, total: int}
+	 * @return array
 	 */
 	public function get_recent( int $user_id, int $limit = 5 ): array {
 		global $wpdb;
@@ -78,8 +72,8 @@ class AiConversationRepository extends RepositoryUtil {
 	 * Same rows as get_recent(), plus an `excerpt` from the first user turn in `turns`.
 	 *
 	 * @param int $user_id Only this user's own conversations.
-	 * @param int $limit   Max rows to return - keep small; each row decodes its own `turns` blob.
-	 * @return array{data: array<int, array{id: int, title: string, excerpt: string, updated_at: string}>, total: int}
+	 * @param int $limit   Max rows to return.
+	 * @return array
 	 */
 	public function get_recent_with_excerpt( int $user_id, int $limit = 3 ): array {
 		global $wpdb;
@@ -109,8 +103,8 @@ class AiConversationRepository extends RepositoryUtil {
 	/**
 	 * Decodes one raw get_recent_with_excerpt() row into its response shape.
 	 *
-	 * @param array<string, mixed> $row Raw `id`/`title`/`turns`/`updated_at` row.
-	 * @return array{id: int, title: string, excerpt: string, updated_at: string}
+	 * @param array $row Raw `id`/`title`/`turns`/`updated_at` row.
+	 * @return array
 	 */
 	private function build_excerpt_row( array $row ): array {
 		$turns           = json_decode( (string) $row['turns'], true );
@@ -154,7 +148,7 @@ class AiConversationRepository extends RepositoryUtil {
 	 *
 	 * @param int $id      vulopilot_ai_conversations.id.
 	 * @param int $user_id Must match the row's own `user_id`.
-	 * @return array{id: int, title: string, turns: array<int, mixed>, updated_at: string}|null Null if missing or not owned.
+	 * @return array|null Null if missing or not owned.
 	 */
 	public function find_full( int $id, int $user_id ): ?array {
 		global $wpdb;
@@ -186,9 +180,9 @@ class AiConversationRepository extends RepositoryUtil {
 	/**
 	 * Starts a new conversation; `title` is derived from the first message, not caller-supplied.
 	 *
-	 * @param int               $user_id      Owning user.
-	 * @param string            $first_message The conversation's first user message.
-	 * @param array<int, mixed> $turns        Full turns array (already includes the first user turn and its reply).
+	 * @param int    $user_id       Owning user.
+	 * @param string $first_message The conversation's first user message.
+	 * @param array  $turns         Full turns array.
 	 * @return int New conversation id.
 	 */
 	public function create( int $user_id, string $first_message, array $turns ): int {
@@ -206,13 +200,12 @@ class AiConversationRepository extends RepositoryUtil {
 	}
 
 	/**
-	 * Appends to an existing conversation; ownership is checked in the UPDATE's WHERE
-	 * clause to keep this a single query.
+	 * Appends to an existing conversation.
 	 *
-	 * @param int               $id      vulopilot_ai_conversations.id.
-	 * @param int               $user_id Must match the row's own `user_id`.
-	 * @param array<int, mixed> $turns   Full, replacement turns array (existing turns plus whatever's new).
-	 * @return bool True if a row was actually updated (i.e. really owned by $user_id).
+	 * @param int   $id      vulopilot_ai_conversations.id.
+	 * @param int   $user_id Must match the row's own `user_id`.
+	 * @param array $turns   Full, replacement turns array.
+	 * @return bool True if a row was actually updated.
 	 */
 	public function append_turns( int $id, int $user_id, array $turns ): bool {
 		global $wpdb;

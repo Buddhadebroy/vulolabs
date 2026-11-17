@@ -4,7 +4,7 @@ import type { ComponentType } from 'react';
 import { usePostData } from './usePostData';
 import { useFilterSlot } from '../services/useFilterSlot';
 
-/** Keyword Management - Pro-only. Card shell only; the real panel lives in Pro's `KeywordManagementPanel.tsx`. */
+/** Keyword Management - Pro-only. */
 export default function KeywordManagementSection() {
 	const { postId } = usePostData();
 	const Panel = useFilterSlot< ComponentType< { postId: number } > >(

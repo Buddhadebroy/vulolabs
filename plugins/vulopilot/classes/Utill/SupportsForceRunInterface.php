@@ -10,8 +10,7 @@ namespace VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Optional companion to ScannerInterface (same "optional, instanceof-checked add-on" shape
- * as TracksScannedObjectsInterface).
+ * Optional companion to ScannerInterface.
  *
  * @class       SupportsForceRunInterface interface
  * @version     1.0.0

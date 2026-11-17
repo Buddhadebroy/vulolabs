@@ -24,6 +24,7 @@ class Formatter {
 	public static function text( array $field, $value ) {
 		switch ( $field['type'] ) {
 			case 'file':
+			case 'signature':
 				// Only the original file names: stored paths never leave the server.
 				return implode( ', ', array_column( is_array( $value ) ? $value : array(), 'name' ) );
 

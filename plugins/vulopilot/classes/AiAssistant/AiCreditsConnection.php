@@ -14,11 +14,14 @@ class AiCreditsConnection {
 
 	private const OPTION_KEY = 'vulopilot_ai_credits_connection';
 
+	/** Seconds to wait for an AI reply. */
+	private const AI_REQUEST_TIMEOUT = 300;
+
 
 	/**
 	 * The stored connection, merged with defaults for any field never yet saved.
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	private function get_connection(): array {
 		return wp_parse_args(
@@ -39,7 +42,7 @@ class AiCreditsConnection {
 	/**
 	 * Merges `$data` into the stored connection.
 	 *
-	 * @param array<string, mixed> $data Partial fields to merge into the stored connection.
+	 * @param array $data Partial fields to merge into the stored connection.
 	 * @return void
 	 */
 	private function save_connection( array $data ): void {
@@ -58,7 +61,7 @@ class AiCreditsConnection {
 	/**
 	 * Connection status; never includes the secret.
 	 *
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function get_status(): array {
 		$connection = $this->get_connection();
@@ -79,7 +82,7 @@ class AiCreditsConnection {
 	/**
 	 * The decrypted site credential, ready to authenticate an AI Gateway call.
 	 *
-	 * @return array{site_id: string, secret: string}|null Null if not connected.
+	 * @return array|null Null if not connected.
 	 */
 	public function get_site_credential(): ?array {
 		$connection = $this->get_connection();
@@ -99,7 +102,7 @@ class AiCreditsConnection {
 	/**
 	 * Re-syncs the cached credit balance.
 	 *
-	 * @return array<string, mixed>|\WP_Error Same shape as get_status().
+	 * @return array|\WP_Error Same shape as get_status().
 	 */
 	public function refresh_balance() {
 		$credential = $this->get_site_credential();
@@ -139,7 +142,7 @@ class AiCreditsConnection {
 	/**
 	 * Caches the balance fields of a `/plugin/ai/status` response.
 	 *
-	 * @param array<string, mixed> $body Decoded response.
+	 * @param array $body Decoded response.
 	 * @return void
 	 */
 	private function cache_status( array $body ): void {
@@ -193,7 +196,7 @@ class AiCreditsConnection {
 	 * Redeems the broker's single-use exchange code and stores the resulting connection.
 	 *
 	 * @param string $code Single-use exchange code from the broker's return redirect.
-	 * @return array<string, mixed>|\WP_Error Same shape as get_status().
+	 * @return array|\WP_Error Same shape as get_status().
 	 */
 	public function exchange_broker_code( string $code ) {
 		$response = wp_remote_post(
@@ -294,17 +297,59 @@ class AiCreditsConnection {
 	/**
 	 * Sends one plugin-built prompt for credit-metered execution.
 	 *
-	 * @param string      $feature    This plugin's surface name (e.g. 'geo_analysis') - the reporting category.
+	 * @param string      $feature    This plugin's surface name.
 	 * @param string      $prompt     This site's own already-built prompt text.
 	 * @param string      $site_tone  The `site_tone` setting, or ''.
 	 * @param string      $request_id Idempotency key, stable across retries of this one logical request.
-	 * @param string|null $label      Human task name for the site owner's credit history (e.g. 'Write Meta Title').
-	 * @return array{success: true, request_id: string, response: string, credits_used: float, credits_remaining: float}|\WP_Error
-	 *   WP_Error codes: 'vulopilot_ai_insufficient_credits' (nothing charged yet),
-	 *   'vulopilot_vulocloud_ai_not_configured', 'vulopilot_vulocloud_ai_unreachable'/'_busy' (safe
-	 *   to retry with the same $request_id), or a non-retryable gateway error.
+	 * @param string|null $label      Human task name for the site owner's credit history.
+	 * @return array|\WP_Error
 	 */
 	public function execute( string $feature, string $prompt, string $site_tone, string $request_id, ?string $label = null ) {
+		$body = array(
+			'feature' => substr( $feature, 0, 100 ),
+			'prompt'  => $prompt,
+		);
+
+		if ( null !== $label && '' !== trim( $label ) ) {
+			$body['label'] = mb_substr( trim( $label ), 0, 120 );
+		}
+
+		return $this->post_ai( '/plugin/ai/prompt', $body, $site_tone, $request_id );
+	}
+
+	/**
+	 * Runs one AI-service feature, sending its structured input rather than a prompt.
+	 *
+	 * @param string $feature_id e.g. 'rewrite_content'.
+	 * @param string $action     e.g. 'rewrite'.
+	 * @param array  $context    The feature's structured input.
+	 * @param string $site_tone  The `site_tone` setting, or ''.
+	 * @param string $request_id Idempotency key, stable across retries of this one logical request.
+	 * @return array|\WP_Error Same contract as execute().
+	 */
+	public function execute_feature( string $feature_id, string $action, array $context, string $site_tone, string $request_id ) {
+		return $this->post_ai(
+			'/plugin/ai/execute',
+			array(
+				'featureId' => $feature_id,
+				'action'    => $action,
+				'context'   => (object) $context,
+			),
+			$site_tone,
+			$request_id
+		);
+	}
+
+	/**
+	 * Shared request/response handling for the two credit-metered AI endpoints.
+	 *
+	 * @param string $path       '/plugin/ai/prompt' or '/plugin/ai/execute'.
+	 * @param array  $body       The endpoint's own fields.
+	 * @param string $site_tone  The `site_tone` setting, or ''.
+	 * @param string $request_id Idempotency key.
+	 * @return array|\WP_Error
+	 */
+	private function post_ai( string $path, array $body, string $site_tone, string $request_id ) {
 		if ( '' === trim( VULOPILOT_VULOCLOUD_URL ) ) {
 			return new \WP_Error( 'vulopilot_vulocloud_ai_not_configured', __( 'VuloCloud isn’t configured for this build yet.', 'vulopilot' ), array( 'status' => 400 ) );
 		}
@@ -315,26 +360,18 @@ class AiCreditsConnection {
 			return new \WP_Error( 'vulopilot_vulocloud_ai_not_connected', __( 'This site is not connected to VuloCloud.', 'vulopilot' ), array( 'status' => 400 ) );
 		}
 
-		$body = array(
-			'siteId'    => $credential['site_id'],
-			'secret'    => $credential['secret'],
-			'feature'   => substr( $feature, 0, 100 ),
-			'prompt'    => $prompt,
-			'requestId' => $request_id,
-		);
-
-		if ( null !== $label && '' !== trim( $label ) ) {
-			$body['label'] = mb_substr( trim( $label ), 0, 120 );
-		}
+		$body['siteId']    = $credential['site_id'];
+		$body['secret']    = $credential['secret'];
+		$body['requestId'] = $request_id;
 
 		if ( '' !== $site_tone ) {
-			$body['siteTone'] = mb_substr( $site_tone, 0, 500 );
+			$body['siteTone'] = $site_tone;
 		}
 
 		$response = wp_remote_post(
-			untrailingslashit( VULOPILOT_VULOCLOUD_URL ) . '/plugin/ai/prompt',
+			untrailingslashit( VULOPILOT_VULOCLOUD_URL ) . $path,
 			array(
-				'timeout' => 60,
+				'timeout' => self::AI_REQUEST_TIMEOUT,
 				'headers' => array( 'Content-Type' => 'application/json' ),
 				'body'    => wp_json_encode( $body ),
 			)
@@ -373,8 +410,12 @@ class AiCreditsConnection {
 				return new \WP_Error( 'vulopilot_vulocloud_site_revoked', __( 'This site\'s VuloCloud connection was revoked. Please reconnect under Settings → Connections.', 'vulopilot' ), array( 'status' => $status ) );
 			}
 
-			if ( 409 === $status || 429 === $status || $status >= 500 ) {
-				// Retryable, including 409 "this requestId is still running".
+			// The server says whether a retry can help; when it doesn't, fall back to the status.
+			$retryable = isset( $decoded['retryable'] )
+				? (bool) $decoded['retryable']
+				: ( 409 === $status || 429 === $status || $status >= 500 );
+
+			if ( $retryable ) {
 				return new \WP_Error( 'vulopilot_vulocloud_ai_busy', __( 'VuloCloud could not process this AI request right now.', 'vulopilot' ), array( 'status' => $status ) );
 			}
 
@@ -418,13 +459,14 @@ class AiCreditsConnection {
 			'response'          => (string) ( $decoded['response'] ?? '' ),
 			'credits_used'      => (float) ( $decoded['creditsUsed'] ?? 0 ),
 			'credits_remaining' => $remaining,
+			'truncated'         => ! empty( $decoded['truncated'] ),
 		);
 	}
 
 	/**
 	 * Checks the AI connection status without sending a prompt or charging credits.
 	 *
-	 * @return array{connected: bool, configured: bool}|\WP_Error A \WP_Error only for a real connectivity failure.
+	 * @return array|\WP_Error A \WP_Error only for a real connectivity failure.
 	 */
 	public function get_vulocloud_ai_status() {
 		$credential = $this->get_site_credential();
@@ -459,7 +501,7 @@ class AiCreditsConnection {
 	 * @param string $path     e.g. '/plugin/ai/status'.
 	 * @param string $site_id  The ConnectedSite id from this class's own stored connection.
 	 * @param string $secret   The plaintext site secret from that same stored connection.
-	 * @return array{http_status: int, body: array<string, mixed>}|\WP_Error
+	 * @return array|\WP_Error
 	 */
 	private function post_credits( string $base_url, string $path, string $site_id, string $secret ) {
 		$response = wp_remote_post(

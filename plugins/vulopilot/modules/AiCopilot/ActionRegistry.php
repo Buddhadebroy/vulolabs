@@ -19,13 +19,11 @@ defined( 'ABSPATH' ) || exit;
 class ActionRegistry {
 
 	/**
-	 * @var array<string, AIActionInterface>
+	 * @var array
 	 */
 	private array $actions = array();
 
-	/**
-	 * ActionRegistry constructor.
-	 */
+	/** ActionRegistry constructor. */
 	public function __construct() {
 		add_action( 'init', array( $this, 'register_actions' ), 20 );
 	}
@@ -60,8 +58,7 @@ class ActionRegistry {
 			Actions\GenerateBlogAction::class,
 			// SEO module - closes MissingMetaDescriptionRule's fix loop.
 			Actions\WriteMetaDescriptionAction::class,
-			// One-Click Fix coverage pass for the SEO category - closes HeadingStructureScanner's
-			// and DuplicateContentScanner's fix loops.
+			// One-Click Fix coverage pass for the SEO category.
 			Actions\AddSubheadingsAction::class,
 			Actions\DifferentiateDuplicateTitleAction::class,
 			Actions\WritePostContentAction::class,
@@ -78,7 +75,7 @@ class ActionRegistry {
 	}
 
 	/**
-	 * @return array<string, AIActionInterface>
+	 * @return array
 	 */
 	public function get_all_actions(): array {
 		return $this->actions;

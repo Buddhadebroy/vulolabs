@@ -18,29 +18,24 @@ import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
 import ShowProPopup from '../../components/Popup/Popup';
 
-/**
- * `wp_vulopilot_not_found_logs` rows - NotFoundLogger's own real 404 visit log.
- */
+/** `wp_vulopilot_not_found_logs` rows - NotFoundLogger's own real 404 visit log. */
 interface NotFoundLogRow extends TableRow {
 	id: number;
 	requested_path: string;
 	referrer: string | null;
 	hit_count: number;
 	last_seen_at: string;
-	// AbstractRepository's `SELECT *` comes back through $wpdb (and then wp_json_encode) as a
-	// numeric STRING, not a real number/boolean.
+	// AbstractRepository's `SELECT *` comes back through $wpdb as a numeric STRING, not a real number/boolean.
 	is_system: 0 | 1 | '0' | '1';
 	// NotFoundLogs::get_items() computes this - a real PHP bool, not a `$wpdb`-string field.
 	has_redirect: boolean;
 }
 
-/** See NotFoundLogRow.is_system's own comment - `"0"` from the REST API is a truthy string, so this is the only safe way to read it. */
+/** See NotFoundLogRow.is_system's own comment. */
 const isSystemLog = (row: Pick<NotFoundLogRow, 'is_system'>): boolean =>
 	1 === Number(row.is_system);
 
-/**
- * "404s" inner section of the merged "Crawl & URLs" tab.
- */
+/** "404s" inner section of the merged "Crawl & URLs" tab. */
 const NotFoundLogSection = () => {
 	const [convertingLog, setConvertingLog] = useState<NotFoundLogRow | null>(
 		null
@@ -53,8 +48,7 @@ const NotFoundLogSection = () => {
 
 	const [sortBy, setSortBy] = useState<'hit_count' | 'last_seen_at'>('hit_count');
 
-	// "All/Content/System" status pill bar - same `${key}_counts` contract Redirects.php's own
-	// `is_active_counts` already established (NotFoundLogs.php's `is_system_counts`).
+	// "All/Content/System" status pill bar.
 	const notFoundLogs = useApiList<NotFoundLogRow>(
 		'not-found-logs',
 		{ orderby: sortBy, order: 'desc' },
@@ -137,8 +131,7 @@ const NotFoundLogSection = () => {
 
 	const openConvertPopup = (row: NotFoundLogRow) => {
 		if (isSystemLog(row) || row.has_redirect) {
-			// Belt-and-braces - the row action itself is already disabled (no onClick reaches here)
-			// for a system row or one that already has a matching redirect.
+			// Belt-and-braces - the row action itself is already disabled for a system row or one that already has a matching redirect.
 			return;
 		}
 
@@ -237,9 +230,7 @@ const NotFoundLogSection = () => {
 								},
 								actions: {
 									label: __('Actions', 'vulopilot'),
-									// Real labelled buttons, same `type: 'button'` convention every
-									// other table's own action column now uses
-									// (TableRowActions.tsx).
+									// Real labelled buttons, same `type: 'button'` convention every other table's own action column now uses.
 									type: 'action',
 									actions: [
 
@@ -316,8 +307,7 @@ const NotFoundLogSection = () => {
 							}))}
 							ids={notFoundLogs.data.map((row) => row.id)}
 							totalRows={notFoundLogs.total}
-							// `is_system_counts` (NotFoundLogs.php) only ever reports real per-
-							// value buckets (0/1).
+							// `is_system_counts` (NotFoundLogs.php) only ever reports real per- value buckets (0/1).
 							categoryCounts={notFoundLogs.categoryCounts.map((cat) =>
 								'all' === cat.value
 									? { ...cat, count: notFoundLogs.total }

@@ -21,12 +21,10 @@ import {
 	CompetitorComparisonDummy,
 } from './BrandVisibilityProDummies';
 
-/** Real backend module id (Settings → Modules) - same id `isBrandModuleActive()` below checks and `MODULE_CATALOG_BY_ID` (Popup.tsx) resolves to a real display name/icon for. */
+/** Real backend module id - same id `isBrandModuleActive()` below checks and `MODULE_CATALOG_BY_ID` resolves to a real display name/icon for. */
 const BRAND_MODULE_ID = 'brand-visibility';
 
-/**
- * Section → scanner_id grouping for Brand Intelligence's 7 scanners.
- */
+/** Section → scanner_id grouping for Brand Intelligence's 7 scanners. */
 const BRAND_SECTIONS: FindingsSection[] = [
 	{
 		key: 'trust',
@@ -69,14 +67,12 @@ const BRAND_SECTIONS: FindingsSection[] = [
 	},
 ];
 
-/**
- * Whether the Brand Intelligence module (Settings → Modules) is active.
- */
+/** Whether the Brand Intelligence module (Settings → Modules) is active. */
 const isBrandModuleActive = () =>
 	vulopilotAppLocalizer.active_modules?.includes(BRAND_MODULE_ID) ?? false;
 
 interface BrandVisibilityTabProps {
-	/** Scanner to pre-select (its section's tab) and scroll to on mount - set by Overview's "Top Opportunities" View buttons. */
+	/** Scanner to pre-select and scroll to on mount. */
 	initialScannerId?: string;
 }
 

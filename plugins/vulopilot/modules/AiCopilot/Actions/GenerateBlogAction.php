@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class GenerateBlogAction extends AbstractBasicAction {
+class GenerateBlogAction extends AbstractCloudAction {
 
 	/**
 	 * @inheritDoc
@@ -61,8 +61,7 @@ class GenerateBlogAction extends AbstractBasicAction {
 		$word_count = absint( $input['word_count'] ?? 0 );
 		$word_count = $word_count > 0 ? max( 100, min( 5000, $word_count ) ) : 0;
 		$tone       = mb_substr( sanitize_text_field( (string) ( $input['tone'] ?? '' ) ), 0, 60 );
-		// Content Planner's own writing-style fields (audience/prompt) - optional for every
-		// other caller of this action, which simply won't pass them.
+		// Content Planner's own writing-style fields.
 		$audience  = mb_substr( sanitize_text_field( (string) ( $input['audience'] ?? '' ) ), 0, 120 );
 		$prompt    = mb_substr( sanitize_textarea_field( (string) ( $input['prompt'] ?? '' ) ), 0, 2000 );
 		$post_type = in_array( $input['post_type'] ?? 'post', array( 'post', 'page' ), true ) ? $input['post_type'] : 'post';
@@ -80,41 +79,18 @@ class GenerateBlogAction extends AbstractBasicAction {
 	/**
 	 * @inheritDoc
 	 */
-	public function build_prompt( array $input ): array {
-		$user_message = sprintf( 'Write a blog post about: %s', $input['topic'] );
+	public function get_cloud_feature(): array {
+		return array( 'blog_post', 'generate' );
+	}
 
-		if ( ! empty( $input['word_count'] ) ) {
-			$user_message .= sprintf( "\n\nTarget length: approximately %d words.", $input['word_count'] );
-		}
-
-		if ( '' !== ( $input['tone'] ?? '' ) ) {
-			$user_message .= sprintf( "\n\nTone: %s.", $input['tone'] );
-		}
-
-		if ( '' !== ( $input['audience'] ?? '' ) ) {
-			$user_message .= sprintf( "\n\nTarget audience: %s.", $input['audience'] );
-		}
-
-		// The admin's own custom prompt is content guidance only, kept in a clearly delimited
-		// block so it can't override the system instruction above (Content Planner Redesign
-		// spec §9's own prompt-injection-hygiene requirement).
-		if ( '' !== ( $input['prompt'] ?? '' ) ) {
-			$user_message .= sprintf(
-				"\n\nAdditional instructions from the site admin (content guidance only - follow the TITLE/BODY format above regardless):\n---\n%s\n---",
-				$input['prompt']
-			);
-		}
-
+	/**
+	 * @inheritDoc
+	 */
+	public function build_cloud_context( array $input ): array {
 		return array(
-			array(
-				'role'    => 'system',
-				'content' => 'You write WordPress blog post drafts. Respond in exactly this format, nothing else:'
-					. "\nTITLE: <the title>\n\nBODY:\n<the full post body as HTML paragraphs>",
-			),
-			array(
-				'role'    => 'user',
-				'content' => $user_message,
-			),
+			'topic'      => $input['topic'],
+			'word_count' => $input['word_count'],
+			'tone'       => $input['tone'],
 		);
 	}
 

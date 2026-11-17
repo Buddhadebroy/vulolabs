@@ -8,9 +8,7 @@ interface ChatMessageProps {
 	children: React.ReactNode;
 }
 
-/**
- * A single chat bubble - avatar circle + free-form content block.
- */
+/** A single chat bubble - avatar circle + free-form content block. */
 const ChatMessage: React.FC<ChatMessageProps> = ({
 	sender = 'person',
 	avatarIcon = 'person',

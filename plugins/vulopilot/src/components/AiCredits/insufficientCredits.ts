@@ -1,8 +1,7 @@
 import axios from 'axios';
 
 /**
- * An AI request the site owner's credits can't cover is refused before the AI provider is ever
- * called, so nothing is charged.
+ * An AI request the site owner's credits can't cover is refused before the AI provider is ever called, so nothing is charged.
  */
 export const INSUFFICIENT_CREDITS_EVENT = 'vulopilot:insufficient-credits';
 

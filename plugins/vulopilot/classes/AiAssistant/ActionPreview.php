@@ -10,8 +10,7 @@ namespace VuloPilot\AiAssistant;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The human-facing preview an AIActionInterface::build_preview() returns,
- * shown to the user before they approve an ActionRunner::propose() call.
+ * The human-facing preview an AIActionInterface::build_preview() returns, shown to the user before they approve an ActionRunner::propose() call.
  *
  * @class       ActionPreview class
  * @version     1.0.0
@@ -74,7 +73,7 @@ final class ActionPreview {
 	}
 
 	/**
-	 * @return array<string, mixed>
+	 * @return array
 	 */
 	public function to_array(): array {
 		return array(

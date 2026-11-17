@@ -50,8 +50,8 @@ class AutomationScheduler {
 	}
 
 	/**
-	 * @param array<string, array{interval: int, display: string}> $schedules Real, currently-registered schedules.
-	 * @return array<string, array{interval: int, display: string}>
+	 * @param array $schedules Real, currently-registered schedules.
+	 * @return array
 	 */
 	public function register_custom_schedules( array $schedules ): array {
 		if ( ! isset( $schedules['weekly'] ) ) {
@@ -72,8 +72,7 @@ class AutomationScheduler {
 	}
 
 	/**
-	 * Reconciles both real scheduled cron events against their own
-	 * automation row's current `status`/`trigger_config`.
+	 * Reconciles both real scheduled cron events against their own automation row's current `status`/`trigger_config`.
 	 *
 	 * @return void
 	 */
@@ -92,9 +91,9 @@ class AutomationScheduler {
 	}
 
 	/**
-	 * @param array<string, mixed> $row               Real automation row.
-	 * @param string               $hook              This row's own cron hook.
-	 * @param string[]             $valid_frequencies Frequencies this row's own UI actually offers (excludes 'manual').
+	 * @param array    $row               Real automation row.
+	 * @param string   $hook              This row's own cron hook.
+	 * @param string[] $valid_frequencies Frequencies this row's own UI actually offers.
 	 * @return void
 	 */
 	private function reconcile_row( array $row, string $hook, array $valid_frequencies ): void {
@@ -130,7 +129,7 @@ class AutomationScheduler {
 
 	/**
 	 * @param int $day_of_week ISO-8601 weekday, 1 (Monday) through 7 (Sunday).
-	 * @return int Unix timestamp for 03:00 UTC on the next occurrence of that weekday (today included).
+	 * @return int Unix timestamp for 03:00 UTC on the next occurrence of that weekday.
 	 */
 	private function next_weekday_timestamp( int $day_of_week ): int {
 		$now         = time();
@@ -179,8 +178,7 @@ class AutomationScheduler {
 
 		try {
 			/**
-			 * Sends the scheduled visibility report email. Returns null when no
-			 * extension provides report delivery.
+			 * Sends the scheduled visibility report email.
 			 *
 			 * @param bool|null $sent      Whether the email was sent.
 			 * @param string    $frequency Configured frequency.

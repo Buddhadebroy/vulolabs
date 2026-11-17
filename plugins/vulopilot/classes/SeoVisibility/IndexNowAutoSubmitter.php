@@ -15,9 +15,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class IndexNowAutoSubmitter {
 
-	/**
-	 * IndexNowAutoSubmitter constructor.
-	 */
+	/** IndexNowAutoSubmitter constructor. */
 	public function __construct() {
 		add_action( 'save_post', array( $this, 'maybe_submit_on_save' ), 20, 2 );
 		add_action( 'wp_trash_post', array( $this, 'maybe_submit_on_trash' ) );

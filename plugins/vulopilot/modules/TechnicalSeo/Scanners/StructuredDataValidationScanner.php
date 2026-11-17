@@ -14,8 +14,7 @@ use VuloPilot\Utill\ScannerUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Extracts every JSON-LD block on the homepage and flags any that fail to parse as valid
- * JSON.
+ * Extracts every JSON-LD block on the homepage and flags any that fail to parse as valid JSON.
  *
  * @class       StructuredDataValidationScanner class
  * @version     1.0.0

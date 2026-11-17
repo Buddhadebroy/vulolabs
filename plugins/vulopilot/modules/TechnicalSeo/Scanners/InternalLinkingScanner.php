@@ -16,8 +16,7 @@ use VuloPilot\Utill\ScannedPostsTrait;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags published posts/pages whose content contains zero links back to the site's own
- * domain.
+ * Flags published posts/pages whose content contains zero links back to the site's own domain.
  *
  * @class       InternalLinkingScanner class
  * @version     1.0.0

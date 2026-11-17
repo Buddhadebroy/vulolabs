@@ -2,8 +2,7 @@ import type { ReactNode } from 'react';
 import { __ } from '@wordpress/i18n';
 import './UpgradeToProOverlay.scss';
 
-/** Every prop defaults to the original upgrade copy; passing `icon`/`title`/`desc`/`buttonText`
- * (see `useContentGate.tsx`'s connect gate) reuses this as a "locked content" card for another CTA. */
+/** Every prop defaults to the original upgrade copy. */
 interface OverlayCopy {
 	icon?: string;
 	title?: string;
@@ -66,7 +65,7 @@ export const BlurredProContent = ({
 	children,
 	...overlayCopy
 }: {
-	/** This dummy's own content class (e.g. `health-timeline-dummy`) - `blur-wrapper-content` is appended automatically. */
+	/** This dummy's own content class - `blur-wrapper-content` is appended automatically. */
 	contentClassName: string;
 	onClick: () => void;
 	children: ReactNode;

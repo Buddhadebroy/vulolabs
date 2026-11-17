@@ -1,6 +1,4 @@
-/**
- * Shared shapes for the Dashboard's widget system.
- */
+/** Shared shapes for the Dashboard's widget system. */
 import React from 'react';
 
 export interface DashboardSummary {
@@ -27,8 +25,7 @@ export interface DashboardSummary {
 		brand: number;
 	};
 	/**
-	 * Same 8 keys as `category_scores`, reconstructed as of 7 days ago (Dashboard controller's
-	 * build_category_scores_as_of()).
+	 * Same 8 keys as `category_scores`, reconstructed as of 7 days ago (Dashboard controller's build_category_scores_as_of()).
 	 */
 	category_scores_7d_ago: {
 		seo: number;
@@ -66,19 +63,15 @@ export interface DashboardSummary {
 export interface WidgetProps {
 	summary: DashboardSummary;
 	isLoading: boolean;
-	/** Removes this widget from the visible grid - DashboardGrid.tsx supplies the real handler, which toggles `enabled: false` in the saved layout. */
+	/** Removes this widget from the visible grid. */
 	onHide: () => void;
 	/** Whether Dashboard.tsx's "Customize dashboard" mode is on. */
 	isCustomizing: boolean;
-	/**
-	 * Re-fetches `summary` (Dashboard.tsx's own `loadDashboard`).
-	 */
+	/** Re-fetches `summary` (Dashboard.tsx's own `loadDashboard`). */
 	onRefreshSummary: () => void;
 }
 
-/**
- * What a widget registers with the grid.
- */
+/** What a widget registers with the grid. */
 export interface WidgetDefinition {
 	id: string;
 	title: string;

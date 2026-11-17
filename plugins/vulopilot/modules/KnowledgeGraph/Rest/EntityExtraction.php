@@ -12,8 +12,7 @@ use VuloPilot\KnowledgeGraph\EntityExtractor;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /entities` backs src/pages/KnowledgeGraph/KnowledgeGraph.tsx -
- * EntityExtractor's own docblock has the full extraction design.
+ * `GET /entities` backs src/pages/KnowledgeGraph/KnowledgeGraph.tsx.
  *
  * @class       EntityExtraction controller
  * @version     1.0.0
@@ -100,14 +99,12 @@ class EntityExtraction extends \WP_REST_Controller {
 	public function get_items( $request ) {
 		$data = $this->extractor->extract_all();
 
-		// `edit_url` is a real, per-viewer capability check (`current_user_can( 'edit_user', ...
-		// )`).
+		// `edit_url` is a real, per-viewer capability check (`current_user_can( 'edit_user',... )`).
 		$data['people'] = array_map(
 			function ( array $person ): array {
 				$user_id = (int) $person['source_object_ref'];
 
-				// Not `get_edit_user_link()`: core routes it to `profile.php` when `$user_id` is the logged-in admin,
-				// which isn't what this "Edit" action is for.
+				// Not `get_edit_user_link()`.
 				$person['meta']['edit_url'] = current_user_can( 'edit_user', $user_id )
 					? add_query_arg( 'user_id', $user_id, admin_url( 'user-edit.php' ) )
 					: null;

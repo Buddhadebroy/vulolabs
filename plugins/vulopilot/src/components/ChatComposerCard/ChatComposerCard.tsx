@@ -9,7 +9,7 @@ export interface ChatComposerCardProps<TTurn = unknown> {
 	/** Passed straight through to CardComponent. */
 	cardTitle?: ReactNode;
 	cardTitleIcon?: string;
-	/** Passed straight through to CardComponent's own `desc` - a one-line subtitle under `cardTitle`. */
+	/** Passed straight through to CardComponent's own `desc`. */
 	cardDesc?: ReactNode;
 	cardAction?: ReactNode;
 	cardClassName?: string;
@@ -33,7 +33,7 @@ export interface ChatComposerCardProps<TTurn = unknown> {
 	composer: ReactNode;
 	/** Whether `composer` renders before or after the welcome/turns block. */
 	composerPosition?: 'before-turns' | 'after-turns';
-	/** Extra content rendered right before the composer - e.g. a label, attachment/context chips, attach/context panels. */
+	/** Extra content rendered right before the composer. */
 	beforeComposer?: ReactNode;
 	/** The fully-built prompt-pills element. */
 	prompts?: ReactNode;

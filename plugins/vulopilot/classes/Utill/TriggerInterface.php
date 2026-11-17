@@ -17,8 +17,7 @@ defined( 'ABSPATH' ) || exit;
 interface TriggerInterface {
 
 	/**
-	 * @return string Unique, stable trigger id (also the `trigger_type` value
-	 *                stored on an automation row).
+	 * @return string Unique, stable trigger id.
 	 */
 	public function get_id(): string;
 
@@ -30,7 +29,7 @@ interface TriggerInterface {
 	/**
 	 * Hooks whatever WordPress/cron mechanism this trigger needs, calling $on_fire whenever it fires.
 	 *
-	 * @param callable $on_fire function( string $trigger_id, string $object_type, ?string $object_ref ): void.
+	 * @param callable $on_fire
 	 * @return void
 	 */
 	public function register( callable $on_fire ): void;
