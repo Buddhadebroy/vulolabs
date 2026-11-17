@@ -27,9 +27,6 @@ class Templates {
 		return $plugins;
 	}
 
-	public static function unavailable() {
-		return array();
-	}
 	public static function protected_form_ids() {
 		return array();
 	}

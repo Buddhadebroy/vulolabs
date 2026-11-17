@@ -64,45 +64,51 @@ class FormRepository {
 	public function query( array $args = array() ) {
 		global $wpdb;
 
-		$table   = $this->table();
-		$plugin  = (string) ( $args['plugin'] ?? '' );
-		$plugins = Templates::plugins();
-		$where   = array();
-		$hidden  = Templates::unavailable();
+		$plugin     = $args['plugin'] ?? '';
+		$conditions = array();
+		$values     = array();
 
 		if ( ! empty( $args['search'] ) ) {
-			$where[] = $wpdb->prepare( 'title LIKE %s', '%' . $wpdb->esc_like( $args['search'] ) . '%' );
+			$conditions[] = 'title LIKE %s';
+			$values[]     = '%' . $wpdb->esc_like( $args['search'] ) . '%';
 		}
 
 		if ( in_array( $args['status'] ?? '', self::STATUSES, true ) ) {
-			$where[] = $wpdb->prepare( 'status = %s', $args['status'] );
+			$conditions[] = 'status = %s';
+			$values[]     = $args['status'];
 		}
 
-		if ( 'vuloform' === $plugin ) {
-			$hidden = array_merge( $hidden, ...array_values( $plugins ) );
-		} elseif ( '' !== $plugin && 'all' !== $plugin ) {
-			if ( empty( $plugins[ $plugin ] ) ) {
+		// "vuloform" is every form not made from another plugin's template.
+		if ( ! in_array( $plugin, array( '', 'all' ), true ) ) {
+			$other = 'vuloform' === $plugin;
+			$ids   = $other ? array_merge( array(), ...array_values( Templates::plugins() ) ) : ( Templates::plugins()[ $plugin ] ?? array() );
+
+			if ( ! $ids && ! $other ) {
 				return array(
 					'data'  => array(),
 					'total' => 0,
 				);
 			}
 
-			$where[] = $this->template_sql( $plugins[ $plugin ] );
+			if ( $ids ) {
+				$conditions[] = '(' . implode( $other ? ' AND ' : ' OR ', array_fill( 0, count( $ids ), $other ? 'form_schema NOT LIKE %s' : 'form_schema LIKE %s' ) ) . ')';
+				$values       = array_merge( $values, $this->template_patterns( $ids ) );
+			}
 		}
 
-		if ( $hidden ) {
-			$where[] = $this->template_sql( $hidden, true );
-		}
+		$where    = $conditions ? ' WHERE ' . implode( ' AND ', $conditions ) : '';
+		$per_page = min( 100, absint( $args['per_page'] ?? 10 ) ?: 10 );
+		$offset   = ( max( 1, absint( $args['page'] ?? 1 ) ) - 1 ) * $per_page;
 
-		$where_sql = $where ? 'WHERE ' . implode( ' AND ', $where ) : '';
-		$per_page  = (int) ( $args['per_page'] ?? 0 );
-		$per_page  = $per_page > 0 ? min( 100, $per_page ) : 10;
-		$offset    = ( max( 1, (int) ( $args['page'] ?? 1 ) ) - 1 ) * $per_page;
-
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- the table name is ours, $where_sql is built from prepare() calls above and the numbers are integers.
-		$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} {$where_sql}" );
-		$rows  = $wpdb->get_results( "SELECT id, title, status, created_at, updated_at FROM {$table} {$where_sql} ORDER BY updated_at DESC, id DESC LIMIT {$per_page} OFFSET {$offset}", ARRAY_A );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- $where holds only placeholders.
+		$total = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i' . $where, $this->table(), ...$values ) );
+		$rows  = $wpdb->get_results(
+			$wpdb->prepare(
+				'SELECT id, title, status, created_at, updated_at FROM %i' . $where . ' ORDER BY updated_at DESC, id DESC LIMIT %d OFFSET %d',
+				...array_merge( array( $this->table() ), $values, array( $per_page, $offset ) )
+			),
+			ARRAY_A
+		);
 		// phpcs:enable
 
 		return array(
@@ -122,11 +128,8 @@ class FormRepository {
 			return array();
 		}
 
-		$table = $this->table();
-		$where = $this->template_sql( array( $template ) );
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- the table name is ours, $where comes from prepare().
-		$ids = $wpdb->get_col( "SELECT id FROM {$table} WHERE {$where} ORDER BY id ASC" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$ids = $wpdb->get_col( $wpdb->prepare( 'SELECT id FROM %i WHERE form_schema LIKE %s ORDER BY id ASC', $this->table(), ...$this->template_patterns( array( $template ) ) ) );
 
 		return array_map( 'intval', $ids );
 	}
@@ -134,21 +137,18 @@ class FormRepository {
 	/**
 	 * A form remembers its template as `"template":"id"` inside its schema, so that is what we match.
 	 *
-	 * @param string[] $ids Template ids, at least one.
-	 * @param bool     $not True for forms made from none of them, false for any of them.
-	 * @return string Already-prepared SQL condition.
+	 * @param string[] $ids Template ids.
+	 * @return string[] One LIKE pattern per id.
 	 */
-	private function template_sql( array $ids, $not = false ) {
+	private function template_patterns( array $ids ) {
 		global $wpdb;
 
-		$conditions = array();
-
-		foreach ( $ids as $id ) {
-			$like         = '%' . $wpdb->esc_like( '"template":' . wp_json_encode( $id ) ) . '%';
-			$conditions[] = $wpdb->prepare( $not ? 'form_schema NOT LIKE %s' : 'form_schema LIKE %s', $like );
-		}
-
-		return '(' . implode( $not ? ' AND ' : ' OR ', $conditions ) . ')';
+		return array_map(
+			function ( $id ) use ( $wpdb ) {
+				return '%' . $wpdb->esc_like( '"template":' . wp_json_encode( $id ) ) . '%';
+			},
+			$ids
+		);
 	}
 
 	/**
@@ -157,10 +157,8 @@ class FormRepository {
 	public function published() {
 		global $wpdb;
 
-		$table  = $this->table();
-		$hidden = Templates::unavailable();
-		$extra  = $hidden ? ' AND ' . $this->template_sql( $hidden, true ) : '';
-		$rows = $wpdb->get_results( "SELECT id, title FROM {$table} WHERE status = 'published'{$extra} ORDER BY title ASC LIMIT 500", ARRAY_A );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, title FROM %i WHERE status = 'published' ORDER BY title ASC LIMIT 500", $this->table() ), ARRAY_A );
 
 		return $rows ? $rows : array();
 	}
