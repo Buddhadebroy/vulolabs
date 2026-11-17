@@ -21,7 +21,8 @@ import { EmbedCodeSection } from './EmbedCodeSection';
 import { HeaderPicker } from './HeaderPicker';
 import { ProModuleHint } from './ProModuleHint';
 import { TypeChooser } from './TypeChooser';
-import { TYPE_PROFILES, cardsFor, fieldsFor, profileFor, subtypeFor, type TypeDetailField } from './typeProfiles';
+import { BookingDetails } from './BookingDetails';
+import { TYPE_PROFILES, cardsFor, fieldsFor, lockedSubtypeModule, profileFor, subtypeFor, type TypeDetailField } from './typeProfiles';
 import './products-page.scss';
 
 const PRODUCT_STATUS_OPTIONS = [
@@ -278,6 +279,9 @@ export function ProductEdit( { id }: ProductEditProps ) {
 	const isEditMode = null !== id;
 
 	const [ formData, setFormData ] = useState< ProductFormState >( EMPTY_FORM );
+	/** Type and subtype as last saved, so a choice the store cannot offer now stays on the product that has it. */
+	const [ savedType, setSavedType ] = useState( '' );
+	const [ savedSubtype, setSavedSubtype ] = useState( '' );
 	const [ isLoadingInitial, setIsLoadingInitial ] = useState( isEditMode );
 
 	// A new product starts on the "What are you selling?" screen unless the address already names a type (?type=service).
@@ -297,6 +301,8 @@ export function ProductEdit( { id }: ProductEditProps ) {
 	} );
 	const [ notFound, setNotFound ] = useState( false );
 	const [ isSaving, setIsSaving ] = useState( false );
+	const isSavingRef = useRef( false );
+	isSavingRef.current = isSaving;
 	const [ savedNotice, setSavedNotice ] = useState( false );
 	const [ showProgress, setShowProgress ] = useState( false );
 	/** Problems found by the last Save click, by field. Re-checked on every edit until they are all fixed. */
@@ -312,7 +318,14 @@ export function ProductEdit( { id }: ProductEditProps ) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- only the moment loading finishes matters here.
 	}, [ isLoadingInitial ] );
 
-	const isDirty = null !== savedSnapshot.current && JSON.stringify( formData ) !== savedSnapshot.current;
+	/** A card that keeps its own data (Variants) reports edits here, so "Unsaved changes" and the leave warning cover it. */
+	const [ extrasDirty, setExtrasDirty ] = useState( false );
+	const [ extrasRevision, setExtrasRevision ] = useState( 0 );
+	const markExtrasDirty = () => {
+		setExtrasDirty( true );
+		setExtrasRevision( ( n ) => n + 1 );
+	};
+	const isDirty = ( null !== savedSnapshot.current && JSON.stringify( formData ) !== savedSnapshot.current ) || extrasDirty;
 
 	useEffect( () => {
 		if ( ! isDirty ) {
@@ -411,7 +424,6 @@ export function ProductEdit( { id }: ProductEditProps ) {
 	const [ publishedAt, setPublishedAt ] = useState< string | null >( null );
 	/** The product's page on the storefront. */
 	const [ permalink, setPermalink ] = useState( '' );
-	const [ showVariantsNotice, setShowVariantsNotice ] = useState( false );
 	const [ categoryOptions, setCategoryOptions ] = useState< { key: string; value: string; label: string; id?: number; depth?: number }[] >( [] );
 	const [ tagOptions, setTagOptions ] = useState< { key: string; value: string; label: string }[] >( [] );
 	const [ brandOptions, setBrandOptions ] = useState< { label: string; value: string }[] >( [] );
@@ -456,6 +468,11 @@ export function ProductEdit( { id }: ProductEditProps ) {
 	const subtype = subtypeFor( formData.type, formData.subtype );
 	const cards = cardsFor( formData.type, formData.subtype );
 	const typeFields = fieldsFor( formData.type, formData.subtype );
+	const variantsOn = vulocartLocalizer.active_modules.includes( 'product-variants' );
+	// A Variable product is priced and stocked per variant: the Variants card replaces the price list and the
+	// product-level stock, on a new product too.
+	const variantMode = cards.variants && variantsOn;
+	const tracksStock = cards.inventory && ! variantMode;
 
 	// `...&action=add&type=booking` opens the editor with that type already chosen.
 	useEffect( () => {
@@ -587,6 +604,9 @@ export function ProductEdit( { id }: ProductEditProps ) {
 				const product = response.data;
 				const meta = product.meta || {};
 
+				setSavedType( product.type || 'physical' );
+				setSavedSubtype( meta.subtype || '' );
+
 				setFormData( {
 					type: product.type || 'physical',
 					// Products saved before subtypes existed keep the options card they may already be using.
@@ -665,7 +685,7 @@ export function ProductEdit( { id }: ProductEditProps ) {
 		// Stock only makes sense for types STOCK_TRACKED_TYPES actually
 		// tracks - the checklist (and its X/N denominator) reflects that,
 		// same "dynamic per type" principle the form fields themselves follow.
-		if ( cards.inventory ) {
+		if ( tracksStock ) {
 			items.push( {
 				key: 'stock',
 				label: __( 'Stock', 'vulocart' ),
@@ -695,8 +715,13 @@ export function ProductEdit( { id }: ProductEditProps ) {
 			}
 		);
 
-		return items;
-	}, [ formData ] );
+		/**
+		 * `vulocart_product_checklist` - steps a card that keeps its own data adds to Setup progress
+		 * (`{key, label, desc, done, target?}`).
+		 */
+		return applyFilters( 'vulocart_product_checklist', items, { id, type: formData.type, subtype: formData.subtype } ) as typeof items;
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- extrasRevision stands for the cards' own data.
+	}, [ formData, extrasRevision ] );
 
 	const doneCount = recommendedChecklist.filter( ( item ) => item.done ).length;
 	const progressPercent = recommendedChecklist.length ? Math.round( ( doneCount / recommendedChecklist.length ) * 100 ) : 0;
@@ -707,8 +732,69 @@ export function ProductEdit( { id }: ProductEditProps ) {
 	 * Pro module such as Variants can render a matrix editor exactly there. When there is no registrant, or the
 	 * product has no id yet, the notice below is shown.
 	 */
-	const variantsSection =
-		null !== id ? applyFilters( 'vulocart_product_variants_section', null, { id, type: formData.type } ) : null;
+	const variantsSection = variantsOn
+		? applyFilters( 'vulocart_product_variants_section', null, {
+				id,
+				type: formData.type,
+				subtype: formData.subtype,
+				currency: formData.currency,
+				markDirty: markExtrasDirty,
+				productName: formData.title,
+				weight: formData.weight,
+				setCurrency: ( currency: string ) => update( { currency } ),
+				images: [ ...( formData.featuredImage ? [ formData.featuredImage ] : [] ), ...formData.gallery ],
+				addImages: ( items: MediaItem[] ) =>
+					setFormData( ( prev ) => {
+						const known = [ ...( prev.featuredImage ? [ prev.featuredImage ] : [] ), ...prev.gallery ];
+						const fresh = items.filter( ( item ) => ! known.some( ( other ) => other.id === item.id ) );
+
+						return prev.featuredImage ? { ...prev, gallery: [ ...prev.gallery, ...fresh ] } : { ...prev, featuredImage: fresh[ 0 ] ?? null, gallery: [ ...prev.gallery, ...fresh.slice( 1 ) ] };
+					} ),
+				removeImage: ( imageId: number ) =>
+					setFormData( ( prev ) => {
+						const list = [ ...( prev.featuredImage ? [ prev.featuredImage ] : [] ), ...prev.gallery ].filter( ( item ) => item.id !== imageId );
+
+						return { ...prev, featuredImage: list[ 0 ] ?? null, gallery: list.slice( 1 ) };
+					} ),
+		  } )
+		: null;
+
+	/**
+	 * `vulocart_product_preview` - a module that changes how this product sells (Variants) may supply parts of the live
+	 * preview: `media` (main image), `badge` (top-right) and `body` (price, picker, stock, button).
+	 */
+	const previewSlot = applyFilters( 'vulocart_product_preview', null, {
+		id,
+		type: formData.type,
+		subtype: formData.subtype,
+		currency: formData.currency,
+		images: [ ...( formData.featuredImage ? [ formData.featuredImage ] : [] ), ...formData.gallery ],
+	} ) as null | { media?: ReactNode; badge?: ReactNode; body?: ReactNode };
+
+	// While the Variants card is on screen the live preview stays pinned on the right, so every change can be seen
+	// as it is made; past the card it goes back to its place in the column.
+	const variantsCardRef = useRef< HTMLDivElement >( null );
+	const [ pinPreview, setPinPreview ] = useState( false );
+
+	useEffect( () => {
+		const node = variantsCardRef.current;
+
+		if ( ! node || ! cards.variants || 'undefined' === typeof IntersectionObserver ) {
+			setPinPreview( false );
+			return undefined;
+		}
+
+		const observer = new IntersectionObserver( ( [ entry ] ) => setPinPreview( entry.isIntersecting ), { rootMargin: '-46px 0px 0px 0px' } );
+		observer.observe( node );
+
+		return () => observer.disconnect();
+	}, [ cards.variants, typeChosen, isLoadingInitial ] );
+
+	// A kind whose module is off (Variable needs Product Variants) is hidden, except on a product already saved that way.
+	const kindOptions = profile.subtypes.filter(
+		( option ) =>
+			! lockedSubtypeModule( formData.type, option.value, vulocartLocalizer.active_modules ) || ( savedType === formData.type && savedSubtype === option.value )
+	);
 
 	const previewPrice = formData.price ? Number( formData.price ) : 0;
 	const previewSale = formData.salePrice ? Number( formData.salePrice ) : 0;
@@ -806,8 +892,8 @@ export function ProductEdit( { id }: ProductEditProps ) {
 		sale_price: formData.salePrice ? Number( formData.salePrice ) : null,
 		prices: formData.prices.map( toPayloadPrice ),
 		subtype: subtype.value,
-		stock_management: cards.inventory && formData.stockManagement,
-		stock_quantity: cards.inventory && formData.stockManagement && '' !== formData.stockQuantity ? Number( formData.stockQuantity ) : null,
+		stock_management: tracksStock && formData.stockManagement,
+		stock_quantity: tracksStock && formData.stockManagement && '' !== formData.stockQuantity ? Number( formData.stockQuantity ) : null,
 		stock_status: formData.stockStatus,
 		delivery_method: TYPE_TO_DELIVERY_METHOD[ formData.type ] || 'other',
 		weight: formData.weight || undefined,
@@ -849,14 +935,14 @@ export function ProductEdit( { id }: ProductEditProps ) {
 			problems.title = { message: __( 'Give this product a name.', 'vulocart' ), target: 'vulocart-product-title' };
 		}
 
-		if ( 'published' === formData.status && '' === String( formData.price ).trim() ) {
+		if ( ! variantMode && 'published' === formData.status && '' === String( formData.price ).trim() ) {
 			problems.price = {
 				message: __( 'Add a price before publishing - enter 0 if it is free.', 'vulocart' ),
 				target: 'vulocart-pricing-card',
 			};
 		}
 
-		if ( cards.inventory && formData.stockManagement && '' === formData.stockQuantity ) {
+		if ( tracksStock && formData.stockManagement && '' === formData.stockQuantity ) {
 			problems.stockQuantity = {
 				message: __( 'Enter how many units you have, or turn off Track stock.', 'vulocart' ),
 				target: 'vulocart-product-stock-quantity',
@@ -873,6 +959,14 @@ export function ProductEdit( { id }: ProductEditProps ) {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- re-check on form edits only.
 	}, [ formData ] );
+
+	// Leaving Variable hides the Variants card; its options stay in this page's memory and come back.
+	const leaveVariants = ( change: () => void ) => {
+		// eslint-disable-next-line no-alert -- a native confirm, like the other "are you sure" prompts on this page.
+		if ( ! variantMode || window.confirm( __( 'Switch to Simple? Your options and variants are kept and come back if you switch to Variable again.', 'vulocart' ) ) ) {
+			change();
+		}
+	};
 
 	const handleSave = () => {
 		const problems = findProblems();
@@ -892,12 +986,27 @@ export function ProductEdit( { id }: ProductEditProps ) {
 		}
 
 		const types = getPriceTypes();
-		const priceIssue = formData.prices
-			.map( ( price ) => priceProblem( price, types.find( ( type ) => type.value === price.type ) ) )
-			.find( Boolean );
+		const priceIssue = variantMode
+			? ''
+			: formData.prices.map( ( price ) => priceProblem( price, types.find( ( type ) => type.value === price.type ) ) ).find( Boolean );
 
 		if ( priceIssue ) {
 			showErrorToast( priceIssue );
+			return;
+		}
+
+		/**
+		 * `vulocart_product_save_problems` - a card that keeps its own data (Variants) says what still needs fixing
+		 * before the product can be saved; the first problem is shown and the save stops.
+		 */
+		const moduleIssue = ( applyFilters( 'vulocart_product_save_problems', [], { id, type: formData.type, subtype: formData.subtype } ) as Array< { message: string; target?: string } > )[ 0 ];
+
+		if ( moduleIssue ) {
+			if ( moduleIssue.target ) {
+				document.getElementById( moduleIssue.target )?.scrollIntoView( { behavior: 'smooth', block: 'center' } );
+			}
+
+			showErrorToast( moduleIssue.message );
 			return;
 		}
 
@@ -909,8 +1018,9 @@ export function ProductEdit( { id }: ProductEditProps ) {
 			title: formData.title,
 			status: formData.status,
 			sku: formData.sku || undefined,
-			price: formData.price ? Number( formData.price ) : isEditMode ? 0 : undefined,
-			currency: formData.price ? formData.currency : undefined,
+			// A Variable product's price follows its cheapest variant, set when the variants are saved.
+			price: variantMode ? undefined : formData.price ? Number( formData.price ) : isEditMode ? 0 : undefined,
+			currency: formData.price || variantMode ? formData.currency : undefined,
 			meta: buildMetaPayload(),
 		};
 
@@ -923,12 +1033,27 @@ export function ProductEdit( { id }: ProductEditProps ) {
 			  } );
 
 		request
-			.then( ( response ) => {
+			.then( async ( response ) => {
 				savedSnapshot.current = JSON.stringify( formData );
+
+				/**
+				 * `vulocart_product_after_save` - cards that keep their own data save it now that the product has an
+				 * id. Each returns a promise of an error message, or null.
+				 */
+				const followUps = applyFilters( 'vulocart_product_after_save', [], { id: response.data.id, isNew: ! isEditMode } ) as Array< Promise< string | null > >;
+				const failed = ( await Promise.all( followUps ) ).find( Boolean );
+
+				if ( failed ) {
+					showErrorToast( failed );
+				} else {
+					setExtrasDirty( false );
+				}
 
 				if ( isEditMode ) {
 					setIsSaving( false );
-					setSavedNotice( true );
+					setSavedNotice( ! failed );
+					setSavedType( formData.type );
+					setSavedSubtype( formData.subtype );
 				} else {
 					window.location.href = `admin.php?page=products&action=edit&id=${ response.data.id }`;
 				}
@@ -938,6 +1063,26 @@ export function ProductEdit( { id }: ProductEditProps ) {
 				showErrorToast( errorMessageOf( error ) );
 			} );
 	};
+
+	// Ctrl/⌘+S saves, like the Save button.
+	const saveRef = useRef( handleSave );
+	saveRef.current = handleSave;
+
+	useEffect( () => {
+		const onKey = ( event: KeyboardEvent ) => {
+			if ( ( event.metaKey || event.ctrlKey ) && 's' === event.key.toLowerCase() ) {
+				event.preventDefault();
+
+				if ( ! isSavingRef.current ) {
+					saveRef.current();
+				}
+			}
+		};
+
+		window.addEventListener( 'keydown', onKey );
+
+		return () => window.removeEventListener( 'keydown', onKey );
+	}, [] );
 
 	const updateTypeDetail = ( key: string, value: string | boolean ) =>
 		update( { typeDetails: { ...formData.typeDetails, [ key ]: value } } );
@@ -1000,8 +1145,8 @@ export function ProductEdit( { id }: ProductEditProps ) {
 	if ( ! typeChosen ) {
 		return (
 			<TypeChooser
-				onChoose={ ( type ) => {
-					update( { type, subtype: profileFor( type ).subtypes[ 0 ].value } );
+				onChoose={ ( type, kind ) => {
+					update( { type, subtype: kind ?? profileFor( type ).subtypes[ 0 ].value } );
 					setTypeChosen( true );
 				} }
 				onSkip={ ( type ) => {
@@ -1042,16 +1187,26 @@ export function ProductEdit( { id }: ProductEditProps ) {
 						<span aria-current="page">{ isEditMode ? __( 'Edit Product', 'vulocart' ) : __( 'Add Product', 'vulocart' ) }</span>
 					</nav>
 					<h1 className="vulocart-edit-page-title">
-						{ isEditMode
+						{ variantMode
+							? isEditMode
+								? sprintf( /* translators: %s: product name. */ __( 'Edit Variable Product: %s', 'vulocart' ), formData.title || __( 'Untitled product', 'vulocart' ) )
+								: __( 'Add Variable Product', 'vulocart' )
+							: isEditMode
 							? formData.title || __( 'Untitled product', 'vulocart' )
 							: sprintf( /* translators: %s: product type, e.g. Service. */ __( 'Add %s', 'vulocart' ), profile.label ) }
 					</h1>
 					<div className="vulocart-title-meta">
-						<span className="vulocart-pill is-type" title={ profile.hint }>
+						{ variantMode && (
+							<span className="vulocart-pill is-type is-variable" title={ subtype.hint }>
+								<i className="vulocart-pill-dot" aria-hidden="true" />
+								{ subtype.label }
+							</span>
+						) }
+						<span className={ `vulocart-pill ${ variantMode ? 'is-kind' : 'is-type' }` } title={ profile.hint }>
 							<i className={ `adminfont-${ profile.icon }` } aria-hidden="true" />
 							{ profile.label }
 						</span>
-						{ profile.subtypes.length > 1 && (
+						{ ! variantMode && profile.subtypes.length > 1 && (
 							<span className="vulocart-pill is-kind" title={ subtype.hint }>
 								{ subtype.label }
 							</span>
@@ -1134,6 +1289,12 @@ export function ProductEdit( { id }: ProductEditProps ) {
 						<span className="vulocart-unsaved" role="status">
 							<i aria-hidden="true" />
 							{ __( 'Unsaved changes', 'vulocart' ) }
+						</span>
+					) }
+					{ ! isDirty && savedNotice && (
+						<span className="vulocart-unsaved is-saved" role="status">
+							<i aria-hidden="true" />
+							{ __( 'All changes saved', 'vulocart' ) }
 						</span>
 					) }
 					<div className="vulocart-progress-anchor" ref={ progressRef }>
@@ -1286,22 +1447,22 @@ export function ProductEdit( { id }: ProductEditProps ) {
 						desc={ __( 'Tell customers what you are selling.', 'vulocart' ) }
 						action={
 						<div className="vulocart-details-actions vulocart-topbar-controls">
+							{ profile.subtypes.length > 1 && (
+								<HeaderPicker
+									caption={ 'physical' === formData.type ? __( 'Product type', 'vulocart' ) : __( 'Kind', 'vulocart' ) }
+									ariaLabel={ __( 'Product subtype', 'vulocart' ) }
+									options={ kindOptions }
+									value={ subtype.value }
+									onSelect={ ( value ) => ( 'variable' === value ? update( { subtype: value } ) : leaveVariants( () => update( { subtype: value } ) ) ) }
+								/>
+							) }
 							<HeaderPicker
-								caption={ __( 'Type', 'vulocart' ) }
+								caption={ 'physical' === formData.type ? __( 'Delivered as', 'vulocart' ) : __( 'Type', 'vulocart' ) }
 								ariaLabel={ __( 'Product type', 'vulocart' ) }
 								options={ TYPE_PROFILES.filter( ( entry ) => entry.value === formData.type || ! ( vulocartLocalizer.disabled_product_types ?? [] ).includes( entry.value ) ).map( ( entry ) => ( { value: entry.value, label: entry.label, hint: entry.hint } ) ) }
 								value={ formData.type }
-								onSelect={ ( value ) => update( { type: value, subtype: profileFor( value ).subtypes[ 0 ].value } ) }
+								onSelect={ ( value ) => leaveVariants( () => update( { type: value, subtype: profileFor( value ).subtypes[ 0 ].value } ) ) }
 							/>
-							{ profile.subtypes.length > 1 && (
-								<HeaderPicker
-									caption={ __( 'Kind', 'vulocart' ) }
-									ariaLabel={ __( 'Product subtype', 'vulocart' ) }
-									options={ profile.subtypes }
-									value={ subtype.value }
-									onSelect={ ( value ) => update( { subtype: value } ) }
-								/>
-							) }
 						</div>
 						}
 					>
@@ -1343,10 +1504,55 @@ export function ProductEdit( { id }: ProductEditProps ) {
 						</FormGroupWrapperComponent>
 					</CardComponent>
 
+{ /* A Variable product reads as a story: details, then options, then a price per variant. */ }
+					{ cards.variants && (
+					<div ref={ variantsCardRef }>
+					<CardComponent
+						titleIcon="variable"
+						title={ __( 'Variants', 'vulocart' ) }
+						desc={ __( 'Add the options customers choose from, like size or colour. Each combination then gets its own price, stock and image.', 'vulocart' ) }
+						action={
+							variantMode ? (
+								<div className="vulocart-currency-pill">
+									<span>{ __( 'Currency', 'vulocart' ) }</span>
+									<SelectInput
+										name="currency"
+										type="single-select"
+										options={ CURRENCY_OPTIONS }
+										value={ formData.currency }
+										onChange={ ( value ) => update( { currency: value as string } ) }
+									/>
+								</div>
+							) : undefined
+						}
+					>
+						<div id="vulocart-variants-card" tabIndex={ -1 } />
+						{ variantsSection || (
+							variantsOn ? (
+								<p className="vulocart-field-hint vulocart-locked-note">
+									<i className="adminfont-lock" aria-hidden="true" /> { __( 'Variants could not be loaded. Reload the page to try again.', 'vulocart' ) }
+								</p>
+							) : (
+								<ProModuleHint
+									module="product-variants"
+									title={ __( 'Variable products need Product Variants', 'vulocart' ) }
+									description={
+										'variable' === savedSubtype
+											? __( 'Product Variants is off, so this product cannot be bought and its options cannot be changed. Nothing has been deleted: turn the module back on and everything is as you left it.', 'vulocart' )
+											: __( 'Turn on Product Variants to sell one product in several options, such as Colour × Size.', 'vulocart' )
+									}
+								/>
+							)
+						) }
+					</CardComponent>
+					</div>
+					) }
+
+					{ ! variantMode && (
 					<CardComponent
 						titleIcon="payment"
 						title={ __( 'Pricing', 'vulocart' ) }
-						desc={ __( 'What customers pay. Add more prices for plans, tiers or bundles.', 'vulocart' ) }
+						desc={ variantMode ? __( 'What customers pay for each variant.', 'vulocart' ) : __( 'What customers pay. Add more prices for plans, tiers or bundles.', 'vulocart' ) }
 						action={
 							<div className="vulocart-card-actions">
 								{ aiSlot( 'pricing' ) }
@@ -1365,8 +1571,20 @@ export function ProductEdit( { id }: ProductEditProps ) {
 					>
 						<div id="vulocart-pricing-card" tabIndex={ -1 } />
 						{ fieldErrors.price && <p className="vulocart-field-error" role="alert">{ fieldErrors.price.message }</p> }
-						<PriceList prices={ formData.prices } onChange={ setPrices } symbol={ currencySymbol } money={ formatMoney } />
-						{ PRICE_LIST_HINTS[ formData.type ] && <p className="vulocart-price-type-hint">{ PRICE_LIST_HINTS[ formData.type ] }</p> }
+						{ variantMode ? (
+							<p className="vulocart-variant-pricing-note">
+								<i className="adminfont-variable" aria-hidden="true" />
+								<span>
+									<strong>{ __( 'Priced per variant', 'vulocart' ) }</strong>
+									{ __( 'Add options like size or colour in Variants below, then give each variant its price. Customers see the lowest price as "From".', 'vulocart' ) }
+								</span>
+							</p>
+						) : (
+							<>
+								<PriceList prices={ formData.prices } onChange={ setPrices } symbol={ currencySymbol } money={ formatMoney } />
+								{ PRICE_LIST_HINTS[ formData.type ] && <p className="vulocart-price-type-hint">{ PRICE_LIST_HINTS[ formData.type ] }</p> }
+							</>
+						) }
 
 						{ pricingSection ??
 							( isEditMode && (
@@ -1377,34 +1595,22 @@ export function ProductEdit( { id }: ProductEditProps ) {
 								/>
 							) ) }
 					</CardComponent>
-
-					{ cards.variants && (
-					<CardComponent titleIcon="variable" title={ __( 'Attributes & Variations', 'vulocart' ) }>
-						{ variantsSection || (
-							<>
-								<ButtonInput
-									buttons={ [
-										{
-											icon: 'plus',
-											text: __( 'Add variants Like size or color', 'vulocart' ),
-											onClick: () => setShowVariantsNotice( true ),
-										},
-									] }
-								/>
-								{ showVariantsNotice && (
-									<p className="vulocart-field-hint vulocart-variants-notice">
-										{ __(
-											'Product variants are not supported yet - this is planned for a future update.',
-											'vulocart'
-										) }
-									</p>
-								) }
-							</>
-						) }
-					</CardComponent>
 					) }
 
-					{ typeFields.length > 0 && (
+
+					{ 'booking' === formData.type && (
+						<BookingDetails
+							subtype={ subtype.value }
+							details={ formData.typeDetails }
+							isNew={ null === id }
+							onChange={ ( patch ) => setFormData( ( prev ) => ( { ...prev, typeDetails: { ...prev.typeDetails, ...patch } } ) ) }
+						/>
+					) }
+
+					{ /* Right under the type's own card: a module's settings that belong with it (Bookings' Availability). */ }
+					{ applyFilters( 'vulocart_product_type_details_after', null, { id, type: formData.type, subtype: subtype.value } ) as ReactNode }
+
+					{ 'booking' !== formData.type && typeFields.length > 0 && (
 						<CardComponent
 							titleIcon="feature"
 							title={ profile.detailsTitle || __( 'Type Details', 'vulocart' ) }
@@ -1425,7 +1631,7 @@ export function ProductEdit( { id }: ProductEditProps ) {
 						</CardComponent>
 					) }
 
-					{ cards.inventory && (
+					{ tracksStock && (
 						<CardComponent
 							titleIcon="store-inventory"
 							title={ __( 'Inventory', 'vulocart' ) }
@@ -1741,10 +1947,12 @@ export function ProductEdit( { id }: ProductEditProps ) {
 				</div>
 
 				{ /* Side column */ }
-				<div className="vulocart-product-edit-col vulocart-product-edit-col--right">
+				<div className={ `vulocart-product-edit-col vulocart-product-edit-col--right${ pinPreview ? ' is-preview-pinned' : '' }` }>
 					<aside className="vulocart-preview" aria-label={ __( 'Storefront preview', 'vulocart' ) }>
 						<div className="vulocart-preview-media">
-							{ formData.featuredImage?.url ? (
+							{ previewSlot?.media ? (
+								previewSlot.media
+							) : formData.featuredImage?.url ? (
 								<img src={ formData.featuredImage.url } alt="" />
 							) : (
 								<div className="vulocart-preview-placeholder" aria-hidden="true">
@@ -1752,18 +1960,21 @@ export function ProductEdit( { id }: ProductEditProps ) {
 								</div>
 							) }
 							<div className="vulocart-preview-badges">
-								<span className="vulocart-preview-badge">{ formData.type.replace( '_', ' ' ) }</span>
+								<span className="vulocart-preview-badge">
+									{ profile.subtypes.length > 1 && 'standard' !== subtype.value ? `${ subtype.label } · ${ profile.label }` : formData.type.replace( '_', ' ' ) }
+								</span>
 								{ formData.featured && (
 									<span className="vulocart-preview-badge is-featured">
 										<i className="adminfont-star" aria-hidden="true" /> { __( 'Featured', 'vulocart' ) }
 									</span>
 								) }
 							</div>
-							{ previewDiscount > 0 && <span className="vulocart-preview-discount">-{ previewDiscount }%</span> }
+							{ previewSlot?.badge ?? ( previewDiscount > 0 && <span className="vulocart-preview-discount">-{ previewDiscount }%</span> ) }
 						</div>
 						<div className="vulocart-preview-body">
 							<h3>{ formData.title || __( 'Untitled product', 'vulocart' ) }</h3>
 							<p>{ formData.shortDescription || __( 'Your short description appears here.', 'vulocart' ) }</p>
+							{ previewSlot?.body ?? ( <>
 							<div className="vulocart-preview-price">
 								{ previewPrice ? (
 									previewSale && previewDiscount > 0 ? (
@@ -1778,12 +1989,13 @@ export function ProductEdit( { id }: ProductEditProps ) {
 									<span>{ __( 'No price yet', 'vulocart' ) }</span>
 								) }
 							</div>
-							{ cards.inventory && (
+							{ tracksStock && (
 								<span className={ `vulocart-preview-stock is-${ formData.stockStatus }` }>
 									<i aria-hidden="true" />
 									{ STOCK_STATUS_OPTIONS.find( ( option ) => option.value === formData.stockStatus )?.label }
 								</span>
 							) }
+							</> ) }
 						</div>
 						<footer>
 							<i className="adminfont-eye" aria-hidden="true" /> { __( 'Live preview - updates as you type', 'vulocart' ) }

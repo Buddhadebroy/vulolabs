@@ -230,6 +230,37 @@ class OrderService {
             throw new \InvalidArgumentException( 'Cart is empty or does not exist.' );
         }
 
+        $blocked = $this->cart_service->blocked_line_reason( $cart );
+
+        if ( null !== $blocked ) {
+            throw new \VuloCart\Cart\Domain\CartItemRejected( $blocked );
+        }
+
+        /**
+         * `vulocart_validate_cart_for_order` - the last check before an order is written: return a WP_Error to
+         * refuse checkout (a booking hold that expired and whose slot was taken, a plan the customer already has).
+         * Its message is shown to the shopper. `stage` is 'order' here and 'payment' when the checkout asks for a
+         * payment intent first; only at 'order' may a listener commit what it reserved.
+         *
+         * @param \WP_Error|null       $error   Null when nothing refused it yet.
+         * @param \VuloCart\Cart\Domain\Cart $cart The cart being checked out.
+         * @param array<string, mixed> $context `stage`, `customer_email`, `customer_user_id`.
+         */
+        $error = apply_filters(
+            'vulocart_validate_cart_for_order',
+            null,
+            $cart,
+            array(
+                'stage'            => 'order',
+                'customer_email'   => $customer_email,
+                'customer_user_id' => $customer_user_id,
+            )
+        );
+
+        if ( is_wp_error( $error ) ) {
+            throw \VuloCart\Cart\Domain\CartItemRejected::from_error( $error );
+        }
+
         $totals = $this->cart_service->get_totals( $cart );
 
         $shipping_service = $this->resolve_optional_service( 'shipping_service' );
@@ -420,7 +451,7 @@ class OrderService {
      * Same item-snapshotting shape as create_from_cart(), just sourced
      * from a plain `{product_id, quantity}[]` array instead of a Cart.
      *
-     * @param array{product_id: int, quantity: int}[] $items          Products and quantities to snapshot onto the order.
+     * @param array{product_id: int, quantity: int, unit_price?: float, meta?: array}[] $items Products and quantities to snapshot onto the order. `unit_price` and `meta` are for internal callers (a subscription renewal bills its own snapshotted amount, not today's product price); the admin REST route never passes them.
      * @param string|null                              $customer_email Buyer's email, if given.
      * @param string|null                              $customer_name  Buyer's display name, if given.
      * @param string|null                              $payment_method Chosen payment method id, if this order is already paid (a recurring-billing engine's own renewal order, for instance) - left null for a genuine draft with nothing charged yet.
@@ -444,7 +475,7 @@ class OrderService {
             }
 
             $quantity   = max( 1, absint( $item['quantity'] ) );
-            $unit_price = null === $product->price ? 0.0 : $product->price;
+            $unit_price = isset( $item['unit_price'] ) ? max( 0.0, (float) $item['unit_price'] ) : ( null === $product->price ? 0.0 : $product->price );
             $currency   = $currency ?? $product->currency;
 
             $snapshots[] = array(
@@ -453,6 +484,7 @@ class OrderService {
                 'quantity'    => $quantity,
                 'unit_price'  => $unit_price,
                 'currency'    => $currency,
+                'meta'        => isset( $item['meta'] ) && is_array( $item['meta'] ) ? $item['meta'] : array(),
             );
 
             $subtotal += $unit_price * $quantity;
@@ -500,7 +532,8 @@ class OrderService {
                     $snapshot['title'],
                     $snapshot['quantity'],
                     $snapshot['unit_price'],
-                    $snapshot['currency']
+                    $snapshot['currency'],
+                    $snapshot['meta']
                 )
             );
         }

@@ -157,13 +157,15 @@ class ProductView {
 		$sold_out  = ! empty( $meta['stock_management'] ) && isset( $meta['stock_status'] ) && 'out_of_stock' === $meta['stock_status'];
 		$image     = isset( $meta['featured_image'] ) && is_array( $meta['featured_image'] ) ? $meta['featured_image'] : null;
 
+		$unavailable = null !== \VuloCart\RestAPI\Controllers\ProductTypes::purchase_block_reason( $product );
+
 		// A recurring price reads "$9.00 / month".
 		$per = '';
 		if ( $default && ! empty( $default['interval'] ) && 'one_time' !== ( isset( $default['type'] ) ? $default['type'] : 'one_time' ) ) {
 			$per = (string) $default['interval'];
 		}
 
-		return array(
+		$view = array(
 			'id'        => (int) $product->id,
 			'type'      => (string) $product->type,
 			'title'     => (string) $product->title,
@@ -181,9 +183,20 @@ class ProductView {
 			'sold_out'  => $sold_out,
 			'featured'  => ! empty( $meta['featured'] ),
 			'price_id'  => $default && isset( $default['id'] ) ? (string) $default['id'] : '',
-			'quick_add' => 1 === count( $buyable ) && in_array( $product->type, self::QUICK_ADD_TYPES, true ),
+			'quick_add' => ! $unavailable && 1 === count( $buyable ) && in_array( $product->type, self::QUICK_ADD_TYPES, true ),
 			'cta'       => self::cta_label( (string) $product->type ),
+			// Shown but not sellable: its subtype needs a module that is off (ProductTypes::purchase_block_reason()).
+			'unavailable' => $unavailable,
 		);
+
+		/**
+		 * `vulocart_product_view` - how a product card and page show it. A module that prices a product some other
+		 * way (Product Variants: "From $17") adjusts `current`, `from`, `quick_add` and the rest here.
+		 *
+		 * @param array<string, mixed> $view    The card data.
+		 * @param Product              $product The product.
+		 */
+		return (array) apply_filters( 'vulocart_product_view', $view, $product );
 	}
 
 	/**

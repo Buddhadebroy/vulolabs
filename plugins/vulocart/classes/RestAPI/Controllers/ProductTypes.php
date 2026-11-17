@@ -80,6 +80,12 @@ class ProductTypes extends \WP_REST_Controller {
             'page'   => 'orders',
             'view'   => 'subscriptions',
         ),
+        'booking'      => array(
+            'module' => 'bookings',
+            'label'  => 'Bookings',
+            'page'   => 'orders',
+            'view'   => 'bookings',
+        ),
         'gift_card'    => array(
             'module' => 'gift-cards',
             'label'  => 'Gift Cards',
@@ -87,6 +93,59 @@ class ProductTypes extends \WP_REST_Controller {
             'view'   => 'gift-cards',
         ),
     );
+
+    /**
+     * Subtypes that only work while a vulocart-pro module is active: type => subtype => module id. While the module
+     * is off no product can become that subtype, and products that already are stay as they are but cannot be bought
+     * (see `purchase_block_reason()`), so nothing is deleted and nothing is sold without the module.
+     *
+     * @var array<string, array<string, string>>
+     */
+    const SUBTYPE_MODULES = array(
+        'physical' => array( 'variable' => 'product-variants' ),
+    );
+
+    /**
+     * The module a subtype needs, or null.
+     *
+     * @param string $type    Product type.
+     * @param string $subtype Product subtype.
+     * @return string|null
+     */
+    public static function subtype_module( $type, $subtype ) {
+        return self::SUBTYPE_MODULES[ (string) $type ][ (string) $subtype ] ?? null;
+    }
+
+    /**
+     * Whether a subtype is unavailable right now because the module it needs is off.
+     *
+     * @param string $type    Product type.
+     * @param string $subtype Product subtype.
+     * @return bool
+     */
+    public static function is_subtype_locked( $type, $subtype ): bool {
+        $module = self::subtype_module( $type, $subtype );
+
+        return null !== $module && ! VuloCart()->modules->is_active( $module );
+    }
+
+    /**
+     * Why a product cannot be bought right now, or null when it can. A product whose subtype needs a module that is
+     * off (a product with options while Product Variants is off) would otherwise sell without its options.
+     *
+     * @param \VuloCart\Domain\Product\Product $product The product.
+     * @return string|null Shopper-facing reason.
+     */
+    public static function purchase_block_reason( $product ) {
+        $subtype = is_array( $product->meta ) && isset( $product->meta['subtype'] ) ? (string) $product->meta['subtype'] : '';
+
+        if ( self::is_subtype_locked( (string) $product->type, $subtype ) ) {
+            /* translators: %s: product name. */
+            return sprintf( __( '%s is not available to buy right now.', 'vulocart' ), $product->title );
+        }
+
+        return null;
+    }
 
     /**
      * Pro pages that add to a type without being required for it: type => list of pages. Pricing Rules can target

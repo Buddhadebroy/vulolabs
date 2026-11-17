@@ -52,9 +52,17 @@ vulocart-pro also fires `vulocart_pro_inventory_low` (`product_id`, `quantity`, 
 | `vulocart_order_total` | filter | `$total`, `$context` | Change an order's total (coupons and gift cards). Used by order creation and the Review summary alike |
 | `vulocart_order_timeline` | filter | `$events`, `$order_id` | Add entries to an order's timeline |
 | `vulocart_product_effective_price` | filter | `$price`, `$product` | Change the price a product is added to the cart at |
+| `vulocart_add_to_cart_validation` | filter | `null`, `$product`, `$price`, `$quantity`, `$item_data`, `$cart_token` | Return a `WP_Error` to refuse a line; its message is shown to the shopper (409). `$item_data` is the request's `item_data` (a booking's chosen slot) |
+| `vulocart_cart_item_meta` | filter | `[]`, `$product`, `$price`, `$quantity`, `$item_data`, `$cart_token` | Extra meta for a new line. `item_key` keeps it apart from other lines of the same product and price; `details` (`{label, value}[]`) is shown under the line in the cart, checkout and order |
+| `vulocart_cart_item_unit_price` | filter | `$unit_price`, `$product`, `$price`, `$meta` | Final unit price of a new line, after `vulocart_product_effective_price`, with the line's meta in view |
+| `vulocart_cart_item_quantity_validation` | filter | `null`, `$cart_item`, `$quantity`, `$cart_token` | Return a `WP_Error` to refuse a quantity change |
+| `vulocart_validate_cart_for_order` | filter | `null`, `$cart`, `{stage, customer_email, customer_user_id}` | Last check before payment (`stage` `payment`) and before the order is written (`order`); return a `WP_Error` to refuse checkout (409) |
+| `vulocart_payment_context_extra` | filter | `$extra`, `$amount`, `$currency` | Adjust what a gateway is told before it charges (e.g. `save_payment_method` for a subscription). `$extra` has `cart_token` or `order_id` |
 | `vulocart_price_types` | filter | `array<id, {label}>` | Declare more price types |
 | `vulocart_purchasable_price_types` | filter | `string[]` | Say which price types the cart will sell |
 | `vulocart_customer_high_value_threshold` | filter | `500` | Amount above which a customer counts as high value |
+| `item_data` / `data-vulocart-item-field` | markup | inputs inside `.vulocart-purchase` | `blocks/view.js` sends every `[data-vulocart-item-field]` input in the purchase block as `item_data[name]`; one with `data-vulocart-item-required="message"` must be filled first. A 409 refusal is shown under the button and fires `vulocart:add-refused` |
+| `vulocart_product_view` | filter | `$view`, `$product` | Adjust a product card's data (`current`, `from`, `quick_add`, `sold_out`) |
 | `vulocart_storefront_product_sections` | filter | `string[]`, `$product` | Extra HTML sections on the product page (the "Product Extras" block) |
 | `vulocart_frontend_config_printed` | action | none | Fires after `vulocartFrontendData` is printed; print your own storefront config here |
 
@@ -97,6 +105,11 @@ Menus built on `EngineScreen` resolve their pages through `vulocart_{engine}_vie
 | Filter | Purpose |
 |---|---|
 | `vulocart_product_edit_sections` | Cards appended to the center column of the product editor. Receives `{ id, type, subtype, shippable }` |
+| `vulocart_product_save_problems` | Cards that keep their own data return `{message, target?}[]`; the first one stops the product save |
+| `vulocart_product_after_save` | Cards return promises (resolving to an error message or null) that save their data once the product has an id `{ id, isNew }` |
+| `vulocart_product_preview` | Parts of the editor's live preview a module supplies: `{ media?, badge?, body? }`. Receives `{ id, type, subtype, currency, images }` |
+| `vulocart_product_checklist` | Setup progress items (`{key, label, desc, done}`); a module may adjust them. Receives `{ id, type, subtype }` |
+| `vulocart_product_type_details_after` | Cards placed directly under the type's own details card (Booking Details), for settings that belong with it. Receives `{ id, type, subtype }`; `id` is null on a new product |
 | `vulocart_product_pending_sections` | Descriptors of "coming" sections shown as notices |
 | `vulocart_product_variants_section` | Replaces the "Attributes & Variations" notice (single winner) |
 | `vulocart_product_pricing_section`, `vulocart_product_inventory_section` | Content inside the pricing and inventory cards |

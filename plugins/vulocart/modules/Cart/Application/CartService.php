@@ -11,6 +11,7 @@ use VuloCart\Application\ProductService;
 use VuloCart\Application\PriceCatalog;
 use VuloCart\Cart\Domain\Cart;
 use VuloCart\Cart\Domain\CartItem;
+use VuloCart\Cart\Domain\CartItemRejected;
 use VuloCart\Cart\Domain\CartRepositoryInterface;
 use VuloCart\Domain\Product\Product;
 use VuloCart\Events\EventDispatcher;
@@ -107,15 +108,24 @@ class CartService {
      * @param int         $product_id VuloCart\Domain\Product\Product id.
      * @param int         $quantity    Quantity to add (must be >= 1).
      * @param string|null $price_id    Which of the product's prices to buy; null/'' means its default price.
+     * @param array       $item_data   Shopper choices for this line (a booking's slot, ...). Free reads none of it;
+     *                                 listeners of the filters below validate and store what they own.
      * @return Cart
      * @throws \InvalidArgumentException If no product with $product_id exists, or $price_id is not one of its
      *                                   prices, or that price cannot be bought (inactive, or its type's plugin is off).
+     * @throws CartItemRejected If a `vulocart_add_to_cart_validation` listener refuses the line.
      */
-    public function add_item( $token, $product_id, $quantity, $price_id = null ) {
+    public function add_item( $token, $product_id, $quantity, $price_id = null, array $item_data = array() ) {
         $product = $this->product_service->get_product( $product_id );
 
         if ( ! $product ) {
             throw new \InvalidArgumentException( 'Unknown product.' );
+        }
+
+        $blocked = \VuloCart\RestAPI\Controllers\ProductTypes::purchase_block_reason( $product );
+
+        if ( null !== $blocked ) {
+            throw new CartItemRejected( $blocked );
         }
 
         $price = $product->find_price( $price_id );
@@ -124,14 +134,47 @@ class CartService {
             throw new \InvalidArgumentException( 'This price is not available.' );
         }
 
+        /**
+         * `vulocart_add_to_cart_validation` - return a WP_Error to refuse the line; its message is shown to the
+         * shopper. A listener that reserves something here (a booking hold) hands it to its own
+         * `vulocart_cart_item_meta` listener, which runs next.
+         *
+         * @param \WP_Error|null       $error     Null when nothing refused it yet.
+         * @param Product              $product   The product being added.
+         * @param array<string, mixed> $price     The chosen price entry.
+         * @param int                  $quantity  Quantity being added.
+         * @param array                $item_data Raw shopper choices from the request.
+         * @param string               $token     Cart token.
+         */
+        $error = apply_filters( 'vulocart_add_to_cart_validation', null, $product, $price, $quantity, $item_data, $token );
+
+        if ( is_wp_error( $error ) ) {
+            throw CartItemRejected::from_error( $error );
+        }
+
+        /**
+         * `vulocart_cart_item_meta` - extra, already-sanitized meta for the new line. Setting `item_key` makes the
+         * line distinct from other lines of the same product and price (two booking slots stay two lines).
+         *
+         * @param array<string, mixed> $extra     Meta to merge in.
+         * @param Product              $product   The product being added.
+         * @param array<string, mixed> $price     The chosen price entry.
+         * @param int                  $quantity  Quantity being added.
+         * @param array                $item_data Raw shopper choices from the request.
+         * @param string               $token     Cart token.
+         */
+        $extra_meta = (array) apply_filters( 'vulocart_cart_item_meta', array(), $product, $price, $quantity, $item_data, $token );
+        $item_key   = isset( $extra_meta['item_key'] ) ? (string) $extra_meta['item_key'] : '';
+
         $cart     = $this->get_or_create_cart( $token );
         $existing = null;
 
-        // One line per product *and price* - the same product at two prices is two lines.
+        // One line per product, price and item key - the same product at two prices is two lines.
         foreach ( $cart->items as $candidate ) {
             $candidate_price = isset( $candidate->meta['price_id'] ) ? (string) $candidate->meta['price_id'] : '';
+            $candidate_key   = isset( $candidate->meta['item_key'] ) ? (string) $candidate->meta['item_key'] : '';
 
-            if ( (int) $candidate->product_id === (int) $product_id && $candidate_price === (string) $price['id'] ) {
+            if ( (int) $candidate->product_id === (int) $product_id && $candidate_price === (string) $price['id'] && $candidate_key === $item_key ) {
                 $existing = $candidate;
                 break;
             }
@@ -161,13 +204,8 @@ class CartService {
              */
             $unit_price = (float) apply_filters( 'vulocart_product_effective_price', $base_price, $product );
 
-            $item = new CartItem(
-                null,
-                $cart->id,
-                $product_id,
-                $quantity,
-                $unit_price,
-                $product->currency ? $product->currency : $cart->currency,
+            $meta = array_merge(
+                $extra_meta,
                 array(
                     'price_id'       => (string) $price['id'],
                     'price_label'    => (string) $price['label'],
@@ -177,6 +215,28 @@ class CartService {
                     'payments'       => $price['payments'],
                     'trial_days'     => (int) $price['trial_days'],
                 )
+            );
+
+            /**
+             * `vulocart_cart_item_unit_price` - the line's final unit price, after pricing rules. Runs after
+             * `vulocart_product_effective_price` and, unlike it, sees the chosen price and the line's meta (a
+             * booking's length, a subscription's trial and sign-up fee).
+             *
+             * @param float                $unit_price Unit price so far.
+             * @param Product              $product    The product being added.
+             * @param array<string, mixed> $price      The chosen price entry.
+             * @param array<string, mixed> $meta       The line's meta.
+             */
+            $unit_price = max( 0.0, (float) apply_filters( 'vulocart_cart_item_unit_price', $unit_price, $product, $price, $meta ) );
+
+            $item = new CartItem(
+                null,
+                $cart->id,
+                $product_id,
+                $quantity,
+                $unit_price,
+                $product->currency ? $product->currency : $cart->currency,
+                $meta
             );
 
             $this->repository->insert_item( $item );
@@ -189,6 +249,26 @@ class CartService {
     }
 
     /**
+     * Why a cart cannot be checked out as it stands (a line that can no longer be bought), or null. Run before
+     * payment and before the order is written, so a line added before a module was switched off cannot slip through.
+     *
+     * @param Cart $cart The cart.
+     * @return string|null Shopper-facing reason.
+     */
+    public function blocked_line_reason( Cart $cart ) {
+        foreach ( $cart->items as $item ) {
+            $product = $this->product_service->get_product( $item->product_id );
+            $reason  = $product ? \VuloCart\RestAPI\Controllers\ProductTypes::purchase_block_reason( $product ) : null;
+
+            if ( null !== $reason ) {
+                return $reason . ' ' . __( 'Remove it from your cart to continue.', 'vulocart' );
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Sets a line item's quantity, removing it entirely if the new
      * quantity is zero or less.
      *
@@ -196,6 +276,7 @@ class CartService {
      * @param int    $item_id  Line item id.
      * @param int    $quantity New quantity.
      * @return Cart
+     * @throws CartItemRejected If a `vulocart_cart_item_quantity_validation` listener refuses the new quantity.
      */
     public function update_item_quantity( $token, $item_id, $quantity ) {
         $cart = $this->get_or_create_cart( $token );
@@ -205,6 +286,21 @@ class CartService {
         } else {
             foreach ( $cart->items as $item ) {
                 if ( $item->id === $item_id ) {
+                    /**
+                     * `vulocart_cart_item_quantity_validation` - return a WP_Error to refuse a quantity change (a
+                     * booking slot without enough seats left). Same rules as `vulocart_add_to_cart_validation`.
+                     *
+                     * @param \WP_Error|null $error    Null when nothing refused it yet.
+                     * @param CartItem       $item     The line, still at its old quantity.
+                     * @param int            $quantity The requested quantity.
+                     * @param string         $token    Cart token.
+                     */
+                    $error = apply_filters( 'vulocart_cart_item_quantity_validation', null, $item, $quantity, $token );
+
+                    if ( is_wp_error( $error ) ) {
+                        throw CartItemRejected::from_error( $error );
+                    }
+
                     $item->quantity = $quantity;
                     $this->repository->update_item( $item );
                     break;

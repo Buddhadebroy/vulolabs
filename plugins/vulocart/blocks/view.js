@@ -61,6 +61,30 @@
 			if ( qty ) {
 				body.quantity = Math.max( 1, Math.min( 99, parseInt( qty.value, 10 ) || 1 ) );
 			}
+
+			// A module's picker inside the purchase block (a booking's date and time) adds its choices as item_data.
+			var missing = null;
+
+			Array.prototype.forEach.call( purchase.querySelectorAll( '[data-vulocart-item-field]' ), function ( field ) {
+				if ( ! field.value && field.hasAttribute( 'data-vulocart-item-required' ) ) {
+					missing = missing || field;
+				}
+
+				if ( field.value ) {
+					body.item_data = body.item_data || {};
+					body.item_data[ field.name ] = field.value;
+				}
+			} );
+
+			if ( missing ) {
+				button.classList.remove( 'is-loading' );
+				button.removeAttribute( 'aria-busy' );
+				showPurchaseMessage( purchase, missing.getAttribute( 'data-vulocart-item-required' ) );
+
+				return;
+			}
+
+			showPurchaseMessage( purchase, '' );
 		}
 
 		fetch( data.apiUrl + '/' + data.restUrl + '/cart/items', {
@@ -70,7 +94,14 @@
 		} )
 			.then( function ( response ) {
 				if ( ! response.ok ) {
-					throw new Error( 'cart' );
+					return response.json().catch( function () {
+						return {};
+					} ).then( function ( error ) {
+						var failure = new Error( 'cart' );
+						failure.refusal = 409 === response.status && error && error.message ? error.message : '';
+
+						throw failure;
+					} );
 				}
 
 				return response.json();
@@ -95,9 +126,18 @@
 					button.textContent = label;
 				}, 2200 );
 			} )
-			.catch( function () {
+			.catch( function ( failure ) {
 				button.classList.remove( 'is-loading' );
 				button.textContent = label;
+
+				// A refusal with a reason (slot just taken, plan already owned) is shown where the shopper is.
+				if ( purchase && failure && failure.refusal ) {
+					showPurchaseMessage( purchase, failure.refusal );
+					window.dispatchEvent( new CustomEvent( 'vulocart:add-refused', { detail: { purchase: purchase, message: failure.refusal } } ) );
+
+					return;
+				}
+
 				var card = button.closest( '.vulocart-product' );
 
 				if ( card ) {
@@ -107,6 +147,25 @@
 			.then( function () {
 				button.removeAttribute( 'aria-busy' );
 			} );
+	}
+
+	/** One status line per purchase block for "pick a time first" and refusals; an empty message clears it. */
+	function showPurchaseMessage( purchase, message ) {
+		var line = purchase.querySelector( '.vulocart-purchase__message' );
+
+		if ( ! line ) {
+			if ( ! message ) {
+				return;
+			}
+
+			line = document.createElement( 'p' );
+			line.className = 'vulocart-notice vulocart-purchase__message';
+			line.setAttribute( 'role', 'alert' );
+			purchase.appendChild( line );
+		}
+
+		line.textContent = message;
+		line.hidden = ! message;
 	}
 
 	/** A "Checkout" link under the button once something is in the cart (announced politely). */
