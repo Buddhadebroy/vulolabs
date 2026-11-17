@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { HeaderComponent } from '@zyra/components';
 import Brand from './assets/images/brand-logo.png';
 import Forms from './pages/Forms';
-import FormBuilder from './form-builder/FormBuilder';
+import Builder from './Builder';
 import Submissions from './pages/Submissions';
 import Settings from './pages/Settings';
 import { adminTabs } from './services/slots';
@@ -91,7 +91,7 @@ const App = () => {
 
 	if ('forms' === currentTab && formId) {
 		// Keyed by id so opening another form starts from a clean builder.
-		page = <FormBuilder key={formId} formId={formId} />;
+		page = <Builder key={formId} formId={formId} />;
 	} else if ('submissions' === currentTab) {
 		page = <Submissions />;
 	} else if ('settings' === currentTab) {
