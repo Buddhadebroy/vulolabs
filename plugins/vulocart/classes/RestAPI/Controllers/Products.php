@@ -59,7 +59,12 @@ class Products extends \WP_REST_Controller {
         'subscription' => array(
             'billing_interval'           => 'key',
             'trial_period_days'          => 'int',
+            'sign_up_fee'                => 'float',
             'subscription_length_cycles' => 'int',
+            'purchase_limit'             => 'key',
+            'sync_renewal_day'           => 'int',
+            'one_time_shipping'          => 'bool',
+            'allow_gifting'              => 'bool',
         ),
         'course'       => array(
             'lesson_count'     => 'int',
@@ -80,11 +85,17 @@ class Products extends \WP_REST_Controller {
             'renewal_type'             => 'key',
         ),
         'booking'      => array(
-            'slot_duration_minutes'  => 'int',
-            'max_attendees_per_slot' => 'int',
-            'event_date'             => 'text',
-            'venue'                  => 'text',
-            'capacity'               => 'int',
+            'slot_duration_minutes'      => 'int',
+            'buffer_minutes'             => 'int',
+            'min_notice_hours'           => 'int',
+            'max_advance_days'           => 'int',
+            'max_attendees_per_slot'     => 'int',
+            'assigned_resource'          => 'text',
+            'event_date'                 => 'text',
+            'venue'                      => 'text',
+            'capacity'                   => 'int',
+            'requires_confirmation'      => 'bool',
+            'cancellation_window_hours'  => 'int',
         ),
         'rental'       => array(
             'rental_period'    => 'key',
@@ -246,18 +257,22 @@ class Products extends \WP_REST_Controller {
         $meta = (array) $source->meta;
         unset( $meta['featured'] );
 
-        $copy = VuloCart()->product_service->create_product(
-            array(
-                'type'     => $source->type,
-                /* translators: %s: original product title. */
-                'title'    => sprintf( esc_html__( '%s (Copy)', 'vulocart' ), $source->title ),
-                'sku'      => null,
-                'status'   => 'draft',
-                'price'    => $source->price,
-                'currency' => $source->currency,
-                'meta'     => $meta,
-            )
-        );
+        try {
+            $copy = VuloCart()->product_service->create_product(
+                array(
+                    'type'     => $source->type,
+                    /* translators: %s: original product title. */
+                    'title'    => sprintf( esc_html__( '%s (Copy)', 'vulocart' ), $source->title ),
+                    'sku'      => null,
+                    'status'   => 'draft',
+                    'price'    => $source->price,
+                    'currency' => $source->currency,
+                    'meta'     => $meta,
+                )
+            );
+        } catch ( \VuloCart\Domain\Product\ProductRuleViolation $violation ) {
+            return self::rule_error( $violation );
+        }
 
         $response = rest_ensure_response(
             array(
@@ -636,7 +651,11 @@ class Products extends \WP_REST_Controller {
             }
         }
 
-        $product = VuloCart()->product_service->create_product( $data );
+        try {
+            $product = VuloCart()->product_service->create_product( $data );
+        } catch ( \VuloCart\Domain\Product\ProductRuleViolation $violation ) {
+            return self::rule_error( $violation );
+        }
 
         $response = rest_ensure_response( $this->prepare_product_for_response( $product ) );
         $response->set_status( 201 );
@@ -730,9 +749,23 @@ class Products extends \WP_REST_Controller {
             }
         }
 
-        $product = VuloCart()->product_service->update_product( $id, $data );
+        try {
+            $product = VuloCart()->product_service->update_product( $id, $data );
+        } catch ( \VuloCart\Domain\Product\ProductRuleViolation $violation ) {
+            return self::rule_error( $violation );
+        }
 
         return rest_ensure_response( $this->prepare_product_for_response( $product ) );
+    }
+
+    /**
+     * A refused product write as a REST error.
+     *
+     * @param \VuloCart\Domain\Product\ProductRuleViolation $violation The refusal.
+     * @return \WP_Error
+     */
+    private static function rule_error( $violation ) {
+        return new \WP_Error( 'vulocart_product_subtype_needs_module', $violation->getMessage(), array( 'status' => 403 ) );
     }
 
     /**

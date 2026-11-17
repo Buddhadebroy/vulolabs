@@ -3730,7 +3730,7 @@
 			margin: 0;
 		}
 
-		button,
+		.vulocart-type-card,
 		.vulocart-type-card-off {
 			box-sizing: border-box;
 			display: flex;
@@ -3815,6 +3815,92 @@
 				font-size: 0.75rem;
 				font-style: normal;
 				color: #9ca3af;
+			}
+		}
+	}
+
+	// An available type: the card itself picks the type (its first kind); the row underneath picks a kind directly.
+	.vulocart-type-grid .vulocart-type-card {
+		cursor: default;
+
+		&:hover,
+		&:focus-within {
+			border-color: var(--vc-primary, #5007aa);
+			box-shadow: 0 6px 18px rgba(80, 7, 170, 0.1);
+		}
+	}
+
+	.vulocart-type-card-main {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.375rem;
+		width: 100%;
+		padding: 0;
+		border: 0;
+		background: none;
+		text-align: left;
+		font: inherit;
+		cursor: pointer;
+
+		&:focus-visible {
+			outline: 2px solid var(--vc-primary, #5007aa);
+			outline-offset: 4px;
+			border-radius: 0.25rem;
+		}
+	}
+
+	button.vulocart-type-enable {
+		padding: 0.5rem 0 0;
+		border: 0;
+		background: none;
+		font-family: inherit;
+		cursor: pointer;
+
+		&:disabled {
+			cursor: wait;
+			opacity: 0.6;
+		}
+	}
+
+	.vulocart-type-kinds {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.375rem;
+		margin-top: auto;
+		padding-top: 0.75rem;
+	}
+
+	.vulocart-type-kind {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+		padding: 0.25rem 0.625rem;
+		border: 1px solid #e3e6ef;
+		border-radius: 999px;
+		background: #fff;
+		color: #374151;
+		font: inherit;
+		font-size: 0.75rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: border-color 0.15s, background 0.15s, color 0.15s;
+
+		&:hover:not(:disabled),
+		&:focus-visible {
+			border-color: var(--vc-primary, #5007aa);
+			background: #f5f0ff;
+			color: var(--vc-primary, #5007aa);
+			outline: 0;
+		}
+
+		&.is-locked {
+			background: #f6f7fb;
+			color: #9ca3af;
+			cursor: not-allowed;
+
+			i {
+				font-size: 0.6875rem;
 			}
 		}
 	}
@@ -4189,4 +4275,285 @@
 .vulocart-image-grid li:hover .vulocart-image-actions,
 .vulocart-image-grid li:focus-within .vulocart-image-actions {
 	opacity: 1;
+}
+
+// Booking Details: a short guided flow (BookingDetails.tsx).
+.vulocart-booking-details {
+	display: grid;
+	gap: 1.25rem;
+
+	input[type="radio"] {
+		position: absolute;
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	select,
+	input[type="text"],
+	input[type="date"],
+	input[type="number"] {
+		min-height: 2.25rem;
+		padding: 0 0.625rem;
+		border: 1px solid #d1d5db;
+		border-radius: 6px;
+		background: #fff;
+		font: inherit;
+	}
+}
+
+.vulocart-booking-summary {
+	display: flex;
+	gap: 0.625rem;
+	align-items: flex-start;
+	margin: 0;
+	padding: 0.75rem 1rem;
+	border-radius: 8px;
+	background: #f5f0ff;
+	color: #2e1065;
+	line-height: 1.5;
+
+	i {
+		margin-top: 0.15rem;
+		color: var(--vc-primary, #5007aa);
+	}
+}
+
+.vulocart-booking-step {
+	display: grid;
+	gap: 0.625rem;
+	padding-top: 1.25rem;
+	border-top: 1px solid #f1f1f4;
+
+	&:first-of-type {
+		padding-top: 0;
+		border-top: 0;
+	}
+}
+
+.vulocart-booking-step__head {
+	display: flex;
+	gap: 0.75rem;
+	align-items: flex-start;
+
+	h4 {
+		margin: 0.125rem 0 0;
+		font-size: 0.9375rem;
+		font-weight: 600;
+	}
+
+	.vulocart-field-hint {
+		margin: 0.25rem 0 0;
+	}
+}
+
+.vulocart-booking-step__number {
+	display: inline-grid;
+	flex: none;
+	place-items: center;
+	width: 1.5rem;
+	height: 1.5rem;
+	border-radius: 50%;
+	background: var(--vc-primary, #5007aa);
+	color: #fff;
+	font-size: 0.75rem;
+	font-weight: 600;
+}
+
+.vulocart-booking-step > :not(.vulocart-booking-step__head) {
+	margin-left: 2.25rem;
+
+	@media (max-width: 600px) {
+		margin-left: 0;
+	}
+}
+
+.vulocart-booking-choices {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	align-items: center;
+}
+
+.vulocart-booking-choice {
+	position: relative;
+	padding: 0.4rem 0.875rem;
+	border: 1px solid #d1d5db;
+	border-radius: 999px;
+	background: #fff;
+	cursor: pointer;
+
+	&:hover {
+		border-color: var(--vc-primary, #5007aa);
+	}
+
+	&.is-selected {
+		border-color: var(--vc-primary, #5007aa);
+		background: var(--vc-primary, #5007aa);
+		color: #fff;
+	}
+
+	&:focus-within {
+		outline: 2px solid var(--vc-primary, #5007aa);
+		outline-offset: 2px;
+	}
+}
+
+.vulocart-booking-inline {
+	display: inline-flex;
+	gap: 0.5rem;
+	align-items: center;
+}
+
+.vulocart-booking-number {
+	width: 6rem;
+}
+
+.vulocart-booking-sentence {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 1rem;
+
+	label {
+		display: inline-flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		align-items: center;
+	}
+}
+
+.vulocart-booking-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+	gap: 0.75rem;
+}
+
+.vulocart-booking-card {
+	position: relative;
+	display: grid;
+	gap: 0.25rem;
+	padding: 0.875rem 1rem;
+	border: 1px solid #d1d5db;
+	border-radius: 8px;
+	background: #fff;
+	cursor: pointer;
+
+	span {
+		color: #4b5563;
+		font-size: 0.8125rem;
+		line-height: 1.5;
+	}
+
+	&:hover {
+		border-color: var(--vc-primary, #5007aa);
+	}
+
+	&.is-selected {
+		border-color: var(--vc-primary, #5007aa);
+		box-shadow: 0 0 0 1px var(--vc-primary, #5007aa);
+		background: #faf7ff;
+	}
+
+	&:focus-within {
+		outline: 2px solid var(--vc-primary, #5007aa);
+		outline-offset: 2px;
+	}
+}
+
+.vulocart-booking-row {
+	display: grid;
+	grid-template-columns: minmax(10rem, 14rem) 1fr;
+	gap: 0.75rem;
+
+	@media (max-width: 600px) {
+		grid-template-columns: 1fr;
+	}
+}
+
+.vulocart-booking-field {
+	display: grid;
+	gap: 0.375rem;
+
+	> span {
+		font-weight: 500;
+	}
+}
+
+.vulocart-booking-more {
+	padding-top: 1rem;
+	border-top: 1px solid #f1f1f4;
+}
+
+.vulocart-booking-more__toggle {
+	display: inline-flex;
+	gap: 0.375rem;
+	align-items: center;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--vc-primary, #5007aa);
+	font: inherit;
+	font-weight: 500;
+	cursor: pointer;
+}
+
+.vulocart-booking-more__body {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+	gap: 1rem;
+	margin-top: 0.875rem;
+}
+
+// A Variable product's Pricing card: prices live on the variants.
+.vulocart-variant-pricing-note {
+	display: flex;
+	gap: 0.75rem;
+	align-items: flex-start;
+	margin: 0;
+	padding: 0.875rem 1rem;
+	border-radius: 8px;
+	background: #f5f0ff;
+	color: #374151;
+	line-height: 1.5;
+
+	i {
+		margin-top: 0.15rem;
+		color: var(--vc-primary, #5007aa);
+	}
+
+	strong {
+		display: block;
+		color: #1f2937;
+	}
+}
+
+.vulocart-unsaved.is-saved {
+	background: #eaf7ef;
+	color: #16a34a;
+
+	i {
+		background: #16a34a;
+		animation: none;
+	}
+}
+
+.vulocart-pill-dot {
+	display: inline-block;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: currentColor;
+}
+
+// While the Variants card is on screen the preview is pinned below the admin bar (ProductEdit.tsx `pinPreview`).
+// The column stretches to the row's full height so sticky has room; the cards under the preview slide behind it.
+@media (min-width: 1101px) {
+	.vulocart-product-edit-col--right.is-preview-pinned {
+		align-self: stretch;
+
+		.vulocart-preview {
+			position: sticky;
+			z-index: 5;
+			top: 46px;
+		}
+	}
 }

@@ -9,6 +9,7 @@ namespace VuloCart\Application;
 
 use VuloCart\Domain\Product\Product;
 use VuloCart\Domain\Product\ProductRepositoryInterface;
+use VuloCart\Domain\Product\ProductRuleViolation;
 use VuloCart\Events\EventDispatcher;
 
 defined( 'ABSPATH' ) || exit;
@@ -83,8 +84,11 @@ class ProductService {
      *
      * @param array{type: string, title: string, sku?: string, status?: string, price?: float, currency?: string, meta?: array<string, mixed>} $data Already-sanitized input.
      * @return Product
+     * @throws ProductRuleViolation If the product would get a subtype whose module is off.
      */
     public function create_product( $data ) {
+        $this->guard_subtype( (string) $data['type'], isset( $data['meta'] ) ? $data['meta'] : array(), null );
+
         $product = new Product(
             null,
             $data['type'],
@@ -102,6 +106,31 @@ class ProductService {
         $this->events->dispatch( 'product_created', array( 'product' => $product ) );
 
         return $product;
+    }
+
+    /**
+     * Refuses a write that would give a product a subtype whose module is off (ProductTypes::SUBTYPE_MODULES). A
+     * product that already has that subtype may still be edited, so switching the module off never strands it, and
+     * nothing is converted behind the merchant's back.
+     *
+     * @param string               $type    Type after the write.
+     * @param array<string, mixed> $meta    Meta after the write.
+     * @param Product|null         $current The stored product, null when creating.
+     * @return void
+     * @throws ProductRuleViolation When the write is refused.
+     */
+    private function guard_subtype( string $type, $meta, $current ): void {
+        $subtype = is_array( $meta ) && isset( $meta['subtype'] ) ? (string) $meta['subtype'] : '';
+
+        if ( ! \VuloCart\RestAPI\Controllers\ProductTypes::is_subtype_locked( $type, $subtype ) ) {
+            return;
+        }
+
+        $had = $current && $current->type === $type && is_array( $current->meta ) && ( $current->meta['subtype'] ?? '' ) === $subtype;
+
+        if ( ! $had ) {
+            throw new ProductRuleViolation( __( 'Variable products need the Product Variants module. Turn it on under Modules first.', 'vulocart' ) );
+        }
     }
 
     /**
@@ -136,6 +165,7 @@ class ProductService {
      * @param int                                                                                                                  $id   Product id.
      * @param array{type?: string, title?: string, status?: string, price?: float, currency?: string, meta?: array<string, mixed>} $data Already-sanitized partial update.
      * @return Product|null Null if no product with this id exists.
+     * @throws ProductRuleViolation If the product would newly get a subtype whose module is off.
      */
     public function update_product( $id, $data ) {
         $product = $this->repository->find( $id );
@@ -143,6 +173,8 @@ class ProductService {
         if ( ! $product ) {
             return null;
         }
+
+        $this->guard_subtype( isset( $data['type'] ) ? (string) $data['type'] : (string) $product->type, isset( $data['meta'] ) ? $data['meta'] : (array) $product->meta, $product );
 
         $product->type     = isset( $data['type'] ) ? $data['type'] : $product->type;
         $product->title    = isset( $data['title'] ) ? $data['title'] : $product->title;

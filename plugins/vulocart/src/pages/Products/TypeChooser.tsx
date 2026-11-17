@@ -4,7 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import axios from 'axios';
 import { getApiLink } from '@zyra/core';
 import { showToast } from '../../lib/rest-errors';
-import { TYPE_PROFILES } from './typeProfiles';
+import { TYPE_PROFILES, lockedSubtypeModule, type TypeProfile } from './typeProfiles';
 
 interface StoreType {
 	type: string;
@@ -17,6 +17,20 @@ interface StoreType {
 
 /** Why a type cannot be picked right now, or null when it can. */
 /** Only a type switched off in Product Types can be enabled from there. */
+interface ChooserCard {
+	key: string;
+	/** The kind the card starts with; the type's first kind when omitted. */
+	kind?: string;
+	profile: TypeProfile;
+	/** Why the type cannot be picked here (not enabled, needs Pro), or null. */
+	off: string | null;
+	/** The module the card needs that is switched off, offered as a one-click switch. */
+	needs: { module: string; name: string } | null;
+}
+
+/** Physical's Variable kind has its own card, so the Physical card does not list it again. */
+const kindsShown = ( profile: TypeProfile ) => ( 'physical' === profile.value ? profile.subtypes.filter( ( kind ) => 'variable' !== kind.value ) : profile.subtypes );
+
 const canEnable = ( reason: string ) => reason === __( 'Turned off for this store', 'vulocart' );
 
 /** Why a product type cannot be chosen (for example its module is off), or null when it can. */
@@ -54,7 +68,7 @@ const reasonOff = ( row: StoreType | undefined ): string | null => {
  * reason, so the choice is clear without hiding what exists. Picking an available one opens the editor with that type
  * (and its first kind) already chosen. "Skip" opens the editor with the first available type.
  */
-export function TypeChooser( { onChoose, onSkip }: { onChoose: ( type: string ) => void; onSkip: ( type: string ) => void } ) {
+export function TypeChooser( { onChoose, onSkip }: { onChoose: ( type: string, subtype?: string ) => void; onSkip: ( type: string ) => void } ) {
 	const [ rows, setRows ] = useState< StoreType[] | null >( null );
 	const [ skipNext, setSkipNext ] = useState( false );
 
@@ -84,14 +98,58 @@ export function TypeChooser( { onChoose, onSkip }: { onChoose: ( type: string ) 
 	};
 
 	const profiles = TYPE_PROFILES.filter( ( profile ) => 'license' !== profile.value );
+	const all: ChooserCard[] = [];
+
+	profiles.forEach( ( profile ) => {
+		const off = rows ? reasonOff( rows.find( ( row ) => row.type === profile.value ) ) : null;
+
+		all.push( { key: profile.value, profile, off, needs: null } );
+
+		// A physical product with options gets its own card, so "Variable product" is a first-class choice. It is
+		// a Physical product of kind Variable, so it follows Physical's availability and Product Variants'.
+		if ( 'physical' === profile.value ) {
+			const variable = profile.subtypes.find( ( kind ) => 'variable' === kind.value );
+
+			if ( variable ) {
+				const needs = lockedSubtypeModule( 'physical', 'variable', vulocartLocalizer.active_modules );
+
+				all.push( {
+					key: 'physical-variable',
+					kind: 'variable',
+					profile: {
+						...profile,
+						icon: 'variable',
+						label: __( 'Variable product', 'vulocart' ),
+						hint: __( 'One product in several options, like size or colour, each with its own price and stock.', 'vulocart' ),
+						subtypes: [],
+					},
+					off: off ?? ( needs && ! vulocartLocalizer.khali_dabba ? __( 'Needs VuloCart Pro', 'vulocart' ) : null ),
+					// Offered as a one-click switch only when Pro is there to provide the module.
+					needs: off || ! vulocartLocalizer.khali_dabba ? null : needs,
+				} );
+			}
+		}
+	} );
+
+	const isOff = ( card: ChooserCard ) => !! card.off || !! card.needs;
 	// Types that can be picked come first, in their usual order; the unavailable ones follow.
-	const all = profiles.map( ( profile ) => ( {
-		profile,
-		off: rows ? reasonOff( rows.find( ( row ) => row.type === profile.value ) ) : null,
-	} ) );
-	const states = [ ...all.filter( ( state ) => ! state.off ), ...all.filter( ( state ) => state.off ) ];
-	const firstAvailable = states.find( ( state ) => ! state.off )?.profile;
-	const offCount = states.filter( ( state ) => state.off ).length;
+	const states = [ ...all.filter( ( state ) => ! isOff( state ) ), ...all.filter( isOff ) ];
+	const firstAvailable = states.find( ( state ) => ! isOff( state ) )?.profile;
+	const offCount = states.filter( isOff ).length;
+
+	// The Variable product card switches Product Variants on in place, as the editor's module hints do.
+	const [ activating, setActivating ] = useState( false );
+	const activate = ( module: string ) => {
+		setActivating( true );
+
+		axios
+			.post( `${ vulocartLocalizer.apiUrl }/${ vulocartLocalizer.restUrl }/modules`, { id: module, action: 'activate' }, { headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } } )
+			.then( () => window.location.reload() )
+			.catch( () => {
+				setActivating( false );
+				showToast( 'error', __( 'Could not turn the module on. Try again from Modules.', 'vulocart' ) );
+			} );
+	};
 
 	return (
 		<div className="vulocart-product-edit-page vulocart-type-chooser">
@@ -116,9 +174,23 @@ export function TypeChooser( { onChoose, onSkip }: { onChoose: ( type: string ) 
 			</header>
 
 			<ul className="vulocart-type-grid">
-				{ states.map( ( { profile, off } ) => (
-					<li key={ profile.value } className={ off ? 'is-off' : undefined }>
-						{ off ? (
+				{ states.map( ( { key, kind: startKind, profile, off, needs } ) => (
+					<li key={ key } className={ off || needs ? 'is-off' : undefined }>
+						{ needs ? (
+							<div className="vulocart-type-card-off">
+								<span className="vulocart-type-icon">
+									<i className={ `adminfont-${ profile.icon }` } aria-hidden="true" />
+								</span>
+								<strong>{ profile.label }</strong>
+								<small>{ profile.hint }</small>
+								<button type="button" className="vulocart-type-enable" disabled={ activating } onClick={ () => activate( needs.module ) }>
+									{ activating
+										? __( 'Turning on…', 'vulocart' )
+										: sprintf( /* translators: %s: module name, e.g. Product Variants. */ __( 'Turn on %s', 'vulocart' ), needs.name ) }
+									<i className="adminfont-pagination-next-arrow" aria-hidden="true" />
+								</button>
+							</div>
+						) : off ? (
 							<div className="vulocart-type-card-off">
 								<span className="vulocart-type-icon">
 									<i className={ `adminfont-${ profile.icon }` } aria-hidden="true" />
@@ -134,14 +206,44 @@ export function TypeChooser( { onChoose, onSkip }: { onChoose: ( type: string ) 
 								) }
 							</div>
 						) : (
-							<button type="button" onClick={ () => onChoose( profile.value ) }>
-								<span className="vulocart-type-icon">
-									<i className={ `adminfont-${ profile.icon }` } aria-hidden="true" />
-								</span>
-								<strong>{ profile.label }</strong>
-								<small>{ profile.hint }</small>
-								{ profile.subtypes.length > 1 && <em>{ profile.subtypes.map( ( subtype ) => subtype.label ).join( ' · ' ) }</em> }
-							</button>
+							<div className="vulocart-type-card">
+								<button type="button" className="vulocart-type-card-main" onClick={ () => onChoose( profile.value, startKind ) }>
+									<span className="vulocart-type-icon">
+										<i className={ `adminfont-${ profile.icon }` } aria-hidden="true" />
+									</span>
+									<strong>{ profile.label }</strong>
+									<small>{ profile.hint }</small>
+								</button>
+								{ kindsShown( profile ).length > 1 && (
+									<div
+										className="vulocart-type-kinds"
+										role="group"
+										aria-label={ sprintf( /* translators: %s: product type, e.g. "Physical". */ __( 'Start a %s product as', 'vulocart' ), profile.label ) }
+									>
+										{ kindsShown( profile ).map( ( kind ) => {
+											const locked = lockedSubtypeModule( profile.value, kind.value, vulocartLocalizer.active_modules );
+											const lockedText = locked
+												? sprintf( /* translators: %s: module name. */ __( 'Turn on %s in Modules to use this.', 'vulocart' ), locked.name )
+												: '';
+
+											return (
+												<button
+													key={ kind.value }
+													type="button"
+													className={ `vulocart-type-kind${ locked ? ' is-locked' : '' }` }
+													disabled={ !! locked }
+													title={ locked ? lockedText : kind.hint }
+													aria-label={ locked ? `${ kind.label }: ${ lockedText }` : `${ kind.label }: ${ kind.hint }` }
+													onClick={ () => onChoose( profile.value, kind.value ) }
+												>
+													{ locked && <i className="adminfont-lock" aria-hidden="true" /> }
+													{ kind.label }
+												</button>
+											);
+										} ) }
+									</div>
+								) }
+							</div>
 						) }
 					</li>
 				) ) }

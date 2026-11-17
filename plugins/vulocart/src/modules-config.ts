@@ -259,6 +259,25 @@ const MODULES_CATALOG: {
 				__( 'Customer self-service: update payment method', 'vulocart' ),
 			],
 		},
+		{
+			id: 'bookings',
+			settingsLink: '?page=orders&view=bookings',
+			icon: 'calendar',
+			name: __( 'Bookings', 'vulocart' ),
+			desc: __(
+				'Makes Booking products bookable: weekly opening hours, a date and time picker on the product page, seats per slot, staff and rooms, and bookings that follow the order from payment to completion.',
+				'vulocart'
+			),
+			proModule: true,
+			category: 'sales-marketing',
+			freeFeatures: [],
+			proFeatures: [
+				__( 'Customer date and time picker with live availability', 'vulocart' ),
+				__( 'No double bookings: slots are held in the cart and re-checked at checkout', 'vulocart' ),
+				__( 'Staff, rooms and equipment with their own hours', 'vulocart' ),
+				__( 'Customer cancellation within your cancellation window', 'vulocart' ),
+			],
+		},
 
 		// Customers: Reviews and keeping customers coming back
 		{

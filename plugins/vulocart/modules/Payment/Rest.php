@@ -151,6 +151,29 @@ class Rest extends \WP_REST_Controller {
             return new \WP_Error( 'vulocart_empty_cart', __( 'Cart is empty or does not exist.', 'vulocart' ), array( 'status' => 400 ) );
         }
 
+        // Same check OrderService::create_from_cart() runs, so nothing is charged for a cart checkout would refuse.
+        $blocked = VuloCart()->cart_service->blocked_line_reason( $cart );
+
+        if ( null !== $blocked ) {
+            return new \WP_Error( 'vulocart_cart_item_rejected', $blocked, array( 'status' => 409 ) );
+        }
+
+        $customer_email = $request->get_param( 'customer_email' ) ? sanitize_email( (string) $request->get_param( 'customer_email' ) ) : null;
+        $refusal        = apply_filters(
+            'vulocart_validate_cart_for_order',
+            null,
+            $cart,
+            array(
+                'stage'            => 'payment',
+                'customer_email'   => $customer_email,
+                'customer_user_id' => get_current_user_id() ? get_current_user_id() : null,
+            )
+        );
+
+        if ( is_wp_error( $refusal ) ) {
+            return new \WP_Error( 'vulocart_cart_item_rejected', $refusal->get_error_message(), array( 'status' => 409 ) );
+        }
+
         $totals = VuloCart()->cart_service->get_totals( $cart );
 
         $shipping_method = $request->get_param( 'shipping_method' ) ? sanitize_key( (string) $request->get_param( 'shipping_method' ) ) : null;
@@ -190,7 +213,7 @@ class Rest extends \WP_REST_Controller {
             $amount,
             $cart->currency ? $cart->currency : (string) wp_parse_args( get_option( \VuloCart\Utill::SETTINGS_KEY, array() ), \VuloCart\Utill::SETTINGS_DEFAULTS )['default_currency'],
             array(
-                'customer_email' => $request->get_param( 'customer_email' ) ? sanitize_email( (string) $request->get_param( 'customer_email' ) ) : null,
+                'customer_email' => $customer_email,
                 'payment_data'   => is_array( $payment_data ) ? $payment_data : array(),
             )
         );

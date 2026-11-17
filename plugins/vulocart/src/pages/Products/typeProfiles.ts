@@ -81,8 +81,8 @@ export const TYPE_PROFILES: TypeProfile[] = [
 		cards: { ...NONE, inventory: true, shipping: true, shippingPolicy: true, specs: true },
 		detailsTitle: __( 'Fulfilment', 'vulocart' ),
 		subtypes: [
-			{ value: 'standard', label: __( 'Standard', 'vulocart' ), hint: __( 'One product, one price.', 'vulocart' ) },
-			{ value: 'variable', label: __( 'With options', 'vulocart' ), hint: __( 'Sizes, colours or other choices.', 'vulocart' ), cards: { variants: true } },
+			{ value: 'standard', label: __( 'Simple', 'vulocart' ), hint: __( 'One product, one price and one stock count.', 'vulocart' ) },
+			{ value: 'variable', label: __( 'Variable', 'vulocart' ), hint: __( 'Comes in options like size or colour, each with its own price and stock.', 'vulocart' ), cards: { variants: true } },
 			{ value: 'preorder', label: __( 'Pre-order', 'vulocart' ), hint: __( 'Sold before it is in stock.', 'vulocart' ) },
 			{
 				value: 'made_to_order',
@@ -138,7 +138,27 @@ export const TYPE_PROFILES: TypeProfile[] = [
 		],
 		fields: [
 			{ key: 'trial_period_days', label: __( 'Free trial (days)', 'vulocart' ), kind: 'number', hint: __( 'Leave blank for no trial.', 'vulocart' ) },
+			{ key: 'sign_up_fee', label: __( 'Sign-up fee', 'vulocart' ), kind: 'number', hint: __( 'A one-time charge added to the first payment. Leave blank for none.', 'vulocart' ) },
 			{ key: 'subscription_length_cycles', label: __( 'Ends after (billing cycles)', 'vulocart' ), kind: 'number', hint: __( 'Leave blank to renew until cancelled.', 'vulocart' ) },
+			{
+				key: 'purchase_limit',
+				label: __( 'Purchase limit', 'vulocart' ),
+				kind: 'select',
+				hint: __( 'Stops a customer stacking multiples of this plan.', 'vulocart' ),
+				options: [
+					{ label: __( 'No limit', 'vulocart' ), value: 'no_limit' },
+					{ label: __( 'One active subscription per customer', 'vulocart' ), value: 'one_active' },
+					{ label: __( 'One per customer, ever', 'vulocart' ), value: 'one_ever' },
+				],
+			},
+			{
+				key: 'sync_renewal_day',
+				label: __( 'Align renewals to day of month', 'vulocart' ),
+				kind: 'number',
+				hint: __( 'E.g. 1 bills every renewal on the 1st, prorating the first payment. Leave blank to bill from the signup date.', 'vulocart' ),
+			},
+			{ key: 'one_time_shipping', label: __( 'Ship only with the first payment', 'vulocart' ), kind: 'checkbox', subtypes: [ 'box' ], hint: __( 'Later renewals bill the customer but nothing new is shipped - for an access add-on billed alongside a one-off physical item.', 'vulocart' ) },
+			{ key: 'allow_gifting', label: __( 'Allow gifting', 'vulocart' ), kind: 'checkbox', hint: __( 'Lets a customer buy this subscription for someone else.', 'vulocart' ) },
 		],
 	},
 	{
@@ -231,10 +251,16 @@ export const TYPE_PROFILES: TypeProfile[] = [
 		],
 		fields: [
 			{ key: 'slot_duration_minutes', label: __( 'Slot length (minutes)', 'vulocart' ), kind: 'number', subtypes: [ 'appointment', 'class' ] },
+			{ key: 'buffer_minutes', label: __( 'Buffer time (minutes)', 'vulocart' ), kind: 'number', subtypes: [ 'appointment', 'class' ], hint: __( 'Blocked off before and after each slot for prep, travel or cleanup.', 'vulocart' ) },
+			{ key: 'min_notice_hours', label: __( 'Minimum notice (hours)', 'vulocart' ), kind: 'number', subtypes: [ 'appointment', 'class' ], hint: __( 'How far ahead a customer must book. Leave blank for none.', 'vulocart' ) },
+			{ key: 'max_advance_days', label: __( 'Bookable up to (days ahead)', 'vulocart' ), kind: 'number', subtypes: [ 'appointment', 'class' ], hint: __( 'How far into the future customers can book. Leave blank for no limit.', 'vulocart' ) },
 			{ key: 'max_attendees_per_slot', label: __( 'Seats per slot', 'vulocart' ), kind: 'number', subtypes: [ 'class' ] },
+			{ key: 'assigned_resource', label: __( 'Staff or room', 'vulocart' ), kind: 'text', subtypes: [ 'appointment', 'class' ], hint: __( 'Who or where this is booked with, shown to the customer. Optional.', 'vulocart' ) },
 			{ key: 'event_date', label: __( 'Event date', 'vulocart' ), kind: 'date', subtypes: [ 'event' ] },
 			{ key: 'venue', label: __( 'Venue', 'vulocart' ), kind: 'text', subtypes: [ 'event' ], hint: __( 'Address or online link.', 'vulocart' ) },
 			{ key: 'capacity', label: __( 'Tickets available', 'vulocart' ), kind: 'number', subtypes: [ 'event' ] },
+			{ key: 'requires_confirmation', label: __( 'Requires manual confirmation', 'vulocart' ), kind: 'checkbox', hint: __( 'Hold the booking as pending until you approve it, instead of confirming it automatically.', 'vulocart' ) },
+			{ key: 'cancellation_window_hours', label: __( 'Free cancellation up to (hours before)', 'vulocart' ), kind: 'number', hint: __( 'How late a customer can still cancel for a refund. Leave blank to not allow self-service cancellation.', 'vulocart' ) },
 		],
 	},
 	{
@@ -347,4 +373,19 @@ export function fieldsFor( type: string, subtype: string ): TypeDetailField[] {
 	const active = subtypeFor( type, subtype ).value;
 
 	return profileFor( type ).fields.filter( ( field ) => ! field.subtypes || field.subtypes.includes( active ) );
+}
+
+/**
+ * Kinds that need a vulocart-pro module (mirrors `ProductTypes::SUBTYPE_MODULES` in PHP, which enforces it): type =>
+ * subtype => module id and the module's name.
+ */
+export const SUBTYPE_MODULES: Record< string, Record< string, { module: string; name: string } > > = {
+	physical: { variable: { module: 'product-variants', name: __( 'Product Variants', 'vulocart' ) } },
+};
+
+/** The module a kind needs while it is switched off, or null when the kind can be used. */
+export function lockedSubtypeModule( type: string, subtype: string, activeModules: string[] ): { module: string; name: string } | null {
+	const needs = SUBTYPE_MODULES[ type ]?.[ subtype ];
+
+	return needs && ! activeModules.includes( needs.module ) ? needs : null;
 }

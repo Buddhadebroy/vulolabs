@@ -29,10 +29,43 @@ class Install {
 	 * @return void
 	 */
 	public function install() {
+		$previous_version = get_option( Utill::VULOPILOT_OTHER_SETTINGS['plugin_db_version'] );
+
 		$this->create_database_tables();
+		$this->do_migration( $previous_version );
 
 		update_option( Utill::VULOPILOT_OTHER_SETTINGS['plugin_db_version'], VULOPILOT_PLUGIN_VERSION );
 		do_action( 'vulopilot_after_installed' );
+	}
+
+	/**
+	 * Migration Functions - runs any migrations needed to bring the database up to the current version.
+	 *
+	 * @param string|false $previous_version
+	 * @return void
+	 */
+	private static function do_migration( $previous_version ): void {
+		if ( ! $previous_version ) {
+			return;
+		}
+
+		if ( version_compare( $previous_version, '1.0.1', '<' ) ) {
+			global $wpdb;
+
+            $table = $wpdb->prefix . Utill::TABLES['not_found_log'];
+
+            $column_exists = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- $table is this plugin's own hardcoded table name, never user input.
+                $wpdb->prepare( 'SHOW COLUMNS FROM %i LIKE %s', $table, 'first_referrer' )
+            );
+
+            if ( $column_exists ) {
+                return;
+            }
+
+            $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- one-time, version-gated schema migration; $table is this plugin's own hardcoded table name.
+                $wpdb->prepare( 'ALTER TABLE %i ADD COLUMN `first_referrer` varchar(255) DEFAULT NULL AFTER `referrer`', $table )
+            );
+		}
 	}
 
 	/**
@@ -295,15 +328,15 @@ class Install {
             KEY `idx_active` (`is_active`)
         ) $collate;";
 
-		// No "IF NOT EXISTS" here either - see $sql_redirects's own comment above for why.
 		$sql_not_found_logs = "CREATE TABLE `{$wpdb->prefix}" . Utill::TABLES['not_found_log'] . "` (
-            `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-            `requested_path` varchar(255) NOT NULL,
-            `referrer`       varchar(255) DEFAULT NULL,
-            `hit_count`      int(10) unsigned NOT NULL DEFAULT 1,
-            `last_seen_at`   datetime NOT NULL,
-            `created_at`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            `is_system`      tinyint(1) NOT NULL DEFAULT 0,
+            `id`              bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `requested_path`  varchar(255) NOT NULL,
+            `referrer`        varchar(255) DEFAULT NULL,
+            `first_referrer`  varchar(255) DEFAULT NULL,
+            `hit_count`       int(10) unsigned NOT NULL DEFAULT 1,
+            `last_seen_at`    datetime NOT NULL,
+            `created_at`      timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `is_system`       tinyint(1) NOT NULL DEFAULT 0,
             PRIMARY KEY (`id`),
             UNIQUE KEY `uniq_requested_path` (`requested_path`),
             KEY `idx_last_seen` (`last_seen_at`),

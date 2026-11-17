@@ -81,6 +81,7 @@ class NotFoundLogRepository extends RepositoryUtil {
 					'last_seen_at' => current_time( 'mysql' ),
 					// $is_system is recomputed the same way from the same path every time, not user/environment-dependent.
 					'is_system'    => $is_system ? 1 : 0,
+					// 'first_referrer' is intentionally left untouched - it records where this 404 was FIRST seen, not the most recent referrer.
 				)
 			);
 
@@ -89,12 +90,52 @@ class NotFoundLogRepository extends RepositoryUtil {
 
 		$this->insert(
 			array(
-				'requested_path' => $requested_path,
-				'referrer'       => $referrer,
-				'hit_count'      => 1,
-				'last_seen_at'   => current_time( 'mysql' ),
-				'is_system'      => $is_system ? 1 : 0,
+				'requested_path'  => $requested_path,
+				'referrer'        => $referrer,
+				'first_referrer'  => $referrer,
+				'hit_count'       => 1,
+				'last_seen_at'    => current_time( 'mysql' ),
+				'is_system'       => $is_system ? 1 : 0,
 			)
 		);
+	}
+
+	/**
+	 * Counts published posts/pages whose content links to the given path - the "No. of all inlinks" figure.
+	 *
+	 * @param string $requested_path Already-normalized path (e.g. "/old-page").
+	 * @return int
+	 */
+	public function count_inlinks_for_path( string $requested_path ): int {
+		global $wpdb;
+
+		if ( '' === $requested_path ) {
+			return 0;
+		}
+
+		$home_url = untrailingslashit( home_url() );
+		$needles  = array_unique(
+			array(
+				$requested_path,
+				untrailingslashit( $requested_path ) . '/',
+				$home_url . $requested_path,
+				$home_url . untrailingslashit( $requested_path ) . '/',
+			)
+		);
+
+		$where_values = array( 'publish' );
+		$like_clauses = array();
+
+		foreach ( $needles as $needle ) {
+			$like_clauses[] = 'post_content LIKE %s';
+			$where_values[] = '%' . $wpdb->esc_like( 'href="' . $needle . '"' ) . '%';
+		}
+
+		$sql = $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- the IN()-free query below is built from a fixed count of %s placeholders, all bound via $where_values.
+			"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_status = %s AND post_type IN ( 'post', 'page' ) AND ( " . implode( ' OR ', $like_clauses ) . ' )', // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $wpdb->posts is WordPress' own core table property, never user input.
+			...$where_values
+		);
+
+		return (int) $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- the query above is prepared.
 	}
 }

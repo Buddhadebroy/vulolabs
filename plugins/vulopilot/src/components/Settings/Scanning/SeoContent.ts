@@ -221,6 +221,18 @@ export default {
 			],
 		},
 		{
+			key: 'social_twitter_username',
+			type: 'text',
+			size: 20,
+			moduleEnabled: 'technical-seo',
+			label: __('X/Twitter username', 'vulopilot'),
+			placeholder: __('@yoursite', 'vulopilot'),
+			settingDescription: __(
+				'Adds twitter:site (and twitter:creator, absent a per-post author handle) to the tags above. Leave blank to omit both.',
+				'vulopilot'
+			),
+		},
+		{
 			key: 'seo-section-robots',
 			type: 'section',
 			icon: 'txt',

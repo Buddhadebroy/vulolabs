@@ -252,11 +252,16 @@ class Utill {
 		'robots_auto_generate'                  => array( 'robots_auto_generate' ),
 		// Read by AiCrawlerBlockedPagesScanner.
 		'flag_ai_crawler_blocked_pages'         => array( 'flag_ai_crawler_blocked_pages' ),
-		'canonical_url_enabled'                 => array(),
-		'social_meta_tags_enabled'              => array(),
+		// On by default - a competing SEO plugin's own canonical/OG/Twitter output would simply override these, same as site_identity_enabled's title/description tags already do.
+		'canonical_url_enabled'                 => array( 'canonical_url_enabled' ),
+		'social_meta_tags_enabled'              => array( 'social_meta_tags_enabled' ),
 		// Scanning > SEO > Open Graph.
 		'social_default_image_id'               => 0,
 		'social_twitter_card_type'              => 'summary_large_image',
+		// Sitewide X/Twitter @handle (with or without the leading "@") - backs twitter:site and, absent a
+		// per-post author handle, twitter:creator too. Empty by default - there's no handle to invent; SocialMetaTagsManager
+		// simply skips both tags until one is entered here.
+		'social_twitter_username'               => '',
 		// Newline-separated profile URLs.
 		'social_profile_urls'                   => '',
 		// Settings → Site Identity → Title Formats, read by TitleFormatter.
@@ -359,6 +364,14 @@ class Utill {
 		'entity_business_name'                  => '',
 		// Attachment id - same convention as PostSeoMetaFields::META_KEYS['social_image_id'].
 		'entity_business_logo_id'               => 0,
+		// Homepage Organization JSON-LD's contact/address fields (HomepageSchemaRenderer::build_default_schema()) - all empty by default, same "don't fabricate" reasoning as 'social_twitter_username'.
+		'entity_business_email'                 => '',
+		'entity_business_phone'                 => '',
+		'entity_business_street'                => '',
+		'entity_business_city'                  => '',
+		'entity_business_region'                => '',
+		'entity_business_postal_code'           => '',
+		'entity_business_country'               => '',
 		// Scanning > SEO > Open Graph.
 		'facebook_app_id'                       => '',
 		'facebook_admin_id'                     => '',
@@ -480,5 +493,25 @@ class Utill {
 		);
 
 		return array_values( array_filter( $urls ) );
+	}
+
+	/**
+	 * An ability's execute_callback must return plain data, not a REST response object.
+	 *
+	 * @param mixed $response Whatever a prepare_*_response() method returned.
+	 * @return mixed
+	 */
+	public static function ability_response( $response ) {
+		return $response instanceof \WP_REST_Response ? $response->get_data() : $response;
+	}
+
+	/**
+	 * Shared permission check for every VuloPilot ability.
+	 *
+	 * @param array $input Ability input.
+	 * @return bool
+	 */
+	public static function ability_permissions_check( $input ) {
+		return current_user_can( 'manage_options' );
 	}
 }

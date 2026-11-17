@@ -84,8 +84,65 @@ class HomepageSchemaRenderer {
 			$organization['sameAs'] = $profile_urls;
 		}
 
+		$email = trim( (string) Utill::get_setting( 'entity_business_email', '' ) );
+
+		if ( '' !== $email ) {
+			$organization['email'] = $email;
+		}
+
+		$phone = trim( (string) Utill::get_setting( 'entity_business_phone', '' ) );
+
+		if ( '' !== $phone ) {
+			// Same shape Rank Math's own Knowledge Graph contactPoint uses.
+			$organization['contactPoint'] = array(
+				array(
+					'@type'       => 'ContactPoint',
+					'telephone'   => $phone,
+					'contactType' => 'customer support',
+				),
+			);
+		}
+
+		$address = $this->build_address();
+
+		if ( $address ) {
+			$organization['address'] = $address;
+		}
+
 		$schema['publisher'] = $organization;
 
 		return $schema;
+	}
+
+	/**
+	 * A PostalAddress built from Settings → Business Information's address fields, or null when none of them have
+	 * been filled in - never fabricated from anything else.
+	 *
+	 * @return array<string, string>|null
+	 */
+	private function build_address(): ?array {
+		$fields = array(
+			'streetAddress'   => 'entity_business_street',
+			'addressLocality' => 'entity_business_city',
+			'addressRegion'   => 'entity_business_region',
+			'postalCode'      => 'entity_business_postal_code',
+			'addressCountry'  => 'entity_business_country',
+		);
+
+		$address = array();
+
+		foreach ( $fields as $schema_key => $setting_key ) {
+			$value = trim( (string) Utill::get_setting( $setting_key, '' ) );
+
+			if ( '' !== $value ) {
+				$address[ $schema_key ] = $value;
+			}
+		}
+
+		if ( empty( $address ) ) {
+			return null;
+		}
+
+		return array_merge( array( '@type' => 'PostalAddress' ), $address );
 	}
 }
