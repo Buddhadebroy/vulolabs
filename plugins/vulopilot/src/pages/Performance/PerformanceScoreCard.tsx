@@ -167,7 +167,14 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 					id="performance-overall-speed-score-card"
 					title={__('Overall Speed Score', 'vulopilot')}
 					titleIcon="analytics"
-					desc={__('Your real performance score from Google PageSpeed Insights.', 'vulopilot')}
+					desc={
+						hasPsi
+							? __('Your real performance score from Google PageSpeed Insights.', 'vulopilot')
+							: __(
+								"Based on your site's own open performance findings - not yet a real Lighthouse score. Connect Google PageSpeed Insights below for one.",
+								'vulopilot'
+							)
+					}
 					isLoading={isLoading}
 					headerAction={
 						<ButtonInput

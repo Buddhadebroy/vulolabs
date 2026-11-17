@@ -53,6 +53,11 @@ class CanonicalUrlManager {
 			return;
 		}
 
+		// Prevents a duplicate tag: core's own `rel_canonical()` fires on `wp_head` at the default priority 10,
+		// after this method's own priority 5 - removing it here (same convention Yoast/Rank Math use) still works,
+		// since WP re-checks the filter array at each priority as `wp_head` runs rather than snapshotting it upfront.
+		remove_action( 'wp_head', 'rel_canonical' );
+
 		echo '<link rel="canonical" href="' . esc_url( $url ) . '" />' . "\n";
 	}
 
