@@ -5,7 +5,7 @@ One React 19 app, mounted by `src/index.tsx`, using the shared `@multivendorx/zy
 | Tab | Component |
 | --- | --- |
 | `forms` | `pages/Forms.tsx`: list, new form (templates, import), duplicate, delete |
-| `forms` + `&form={id}` | `builder/Builder.tsx` |
+| `forms` + `&form={id}` | `form-builder/FormBuilder.tsx` |
 | `submissions` | `pages/Submissions.tsx` |
 | `settings` | `pages/Settings.tsx`: zyra's navigator over `components/Settings/*.ts` (one declarative schema file per sub-tab - Privacy, Spam protection, Data), then extension sub-tabs |
 

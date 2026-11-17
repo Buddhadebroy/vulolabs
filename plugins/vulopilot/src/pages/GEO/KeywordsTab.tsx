@@ -18,8 +18,7 @@ const BENEFITS = [
 
 const KeywordsTab = () => {
 	const RealPanel = useFilterSlot('vulopilot_keywords_panel');
-	const isProInstalled = Boolean(vulopilotAppLocalizer.khali_dabba);
-	const isModuleGate = isProInstalled;
+	const isModuleGate = Boolean(vulopilotAppLocalizer.khali_dabba);
 	const [isPopupOpen, setIsPopupOpen] = useState(false);
 
 	if (RealPanel) {

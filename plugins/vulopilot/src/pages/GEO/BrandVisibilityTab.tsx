@@ -114,7 +114,7 @@ const BrandVisibilityTab = ({ initialScannerId }: BrandVisibilityTabProps) => {
 		'vulopilot_brand_offsite_mentions_card'
 	);
 
-	const isProInstalled = Boolean(vulopilotAppLocalizer.khali_dabba);
+	const isModuleGate = Boolean(vulopilotAppLocalizer.khali_dabba);
 
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
 	const openProPopup = () => setIsProPopupOpen(true);
@@ -203,7 +203,7 @@ const BrandVisibilityTab = ({ initialScannerId }: BrandVisibilityTabProps) => {
 				height="auto"
 				position="lightbox"
 			>
-				{isProInstalled ? (
+				{isModuleGate ? (
 					<ShowProPopup moduleName={BRAND_MODULE_ID} />
 				) : (
 					<ShowProPopup />

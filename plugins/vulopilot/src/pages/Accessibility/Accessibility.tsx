@@ -64,8 +64,7 @@ const ISSUES_TABLE_SECTIONS = ACCESSIBILITY_CHECKS.filter(
 const AccessibilityHistoryDummy = () => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
 	const [period, setPeriod] = useState<PeriodDays>('30');
-	const isProInstalled = Boolean(vulopilotAppLocalizer.khali_dabba);
-	const isModuleGate = isProInstalled;
+	const isModuleGate = Boolean(vulopilotAppLocalizer.khali_dabba);
 
 	return (
 		<>

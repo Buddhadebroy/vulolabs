@@ -1,6 +1,6 @@
 /* global vuloformAppLocalizer */
 import { Link, useLocation } from 'react-router-dom';
-import { FormBuilder } from '@zyra/builderform';
+import { FormBuilder as ZyraFormBuilder } from '@zyra/builderform';
 import type { FormBuilderRoute } from '@zyra/builderform';
 import { apiGet, apiPost } from '../services/api';
 import { errorMessage, notify } from '../services/notify';
@@ -42,8 +42,8 @@ const route: FormBuilderRoute = {
  * The form builder is zyra's `FormBuilder`; this hands it what is VuloForm's own: its REST client,
  * notices, address scheme, localized data and the extension points VuloForm Pro uses.
  */
-const Builder = ({ formId }: { formId: number }) => (
-	<FormBuilder
+const FormBuilder = ({ formId }: { formId: number }) => (
+	<ZyraFormBuilder
 		formId={formId}
 		api={{ get: apiGet, post: apiPost }}
 		notify={notify}
@@ -54,4 +54,4 @@ const Builder = ({ formId }: { formId: number }) => (
 	/>
 );
 
-export default Builder;
+export default FormBuilder;
