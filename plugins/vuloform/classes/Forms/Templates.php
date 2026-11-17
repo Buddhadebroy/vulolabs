@@ -2319,6 +2319,29 @@ class Templates {
 				),
 				'submit' => __( 'Donate', 'vuloform' ),
 			),
+			'notifima_subscription' => array(
+				'plugin'   => 'notifima',
+				'single'   => true,
+				'title'    => __( 'Back in stock subscription', 'vuloform' ),
+				'category' => __( 'Notifima', 'vuloform' ),
+				'desc'     => __( 'Asks for an email address so Notifima can tell the visitor when a product is back in stock.', 'vuloform' ),
+				'icon'     => 'mail',
+				'fields'   => array(
+					self::field(
+						'email',
+						__( 'Email', 'vuloform' ),
+						array(
+							'required'    => true,
+							'placeholder' => __( 'Enter your email', 'vuloform' ),
+						)
+					),
+				),
+				'submit'   => __( 'Notify Me', 'vuloform' ),
+				'settings' => array(
+					'store_submissions' => false,
+					'notifications'     => array(),
+				),
+			),
 		);
 
 		$out = array();
@@ -2330,13 +2353,26 @@ class Templates {
 				$settings['submit_label'] = $template['submit'];
 			}
 
-			// Every template tells the site admin about a submission out of the box.
-			$settings['notifications'][] = self::admin_notification( 'email' );
+			if ( isset( $template['settings'] ) ) {
+				$settings = array_merge( $settings, $template['settings'] );
+			}
+
+			// A plugin's template is recognised by its id, which is what groups its forms in the list.
+			if ( isset( $template['plugin'] ) ) {
+				$settings['template'] = $id;
+			}
+
+			// Every template tells the site admin about a submission out of the box, unless it sets its own.
+			if ( ! isset( $template['settings']['notifications'] ) ) {
+				$settings['notifications'][] = self::admin_notification( 'email' );
+			}
 
 			$out[ $id ] = array(
 				'title'    => $template['title'],
 				'desc'     => $template['desc'],
 				'icon'     => $template['icon'],
+				'plugin'   => $template['plugin'] ?? '',
+				'single'   => ! empty( $template['single'] ),
 				'category' => $template['category'] ?? __( 'Other', 'vuloform' ),
 				'schema'   => Schema::sanitize(
 					array(

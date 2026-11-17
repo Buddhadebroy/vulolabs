@@ -79,10 +79,8 @@ class FormRepository {
 		}
 
 		if ( 'vuloform' === $plugin ) {
-			// Forms that were not made from any plugin's template.
 			$hidden = array_merge( $hidden, ...array_values( $plugins ) );
 		} elseif ( '' !== $plugin && 'all' !== $plugin ) {
-			// A plugin that offers no templates has no forms in the list.
 			if ( empty( $plugins[ $plugin ] ) ) {
 				return array(
 					'data'  => array(),
@@ -162,8 +160,6 @@ class FormRepository {
 		$table  = $this->table();
 		$hidden = Templates::unavailable();
 		$extra  = $hidden ? ' AND ' . $this->template_sql( $hidden, true ) : '';
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- the table name is ours, $extra comes from prepare().
 		$rows = $wpdb->get_results( "SELECT id, title FROM {$table} WHERE status = 'published'{$extra} ORDER BY title ASC LIMIT 500", ARRAY_A );
 
 		return $rows ? $rows : array();
