@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { ButtonInput, SelectInput, TextInput, ToggleInput } from '@zyra/inputs';
-import Switch from '../components/Switch';
+import { FormGroupComponent, FormGroupWrapperComponent } from '@zyra/components';
+import { ButtonInput, MultiCheckboxInput, SelectInput, TextInput, ToggleInput } from '@zyra/inputs';
 import GoogleSignIn from '../components/GoogleSignIn';
 import { apiPost } from '../services/api';
 import { errorMessage, notify } from '../services/notify';
@@ -163,11 +163,12 @@ const ConnectionForm = ({ channel, connection, onSaved, onCancel }: ConnectionFo
 
 		if ('toggle' === field.type) {
 			return (
-				<Switch
-					name={field.key}
-					label={field.label}
-					checked={Boolean(value)}
-					onChange={(checked) => setValue(field.key, checked)}
+				<MultiCheckboxInput
+					look="toggle"
+					modules={[]}
+					options={[{ key: 'on', value: 'on' }]}
+					value={value ? ['on'] : []}
+					onChange={(next) => setValue(field.key, next.includes('on'))}
 				/>
 			);
 		}
@@ -227,21 +228,15 @@ const ConnectionForm = ({ channel, connection, onSaved, onCancel }: ConnectionFo
 		const { note, how } = splitHelp(help);
 
 		return (
-			<div className={`vulomail-field-row${wide ? ' is-wide' : ''}`} key={key}>
-				<div className="vulomail-field-text">
-					<label htmlFor={htmlFor}>{label}</label>
-					{note && <span>{note}</span>}
-				</div>
-				<div className="vulomail-field-control">
-					{control}
-					{how && (
-						<span className="vulomail-field-how">
-							<i className="adminfont-link" aria-hidden="true" />
-							<span>{how}</span>
-						</span>
-					)}
-				</div>
-			</div>
+			<FormGroupComponent inline className={wide ? 'wide' : ''} key={key} label={label} htmlFor={htmlFor} desc={note}>
+				{control}
+				{how && (
+					<span className="vulomail-field-how">
+						<i className="adminfont-link" aria-hidden="true" />
+						<span>{how}</span>
+					</span>
+				)}
+			</FormGroupComponent>
 		);
 	};
 
@@ -253,16 +248,7 @@ const ConnectionForm = ({ channel, connection, onSaved, onCancel }: ConnectionFo
 			field.key,
 			field.label,
 			field.help,
-			'toggle' === field.type ? (
-				<Switch
-					name={field.key}
-					label={values[field.key] ? __('On', 'vulomail') : __('Off', 'vulomail')}
-					checked={Boolean(values[field.key])}
-					onChange={(checked) => setValue(field.key, checked)}
-				/>
-			) : (
-				renderField(field)
-			),
+			renderField(field),
 			`vulomail-field-${field.key}`,
 			'cards' === field.display
 		);
@@ -277,7 +263,7 @@ const ConnectionForm = ({ channel, connection, onSaved, onCancel }: ConnectionFo
 					<input type="text" name="vulomail-decoy-user" tabIndex={-1} autoComplete="off" />
 					<input type="password" name="vulomail-decoy-pass" tabIndex={-1} autoComplete="new-password" />
 				</div>
-				<div className="vulomail-fields">
+				<FormGroupWrapperComponent variant="rows">
 					{!connection &&
 						row(
 							'provider',
@@ -305,9 +291,15 @@ const ConnectionForm = ({ channel, connection, onSaved, onCancel }: ConnectionFo
 						'enabled',
 						__('Connection enabled', 'vulomail'),
 						__('Off: kept, but nothing is sent through it.', 'vulomail'),
-						<Switch name="enabled" label={enabled ? __('On', 'vulomail') : __('Off', 'vulomail')} checked={enabled} onChange={setEnabled} />
+						<MultiCheckboxInput
+							look="toggle"
+							modules={[]}
+							options={[{ key: 'on', value: 'on' }]}
+							value={enabled ? ['on'] : []}
+							onChange={(next) => setEnabled(next.includes('on'))}
+						/>
 					)}
-				</div>
+				</FormGroupWrapperComponent>
 				{fields.length > 0 && (
 					<>
 						<h3 className="vulomail-fields-title">
@@ -317,16 +309,14 @@ const ConnectionForm = ({ channel, connection, onSaved, onCancel }: ConnectionFo
 								provider?.label ?? ''
 							)}
 						</h3>
-						<div className="vulomail-fields">
-							{fields.map(fieldRow)}
-						</div>
+						<FormGroupWrapperComponent variant="rows">{fields.map(fieldRow)}</FormGroupWrapperComponent>
 					</>
 				)}
 				{/* The sign-in panel stands in for the hidden `refresh_token` field, while that applies. */}
 				{'google' === provider?.oauth && applies(provider.fields.find((field) => 'refresh_token' === field.key)) && (
 					<GoogleSignIn
 						advanced={
-							advancedFields.length > 0 ? <div className="vulomail-fields">{advancedFields.map(fieldRow)}</div> : null
+							advancedFields.length > 0 ? <FormGroupWrapperComponent variant="rows">{advancedFields.map(fieldRow)}</FormGroupWrapperComponent> : null
 						}
 						needsSetup={advancedFields.some((field) => field.required && '' === String(values[field.key] ?? ''))}
 						isConnected={'' !== String(values.refresh_token ?? '')}

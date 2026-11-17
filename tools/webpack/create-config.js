@@ -222,6 +222,28 @@ function generateStorefrontEntry(rootDir) {
 }
 
 
+/**
+ * A linked local zyra brings its own node_modules, so react-router would be bundled twice and
+ * `useLocation()` would not see the router `BrowserRouter` created. Resolve both packages from
+ * the plugin's own copy so there is only one. Plugins without react-router-dom are left alone.
+ */
+function routerAliases(rootDir) {
+	try {
+		const dom = path.dirname(
+			require.resolve('react-router-dom/package.json', { paths: [rootDir] })
+		);
+
+		return {
+			'react-router-dom$': dom,
+			'react-router$': path.dirname(
+				require.resolve('react-router/package.json', { paths: [dom] })
+			),
+		};
+	} catch (e) {
+		return {};
+	}
+}
+
 module.exports = function createWebpackConfig(
 	rootDir
 ) {

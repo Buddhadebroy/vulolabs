@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { BadgeComponent } from '@zyra/components';
+import { BadgeComponent, FormGroupComponent, FormGroupWrapperComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { notify } from '../services/notify';
 
@@ -93,22 +93,17 @@ const GoogleSignIn = ({
 
 	return (
 		<div className="vulomail-google">
-			<div className="vulomail-field-row">
-				<div className="vulomail-field-text">
-					<label>{__('Google account', 'vulomail')}</label>
-					<span>
-						{isConnected
-							? __(
-									'Email is sent from this account. Sign in again to switch accounts.',
-									'vulomail'
-								)
-							: __(
-									"Sign in with the Google account your site's email should come from.",
-									'vulomail'
-								)}
-					</span>
-				</div>
-				<div className="vulomail-field-control vulomail-google-control">
+			<FormGroupWrapperComponent variant="rows">
+				<FormGroupComponent
+					inline
+					label={__('Google account', 'vulomail')}
+					desc={
+						isConnected
+							? __('Email is sent from this account. Sign in again to switch accounts.', 'vulomail')
+							: __("Sign in with the Google account your site's email should come from.", 'vulomail')
+					}
+				>
+					<div className="vulomail-google-control">
 					<BadgeComponent
 						color={isConnected ? 'green' : 'yellow'}
 						text={status}
@@ -123,8 +118,9 @@ const GoogleSignIn = ({
 							onClick: signIn,
 						}}
 					/>
-				</div>
-			</div>
+					</div>
+				</FormGroupComponent>
+			</FormGroupWrapperComponent>
 			{advanced && (
 				<details
 					className="vulomail-google-advanced"

@@ -296,16 +296,16 @@ const Logs = () => {
 			<ContainerComponent general>
 				<ColumnComponent>
 					<AnalyticsComponent
-						variant="small-card"
+						variant="trend-stat"
 						cols={3}
 						data={[
-							{ icon: 'check green', colorClass: 'green', number: sent, text: __('Sent', 'vulomail') },
-							{ icon: 'error red', colorClass: 'red', number: failed, text: __('Failed', 'vulomail') },
+							{ icon: 'check', number: sent, text: __('Sent', 'vulomail'), desc: __('Delivered by a connection', 'vulomail') },
+							{ icon: 'error', number: failed, text: __('Failed', 'vulomail'), desc: __('No connection could send them', 'vulomail') },
 							{
-								icon: 'analytics blue',
-								colorClass: 'blue',
+								icon: 'analytics',
 								number: 0 === sent + failed ? '—' : `${Math.round((sent / (sent + failed)) * 100)}%`,
 								text: __('Delivery rate', 'vulomail'),
+								desc: __('Sent out of all attempts', 'vulomail'),
 							},
 						]}
 					/>
