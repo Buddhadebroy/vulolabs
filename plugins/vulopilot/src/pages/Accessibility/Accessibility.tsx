@@ -64,7 +64,7 @@ const ISSUES_TABLE_SECTIONS = ACCESSIBILITY_CHECKS.filter(
 const AccessibilityHistoryDummy = () => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
 	const [period, setPeriod] = useState<PeriodDays>('30');
-	const isProInstalled = Boolean(vulopilotAppLocalizer.khali_dabba);
+	const isModuleGate = Boolean(vulopilotAppLocalizer.khali_dabba);
 
 	return (
 		<>
@@ -81,13 +81,30 @@ const AccessibilityHistoryDummy = () => {
 						value={period}
 						onChange={(value) => setPeriod(value as PeriodDays)}
 						modules={[]}
-						variant="pill"
+						
 					/>
 				}
 			>
 				<BlurredProContent
 					contentClassName="accessibility-history-dummy"
 					onClick={() => setIsProPopupOpen(true)}
+					icon={isModuleGate ? 'unlock' : ''}
+					title={
+						isModuleGate
+							? __('Enable Accessibility module', 'vulopilot')
+							: undefined
+					}
+					desc={
+						isModuleGate
+							? __(
+									'Turn the Accessibility module on from Settings → Modules to see your real score history here.',
+									'vulopilot'
+								)
+							: undefined
+					}
+					buttonText={
+						isModuleGate ? __('Enable module', 'vulopilot') : undefined
+					}
 				>
 					<ChartComponent
 						type="dynamic-line"
@@ -107,7 +124,7 @@ const AccessibilityHistoryDummy = () => {
 				height="auto"
 				position="lightbox"
 			>
-				{isProInstalled ? (
+				{isModuleGate ? (
 					<ShowProPopup moduleName={ACCESSIBILITY_MODULE_ID} />
 				) : (
 					<ShowProPopup />

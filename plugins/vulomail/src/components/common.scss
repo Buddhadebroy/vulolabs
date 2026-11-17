@@ -200,31 +200,6 @@
 	}
 }
 
-.vulomail-log-seg {
-	display: inline-flex;
-	gap: 0.125rem;
-	padding: 0.1875rem;
-	border-radius: 0.5rem;
-	background: var(--background-color);
-
-	button {
-		padding: 0.3125rem 0.625rem;
-		border: none;
-		border-radius: 0.375rem;
-		background: transparent;
-		font-size: 0.8125rem;
-		font-weight: 600;
-		color: var(--sub-text-color);
-		cursor: pointer;
-
-		&[aria-selected='true'] {
-			background: var(--background-white);
-			color: var(--text-color);
-			box-shadow: 0 0.063rem 0.125rem rgb(16 24 40 / 8%);
-		}
-	}
-}
-
 // Diagnostics screen (Tools.tsx). Severity has its own universal red/amber/green/blue, not the
 // theme's brand palette, so these are fixed rather than drawn from --color-primary.
 .vulomail-diag-summary {
@@ -321,65 +296,6 @@
 	}
 }
 
-.vulomail-diag-stats {
-	display: grid;
-	flex: 1 1 22.5rem;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 0.75rem;
-}
-
-.vulomail-diag-stat {
-	border-radius: 0.75rem;
-	padding: 0.875rem 1rem;
-
-	&.is-red {
-		background: #fef3f2;
-	}
-
-	&.is-amber {
-		background: #fffaeb;
-	}
-
-	&.is-green {
-		background: #ecfdf3;
-	}
-}
-
-.vulomail-diag-stat-number {
-	display: block;
-	font-size: 1.75rem;
-	line-height: 2rem;
-	font-weight: 700;
-
-	.is-red & {
-		color: #b42318;
-	}
-
-	.is-amber & {
-		color: #b54708;
-	}
-
-	.is-green & {
-		color: #067647;
-	}
-}
-
-.vulomail-diag-stat-label {
-	font-size: 0.8125rem;
-	font-weight: 500;
-
-	.is-red & {
-		color: #912018;
-	}
-
-	.is-amber & {
-		color: #93370d;
-	}
-
-	.is-green & {
-		color: #05603a;
-	}
-}
 
 // One severity group ("Fix these first" / "Needs attention" / "For your information" / "Passed").
 .vulomail-diag-group + .vulomail-diag-group {
@@ -428,7 +344,9 @@
 	place-items: center;
 	background: var(--background-color);
 	color: var(--sub-text-color);
-
+	i{
+		font-size: 1.45rem;
+	}
 	.is-error & {
 		background: #fef3f2;
 		color: #d92d20;
@@ -567,7 +485,9 @@
 }
 
 .vulomail-diag-tick {
-	display: grid;
+	display: flex !important;
+	justify-content: center;
+	align-items: center;
 	flex-shrink: 0;
 	width: 1.5rem;
 	height: 1.5rem;
@@ -583,10 +503,6 @@
 }
 
 @media (max-width: 600px) {
-	.vulomail-diag-stats {
-		grid-template-columns: 1fr;
-	}
-
 	.vulomail-diag-card {
 		padding: 1rem;
 		gap: 0.75rem;
@@ -825,13 +741,6 @@
 	}
 }
 
-// A card of settings, one row each: what it is on the left, its control on the right.
-.vulomail-fields {
-	border: 0.063rem solid var(--border-color);
-	border-radius: 0.625rem;
-	background: var(--background-white);
-}
-
 .vulomail-fields-title {
 	margin: 1.25rem 0 0.5rem;
 	font-size: 0.8125rem;
@@ -839,56 +748,6 @@
 	letter-spacing: 0.02em;
 	color: var(--sub-text-color);
 	text-transform: uppercase;
-}
-
-.vulomail-field-row {
-	display: grid;
-	grid-template-columns: minmax(9rem, 36%) 1fr;
-	gap: 0.5rem 1.25rem;
-	align-items: center;
-	padding: 0.75rem 1rem;
-	border-bottom: 0.063rem solid var(--border-color);
-
-	&:first-child {
-		border-radius: 0.625rem 0.625rem 0 0;
-	}
-
-	&:last-child {
-		border-bottom: 0;
-		border-radius: 0 0 0.625rem 0.625rem;
-	}
-
-	&:nth-child(even) {
-		background: color-mix(in srgb, var(--text-color) 2.5%, transparent);
-	}
-}
-
-.vulomail-field-text {
-	display: flex;
-	flex-direction: column;
-	gap: 0.125rem;
-	min-width: 0;
-
-	label {
-		font-weight: 600;
-		color: var(--text-color);
-	}
-
-	span {
-		font-size: 0.8125rem;
-		line-height: 1.4;
-		color: var(--sub-text-color);
-	}
-}
-
-.vulomail-field-control {
-	min-width: 0;
-
-	.vulomail-switch-label {
-		font-size: 0.8125rem;
-		font-weight: 400;
-		color: var(--sub-text-color);
-	}
 }
 
 // Where to get the value, with its link: directly under the input it is for.
@@ -904,21 +763,12 @@
 	}
 }
 
-// A choice drawn as option cards (a field with `display: 'cards'`): the label above, the cards
-// across the whole form.
-.vulomail-field-row.is-wide {
-	grid-template-columns: 1fr;
-}
-
 // "Sign in with Google" for the Gmail connection (GoogleSignIn.tsx).
 .vulomail-google {
 	margin-top: 1rem;
 	border: 0.063rem solid var(--border-color);
 	border-radius: 0.45rem;
 
-	.vulomail-field-row:last-child {
-		border-bottom: 0;
-	}
 }
 
 .vulomail-google-control {
@@ -939,7 +789,7 @@
 		cursor: pointer;
 	}
 
-	> .vulomail-fields {
+	> .form-group-wrapper {
 		margin: 0 1rem;
 	}
 }
@@ -1020,75 +870,6 @@
 	}
 }
 
-@media (max-width: 600px) {
-	.vulomail-field-row {
-		grid-template-columns: 1fr;
-	}
-}
-
-// A real on/off slider for a single yes/no setting (Switch.tsx) - checked/unchecked colour comes
-// from the theme's own --color-primary/--border-color custom properties, same as the rest of the app.
-.vulomail-switch {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.625rem;
-	cursor: pointer;
-	user-select: none;
-
-	input {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		margin: -1px;
-		padding: 0;
-		overflow: hidden;
-		clip: rect(0, 0, 0, 0);
-		white-space: nowrap;
-		border: 0;
-	}
-
-	.vulomail-switch-track {
-		position: relative;
-		flex-shrink: 0;
-		width: 2.5rem;
-		height: 1.375rem;
-		border-radius: 999px;
-		background: var(--border-color);
-		transition: background-color 0.15s ease;
-
-		&::after {
-			position: absolute;
-			top: 0.125rem;
-			left: 0.125rem;
-			width: 1.125rem;
-			height: 1.125rem;
-			border-radius: 50%;
-			background: #fff;
-			box-shadow: 0 0.063rem 0.188rem rgba(0, 0, 0, 0.25);
-			transition: transform 0.15s ease;
-			content: '';
-		}
-	}
-
-	.vulomail-switch-label {
-		font-weight: 500;
-		color: var(--text-color);
-	}
-
-	input:checked + .vulomail-switch-track {
-		background: var(--color-primary);
-
-		&::after {
-			transform: translateX(1.125rem);
-		}
-	}
-
-	input:focus-visible + .vulomail-switch-track {
-		outline: 0.125rem solid var(--color-primary);
-		outline-offset: 0.125rem;
-	}
-}
-
 // Briefly marks the card a "Test" button on Connections sent the visitor to (Tools.tsx).
 .vulomail-highlight {
 	animation: vulomail-highlight-flash 2s ease-out;
@@ -1102,6 +883,49 @@
 
 	100% {
 		box-shadow: 0 0 0 0 transparent;
+	}
+}
+
+.vulomail-switch {
+	position: relative;
+	display: inline-block;
+	width: 2.5rem;
+	height: 1.375rem;
+	flex-shrink: 0;
+
+	input {
+		opacity: 0;
+		width: 0;
+		height: 0;
+	}
+
+	.vulomail-switch-track {
+		position: absolute;
+		inset: 0;
+		background: var(--border-color, #ccc);
+		border-radius: 1.375rem;
+		cursor: pointer;
+		transition: background 0.15s ease;
+
+		&::before {
+			content: '';
+			position: absolute;
+			height: 1.063rem;
+			width: 1.063rem;
+			left: 0.156rem;
+			bottom: 0.156rem;
+			background: #fff;
+			border-radius: 50%;
+			transition: transform 0.15s ease;
+		}
+	}
+
+	input:checked + .vulomail-switch-track {
+		background: var(--color-primary);
+	}
+
+	input:checked + .vulomail-switch-track::before {
+		transform: translateX(1.125rem);
 	}
 }
 
@@ -1126,9 +950,187 @@
 	}
 }
 
-// zyra's lightbox popup footer is pinned with position: fixed and only gets flow clearance in the
-// "slide" variants, so the log detail popup's body needs its own bottom padding or the footer
-// permanently covers the last of its content.
-.vulomail-log-popup [data-position='lightbox'] .popup-body {
-	padding-bottom: 4.5rem;
+// Email Templates: the list of every email, grouped by section.
+.vulomail-emails {
+	width: 100%;
+
+	&-title {
+		margin: 0 0 0.5rem;
+		font-size: 1.75rem;
+		font-weight: 700;
+	}
+
+	&-lead {
+		max-width: 38rem;
+		margin: 0 0 1rem;
+		color: var(--sub-text-color);
+	}
+
+	&-stats {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem;
+		margin: 0 0 1.5rem;
+		font-size: 0.8125rem;
+
+		span::before {
+			display: inline-block;
+			width: 0.4rem;
+			height: 0.4rem;
+			margin-right: 0.35rem;
+			border-radius: 50%;
+			background: var(--color-primary);
+			content: '';
+		}
+
+		span:first-child::before {
+			display: none;
+		}
+
+		.is-customer::before {
+			background: #2563eb;
+		}
+
+		.is-admin::before {
+			background: #b45309;
+		}
+	}
+
+	&-toolbar {
+		display: flex;
+		flex-wrap: nowrap;
+		gap: 0.75rem;
+		align-items: center;
+		margin-bottom: 2rem;
+	}
+
+	// zyra's own inputs draw the field; these only size them in the toolbar.
+	&-search {
+		flex: 1 1 8rem;
+		min-width: 8rem;
+	}
+
+	&-select {
+		flex: 0 0 11rem;
+	}
+
+	&-note {
+		color: var(--sub-text-color);
+	}
+
+	&-section {
+		margin-bottom: 2rem;
+
+		> header {
+			display: flex;
+			align-items: baseline;
+			justify-content: space-between;
+			margin-bottom: 0.5rem;
+
+			h3 {
+				margin: 0;
+				font-size: 0.9375rem;
+
+				span {
+					margin-left: 0.4rem;
+					color: var(--sub-text-color);
+					font-size: 0.8125rem;
+					font-weight: 400;
+				}
+			}
+
+			button {
+				border: 0;
+				background: none;
+				color: var(--sub-text-color);
+				font: inherit;
+				font-size: 0.8125rem;
+				cursor: pointer;
+			}
+		}
+
+		ul {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+			border: 0.063rem solid var(--border-color);
+			border-radius: 0.75rem;
+			background: var(--background-white);
+			list-style: none;
+		}
+
+		li {
+			display: flex;
+			gap: 1rem;
+			align-items: center;
+			margin: 0;
+			padding: 0.875rem 1.25rem;
+
+			+ li {
+				border-top: 0.063rem solid var(--border-color);
+			}
+		}
+	}
+
+	&-text {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		gap: 0.15rem;
+		min-width: 0;
+
+		strong {
+			font-size: 0.9375rem;
+
+			em {
+				margin-left: 0.5rem;
+				padding: 0.05rem 0.4rem;
+				border: 0.063rem solid var(--border-color);
+				border-radius: 0.25rem;
+				color: var(--sub-text-color);
+				font-size: 0.6875rem;
+				font-style: normal;
+				font-weight: 500;
+			}
+		}
+
+		span {
+			color: var(--sub-text-color);
+			font-size: 0.8125rem;
+		}
+	}
+
+	&-pill {
+		padding: 0.2rem 0.65rem;
+		border-radius: 999px;
+		font-size: 0.75rem;
+		font-weight: 600;
+		background: color-mix(in srgb, var(--color-primary) 10%, var(--background-white));
+		color: var(--color-primary);
+
+		&.is-customer {
+			background: #e8effd;
+			color: #2563eb;
+		}
+
+		&.is-admin {
+			background: #fdf1e1;
+			color: #b45309;
+		}
+	}
+
+	&-edit {
+		padding: 0.5rem 1rem;
+		border: 0.063rem solid var(--border-color);
+		border-radius: 0.5rem;
+		background: var(--background-white);
+		color: var(--text-color);
+		font: inherit;
+		font-weight: 600;
+		cursor: pointer;
+
+		&:hover {
+			border-color: var(--color-primary);
+		}
+	}
 }
