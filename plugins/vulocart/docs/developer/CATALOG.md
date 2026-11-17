@@ -18,7 +18,7 @@ One table, `vulocart_products`, holds every product of every type. The columns e
 
 | Type | Meant for | Subtypes in the editor |
 |---|---|---|
-| `physical` | A product you ship | Standard, With options, Pre-order, Made to order |
+| `physical` | A product you ship | Simple, Variable, Pre-order, Made to order |
 | `digital` | A file, key or online access | File download, Software & keys, Online access |
 | `subscription` | Billed on a schedule | Access plan, Box |
 | `course` | Lessons a student works through | Self-paced, Live cohort |

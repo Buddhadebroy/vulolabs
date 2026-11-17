@@ -45,6 +45,7 @@ interface OrderItem {
 	currency: string | null;
 	subtotal: number;
 	price?: { id: string; label: string; type: string; interval: string; interval_count: number; payments: number | null } | null;
+	details?: Array< { label: string; value: string } >;
 }
 
 /**
@@ -737,6 +738,11 @@ export function OrderEdit( { id }: OrderEditProps ) {
 															{ [ item.price.label, billingText( item.price ) ].filter( Boolean ).join( ' · ' ) }
 														</small>
 													) }
+													{ ( item.details ?? [] ).map( ( detail ) => (
+														<small key={ detail.label } style={ { display: 'block', color: '#6b7280', fontSize: '12px' } }>
+															{ detail.label }: { detail.value }
+														</small>
+													) ) }
 												</span>
 											</td>
 											<td>

@@ -57,6 +57,8 @@ export interface CartItem {
 		payments: number | null;
 		trial_days: number;
 	} | null;
+	/** Shopper-facing facts a module added to the line (a booking's date and time, a plan's renewal terms). */
+	details?: Array< { label: string; value: string } >;
 }
 
 export interface CartResponse {

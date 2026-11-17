@@ -81,8 +81,8 @@ export const TYPE_PROFILES: TypeProfile[] = [
 		cards: { ...NONE, inventory: true, shipping: true, shippingPolicy: true, specs: true },
 		detailsTitle: __( 'Fulfilment', 'vulocart' ),
 		subtypes: [
-			{ value: 'standard', label: __( 'Standard', 'vulocart' ), hint: __( 'One product, one price.', 'vulocart' ) },
-			{ value: 'variable', label: __( 'With options', 'vulocart' ), hint: __( 'Sizes, colours or other choices.', 'vulocart' ), cards: { variants: true } },
+			{ value: 'standard', label: __( 'Simple', 'vulocart' ), hint: __( 'One product, one price and one stock count.', 'vulocart' ) },
+			{ value: 'variable', label: __( 'Variable', 'vulocart' ), hint: __( 'Comes in options like size or colour, each with its own price and stock.', 'vulocart' ), cards: { variants: true } },
 			{ value: 'preorder', label: __( 'Pre-order', 'vulocart' ), hint: __( 'Sold before it is in stock.', 'vulocart' ) },
 			{
 				value: 'made_to_order',
@@ -373,4 +373,19 @@ export function fieldsFor( type: string, subtype: string ): TypeDetailField[] {
 	const active = subtypeFor( type, subtype ).value;
 
 	return profileFor( type ).fields.filter( ( field ) => ! field.subtypes || field.subtypes.includes( active ) );
+}
+
+/**
+ * Kinds that need a vulocart-pro module (mirrors `ProductTypes::SUBTYPE_MODULES` in PHP, which enforces it): type =>
+ * subtype => module id and the module's name.
+ */
+export const SUBTYPE_MODULES: Record< string, Record< string, { module: string; name: string } > > = {
+	physical: { variable: { module: 'product-variants', name: __( 'Product Variants', 'vulocart' ) } },
+};
+
+/** The module a kind needs while it is switched off, or null when the kind can be used. */
+export function lockedSubtypeModule( type: string, subtype: string, activeModules: string[] ): { module: string; name: string } | null {
+	const needs = SUBTYPE_MODULES[ type ]?.[ subtype ];
+
+	return needs && ! activeModules.includes( needs.module ) ? needs : null;
 }

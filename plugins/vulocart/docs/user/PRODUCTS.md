@@ -28,7 +28,7 @@ Some badges help you spot problems: **Marked out of stock**, **No price** (canno
 ## Add a product
 
 1. Go to **Products → Add New**.
-2. On the **What are you selling?** screen pick a type (Physical, Digital, Subscription, Course, Service, Membership, Booking, Rental, Bundle, Donation, Gift card). Some types ask for a kind, for example Physical → *Standard*, *With options*, *Pre-order* or *Made to order*. You can turn this screen off under Settings → General ("Start with What are you selling?"); then you pick the type on the product page.
+2. On the **What are you selling?** screen pick a type (Physical, Digital, Subscription, Course, Service, Membership, Booking, Rental, Bundle, Donation, Gift card). Each card lists its kinds; click one to start with it (or click the card for the first). For example Physical → *Simple*, *Variable* (sizes, colours and other options; needs the Product Variants module, and shows locked until it is on), *Pre-order* or *Made to order*. You can turn this screen off under Settings → General ("Start with What are you selling?"); then you pick the type on the product page.
 3. Fill in the cards below and press **Save**. The **Setup progress** box tells you what is still missing and shows **Ready to publish** when the basics are done.
 4. Set the status to **Published** (**Change status**) when you want it in the shop.
 

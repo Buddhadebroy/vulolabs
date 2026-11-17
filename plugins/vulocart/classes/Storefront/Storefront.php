@@ -642,6 +642,10 @@ class Storefront {
 			return sprintf( '<div %s><span class="wp-element-button vulocart-add__button is-disabled" aria-disabled="true">%s</span></div>', $wrapper, esc_html__( 'Sold out', 'vulocart' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
+		if ( ! empty( $product['unavailable'] ) ) {
+			return sprintf( '<div %s><span class="wp-element-button vulocart-add__button is-disabled" aria-disabled="true">%s</span></div>', $wrapper, esc_html__( 'Unavailable', 'vulocart' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
+
 		if ( $product['quick_add'] && ( ! $query || $query['cart'] ) ) {
 			return sprintf(
 				'<div %1$s><button type="button" class="wp-element-button vulocart-add__button" data-vulocart-add data-product-id="%2$d" data-price-id="%3$s" data-added-label="%4$s">%5$s</button></div>',
@@ -1204,7 +1208,7 @@ class Storefront {
 
 		$out = '';
 
-		if ( count( $product['prices'] ) > 1 && ! $product['sold_out'] ) {
+		if ( count( $product['prices'] ) > 1 && ! $product['sold_out'] && empty( $product['unavailable'] ) ) {
 			$out .= '<fieldset class="vulocart-price-options"><legend class="screen-reader-text">' . esc_html__( 'Choose a price', 'vulocart' ) . '</legend>';
 			foreach ( $product['prices'] as $index => $price ) {
 				$out .= sprintf(
@@ -1222,6 +1226,8 @@ class Storefront {
 
 		if ( $query && ! $query['cart'] ) {
 			$out .= '<p class="vulocart-notice">' . esc_html__( 'Ordering is currently unavailable.', 'vulocart' ) . '</p>';
+		} elseif ( ! empty( $product['unavailable'] ) ) {
+			$out .= '<p class="vulocart-notice">' . esc_html__( 'This product is not available to buy right now.', 'vulocart' ) . '</p>';
 		} elseif ( ! $product['sold_out'] ) {
 			// "Buy now" appears when the store checks out somewhere other than the Checkout page (popup, drawer,
 			// hosted page, one-click): add to cart and go straight there.

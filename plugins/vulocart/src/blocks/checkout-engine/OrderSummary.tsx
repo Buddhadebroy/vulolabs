@@ -68,6 +68,11 @@ export function OrderSummary( { cart, summary, hasShipping }: OrderSummaryProps 
 								<span className="vulocart-checkout-summary-name">
 									{ item.title }
 									{ note && <small>{ note }</small> }
+									{ ( item.details ?? [] ).map( ( detail ) => (
+										<small key={ detail.label }>
+											{ detail.label }: { detail.value }
+										</small>
+									) ) }
 								</span>
 								<strong>{ formatMoney( item.subtotal, item.currency ?? currency ) }</strong>
 							</li>

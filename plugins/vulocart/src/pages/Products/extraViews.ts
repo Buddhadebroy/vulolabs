@@ -70,6 +70,13 @@ export const ordersExtraViews: Record< string, EngineView > = {
 		module: 'recurring-billing',
 		pro: true,
 	},
+	bookings: {
+		title: __( 'Bookings', 'vulocart' ),
+		description: __( 'Booked slots, their status, and the staff and resources they are booked with.', 'vulocart' ),
+		icon: 'calendar',
+		module: 'bookings',
+		pro: true,
+	},
 };
 
 export const customersExtraViews: Record< string, EngineView > = {
