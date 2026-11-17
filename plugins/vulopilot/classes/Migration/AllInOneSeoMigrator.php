@@ -14,29 +14,14 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Imports everything VuloPilot can read from a free All in One SEO (AIOSEO v4+, now listed as
- * "AI SEO" on wordpress.org) install, in one migrator (same shape as RankMathMigrator/
- * YoastSeoMigrator):
+ * Imports everything VuloPilot can read from a free All in One SEO (AIOSEO v4+, "AI SEO" on
+ * wordpress.org) install (same shape as the other migrators in this namespace):
  *
- * - Per-post data from its own `{prefix}aioseo_posts` table (not postmeta).
- * - Sitewide settings, from its own two option rows - `aioseo_options` (a single JSON blob,
- *   confirmed by activating the real plugin and reading `get_option('aioseo_options')` directly;
- *   AIOSEO's actual plugin logic lives in a private package not published on GitHub, so this was
- *   verified empirically rather than against source) and `aioseo_options_dynamic` (same JSON
- *   shape, holding every real post type's/taxonomy's own title/description template, keyed by
- *   the real WordPress slug).
+ * - Per-post data from `{prefix}aioseo_posts` (not postmeta).
+ * - Sitewide settings from `aioseo_options`/`aioseo_options_dynamic` (JSON option rows).
+ * - Robots.txt rules (`tools.robots.rules`), into VuloPilot's own robots.txt override.
  *
- * - Robots.txt rules (`tools.robots.rules`), into VuloPilot's own custom robots.txt override.
- *   Each entry is a JSON-encoded string shaped `{"userAgent":"*","directive":"disallow",
- *   "fieldValue":"/wp-admin/"}` - confirmed against the real distributed plugin's own
- *   `app/Common/Tools/RobotsTxt.php` (`isRuleShaped()`/`encodeRule()`), not guessed. Rules are
- *   grouped by `userAgent` and written out as plain `User-agent:`/`Directive: value` lines - a raw
- *   copy of the data AIOSEO itself would produce (`stringifyRuleset()`), not a reimplementation of
- *   its own dedup/override merge logic.
- *
- * Not migrated: Redirects/404 Monitor. Confirmed by reading the real plugin's own files on disk
- * (not just its database) - free AIOSEO ships no Redirects or 404 Monitor code at all, not even a
- * disabled stub; it's a Pro-only add-on with nothing present to migrate from.
+ * Not migrated: Redirects/404 Monitor - free AIOSEO ships none to migrate from.
  *
  * @class       AllInOneSeoMigrator
  * @version     2.0.0
