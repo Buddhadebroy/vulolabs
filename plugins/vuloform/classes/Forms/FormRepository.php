@@ -78,22 +78,12 @@ class FormRepository {
 			$values[]     = $args['status'];
 		}
 
-		// "vuloform" is every form not made from another plugin's template.
+		// A form remembers its template as "template":"id" in its schema. "vuloform" means a template of no other plugin.
 		if ( ! in_array( $plugin, array( '', 'all' ), true ) ) {
-			$other = 'vuloform' === $plugin;
-			$ids   = $other ? array_merge( array(), ...array_values( Templates::plugins() ) ) : ( Templates::plugins()[ $plugin ] ?? array() );
-
-			if ( ! $ids && ! $other ) {
-				return array(
-					'data'  => array(),
-					'total' => 0,
-				);
-			}
-
-			if ( $ids ) {
-				$conditions[] = '(' . implode( $other ? ' AND ' : ' OR ', array_fill( 0, count( $ids ), $other ? 'form_schema NOT LIKE %s' : 'form_schema LIKE %s' ) ) . ')';
-				$values       = array_merge( $values, $this->template_patterns( $ids ) );
-			}
+			$other        = 'vuloform' === $plugin;
+			$ids          = $other ? array_merge( array(), ...array_values( Templates::plugins() ) ) : ( Templates::plugins()[ $plugin ] ?? array() );
+			$conditions[] = $other ? 'form_schema NOT REGEXP %s' : 'form_schema REGEXP %s';
+			$values[]     = '"template":"(' . implode( '|', $ids ) . ')"';
 		}
 
 		$where    = $conditions ? ' WHERE ' . implode( ' AND ', $conditions ) : '';
@@ -129,26 +119,9 @@ class FormRepository {
 		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$ids = $wpdb->get_col( $wpdb->prepare( 'SELECT id FROM %i WHERE form_schema LIKE %s ORDER BY id ASC', $this->table(), ...$this->template_patterns( array( $template ) ) ) );
+		$ids = $wpdb->get_col( $wpdb->prepare( 'SELECT id FROM %i WHERE form_schema LIKE %s ORDER BY id ASC', $this->table(), '%' . $wpdb->esc_like( '"template":' . wp_json_encode( $template ) ) . '%' ) );
 
 		return array_map( 'intval', $ids );
-	}
-
-	/**
-	 * A form remembers its template as `"template":"id"` inside its schema, so that is what we match.
-	 *
-	 * @param string[] $ids Template ids.
-	 * @return string[] One LIKE pattern per id.
-	 */
-	private function template_patterns( array $ids ) {
-		global $wpdb;
-
-		return array_map(
-			function ( $id ) use ( $wpdb ) {
-				return '%' . $wpdb->esc_like( '"template":' . wp_json_encode( $id ) ) . '%';
-			},
-			$ids
-		);
 	}
 
 	/**
