@@ -27,6 +27,19 @@ class DefaultRobotsManager {
 	public function maybe_filter_robots( array $robots ): array {
 		$settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
+		// Core's own `wp_robots()` only ever adds `max-image-preview:large` by default - these two directives
+		// (unlimited text-snippet/video-preview length in search results) are the same sitewide default other SEO
+		// plugins ship; harmless to add even when a narrower `noindex` below also applies.
+		// Must be the STRING '-1', not the int -1 - wp_robots()'s own renderer only prints "directive:value" for
+		// a string value; anything else just prints the bare directive name if truthy (which -1 as an int is).
+		if ( ! isset( $robots['max-snippet'] ) ) {
+			$robots['max-snippet'] = '-1';
+		}
+
+		if ( ! isset( $robots['max-video-preview'] ) ) {
+			$robots['max-video-preview'] = '-1';
+		}
+
 		if ( ! empty( $settings['robots_noindex_sitewide'] ) ) {
 			$robots['noindex'] = true;
 

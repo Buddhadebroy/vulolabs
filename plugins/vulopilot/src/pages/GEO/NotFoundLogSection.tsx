@@ -253,7 +253,14 @@ const NotFoundLogSection = () => {
 											.first_referrer;
 
 										if (!referrer) {
-											return <span className="desc">—</span>;
+											return (
+												<span className="desc">
+													{__(
+														'No referrer found - likely a direct visit or a bookmark.',
+														'vulopilot'
+													)}
+												</span>
+											);
 										}
 
 										return (

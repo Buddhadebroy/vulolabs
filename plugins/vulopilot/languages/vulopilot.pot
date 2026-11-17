@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-13T06:12:26+00:00\n"
+"POT-Creation-Date: 2026-11-17T07:59:48+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
@@ -609,20 +609,20 @@ msgstr ""
 msgid "Sorry, I didn't quite catch that - could you rephrase?"
 msgstr ""
 
-#: classes/Content/Rest/NotFoundLogs.php:117
-#: classes/Content/Rest/NotFoundLogs.php:138
+#: classes/Content/Rest/NotFoundLogs.php:128
+#: classes/Content/Rest/NotFoundLogs.php:149
 msgid "Log entry not found."
 msgstr ""
 
-#: classes/Content/Rest/NotFoundLogs.php:121
+#: classes/Content/Rest/NotFoundLogs.php:132
 msgid "Could not dismiss this log entry."
 msgstr ""
 
-#: classes/Content/Rest/NotFoundLogs.php:144
+#: classes/Content/Rest/NotFoundLogs.php:155
 msgid "A target URL is required to create a redirect."
 msgstr ""
 
-#: classes/Content/Rest/NotFoundLogs.php:154
+#: classes/Content/Rest/NotFoundLogs.php:165
 msgid "A redirect for this path already exists - manage it from the Redirects table above."
 msgstr ""
 
@@ -2474,6 +2474,26 @@ msgstr ""
 
 #: classes/SeoVisibility/SitemapStylesheet.php:202
 msgid "Priority"
+msgstr ""
+
+#: classes/SeoVisibility/SocialMetaTagsManager.php:182
+msgid "Written by"
+msgstr ""
+
+#: classes/SeoVisibility/SocialMetaTagsManager.php:188
+msgid "Time to read"
+msgstr ""
+
+#. translators: %d is how many minutes this post/page takes to read.
+#: classes/SeoVisibility/SocialMetaTagsManager.php:279
+#, php-format
+msgid "%d minute"
+msgid_plural "%d minutes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: classes/SeoVisibility/SocialMetaTagsManager.php:284
+msgid "Less than a minute"
 msgstr ""
 
 #: classes/Settings/GoogleAdSenseClient.php:38
@@ -5336,6 +5356,58 @@ msgid "e.g. Downtown Store | 123 Main St, Springfield."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Written into the Organization structured data every page on your site carries, and shown to search engines, social platforms, and AI assistants."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Organization name"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Defaults to your site title when left blank."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Contact email"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Contact phone"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "+1 555 0100"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Street address"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "City"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "State/region"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Postal code"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Country"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Social profile URLs"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "One per line - Facebook, X/Twitter, LinkedIn, etc. Listed as this Organization's sameAs URLs."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Competitors"
 msgstr ""
 
@@ -7354,6 +7426,18 @@ msgid "Social sharing metadata so supported platforms can display page titles, d
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "X/Twitter username"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "@yoursite"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Adds twitter:site (and twitter:creator, absent a per-post author handle) to the tags above. Leave blank to omit both."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Manage sitemap discovery and identify crawler restrictions that may prevent search engines and AI bots from accessing your content."
 msgstr ""
 
@@ -9171,6 +9255,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Orders, revenue, and conversion data aren't connected in this version."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Based on your site's own open performance findings - not yet a real Lighthouse score. Connect Google PageSpeed Insights below for one."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -11021,6 +11109,18 @@ msgstr ""
 
 #: assets/js/index.js:5
 msgid "Most recent"
+msgstr ""
+
+#: assets/js/index.js:5
+msgid "No. of all inlinks"
+msgstr ""
+
+#: assets/js/index.js:5
+msgid "First found at"
+msgstr ""
+
+#: assets/js/index.js:5
+msgid "No referrer found - likely a direct visit or a bookmark."
 msgstr ""
 
 #: assets/js/index.js:5
