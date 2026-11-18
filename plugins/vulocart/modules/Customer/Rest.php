@@ -88,9 +88,16 @@ class Rest extends \WP_REST_Controller {
             VuloCart()->rest_namespace,
             '/customers',
             array(
-                'methods'             => \WP_REST_Server::READABLE,
-                'callback'            => array( $this, 'get_items' ),
-                'permission_callback' => array( $this, 'admin_permissions_check' ),
+                array(
+                    'methods'             => \WP_REST_Server::READABLE,
+                    'callback'            => array( $this, 'get_items' ),
+                    'permission_callback' => array( $this, 'admin_permissions_check' ),
+                ),
+                array(
+                    'methods'             => \WP_REST_Server::CREATABLE,
+                    'callback'            => array( $this, 'create_item' ),
+                    'permission_callback' => array( $this, 'admin_permissions_check' ),
+                ),
             )
         );
 
@@ -362,6 +369,45 @@ class Rest extends \WP_REST_Controller {
         $response = rest_ensure_response( array_map( array( $this, 'prepare_for_response' ), $result['data'] ) );
         $response->header( 'X-WP-Total', (string) $result['total'] );
         $response->header( 'X-WP-TotalPages', (string) ceil( $result['total'] / max( 1, $per_page ) ) );
+
+        return $response;
+    }
+
+    /**
+     * Adds a customer by hand (Customers → Add New) - admin only. Email is required and is the customer's identity, so
+     * an email that already has a customer is refused rather than silently merged; the new row goes through the same
+     * CustomerService::find_or_create_by_email() every order uses, so `vulocart_customer_created` fires as usual.
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response|\WP_Error
+     */
+    public function create_item( $request ) {
+        $email = sanitize_email( (string) $request->get_param( 'email' ) );
+
+        if ( ! is_email( $email ) ) {
+            return new \WP_Error( 'vulocart_customer_invalid_email', __( 'Enter a valid email address.', 'vulocart' ), array( 'status' => 400 ) );
+        }
+
+        $existing = VuloCart()->customer_service->get_by_email( $email );
+
+        if ( $existing ) {
+            return new \WP_Error(
+                'vulocart_customer_exists',
+                __( 'A customer with this email already exists.', 'vulocart' ),
+                array(
+                    'status' => 409,
+                    'id'     => (int) $existing->id,
+                )
+            );
+        }
+
+        $name  = sanitize_text_field( (string) $request->get_param( 'name' ) );
+        $phone = sanitize_text_field( (string) $request->get_param( 'phone' ) );
+
+        $customer = VuloCart()->customer_service->find_or_create_by_email( $email, '' !== $name ? $name : null, '' !== $phone ? $phone : null );
+
+        $response = rest_ensure_response( $this->prepare_for_response( $customer ) );
+        $response->set_status( 201 );
 
         return $response;
     }

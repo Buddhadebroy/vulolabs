@@ -330,3 +330,652 @@
 	min-width: 0;
 	text-align: right;
 }
+
+// ---- Tiles as one strip: a single card with dividers between the numbers, and a small plain icon beside each
+// label, the same as the Dashboard's KPI row. ----
+.vulocart-inv-overview .vulocart-inv-tiles {
+	gap: 0;
+	border: 1px solid #e6e8f0;
+	border-radius: 0.625rem;
+	background: #fff;
+	overflow: hidden;
+}
+
+.vulocart-inv-overview .vulocart-inv-tile {
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	padding: 1.125rem 1.375rem;
+
+	& + .vulocart-inv-tile {
+		border-inline-start: 1px solid #e6e8f0;
+	}
+
+	.vulocart-inv-icon {
+		width: auto;
+		height: auto;
+		border-radius: 0;
+		background: transparent;
+		color: #6b7280;
+	}
+}
+
+// ---- Inventory → Overview, action first (InventoryOverview.tsx) ----
+// A focus banner (what to do now), then the restock queue beside a narrow side column (stock health, products not
+// tracking stock, shortcuts). Colour is only for urgency: red sold out, amber low, green all clear.
+.vulocart-inv-dash {
+	--inv-ink: #1f1b3e;
+	--inv-text: #374151;
+	--inv-muted: #6b7280;
+	--inv-line: #e6e8f0;
+	--inv-soft: #eef0f6;
+	--inv-accent: var(--vc-primary, #5007aa);
+
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+
+	h2,
+	h3,
+	p {
+		margin: 0;
+	}
+}
+
+// Shared small button: outlined, or filled for the main action.
+.vulocart-inv-btn {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	gap: 0.375rem;
+	height: 2.125rem;
+	padding: 0 0.875rem;
+	border: 1px solid #d9dbe5;
+	border-radius: 0.5rem;
+	background: #fff;
+	font: inherit;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	white-space: nowrap;
+	text-decoration: none;
+	color: var(--inv-ink, #1f1b3e);
+	cursor: pointer;
+	transition:
+		border-color 0.15s ease,
+		background 0.15s ease,
+		color 0.15s ease;
+
+	i {
+		font-size: 0.6875rem;
+	}
+
+	&:hover {
+		border-color: var(--inv-accent, #5007aa);
+		color: var(--inv-accent, #5007aa);
+	}
+
+	&.is-primary {
+		border-color: transparent;
+		background: var(--inv-accent, #5007aa);
+		color: #fff;
+
+		&:hover {
+			background: #3f0588;
+			color: #fff;
+		}
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--inv-accent, #5007aa);
+		outline-offset: 2px;
+	}
+}
+
+// 1. Focus banner.
+.vulocart-inv-focus {
+	--focus: #4b4a57;
+	--focus-bg: #f3f4f8;
+
+	display: flex;
+	align-items: center;
+	gap: 0.875rem;
+	padding: 1rem 1.25rem;
+	border: 1px solid var(--inv-line);
+	border-left: 3px solid var(--focus);
+	border-radius: 0.75rem;
+	background: #fff;
+
+	&.is-bad {
+		--focus: #dc2626;
+		--focus-bg: #fdecec;
+	}
+
+	&.is-warn {
+		--focus: #d97706;
+		--focus-bg: #fef3dc;
+	}
+
+	&.is-good {
+		--focus: #16a34a;
+		--focus-bg: #e7f6ee;
+	}
+
+	@media (max-width: 782px) {
+		flex-wrap: wrap;
+
+		.vulocart-inv-btn {
+			width: 100%;
+			justify-content: center;
+		}
+	}
+}
+
+.vulocart-inv-focus-icon {
+	display: inline-grid;
+	flex: none;
+	place-items: center;
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: 0.625rem;
+	background: var(--focus-bg);
+	color: var(--focus);
+
+	i {
+		font-size: 1.125rem;
+	}
+}
+
+.vulocart-inv-focus-text {
+	flex: 1;
+	min-width: 0;
+
+	h2 {
+		font-size: 1rem;
+		font-weight: 650;
+		line-height: 1.35;
+		color: var(--inv-ink);
+	}
+
+	p {
+		margin-top: 0.125rem;
+		font-size: 0.8125rem;
+		color: var(--inv-muted);
+	}
+}
+
+// 2 + 3. Queue beside the side column.
+.vulocart-inv-cols {
+	display: grid;
+	grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr);
+	gap: 1rem;
+	align-items: start;
+
+	@media (max-width: 1100px) {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.vulocart-inv-card {
+	min-width: 0;
+	padding: 1.125rem 1.25rem;
+	border: 1px solid var(--inv-line);
+	border-radius: 0.75rem;
+	background: #fff;
+	box-shadow: 0 1px 2px rgba(28, 27, 51, 0.03);
+}
+
+.vulocart-inv-card-head {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 0.75rem;
+	margin-bottom: 0.875rem;
+
+	h3 {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.9375rem;
+		font-weight: 600;
+		color: var(--inv-ink);
+	}
+
+	p {
+		margin-top: 0.125rem;
+		font-size: 0.75rem;
+		color: var(--inv-muted);
+	}
+
+	> a {
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		gap: 0.25rem;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		text-decoration: none;
+		color: var(--inv-accent);
+
+		i {
+			font-size: 0.625rem;
+		}
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+}
+
+.vulocart-inv-count {
+	display: inline-grid;
+	place-items: center;
+	min-width: 1.25rem;
+	height: 1.25rem;
+	padding: 0 0.375rem;
+	border-radius: 999px;
+	background: #f1f2f6;
+	font-size: 0.6875rem;
+	font-weight: 700;
+	color: var(--inv-text);
+}
+
+// The queue rows: units left, product (name, status, SKU), Restock.
+.vulocart-inv-queue-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+
+	li {
+		display: flex;
+		align-items: center;
+		gap: 0.875rem;
+		margin: 0;
+		padding: 0.75rem 0;
+		border-top: 1px solid var(--inv-soft);
+	}
+}
+
+.vulocart-inv-qty {
+	display: flex;
+	flex: none;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 3.5rem;
+	height: 3rem;
+	border-radius: 0.625rem;
+	line-height: 1;
+	white-space: nowrap;
+
+	strong {
+		font-size: 1.125rem;
+		font-weight: 700;
+	}
+
+	small {
+		margin-top: 0.125rem;
+		font-size: 0.625rem;
+		font-weight: 500;
+	}
+
+	.is-out & {
+		background: #fdecec;
+		color: #b42323;
+	}
+
+	.is-low & {
+		background: #fef3dc;
+		color: #a3550a;
+	}
+
+	.is-none & {
+		background: #f3f4f8;
+		color: #4b4a57;
+	}
+}
+
+.vulocart-inv-queue-main {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 0.25rem;
+	min-width: 0;
+	text-decoration: none;
+
+	> strong {
+		overflow: hidden;
+		font-size: 0.875rem;
+		font-weight: 600;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		color: var(--inv-ink);
+	}
+
+	> span {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	&:hover > strong {
+		color: var(--inv-accent);
+	}
+}
+
+.vulocart-inv-pill {
+	display: inline-flex;
+	align-items: center;
+	height: 1.25rem;
+	padding: 0 0.5rem;
+	border-radius: 999px;
+	font-size: 0.6875rem;
+	font-weight: 600;
+
+	&.is-out {
+		background: #fdecec;
+		color: #b42323;
+	}
+
+	&.is-low {
+		background: #fef3dc;
+		color: #a3550a;
+	}
+
+	&.is-none {
+		background: #f1f2f6;
+		color: #4b4a57;
+	}
+}
+
+.vulocart-inv-sku {
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: 0.6875rem;
+	color: var(--inv-muted);
+}
+
+.vulocart-inv-more-link {
+	display: block;
+	padding-top: 0.75rem;
+	border-top: 1px solid var(--inv-soft);
+	font-size: 0.8125rem;
+	font-weight: 600;
+	text-decoration: none;
+	color: var(--inv-accent);
+}
+
+.vulocart-inv-clear {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 2rem 1rem;
+	border-top: 1px solid var(--inv-soft);
+	text-align: center;
+
+	i {
+		display: inline-grid;
+		place-items: center;
+		width: 2.5rem;
+		height: 2.5rem;
+		margin-bottom: 0.25rem;
+		border-radius: 50%;
+		background: #e7f6ee;
+		font-size: 1rem;
+		color: #16a34a;
+	}
+
+	strong {
+		font-size: 0.9375rem;
+		color: var(--inv-ink);
+	}
+
+	span {
+		font-size: 0.8125rem;
+		color: var(--inv-muted);
+	}
+}
+
+.vulocart-inv-skeleton {
+	height: 9rem;
+	border-radius: 0.5rem;
+	background: linear-gradient(90deg, #f3f4f8 25%, #fafafc 50%, #f3f4f8 75%);
+	background-size: 200% 100%;
+	animation: vulocart-inv-shimmer 1.2s linear infinite;
+}
+
+@keyframes vulocart-inv-shimmer {
+	to {
+		background-position: -200% 0;
+	}
+}
+
+// Side column.
+.vulocart-inv-side {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	min-width: 0;
+
+	.vulocart-inv-health {
+		margin-top: 0.25rem;
+	}
+}
+
+.vulocart-inv-health-list {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.25rem;
+	margin: 0.875rem 0 0;
+	padding: 0;
+	list-style: none;
+
+	li {
+		margin: 0;
+	}
+
+	a {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.375rem 0.5rem;
+		border-radius: 0.375rem;
+		font-size: 0.8125rem;
+		text-decoration: none;
+		color: var(--inv-text);
+
+		&:hover {
+			background: #f6f7fa;
+		}
+
+		span {
+			flex: 1;
+		}
+
+		strong {
+			font-weight: 700;
+			color: var(--inv-ink);
+		}
+	}
+
+	i {
+		width: 0.5rem;
+		height: 0.5rem;
+		border-radius: 50%;
+
+		&.is-good {
+			background: #16a34a;
+		}
+
+		&.is-warn {
+			background: #f59e0b;
+		}
+
+		&.is-info {
+			background: #3b82f6;
+		}
+
+		&.is-bad {
+			background: #dc2626;
+		}
+	}
+}
+
+.vulocart-inv-warn {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.5rem;
+	border-color: #f6dfb0;
+	background: #fffbf2;
+
+	h3 {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: var(--inv-ink);
+
+		i {
+			font-size: 0.875rem;
+			color: #d97706;
+		}
+	}
+
+	p {
+		font-size: 0.8125rem;
+		line-height: 1.5;
+		color: var(--inv-text);
+	}
+}
+
+.vulocart-inv-side-title {
+	margin-bottom: 0.5rem !important;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: var(--inv-ink);
+}
+
+.vulocart-inv-links {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+
+	li {
+		margin: 0;
+	}
+
+	a {
+		display: flex;
+		align-items: center;
+		gap: 0.625rem;
+		padding: 0.5rem 0.25rem;
+		border-radius: 0.375rem;
+		font-size: 0.8125rem;
+		font-weight: 500;
+		text-decoration: none;
+		color: var(--inv-text);
+
+		i {
+			width: 1rem;
+			font-size: 0.875rem;
+			text-align: center;
+			color: var(--inv-muted);
+		}
+
+		&:hover {
+			background: #f6f7fa;
+			color: var(--inv-accent);
+
+			i {
+				color: inherit;
+			}
+		}
+	}
+}
+
+// Pro's forecast and activity panels keep their two-column grid under the queue.
+.vulocart-inv-extra {
+	margin: 0;
+}
+
+// WordPress admin and the engine page style bare lists and buttons; inside this dashboard, these win.
+.vulocart-inv-dash {
+	ul,
+	li {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.vulocart-inv-btn {
+		border: 1px solid #d9dbe5;
+		background: #fff;
+		color: var(--inv-ink);
+
+		&:hover:not(:disabled) {
+			border-color: var(--inv-accent);
+			background: #fff;
+			color: var(--inv-accent);
+		}
+
+		&.is-primary {
+			border-color: transparent;
+			background: var(--inv-accent);
+			color: #fff;
+
+			&:hover:not(:disabled) {
+				background: #3f0588;
+				color: #fff;
+			}
+		}
+
+		&.is-small {
+			height: 1.75rem;
+			padding: 0 0.625rem;
+			font-size: 0.75rem;
+		}
+
+		&:disabled {
+			opacity: 0.6;
+			cursor: default;
+		}
+	}
+
+	.vulocart-inv-health-list i.is-none,
+	.vulocart-inv-health span.is-none {
+		background: #c9ccd8;
+	}
+}
+
+// Untracked products, each with its own "Track" button.
+.vulocart-inv-untracked {
+	width: 100%;
+	margin: 0.125rem 0 0.25rem !important;
+	border-top: 1px solid #f6dfb0;
+
+	li {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		padding: 0.5rem 0 !important;
+		border-bottom: 1px solid #f6dfb0;
+
+		a {
+			min-width: 0;
+			overflow: hidden;
+			font-size: 0.8125rem;
+			font-weight: 500;
+			text-decoration: none;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			color: var(--inv-ink);
+
+			&:hover {
+				color: var(--inv-accent);
+			}
+		}
+	}
+}

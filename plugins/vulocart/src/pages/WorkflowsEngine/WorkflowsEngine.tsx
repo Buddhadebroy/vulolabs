@@ -9,7 +9,7 @@ interface WorkflowsEngineProps {
 const workflows: EngineView = {
 	title: __( 'Workflows', 'vulocart' ),
 	description: __(
-		'Automate what happens after an order, payment, refund, low-stock alert, new customer, delivered shipment, or AI event.',
+		'Automate what happens after orders, payments and other store events.',
 		'vulocart'
 	),
 	icon: 'automation',

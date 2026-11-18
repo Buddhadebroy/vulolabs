@@ -62,7 +62,7 @@ export function EngineTabs( { header, views, filterName, view, own = {} }: Engin
 			</div>
 
 			{ /* Remount per tab so one feature's state never leaks into the next. */ }
-			<div key={ active }>{ content || <ModuleRequired view={ views[ active ] } /> }</div>
+			<div key={ active }>{ content || <ModuleRequired view={ views[ active ] } previewKey={ active } /> }</div>
 		</EngineScreen>
 	);
 }

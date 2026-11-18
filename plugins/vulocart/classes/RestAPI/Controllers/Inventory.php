@@ -168,7 +168,7 @@ class Inventory extends \WP_REST_Controller {
     }
 
     /**
-     * Quick-updates one product's stock fields.
+     * Quick-updates one product's stock fields: quantity, status, and whether stock is tracked at all.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response|\WP_Error
@@ -189,6 +189,11 @@ class Inventory extends \WP_REST_Controller {
 
         if ( null !== $request->get_param( 'stock_status' ) && in_array( $request->get_param( 'stock_status' ), array( 'in_stock', 'out_of_stock', 'backorder' ), true ) ) {
             $meta['stock_status'] = $request->get_param( 'stock_status' );
+        }
+
+        // Turns "Track stock" on or off (the Inventory overview's "Track stock" buttons).
+        if ( null !== $request->get_param( 'stock_management' ) ) {
+            $meta['stock_management'] = rest_sanitize_boolean( $request->get_param( 'stock_management' ) );
         }
 
         $product = VuloCart()->product_service->update_product( $id, array( 'meta' => $meta ) );

@@ -3,7 +3,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import axios from 'axios';
 import type { ReactNode } from 'react';
-import { NoticeManager } from '@zyra/components';
+import { FilterComponent, NoticeManager } from '@zyra/components';
 import { showErrorToast, errorMessageOf } from '../../lib/rest-errors';
 import { getCountries, getStates } from '../../blocks/shared/geo';
 import './tax-rates-panel.scss';
@@ -253,13 +253,13 @@ function TaxRatesEditor() {
 					__( 'Tax classes', 'vulocart' ),
 					__( 'For products taxed at a different rate, like food or books. Pick a class, set its rates below, then choose it on the product\'s edit page. Products with no class use Standard.', 'vulocart' ),
 					<div className="vulocart-taxrates-classes">
-						<div className="vulocart-taxrates-chips" role="tablist" aria-label={ __( 'Tax classes', 'vulocart' ) }>
-							{ classes.map( ( item ) => (
-								<button key={ item.slug } type="button" role="tab" aria-selected={ item.slug === current } className={ item.slug === current ? 'is-active' : '' } onClick={ () => setCurrent( item.slug ) }>
-									{ item.name }
-								</button>
-							) ) }
-						</div>
+						<FilterComponent
+							className="vulocart-taxrates-chips"
+							label={ __( 'Tax classes', 'vulocart' ) }
+							options={ classes.map( ( item ) => ( { value: item.slug, label: item.name } ) ) }
+							value={ current }
+							onChange={ setCurrent }
+						/>
 						<div className="vulocart-taxrates-newclass">
 							<input type="text" placeholder={ __( 'New class, e.g. Digital goods', 'vulocart' ) } value={ newClass } onChange={ ( event ) => setNewClass( event.target.value ) } onKeyDown={ ( event ) => 'Enter' === event.key && addClass() } />
 							<button type="button" className="admin-btn btn-purple" onClick={ addClass } disabled={ '' === newClass.trim() }>

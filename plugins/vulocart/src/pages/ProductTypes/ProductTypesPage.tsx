@@ -6,6 +6,7 @@ import { getApiLink, getApiResponse } from '@zyra/core';
 import { CardComponent, ColumnComponent, ContainerComponent, NavigatorHeaderComponent, NoticeManager } from '@zyra/components';
 import '../Products/products-page.scss';
 import './product-types-page.scss';
+import UpgradeToPro from '../../components/Popup/UpgradeToPro';
 
 interface ProLink {
 	module: string;
@@ -87,7 +88,7 @@ export function ProductTypesPage() {
 				<NavigatorHeaderComponent
 					headerIcon="variable"
 					headerTitle={ __( 'Product Types', 'vulocart' ) }
-					headerDescription={ __( 'Choose which kinds of product you sell. A type you switch off is no longer offered when creating a new product.', 'vulocart' ) }
+					headerDescription={ __( 'The kinds of product you sell. A type that is off is not offered for new products.', 'vulocart' ) }
 				/>
 
 				<CardComponent isLoading={ isLoading }>
@@ -112,11 +113,10 @@ export function ProductTypesPage() {
 												) }
 											</span>
 										</div>
-										{ row.pro_only && (
+										{ /* The Pro tag only tells an unlicensed store what Pro would add. */ }
+										{ row.pro_only && ! proActive && (
 										<span className="vulocart-type-pro">
-											<svg viewBox="0 0 16 16" width="11" height="11" aria-hidden="true" focusable="false">
-												<path fill="currentColor" d="M1.5 5.5 4.6 8 8 3l3.4 5 3.1-2.5-1.2 7H2.7l-1.2-7Z" />
-											</svg>
+											<i className="adminfont-lock" aria-hidden="true" />
 											{ __( 'Pro', 'vulocart' ) }
 										</span>
 										) }
@@ -145,9 +145,9 @@ export function ProductTypesPage() {
 									<p>{ row.description }</p>
 
 									<div className="vulocart-type-links vulocart-type-pro-links">
-										<span className="vulocart-type-links-label">{ __( 'Pro tools', 'vulocart' ) }</span>
+										<span className="vulocart-type-links-label">{ proActive ? __( 'Manage', 'vulocart' ) : __( 'Pro tools', 'vulocart' ) }</span>
 										{ ! proActive ? (
-											<a href={ `${ adminUrl }admin.php?page=vulocart#&tab=settings&subtab=licensing` }>{ __( 'Activate license', 'vulocart' ) }</a>
+											<UpgradeToPro className="vulocart-type-upgrade" label={ __( 'See what Pro adds', 'vulocart' ) } feature={ { title: humanize( row.type ), description: row.description, icon: TYPE_ICONS[ row.type ] ?? 'catalog' } } />
 										) : (
 											<>
 												{ row.pro && <a href={ manageUrl }>{ row.pro.label }</a> }

@@ -1,10 +1,12 @@
 /* global vulocartLocalizer */
 import { useEffect, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import type { ReactNode } from 'react';
 import axios from 'axios';
 import { getApiLink } from '@zyra/core';
 import { showToast } from '../../lib/rest-errors';
 import { TYPE_PROFILES, lockedSubtypeModule, type TypeProfile } from './typeProfiles';
+import UpgradeToPro from '../../components/Popup/UpgradeToPro';
 
 interface StoreType {
 	type: string;
@@ -63,12 +65,12 @@ const reasonOff = ( row: StoreType | undefined ): string | null => {
 };
 
 /**
- * The first screen of "Add Product": what are you selling? One card per type with a line of help. Types the store has
- * switched off (Products → Product Types), or that need Pro or a module that is off, are shown greyed out with the
- * reason, so the choice is clear without hiding what exists. Picking an available one opens the editor with that type
- * (and its first kind) already chosen. "Skip" opens the editor with the first available type.
+ * The first screen of "Add Product": what are you selling? A card for each type that can be started now; picking one
+ * opens the editor with that type (and its first kind, or the kind chip clicked) already chosen. Types that cannot be
+ * started yet are listed below as small tiles, grouped by what unlocks them (a module, Product Types, VuloCart Pro),
+ * each group with its one way forward - so they stay visible without crowding out the real choices.
  */
-export function TypeChooser( { onChoose, onSkip }: { onChoose: ( type: string, subtype?: string ) => void; onSkip: ( type: string ) => void } ) {
+export function TypeChooser( { onChoose }: { onChoose: ( type: string, subtype?: string ) => void } ) {
 	const [ rows, setRows ] = useState< StoreType[] | null >( null );
 	const [ skipNext, setSkipNext ] = useState( false );
 
@@ -101,9 +103,13 @@ export function TypeChooser( { onChoose, onSkip }: { onChoose: ( type: string, s
 	const all: ChooserCard[] = [];
 
 	profiles.forEach( ( profile ) => {
-		const off = rows ? reasonOff( rows.find( ( row ) => row.type === profile.value ) ) : null;
+		const row = rows?.find( ( item ) => item.type === profile.value );
+		// A licensed store whose type only waits on a Pro module gets a one-click switch instead of a reason.
+		const moduleOff =
+			!! row?.pro && row.enabled && !! vulocartLocalizer.khali_dabba && ! vulocartLocalizer.active_modules.includes( row.pro.module );
+		const off = moduleOff ? null : reasonOff( row );
 
-		all.push( { key: profile.value, profile, off, needs: null } );
+		all.push( { key: profile.value, profile, off, needs: moduleOff && row?.pro ? { module: row.pro.module, name: row.pro.label } : null } );
 
 		// A physical product with options gets its own card, so "Variable product" is a first-class choice. It is
 		// a Physical product of kind Variable, so it follows Physical's availability and Product Variants'.
@@ -132,24 +138,39 @@ export function TypeChooser( { onChoose, onSkip }: { onChoose: ( type: string, s
 	} );
 
 	const isOff = ( card: ChooserCard ) => !! card.off || !! card.needs;
-	// Types that can be picked come first, in their usual order; the unavailable ones follow.
-	const states = [ ...all.filter( ( state ) => ! isOff( state ) ), ...all.filter( isOff ) ];
-	const firstAvailable = states.find( ( state ) => ! isOff( state ) )?.profile;
-	const offCount = states.filter( isOff ).length;
+	const available = all.filter( ( card ) => ! isOff( card ) );
+	const unavailable = all.filter( isOff );
 
 	// The Variable product card switches Product Variants on in place, as the editor's module hints do.
-	const [ activating, setActivating ] = useState( false );
+	const [ activating, setActivating ] = useState< string | null >( null );
 	const activate = ( module: string ) => {
-		setActivating( true );
+		setActivating( module );
 
 		axios
 			.post( `${ vulocartLocalizer.apiUrl }/${ vulocartLocalizer.restUrl }/modules`, { id: module, action: 'activate' }, { headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } } )
 			.then( () => window.location.reload() )
 			.catch( () => {
-				setActivating( false );
+				setActivating( null );
 				showToast( 'error', __( 'Could not turn the module on. Try again from Modules.', 'vulocart' ) );
 			} );
 	};
+
+	// Unavailable types are grouped by what it takes to use them, so each group needs only one way forward.
+	const needsPro = unavailable.filter( ( card ) => card.off === __( 'Needs VuloCart Pro', 'vulocart' ) );
+	const turnedOff = unavailable.filter( ( card ) => card.off && canEnable( card.off ) );
+	const needsModule = unavailable.filter( ( card ) => ! needsPro.includes( card ) && ! turnedOff.includes( card ) );
+
+	const tile = ( { key, profile, off, needs }: ChooserCard, action?: ReactNode ) => (
+		<li key={ key } className="vulocart-type-tile" title={ profile.hint }>
+			<span className="vulocart-type-tile-icon">
+				<i className={ `adminfont-${ profile.icon }` } aria-hidden="true" />
+			</span>
+			<span className="vulocart-type-tile-text">
+				<strong>{ profile.label }</strong>
+				{ action ?? ( off && ! needs && needsModule.some( ( card ) => card.key === key ) ? <small>{ off }</small> : null ) }
+			</span>
+		</li>
+	);
 
 	return (
 		<div className="vulocart-product-edit-page vulocart-type-chooser">
@@ -159,112 +180,105 @@ export function TypeChooser( { onChoose, onSkip }: { onChoose: ( type: string, s
 				<span aria-current="page">{ __( 'Add Product', 'vulocart' ) }</span>
 			</nav>
 
-			<header>
+			<header className="vulocart-type-head">
 				<h1 className="vulocart-edit-page-title">{ __( 'What are you selling?', 'vulocart' ) }</h1>
-				<p className="vulocart-product-edit-subtitle">
-					{ __( 'Pick the closest match. It sets up the right fields, and you can change it later.', 'vulocart' ) }
-					{ offCount > 0 && (
-						<>
-							{ ' ' }
-							{ __( 'Greyed-out types are not enabled for this store.', 'vulocart' ) }{ ' ' }
-							<a href="admin.php?page=products&view=product-types">{ __( 'Manage product types', 'vulocart' ) }</a>
-						</>
-					) }
-				</p>
+				<p className="vulocart-product-edit-subtitle">{ __( 'It sets up the right fields. You can change it later.', 'vulocart' ) }</p>
 			</header>
 
+			{ /* Types that can be started now: the whole card starts the type; the chips start a specific kind of it. */ }
 			<ul className="vulocart-type-grid">
-				{ states.map( ( { key, kind: startKind, profile, off, needs } ) => (
-					<li key={ key } className={ off || needs ? 'is-off' : undefined }>
-						{ needs ? (
-							<div className="vulocart-type-card-off">
-								<span className="vulocart-type-icon">
-									<i className={ `adminfont-${ profile.icon }` } aria-hidden="true" />
-								</span>
+				{ available.map( ( { key, kind: startKind, profile } ) => (
+					<li key={ key } className="vulocart-type-card">
+						<button type="button" className="vulocart-type-card-main" onClick={ () => onChoose( profile.value, startKind ) }>
+							<span className="vulocart-type-icon">
+								<i className={ `adminfont-${ profile.icon }` } aria-hidden="true" />
+							</span>
+							<span className="vulocart-type-card-text">
 								<strong>{ profile.label }</strong>
 								<small>{ profile.hint }</small>
-								<button type="button" className="vulocart-type-enable" disabled={ activating } onClick={ () => activate( needs.module ) }>
-									{ activating
-										? __( 'Turning on…', 'vulocart' )
-										: sprintf( /* translators: %s: module name, e.g. Product Variants. */ __( 'Turn on %s', 'vulocart' ), needs.name ) }
-									<i className="adminfont-pagination-next-arrow" aria-hidden="true" />
-								</button>
-							</div>
-						) : off ? (
-							<div className="vulocart-type-card-off">
-								<span className="vulocart-type-icon">
-									<i className={ `adminfont-${ profile.icon }` } aria-hidden="true" />
-								</span>
-								<strong>{ profile.label }</strong>
-								<small>{ profile.hint }</small>
-								{ ! canEnable( off ) && <span className="vulocart-type-off">{ off }</span> }
-								{ canEnable( off ) && (
-									<a className="vulocart-type-enable" href="admin.php?page=products&view=product-types">
-										{ __( 'Enable in Product Types', 'vulocart' ) }
-										<i className="adminfont-pagination-next-arrow" aria-hidden="true" />
-									</a>
-								) }
-							</div>
-						) : (
-							<div className="vulocart-type-card">
-								<button type="button" className="vulocart-type-card-main" onClick={ () => onChoose( profile.value, startKind ) }>
-									<span className="vulocart-type-icon">
-										<i className={ `adminfont-${ profile.icon }` } aria-hidden="true" />
-									</span>
-									<strong>{ profile.label }</strong>
-									<small>{ profile.hint }</small>
-								</button>
-								{ kindsShown( profile ).length > 1 && (
-									<div
-										className="vulocart-type-kinds"
-										role="group"
-										aria-label={ sprintf( /* translators: %s: product type, e.g. "Physical". */ __( 'Start a %s product as', 'vulocart' ), profile.label ) }
-									>
-										{ kindsShown( profile ).map( ( kind ) => {
-											const locked = lockedSubtypeModule( profile.value, kind.value, vulocartLocalizer.active_modules );
-											const lockedText = locked
-												? sprintf( /* translators: %s: module name. */ __( 'Turn on %s in Modules to use this.', 'vulocart' ), locked.name )
-												: '';
+							</span>
+							<i className="adminfont-pagination-next-arrow vulocart-type-go" aria-hidden="true" />
+						</button>
+						{ kindsShown( profile ).length > 1 && (
+							<div
+								className="vulocart-type-kinds"
+								role="group"
+								aria-label={ sprintf( /* translators: %s: product type, e.g. "Physical". */ __( 'Start a %s product as', 'vulocart' ), profile.label ) }
+							>
+								{ kindsShown( profile ).map( ( kind ) => {
+									const locked = lockedSubtypeModule( profile.value, kind.value, vulocartLocalizer.active_modules );
+									const lockedText = locked
+										? sprintf( /* translators: %s: module name. */ __( 'Turn on %s in Modules to use this.', 'vulocart' ), locked.name )
+										: '';
 
-											return (
-												<button
-													key={ kind.value }
-													type="button"
-													className={ `vulocart-type-kind${ locked ? ' is-locked' : '' }` }
-													disabled={ !! locked }
-													title={ locked ? lockedText : kind.hint }
-													aria-label={ locked ? `${ kind.label }: ${ lockedText }` : `${ kind.label }: ${ kind.hint }` }
-													onClick={ () => onChoose( profile.value, kind.value ) }
-												>
-													{ locked && <i className="adminfont-lock" aria-hidden="true" /> }
-													{ kind.label }
-												</button>
-											);
-										} ) }
-									</div>
-								) }
+									return (
+										<button
+											key={ kind.value }
+											type="button"
+											className={ `vulocart-type-kind${ locked ? ' is-locked' : '' }` }
+											disabled={ !! locked }
+											title={ locked ? lockedText : kind.hint }
+											aria-label={ locked ? `${ kind.label }: ${ lockedText }` : `${ kind.label }: ${ kind.hint }` }
+											onClick={ () => onChoose( profile.value, kind.value ) }
+										>
+											{ locked && <i className="adminfont-lock" aria-hidden="true" /> }
+											{ kind.label }
+										</button>
+									);
+								} ) }
 							</div>
 						) }
 					</li>
 				) ) }
 			</ul>
 
-			<div className="vulocart-type-skip">
-				{ firstAvailable && (
-					<button type="button" className="vulocart-type-skip-button" onClick={ () => onSkip( firstAvailable.value ) }>
-						{ sprintf(
-							/* translators: %s: product type, e.g. "Physical". */
-							__( 'Skip - start with %s', 'vulocart' ),
-							firstAvailable.label
+			{ needsModule.length > 0 && (
+				<section className="vulocart-type-more">
+					<h2>{ __( 'Needs a module', 'vulocart' ) }</h2>
+					<ul className="vulocart-type-tiles">
+						{ needsModule.map( ( card ) =>
+							tile(
+								card,
+								card.needs ? (
+									<button type="button" className="vulocart-type-enable" disabled={ null !== activating } onClick={ () => activate( card.needs!.module ) }>
+										{ activating === card.needs.module
+											? __( 'Turning on…', 'vulocart' )
+											: sprintf( /* translators: %s: module name, e.g. Product Variants. */ __( 'Turn on %s', 'vulocart' ), card.needs.name ) }
+									</button>
+								) : undefined
+							)
 						) }
-						<i className="adminfont-pagination-next-arrow" aria-hidden="true" />
-					</button>
-				) }
-				<label className="vulocart-type-skip-remember">
-					<input type="checkbox" checked={ skipNext } onChange={ ( event ) => rememberChoice( event.target.checked ) } />
-					{ __( 'Don\'t show this step again - I\'ll pick the type on the product page', 'vulocart' ) }
-				</label>
-			</div>
+					</ul>
+				</section>
+			) }
+
+			{ turnedOff.length > 0 && (
+				<section className="vulocart-type-more">
+					<h2>
+						{ __( 'Turned off for this store', 'vulocart' ) }
+						<a href="admin.php?page=products&view=product-types">{ __( 'Manage product types', 'vulocart' ) }</a>
+					</h2>
+					<ul className="vulocart-type-tiles">{ turnedOff.map( ( card ) => tile( card ) ) }</ul>
+				</section>
+			) }
+
+			{ needsPro.length > 0 && (
+				<section className="vulocart-type-more is-pro">
+					<h2>
+						<span>
+							<i className="adminfont-pro-tag" aria-hidden="true" />
+							{ sprintf( /* translators: %d: number of product types. */ _n( '%d more type with VuloCart Pro', '%d more types with VuloCart Pro', needsPro.length, 'vulocart' ), needsPro.length ) }
+						</span>
+						<UpgradeToPro className="" />
+					</h2>
+					<ul className="vulocart-type-tiles">{ needsPro.map( ( card ) => tile( card ) ) }</ul>
+				</section>
+			) }
+
+			<label className="vulocart-type-remember">
+				<input type="checkbox" checked={ skipNext } onChange={ ( event ) => rememberChoice( event.target.checked ) } />
+				{ __( 'Skip this step next time', 'vulocart' ) }
+			</label>
 		</div>
 	);
 }

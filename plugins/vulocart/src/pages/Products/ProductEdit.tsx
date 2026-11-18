@@ -1,8 +1,8 @@
 /* global vulocartLocalizer */
 import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
-import { formatWpDateTime } from '../../services/formatWpDate';
+import { formatWpDate, formatWpDateTime } from '../../services/formatWpDate';
 import { PriceList } from './PriceList';
 import { ContentBlock, FaqEditor, SeoFields, SpecsEditor, TranslationsEditor } from './ContentFields';
 import type { FaqRow, SpecRow, Translation } from './ContentFields';
@@ -15,15 +15,17 @@ import axios from 'axios';
 import TaxFields from './TaxFields';
 import { getApiLink } from '@zyra/core';
 import { showErrorToast, showToast, errorMessageOf } from '../../lib/rest-errors';
-import { CardComponent, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
+import { CardComponent, FormGroupWrapperComponent, FormGroupComponent, SaveStatusComponent } from '@zyra/components';
 import { TextInput, TextAreaInput, SelectInput, ButtonInput, MultiCheckboxInput, FileInput } from '@zyra/inputs';
 import { EmbedCodeSection } from './EmbedCodeSection';
+import { CollapsibleCard } from './CollapsibleCard';
 import { HeaderPicker } from './HeaderPicker';
 import { ProModuleHint } from './ProModuleHint';
 import { TypeChooser } from './TypeChooser';
 import { BookingDetails } from './BookingDetails';
 import { TYPE_PROFILES, cardsFor, fieldsFor, lockedSubtypeModule, profileFor, subtypeFor, type TypeDetailField } from './typeProfiles';
 import './products-page.scss';
+import { CURRENCIES } from '../../lib/currencies';
 
 const PRODUCT_STATUS_OPTIONS = [
 	{ label: __( 'Draft', 'vulocart' ), value: 'draft' },
@@ -57,9 +59,8 @@ const SHIPPING_CLASS_OPTIONS = [
 	{ label: __( 'Free shipping', 'vulocart' ), value: 'free_shipping' },
 ];
 
-const CURRENCY_OPTIONS = [ 'USD', 'EUR', 'GBP', 'INR', 'AUD', 'CAD', 'JPY', 'CNY', 'CHF', 'SGD', 'AED', 'BRL', 'MXN', 'ZAR', 'SEK', 'NOK', 'DKK', 'NZD' ].map(
-	( code ) => ( { label: code, value: code } )
-);
+// The compact picker in the Pricing card header shows the code only.
+const CURRENCY_OPTIONS = CURRENCIES.map( ( { code } ) => ( { label: code, value: code } ) );
 
 interface CategoryTerm {
 	id: number;
@@ -145,6 +146,13 @@ const PRICE_LIST_HINTS: Record< string, string > = {
 	membership: __( 'For a recurring membership, add a Subscription price (Pro). The access length below applies to every price.', 'vulocart' ),
 	rental: __( 'Add one price per rental period if the rate differs - for example per day and per week.', 'vulocart' ),
 };
+
+/** A comma-separated id list (related / add-on products) as an array, without blanks. */
+const idList = ( value: string ): string[] =>
+	value
+		.split( ',' )
+		.map( ( item ) => item.trim() )
+		.filter( Boolean );
 
 interface MediaItem {
 	id: number;
@@ -474,6 +482,39 @@ export function ProductEdit( { id }: ProductEditProps ) {
 	const variantMode = cards.variants && variantsOn;
 	const tracksStock = cards.inventory && ! variantMode;
 
+	// Collapsed cards say what is set inside them, so nothing has to be opened just to check.
+	const nothingSet = __( 'Nothing added yet', 'vulocart' );
+	const counted = ( count: number, text: string ) => ( count ? sprintf( text, count ) : '' );
+	const relatedCount = idList( formData.relatedProducts ).length;
+	const addonCount = idList( formData.addonProducts ).length;
+	const specCount = formData.specifications.filter( ( row ) => row.key.trim() ).length;
+	const faqCount = formData.faqs.filter( ( row ) => row.question.trim() ).length;
+	const translationCount = Object.keys( formData.translations || {} ).length;
+	const policiesSummary =
+		[
+			cards.shippingPolicy && formData.shippingPolicy.trim() ? __( 'Shipping policy', 'vulocart' ) : '',
+			formData.refundPolicy.trim() ? __( 'Refund policy', 'vulocart' ) : '',
+			cards.cancellation && formData.cancellationPolicy.trim() ? __( 'Cancellation policy', 'vulocart' ) : '',
+			/* translators: %d: number of products. */
+			counted( relatedCount, _n( '%d related product', '%d related products', relatedCount, 'vulocart' ) ),
+			/* translators: %d: number of products. */
+			counted( addonCount, _n( '%d checkout add-on', '%d checkout add-ons', addonCount, 'vulocart' ) ),
+		]
+			.filter( Boolean )
+			.join( ' · ' ) || nothingSet;
+	const contentSummary =
+		[
+			formData.seoTitle.trim() || formData.seoDescription.trim() ? __( 'Search listing', 'vulocart' ) : '',
+			/* translators: %d: number of specifications. */
+			counted( specCount, _n( '%d specification', '%d specifications', specCount, 'vulocart' ) ),
+			/* translators: %d: number of questions. */
+			counted( faqCount, _n( '%d question', '%d questions', faqCount, 'vulocart' ) ),
+			/* translators: %d: number of languages. */
+			counted( translationCount, _n( '%d translation', '%d translations', translationCount, 'vulocart' ) ),
+		]
+			.filter( Boolean )
+			.join( ' · ' ) || nothingSet;
+
 	// `...&action=add&type=booking` opens the editor with that type already chosen.
 	useEffect( () => {
 		const wanted = new URLSearchParams( window.location.search ).get( 'type' );
@@ -558,6 +599,23 @@ export function ProductEdit( { id }: ProductEditProps ) {
 
 				return null;
 			} );
+
+	// Other products, by name, for "Related products" and "Checkout add-ons" (stored as comma-separated ids).
+	const [ productOptions, setProductOptions ] = useState< TermOption[] >( [] );
+
+	useEffect( () => {
+		axios
+			.get< { id: number; title: string }[] >( getApiLink( vulocartLocalizer, 'products' ), {
+				headers: { 'X-WP-Nonce': vulocartLocalizer.nonce },
+				params: { per_page: 100 },
+			} )
+			.then( ( response ) =>
+				setProductOptions(
+					( response.data || [] ).filter( ( product ) => product.id !== id ).map( ( product ) => ( { value: String( product.id ), label: product.title || `#${ product.id }` } ) )
+				)
+			)
+			.catch( () => setProductOptions( [] ) );
+	}, [ id ] );
 
 	useEffect( () => {
 		axios
@@ -1149,13 +1207,6 @@ export function ProductEdit( { id }: ProductEditProps ) {
 					update( { type, subtype: kind ?? profileFor( type ).subtypes[ 0 ].value } );
 					setTypeChosen( true );
 				} }
-				onSkip={ ( type ) => {
-					if ( type !== formData.type ) {
-						update( { type, subtype: profileFor( type ).subtypes[ 0 ].value } );
-					}
-
-					setTypeChosen( true );
-				} }
 			/>
 		);
 	}
@@ -1184,7 +1235,7 @@ export function ProductEdit( { id }: ProductEditProps ) {
 					<nav className="vulocart-breadcrumbs" aria-label={ __( 'Breadcrumb', 'vulocart' ) }>
 						<a href="admin.php?page=products">{ __( 'Products', 'vulocart' ) }</a>
 						<i className="adminfont-pagination-next-arrow" aria-hidden="true" />
-						<span aria-current="page">{ isEditMode ? __( 'Edit Product', 'vulocart' ) : __( 'Add Product', 'vulocart' ) }</span>
+						<span aria-current="page">{ isEditMode ? formData.title || __( 'Edit Product', 'vulocart' ) : __( 'Add Product', 'vulocart' ) }</span>
 					</nav>
 					<h1 className="vulocart-edit-page-title">
 						{ variantMode
@@ -1193,109 +1244,88 @@ export function ProductEdit( { id }: ProductEditProps ) {
 								: __( 'Add Variable Product', 'vulocart' )
 							: isEditMode
 							? formData.title || __( 'Untitled product', 'vulocart' )
-							: sprintf( /* translators: %s: product type, e.g. Service. */ __( 'Add %s', 'vulocart' ), profile.label ) }
+							: __( 'Add product', 'vulocart' ) }
 					</h1>
-					<div className="vulocart-title-meta">
-						{ variantMode && (
-							<span className="vulocart-pill is-type is-variable" title={ subtype.hint }>
-								<i className="vulocart-pill-dot" aria-hidden="true" />
-								{ subtype.label }
-							</span>
-						) }
-						<span className={ `vulocart-pill ${ variantMode ? 'is-kind' : 'is-type' }` } title={ profile.hint }>
-							<i className={ `adminfont-${ profile.icon }` } aria-hidden="true" />
-							{ profile.label }
-						</span>
-						{ ! variantMode && profile.subtypes.length > 1 && (
-							<span className="vulocart-pill is-kind" title={ subtype.hint }>
-								{ subtype.label }
-							</span>
-						) }
-						{ isEditMode && formData.sku ? (
-							<span className="vulocart-pill is-sku" title={ __( 'SKU', 'vulocart' ) }>
-								<small>{ __( 'SKU', 'vulocart' ) }</small>
-								{ formData.sku }
-							</span>
-						) : null }
-						{ isEditMode && permalink && (
-							<a className="vulocart-view-link" href={ permalink } target="_blank" rel="noopener noreferrer">
-								{ 'published' === formData.status ? __( 'View product', 'vulocart' ) : __( 'Preview product', 'vulocart' ) }
-								<span aria-hidden="true">↗</span>
-							</a>
-						) }
-					</div>
-					{ ! isEditMode && <p className="vulocart-product-edit-subtitle">{ subtype.hint }</p> }
+					{ /* The type picked on the "What are you selling?" step, as one chip; its hint is the tooltip, and
+					      clicking it goes back to that step. The type and kind can also be changed in Product Details. */ }
 					{ ! isEditMode && (
-						<button type="button" className="vulocart-change-type" onClick={ bringBackTypeStep }>
-							<i className="adminfont-pagination-prev-arrow" aria-hidden="true" />
-							{ vulocartLocalizer.ask_product_type
-								? __( 'Change product type', 'vulocart' )
-								: __( 'Show the "What are you selling?" step again', 'vulocart' ) }
+						<button
+							type="button"
+							className="vulocart-type-chip"
+							onClick={ bringBackTypeStep }
+							title={ subtype.hint }
+						>
+							<span className="vulocart-type-chip-icon" aria-hidden="true">
+								<i className={ `adminfont-${ profile.icon }` } />
+							</span>
+							<span className="vulocart-type-chip-label">
+								{ profile.label }
+								<span aria-hidden="true">·</span>
+								{ subtype.label }
+							</span>
+							<span className="vulocart-type-chip-action">
+								{ vulocartLocalizer.ask_product_type ? __( 'Change', 'vulocart' ) : __( 'Change type', 'vulocart' ) }
+							</span>
 						</button>
 					) }
 				</div>
 
 				<div className="vulocart-topbar-actions">
 					<div className="vulocart-topbar-status" ref={ statusRef }>
-						<div className="vulocart-status-row">
-							<span className={ `vulocart-status-tag is-${ formData.status }` }>
-								<i aria-hidden="true" />
-								{ PRODUCT_STATUS_OPTIONS.find( ( option ) => option.value === formData.status )?.label ?? formData.status }
-							</span>
-							<button
-								type="button"
-								className="vulocart-status-edit"
-								aria-haspopup="menu"
-								aria-expanded={ showStatusMenu }
-								aria-label={ __( 'Change status', 'vulocart' ) }
-								title={ __( 'Change status', 'vulocart' ) }
-								onClick={ () => setShowStatusMenu( ! showStatusMenu ) }
-							>
-								<i className="adminfont-edit" aria-hidden="true" />
-							</button>
-						</div>
-						{ publishedAt && 'published' === formData.status && (
-							<span className="vulocart-topbar-published">
-								<i className="adminfont-calendar" aria-hidden="true" />
-								{ __( 'Published on', 'vulocart' ) } { formatWpDateTime( publishedAt ) }
-							</span>
-						) }
+						<button
+							type="button"
+							className={ `vulocart-status-trigger vulocart-status-tag is-${ formData.status }` }
+							aria-haspopup="menu"
+							aria-expanded={ showStatusMenu }
+							title={ __( 'Change status', 'vulocart' ) }
+							onClick={ () => setShowStatusMenu( ! showStatusMenu ) }
+						>
+							<i aria-hidden="true" />
+							{ PRODUCT_STATUS_OPTIONS.find( ( option ) => option.value === formData.status )?.label ?? formData.status }
+							<span className="adminfont-keyboard-arrow-down" aria-hidden="true" />
+						</button>
 						{ showStatusMenu && (
 							<ul className="vulocart-status-menu" role="menu">
 								{ PRODUCT_STATUS_OPTIONS.map( ( option ) => (
 									<li key={ option.value }>
 										<button
-											type="button"
-											role="menuitemradio"
-											aria-checked={ option.value === formData.status }
-											className={ option.value === formData.status ? 'is-active' : '' }
-											onClick={ () => {
-												update( { status: option.value } );
-												setShowStatusMenu( false );
-											} }
+										type="button"
+										role="menuitemradio"
+										aria-checked={ option.value === formData.status }
+										className={ option.value === formData.status ? 'is-active' : '' }
+										onClick={ () => {
+											update( { status: option.value } );
+											setShowStatusMenu( false );
+										} }
 										>
-											<span className={ `vulocart-status-tag is-${ option.value }` }>
-												<i aria-hidden="true" />
-												{ option.label }
-											</span>
-											{ option.value === formData.status && <i className="adminfont-check" aria-hidden="true" /> }
+										<span className={ `vulocart-status-tag is-${ option.value }` }>
+											<i aria-hidden="true" />
+											{ option.label }
+										</span>
+										{ option.value === formData.status && <i className="adminfont-check" aria-hidden="true" /> }
 										</button>
 									</li>
 								) ) }
 							</ul>
 						) }
+						{ publishedAt && 'published' === formData.status && (
+							<span className="vulocart-status-since" title={ formatWpDateTime( publishedAt ) }>
+								{ sprintf( /* translators: %s: date the product was published. */ __( 'Since %s', 'vulocart' ), formatWpDate( publishedAt ) ) }
+							</span>
+						) }
 					</div>
-					{ isDirty && (
+					{ /* SaveStatusComponent has no "unsaved" state, so that one keeps its own warning pill. */ }
+					{ ! isSaving && isDirty && (
 						<span className="vulocart-unsaved" role="status">
 							<i aria-hidden="true" />
 							{ __( 'Unsaved changes', 'vulocart' ) }
 						</span>
 					) }
-					{ ! isDirty && savedNotice && (
-						<span className="vulocart-unsaved is-saved" role="status">
-							<i aria-hidden="true" />
-							{ __( 'All changes saved', 'vulocart' ) }
-						</span>
+					{ ( isSaving || ( ! isDirty && savedNotice ) ) && (
+						<SaveStatusComponent
+							status={ isSaving ? 'saving' : 'saved' }
+							labels={ { saving: __( 'Saving…', 'vulocart' ), saved: __( 'All changes saved', 'vulocart' ) } }
+						/>
 					) }
 					<div className="vulocart-progress-anchor" ref={ progressRef }>
 					<button
@@ -1345,6 +1375,13 @@ export function ProductEdit( { id }: ProductEditProps ) {
 						</section>
 					) }
 					</div>
+				{ /* Opens the storefront page: a secondary button, the same size as Update beside it. */ }
+				{ isEditMode && permalink && (
+					<a className="admin-btn btn-purple vulocart-view-button" href={ permalink } target="_blank" rel="noopener noreferrer">
+						<i className="adminfont-eye" aria-hidden="true" />
+						{ 'published' === formData.status ? __( 'View', 'vulocart' ) : __( 'Preview', 'vulocart' ) }
+					</a>
+				) }
 				<ButtonInput
 					buttons={ [
 						{
@@ -1444,7 +1481,6 @@ export function ProductEdit( { id }: ProductEditProps ) {
 								</button>
 							</span>
 						}
-						desc={ __( 'Tell customers what you are selling.', 'vulocart' ) }
 						action={
 						<div className="vulocart-details-actions vulocart-topbar-controls">
 							{ profile.subtypes.length > 1 && (
@@ -1481,7 +1517,7 @@ export function ProductEdit( { id }: ProductEditProps ) {
 							<div className="vulocart-ai-anchor">
 								{ aiSlot( 'description' ) }
 								<FormGroupComponent
-									label={ __( 'Short description - One-line summary', 'vulocart' ) }
+									label={ __( 'Short description', 'vulocart' ) }
 									htmlFor="vulocart-product-short-desc"
 								>
 									<TextAreaInput
@@ -1510,7 +1546,6 @@ export function ProductEdit( { id }: ProductEditProps ) {
 					<CardComponent
 						titleIcon="variable"
 						title={ __( 'Variants', 'vulocart' ) }
-						desc={ __( 'Add the options customers choose from, like size or colour. Each combination then gets its own price, stock and image.', 'vulocart' ) }
 						action={
 							variantMode ? (
 								<div className="vulocart-currency-pill">
@@ -1552,7 +1587,6 @@ export function ProductEdit( { id }: ProductEditProps ) {
 					<CardComponent
 						titleIcon="payment"
 						title={ __( 'Pricing', 'vulocart' ) }
-						desc={ variantMode ? __( 'What customers pay for each variant.', 'vulocart' ) : __( 'What customers pay. Add more prices for plans, tiers or bundles.', 'vulocart' ) }
 						action={
 							<div className="vulocart-card-actions">
 								{ aiSlot( 'pricing' ) }
@@ -1614,7 +1648,6 @@ export function ProductEdit( { id }: ProductEditProps ) {
 						<CardComponent
 							titleIcon="feature"
 							title={ profile.detailsTitle || __( 'Type Details', 'vulocart' ) }
-							desc={ subtype.hint }
 						>
 							<FormGroupWrapperComponent>
 								{ typeFields.map( ( field ) => (
@@ -1635,7 +1668,6 @@ export function ProductEdit( { id }: ProductEditProps ) {
 						<CardComponent
 							titleIcon="store-inventory"
 							title={ __( 'Inventory', 'vulocart' ) }
-							desc={ __( 'How much you have, and whether customers can buy it.', 'vulocart' ) }
 							action={
 								<div className="vulocart-card-actions">
 									{ aiSlot( 'inventory' ) }
@@ -1655,43 +1687,6 @@ export function ProductEdit( { id }: ProductEditProps ) {
 								</div>
 							}
 						>
-							{ ( () => {
-								const units = '' === formData.stockQuantity ? null : Number( formData.stockQuantity );
-								const tracked = formData.stockManagement && null !== units;
-								const level =
-									'out_of_stock' === formData.stockStatus || ( tracked && units <= 0 )
-										? 'out'
-										: 'on_backorder' === formData.stockStatus
-										? 'backorder'
-										: tracked && units <= 5
-										? 'low'
-										: 'in';
-								const labels: Record< string, string > = {
-									in: __( 'In stock', 'vulocart' ),
-									low: __( 'Running low', 'vulocart' ),
-									out: __( 'Out of stock', 'vulocart' ),
-									backorder: __( 'On backorder', 'vulocart' ),
-								};
-
-								return (
-									<div className={ `vulocart-stat-strip is-${ level }` }>
-										<div className="vulocart-stat">
-											<span className="vulocart-stat-label">{ __( 'Status', 'vulocart' ) }</span>
-											<span className="vulocart-stat-value">
-												<i className="vulocart-stat-dot" aria-hidden="true" />
-												{ labels[ level ] }
-											</span>
-										</div>
-										<div className="vulocart-stat">
-											<span className="vulocart-stat-label">{ __( 'Units on hand', 'vulocart' ) }</span>
-											<span className="vulocart-stat-value">
-												{ formData.stockManagement ? ( null === units ? '—' : units ) : __( 'Not tracked', 'vulocart' ) }
-											</span>
-										</div>
-									</div>
-								);
-							} )() }
-
 							<div className="vulocart-two-col-fields">
 								<FormGroupComponent label={ __( 'SKU', 'vulocart' ) } htmlFor="vulocart-product-sku">
 									<TextInput
@@ -1744,11 +1739,10 @@ export function ProductEdit( { id }: ProductEditProps ) {
 						<CardComponent
 							titleIcon="shipping"
 							title={ __( 'Shipping', 'vulocart' ) }
-							desc={ __( 'What the package weighs and measures, so checkout can price delivery.', 'vulocart' ) }
 							action={
 								'' !== formData.weight || '' !== formData.length || '' !== formData.width || '' !== formData.height ? (
 									<span className="vulocart-package-chip">
-										<i className="adminfont-package" aria-hidden="true" />
+										<i className="adminfont-shipping" aria-hidden="true" />
 										{ [
 											'' !== formData.weight ? `${ formData.weight } kg` : '',
 											'' !== formData.length || '' !== formData.width || '' !== formData.height
@@ -1761,9 +1755,6 @@ export function ProductEdit( { id }: ProductEditProps ) {
 								) : null
 							}
 						>
-							{ '' === formData.weight && (
-								<p className="vulocart-field-hint">{ __( 'Add a weight so shipping rates can be calculated at checkout.', 'vulocart' ) }</p>
-							) }
 
 							<div className="vulocart-two-col-fields">
 								<FormGroupComponent label={ __( 'Weight', 'vulocart' ) } htmlFor="vulocart-product-weight">
@@ -1809,87 +1800,73 @@ export function ProductEdit( { id }: ProductEditProps ) {
 						</CardComponent>
 					) }
 
-					<CardComponent
+					{ /* Rarely changed after the first save: collapsed unless something is set, with what is set as its summary. */ }
+					<CollapsibleCard
 						titleIcon="legal-compliance"
-						title={ __( 'Policies & Related Products', 'vulocart' ) }
-						desc={ __( 'Set expectations up front and help customers discover more of what you sell.', 'vulocart' ) }
+						title={ __( 'Policies & related products', 'vulocart' ) }
+						desc={ policiesSummary }
+						initiallyOpen={ policiesSummary !== nothingSet }
 					>
 						<FormGroupWrapperComponent>
 							{ cards.shippingPolicy && (
-							<FormGroupComponent
-								label={ __( 'Shipping policy - How will you ship it and how long will it take?', 'vulocart' ) }
-								htmlFor="vulocart-product-shipping-policy"
-							>
-								<TextAreaInput
-									name="shippingPolicy"
-									rowNumber={ 2 }
-									value={ formData.shippingPolicy }
-									onChange={ ( value ) => update( { shippingPolicy: value } ) }
-								/>
-							</FormGroupComponent>
+								<FormGroupComponent label={ __( 'Shipping policy', 'vulocart' ) } htmlFor="vulocart-product-shipping-policy">
+									<TextAreaInput
+										name="shippingPolicy"
+										rowNumber={ 2 }
+										placeholder={ __( 'How you ship it and how long it takes', 'vulocart' ) }
+										value={ formData.shippingPolicy }
+										onChange={ ( value ) => update( { shippingPolicy: value } ) }
+									/>
+								</FormGroupComponent>
 							) }
 
-							<FormGroupComponent
-								label={ __( 'Refund policy - Can customers return or exchange it?', 'vulocart' ) }
-								htmlFor="vulocart-product-refund-policy"
-							>
+							<FormGroupComponent label={ __( 'Refund policy', 'vulocart' ) } htmlFor="vulocart-product-refund-policy">
 								<TextAreaInput
 									name="refundPolicy"
 									rowNumber={ 2 }
+									placeholder={ __( 'Whether customers can return or exchange it', 'vulocart' ) }
 									value={ formData.refundPolicy }
 									onChange={ ( value ) => update( { refundPolicy: value } ) }
 								/>
 							</FormGroupComponent>
 
 							{ cards.cancellation && (
-							<FormGroupComponent
-								label={ __( 'Cancellation policy - Can they cancel their order after placing it?', 'vulocart' ) }
-								htmlFor="vulocart-product-cancellation-policy"
-							>
-								<TextAreaInput
-									name="cancellationPolicy"
-									rowNumber={ 2 }
-									value={ formData.cancellationPolicy }
-									onChange={ ( value ) => update( { cancellationPolicy: value } ) }
-								/>
-							</FormGroupComponent>
+								<FormGroupComponent label={ __( 'Cancellation policy', 'vulocart' ) } htmlFor="vulocart-product-cancellation-policy">
+									<TextAreaInput
+										name="cancellationPolicy"
+										rowNumber={ 2 }
+										placeholder={ __( 'Whether an order can be cancelled after it is placed', 'vulocart' ) }
+										value={ formData.cancellationPolicy }
+										onChange={ ( value ) => update( { cancellationPolicy: value } ) }
+									/>
+								</FormGroupComponent>
 							) }
 						</FormGroupWrapperComponent>
 
-						<div className="vulocart-two-col-fields">
-							<FormGroupComponent
-								label={ __( 'Recommend alongside this product', 'vulocart' ) }
-								htmlFor="vulocart-product-related"
-							>
-								<TextInput
-									name="relatedProducts"
-									value={ formData.relatedProducts }
-									onChange={ ( value ) => update( { relatedProducts: value as string } ) }
-								/>
-								<p className="vulocart-field-hint">
-									{ __( '"You might also like". Comma-separated product ids.', 'vulocart' ) }
-								</p>
-							</FormGroupComponent>
-							<FormGroupComponent
-								label={ __( 'Offer as an add-on at checkout', 'vulocart' ) }
-								htmlFor="vulocart-product-addon"
-							>
-								<TextInput
-									name="addonProducts"
-									value={ formData.addonProducts }
-									onChange={ ( value ) => update( { addonProducts: value as string } ) }
-								/>
-								<p className="vulocart-field-hint">
-									{ __( 'Suggested at cart. Comma-separated product ids.', 'vulocart' ) }
-								</p>
-							</FormGroupComponent>
-						</div>
-					</CardComponent>
+						{ /* Picked by name; still saved as the comma-separated ids the storefront reads. */ }
+						<TermPicker
+							label={ __( 'Related products', 'vulocart' ) }
+							noun={ __( 'product', 'vulocart' ) }
+							plural={ __( 'products', 'vulocart' ) }
+							options={ productOptions }
+							value={ idList( formData.relatedProducts ) }
+							onChange={ ( values ) => update( { relatedProducts: values.join( ',' ) } ) }
+						/>
+						<TermPicker
+							label={ __( 'Checkout add-ons', 'vulocart' ) }
+							noun={ __( 'product', 'vulocart' ) }
+							plural={ __( 'products', 'vulocart' ) }
+							options={ productOptions }
+							value={ idList( formData.addonProducts ) }
+							onChange={ ( values ) => update( { addonProducts: values.join( ',' ) } ) }
+						/>
+					</CollapsibleCard>
 
-					<CardComponent
+					<CollapsibleCard
 						titleIcon="catalog"
 						title={ __( 'Search & content', 'vulocart' ) }
-						desc={ __( 'How this listing appears in search, plus the specifications, questions and translations that go with it.', 'vulocart' ) }
+						desc={ contentSummary }
+						initiallyOpen={ contentSummary !== nothingSet }
 					>
 						<ContentBlock title={ __( 'Search listing', 'vulocart' ) } action={ aiSlot( 'seo' ) }>
 							<SeoFields
@@ -1901,19 +1878,19 @@ export function ProductEdit( { id }: ProductEditProps ) {
 						</ContentBlock>
 
 						{ cards.specs && (
-						<ContentBlock title={ __( 'Specifications', 'vulocart' ) } hint={ __( 'Shown as a table on the product page.', 'vulocart' ) } action={ aiSlot( 'specifications' ) } addLabel={ __( 'Add specification', 'vulocart' ) } onAdd={ () => update( { specifications: [ ...formData.specifications, { key: '', value: '' } ] } ) }>
+						<ContentBlock title={ __( 'Specifications', 'vulocart' ) } action={ aiSlot( 'specifications' ) } addLabel={ __( 'Add specification', 'vulocart' ) } onAdd={ () => update( { specifications: [ ...formData.specifications, { key: '', value: '' } ] } ) }>
 							<SpecsEditor rows={ formData.specifications } onChange={ ( rows ) => update( { specifications: rows } ) } />
 						</ContentBlock>
 						) }
 
-						<ContentBlock title={ __( 'Frequently asked questions', 'vulocart' ) } hint={ __( 'Shown on the product page.', 'vulocart' ) } action={ aiSlot( 'faqs' ) } addLabel={ __( 'Add question', 'vulocart' ) } onAdd={ () => update( { faqs: [ ...formData.faqs, { question: '', answer: '' } ] } ) }>
+						<ContentBlock title={ __( 'Frequently asked questions', 'vulocart' ) } action={ aiSlot( 'faqs' ) } addLabel={ __( 'Add question', 'vulocart' ) } onAdd={ () => update( { faqs: [ ...formData.faqs, { question: '', answer: '' } ] } ) }>
 							<FaqEditor rows={ formData.faqs } onChange={ ( rows ) => update( { faqs: rows } ) } />
 						</ContentBlock>
 
 						<ContentBlock title={ __( 'Translations', 'vulocart' ) } action={ aiSlot( 'translation' ) }>
 							<TranslationsEditor translations={ formData.translations } onChange={ ( translations ) => update( { translations } ) } />
 						</ContentBlock>
-					</CardComponent>
+					</CollapsibleCard>
 
 					{ null !== id && (
 						<div className="vulocart-edit-extra-sections">
@@ -1932,8 +1909,8 @@ export function ProductEdit( { id }: ProductEditProps ) {
 								{
 									key: 'embed',
 									title: __( 'Embed code', 'vulocart' ),
-									desc: __( 'Sell this product anywhere - a landing page, a Next.js app, plain HTML - with the VuloCart SDK.', 'vulocart' ),
-									icon: 'code',
+									desc: __( 'Sell this product on any website', 'vulocart' ),
+									icon: 'shortcode',
 								},
 							].map( ( section ) => (
 								<CardComponent key={ section.key } titleIcon={ section.icon } title={ section.title } desc={ section.desc }>
@@ -1960,9 +1937,6 @@ export function ProductEdit( { id }: ProductEditProps ) {
 								</div>
 							) }
 							<div className="vulocart-preview-badges">
-								<span className="vulocart-preview-badge">
-									{ profile.subtypes.length > 1 && 'standard' !== subtype.value ? `${ subtype.label } · ${ profile.label }` : formData.type.replace( '_', ' ' ) }
-								</span>
 								{ formData.featured && (
 									<span className="vulocart-preview-badge is-featured">
 										<i className="adminfont-star" aria-hidden="true" /> { __( 'Featured', 'vulocart' ) }
@@ -1997,9 +1971,6 @@ export function ProductEdit( { id }: ProductEditProps ) {
 							) }
 							</> ) }
 						</div>
-						<footer>
-							<i className="adminfont-eye" aria-hidden="true" /> { __( 'Live preview - updates as you type', 'vulocart' ) }
-						</footer>
 					</aside>
 
 					<CardComponent titleIcon="image" title={ __( 'Images', 'vulocart' ) }>
@@ -2053,7 +2024,6 @@ export function ProductEdit( { id }: ProductEditProps ) {
 											}
 										} }
 									/>
-									<p className="vulocart-field-hint">{ __( 'The featured image shows on product cards and at the top of the product page.', 'vulocart' ) }</p>
 								</div>
 							);
 						} )() }
@@ -2062,7 +2032,6 @@ export function ProductEdit( { id }: ProductEditProps ) {
 					<CardComponent
 						titleIcon="category"
 						title={ __( 'Catalog & Sourcing', 'vulocart' ) }
-						desc={ __( 'Where this product appears in your store, how it\'s tagged, and who supplies it.', 'vulocart' ) }
 					>
 						<TermPicker
 							label={ __( 'Category', 'vulocart' ) }

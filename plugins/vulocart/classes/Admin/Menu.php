@@ -41,7 +41,6 @@ class Menu {
         add_action( 'admin_menu', array( $this, 'add_workflows_menu' ) );
         add_action( 'admin_menu', array( $this, 'add_marketing_menu' ) );
         add_action( 'admin_menu', array( $this, 'order_submenu' ), 999 );
-        add_action( 'admin_menu', array( $this, 'order_marketing_submenu' ), 999 );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_script' ) );
         add_filter( 'submenu_file', array( $this, 'highlight_current_submenu' ), 10, 2 );
     }
@@ -131,46 +130,6 @@ class Menu {
         );
 
         $submenu['vulocart'] = $items; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- reordering core's own menu array is the supported way to order submenus.
-    }
-
-    /**
-     * Tidies the Marketing submenu, whose entries are all added by vulocart-pro modules. Drops the item
-     * add_menu_page() generates from the menu title ("Marketing", which only showed Coupons a second time)
-     * and puts the rest in order: promotions, then recovery, then checkout tools. An entry not listed sits last.
-     *
-     * @return void
-     */
-    public function order_marketing_submenu() {
-        global $submenu;
-
-        if ( empty( $submenu['marketing'] ) ) {
-            return;
-        }
-
-        $order = array( 'coupons', 'pricing-rules', 'gift-cards', 'abandoned-checkouts', 'checkout-links' );
-        $rank  = static function ( $item ) use ( $order ) {
-            $position = array_search( str_replace( 'marketing&view=', '', $item[2] ), $order, true );
-
-            return false === $position ? 500 : $position;
-        };
-
-        $items = array_values(
-            array_filter(
-                $submenu['marketing'],
-                static function ( $item ) {
-                    return 'marketing' !== $item[2];
-                }
-            )
-        );
-
-        usort(
-            $items,
-            static function ( $a, $b ) use ( $rank ) {
-                return $rank( $a ) <=> $rank( $b );
-            }
-        );
-
-        $submenu['marketing'] = $items; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- see order_submenu().
     }
 
     /**
@@ -300,6 +259,15 @@ class Menu {
             'customers',
             array( $this, 'render_customers_admin_page' )
         );
+
+        add_submenu_page(
+            'customers',
+            __( 'Add New Customer', 'vulocart' ),
+            __( 'Add New', 'vulocart' ),
+            'manage_options',
+            'customers&action=add',
+            array( $this, 'render_customers_admin_page' )
+        );
     }
 
     /**
@@ -399,9 +367,13 @@ class Menu {
     }
 
     /**
-     * Registers Marketing as its own top-level admin menu. The free plugin owns the frame only; Coupons, Pricing
-     * Rules, Gift Cards, Abandoned Checkout and Checkout Links are vulocart-pro modules that register their submenus
-     * under `marketing` (ordered by order_marketing_submenu()).
+     * Registers Marketing as its own top-level admin menu with one submenu item per feature. The free plugin owns the
+     * menu and the frame, so every item is listed whether or not Pro is installed, licensed or the module is on;
+     * Coupons, Pricing Rules, Gift Cards, Abandoned Checkout and Checkout Links are vulocart-pro modules that fill their
+     * page through `vulocart_marketing_view`, and until one does, the page shows its sample-data preview.
+     *
+     * Coupons takes the parent's own slug, so the bare `?page=marketing` is the Coupons item rather than a separate
+     * "Marketing" entry that showed Coupons a second time.
      *
      * @return void
      */
@@ -415,6 +387,18 @@ class Menu {
             'dashicons-megaphone',
             56.7
         );
+
+        $items = array(
+            'marketing'                          => __( 'Coupons', 'vulocart' ),
+            'marketing&view=pricing-rules'       => __( 'Pricing Rules', 'vulocart' ),
+            'marketing&view=gift-cards'          => __( 'Gift Cards', 'vulocart' ),
+            'marketing&view=abandoned-checkouts' => __( 'Cart Abandoned', 'vulocart' ),
+            'marketing&view=checkout-links'      => __( 'Payment Links', 'vulocart' ),
+        );
+
+        foreach ( $items as $slug => $label ) {
+            add_submenu_page( 'marketing', $label, $label, 'manage_options', $slug, array( $this, 'render_marketing_admin_page' ) );
+        }
     }
 
     /**
@@ -558,11 +542,6 @@ class Menu {
             }
         }
 
-        // Marketing has no item for its bare page (order_marketing_submenu() drops it); that page shows Coupons.
-        if ( 'marketing' === $page && ! in_array( $page, $registered, true ) && in_array( 'marketing&view=coupons', $registered, true ) ) {
-            return 'marketing&view=coupons';
-        }
-
         return $submenu_file;
     }
 
@@ -653,6 +632,8 @@ class Menu {
                 'ask_product_type' => ! empty( wp_parse_args( get_option( \VuloCart\Utill::SETTINGS_KEY, array() ), \VuloCart\Utill::SETTINGS_DEFAULTS )['ask_product_type'] ),
                 'version'        => VuloCart()->version,
                 'pro_version'    => defined( 'VULOCART_PRO_PLUGIN_VERSION' ) ? VULOCART_PRO_PLUGIN_VERSION : null,
+                // The store's own country: address forms in the admin start from it.
+                'store_country'  => (string) wp_parse_args( get_option( \VuloCart\Utill::SETTINGS_KEY, array() ), \VuloCart\Utill::SETTINGS_DEFAULTS )['store_country'],
                 'active_plugins' => get_option( 'active_plugins', array() ),
                 'shop_url'       => defined( 'VULOCART_PRO_SHOP_URL' ) ? VULOCART_PRO_SHOP_URL : '',
                 'site_url'       => esc_url_raw( site_url() ),

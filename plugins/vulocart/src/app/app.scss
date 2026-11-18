@@ -109,98 +109,181 @@ body .admin-table-wrapper .table-wrapper .admin-table {
 	margin: 0;
 }
 
-// Row actions in every zyra table (Products, Orders, Customers, every Pro list...): borderless icon + label buttons at
-// a readable size - the first (Edit/View) in the brand colour, the rest neutral, destructive ones red. The one place
-// this look is defined; pages just pass zyra's normal `type: 'action'` list.
+// Row actions in every zyra table (Products, Orders, Customers, every Pro list...). The one place this look is defined.
+// - Plain actions (no `type`) are icons: zyra shows the first two as 32px icon buttons with the label as a tooltip and
+//   the rest in a "more" menu. Pages list navigation/CRUD this way, with Delete last (red in the menu).
+// - `type: 'button'` actions are workflow verbs (Approve, Adjust stock, Pause...) that need words: compact outlined
+//   buttons, without their icon.
+// Not scoped to `.admin-main-wrapper`: engine tabs (Inventory, Shipment...) mount their tables outside it.
 body .admin-table-wrapper .table-wrapper .admin-table .admin-column.action .table-action,
-body .admin-table-wrapper .table-action {
+body .admin-table-wrapper.admin-table-wrapper .table-action {
+	justify-content: flex-end;
+	align-items: center;
+	gap: 0.125rem;
+
+	.inline-actions,
+	.action-icons {
+		gap: 0.125rem;
+		padding: 0;
+	}
+
+	.inline-actions .tooltip-wrapper > i,
+	.action-icons > i {
+		box-sizing: border-box;
+		width: 2rem;
+		height: 2rem;
+		padding: 0;
+		align-items: center;
+		justify-content: center;
+		border-radius: 0.5rem;
+		background: transparent;
+		color: #6b6f80;
+		font-size: 1.0625rem;
+		transition: background-color 0.12s ease, color 0.12s ease;
+
+		&:hover {
+			background: #f1effd;
+			color: var(--vc-accent, #5007aa);
+		}
+	}
+
+	// A delete icon shown inline warns on hover.
+	.inline-actions .tooltip-wrapper > i.adminfont-delete:hover {
+		background: #fef2f2;
+		color: #dc2626;
+	}
+
+	// Workflow verbs (Approve, Adjust stock, Pause...) stay as words, as compact outlined buttons without icons.
 	.table-action-buttons {
 		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		justify-content: flex-start;
-		gap: 0.125rem;
-	}
-
-	.table-action-buttons .buttons-wrapper {
-		width: auto;
-		margin: 0;
-	}
-
-	.table-action-buttons .admin-btn {
-		display: inline-flex;
-		flex-direction: row-reverse; // zyra puts the icon after the label; show it before.
 		align-items: center;
 		gap: 0.375rem;
-		width: auto;
-		min-width: 0;
-		height: 2rem;
-		margin: 0;
-		padding: 0 0.625rem;
-		border: 1px solid transparent;
-		border-radius: 0.375rem;
-		background: transparent;
-		box-shadow: none;
-		font-size: 0.875rem;
-		font-weight: 500;
-		line-height: 1;
-		white-space: nowrap;
-		color: #374151;
-		transition: background 0.15s, color 0.15s;
+		margin-right: 0.25rem;
 
-		i {
+		.buttons-wrapper {
 			margin: 0;
-			font-size: 1rem;
+		}
+
+		.admin-btn {
+			box-sizing: border-box;
+			height: 2rem;
+			min-height: 0;
+			padding: 0 0.75rem !important; // zyra's .btn-text-* zero the padding with !important.
+			gap: 0;
+			border: 1px solid #dcdfea;
+			border-radius: 0.5rem;
+			background: #fff;
+			color: #2c2b36;
+			font-size: 0.8125rem;
+			font-weight: 500;
 			line-height: 1;
-			color: #6b7280;
-		}
-
-		&:hover,
-		&:focus-visible {
-			background: #f4f5fa;
-			color: #1f2937;
-			outline: 0;
-		}
-
-		&.btn-text-red {
-			color: #dc2626;
+			white-space: nowrap;
+			text-decoration: none;
+			transition: background-color 0.12s ease, border-color 0.12s ease;
 
 			i {
-				color: inherit;
+				display: none;
 			}
 
-			&:hover,
-			&:focus-visible {
-				background: #fef2f2;
-				color: #b91c1c;
-			}
-		}
-
-		&.btn-text-green {
-			color: #15803d;
-
-			i {
-				color: inherit;
+			&:hover {
+				border-color: #c9c3f0;
+				background: #f5f4fb;
+				color: var(--vc-accent, #5007aa);
 			}
 
-			&:hover,
-			&:focus-visible {
-				background: #f0fdf4;
+			&.btn-text-green {
+				color: #15803d;
+			}
+
+			&.btn-text-red {
+				color: #dc2626;
+
+				&:hover {
+					border-color: #fecaca;
+					background: #fef2f2;
+				}
 			}
 		}
 	}
 
-	.table-action-buttons .buttons-wrapper:first-child .admin-btn:not(.btn-text-red):not(.btn-text-green) {
-		color: #5007aa;
+	.action-icons:has(.action-dropdown.show) > i {
+		background: #f1effd;
+		color: var(--vc-accent, #5007aa);
+	}
 
-		i {
-			color: inherit;
+	.inline-actions .tooltip-name {
+		font-size: 0.75rem;
+		white-space: nowrap;
+	}
+
+	.action-dropdown {
+		top: calc(100% + 0.25rem);
+		right: 0;
+		left: auto;
+		width: auto;
+		min-width: 11rem;
+		border: 1px solid #e4e6ef;
+		border-radius: 0.625rem;
+		box-shadow: 0 0.5rem 1.5rem rgba(22, 21, 29, 0.12);
+		z-index: 20;
+
+		ul {
+			gap: 0.125rem;
+			padding: 0.3125rem;
 		}
 
-		&:hover,
-		&:focus-visible {
-			background: #f3ecfb;
-			color: #3d0585;
+		li {
+			height: 2.125rem;
+			padding: 0 0.625rem;
+			gap: 0.625rem;
+			border-radius: 0.375rem;
+			color: #2c2b36;
+			font-size: 0.875rem;
+			font-weight: 500;
+			white-space: nowrap;
+
+			i {
+				width: 1rem;
+				padding: 0;
+				justify-content: center;
+				color: #6b6f80;
+				font-size: 1rem;
+			}
+
+			span {
+				font-size: inherit;
+				color: inherit;
+			}
+
+			&:hover {
+				background: #f5f4fb;
+			}
+
+			&:has(> .adminfont-delete) {
+				color: #dc2626;
+
+				&:not(:first-child) {
+					position: relative;
+					margin-top: 0.3125rem;
+
+					&::before {
+						content: '';
+						position: absolute;
+						top: -0.25rem;
+						left: -0.3125rem;
+						right: -0.3125rem;
+						border-top: 1px solid #eceef4;
+					}
+				}
+
+				i {
+					color: #dc2626;
+				}
+
+				&:hover {
+					background: #fef2f2;
+				}
+			}
 		}
 	}
 }

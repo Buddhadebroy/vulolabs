@@ -84,6 +84,6 @@
   "pnpm": {
     "overrides": {
       "extract-zip@1>yauzl": "^3.4.0"
-    }
+    } 
   }
 }

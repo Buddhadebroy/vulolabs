@@ -7,9 +7,10 @@ interface MarketingEngineProps {
 }
 
 /**
- * The Marketing menu. The free plugin owns the frame only; each page is registered by a vulocart-pro module into
- * `vulocart_marketing_view` (Coupons, Pricing Rules, Gift Cards, Abandoned Checkout, Checkout Links), one Marketing
- * submenu each. Without the module active the frame shows its "module required" state.
+ * The Marketing menu. Free registers one submenu item per page (Coupons, Pricing Rules, Gift Cards, Cart Abandoned,
+ * Payment Links - Admin\Menu::add_marketing_menu()) and owns the frame; each page is filled by a vulocart-pro module
+ * through `vulocart_marketing_view`. Without the module - Pro missing, unlicensed or the module off - the page shows its
+ * sample-data preview and what it takes to unlock it.
  */
 export function MarketingEngine( { view }: MarketingEngineProps ) {
 	return renderEngineView( 'vulocart_marketing_view', storeExtraViews, view && storeExtraViews[ view ] ? view : 'coupons' );

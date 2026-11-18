@@ -5,12 +5,14 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import axios from 'axios';
 import { getApiLink } from '@zyra/core';
-import { ContainerComponent, ColumnComponent, NavigatorHeaderComponent, PopupComponent } from '@zyra/components';
+import { ContainerComponent, ColumnComponent, EntityCellComponent, NavigatorHeaderComponent, PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import { TableCard, TableRow, QueryProps, CategoryCount } from '@zyra/table';
+import { TableRow, QueryProps, CategoryCount } from '@zyra/table';
+import { TableCard } from '../../components/TableCard/TableCard';
 import { downloadCSV } from '../../lib/utils';
 import { formatWpDate } from '../../services/formatWpDate';
 import ConfirmPopup from '../../components/ConfirmPopup/ConfirmPopup';
+import { formatMoney } from '../../blocks/shared/money';
 import './products-page.scss';
 import { ViewsMenu, useViewsConfig } from '../../components/ViewsMenu/ViewsMenu';
 
@@ -422,7 +424,7 @@ function ProductBulkEdit( { ids, onClose, onDone }: { ids: number[]; onClose: ()
 			height="auto"
 			position="lightbox"
 			header={ {
-				icon: 'bulk-action',
+				icon: 'setting',
 				title: sprintf( /* translators: %d: number of products. */ _n( 'Edit %d product', 'Edit %d products', ids.length, 'vulocart' ), ids.length ),
 			} }
 			footer={
@@ -504,7 +506,14 @@ function ProductBulkEdit( { ids, onClose, onDone }: { ids: number[]; onClose: ()
  * filters. Bulk actions are Edit (a popup for status, price / sale price and stock; see `ProductBulkEdit`) and
  * Delete.
  */
-export function ProductsList() {
+const PRODUCT_STATUSES = [ 'published', 'draft', 'archived' ];
+
+/** The `status` REST param for a status tab: none for "All". */
+const statusParam = ( category: string ): string => ( category && 'all' !== category ? category : '' );
+
+export function ProductsList( { status: initialStatus = null }: { status?: string | null } = {} ) {
+	// The status tab the list opens on, when a link asks for one (the Dashboard's "finish your drafts").
+	const initialCategory = initialStatus && PRODUCT_STATUSES.includes( initialStatus ) ? initialStatus : 'all';
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ rowIds, setRowIds ] = useState< number[] >( [] );
 	const [ rows, setRows ] = useState< TableRow[] >( [] );
@@ -550,7 +559,7 @@ export function ProductsList() {
 	 */
 	const buildQueryParams = ( query: QueryProps, includePagination: boolean, override?: SavedView[ 'params' ] ) => {
 		const params: Record< string, unknown > = {
-			status: override ? override.status : query.categoryFilter && 'all' !== query.categoryFilter ? query.categoryFilter : '',
+			status: override ? override.status : statusParam( query.categoryFilter ?? initialCategory ),
 			type: override ? override.type : query.filter?.type || '',
 			category: override ? override.category : query.filter?.category || '',
 			search: override ? override.search : query.searchValue || '',
@@ -643,7 +652,11 @@ export function ProductsList() {
 			.then( () => doRefreshTableData( lastQuery ) );
 	};
 
-	const STATUS_BADGE: Record< string, string > = { published: 'badge-active', draft: 'badge-pending', archived: 'badge-inactive' };
+	const STATUS_LABELS: Record< string, string > = {
+		published: __( 'Published', 'vulocart' ),
+		draft: __( 'Draft', 'vulocart' ),
+		archived: __( 'Archived', 'vulocart' ),
+	};
 
 	/** What a CSV export holds, in plain columns - the table below merges several of these into one cell. */
 	const csvHeaders = {
@@ -657,14 +670,12 @@ export function ProductsList() {
 	};
 
 	// Actions other modules add: `{ label, icon, color?, onClick( row ) }` each.
-	const extraActions = (
-		applyFilters( 'vulocart_product_row_action_items', [] ) as {
-			label: string;
-			icon: string;
-			color?: string;
-			onClick: ( row: Record< string, unknown > ) => void;
-		}[]
-	).map( ( action ) => ( { type: 'button' as const, color: 'text-blue', ...action } ) );
+	const extraActions = applyFilters( 'vulocart_product_row_action_items', [] ) as {
+		label: string;
+		icon: string;
+		color?: string;
+		onClick: ( row: Record< string, unknown > ) => void;
+	}[];
 
 	const headers = {
 		product: {
@@ -676,25 +687,28 @@ export function ProductsList() {
 					return null;
 				}
 
-				const details = [
-					row.sku ? `${ __( 'SKU', 'vulocart' ) }: ${ row.sku }` : '',
-				].filter( Boolean );
+				const status = String( row.status );
 
-				// Title, then SKU, then the published date and the badges (type, status).
+				// Title with its status and type on one line, then the SKU and the date: each line answers one
+				// question about the row.
 				return (
-					<div className="vulocart-product-cell">
-						<a className="vulocart-product-cell-title" href={ `admin.php?page=products&action=edit&id=${ row.id }` }>
-							{ row.title as string }
-						</a>
-						{ details.length > 0 && <div className="desc">{ details.join( ', ' ) }</div> }
-						<div className="vulocart-product-cell-tags">
-							{ row.published_at && (
-								<span className="desc">{ formatWpDate( row.published_at as string ) }</span>
-							) }
-							<span className="admin-badge badge-info">{ String( row.type ).replace( '_', ' ' ) }</span>
-							<span className={ `admin-badge ${ STATUS_BADGE[ String( row.status ) ] ?? 'badge-info' }` }>{ String( row.status ) }</span>
-						</div>
-					</div>
+					<EntityCellComponent
+						className="vulocart-product-entity"
+						title={ row.title as string }
+						href={ `admin.php?page=products&action=edit&id=${ row.id }` }
+						badges={
+							<>
+								<span className={ `vulocart-status-dot is-${ status }` }>{ STATUS_LABELS[ status ] ?? status }</span>
+								<span className="admin-badge badge-gray vulocart-type-badge">{ String( row.type ).replace( '_', ' ' ) }</span>
+							</>
+						}
+						details={ [
+							...( row.sku ? [ { icon: 'pro-tag', text: `${ __( 'SKU', 'vulocart' ) } ${ row.sku as string }` } ] : [] ),
+							...( row.published_at
+								? [ { icon: 'calendar', text: sprintf( /* translators: %s: date. */ __( 'Published %s', 'vulocart' ), formatWpDate( row.published_at as string ) ) } ]
+								: [] ),
+						] }
+					/>
 				);
 			},
 		},
@@ -702,9 +716,7 @@ export function ProductsList() {
 			label: __( 'Price', 'vulocart' ),
 			isNumeric: true,
 			render: ( row?: TableRow ) =>
-				row?.price !== null && row?.price !== undefined
-					? `${ row.price } ${ row.currency ?? '' }`
-					: '-',
+				row?.price !== null && row?.price !== undefined ? formatMoney( Number( row.price ), row.currency as string | null ) : '-',
 		},
 		actions: {
 			label: __( 'Actions', 'vulocart' ),
@@ -713,32 +725,24 @@ export function ProductsList() {
 				{
 					label: __( 'Edit', 'vulocart' ),
 					icon: 'edit',
-					type: 'button' as const,
-					color: 'text-blue',
 					onClick: ( row: Record< string, unknown > ) => {
 						window.location.href = `admin.php?page=products&action=edit&id=${ row.id }`;
 					},
 				},
 				{
 					label: __( 'Quick edit', 'vulocart' ),
-					icon: 'bulk-action',
-					type: 'button' as const,
-					color: 'text-blue',
+					icon: 'setting',
 					onClick: ( row: Record< string, unknown > ) => setQuickEditRow( row as unknown as QuickEditRow ),
 				},
 				{
 					label: __( 'Duplicate', 'vulocart' ),
 					icon: 'copy',
-					type: 'button' as const,
-					color: 'text-blue',
 					onClick: ( row: Record< string, unknown > ) => duplicateProduct( Number( row.id ) ),
 				},
 				...extraActions,
 				{
 					label: __( 'Delete', 'vulocart' ),
 					icon: 'delete',
-					type: 'button' as const,
-					color: 'text-red',
 					onClick: ( row: Record< string, unknown > ) => setDeleteTarget( row as unknown as QuickEditRow ),
 				},
 			],
@@ -778,6 +782,13 @@ export function ProductsList() {
 				downloadCSV( csvHeaders, response.data || [], `vulocart-products-${ new Date().toISOString().slice( 0, 10 ) }.csv` );
 			} );
 	};
+
+	// Only offer to save a view once something narrows the list (a filter, a search or a built-in view) and it is not
+	// already one of the merchant's saved views - saving "everything" would just be a second "All".
+	const currentParams = buildQueryParams( lastQuery, false );
+	const canSaveView =
+		!! activeSavedView?.startsWith( 'builtin:' ) ||
+		( ! activeSavedView && [ 'status', 'type', 'category', 'search' ].some( ( key ) => Boolean( currentParams[ key ] ) ) );
 
 	const saveCurrentView = ( name: string ) => {
 		const builtIn = BUILT_IN_VIEWS.find( ( view ) => activeSavedView === `builtin:${ view.id }` );
@@ -843,10 +854,7 @@ export function ProductsList() {
 						</>
 					}
 					headerTitle={ __( 'Products', 'vulocart' ) }
-					headerDescription={ __(
-						'Manage every product - physical, digital, or service-based - from one place.',
-						'vulocart'
-					) }
+					headerDescription={ __( 'Physical, digital and service products.', 'vulocart' ) }
 				/>
 
 				{
@@ -895,9 +903,11 @@ export function ProductsList() {
 							/>
 						</span>
 					) ) }
-					<button type="button" className="vulocart-save-view-button" onClick={ () => setIsNamingView( true ) }>
-						+ { __( 'Save current filters as a view', 'vulocart' ) }
-					</button>
+					{ canSaveView && (
+						<button type="button" className="vulocart-save-view-button" onClick={ () => setIsNamingView( true ) }>
+							+ { __( 'Save current filters as a view', 'vulocart' ) }
+						</button>
+					) }
 						</>
 										) : null }
 				</div>
@@ -910,7 +920,7 @@ export function ProductsList() {
 					onQueryUpdate={ doRefreshTableData }
 					ids={ rowIds }
 					categoryCounts={ categoryCounts }
-					activeCategory="all"
+					activeCategory={ initialCategory }
 					search={ {
 						placeholder: __( 'Search title or SKU…', 'vulocart' ),
 					} }

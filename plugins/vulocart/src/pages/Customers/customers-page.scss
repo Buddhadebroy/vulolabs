@@ -134,33 +134,6 @@
 	padding: 0.25rem 0;
 }
 
-.vulocart-cust-avatar {
-	display: inline-flex;
-	flex: none;
-	align-items: center;
-	justify-content: center;
-	width: 2.25rem;
-	height: 2.25rem;
-	border-radius: 50%;
-	background: #efe7fb;
-	font-size: 0.875rem;
-	font-weight: 700;
-	color: #5007aa;
-
-	&.is-large {
-		width: 3.25rem;
-		height: 3.25rem;
-		font-size: 1.25rem;
-	}
-}
-
-.vulocart-cust-main {
-	display: flex;
-	flex-direction: column;
-	gap: 0.25rem;
-	min-width: 0;
-}
-
 // Single customer page. The header is Products' own (breadcrumb, title, pills); under it one summary band
 // answers "how valuable is this customer" at a glance, then orders (main) beside profile, addresses, notes.
 .vulocart-cust-summary {

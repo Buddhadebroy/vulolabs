@@ -11,6 +11,27 @@ import { SettingProvider, useSetting } from '../../contexts/SettingContext';
 import { getTemplateData } from '../../services/templateService';
 import Popup from '../../components/Popup/Popup';
 import ModulesPanel from '../../components/Settings/ModulesPanel';
+import { getStates } from '../../blocks/shared/geo';
+
+type Field = { key: string; type?: string; statesOf?: string; settingDescription?: string; [ prop: string ]: unknown };
+
+/**
+ * A field with `statesOf: '<country field key>'` (e.g. General's `store_state`) is a region picker for that country:
+ * a dropdown of its regions when geo.ts has a list for it (the same list the checkout uses), otherwise free text.
+ */
+function resolveRegionFields( modal: Field[], values: Record< string, unknown > ): Field[] {
+	return modal.map( ( field ) => {
+		if ( ! field.statesOf ) {
+			return field;
+		}
+
+		const states = getStates( String( values[ field.statesOf ] ?? '' ) );
+
+		return states
+			? { ...field, type: 'select', settingDescription: undefined, options: [ { label: __( 'Select a state / region…', 'vulocart' ), value: '' }, ...states ] }
+			: { ...field, type: 'text' };
+	} );
+}
 
 /**
  * Settings screen. Settings are one flat option (`Utill::SETTINGS_KEY`). `getTemplateData()`
@@ -68,9 +89,37 @@ const Settings = () => {
 		const settingModal = rawSettingModal
 			? {
 					...rawSettingModal,
-					modal: applyFilters( 'vulocart_settings_fields', rawSettingModal.modal, { settingId: currentTab } ),
+					modal: resolveRegionFields(
+						applyFilters( 'vulocart_settings_fields', rawSettingModal.modal, { settingId: currentTab } ) as Field[],
+						settingName === currentTab ? ( setting as Record< string, unknown > ) : {}
+					),
 			  }
 			: null;
+
+		// A region picker empties when its country changes, so a state code never outlives the country it belongs to.
+		const regionFields = ( settingModal?.modal ?? [] ).filter( ( field: Field ) => field.statesOf ) as Field[];
+		const regionCountries = regionFields.map( ( field ) => String( ( setting as Record< string, unknown > )?.[ field.statesOf as string ] ?? '' ) ).join( '|' );
+		const lastCountries = useRef< string | null >( null );
+
+		useEffect( () => {
+			if ( settingName !== currentTab ) {
+				lastCountries.current = null;
+				return;
+			}
+
+			const previous = lastCountries.current?.split( '|' );
+			lastCountries.current = regionCountries;
+
+			if ( ! previous ) {
+				return;
+			}
+
+			regionFields.forEach( ( field, index ) => {
+				if ( previous[ index ] !== String( ( setting as Record< string, unknown > )[ field.statesOf as string ] ?? '' ) && ( setting as Record< string, unknown > )[ field.key ] ) {
+					updateSetting( field.key, '' );
+				}
+			} );
+		}, [ regionCountries, settingName, currentTab ] );
 
 		const fieldKeys: string[] = ( settingModal?.modal ?? [] ).map(
 			( field: { key: string } ) => field.key

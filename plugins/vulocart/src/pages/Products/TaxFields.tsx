@@ -2,7 +2,8 @@
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import axios from 'axios';
-import { CardComponent, FormGroupComponent } from '@zyra/components';
+import { FormGroupComponent } from '@zyra/components';
+import { CollapsibleCard } from './CollapsibleCard';
 import { SelectInput, TextInput } from '@zyra/inputs';
 
 interface TaxClass {
@@ -31,12 +32,14 @@ export default function TaxFields( { status, taxClass, taxCode, onChange }: Prop
 			.catch( () => undefined );
 	}, [] );
 
+	// Most products keep the store default, so the card starts closed and shows the current setting as its summary.
+	const summary =
+		'none' === status
+			? __( 'Not taxable', 'vulocart' )
+			: `${ __( 'Taxable', 'vulocart' ) } · ${ classes.find( ( item ) => item.slug === ( taxClass || 'standard' ) )?.name ?? taxClass }`;
+
 	return (
-		<CardComponent
-			titleIcon="tax-compliance"
-			title={ __( 'Tax', 'vulocart' ) }
-			desc={ __( 'Whether this product is taxed, and which rates apply. Rates are set under Settings → Shipping & Tax → Tax.', 'vulocart' ) }
-		>
+		<CollapsibleCard titleIcon="tax-compliance" title={ __( 'Tax', 'vulocart' ) } desc={ summary }>
 			<div className="vulocart-two-col-fields">
 				<FormGroupComponent label={ __( 'Tax status', 'vulocart' ) } htmlFor="vulocart-product-tax-status">
 					<SelectInput
@@ -75,6 +78,6 @@ export default function TaxFields( { status, taxClass, taxCode, onChange }: Prop
 					<p className="vulocart-field-hint">{ __( 'What the product is, for Stripe Tax. Leave empty for general physical goods.', 'vulocart' ) }</p>
 				</FormGroupComponent>
 			) }
-		</CardComponent>
+		</CollapsibleCard>
 	);
 }

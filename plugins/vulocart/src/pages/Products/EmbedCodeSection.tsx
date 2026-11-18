@@ -2,7 +2,7 @@
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import axios from 'axios';
-import { CardComponent } from '@zyra/components';
+import { CollapsibleCard } from './CollapsibleCard';
 
 interface SdkConfig {
 	siteUrl: string;
@@ -87,11 +87,14 @@ export function EmbedCodeSection( { productId }: { productId: number } ) {
 	};
 
 	return (
-		<CardComponent title={ __( 'Embed code', 'vulocart' ) }>
+		// Developer snippets most store owners never need: collapsed until opened, so they don't take a screen of
+		// the product form.
+		<CollapsibleCard
+			titleIcon="shortcode"
+			title={ __( 'Embed code', 'vulocart' ) }
+			desc={ __( 'Sell this product on any website', 'vulocart' ) }
+		>
 			<div className="vulocart-embed-code-section">
-				<p className="vulocart-field-hint">
-					{ __( 'Sell this product anywhere - a landing page, a Next.js app, plain HTML - with the VuloCart SDK.', 'vulocart' ) }
-				</p>
 
 				<div className="vulocart-embed-code-modes">
 					{ availableModes.map( ( key ) => (
@@ -126,6 +129,6 @@ export function EmbedCodeSection( { productId }: { productId: number } ) {
 					<pre>{ active.react }</pre>
 				</div>
 			</div>
-		</CardComponent>
+		</CollapsibleCard>
 	);
 }

@@ -36,7 +36,7 @@ const views: Record< string, EngineView > = {
 
 const pageHeader: EngineView = {
 	title: __( 'Shipment', 'vulocart' ),
-	description: __( 'Ship orders, handle returns and local pickup. Zones, rates and packaging are set up in Settings → Shipping.', 'vulocart' ),
+	description: __( 'Shipments, returns and local pickup.', 'vulocart' ),
 	icon: 'shipping',
 	module: moduleId,
 };

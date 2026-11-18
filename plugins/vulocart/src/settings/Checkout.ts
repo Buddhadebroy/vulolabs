@@ -28,12 +28,12 @@ export default {
 			// A toggle group, not a select: zyra only locks a single option (Pro tag, "module off" tag, popup) in this type.
 			type: 'choice-toggle',
 			label: __( 'Open checkout as', 'vulocart' ),
-			settingDescription: __( 'A page of its own by default. Popup, side drawer, hosted page and one-click need VuloCart Pro.', 'vulocart' ),
+			settingDescription: __( 'A checkout page of its own by default. A popup, a side drawer, a hosted page or one-click buying need VuloCart Pro.', 'vulocart' ),
 			options: [
-				{ key: 'page', label: __( 'Checkout page', 'vulocart' ), value: 'page' },
+				{ key: 'page', label: __( 'Page', 'vulocart' ), value: 'page' },
 				{ key: 'popup', label: __( 'Popup', 'vulocart' ), value: 'popup', proSetting: true, moduleEnabled: 'popup-checkout' },
-				{ key: 'drawer', label: __( 'Side drawer', 'vulocart' ), value: 'drawer', proSetting: true, moduleEnabled: 'drawer-checkout' },
-				{ key: 'hosted', label: __( 'Hosted page', 'vulocart' ), value: 'hosted', proSetting: true, moduleEnabled: 'hosted-checkout' },
+				{ key: 'drawer', label: __( 'Drawer', 'vulocart' ), value: 'drawer', proSetting: true, moduleEnabled: 'drawer-checkout' },
+				{ key: 'hosted', label: __( 'Hosted', 'vulocart' ), value: 'hosted', proSetting: true, moduleEnabled: 'hosted-checkout' },
 				{ key: 'one_click', label: __( 'One-click', 'vulocart' ), value: 'one_click', proSetting: true, moduleEnabled: 'one-click-checkout' },
 			],
 		},

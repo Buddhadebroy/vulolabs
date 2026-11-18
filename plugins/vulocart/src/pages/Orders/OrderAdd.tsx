@@ -3,9 +3,10 @@ import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import axios from 'axios';
 import { getApiLink } from '@zyra/core';
-import { CardComponent, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
+import { AvatarComponent, CardComponent, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
 import { TextInput, ButtonInput } from '@zyra/inputs';
 import { showErrorToast, errorMessageOf } from '../../lib/rest-errors';
+import { formatMoney } from '../../blocks/shared/money';
 import './orders-page.scss';
 import '../Products/products-page.scss';
 
@@ -232,7 +233,6 @@ export function OrderAdd() {
 							<i aria-hidden="true" />
 							{ __( 'Draft', 'vulocart' ) }
 						</span>
-						<span className="vulocart-pill is-kind">{ __( 'Created by you', 'vulocart' ) }</span>
 					</div>
 				</div>
 
@@ -291,7 +291,7 @@ export function OrderAdd() {
 													<strong>{ product.title }</strong>
 													{ product.sku && <small>{ product.sku }</small> }
 												</span>
-												<em>{ null !== product.price ? `${ product.price } ${ product.currency ?? '' }` : '—' }</em>
+												<em>{ null !== product.price ? formatMoney( Number( product.price ), product.currency ) : '—' }</em>
 												<i className="adminfont-plus" aria-hidden="true" />
 											</button>
 										</li>
@@ -321,7 +321,7 @@ export function OrderAdd() {
 												<strong>{ line.title }</strong>
 												{ line.sku && <small className="vulocart-order-add-sku">{ line.sku }</small> }
 											</td>
-											<td>{ ( line.unit_price ?? 0 ).toFixed( 2 ) }</td>
+											<td>{ formatMoney( line.unit_price ?? 0, line.currency ) }</td>
 											<td>
 												<div className="vulocart-order-add-stepper">
 													<button type="button" aria-label={ __( 'Decrease quantity', 'vulocart' ) } onClick={ () => setQuantity( line.product_id, line.quantity - 1 ) }>
@@ -334,7 +334,7 @@ export function OrderAdd() {
 												</div>
 											</td>
 											<td>
-												{ ( ( line.unit_price ?? 0 ) * line.quantity ).toFixed( 2 ) } { line.currency }
+												{ formatMoney( ( line.unit_price ?? 0 ) * line.quantity, line.currency ) }
 											</td>
 											<td>
 												<button type="button" className="vulocart-order-add-remove" aria-label={ __( 'Remove item', 'vulocart' ) } onClick={ () => setQuantity( line.product_id, 0 ) }>
@@ -352,7 +352,7 @@ export function OrderAdd() {
 								<div className="vulocart-order-summary-row vulocart-order-summary-row--total">
 									<strong>{ __( 'Subtotal', 'vulocart' ) }</strong>
 									<strong>
-										{ total.toFixed( 2 ) } { currency }
+										{ formatMoney( total, currency ) }
 									</strong>
 								</div>
 								<p className="vulocart-field-hint">{ __( 'Shipping, tax and discounts are worked out once the order is saved.', 'vulocart' ) }</p>
@@ -362,12 +362,10 @@ export function OrderAdd() {
 				</div>
 
 				<div className="vulocart-product-edit-col vulocart-product-edit-col--right">
-					<CardComponent titleIcon="user" title={ __( 'Customer', 'vulocart' ) } desc={ __( 'Who is this order for?', 'vulocart' ) }>
+					<CardComponent titleIcon="person" title={ __( 'Customer', 'vulocart' ) }>
 						{ linkedCustomer ? (
 							<div className="vulocart-order-customer-head">
-								<span className="vulocart-order-avatar" aria-hidden="true">
-									{ ( linkedCustomer.name || linkedCustomer.email ).charAt( 0 ).toUpperCase() }
-								</span>
+								<AvatarComponent name={ linkedCustomer.name || linkedCustomer.email } />
 								<div>
 									<p className="vulocart-order-customer-name">{ linkedCustomer.name || linkedCustomer.email }</p>
 									<span className="vulocart-order-customer-email">{ linkedCustomer.email }</span>
@@ -427,7 +425,7 @@ export function OrderAdd() {
 						) }
 					</CardComponent>
 
-					<CardComponent titleIcon="tag" title={ __( 'Tags', 'vulocart' ) }>
+					<CardComponent titleIcon="pro-tag" title={ __( 'Tags', 'vulocart' ) }>
 						<div className="vulocart-order-tags">
 							{ tags.map( ( tag ) => (
 								<span key={ tag } className="vulocart-order-tag">

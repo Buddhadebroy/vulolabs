@@ -3,12 +3,14 @@ import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import axios from 'axios';
 import { getApiLink } from '@zyra/core';
-import { ContainerComponent, ColumnComponent, NavigatorHeaderComponent, PopupComponent } from '@zyra/components';
+import { AvatarComponent, ContainerComponent, ColumnComponent, EntityCellComponent, NavigatorHeaderComponent, PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import { TableCard, TableRow, QueryProps, CategoryCount } from '@zyra/table';
+import { TableRow, QueryProps, CategoryCount } from '@zyra/table';
+import { TableCard } from '../../components/TableCard/TableCard';
 import { downloadCSV } from '../../lib/utils';
 import { formatWpDate } from '../../services/formatWpDate';
 import ConfirmPopup from '../../components/ConfirmPopup/ConfirmPopup';
+import { formatMoney } from '../../blocks/shared/money';
 import './customers-page.scss';
 import { ViewsMenu, useViewsConfig } from '../../components/ViewsMenu/ViewsMenu';
 import '../Products/products-page.scss';
@@ -164,6 +166,91 @@ function CustomerQuickEdit( { customer, onClose, onSaved }: { customer: Customer
 }
 
 /**
+ * Add a customer by hand (Customers → Add New, or the header's Add Customer): email, which is the customer's identity,
+ * plus name and phone. Saving opens the new customer's profile; an email that already has a customer says so and links
+ * to that profile instead of creating a second one.
+ */
+function CustomerAdd( { onClose }: { onClose: () => void } ) {
+	const [ email, setEmail ] = useState( '' );
+	const [ name, setName ] = useState( '' );
+	const [ phone, setPhone ] = useState( '' );
+	const [ isSaving, setIsSaving ] = useState( false );
+	const [ error, setError ] = useState( '' );
+	const [ existingId, setExistingId ] = useState< number | null >( null );
+
+	const save = () => {
+		setIsSaving( true );
+		setError( '' );
+		setExistingId( null );
+
+		axios
+			.post( getApiLink( vulocartLocalizer, 'customers' ), { email: email.trim(), name, phone }, { headers: { 'X-WP-Nonce': vulocartLocalizer.nonce } } )
+			.then( ( { data } ) => {
+				window.location.href = `admin.php?page=customers&action=view&id=${ data.id }`;
+			} )
+			.catch( ( reason ) => {
+				setIsSaving( false );
+				setError( reason?.response?.data?.message || __( 'Could not add this customer.', 'vulocart' ) );
+				setExistingId( reason?.response?.data?.data?.id ?? null );
+			} );
+	};
+
+	return (
+		<PopupComponent
+			open
+			onClose={ onClose }
+			width={ 30 }
+			height="auto"
+			position="lightbox"
+			header={ { icon: 'membership', title: __( 'Add customer', 'vulocart' ), description: __( 'Their orders join this profile when they buy with the same email.', 'vulocart' ) } }
+			footer={
+				<div className="vulocart-qe-footer">
+					<span />
+					<ButtonInput
+						buttons={ [
+							{ text: __( 'Cancel', 'vulocart' ), color: 'purple', onClick: onClose },
+							{ text: isSaving ? __( 'Adding…', 'vulocart' ) : __( 'Add customer', 'vulocart' ), icon: 'plus', onClick: save, disabled: isSaving || ! email.trim() },
+						] }
+					/>
+				</div>
+			}
+		>
+			<form
+				className="vulocart-qe"
+				onSubmit={ ( event ) => {
+					event.preventDefault();
+
+					if ( ! isSaving && email.trim() ) {
+						save();
+					}
+				} }
+			>
+				<label className="vulocart-qe-field">
+					<span>{ __( 'Email', 'vulocart' ) } *</span>
+					{ /* eslint-disable-next-line jsx-a11y/no-autofocus -- the popup opens for this one field. */ }
+					<input type="email" value={ email } autoFocus required onChange={ ( event ) => setEmail( event.target.value ) } />
+				</label>
+				<label className="vulocart-qe-field">
+					<span>{ __( 'Name', 'vulocart' ) }</span>
+					<input type="text" value={ name } onChange={ ( event ) => setName( event.target.value ) } />
+				</label>
+				<label className="vulocart-qe-field">
+					<span>{ __( 'Phone', 'vulocart' ) }</span>
+					<input type="tel" value={ phone } onChange={ ( event ) => setPhone( event.target.value ) } />
+				</label>
+				{ error && (
+					<p className="vulocart-qe-error" role="alert">
+						{ error }{ ' ' }
+						{ existingId && <a href={ `admin.php?page=customers&action=view&id=${ existingId }` }>{ __( 'Open their profile', 'vulocart' ) }</a> }
+					</p>
+				) }
+				<button type="submit" hidden />
+			</form>
+		</PopupComponent>
+	);
+}
+
+/**
  * Admin customer list - `GET /customers` (modules/Customer/Rest.php,
  * manage_options-gated), same `NavigatorHeaderComponent` + `TableCard`
  * pattern `OrdersList.tsx` already establishes. The built-in views (New,
@@ -173,7 +260,9 @@ function CustomerQuickEdit( { customer, onClose, onSaved }: { customer: Customer
  * `total_spent`/`last_order_at`), not computed per-row on the client.
  * The API has no sorting, so no column offers it.
  */
-export function CustomersList() {
+export function CustomersList( { adding = false }: { adding?: boolean } ) {
+	// Customers → Add New lands here with the add popup open.
+	const [ isAdding, setIsAdding ] = useState( adding );
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ rowIds, setRowIds ] = useState< number[] >( [] );
 	const [ rows, setRows ] = useState< TableRow[] >( [] );
@@ -181,6 +270,8 @@ export function CustomersList() {
 	const [ editing, setEditing ] = useState< CustomerRow | null >( null );
 	const [ deleteIds, setDeleteIds ] = useState< number[] >( [] );
 	const lastQuery = useRef< QueryProps >( {} );
+	// Whether a view or search narrows the list - only then is there something to save as a view.
+	const [ hasCriteria, setHasCriteria ] = useState( false );
 	const [ activeView, setActiveView ] = useState( '' );
 	const [ viewsConfig, setViewsConfig, restoreViews ] = useViewsConfig( 'vulocart_customers_views_config' );
 	const [ savedViews, setSavedViews ] = useState< SavedView[] >( loadSavedViews() );
@@ -212,6 +303,7 @@ export function CustomersList() {
 		}
 
 		lastQuery.current = query;
+		setHasCriteria( Boolean( viewRef.current || ( null !== searchRef.current ? searchRef.current : query.searchValue ) ) );
 		setIsLoading( true );
 		axios
 			.get( getApiLink( vulocartLocalizer, 'customers' ), {
@@ -315,26 +407,25 @@ export function CustomersList() {
 
 				const who = ( row.name as string ) || ( row.email as string );
 
-				// Avatar, then name and email, then the kind of customer and when they joined.
+				// Avatar, then name and the kind of customer, then their email and when they joined.
 				return (
 					<div className="vulocart-cust-cell">
-						<span className="vulocart-cust-avatar" aria-hidden="true">
-							{ ( who.trim().charAt( 0 ) || '#' ).toUpperCase() }
-						</span>
-						<div className="vulocart-cust-main">
-							<a className="vulocart-product-cell-title" href={ `admin.php?page=customers&action=view&id=${ row.id }` }>
-								{ who }
-							</a>
-							{ row.name && row.email ? <div className="desc">{ row.email as string }</div> : null }
-							<div className="vulocart-product-cell-tags">
+						<AvatarComponent name={ who } />
+						<EntityCellComponent
+							title={ who }
+							href={ `admin.php?page=customers&action=view&id=${ row.id }` }
+							badges={
 								<span className={ `admin-badge ${ row.wp_user_id ? 'badge-active' : 'badge-pending' }` }>
 									{ row.wp_user_id ? __( 'Registered', 'vulocart' ) : __( 'Guest', 'vulocart' ) }
 								</span>
-								{ row.created_at && (
-									<span className="desc">{ sprintf( /* translators: %s: date. */ __( 'Since %s', 'vulocart' ), formatWpDate( row.created_at as string ) ) }</span>
-								) }
-							</div>
-						</div>
+							}
+							details={ [
+								...( row.name && row.email ? [ { icon: 'mail', text: row.email as string } ] : [] ),
+								...( row.created_at
+									? [ { icon: 'calendar', text: sprintf( /* translators: %s: date. */ __( 'Since %s', 'vulocart' ), formatWpDate( row.created_at as string ) ) } ]
+									: [] ),
+							] }
+						/>
 					</div>
 				);
 			},
@@ -351,7 +442,8 @@ export function CustomersList() {
 
 				return (
 					<div className="vulocart-product-cell">
-						<span className="vulocart-product-cell-title">{ ( Number( row.total_spent ) || 0 ).toFixed( 2 ) }</span>
+						{ /* Customer rows carry no currency; the formatter falls back to USD, as the Dashboard does. */ }
+						<span className="vulocart-product-cell-title">{ formatMoney( Number( row.total_spent ) || 0, row.currency as string | null ) }</span>
 						<span className="desc">{ sprintf( /* translators: %d: number of orders. */ _n( '%d order', '%d orders', orders, 'vulocart' ), orders ) }</span>
 					</div>
 				);
@@ -369,24 +461,18 @@ export function CustomersList() {
 				{
 					label: __( 'View', 'vulocart' ),
 					icon: 'eye',
-					type: 'button' as const,
-					color: 'text-blue',
 					onClick: ( row: Record< string, unknown > ) => {
 						window.location.href = `admin.php?page=customers&action=view&id=${ row.id }`;
 					},
 				},
 				{
 					label: __( 'Quick edit', 'vulocart' ),
-					icon: 'bulk-action',
-					type: 'button' as const,
-					color: 'text-blue',
+					icon: 'setting',
 					onClick: ( row: Record< string, unknown > ) => setEditing( row as unknown as CustomerRow ),
 				},
 				{
 					label: __( 'Delete', 'vulocart' ),
 					icon: 'delete',
-					type: 'button' as const,
-					color: 'text-red',
 					onClick: ( row: Record< string, unknown > ) => setDeleteIds( [ Number( row.id ) ] ),
 				},
 			],
@@ -419,22 +505,24 @@ export function CustomersList() {
 						<>
 							<ButtonInput
 								buttons={ [
-														{
-															text: __( 'Export', 'vulocart' ),
-															icon: 'download',
-															color: 'purple',
-															onClick: () => downloadAllCSV( lastQuery.current ),
-														},
-													] }
+									{
+										text: __( 'Export', 'vulocart' ),
+										icon: 'download',
+										color: 'purple',
+										onClick: () => downloadAllCSV( lastQuery.current ),
+									},
+									{
+										text: __( 'Add Customer', 'vulocart' ),
+										icon: 'plus',
+										onClick: () => setIsAdding( true ),
+									},
+								] }
 							/>
 							<ViewsMenu builtIns={ BUILT_IN_VIEWS.filter( ( view ) => '' !== view.id ) } config={ viewsConfig } onChange={ ( next ) => { setViewsConfig( next ); if ( ( activeView || activeSaved ) && ( ! next.enabled || next.hidden.includes( activeView ) ) ) { chooseView( '' ); } } } onRestore={ restoreViews } />
 						</>
 					}
 					headerTitle={ __( 'Customers', 'vulocart' ) }
-					headerDescription={ __(
-						'Every shopper who has placed an order - profile, saved addresses, order history, and internal notes in one place.',
-						'vulocart'
-					) }
+					headerDescription={ __( 'Everyone who has placed an order.', 'vulocart' ) }
 				/>
 
 				<div className="vulocart-saved-views" style={ viewsConfig.enabled ? undefined : { display: "none" } }>
@@ -448,9 +536,11 @@ export function CustomersList() {
 							<i className="adminfont-close-delete" aria-label={ __( 'Delete saved view', 'vulocart' ) } onClick={ () => deleteSavedView( view.name ) } />
 						</span>
 					) ) }
-					<button type="button" className="vulocart-save-view-button" onClick={ () => setIsNamingView( true ) }>
-						+ { __( 'Save current filters as a view', 'vulocart' ) }
-					</button>
+					{ hasCriteria && ! activeSaved && (
+						<button type="button" className="vulocart-save-view-button" onClick={ () => setIsNamingView( true ) }>
+							+ { __( 'Save current filters as a view', 'vulocart' ) }
+						</button>
+					) }
 					{ null !== searchOverride && searchOverride && (
 						<span className="vulocart-saved-views-label">{ sprintf( /* translators: %s: search text. */ __( 'Searching "%s"', 'vulocart' ), searchOverride ) }</span>
 					) }
@@ -493,6 +583,18 @@ export function CustomersList() {
 				onCancel={ () => setDeleteIds( [] ) }
 			/>
 
+			{ isAdding && (
+				<CustomerAdd
+					onClose={ () => {
+						setIsAdding( false );
+
+						// Leaving Add New: back to the plain list URL, so a reload doesn't reopen the popup.
+						if ( new URLSearchParams( window.location.search ).get( 'action' ) === 'add' ) {
+							window.history.replaceState( null, '', 'admin.php?page=customers' );
+						}
+					} }
+				/>
+			) }
 			{ editing && <CustomerQuickEdit customer={ editing } onClose={ () => setEditing( null ) } onSaved={ () => doRefreshTableData( lastQuery.current ) } /> }
 			{ isNamingView && <SavedViewName onClose={ () => setIsNamingView( false ) } onSave={ saveCurrentView } /> }
 		</ContainerComponent>

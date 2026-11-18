@@ -27,7 +27,7 @@ const views: Record< string, EngineView > = {
 	},
 	warehouses: {
 		title: __( 'Warehouses', 'vulocart' ),
-		description: __( 'Every stock location this store fulfills from - orders decrement from the default warehouse.', 'vulocart' ),
+		description: __( 'Where your stock is kept. Orders take stock from the default one.', 'vulocart' ),
 		icon: 'store-inventory',
 		module: moduleId,
 		pro: true,
