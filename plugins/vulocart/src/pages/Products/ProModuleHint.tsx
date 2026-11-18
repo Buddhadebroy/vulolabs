@@ -3,6 +3,7 @@ import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import axios from 'axios';
 import MODULES_CATALOG, { isModuleCatalogEntry, moduleCardId } from '../../modules-config';
+import UpgradeToPro from '../../components/Popup/UpgradeToPro';
 
 interface ProModuleHintProps {
 	/** Module id (`Modules::camel_to_kebab()` of the folder), e.g. `pricing-rules`. */
@@ -13,7 +14,7 @@ interface ProModuleHintProps {
 
 /**
  * A compact line inside a product card where a Pro module's block would be, shown while that block isn't
- * there: it says what's missing and offers the one fix - upgrade (no Pro), Licensing (Pro, no license) or
+ * there: it says what's missing and offers the one fix - the Pro popup (Pro not installed or not licensed) or
  * switching the module on in place. Same decision `EngineScreen`'s `ModuleRequired` makes for whole pages.
  */
 export function ProModuleHint( { module, title, description }: ProModuleHintProps ) {
@@ -23,7 +24,6 @@ export function ProModuleHint( { module, title, description }: ProModuleHintProp
 	const moduleName = MODULES_CATALOG.modules.filter( isModuleCatalogEntry ).find( ( entry ) => entry.id === moduleCardId( module ) )?.name;
 	const hasPro = !! vulocartLocalizer.pro_version;
 	const licensed = !! vulocartLocalizer.khali_dabba;
-	const settingsUrl = `${ vulocartLocalizer.adminUrl }admin.php?page=vulocart#&tab=settings&subtab=`;
 
 	const activate = () => {
 		setBusy( true );
@@ -44,18 +44,8 @@ export function ProModuleHint( { module, title, description }: ProModuleHintProp
 
 	let action;
 
-	if ( ! hasPro ) {
-		action = (
-			<a className="vulocart-pro-hint-button" href={ vulocartLocalizer.shop_url } target="_blank" rel="noreferrer">
-				{ __( 'Upgrade to Pro', 'vulocart' ) }
-			</a>
-		);
-	} else if ( ! licensed ) {
-		action = (
-			<a className="vulocart-pro-hint-button" href={ `${ settingsUrl }licensing` }>
-				{ __( 'Activate license', 'vulocart' ) }
-			</a>
-		);
+	if ( ! hasPro || ! licensed ) {
+		action = <UpgradeToPro className="vulocart-pro-hint-button" feature={ { title, description } } />;
 	} else {
 		action = (
 			<button type="button" className="vulocart-pro-hint-button" disabled={ busy } onClick={ activate }>

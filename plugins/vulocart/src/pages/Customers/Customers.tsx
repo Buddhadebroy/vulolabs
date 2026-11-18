@@ -12,7 +12,7 @@ interface CustomersProps {
 }
 
 /**
- * Branches between the list, the customer-detail page, and any Pro-
+ * Branches between the list (with the add popup open for `action=add`), the customer-detail page, and any Pro-
  * registered extra view, based on the `action`/`id`/`view` query params
  * `src/index.tsx` parses from `location.search` on mount - same query-
  * string-driven navigation `Orders.tsx`/`Products.tsx` already establish.
@@ -38,7 +38,7 @@ export function Customers( { action, id, view }: CustomersProps ) {
 		}
 	}
 
-	return <CustomersList />;
+	return <CustomersList adding={ 'add' === action } />;
 }
 
 export default Customers;

@@ -5,10 +5,11 @@ import type { ReactNode } from 'react';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import axios from 'axios';
 import { getApiLink } from '@zyra/core';
-import { ContainerComponent, ColumnComponent, NavigatorHeaderComponent } from '@zyra/components';
+import { AvatarComponent, ContainerComponent, ColumnComponent, NavigatorHeaderComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { formatWpDate } from '../../services/formatWpDate';
 import { ModuleRequired, type EngineView } from '../../components/EngineScreen/EngineScreen';
+import { ProSample, proLocked } from '../../components/Popup/ProSample';
 import './dashboard.scss';
 
 interface Period {
@@ -36,9 +37,19 @@ interface Summary {
 		fulfillment_status: string;
 		created_at: string;
 	}[];
-	top_products: { product_id: number; title: string; quantity: number; revenue: number }[];
+	/** `stock` is null when the product doesn't track stock. */
+	top_products: { product_id: number; title: string; quantity: number; revenue: number; stock: number | null }[];
 	low_stock: { id: number; title: string; sku: string | null; quantity: number }[];
-	catalog: { products: number; threshold: number };
+	/** Product count, the low-stock threshold, and the catalogue gaps that cost sales. */
+	catalog: { products: number; threshold: number; drafts: number; no_price: number; no_image: number };
+	/** Paid orders to ship and unpaid orders, oldest first (5 each). */
+	queue: { to_ship: Summary[ 'recent_orders' ]; unpaid: Summary[ 'recent_orders' ] };
+	unpaid_value: number;
+	last_order_at: string | null;
+	/** People who bought in the range, and how many of them had bought before it. */
+	customers: { buyers: number; returning: number };
+	/** Ids of the payment methods checkout offers right now. */
+	payments: string[];
 }
 
 const RANGES = [
@@ -58,25 +69,32 @@ const ANALYTICS_VIEW: EngineView = {
 	pro: true,
 };
 
-const PAYMENT_BADGE: Record< string, string > = { paid: 'is-good', pending: 'is-warn', failed: 'is-bad', refunded: 'is-muted' };
-const FULFILLMENT_BADGE: Record< string, string > = {
-	pending: 'is-warn',
-	processing: 'is-info',
-	shipped: 'is-info',
-	completed: 'is-good',
-	cancelled: 'is-muted',
-};
+/** Made-up figures for the Store insights sample, in the Analytics module's own terms. */
+const SAMPLE_INSIGHTS: Array< [ string, string, string ] > = [
+	[ __( 'Conversion rate', 'vulocart' ), '3.4%', __( 'Visits that ordered', 'vulocart' ) ],
+	[ __( 'Customer lifetime value', 'vulocart' ), '$186', __( 'Average per customer', 'vulocart' ) ],
+	[ __( 'Returning customers', 'vulocart' ), '28%', __( 'Ordered more than once', 'vulocart' ) ],
+	[ __( 'Recovered carts', 'vulocart' ), '$640', __( '12 abandoned checkouts won back', 'vulocart' ) ],
+];
 
-const STATUS_LABELS: Record< string, string > = {
-	paid: __( 'Paid', 'vulocart' ),
-	pending: __( 'Pending', 'vulocart' ),
-	failed: __( 'Failed', 'vulocart' ),
-	refunded: __( 'Refunded', 'vulocart' ),
-	processing: __( 'Processing', 'vulocart' ),
-	shipped: __( 'Shipped', 'vulocart' ),
-	completed: __( 'Completed', 'vulocart' ),
-	cancelled: __( 'Cancelled', 'vulocart' ),
-};
+/** Store insights while VuloCart Pro can't provide them: sample figures and the Pro popup. */
+const StoreInsightsSample = () => (
+	<ProSample
+		feature={ { title: ANALYTICS_VIEW.title, description: ANALYTICS_VIEW.description, icon: ANALYTICS_VIEW.icon } }
+		text={ __( 'Conversion, lifetime value, retention, abandoned carts, AI insights and stock forecasts.', 'vulocart' ) }
+		cta={ __( 'Unlock store insights', 'vulocart' ) }
+	>
+		<div className="vc-sample-tiles">
+			{ SAMPLE_INSIGHTS.map( ( [ label, value, hint ] ) => (
+				<div key={ label }>
+					<span>{ label }</span>
+					<strong>{ value }</strong>
+					<small>{ hint }</small>
+				</div>
+			) ) }
+		</div>
+	</ProSample>
+);
 
 /** Reads the chosen reporting range (in days) from localStorage, defaulting to 30. */
 const readRange = (): number => {
@@ -249,7 +267,7 @@ function AreaChart( { series, currency, metric }: { series: Summary[ 'series' ];
 				<svg viewBox="0 0 600 190" preserveAspectRatio="none" aria-hidden="true">
 					<defs>
 						<linearGradient id="vd-area" x1="0" y1="0" x2="0" y2="1">
-							<stop offset="0%" stopColor="#5007aa" stopOpacity="0.28" />
+							<stop offset="0%" stopColor="#5007aa" stopOpacity="0.16" />
 							<stop offset="100%" stopColor="#5007aa" stopOpacity="0" />
 						</linearGradient>
 					</defs>
@@ -285,36 +303,298 @@ function AreaChart( { series, currency, metric }: { series: Summary[ 'series' ];
 	);
 }
 
-/** Healthy / low / out-of-stock as one bar, so catalogue health reads at a glance. */
-function StockBar( { products, low, out }: { products: number; low: number; out: number } ) {
-	const total = Math.max( products, low + out, 1 );
-	const healthy = Math.max( 0, total - low - out );
-	const part = ( value: number ) => `${ ( value / total ) * 100 }%`;
+/** How long ago a UTC `Y-m-d H:i:s` timestamp was, in hours or days. */
+const waitedHours = ( createdAt: string ): number => Math.max( 0, ( Date.now() - new Date( `${ createdAt.replace( ' ', 'T' ) }Z` ).getTime() ) / 3600000 );
+
+/** "Just now", "5h" or "3 days": how long an order has been waiting. */
+const waitedLabel = ( hours: number ): string => {
+	if ( hours < 1 ) {
+		return __( 'just now', 'vulocart' );
+	}
+
+	if ( hours < 24 ) {
+		return sprintf( /* translators: %d: hours. */ __( '%dh', 'vulocart' ), Math.floor( hours ) );
+	}
+
+	const days = Math.floor( hours / 24 );
+
+	return sprintf( /* translators: %d: days. */ _n( '%d day', '%d days', days, 'vulocart' ), days );
+};
+
+/** An order waiting this long is late: shown in red, and called out in the header. */
+const LATE_HOURS = 48;
+
+/** Offline methods the Payment module ships; anything else (Stripe, PayPal…) takes payment online. */
+const OFFLINE_METHODS = [ 'manual', 'bank-transfer', 'cash-on-delivery' ];
+
+type QueueOrder = Summary[ 'queue' ][ 'to_ship' ][ number ];
+
+type WorkTab = {
+	id: 'ship' | 'pay' | 'stock' | 'reviews';
+	label: string;
+	count: number;
+	more: { label: string; href: string };
+};
+
+/**
+ * "Needs you": the work waiting on the merchant, one tab per kind, each showing the actual orders or products with
+ * the action that clears them. Oldest first, so the top row is always the next thing to do.
+ */
+function WorkQueue( { summary, currency }: { summary: Summary; currency: string } ) {
+	const { attention, queue, low_stock: lowStock } = summary;
+
+	const tabs = (
+		[
+			{ id: 'ship', label: __( 'To ship', 'vulocart' ), count: attention.to_fulfill, more: { label: __( 'All pending orders', 'vulocart' ), href: 'admin.php?page=orders&filter=pending' } },
+			{ id: 'pay', label: __( 'Awaiting payment', 'vulocart' ), count: attention.unpaid, more: { label: __( 'All orders', 'vulocart' ), href: 'admin.php?page=orders' } },
+			{ id: 'stock', label: __( 'Low stock', 'vulocart' ), count: attention.low_stock + attention.out_of_stock, more: { label: __( 'Inventory', 'vulocart' ), href: 'admin.php?page=inventory' } },
+			{ id: 'reviews', label: __( 'Reviews', 'vulocart' ), count: attention.pending_reviews, more: { label: __( 'Moderate reviews', 'vulocart' ), href: 'admin.php?page=vulocart#&tab=reviews' } },
+		] as WorkTab[]
+	).filter( ( tab ) => tab.count > 0 );
+
+	const [ picked, setPicked ] = useState< WorkTab[ 'id' ] | null >( null );
+	const active = tabs.find( ( tab ) => tab.id === picked ) ?? tabs[ 0 ];
+
+	if ( ! active ) {
+		return (
+			<div className="vd-clear">
+				<i className="adminfont-check" aria-hidden="true" />
+				<div>
+					<strong>{ __( "You're all caught up", 'vulocart' ) }</strong>
+					<span>{ __( 'Every paid order has shipped and nothing is running low.', 'vulocart' ) }</span>
+				</div>
+			</div>
+		);
+	}
+
+	// One quiet action per row, the same on every row: the page header keeps the only filled button, and a row of
+	// identical buttons reads as a list of tasks rather than one loud call and several faint ones.
+	const action = ( label: string, icon: string, href: string ) => (
+		<a className="vd-work-action" href={ href }>
+			<i className={ `adminfont-${ icon }` } aria-hidden="true" />
+			{ label }
+		</a>
+	);
+
+	const orderRow = ( order: QueueOrder, cta: string, icon: string ) => {
+		const hours = waitedHours( order.created_at );
+		const late = hours >= LATE_HOURS;
+		const href = `admin.php?page=orders&action=edit&id=${ order.id }`;
+
+		return (
+			<li key={ order.id }>
+				<AvatarComponent name={ order.customer || '' } size="sm" />
+				<a className="vd-work-main" href={ href }>
+					<strong>
+						#{ order.order_number } · { money( order.total, order.currency || currency ) }
+					</strong>
+					<span>{ order.customer || __( 'Guest', 'vulocart' ) }</span>
+				</a>
+				<span className={ `vd-work-age${ late ? ' is-late' : '' }` } title={ formatWpDate( order.created_at ) }>
+					<i className="adminfont-pending" aria-hidden="true" />
+					{ waitedLabel( hours ) }
+				</span>
+				{ action( cta, icon, href ) }
+			</li>
+		);
+	};
 
 	return (
-		<div className="vd-stock">
-			<div className="vd-stock-bar" role="img" aria-label={ __( 'Stock health', 'vulocart' ) }>
-				<i className="is-good" style={ { width: part( healthy ) } } />
-				<i className="is-warn" style={ { width: part( low ) } } />
-				<i className="is-bad" style={ { width: part( out ) } } />
+		<>
+			<div className="vd-work-tabs" role="tablist" aria-label={ __( 'Work waiting', 'vulocart' ) }>
+				{ tabs.map( ( tab ) => (
+					<button key={ tab.id } type="button" role="tab" aria-selected={ tab.id === active.id } className={ tab.id === active.id ? 'is-active' : '' } onClick={ () => setPicked( tab.id ) }>
+						{ tab.label }
+						<span>{ tab.count }</span>
+					</button>
+				) ) }
 			</div>
-			<ul className="vd-stock-legend">
-				<li className="is-good">{ sprintf( __( '%d healthy', 'vulocart' ), healthy ) }</li>
-				<li className="is-warn">{ sprintf( __( '%d low', 'vulocart' ), low ) }</li>
-				<li className="is-bad">{ sprintf( __( '%d out', 'vulocart' ), out ) }</li>
+
+			<ul className="vd-work-list" role="tabpanel">
+				{ 'ship' === active.id && queue.to_ship.map( ( order ) => orderRow( order, __( 'Fulfil', 'vulocart' ), 'delivery' ) ) }
+				{ 'pay' === active.id && queue.unpaid.map( ( order ) => orderRow( order, __( 'Follow up', 'vulocart' ), 'mail' ) ) }
+				{ 'stock' === active.id &&
+					lowStock.map( ( product ) => (
+						<li key={ product.id }>
+							<span className="vd-work-thumb" aria-hidden="true">
+								<i className="adminfont-product" />
+							</span>
+							<a className="vd-work-main" href={ `admin.php?page=products&action=edit&id=${ product.id }` }>
+								<strong>{ product.title }</strong>
+								<span>{ product.sku ? sprintf( __( 'SKU %s', 'vulocart' ), product.sku ) : __( 'No SKU', 'vulocart' ) }</span>
+							</a>
+							<span className={ `vd-work-age${ product.quantity <= 0 ? ' is-late' : '' }` }>
+								{ product.quantity <= 0 ? __( 'Out of stock', 'vulocart' ) : sprintf( __( '%d left', 'vulocart' ), product.quantity ) }
+							</span>
+							{ action( __( 'Restock', 'vulocart' ), 'export-import-stock', `admin.php?page=products&action=edit&id=${ product.id }` ) }
+						</li>
+					) ) }
+				{ 'reviews' === active.id && (
+					<li className="vd-work-note">
+						<span className="vd-work-thumb" aria-hidden="true">
+							<i className="adminfont-review" />
+						</span>
+						<span className="vd-work-main">
+							<strong>{ sprintf( _n( '%d review is waiting for approval', '%d reviews are waiting for approval', active.count, 'vulocart' ), active.count ) }</strong>
+							<span>{ __( 'Approved reviews show on the product page and help the next shopper decide.', 'vulocart' ) }</span>
+						</span>
+						{ action( __( 'Moderate', 'vulocart' ), 'review', active.more.href ) }
+					</li>
+				) }
 			</ul>
-		</div>
+
+			{ active.count > 5 && 'reviews' !== active.id && (
+				<a className="vd-work-more" href={ active.more.href }>
+					{ sprintf( __( 'See all %d', 'vulocart' ), active.count ) }
+					<i className="adminfont-arrow-right" aria-hidden="true" />
+				</a>
+			) }
+		</>
 	);
 }
 
+type Recommendation = {
+	id: string;
+	icon: string;
+	tone: 'is-bad' | 'is-warn' | 'is-info' | 'is-good';
+	title: string;
+	detail: string;
+	cta: { label: string; href: string };
+};
+
 /**
- * VuloCart → Dashboard, laid out around the questions a store owner opens it with:
- *  1. How am I doing?        hero: revenue against the previous range, daily trend, and the four numbers behind it
- *  2. What do I do next?     "Today's focus": the work waiting on them, worst first, each a click from done
- *  3. What sells / what runs out?   best sellers by share of revenue; stock health and the products to reorder
- *  4. What just happened?    latest orders, with the ones that need fulfilling flagged
- * Everything comes from one `GET /dashboard` call (Controllers\Dashboard); derived figures (paid rate, daily
- * average, best day) are computed here from it.
+ * What would grow the store, from the same summary: each a finding plus the one action that addresses it. Ordered
+ * by what costs the most sales when left alone (no way to pay, a best seller about to run out) down to polish.
+ */
+const recommend = ( summary: Summary, range: number ): Recommendation[] => {
+	const list: Recommendation[] = [];
+	const { catalog, customers, payments, current, previous } = summary;
+
+	if ( ! payments.length ) {
+		list.push( {
+			id: 'no-payments',
+			icon: 'payment',
+			tone: 'is-bad',
+			title: __( 'Shoppers have no way to pay', 'vulocart' ),
+			detail: __( 'No payment method is switched on, so checkout cannot finish.', 'vulocart' ),
+			cta: { label: __( 'Set up payments', 'vulocart' ), href: 'admin.php?page=vulocart#&tab=settings&subtab=payments' },
+		} );
+	} else if ( payments.every( ( method ) => OFFLINE_METHODS.includes( method ) ) ) {
+		list.push( {
+			id: 'offline-only',
+			icon: 'payment',
+			tone: 'is-warn',
+			title: __( 'Take card payments', 'vulocart' ),
+			detail: sprintf(
+				/* translators: %d: unpaid orders. */
+				__( 'Only offline methods are on, so every order waits for you to collect the money. %d are unpaid right now.', 'vulocart' ),
+				summary.attention.unpaid
+			),
+			cta: { label: __( 'Payment settings', 'vulocart' ), href: 'admin.php?page=vulocart#&tab=settings&subtab=payments' },
+		} );
+	}
+
+	// A best seller that runs out at its current pace within two weeks.
+	const runningOut = summary.top_products
+		.filter( ( product ) => null !== product.stock && product.quantity > 0 )
+		.map( ( product ) => ( { ...product, days: Math.floor( ( product.stock as number ) / ( product.quantity / range ) ) } ) )
+		.filter( ( product ) => product.days < 14 )
+		.sort( ( a, b ) => a.days - b.days )[ 0 ];
+
+	if ( runningOut ) {
+		list.push( {
+			id: 'running-out',
+			icon: 'store-inventory',
+			tone: 'is-bad',
+			title:
+				runningOut.days <= 0
+					? sprintf( __( '%s, a best seller, is sold out', 'vulocart' ), runningOut.title )
+					: sprintf( _n( '%1$s sells out in about %2$d day', '%1$s sells out in about %2$d days', runningOut.days, 'vulocart' ), runningOut.title, runningOut.days ),
+			detail: sprintf( __( '%1$d sold in the last %2$d days, %3$d left.', 'vulocart' ), runningOut.quantity, range, Math.max( 0, runningOut.stock as number ) ),
+			cta: { label: __( 'Restock', 'vulocart' ), href: `admin.php?page=products&action=edit&id=${ runningOut.product_id }` },
+		} );
+	}
+
+	if ( catalog.no_price > 0 ) {
+		list.push( {
+			id: 'no-price',
+			icon: 'price',
+			tone: 'is-bad',
+			title: sprintf( _n( '%d live product has no price', '%d live products have no price', catalog.no_price, 'vulocart' ), catalog.no_price ),
+			detail: __( 'Shoppers can see it but cannot add it to the cart.', 'vulocart' ),
+			cta: { label: __( 'Fix prices', 'vulocart' ), href: 'admin.php?page=products&filter=published' },
+		} );
+	}
+
+	const quiet = summary.last_order_at ? waitedHours( summary.last_order_at ) / 24 : null;
+
+	if ( null !== quiet && quiet >= 3 ) {
+		list.push( {
+			id: 'quiet',
+			icon: 'coupon',
+			tone: 'is-warn',
+			title: sprintf( __( 'No orders in %d days', 'vulocart' ), Math.floor( quiet ) ),
+			detail: __( 'A time-limited coupon is a quick way to bring shoppers back.', 'vulocart' ),
+			cta: { label: __( 'Create a coupon', 'vulocart' ), href: 'admin.php?page=marketing&view=coupons' },
+		} );
+	} else if ( previous.revenue > 0 && current.revenue < previous.revenue * 0.8 ) {
+		list.push( {
+			id: 'revenue-down',
+			icon: 'arrow-down',
+			tone: 'is-warn',
+			title: sprintf( __( 'Revenue is down %d%%', 'vulocart' ), Math.round( ( 1 - current.revenue / previous.revenue ) * 100 ) ),
+			detail: sprintf( __( 'Against the %d days before. A promotion can win some of it back.', 'vulocart' ), range ),
+			cta: { label: __( 'Create a coupon', 'vulocart' ), href: 'admin.php?page=marketing&view=coupons' },
+		} );
+	}
+
+	if ( customers.buyers >= 3 && customers.returning / customers.buyers < 0.2 ) {
+		list.push( {
+			id: 'repeat',
+			icon: 'membership',
+			tone: 'is-info',
+			title: customers.returning
+				? sprintf( __( 'Only %1$d of %2$d buyers came back', 'vulocart' ), customers.returning, customers.buyers )
+				: sprintf( __( 'None of your %d buyers has ordered again yet', 'vulocart' ), customers.buyers ),
+			detail: __( 'A thank-you coupon for a second order is the cheapest sale you can make.', 'vulocart' ),
+			cta: { label: __( 'Create a coupon', 'vulocart' ), href: 'admin.php?page=marketing&view=coupons' },
+		} );
+	}
+
+	if ( catalog.no_image > 0 ) {
+		list.push( {
+			id: 'no-image',
+			icon: 'image',
+			tone: 'is-info',
+			title: sprintf( _n( '%d product has no photo', '%d products have no photo', catalog.no_image, 'vulocart' ), catalog.no_image ),
+			detail: __( 'Shoppers skip products they cannot see. Add a featured image to each.', 'vulocart' ),
+			cta: { label: __( 'Add photos', 'vulocart' ), href: 'admin.php?page=products&filter=published' },
+		} );
+	}
+
+	if ( catalog.drafts > 0 ) {
+		list.push( {
+			id: 'drafts',
+			icon: 'edit',
+			tone: 'is-info',
+			title: sprintf( _n( '%d product is still a draft', '%d products are still drafts', catalog.drafts, 'vulocart' ), catalog.drafts ),
+			detail: __( 'Drafts are not in your store yet. Finish and publish them to start selling.', 'vulocart' ),
+			cta: { label: __( 'Finish drafts', 'vulocart' ), href: 'admin.php?page=products&filter=draft' },
+		} );
+	}
+
+	return list;
+};
+
+/**
+ * VuloCart → Dashboard, built around what the merchant should do next rather than numbers to read:
+ *  1. Needs you      the orders to ship, payments to chase, stock to reorder and reviews to approve - the actual
+ *                    items, oldest first, each with the button that clears it.
+ *  2. Grow           findings with one action each: no card payments, a best seller running out, buyers who
+ *                    never came back, products missing a price or photo, drafts never published.
+ *  3. Performance    the four numbers against the previous range, the daily trend and the best sellers with how
+ *                    long their stock lasts.
+ * Everything comes from one `GET /dashboard` call (Controllers\Dashboard).
  */
 const Dashboard = () => {
 	const [ range, setRange ] = useState< number >( readRange );
@@ -347,22 +627,36 @@ const Dashboard = () => {
 	const currency = summary?.currency || 'USD';
 	// Until the merchant picks one, chart orders while nothing has been paid yet (an all-zero revenue chart says nothing).
 	const metric = pickedMetric ?? ( summary && ! summary.current.revenue && summary.current.orders ? 'orders' : 'revenue' );
+	const recommendations = useMemo( () => ( summary ? recommend( summary, range ) : [] ), [ summary, range ] );
 
-	const attention = useMemo( () => {
+	// One sentence under the greeting: the most urgent thing, so the page answers "what now?" before any number.
+	const headline = useMemo( () => {
 		if ( ! summary ) {
-			return [];
+			return __( 'Checking what needs your attention…', 'vulocart' );
 		}
 
-		const { to_fulfill: toFulfill, unpaid, pending_reviews: pendingReviews, low_stock: lowStock, out_of_stock: outOfStock } = summary.attention;
+		const { to_fulfill: toShip, unpaid } = summary.attention;
+		const oldest = summary.queue.to_ship[ 0 ];
+		const parts: string[] = [];
 
-		return [
-			{ count: outOfStock, icon: 'out-of-stock', tone: 'is-bad', cta: __( 'Restock', 'vulocart' ), text: _n( 'product is out of stock', 'products are out of stock', outOfStock, 'vulocart' ), href: 'admin.php?page=inventory' },
-			{ count: toFulfill, icon: 'delivery', tone: 'is-warn', cta: __( 'Fulfil', 'vulocart' ), text: _n( 'paid order to fulfil', 'paid orders to fulfil', toFulfill, 'vulocart' ), href: 'admin.php?page=orders' },
-			{ count: unpaid, icon: 'pending', tone: 'is-warn', cta: __( 'Review', 'vulocart' ), text: _n( 'order awaiting payment', 'orders awaiting payment', unpaid, 'vulocart' ), href: 'admin.php?page=orders' },
-			{ count: lowStock, icon: 'store-inventory', tone: 'is-warn', cta: __( 'Reorder', 'vulocart' ), text: _n( 'product running low', 'products running low', lowStock, 'vulocart' ), href: 'admin.php?page=inventory' },
-			{ count: pendingReviews, icon: 'review', tone: 'is-info', cta: __( 'Moderate', 'vulocart' ), text: _n( 'review to moderate', 'reviews to moderate', pendingReviews, 'vulocart' ), href: 'admin.php?page=vulocart#&tab=reviews' },
-		].filter( ( item ) => item.count > 0 );
-	}, [ summary ] );
+		if ( toShip ) {
+			parts.push(
+				oldest && waitedHours( oldest.created_at ) >= LATE_HOURS
+					? sprintf( _n( '%1$d paid order is waiting to ship, the oldest for %2$s', '%1$d paid orders are waiting to ship, the oldest for %2$s', toShip, 'vulocart' ), toShip, waitedLabel( waitedHours( oldest.created_at ) ) )
+					: sprintf( _n( '%d paid order is ready to ship', '%d paid orders are ready to ship', toShip, 'vulocart' ), toShip )
+			);
+		}
+
+		if ( unpaid ) {
+			parts.push( sprintf( __( '%s is waiting on payment', 'vulocart' ), money( summary.unpaid_value, currency ) ) );
+		}
+
+		if ( ! parts.length ) {
+			return __( 'Nothing is waiting on you. Here is how the store is doing.', 'vulocart' );
+		}
+
+		return `${ parts.join( __( ' and ', 'vulocart' ) ) }.`;
+	}, [ summary, currency ] );
 
 	const header = (
 		<NavigatorHeaderComponent
@@ -373,16 +667,13 @@ const Dashboard = () => {
 				greeting(),
 				vulocartLocalizer.user_display_name || __( 'there', 'vulocart' )
 			) }
-			headerDescription={ __( 'How your store is doing, and what needs your attention today.', 'vulocart' ) }
+			headerDescription={ headline }
 			headerCustomContent={
 				<div className="vulocart-dash-header-actions">
-					<div className="vulocart-dash-range" role="group" aria-label={ __( 'Date range', 'vulocart' ) }>
-						{ RANGES.map( ( option ) => (
-							<button key={ option.value } type="button" className={ range === option.value ? 'is-active' : '' } onClick={ () => setRange( option.value ) }>
-								{ option.label }
-							</button>
-						) ) }
-					</div>
+					<a className="admin-btn btn-purple" href="admin.php?page=orders&action=add">
+						<i className="adminfont-plus" aria-hidden="true" />
+						{ __( 'Create order', 'vulocart' ) }
+					</a>
 					<ButtonInput
 						buttons={ [
 							{
@@ -418,21 +709,54 @@ const Dashboard = () => {
 	const series = summary?.series ?? [];
 	const average = now && now.orders ? now.order_value / now.orders : 0;
 	const averageBefore = before && before.orders ? before.order_value / before.orders : 0;
-	const awaiting = now ? Math.max( 0, now.order_value - now.revenue ) : 0;
 	const paidRate = now && now.orders ? Math.round( ( now.paid_orders / now.orders ) * 100 ) : null;
 	const perDay = now ? now.revenue / Math.max( 1, series.length || range ) : 0;
 	const bestDay = series.reduce< Summary[ 'series' ][ number ] | null >( ( best, point ) => ( ! best || point.revenue + point.orders > best.revenue + best.orders ? point : best ), null );
 	const isNewStore = summary && 0 === summary.recent_orders.length;
-	const revenueChange = now && before ? delta( now.revenue, before.revenue ) : null;
 	const versus = sprintf(
 		/* translators: %d: number of days. */
 		__( 'vs previous %d days', 'vulocart' ),
 		range
 	);
-	const topRevenue = Math.max( 1, summary?.top_products[ 0 ]?.revenue ?? 1 );
-	const revenueShare = summary && now && now.revenue > 0 ? summary.top_products.reduce( ( sum, product ) => sum + product.revenue, 0 ) / now.revenue : 0;
+	const topRevenue = Math.max( 1, ...( summary?.top_products ?? [] ).map( ( product ) => product.revenue ) );
+	const workCount = summary ? summary.attention.to_fulfill + summary.attention.unpaid + summary.attention.low_stock + summary.attention.out_of_stock + summary.attention.pending_reviews : 0;
 
 	const insights = applyFilters( 'vulocart_analytics_view', null, { view: 'dashboard', days: range, currency } ) as ReactNode;
+
+	const kpis = [
+		{
+			label: __( 'Revenue', 'vulocart' ),
+			icon: 'revenue',
+			value: now ? money( now.revenue, currency ) : '–',
+			change: now && before ? delta( now.revenue, before.revenue ) : null,
+			hint: now && now.revenue > 0 ? sprintf( __( 'About %s a day', 'vulocart' ), money( perDay, currency ) ) : versus,
+			href: 'admin.php?page=orders',
+		},
+		{
+			label: __( 'Orders', 'vulocart' ),
+			icon: 'order',
+			value: now ? String( now.orders ) : '–',
+			change: now && before ? delta( now.orders, before.orders ) : null,
+			hint: null !== paidRate ? sprintf( __( '%d%% paid', 'vulocart' ), paidRate ) : versus,
+			href: 'admin.php?page=orders',
+		},
+		{
+			label: __( 'Average order', 'vulocart' ),
+			icon: 'cart',
+			value: now ? money( average, currency ) : '–',
+			change: delta( average, averageBefore ),
+			hint: versus,
+			href: 'admin.php?page=orders',
+		},
+		{
+			label: __( 'New customers', 'vulocart' ),
+			icon: 'user-circle',
+			value: now ? String( now.new_customers ) : '–',
+			change: now && before ? delta( now.new_customers, before.new_customers ) : null,
+			hint: summary && summary.customers.buyers ? sprintf( __( '%1$d of %2$d buyers returning', 'vulocart' ), summary.customers.returning, summary.customers.buyers ) : versus,
+			href: 'admin.php?page=customers',
+		},
+	];
 
 	return (
 		<ContainerComponent general>
@@ -451,8 +775,8 @@ const Dashboard = () => {
 									<i className={ summary.catalog.products > 0 ? 'adminfont-check' : 'adminfont-add-product' } aria-hidden="true" />
 									<a href={ summary.catalog.products > 0 ? 'admin.php?page=products' : 'admin.php?page=products&action=add' }>{ __( 'Add products', 'vulocart' ) }</a>
 								</li>
-								<li>
-									<i className="adminfont-payment" aria-hidden="true" />
+								<li className={ summary.payments.length > 0 ? 'is-done' : '' }>
+									<i className={ summary.payments.length > 0 ? 'adminfont-check' : 'adminfont-payment' } aria-hidden="true" />
 									<a href="admin.php?page=vulocart#&tab=settings&subtab=payments">{ __( 'Set up payments', 'vulocart' ) }</a>
 								</li>
 								<li>
@@ -463,60 +787,72 @@ const Dashboard = () => {
 						</section>
 					) }
 
-					{ /* How am I doing? Four numbers, each against the previous range. */ }
+					{ /* 1 + 2: what to do now, and what would grow the store. */ }
+					<div className="vd-act">
+						<Card title={ __( 'Needs you', 'vulocart' ) } icon="notification" badge={ workCount || undefined } note={ __( 'Oldest first. Clear these and every customer is looked after.', 'vulocart' ) }>
+							{ summary ? <WorkQueue summary={ summary } currency={ currency } /> : <div className="vulocart-dash-skeleton" /> }
+						</Card>
+
+						<Card title={ __( 'Grow your store', 'vulocart' ) } icon="analytics" note={ __( 'What would make the biggest difference, from your own numbers.', 'vulocart' ) }>
+							{ ! summary && <div className="vulocart-dash-skeleton" /> }
+							{ summary && ! recommendations.length && (
+								<div className="vd-clear">
+									<i className="adminfont-check" aria-hidden="true" />
+									<div>
+										<strong>{ __( 'Your store is in good shape', 'vulocart' ) }</strong>
+										<span>{ __( 'Payments, stock and your catalogue all look right.', 'vulocart' ) }</span>
+									</div>
+								</div>
+							) }
+							{ recommendations.length > 0 && (
+								<ul className="vd-recs">
+									{ recommendations.slice( 0, 4 ).map( ( item ) => (
+										<li key={ item.id } className={ item.tone }>
+											<span className="vd-recs-icon" aria-hidden="true">
+												<i className={ `adminfont-${ item.icon }` } />
+											</span>
+											<span className="vd-recs-text">
+												<strong>{ item.title }</strong>
+												<span>{ item.detail }</span>
+											</span>
+											<a className="admin-btn btn-purple" href={ item.cta.href }>
+												{ item.cta.label }
+											</a>
+										</li>
+									) ) }
+								</ul>
+							) }
+						</Card>
+					</div>
+
+					{ /* 3: how the store is doing. */ }
+					<div className="vd-section-head">
+						<h2>{ __( 'Performance', 'vulocart' ) }</h2>
+						<div className="vulocart-dash-range" role="group" aria-label={ __( 'Date range', 'vulocart' ) }>
+							{ RANGES.map( ( option ) => (
+								<button key={ option.value } type="button" className={ range === option.value ? 'is-active' : '' } onClick={ () => setRange( option.value ) }>
+									{ option.label }
+								</button>
+							) ) }
+						</div>
+					</div>
+
 					<section className="vd-kpis" aria-label={ __( 'Key figures', 'vulocart' ) }>
-						<div className="vd-kpi">
-							<span className="vd-kpi-label is-green">
-								<span className="vd-icon">
-									<i className="adminfont-bar-chart" aria-hidden="true" />
+						{ kpis.map( ( kpi ) => (
+							<a key={ kpi.label } className="vd-kpi" href={ kpi.href }>
+								<span className="vd-kpi-label">
+									<span className="vd-kpi-icon" aria-hidden="true">
+										<i className={ `adminfont-${ kpi.icon }` } />
+									</span>
+									{ kpi.label }
 								</span>
-								{ __( 'Revenue', 'vulocart' ) }
-							</span>
-							<span className="vd-kpi-value">
-								{ now ? money( now.revenue, currency ) : '–' }
-								<Delta change={ revenueChange } />
-							</span>
-							<span className="vd-kpi-hint">{ awaiting > 0 ? sprintf( __( '%s awaiting payment', 'vulocart' ), money( awaiting, currency ) ) : versus }</span>
-						</div>
-						<div className="vd-kpi">
-							<span className="vd-kpi-label is-blue">
-								<span className="vd-icon">
-									<i className="adminfont-order" aria-hidden="true" />
+								<span className="vd-kpi-value">
+									{ kpi.value }
+									<Delta change={ kpi.change } />
 								</span>
-								{ __( 'Orders', 'vulocart' ) }
-							</span>
-							<span className="vd-kpi-value">
-								{ now ? now.orders : '–' }
-								<Delta change={ now && before ? delta( now.orders, before.orders ) : null } />
-							</span>
-							<span className="vd-kpi-hint">{ now ? sprintf( __( '%1$d paid%2$s', 'vulocart' ), now.paid_orders, null !== paidRate ? ` · ${ paidRate }%` : '' ) : '' }</span>
-						</div>
-						<div className="vd-kpi">
-							<span className="vd-kpi-label is-violet">
-								<span className="vd-icon">
-									<i className="adminfont-analytics" aria-hidden="true" />
-								</span>
-								{ __( 'Average order', 'vulocart' ) }
-							</span>
-							<span className="vd-kpi-value">
-								{ now ? money( average, currency ) : '–' }
-								<Delta change={ delta( average, averageBefore ) } />
-							</span>
-							<span className="vd-kpi-hint">{ versus }</span>
-						</div>
-						<div className="vd-kpi">
-							<span className="vd-kpi-label is-amber">
-								<span className="vd-icon">
-									<i className="adminfont-membership" aria-hidden="true" />
-								</span>
-								{ __( 'New customers', 'vulocart' ) }
-							</span>
-							<span className="vd-kpi-value">
-								{ now ? now.new_customers : '–' }
-								<Delta change={ now && before ? delta( now.new_customers, before.new_customers ) : null } />
-							</span>
-							<span className="vd-kpi-hint">{ versus }</span>
-						</div>
+								<span className="vd-kpi-hint">{ kpi.hint }</span>
+							</a>
+						) ) }
 					</section>
 
 					<div className="vd-layout">
@@ -524,12 +860,7 @@ const Dashboard = () => {
 							<Card
 								title={ __( 'Sales', 'vulocart' ) }
 								icon="bar-chart"
-								tone="blue"
-								note={
-									now && now.revenue > 0
-										? `${ sprintf( __( 'About %s a day', 'vulocart' ), money( perDay, currency ) ) }${ bestDay && ( bestDay.revenue || bestDay.orders ) ? ` · ${ sprintf( __( 'best day %s', 'vulocart' ), shortDate( bestDay.date ) ) }` : '' }`
-										: undefined
-								}
+								note={ bestDay && ( bestDay.revenue || bestDay.orders ) ? sprintf( __( 'Best day %s', 'vulocart' ), shortDate( bestDay.date ) ) : undefined }
 								control={
 									<div className="vulocart-dash-range is-small" role="group" aria-label={ __( 'Chart metric', 'vulocart' ) }>
 										<button type="button" className={ 'revenue' === metric ? 'is-active' : '' } onClick={ () => setMetric( 'revenue' ) }>
@@ -543,167 +874,49 @@ const Dashboard = () => {
 							>
 								{ summary && series.length ? <AreaChart series={ series } currency={ currency } metric={ metric } /> : <div className="vulocart-dash-skeleton is-chart" /> }
 							</Card>
-
-							<Card title={ __( 'Recent orders', 'vulocart' ) } icon="order" tone="violet" action={ { label: __( 'All orders', 'vulocart' ), href: 'admin.php?page=orders' } }>
-								{ ! summary && <div className="vulocart-dash-skeleton" /> }
-								{ summary && ! summary.recent_orders.length && <Empty icon="order" text={ __( 'No orders yet. They will show up here as they come in.', 'vulocart' ) } /> }
-								{ summary && summary.recent_orders.length > 0 && (
-									<ul className="vd-list">
-										{ summary.recent_orders.slice( 0, 5 ).map( ( order ) => {
-											const needsFulfil = 'paid' === order.payment_status && 'pending' === order.fulfillment_status;
-
-											return (
-												<li key={ order.id }>
-													<span className="vd-avatar" aria-hidden="true">{ ( order.customer || '?' ).charAt( 0 ).toUpperCase() }</span>
-													<a className="vd-list-main" href={ `admin.php?page=orders&action=edit&id=${ order.id }` }>
-														<strong>#{ order.order_number }</strong>
-														<span>
-															{ order.customer || __( 'Guest', 'vulocart' ) } · { formatWpDate( order.created_at ) }
-														</span>
-													</a>
-													<span className="vd-list-badges">
-														<span className={ `vulocart-dash-pill ${ PAYMENT_BADGE[ order.payment_status ] ?? 'is-muted' }` }>
-															{ 'pending' === order.payment_status ? __( 'Unpaid', 'vulocart' ) : STATUS_LABELS[ order.payment_status ] ?? order.payment_status }
-														</span>
-														<span className={ `vulocart-dash-pill ${ FULFILLMENT_BADGE[ order.fulfillment_status ] ?? 'is-muted' }` }>
-															{ 'pending' === order.fulfillment_status ? __( 'Unfulfilled', 'vulocart' ) : STATUS_LABELS[ order.fulfillment_status ] ?? order.fulfillment_status }
-														</span>
-													</span>
-													{ needsFulfil && (
-														<a className="vd-chip-cta" href={ `admin.php?page=orders&action=edit&id=${ order.id }` }>
-															{ __( 'Fulfil', 'vulocart' ) }
-														</a>
-													) }
-													<strong className="vd-list-value">{ money( order.total, order.currency || currency ) }</strong>
-												</li>
-											);
-										} ) }
-									</ul>
-								) }
-							</Card>
 						</div>
 
 						<div className="vd-col">
-							<Card
-								title={ __( "Today's focus", 'vulocart' ) }
-								icon="notification"
-								tone="red"
-								badge={ attention.length > 0 ? attention.length : undefined }
-							>
-								{ ! summary && <div className="vulocart-dash-skeleton" /> }
-								{ summary && attention.length > 0 && (
-									<ul className="vd-queue">
-										{ attention.map( ( item ) => (
-											<li key={ item.icon + item.href }>
-												<a className={ item.tone } href={ item.href }>
-													<span className="vd-queue-icon">
-														<i className={ `adminfont-${ item.icon }` } aria-hidden="true" />
-													</span>
-													<span className="vd-queue-text">
-														<strong>{ item.count }</strong> { item.text }
-													</span>
-													<span className="vd-queue-cta">
-														{ item.cta }
-														<i className="adminfont-arrow-right" aria-hidden="true" />
-													</span>
-												</a>
-											</li>
-										) ) }
-									</ul>
-								) }
-								{ summary && 0 === attention.length && (
-									<div className="vd-clear">
-										<i className="adminfont-check" aria-hidden="true" />
-										<div>
-											<strong>{ __( "You're all caught up", 'vulocart' ) }</strong>
-											<span>{ __( 'Nothing needs your attention. A good time to run a promotion.', 'vulocart' ) }</span>
-										</div>
-										<a href="admin.php?page=marketing&view=coupons">{ __( 'Create a coupon', 'vulocart' ) }</a>
-									</div>
-								) }
-								<div className="vd-shortcuts">
-									<a href="admin.php?page=products&action=add">
-										<i className="adminfont-add-product" aria-hidden="true" />
-										{ __( 'Add product', 'vulocart' ) }
-									</a>
-									<a href="admin.php?page=orders&action=add">
-										<i className="adminfont-order" aria-hidden="true" />
-										{ __( 'Create order', 'vulocart' ) }
-									</a>
-									<a href={ vulocartLocalizer.site_url } target="_blank" rel="noopener noreferrer">
-										<i className="adminfont-storefront" aria-hidden="true" />
-										{ __( 'View store', 'vulocart' ) }
-									</a>
-								</div>
-							</Card>
-
-							<Card title={ __( 'Top products', 'vulocart' ) } icon="product" tone="amber" action={ { label: __( 'Products', 'vulocart' ), href: 'admin.php?page=products' } }>
+							<Card title={ __( 'Best sellers', 'vulocart' ) } icon="product" action={ { label: __( 'Products', 'vulocart' ), href: 'admin.php?page=products' } }>
 								{ ! summary && <div className="vulocart-dash-skeleton" /> }
 								{ summary && ! summary.top_products.length && <Empty icon="product" text={ __( 'Best sellers appear once orders come in.', 'vulocart' ) } /> }
 								{ summary && summary.top_products.length > 0 && (
-									<>
-										{ revenueShare > 0 && (
-											<p className="vd-note">
-												{ sprintf( __( 'These %1$d products bring in %2$d%% of your revenue.', 'vulocart' ), Math.min( 4, summary.top_products.length ), Math.min( 100, Math.round( revenueShare * 100 ) ) ) }
-											</p>
-										) }
-										<ol className="vd-rank">
-											{ summary.top_products.slice( 0, 4 ).map( ( product, index ) => (
+									<ol className="vd-rank">
+										{ summary.top_products.slice( 0, 5 ).map( ( product, index ) => {
+											const days = null !== product.stock && product.quantity > 0 ? Math.floor( product.stock / ( product.quantity / range ) ) : null;
+
+											return (
 												<li key={ product.product_id }>
 													<span className="vd-rank-no">{ index + 1 }</span>
 													<a className="vd-list-main" href={ `admin.php?page=products&action=edit&id=${ product.product_id }` }>
 														<strong>{ product.title }</strong>
-														<span>{ sprintf( _n( '%d sold', '%d sold', product.quantity, 'vulocart' ), product.quantity ) }</span>
+														<span>
+															{ sprintf( _n( '%d sold', '%d sold', product.quantity, 'vulocart' ), product.quantity ) }
+															{ null !== product.stock && ` · ${ sprintf( __( '%d in stock', 'vulocart' ), Math.max( 0, product.stock ) ) }` }
+														</span>
 														<span className="vd-rank-bar" aria-hidden="true">
 															<i style={ { width: `${ Math.max( 4, ( product.revenue / topRevenue ) * 100 ) }%` } } />
 														</span>
 													</a>
-													<strong className="vd-list-value">{ money( product.revenue, currency ) }</strong>
+													<span className="vd-rank-side">
+														<strong className="vd-list-value">{ money( product.revenue, currency ) }</strong>
+														{ null !== days && days < 14 && (
+															<a className="vd-rank-warn" href={ `admin.php?page=products&action=edit&id=${ product.product_id }` }>
+																{ days <= 0 ? __( 'Sold out', 'vulocart' ) : sprintf( __( '~%d days left', 'vulocart' ), days ) }
+															</a>
+														) }
+													</span>
 												</li>
-											) ) }
-										</ol>
-									</>
-								) }
-							</Card>
-
-							<Card title={ __( 'Stock', 'vulocart' ) } icon="store-inventory" tone="green" action={ { label: __( 'Inventory', 'vulocart' ), href: 'admin.php?page=inventory' } }>
-								{ ! summary && <div className="vulocart-dash-skeleton" /> }
-								{ summary && (
-									<>
-										<StockBar products={ summary.catalog.products } low={ summary.attention.low_stock } out={ summary.attention.out_of_stock } />
-										{ ! summary.low_stock.length ? (
-											<p className="vd-fine">
-												{ sprintf(
-													/* translators: %d: low stock threshold. */
-													__( 'Everything has more than %d in stock.', 'vulocart' ),
-													summary.catalog.threshold
-												) }
-											</p>
-										) : (
-											<ul className="vd-list is-compact">
-												{ summary.low_stock.slice( 0, 4 ).map( ( product ) => (
-													<li key={ product.id }>
-														<a className="vd-list-main" href={ `admin.php?page=products&action=edit&id=${ product.id }` }>
-															<strong>{ product.title }</strong>
-														</a>
-														<span className={ `vulocart-dash-pill ${ product.quantity <= 0 ? 'is-bad' : 'is-warn' }` }>
-															{ product.quantity <= 0 ? __( 'Out of stock', 'vulocart' ) : sprintf( __( '%d left', 'vulocart' ), product.quantity ) }
-														</span>
-														<a className="vd-chip-cta" href={ `admin.php?page=products&action=edit&id=${ product.id }` }>
-															{ __( 'Restock', 'vulocart' ) }
-														</a>
-													</li>
-												) ) }
-											</ul>
-										) }
-									</>
+											);
+										} ) }
+									</ol>
 								) }
 							</Card>
 						</div>
 					</div>
 
 					{ /* vulocart-pro's Analytics module fills this through `vulocart_analytics_view` (one compact card). */ }
-					{ insights || <ModuleRequired view={ ANALYTICS_VIEW } /> }
+					{ insights || ( proLocked() ? <StoreInsightsSample /> : <ModuleRequired view={ ANALYTICS_VIEW } compact /> ) }
 				</div>
 			</ColumnComponent>
 		</ContainerComponent>

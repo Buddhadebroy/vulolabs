@@ -3,14 +3,16 @@ import { useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import axios from 'axios';
 import { getApiLink } from '@zyra/core';
-import { ContainerComponent, ColumnComponent, NavigatorHeaderComponent, PopupComponent } from '@zyra/components';
+import { AvatarComponent, ContainerComponent, ColumnComponent, EntityCellComponent, NavigatorHeaderComponent, PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import { TableCard, TableRow, QueryProps, CategoryCount } from '@zyra/table';
+import { TableRow, QueryProps, CategoryCount } from '@zyra/table';
+import { TableCard } from '../../components/TableCard/TableCard';
 import { downloadCSV } from '../../lib/utils';
 import './orders-page.scss';
 import '../Products/products-page.scss';
 import { formatWpDate } from '../../services/formatWpDate';
 import ConfirmPopup from '../../components/ConfirmPopup/ConfirmPopup';
+import { formatMoney as formatAmount } from '../../blocks/shared/money';
 
 /**
  * The 6 statuses Order\Domain\FulfillmentStatus::all() declares
@@ -52,8 +54,9 @@ const PAYMENT_BADGE: Record< string, string > = { pending: 'badge-pending', paid
 /** Returns the label of the option with the given value. */
 const optionLabel = ( options: { label: string; value: string }[], value: string ) => options.find( ( option ) => option.value === value )?.label ?? value;
 
-/** Formats an order row's total followed by its currency. */
-const formatMoney = ( row: TableRow ) => ( null !== row.total && undefined !== row.total ? `${ row.total } ${ row.currency ?? '' }`.trim() : '-' );
+/** An order row's total in its currency ($44.00), with the storefront's own formatter. */
+const formatMoney = ( row: TableRow ) =>
+	null !== row.total && undefined !== row.total ? formatAmount( Number( row.total ), row.currency as string | null ) : '-';
 
 interface OrderRow {
 	id: number;
@@ -172,9 +175,12 @@ export function OrdersList( { filter }: OrdersListProps ) {
 	const [ statusOrder, setStatusOrder ] = useState< OrderRow | null >( null );
 	const [ deleteIds, setDeleteIds ] = useState< number[] >( [] );
 	const lastQuery = useRef< QueryProps >( {} );
+	// The tab the list opens on: the Draft/Refunds submenus, or a fulfillment status the Dashboard links to (`pending`).
+	const initialCategory =
+		'refunds' === filter ? 'refunded' : FULFILLMENT_STATUS_OPTIONS.some( ( option ) => option.value === filter ) ? ( filter as string ) : 'all';
 
 	const buildQueryParams = ( query: QueryProps, includePagination: boolean = true ) => {
-		const category = query.categoryFilter ?? ( 'draft' === filter ? 'draft' : 'refunds' === filter ? 'refunded' : 'all' );
+		const category = query.categoryFilter ?? initialCategory;
 
 		const params: Record< string, unknown > = {
 			fulfillment_status:
@@ -299,35 +305,30 @@ export function OrdersList( { filter }: OrdersListProps ) {
 				const email = ( row.customer_email as string ) || '';
 				const who = name || email;
 
-				// Left: who the order is for, as an avatar. Right: order number and date on one line, the customer's
-				// name and email under it, then the badges - each says what it is, so "Pending" can't be mistaken.
+				// Left: who the order is for, as an avatar. Right: order number and the badges - each says what it is,
+				// so "Pending" can't be mistaken - then the customer's name, email and the order date.
 				return (
 					<div className="vulocart-order-cell">
-						<span className="vulocart-order-avatar" aria-hidden="true">
-							{ ( who.trim().charAt( 0 ) || '#' ).toUpperCase() }
-						</span>
-						<div className="vulocart-order-main">
-							<div className="vulocart-order-head">
-								<a className="vulocart-product-cell-title" href={ `admin.php?page=orders&action=edit&id=${ row.id }` }>
-									#{ row.order_number as string }
-								</a>
-								{ row.created_at && <span className="desc">{ formatWpDate( row.created_at as string ) }</span> }
-							</div>
-							{ who && (
-								<div className="vulocart-order-customer">
-									<strong>{ who }</strong>
-									{ name && email ? <span className="desc">{ email }</span> : null }
-								</div>
-							) }
-							<div className="vulocart-product-cell-tags">
-								<span className={ `admin-badge ${ FULFILLMENT_BADGE[ String( row.fulfillment_status ) ] ?? 'badge-info' }` }>
-									{ optionLabel( FULFILLMENT_STATUS_OPTIONS, String( row.fulfillment_status ) ) }
-								</span>
-								<span className={ `admin-badge ${ PAYMENT_BADGE[ String( row.payment_status ) ] ?? 'badge-info' }` }>
-									{ __( 'Payment:', 'vulocart' ) } { optionLabel( PAYMENT_STATUS_OPTIONS, String( row.payment_status ) ).toLowerCase() }
-								</span>
-							</div>
-						</div>
+						<AvatarComponent name={ who } />
+						<EntityCellComponent
+							title={ `#${ row.order_number as string }` }
+							href={ `admin.php?page=orders&action=edit&id=${ row.id }` }
+							badges={
+								<>
+									<span className={ `admin-badge ${ FULFILLMENT_BADGE[ String( row.fulfillment_status ) ] ?? 'badge-info' }` }>
+										{ optionLabel( FULFILLMENT_STATUS_OPTIONS, String( row.fulfillment_status ) ) }
+									</span>
+									<span className={ `admin-badge ${ PAYMENT_BADGE[ String( row.payment_status ) ] ?? 'badge-info' }` }>
+										{ __( 'Payment:', 'vulocart' ) } { optionLabel( PAYMENT_STATUS_OPTIONS, String( row.payment_status ) ).toLowerCase() }
+									</span>
+								</>
+							}
+							details={ [
+								...( who ? [ { icon: 'person', text: who } ] : [] ),
+								...( name && email ? [ { icon: 'mail', text: email } ] : [] ),
+								...( row.created_at ? [ { icon: 'calendar', text: formatWpDate( row.created_at as string ) } ] : [] ),
+							] }
+						/>
 					</div>
 				);
 			},
@@ -352,24 +353,18 @@ export function OrdersList( { filter }: OrdersListProps ) {
 				{
 					label: __( 'View', 'vulocart' ),
 					icon: 'eye',
-					type: 'button' as const,
-					color: 'text-blue',
 					onClick: ( row: Record< string, unknown > ) => {
 						window.location.href = `admin.php?page=orders&action=edit&id=${ row.id }`;
 					},
 				},
 				{
 					label: __( 'Update status', 'vulocart' ),
-					icon: 'bulk-action',
-					type: 'button' as const,
-					color: 'text-blue',
+					icon: 'setting',
 					onClick: ( row: Record< string, unknown > ) => setStatusOrder( row as unknown as OrderRow ),
 				},
 				{
 					label: __( 'Delete', 'vulocart' ),
 					icon: 'delete',
-					type: 'button' as const,
-					color: 'text-red',
 					onClick: ( row: Record< string, unknown > ) => setDeleteIds( [ Number( row.id ) ] ),
 				},
 			],
@@ -402,10 +397,7 @@ export function OrdersList( { filter }: OrdersListProps ) {
 				<NavigatorHeaderComponent
 					headerIcon="cart"
 					headerTitle={ __( 'Orders', 'vulocart' ) }
-					headerDescription={ __(
-						'Every order placed through the storefront checkout - update status as you fulfil, cancel, or refund each one.',
-						'vulocart'
-					) }
+					headerDescription={ __( 'Fulfil, cancel or refund each order.', 'vulocart' ) }
 					buttons={ [
 						{
 							label: __( 'Export', 'vulocart' ),
@@ -432,7 +424,7 @@ export function OrdersList( { filter }: OrdersListProps ) {
 					onQueryUpdate={ doRefreshTableData }
 					ids={ rowIds }
 					categoryCounts={ categoryCounts }
-					activeCategory={ 'draft' === filter ? 'draft' : 'refunds' === filter ? 'refunded' : 'all' }
+					activeCategory={ initialCategory }
 					search={ {
 						placeholder: __( 'Search order #, email, or name…', 'vulocart' ),
 					} }

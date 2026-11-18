@@ -5,9 +5,17 @@ import { __, sprintf } from '@wordpress/i18n';
 import MODULES_CATALOG, { isModuleCatalogEntry, moduleCardId } from '../../modules-config';
 import './Popup.scss';
 
+/** The page or feature the upgrade was asked from, shown first in the Pro popup. */
+export interface ProFeature {
+	title: string;
+	description: string;
+	icon?: string;
+}
+
 interface PopupProps {
 	moduleName?: string;
 	plugin?: string;
+	feature?: ProFeature;
 }
 
 /**
@@ -151,31 +159,59 @@ const Popup: React.FC< PopupProps > = ( props ) => {
 		);
 	}
 
+	const firstSentence = ( text: string ) => `${ text.split( '. ' )[ 0 ].replace( /\.$/, '' ) }.`;
+
+	// The upgrade prompt: what was asked for first, then everything else Pro adds, with the buy button always in view.
 	return (
-		<div className="popup-wrapper">
-			<div className="top-section">
-				<div className="heading">{ __( 'Unlock the full VuloCart toolkit', 'vulocart' ) }</div>
-				<div className="description">
-					{ __( 'Sell your way: popup, drawer and one-click checkout, subscriptions, coupons, advanced shipping and tax, AI tools, and more.', 'vulocart' ) }
-				</div>
-				<a className="admin-btn" href={ vulocartLocalizer.shop_url } target="_blank" rel="noreferrer">
-					{ __( 'Upgrade to Pro', 'vulocart' ) }
-					<i className="adminfont-arrow-right arrow-icon"></i>
-				</a>
+		<div className="vc-pro-popup">
+			<div className="vc-pro-popup-head">
+				<span className="vc-pro-popup-pill">
+					<i className="adminfont-pro-tag" aria-hidden="true" />
+					{ __( 'VuloCart Pro', 'vulocart' ) }
+				</span>
+				<h2>{ __( 'Unlock the full VuloCart toolkit', 'vulocart' ) }</h2>
+				<p>{ __( 'Subscriptions, coupons, inventory, workflows, AI tools and more, in the admin you already use.', 'vulocart' ) }</p>
+				{ props.feature && (
+					<div className="vc-pro-popup-feature">
+						<span className="vc-pro-popup-icon">
+							<i className={ `adminfont-${ props.feature.icon ?? 'pro-tag' }` } aria-hidden="true" />
+						</span>
+						<span>
+							<strong>
+								{ sprintf(
+									/* translators: %s: feature name, e.g. "Coupons". */
+									__( '%s is included', 'vulocart' ),
+									props.feature.title
+								) }
+							</strong>
+							{ props.feature.description }
+						</span>
+						<i className="adminfont-check vc-pro-popup-check" aria-hidden="true" />
+					</div>
+				) }
 			</div>
-			<div className="popup-details">
-				<div className="heading-text">{ __( 'What you unlock with Pro', 'vulocart' ) }</div>
+			<div className="vc-pro-popup-body">
+				<div className="vc-pro-popup-label">{ __( 'Everything in Pro', 'vulocart' ) }</div>
 				<ul>
 					{ PRO_MODULES.map( ( module ) => (
 						<li key={ module.id }>
-							<div className="title">
-								<i className={ `adminfont-${ module.icon ?? module.id }` } />
-								{ module.name }
-							</div>
-							<div className="desc">{ module.desc.split( '. ' )[ 0 ].replace( /\.$/, '' ) }.</div>
+							<span className="vc-pro-popup-icon">
+								<i className={ `adminfont-${ module.icon ?? module.id }` } aria-hidden="true" />
+							</span>
+							<span>
+								<strong>{ module.name }</strong>
+								<span>{ firstSentence( module.desc ) }</span>
+							</span>
 						</li>
 					) ) }
 				</ul>
+			</div>
+			<div className="vc-pro-popup-foot">
+				<span>{ __( 'Your free features keep working as they are.', 'vulocart' ) }</span>
+				<a className="vc-pro-popup-buy" href={ vulocartLocalizer.shop_url } target="_blank" rel="noreferrer">
+					{ __( 'Upgrade to Pro', 'vulocart' ) }
+					<i className="adminfont-arrow-right" aria-hidden="true" />
+				</a>
 			</div>
 		</div>
 	);

@@ -1,0 +1,199 @@
+// ProSample.tsx: a Pro-only section's sample content (faded, opens the Pro popup), then a strip with the Pro tag, one
+// line and the action. A sample table (`table` inside the content) and sample tiles (`.vc-sample-tiles`) are styled
+// here so every section's sample looks alike.
+.vc-sample {
+	margin: 1rem 0 0.25rem;
+	overflow: hidden;
+	border: 1px solid #e3e6ef;
+	border-radius: 0.625rem;
+	background: #fff;
+}
+
+.vc-sample-preview {
+	position: relative;
+	cursor: pointer;
+
+	.vc-sample-content {
+		opacity: 0.7;
+		transition: opacity 0.15s ease;
+	}
+
+	table {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.8125rem;
+	}
+
+	th {
+		padding: 0.625rem 1rem;
+		border-bottom: 1px solid #eef0f6;
+		background: #fafbfd;
+		font-size: 0.6875rem;
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		text-align: left;
+		text-transform: uppercase;
+		color: #6b7280;
+	}
+
+	td {
+		padding: 0.6875rem 1rem;
+		border-bottom: 1px solid #eef0f6;
+		vertical-align: top;
+		color: #374151;
+
+		strong {
+			display: block;
+			font-weight: 600;
+			color: #1f1b3e;
+		}
+	}
+
+	tr:last-child td {
+		border-bottom: 0;
+	}
+
+	.is-num {
+		text-align: right;
+		white-space: nowrap;
+	}
+
+	&:hover .vc-sample-content,
+	&:focus-visible .vc-sample-content {
+		opacity: 0.9;
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--vc-primary, #5007aa);
+		outline-offset: -2px;
+	}
+}
+
+.vc-sample-hint {
+	display: block;
+	margin-top: 0.125rem;
+	font-size: 0.75rem;
+	color: #6b7280;
+}
+
+// "Sample data", top right over the header row.
+.vc-sample-label {
+	position: absolute;
+	top: 0.5rem;
+	right: 0.75rem;
+	padding: 0.125rem 0.5rem;
+	border: 1px dashed #d6d9e4;
+	border-radius: 999px;
+	background: #fff;
+	font-size: 0.6875rem;
+	font-weight: 500;
+	color: #6b7280;
+}
+
+.vc-sample-bar {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.75rem 1rem;
+	border-top: 1px solid #eef0f6;
+	background: #faf8ff;
+
+	p {
+		flex: 1;
+		min-width: 0;
+		margin: 0;
+		font-size: 0.8125rem;
+		color: #4b4a57;
+	}
+
+	// The one action: the brand's filled button, wherever the sample sits (settings, dashboard, engine pages).
+	.vulocart-engine-button {
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		min-height: 2.25rem;
+		margin: 0;
+		padding: 0 1rem;
+		border: 0;
+		border-radius: 0.5rem;
+		background: var(--vc-primary, #5007aa);
+		box-shadow: none;
+		font: inherit;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		color: #fff;
+		cursor: pointer;
+
+		&:hover {
+			background: #3f0588;
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--vc-primary, #5007aa);
+			outline-offset: 2px;
+		}
+	}
+
+	@media (max-width: 782px) {
+		flex-wrap: wrap;
+
+		p {
+			flex-basis: 100%;
+			order: -1;
+		}
+	}
+}
+
+// Sample metric tiles (Dashboard → Store insights): one strip of figures split by hairlines.
+.vc-sample-tiles {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+
+	> div {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		padding: 1.125rem 1.25rem;
+		border-left: 1px solid #eef0f6;
+
+		&:first-child {
+			border-left: 0;
+		}
+	}
+
+	span {
+		font-size: 0.75rem;
+		font-weight: 500;
+		color: #6b7280;
+	}
+
+	strong {
+		font-size: 1.375rem;
+		font-weight: 700;
+		line-height: 1.2;
+		letter-spacing: -0.01em;
+		color: #1f1b3e;
+	}
+
+	small {
+		font-size: 0.75rem;
+		color: #6b7280;
+	}
+
+	@media (max-width: 900px) {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+
+		> div:nth-child(odd) {
+			border-left: 0;
+		}
+
+		> div:nth-child(n + 3) {
+			border-top: 1px solid #eef0f6;
+		}
+	}
+}
+
+// A sample right under a section title (no settings-card spacing around it).
+.vd .vc-sample {
+	margin: 0;
+}

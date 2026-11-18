@@ -26,6 +26,7 @@ const ModulesPanel = () => {
 					modulesArray={ modulesConfig }
 					apiLink="modules"
 					pluginName="vulocart"
+					labels={ { searchPlaceholder: __( 'Search modules', 'vulocart' ) } }
 				/>
 			</ContainerComponent>
 		</>

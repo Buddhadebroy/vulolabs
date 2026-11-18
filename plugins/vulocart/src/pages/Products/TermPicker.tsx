@@ -18,7 +18,8 @@ interface TermPickerProps {
 	value: string[];
 	onChange: ( value: string[] ) => void;
 	/** Creates a new term from a typed name; resolves to its option, or null if it could not be created. */
-	onCreate: ( name: string ) => Promise< TermOption | null >;
+	/** Creates a term from a typed name. Without it the picker only picks from `options` (related products). */
+	onCreate?: ( name: string ) => Promise< TermOption | null >;
 	/** One choice only (brand, supplier): picking replaces the current one. */
 	single?: boolean;
 }
@@ -28,7 +29,7 @@ const plain = ( label: string ) => label.replace( /^(- )+/, '' );
 
 /**
  * One line per taxonomy: the chosen terms as chips, then a quiet "+ Add" button. Clicking it opens a single input with
- * a short list underneath - pick an existing term, or type a new name and press Enter to create it on the spot. The
+ * a short list underneath - pick an existing term, or (with `onCreate`) type a new name and press Enter to create it. The
  * input closes after a pick (or when you click away), so the card stays compact. Shared by categories, tags, brand,
  * collections and the Pro supplier field.
  */
@@ -83,6 +84,15 @@ export function TermPicker( { label, noun, plural, options, value, onChange, onC
 			return;
 		}
 
+		// Pick-only: Enter takes the first match.
+		if ( ! onCreate ) {
+			if ( matches[ 0 ] ) {
+				choose( matches[ 0 ].value );
+			}
+
+			return;
+		}
+
 		if ( exact ) {
 			if ( ! value.includes( exact.value ) ) {
 				choose( exact.value );
@@ -115,7 +125,8 @@ export function TermPicker( { label, noun, plural, options, value, onChange, onC
 				) }
 			</div>
 
-			{ selected.length > 0 ? (
+			{ /* Nothing chosen needs no "None added" line: the Add button above already says it. */ }
+			{ selected.length > 0 && (
 				<div className="vulocart-term-line">
 					{ selected.map( ( option ) => (
 						<span className="vulocart-term-chip" key={ option.value }>
@@ -130,8 +141,6 @@ export function TermPicker( { label, noun, plural, options, value, onChange, onC
 						</span>
 					) ) }
 				</div>
-			) : (
-				! isOpen && <p className="vulocart-term-hint">{ sprintf( /* translators: %s: plural noun. */ __( 'No %s added', 'vulocart' ), plural ) }</p>
 			) }
 
 			{ isOpen && (
@@ -143,7 +152,11 @@ export function TermPicker( { label, noun, plural, options, value, onChange, onC
 							type="text"
 							value={ query }
 							disabled={ isCreating }
-							placeholder={ sprintf( /* translators: %s: noun. */ __( 'Search or type a new %s…', 'vulocart' ), noun ) }
+							placeholder={
+								onCreate
+									? sprintf( /* translators: %s: noun. */ __( 'Search or type a new %s…', 'vulocart' ), noun )
+									: sprintf( /* translators: %s: noun. */ __( 'Search for a %s…', 'vulocart' ), noun )
+							}
 							aria-label={ sprintf( /* translators: %s: noun. */ __( 'Search or add a %s', 'vulocart' ), noun ) }
 							onChange={ ( event ) => setQuery( event.target.value ) }
 							onKeyDown={ ( event ) => {
@@ -172,7 +185,7 @@ export function TermPicker( { label, noun, plural, options, value, onChange, onC
 							</li>
 						) ) }
 
-						{ typed && ! exact && (
+						{ onCreate && typed && ! exact && (
 							<li className="is-create">
 								<button type="button" disabled={ isCreating } onClick={ create }>
 									<i className="adminfont-plus" aria-hidden="true" />
@@ -184,7 +197,9 @@ export function TermPicker( { label, noun, plural, options, value, onChange, onC
 						{ ! typed && 0 === matches.length && (
 							<li className="is-empty">
 								{ 0 === options.length
-									? sprintf( /* translators: %s: plural noun. */ __( 'No %s yet - type a name to create the first one.', 'vulocart' ), plural )
+									? onCreate
+										? sprintf( /* translators: %s: plural noun. */ __( 'No %s yet - type a name to create the first one.', 'vulocart' ), plural )
+										: sprintf( /* translators: %s: plural noun. */ __( 'No %s to choose from.', 'vulocart' ), plural )
 									: __( 'Everything is already added.', 'vulocart' ) }
 							</li>
 						) }

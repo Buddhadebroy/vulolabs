@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import { getCountries } from '../../blocks/shared/geo';
 import TaxRatesPanel from '../../components/Settings/TaxRatesPanel';
 
 /**
@@ -69,30 +68,6 @@ export default {
 			options: [
 				{ key: 'tax_shipping', label: '', value: 'tax_shipping' },
 			],
-		},
-		{
-			key: 'taxes-section-store',
-			type: 'section',
-			icon: 'storefront',
-			title: __( 'Store address', 'vulocart' ),
-			desc: __(
-				'Where you sell from. Used when tax is based on the store address, and as the fallback when an order has no address yet.',
-				'vulocart'
-			),
-		},
-		{
-			key: 'store_country',
-			type: 'select',
-			moduleEnabled: 'taxes',
-			label: __( 'Country', 'vulocart' ),
-			options: [ { label: __( 'Select a country…', 'vulocart' ), value: '' }, ...getCountries() ],
-		},
-		{
-			key: 'store_state',
-			type: 'text',
-			moduleEnabled: 'taxes',
-			label: __( 'State / region code', 'vulocart' ),
-			settingDescription: __( 'The code your tax rates use, e.g. CA, NY, KA. Leave empty if you have none.', 'vulocart' ),
 		},
 	],
 };

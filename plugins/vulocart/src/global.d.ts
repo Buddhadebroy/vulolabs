@@ -26,6 +26,8 @@ interface VuloCartLocalizer {
 	ask_product_type?: boolean;
 	version: string;
 	pro_version: string | null;
+	/** The store's own country code (Settings → General), the default for admin address forms. */
+	store_country?: string;
 	active_plugins: string[];
 	shop_url: string;
 	site_url: string;

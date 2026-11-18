@@ -6,6 +6,9 @@ import MODULES_CATALOG, { isModuleCatalogEntry, moduleCardId } from '../../modul
 import { applyFilters } from '@wordpress/hooks';
 import axios from 'axios';
 import { ContainerComponent, ColumnComponent, NavigatorHeaderComponent } from '@zyra/components';
+import UpgradeToPro from '../Popup/UpgradeToPro';
+import LockedPreview from './LockedPreview';
+import { previewFor, type PagePreview } from './previews';
 import './engine-screen.scss';
 
 /** What an engine menu knows about one of its views before any module has registered it. */
@@ -113,26 +116,33 @@ export function renderEngineView(
 
 	return (
 		<EngineScreen view={ meta }>
-			<ModuleRequired view={ meta } />
+			<ModuleRequired view={ meta } previewKey={ views[ view ] ? view : Object.keys( views )[ 0 ] } />
 		</EngineScreen>
 	);
 }
 
 /**
  * Shown where a module's page would be: tells the user which module powers the page and gives
- * the one action that fixes it - activating a free module in place, upgrading when Pro isn't installed,
- * or going to the Licensing tab for a Pro one while no license is active.
+ * the one action that fixes it - activating a module in place, or, for a Pro page while VuloCart Pro is not installed
+ * or not licensed, the Pro popup. Nothing here asks for a license: a Pro page without one reads like any other Pro
+ * page, with what it does and the popup.
+ *
+ * When the page has a sample screen (`previews.ts`, found by `previewKey` - the view id - or the module), that screen is
+ * drawn behind the card with made-up rows, so the store owner sees exactly what they would get.
+ *
+ * `compact` is the one-line form for a section inside another page (the Dashboard's insights): the view's own
+ * title instead of "This page…", beside the action rather than above it.
  */
-export function ModuleRequired( { view }: { view: EngineView } ) {
+export function ModuleRequired( { view, compact = false, previewKey, previewNode }: { view: EngineView; compact?: boolean; previewKey?: string; /** A page's own sample layout, drawn instead of a table preview (the AI page's cards). */ previewNode?: ReactNode } ) {
 	const [ busy, setBusy ] = useState( false );
 	const [ failed, setFailed ] = useState( false );
 	// `pro_version` is set only while vulocart-pro is active; `khali_dabba` is true when it is also licensed
-	// (Utill::is_khali_dabba()). No Pro at all is an upgrade, Pro without a license is an activation.
-	const needsUpgrade = !! view.pro && ! vulocartLocalizer.pro_version;
-	const needsLicense = !! view.pro && ! needsUpgrade && ! vulocartLocalizer.khali_dabba;
+	// (Utill::is_khali_dabba()). Either missing, a Pro page shows what Pro adds and the Pro popup.
+	const needsUpgrade = !! view.pro && ( ! vulocartLocalizer.pro_version || ! vulocartLocalizer.khali_dabba );
 	// The name Settings → Modules shows for it, so the message says exactly which module to switch on.
 	const moduleName = MODULES_CATALOG.modules.filter( isModuleCatalogEntry ).find( ( module ) => module.id === moduleCardId( view.module ) )?.name;
 	const settingsUrl = `${ vulocartLocalizer.adminUrl }admin.php?page=vulocart#&tab=settings&subtab=`;
+	const preview = compact ? undefined : previewNode ?? previewFor( previewKey, view.module );
 
 	const activate = () => {
 		setBusy( true );
@@ -159,38 +169,73 @@ export function ModuleRequired( { view }: { view: EngineView } ) {
 			} );
 	};
 
-	return (
-		<div className="vulocart-engine-required">
-			<i className={ `adminfont-${ needsUpgrade || needsLicense ? 'lock' : view.icon }` } />
-			<h2>
-				{ needsUpgrade
-					? __( 'This page is part of VuloCart Pro', 'vulocart' )
-					: needsLicense
-					? __( 'This page needs an active VuloCart Pro license', 'vulocart' )
-					: moduleName
-					? sprintf( /* translators: %s: module name. */ __( 'Turn on the %s module', 'vulocart' ), moduleName )
-					: __( 'Turn on the module behind this page', 'vulocart' ) }
-			</h2>
-			<p>{ view.description }</p>
-			{ needsUpgrade ? (
-				<a className="vulocart-engine-button" href={ vulocartLocalizer.shop_url } target="_blank" rel="noreferrer">
-					{ __( 'Upgrade to Pro', 'vulocart' ) }
+	const title = compact
+		? view.title
+		: needsUpgrade
+		? preview
+			? sprintf( /* translators: %s: page title, e.g. "Coupons". */ __( '%s comes with VuloCart Pro', 'vulocart' ), view.title )
+			: __( 'This page is part of VuloCart Pro', 'vulocart' )
+		: moduleName
+		? sprintf( /* translators: %s: module name. */ __( 'Turn on the %s module', 'vulocart' ), moduleName )
+		: __( 'Turn on the module behind this page', 'vulocart' );
+
+	const action = needsUpgrade ? (
+		<div>
+			<UpgradeToPro feature={ { title: view.title, description: view.description, icon: view.icon } } />
+			{ preview && (
+				<a className="vulocart-engine-link" href={ vulocartLocalizer.shop_url } target="_blank" rel="noreferrer">
+					{ __( 'See pricing', 'vulocart' ) }
 				</a>
-			) : needsLicense ? (
-				<a className="vulocart-engine-button" href={ `${ settingsUrl }licensing` }>
-					{ __( 'Activate license', 'vulocart' ) }
-				</a>
+			) }
+		</div>
+	) : (
+		<div>
+			<button type="button" className="vulocart-engine-button" disabled={ busy } onClick={ activate }>
+				{ busy ? __( 'Activating…', 'vulocart' ) : moduleName ? sprintf( /* translators: %s: module name. */ __( 'Activate %s', 'vulocart' ), moduleName ) : __( 'Activate module', 'vulocart' ) }
+			</button>
+			<a className="vulocart-engine-link" href={ `${ settingsUrl }modules` }>
+				{ __( 'Manage modules', 'vulocart' ) }
+			</a>
+		</div>
+	);
+
+	const card = (
+		<div className={ `vulocart-engine-required${ compact ? ' is-compact' : '' }${ preview ? ' is-floating' : '' }` }>
+			{ preview && needsUpgrade ? (
+				<span className="vulocart-engine-pro-tag">
+					<i className="adminfont-pro-tag" aria-hidden="true" />
+					{ __( 'Pro', 'vulocart' ) }
+				</span>
 			) : (
-				<div>
-					<button type="button" className="vulocart-engine-button" disabled={ busy } onClick={ activate }>
-						{ busy ? __( 'Activating…', 'vulocart' ) : moduleName ? sprintf( /* translators: %s: module name. */ __( 'Activate %s', 'vulocart' ), moduleName ) : __( 'Activate module', 'vulocart' ) }
-					</button>
-					<a className="vulocart-engine-link" href={ `${ settingsUrl }modules` }>
-						{ __( 'Manage modules', 'vulocart' ) }
-					</a>
-				</div>
+				<i className={ `adminfont-${ needsUpgrade ? 'lock' : view.icon }` } />
+			) }
+			<h2>{ title }</h2>
+			<p>{ view.description }</p>
+			{ action }
+			{ preview && (
+				<p className="vc-locked-note">
+					<i className="adminfont-eye" aria-hidden="true" />
+					{ __( 'A preview with sample data. Your own records show here once it is on.', 'vulocart' ) }
+				</p>
 			) }
 			{ failed && <p className="vulocart-engine-error">{ moduleName ? sprintf( /* translators: %s: module name. */ __( 'Could not activate the %s module. Try again from Settings → Modules.', 'vulocart' ), moduleName ) : __( 'Could not activate the module.', 'vulocart' ) }</p> }
+		</div>
+	);
+
+	if ( ! preview ) {
+		return card;
+	}
+
+	return (
+		<div className={ `vc-locked${ previewNode ? ' is-full' : '' }` }>
+			{ previewNode ? (
+				<div className="vc-locked-preview" aria-hidden="true" { ...( { inert: true } as Record< string, unknown > ) }>
+					{ previewNode }
+				</div>
+			) : (
+				<LockedPreview preview={ preview as PagePreview } />
+			) }
+			<div className="vc-locked-overlay">{ card }</div>
 		</div>
 	);
 }

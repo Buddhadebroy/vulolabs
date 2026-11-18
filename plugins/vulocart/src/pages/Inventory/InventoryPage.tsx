@@ -6,7 +6,8 @@ import axios from 'axios';
 import { getApiLink } from '@zyra/core';
 import { ContainerComponent, ColumnComponent, InformationItemComponent, NavigatorHeaderComponent, PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import { TableCard, TableRow, CategoryCount, QueryProps } from '@zyra/table';
+import { TableRow, CategoryCount, QueryProps } from '@zyra/table';
+import { TableCard } from '../../components/TableCard/TableCard';
 import { downloadCSV } from '../../lib/utils';
 import { formatWpDateTime } from '../../services/formatWpDate';
 import { authHeaders, fetchInventory, type InventoryItem } from './inventory';
@@ -109,7 +110,7 @@ function StockHistory( { item, onClose }: { item: InventoryItem; onClose: () => 
  * "Adjust stock" - quantity (with a stepper) and availability for one product, in a popup over the list, the same
  * shape as the Products list's own quick edit. Only fields that changed are sent.
  */
-function StockAdjust( { item, onClose, onSaved }: { item: InventoryItem; onClose: () => void; onSaved: ( updated: InventoryItem ) => void } ) {
+export function StockAdjust( { item, onClose, onSaved }: { item: InventoryItem; onClose: () => void; onSaved: ( updated: InventoryItem ) => void } ) {
 	const [ quantity, setQuantity ] = useState( null === item.stock_quantity ? '' : String( item.stock_quantity ) );
 	const [ status, setStatus ] = useState( item.stock_status );
 	const [ isSaving, setIsSaving ] = useState( false );
@@ -381,15 +382,11 @@ export function InventoryPage( { embedded = false }: { embedded?: boolean } ) {
 				{
 					label: __( 'History', 'vulocart' ),
 					icon: 'clock',
-					type: 'button' as const,
-					color: 'text-blue',
 					onClick: ( row: Record< string, unknown > ) => setHistoryOf( row as unknown as InventoryItem ),
 				},
 				{
 					label: __( 'Edit product', 'vulocart' ),
-					icon: 'eye',
-					type: 'button' as const,
-					color: 'text-blue',
+					icon: 'edit',
 					onClick: ( row: Record< string, unknown > ) => {
 						window.location.href = `admin.php?page=products&action=edit&id=${ row.id }`;
 					},

@@ -13,6 +13,8 @@ interface ProductsProps {
 	id: number | null;
 	/** `categories`|`collections`|`brands`|`tags`|`attributes`|`product-types`|`inventory`|`reviews`. */
 	view: string | null;
+	/** A product status to open the list on (`draft`), from `&filter=` - the Dashboard links here. */
+	filter?: string | null;
 }
 
 /**
@@ -34,7 +36,7 @@ interface ProductsProps {
  * top-level slug is a proven, working pattern in this codebase) with
  * `view=suppliers` etc., and hook into that filter to render there.
  */
-export function Products( { action, id, view }: ProductsProps ) {
+export function Products( { action, id, view, filter = null }: ProductsProps ) {
 	if ( 'add' === action ) {
 		return <ProductEdit id={ null } />;
 	}
@@ -133,7 +135,7 @@ export function Products( { action, id, view }: ProductsProps ) {
 		}
 	}
 
-	return <ProductsList />;
+	return <ProductsList status={ filter } />;
 }
 
 export default Products;

@@ -12,7 +12,8 @@ import {
 	NavigatorHeaderComponent,
 	NoticeManager,
 } from '@zyra/components';
-import { TableCard, TableRow, CategoryCount } from '@zyra/table';
+import { TableRow, CategoryCount } from '@zyra/table';
+import { TableCard } from '../../components/TableCard/TableCard';
 import { TextInput, TextAreaInput, SelectInput, ButtonInput } from '@zyra/inputs';
 import ConfirmPopup from '../../components/ConfirmPopup/ConfirmPopup';
 import '../Products/products-page.scss';
@@ -289,15 +290,11 @@ export function TermsPage( { routeSegment, headerTitle, headerDescription, heade
 				{
 					label: __( 'Edit', 'vulocart' ),
 					icon: 'edit',
-					type: 'button',
-					color: 'text-blue',
 					onClick: ( row: Record< string, unknown > ) => openEditForm( row as unknown as Term ),
 				},
 				{
 					label: __( 'Delete', 'vulocart' ),
 					icon: 'delete',
-					type: 'button',
-					color: 'text-red',
 					onClick: ( row: Record< string, unknown > ) => setDeleteTarget( row as unknown as Term ),
 				},
 			],
@@ -332,13 +329,17 @@ export function TermsPage( { routeSegment, headerTitle, headerDescription, heade
 											setNameError( false );
 										} }
 									/>
-									{ nameError
-										? <p className="vulocart-field-error" role="alert">{ __( 'A name is required.', 'vulocart' ) }</p>
-										: <p className="vulocart-field-hint">{ __( 'How it appears across your store.', 'vulocart' ) }</p> }
+									{ nameError && <p className="vulocart-field-error" role="alert">{ __( 'A name is required.', 'vulocart' ) }</p> }
 								</FormGroupComponent>
 								<FormGroupComponent label={ __( 'Slug', 'vulocart' ) } htmlFor="vulocart-term-slug">
-									<TextInput id="vulocart-term-slug" name="slug" type="text" value={ slug } onChange={ ( value ) => setSlug( value as string ) } />
-									<p className="vulocart-field-hint">{ __( 'The URL-friendly version. Leave blank to create it from the name.', 'vulocart' ) }</p>
+									<TextInput
+										id="vulocart-term-slug"
+										name="slug"
+										type="text"
+										placeholder={ __( 'Created from the name', 'vulocart' ) }
+										value={ slug }
+										onChange={ ( value ) => setSlug( value as string ) }
+									/>
 								</FormGroupComponent>
 								{ hierarchical && (
 									<FormGroupComponent label={ __( 'Parent', 'vulocart' ) } htmlFor="vulocart-term-parent">
@@ -349,12 +350,10 @@ export function TermsPage( { routeSegment, headerTitle, headerDescription, heade
 											value={ parentId }
 											onChange={ ( value ) => setParentId( value as string ) }
 										/>
-										<p className="vulocart-field-hint">{ __( 'Nest this under another category to build a hierarchy.', 'vulocart' ) }</p>
 									</FormGroupComponent>
 								) }
 								<FormGroupComponent label={ __( 'Description', 'vulocart' ) } htmlFor="vulocart-term-description">
 									<TextAreaInput name="description" rowNumber={ 3 } value={ description } onChange={ ( value ) => setDescription( value as string ) } />
-									<p className="vulocart-field-hint">{ __( 'Optional. Shown on some storefront layouts.', 'vulocart' ) }</p>
 								</FormGroupComponent>
 							</FormGroupWrapperComponent>
 
@@ -394,7 +393,8 @@ export function TermsPage( { routeSegment, headerTitle, headerDescription, heade
 								isLoading={ isLoading }
 								categoryCounts={ categoryCounts }
 								activeCategory="all"
-								search={ { placeholder: __( 'Search by name or slug…', 'vulocart' ) } }
+								// Nothing to search until the first term exists.
+								search={ terms.length > 0 || searchTerm ? { placeholder: __( 'Search by name or slug…', 'vulocart' ) } : undefined }
 								bulkActions={ [ { label: __( 'Delete', 'vulocart' ), value: 'delete' } ] }
 								onBulkActionApply={ ( action: string, ids: number[] ) => 'delete' === action && ids.length && setBulkDeleteIds( ids ) }
 								onQueryUpdate={ ( query: { paged?: number | string; per_page?: number | string; searchValue?: string; categoryFilter?: string } ) => {
@@ -405,7 +405,7 @@ export function TermsPage( { routeSegment, headerTitle, headerDescription, heade
 								} }
 								emptyMessage={ sprintf(
 									/* translators: %s: plural title, e.g. Categories. */
-									__( 'No %s yet - add the first one.', 'vulocart' ),
+									__( 'No %s yet', 'vulocart' ),
 									headerTitle.toLowerCase()
 								) }
 							/>

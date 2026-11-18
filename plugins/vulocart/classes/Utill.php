@@ -74,6 +74,10 @@ class Utill {
     const SETTINGS_DEFAULTS = array(
         // General.
         'default_currency'              => 'USD',
+        // Store location (Settings → General). Country and state are also what tax falls back to.
+        'store_address'                 => '',
+        'store_city'                    => '',
+        'store_postcode'                => '',
 
         // Frontend.
         // Storefront listing template (Storefront::render_collection()): grid|compact|list|showcase.

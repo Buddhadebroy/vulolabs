@@ -198,24 +198,53 @@ class Dashboard extends \WP_REST_Controller {
 
         $recent_orders = array();
         $top_products  = array();
+        $queue         = array(
+            'to_ship' => array(),
+            'unpaid'  => array(),
+        );
+        $unpaid_value  = 0.0;
+        $last_order_at = null;
+        $customers     = array(
+            'buyers'    => 0,
+            'returning' => 0,
+        );
 
         if ( $has_orders ) {
-            $attention['to_fulfill'] = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$orders_table}` WHERE status NOT IN ( 'draft', 'cancelled' ) AND fulfillment_status IN ( 'pending', 'processing' )" );
-            $attention['unpaid']     = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$orders_table}` WHERE status NOT IN ( 'draft', 'cancelled' ) AND payment_status IN ( 'pending', 'failed' )" );
+            // "To ship" is paid and not yet sent: an unpaid order isn't ready to fulfil, it's in the unpaid queue.
+            $to_ship_where = "status NOT IN ( 'draft', 'cancelled' ) AND payment_status = 'paid' AND fulfillment_status IN ( 'pending', 'processing' )";
+            $unpaid_where  = "status NOT IN ( 'draft', 'cancelled' ) AND payment_status IN ( 'pending', 'failed' )";
+
+            $attention['to_fulfill'] = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$orders_table}` WHERE {$to_ship_where}" );
+            $attention['unpaid']     = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$orders_table}` WHERE {$unpaid_where}" );
+            $unpaid_value            = (float) $wpdb->get_var( "SELECT COALESCE( SUM( total ), 0 ) FROM `{$orders_table}` WHERE {$unpaid_where}" );
+            $last_order_at           = $wpdb->get_var( "SELECT MAX( created_at ) FROM `{$orders_table}` WHERE status <> 'draft'" );
+
+            // The work itself, oldest first: what has waited longest is what to do next.
+            $queue_sql            = "SELECT id, order_number, customer_name, customer_email, total, currency, payment_status, fulfillment_status, created_at FROM `{$orders_table}` WHERE %s ORDER BY created_at ASC, id ASC LIMIT 5";
+            $queue['to_ship']     = array_map( array( $this, 'order_row' ), (array) $wpdb->get_results( sprintf( $queue_sql, $to_ship_where ), ARRAY_A ) );
+            $queue['unpaid']      = array_map( array( $this, 'order_row' ), (array) $wpdb->get_results( sprintf( $queue_sql, $unpaid_where ), ARRAY_A ) );
+
+            // Of the people who bought in this range, how many had bought before it.
+            $buyers = $wpdb->get_row(
+                $wpdb->prepare(
+                    "SELECT COUNT( DISTINCT o.customer_email ) AS buyers,
+                        COUNT( DISTINCT CASE WHEN EXISTS (
+                            SELECT 1 FROM `{$orders_table}` p
+                            WHERE p.customer_email = o.customer_email AND p.status NOT IN ( 'draft', 'cancelled' ) AND p.created_at < %s
+                        ) THEN o.customer_email END ) AS returning_buyers
+                    FROM `{$orders_table}` o
+                    WHERE o.status NOT IN ( 'draft', 'cancelled' ) AND o.customer_email <> '' AND o.created_at >= %s",
+                    $start_utc,
+                    $start_utc
+                ),
+                ARRAY_A
+            );
+
+            $customers['buyers']    = (int) ( $buyers['buyers'] ?? 0 );
+            $customers['returning'] = (int) ( $buyers['returning_buyers'] ?? 0 );
 
             $recent_orders = array_map(
-                static function ( $row ) {
-                    return array(
-                        'id'                 => (int) $row['id'],
-                        'order_number'       => $row['order_number'],
-                        'customer'           => $row['customer_name'] ? $row['customer_name'] : ( $row['customer_email'] ? $row['customer_email'] : '' ),
-                        'total'              => (float) $row['total'],
-                        'currency'           => $row['currency'],
-                        'payment_status'     => $row['payment_status'],
-                        'fulfillment_status' => $row['fulfillment_status'],
-                        'created_at'         => $row['created_at'],
-                    );
-                },
+                array( $this, 'order_row' ),
                 (array) $wpdb->get_results( "SELECT id, order_number, customer_name, customer_email, total, currency, payment_status, fulfillment_status, created_at FROM `{$orders_table}` WHERE status <> 'draft' ORDER BY created_at DESC, id DESC LIMIT 6", ARRAY_A )
             );
 
@@ -261,7 +290,30 @@ class Dashboard extends \WP_REST_Controller {
             )
         );
 
+        // Catalogue gaps that cost sales: unpublished products, and live ones a shopper can't buy or can't see.
+        $catalog_gaps = array(
+            'drafts'   => 0,
+            'no_price' => 0,
+            'no_image' => 0,
+        );
+        $stock_by_id  = array();
+
         foreach ( $products['data'] as $product ) {
+            if ( 'draft' === $product->status ) {
+                ++$catalog_gaps['drafts'];
+            } elseif ( 'published' === $product->status ) {
+                if ( null === $product->price || (float) $product->price <= 0 ) {
+                    ++$catalog_gaps['no_price'];
+                }
+                if ( empty( $product->meta['featured_image'] ) ) {
+                    ++$catalog_gaps['no_image'];
+                }
+            }
+
+            if ( in_array( $product->type, Inventory::STOCK_TRACKED_TYPES, true ) && ! empty( $product->meta['stock_management'] ) && isset( $product->meta['stock_quantity'] ) ) {
+                $stock_by_id[ (int) $product->id ] = (int) $product->meta['stock_quantity'];
+            }
+
             if ( ! in_array( $product->type, Inventory::STOCK_TRACKED_TYPES, true ) || empty( $product->meta['stock_management'] ) ) {
                 if ( 'out_of_stock' === ( $product->meta['stock_status'] ?? '' ) ) {
                     ++$attention['out_of_stock'];
@@ -298,6 +350,19 @@ class Dashboard extends \WP_REST_Controller {
             }
         );
 
+        // Stock left for each best seller, so the page can say how long it lasts at the current pace.
+        foreach ( $top_products as &$top_product ) {
+            $top_product['stock'] = $stock_by_id[ $top_product['product_id'] ] ?? null;
+        }
+        unset( $top_product );
+
+        // The Payment module registers the service; the container throws for a service nobody registered.
+        try {
+            $payment_methods = wp_list_pluck( VuloCart()->payment_service->get_available_methods(), 'id' );
+        } catch ( \Exception $e ) {
+            $payment_methods = array();
+        }
+
         return rest_ensure_response(
             array(
                 'range'         => $range,
@@ -309,11 +374,38 @@ class Dashboard extends \WP_REST_Controller {
                 'recent_orders' => $recent_orders,
                 'top_products'  => $top_products,
                 'low_stock'     => array_slice( $low_stock, 0, 5 ),
-                'catalog'       => array(
-                    'products'  => (int) $products['total'],
-                    'threshold' => $threshold,
+                'catalog'       => array_merge(
+                    array(
+                        'products'  => (int) $products['total'],
+                        'threshold' => $threshold,
+                    ),
+                    $catalog_gaps
                 ),
+                'queue'         => $queue,
+                'unpaid_value'  => $unpaid_value,
+                'last_order_at' => $last_order_at,
+                'customers'     => $customers,
+                'payments'      => array_values( $payment_methods ),
             )
+        );
+    }
+
+    /**
+     * One order as the dashboard lists it.
+     *
+     * @param array<string, mixed> $row Row from the orders table.
+     * @return array<string, mixed>
+     */
+    public function order_row( $row ) {
+        return array(
+            'id'                 => (int) $row['id'],
+            'order_number'       => $row['order_number'],
+            'customer'           => $row['customer_name'] ? $row['customer_name'] : ( $row['customer_email'] ? $row['customer_email'] : '' ),
+            'total'              => (float) $row['total'],
+            'currency'           => $row['currency'],
+            'payment_status'     => $row['payment_status'],
+            'fulfillment_status' => $row['fulfillment_status'],
+            'created_at'         => $row['created_at'],
         );
     }
 }
