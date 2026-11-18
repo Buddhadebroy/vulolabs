@@ -137,6 +137,17 @@ class PaymentService {
      * @return PaymentContext
      */
     private function build_context( float $amount, string $currency, array $extra = array() ): PaymentContext {
+        /**
+         * `vulocart_payment_context_extra` - adjust what a gateway is told before it charges, for example ask it to
+         * keep the card for later off-session charges when the cart holds a subscription. `$extra` carries
+         * `cart_token` (intent-first checkout) or `order_id` (inline checkout, renewals).
+         *
+         * @param array<string, mixed> $extra    PaymentContext fields, keyed by constructor arg name.
+         * @param float                $amount   Amount to charge.
+         * @param string               $currency ISO 4217 currency code.
+         */
+        $extra = (array) apply_filters( 'vulocart_payment_context_extra', $extra, $amount, $currency );
+
         return new PaymentContext(
             $amount,
             $currency,

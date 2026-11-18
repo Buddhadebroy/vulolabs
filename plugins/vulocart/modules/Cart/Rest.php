@@ -166,7 +166,30 @@ class Rest extends \WP_REST_Controller {
             'currency'    => $item->currency,
             'subtotal'    => round( $item->unit_price * $item->quantity, 2 ),
             'price'       => PriceCatalog::line_price( $item->meta ),
+            'details'     => self::line_details( $item->meta ),
         );
+    }
+
+    /**
+     * The `details` a `vulocart_cart_item_meta` listener stored on a line: `{label, value}` pairs shown under it.
+     *
+     * @param array<string, mixed>|null $meta Line meta.
+     * @return array<int, array{label: string, value: string}>
+     */
+    public static function line_details( $meta ): array {
+        $details = is_array( $meta ) && isset( $meta['details'] ) && is_array( $meta['details'] ) ? $meta['details'] : array();
+        $out     = array();
+
+        foreach ( $details as $detail ) {
+            if ( is_array( $detail ) && isset( $detail['label'], $detail['value'] ) ) {
+                $out[] = array(
+                    'label' => sanitize_text_field( (string) $detail['label'] ),
+                    'value' => sanitize_text_field( (string) $detail['value'] ),
+                );
+            }
+        }
+
+        return $out;
     }
 
     /**
@@ -268,9 +291,12 @@ class Rest extends \WP_REST_Controller {
         $quantity_param = $request->get_param( 'quantity' );
         $quantity       = null === $quantity_param ? 1 : max( 1, absint( $quantity_param ) );
         $token          = $this->resolve_token( $request );
+        $item_data      = $request->get_param( 'item_data' );
 
         try {
-            $cart = VuloCart()->cart_service->add_item( $token, $product_id, $quantity, $price_id );
+            $cart = VuloCart()->cart_service->add_item( $token, $product_id, $quantity, $price_id, is_array( $item_data ) ? $item_data : array() );
+        } catch ( \VuloCart\Cart\Domain\CartItemRejected $exception ) {
+            return new \WP_Error( 'vulocart_cart_item_rejected', $exception->getMessage(), array( 'status' => 409 ) );
         } catch ( \InvalidArgumentException $exception ) {
             return new \WP_Error(
                 'vulocart_invalid_product',
@@ -296,7 +322,11 @@ class Rest extends \WP_REST_Controller {
         $item_id  = absint( $request->get_param( 'item_id' ) );
         $quantity = absint( $request->get_param( 'quantity' ) );
 
-        $cart = VuloCart()->cart_service->update_item_quantity( $token, $item_id, $quantity );
+        try {
+            $cart = VuloCart()->cart_service->update_item_quantity( $token, $item_id, $quantity );
+        } catch ( \VuloCart\Cart\Domain\CartItemRejected $exception ) {
+            return new \WP_Error( 'vulocart_cart_item_rejected', $exception->getMessage(), array( 'status' => 409 ) );
+        }
 
         return rest_ensure_response( $this->prepare_cart_for_response( $cart ) );
     }

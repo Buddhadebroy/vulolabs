@@ -190,6 +190,7 @@ class Rest extends \WP_REST_Controller {
             'currency'    => $item->currency,
             'subtotal'    => round( $item->unit_price * $item->quantity, 2 ),
             'price'       => PriceCatalog::line_price( $item->meta ),
+            'details'     => \VuloCart\Cart\Rest::line_details( $item->meta ),
         );
     }
 
@@ -440,6 +441,8 @@ class Rest extends \WP_REST_Controller {
                 $payment_method,
                 $payment_intent_id
             );
+        } catch ( \VuloCart\Cart\Domain\CartItemRejected $exception ) {
+            return new \WP_Error( 'vulocart_cart_item_rejected', $exception->getMessage(), array( 'status' => 409 ) );
         } catch ( \InvalidArgumentException $exception ) {
             return new \WP_Error( 'vulocart_empty_cart', esc_html__( 'Cart is empty or does not exist.', 'vulocart' ), array( 'status' => 400 ) );
         }

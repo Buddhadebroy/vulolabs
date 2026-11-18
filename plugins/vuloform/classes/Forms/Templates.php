@@ -15,6 +15,22 @@ defined( 'ABSPATH' ) || exit;
  */
 class Templates {
 
+	public static function plugins() {
+		$plugins = array();
+
+		foreach ( self::all() as $id => $template ) {
+			if ( ! empty( $template['plugin'] ) ) {
+				$plugins[ $template['plugin'] ][] = $id;
+			}
+		}
+
+		return $plugins;
+	}
+
+	public static function protected_form_ids() {
+		return array();
+	}
+
 	/**
 	 * @return array<string, array{title: string, desc: string, icon: string, category: string, schema: array}>
 	 */
@@ -181,6 +197,33 @@ class Templates {
 						array( 'options' => self::options( array( __( 'Vegetarian', 'vuloform' ), __( 'Vegan', 'vuloform' ), __( 'Gluten free', 'vuloform' ) ) ) )
 					),
 					self::field( 'textarea', __( 'Anything we should know?', 'vuloform' ) ),
+				),
+				'submit' => __( 'Register', 'vuloform' ),
+			),
+			'registration' => array(
+				'title'  => __( 'Registration form', 'vuloform' ),
+				'desc'   => __( 'Account details for a new member, with consent.', 'vuloform' ),
+				'icon'   => 'person',
+				'fields' => array(
+					self::field( 'text', __( 'First name', 'vuloform' ), array( 'required' => true, 'width' => 50 ) ),
+					self::field( 'text', __( 'Last name', 'vuloform' ), array( 'required' => true, 'width' => 50 ) ),
+					$email,
+					$phone,
+					self::field( 'date', __( 'Date of birth', 'vuloform' ) ),
+					self::field(
+						'radio',
+						__( 'Gender', 'vuloform' ),
+						array( 'options' => self::options( array( __( 'Female', 'vuloform' ), __( 'Male', 'vuloform' ), __( 'Other', 'vuloform' ), __( 'Prefer not to say', 'vuloform' ) ) ) )
+					),
+					self::field( 'address', __( 'Address', 'vuloform' ) ),
+					self::field(
+						'consent',
+						__( 'Terms', 'vuloform' ),
+						array(
+							'required'     => true,
+							'consent_text' => __( 'I agree to the terms and conditions.', 'vuloform' ),
+						)
+					),
 				),
 				'submit' => __( 'Register', 'vuloform' ),
 			),
@@ -2273,6 +2316,29 @@ class Templates {
 				),
 				'submit' => __( 'Donate', 'vuloform' ),
 			),
+			'notifima_subscription' => array(
+				'plugin'   => 'notifima',
+				'single'   => true,
+				'title'    => __( 'Back in stock subscription', 'vuloform' ),
+				'category' => __( 'Notifima', 'vuloform' ),
+				'desc'     => __( 'Asks for an email address so Notifima can tell the visitor when a product is back in stock.', 'vuloform' ),
+				'icon'     => 'mail',
+				'fields'   => array(
+					self::field(
+						'email',
+						__( 'Email', 'vuloform' ),
+						array(
+							'required'    => true,
+							'placeholder' => __( 'Enter your email', 'vuloform' ),
+						)
+					),
+				),
+				'submit'   => __( 'Notify Me', 'vuloform' ),
+				'settings' => array(
+					'store_submissions' => false,
+					'notifications'     => array(),
+				),
+			),
 		);
 
 		$out = array();
@@ -2284,13 +2350,26 @@ class Templates {
 				$settings['submit_label'] = $template['submit'];
 			}
 
-			// Every template tells the site admin about a submission out of the box.
-			$settings['notifications'][] = self::admin_notification( 'email' );
+			if ( isset( $template['settings'] ) ) {
+				$settings = array_merge( $settings, $template['settings'] );
+			}
+
+			// A plugin's template is recognised by its id, which is what groups its forms in the list.
+			if ( isset( $template['plugin'] ) ) {
+				$settings['template'] = $id;
+			}
+
+			// Every template tells the site admin about a submission out of the box, unless it sets its own.
+			if ( ! isset( $template['settings']['notifications'] ) ) {
+				$settings['notifications'][] = self::admin_notification( 'email' );
+			}
 
 			$out[ $id ] = array(
 				'title'    => $template['title'],
 				'desc'     => $template['desc'],
 				'icon'     => $template['icon'],
+				'plugin'   => $template['plugin'] ?? '',
+				'single'   => ! empty( $template['single'] ),
 				'category' => $template['category'] ?? __( 'Other', 'vuloform' ),
 				'schema'   => Schema::sanitize(
 					array(

@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { HeaderComponent } from '@zyra/components';
 import Brand from './assets/images/brand-logo.png';
 import Forms from './pages/Forms';
-import Builder from './builder/Builder';
+import Builder from './Builder';
 import Submissions from './pages/Submissions';
 import Settings from './pages/Settings';
 import { adminTabs } from './services/slots';
