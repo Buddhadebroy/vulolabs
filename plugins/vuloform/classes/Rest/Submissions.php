@@ -306,7 +306,8 @@ class Submissions extends Controller {
 
 		return array(
 			'form_id'  => $form_id,
-			'status'   => in_array( $status, array_merge( SubmissionRepository::STATUSES, array( 'inbox' ) ), true ) ? $status : 'inbox',
+			// No status requested means every status, spam included; 'inbox' is a deliberate choice to exclude it.
+			'status'   => in_array( $status, array_merge( SubmissionRepository::STATUSES, array( 'inbox' ) ), true ) ? $status : '',
 			'search'   => sanitize_text_field( (string) $request->get_param( 'search' ) ),
 			'after'    => self::day_boundary( $request->get_param( 'after' ), '00:00:00' ),
 			'before'   => self::day_boundary( $request->get_param( 'before' ), '23:59:59' ),

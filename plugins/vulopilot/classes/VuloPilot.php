@@ -70,9 +70,7 @@ final class VuloPilot {
 		add_option( Utill::VULOPILOT_OTHER_SETTINGS['run_installer'], true );
 		// A no-op if this site already has an active-module list.
 		add_option( Utill::ACTIVE_MODULES_DB_KEY, array( 'geo-analysis', 'technical-seo', 'content-optimization', 'brand-visibility', 'knowledge-graph', 'ai-copilot' ) );
-		// The sitemap rules are only registered once WordPress has initialised its sitemaps, after this hook.
 		delete_option( 'vulopilot_sitemap_rewrite_version' );
-		flush_rewrite_rules();
 
 		// One-shot flag - admin_init's own maybe_redirect_to_setup_wizard() consumes and deletes
 		// this on the very next admin page load, same pattern WooCommerce/Jetpack-style onboarding

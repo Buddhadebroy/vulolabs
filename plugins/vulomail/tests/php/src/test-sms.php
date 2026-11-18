@@ -8,6 +8,7 @@
 namespace VuloMail\Tests;
 
 use VuloMail\Connections\ConnectionRepository;
+use VuloMail\Email\Tracking;
 use VuloMail\Logging\Logger;
 use VuloMail\Security\Secrets;
 use VuloMail\Settings\Settings;
@@ -313,7 +314,7 @@ class TestSms extends TestCase {
 
 		ScriptedGateway::$sent = array();
 
-		return new Dispatcher( $store, $connections, $registry, new Logger( $logs, $store ) );
+		return new Dispatcher( $store, $connections, $registry, new Logger( $logs, $store ), new Tracking( $store, $logs ) );
 	}
 
 	/**
@@ -395,6 +396,62 @@ class TestSms extends TestCase {
 				'body' => 'Hello there',
 			),
 			ScriptedGateway::$sent[0]
+		);
+	}
+
+	/**
+	 * A link in the message is sent through the click redirect when switched on, and the log
+	 * keeps the message as submitted, not the tracked copy.
+	 *
+	 * @return void
+	 */
+	public function test_dispatcher_tracks_clicks_in_an_sms_when_enabled() {
+		$logs = null;
+
+		$this->dispatcher( array( 'ok' ), array( 'sms_track_clicks' => true, 'log_content' => true ), $logs )
+			->send( '+14155550123', 'Track your order: https://example.com/order/42' );
+
+		$this->assertStringContainsString( 'vulomail_click=', ScriptedGateway::$sent[0]['body'], 'The link handed to the gateway is rewritten.' );
+		$this->assertStringNotContainsString( 'example.com/order/42', ScriptedGateway::$sent[0]['body'], 'The original link is only base64-encoded in the redirect, not sent in the clear.' );
+		$this->assertSame( 1, $logs->rows[0]['track_clicks'] );
+		$this->assertNotSame( '', $logs->rows[0]['tracking_token'] );
+		$this->assertSame(
+			'Track your order: https://example.com/order/42',
+			$logs->rows[0]['body'],
+			'The log keeps the message as submitted, so a resend tracks fresh under its own token.'
+		);
+	}
+
+	/**
+	 * Nothing is rewritten or tracked while the setting is off, the default.
+	 *
+	 * @return void
+	 */
+	public function test_dispatcher_does_not_track_clicks_when_the_setting_is_off() {
+		$logs = null;
+
+		$this->dispatcher( array( 'ok' ), array(), $logs )
+			->send( '+14155550123', 'Track your order: https://example.com/order/42' );
+
+		$this->assertSame( 'Track your order: https://example.com/order/42', ScriptedGateway::$sent[0]['body'] );
+		$this->assertSame( 0, $logs->rows[0]['track_clicks'] );
+		$this->assertSame( '', $logs->rows[0]['tracking_token'] );
+	}
+
+	/**
+	 * A sensitive-looking link (password reset, OTP, etc.) is never rewritten, same as email.
+	 *
+	 * @return void
+	 */
+	public function test_dispatcher_never_tracks_a_sensitive_link() {
+		$logs = null;
+
+		$this->dispatcher( array( 'ok' ), array( 'sms_track_clicks' => true ), $logs )
+			->send( '+14155550123', 'Reset your password: https://example.com/reset?token=abc123' );
+
+		$this->assertSame(
+			'Reset your password: https://example.com/reset?token=abc123',
+			ScriptedGateway::$sent[0]['body']
 		);
 	}
 }

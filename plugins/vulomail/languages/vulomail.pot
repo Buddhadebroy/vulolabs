@@ -8,13 +8,14 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-10T05:42:02+00:00\n"
+"POT-Creation-Date: 2026-11-18T12:06:51+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulomail\n"
 
 #. Plugin Name of the plugin
 #: vulomail.php
+#: assets/js/index.js:2
 msgid "VuloMail"
 msgstr ""
 
@@ -50,16 +51,21 @@ msgstr ""
 
 #: classes/Admin.php:59
 #: assets/js/index.js:2
-msgid "Logs"
+msgid "Email Templates"
 msgstr ""
 
 #: classes/Admin.php:63
 #: assets/js/index.js:2
-msgid "Tools"
+msgid "Logs"
 msgstr ""
 
 #: classes/Admin.php:67
-#: classes/Admin.php:132
+#: assets/js/index.js:2
+msgid "Tools"
+msgstr ""
+
+#: classes/Admin.php:71
+#: classes/Admin.php:136
 #: assets/js/index.js:2
 msgid "Settings"
 msgstr ""
@@ -74,7 +80,7 @@ msgstr ""
 #: classes/Connections/GoogleOAuth.php:218
 #: classes/Rest/Connections.php:162
 #: classes/Rest/Tools.php:104
-#: classes/Rest/Tools.php:163
+#: classes/Rest/Tools.php:164
 msgid "That connection no longer exists."
 msgstr ""
 
@@ -1409,6 +1415,15 @@ msgstr ""
 msgid "That connection does not exist."
 msgstr ""
 
+#: classes/Rest/Templates.php:77
+#: classes/Rest/Templates.php:110
+msgid "That email template is not registered."
+msgstr ""
+
+#: classes/Rest/Templates.php:114
+msgid "The email template could not be saved."
+msgstr ""
+
 #: classes/Rest/Tools.php:65
 msgid "Enter a valid email address to send the test to."
 msgstr ""
@@ -1429,26 +1444,26 @@ msgstr ""
 
 #. translators: %s: field names.
 #: classes/Rest/Tools.php:111
-#: classes/Rest/Tools.php:170
+#: classes/Rest/Tools.php:171
 #, php-format
 msgid "This connection is incomplete. Missing: %s."
 msgstr ""
 
-#: classes/Rest/Tools.php:143
+#: classes/Rest/Tools.php:144
 msgid "Enter a phone number in international format, for example +14155550123."
 msgstr ""
 
 #. translators: %s: site name.
-#: classes/Rest/Tools.php:148
+#: classes/Rest/Tools.php:149
 #, php-format
 msgid "VuloMail test message from %s. Your SMS connection is working."
 msgstr ""
 
-#: classes/Rest/Tools.php:207
+#: classes/Rest/Tools.php:208
 msgid "Test sent. Check the inbox or phone to confirm it arrived."
 msgstr ""
 
-#: classes/Rest/Tools.php:208
+#: classes/Rest/Tools.php:209
 msgid "The test could not be sent."
 msgstr ""
 
@@ -1462,31 +1477,31 @@ msgstr ""
 msgid "The gateway rejected the message (HTTP %1$d): %2$s"
 msgstr ""
 
-#: classes/Sms/Dispatcher.php:122
+#: classes/Sms/Dispatcher.php:133
 msgid "SMS sending is switched off."
 msgstr ""
 
-#: classes/Sms/Dispatcher.php:126
+#: classes/Sms/Dispatcher.php:137
 msgid "The recipient is not a valid phone number. Use international format, or set a default country code."
 msgstr ""
 
-#: classes/Sms/Dispatcher.php:128
+#: classes/Sms/Dispatcher.php:139
 msgid "The message is empty."
 msgstr ""
 
-#: classes/Sms/Dispatcher.php:130
+#: classes/Sms/Dispatcher.php:141
 msgid "The message is too long to send as an SMS."
 msgstr ""
 
-#: classes/Sms/Dispatcher.php:132
+#: classes/Sms/Dispatcher.php:143
 msgid "No SMS connection is configured."
 msgstr ""
 
-#: classes/Sms/Dispatcher.php:184
+#: classes/Sms/Dispatcher.php:218
 msgid "This connection uses a gateway that is no longer available."
 msgstr ""
 
-#: classes/Sms/Dispatcher.php:189
+#: classes/Sms/Dispatcher.php:223
 msgid "The SMS gateway adapter failed unexpectedly."
 msgstr ""
 
@@ -1792,6 +1807,32 @@ msgstr ""
 msgid "an unknown address"
 msgstr ""
 
+#: classes/Templates/Registry.php:42
+msgid "Basic notification"
+msgstr ""
+
+#: classes/Templates/Registry.php:43
+msgid "A short message with a heading and a button, to start a new email from."
+msgstr ""
+
+#: classes/Templates/Registry.php:45
+#: classes/Templates/Registry.php:78
+#: assets/js/index.js:2
+msgid "General"
+msgstr ""
+
+#: classes/Templates/Registry.php:47
+msgid "A message from {siteName}"
+msgstr ""
+
+#: classes/Templates/Registry.php:48
+msgid "Hello,"
+msgstr ""
+
+#: classes/Templates/Registry.php:48
+msgid "Write your message here."
+msgstr ""
+
 #: classes/Utill.php:139
 msgid "Today"
 msgstr ""
@@ -1800,6 +1841,23 @@ msgstr ""
 msgid "Yesterday"
 msgstr ""
 
+#. translators: %d: page number.
+#. translators: %s: field label.
+#. translators: %d: number of choices.
+#. translators: %s: field label, such as Quantity.
+#. translators: 1: parts shown, 2: parts available.
+#. translators: %d: number of fields in one row.
+#. translators: %s: name of a notification or webhook.
+#. translators: 1: a rule such as: Subject is "Sales". 2: "a message" or "another page".
+#. translators: 1: a rule such as: Subject is "Sales". 2: number of further rules.
+#. translators: %s: the site's admin email address.
+#. translators: 1: email address, 2: phone number.
+#. translators: %s: phone number or placeholder.
+#. translators: 1: number of exceptions. 2: the most a form can have.
+#. translators: %d: number of the exception.
+#. translators: %s: name of the exception, such as: Exception 1.
+#. translators: %s: web address.
+#. translators: %d: number of problems.
 #: assets/js/index.js:1
 msgid "Something went wrong. Please try again."
 msgstr ""
@@ -1943,11 +2001,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Administrator logins, new users and comments, and a text when an email fails to send."
-msgstr ""
-
-#: assets/js/index.js:1
-#: assets/js/index.js:2
-msgid "All"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -2170,14 +2223,6 @@ msgid "Google only accepts redirect addresses that start with https://. Switch y
 msgstr ""
 
 #: assets/js/index.js:2
-msgid "On"
-msgstr ""
-
-#: assets/js/index.js:2
-msgid "Off"
-msgstr ""
-
-#: assets/js/index.js:2
 msgid "Leave unchanged to keep the saved value"
 msgstr ""
 
@@ -2241,6 +2286,14 @@ msgstr ""
 
 #: assets/js/index.js:2
 msgid "Leave empty to use the default. Placeholders:"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "On"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Off"
 msgstr ""
 
 #: assets/js/index.js:2
@@ -2580,7 +2633,7 @@ msgid "Engagement tracking"
 msgstr ""
 
 #: assets/js/index.js:2
-msgid "See whether HTML emails are opened and their links clicked, in the Logs. Tracking is stored in the delivery log, so it needs the log switched on, and it never applies to plain-text email or text messages. Opens and clicks are estimates: some mail apps block images, others and security scanners load images or follow links on their own."
+msgid "See whether HTML emails are opened, and whether links in an email or text message are clicked, in the Logs. Tracking is stored in the delivery log, so it needs the log switched on; open tracking never applies to plain-text email or text messages, since there is nothing to load an image. Opens and clicks are estimates: some mail apps block images, others and security scanners load images or follow links on their own."
 msgstr ""
 
 #: assets/js/index.js:2
@@ -2592,11 +2645,19 @@ msgid "Adds an invisible 1×1 image to each HTML email and records when it is lo
 msgstr ""
 
 #: assets/js/index.js:2
-msgid "Click tracking"
+msgid "Email click tracking"
 msgstr ""
 
 #: assets/js/index.js:2
 msgid "Sends links through this site before the reader reaches the page, and records which link was clicked. Unsubscribe, password reset, sign-in, mailto: and tel: links are never changed."
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Text message click tracking"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Same as email click tracking, for links in a text message. Makes the message longer, since the link is replaced with one on this site."
 msgstr ""
 
 #: assets/js/index.js:2
@@ -2802,7 +2863,96 @@ msgid "Could not load SMS alerts"
 msgstr ""
 
 #: assets/js/index.js:2
-msgid "Every email and SMS sent from this site."
+msgid "Customise every plugin’s email templates from one place."
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "All"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Could not open editor"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Could not save the email"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Store"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Customer"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Admin"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Sent to anyone"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Sent to stores"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Sent to customers"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Sent to you"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Could not switch the email"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Could not load email templates"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Search emails…"
+msgstr ""
+
+#. translators: %d: number of emails shown.
+#: assets/js/index.js:2
+#, js-format
+msgid "%d email"
+msgid_plural "%d emails"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:2
+msgid "Clear all"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "No emails match"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Try another filter or search. Plugins add their emails with the vulomail_email_templates filter."
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Turn all on"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Turn all off"
+msgstr ""
+
+#: assets/js/index.js:2
+#, js-format
+msgid "Send %s"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Customise"
 msgstr ""
 
 #: assets/js/index.js:2
@@ -2810,11 +2960,23 @@ msgid "Every email and text message this site has tried to send."
 msgstr ""
 
 #: assets/js/index.js:2
-msgid "Delete all logs"
+msgid "Every email and SMS sent from this site."
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Delivered by a connection"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "No connection could send them"
 msgstr ""
 
 #: assets/js/index.js:2
 msgid "Delivery rate"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Sent out of all attempts"
 msgstr ""
 
 #: assets/js/index.js:2
@@ -2827,6 +2989,10 @@ msgstr ""
 
 #: assets/js/index.js:2
 msgid "Date range"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Delete all logs"
 msgstr ""
 
 #. translators: %s: recipient addresses or numbers.
@@ -2948,10 +3114,6 @@ msgid "Opens and clicks are estimates. Some mail apps block images, so an open c
 msgstr ""
 
 #: assets/js/index.js:2
-msgid "Message view"
-msgstr ""
-
-#: assets/js/index.js:2
 msgid "Preview"
 msgstr ""
 
@@ -2961,6 +3123,10 @@ msgstr ""
 
 #: assets/js/index.js:2
 msgid "Subject:"
+msgstr ""
+
+#: assets/js/index.js:2
+msgid "Email preview"
 msgstr ""
 
 #. translators: 1: opening link tag to Settings → Logging & Privacy, 2: closing link tag.

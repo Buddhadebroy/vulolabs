@@ -10,6 +10,7 @@ namespace VuloMail\Sms;
 use VuloMail\Connections\ConnectionRepository;
 use VuloMail\Connections\ProviderRegistry;
 use VuloMail\Delivery\Result;
+use VuloMail\Email\Tracking;
 use VuloMail\Logging\Logger;
 use VuloMail\Settings\Settings;
 use VuloMail\Utill;
@@ -55,18 +56,28 @@ class Dispatcher {
 	private $logger;
 
 	/**
+	 * Click tracking, shared with email - the redirect endpoint it serves has nothing
+	 * email-specific about it.
+	 *
+	 * @var Tracking|null
+	 */
+	private $tracking;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Settings             $settings    Plugin settings.
 	 * @param ConnectionRepository $connections Saved connections.
 	 * @param ProviderRegistry     $providers   Provider adapters.
 	 * @param Logger               $logger      Delivery log.
+	 * @param Tracking|null        $tracking    Click tracking.
 	 */
-	public function __construct( Settings $settings, ConnectionRepository $connections, ProviderRegistry $providers, Logger $logger ) {
+	public function __construct( Settings $settings, ConnectionRepository $connections, ProviderRegistry $providers, Logger $logger, Tracking $tracking = null ) {
 		$this->settings    = $settings;
 		$this->connections = $connections;
 		$this->providers   = $providers;
 		$this->logger      = $logger;
+		$this->tracking    = $tracking;
 	}
 
 	/**
@@ -131,15 +142,20 @@ class Dispatcher {
 		} else {
 			$final = Result::fail( 'not_configured', __( 'No SMS connection is configured.', 'vulomail' ) );
 
+			// The log keeps $body as submitted, so a resend tracks fresh under its own token;
+			// only the copy actually handed to the gateway gets its links rewritten.
+			$tracking      = $this->click_tracking();
+			$outgoing_body = $tracking ? $this->tracking->rewrite_plain_text_links( $body, $tracking['token'] ) : $body;
+
 			$attempts = array();
 
 			foreach ( $this->chain() as $index => $connection ) {
-				$final           = $this->send_via( $connection, $number, $body );
+				$final           = $this->send_via( $connection, $number, $outgoing_body );
 				$attempts[]      = $final->to_array();
 				$final->attempts = $attempts;
 
 				if ( $final->success ) {
-					$final->log_id = $this->logger->sms( $number, $body, $final, $index > 0, $source );
+					$final->log_id = $this->logger->sms( $number, $body, $final, $index > 0, $source, $tracking );
 
 					/**
 					 * Fires after an SMS is accepted by a gateway.
@@ -167,6 +183,24 @@ class Dispatcher {
 		do_action( 'vulomail_sms_failed', $number, $body, $final );
 
 		return $final;
+	}
+
+	/**
+	 * A fresh click-tracking token for a text message about to be sent, when the site owner
+	 * opted in. A message with no link in it still gets one - rewrite_plain_text_links() is a
+	 * no-op without a URL to match, same as email tracking a message with no links.
+	 *
+	 * @return array{token: string, clicks: true}|null
+	 */
+	private function click_tracking() {
+		if ( ! $this->tracking || ! $this->settings->get( 'sms_track_clicks' ) ) {
+			return null;
+		}
+
+		return array(
+			'token'  => Utill::random_token(),
+			'clicks' => true,
+		);
 	}
 
 	/**

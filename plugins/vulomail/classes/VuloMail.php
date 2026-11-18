@@ -102,7 +102,8 @@ final class VuloMail {
 			$this->container['settings'],
 			$this->container['connections'],
 			$this->container['providers'],
-			$this->container['logger']
+			$this->container['logger'],
+			$this->container['tracking']
 		);
 
 		$this->container['wp_mail'] = new Email\WpMailInterceptor(

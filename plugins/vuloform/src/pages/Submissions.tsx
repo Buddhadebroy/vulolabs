@@ -175,7 +175,8 @@ const Submissions = () => {
 	const [query, setQuery] = useState<TableQuery>(startQuery);
 	// The form pills are the table's categories, so the picked form lives in the table's own query.
 	const formId = query.categoryFilter && 'all' !== query.categoryFilter ? Number(query.categoryFilter) : 0;
-	const status = query.filter?.status && 'inbox' !== query.filter.status ? query.filter.status : 'inbox';
+	// Unfiltered means every status, spam included; "Inbox" is a deliberate choice that excludes it.
+	const status = query.filter?.status && 'all' !== query.filter.status ? query.filter.status : '';
 	const [list, setList] = useState<List>({ data: [], total: 0, status_counts: { unread: 0, read: 0, spam: 0 } });
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState('');
@@ -188,7 +189,7 @@ const Submissions = () => {
 
 	const onQueryUpdate = useCallback((next: TableQuery) => setQuery(next), []);
 
-	const hasActiveFilter = Boolean(query.filter?.date || query.searchValue || (query.filter?.status && 'inbox' !== query.filter.status));
+	const hasActiveFilter = Boolean(query.filter?.date || query.searchValue || (query.filter?.status && 'all' !== query.filter.status));
 
 	const resetFilters = () => {
 		setQuery(startQuery);
@@ -340,7 +341,8 @@ const Submissions = () => {
 									label: __('Status', 'vuloform'),
 									size: 9,
 									options: [
-										{ value: 'inbox', label: __('Inbox', 'vuloform') },
+										{ value: 'all', label: __('All', 'vuloform') },
+										{ value: 'inbox', label: __('Inbox (no spam)', 'vuloform') },
 										{ value: 'unread', label: __('New', 'vuloform') },
 										{ value: 'read', label: __('Read', 'vuloform') },
 										{ value: 'spam', label: __('Spam', 'vuloform') },

@@ -121,7 +121,13 @@ class FrontendScripts {
 			return admin_url( 'admin.php?page=vulomail#&tab=settings&subtab=connections' );
 		}
 
-		if ( file_exists( WP_PLUGIN_DIR . '/vulomail/vulomail.php' ) ) {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		// get_plugins() is WP's own "is this a real, recognized plugin" check - more reliable than a
+		// raw file_exists(), which a dev/staging environment's own plugin-directory quirks can trip up.
+		if ( isset( get_plugins()['vulomail/vulomail.php'] ) ) {
 			return admin_url( 'plugins.php?s=vulomail' );
 		}
 

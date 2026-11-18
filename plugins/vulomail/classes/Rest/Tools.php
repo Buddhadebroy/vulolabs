@@ -121,7 +121,8 @@ class Tools extends Controller {
 		);
 		$message->source = 'vulomail-test';
 
-		$result           = VuloMail()->email->send_via( $connection, $message );
+		$outgoing         = VuloMail()->tracking->prepare( $message );
+		$result           = VuloMail()->email->send_via( $connection, $outgoing );
 		$result->attempts = array( $result->to_array() );
 
 		VuloMail()->logger->email( $message, $result );

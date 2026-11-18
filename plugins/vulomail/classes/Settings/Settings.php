@@ -45,9 +45,10 @@ class Settings {
 		'log_content'         => false,
 		'mask_recipients'     => false,
 		'log_retention_days'  => 30,
-		// Engagement tracking. Both need the log, and both stay off until the site owner opts in.
+		// Engagement tracking. All three need the log, and all stay off until the site owner opts in.
 		'track_opens'         => false,
 		'track_clicks'        => false,
+		'sms_track_clicks'    => false,
 		// Data.
 		'keep_data_uninstall' => 'keep_data',
 	);
