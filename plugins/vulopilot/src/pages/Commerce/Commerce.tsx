@@ -41,20 +41,22 @@ addFilter('vulopilot_banner_card', 'vulopilot/commerce', () => BannerCard);
 const CommercePanel = ({
 	RealPanel,
 	onLockedClick,
+	isModuleGate,
 }: {
 	RealPanel: ComponentType | null;
 	onLockedClick: () => void;
+	isModuleGate: boolean;
 }) => {
 	if (RealPanel) {
 		return <RealPanel />;
 	}
 
-	return <CommerceProDummies onClick={onLockedClick} />;
+	return <CommerceProDummies onClick={onLockedClick} isModuleGate={isModuleGate} />;
 };
 
 const Commerce = () => {
 	const RealPanel = useFilterSlot('vulopilot_commerce_panel');
-	const isProInstalled = Boolean(vulopilotAppLocalizer.khali_dabba);
+	const isModuleGate = Boolean(vulopilotAppLocalizer.khali_dabba);
 	const [isPopupOpen, setIsPopupOpen] = useState(false);
 	const isUnlocked = Boolean(RealPanel);
 
@@ -92,6 +94,7 @@ const Commerce = () => {
 				<CommercePanel
 					RealPanel={RealPanel}
 					onLockedClick={() => setIsPopupOpen(true)}
+					isModuleGate={isModuleGate}
 				/>
 			</ContainerComponent>
 			<PopupComponent
@@ -101,7 +104,7 @@ const Commerce = () => {
 				height="auto"
 				position="lightbox"
 			>
-				{isProInstalled ? (
+				{isModuleGate ? (
 					<ShowProPopup moduleName={COMMERCE_MODULE_ID} />
 				) : (
 					<ShowProPopup />

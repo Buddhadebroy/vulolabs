@@ -259,7 +259,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 							value={period}
 							onChange={(value) => setPeriod(value as PeriodDays)}
 							modules={[]}
-							variant="pill"
+							
 						/>
 					}
 				>

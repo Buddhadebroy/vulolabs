@@ -307,11 +307,13 @@ class TestForms extends TestCase {
 
 		$templates = Templates::all();
 
-		$this->assertCount( 90, $templates );
+		$this->assertCount( 91, $templates );
 
 		foreach ( $templates as $id => $template ) {
 			$this->assertSame( array(), Schema::problems( $template['schema'] ), "Template {$id} has problems." );
-			$this->assertTrue( $template['schema']['settings']['notifications'][0]['enabled'] );
+			if ( empty( $template['plugin'] ) ) {
+				$this->assertTrue( $template['schema']['settings']['notifications'][0]['enabled'] );
+			}
 		}
 
 		$lead = $templates['lead']['schema']['fields'];

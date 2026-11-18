@@ -33,7 +33,7 @@ const AutomationsTemplatesCard: React.FC<AutomationsTemplatesCardProps> = ({
 			window.removeEventListener('vulopilot_pro_modules_loaded', recheck);
 	}, []);
 
-	const isProInstalled = Boolean(vulopilotAppLocalizer.khali_dabba);
+	const isModuleGate = Boolean(vulopilotAppLocalizer.khali_dabba);
 
 	const [lockReason, setLockReason] = useState<'pro' | 'module' | null>(null);
 	const dismissLock = () => setLockReason(null);
@@ -49,7 +49,7 @@ const AutomationsTemplatesCard: React.FC<AutomationsTemplatesCardProps> = ({
 			return;
 		}
 
-		if (!isProInstalled) {
+		if (!isModuleGate) {
 			setLockReason('pro');
 			return;
 		}
@@ -77,7 +77,7 @@ const AutomationsTemplatesCard: React.FC<AutomationsTemplatesCardProps> = ({
 						desc: template.description,
 						tags: (
 							<>
-								{template.pro && !isProInstalled && (
+								{template.pro && !isModuleGate && (
 									<span className="admin-tag pro-tag pro-tag-inline">
 										<i className="adminfont-pro-tag" />
 										{__('Pro', 'vulopilot')}
