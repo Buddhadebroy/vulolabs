@@ -228,15 +228,14 @@ export function OrderAdd() {
 						<span aria-current="page">{ __( 'Add Order', 'vulocart' ) }</span>
 					</nav>
 					<h1 className="vulocart-edit-page-title">{ __( 'New order', 'vulocart' ) }</h1>
-					<div className="vulocart-title-meta">
-						<span className="vulocart-status-tag is-draft">
-							<i aria-hidden="true" />
-							{ __( 'Draft', 'vulocart' ) }
-						</span>
-					</div>
 				</div>
 
+				{ /* Status beside the actions, where the order and product editors keep theirs. */ }
 				<div className="vulocart-topbar-actions">
+					<span className="vulocart-status-tag is-draft">
+						<i aria-hidden="true" />
+						{ __( 'Draft', 'vulocart' ) }
+					</span>
 					{ isDirty && (
 						<span className="vulocart-unsaved" role="status">
 							<i aria-hidden="true" />
