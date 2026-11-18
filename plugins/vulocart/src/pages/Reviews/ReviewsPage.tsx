@@ -5,7 +5,8 @@ import axios from 'axios';
 import { getApiLink } from '@zyra/core';
 import { ContainerComponent, ColumnComponent, NavigatorHeaderComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import { TableCard, TableRow, QueryProps, CategoryCount } from '@zyra/table';
+import { TableRow, QueryProps, CategoryCount } from '@zyra/table';
+import { TableCard } from '../../components/TableCard/TableCard';
 import { downloadCSV } from '../../lib/utils';
 import { formatWpDate } from '../../services/formatWpDate';
 import ConfirmPopup from '../../components/ConfirmPopup/ConfirmPopup';
@@ -220,8 +221,6 @@ function ReviewsQueue() {
 				{
 					label: __( 'Delete', 'vulocart' ),
 					icon: 'delete',
-					type: 'button' as const,
-					color: 'text-red',
 					onClick: ( row: Record< string, unknown > ) => setDeleteIds( [ row.id as number ] ),
 				},
 			],
@@ -234,10 +233,11 @@ function ReviewsQueue() {
 				<NavigatorHeaderComponent
 					headerIcon="review"
 					headerTitle={ __( 'Reviews', 'vulocart' ) }
-					headerDescription={ __( 'Customer ratings and comments on your products - approve or reject before they show on the storefront.', 'vulocart' ) }
+					headerDescription={ __( 'Approve customer reviews before they show in your store.', 'vulocart' ) }
 					// Export in the header, like the Products list; it follows the table's current search and status.
 					headerCustomContent={
-						<ButtonInput buttons={ [ { text: __( 'Export', 'vulocart' ), icon: 'download', color: 'purple', onClick: () => downloadAllCSV( lastQuery ) } ] } />
+						// Nothing to export until there are reviews.
+						totalRows > 0 ? <ButtonInput buttons={ [ { text: __( 'Export', 'vulocart' ), icon: 'download', color: 'purple', onClick: () => downloadAllCSV( lastQuery ) } ] } /> : undefined
 					}
 				/>
 
@@ -251,6 +251,7 @@ function ReviewsQueue() {
 					categoryCounts={ categoryCounts }
 					activeCategory="all"
 					search={ { placeholder: __( 'Search reviews…', 'vulocart' ) } }
+					emptyMessage={ __( 'No reviews yet', 'vulocart' ) }
 					filters={ [ { key: 'product_id', label: __( 'Product', 'vulocart' ), type: 'select', size: 4, options: productOptions } ] }
 					bulkActions={ [
 						...STATUS_OPTIONS.filter( ( option ) => 'pending' !== option.value ).map( ( option ) => ( {

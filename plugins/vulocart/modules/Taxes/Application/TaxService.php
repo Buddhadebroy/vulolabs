@@ -132,8 +132,9 @@ class TaxService {
 
         if ( 'store' === $based_on || ! is_array( $address ) || empty( $address['country'] ) ) {
             $address = array(
-                'country' => (string) $settings['store_country'],
-                'state'   => (string) $settings['store_state'],
+                'country'  => (string) $settings['store_country'],
+                'state'    => (string) $settings['store_state'],
+                'postcode' => (string) $settings['store_postcode'],
             );
         }
 

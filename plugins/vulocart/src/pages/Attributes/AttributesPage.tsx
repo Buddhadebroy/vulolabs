@@ -13,7 +13,8 @@ import {
 	NoticeManager,
 	PopupComponent,
 } from '@zyra/components';
-import { TableCard, TableRow } from '@zyra/table';
+import { TableRow } from '@zyra/table';
+import { TableCard } from '../../components/TableCard/TableCard';
 import { TextInput, ButtonInput } from '@zyra/inputs';
 import ConfirmPopup from '../../components/ConfirmPopup/ConfirmPopup';
 
@@ -179,7 +180,7 @@ export function AttributesPage() {
 					] }
 					descriptions={
 						row.values.length
-							? [ { icon: 'tag', label: __( 'Values', 'vulocart' ), value: row.values.map( ( value ) => value.value ).join( ', ' ) } ]
+							? [ { icon: 'pro-tag', label: __( 'Values', 'vulocart' ), value: row.values.map( ( value ) => value.value ).join( ', ' ) } ]
 							: []
 					}
 				/>
@@ -192,8 +193,6 @@ export function AttributesPage() {
 				{
 					label: __( 'Manage values', 'vulocart' ),
 					icon: 'edit',
-					type: 'button',
-					color: 'text-blue',
 					onClick: ( row: Record< string, unknown > ) => {
 						setNewValue( '' );
 						setManagingId( ( row as unknown as Attribute ).id );
@@ -202,8 +201,6 @@ export function AttributesPage() {
 				{
 					label: __( 'Delete', 'vulocart' ),
 					icon: 'delete',
-					type: 'button',
-					color: 'text-red',
 					onClick: ( row: Record< string, unknown > ) => setDeleteTarget( row as unknown as Attribute ),
 				},
 			],
@@ -227,7 +224,8 @@ export function AttributesPage() {
 						ids={ pageRows.map( ( row ) => row.id ) }
 						totalRows={ visibleAttributes.length }
 						isLoading={ isLoading }
-						search={ { placeholder: __( 'Search by attribute or value…', 'vulocart' ) } }
+						// Nothing to search until the first attribute exists.
+						search={ attributes.length > 0 || searchTerm ? { placeholder: __( 'Search by attribute or value…', 'vulocart' ) } : undefined }
 						bulkActions={ [ { label: __( 'Delete', 'vulocart' ), value: 'delete' } ] }
 						onBulkActionApply={ ( action: string, ids: number[] ) => 'delete' === action && ids.length && setBulkDeleteIds( ids ) }
 						onQueryUpdate={ ( query: { paged?: number | string; per_page?: number | string; searchValue?: string } ) => {
@@ -235,7 +233,7 @@ export function AttributesPage() {
 							setPerPage( Number( query.per_page ) || DEFAULT_PER_PAGE );
 							setSearchTerm( query.searchValue ?? '' );
 						} }
-						emptyMessage={ __( 'No attributes yet - add the first one.', 'vulocart' ) }
+						emptyMessage={ __( 'No attributes yet', 'vulocart' ) }
 				/>
 
 				<PopupComponent

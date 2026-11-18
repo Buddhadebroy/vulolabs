@@ -20,7 +20,7 @@ export default function ProSettingsPanel( { id, view }: ProSettingsPanelProps ) 
 	// `.vulocart-engine-page` carries the button and card styles the prompt is drawn with.
 	return <>{ content || (
 		<div className="vulocart-engine-page">
-			<ModuleRequired view={ view } />
+			<ModuleRequired view={ view } previewKey={ id } />
 		</div>
 	) }</>;
 }

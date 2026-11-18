@@ -30,7 +30,7 @@ export const storeExtraViews: Record< string, EngineView > = {
 	},
 	'pricing-rules': {
 		title: __( 'Pricing Rules', 'vulocart' ),
-		description: __( 'Automatic discounts applied when a product is added to cart. When more than one rule matches, the lowest resulting price wins.', 'vulocart' ),
+		description: __( 'Automatic discounts. When several rules match, the lowest price wins.', 'vulocart' ),
 		icon: 'price',
 		module: 'pricing-rules',
 		pro: true,
@@ -51,7 +51,7 @@ export const storeExtraViews: Record< string, EngineView > = {
 	},
 	'checkout-links': {
 		title: __( 'Payment Links', 'vulocart' ),
-		description: __( 'Sell without a store visit: a link that opens checkout with your chosen products already in the cart. Share it anywhere or print it as a QR code.', 'vulocart' ),
+		description: __( 'Links that open checkout with products already in the cart.', 'vulocart' ),
 		icon: 'link',
 		module: 'checkout-links',
 		pro: true,
@@ -65,7 +65,7 @@ export const storeExtraViews: Record< string, EngineView > = {
 export const ordersExtraViews: Record< string, EngineView > = {
 	subscriptions: {
 		title: __( 'Subscriptions', 'vulocart' ),
-		description: __( 'Recurring billing - automatic renewal charges, dunning retries, and customer self-service.', 'vulocart' ),
+		description: __( 'Recurring payments, renewals and retries.', 'vulocart' ),
 		icon: 'subscription',
 		module: 'recurring-billing',
 		pro: true,
@@ -82,14 +82,14 @@ export const ordersExtraViews: Record< string, EngineView > = {
 export const customersExtraViews: Record< string, EngineView > = {
 	groups: {
 		title: __( 'Customer Groups', 'vulocart' ),
-		description: __( 'Manual tags - add a customer to a group from their own detail page.', 'vulocart' ),
+		description: __( 'Labels you give customers, such as VIP or Wholesale.', 'vulocart' ),
 		icon: 'membership',
 		module: 'customer-growth',
 		pro: true,
 	},
 	segments: {
 		title: __( 'Segments', 'vulocart' ),
-		description: __( 'Dynamic, rule-based customer audiences - membership is always computed live, never a saved snapshot.', 'vulocart' ),
+		description: __( 'Customer audiences built from rules, always up to date.', 'vulocart' ),
 		icon: 'cohort',
 		module: 'customer-growth',
 		pro: true,

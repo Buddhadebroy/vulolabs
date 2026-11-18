@@ -126,37 +126,157 @@ export function PriceList( { prices, onChange, symbol, money }: PriceListProps )
 
 	const toNumber = ( value: string ) => Number( value ) || 0;
 
+	/** "Add price": a menu of types when a plugin adds some, otherwise a one-time price straight away. */
+	const addControl = ( label: string ) => (
+		<div className="vulocart-price-add">
+			{ types.length > 1 ? (
+				<>
+					<button type="button" className="vulocart-add-link" aria-haspopup="menu" aria-expanded={ addOpen } onClick={ () => setAddOpen( ! addOpen ) }>
+						<i className="adminfont-plus" aria-hidden="true" />
+						{ label }
+					</button>
+					{ addOpen && (
+						<ul className="vulocart-status-menu vulocart-price-menu vulocart-price-add-menu" role="menu">
+							{ types.map( ( type ) => (
+								<li key={ type.value }>
+									<button type="button" role="menuitem" onClick={ () => add( type ) }>
+										<span className={ `vulocart-price-tag ${ type.tone }` }>{ type.label }</span>
+										<small>{ type.description }</small>
+									</button>
+								</li>
+							) ) }
+						</ul>
+					) }
+				</>
+			) : (
+				<button type="button" className="vulocart-add-link" onClick={ () => add( types[ 0 ] ) }>
+					<i className="adminfont-plus" aria-hidden="true" />
+					{ label }
+				</button>
+			) }
+		</div>
+	);
+
+	/** A price's inputs. `withName` adds the Name field, which only matters once there are several prices. */
+	const priceFields = ( price: EditablePrice, withName: boolean ) => {
+		const def = typeOf( price.type );
+		const problem = priceProblem( price, def );
+		const hasSale = Number( price.sale_amount ) > 0 && Number( price.sale_amount ) < Number( price.amount );
+
+		return (
+			<>
+				<div className="vulocart-price-edit-grid">
+					{ withName && (
+						<div className="vulocart-price-field is-wide">
+							<label htmlFor={ `${ price.id }-label` }>{ __( 'Name', 'vulocart' ) }</label>
+							<TextInput
+								name={ `${ price.id }-label` }
+								placeholder={ __( 'e.g. Standard, Team, Lifetime', 'vulocart' ) }
+								value={ price.label }
+								onChange={ ( value ) => patch( price.id, { label: String( value ) } ) }
+							/>
+						</div>
+					) }
+
+					{ types.length > 1 && (
+						<div className="vulocart-price-field">
+							<label htmlFor={ `${ price.id }-type` }>{ __( 'Type', 'vulocart' ) }</label>
+							<SelectInput
+								name={ `${ price.id }-type` }
+								type="single-select"
+								options={ types.map( ( type ) => ( { label: type.label, value: type.value } ) ) }
+								value={ price.type }
+								onChange={ ( value ) => {
+									const next = typeOf( value as string );
+
+									if ( next ) {
+										changeType( price, next );
+									}
+								} }
+							/>
+						</div>
+					) }
+
+					<div className="vulocart-price-field">
+						<label htmlFor={ `${ price.id }-amount` }>
+							{ 'one_time' === price.type ? __( 'Regular price', 'vulocart' ) : __( 'Amount', 'vulocart' ) }
+						</label>
+						<div className="vulocart-money">
+							<span aria-hidden="true">{ symbol }</span>
+							<TextInput
+								type="number"
+								name={ `${ price.id }-amount` }
+								placeholder="0.00"
+								value={ price.amount }
+								onChange={ ( value ) => patch( price.id, { amount: String( value ) } ) }
+							/>
+						</div>
+					</div>
+
+					<div className="vulocart-price-field">
+						<label htmlFor={ `${ price.id }-sale` }>
+							{ __( 'Sale price', 'vulocart' ) }
+							<em>{ __( 'optional', 'vulocart' ) }</em>
+						</label>
+						<div className={ `vulocart-money${ problem && price.sale_amount ? ' has-error' : '' }` }>
+							<span aria-hidden="true">{ symbol }</span>
+							<TextInput
+								type="number"
+								name={ `${ price.id }-sale` }
+								placeholder="0.00"
+								value={ price.sale_amount }
+								onChange={ ( value ) => patch( price.id, { sale_amount: String( value ) } ) }
+							/>
+							{ hasSale && (
+								<b className="vulocart-money-badge">-{ Math.round( ( 1 - toNumber( price.sale_amount ) / toNumber( price.amount ) ) * 100 ) }%</b>
+							) }
+						</div>
+					</div>
+
+					{ def?.fields.map( ( field ) => (
+						<div className="vulocart-price-field" key={ field.key }>
+							<label htmlFor={ `${ price.id }-${ field.key }` }>{ field.label }</label>
+							{ 'select' === field.kind ? (
+								<SelectInput
+									name={ `${ price.id }-${ field.key }` }
+									type="single-select"
+									options={ field.options ?? [] }
+									value={ price[ field.key ] }
+									onChange={ ( value ) => patch( price.id, { [ field.key ]: value as string } ) }
+								/>
+							) : (
+								<TextInput
+									type="number"
+									name={ `${ price.id }-${ field.key }` }
+									value={ price[ field.key ] }
+									onChange={ ( value ) => patch( price.id, { [ field.key ]: String( value ) } ) }
+								/>
+							) }
+							{ field.hint && <p className="vulocart-field-hint">{ field.hint }</p> }
+						</div>
+					) ) }
+				</div>
+
+				{ problem && <p className="vulocart-price-problem">{ problem }</p> }
+			</>
+		);
+	};
+
+	// One price: just its fields. The list (names, default, menus) only earns its place from the second price on.
+	if ( 1 === prices.length ) {
+		return (
+			<div className="vulocart-prices is-single" ref={ rootRef }>
+				{ priceFields( prices[ 0 ], false ) }
+				{ addControl( __( 'Add another price', 'vulocart' ) ) }
+			</div>
+		);
+	}
+
 	return (
 		<div className="vulocart-prices" ref={ rootRef }>
 			<div className="vulocart-price-head">
 				<h4>{ __( 'Prices', 'vulocart' ) }</h4>
-			<div className="vulocart-price-add">
-				{ types.length > 1 ? (
-					<>
-						<button type="button" className="vulocart-add-link" aria-haspopup="menu" aria-expanded={ addOpen } onClick={ () => setAddOpen( ! addOpen ) }>
-							<i className="adminfont-plus" aria-hidden="true" />
-							{ __( 'Add price', 'vulocart' ) }
-						</button>
-						{ addOpen && (
-							<ul className="vulocart-status-menu vulocart-price-menu vulocart-price-add-menu" role="menu">
-								{ types.map( ( type ) => (
-									<li key={ type.value }>
-										<button type="button" role="menuitem" onClick={ () => add( type ) }>
-											<span className={ `vulocart-price-tag ${ type.tone }` }>{ type.label }</span>
-											<small>{ type.description }</small>
-										</button>
-									</li>
-								) ) }
-							</ul>
-						) }
-					</>
-				) : (
-					<button type="button" className="vulocart-add-link" onClick={ () => add( types[ 0 ] ) }>
-						<i className="adminfont-plus" aria-hidden="true" />
-							{ __( 'Add price', 'vulocart' ) }
-					</button>
-				) }
-			</div>
+				{ addControl( __( 'Add price', 'vulocart' ) ) }
 			</div>
 
 			<ul className="vulocart-price-rows">
@@ -245,105 +365,7 @@ export function PriceList( { prices, onChange, symbol, money }: PriceListProps )
 								</div>
 							</div>
 
-							{ isOpen && (
-								<div className="vulocart-price-row-body">
-									<div className="vulocart-price-edit-grid">
-										<div className="vulocart-price-field is-wide">
-											<label htmlFor={ `${ price.id }-label` }>
-												{ __( 'Name', 'vulocart' ) }
-												<em>{ __( 'shown to customers', 'vulocart' ) }</em>
-											</label>
-											<TextInput
-												name={ `${ price.id }-label` }
-												placeholder={ __( 'e.g. Standard, Team, Lifetime', 'vulocart' ) }
-												value={ price.label }
-												onChange={ ( value ) => patch( price.id, { label: String( value ) } ) }
-											/>
-										</div>
-
-										{ types.length > 1 && (
-											<div className="vulocart-price-field">
-												<label htmlFor={ `${ price.id }-type` }>{ __( 'Type', 'vulocart' ) }</label>
-												<SelectInput
-													name={ `${ price.id }-type` }
-													type="single-select"
-													options={ types.map( ( type ) => ( { label: type.label, value: type.value } ) ) }
-													value={ price.type }
-													onChange={ ( value ) => {
-														const next = typeOf( value as string );
-
-														if ( next ) {
-															changeType( price, next );
-														}
-													} }
-												/>
-											</div>
-										) }
-
-										<div className="vulocart-price-field">
-											<label htmlFor={ `${ price.id }-amount` }>
-												{ 'one_time' === price.type ? __( 'Regular price', 'vulocart' ) : __( 'Amount', 'vulocart' ) }
-											</label>
-											<div className="vulocart-money">
-												<span aria-hidden="true">{ symbol }</span>
-												<TextInput
-													type="number"
-													name={ `${ price.id }-amount` }
-													placeholder="0.00"
-													value={ price.amount }
-													onChange={ ( value ) => patch( price.id, { amount: String( value ) } ) }
-												/>
-											</div>
-										</div>
-
-										<div className="vulocart-price-field">
-											<label htmlFor={ `${ price.id }-sale` }>
-												{ __( 'Sale price', 'vulocart' ) }
-												<em>{ __( 'optional', 'vulocart' ) }</em>
-											</label>
-											<div className={ `vulocart-money${ problem && price.sale_amount ? ' has-error' : '' }` }>
-												<span aria-hidden="true">{ symbol }</span>
-												<TextInput
-													type="number"
-													name={ `${ price.id }-sale` }
-													placeholder="0.00"
-													value={ price.sale_amount }
-													onChange={ ( value ) => patch( price.id, { sale_amount: String( value ) } ) }
-												/>
-												{ hasSale && (
-													<b className="vulocart-money-badge">-{ Math.round( ( 1 - toNumber( price.sale_amount ) / toNumber( price.amount ) ) * 100 ) }%</b>
-												) }
-											</div>
-										</div>
-
-										{ def?.fields.map( ( field ) => (
-											<div className="vulocart-price-field" key={ field.key }>
-												<label htmlFor={ `${ price.id }-${ field.key }` }>{ field.label }</label>
-												{ 'select' === field.kind ? (
-													<SelectInput
-														name={ `${ price.id }-${ field.key }` }
-														type="single-select"
-														options={ field.options ?? [] }
-														value={ price[ field.key ] }
-														onChange={ ( value ) => patch( price.id, { [ field.key ]: value as string } ) }
-													/>
-												) : (
-													<TextInput
-														type="number"
-														name={ `${ price.id }-${ field.key }` }
-														value={ price[ field.key ] }
-														onChange={ ( value ) => patch( price.id, { [ field.key ]: String( value ) } ) }
-													/>
-												) }
-												{ field.hint && <p className="vulocart-field-hint">{ field.hint }</p> }
-											</div>
-										) ) }
-									</div>
-
-									{ problem && <p className="vulocart-price-problem">{ problem }</p> }
-									{ def?.description && <p className="vulocart-price-type-note">{ def.description }</p> }
-								</div>
-							) }
+							{ isOpen && <div className="vulocart-price-row-body">{ priceFields( price, true ) }</div> }
 						</li>
 					);
 				} ) }

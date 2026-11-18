@@ -13,6 +13,8 @@ import FulfillmentEngine from './pages/FulfillmentEngine/FulfillmentEngine';
 import AiEngine from './pages/AiEngine/AiEngine';
 import WorkflowsEngine from './pages/WorkflowsEngine/WorkflowsEngine';
 import { registerRestErrorToasts } from './lib/rest-errors';
+import { TableCard } from './components/TableCard/TableCard';
+import { CollapsibleCard } from './pages/Products/CollapsibleCard';
 
 /**
  * Entry point of the admin app.
@@ -43,6 +45,12 @@ localStorage.setItem( 'force_vulocart_context_reload', 'true' );
 
 configureZyra( vulocartLocalizer );
 registerRestErrorToasts();
+
+// Pro's list pages render this same TableCard (filters that stay while rows are selected); see Pro's
+// src/components/TableCard.ts. Set when the script runs, before Pro's bundle loads.
+( window as unknown as { vulocartTableCard: typeof TableCard } ).vulocartTableCard = TableCard;
+// And the product editor's fold-away card, for the sections Pro modules add to it (Digital Product Passport, ...).
+( window as unknown as { vulocartCollapsibleCard: typeof CollapsibleCard } ).vulocartCollapsibleCard = CollapsibleCard;
 initializeModules( 'vulocart', 'free', 'modules' );
 
 /**
@@ -111,7 +119,7 @@ if ( productsAdminRoot ) {
 	render(
 		<>
 			<SearchHeader />
-			<Products action={ urlAction } id={ urlId } view={ urlView } />
+			<Products action={ urlAction } id={ urlId } view={ urlView } filter={ urlFilter } />
 		</>,
 		productsAdminRoot
 	);

@@ -12,6 +12,7 @@ import { formatWpDate, formatWpDateTime } from '../../services/formatWpDate';
 import ConfirmPopup from '../../components/ConfirmPopup/ConfirmPopup';
 import './customers-page.scss';
 import '../Products/products-page.scss';
+import { formatMoney } from '../../blocks/shared/money';
 
 interface Customer {
 	id: number;
@@ -88,7 +89,8 @@ const daysAgo = ( timestamp: string ) => {
 };
 
 /** Formats a number with two decimals; empty values count as 0.00. */
-const money = ( value: number | null | undefined ) => Number( value || 0 ).toFixed( 2 );
+/** An amount in the store's money format ($40.00); the currency falls back to USD, as the Dashboard does. */
+const money = ( value: number | null | undefined, currency?: string | null ) => formatMoney( Number( value || 0 ), currency );
 
 /**
  * The single-customer admin page. Same shell as the product edit page
@@ -340,7 +342,7 @@ export function CustomerDetail( { id }: { id: number } ) {
 									{ orders.map( ( order ) => (
 										<tr key={ order.id }>
 											<td><a href={ `admin.php?page=orders&action=edit&id=${ order.id }` }>#{ order.order_number }</a></td>
-											<td><strong>{ money( order.total ) }</strong> { order.currency }</td>
+											<td><strong>{ money( order.total, order.currency ) }</strong></td>
 											<td><span className={ `admin-badge ${ PAYMENT_BADGE[ order.payment_status ] ?? 'badge-info' }` }>{ capitalize( order.payment_status ) }</span></td>
 											<td><span className={ `admin-badge ${ FULFILLMENT_BADGE[ order.fulfillment_status ] ?? 'badge-info' }` }>{ capitalize( order.fulfillment_status ) }</span></td>
 											<td>{ formatWpDate( order.created_at ) }</td>
@@ -355,7 +357,7 @@ export function CustomerDetail( { id }: { id: number } ) {
 				</div>
 
 				<div className="vulocart-product-edit-col vulocart-product-edit-col--right">
-					<CardComponent titleIcon="user" title={ __( 'Profile', 'vulocart' ) } desc={ __( 'Contact details for this customer.', 'vulocart' ) }>
+					<CardComponent titleIcon="person" title={ __( 'Profile', 'vulocart' ) }>
 						<FormGroupWrapperComponent>
 							<FormGroupComponent label={ __( 'Email', 'vulocart' ) } htmlFor="vulocart-customer-email">
 								<TextInput id="vulocart-customer-email" name="email" value={ customer.email } onChange={ () => undefined } readOnly />
@@ -395,54 +397,58 @@ export function CustomerDetail( { id }: { id: number } ) {
 							/>
 						}
 					>
-						<div className="vulocart-cust-addresses">
-							{ addresses.map( ( address ) => (
-								<div key={ address.id } className="vulocart-cust-address">
-									<div className="vulocart-cust-address-head">
-										<strong>{ address.label || __( 'Address', 'vulocart' ) }</strong>
-										<button
-											type="button"
-											className="vulocart-cust-icon-button"
-											aria-label={ __( 'Delete address', 'vulocart' ) }
-											onClick={ () => setDeleteTarget( { kind: 'address', id: address.id } ) }
-										>
-											<i className="adminfont-delete" aria-hidden="true" />
-										</button>
+						{ addresses.length > 0 && (
+							<div className="vulocart-cust-addresses">
+								{ addresses.map( ( address ) => (
+									<div key={ address.id } className="vulocart-cust-address">
+										<div className="vulocart-cust-address-head">
+											<strong>{ address.label || __( 'Address', 'vulocart' ) }</strong>
+											<button
+												type="button"
+												className="vulocart-cust-icon-button"
+												aria-label={ __( 'Delete address', 'vulocart' ) }
+												onClick={ () => setDeleteTarget( { kind: 'address', id: address.id } ) }
+											>
+												<i className="adminfont-delete" aria-hidden="true" />
+											</button>
+										</div>
+										<div className="vulocart-product-cell-tags">
+											{ !! address.is_default_billing && <span className="admin-badge badge-info">{ __( 'Default billing', 'vulocart' ) }</span> }
+											{ !! address.is_default_shipping && <span className="admin-badge badge-info">{ __( 'Default shipping', 'vulocart' ) }</span> }
+										</div>
+										{ address.full_name && <p>{ address.full_name }</p> }
+										<p className="desc">{ [ address.address_1, address.city, address.state, address.postcode, address.country ].filter( Boolean ).join( ', ' ) }</p>
 									</div>
-									<div className="vulocart-product-cell-tags">
-										{ !! address.is_default_billing && <span className="admin-badge badge-info">{ __( 'Default billing', 'vulocart' ) }</span> }
-										{ !! address.is_default_shipping && <span className="admin-badge badge-info">{ __( 'Default shipping', 'vulocart' ) }</span> }
-									</div>
-									{ address.full_name && <p>{ address.full_name }</p> }
-									<p className="desc">{ [ address.address_1, address.city, address.state, address.postcode, address.country ].filter( Boolean ).join( ', ' ) }</p>
-								</div>
-							) ) }
-						</div>
+								) ) }
+							</div>
+						) }
 						{ 0 === addresses.length && <p className="vulocart-field-hint">{ __( 'No saved addresses.', 'vulocart' ) }</p> }
 					</CardComponent>
 
-					<CardComponent titleIcon="note" title={ __( 'Notes', 'vulocart' ) } desc={ __( 'Internal only - customers never see these.', 'vulocart' ) }>
+					<CardComponent titleIcon="document" title={ __( 'Notes', 'vulocart' ) } desc={ __( 'Internal only - customers never see these.', 'vulocart' ) }>
 						<TextAreaInput name="note" value={ noteText } onChange={ ( value ) => setNoteText( String( value ) ) } />
 						<ButtonInput buttons={ [ { icon: 'plus', text: __( 'Add note', 'vulocart' ), onClick: addNote } ] } />
 
-						<ul className="vulocart-customer-notes">
-							{ notes.map( ( note ) => (
-								<li key={ note.id }>
-									<p>{ note.note }</p>
-									<div className="vulocart-cust-note-meta">
-										<span>{ formatWpDateTime( note.created_at ) }</span>
-										<button
-											type="button"
-											className="vulocart-cust-icon-button"
-											aria-label={ __( 'Delete note', 'vulocart' ) }
-											onClick={ () => setDeleteTarget( { kind: 'note', id: note.id } ) }
-										>
-											<i className="adminfont-delete" aria-hidden="true" />
-										</button>
-									</div>
-								</li>
-							) ) }
-						</ul>
+						{ notes.length > 0 && (
+							<ul className="vulocart-customer-notes">
+								{ notes.map( ( note ) => (
+									<li key={ note.id }>
+										<p>{ note.note }</p>
+										<div className="vulocart-cust-note-meta">
+											<span>{ formatWpDateTime( note.created_at ) }</span>
+											<button
+												type="button"
+												className="vulocart-cust-icon-button"
+												aria-label={ __( 'Delete note', 'vulocart' ) }
+												onClick={ () => setDeleteTarget( { kind: 'note', id: note.id } ) }
+											>
+												<i className="adminfont-delete" aria-hidden="true" />
+											</button>
+										</div>
+									</li>
+								) ) }
+							</ul>
+						) }
 					</CardComponent>
 				</div>
 			</div>

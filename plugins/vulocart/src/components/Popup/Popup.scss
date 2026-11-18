@@ -1,8 +1,3 @@
-.popup-content:has(.top-section) {
-	overflow: hidden !important; // for overwrite zyra style
-	width: 40rem !important;
-	height: 75% !important;
-}
 
 .popup-wrapper {
 	// module popup
@@ -33,67 +28,6 @@
 		text-align: center;
 		font-size: 1.063rem;
 		padding: 1rem 0;
-	}
-
-	// pro popup
-	.top-section {
-		padding: 2.5rem 2rem;
-		align-items: center;
-		display: flex;
-		flex-direction: column;
-		gap: 0.625rem;
-		background: var(--color-primary);
-
-		.heading {
-			font-size: 2.063rem;
-			font-weight: 600;
-			color: var(--color-white);
-			text-align: center;
-			line-height: 1.25;
-		}
-
-		.description {
-			color: var(--color-white);
-			font-size: 1.063rem;
-			text-align: center;
-		}
-	}
-
-	.popup-details {
-		padding: 1rem 0 1rem 2rem;
-
-		.heading-text {
-			font-size: 1.25rem;
-			font-weight: 600;
-		}
-
-		ul {
-			max-height: calc(75vh - 18rem);
-			margin: 0.5rem 0 0;
-			padding-right: 2rem;
-			overflow: auto;
-			list-style: none;
-
-			li {
-				margin: 0 0 0.75rem;
-
-				.title {
-					padding: 0.3125rem 0;
-					font-size: 1.063rem;
-					font-weight: 600;
-
-					i {
-						padding-right: 0.45rem;
-						color: var(--color-primary);
-						font-size: 1.25rem;
-					}
-				}
-
-				.desc {
-					color: #6b7280;
-				}
-			}
-		}
 	}
 
 	.admin-btn {
@@ -136,5 +70,237 @@
 		position: static;
 		width: auto;
 		border-radius: 0 0 0.45rem 0.45rem;
+	}
+}
+
+// ---- The Pro upgrade popup (Popup.tsx's default branch; opened by UpgradeToPro and by zyra for locked settings) ----
+// Header with what was asked for, a scrolling grid of everything Pro adds, and a footer that keeps the buy button in view.
+.popup-content:has(.vc-pro-popup) {
+	width: 46rem !important; // zyra opens its locked-setting popup at 31.25rem.
+	max-width: calc(100vw - 2rem) !important;
+	height: auto !important;
+	max-height: 88vh !important;
+	padding: 0 !important;
+	overflow: hidden !important;
+	border-radius: 1rem !important;
+}
+
+.popup-content:has(.vc-pro-popup) .popup-body {
+	padding: 0 !important;
+}
+
+// Doubled class: the popup renders inside the page (e.g. `.vulocart-engine-page`), whose heading/paragraph colours and
+// zyra's centred popup text would otherwise win.
+.vc-pro-popup.vc-pro-popup {
+	display: flex;
+	flex-direction: column;
+	max-height: 88vh;
+	color: #16151d;
+	text-align: left;
+
+	.vc-pro-popup-head {
+		flex: none;
+		padding: 2rem 2.25rem 1.75rem;
+		background:
+			radial-gradient(120% 140% at 100% 0%, rgba(255, 255, 255, 0.16) 0, transparent 55%),
+			linear-gradient(135deg, #3d0585 0%, #5007aa 45%, #7c3aed 100%);
+		color: #fff;
+
+		h2 {
+			margin: 0.875rem 0 0.375rem;
+			color: #fff;
+			font-size: 1.625rem;
+			font-weight: 700;
+			line-height: 1.25;
+			letter-spacing: -0.01em;
+		}
+
+		p {
+			max-width: 34rem;
+			margin: 0;
+			color: rgba(255, 255, 255, 0.85);
+			font-size: 0.9375rem;
+			line-height: 1.5;
+		}
+	}
+
+	.vc-pro-popup-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		padding: 0.25rem 0.75rem;
+		border: 1px solid rgba(255, 255, 255, 0.3);
+		border-radius: 999px;
+		background: rgba(255, 255, 255, 0.12);
+		font-size: 0.75rem;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+	}
+
+	.vc-pro-popup-feature {
+		display: flex;
+		align-items: center;
+		gap: 0.875rem;
+		margin-top: 1.25rem;
+		padding: 0.875rem 1rem;
+		border-radius: 0.75rem;
+		background: #fff;
+		color: #16151d;
+		box-shadow: 0 0.5rem 1.5rem rgba(22, 21, 29, 0.18);
+
+		> span:nth-child(2) {
+			display: flex;
+			flex: 1;
+			flex-direction: column;
+			gap: 0.125rem;
+			color: #5b5f6e;
+			font-size: 0.8125rem;
+			line-height: 1.45;
+		}
+
+		strong {
+			color: #16151d;
+			font-size: 0.9375rem;
+		}
+	}
+
+	.vc-pro-popup-check {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex: none;
+		width: 1.75rem;
+		height: 1.75rem;
+		border-radius: 50%;
+		background: #dcfce7;
+		color: #15803d;
+		font-size: 0.875rem;
+	}
+
+	.vc-pro-popup-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex: none;
+		width: 2.25rem;
+		height: 2.25rem;
+		border-radius: 0.625rem;
+		background: #f3ecfb;
+		color: #5007aa;
+		font-size: 1.125rem;
+	}
+
+	.vc-pro-popup-body {
+		flex: 1 1 auto;
+		min-height: 0;
+		padding: 1.5rem 2.25rem;
+		overflow-y: auto;
+	}
+
+	.vc-pro-popup-label {
+		margin-bottom: 0.875rem;
+		color: #6b6f80;
+		font-size: 0.75rem;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+	}
+
+	ul {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0.5rem 1.25rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	li {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.75rem;
+		margin: 0;
+		padding: 0.625rem 0.5rem;
+		border-radius: 0.625rem;
+
+		&:hover {
+			background: #faf9fe;
+		}
+
+		> span:last-child {
+			display: flex;
+			flex-direction: column;
+			gap: 0.125rem;
+			min-width: 0;
+		}
+
+		strong {
+			font-size: 0.875rem;
+			font-weight: 600;
+		}
+
+		span span {
+			display: -webkit-box;
+			overflow: hidden;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp: 2;
+			color: #6b6f80;
+			font-size: 0.8125rem;
+			line-height: 1.45;
+		}
+	}
+
+	.vc-pro-popup-foot {
+		display: flex;
+		flex: none;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 1rem 2.25rem;
+		border-top: 1px solid #eceef4;
+		background: #fafafd;
+		color: #6b6f80;
+		font-size: 0.8125rem;
+	}
+
+	.vc-pro-popup-buy {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		height: 2.75rem;
+		padding: 0 1.375rem;
+		border-radius: 0.625rem;
+		background: #5007aa;
+		color: #fff;
+		font-size: 0.9375rem;
+		font-weight: 600;
+		text-decoration: none;
+		white-space: nowrap;
+		box-shadow: 0 0.375rem 1rem rgba(80, 7, 170, 0.3);
+
+		&:hover,
+		&:focus-visible {
+			background: #3d0585;
+			color: #fff;
+		}
+	}
+
+	@media (max-width: 640px) {
+		ul {
+			grid-template-columns: 1fr;
+		}
+
+		.vc-pro-popup-head,
+		.vc-pro-popup-body,
+		.vc-pro-popup-foot {
+			padding-inline: 1.25rem;
+		}
+
+		.vc-pro-popup-foot {
+			flex-direction: column;
+			align-items: stretch;
+			text-align: center;
+		}
 	}
 }

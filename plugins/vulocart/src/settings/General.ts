@@ -1,5 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { listingPreview } from '../lib/listingPreviews';
+import { CURRENCIES, currencyLabel } from '../lib/currencies';
+import { getCountries } from '../blocks/shared/geo';
 
 /**
  * Settings → General. Merged from the former `General/General.ts` +
@@ -29,12 +31,53 @@ export default {
 		},
 		{
 			key: 'default_currency',
-			type: 'text',
+			type: 'select',
 			label: __( 'Store currency', 'vulocart' ),
-			settingDescription: __(
-				'The three-letter currency code, for example USD, EUR, GBP or INR. New products are priced in it.',
+			settingDescription: __( 'New products are priced in it. A product can still use its own currency.', 'vulocart' ),
+			options: CURRENCIES.map( ( { code, name } ) => ( {
+				label: currencyLabel( code, name ),
+				value: code,
+			} ) ),
+		},
+		{
+			key: 'general-section-location',
+			type: 'section',
+			icon: 'geo-location',
+			title: __( 'Store location', 'vulocart' ),
+			desc: __(
+				'Where you sell from. Tax uses it when it is based on the store address, and when an order has no address yet.',
 				'vulocart'
 			),
+		},
+		{
+			key: 'store_address',
+			type: 'text',
+			label: __( 'Address', 'vulocart' ),
+			settingDescription: __( 'Street and number.', 'vulocart' ),
+		},
+		{
+			key: 'store_city',
+			type: 'text',
+			label: __( 'City', 'vulocart' ),
+		},
+		{
+			key: 'store_postcode',
+			type: 'text',
+			label: __( 'Postcode / ZIP', 'vulocart' ),
+		},
+		{
+			key: 'store_country',
+			type: 'select',
+			label: __( 'Country', 'vulocart' ),
+			options: [ { label: __( 'Select a country…', 'vulocart' ), value: '' }, ...getCountries() ],
+		},
+		{
+			key: 'store_state',
+			type: 'text',
+			// Settings.tsx turns this into a dropdown of the country's regions when geo.ts has a list for it.
+			statesOf: 'store_country',
+			label: __( 'State / region', 'vulocart' ),
+			settingDescription: __( 'The code your tax rates use, e.g. a state abbreviation. Leave empty if you have none.', 'vulocart' ),
 		},
 		{
 			key: 'general-section-products',

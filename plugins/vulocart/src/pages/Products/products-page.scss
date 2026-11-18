@@ -229,6 +229,12 @@
 		margin: 0;
 		font-size: 0.75rem;
 		color: #dc2626;
+
+		a {
+			color: var(--vc-primary, #5007aa);
+			font-weight: 600;
+			text-decoration: underline;
+		}
 	}
 
 	.vulocart-qe-segment {
@@ -1058,15 +1064,16 @@
 	}
 
 	// ---- Fields: one height, one focus ring ----
+	// White like zyra's own fields beside them (a grey fill made plain inputs look disabled next to those).
 	input[type='text'],
 	input[type='number'],
 	input[type='email'],
 	input[type='url'],
 	textarea,
 	select {
-		border: 1px solid var(--vc-border);
+		border: 1px solid #dcdfea;
 		border-radius: 0.375rem;
-		background: #fbfbfe;
+		background: #fff;
 		transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
 
 		&:hover {
@@ -1086,7 +1093,10 @@
 	input[type='email'],
 	input[type='url'],
 	select {
-		min-height: 2.5rem;
+		box-sizing: border-box;
+		min-height: 2.25rem;
+		height: 2.25rem;
+		font-size: 0.875rem;
 	}
 
 	// Field headings ("Product name", "Short description", ...): regular weight.
@@ -3705,178 +3715,137 @@
 }
 
 // --- "What are you selling?" chooser ---
+// Cards for the types that can be started now; small quiet tiles, grouped by what unlocks them, for the rest.
 
 .vulocart-type-chooser.vulocart-type-chooser {
-	max-width: 70rem;
-	// Room above the breadcrumb, as above the edit page's top bar. On the breadcrumb itself, so no page-level padding
-	// rule can zero it.
+	--tc-border: #e3e6ef;
+	--tc-muted: #6b7280;
+	--tc-ink: #1f1b3e;
+
 	.vulocart-breadcrumbs {
-		margin-top: 1.5rem;
+		margin-top: 1rem;
 	}
 
-	header {
+	.vulocart-type-head {
 		margin: 0.5rem 0 1.5rem;
+
+		.vulocart-product-edit-subtitle {
+			margin: 0.25rem 0 0;
+		}
 	}
 
+	// ---- Available types ----
 	.vulocart-type-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+		grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
 		gap: 1rem;
 		margin: 0;
 		padding: 0;
 		list-style: none;
-
-		li {
-			margin: 0;
-		}
-
-		.vulocart-type-card,
-		.vulocart-type-card-off {
-			box-sizing: border-box;
-			display: flex;
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 0.375rem;
-			width: 100%;
-			height: 100%;
-			padding: 1.125rem;
-			border: 1px solid #e3e6ef;
-			border-radius: 0.5rem;
-			background: #fff;
-			text-align: left;
-			cursor: pointer;
-			transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
-
-			&:hover:not(:disabled),
-			&:focus-visible:not(:disabled) {
-				border-color: var(--vc-primary, #5007aa);
-				box-shadow: 0 6px 18px rgba(80, 7, 170, 0.1);
-				transform: translateY(-1px);
-				outline: 0;
-			}
-
-			// A type the store has not enabled: shown, but not pickable.
-			&:disabled,
-			&.vulocart-type-card-off {
-				background: #f6f7fb;
-				cursor: default;
-
-				.vulocart-type-icon,
-				strong,
-				small {
-					opacity: 0.5;
-				}
-			}
-
-			.vulocart-type-enable {
-				display: inline-flex;
-				align-items: center;
-				gap: 0.375rem;
-				margin-top: auto;
-				padding-top: 0.5rem;
-				font-size: 0.8125rem;
-				font-weight: 600;
-				color: var(--vc-primary, #5007aa);
-				text-decoration: none;
-
-				i {
-					font-size: 0.5rem;
-				}
-
-				&:hover {
-					text-decoration: underline;
-				}
-			}
-
-			.vulocart-type-off {
-				margin-top: 0.5rem;
-				padding: 0.125rem 0.5rem;
-				border-radius: 999px;
-				background: #eceef5;
-				color: #6b7280;
-				font-size: 0.6875rem;
-				font-weight: 600;
-			}
-
-			strong {
-				font-size: 1rem;
-				color: #1f2937;
-			}
-
-			small {
-				font-size: 0.8125rem;
-				line-height: 1.4;
-				color: #6b7280;
-			}
-
-			em {
-				margin-top: auto;
-				padding-top: 0.5rem;
-				font-size: 0.75rem;
-				font-style: normal;
-				color: #9ca3af;
-			}
-		}
 	}
 
-	// An available type: the card itself picks the type (its first kind); the row underneath picks a kind directly.
-	.vulocart-type-grid .vulocart-type-card {
-		cursor: default;
+	.vulocart-type-card {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		box-sizing: border-box;
+		margin: 0;
+		padding: 0;
+		border: 1px solid var(--tc-border);
+		border-radius: 0.625rem;
+		background: #fff;
+		box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+		transition: border-color 0.15s, box-shadow 0.15s;
 
 		&:hover,
 		&:focus-within {
 			border-color: var(--vc-primary, #5007aa);
-			box-shadow: 0 6px 18px rgba(80, 7, 170, 0.1);
+			box-shadow: 0 6px 18px rgba(80, 7, 170, 0.08);
+
+			.vulocart-type-go {
+				opacity: 1;
+				transform: translateX(0);
+			}
 		}
 	}
 
 	.vulocart-type-card-main {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 0.375rem;
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+		align-items: start;
+		gap: 0.875rem;
 		width: 100%;
-		padding: 0;
+		padding: 1.125rem 1.25rem;
 		border: 0;
+		border-radius: 0.625rem;
 		background: none;
-		text-align: left;
+		color: inherit;
 		font: inherit;
+		text-align: left;
 		cursor: pointer;
 
 		&:focus-visible {
 			outline: 2px solid var(--vc-primary, #5007aa);
-			outline-offset: 4px;
-			border-radius: 0.25rem;
+			outline-offset: -2px;
 		}
 	}
 
-	button.vulocart-type-enable {
-		padding: 0.5rem 0 0;
-		border: 0;
-		background: none;
-		font-family: inherit;
-		cursor: pointer;
+	.vulocart-type-icon {
+		display: grid;
+		place-items: center;
+		width: 2.5rem;
+		height: 2.5rem;
+		border-radius: 0.5rem;
+		background: color-mix(in srgb, var(--vc-primary, #5007aa) 8%, #fff);
+		color: var(--vc-primary, #5007aa);
+		font-size: 1.25rem;
+	}
 
-		&:disabled {
-			cursor: wait;
-			opacity: 0.6;
+	.vulocart-type-card-text {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		min-width: 0;
+
+		strong {
+			color: var(--tc-ink);
+			font-size: 0.9375rem;
+			font-weight: 600;
+		}
+
+		small {
+			color: var(--tc-muted);
+			font-size: 0.8125rem;
+			line-height: 1.45;
 		}
 	}
 
+	.vulocart-type-go {
+		align-self: center;
+		color: var(--vc-primary, #5007aa);
+		font-size: 0.625rem;
+		opacity: 0;
+		transform: translateX(-4px);
+		transition: opacity 0.15s, transform 0.15s;
+	}
+
+	// "Start as" kinds: quiet chips along the bottom of the card, above a hairline.
 	.vulocart-type-kinds {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.375rem;
 		margin-top: auto;
-		padding-top: 0.75rem;
+		padding: 0.75rem 1.25rem 1rem;
+		border-top: 1px solid #f0f1f6;
 	}
 
 	.vulocart-type-kind {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.25rem;
-		padding: 0.25rem 0.625rem;
-		border: 1px solid #e3e6ef;
+		height: 1.75rem;
+		padding: 0 0.75rem;
+		border: 1px solid var(--tc-border);
 		border-radius: 999px;
 		background: #fff;
 		color: #374151;
@@ -3889,7 +3858,7 @@
 		&:hover:not(:disabled),
 		&:focus-visible {
 			border-color: var(--vc-primary, #5007aa);
-			background: #f5f0ff;
+			background: color-mix(in srgb, var(--vc-primary, #5007aa) 6%, #fff);
 			color: var(--vc-primary, #5007aa);
 			outline: 0;
 		}
@@ -3905,83 +3874,136 @@
 		}
 	}
 
-	.vulocart-type-icon {
-		display: grid;
-		place-items: center;
-		width: 2.5rem;
-		height: 2.5rem;
-		margin-bottom: 0.25rem;
-		border-radius: 0.5rem;
-		background: #f3ecff;
-		font-size: 1.25rem;
-		color: var(--vc-primary, #5007aa);
-	}
+	// ---- Types that need something first: one heading (with its one way forward), then small tiles ----
+	.vulocart-type-more {
+		margin-top: 2rem;
 
-	// The way out of the chooser: a real button, with the "don't ask again" option beside it.
-	.vulocart-type-skip {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 0.75rem 1.5rem;
-		margin: 1.5rem 0 0;
-		padding: 1rem 1.25rem;
-		border: 1px dashed #cfd3e6;
-		border-radius: 0.5rem;
-		background: #fafbff;
-
-		.vulocart-type-skip-button {
-			display: inline-flex;
+		h2 {
+			display: flex;
+			flex-wrap: wrap;
 			align-items: center;
-			gap: 0.5rem;
-			padding: 0.625rem 1.125rem;
-			border: 0;
-			border-radius: 0.375rem;
-			background: var(--vc-primary, #5007aa);
-			color: #fff;
+			justify-content: space-between;
+			gap: 0.5rem 1rem;
+			margin: 0 0 0.75rem;
+			color: var(--tc-ink);
 			font-size: 0.875rem;
 			font-weight: 600;
-			cursor: pointer;
-			transition: filter 0.15s, box-shadow 0.15s;
 
-			&:hover,
-			&:focus-visible {
-				filter: brightness(1.12);
-				box-shadow: 0 4px 12px rgba(80, 7, 170, 0.25);
-				outline: 0;
+			span {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.375rem;
+			}
+
+			i {
+				color: var(--vc-primary, #5007aa);
+				font-size: 0.9375rem;
+			}
+
+			a,
+			button {
+				padding: 0;
+				border: 0;
+				background: none;
+				color: var(--vc-primary, #5007aa);
+				font-size: 0.8125rem;
+				font-weight: 600;
+				text-decoration: none;
+				cursor: pointer;
+
+				&:hover {
+					text-decoration: underline;
+				}
 			}
 		}
+	}
 
-		.vulocart-type-skip-remember {
-			display: inline-flex;
-			align-items: center;
-			gap: 0.5rem;
+	.vulocart-type-tiles {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+		gap: 0.5rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.vulocart-type-tile {
+		display: flex;
+		align-items: center;
+		gap: 0.625rem;
+		box-sizing: border-box;
+		min-height: 3rem;
+		margin: 0;
+		padding: 0.5rem 0.75rem;
+		border: 1px solid var(--tc-border);
+		border-radius: 0.5rem;
+		background: #fafbfd;
+	}
+
+	.vulocart-type-tile-icon {
+		display: grid;
+		flex: none;
+		place-items: center;
+		width: 1.875rem;
+		height: 1.875rem;
+		border-radius: 0.375rem;
+		background: #eef0f5;
+		color: var(--tc-muted);
+		font-size: 0.9375rem;
+	}
+
+	.vulocart-type-tile-text {
+		display: flex;
+		flex-direction: column;
+		gap: 0.125rem;
+		min-width: 0;
+
+		strong {
 			color: #4b5563;
 			font-size: 0.8125rem;
-			cursor: pointer;
+			font-weight: 500;
+		}
+
+		small {
+			color: var(--tc-muted);
+			font-size: 0.75rem;
 		}
 	}
-}
 
-// "Change product type" link under the new-product title.
-.vulocart-product-edit-page .vulocart-change-type {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.375rem;
-	margin-top: 0.5rem;
-	padding: 0;
-	border: 0;
-	background: none;
-	font-size: 0.8125rem;
-	font-weight: 600;
-	color: var(--vc-primary, #5007aa);
-	cursor: pointer;
+	.vulocart-type-enable {
+		padding: 0;
+		border: 0;
+		background: none;
+		color: var(--vc-primary, #5007aa);
+		font: inherit;
+		font-size: 0.75rem;
+		font-weight: 600;
+		text-align: left;
+		cursor: pointer;
 
-	i {
-		font-size: 0.5rem;
+		&:hover {
+			text-decoration: underline;
+		}
+
+		&:disabled {
+			cursor: wait;
+			opacity: 0.6;
+		}
 	}
 
-	&:hover {
-		text-decoration: underline;
+	// ---- Skip next time ----
+	.vulocart-type-remember {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-top: 2rem;
+		color: var(--tc-muted);
+		font-size: 0.8125rem;
+		cursor: pointer;
+
+		input {
+			margin: 0;
+		}
 	}
 }
 
@@ -4068,7 +4090,7 @@
 .vulocart-product-edit-page.vulocart-product-edit-page {
 	.vulocart-product-edit-topbar {
 		align-items: center;
-		padding-top: 1.25rem;
+		padding-top: 1rem;
 		padding-bottom: 1rem;
 		margin-bottom: 1.5rem;
 	}
@@ -4526,16 +4548,6 @@
 	}
 }
 
-.vulocart-unsaved.is-saved {
-	background: #eaf7ef;
-	color: #16a34a;
-
-	i {
-		background: #16a34a;
-		animation: none;
-	}
-}
-
 .vulocart-pill-dot {
 	display: inline-block;
 	width: 7px;
@@ -4556,4 +4568,586 @@
 			top: 46px;
 		}
 	}
+}
+
+// ============================================================================================================
+// Product editor, Educube pass: one type scale, calm labels, one control style, a tighter rhythm.
+// Last in the file and scoped under `.admin-main-wrapper` so it settles the earlier passes above and the shared
+// edit-screen rules in app/design-system.scss.
+// ============================================================================================================
+.admin-main-wrapper .vulocart-product-edit-page.vulocart-product-edit-page {
+	--pe-ink: #16151d;
+	--pe-text: #4b4a57;
+	--pe-muted: #6e6d7a;
+	--pe-border: #e8e8ef;
+	--pe-border-strong: #d9d9e3;
+	--pe-accent: var(--color-primary, #5007aa);
+
+	// ---- Top bar: breadcrumb, title and meta on the left, status and actions on the right ----
+	.vulocart-product-edit-topbar {
+		margin-bottom: 1.5rem;
+		border-bottom: 1px solid var(--pe-border);
+		background: rgba(246, 246, 249, 0.94);
+	}
+
+	.vulocart-edit-page-title {
+		font-size: 1.75rem;
+		line-height: 1.2;
+		letter-spacing: -0.02em;
+		color: var(--pe-ink);
+	}
+
+	// Title meta (type, kind, SKU) and the "Feature this" star: 28px meta chips with a hairline border.
+	.vulocart-title-meta .vulocart-pill,
+	.vulocart-star {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		height: 1.75rem;
+		padding: 0 0.625rem;
+		border: 1px solid var(--pe-border);
+		border-radius: 999px;
+		background: #fafafc;
+		color: var(--pe-ink);
+		font-size: 0.8125rem;
+		font-weight: 500;
+	}
+
+	.vulocart-star {
+		height: 1.625rem;
+		font-size: 0.75rem;
+		cursor: pointer;
+
+		&:hover {
+			border-color: var(--pe-border-strong);
+		}
+	}
+
+	// Setup progress: the shape of a secondary button, so it sits evenly beside Update.
+	.vulocart-progress-pill {
+		height: 2.3125rem;
+		border-color: var(--pe-border-strong);
+		border-radius: 0.375rem;
+		font-weight: 500;
+		color: var(--pe-text);
+
+		&:hover,
+		&.is-open {
+			border-color: #a9a8b6;
+		}
+	}
+
+	// Embed code: the snippet kinds as a segmented choice, the Copy buttons as secondary buttons.
+	.vulocart-embed-code-modes {
+		display: inline-flex;
+		flex-wrap: wrap;
+		gap: 0.25rem;
+		padding: 0.25rem;
+		border: 1px solid var(--pe-border);
+		border-radius: 0.5rem;
+		background: #fafafc;
+
+		button {
+			height: 2rem;
+			padding: 0 0.875rem;
+			border: 1px solid transparent;
+			border-radius: 0.375rem;
+			background: transparent;
+			color: var(--pe-text);
+			font-size: 0.8125rem;
+			font-weight: 500;
+			cursor: pointer;
+
+			&:hover {
+				color: var(--pe-ink);
+			}
+
+			&.is-active {
+				border-color: var(--pe-border);
+				background: #fff;
+				color: var(--pe-ink);
+				font-weight: 600;
+				box-shadow: 0 1px 2px rgba(22, 21, 29, 0.06);
+			}
+		}
+	}
+
+	.vulocart-embed-code-block-header button {
+		height: 2rem;
+		padding: 0 0.75rem;
+		border: 1px solid var(--pe-border-strong);
+		border-radius: 0.375rem;
+		background: #fff;
+		color: var(--pe-text);
+		font-size: 0.8125rem;
+		font-weight: 500;
+		cursor: pointer;
+
+		&:hover {
+			border-color: #a9a8b6;
+			color: var(--pe-ink);
+		}
+	}
+
+	// Status reads as a coloured dot and a word, like "● Published", not a grey pill.
+	.vulocart-topbar-status .vulocart-status-tag {
+		padding: 0;
+		background: transparent;
+		font-size: 0.875rem;
+	}
+
+	// ---- Cards: one hairline surface; the header icon is a small plain glyph, not a tinted tile ----
+	.card-content {
+		border-color: var(--pe-border);
+		border-radius: 0.625rem;
+		box-shadow: none;
+
+		.card-header {
+			padding: 1.125rem 1.5rem;
+			border-bottom-color: var(--pe-border);
+
+			.left i {
+				width: auto;
+				height: auto;
+				border-radius: 0;
+				background: transparent;
+				color: var(--pe-muted);
+				font-size: 1.125rem;
+			}
+
+			.typography-title {
+				font-size: 1rem;
+				font-weight: 650;
+				color: var(--pe-ink);
+			}
+
+			.des,
+			.typography-desc {
+				font-size: 0.8125rem;
+				color: var(--pe-muted);
+			}
+		}
+
+		.card-body {
+			padding: 1.25rem 1.5rem 1.5rem;
+		}
+	}
+
+	// ---- Fields: a semibold label in ink, the same everywhere ----
+	.form-group .settings-form-label .typography-title,
+	.form-group-wrapper .form-group .settings-form-label .typography-title {
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: var(--pe-ink);
+	}
+
+	.vulocart-field-hint {
+		font-size: 0.8125rem;
+		color: var(--pe-muted);
+	}
+
+	// ---- Sub-headings inside a card: sentence case and semibold, not tiny uppercase eyebrows ----
+	.vulocart-subsection-title,
+	.vulocart-term-head h4,
+	.vulocart-content-block > header h4,
+	.vulocart-section-head h4,
+	.vulocart-price-head h4,
+	.vulocart-pro-pr > header h4,
+	.vulocart-warehouse-head h4,
+	.vulocart-stat-label {
+		font-size: 0.875rem;
+		font-weight: 600;
+		letter-spacing: 0;
+		text-transform: none;
+		color: var(--pe-ink);
+	}
+
+	.vulocart-stat-label {
+		font-size: 0.8125rem;
+		font-weight: 500;
+		color: var(--pe-muted);
+	}
+
+	// The "Currency" caption beside the Pricing header's select reads like the type pickers' captions.
+	.vulocart-currency-pill > span {
+		font-size: 0.8125rem;
+		font-weight: 500;
+		letter-spacing: 0;
+		text-transform: none;
+		color: var(--pe-muted);
+	}
+
+	// No empty band under a card's last field: the last block's bottom margin is dropped, and so is a field wrapper's
+	// bottom padding (its spacing between fields). Any other block keeps its padding: a boxed block (a Pro hint, a
+	// refund form, a results list) has it inside its own border.
+	.card-content .card-body > :last-child {
+		margin-bottom: 0;
+	}
+
+	.card-content .card-body > .form-group:last-child,
+	.card-content .card-body > :last-child > .form-group:last-child,
+	.card-content .card-body > :last-child > :last-child > .form-group,
+	.card-content .card-body > .form-group-wrapper:last-child .form-group:last-child {
+		margin-bottom: 0;
+		padding-bottom: 0;
+	}
+
+	// ---- Product type / delivery pickers in the Details header: a plain select, like every other select ----
+	.vulocart-topbar-controls {
+		.vulocart-type-picker .vulocart-type-caption {
+			font-size: 0.8125rem;
+			font-weight: 500;
+			letter-spacing: 0;
+			text-transform: none;
+			color: var(--pe-muted);
+		}
+
+		.vulocart-type-button {
+			min-width: 8.5rem;
+			height: 2.25rem;
+			padding: 0 0.75rem;
+			border: 1px solid var(--pe-border-strong);
+			border-radius: 0.375rem;
+			background: #fff;
+			box-shadow: none;
+			color: var(--pe-ink);
+			font-weight: 500;
+
+			&:hover,
+			&.is-open {
+				border-color: var(--pe-accent);
+				box-shadow: 0 0 0 3px color-mix(in srgb, var(--pe-accent) 12%, transparent);
+				transform: none;
+			}
+		}
+	}
+}
+
+
+// ---- Product editor, decluttered: header line, single price, collapsed extras ----
+.admin-main-wrapper .vulocart-product-edit-page.vulocart-product-edit-page {
+	// Title meta: just the link to the product.
+	.vulocart-title-meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.25rem 0.875rem;
+		margin-top: 0.375rem;
+	}
+
+	// Status sits beside Update (a publishing control): the dot and word, with when it went live under it.
+	.vulocart-topbar-status {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 0.125rem;
+		margin-right: 0.5rem;
+	}
+
+	.vulocart-status-since {
+		font-size: 0.75rem;
+		color: var(--pe-muted);
+		white-space: nowrap;
+	}
+
+	.vulocart-status-trigger {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		margin: 0 -0.5rem 0 0;
+		padding: 0.25rem 0.5rem;
+		border: 0;
+		border-radius: 0.375rem;
+		background: transparent;
+		box-shadow: none;
+		font-size: 0.875rem;
+		font-weight: 600;
+		cursor: pointer;
+
+		.adminfont-keyboard-arrow-down {
+			font-size: 0.75rem;
+			color: var(--pe-muted);
+		}
+
+		&:hover {
+			background: #ececf2;
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--vc-primary, #5007aa);
+			outline-offset: 1px;
+		}
+	}
+
+	.vulocart-topbar-status .vulocart-status-menu {
+		top: calc(100% + 0.25rem);
+		right: 0;
+		left: auto;
+	}
+
+	.vulocart-title-meta-item {
+		font-size: 0.875rem;
+		color: var(--pe-muted);
+	}
+
+	// Scroll targets (#vulocart-pricing-card, ...) are empty markers; keep them out of the card's flex gap.
+	.card-body > div[id^="vulocart-"][id$="-card"]:empty {
+		position: absolute;
+	}
+
+	// One price: its fields, then "Add another price" as a quiet link under them.
+	.vulocart-prices.is-single {
+		.vulocart-price-edit-grid {
+			margin-top: 0;
+		}
+
+		.vulocart-price-add {
+			margin-top: 0.75rem;
+
+			.vulocart-add-link {
+				padding-left: 0;
+			}
+		}
+	}
+
+	.card-body > .vulocart-pro-hint {
+		margin-top: 0;
+	}
+
+	// Fold-away cards (CollapsibleCard). The wrapper only holds the click handlers: no box of its own, so a
+	// container that frames its children (.vulocart-edit-extra-sections > *) frames the card, not a card in a card.
+	.vulocart-collapsible {
+		display: contents;
+	}
+
+	// The whole header is the toggle.
+	.vulocart-collapsible > .card-content > .card-header {
+		cursor: pointer;
+		user-select: none;
+
+		&:hover .right i {
+			color: var(--pe-ink);
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--vc-primary, #5007aa);
+			outline-offset: -2px;
+			border-radius: 0.625rem;
+		}
+	}
+
+	.vulocart-collapsible:not(.is-open) > .card-content > .card-header {
+		border-bottom: 0;
+	}
+
+	// zyra shows "›" on an open card; turned up, it reads as "collapse" next to the closed card's "⌄".
+	.vulocart-collapsible.is-open > .card-content > .card-header .right i {
+		transform: rotate(-90deg);
+	}
+
+	// Related products / add-ons pickers sit under the policies like the Catalog card's pickers.
+	.card-body > .vulocart-term-picker {
+		padding-top: 0.25rem;
+	}
+}
+
+// ---- Product editor: one scale for every control ----
+// Every control is 36px tall (buttons, inputs, selects, pickers, switches); every field label is 14px semibold
+// ink; every input reads 14px regular. Update is the only filled (primary) button on the page.
+.admin-main-wrapper .vulocart-product-edit-page.vulocart-product-edit-page {
+	--pe-control: 2.25rem;
+
+	// Header actions: status, Setup progress, View, Update and ⋯ share one height and one type size.
+	.vulocart-topbar-actions {
+		align-items: center;
+		gap: 0.5rem;
+
+		.vulocart-progress-pill,
+		.vulocart-view-button,
+		.admin-btn,
+		.vulocart-more-button {
+			box-sizing: border-box;
+			height: var(--pe-control);
+			min-height: var(--pe-control);
+			padding-block: 0;
+			font-size: 0.875rem;
+		}
+
+		.vulocart-progress-pill,
+		.vulocart-view-button {
+			font-weight: 500;
+		}
+
+		.vulocart-view-button {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.375rem;
+			padding-inline: 0.875rem;
+			text-decoration: none;
+
+			i {
+				font-size: 0.9375rem;
+			}
+		}
+
+		.vulocart-more-button {
+			width: var(--pe-control);
+		}
+	}
+
+	// Inputs: the bordered wrapper is 36px; text inside is 14px regular (prices included). zyra pins every input to
+	// 2rem with `min-height` / `max-height !important` (.admin-main-wrapper .basic-input); only !important lifts it.
+	.setting-form-input .basic-input.basic-input {
+		height: calc(var(--pe-control) - 2px);
+		min-height: calc(var(--pe-control) - 2px) !important;
+		max-height: calc(var(--pe-control) - 2px) !important;
+		font-size: 0.875rem;
+		font-weight: 400;
+	}
+
+	.select-prefix__control {
+		min-height: var(--pe-control);
+		font-size: 0.875rem;
+	}
+
+	.vulocart-type-button,
+	.vulocart-stock-toggle {
+		box-sizing: border-box;
+		height: var(--pe-control);
+		min-height: var(--pe-control);
+		border-radius: 0.375rem;
+	}
+
+	.vulocart-stock-toggle {
+		font-size: 0.875rem;
+		font-weight: 500;
+	}
+
+	// Field labels: one style everywhere (form groups, price fields, pickers, sub-headings).
+	.settings-form-label,
+	.settings-form-label .typography-title,
+	.vulocart-price-field > label,
+	.vulocart-term-head h4,
+	.vulocart-subsection-title {
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: var(--pe-ink);
+	}
+
+	.vulocart-price-field > label em {
+		font-style: normal;
+		font-weight: 400;
+		color: var(--pe-muted);
+	}
+
+	// Picker rows (Category, Tags, Related products...): label and its "+ Add" link on one line.
+	.vulocart-term-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+
+		h4 {
+			margin: 0;
+		}
+
+		.vulocart-term-add {
+			margin: 0;
+			padding-right: 0;
+		}
+	}
+
+	// The Pro upsell is secondary: Update stays the one filled button on the page.
+	.vulocart-pro-hint-button {
+		display: inline-flex;
+		align-items: center;
+		box-sizing: border-box;
+		height: var(--pe-control);
+		padding: 0 0.875rem;
+		border: 1px solid #d9d9e3;
+		border-radius: 0.375rem;
+		background: #fff;
+		font-size: 0.875rem;
+		font-weight: 500;
+		color: #4b4a57;
+
+		&:hover {
+			border-color: var(--vc-primary, #5007aa);
+			color: var(--vc-primary, #5007aa);
+		}
+	}
+}
+
+// New product: the chosen type as one chip under the title - icon, "Physical · Simple", and a quiet "Change"
+// that returns to the "What are you selling?" step. Replaces the old hint line plus "Change product type" link.
+.vulocart-product-edit-page .vulocart-type-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-top: 0.625rem;
+	padding: 0.25rem 0.375rem 0.25rem 0.25rem;
+	border: 1px solid #e3e6ef;
+	border-radius: 999px;
+	background: #fff;
+	font: inherit;
+	font-size: 0.8125rem;
+	line-height: 1;
+	color: #374151;
+	cursor: pointer;
+	transition:
+		border-color 0.15s ease,
+		box-shadow 0.15s ease;
+
+	&:hover {
+		border-color: #d1d5e0;
+		box-shadow: 0 1px 3px rgba(28, 27, 51, 0.08);
+
+		.vulocart-type-chip-action {
+			background: #f1ebfb;
+			color: var(--vc-primary, #5007aa);
+		}
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--vc-primary, #5007aa);
+		outline-offset: 2px;
+	}
+}
+
+.vulocart-product-edit-page .vulocart-type-chip-icon {
+	display: inline-grid;
+	place-items: center;
+	width: 1.5rem;
+	height: 1.5rem;
+	border-radius: 50%;
+	background: #f3ecff;
+	color: var(--vc-primary, #5007aa);
+
+	i {
+		font-size: 0.8125rem;
+	}
+}
+
+.vulocart-product-edit-page .vulocart-type-chip-label {
+	display: inline-flex;
+	gap: 0.375rem;
+	font-weight: 600;
+	color: #1f1b3e;
+
+	span {
+		font-weight: 400;
+		color: #9ca3af;
+	}
+}
+
+.vulocart-product-edit-page .vulocart-type-chip-action {
+	padding: 0.3125rem 0.625rem;
+	border-radius: 999px;
+	background: #f4f5f9;
+	font-weight: 500;
+	color: #4b5563;
+	transition:
+		background 0.15s ease,
+		color 0.15s ease;
 }

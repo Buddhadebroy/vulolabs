@@ -51,7 +51,7 @@ export function SearchHeader() {
 			search={ {
 				placeholder: __( 'Search…', 'vulocart' ),
 				options: [
-					{ value: 'all', label: __( 'Every Where', 'vulocart' ) },
+					{ value: 'all', label: __( 'Everything', 'vulocart' ) },
 					{ value: 'pages', label: __( 'Pages', 'vulocart' ) },
 					{ value: 'settings', label: __( 'Settings', 'vulocart' ) },
 					{ value: 'modules', label: __( 'Modules', 'vulocart' ) },

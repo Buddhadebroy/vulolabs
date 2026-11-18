@@ -33,3 +33,7 @@ export function fetchInventory(): Promise< InventoryItem[] > {
 
 /** Tab-switch request: the Inventory page's tabs listen for it, so a link inside a tab opens another without a reload. */
 export const openInventoryTab = ( view: string ) => window.dispatchEvent( new CustomEvent( 'vulocart-engine-tab', { detail: view } ) );
+
+/** Turns "Track stock" on (or off) for one product; resolves with the updated row. */
+export const setTracking = ( id: number, on: boolean ) =>
+	axios.patch< InventoryItem >( getApiLink( vulocartLocalizer, `inventory/${ id }` ), { stock_management: on }, { headers: authHeaders() } ).then( ( response ) => response.data );
