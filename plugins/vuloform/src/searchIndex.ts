@@ -28,6 +28,7 @@ export interface SearchItem {
 }
 
 export const TABS = [
+	{ tab: 'dashboard', name: __('Dashboard', 'vuloform'), desc: __('What needs you, and how your forms are doing.', 'vuloform'), icon: 'analytics' },
 	{ tab: 'forms', name: __('Forms', 'vuloform'), desc: __('Create and edit your forms.', 'vuloform'), icon: 'form' },
 	{ tab: 'submissions', name: __('Submissions', 'vuloform'), desc: __('What people have sent you.', 'vuloform'), icon: 'mail' },
 	{ tab: 'settings', name: __('Settings', 'vuloform'), desc: __('Privacy, spam protection and data.', 'vuloform'), icon: 'setting' },

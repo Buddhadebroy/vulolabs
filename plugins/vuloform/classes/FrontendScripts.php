@@ -65,12 +65,12 @@ class FrontendScripts {
 				'desc'     => $template['desc'],
 				'icon'     => $template['icon'],
 				'category' => $template['category'] ?? __( 'Other', 'vuloform' ),
-				'plugin' => $template['plugin'] ?? '',
+				'plugin'   => $template['plugin'] ?? '',
 
 				'fields'   => count( $template['schema']['fields'] ),
 
-				'exists' => ! empty( $template['single'] ) ? (int) ( VuloForm()->forms->ids_for_template( $id )[0] ?? 0 ) : 0,
-			
+				'exists'   => ! empty( $template['single'] ) ? (int) ( VuloForm()->forms->ids_for_template( $id )[0] ?? 0 ) : 0,
+
 			);
 		}
 
@@ -82,31 +82,33 @@ class FrontendScripts {
 		$data = apply_filters(
 			'vuloform_localize_data',
 			array(
-				'apiUrl'           => untrailingslashit( get_rest_url() ),
-				'restUrl'          => VuloForm()->rest_namespace,
-				'nonce'            => wp_create_nonce( 'wp_rest' ),
-				'plugin_url'       => VuloForm()->plugin_url,
-				'admin_url'        => admin_url( 'admin.php?page=vuloform' ),
-				'version'          => VuloForm()->version,
-				'admin_email'      => get_option( 'admin_email' ),
-				'date_format_js'   => 'YYYY-MM-DD',
-				'field_types'      => $field_types,
-				'templates'        => $templates,
-				'default_settings' => Schema::default_settings(),
-				'file_types'       => array_keys( Schema::FILE_TYPES ),
-				'name_parts'       => Registry::part_labels( 'name' ),
-				'address_parts'    => Registry::part_labels( 'address' ),
+				'apiUrl'            => untrailingslashit( get_rest_url() ),
+				'restUrl'           => VuloForm()->rest_namespace,
+				'nonce'             => wp_create_nonce( 'wp_rest' ),
+				'plugin_url'        => VuloForm()->plugin_url,
+				'admin_url'         => admin_url( 'admin.php?page=vuloform' ),
+				'version'           => VuloForm()->version,
+				'admin_email'       => get_option( 'admin_email' ),
+				// For the Dashboard's greeting.
+				'user_display_name' => wp_get_current_user()->display_name,
+				'date_format_js'    => 'YYYY-MM-DD',
+				'field_types'       => $field_types,
+				'templates'         => $templates,
+				'default_settings'  => Schema::default_settings(),
+				'file_types'        => array_keys( Schema::FILE_TYPES ),
+				'name_parts'        => Registry::part_labels( 'name' ),
+				'address_parts'     => Registry::part_labels( 'address' ),
 				// Whether email goes through VuloMail, and whether SMS notifications can be sent at all.
-				'has_vulomail'     => function_exists( 'vulomail_send_email' ),
-				'sms_available'    => Notifier::sms_available(),
+				'has_vulomail'      => function_exists( 'vulomail_send_email' ),
+				'sms_available'     => Notifier::sms_available(),
 				// Where to go for VuloMail (WordPress.org slug `vulomail`): its connections when it is
 				// active, the Plugins screen when it is installed but off, otherwise Add Plugins.
-				'vulomail_url'     => self::vulomail_url(),
+				'vulomail_url'      => self::vulomail_url(),
 				// Whether the reCAPTCHA keys are saved, so a form's spam settings can say so.
-				'recaptcha_ready'  => \VuloForm\Security\Recaptcha::is_configured(),
+				'recaptcha_ready'   => \VuloForm\Security\Recaptcha::is_configured(),
 				// zyra's shared components read these two keys on every VuloLabs admin screen.
-				'khali_dabba'      => false,
-				'active_modules'   => VuloForm()->modules->get_active_modules(),
+				'khali_dabba'       => false,
+				'active_modules'    => VuloForm()->modules->get_active_modules(),
 			)
 		);
 

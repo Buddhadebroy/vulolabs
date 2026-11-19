@@ -22,6 +22,7 @@ declare global {
 		name_parts: Record<string, string>;
 		address_parts: Record<string, string>;
 		has_vulomail: boolean;
+		user_display_name: string;
 		sms_available: boolean;
 		vulomail_url: string;
 		recaptcha_ready: boolean;

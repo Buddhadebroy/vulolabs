@@ -155,3 +155,14 @@ export const escapeHtml = (value: string): string =>
 		.replace(/>/g, '&gt;')
 		.replace(/"/g, '&quot;')
 		.replace(/'/g, '&#039;');
+
+/** Admin address of a VuloForm tab; `tab` may carry more hash params, as in `forms&form=12`. */
+export const tabUrl = (tab: string): string => `?page=vuloform#&tab=${tab}`;
+
+/** Admin address of one Settings sub-tab. */
+export const settingsUrl = (subtab: string): string => tabUrl(`settings&subtab=${subtab}`);
+
+/** Opens a VuloForm tab without reloading the page. */
+export const goToTab = (tab: string): void => {
+	window.location.hash = `&tab=${tab}`;
+};

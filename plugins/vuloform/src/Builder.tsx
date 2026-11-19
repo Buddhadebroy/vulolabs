@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { FormBuilder } from '@zyra/builderform';
 import type { FormBuilderRoute } from '@zyra/builderform';
 import { apiGet, apiPost } from './services/api';
-import { errorMessage, notify } from './services/notify';
+import { notify } from './services/notify';
 import { formSettingsSections, inspectorSections } from './services/slots';
 
 const params = (hash: string) => new URLSearchParams(hash.replace(/^#/, ''));

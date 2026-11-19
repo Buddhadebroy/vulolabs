@@ -35,6 +35,7 @@ class Admin {
 		$submenus = apply_filters(
 			'vuloform_submenus',
 			array(
+				'dashboard'   => __( 'Dashboard', 'vuloform' ),
 				'forms'       => __( 'Forms', 'vuloform' ),
 				'submissions' => __( 'Submissions', 'vuloform' ),
 				'settings'    => __( 'Settings', 'vuloform' ),
