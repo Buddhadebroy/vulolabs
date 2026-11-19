@@ -116,7 +116,7 @@ const Settings = () => {
 		if (schema.PanelComponent) {
 			const Panel = schema.PanelComponent;
 
-			return <Panel />;
+			return <Panel onSaveStatusChange={setSaveStatus} />;
 		}
 
 		if (settingName !== schema.id) {
@@ -157,7 +157,7 @@ const Settings = () => {
 				appLocalizer={vulomailAppLocalizer}
 				Link={Link}
 				settingName={'Settings'}
-				className="admin-settings"
+				className="admin-settings vulomail-settings"
 				menuIcon
 				saveStatus={saveStatus}
 			/>

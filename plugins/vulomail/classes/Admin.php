@@ -63,10 +63,6 @@ class Admin {
 					'name'     => __( 'Logs', 'vulomail' ),
 					'priority' => 30,
 				),
-				'tools'      => array(
-					'name'     => __( 'Tools', 'vulomail' ),
-					'priority' => 50,
-				),
 				'settings'   => array(
 					'name'     => __( 'Settings', 'vulomail' ),
 					'priority' => 60,
@@ -133,7 +129,7 @@ class Admin {
 	public function add_action_links( $links ) {
 		array_unshift(
 			$links,
-			sprintf( '<a href="%s">%s</a>', esc_url( admin_url( 'admin.php?page=vulomail#&tab=settings&subtab=connections' ) ), esc_html__( 'Settings', 'vulomail' ) )
+			sprintf( '<a href="%s">%s</a>', esc_url( admin_url( 'admin.php?page=vulomail#&tab=settings&subtab=email' ) ), esc_html__( 'Settings', 'vulomail' ) )
 		);
 
 		return $links;

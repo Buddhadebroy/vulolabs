@@ -22,6 +22,8 @@ declare global {
 		plugin_slug: string;
 		text_domain: string;
 		admin_email: string;
+		/** The signed-in user, for the dashboard greeting. */
+		user_display_name: string;
 		default_from: string;
 		/** Address Google returns to after "Sign in with Google"; listed in the own-app steps. */
 		google_redirect_uri: string;

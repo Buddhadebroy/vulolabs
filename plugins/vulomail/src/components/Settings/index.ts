@@ -1,8 +1,10 @@
 /* global vulomailAppLocalizer */
 import { createElement } from 'react';
 import type { ComponentType, ReactNode } from 'react';
+import type { SaveStatus } from '@zyra/components';
 import { __ } from '@wordpress/i18n';
-import Connections from '../../pages/Connections';
+import { EmailSettings, SmsSettings } from '../../pages/ChannelSettings';
+import Tools from '../../pages/Tools';
 import AlertMessage, { TEMPLATE_PREFIX } from './AlertMessage';
 
 /**
@@ -42,164 +44,48 @@ export interface SettingsSchema {
 	modal: SettingsField[];
 	/** Values the sub-tab keeps besides its fields' own: the alert messages edited inside a row. */
 	extraKeys?: string[];
-	/** Renders the whole sub-tab itself instead of a generated form. */
-	PanelComponent?: ComponentType;
+	/** Renders the whole sub-tab itself instead of a generated form; told when it is saving. */
+	// eslint-disable-next-line no-unused-vars -- parameter name in a type signature, not a variable.
+	PanelComponent?: ComponentType<{ onSaveStatusChange?: (status: SaveStatus) => void }>;
 }
 
 export { TEMPLATE_PREFIX };
 
-const connections: SettingsSchema = {
-	id: 'connections',
-	headerTitle: __('Connections', 'vulomail'),
-	headerDescription: __(
-		'Connect the email and SMS providers you already use. Credentials are encrypted before they are saved and never shown again.',
-		'vulomail'
-	),
-	headerIcon: 'link',
-	hideSettingHeader: true,
-	modal: [],
-	PanelComponent: Connections,
-};
+// Settings → Email and Settings → SMS are drawn by pages/ChannelSettings.tsx (status, delivery order, connections,
+// then the channel's own details). Their `modal` is not rendered: it only describes what is on the screen, so the
+// header search (searchIndex.ts) can find each setting.
+const searchOnly = (key: string, title: string, desc: string): SettingsField => ({ key, type: 'section', title, desc });
 
 const email: SettingsSchema = {
 	id: 'email',
 	headerTitle: __('Email', 'vulomail'),
-	headerDescription: __('How outgoing email is routed and who it appears to come from.', 'vulomail'),
+	headerDescription: __('Which service sends your email, what takes over when it fails, and who it comes from.', 'vulomail'),
 	headerIcon: 'mail',
-	submitUrl: 'settings',
 	hideSettingHeader: true,
-	groupBySections: true,
+	PanelComponent: EmailSettings,
 	modal: [
-		{
-			key: 'email-routing-section',
-			type: 'section',
-			icon: 'send',
-			title: __('Routing', 'vulomail'),
-			desc: __(
-				'Whether VuloMail delivers this site\'s email, and what happens when your connections fail.',
-				'vulomail'
-			),
-		},
-		{
-			key: 'email_routing',
-			type: 'setting-row',
-			row: false,
-			rows: [
-				toggle(
-					'email_enabled',
-					'mail green',
-					__('Send email through VuloMail', 'vulomail'),
-					__('When off, WordPress sends email exactly as it would without VuloMail. Your connections are kept.', 'vulomail')
-				),
-				toggle(
-					'fallback_to_default',
-					'refresh blue',
-					__('Fall back to the WordPress default mailer', 'vulomail'),
-					__('If the primary and backup connections both fail, hand the email to WordPress instead of dropping it.', 'vulomail')
-				),
-			],
-		},
-		{
-			key: 'email-sender-section',
-			type: 'section',
-			icon: 'profile',
-			title: __('Sender', 'vulomail'),
-			desc: __('The name and address your email is sent from.', 'vulomail'),
-		},
-		{
-			key: 'from_email',
-			type: 'email',
-			size: 30,
-			label: __('Sender email', 'vulomail'),
-			placeholder: vulomailAppLocalizer.default_from,
-			settingDescription: __(
-				'Replaces the WordPress default sender. Use an address your email provider has verified.',
-				'vulomail'
-			),
-		},
-		{
-			key: 'from_name',
-			type: 'text',
-			size: 30,
-			label: __('Sender name', 'vulomail'),
-			placeholder: 'WordPress',
-			settingDescription: __('Replaces the default sender name "WordPress".', 'vulomail'),
-		},
-		{
-			key: 'email_force',
-			type: 'setting-row',
-			row: false,
-			label: __('Override plugins', 'vulomail'),
-			rows: [
-				toggle(
-					'force_from_email',
-					'lock purple',
-					__('Always use this sender email', 'vulomail'),
-					__('Even when a plugin sets its own From address.', 'vulomail')
-				),
-				toggle(
-					'force_from_name',
-					'lock purple',
-					__('Always use this sender name', 'vulomail'),
-					__('Even when a plugin sets its own From name.', 'vulomail')
-				),
-			],
-		},
+		searchOnly('email_enabled', __('Send email with VuloMail', 'vulomail'), __('Switch VuloMail\'s email delivery on or off.', 'vulomail')),
+		searchOnly('email_route', __('Email delivery order', 'vulomail'), __('Primary and backup email connections.', 'vulomail')),
+		searchOnly('fallback_to_default', __('Fall back to the WordPress default mailer', 'vulomail'), __('Hand email to WordPress when every connection fails.', 'vulomail')),
+		searchOnly('email_connections', __('Email connections', 'vulomail'), __('Add, edit, test or delete an email service.', 'vulomail')),
+		searchOnly('from_email', __('Sender email', 'vulomail'), __('The address your email is sent from.', 'vulomail')),
+		searchOnly('from_name', __('Sender name', 'vulomail'), __('The name shown in the inbox.', 'vulomail')),
 	],
 };
 
 const sms: SettingsSchema = {
 	id: 'sms',
 	headerTitle: __('SMS', 'vulomail'),
-	headerDescription: __('Whether text messages are sent, how phone numbers are read, and where admin alerts go.', 'vulomail'),
+	headerDescription: __('Which gateway sends your text messages, what takes over when it fails, and how numbers are read.', 'vulomail'),
 	headerIcon: 'send',
-	submitUrl: 'settings',
 	hideSettingHeader: true,
-	groupBySections: true,
+	PanelComponent: SmsSettings,
 	modal: [
-		{
-			key: 'sms-sending-section',
-			type: 'section',
-			icon: 'send',
-			title: __('Sending', 'vulomail'),
-			desc: __('Switch text messages on or off, and set how phone numbers without a country code are read.', 'vulomail'),
-		},
-		{
-			key: 'sms_sending',
-			type: 'setting-row',
-			row: false,
-			rows: [
-				toggle(
-					'sms_enabled',
-					'send green',
-					__('Send SMS through VuloMail', 'vulomail'),
-					__('When off, no text messages are sent, including alerts and messages from other plugins.', 'vulomail')
-				),
-			],
-		},
-		{
-			key: 'sms_country_code',
-			type: 'text',
-			size: 10,
-			preText: '+',
-			label: __('Default country code', 'vulomail'),
-			settingDescription: __('Added to phone numbers written without one. Digits only, for example 1 or 44.', 'vulomail'),
-		},
-		{
-			key: 'sms-admin-section',
-			type: 'section',
-			icon: 'profile',
-			title: __('Admin phone', 'vulomail'),
-			desc: __('Where alerts addressed to the site admin are sent.', 'vulomail'),
-		},
-		{
-			key: 'sms_admin_phone',
-			type: 'text',
-			size: 30,
-			label: __('Admin phone number', 'vulomail'),
-			placeholder: '+14155550123',
-			settingDescription: __('International format, for example +14155550123.', 'vulomail'),
-		},
+		searchOnly('sms_enabled', __('Send SMS with VuloMail', 'vulomail'), __('Switch text messages on or off.', 'vulomail')),
+		searchOnly('sms_route', __('SMS delivery order', 'vulomail'), __('Primary and backup SMS gateways.', 'vulomail')),
+		searchOnly('sms_connections', __('SMS gateways', 'vulomail'), __('Add, edit, test or delete an SMS gateway.', 'vulomail')),
+		searchOnly('sms_country_code', __('Default country code', 'vulomail'), __('Added to numbers written without one.', 'vulomail')),
+		searchOnly('sms_admin_phone', __('Your phone number', 'vulomail'), __('Where alerts meant for you are sent.', 'vulomail')),
 	],
 };
 
@@ -303,9 +189,9 @@ const notifications: SettingsSchema = {
 
 const logging: SettingsSchema = {
 	id: 'logging',
-	headerTitle: __('Logging & Privacy', 'vulomail'),
-	headerDescription: __('What the delivery log keeps, and for how long.', 'vulomail'),
-	headerIcon: 'clock',
+	headerTitle: __('Privacy & data', 'vulomail'),
+	headerDescription: __('What the delivery log keeps, what is tracked, and what happens to your data when VuloMail is deleted.', 'vulomail'),
+	headerIcon: 'security',
 	submitUrl: 'settings',
 	hideSettingHeader: true,
 	groupBySections: true,
@@ -315,7 +201,7 @@ const logging: SettingsSchema = {
 			type: 'section',
 			icon: 'clock',
 			title: __('Delivery log', 'vulomail'),
-			desc: __('The log is stored in your own database and never leaves this site.', 'vulomail'),
+			desc: __('Kept in your own database. It never leaves this site.', 'vulomail'),
 		},
 		{
 			key: 'log_options',
@@ -325,20 +211,20 @@ const logging: SettingsSchema = {
 				toggle(
 					'log_enabled',
 					'clock green',
-					__('Keep a log of sent and failed messages', 'vulomail'),
-					__('Records who each message went to, which provider sent it, and any error.', 'vulomail')
+					__('Keep a delivery log', 'vulomail'),
+					__('Who each message went to, which service sent it, and any error.', 'vulomail')
 				),
 				toggle(
 					'log_content',
 					'document orange',
-					__('Store message content', 'vulomail'),
-					__('Needed to view or resend a message later. Stored messages can include password reset links and personal details, so leave this off unless you need it.', 'vulomail')
+					__('Save message content', 'vulomail'),
+					__('Lets you read or resend a message later. Messages can contain password reset links and personal details.', 'vulomail')
 				),
 				toggle(
 					'mask_recipients',
 					'lock purple',
-					__('Mask recipients in the log', 'vulomail'),
-					__('Stores j•••@example.com instead of the full address or number. Masked entries can\'t be resent.', 'vulomail')
+					__('Hide recipients', 'vulomail'),
+					__('Logs j•••@example.com instead of the full address or number. Hidden entries can\'t be resent.', 'vulomail')
 				),
 			],
 		},
@@ -349,16 +235,16 @@ const logging: SettingsSchema = {
 			minNumber: 0,
 			maxNumber: 3650,
 			postText: __('days', 'vulomail'),
-			label: __('Keep entries for', 'vulomail'),
-			settingDescription: __('Older entries are deleted automatically. 0 keeps them until you delete them.', 'vulomail'),
+			label: __('Delete entries after', 'vulomail'),
+			settingDescription: __('0 keeps them until you delete them yourself.', 'vulomail'),
 		},
 		{
 			key: 'tracking-section',
 			type: 'section',
 			icon: 'analytics',
-			title: __('Engagement tracking', 'vulomail'),
+			title: __('Opens and clicks', 'vulomail'),
 			desc: __(
-				'See whether HTML emails are opened, and whether links in an email or text message are clicked, in the Logs. Tracking is stored in the delivery log, so it needs the log switched on; open tracking never applies to plain-text email or text messages, since there is nothing to load an image. Opens and clicks are estimates: some mail apps block images, others and security scanners load images or follow links on their own.',
+				'Shown in the Logs. Needs the delivery log. Counts are estimates: some mail apps block images, and security scanners can open links on their own.',
 				'vulomail'
 			),
 		},
@@ -370,53 +256,41 @@ const logging: SettingsSchema = {
 				toggle(
 					'track_opens',
 					'eye blue',
-					__('Open tracking', 'vulomail'),
-					__('Adds an invisible 1×1 image to each HTML email and records when it is loaded. No IP address or device details are kept.', 'vulomail')
+					__('Track email opens', 'vulomail'),
+					__('Adds an invisible image to HTML emails. No IP address or device details are kept.', 'vulomail')
 				),
 				toggle(
 					'track_clicks',
 					'link blue',
-					__('Email click tracking', 'vulomail'),
-					__('Sends links through this site before the reader reaches the page, and records which link was clicked. Unsubscribe, password reset, sign-in, mailto: and tel: links are never changed.', 'vulomail')
+					__('Track email link clicks', 'vulomail'),
+					__('Links pass through this site first. Unsubscribe, password reset and sign-in links are never changed.', 'vulomail')
 				),
 				toggle(
 					'sms_track_clicks',
 					'link blue',
-					__('Text message click tracking', 'vulomail'),
-					__('Same as email click tracking, for links in a text message. Makes the message longer, since the link is replaced with one on this site.', 'vulomail')
+					__('Track SMS link clicks', 'vulomail'),
+					__('The same for text messages. Makes each message a little longer.', 'vulomail')
 				),
 			],
 		},
-	],
-};
-
-const uninstall: SettingsSchema = {
-	id: 'uninstall',
-	headerTitle: __('Uninstall', 'vulomail'),
-	headerDescription: __('What happens to your connections, settings and logs when VuloMail is deleted.', 'vulomail'),
-	headerIcon: 'database',
-	submitUrl: 'settings',
-	hideSettingHeader: true,
-	groupBySections: true,
-	modal: [
 		{
 			key: 'data-section',
 			type: 'section',
 			icon: 'database',
-			title: __('Your data on uninstall', 'vulomail'),
-			desc: __('What happens to connections, settings and logs when VuloMail is deleted.', 'vulomail'),
+			title: __('If you delete VuloMail', 'vulomail'),
+			desc: __('What happens to your connections, settings and log.', 'vulomail'),
 		},
 		{
 			key: 'keep_data_uninstall',
 			type: 'choice-toggle',
 			iconEnable: true,
 			defaultValue: 'keep_data',
-			label: __('When VuloMail is deleted', 'vulomail'),
+			label: __('Your data', 'vulomail'),
 			options: [
 				{
 					key: 'keep_data',
 					value: 'keep_data',
-					label: __('Keep data', 'vulomail'),
+					label: __('Keep it', 'vulomail'),
 					desc: __('Reinstalling picks up where you left off.', 'vulomail'),
 					icon: 'database',
 				},
@@ -424,7 +298,7 @@ const uninstall: SettingsSchema = {
 					key: 'delete_everything',
 					value: 'delete_everything',
 					label: __('Delete everything', 'vulomail'),
-					desc: __('Removes connections, settings and logs.', 'vulomail'),
+					desc: __('Removes connections, settings and the log.', 'vulomail'),
 					icon: 'delete',
 				},
 			],
@@ -435,6 +309,18 @@ const uninstall: SettingsSchema = {
 /** The SMS Alerts screen's form. It has a submenu tab of its own (pages/SmsAlerts.tsx). */
 export const notificationsSchema = notifications;
 
-const schemas: SettingsSchema[] = [connections, email, sms, logging, uninstall];
+// Settings → Tools is drawn by pages/Tools.tsx; nothing on it is a stored setting.
+const tools: SettingsSchema = {
+	id: 'tools',
+	headerTitle: __('Tools', 'vulomail'),
+	headerDescription: __('Send a test email or SMS and run diagnostics.', 'vulomail'),
+	headerIcon: 'tools',
+	hideSettingHeader: true,
+	PanelComponent: Tools,
+	// Its cards are in searchIndex.ts's PAGE_SECTIONS, which can scroll to them.
+	modal: [],
+};
+
+const schemas: SettingsSchema[] = [email, sms, logging, tools];
 
 export default schemas;

@@ -609,7 +609,7 @@ const EmailTemplates = () => {
 			<NavigatorHeaderComponent
 				headerIcon="mail"
 				headerTitle={__('Email Templates', 'vulomail')}
-				headerDescription={__('Every email and text message this site has tried to send.', 'vulomail')}
+				headerDescription={__('Turn each email on or off, and customise what it says.', 'vulomail')}
 			/>
 			<ContainerComponent general>
 				{content}

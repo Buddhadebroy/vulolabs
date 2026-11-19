@@ -1,26 +1,23 @@
 /* global vulomailAppLocalizer */
-import { Fragment, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import {
-	AnalyticsComponent,
 	BadgeComponent,
-	CardComponent,
-	ColumnComponent,
 	ContainerComponent,
-	ModuleGuardComponent,
 	NavigatorHeaderComponent,
 	NoticeComponent,
 	PopupComponent,
 } from '@zyra/components';
 import { ButtonInput, ToggleInput } from '@zyra/inputs';
-import { TableCard } from '@zyra/table';
+import { TableCard } from '../components/TableCard/TableCard';
 import { apiDelete, apiGet, apiPost } from '../services/api';
 import { errorMessage, notify } from '../services/notify';
 import { displayDate, providerLabel, settingsUrl } from '../services/types';
 import { errorNoticeHtml } from '../services/errorHelp';
 import type { Attempt } from '../services/types';
+import { Card, EmptyState } from '../components/ui';
 
 interface LogRow {
 	id: number;
@@ -84,7 +81,10 @@ interface TableQuery {
 	searchValue?: string;
 	categoryFilter?: string;
 	languageFilter?: string;
-	filter?: { date?: { startDate?: Date | string; endDate?: Date | string } };
+	filter?: {
+		date?: { startDate?: Date | string; endDate?: Date | string };
+		channel?: string;
+	};
 	orderby?: string;
 	order?: string;
 }
@@ -115,7 +115,10 @@ const statusBadge = (row: Pick<LogRow, 'status' | 'used_fallback'>) => {
 	}
 
 	return Number(row.used_fallback) ? (
-		<BadgeComponent color="yellow" text={__('Sent via backup', 'vulomail')} />
+		<BadgeComponent
+			color="yellow"
+			text={__('Sent via backup', 'vulomail')}
+		/>
 	) : (
 		<BadgeComponent color="green" text={__('Sent', 'vulomail')} />
 	);
@@ -123,9 +126,16 @@ const statusBadge = (row: Pick<LogRow, 'status' | 'used_fallback'>) => {
 
 const engagementBadge = (value: Engagement) =>
 	'not_tracked' === value ? (
-		<span className="vulomail-log-secondary">{__('Not tracked', 'vulomail')}</span>
+		<span className="vulomail-log-secondary">
+			{__('Not tracked', 'vulomail')}
+		</span>
 	) : (
-		<BadgeComponent color={'yes' === value ? 'green' : 'gray'} text={'yes' === value ? __('Yes', 'vulomail') : __('No', 'vulomail')} />
+		<BadgeComponent
+			color={'yes' === value ? 'green' : 'gray'}
+			text={
+				'yes' === value ? __('Yes', 'vulomail') : __('No', 'vulomail')
+			}
+		/>
 	);
 
 /** "First – last" for a pair of display dates, or a dash when nothing was observed. */
@@ -141,32 +151,38 @@ const observedRange = (first: string, last: string): string => {
 const parseAddress = (value: string): { name: string; address: string } => {
 	const match = value.match(/^"?([^"<]*)"?\s*<([^>]+)>$/);
 
-	return match ? { name: match[1].trim() || match[2], address: match[2] } : { name: value, address: value };
+	return match
+		? { name: match[1].trim() || match[2], address: match[2] }
+		: { name: value, address: value };
 };
 
 /** A logged message body, as text, with any http(s) links made clickable. Never rendered as HTML. */
 const linkify = (text: string): ReactNode[] =>
-	text
-		.split(/(https?:\/\/[^\s<>"]+)/g)
-		.map((part, index) =>
-			index % 2 ? (
-				<a key={index} href={part} target="_blank" rel="noreferrer">
-					{part}
-				</a>
-			) : (
-				part
-			)
-		);
+	text.split(/(https?:\/\/[^\s<>"]+)/g).map((part, index) =>
+		index % 2 ? (
+			<a key={index} href={part} target="_blank" rel="noreferrer">
+				{part}
+			</a>
+		) : (
+			part
+		)
+	);
 
 const Logs = () => {
 	const [query, setQuery] = useState<TableQuery>({ paged: 1, per_page: 10 });
-	const [list, setList] = useState<LogList>({ data: [], total: 0, status_counts: { sent: 0, failed: 0 }, channel_counts: { email: 0, sms: 0 } });
+	const [list, setList] = useState<LogList>({
+		data: [],
+		total: 0,
+		status_counts: { sent: 0, failed: 0 },
+		channel_counts: { email: 0, sms: 0 },
+	});
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState('');
 	const [reload, setReload] = useState(0);
 	const [detail, setDetail] = useState<LogDetail | null>(null);
-	const [messageView, setMessageView] = useState<'preview' | 'raw'>('preview');
-	const [confirmClear, setConfirmClear] = useState(false);
+	const [messageView, setMessageView] = useState<'preview' | 'raw'>(
+		'preview'
+	);
 	const [isBusy, setIsBusy] = useState(false);
 
 	const onQueryUpdate = useCallback((next: TableQuery) => setQuery(next), []);
@@ -191,15 +207,22 @@ const Logs = () => {
 		setIsLoading(true);
 
 		apiGet<LogList>('logs', {
-			channel: query.languageFilter && 'all' !== query.languageFilter ? query.languageFilter : undefined,
-			status: query.categoryFilter && 'all' !== query.categoryFilter ? query.categoryFilter : undefined,
+			channel:
+				query.filter?.channel && 'all' !== query.filter.channel
+					? query.filter.channel
+					: undefined,
+			status:
+				query.categoryFilter && 'all' !== query.categoryFilter
+					? query.categoryFilter
+					: undefined,
 			search: query.searchValue || undefined,
 			after: pickedDay(query.filter?.date?.startDate),
 			before: pickedDay(query.filter?.date?.endDate),
 			page: query.paged,
 			per_page: query.per_page,
-			orderby: query.orderby || undefined,
-			order: query.order || undefined,
+			// Newest first until a column is sorted: what the "Sent" column's arrow promises.
+			orderby: query.orderby || 'created_at',
+			order: query.order || 'desc',
 		})
 			.then((data) => {
 				if (!cancelled) {
@@ -224,31 +247,55 @@ const Logs = () => {
 			.catch((e) => notify('error', errorMessage(e)));
 	};
 
-	const deleteOne = () => {
-		if (!detail) {
+	// Rows waiting for the delete confirmation: one entry, a bulk selection, or (`all`) the whole log.
+	const [toDelete, setToDelete] = useState<number[] | 'all' | null>(null);
+
+	const confirmDelete = () => {
+		if (!toDelete) {
 			return;
 		}
 
 		setIsBusy(true);
 
-		apiDelete('logs', { ids: [detail.id] })
+		apiDelete(
+			'logs',
+			'all' === toDelete ? { all: true } : { ids: toDelete }
+		)
 			.then(() => {
-				notify('success', __('Log entry deleted.', 'vulomail'));
-				setDetail(null);
+				notify(
+					'success',
+					'all' === toDelete
+						? __('All log entries deleted.', 'vulomail')
+						: sprintf(
+								/* translators: %d: number of deleted log entries. */
+								_n(
+									'%d log entry deleted.',
+									'%d log entries deleted.',
+									toDelete.length,
+									'vulomail'
+								),
+								toDelete.length
+							)
+				);
+				if (
+					detail &&
+					('all' === toDelete || toDelete.includes(detail.id))
+				) {
+					setDetail(null);
+				}
 				setReload((n) => n + 1);
 			})
 			.catch((e) => notify('error', errorMessage(e)))
-			.finally(() => setIsBusy(false));
+			.finally(() => {
+				setIsBusy(false);
+				setToDelete(null);
+			});
 	};
 
-	const resend = () => {
-		if (!detail) {
-			return;
-		}
-
+	const resend = (id: number) => {
 		setIsBusy(true);
 
-		apiPost<{ success: boolean; message: string }>(`logs/${detail.id}/resend`)
+		apiPost<{ success: boolean; message: string }>(`logs/${id}/resend`)
 			.then((result) => {
 				notify(result.success ? 'success' : 'error', result.message);
 				setDetail(null);
@@ -258,6 +305,73 @@ const Logs = () => {
 			.finally(() => setIsBusy(false));
 	};
 
+	// Export: every entry matching the tab, filters and search (up to 1,000), as a CSV file.
+	const csvColumns: Record<string, (row: LogRow) => string | number> = {
+		[__('Date', 'vulomail')]: (row) => displayDate(row),
+		[__('Channel', 'vulomail')]: (row) =>
+			'sms' === row.channel ? 'SMS' : __('Email', 'vulomail'),
+		[__('Status', 'vulomail')]: (row) =>
+			'failed' === row.status
+				? __('Failed', 'vulomail')
+				: Number(row.used_fallback)
+					? __('Sent via backup', 'vulomail')
+					: __('Sent', 'vulomail'),
+		[__('To', 'vulomail')]: (row) => row.recipients,
+		[__('Subject', 'vulomail')]: (row) => row.subject,
+		[__('Sent with', 'vulomail')]: (row) => providerLabel(row.provider),
+		[__('Sent by', 'vulomail')]: (row) => row.source,
+		[__('Opened', 'vulomail')]: (row) => row.opened,
+		[__('Clicked', 'vulomail')]: (row) => row.clicked,
+		[__('Error', 'vulomail')]: (row) => row.error_message ?? '',
+	};
+
+	const downloadCsv = (rows: LogRow[]) => {
+		if (!rows.length) {
+			return;
+		}
+
+		const quote = (value: string | number) =>
+			`"${String(value ?? '').replace(/"/g, '""')}"`;
+		const lines = [
+			Object.keys(csvColumns).map(quote).join(','),
+			...rows.map((row) =>
+				Object.values(csvColumns)
+					.map((value) => quote(value(row)))
+					.join(',')
+			),
+		];
+		const url = URL.createObjectURL(
+			new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' })
+		);
+		const link = document.createElement('a');
+
+		link.href = url;
+		link.download = `vulomail-logs-${new Date().toISOString().slice(0, 10)}.csv`;
+		link.click();
+		URL.revokeObjectURL(url);
+	};
+
+	const exportMatching = () =>
+		apiGet<LogList>('logs', {
+			channel:
+				query.filter?.channel && 'all' !== query.filter.channel
+					? query.filter.channel
+					: undefined,
+			status:
+				query.categoryFilter && 'all' !== query.categoryFilter
+					? query.categoryFilter
+					: undefined,
+			search: query.searchValue || undefined,
+			after: pickedDay(query.filter?.date?.startDate),
+			before: pickedDay(query.filter?.date?.endDate),
+			page: 1,
+			per_page: 1000,
+			orderby: query.orderby || 'created_at',
+			order: query.order || 'desc',
+		})
+			.then((data) => downloadCsv(data.data))
+			.catch((e) => notify('error', errorMessage(e)));
+
 	const copyMessageId = () => {
 		if (!detail?.message_id) {
 			return;
@@ -265,141 +379,251 @@ const Logs = () => {
 
 		navigator.clipboard
 			?.writeText(detail.message_id)
-			.then(() => notify('success', __('Provider ID copied.', 'vulomail')))
-			.catch(() => notify('error', __('Could not copy. Select the ID and copy it yourself.', 'vulomail')));
-	};
-
-	const clearAll = () => {
-		setIsBusy(true);
-
-		apiDelete('logs', { all: true })
-			.then(() => {
-				notify('success', __('All log entries deleted.', 'vulomail'));
-				setReload((n) => n + 1);
-			})
-			.catch((e) => notify('error', errorMessage(e)))
-			.finally(() => {
-				setIsBusy(false);
-				setConfirmClear(false);
-			});
+			.then(() =>
+				notify('success', __('Provider ID copied.', 'vulomail'))
+			)
+			.catch(() =>
+				notify(
+					'error',
+					__(
+						'Could not copy. Select the ID and copy it yourself.',
+						'vulomail'
+					)
+				)
+			);
 	};
 
 	const { sent, failed } = list.status_counts;
+	const total = sent + failed;
 
 	return (
 		<>
 			<NavigatorHeaderComponent
 				headerIcon="clock"
 				headerTitle={__('Logs', 'vulomail')}
-				headerDescription={__('Every email and text message this site has tried to send.', 'vulomail')}
+				headerDescription={__(
+					'Every email and text message this site has tried to send.',
+					'vulomail'
+				)}
+				// Like VuloCart's lists: the page's own actions top-right. Nothing to export or delete until something is logged.
+				headerCustomContent={
+					total > 0 ? (
+						<ButtonInput
+							buttons={[
+								{
+									text: __('Delete all', 'vulomail'),
+									icon: 'delete',
+									color: 'red',
+									onClick: () => setToDelete('all'),
+								},
+								{
+									text: __('Export', 'vulomail'),
+									icon: 'download',
+									color: 'purple',
+									onClick: exportMatching,
+								},
+							]}
+						/>
+					) : undefined
+				}
 			/>
 			<ContainerComponent general>
-				<ColumnComponent>
-					<AnalyticsComponent
-						variant="trend-stat"
-						cols={3}
-						data={[
-							{ icon: 'check', number: sent, text: __('Sent', 'vulomail'), desc: __('Delivered by a connection', 'vulomail') },
-							{ icon: 'error', number: failed, text: __('Failed', 'vulomail'), desc: __('No connection could send them', 'vulomail') },
-							{
-								icon: 'analytics',
-								number: 0 === sent + failed ? '—' : `${Math.round((sent / (sent + failed)) * 100)}%`,
-								text: __('Delivery rate', 'vulomail'),
-								desc: __('Sent out of all attempts', 'vulomail'),
-							},
-						]}
-					/>
-				</ColumnComponent>
-				<ColumnComponent>
-				<CardComponent id="logs-delivery-log-card">
+				<div id="logs-delivery-log-card" className="vm-log-list">
 					{error ? (
-						<ModuleGuardComponent icon="error" title={__('Could not load the log', 'vulomail')} desc={error} />
+						<Card>
+							<EmptyState
+								icon="error"
+								tone="red"
+								title={__('Could not load the log', 'vulomail')}
+								text={error}
+							/>
+						</Card>
 					) : (
 						<TableCard
-							search={{ placeholder: __('Search recipient or subject…', 'vulomail') }}
+							search={{
+								placeholder: __(
+									'Search recipient or subject…',
+									'vulomail'
+								),
+							}}
 							showMenu={false}
-							filters={[{ key: 'date', type: 'date', label: __('Date range', 'vulomail') }]}
-							// Inline beside the search box, rather than zyra's floating filter bar.
-							filtersBeforeSearch
-							// After the search box. Nothing to delete until something has been logged.
-							buttonActions={
-								sent + failed > 0
-									? [{ label: __('Delete all logs', 'vulomail'), icon: 'delete', color: 'border-red', onClick: () => setConfirmClear(true) }]
-									: undefined
-							}
+							filters={[
+								{
+									key: 'channel',
+									type: 'select',
+									label: __('Channel', 'vulomail'),
+									size: 4,
+									options: [
+										{
+											value: 'all',
+											label: sprintf(
+												/* translators: %d: number of entries. */ __(
+													'All channels (%d)',
+													'vulomail'
+												),
+												list.channel_counts.email +
+													list.channel_counts.sms
+											),
+										},
+										{
+											value: 'email',
+											label: sprintf(
+												/* translators: %d: number of emails. */ __(
+													'Email (%d)',
+													'vulomail'
+												),
+												list.channel_counts.email
+											),
+										},
+										{
+											value: 'sms',
+											label: sprintf(
+												/* translators: %d: number of text messages. */ __(
+													'SMS (%d)',
+													'vulomail'
+												),
+												list.channel_counts.sms
+											),
+										},
+									],
+								},
+								{
+									key: 'date',
+									type: 'date',
+									label: __('Date range', 'vulomail'),
+								},
+							]}
 							format={vulomailAppLocalizer.date_format_js}
 							headers={{
 								subject: {
 									label: __('Message', 'vulomail'),
+									flex: '2.6 0 0',
 									render: (row: LogRow) => (
-										<div className="vulomail-log-cell">
-											<span className="vulomail-log-primary">
+										<div className="vm-log-message">
+											<span
+												className={`vm-log-icon is-${row.channel}`}
+												aria-hidden="true"
+											>
 												<i
 													className={`adminfont-${'sms' === row.channel ? 'send' : 'mail'}`}
-													aria-hidden="true"
 												/>
-												{'sms' === row.channel
-													? __('Text message', 'vulomail')
-													: row.subject || __('(no subject)', 'vulomail')}
 											</span>
-											<span className="vulomail-log-secondary">
-												{sprintf(
-													/* translators: %s: recipient addresses or numbers. */
-													__('To %s', 'vulomail'),
-													row.recipients
-												)}
-											</span>
-										</div>
-									),
-								},
-								created_at: {
-									label: __('Sent', 'vulomail'),
-									isSortable: true,
-									defaultSort: true,
-									defaultOrder: 'desc',
-									render: (row: LogRow) => (
-										<div className="vulomail-log-cell">
-											<span className="vulomail-log-primary">{displayDate(row)}</span>
-											<span className="vulomail-log-secondary">
-												{[
-													providerLabel(row.provider) &&
-														sprintf(
-															/* translators: %s: provider name. */
-															__('via %s', 'vulomail'),
-															providerLabel(row.provider)
-														),
-													row.source,
-												]
-													.filter(Boolean)
-													.join(' · ')}
-											</span>
+											<div className="vulomail-log-cell">
+												<button
+													type="button"
+													className="vm-log-title"
+													onClick={() =>
+														openDetail(row)
+													}
+												>
+													{'sms' === row.channel
+														? __(
+																'Text message',
+																'vulomail'
+															)
+														: row.subject ||
+															__(
+																'(no subject)',
+																'vulomail'
+															)}
+												</button>
+												<span className="vulomail-log-secondary">
+													{sprintf(
+														/* translators: %s: recipient addresses or numbers. */
+														__('To %s', 'vulomail'),
+														row.recipients
+													)}
+												</span>
+												{'failed' === row.status &&
+													row.error_message && (
+														<span className="vm-log-error">
+															{row.error_message}
+														</span>
+													)}
+											</div>
 										</div>
 									),
 								},
 								status: {
 									label: __('Status', 'vulomail'),
-									render: (row: LogRow) => statusBadge(row),
-								},
-								opened: {
-									label: __('Opened', 'vulomail'),
-									render: (row: LogRow) => engagementBadge(row.opened),
-								},
-								clicked: {
-									label: __('Clicked', 'vulomail'),
-									render: (row: LogRow) => engagementBadge(row.clicked),
-								},
-								id: {
-									label: '',
+									flex: '1.4 0 0',
 									render: (row: LogRow) => (
-										<ButtonInput
-											buttons={{
-												text: __('View', 'vulomail'),
-												icon: 'eye',
-												color: 'purple',
-												onClick: () => openDetail(row),
-											}}
-										/>
+										<div className="vm-log-tags">
+											{statusBadge(row)}
+											{'yes' === row.opened && (
+												<BadgeComponent
+													color="blue"
+													text={__(
+														'Opened',
+														'vulomail'
+													)}
+												/>
+											)}
+											{'yes' === row.clicked && (
+												<BadgeComponent
+													color="purple"
+													text={__(
+														'Clicked',
+														'vulomail'
+													)}
+												/>
+											)}
+										</div>
 									),
+								},
+								source: {
+									label: __('Sent with', 'vulomail'),
+									flex: '1 0 0',
+									render: (row: LogRow) => (
+										<div className="vulomail-log-cell">
+											<span className="vulomail-log-primary">
+												{providerLabel(row.provider) ||
+													'—'}
+											</span>
+											{row.source && (
+												<span className="vulomail-log-secondary">
+													{row.source}
+												</span>
+											)}
+										</div>
+									),
+								},
+								created_at: {
+									label: __('Date', 'vulomail'),
+									flex: '1.2 0 0',
+									isSortable: true,
+									defaultSort: true,
+									defaultOrder: 'desc',
+									render: (row: LogRow) => (
+										<span className="vm-log-date">
+											{displayDate(row)}
+										</span>
+									),
+								},
+								actions: {
+									label: __('Actions', 'vulomail'),
+									flex: '0 0 8rem',
+									type: 'action',
+									actions: [
+										{
+											label: __('View', 'vulomail'),
+											icon: 'eye',
+											onClick: (row: LogRow) =>
+												openDetail(row),
+										},
+										{
+											label: __('Resend', 'vulomail'),
+											icon: 'send',
+											onClick: (row: LogRow) =>
+												resend(row.id),
+										},
+										{
+											label: __('Delete', 'vulomail'),
+											icon: 'delete',
+											onClick: (row: LogRow) =>
+												setToDelete([row.id]),
+										},
+									],
 								},
 							}}
 							rows={list.data}
@@ -409,34 +633,72 @@ const Logs = () => {
 								{
 									value: 'all',
 									label: __('All', 'vulomail'),
-									count: list.status_counts.sent + list.status_counts.failed,
+									count: total,
 								},
-								{ value: 'sent', label: __('Sent', 'vulomail'), count: list.status_counts.sent },
-								{ value: 'failed', label: __('Failed', 'vulomail'), count: list.status_counts.failed },
+								{
+									value: 'sent',
+									label: __('Sent', 'vulomail'),
+									count: sent,
+								},
+								{
+									value: 'failed',
+									label: __('Failed', 'vulomail'),
+									count: failed,
+								},
 							]}
-							languageFilterCounts={[
-								{ value: 'all', label: __('All', 'vulomail'), count: list.channel_counts.email + list.channel_counts.sms },
-								{ value: 'email', label: __('Email', 'vulomail'), count: list.channel_counts.email },
-								{ value: 'sms', label: __('SMS', 'vulomail'), count: list.channel_counts.sms },
+							bulkActions={[
+								{
+									label: __('Delete', 'vulomail'),
+									value: 'delete',
+								},
 							]}
+							onBulkActionApply={(
+								action: string,
+								ids: Array<number | string>
+							) =>
+								'delete' === action &&
+								ids.length > 0 &&
+								setToDelete(ids.map(Number))
+							}
+							onSelectCsvDownloadApply={(
+								ids: Array<number | string>
+							) =>
+								downloadCsv(
+									list.data.filter((row) =>
+										ids.map(Number).includes(row.id)
+									)
+								)
+							}
 							isLoading={isLoading}
 							onQueryUpdate={onQueryUpdate}
-							emptyMessage={__('Nothing has been logged yet.', 'vulomail')}
+							emptyMessage={
+								total > 0
+									? __(
+											'No entries match. Try another tab, filter or search.',
+											'vulomail'
+										)
+									: __(
+											'Nothing has been logged yet.',
+											'vulomail'
+										)
+							}
 						/>
 					)}
-				</CardComponent>
-				</ColumnComponent>
+				</div>
 			</ContainerComponent>
 			<PopupComponent
 				open={Boolean(detail)}
 				onClose={() => setDetail(null)}
-				width={42}
+				width={60}
 				height="auto"
 				position="lightbox"
 				className="vulomail-log-popup"
 				header={{
 					icon: 'sms' === detail?.channel ? 'send' : 'mail',
-					title: 'sms' === detail?.channel ? __('Text message', 'vulomail') : detail?.subject || __('Email', 'vulomail'),
+					title:
+						'sms' === detail?.channel
+							? __('Text message', 'vulomail')
+							: detail?.subject || __('Email', 'vulomail'),
 				}}
 				footer={
 					detail && (
@@ -447,14 +709,14 @@ const Logs = () => {
 									icon: 'delete',
 									color: 'border-red',
 									disabled: isBusy,
-									onClick: deleteOne,
+									onClick: () => setToDelete([detail.id]),
 								},
 								{
 									text: __('Resend', 'vulomail'),
 									icon: 'send',
 									color: 'purple',
 									disabled: isBusy || !detail.can_resend,
-									onClick: resend,
+									onClick: () => resend(detail.id),
 								},
 							]}
 						/>
@@ -462,263 +724,478 @@ const Logs = () => {
 				}
 			>
 				{detail && (
-					<div className="vulomail-popup-body">
-						<div className="vulomail-log-statusline">
-							{statusBadge(detail)}
-							<span>{displayDate(detail)}</span>
-						</div>
-						{detail.headers.From ? (
-							<div className="vulomail-log-route">
-								{[
-									{ kind: 'from', label: __('From', 'vulomail'), ...parseAddress(detail.headers.From) },
-									{ kind: 'to', label: __('To', 'vulomail'), name: detail.recipients, address: detail.recipients },
-								].map((party) => (
-									<div className="vulomail-log-party" key={party.kind}>
-										<span className={`vulomail-log-avatar is-${party.kind}`} aria-hidden="true">
-											{party.name.charAt(0).toUpperCase()}
-										</span>
-										<div className="vulomail-log-cell">
-											<span className="vulomail-log-secondary">{party.label}</span>
-											<span className="vulomail-log-primary">{party.name}</span>
-											{party.address !== party.name && (
-												<span className="vulomail-log-secondary">{party.address}</span>
-											)}
-										</div>
-									</div>
-								))}
-							</div>
-						) : (
-							<dl className="vulomail-detail">
-								<dt>{__('To', 'vulomail')}</dt>
-								<dd>{detail.recipients}</dd>
-							</dl>
-						)}
-						<dl className="vulomail-detail">
-							{'email' === detail.channel && detail.subject && (
-								<>
-									<dt>{__('Subject', 'vulomail')}</dt>
-									<dd>{detail.subject}</dd>
-								</>
-							)}
-							<dt>{__('Sent with', 'vulomail')}</dt>
-							<dd>{providerLabel(detail.provider) || '—'}</dd>
-							{detail.source && (
-								<>
-									<dt>{__('Sent by', 'vulomail')}</dt>
-									<dd>{detail.source}</dd>
-								</>
-							)}
-							{Number(detail.attachments) > 0 && (
-								<>
-									<dt>{__('Attachments', 'vulomail')}</dt>
-									<dd>{Number(detail.attachments)}</dd>
-								</>
-							)}
-							{detail.message_id && (
-								<>
-									<dt>{__('Provider ID', 'vulomail')}</dt>
-									<dd className="vulomail-log-copy-row">
-										<code>{detail.message_id}</code>
-										<ButtonInput
-											buttons={{
-												text: __('Copy', 'vulomail'),
-												icon: 'copy',
-												onClick: copyMessageId,
-											}}
-										/>
-									</dd>
-								</>
-							)}
-						</dl>
-						{detail.attempts.length > 1 &&
-							detail.attempts.map((attempt, index) => (
-								<NoticeComponent
-									key={`${attempt.connection_id}-${index}`}
-									displayPosition="inline-notice"
-									type={attempt.success ? 'success' : 'error'}
-									message={
-										attempt.success
-											? sprintf(
-													/* translators: 1: attempt number, 2: provider name. */
-													__('Attempt %1$d: %2$s accepted the message.', 'vulomail'),
-													index + 1,
-													providerLabel(attempt.provider)
-											  )
-											: errorNoticeHtml(
-													attempt,
-													detail.channel,
-													sprintf(
-														/* translators: 1: attempt number, 2: provider name. */
-														__('Attempt %1$d: %2$s failed.', 'vulomail'),
-														index + 1,
-														providerLabel(attempt.provider)
-													) + ' '
-											  )
-									}
-								/>
-							))}
-						{('not_tracked' !== detail.opened || 'not_tracked' !== detail.clicked) && (
-							<>
-								<dl className="vulomail-detail">
-									{[
-										{
-											state: detail.opened,
-											label: __('Opened', 'vulomail'),
-											countLabel: __('Opens', 'vulomail'),
-											count: detail.tracking.open_count,
-											first: detail.tracking.first_opened_at,
-											last: detail.tracking.last_opened_at,
-										},
-										{
-											state: detail.clicked,
-											label: __('Clicked', 'vulomail'),
-											countLabel: __('Clicks', 'vulomail'),
-											count: detail.tracking.click_count,
-											first: detail.tracking.first_clicked_at,
-											last: detail.tracking.last_clicked_at,
-										},
-									].map((item) => (
-										<Fragment key={item.label}>
-											<dt>{item.label}</dt>
-											<dd>{engagementBadge(item.state)}</dd>
-											{'not_tracked' !== item.state && (
-												<>
-													<dt>{item.countLabel}</dt>
-													<dd>
-														{sprintf(
-															/* translators: 1: number of observed opens or clicks, 2: first and last dates. */
-															__('%1$d observed · %2$s', 'vulomail'),
-															item.count,
-															observedRange(item.first, item.last)
-														)}
-													</dd>
-												</>
-											)}
-										</Fragment>
-									))}
-									{detail.tracking.links.map((link, index) => (
-										<Fragment key={`${link.url}-${index}`}>
-											<dt>{0 === index ? __('Clicked links', 'vulomail') : ''}</dt>
-											<dd className="vulomail-log-cell">
-												<span className="vulomail-log-primary">{link.url}</span>
-												<span className="vulomail-log-secondary">
-													{sprintf(
-														/* translators: 1: number of clicks on this link, 2: first and last click dates. */
-														_n('%1$d click · %2$s', '%1$d clicks · %2$s', link.click_count, 'vulomail'),
-														link.click_count,
-														observedRange(link.first_clicked_at, link.last_clicked_at)
-													)}
-												</span>
-											</dd>
-										</Fragment>
-									))}
-								</dl>
-								<NoticeComponent
-									displayPosition="inline-notice"
-									type="info"
-									message={__(
-										'Opens and clicks are estimates. Some mail apps block images, so an open can go unseen; others, and security scanners, load images or follow links on their own, so some opens and clicks are not a person.',
-										'vulomail'
-									)}
-								/>
-							</>
-						)}
-						{detail.attempts.length <= 1 && detail.error_message && (
-							<NoticeComponent
-								displayPosition="inline-notice"
-								type="error"
-								message={errorNoticeHtml(detail, detail.channel)}
-							/>
-						)}
-						{detail.has_body ? (
-							<section>
-								<div className="vulomail-log-message-head">
-									<h4 className="vulomail-section-title">{__('Message', 'vulomail')}</h4>
-									<ToggleInput
-										
-										value={messageView}
-										onChange={(value) => setMessageView(value as 'preview' | 'raw')}
-										options={[
-											{ key: 'preview', value: 'preview', label: __('Preview', 'vulomail') },
-											{ key: 'raw', value: 'raw', label: __('Plain text', 'vulomail') },
-										]}
+					<div className="vulomail-popup-body vm-log-detail">
+						{/* At a glance: how it went, when, through what, and whether anyone opened it. */}
+						<div className="vm-log-summary">
+							<div className="vm-log-tags">
+								{statusBadge(detail)}
+								{'yes' === detail.opened && (
+									<BadgeComponent
+										color="blue"
+										text={__('Opened', 'vulomail')}
 									/>
-								</div>
-								<div className="vulomail-log-message">
-									{detail.subject && (
-										<div className="vulomail-log-message-bar">
-											{__('Subject:', 'vulomail')} <strong>{detail.subject}</strong>
-										</div>
-									)}
-									{'raw' === messageView ? (
-										// The stored source, verbatim - useful for debugging, and never
-										// interpreted as markup here.
-										<pre className="vulomail-message-body">{detail.body}</pre>
-									) : 'email' === detail.channel ? (
-										// Rendered the way the recipient would see it, but the body is still
-										// untrusted content: a sandboxed iframe with no sandbox flags at all
-										// shows the markup without ever running a script in it or reaching
-										// this page.
-										<iframe
-											className="vulomail-message-preview"
-											title={__('Email preview', 'vulomail')}
-											srcDoc={detail.body ?? ''}
-											sandbox=""
-										/>
-									) : (
-										// A chat bubble, not vulomail-message-body's plain box: there is no
-										// markup here to render differently, so "Preview" needs to look like
-										// what the recipient received rather than a second raw-text view.
-										<div className="vulomail-sms-preview">{linkify(detail.body ?? '')}</div>
-									)}
-								</div>
-							</section>
-						) : (
-							<NoticeComponent
-								displayPosition="inline-notice"
-								type="info"
-								message={sprintf(
-									/* translators: 1: opening link tag to Settings → Logging & Privacy, 2: closing link tag. */
-									__(
-										'Message content was not stored. Turn on "Store message content" under %1$sSettings → Logging & Privacy%2$s to keep it for new messages and allow resending.',
-										'vulomail'
-									),
-									`<a href="${settingsUrl('logging')}">`,
-									'</a>'
 								)}
-							/>
-						)}
+								{'yes' === detail.clicked && (
+									<BadgeComponent
+										color="purple"
+										text={__('Clicked', 'vulomail')}
+									/>
+								)}
+							</div>
+							<span className="vm-log-summary-meta">
+								{[
+									displayDate(detail),
+									providerLabel(detail.provider) &&
+										sprintf(
+											/* translators: %s: provider name. */
+											__('via %s', 'vulomail'),
+											providerLabel(detail.provider)
+										),
+									detail.source,
+								]
+									.filter(Boolean)
+									.join(' · ')}
+							</span>
+						</div>
+
+						<div className="vulomail-log-route">
+							{[
+								...(detail.headers.From
+									? [
+											{
+												kind: 'from',
+												label: __('From', 'vulomail'),
+												...parseAddress(
+													detail.headers.From
+												),
+											},
+										]
+									: []),
+								{
+									kind: 'to',
+									label: __('To', 'vulomail'),
+									name: detail.recipients,
+									address: detail.recipients,
+								},
+							].map((party) => (
+								<div
+									className="vulomail-log-party"
+									key={party.kind}
+								>
+									<span
+										className={`vulomail-log-avatar is-${party.kind}`}
+										aria-hidden="true"
+									>
+										{party.name.charAt(0).toUpperCase()}
+									</span>
+									<div className="vulomail-log-cell">
+										<span className="vulomail-log-secondary">
+											{party.label}
+										</span>
+										<span className="vulomail-log-primary">
+											{party.name}
+										</span>
+										{party.address !== party.name && (
+											<span className="vulomail-log-secondary">
+												{party.address}
+											</span>
+										)}
+									</div>
+								</div>
+							))}
+						</div>
+
+						{detail.attempts.length <= 1 &&
+							detail.error_message && (
+								<NoticeComponent
+									displayPosition="inline-notice"
+									type="error"
+									message={errorNoticeHtml(
+										detail,
+										detail.channel
+									)}
+								/>
+							)}
+
+						<div className="vm-log-detail-grid">
+							{/* The message itself, first: it is what people open an entry to see. */}
+							<section className="vm-log-panel">
+								<header className="vulomail-log-message-head">
+									<h4 className="vulomail-section-title">
+										{__('Message', 'vulomail')}
+									</h4>
+									{detail.has_body && (
+										<ToggleInput
+											value={messageView}
+											onChange={(value) =>
+												setMessageView(
+													value as 'preview' | 'raw'
+												)
+											}
+											options={[
+												{
+													key: 'preview',
+													value: 'preview',
+													label: __(
+														'Preview',
+														'vulomail'
+													),
+												},
+												{
+													key: 'raw',
+													value: 'raw',
+													label: __(
+														'Plain text',
+														'vulomail'
+													),
+												},
+											]}
+										/>
+									)}
+								</header>
+								{detail.has_body ? (
+									<div className="vulomail-log-message">
+										{detail.subject && (
+											<div className="vulomail-log-message-bar">
+												{__('Subject:', 'vulomail')}{' '}
+												<strong>
+													{detail.subject}
+												</strong>
+											</div>
+										)}
+										{'raw' === messageView ? (
+											// The stored source, verbatim - useful for debugging, and never interpreted as markup here.
+											<pre className="vulomail-message-body">
+												{detail.body}
+											</pre>
+										) : 'email' === detail.channel ? (
+											// Rendered the way the recipient would see it, but the body is still untrusted content: a
+											// sandboxed iframe with no sandbox flags at all shows the markup without ever running a
+											// script in it or reaching this page.
+											<iframe
+												className="vulomail-message-preview"
+												title={__(
+													'Email preview',
+													'vulomail'
+												)}
+												srcDoc={detail.body ?? ''}
+												sandbox=""
+											/>
+										) : (
+											// A chat bubble: what the recipient received, rather than a second raw-text view.
+											<div className="vulomail-sms-preview">
+												{linkify(detail.body ?? '')}
+											</div>
+										)}
+									</div>
+								) : (
+									<NoticeComponent
+										displayPosition="inline-notice"
+										type="info"
+										message={sprintf(
+											/* translators: 1: opening link tag to Settings → Privacy & data, 2: closing link tag. */
+											__(
+												'Message content was not stored. Turn on "Save message content" under %1$sSettings → Privacy & data%2$s to keep it for new messages and allow resending.',
+												'vulomail'
+											),
+											`<a href="${settingsUrl('logging')}">`,
+											'</a>'
+										)}
+									/>
+								)}
+							</section>
+
+							<aside className="vm-log-side">
+								<section className="vm-log-panel">
+									<h4 className="vulomail-section-title">
+										{__('Details', 'vulomail')}
+									</h4>
+									<dl className="vm-log-facts">
+										<dt>{__('Channel', 'vulomail')}</dt>
+										<dd>
+											{'sms' === detail.channel
+												? __('SMS', 'vulomail')
+												: __('Email', 'vulomail')}
+										</dd>
+										<dt>{__('Sent with', 'vulomail')}</dt>
+										<dd>
+											{providerLabel(detail.provider) ||
+												'—'}
+										</dd>
+										{detail.source && (
+											<>
+												<dt>
+													{__('Sent by', 'vulomail')}
+												</dt>
+												<dd>{detail.source}</dd>
+											</>
+										)}
+										{Number(detail.attachments) > 0 && (
+											<>
+												<dt>
+													{__(
+														'Attachments',
+														'vulomail'
+													)}
+												</dt>
+												<dd>
+													{Number(detail.attachments)}
+												</dd>
+											</>
+										)}
+										{detail.message_id && (
+											<>
+												<dt>
+													{__(
+														'Provider ID',
+														'vulomail'
+													)}
+												</dt>
+												<dd className="vm-log-id">
+													<code
+														title={
+															detail.message_id
+														}
+													>
+														{detail.message_id}
+													</code>
+													<button
+														type="button"
+														className="vm-log-copy"
+														onClick={copyMessageId}
+														aria-label={__(
+															'Copy provider ID',
+															'vulomail'
+														)}
+														title={__(
+															'Copy',
+															'vulomail'
+														)}
+													>
+														<i
+															className="adminfont-copy"
+															aria-hidden="true"
+														/>
+													</button>
+												</dd>
+											</>
+										)}
+									</dl>
+								</section>
+
+								{detail.attempts.length > 1 && (
+									<section className="vm-log-panel">
+										<h4 className="vulomail-section-title">
+											{__(
+												'Delivery attempts',
+												'vulomail'
+											)}
+										</h4>
+										<ol className="vm-log-attempts">
+											{detail.attempts.map(
+												(attempt, index) => (
+													<li
+														key={`${attempt.connection_id}-${index}`}
+														className={
+															attempt.success
+																? 'is-good'
+																: 'is-bad'
+														}
+													>
+														<span
+															className="vm-log-attempt-dot"
+															aria-hidden="true"
+														/>
+														<div className="vulomail-log-cell">
+															<span className="vulomail-log-primary">
+																{sprintf(
+																	/* translators: 1: attempt number, 2: provider name. */
+																	__(
+																		'%1$d. %2$s',
+																		'vulomail'
+																	),
+																	index + 1,
+																	providerLabel(
+																		attempt.provider
+																	)
+																)}
+															</span>
+															<span className="vulomail-log-secondary">
+																{attempt.success
+																	? __(
+																			'Accepted the message',
+																			'vulomail'
+																		)
+																	: attempt.error_message}
+															</span>
+														</div>
+													</li>
+												)
+											)}
+										</ol>
+									</section>
+								)}
+
+								{('not_tracked' !== detail.opened ||
+									'not_tracked' !== detail.clicked) && (
+									<section className="vm-log-panel">
+										<h4 className="vulomail-section-title">
+											{__('Activity', 'vulomail')}
+										</h4>
+										<div className="vm-log-stats">
+											{[
+												{
+													label: __(
+														'Opens',
+														'vulomail'
+													),
+													count: detail.tracking
+														.open_count,
+													last: detail.tracking
+														.last_opened_at,
+													state: detail.opened,
+												},
+												{
+													label: __(
+														'Clicks',
+														'vulomail'
+													),
+													count: detail.tracking
+														.click_count,
+													last: detail.tracking
+														.last_clicked_at,
+													state: detail.clicked,
+												},
+											].map((stat) => (
+												<div
+													className="vm-log-stat"
+													key={stat.label}
+												>
+													<span className="vm-log-stat-value">
+														{'not_tracked' ===
+														stat.state
+															? '—'
+															: stat.count}
+													</span>
+													<span className="vulomail-log-secondary">
+														{stat.label}
+													</span>
+													{stat.last && (
+														<span className="vm-log-stat-when">
+															{sprintf(
+																/* translators: %s: date of the latest open or click. */
+																__(
+																	'Last %s',
+																	'vulomail'
+																),
+																stat.last
+															)}
+														</span>
+													)}
+												</div>
+											))}
+										</div>
+										{detail.tracking.links.length > 0 && (
+											<ul className="vm-log-links">
+												{detail.tracking.links.map(
+													(link, index) => (
+														<li
+															key={`${link.url}-${index}`}
+														>
+															<span
+																className="vm-log-link-url"
+																title={link.url}
+															>
+																{link.url}
+															</span>
+															<span className="vulomail-log-secondary">
+																{sprintf(
+																	/* translators: 1: number of clicks on this link, 2: first and last click dates. */
+																	_n(
+																		'%1$d click · %2$s',
+																		'%1$d clicks · %2$s',
+																		link.click_count,
+																		'vulomail'
+																	),
+																	link.click_count,
+																	observedRange(
+																		link.first_clicked_at,
+																		link.last_clicked_at
+																	)
+																)}
+															</span>
+														</li>
+													)
+												)}
+											</ul>
+										)}
+										<p className="vm-log-note">
+											{__(
+												'Estimates: some mail apps block images, and security scanners can open links on their own.',
+												'vulomail'
+											)}
+										</p>
+									</section>
+								)}
+							</aside>
+						</div>
 					</div>
 				)}
 			</PopupComponent>
 			<PopupComponent
-				open={confirmClear}
-				onClose={() => setConfirmClear(false)}
-				width={28}
-				height="auto"
 				position="lightbox"
-				header={{ icon: 'delete', title: __('Delete all logs?', 'vulomail') }}
+				open={null !== toDelete}
+				onClose={() => setToDelete(null)}
+				width={31.25}
+				height="auto"
 			>
-				<div className="vulomail-popup-body">
-					<p>{__('Every email and SMS log entry will be permanently deleted. This can\'t be undone.', 'vulomail')}</p>
-				
-						<ButtonInput
-							buttons={[
-								{
-									text: __('Keep logs', 'vulomail'),
-									color: 'purple',
-									disabled: isBusy,
-									onClick: () => setConfirmClear(false),
-								},
-								{
-									text: __('Delete all logs', 'vulomail'),
-									icon: 'delete',
-									color: 'border-red',
-									disabled: isBusy,
-									onClick: clearAll,
-								},
-							]}
-						/>
+				<div className="popup-confirm">
+					<i className="popup-icon adminfont-suspended admin-badge zyra-red" />
+					<div className="title">
+						{'all' === toDelete
+							? __('Delete all logs?', 'vulomail')
+							: sprintf(
+									/* translators: %d: number of log entries. */
+									_n(
+										'Delete %d log entry?',
+										'Delete %d log entries?',
+										toDelete?.length ?? 0,
+										'vulomail'
+									),
+									toDelete?.length ?? 0
+								)}
+					</div>
+					<div className="desc">
+						{'all' === toDelete
+							? __(
+									'Every email and SMS log entry will be permanently deleted. This cannot be undone.',
+									'vulomail'
+								)
+							: __(
+									'The message and its delivery details will be permanently deleted. This cannot be undone.',
+									'vulomail'
+								)}
+					</div>
+					<ButtonInput
+						position="center"
+						buttons={[
+							{
+								icon: 'close',
+								text: __('Cancel', 'vulomail'),
+								color: 'red',
+								disabled: isBusy,
+								onClick: () => setToDelete(null),
+							},
+							{
+								icon: 'delete',
+								text: isBusy
+									? __('Deleting…', 'vulomail')
+									: __('Delete', 'vulomail'),
+								disabled: isBusy,
+								onClick: confirmDelete,
+							},
+						]}
+					/>
 				</div>
 			</PopupComponent>
 		</>

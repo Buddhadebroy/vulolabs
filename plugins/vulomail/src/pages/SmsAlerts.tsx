@@ -76,7 +76,7 @@ const SmsAlerts = () => {
 				Link={Link}
 				settingName={__('VuloMail', 'vulomail')}
 				headerDescription={schema.headerDescription}
-				className="admin-settings"
+				className="admin-settings vulomail-settings"
 				menuIcon
 				saveStatus={saveStatus}
 			/>

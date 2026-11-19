@@ -107,7 +107,7 @@ class Connections extends Controller {
 			sanitize_key( (string) $request->get_param( 'error' ) )
 		);
 
-		$target = admin_url( 'admin.php?page=vulomail' ) . '#&tab=settings&subtab=connections&google='
+		$target = admin_url( 'admin.php?page=vulomail' ) . '#&tab=settings&subtab=email&google='
 			. ( $outcome['success'] ? 'connected' : 'failed' )
 			. '&google_message=' . rawurlencode( $outcome['message'] );
 

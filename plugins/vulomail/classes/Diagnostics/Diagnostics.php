@@ -137,12 +137,13 @@ class Diagnostics {
 	}
 
 	/**
-	 * Builds the "Add a connection" action shared by several checks.
+	 * Builds the "Add a connection" action shared by several checks. Connections live on their channel's settings tab.
 	 *
+	 * @param string $channel 'email' or 'sms'.
 	 * @return array
 	 */
-	private static function add_connection() {
-		return self::to_tab( __( 'Add a connection', 'vulomail' ), 'settings&subtab=connections' );
+	private static function add_connection( $channel = 'email' ) {
+		return self::to_tab( __( 'Add a connection', 'vulomail' ), 'sms' === $channel ? 'settings&subtab=sms' : 'settings&subtab=email' );
 	}
 
 	/**
@@ -767,7 +768,7 @@ class Diagnostics {
 				'info',
 				__( 'No working SMS connection is set as primary, so no text messages are sent.', 'vulomail' ),
 				__( 'Only needed if you want text messages: add a connection for your SMS gateway and choose it as the primary SMS connection.', 'vulomail' ),
-				self::add_connection()
+				self::add_connection( 'sms' )
 			);
 		}
 
@@ -782,10 +783,13 @@ class Diagnostics {
 	 */
 	private function check_connections() {
 		$broken = array();
+		// The tab the action opens: the channel of the first broken connection.
+		$channel = '';
 
 		foreach ( VuloMail()->connections->all() as $connection ) {
 			if ( ! empty( $connection['enabled'] ) && VuloMail()->connections->missing_fields( $connection ) ) {
 				$broken[] = $connection['label'];
+				$channel  = '' === $channel ? (string) $connection['channel'] : $channel;
 			}
 		}
 
@@ -800,7 +804,7 @@ class Diagnostics {
 			/* translators: %s: connection names. */
 			sprintf( __( 'Incomplete: %s. A required field is empty, or its saved credential can no longer be read (this happens when the site\'s security salts change) — nothing is sent through it until fixed.', 'vulomail' ), implode( ', ', $broken ) ),
 			__( 'Edit each connection listed, fill in the empty fields and re-enter its password or API key, then save and send a test.', 'vulomail' ),
-			self::to_tab( __( 'Open connections', 'vulomail' ), 'settings&subtab=connections' )
+			self::to_tab( __( 'Open connections', 'vulomail' ), 'sms' === $channel ? 'settings&subtab=sms' : 'settings&subtab=email' )
 		);
 	}
 

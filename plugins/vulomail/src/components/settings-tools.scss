@@ -1,0 +1,804 @@
+// Settings → Email / SMS (pages/ChannelSettings.tsx) and Tools (pages/Tools.tsx).
+// Both screens use the UI kit (ui.scss) for their cards, pills, empty states and type sizes, like the Dashboard and
+// Logs. This file adds what only they draw: the status card, the delivery order, fields, the connection list, and
+// the check rows.
+
+// =============================================================================================================
+// Settings → Email / SMS
+// =============================================================================================================
+
+// ---- Status card: is the channel working, which way does it go, and the main switch ----
+// A white card like every other. The state shows in the icon tile and the pill (no alert stripe), the route as a
+// row of chips, the next action as the one solid button, and the on/off switch in its own strip underneath.
+.vm-set-hero {
+	overflow: hidden;
+	border: 1px solid var(--ui-border);
+	border-radius: var(--ui-radius);
+	background: #fff;
+	box-shadow: var(--ui-shadow);
+}
+
+.vm-set-hero-main {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr) auto;
+	gap: 1rem 1.25rem;
+	align-items: start;
+	padding: 1.375rem 1.5rem 1.25rem;
+
+	@media (width <= 900px) {
+		grid-template-columns: auto minmax(0, 1fr);
+
+		.vm-set-hero-actions {
+			grid-column: 1 / -1;
+		}
+	}
+}
+
+.vm-set-hero-title {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.375rem 0.75rem;
+
+	h3 {
+		margin: 0;
+		font-size: 1.0625rem;
+		font-weight: 650;
+		line-height: 1.35;
+		color: var(--ui-ink);
+	}
+}
+
+.vm-set-hero-text {
+	min-width: 0;
+
+	> p {
+		margin: 0.25rem 0 0;
+		font-size: 0.875rem;
+		line-height: 1.5;
+		color: var(--ui-muted);
+	}
+}
+
+.vm-set-hero-actions {
+	align-self: center;
+
+	.buttons-wrapper {
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin: 0;
+	}
+
+	.admin-btn {
+		height: 2.25rem;
+		min-height: 2.25rem;
+	}
+}
+
+// "Sends through  [Brevo] → [Office 365 SMTP · backup] → [WordPress mailer · last resort]"
+.vm-set-path {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem 0.75rem;
+	margin-top: 0.875rem;
+
+	ol {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.375rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	li {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		margin: 0;
+	}
+}
+
+.vm-set-path-label {
+	font-size: 0.6875rem;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--ui-faint);
+}
+
+.vm-set-path-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding: 0.25rem 0.625rem;
+	border: 1px solid var(--ui-border);
+	border-radius: 999px;
+	background: #fff;
+	font-size: 0.8125rem;
+	font-weight: 500;
+	color: var(--ui-ink);
+	white-space: nowrap;
+
+	em {
+		font-size: 0.75rem;
+		font-style: normal;
+		font-weight: 400;
+		color: var(--ui-muted);
+
+		&::before {
+			content: '· ';
+		}
+	}
+
+	.is-fallback & {
+		border-style: dashed;
+		background: var(--ui-sunken);
+		color: var(--ui-text);
+	}
+}
+
+// A small chevron between two steps.
+.vm-set-path-arrow {
+	width: 0.375rem;
+	height: 0.375rem;
+	margin: 0 0.25rem 0 0.125rem;
+	border-top: 1.5px solid var(--ui-faint);
+	border-right: 1.5px solid var(--ui-faint);
+	transform: rotate(45deg);
+}
+
+// The main switch, in a quiet strip of its own.
+.vm-set-hero-foot {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1.5rem;
+	padding: 0.875rem 1.5rem;
+	border-top: 1px solid var(--ui-line);
+	background: #fafafc;
+
+	> div {
+		display: flex;
+		flex-direction: column;
+		gap: 0.125rem;
+		min-width: 0;
+	}
+
+	strong {
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: var(--ui-ink);
+	}
+
+	span {
+		font-size: 0.8125rem;
+		line-height: 1.45;
+		color: var(--ui-muted);
+	}
+
+	.vulomail-switch {
+		flex: none;
+	}
+}
+
+// Switched off: the card goes quiet, so the switch is what stands out.
+.vm-set-hero.is-off .vm-set-hero-main {
+	opacity: 0.8;
+}
+
+// ---- Fields: label and help on the left, the control on the right (VuloCart's settings rows) ----
+.vm-set-field {
+	display: grid;
+	grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+	gap: 0.5rem 2rem;
+	padding: 1rem 0;
+	border-top: 1px solid var(--ui-line);
+
+	&:first-child {
+		border-top: 0;
+		padding-top: 0.25rem;
+	}
+
+	&:last-child {
+		padding-bottom: 0.25rem;
+	}
+
+	@media (width <= 782px) {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.vm-set-field-label {
+	label {
+		display: block;
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: var(--ui-ink);
+	}
+
+	p {
+		margin: 0.125rem 0 0;
+		font-size: 0.8125rem;
+		line-height: 1.5;
+		color: var(--ui-muted);
+	}
+}
+
+.vm-set-field-main {
+	display: flex;
+	flex-direction: column;
+	gap: 0.625rem;
+	min-width: 0;
+}
+
+.vm-set-check {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.8125rem;
+	color: var(--ui-text);
+	cursor: pointer;
+
+	input[type='checkbox'] {
+		margin: 0;
+	}
+}
+
+// "SMS alerts →": a whole card that is one link.
+.vm-set-link-card {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 1rem 1.5rem;
+	border: 1px solid var(--ui-border);
+	border-radius: var(--ui-radius);
+	background: #fff;
+	box-shadow: var(--ui-shadow);
+	color: inherit;
+	text-decoration: none;
+	transition: border-color 0.15s, box-shadow 0.15s;
+
+	> span:not(.vm-icon) {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		gap: 0.125rem;
+
+		strong {
+			font-size: 0.9375rem;
+			font-weight: 600;
+			color: var(--ui-ink);
+		}
+
+		span {
+			font-size: 0.8125rem;
+			color: var(--ui-muted);
+		}
+	}
+
+	> i {
+		font-size: 0.75rem;
+		color: var(--ui-muted);
+		transition: transform 0.15s;
+	}
+
+	&:hover,
+	&:focus-visible {
+		border-color: #d9dbe5;
+		box-shadow: var(--ui-shadow-hover);
+
+		> i {
+			color: var(--ui-accent);
+			transform: translateX(2px);
+		}
+	}
+}
+
+// What is wrong with a field's value, under it.
+.vm-set-field-error {
+	margin: 0;
+	font-size: 0.8125rem;
+	line-height: 1.5;
+	color: #dc2626;
+}
+
+// ---- Connections, in the order a message tries them ----
+// A numbered step on the left (1 primary, 2 backup, then the last resort), the connection, the buttons that change
+// its role, and its own tools. Connections not in the order sit below, under "Not in use".
+.vm-set-conns {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+
+	> li {
+		display: flex;
+		align-items: center;
+		gap: 0.875rem;
+		margin: 0;
+		padding: 0.875rem 0;
+		border-top: 1px solid var(--ui-line);
+
+		&:first-child {
+			border-top: 0;
+			padding-top: 0.25rem;
+		}
+
+		&:last-child {
+			padding-bottom: 0.25rem;
+		}
+
+		&.is-off .vm-set-conn-main {
+			opacity: 0.55;
+		}
+
+		// Not in the order: no step number, but the same indent so the names still line up.
+		&.is-spare .vm-set-step {
+			visibility: hidden;
+		}
+
+		// WordPress's own mailer and the "add a backup" prompt are not connections: a sunken step marks them.
+		&.is-wp .vm-set-step,
+		&.is-add .vm-set-step {
+			background: var(--ui-sunken);
+			color: var(--ui-muted);
+		}
+
+		&.is-add .vm-set-step {
+			border-style: dashed;
+		}
+	}
+
+	&.is-muted > li {
+		opacity: 0.6;
+	}
+
+	@media (width <= 782px) {
+		> li {
+			flex-wrap: wrap;
+		}
+
+		.vm-set-conn-main {
+			flex-basis: calc(100% - 2.75rem);
+		}
+
+		.vm-set-conn-roles {
+			margin-left: 2.625rem;
+		}
+
+		.vm-set-conn-actions {
+			margin-left: auto;
+		}
+	}
+}
+
+.vm-set-step {
+	display: grid;
+	flex: none;
+	place-items: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	border: 1px solid var(--ui-border);
+	border-radius: 50%;
+	background: #fff;
+	font-size: 0.75rem;
+	font-weight: 700;
+	color: var(--ui-accent);
+}
+
+// Buttons that change a connection's place in the order.
+.vm-set-conn-roles {
+	display: flex;
+	flex: none;
+	flex-wrap: wrap;
+	gap: 0.375rem;
+
+	&:empty {
+		display: none;
+	}
+
+	button.vm-chip-link {
+		font-family: inherit;
+		line-height: 1.5;
+		cursor: pointer;
+	}
+
+	.vm-chip-link.is-accent {
+		border-color: var(--ui-accent);
+		background: var(--ui-accent);
+		color: #fff;
+
+		&:hover,
+		&:focus-visible {
+			border-color: #3f0587;
+			background: #3f0587;
+			color: #fff;
+		}
+	}
+}
+
+.vm-set-conn-main {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 0.125rem;
+	min-width: 0;
+}
+
+.vm-set-conn-title {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem;
+
+	strong {
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: #1f1b3e;
+		overflow-wrap: anywhere;
+	}
+}
+
+.vm-set-conn-sub {
+	font-size: 0.8125rem;
+	color: #6b7280;
+	overflow-wrap: anywhere;
+
+	&.is-bad {
+		font-weight: 500;
+		color: #c42b2b;
+	}
+}
+
+.vm-set-tag {
+	padding: 0.0625rem 0.5rem;
+	border-radius: 999px;
+	background: #f0f0f4;
+	font-size: 0.6875rem;
+	font-weight: 600;
+	color: #4b4a57;
+
+	&.is-primary {
+		background: #ecf7f0;
+		color: #15803d;
+	}
+
+	&.is-warn {
+		background: var(--ui-warn-bg);
+		color: #8a3d06;
+	}
+}
+
+.vm-set-conn-actions {
+	display: flex;
+	flex: none;
+	align-items: center;
+	gap: 0.125rem;
+
+	.vulomail-switch {
+		margin-left: 0.625rem;
+	}
+}
+
+// The table row-action look (design-system.scss): a 32px icon, tinted on hover.
+.vm-set-icon-btn {
+	display: inline-grid;
+	place-items: center;
+	width: 2rem;
+	height: 2rem;
+	padding: 0;
+	border: 0;
+	border-radius: 0.5rem;
+	background: transparent;
+	font-size: 1.0625rem;
+	color: #6b6f80;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background-color 0.12s ease, color 0.12s ease;
+
+	&:hover,
+	&:focus-visible {
+		background: #f1effd;
+		color: var(--color-primary, #5007aa);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--color-primary, #5007aa);
+		outline-offset: 1px;
+	}
+
+	&.is-danger:hover {
+		background: #fef2f2;
+		color: #dc2626;
+	}
+
+	&.is-disabled {
+		opacity: 0.4;
+		pointer-events: none;
+	}
+}
+
+// ---- The on/off switch (also used on Email Templates) ----
+.vulomail-switch.is-disabled {
+	opacity: 0.45;
+
+	.vulomail-switch-track {
+		cursor: not-allowed;
+	}
+}
+
+.vulomail-switch input:focus-visible + .vulomail-switch-track {
+	outline: 2px solid var(--color-primary, #5007aa);
+	outline-offset: 2px;
+}
+
+// =============================================================================================================
+// Tools
+// =============================================================================================================
+
+// ---- Status card's result counts, in the tone of what they count ----
+.vm-tools-count {
+	&.is-bad {
+		border-color: color-mix(in srgb, var(--ui-bad) 25%, transparent);
+		background: var(--ui-bad-bg);
+		color: var(--ui-bad);
+	}
+
+	&.is-warn {
+		border-color: color-mix(in srgb, var(--ui-warn) 25%, transparent);
+		background: var(--ui-warn-bg);
+		color: var(--ui-warn);
+	}
+
+	&.is-good {
+		border-color: color-mix(in srgb, var(--ui-good) 25%, transparent);
+		background: var(--ui-good-bg);
+		color: var(--ui-good);
+	}
+}
+
+.vm-tools-stamp {
+	font-size: 0.8125rem;
+	color: #6b7280;
+}
+
+// ---- Send a test: a column beside the checks, kept in view while scrolling ----
+.vm-tools-side {
+	position: sticky;
+	top: 3rem;
+	min-width: 0;
+
+	@media (width <= 1100px) {
+		position: static;
+		order: -1; // Narrow screens: the test sender first, the checks under it.
+	}
+}
+
+// The column is too narrow for label-beside-control rows: each field stacks, label over control.
+.vm-tools-test {
+	.vm-card-body {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.vm-set-field {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.375rem;
+		padding: 0;
+		border-top: 0;
+	}
+
+	.vm-set-field-label p {
+		font-size: 0.75rem;
+	}
+}
+
+.vm-tools-send-row .buttons-wrapper {
+	margin: 0;
+
+	.admin-btn {
+		justify-content: center;
+		width: 100%;
+		height: 2.5rem;
+	}
+}
+
+// ---- Checks: hairline-separated rows in one card, like every other list ----
+.vm-checks {
+	display: flex;
+	flex-direction: column;
+}
+
+.vm-check {
+	border-top: 1px solid var(--ui-line, #f2f3f8);
+
+	&:first-child {
+		border-top: 0;
+	}
+
+	> summary {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		padding: 0.875rem 0;
+		list-style: none;
+		cursor: pointer;
+
+		&::-webkit-details-marker {
+			display: none;
+		}
+
+		&:focus-visible {
+			border-radius: 0.5rem;
+			outline: 2px solid var(--ui-accent, #5007aa);
+			outline-offset: 2px;
+		}
+
+		&:hover .vm-check-title strong {
+			color: var(--ui-accent, #5007aa);
+		}
+	}
+
+	&:first-child > summary {
+		padding-top: 0.25rem;
+	}
+
+	&[open] > summary .vm-check-line {
+		display: none;
+	}
+
+	&[open] > summary .vm-check-chevron {
+		transform: rotate(45deg);
+	}
+}
+
+.vm-check-head {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 0.125rem;
+	min-width: 0;
+}
+
+.vm-check-title {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.25rem 0.625rem;
+
+	strong {
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: var(--ui-ink, #1c1b33);
+		transition: color 0.15s;
+	}
+}
+
+.vm-check-line {
+	overflow: hidden;
+	font-size: 0.8125rem;
+	color: var(--ui-muted, #6b7086);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+// A chip in a summary is a real button: no browser chrome.
+.vm-check summary .vm-chip-link {
+	font-family: inherit;
+	line-height: 1.5;
+	cursor: pointer;
+
+	@media (width <= 600px) {
+		display: none;
+	}
+}
+
+.vm-check-chevron {
+	flex: none;
+	width: 0.4375rem;
+	height: 0.4375rem;
+	margin: 0 0.25rem;
+	border-right: 1.5px solid #9ca3af;
+	border-bottom: 1.5px solid #9ca3af;
+	transform: rotate(-45deg);
+	transition: transform 0.15s;
+}
+
+.vm-check-body {
+	display: flex;
+	flex-direction: column;
+	gap: 0.625rem;
+	padding: 0 0 1rem 2.75rem;
+
+	> p {
+		margin: 0;
+		font-size: 0.8125rem;
+		line-height: 1.55;
+		color: var(--ui-text, #3c4257);
+		overflow-wrap: anywhere;
+	}
+}
+
+.vm-check-fix {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.625rem;
+	padding: 0.75rem 0.875rem;
+	border-radius: 0.5rem;
+	background: var(--ui-sunken, #f7f7fa);
+
+	i {
+		flex: none;
+		margin-top: 0.125rem;
+		color: var(--ui-accent, #5007aa);
+	}
+
+	p {
+		margin: 0;
+		font-size: 0.8125rem;
+		line-height: 1.5;
+		color: var(--ui-text, #3c4257);
+	}
+
+	strong {
+		display: block;
+		color: var(--ui-ink, #1c1b33);
+	}
+}
+
+.vm-check-passed-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	margin: 0;
+	padding: 0 0 1rem 2.75rem;
+	list-style: none;
+
+	li {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.5rem;
+		margin: 0;
+		font-size: 0.8125rem;
+		color: var(--ui-muted, #6b7086);
+
+		i {
+			margin-top: 0.1875rem;
+			font-size: 0.75rem;
+			color: var(--ui-good, #15803d);
+		}
+
+		strong {
+			display: block;
+			font-weight: 600;
+			color: var(--ui-ink, #1c1b33);
+		}
+	}
+}
+
+// ---- Send a test: the select fills its column like the text field above it ----
+.vm-tools-test .vm-set-field-main {
+	.form-select-field,
+	.select-wrapper {
+		width: 100%;
+		margin: 0;
+	}
+}
+
+// "Not in use": a small label between the delivery order and the connections that have no place in it.
+.vm-set-conns > li.vm-set-conns-group {
+	display: block;
+	padding: 1.125rem 0 0.25rem;
+	font-size: 0.6875rem;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--ui-faint);
+
+	+ li {
+		border-top: 0;
+	}
+}

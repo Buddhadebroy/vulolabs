@@ -26,7 +26,8 @@ interface Rule {
 	help: () => ErrorHelp;
 }
 
-const CONNECTIONS = settingsUrl('connections');
+// Email connections live on Settings → Email (errorHelp() only explains email failures).
+const CONNECTIONS = settingsUrl('email');
 
 /**
  * The delivery errors people most often meet, checked in order. Error codes are matched where the
