@@ -29,7 +29,8 @@ const request = async <T>(
 
 		throw new Error(
 			message ||
-				__('Something went wrong. Please try again.', 'vuloform')
+				__('Something went wrong. Please try again.', 'vuloform'),
+			{ cause: error }
 		);
 	}
 };

@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
 import { HeaderComponent } from '@zyra/components';
 import Brand from './assets/images/brand-logo.png';
+import Dashboard from './pages/Dashboard';
 import Forms from './pages/Forms';
 import Builder from './Builder';
 import Submissions from './pages/Submissions';
@@ -19,7 +20,7 @@ import { apiGet } from './services/api';
  */
 const App = () => {
 	const hash = new URLSearchParams(useLocation().hash);
-	const currentTab = hash.get('tab') || 'forms';
+	const currentTab = hash.get('tab') || 'dashboard';
 	const formId = Number(hash.get('form')) || 0;
 	const [results, setResults] = useState<SearchItem[]>([]);
 
@@ -87,11 +88,13 @@ const App = () => {
 			.finally(show);
 	};
 
-	let page = <Forms />;
+	let page = <Dashboard />;
 
 	if ('forms' === currentTab && formId) {
 		// Keyed by id so opening another form starts from a clean builder.
 		page = <Builder key={formId} formId={formId} />;
+	} else if ('forms' === currentTab) {
+		page = <Forms />;
 	} else if ('submissions' === currentTab) {
 		page = <Submissions />;
 	} else if ('settings' === currentTab) {
@@ -108,7 +111,7 @@ const App = () => {
 				search={{
 					placeholder: __('Search…', 'vuloform'),
 					options: [
-						{ value: 'all', label: __('All', 'vuloform') },
+						{ value: 'all', label: __('Everything', 'vuloform') },
 						{ value: 'forms', label: __('Forms', 'vuloform') },
 						{ value: 'settings', label: __('Settings', 'vuloform') },
 						{ value: 'tabs', label: __('Tabs', 'vuloform') },

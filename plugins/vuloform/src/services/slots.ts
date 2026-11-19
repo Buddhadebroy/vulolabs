@@ -1,4 +1,4 @@
-import type { ComponentType, ReactNode } from 'react';
+import type { ComponentType } from 'react';
 import { applyFilters } from '@wordpress/hooks';
 import type { FormSettingsSection, InspectorSection } from '@zyra/builderform';
 

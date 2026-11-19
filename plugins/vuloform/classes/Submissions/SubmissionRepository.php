@@ -282,6 +282,95 @@ class SubmissionRepository {
 	}
 
 	/**
+	 * Submissions per UTC day, form and status since a moment, for the Dashboard.
+	 *
+	 * @param string $since UTC `Y-m-d H:i:s`.
+	 * @return array<int, array{day: string, form_id: string, status: string, total: string}>
+	 */
+	public function daily_counts( $since ) {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				'SELECT DATE(created_at) AS day, form_id, status, COUNT(*) AS total FROM %i WHERE created_at >= %s GROUP BY DATE(created_at), form_id, status',
+				$this->table(),
+				$since
+			),
+			ARRAY_A
+		);
+
+		return $rows ? $rows : array();
+	}
+
+	/**
+	 * Recent submissions with a notification that is still failing: its last event for that
+	 * notification says `failed` (a later `delivered` means a retry got it through).
+	 *
+	 * @param string $since UTC `Y-m-d H:i:s`.
+	 * @param int    $limit Most recent first; how many to look at.
+	 * @return array<int, array{id: int, form_id: int, created_at: string, failed: array<int, array{type: string, name: string, detail: string}>}>
+	 */
+	public function failing_notifications( $since, $limit = 50 ) {
+		global $wpdb;
+
+		// Only rows whose meta mentions a failure at all; the exact check is done on the decoded events below.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				'SELECT * FROM %i WHERE created_at >= %s AND meta LIKE %s ORDER BY id DESC LIMIT %d',
+				$this->table(),
+				$since,
+				'%' . $wpdb->esc_like( '"status":"failed"' ) . '%',
+				(int) $limit
+			),
+			ARRAY_A
+		);
+
+		$failing = array();
+
+		foreach ( (array) $rows as $row ) {
+			$submission = self::hydrate( $row );
+			$last       = array();
+
+			foreach ( (array) ( $submission['meta']['events'] ?? array() ) as $event ) {
+				if ( is_array( $event ) && isset( $event['type'], $event['status'] ) ) {
+					$last[ $event['type'] . '|' . ( $event['name'] ?? '' ) ] = $event;
+				}
+			}
+
+			$failed = array_values(
+				array_filter(
+					$last,
+					static function ( $event ) {
+						return 'failed' === $event['status'];
+					}
+				)
+			);
+
+			if ( $failed ) {
+				$failing[] = array(
+					'id'         => $submission['id'],
+					'form_id'    => $submission['form_id'],
+					'created_at' => $submission['created_at'],
+					'failed'     => array_map(
+						static function ( $event ) {
+							return array(
+								'type'   => (string) $event['type'],
+								'name'   => (string) ( $event['name'] ?? '' ),
+								'detail' => (string) ( $event['detail'] ?? '' ),
+							);
+						},
+						$failed
+					),
+				);
+			}
+		}
+
+		return $failing;
+	}
+
+	/**
 	 * @param array $row Database row.
 	 * @return array
 	 */

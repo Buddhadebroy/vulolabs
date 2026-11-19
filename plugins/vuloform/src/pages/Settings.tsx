@@ -2,8 +2,18 @@
 import { useEffect, useRef, useState, JSX } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
-import { getAvailableSettings, getSettingById, SettingProvider, useSetting } from '@zyra/core';
-import { CardComponent, ModuleGuardComponent, NavigatorComponent, type SaveStatus } from '@zyra/components';
+import {
+	getAvailableSettings,
+	getSettingById,
+	SettingProvider,
+	useSetting,
+} from '@zyra/core';
+import {
+	CardComponent,
+	ModuleGuardComponent,
+	NavigatorComponent,
+	type SaveStatus,
+} from '@zyra/components';
 import { InputRenderer } from '@zyra/inputs';
 import { apiGet } from '../services/api';
 import { errorMessage } from '../services/notify';
@@ -84,10 +94,15 @@ const Settings = () => {
 
 	const GetForm = (currentTab: string | null): JSX.Element | null => {
 		// Every hook this function uses must run on every call regardless of $currentTab.
-		const { setting, settingName, setSetting, updateSetting } = useSetting();
+		const { setting, settingName, setSetting, updateSetting } =
+			useSetting();
 
-		const settingModal = currentTab ? getSettingById(settingContent, currentTab) : null;
-		const fieldKeys: string[] = (settingModal?.modal ?? []).map((field: { key: string }) => field.key);
+		const settingModal = currentTab
+			? getSettingById(settingContent, currentTab)
+			: null;
+		const fieldKeys: string[] = (settingModal?.modal ?? []).map(
+			(field: { key: string }) => field.key
+		);
 
 		// Was a synchronous `setSetting()` call made straight in the render body.
 		useEffect(() => {
@@ -132,8 +147,14 @@ const Settings = () => {
 					) : (
 						<ModuleGuardComponent
 							icon="error"
-							title={__('This settings section isn’t available', 'vuloform')}
-							desc={__('The tab you linked to doesn’t exist.', 'vuloform')}
+							title={__(
+								'This settings section isn’t available',
+								'vuloform'
+							)}
+							desc={__(
+								'The tab you linked to doesn’t exist.',
+								'vuloform'
+							)}
 						/>
 					)
 				) : (
@@ -145,27 +166,47 @@ const Settings = () => {
 
 	if (error) {
 		return (
-			<CardComponent title={__('Settings', 'vuloform')} titleIcon="setting">
-				<ModuleGuardComponent icon="error" title={__('Could not load settings', 'vuloform')} desc={error} />
+			<CardComponent
+				title={__('Settings', 'vuloform')}
+				titleIcon="setting"
+			>
+				<ModuleGuardComponent
+					icon="error"
+					title={__('Could not load settings', 'vuloform')}
+					desc={error}
+				/>
 			</CardComponent>
 		);
 	}
 
 	if (isLoading) {
-		return <CardComponent title={__('Settings', 'vuloform')} titleIcon="setting" isLoading />;
+		return (
+			<CardComponent
+				title={__('Settings', 'vuloform')}
+				titleIcon="setting"
+				isLoading
+			/>
+		);
 	}
 
 	return (
 		<SettingProvider>
 			<NavigatorComponent
 				settingContent={settingContent}
-				currentSetting={location.get('subtab') as string}
+				// `data` is the Uninstall tab's old slug: links and bookmarks to it still land there.
+				currentSetting={
+					'data' === location.get('subtab')
+						? 'uninstall'
+						: (location.get('subtab') as string)
+				}
 				getForm={GetForm}
-				prepareUrl={(subTab: string) => `?page=vuloform#&tab=settings&subtab=${subTab}`}
+				prepareUrl={(subTab: string) =>
+					`?page=vuloform#&tab=settings&subtab=${subTab}`
+				}
 				appLocalizer={vuloformAppLocalizer}
 				Link={Link}
-				settingName={'Settings'}
-				className="admin-settings"
+				settingName={__('Settings', 'vuloform')}
+				className="admin-settings vuloform-settings"
 				menuIcon
 				saveStatus={saveStatus}
 			/>

@@ -26,6 +26,7 @@ class Rest {
 	 */
 	public function register_routes() {
 		$controllers = array(
+			'overview'    => new Rest\Overview(),
 			'forms'       => new Rest\Forms(),
 			'submissions' => new Rest\Submissions(),
 			'settings'    => new Rest\Settings(),

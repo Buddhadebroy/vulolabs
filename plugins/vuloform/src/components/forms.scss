@@ -1,46 +1,46 @@
-// Styles for the Forms tab (pages/Forms.tsx): the forms list, the "Migrate forms" banner and the
+// Styles for the Forms tab (pages/Forms.tsx): the forms list, the migration banners and the
 // "New form" template chooser. The form builder opened from it is zyra's `FormBuilder`, with its own styles.
 
-// Forms.tsx: shown in the table body when a competitor plugin with forms is detected, independent
-// of the "Migrate forms" header button which always stays visible.
-.vuloform-migration-banner {
+// A notice that is an opportunity, not a warning ("Bring your WPForms forms into VuloForm"): a white card
+// with an icon tile, one line of text and its action, like the Dashboard's rows.
+.vf-banner {
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
 	gap: 1rem;
-	margin-bottom: 1rem;
-	padding: 0.875rem 1rem;
-	border: 0.063rem solid var(--color-primary);
-	border-radius: 0.5rem;
-	background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+	padding: 1rem 1.25rem;
+	border: 1px solid var(--ui-border);
+	border-radius: var(--ui-radius);
+	background: #fff;
+	box-shadow: var(--ui-shadow);
+
+	> div {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		gap: 0.125rem;
+		min-width: 0;
+	}
 
 	strong {
-		display: block;
-		color: var(--text-color);
+		font-size: 0.9375rem;
+		font-weight: 600;
+		color: var(--ui-ink);
 	}
 
 	span {
-		display: block;
-		margin-top: 0.125rem;
 		font-size: 0.8125rem;
-		color: var(--sub-text-color);
+		line-height: 1.45;
+		color: var(--ui-muted);
 	}
-}
 
-// Same shape as .vuloform-migration-banner above, shown after a successful migration (green instead
-// of the brand purple, since this is a confirmation rather than an opportunity to act on).
-.vuloform-migration-success {
-	border-color: #16a34a;
-	background: color-mix(in srgb, #16a34a 6%, transparent);
-}
+	.buttons-wrapper {
+		flex: none;
+		margin: 0;
+	}
 
-// The same empty-state ModuleGuardComponent zyra renders elsewhere (e.g. "Create your first
-// form"), but tinted and bordered like .vuloform-migration-banner above so a detected plugin's
-// forms read as an opportunity to act on, not a generic empty state or a warning.
-.vuloform-migration-guard {
-	border: 0.063rem solid var(--color-primary);
-	border-radius: 0.5rem;
-	background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+	@media (width <= 600px) {
+		flex-wrap: wrap;
+	}
 }
 
 .vuloform-cell {
@@ -118,10 +118,19 @@
 	}
 }
 
-// A form's number, in front of its name.
-.vuloform-cell-number {
-	color: var(--sub-text-color);
+// A form's submission count, linking to them, with how many are unread.
+.vuloform-cell-count {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-weight: 600;
+	color: var(--ui-ink);
 	font-variant-numeric: tabular-nums;
+	text-decoration: none;
+
+	&:hover {
+		color: var(--ui-accent);
+	}
 }
 
 // The [vuloform id="…"] shown in the forms list.

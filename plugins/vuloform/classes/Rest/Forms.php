@@ -75,8 +75,29 @@ class Forms extends Controller {
 		}
 
 		$result['categories'] = $this->categories();
+		$result['status_counts'] = $this->status_counts();
 
 		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * How many forms there are in all and per status, for the list's status tabs.
+	 *
+	 * @return array{all: int, published: int, draft: int}
+	 */
+	private function status_counts() {
+		$counts = array( 'all' => (int) VuloForm()->forms->query( array( 'per_page' => 1 ) )['total'] );
+
+		foreach ( array( 'published', 'draft' ) as $status ) {
+			$counts[ $status ] = (int) VuloForm()->forms->query(
+				array(
+					'status'   => $status,
+					'per_page' => 1,
+				)
+			)['total'];
+		}
+
+		return $counts;
 	}
 
 	private function categories() {
