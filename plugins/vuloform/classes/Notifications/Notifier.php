@@ -122,8 +122,8 @@ class Notifier {
 
 		// A subject is a header: it must stay on one line.
 		$subject = trim( preg_replace( '/[\r\n]+/', ' ', Formatter::fill( '' !== $notification['subject'] ? $notification['subject'] : __( 'New submission: {form_title}', 'vuloform' ), $form, $values ) ) );
-		$message = Formatter::fill( '' !== $notification['message'] ? $notification['message'] : '{all_fields}', $form, $values );
-		$headers = array( 'Content-Type: text/plain; charset=UTF-8' );
+		$message = self::html_message( Formatter::fill( '' !== $notification['message'] ? $notification['message'] : '{all_fields}', $form, $values, true ) );
+		$headers = array( 'Content-Type: text/html; charset=UTF-8' );
 		$reply   = '' !== $notification['reply_to'] ? (string) ( $values[ $notification['reply_to'] ] ?? '' ) : '';
 
 		if ( is_string( $reply ) && is_email( $reply ) ) {
@@ -200,6 +200,22 @@ class Notifier {
 		}
 
 		return self::event( $notification, 'handed_off', __( 'Handed to VuloMail.', 'vuloform' ) );
+	}
+
+	/**
+	 * Wraps a filled, HTML-escaped notification template in a plain, email-safe shell: the admin's
+	 * own line breaks become `<br>` (one pass, so a multi-line field value inside `{all_fields}`'s
+	 * own table isn't nl2br()'d twice), and the whole thing gets readable default typography -
+	 * instead of being sent as the raw, unstyled text a plain-text email showed before.
+	 *
+	 * @param string $filled Formatter::fill() output, with `$as_html` true.
+	 * @return string
+	 */
+	private static function html_message( $filled ) {
+		return sprintf(
+			'<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.6;color:#1d2327;max-width:600px;">%s</div>',
+			nl2br( $filled )
+		);
 	}
 
 	/**

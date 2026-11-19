@@ -358,7 +358,7 @@ const logging: SettingsSchema = {
 			icon: 'analytics',
 			title: __('Engagement tracking', 'vulomail'),
 			desc: __(
-				'See whether HTML emails are opened and their links clicked, in the Logs. Tracking is stored in the delivery log, so it needs the log switched on, and it never applies to plain-text email or text messages. Opens and clicks are estimates: some mail apps block images, others and security scanners load images or follow links on their own.',
+				'See whether HTML emails are opened, and whether links in an email or text message are clicked, in the Logs. Tracking is stored in the delivery log, so it needs the log switched on; open tracking never applies to plain-text email or text messages, since there is nothing to load an image. Opens and clicks are estimates: some mail apps block images, others and security scanners load images or follow links on their own.',
 				'vulomail'
 			),
 		},
@@ -376,8 +376,14 @@ const logging: SettingsSchema = {
 				toggle(
 					'track_clicks',
 					'link blue',
-					__('Click tracking', 'vulomail'),
+					__('Email click tracking', 'vulomail'),
 					__('Sends links through this site before the reader reaches the page, and records which link was clicked. Unsubscribe, password reset, sign-in, mailto: and tel: links are never changed.', 'vulomail')
+				),
+				toggle(
+					'sms_track_clicks',
+					'link blue',
+					__('Text message click tracking', 'vulomail'),
+					__('Same as email click tracking, for links in a text message. Makes the message longer, since the link is replaced with one on this site.', 'vulomail')
 				),
 			],
 		},

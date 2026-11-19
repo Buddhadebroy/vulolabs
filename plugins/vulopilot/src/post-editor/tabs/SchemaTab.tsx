@@ -83,7 +83,7 @@ export default function SchemaTab( { highlightTarget }: SchemaTabProps ) {
 
 			<TextareaControl
 				label={ __( 'Structured Data (JSON-LD)', 'vulopilot' ) }
-				help={ isValidJson( schemaJson ) ? __( 'Advanced - edit the raw JSON-LD directly.', 'vulopilot' ) : __( 'This is not valid JSON - it will be cleared on save.', 'vulopilot' ) }
+				help={ isValidJson( schemaJson ) ? __( 'Advanced - edit the raw JSON-LD directly.', 'vulopilot' ) : __( 'This is not valid JSON - it will be saved, but won\'t be output on the page until it is.', 'vulopilot' ) }
 				value={ schemaJson }
 				onChange={ ( value ) => setMeta( { [ metaKeys.schema_json ]: value } ) }
 				rows={ 10 }

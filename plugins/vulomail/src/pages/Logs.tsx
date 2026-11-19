@@ -650,12 +650,26 @@ const Logs = () => {
 											{__('Subject:', 'vulomail')} <strong>{detail.subject}</strong>
 										</div>
 									)}
-									{/* Never rendered as HTML: a logged message body is untrusted content, so "preview" only
-									    linkifies plain text rather than interpreting any markup in it. */}
 									{'raw' === messageView ? (
+										// The stored source, verbatim - useful for debugging, and never
+										// interpreted as markup here.
 										<pre className="vulomail-message-body">{detail.body}</pre>
+									) : 'email' === detail.channel ? (
+										// Rendered the way the recipient would see it, but the body is still
+										// untrusted content: a sandboxed iframe with no sandbox flags at all
+										// shows the markup without ever running a script in it or reaching
+										// this page.
+										<iframe
+											className="vulomail-message-preview"
+											title={__('Email preview', 'vulomail')}
+											srcDoc={detail.body ?? ''}
+											sandbox=""
+										/>
 									) : (
-										<div className="vulomail-message-body">{linkify(detail.body ?? '')}</div>
+										// A chat bubble, not vulomail-message-body's plain box: there is no
+										// markup here to render differently, so "Preview" needs to look like
+										// what the recipient received rather than a second raw-text view.
+										<div className="vulomail-sms-preview">{linkify(detail.body ?? '')}</div>
 									)}
 								</div>
 							</section>

@@ -688,7 +688,10 @@ class TestSubmissions extends TestCase {
 		$this->assertSame( array( 'owner@example.com', 'jane@example.com' ), $sent[0]['to'] );
 		$this->assertStringNotContainsString( "\n", $sent[0]['subject'], 'A subject can never carry an injected header.' );
 		$this->assertContains( 'Reply-To: jane@example.com', $sent[0]['headers'] );
-		$this->assertStringContainsString( 'Email: jane@example.com', $sent[0]['message'] );
+		$this->assertContains( 'Content-Type: text/html; charset=UTF-8', $sent[0]['headers'] );
+		// The default {all_fields} body is now a label/value table, not "Label: value" lines.
+		$this->assertStringContainsString( 'Email', $sent[0]['message'] );
+		$this->assertStringContainsString( 'jane@example.com', $sent[0]['message'] );
 
 		$events = $this->store->rows[ $id ]['meta']['events'];
 

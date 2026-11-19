@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-17T07:59:48+00:00\n"
+"POT-Creation-Date: 2026-11-17T12:31:22+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
@@ -666,7 +666,7 @@ msgstr ""
 msgid "No valid widgets in the submitted layout."
 msgstr ""
 
-#: classes/Migration/AllInOneSeoMigrator.php:74
+#: classes/Migration/AllInOneSeoMigrator.php:59
 msgid "All in One SEO"
 msgstr ""
 
@@ -674,8 +674,8 @@ msgstr ""
 msgid "Rank Math SEO"
 msgstr ""
 
-#: classes/Migration/RankMathMigrator.php:175
-#: classes/Migration/YoastSeoMigrator.php:157
+#: classes/Migration/RankMathMigrator.php:199
+#: classes/Migration/YoastSeoMigrator.php:181
 msgid "robots.txt content was copied into VuloPilot, but a real robots.txt file still exists on your server - WordPress serves that file directly and ignores every plugin's own robots.txt output (VuloPilot's included) while it's there. Remove or rename the physical robots.txt file at your site's root for VuloPilot's version to take effect."
 msgstr ""
 
@@ -696,7 +696,7 @@ msgid "Yoast SEO"
 msgstr ""
 
 #. translators: %d: Yoast's own readability score, 0-100.
-#: classes/Migration/YoastSeoMigrator.php:260
+#: classes/Migration/YoastSeoMigrator.php:284
 #, php-format
 msgid "Readability score from Yoast: %d/100."
 msgstr ""
@@ -15574,7 +15574,7 @@ msgid "Advanced - edit the raw JSON-LD directly."
 msgstr ""
 
 #: assets/js/post-editor.js:1
-msgid "This is not valid JSON - it will be cleared on save."
+msgid "This is not valid JSON - it will be saved, but won't be output on the page until it is."
 msgstr ""
 
 #: assets/js/post-editor.js:1

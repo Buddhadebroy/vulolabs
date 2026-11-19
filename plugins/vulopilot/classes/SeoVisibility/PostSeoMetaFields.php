@@ -55,6 +55,12 @@ class PostSeoMetaFields {
 	 */
 	public function register_meta_fields(): void {
 		foreach ( self::POST_TYPES as $post_type ) {
+			// 'page'/'product' don't support 'excerpt' by default, so the metabox's own Meta Description
+			// field (which writes to `excerpt`, not postmeta) would silently fail to save without this.
+			if ( ! post_type_supports( $post_type, 'excerpt' ) ) {
+				add_post_type_support( $post_type, 'excerpt' );
+			}
+
 			register_post_meta(
 				$post_type,
 				self::META_KEYS['focus_keyword'],
@@ -81,15 +87,18 @@ class PostSeoMetaFields {
 			register_post_meta( $post_type, self::META_KEYS['analyze_website_prompt_dismissed'], $this->boolean_field_args() );
 			register_post_meta( $post_type, self::META_KEYS['rethink_topic_closed'], $this->boolean_field_args() );
 
-			// Registered so the Schema tab's JSON textarea saves via the same native save button.
+			// Registered so the Schema tab's JSON textarea saves via the same native save button. Malformed
+			// JSON is kept as-is rather than wiped - losing someone's pasted markup on a typo is worse than
+			// SchemaJsonLdRenderer's own is_array() guard skipping output until they fix it.
 			register_post_meta(
 				$post_type,
 				'_vulopilot_schema_json',
 				$this->string_field_args(
 					static function ( $value ) {
-						$decoded = json_decode( (string) $value, true );
+						$value   = (string) $value;
+						$decoded = json_decode( $value, true );
 
-						return is_array( $decoded ) ? wp_json_encode( $decoded ) : '';
+						return is_array( $decoded ) ? wp_json_encode( $decoded ) : $value;
 					}
 				)
 			);

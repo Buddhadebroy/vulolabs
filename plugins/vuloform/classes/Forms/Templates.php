@@ -32,9 +32,21 @@ class Templates {
 	}
 
 	/**
+	 * Built once per request: this function assembles ~100 templates and their fields, and several
+	 * places (REST list, create, FrontendScripts localization) call it more than once per page load.
+	 *
+	 * @var array|null
+	 */
+	private static $cache = null;
+
+	/**
 	 * @return array<string, array{title: string, desc: string, icon: string, category: string, schema: array}>
 	 */
 	public static function all() {
+		if ( null !== self::$cache ) {
+			return self::$cache;
+		}
+
 		$name    = self::field( 'name', __( 'Name', 'vuloform' ), array( 'required' => true ) );
 		$email   = self::field( 'email', __( 'Email', 'vuloform' ), array( 'required' => true ) );
 		$phone   = self::field( 'phone', __( 'Phone', 'vuloform' ) );
@@ -2385,7 +2397,9 @@ class Templates {
 		 *
 		 * @param array $out Template id => title, desc, icon, schema.
 		 */
-		return (array) apply_filters( 'vuloform_templates', $out );
+		self::$cache = (array) apply_filters( 'vuloform_templates', $out );
+
+		return self::$cache;
 	}
 
 	/**

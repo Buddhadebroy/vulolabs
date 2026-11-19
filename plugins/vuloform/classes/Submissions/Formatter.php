@@ -103,17 +103,53 @@ class Formatter {
 			$replace[ '{' . $row['key'] . '}' ] = $row['text'];
 
 			if ( '' !== $row['text'] && 'hidden' !== $row['type'] ) {
-				$all[] = $row['label'] . ': ' . $row['text'];
+				$all[] = array( $row['label'], $row['text'] );
 			}
 		}
 
-		$replace['{all_fields}'] = implode( "\n", $all );
-
 		if ( $as_html ) {
 			$replace = array_map( 'esc_html', $replace );
+			$replace['{all_fields}'] = self::all_fields_html( $all );
+		} else {
+			$replace['{all_fields}'] = implode(
+				"\n",
+				array_map(
+					static function ( $row ) {
+						return $row[0] . ': ' . $row[1];
+					},
+					$all
+				)
+			);
 		}
 
 		// Whatever placeholder is left names a field that no longer exists; it becomes empty.
 		return preg_replace( '/\{[a-z0-9_]+\}/', '', strtr( (string) $template, $replace ) );
+	}
+
+	/**
+	 * `{all_fields}` as a clean, email-safe table instead of plain "Label: value" lines.
+	 *
+	 * @param array<int, array{0: string, 1: string}> $rows Label, text - already escaped.
+	 * @return string
+	 */
+	private static function all_fields_html( array $rows ) {
+		if ( ! $rows ) {
+			return '';
+		}
+
+		$cells = array();
+
+		foreach ( $rows as $row ) {
+			// A multi-line value's own "\n" is converted along with the rest of the message, in one
+			// nl2br() pass the caller makes over the whole filled template - not here, or a value
+			// with a line break would end up with its "<br>" doubled.
+			$cells[] = sprintf(
+				'<tr><td style="padding:6px 12px;border-bottom:1px solid #e2e4e7;color:#50575e;font-weight:600;white-space:nowrap;vertical-align:top;">%s</td><td style="padding:6px 12px;border-bottom:1px solid #e2e4e7;color:#1d2327;">%s</td></tr>',
+				$row[0],
+				'' === $row[1] ? '&nbsp;' : $row[1]
+			);
+		}
+
+		return '<table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;border:1px solid #e2e4e7;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:14px;">' . implode( '', $cells ) . '</table>';
 	}
 }

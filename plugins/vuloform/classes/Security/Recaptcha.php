@@ -85,7 +85,14 @@ class Recaptcha {
 		$token    = trim( (string) ( $post[ self::FIELD ] ?? '' ) );
 
 		if ( '' === $token ) {
-			return self::verdict( 'reject', __( 'Please complete the "I\'m not a robot" check and send the form again. It needs JavaScript to be switched on.', 'vuloform' ) );
+			// v3 is invisible - there is no checkbox to tick, so that wording would only confuse the
+			// visitor. A missing v3 token means JavaScript didn't run, or Google's script couldn't be
+			// reached (ad/content blocker, or a site key that wasn't created for the v3 version).
+			$message = 'v3' === $settings['recaptcha_type']
+				? __( 'The spam check could not run. Please switch JavaScript on, turn off any content blocker for this page, and send the form again.', 'vuloform' )
+				: __( 'Please complete the "I\'m not a robot" check and send the form again. It needs JavaScript to be switched on.', 'vuloform' );
+
+			return self::verdict( 'reject', $message );
 		}
 
 		// The visitor's IP address is optional for Google and is deliberately not sent.

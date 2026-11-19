@@ -122,15 +122,29 @@ class Logger {
 	/**
 	 * Logs an SMS.
 	 *
-	 * @param string $to            Recipient number.
-	 * @param string $body          Message text.
-	 * @param Result $result        Final outcome.
-	 * @param bool   $used_fallback Whether the backup gateway delivered it.
-	 * @param string $source        Slug of the sender.
+	 * @param string     $to            Recipient number.
+	 * @param string     $body          Message text, as submitted - never the click-tracked copy
+	 *                                  actually sent, so a resend tracks fresh under its own token.
+	 * @param Result     $result        Final outcome.
+	 * @param bool       $used_fallback Whether the backup gateway delivered it.
+	 * @param string     $source        Slug of the sender.
+	 * @param array|null $tracking      `token` and `clicks`, when the message was click-tracked.
 	 * @return int Log row id, 0 when logging is off.
 	 */
-	public function sms( $to, $body, Result $result, $used_fallback = false, $source = '' ) {
-		return $this->write( Utill::CHANNEL_SMS, array( $to ), '', $body, $result, $used_fallback, array( 'source' => $source ) );
+	public function sms( $to, $body, Result $result, $used_fallback = false, $source = '', $tracking = null ) {
+		return $this->write(
+			Utill::CHANNEL_SMS,
+			array( $to ),
+			'',
+			$body,
+			$result,
+			$used_fallback,
+			array(
+				'source'         => $source,
+				'tracking_token' => $tracking ? (string) $tracking['token'] : '',
+				'track_clicks'   => $tracking && ! empty( $tracking['clicks'] ) ? 1 : 0,
+			)
+		);
 	}
 
 	/**

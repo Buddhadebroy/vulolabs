@@ -92,6 +92,7 @@ export interface Settings {
 	log_retention_days: number;
 	track_opens: boolean;
 	track_clicks: boolean;
+	sms_track_clicks: boolean;
 	keep_data_uninstall: 'keep_data' | 'delete_everything';
 }
 

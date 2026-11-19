@@ -104,9 +104,33 @@ class YoastSeoMigrator implements MigratorInterface {
 	 * @inheritDoc
 	 */
 	public function count_available(): int {
-		return count( $this->find_post_ids() )
+		return $this->count_posts()
 			+ ( empty( $this->build_settings_values() ) ? 0 : 1 )
 			+ ( '' !== $this->read_physical_robots_txt() ? 1 : 0 );
+	}
+
+	/**
+	 * A cheap existence check for the "Setup Wizard?" redirect/Migration tab count - unlike
+	 * find_post_ids() (needed in full for the real migrate_posts() run), this runs on every
+	 * admin page load right after activation, so it can't afford find_post_ids()'s own
+	 * get_posts()-with-an-OR'd-meta_query (one join per key, each with a non-indexable `!=`
+	 * compare) - a single `meta_key IN (...)` query uses the real `meta_key` index instead.
+	 *
+	 * @return int
+	 */
+	private function count_posts(): int {
+		global $wpdb;
+
+		$keys         = array_unique( array_values( self::POST_META_MAP ) );
+		$placeholders = implode( ', ', array_fill( 0, count( $keys ), '%s' ) );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $placeholders is a fixed count of %s tokens, not interpolated data.
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(DISTINCT post_id) FROM {$wpdb->postmeta} WHERE meta_key IN ({$placeholders}) AND meta_value != ''", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$keys
+			)
+		);
 	}
 
 	/**

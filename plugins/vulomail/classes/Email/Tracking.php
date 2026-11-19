@@ -14,14 +14,17 @@ use VuloMail\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Optional open and click tracking for HTML email.
+ * Optional open tracking for HTML email, and click tracking for HTML email and SMS alike.
  *
- * Opens are counted by a 1×1 image, clicks by sending each eligible link through this site first.
- * Both are recorded on the message's own log row, so they follow the log's retention, deletion and
- * uninstall rules. No IP address, user agent or third-party service is involved.
+ * Opens are counted by a 1×1 image (HTML email only), clicks by sending each eligible link
+ * through this site first. Both are recorded on the message's own log row, so they follow the
+ * log's retention, deletion and uninstall rules. No IP address, user agent or third-party
+ * service is involved.
  *
  * Every click URL carries the original address and an HMAC of it, so the redirect only ever goes
- * where the email itself pointed (no open redirect) and still works after the log row is pruned.
+ * where the message itself pointed (no open redirect) and still works after the log row is pruned.
+ * The redirect endpoint itself (`handle_request()`/`resolve_click()`) has nothing email-specific
+ * about it - `Sms\Dispatcher` shares this same instance for its own click tracking.
  */
 class Tracking {
 
@@ -197,6 +200,41 @@ class Tracking {
 		}
 
 		return $body;
+	}
+
+	/**
+	 * Rewrites eligible bare URLs in a plain-text body (SMS) through the click redirect. Unlike
+	 * rewrite(), there is no markup to parse: a URL is just matched directly in the text.
+	 *
+	 * @param string $body  Plain text.
+	 * @param string $token Message token.
+	 * @return string
+	 */
+	public function rewrite_plain_text_links( $body, $token ) {
+		$body  = (string) $body;
+		$token = (string) $token;
+
+		if ( ! preg_match( Utill::TOKEN_PATTERN, $token ) ) {
+			return $body;
+		}
+
+		$position = 0;
+
+		$rewritten = preg_replace_callback(
+			'~https?://[^\s<>"\']+~i',
+			function ( $match ) use ( $token, &$position ) {
+				if ( ! $this->is_trackable( $match[0] ) ) {
+					return $match[0];
+				}
+
+				++$position;
+
+				return $this->click_url( $token, $position, $match[0] );
+			},
+			$body
+		);
+
+		return null === $rewritten ? $body : $rewritten;
 	}
 
 	/**
