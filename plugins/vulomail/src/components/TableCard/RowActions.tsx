@@ -22,7 +22,7 @@ export interface RowAction {
 }
 
 /** Up to this many icon actions show inline; past it, the first two do and the rest go in the "more" menu. */
-export const MAX_INLINE_ACTIONS = 4;
+const MAX_INLINE_ACTIONS = 4;
 const INLINE_WHEN_OVERFLOWING = 2;
 
 const resolve = <T,>(value: Value<T> | undefined, row: Row) =>

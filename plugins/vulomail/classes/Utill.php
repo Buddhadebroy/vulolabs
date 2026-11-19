@@ -92,6 +92,16 @@ class Utill {
 	}
 
 	/**
+	 * One entry of `$_SERVER`, unslashed (empty when it isn't set).
+	 *
+	 * @param string $key Entry name, such as `REMOTE_ADDR`.
+	 * @return string
+	 */
+	public static function server_var( $key ) {
+		return (string) wp_unslash( (string) filter_input( INPUT_SERVER, $key ) );
+	}
+
+	/**
 	 * Formats a stored UTC datetime per Settings → General's date/time format and timezone.
 	 *
 	 * @param string $utc_datetime UTC `Y-m-d H:i:s`.

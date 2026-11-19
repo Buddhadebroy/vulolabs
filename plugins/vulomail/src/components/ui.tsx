@@ -114,7 +114,7 @@ export const Segmented = ({
 );
 
 /** A change against the previous period as a coloured chip; nothing when there is nothing to compare. */
-export const Delta = ({ change, inverse = false }: { change: number | null; inverse?: boolean }) => {
+const Delta = ({ change, inverse = false }: { change: number | null; inverse?: boolean }) => {
 	if (null === change || 0 === change || !Number.isFinite(change)) {
 		return null;
 	}
@@ -249,6 +249,3 @@ export const greeting = (): string => {
 
 	return hour < 18 ? __('Good afternoon', 'vulomail') : __('Good evening', 'vulomail');
 };
-
-/** An admin address of a VuloMail tab. */
-export const tabUrl = (tab: string): string => `?page=vulomail#&tab=${tab}`;

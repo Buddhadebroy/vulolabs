@@ -70,7 +70,7 @@
 		overflow: hidden;
 	}
 
-	// ---- Status tabs ("All (4)", "Failed (2)") as underline tabs ----
+	// ---- Status filters ("All (4)", "Failed (2)"): zyra draws them as chips, laid out in one row here ----
 	.admin-table-wrapper .admin-top-filter {
 		padding-top: 0.25rem;
 		border-bottom: 1px solid var(--vm-border-soft);
@@ -79,32 +79,6 @@
 			display: flex;
 			flex-wrap: wrap;
 			gap: 1.5rem;
-		}
-
-		.top-filter-wrapper .filters .filter-item {
-			position: relative;
-			margin: 0 0 -1px;
-			padding: 0.75rem 0;
-			border: 0;
-			border-bottom: 2px solid transparent;
-			border-radius: 0;
-			background: transparent;
-			font-size: 0.875rem;
-			font-weight: 500;
-			color: var(--vm-muted);
-			cursor: pointer;
-			transition: color 0.15s, border-color 0.15s;
-
-			&:hover {
-				color: var(--vm-ink);
-			}
-
-			&.active {
-				border-bottom-color: var(--vm-primary);
-				background: transparent;
-				color: var(--vm-primary);
-				font-weight: 600;
-			}
 		}
 	}
 

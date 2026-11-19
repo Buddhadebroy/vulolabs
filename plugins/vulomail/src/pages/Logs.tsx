@@ -109,6 +109,24 @@ const pickedDay = (value: Date | string | undefined): string | undefined => {
 	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 };
 
+/** What the table is filtered and sorted by, as `logs` endpoint params: the same for the list and its CSV export. */
+const filterParams = (query: TableQuery) => ({
+	channel:
+		query.filter?.channel && 'all' !== query.filter.channel
+			? query.filter.channel
+			: undefined,
+	status:
+		query.categoryFilter && 'all' !== query.categoryFilter
+			? query.categoryFilter
+			: undefined,
+	search: query.searchValue || undefined,
+	after: pickedDay(query.filter?.date?.startDate),
+	before: pickedDay(query.filter?.date?.endDate),
+	// Newest first until a column is sorted: what the "Sent" column's arrow promises.
+	orderby: query.orderby || 'created_at',
+	order: query.order || 'desc',
+});
+
 const statusBadge = (row: Pick<LogRow, 'status' | 'used_fallback'>) => {
 	if ('failed' === row.status) {
 		return <BadgeComponent color="red" text={__('Failed', 'vulomail')} />;
@@ -193,22 +211,9 @@ const Logs = () => {
 		setIsLoading(true);
 
 		apiGet<LogList>('logs', {
-			channel:
-				query.filter?.channel && 'all' !== query.filter.channel
-					? query.filter.channel
-					: undefined,
-			status:
-				query.categoryFilter && 'all' !== query.categoryFilter
-					? query.categoryFilter
-					: undefined,
-			search: query.searchValue || undefined,
-			after: pickedDay(query.filter?.date?.startDate),
-			before: pickedDay(query.filter?.date?.endDate),
+			...filterParams(query),
 			page: query.paged,
 			per_page: query.per_page,
-			// Newest first until a column is sorted: what the "Sent" column's arrow promises.
-			orderby: query.orderby || 'created_at',
-			order: query.order || 'desc',
 		})
 			.then((data) => {
 				if (!cancelled) {
@@ -340,21 +345,9 @@ const Logs = () => {
 
 	const exportMatching = () =>
 		apiGet<LogList>('logs', {
-			channel:
-				query.filter?.channel && 'all' !== query.filter.channel
-					? query.filter.channel
-					: undefined,
-			status:
-				query.categoryFilter && 'all' !== query.categoryFilter
-					? query.categoryFilter
-					: undefined,
-			search: query.searchValue || undefined,
-			after: pickedDay(query.filter?.date?.startDate),
-			before: pickedDay(query.filter?.date?.endDate),
+			...filterParams(query),
 			page: 1,
 			per_page: 1000,
-			orderby: query.orderby || 'created_at',
-			order: query.order || 'desc',
 		})
 			.then((data) => downloadCsv(data.data))
 			.catch((e) => notify('error', errorMessage(e)));

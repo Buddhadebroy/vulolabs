@@ -1,8 +1,6 @@
 /* global vulomailAppLocalizer */
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import axios from 'axios';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { getApiLink } from '@zyra/core';
 import {
 	ContainerComponent,
 	ListToolbarComponent,
@@ -24,8 +22,9 @@ import {
 } from '@zyra/builders';
 import type { EmailSource } from '../global';
 import { errorMessage } from '../services/notify';
-import { TextInput, ToggleInput } from '@zyra/inputs';
+import { ToggleInput } from '@zyra/inputs';
 import { apiGet, apiPost } from '../services/api';
+import { Switch } from '../components/ui';
 
 interface Recipient {
 	id: number;
@@ -53,22 +52,8 @@ interface EmailTemplateRow {
 	__audience?: Audience[];
 }
 
-const sourceGet = <T,>(source: EmailSource, endpoint: string) =>
-	axios
-		.get<T>(getApiLink(vulomailAppLocalizer, endpoint, source.rest_namespace), {
-			headers: { 'X-WP-Nonce': vulomailAppLocalizer.nonce },
-		})
-		.then((res) => res.data);
-
-const sourcePost = <T,>(source: EmailSource, endpoint: string, data: unknown) =>
-	axios
-		.post<T>(getApiLink(vulomailAppLocalizer, endpoint, source.rest_namespace), data, {
-			headers: { 'X-WP-Nonce': vulomailAppLocalizer.nonce },
-		})
-		.then((res) => res.data);
-
 const fetchSourceTemplates = (source: EmailSource) =>
-	sourceGet<Omit<EmailTemplateRow, '__source'>[]>(source, 'email-templates').then(
+	apiGet<Omit<EmailTemplateRow, '__source'>[]>('email-templates', undefined, source.rest_namespace).then(
 		(rows) => rows.map((row) => ({ ...row, __source: source }))
 	);
 
@@ -185,7 +170,6 @@ const EmailTemplates = () => {
 		if (row) {
 			openEditor(row);
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [rows]);
 
 	const categoryCounts = useMemo(() => {
@@ -224,7 +208,7 @@ const EmailTemplates = () => {
 						: r
 				) ?? null
 		);
-		sourcePost(row.__source, `email-templates/${row.id}`, {
+		apiPost(`email-templates/${row.id}`, {
 			notifications: [
 				{
 					id: row.id,
@@ -232,7 +216,7 @@ const EmailTemplates = () => {
 					recipients: row.recipients,
 				},
 			],
-		});
+		}, row.__source.rest_namespace);
 	};
 
 	const openRegistered = (row: EmailTemplateRow) => {
@@ -277,10 +261,10 @@ const EmailTemplates = () => {
 			return;
 		}
 
-		sourceGet<
+		apiGet<
 			| StarterTemplates
 			| StarterTemplates[]
-		>(row.__source, `email-templates/${row.id}`)
+		>(`email-templates/${row.id}`, undefined, row.__source.rest_namespace)
 			.then((data) => {
 				const full = Array.isArray(data) ? data[0] : data;
 				setEditing({
@@ -345,7 +329,7 @@ const EmailTemplates = () => {
 			return;
 		}
 
-		sourcePost(editing.row.__source, `email-templates/${editing.row.id}`, {
+		apiPost(`email-templates/${editing.row.id}`, {
 			formData:
 				editing.row.id === 0
 					? { id: 0, legacy_blocks: legacyBlocks }
@@ -354,7 +338,7 @@ const EmailTemplates = () => {
 						email_subject: editing.row.email_subject,
 						email_body: renderBlocksToHTML(legacyBlocks as unknown as Block[]),
 					},
-		});
+		}, editing.row.__source.rest_namespace);
 	};
 
 	const saveEditor = (blocks: EmailBlock[]) => {
@@ -425,7 +409,6 @@ const EmailTemplates = () => {
 				('any' === audienceFilter || primaryAudience(r) === audienceFilter) &&
 				(!query || `${r.event} ${r.description}`.toLowerCase().includes(query))
 		);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [visibleRows, search, audienceFilter]);
 
 	const sections = useMemo(() => {
@@ -439,7 +422,6 @@ const EmailTemplates = () => {
 
 		// General first, then the rest as they come.
 		return [...map.entries()].sort(([a], [b]) => (a === __('General', 'vulomail') ? -1 : b === __('General', 'vulomail') ? 1 : 0));
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [shown]);
 
 	const totals = useMemo(() => {
@@ -452,7 +434,6 @@ const EmailTemplates = () => {
 			customer: all.filter((r: EmailTemplateRow) => primaryAudience(r) === 'customer').length,
 			admin: all.filter((r: EmailTemplateRow) => primaryAudience(r) === 'admin').length,
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [rows]);
 
 	let content = (
@@ -573,15 +554,11 @@ const EmailTemplates = () => {
 
 									return (
 										<li key={`${row.__source.plugin}:${row.id}`}>
-											<label className="vulomail-switch">
-												<input
-													type="checkbox"
-													checked={!!row.channels.mail}
-													onChange={() => setEnabled([row], !row.channels.mail)}
-													aria-label={sprintf(__('Send %s', 'vulomail'), row.event)}
-												/>
-												<span className="vulomail-switch-track" />
-											</label>
+											<Switch
+												checked={!!row.channels.mail}
+												onChange={() => setEnabled([row], !row.channels.mail)}
+												label={sprintf(__('Send %s', 'vulomail'), row.event)}
+											/>
 											<div className="vulomail-emails-text">
 												<strong>
 													{row.event}

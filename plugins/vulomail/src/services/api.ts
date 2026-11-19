@@ -11,12 +11,13 @@ const request = async <T>(
 	method: Method,
 	endpoint: string,
 	data?: unknown,
-	params?: Record<string, string | number | undefined>
+	params?: Record<string, string | number | undefined>,
+	namespace?: string
 ): Promise<T> => {
 	try {
 		const response = await axios.request<T>({
 			method,
-			url: getApiLink(vulomailAppLocalizer, endpoint),
+			url: getApiLink(vulomailAppLocalizer, endpoint, namespace),
 			data,
 			params,
 			headers: { 'X-WP-Nonce': vulomailAppLocalizer.nonce },
@@ -29,18 +30,21 @@ const request = async <T>(
 
 		throw new Error(
 			message ||
-				__('Something went wrong. Please try again.', 'vulomail')
+				__('Something went wrong. Please try again.', 'vulomail'),
+			{ cause: error }
 		);
 	}
 };
 
+/** `namespace` reaches another plugin's REST API (Email Templates lists every plugin's emails); VuloMail's own by default. */
 export const apiGet = <T>(
 	endpoint: string,
-	params?: Record<string, string | number | undefined>
-) => request<T>('GET', endpoint, undefined, params);
+	params?: Record<string, string | number | undefined>,
+	namespace?: string
+) => request<T>('GET', endpoint, undefined, params, namespace);
 
-export const apiPost = <T>(endpoint: string, data: unknown = {}) =>
-	request<T>('POST', endpoint, data);
+export const apiPost = <T>(endpoint: string, data: unknown = {}, namespace?: string) =>
+	request<T>('POST', endpoint, data, undefined, namespace);
 
 export const apiDelete = <T>(endpoint: string, data?: unknown) =>
 	request<T>('DELETE', endpoint, data);

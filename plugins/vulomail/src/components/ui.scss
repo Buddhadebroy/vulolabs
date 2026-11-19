@@ -77,13 +77,6 @@
 	}
 }
 
-.vm-col {
-	display: flex;
-	flex-direction: column;
-	gap: 1.25rem;
-	min-width: 0;
-}
-
 // ---- Card ----
 .vm-card {
 	display: flex;
@@ -728,21 +721,6 @@
 	&:is(a):hover strong,
 	a:hover strong {
 		color: var(--ui-accent);
-	}
-}
-
-.vm-list-side {
-	display: flex;
-	flex: none;
-	flex-direction: column;
-	align-items: flex-end;
-	gap: 0.25rem;
-	font-size: 0.75rem;
-	color: var(--ui-muted);
-	text-align: right;
-
-	.buttons-wrapper {
-		margin: 0;
 	}
 }
 

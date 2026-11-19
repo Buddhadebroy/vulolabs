@@ -63,6 +63,29 @@ export const schemaValues = (schema: SettingsSchema, stored: StoredSettings): Fo
 	return values;
 };
 
+/** zyra's auto-saving form for one schema, reading and writing the current SettingProvider. SMS Alerts uses it too. */
+export const SchemaForm = ({
+	schema,
+	onSaveStatusChange,
+}: {
+	schema: SettingsSchema;
+	// eslint-disable-next-line no-unused-vars -- parameter name in a type signature, not a variable.
+	onSaveStatusChange: (status: SaveStatus) => void;
+}) => {
+	const { setting, updateSetting } = useSetting();
+
+	return (
+		<InputRenderer
+			settings={schema}
+			setting={setting}
+			updateSetting={updateSetting}
+			Popup={RequiredPluginPopup}
+			groupBySections={schema.groupBySections}
+			onSaveStatusChange={onSaveStatusChange}
+		/>
+	);
+};
+
 /**
  * Settings: zyra's sub-tab navigator and auto-saving `InputRenderer`, the same shell VuloPilot's
  * Settings screen uses. Every change is saved a moment after it is made; there is no Save button.
@@ -88,7 +111,7 @@ const Settings = () => {
 
 	const GetForm = (currentTab: string | null) => {
 		// Hooks run on every call, whichever sub-tab is showing.
-		const { setting, settingName, setSetting, updateSetting } = useSetting();
+		const { setting, settingName, setSetting } = useSetting();
 		const schema = schemas.find((item) => item.id === currentTab);
 
 		useEffect(() => {
@@ -123,16 +146,7 @@ const Settings = () => {
 			return <>{__('Loading…', 'vulomail')}</>;
 		}
 
-		return (
-			<InputRenderer
-				settings={schema}
-				setting={setting}
-				updateSetting={updateSetting}
-				Popup={RequiredPluginPopup}
-				groupBySections={schema.groupBySections}
-				onSaveStatusChange={setSaveStatus}
-			/>
-		);
+		return <SchemaForm schema={schema} onSaveStatusChange={setSaveStatus} />;
 	};
 
 	if (error) {
@@ -156,7 +170,7 @@ const Settings = () => {
 				prepareUrl={settingsUrl}
 				appLocalizer={vulomailAppLocalizer}
 				Link={Link}
-				settingName={'Settings'}
+				settingName={__('Settings', 'vulomail')}
 				className="admin-settings vulomail-settings"
 				menuIcon
 				saveStatus={saveStatus}

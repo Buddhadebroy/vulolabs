@@ -17,23 +17,6 @@
 	flex-wrap: wrap;
 }
 
-.vulomail-detail {
-	display: grid;
-	grid-template-columns: minmax(7rem, max-content) 1fr;
-	gap: 0.5rem 1rem;
-	margin: 0 0 1rem;
-
-	dt {
-		color: var(--sub-text-color);
-	}
-
-	dd {
-		margin: 0;
-		min-width: 0;
-		overflow-wrap: anywhere;
-	}
-}
-
 .vulomail-message-body {
 	max-height: 18rem;
 	overflow: auto;
@@ -812,19 +795,6 @@
 	letter-spacing: 0.02em;
 	color: var(--sub-text-color);
 	text-transform: uppercase;
-}
-
-// Where to get the value, with its link: directly under the input it is for.
-// The link to the fixing screen, after a failure's plain-language advice (Dashboard).
-.vulomail-error-help-link {
-	color: var(--color-primary);
-	font-weight: 600;
-	text-decoration: none;
-	white-space: nowrap;
-
-	&:hover {
-		text-decoration: underline;
-	}
 }
 
 // "Sign in with Google" for the Gmail connection (GoogleSignIn.tsx).

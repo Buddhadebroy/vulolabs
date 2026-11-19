@@ -12,7 +12,6 @@ import {
 	Pill,
 	Skeleton,
 	Switch,
-	tabUrl,
 } from '../components/ui';
 import type { Status } from '../components/ui';
 import { apiDelete, apiGet, apiPost } from '../services/api';
@@ -23,6 +22,7 @@ import type {
 	Routing,
 	Settings,
 } from '../services/types';
+import { goToTab, settingsUrl, tabUrl } from '../services/types';
 
 type Channel = 'email' | 'sms';
 
@@ -627,7 +627,7 @@ const ChannelSettings = ({
 								href={
 									incomplete
 										? undefined
-										: tabUrl(`settings&subtab=tools&connection=${item.id}`)
+										: settingsUrl(`tools&connection=${item.id}`)
 								}
 								aria-disabled={incomplete}
 								title={__('Send a test', 'vulomail')}
@@ -762,9 +762,7 @@ const ChannelSettings = ({
 												),
 												icon: 'send',
 												color: 'purple',
-												onClick: () => {
-													window.location.hash = `&tab=settings&subtab=tools&test=${channel}`;
-												},
+												onClick: () => goToTab(`settings&subtab=tools&test=${channel}`),
 											},
 										]
 									: []),

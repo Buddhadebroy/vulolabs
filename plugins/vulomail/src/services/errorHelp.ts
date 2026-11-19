@@ -45,7 +45,7 @@ const RULES: Rule[] = [
 			),
 			short: __('The sender address isn\'t a real email address.', 'vulomail'),
 			linkLabel: __('Set the sender email', 'vulomail'),
-			href: settingsUrl('email'),
+			href: CONNECTIONS,
 		}),
 	},
 	{
@@ -113,7 +113,7 @@ const RULES: Rule[] = [
 			),
 			short: __('The email service won\'t send from this address.', 'vulomail'),
 			linkLabel: __('Change the sender email', 'vulomail'),
-			href: settingsUrl('email'),
+			href: CONNECTIONS,
 		}),
 	},
 ];

@@ -7,7 +7,7 @@ import { ButtonInput, SelectInput, TextInput } from '@zyra/inputs';
 import { apiGet, apiPost } from '../services/api';
 import { errorNoticeHtml } from '../services/errorHelp';
 import { errorMessage } from '../services/notify';
-import { escapeHtml, providerLabel } from '../services/types';
+import { escapeHtml, goToTab, providerLabel } from '../services/types';
 import { FieldRow } from './ChannelSettings';
 import type {
 	Connection,
@@ -75,7 +75,7 @@ const ORDER: Check['status'][] = ['error', 'warning', 'info'];
 
 const follow = (action: Check['action']) => {
 	if (action?.tab) {
-		window.location.hash = `&tab=${action.tab}`;
+		goToTab(action.tab);
 	} else if (action?.url) {
 		window.location.href = action.url;
 	}

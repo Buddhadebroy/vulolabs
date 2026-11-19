@@ -8,6 +8,7 @@
 namespace VuloMail\Sms;
 
 use VuloMail\Settings\Settings;
+use VuloMail\Utill;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -327,7 +328,7 @@ class Triggers {
 			return;
 		}
 
-		$ip = sanitize_text_field( $ip ?? self::server_var( 'REMOTE_ADDR' ) );
+		$ip = sanitize_text_field( $ip ?? Utill::server_var( 'REMOTE_ADDR' ) );
 
 		$this->fire(
 			'admin_login',
@@ -540,16 +541,6 @@ class Triggers {
 				)
 			)
 		);
-	}
-
-	/**
-	 * One entry of `$_SERVER`.
-	 *
-	 * @param string $key Entry name.
-	 * @return string
-	 */
-	private static function server_var( $key ) {
-		return (string) wp_unslash( (string) filter_input( INPUT_SERVER, $key ) );
 	}
 
 	/**

@@ -6,7 +6,7 @@ import SmsAlerts from './pages/SmsAlerts';
 import EmailTemplates from './pages/EmailTemplates';
 import Settings from './pages/Settings';
 
-export interface RouteDefinition {
+interface RouteDefinition {
 	tab: string;
 	name: string;
 	desc: string;

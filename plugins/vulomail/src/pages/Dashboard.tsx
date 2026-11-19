@@ -7,6 +7,7 @@ import { ButtonInput } from '@zyra/inputs';
 import { apiGet } from '../services/api';
 import { errorMessage } from '../services/notify';
 import { errorHelp } from '../services/errorHelp';
+import { goToTab, settingsUrl, tabUrl } from '../services/types';
 import type { Failure } from '../services/errorHelp';
 import {
 	Card,
@@ -20,7 +21,6 @@ import {
 	Skeleton,
 	greeting,
 	percentChange,
-	tabUrl,
 } from '../components/ui';
 import type { Status, Tone } from '../components/ui';
 
@@ -76,10 +76,6 @@ const RANGES = [
 	{ value: '30', label: __('30 days', 'vulomail') },
 	{ value: '90', label: __('90 days', 'vulomail') },
 ];
-
-const goTo = (tab: string) => {
-	window.location.hash = `&tab=${tab}`;
-};
 
 /** Delivered share of all attempts, as a whole percentage, or null when nothing was sent. */
 const rate = (sent: number, failed: number): number | null =>
@@ -241,7 +237,7 @@ const ChannelRow = ({ channel, state, icon }: { channel: 'email' | 'sms'; state:
 	return (
 		<li>
 			<IconTile icon={icon} tone={'email' === channel ? 'green' : 'blue'} />
-			<a className="vm-list-main" href={tabUrl(`settings&subtab=${channel}`)}>
+			<a className="vm-list-main" href={settingsUrl(channel)}>
 				<strong>{'email' === channel ? __('Email', 'vulomail') : __('SMS', 'vulomail')}</strong>
 				<span>{text}</span>
 			</a>
@@ -335,7 +331,7 @@ const Dashboard = () => {
 				tone: 'red',
 				title: __('SMS alerts are on, but nothing can send them', 'vulomail'),
 				text: __('Add an SMS gateway, or the alerts you switched on are never sent.', 'vulomail'),
-				cta: { label: __('Add gateway', 'vulomail'), href: tabUrl('settings&subtab=sms') },
+				cta: { label: __('Add gateway', 'vulomail'), href: settingsUrl('sms') },
 			});
 		}
 
@@ -346,7 +342,7 @@ const Dashboard = () => {
 				tone: 'amber',
 				title: __('VuloMail isn\'t sending your email', 'vulomail'),
 				text: __('WordPress sends it on its own, with no backup and nothing logged.', 'vulomail'),
-				cta: { label: __('Turn on', 'vulomail'), href: tabUrl('settings&subtab=email') },
+				cta: { label: __('Turn on', 'vulomail'), href: settingsUrl('email') },
 			});
 		}
 
@@ -357,7 +353,7 @@ const Dashboard = () => {
 				tone: 'amber',
 				title: __('The delivery log is off', 'vulomail'),
 				text: __('Nothing is recorded, so failures go unnoticed and these numbers stay at zero.', 'vulomail'),
-				cta: { label: __('Turn on', 'vulomail'), href: tabUrl('settings&subtab=logging') },
+				cta: { label: __('Turn on', 'vulomail'), href: settingsUrl('logging') },
 			});
 		}
 
@@ -383,7 +379,7 @@ const Dashboard = () => {
 					__('If %s goes down, email keeps going out through the backup.', 'vulomail'),
 					overview.email.primary
 				),
-				cta: { label: __('Add backup', 'vulomail'), href: tabUrl('settings&subtab=email') },
+				cta: { label: __('Add backup', 'vulomail'), href: settingsUrl('email') },
 			});
 		}
 
@@ -413,7 +409,7 @@ const Dashboard = () => {
 			tone: 'amber',
 			title: __('Run a delivery health check', 'vulomail'),
 			text: __('Finds setup problems before your customers notice them.', 'vulomail'),
-			cta: { label: __('Check', 'vulomail'), href: tabUrl('settings&subtab=tools') },
+			cta: { label: __('Check', 'vulomail'), href: settingsUrl('tools') },
 		});
 
 		return items.slice(0, 2);
@@ -454,13 +450,13 @@ const Dashboard = () => {
 							text: __('View logs', 'vulomail'),
 							icon: 'clock',
 							color: 'purple',
-							onClick: () => goTo('logs'),
+							onClick: () => goToTab('logs'),
 						},
 						{
 							text: __('Send a test', 'vulomail'),
 							icon: 'send',
 							color: 'purple-bg',
-							onClick: () => goTo('settings&subtab=tools'),
+							onClick: () => goToTab('settings&subtab=tools'),
 						},
 					]}
 				/>
@@ -499,8 +495,8 @@ const Dashboard = () => {
 	// First-send checklist: shown until email is connected, the sender is set and something has gone out.
 	const steps = overview
 		? [
-				{ id: 'connect', done: Boolean(email?.ready), icon: 'link', label: __('Connect email', 'vulomail'), href: tabUrl('settings&subtab=email') },
-				{ id: 'sender', done: overview.sender_set, icon: 'profile', label: __('Set your sender', 'vulomail'), href: tabUrl('settings&subtab=email') },
+				{ id: 'connect', done: Boolean(email?.ready), icon: 'link', label: __('Connect email', 'vulomail'), href: settingsUrl('email') },
+				{ id: 'sender', done: overview.sender_set, icon: 'profile', label: __('Set your sender', 'vulomail'), href: settingsUrl('email') },
 		  ]
 		: [];
 	const series = overview?.series ?? [];
@@ -657,7 +653,7 @@ const Dashboard = () => {
 								{series.length > 0 ? <TrendChart series={series} metric={metric} /> : <Skeleton size="chart" />}
 							</Card>
 
-							<Card title={__('Sending through', 'vulomail')} icon="link" link={{ label: __('Settings', 'vulomail'), href: tabUrl('settings&subtab=email') }}>
+							<Card title={__('Sending through', 'vulomail')} icon="link" link={{ label: __('Settings', 'vulomail'), href: settingsUrl('email') }}>
 								{email && sms ? (
 									<ul className="vm-list">
 										<ChannelRow channel="email" state={email} icon="mail" />
