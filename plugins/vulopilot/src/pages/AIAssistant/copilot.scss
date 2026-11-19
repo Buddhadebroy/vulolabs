@@ -83,14 +83,23 @@
 }
 
 // ---- Nothing sent yet: a greeting and the starter prompts ----
+// Centred by auto margins, not justify-content: when the prompts outgrow the stream (phones), a centred flex
+// column would push its top out of reach; this way it falls back to starting at the top.
 .vp-chat-welcome {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	justify-content: center;
 	gap: 0.375rem;
 	min-height: 100%;
 	text-align: center;
+
+	> :first-child {
+		margin-top: auto;
+	}
+
+	> :last-child {
+		margin-bottom: auto;
+	}
 
 	h4 {
 		margin: 0.625rem 0 0;
@@ -698,7 +707,7 @@
 }
 
 // "Start from an issue": a severity dot, the issue, and an Ask button.
-.vp-starters > li {
+.vp-list.vp-starters > li {
 	--sev: var(--ui-faint);
 
 	flex-wrap: nowrap;
@@ -768,7 +777,7 @@
 }
 
 // "Recent chats": the open conversation is marked; the eye previews.
-.vp-chats > li {
+.vp-list.vp-chats > li {
 	flex-wrap: nowrap;
 
 	> .vp-list-main {
@@ -810,7 +819,7 @@
 	}
 }
 
-.vp-scope > li {
+.vp-list.vp-scope > li {
 	align-items: flex-start;
 	flex-wrap: nowrap;
 
@@ -948,6 +957,11 @@
 .vp-issues-table,
 .vp-issues-detail {
 	min-width: 0;
+}
+
+// zyra's table and pager are wider than a phone; they scroll inside their column, never the page.
+.vp-issues-table {
+	overflow-x: auto;
 }
 
 .vp-issues-detail {

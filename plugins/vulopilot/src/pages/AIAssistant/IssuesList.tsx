@@ -1,6 +1,6 @@
 /* global vulopilotAppLocalizer */
 import React, { useEffect, useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, scrollToId } from '@zyra/core';
 import { TableCard } from '@zyra/table';
 import { ButtonInput } from '@zyra/inputs';
@@ -47,11 +47,6 @@ const IssuesList: React.FC<IssuesListProps> = ({
 
 	const [data, setData] = useState<FindingGroup[]>([]);
 	const [total, setTotal] = useState(0);
-	const [priorityCounts, setPriorityCounts] = useState({
-		high: 0,
-		medium: 0,
-		low: 0,
-	});
 	const [categoryCounts, setCategoryCounts] = useState<
 		Record<string, number>
 	>({});
@@ -107,9 +102,6 @@ const IssuesList: React.FC<IssuesListProps> = ({
 
 				setData(response.data ?? []);
 				setTotal(response.total ?? 0);
-				setPriorityCounts(
-					response.priority_counts ?? { high: 0, medium: 0, low: 0 }
-				);
 				setCategoryCounts(response.category_counts ?? {});
 
 				setSelectedGroup((current) => {
@@ -188,11 +180,6 @@ const IssuesList: React.FC<IssuesListProps> = ({
 			),
 		})),
 	];
-
-	const priorityTotal = priorityCounts.high + priorityCounts.medium + priorityCounts.low;
-	const countOf = (label: string, count: number) =>
-		/* translators: 1: priority such as "High", 2: number of issues. */
-		count > 0 ? sprintf(__('%1$s %2$d', 'vulopilot'), label, count) : label;
 
 	let content;
 
@@ -372,10 +359,11 @@ const IssuesList: React.FC<IssuesListProps> = ({
 					value={activePriority}
 					onChange={(next) => handlePriorityChange(next as Priority)}
 					options={[
-						{ value: 'all', label: countOf(__('All', 'vulopilot'), priorityTotal) },
-						{ value: 'high', label: countOf(__('High', 'vulopilot'), priorityCounts.high) },
-						{ value: 'medium', label: countOf(__('Medium', 'vulopilot'), priorityCounts.medium) },
-						{ value: 'low', label: countOf(__('Low', 'vulopilot'), priorityCounts.low) },
+						// No counts here: the server counts findings, while the rows (and the tabs' counts) are groups.
+						{ value: 'all', label: __('All priorities', 'vulopilot') },
+						{ value: 'high', label: __('High', 'vulopilot') },
+						{ value: 'medium', label: __('Medium', 'vulopilot') },
+						{ value: 'low', label: __('Low', 'vulopilot') },
 					]}
 				/>
 			</div>
