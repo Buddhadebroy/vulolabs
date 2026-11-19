@@ -379,7 +379,7 @@ class Tracking {
 		}
 
 		// Scanners and link previews often probe with HEAD first; only a real fetch counts.
-		$record = 'GET' === strtoupper( self::server_var( 'REQUEST_METHOD' ) );
+		$record = 'GET' === strtoupper( Utill::server_var( 'REQUEST_METHOD' ) );
 
 		if ( '' !== $open ) {
 			if ( $record ) {
@@ -424,16 +424,6 @@ class Tracking {
 	private static function query_var( $key ) {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- public link from an email; verified by resolve_click()/record_open(), not a nonce.
 		return (string) wp_unslash( (string) filter_input( INPUT_GET, $key ) );
-	}
-
-	/**
-	 * One entry of `$_SERVER`.
-	 *
-	 * @param string $key Entry name.
-	 * @return string
-	 */
-	private static function server_var( $key ) {
-		return (string) wp_unslash( (string) filter_input( INPUT_SERVER, $key ) );
 	}
 
 	/**

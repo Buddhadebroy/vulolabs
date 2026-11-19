@@ -126,8 +126,16 @@ export const providerLabel = (id: string): string => {
 	);
 };
 
+/** Admin address of a VuloMail tab; `tab` may carry more hash params, as in `logs&log=12`. */
+export const tabUrl = (tab: string): string => `?page=vulomail#&tab=${tab}`;
+
 /** Admin address of one Settings sub-tab. */
-export const settingsUrl = (subtab: string): string => `?page=vulomail#&tab=settings&subtab=${subtab}`;
+export const settingsUrl = (subtab: string): string => tabUrl(`settings&subtab=${subtab}`);
+
+/** Opens a VuloMail tab without reloading the page. */
+export const goToTab = (tab: string): void => {
+	window.location.hash = `&tab=${tab}`;
+};
 
 /**
  * A log row's date as the site is set up to show it. The server formats `created_at_display` with

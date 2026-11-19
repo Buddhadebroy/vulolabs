@@ -3,17 +3,17 @@ import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { Link } from 'react-router-dom';
 import { CardComponent, ModuleGuardComponent, NavigatorComponent, type SaveStatus } from '@zyra/components';
-import { InputRenderer } from '@zyra/inputs';
 import { SettingProvider, useSetting } from '../contexts/SettingContext';
 import { notificationsSchema as schema } from '../components/Settings';
-import RequiredPluginPopup from '../components/RequiredPluginPopup';
 import { apiGet } from '../services/api';
 import { errorMessage } from '../services/notify';
+import { tabUrl } from '../services/types';
 import type { Settings as StoredSettings } from '../services/types';
-import { schemaValues } from './Settings';
+import { SchemaForm, schemaValues } from './Settings';
 
+// eslint-disable-next-line no-unused-vars -- parameter name in a type signature, not a variable.
 const Form = ({ values, onSaveStatusChange }: { values: Record<string, unknown>; onSaveStatusChange: (status: SaveStatus) => void }) => {
-	const { setting, settingName, setSetting, updateSetting } = useSetting();
+	const { settingName, setSetting } = useSetting();
 
 	useEffect(() => {
 		setSetting(schema.id, values);
@@ -23,16 +23,7 @@ const Form = ({ values, onSaveStatusChange }: { values: Record<string, unknown>;
 		return null;
 	}
 
-	return (
-		<InputRenderer
-			settings={schema}
-			setting={setting}
-			updateSetting={updateSetting}
-			Popup={RequiredPluginPopup}
-			groupBySections={schema.groupBySections}
-			onSaveStatusChange={onSaveStatusChange}
-		/>
-	);
+	return <SchemaForm schema={schema} onSaveStatusChange={onSaveStatusChange} />;
 };
 
 // One array for the life of the page, so the navigator does not re-select the tab on every render.
@@ -71,12 +62,12 @@ const SmsAlerts = () => {
 				settingContent={settingContent}
 				currentSetting={schema.id}
 				getForm={() => <Form values={values} onSaveStatusChange={setSaveStatus} />}
-				prepareUrl={() => '?page=vulomail#&tab=sms-alerts'}
+				prepareUrl={() => tabUrl('sms-alerts')}
 				appLocalizer={vulomailAppLocalizer}
 				Link={Link}
 				settingName={__('VuloMail', 'vulomail')}
 				headerDescription={schema.headerDescription}
-				className="admin-settings"
+				className="admin-settings vulomail-settings"
 				menuIcon
 				saveStatus={saveStatus}
 			/>

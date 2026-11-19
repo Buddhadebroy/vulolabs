@@ -26,7 +26,8 @@ interface Rule {
 	help: () => ErrorHelp;
 }
 
-const CONNECTIONS = settingsUrl('connections');
+// Email connections live on Settings → Email (errorHelp() only explains email failures).
+const CONNECTIONS = settingsUrl('email');
 
 /**
  * The delivery errors people most often meet, checked in order. Error codes are matched where the
@@ -44,7 +45,7 @@ const RULES: Rule[] = [
 			),
 			short: __('The sender address isn\'t a real email address.', 'vulomail'),
 			linkLabel: __('Set the sender email', 'vulomail'),
-			href: settingsUrl('email'),
+			href: CONNECTIONS,
 		}),
 	},
 	{
@@ -112,7 +113,7 @@ const RULES: Rule[] = [
 			),
 			short: __('The email service won\'t send from this address.', 'vulomail'),
 			linkLabel: __('Change the sender email', 'vulomail'),
-			href: settingsUrl('email'),
+			href: CONNECTIONS,
 		}),
 	},
 ];

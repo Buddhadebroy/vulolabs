@@ -62,11 +62,42 @@ class Overview extends Controller {
 			),
 		);
 
-		foreach ( VuloMail()->logs->daily_counts( gmdate( 'Y-m-d 00:00:00', time() - ( $days - 1 ) * DAY_IN_SECONDS ) ) as $row ) {
+		$previous = $totals;
+
+		// One zero-filled point per day of the period, oldest first, for the dashboard's chart.
+		$series = array();
+		$start  = time() - ( $days - 1 ) * DAY_IN_SECONDS;
+
+		for ( $i = 0; $i < $days; $i++ ) {
+			$day            = gmdate( 'Y-m-d', $start + $i * DAY_IN_SECONDS );
+			$series[ $day ] = array(
+				'date'         => $day,
+				'email_sent'   => 0,
+				'email_failed' => 0,
+				'sms_sent'     => 0,
+				'sms_failed'   => 0,
+			);
+		}
+
+		// The period before this one too, so each total can say how it changed.
+		$period_start = gmdate( 'Y-m-d', $start );
+
+		foreach ( VuloMail()->logs->daily_counts( gmdate( 'Y-m-d 00:00:00', $start - $days * DAY_IN_SECONDS ) ) as $row ) {
 			$status = 'sent' === $row['status'] ? 'sent' : 'failed';
 
-			if ( isset( $totals[ $row['channel'] ] ) ) {
-				$totals[ $row['channel'] ][ $status ] += (int) $row['total'];
+			if ( ! isset( $totals[ $row['channel'] ] ) ) {
+				continue;
+			}
+
+			if ( (string) $row['day'] < $period_start ) {
+				$previous[ $row['channel'] ][ $status ] += (int) $row['total'];
+				continue;
+			}
+
+			$totals[ $row['channel'] ][ $status ] += (int) $row['total'];
+
+			if ( isset( $series[ $row['day'] ] ) ) {
+				$series[ $row['day'] ][ $row['channel'] . '_' . $status ] += (int) $row['total'];
 			}
 		}
 
@@ -90,6 +121,12 @@ class Overview extends Controller {
 				'email'           => array_merge( $totals[ Utill::CHANNEL_EMAIL ], $this->channel_state( VuloMail()->email, 'email_enabled' ) ),
 				'sms'             => array_merge( $totals[ Utill::CHANNEL_SMS ], $this->channel_state( VuloMail()->sms, 'sms_enabled' ) ),
 				'recent_failures' => Utill::with_display_dates( $failures ),
+				'previous'        => array(
+					'email' => $previous[ Utill::CHANNEL_EMAIL ],
+					'sms'   => $previous[ Utill::CHANNEL_SMS ],
+				),
+				'series'          => array_values( $series ),
+				'sender_set'      => '' !== (string) VuloMail()->settings->get( 'from_email' ),
 				'logging'         => (bool) VuloMail()->settings->get( 'log_enabled' ),
 				'sms_alerts'      => $this->sms_alerts(),
 			)

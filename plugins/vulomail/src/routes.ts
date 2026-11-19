@@ -2,12 +2,11 @@ import type { ComponentType } from 'react';
 import { __ } from '@wordpress/i18n';
 import Dashboard from './pages/Dashboard';
 import Logs from './pages/Logs';
-import Tools from './pages/Tools';
 import SmsAlerts from './pages/SmsAlerts';
 import EmailTemplates from './pages/EmailTemplates';
 import Settings from './pages/Settings';
 
-export interface RouteDefinition {
+interface RouteDefinition {
 	tab: string;
 	name: string;
 	desc: string;
@@ -43,15 +42,9 @@ export const routes: RouteDefinition[] = [
 		component: Logs,
 	},
 	{
-		tab: 'tools',
-		name: __('Tools', 'vulomail'),
-		desc: __('Send a test email or SMS and run diagnostics.', 'vulomail'),
-		component: Tools,
-	},
-	{
 		tab: 'settings',
 		name: __('Settings', 'vulomail'),
-		desc: __('Connections, sender, SMS, logging, privacy and integrations.', 'vulomail'),
+		desc: __('Connections, sender, SMS, privacy, tests and diagnostics.', 'vulomail'),
 		component: Settings,
 	},
 ];

@@ -2,24 +2,27 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import {
-	AnalyticsComponent,
-	BadgeComponent,
-	CardComponent,
-	ColumnComponent,
-	ContainerComponent,
-	FormGroupComponent,
-	FormGroupWrapperComponent,
-	ModuleGuardComponent,
-	NavigatorHeaderComponent,
-	NoticeComponent,
-} from '@zyra/components';
+import { NoticeComponent } from '@zyra/components';
 import { ButtonInput, SelectInput, TextInput } from '@zyra/inputs';
 import { apiGet, apiPost } from '../services/api';
 import { errorNoticeHtml } from '../services/errorHelp';
 import { errorMessage } from '../services/notify';
-import { escapeHtml, providerLabel } from '../services/types';
-import type { Connection, ConnectionsPayload, TestResult } from '../services/types';
+import { escapeHtml, goToTab, providerLabel } from '../services/types';
+import { FieldRow } from './ChannelSettings';
+import type {
+	Connection,
+	ConnectionsPayload,
+	TestResult,
+} from '../services/types';
+import {
+	Card,
+	EmptyState,
+	IconTile,
+	Pill,
+	Segmented,
+	Skeleton,
+} from '../components/ui';
+import type { Status, Tone } from '../components/ui';
 
 interface Check {
 	id: string;
@@ -32,192 +35,321 @@ interface Check {
 	action?: { label: string; tab?: string; url?: string } | null;
 }
 
-const GROUP_TITLE: Record<Check['status'], string> = {
-	error: __('Fix these first', 'vulomail'),
-	warning: __('Needs attention', 'vulomail'),
-	info: __('For your information', 'vulomail'),
-	good: __('Passed', 'vulomail'),
-};
-
-interface TestCardProps {
-	channel: 'email' | 'sms';
-	connections: Connection[];
-	preselected: string;
-}
+type Channel = 'email' | 'sms';
 
 // react-select shows its placeholder for an empty value, so "Live routing" needs a real one.
 const LIVE = 'live';
 
-const STATUS: Record<Check['status'], { color: string; icon: string; text: string }> = {
-	good: { color: 'green', icon: 'check', text: __('OK', 'vulomail') },
-	warning: { color: 'yellow', icon: 'error', text: __('Needs attention', 'vulomail') },
-	// 'close' (an X) tells a problem apart from a warning triangle at a glance.
-	error: { color: 'red', icon: 'close', text: __('Problem', 'vulomail') },
-	info: { color: 'blue', icon: 'info', text: __('Info', 'vulomail') },
+const STATUS: Record<
+	Check['status'],
+	{ icon: string; text: string; tone: Tone; pill: Status }
+> = {
+	error: {
+		icon: 'close',
+		text: __('Problem', 'vulomail'),
+		tone: 'red',
+		pill: 'bad',
+	},
+	warning: {
+		icon: 'error',
+		text: __('Needs attention', 'vulomail'),
+		tone: 'amber',
+		pill: 'warn',
+	},
+	info: {
+		icon: 'info',
+		text: __('Info', 'vulomail'),
+		tone: 'blue',
+		pill: 'info',
+	},
+	good: {
+		icon: 'check',
+		text: __('Passed', 'vulomail'),
+		tone: 'green',
+		pill: 'good',
+	},
 };
+
+// Most urgent first.
+const ORDER: Check['status'][] = ['error', 'warning', 'info'];
 
 const follow = (action: Check['action']) => {
 	if (action?.tab) {
-		window.location.hash = `&tab=${action.tab}`;
+		goToTab(action.tab);
 	} else if (action?.url) {
 		window.location.href = action.url;
 	}
 };
 
-/** How long ago `checked` was, for the "Last checked …" stamp. */
+/** How long ago `checked` was, for the "Checked …" stamp. */
 const checkedStamp = (checked: number) => {
 	const minutes = Math.round((Date.now() - checked) / 60000);
 
 	if (minutes < 1) {
-		return __('Last checked just now', 'vulomail');
+		return __('Checked just now', 'vulomail');
 	}
 
 	/* translators: %d: minutes since the last diagnostics run. */
-	return sprintf(_n('Last checked %d minute ago', 'Last checked %d minutes ago', minutes, 'vulomail'), minutes);
+	return sprintf(
+		_n(
+			'Checked %d minute ago',
+			'Checked %d minutes ago',
+			minutes,
+			'vulomail'
+		),
+		minutes
+	);
 };
 
-/** One "Fix these first" / "Needs attention" card: icon tile, title row with its action, description, "what to do". */
-const IssueCard = ({ check }: { check: Check }) => (
-	<div className={`vulomail-diag-card is-${check.status}`}>
-		<span className="vulomail-diag-ico">
-			<i className={`adminfont-${STATUS[check.status].icon}`} aria-hidden="true" />
-		</span>
-		<div className="vulomail-diag-body">
-			<div className="vulomail-diag-row">
-				<span className="vulomail-diag-title">
+/**
+ * One check as an expandable row: icon, name, status and the first line of what was found, with its action on
+ * the right. Opening it shows the whole finding and how to fix it. Problems start open.
+ */
+const CheckRow = ({ check }: { check: Check }) => (
+	<details
+		className={`vm-check is-${check.status}`}
+		open={'error' === check.status}
+	>
+		<summary>
+			<IconTile
+				icon={STATUS[check.status].icon}
+				tone={STATUS[check.status].tone}
+			/>
+			<span className="vm-check-head">
+				<span className="vm-check-title">
 					<strong>{escapeHtml(check.label)}</strong>
-					<BadgeComponent color={STATUS[check.status].color} text={STATUS[check.status].text} />
+					<Pill status={STATUS[check.status].pill}>
+						{STATUS[check.status].text}
+					</Pill>
 				</span>
-				{check.action && (
-					<ButtonInput
-						buttons={{
-							text: check.action.label,
-							color: 'purple-bg',
-							onClick: () => follow(check.action),
-						}}
-					/>
-				)}
-			</div>
-			<p className="vulomail-diag-desc">{check.message}</p>
+				<span className="vm-check-line">{check.message}</span>
+			</span>
+			{check.action && (
+				<button
+					type="button"
+					className="vm-chip-link"
+					onClick={(event) => {
+						event.preventDefault();
+						follow(check.action);
+					}}
+				>
+					{check.action.label}
+				</button>
+			)}
+			<span className="vm-check-chevron" aria-hidden="true" />
+		</summary>
+		<div className="vm-check-body">
+			<p>{check.message}</p>
 			{check.fix && (
-				<div className="vulomail-diag-fix">
+				<div className="vm-check-fix">
 					<i className="adminfont-lightbulb" aria-hidden="true" />
 					<p>
-						<strong>{__('What to do: ', 'vulomail')}</strong>
+						<strong>{__('How to fix it', 'vulomail')}</strong>
 						{check.fix}
 					</p>
 				</div>
 			)}
 		</div>
-	</div>
+	</details>
 );
 
-/** One "For your information" card: no urgency, so no action is forced on it. */
-const InfoCard = ({ check }: { check: Check }) => (
-	<div className="vulomail-diag-info">
-		<div className="vulomail-diag-info-head">
-			<span className="vulomail-diag-ico is-info">
-				<i className="adminfont-info" aria-hidden="true" />
-			</span>
-			<strong>{escapeHtml(check.label)}</strong>
-			<BadgeComponent color="blue" text={__('Info', 'vulomail')} />
-		</div>
-		<p className="vulomail-diag-desc">{check.message}</p>
-		{check.fix && <p className="vulomail-diag-note">{check.fix}</p>}
-		{check.action && (
-			<ButtonInput
-				buttons={{ text: check.action.label, color: 'purple-bg', onClick: () => follow(check.action) }}
-			/>
-		)}
-	</div>
-);
-
-const TestCard = ({ channel, connections, preselected }: TestCardProps) => {
-	const isEmail = 'email' === channel;
-	const cardId = isEmail ? 'tools-test-email-card' : 'tools-test-sms-card';
-	// Whether the "Test" button on Connections sent the visitor here for this card's channel.
-	const isTarget = '' !== preselected && connections.some((item) => item.id === preselected);
-	const [to, setTo] = useState('');
-	const [connectionId, setConnectionId] = useState(
-		connections.some((item) => item.id === preselected) ? preselected : LIVE
+/** Send a test email or text message, through live routing or one chosen connection. */
+const TestPanel = ({
+	connections,
+	preselected,
+	initialChannel,
+}: {
+	connections: Connection[];
+	preselected: string;
+	initialChannel: Channel | '';
+}) => {
+	const target = connections.find((item) => item.id === preselected);
+	const [channel, setChannel] = useState<Channel>(
+		target?.channel ?? (initialChannel || 'email')
 	);
+	const [to, setTo] = useState<Record<Channel, string>>({
+		email: '',
+		sms: '',
+	});
+	const [connectionId, setConnectionId] = useState<Record<Channel, string>>({
+		email: 'email' === target?.channel ? target.id : LIVE,
+		sms: 'sms' === target?.channel ? target.id : LIVE,
+	});
 	const [isSending, setIsSending] = useState(false);
 	const [result, setResult] = useState<TestResult | null>(null);
-	const [isHighlighted, setIsHighlighted] = useState(isTarget);
+	const [isHighlighted, setIsHighlighted] = useState(
+		Boolean(target || initialChannel)
+	);
 
-	// Scrolls to and briefly highlights this card so it's obvious which one was preselected.
+	const isEmail = 'email' === channel;
+	const own = connections.filter((item) => item.channel === channel);
+
+	// Coming from a connection's or a channel's "Send a test": scroll here and flash the card once.
 	useEffect(() => {
-		if (!isTarget) {
+		if (!isHighlighted) {
 			return;
 		}
 
-		setIsHighlighted(true);
-		document.getElementById(cardId)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+		document
+			.getElementById('tools-test-card')
+			?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
 		const timeout = setTimeout(() => setIsHighlighted(false), 2000);
 
 		return () => clearTimeout(timeout);
-	}, [cardId, isTarget, preselected]);
+	}, []);
+
+	const pick = (next: Channel) => {
+		setChannel(next);
+		setResult(null);
+	};
 
 	const send = () => {
 		setIsSending(true);
 		setResult(null);
 
 		apiPost<TestResult>(`tools/test-${channel}`, {
-			to,
-			connection_id: LIVE === connectionId ? '' : connectionId,
+			to: to[channel],
+			connection_id:
+				LIVE === connectionId[channel] ? '' : connectionId[channel],
 		})
 			.then(setResult)
 			.catch((error) =>
-				setResult({ success: false, provider: '', message: errorMessage(error), attempts: [] })
+				setResult({
+					success: false,
+					provider: '',
+					message: errorMessage(error),
+					attempts: [],
+				})
 			)
 			.finally(() => setIsSending(false));
 	};
 
+	const failedAttempts = result
+		? result.attempts.filter(
+				(attempt) => !attempt.success && result.attempts.length > 1
+			)
+		: [];
+
 	return (
-		<CardComponent
-			id={cardId}
-			className={isHighlighted ? 'vulomail-highlight' : undefined}
-			title={isEmail ? __('Send a test email', 'vulomail') : __('Send a test SMS', 'vulomail')}
-			titleIcon={isEmail ? 'mail' : 'send'}
-			desc={
-				isEmail
-					? __('Confirms that email leaves this site and reaches an inbox.', 'vulomail')
-					: __('Confirms that your gateway accepts and delivers a text message. Your provider may charge for it.', 'vulomail')
-			}
+		<Card
+			id="tools-test-card"
+			className={`vm-tools-test${isHighlighted ? ' vulomail-highlight' : ''}`}
+			icon="send"
+			title={__('Send a test', 'vulomail')}
+			desc={__(
+				'The quickest way to know it works: send one and check it arrives.',
+				'vulomail'
+			)}
 		>
-			<FormGroupWrapperComponent>
-				<FormGroupComponent
-					row
-					label={isEmail ? __('Send to', 'vulomail') : __('Phone number', 'vulomail')}
-					desc={isEmail ? undefined : __('International format, for example +14155550123.', 'vulomail')}
-				>
-					<TextInput
-						name={`test-${channel}-to`}
-						type={isEmail ? 'email' : 'text'}
-						placeholder={isEmail ? vulomailAppLocalizer.admin_email : '+14155550123'}
-						value={to}
-						onChange={(value) => setTo(String(value))}
-					/>
-				</FormGroupComponent>
-				<FormGroupComponent
-					row
-					label={__('Send through', 'vulomail')}
-					desc={__('"Live routing" follows the same path as every other message, including failover.', 'vulomail')}
-				>
-					<SelectInput
-						type="single-select"
-						name={`test-${channel}-connection`}
-						options={[
-							{ value: LIVE, label: __('Live routing', 'vulomail') },
-							...connections.map((item) => ({ value: item.id, label: item.label })),
-						]}
-						value={connectionId}
-						isClearable={false}
-						onChange={(value) => setConnectionId(value as string)}
-					/>
-				</FormGroupComponent>
-			</FormGroupWrapperComponent>
+			<Segmented
+				stretch
+				label={__('Channel', 'vulomail')}
+				value={channel}
+				onChange={(next) => pick(next as Channel)}
+				options={[
+					{
+						value: 'email',
+						label: __('Email', 'vulomail'),
+						icon: 'mail',
+					},
+					{
+						value: 'sms',
+						label: __('SMS', 'vulomail'),
+						icon: 'send',
+					},
+				]}
+			/>
+
+			<FieldRow
+				htmlFor="vm-test-to"
+				label={
+					isEmail
+						? __('Send to', 'vulomail')
+						: __('Phone number', 'vulomail')
+				}
+				help={
+					isEmail
+						? __('Any inbox you can check.', 'vulomail')
+						: __(
+								'With its country code. Your gateway may charge for the message.',
+								'vulomail'
+							)
+				}
+			>
+				<TextInput
+					id="vm-test-to"
+					name="vm-test-to"
+					type={isEmail ? 'email' : 'text'}
+					value={to[channel]}
+					placeholder={
+						isEmail
+							? vulomailAppLocalizer.admin_email
+							: '+14155550123'
+					}
+					onChange={(next) =>
+						setTo({ ...to, [channel]: String(next) })
+					}
+					onKeyDown={(event) => {
+						if (
+							'Enter' === event.key &&
+							to[channel].trim() &&
+							!isSending
+						) {
+							send();
+						}
+					}}
+				/>
+			</FieldRow>
+
+			<FieldRow
+				label={__('Send through', 'vulomail')}
+				help={__(
+					'"Normal delivery order" tries the primary, then the backup, exactly like a real message.',
+					'vulomail'
+				)}
+			>
+				<SelectInput
+					key={channel}
+					type="single-select"
+					name={`vm-test-through-${channel}`}
+					options={[
+						{
+							value: LIVE,
+							label: __('Normal delivery order', 'vulomail'),
+						},
+						...own.map((item) => ({
+							value: item.id,
+							label: `${item.label} · ${item.provider_label}`,
+						})),
+					]}
+					value={connectionId[channel]}
+					isClearable={false}
+					onChange={(value) =>
+						setConnectionId({
+							...connectionId,
+							[channel]: String(value),
+						})
+					}
+				/>
+			</FieldRow>
+
+			<div className="vm-tools-send-row">
+				<ButtonInput
+					buttons={{
+						text: isSending
+							? __('Sending…', 'vulomail')
+							: isEmail
+								? __('Send test email', 'vulomail')
+								: __('Send test SMS', 'vulomail'),
+						icon: 'send',
+						color: 'purple-bg',
+						disabled: isSending || '' === to[channel].trim(),
+						onClick: send,
+					}}
+				/>
+			</div>
+
 			{result && (
 				<NoticeComponent
 					displayPosition="inline-notice"
@@ -226,49 +358,50 @@ const TestCard = ({ channel, connections, preselected }: TestCardProps) => {
 						result.success
 							? sprintf(
 									/* translators: %s: provider name. */
-									__('Accepted by %s', 'vulomail'),
+									__('Sent - accepted by %s', 'vulomail'),
 									providerLabel(result.provider)
-							  )
+								)
 							: __('The test was not sent', 'vulomail')
 					}
-					message={(() => {
-						const failedAttempts = result.attempts.filter(
-							(attempt) => !attempt.success && result.attempts.length > 1
-						);
-
-						// NoticeComponent's array form is the auto-rotating, closable banner UI and
-						// renders plain text; only the single-line case below can carry the HTML help link.
-						if (failedAttempts.length > 0) {
-							return [
-								result.message,
-								...failedAttempts.map(
-									(attempt) => `${providerLabel(attempt.provider)}: ${attempt.error_message}`
-								),
-							];
-						}
-
-						return result.success
-							? result.message
-							: errorNoticeHtml({ provider: result.provider, error_message: result.message, is_cause: true }, channel);
-					})()}
+					message={
+						// NoticeComponent's array form renders plain text; only the single line can carry the help link.
+						failedAttempts.length > 0
+							? [
+									result.message,
+									...failedAttempts.map(
+										(attempt) =>
+											`${providerLabel(attempt.provider)}: ${attempt.error_message}`
+									),
+								]
+							: result.success
+								? result.message
+								: errorNoticeHtml(
+										{
+											provider: result.provider,
+											error_message: result.message,
+											is_cause: true,
+										},
+										channel
+									)
+					}
 				/>
 			)}
-			<div className="vulomail-form-footer">
-				<ButtonInput
-					buttons={{
-						text: isSending ? __('Sending…', 'vulomail') : __('Send test', 'vulomail'),
-						icon: 'send',
-						disabled: isSending || '' === to.trim(),
-						onClick: send,
-					}}
-				/>
-			</div>
-		</CardComponent>
+		</Card>
 	);
 };
 
+/**
+ * Tools: one health summary, every check in one list (most urgent first, passed checks folded away), and a
+ * test sender beside it.
+ */
 const Tools = () => {
-	const preselected = new URLSearchParams(useLocation().hash).get('connection') ?? '';
+	const hash = new URLSearchParams(useLocation().hash);
+	const preselected = hash.get('connection') ?? '';
+	const requestedTest = hash.get('test');
+	const initialChannel: Channel | '' =
+		'sms' === requestedTest || 'email' === requestedTest
+			? requestedTest
+			: '';
 	const [connections, setConnections] = useState<Connection[] | null>(null);
 	const [checks, setChecks] = useState<Check[] | null>(null);
 	const [lastChecked, setLastChecked] = useState<number | null>(null);
@@ -276,6 +409,7 @@ const Tools = () => {
 
 	const runDiagnostics = () => {
 		setChecks(null);
+		setError('');
 
 		apiGet<Check[]>('tools/diagnostics')
 			.then((data) => {
@@ -293,184 +427,281 @@ const Tools = () => {
 		runDiagnostics();
 	}, []);
 
-	const header = (
-		<NavigatorHeaderComponent
-			headerIcon="tools"
-			headerTitle={__('Tools', 'vulomail')}
-			headerDescription={__('Check that messages are going out, and find out why if they are not.', 'vulomail')}
-			headerCustomContent={
-				<div className="vulomail-inline">
-					{checks && lastChecked && <span className="vulomail-diag-stamp">{checkedStamp(lastChecked)}</span>}
-					<ButtonInput
-						buttons={{
-							text: checks ? __('Run diagnostics again', 'vulomail') : __('Running…', 'vulomail'),
-							icon: 'refresh',
-							color: 'purple-bg',
-							disabled: !checks,
-							onClick: runDiagnostics,
-						}}
-					/>
-				</div>
-			}
-		/>
-	);
-
-	if (error) {
-		return (
-			<>
-				{header}
-				<ContainerComponent general>
-					<CardComponent title={__('Tools', 'vulomail')} titleIcon="error">
-						<ModuleGuardComponent icon="error" title={__('Could not load the tools', 'vulomail')} desc={error} />
-					</CardComponent>
-				</ContainerComponent>
-			</>
-		);
-	}
-
-	const bySeverity = (status: Check['status']) => (checks ?? []).filter((check) => status === check.status);
+	const bySeverity = (status: Check['status']) =>
+		(checks ?? []).filter((check) => status === check.status);
 	const problems = bySeverity('error').length;
 	const attention = bySeverity('warning').length;
-	const passed = bySeverity('good').length;
-	const overall: Check['status'] = problems ? 'error' : attention ? 'warning' : 'good';
+	const passed = bySeverity('good');
+	const toReview = ORDER.flatMap((status) => bySeverity(status));
 
-	const overallLabel = problems
-		? __('Messages are not being delivered', 'vulomail')
-		: attention
-			? __('Delivery needs attention', 'vulomail')
-			: __('Everything looks good', 'vulomail');
-
-	const verdict = problems
+	const overallText = problems
 		? sprintf(
 				/* translators: %d: number of failing checks. */
 				_n(
-					'%d check found a problem stopping messages from going out.',
-					'%d checks found problems stopping messages from going out.',
+					'%d problem is stopping messages from going out. Fix it first.',
+					'%d problems are stopping messages from going out. Fix them first.',
 					problems,
 					'vulomail'
 				),
 				problems
-		  )
+			)
 		: attention
 			? sprintf(
 					/* translators: %d: number of checks needing attention. */
-					_n('%d check needs attention.', '%d checks need attention.', attention, 'vulomail'),
+					_n(
+						'%d check needs attention.',
+						'%d checks need attention.',
+						attention,
+						'vulomail'
+					),
 					attention
-			  )
-			: __('Everything checked out - no problems found.', 'vulomail');
+				)
+			: __(
+					'No problems found. Send a test to see a message arrive.',
+					'vulomail'
+				);
+
+	// The status card Settings → Email and SMS open with: how healthy delivery is, and the button that re-checks.
+	const tone: Status = !checks
+		? 'off'
+		: problems
+			? 'bad'
+			: attention
+				? 'warn'
+				: 'good';
+	const toneWord = !checks
+		? __('Checking…', 'vulomail')
+		: problems
+			? __('Needs fixing', 'vulomail')
+			: attention
+				? __('Needs attention', 'vulomail')
+				: __('All good', 'vulomail');
+	const counts = checks
+		? [
+				{
+					key: 'bad',
+					show: problems > 0,
+					label: sprintf(
+						/* translators: %d: number of failing checks. */ _n(
+							'%d problem',
+							'%d problems',
+							problems,
+							'vulomail'
+						),
+						problems
+					),
+				},
+				{
+					key: 'warn',
+					show: attention > 0,
+					label: sprintf(
+						/* translators: %d: number of checks needing attention. */ _n(
+							'%d to review',
+							'%d to review',
+							attention,
+							'vulomail'
+						),
+						attention
+					),
+				},
+				{
+					key: 'good',
+					show: passed.length > 0,
+					label: sprintf(
+						/* translators: %d: number of passed checks. */ _n(
+							'%d passed',
+							'%d passed',
+							passed.length,
+							'vulomail'
+						),
+						passed.length
+					),
+				},
+			].filter((count) => count.show)
+		: [];
+
+	const header = (
+		<section
+			className={`vm-set-hero is-${tone}`}
+			aria-labelledby="vm-tools-hero"
+		>
+			<div className="vm-set-hero-main">
+				<IconTile
+					icon="security"
+					tone={
+						'good' === tone
+							? 'green'
+							: 'warn' === tone
+								? 'amber'
+								: 'bad' === tone
+									? 'red'
+									: 'neutral'
+					}
+					size="lg"
+				/>
+				<div className="vm-set-hero-text">
+					<div className="vm-set-hero-title">
+						<h3 id="vm-tools-hero">
+							{__('Delivery health', 'vulomail')}
+						</h3>
+						<Pill status={tone}>{toneWord}</Pill>
+					</div>
+					<p>
+						{checks
+							? overallText
+							: __(
+									"Checking that email and text messages go out, and why if they don't.",
+									'vulomail'
+								)}
+					</p>
+					{counts.length > 0 && (
+						<div className="vm-set-path">
+							<span className="vm-set-path-label">
+								{__('Results', 'vulomail')}
+							</span>
+							<ol>
+								{counts.map((count) => (
+									<li key={count.key}>
+										<span
+											className={`vm-set-path-chip vm-tools-count is-${count.key}`}
+										>
+											{count.label}
+										</span>
+									</li>
+								))}
+							</ol>
+							{lastChecked && (
+								<span className="vm-tools-stamp">
+									{checkedStamp(lastChecked)}
+								</span>
+							)}
+						</div>
+					)}
+				</div>
+				<div className="vm-set-hero-actions">
+					<ButtonInput
+						buttons={{
+							text: checks
+								? __('Check again', 'vulomail')
+								: __('Checking…', 'vulomail'),
+							icon: 'refresh',
+							color: 'purple',
+							disabled: !checks && !error,
+							onClick: runDiagnostics,
+						}}
+					/>
+				</div>
+			</div>
+		</section>
+	);
 
 	return (
-		<>
+		<div className="vm-page vm-set vm-tools">
 			{header}
-			<ContainerComponent general>
-				<ColumnComponent grid={6}>
-					{connections ? (
+
+			{/* The checks, with the test sender beside them: it stays in view while you work down the list. */}
+			<div className="vm-row is-side">
+				<Card
+					id="tools-diagnostics-card"
+					icon="security"
+					title={__('Checks', 'vulomail')}
+					desc={__(
+						'What was looked at on this site, most urgent first. Running them never changes a setting.',
+						'vulomail'
+					)}
+				>
+					{error && (
+						<EmptyState
+							icon="error"
+							tone="red"
+							title={__('Could not run the checks', 'vulomail')}
+							text={error}
+						/>
+					)}
+					{!checks && !error && (
 						<>
-							<TestCard
-								channel="email"
-								connections={connections.filter((item) => 'email' === item.channel)}
-								preselected={preselected}
-							/>
-							<TestCard
-								channel="sms"
-								connections={connections.filter((item) => 'sms' === item.channel)}
-								preselected={preselected}
-							/>
-						</>
-					) : (
-						<>
-							<CardComponent title={__('Send a test email', 'vulomail')} titleIcon="mail" isLoading />
-							<CardComponent title={__('Send a test SMS', 'vulomail')} titleIcon="send" isLoading />
+							<Skeleton />
+							<Skeleton />
+							<Skeleton />
 						</>
 					)}
-				</ColumnComponent>
-				<ColumnComponent grid={6}>
-					<CardComponent
-						id="tools-diagnostics-card"
-						title={__('Diagnostics', 'vulomail')}
-						titleIcon="security"
-						desc={__('Checks of this site\'s delivery setup. Nothing here changes any setting.', 'vulomail')}
-						isLoading={!checks}
-					>
-						{checks && (
-							<>
-								<div className={`vulomail-diag-summary is-${overall}`}>
-									<div className="vulomail-diag-summary-text">
-										<span className="vulomail-diag-status">
-											<i className="vulomail-diag-status-dot" />
-											{overallLabel}
+					{checks && (
+						<div className="vm-checks">
+							{toReview.map((check) => (
+								<CheckRow key={check.id} check={check} />
+							))}
+							{passed.length > 0 && (
+								<details
+									className="vm-check is-good vm-check-passed"
+									open={0 === toReview.length}
+								>
+									<summary>
+										<IconTile icon="check" tone="green" />
+										<span className="vm-check-head">
+											<span className="vm-check-title">
+												<strong>
+													{sprintf(
+														/* translators: %d: number of passed checks. */
+														_n(
+															'%d check passed',
+															'%d checks passed',
+															passed.length,
+															'vulomail'
+														),
+														passed.length
+													)}
+												</strong>
+											</span>
+											<span className="vm-check-line">
+												{passed
+													.map((check) =>
+														escapeHtml(check.label)
+													)
+													.join(', ')}
+											</span>
 										</span>
-										<p className="vulomail-diag-verdict">{verdict}</p>
-										<div className="vulomail-diag-bar" aria-hidden="true">
-											<span className="is-red" style={{ flexGrow: problems }} />
-											<span className="is-amber" style={{ flexGrow: attention }} />
-											<span className="is-green" style={{ flexGrow: passed }} />
-										</div>
-									</div>
-										<AnalyticsComponent
-											variant="tinted"
-											cols={3}
-											data={[
-												{ colorClass: 'red', number: problems, text: __('Problems', 'vulomail') },
-												{ colorClass: 'yellow', number: attention, text: __('Need attention', 'vulomail') },
-												{ colorClass: 'green', number: passed, text: __('Passed', 'vulomail') },
-											]}
+										<span
+											className="vm-check-chevron"
+											aria-hidden="true"
 										/>
-								</div>
-
-								{bySeverity('error').length > 0 && (
-									<div className="vulomail-diag-group">
-										<h3 className="vulomail-section-title">{GROUP_TITLE.error}</h3>
-										{bySeverity('error').map((check) => (
-											<IssueCard key={check.id} check={check} />
+									</summary>
+									<ul className="vm-check-passed-list">
+										{passed.map((check) => (
+											<li key={check.id}>
+												<i
+													className="adminfont-check"
+													aria-hidden="true"
+												/>
+												<span>
+													<strong>
+														{escapeHtml(
+															check.label
+														)}
+													</strong>
+													{check.message}
+												</span>
+											</li>
 										))}
-									</div>
-								)}
+									</ul>
+								</details>
+							)}
+						</div>
+					)}
+				</Card>
 
-								{bySeverity('warning').length > 0 && (
-									<div className="vulomail-diag-group">
-										<h3 className="vulomail-section-title">{GROUP_TITLE.warning}</h3>
-										{bySeverity('warning').map((check) => (
-											<IssueCard key={check.id} check={check} />
-										))}
-									</div>
-								)}
-
-								{bySeverity('info').length > 0 && (
-									<div className="vulomail-diag-group">
-										<h3 className="vulomail-section-title">{GROUP_TITLE.info}</h3>
-										<div className="vulomail-diag-info-grid">
-											{bySeverity('info').map((check) => (
-												<InfoCard key={check.id} check={check} />
-											))}
-										</div>
-									</div>
-								)}
-
-								{bySeverity('good').length > 0 && (
-									<div className="vulomail-diag-group">
-										<h3 className="vulomail-section-title">{GROUP_TITLE.good}</h3>
-										<div className="vulomail-diag-passed">
-											{bySeverity('good').map((check) => (
-												<div className="vulomail-diag-pass" key={check.id}>
-													<span className="vulomail-diag-tick">
-														<i className="adminfont-check" aria-hidden="true" />
-													</span>
-													<div>
-														<strong>{escapeHtml(check.label)}</strong>
-														<span>{check.message}</span>
-													</div>
-												</div>
-											))}
-										</div>
-									</div>
-								)}
-							</>
-						)}
-					</CardComponent>
-				</ColumnComponent>
-			</ContainerComponent>
-		</>
+				<div className="vm-tools-side">
+					{connections ? (
+						<TestPanel
+							connections={connections}
+							preselected={preselected}
+							initialChannel={initialChannel}
+						/>
+					) : (
+						<Skeleton size="tall" />
+					)}
+				</div>
+			</div>
+		</div>
 	);
 };
 

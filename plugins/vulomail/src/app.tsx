@@ -10,10 +10,13 @@ import { searchIndex, SearchItem } from './searchIndex';
 
 // Screens that have moved: old address => where they are now.
 const MOVED: Record<string, string> = {
-	connections: 'settings&subtab=connections',
+	connections: 'settings&subtab=email',
+	'settings&subtab=connections': 'settings&subtab=email',
 	notifications: 'sms-alerts',
 	'settings&subtab=notifications': 'sms-alerts',
-	'settings&subtab=advanced': 'settings&subtab=uninstall',
+	'settings&subtab=advanced': 'settings&subtab=logging',
+	'settings&subtab=uninstall': 'settings&subtab=logging',
+	tools: 'settings&subtab=tools',
 };
 
 /**
@@ -21,16 +24,21 @@ const MOVED: Record<string, string> = {
  * (`#&tab=logs`), the same scheme the other VuloLabs admin apps use.
  */
 const App = () => {
-	const hash = new URLSearchParams(useLocation().hash);
+	const hash = new URLSearchParams(useLocation().hash.substring(1));
 	const requestedTab = hash.get('tab') || 'dashboard';
 	const subtab = hash.get('subtab');
 	const movedTo = MOVED[subtab ? `${requestedTab}&subtab=${subtab}` : requestedTab];
 	const currentTab = movedTo ? movedTo.split('&')[0] : requestedTab;
 
-	// Send an old link on to its new address, so the screen and the browser URL agree.
+	// Send an old link on to its new address, so the screen and the browser URL agree. Anything else in the
+	// address (a Google sign-in result, a log id) comes along.
 	useEffect(() => {
 		if (movedTo) {
-			window.location.hash = `&tab=${movedTo}`;
+			const rest = new URLSearchParams(hash);
+
+			rest.delete('tab');
+			rest.delete('subtab');
+			window.location.hash = `&tab=${movedTo}${rest.toString() ? `&${rest.toString()}` : ''}`;
 		}
 	}, [movedTo]);
 	const [results, setResults] = useState<SearchItem[]>([]);
@@ -112,7 +120,7 @@ const App = () => {
 				search={{
 					placeholder: __('Search…', 'vulomail'),
 					options: [
-						{ value: 'all', label: __('Every Where', 'vulomail') },
+						{ value: 'all', label: __('Everything', 'vulomail') },
 						{ value: 'tabs', label: __('Tabs', 'vulomail') },
 						{ value: 'settings', label: __('Settings', 'vulomail') },
 						{ value: 'sections', label: __('Sections', 'vulomail') },

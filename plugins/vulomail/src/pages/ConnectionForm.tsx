@@ -136,7 +136,11 @@ const ConnectionForm = ({ channel, connection, onSaved, onCancel }: ConnectionFo
 
 		save()
 			.then((payload) => {
-				notify('success', __('Connection saved.', 'vulomail'));
+				// A new connection's screen says where it was put to work; an edit only needs this.
+				if (connection) {
+					notify('success', __('Connection saved.', 'vulomail'));
+				}
+
 				onSaved(payload);
 			})
 			.catch((error) => notify('error', errorMessage(error)))

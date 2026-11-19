@@ -21,7 +21,6 @@ export type SearchItem = {
 const PAGE_ICONS: Record<string, string> = {
 	dashboard: 'analytics',
 	logs: 'clock',
-	tools: 'tools',
 	'sms-alerts': 'notification',
 	settings: 'setting',
 };
@@ -126,8 +125,8 @@ const PAGE_SECTIONS: SearchItem[] = [
 		category: 'sections',
 		name: __('Send a test email', 'vulomail'),
 		desc: __('Check that email is going out through a connection.', 'vulomail'),
-		link: '&tab=tools',
-		sectionId: 'tools-test-email-card',
+		link: '&tab=settings&subtab=tools',
+		sectionId: 'tools-test-card',
 		icon: 'mail',
 	},
 	{
@@ -135,8 +134,8 @@ const PAGE_SECTIONS: SearchItem[] = [
 		category: 'sections',
 		name: __('Send a test SMS', 'vulomail'),
 		desc: __('Check that text messages are going out through a connection.', 'vulomail'),
-		link: '&tab=tools',
-		sectionId: 'tools-test-sms-card',
+		link: '&tab=settings&subtab=tools',
+		sectionId: 'tools-test-card',
 		icon: 'send',
 	},
 	{
@@ -144,7 +143,7 @@ const PAGE_SECTIONS: SearchItem[] = [
 		category: 'sections',
 		name: __('Diagnostics', 'vulomail'),
 		desc: __('Checks of this site\'s delivery setup. Nothing here changes any setting.', 'vulomail'),
-		link: '&tab=tools',
+		link: '&tab=settings&subtab=tools',
 		sectionId: 'tools-diagnostics-card',
 		icon: 'security',
 	},
