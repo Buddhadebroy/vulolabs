@@ -1,3 +1,5 @@
+// Copied from vulocart/src/components/TableCard (VuloCart Free) with TableCard.tsx; keep the two in step.
+/* eslint-disable no-unused-vars -- `row` below names parameters in type signatures, not variables. */
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { IconComponent, TooltipComponent } from '@zyra/components';

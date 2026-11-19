@@ -124,20 +124,6 @@ const statusBadge = (row: Pick<LogRow, 'status' | 'used_fallback'>) => {
 	);
 };
 
-const engagementBadge = (value: Engagement) =>
-	'not_tracked' === value ? (
-		<span className="vulomail-log-secondary">
-			{__('Not tracked', 'vulomail')}
-		</span>
-	) : (
-		<BadgeComponent
-			color={'yes' === value ? 'green' : 'gray'}
-			text={
-				'yes' === value ? __('Yes', 'vulomail') : __('No', 'vulomail')
-			}
-		/>
-	);
-
 /** "First – last" for a pair of display dates, or a dash when nothing was observed. */
 const observedRange = (first: string, last: string): string => {
 	if (!first) {
@@ -306,6 +292,7 @@ const Logs = () => {
 	};
 
 	// Export: every entry matching the tab, filters and search (up to 1,000), as a CSV file.
+	// eslint-disable-next-line no-unused-vars -- a parameter name in a type signature, not a variable.
 	const csvColumns: Record<string, (row: LogRow) => string | number> = {
 		[__('Date', 'vulomail')]: (row) => displayDate(row),
 		[__('Channel', 'vulomail')]: (row) =>
@@ -786,7 +773,14 @@ const Logs = () => {
 										className={`vulomail-log-avatar is-${party.kind}`}
 										aria-hidden="true"
 									>
-										{party.name.charAt(0).toUpperCase()}
+										{/* An initial for a name; a phone number or other symbol-led value gets the channel's icon. */}
+										{/^\p{L}/u.test(party.name) ? (
+											party.name.charAt(0).toUpperCase()
+										) : (
+											<i
+												className={`adminfont-${'sms' === detail.channel ? 'send' : 'mail'}`}
+											/>
+										)}
 									</span>
 									<div className="vulomail-log-cell">
 										<span className="vulomail-log-secondary">
