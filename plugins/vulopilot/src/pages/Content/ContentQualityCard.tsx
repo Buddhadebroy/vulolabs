@@ -43,7 +43,7 @@ interface ContentQualityResponse {
 
 type ScoreTone = 'green' | 'orange' | 'red';
 
-/** Same 3-band green/orange/red split NeedsAttentionCard.tsx's own getScoreTone uses for a 0-100 score. */
+/** A 3-band green/orange/red split for a 0-100 score. */
 const getScoreTone = (percent: number): ScoreTone => {
 	if (percent >= 75) {
 		return 'green';

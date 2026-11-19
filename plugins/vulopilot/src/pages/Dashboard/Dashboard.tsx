@@ -14,7 +14,6 @@ import {
 import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import DashboardGrid from '../../dashboard-widgets/DashboardGrid';
 import { ButtonInput } from '@zyra/inputs';
-import GettingStartedCard from './GettingStartedCard';
 import HealthHero from './HealthHero';
 import type { HeroAction } from './HealthHero';
 import NextSteps from './NextSteps';
@@ -304,8 +303,6 @@ const Dashboard = () => {
 			<ContainerComponent general>
 				<ColumnComponent>
 					<div className="vp-page vp-dashboard">
-						<GettingStartedCard />
-
 						{/* 1. How the site is doing, and the one thing to do about it. */}
 						<HealthHero summary={summary} isLoading={isLoading} primary={primary} />
 

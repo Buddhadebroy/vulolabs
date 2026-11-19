@@ -1,11 +1,10 @@
 /* global vulopilotAppLocalizer */
 import React, { useEffect, useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, scrollToId } from '@zyra/core';
-import { ColumnComponent, ModuleGuardComponent } from '@zyra/components';
 import { TableCard } from '@zyra/table';
-import './AICopilot.scss';
-import IssuesSummaryCards, { Priority } from '../../components/Issues/IssuesSummaryCards';
+import { ButtonInput } from '@zyra/inputs';
+import { EmptyState, Segmented } from '../../components/ui';
 import IssueDetailPanel from '../../components/Issues/IssueDetailPanel';
 import {
 	CATEGORY_LABELS,
@@ -17,6 +16,8 @@ import {
 	issueIconFor,
 } from '../../components/Issues/issuesTypes';
 import { columns, tableRows } from '../../services/tableColumns';
+
+type Priority = 'all' | 'high' | 'medium' | 'low';
 
 interface GroupsResponse {
 	data: FindingGroup[];
@@ -31,7 +32,7 @@ interface IssuesListProps {
 	initialCategory?: string;
 }
 
-/** AI Copilot's Issues table. */
+/** AI Copilot's Issues section: a priority filter, the table of issue groups, and the chosen group's details. */
 const IssuesList: React.FC<IssuesListProps> = ({
 	initialScannerId,
 	initialCategory,
@@ -168,15 +169,6 @@ const IssuesList: React.FC<IssuesListProps> = ({
 		setPaged(1);
 	};
 
-	if (error) {
-		return (
-			<ModuleGuardComponent
-				icon="error"
-				title={__('Could not load issues', 'vulopilot')}
-				desc={error}
-			/>
-		);
-	}
 	const tableCategoryCounts = [
 		{
 			value: 'all',
@@ -197,144 +189,198 @@ const IssuesList: React.FC<IssuesListProps> = ({
 		})),
 	];
 
-	return (
-		<>
-			{/* Scroll target for the "View all issues"/group-row navigation. Kept inside this grid={8} column so the grid={8}/grid={4} pair stays in the page's shared flex row. */}
-			<ColumnComponent grid={8}>
-				<div id="ai-copilot-issues-section">
-					<IssuesSummaryCards
-						priorityCounts={priorityCounts}
-						isLoading={isLoading}
-						activePriority={activePriority}
-						onSelectPriority={handlePriorityChange}
+	const priorityTotal = priorityCounts.high + priorityCounts.medium + priorityCounts.low;
+	const countOf = (label: string, count: number) =>
+		/* translators: 1: priority such as "High", 2: number of issues. */
+		count > 0 ? sprintf(__('%1$s %2$d', 'vulopilot'), label, count) : label;
+
+	let content;
+
+	if (error) {
+		content = (
+			<section className="vp-card">
+				<div className="vp-card-body">
+					<EmptyState
+						icon="error"
+						tone="red"
+						title={__('Could not load issues', 'vulopilot')}
+						text={error}
+						action={
+							<ButtonInput
+								buttons={{ text: __('Try again', 'vulopilot'), icon: 'refresh', color: 'purple', onClick: refetch }}
+							/>
+						}
 					/>
-
-					{!isLoading && data.length === 0 ? (
-						<ModuleGuardComponent
-							icon="check"
-							title={__('Nothing to suggest right now', 'vulopilot')}
-							desc={__(
-								'AI suggestions appear here once a scan finds something worth fixing.',
-								'vulopilot'
-							)}
-						/>
-					) : (
-						<TableCard
-							showMenu={false}
-							hideHeader={true}
-							categoryCounts={tableCategoryCounts}
-							activeCategory={activeTabId}
-							activeRowId={selectedGroup ? groupKey(selectedGroup) : undefined}
-							// Toggles the detail panel open/closed.
-							onRowClick={(row: Record<string, unknown>) => {
-								selectGroup(row as unknown as FindingGroup);
-							}}
-							headers={columns({
-								issue: {
-									key: 'label',
-									type: 'info',
-									label: __('Issue', 'vulopilot'),
-									width: '60%',
-									iconKey: 'categoryIcon',
-									descriptionKey: 'descriptionText',
-									badgesKey: 'issueBadges',
-								},
-								affected: {
-									label: __('Affected', 'vulopilot'),
-									render: (row: FindingGroup) =>
-										formatAffected(
-											row.count,
-											row.object_type
-										),
-								},
-								action: {
-									label: __('Affected', 'vulopilot'),
-									type: 'action',
-									actions: [
-										{
-											type: 'button',
-											label: (row) =>
-												selectedGroup &&
-												groupKey(row as unknown as FindingGroup) ===
-													groupKey(selectedGroup)
-													? __('Showing', 'vulopilot')
-													: __('More Details', 'vulopilot'),
-											color: (row) =>
-												selectedGroup &&
-												groupKey(row as unknown as FindingGroup) ===
-													groupKey(selectedGroup)
-													? 'text-green'
-													: 'text-purple',
-											icon: (row) =>
-												selectedGroup &&
-												groupKey(row as unknown as FindingGroup) ===
-													groupKey(selectedGroup)
-													? 'eye'
-													: 'pagination-next-arrow',
-											onClick: (row) => {
-												selectGroup(row as unknown as FindingGroup);
-											},
-										},
-									],
-								},
-							})}
-							rows={tableRows(data.map((row) => ({
-								...row,
-								// Tries SCANNER_ICONS[scanner_id] first, falls back to CATEGORY_ICONS[category].
-								categoryIcon: issueIconFor(
-									row.category,
-									row.scanner_id
-								),
-								descriptionText:
-									(row.sample?.description?.length ?? 0) > 80
-										? `${row.sample?.description?.slice(0, 80)}...`
-										: row.sample?.description || '',
-								issueBadges: [
-									{
-										text: CATEGORY_LABELS[row.category] ?? row.category,
-										color: `badge-${row.category}`,
-									},
-									{ text: row.severity, color: `badge-${row.severity}` },
-								],
-							})))}
-							ids={data.map((row) => groupKey(row))}
-							totalRows={total}
-							isLoading={isLoading}
-							onQueryUpdate={(query: {
-								paged?: number | string;
-								per_page?: number | string;
-								categoryFilter?: string;
-							}) => {
-								setPaged(Number(query.paged) || 1);
-								setPerPage(Number(query.per_page) || 10);
-								if (
-									query.categoryFilter &&
-									query.categoryFilter !== activeTabId
-								) {
-									setActiveTabId(query.categoryFilter);
-								}
-							}}
-							emptyMessage={__(
-								'AI suggestions appear here once a scan finds something worth fixing.',
-								'vulopilot'
-							)}
-						/>
-					)}
 				</div>
-			</ColumnComponent>
+			</section>
+		);
+	} else if (!isLoading && 0 === data.length) {
+		const isFiltered = 'all' !== activePriority || 'all' !== activeTabId;
 
-			{/* No detail panel when there's nothing to show. */}
-			{(isLoading || data.length > 0) && (
-				<ColumnComponent grid={4}>
-					<div id="ai-copilot-issue-detail-panel">
-						<IssueDetailPanel
-							group={selectedGroup}
-							onActionComplete={refetch}
-						/>
-					</div>
-				</ColumnComponent>
-			)}
-		</>
+		content = (
+			<section className="vp-card">
+				<div className="vp-card-body">
+					<EmptyState
+						icon="check"
+						tone="green"
+						title={isFiltered ? __('Nothing matches this filter', 'vulopilot') : __("You're all caught up", 'vulopilot')}
+						text={
+							isFiltered
+								? __('No open issues in this view. Other areas may still have some.', 'vulopilot')
+								: __('Issues appear here once a scan finds something worth fixing.', 'vulopilot')
+						}
+						action={
+							isFiltered && (
+								<ButtonInput
+									buttons={{
+										text: __('Show all issues', 'vulopilot'),
+										color: 'purple',
+										onClick: () => {
+											setActiveTabId('all');
+											handlePriorityChange('all');
+										},
+									}}
+								/>
+							)
+						}
+					/>
+				</div>
+			</section>
+		);
+	} else {
+		content = (
+			<div className="vp-row is-side vp-issues-row">
+				<div className="vp-issues-table">
+				<TableCard
+					showMenu={false}
+					hideHeader={true}
+					categoryCounts={tableCategoryCounts}
+					activeCategory={activeTabId}
+					activeRowId={selectedGroup ? groupKey(selectedGroup) : undefined}
+					// Toggles the detail panel open/closed.
+					onRowClick={(row: Record<string, unknown>) => {
+						selectGroup(row as unknown as FindingGroup);
+					}}
+					headers={columns({
+						issue: {
+							key: 'label',
+							type: 'info',
+							label: __('Issue', 'vulopilot'),
+							width: '60%',
+							iconKey: 'categoryIcon',
+							descriptionKey: 'descriptionText',
+							badgesKey: 'issueBadges',
+						},
+						affected: {
+							label: __('Affected', 'vulopilot'),
+							render: (row: FindingGroup) =>
+								formatAffected(
+									row.count,
+									row.object_type
+								),
+						},
+						action: {
+							label: __('Details', 'vulopilot'),
+							type: 'action',
+							actions: [
+								{
+									type: 'button',
+									label: (row) =>
+										selectedGroup &&
+										groupKey(row as unknown as FindingGroup) ===
+											groupKey(selectedGroup)
+											? __('Showing', 'vulopilot')
+											: __('More Details', 'vulopilot'),
+									color: (row) =>
+										selectedGroup &&
+										groupKey(row as unknown as FindingGroup) ===
+											groupKey(selectedGroup)
+											? 'text-green'
+											: 'text-purple',
+									icon: (row) =>
+										selectedGroup &&
+										groupKey(row as unknown as FindingGroup) ===
+											groupKey(selectedGroup)
+											? 'eye'
+											: 'pagination-next-arrow',
+									onClick: (row) => {
+										selectGroup(row as unknown as FindingGroup);
+									},
+								},
+							],
+						},
+					})}
+					rows={tableRows(data.map((row) => ({
+						...row,
+						// Tries SCANNER_ICONS[scanner_id] first, falls back to CATEGORY_ICONS[category].
+						categoryIcon: issueIconFor(
+							row.category,
+							row.scanner_id
+						),
+						descriptionText:
+							(row.sample?.description?.length ?? 0) > 80
+								? `${row.sample?.description?.slice(0, 80)}...`
+								: row.sample?.description || '',
+						issueBadges: [
+							{
+								text: CATEGORY_LABELS[row.category] ?? row.category,
+								color: `badge-${row.category}`,
+							},
+							{ text: row.severity, color: `badge-${row.severity}` },
+						],
+					})))}
+					ids={data.map((row) => groupKey(row))}
+					totalRows={total}
+					isLoading={isLoading}
+					onQueryUpdate={(query: {
+						paged?: number | string;
+						per_page?: number | string;
+						categoryFilter?: string;
+					}) => {
+						setPaged(Number(query.paged) || 1);
+						setPerPage(Number(query.per_page) || 10);
+						if (
+							query.categoryFilter &&
+							query.categoryFilter !== activeTabId
+						) {
+							setActiveTabId(query.categoryFilter);
+						}
+					}}
+					emptyMessage={__(
+						'AI suggestions appear here once a scan finds something worth fixing.',
+						'vulopilot'
+					)}
+				/>
+				</div>
+				<div id="ai-copilot-issue-detail-panel" className="vp-issues-detail">
+					<IssueDetailPanel group={selectedGroup} onActionComplete={refetch} />
+				</div>
+			</div>
+		);
+	}
+
+	return (
+		<section className="vp-issues" id="ai-copilot-issues-section" aria-label={__('Issues', 'vulopilot')}>
+			<div className="vp-section-head">
+				<div>
+					<h2>{__('Issues', 'vulopilot')}</h2>
+					<p>{__('Findings from your latest scans, grouped by check. Pick one to see what to do.', 'vulopilot')}</p>
+				</div>
+				<Segmented
+					label={__('Priority', 'vulopilot')}
+					size="sm"
+					value={activePriority}
+					onChange={(next) => handlePriorityChange(next as Priority)}
+					options={[
+						{ value: 'all', label: countOf(__('All', 'vulopilot'), priorityTotal) },
+						{ value: 'high', label: countOf(__('High', 'vulopilot'), priorityCounts.high) },
+						{ value: 'medium', label: countOf(__('Medium', 'vulopilot'), priorityCounts.medium) },
+						{ value: 'low', label: countOf(__('Low', 'vulopilot'), priorityCounts.low) },
+					]}
+				/>
+			</div>
+			{content}
+		</section>
 	);
 };
 

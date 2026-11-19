@@ -4,8 +4,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import { NoticeManager } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import { EmptyState, Pill, Segmented, Skeleton } from '../../components/ui';
-import type { Status } from '../../components/ui';
+import { EmptyState, Segmented, Skeleton } from '../../components/ui';
 import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
 import { getCategoryTabHash } from '../../services/getCategoryTabLink';
@@ -20,12 +19,13 @@ interface ActionRunRow {
 	created_at: string;
 }
 
-const SEVERITY: Record<string, { status: Status; label: string }> = {
-	critical: { status: 'bad', label: __('Critical', 'vulopilot') },
-	high: { status: 'warn', label: __('High', 'vulopilot') },
-	medium: { status: 'info', label: __('Medium', 'vulopilot') },
-	low: { status: 'off', label: __('Low', 'vulopilot') },
-	info: { status: 'off', label: __('Info', 'vulopilot') },
+/** Severity as words: shown as a label above the issue, never as a button-like chip beside the action. */
+const SEVERITY: Record<string, string> = {
+	critical: __('Critical', 'vulopilot'),
+	high: __('High priority', 'vulopilot'),
+	medium: __('Medium priority', 'vulopilot'),
+	low: __('Low priority', 'vulopilot'),
+	info: __('Info', 'vulopilot'),
 };
 
 /** `write-meta-title` → "Write meta title". */
@@ -182,6 +182,7 @@ const NextSteps: React.FC<{
 								<i className="adminfont-approval" />
 							</span>
 							<div className="vp-step-main">
+								<em className="vp-step-sev">{__('Needs your approval', 'vulopilot')}</em>
 								<strong>{humanize(row.action_id)}</strong>
 								<span>
 									{sprintf(
@@ -223,6 +224,7 @@ const NextSteps: React.FC<{
 									<i className={`adminfont-${isUrgent(group) ? 'error' : 'info'}`} />
 								</span>
 								<a className="vp-step-main" href={href}>
+									<em className="vp-step-sev">{severity}</em>
 									<strong>{group.label}</strong>
 									<span>
 										<b>{formatAffected(group.count, group.object_type)}</b>
@@ -230,7 +232,6 @@ const NextSteps: React.FC<{
 									</span>
 								</a>
 								<div className="vp-step-actions">
-									<Pill status={severity.status}>{severity.label}</Pill>
 									<a className={`vp-step-cta${group.fix_action_id ? ' is-ai' : ''}`} href={href}>
 										{group.fix_action_id ? (
 											<>
@@ -238,7 +239,10 @@ const NextSteps: React.FC<{
 												{__('Fix with AI', 'vulopilot')}
 											</>
 										) : (
-											__('Review', 'vulopilot')
+											<>
+												{__('Review', 'vulopilot')}
+												<i className="adminfont-arrow-right" aria-hidden="true" />
+											</>
 										)}
 									</a>
 								</div>

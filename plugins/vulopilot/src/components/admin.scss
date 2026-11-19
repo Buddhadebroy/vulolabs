@@ -3,6 +3,7 @@
 // module screen (drawn inside the same `.admin-main-wrapper`) share it.
 @import './design-system';
 @import './ui';
+@import './header';
 
 // ---- VuloPilot settings: calmer rows ----
 // VuloPilot's settings cards are long (a dozen fields is common), so a hairline over every row reads as a ruled

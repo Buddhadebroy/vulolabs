@@ -2,8 +2,6 @@ import React from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { ButtonInput } from '@zyra/inputs';
 import { Delta, Skeleton, scoreTone } from '../../components/ui';
-import { formatWpDate } from '../../services/formatWpDate';
-import { useLastScanTime } from '../../services/useLastScanTime';
 import { getAreaScores, getRating, getRatingSummary } from './scoring';
 import type { DashboardSummary } from '../../dashboard-widgets/types';
 
@@ -50,7 +48,6 @@ const HealthHero: React.FC<{
 	isLoading: boolean;
 	primary: HeroAction | null;
 }> = ({ summary, isLoading, primary }) => {
-	const { lastScanAt } = useLastScanTime();
 
 	if (isLoading) {
 		return (
@@ -115,15 +112,6 @@ const HealthHero: React.FC<{
 						<li>
 							<strong>{summary.new_findings_this_week}</strong> {__('new this week', 'vulopilot')}
 						</li>
-						{lastScanAt && (
-							<li>
-								{sprintf(
-									/* translators: %s: date and time of the last completed scan. */
-									__('Last scan %s', 'vulopilot'),
-									formatWpDate(lastScanAt)
-								)}
-							</li>
-						)}
 					</ul>
 					{primary && (
 						<div className="vp-hero-cta">
