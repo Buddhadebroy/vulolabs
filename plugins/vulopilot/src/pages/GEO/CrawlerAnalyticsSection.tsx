@@ -344,7 +344,7 @@ const CrawlerAnalyticsSection = ({
 									<CartesianGrid strokeDasharray="3 3" />
 									<XAxis dataKey="date" tickFormatter={formatWpDay} />
 									<YAxis allowDecimals={false} />
-									<Tooltip labelFormatter={formatWpDay} />
+									<Tooltip labelFormatter={(label) => formatWpDay(label as string)} />
 									<Area
 										type="monotone"
 										dataKey="total"

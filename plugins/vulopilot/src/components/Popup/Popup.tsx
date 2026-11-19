@@ -9,7 +9,8 @@ import '../Popup/Popup.scss';
 
 interface PopupProps {
 	moduleName?: string;
-	plugin?: string;
+	/** A plugin slug, or zyra's dependent-plugin entry ({ plugin: slug, name }) for a field that needs one. */
+	plugin?: string | { plugin: string; name: string; link?: string };
 	vulocloud?: boolean;
 
 	confirmMode?: boolean;
@@ -84,12 +85,12 @@ const ShowProPopup: React.FC<PopupProps> = (props) => {
 							icon: 'close',
 							text: props.confirmNoText || __('Cancel', 'vulopilot'),
 							color: 'red',
-							onClick: props.onCancel,
+							onClick: () => props.onCancel?.(),
 						},
 						{
 							icon: 'delete',
 							text: props.confirmYesText || __('Confirm', 'vulopilot'),
-							onClick: props.onConfirm,
+							onClick: () => props.onConfirm?.(),
 						},
 					]}
 				/>
@@ -97,18 +98,25 @@ const ShowProPopup: React.FC<PopupProps> = (props) => {
 		);
 	}
 
-	if (props.plugin) {
+	const requiredPlugin =
+		'object' === typeof props.plugin
+			? props.plugin
+			: props.plugin
+				? { plugin: props.plugin, name: props.plugin }
+				: null;
+
+	if (requiredPlugin) {
 		return (
 			<div className="popup-wrapper">
 				<div className="popup-header">
-					<i className={`adminfont-${props.plugin}`} />
+					<i className={`adminfont-${requiredPlugin.plugin}`} />
 				</div>
 				<div className="popup-body">
 					<div className="module-name">
 						{sprintf(
 							/* translators: %s: Plugin name. */
 							__('Plugin Required: %s', 'vulopilot'),
-							props.plugin
+							requiredPlugin.name
 						)}
 					</div>
 					<div className="module-desc">
@@ -118,7 +126,7 @@ const ShowProPopup: React.FC<PopupProps> = (props) => {
 								'This feature requires the "%s" plugin to be active.',
 								'vulopilot'
 							),
-							props.plugin
+							requiredPlugin.name
 						)}
 					</div>
 					<ButtonInput

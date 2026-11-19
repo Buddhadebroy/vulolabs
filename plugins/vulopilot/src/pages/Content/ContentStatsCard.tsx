@@ -90,7 +90,7 @@ const ContentStatsCard = () => {
 			title={__('Content Stats', 'vulopilot')}
 			titleIcon='ai'
 			desc={__('Your real content numbers for the selected period.', 'vulopilot')}
-			isLoading={isLoading}
+			isLoading={isLoading || undefined}
 			action={
 				<ToggleInput
 					options={PERIOD_OPTIONS}

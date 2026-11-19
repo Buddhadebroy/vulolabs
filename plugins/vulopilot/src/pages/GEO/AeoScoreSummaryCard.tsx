@@ -83,7 +83,7 @@ const AeoScoreSummaryCard = ({ isActive, ...panelProps }: AeoScoreSummaryCardPro
 				'How ready your content is to be extracted and quoted directly by AI answer engines.',
 				'vulopilot'
 			)}
-			isLoading={panelProps.isLoading}
+			isLoading={panelProps.isLoading || undefined}
 		>
 			{wrap(Panel ? <Panel {...panelProps} /> : dummyContent, dummyContent)}
 		</CardComponent>

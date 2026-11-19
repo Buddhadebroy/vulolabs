@@ -25,7 +25,18 @@ import IndexNowPanel from '../../components/Settings/SEO/IndexNowPanel';
 import ShowProPopup from '../../components/Popup/Popup';
 import { CLOUD_STORAGE_LOCKED_METHODS } from '../../components/Settings/Backups';
 import { useFilterSlot } from '../../services/useFilterSlot';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
+
+type RendererProps = ComponentProps<typeof InputRenderer>;
+
+/**
+ * One settings tab as this plugin's config files (components/Settings/) declare it. zyra's core helpers type a tab's
+ * `modal` as a node and leave out the extras InputRenderer and this page read, so tabs are read through this type.
+ */
+type SettingsTab = RendererProps['settings'] & {
+	PanelComponent?: ComponentType;
+	groupBySections?: boolean;
+};
 
 /** Settings page built on zyra's settings framework. */
 
@@ -79,7 +90,9 @@ const Settings = () => {
 		);
 		const [isCloudStoragePopupOpen, setIsCloudStoragePopupOpen] = useState(false);
 
-		const settingModal = currentTab ? getSettingById(settingsArray, currentTab) : null;
+		const settingModal = currentTab
+			? (getSettingById(settingsArray, currentTab) as unknown as SettingsTab | null)
+			: null;
 		const fieldKeys: string[] = (settingModal?.modal ?? []).map(
 			(field: { key: string }) => field.key
 		);
@@ -151,7 +164,7 @@ const Settings = () => {
 						{settingModal ? (
 							<InputRenderer
 								settings={settingModal}
-								setting={setting}
+								setting={setting as RendererProps['setting']}
 								updateSetting={guardedUpdateSetting}
 								Popup={ShowProPopup}
 								// Per-tab opt-in into InputRenderer's card-grouped layout.
@@ -262,16 +275,17 @@ const Settings = () => {
 		<SettingProvider>
 			<NavigatorComponent
 				key={proTabsTick}
-				settingContent={settingsArray}
+				// The same tree getTemplateData() builds; zyra's core and components packages type it differently.
+				settingContent={settingsArray as unknown as ComponentProps<typeof NavigatorComponent>['settingContent']}
 				currentSetting={location.get('subtab') as string}
 				getForm={GetForm}
 				prepareUrl={(subTab: string) =>
 					`?page=vulopilot#&tab=settings&subtab=${subTab}`
 				}
-				appLocalizer={vulopilotAppLocalizer}
 				Link={Link}
 				settingName={'Settings'}
-				className="admin-settings"
+				className="admin-settings vulopilot-settings"
+				menuIcon
 				saveStatus={saveStatus}
 			/>
 		</SettingProvider>

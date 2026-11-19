@@ -249,7 +249,7 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 					title={__('Visibility Score', 'vulopilot')}
 					titleIcon="bar-chart"
 					desc={__('Your real, combined score across Brand, SEO, GEO, and Crawl & URLs.', 'vulopilot')}
-					isLoading={isLoading}
+					isLoading={isLoading || undefined}
 				>
 					{score && (
 						<div className="overall-score-wrapper">
@@ -361,7 +361,7 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 							)
 							: __('Combined score across Brand, SEO, GEO, and Crawl & URLs.', 'vulopilot')
 					}
-					isLoading={isLoadingProgress}
+					isLoading={isLoadingProgress || undefined}
 					action={
 						<ToggleInput
 							options={PERIOD_OPTIONS}

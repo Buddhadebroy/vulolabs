@@ -111,7 +111,7 @@ const SeoTab = () => {
 					title={__('SEO Health', 'vulopilot')}
 					titleIcon="search"
 					desc={__('Your real, site-wide SEO score, open issue counts, and progress over time.', 'vulopilot')}
-					isLoading={isLoadingScore}
+					isLoading={isLoadingScore || undefined}
 				>
 					<>
 						{score && (

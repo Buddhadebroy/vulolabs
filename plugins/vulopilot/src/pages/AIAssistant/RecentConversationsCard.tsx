@@ -121,9 +121,8 @@ const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 			) : (
 				<ListComponent
 					className="mini-card report"
-					isLoading={isLoading}
 					items={data.map((row) => ({
-						id: row.id,
+						id: String(row.id),
 						icon: 'live-chat',
 						title: row.title,
 						tags: (

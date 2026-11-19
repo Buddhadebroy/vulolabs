@@ -108,7 +108,7 @@ const AccessibilityHeroCard = ({
 	const overallScore = (score as number) ?? 0;
 
 	return (
-		<CardComponent isLoading={!isReady} className="accessibility-hero">
+		<CardComponent isLoading={!isReady || undefined} className="accessibility-hero">
 			<div className='overall-score-wrapper'>
 				<div className='overall-score-summary'>
 					{isReady && (
@@ -175,7 +175,7 @@ const AccessibilityHeroCard = ({
 					)}
 				</div>
 				<div className='overall-score-summary'>
-					<AccessibilityChecksGrid />
+					<AccessibilityChecksGrid onReview={() => onReviewIssues()} />
 				</div>
 			</div>
 		</CardComponent>

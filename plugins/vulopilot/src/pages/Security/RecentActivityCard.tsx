@@ -41,7 +41,7 @@ const RecentActivityCard = () => {
 			title={__('Recent Activity', 'vulopilot')}
 			titleIcon="clock"
 			desc={__('Your last 4 real security-related events.', 'vulopilot')}
-			isLoading={isLoading}
+			isLoading={isLoading || undefined}
 		>
 			{!isLoading && data.length === 0 && (
 				<ModuleGuardComponent

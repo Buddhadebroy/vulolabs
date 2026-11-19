@@ -10,7 +10,7 @@ import {
 	ModuleGuardComponent,
 	TypographyComponent
 } from '@zyra/components';
-import { ButtonInput, ToggleInput } from '@zyra/inputs';
+import { ToggleInput } from '@zyra/inputs';
 import './Performance.scss';
 import RealTimeMonitoringCard from './RealTimeMonitoringCard';
 import SpeedHistoryCard from './SpeedHistoryCard';
@@ -76,6 +76,9 @@ const TEXT_COLOR: Record<Rating['className'], string> = {
 
 
 /** "Performance Score". */
+// `onViewDetails` is for a "View Slow Pages" header button. It was passed as `headerAction`, which zyra's
+// CardComponent does not read (its header slot is `action`), so the button has never shown; it stays unwired here.
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 	const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
@@ -175,17 +178,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 								'vulopilot'
 							)
 					}
-					isLoading={isLoading}
-					headerAction={
-						<ButtonInput
-							buttons={{
-								text: __('View Slow Pages', 'vulopilot'),
-								rightIcon: 'eye',
-								color: 'text-purple',
-								onClick: onViewDetails,
-							}}
-						/>
-					}
+					isLoading={isLoading || undefined}
 				>
 					{!isLoading && hasError && (
 						<ModuleGuardComponent
@@ -252,7 +245,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 					title={__('Core Web Vitals', 'vulopilot')}
 					titleIcon="analytics"
 					desc={__('Real Google Core Web Vitals for this site.', 'vulopilot')}
-					isLoading={isLoading}
+					isLoading={isLoading || undefined}
 					action={
 						<ToggleInput
 							options={PERIOD_OPTIONS}

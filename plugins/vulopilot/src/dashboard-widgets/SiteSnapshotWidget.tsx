@@ -2,9 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { AnalyticsComponent, ListComponent, CardComponent, TypographyComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
-import AutomationStatusWidget from './AutomationStatusWidget';
 import { useGeoScore } from '../pages/GEO/useGeoScore';
 import type { EntitiesResponse, Entity } from '../pages/GEO/SchemaKnowledge/KnowledgeGraphSection';
 import { WidgetProps } from './types';
@@ -47,7 +45,6 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 	isLoading,
 	onHide,
 	isCustomizing,
-	onRefreshSummary,
 }) => {
 	const snapshot = summary.site_snapshot;
 
@@ -60,7 +57,7 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 
 		getApiResponse<EntitiesResponse>(getApiLink(vulopilotAppLocalizer, 'entities'), {
 			headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce },
-		}).then((response: EntitiesResponse | undefined) => {
+		}).then((response) => {
 			if (response) {
 				setEntities(response);
 			}
@@ -300,107 +297,76 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 	return (
 		<>
 			<DashboardWidget
-				title={__('Site overview', 'vulopilot')}
-				desc={__("Key details about your site's content, technology and audience.", 'vulopilot')}
-				icon="global-community"
+				title={__('Site profile', 'vulopilot')}
+				desc={__("Your site's content, technology, audience and the identity AI engines see.", 'vulopilot')}
+				icon="website"
 				isLoading={isLoading}
 				onHide={onHide}
 				isCustomizing={isCustomizing}
 			>
-				<div className="site-overview-intro">
-					<div className="site-overview-identity-row">
-						<div className="site-overview-preview">
-							{previewImage ? (
-								<img
-									src={previewImage}
-									alt={__('Your homepage', 'vulopilot')}
-									onError={() => setScreenshotFailed(true)}
-								/>
-							) : (
-								<i className="adminfont-global-community site-overview-preview-empty" />
-							)}
-						</div>
-						<div className="site-overview-identity">
-							<TypographyComponent variant="h4">
-								{vulopilotAppLocalizer.site_title || brandName}
-							</TypographyComponent>
-							<a href={siteUrl} target="_blank" rel="noreferrer" className="site-overview-url">
-								<TypographyComponent variant="desc" color="purple">
-									{siteUrl.replace(/^https?:\/\//, '')}
-								</TypographyComponent>
-								<i className='adminfont-external'/>
-							</a>
-							{vulopilotAppLocalizer.site_description && (
-								<div className="desc">{vulopilotAppLocalizer.site_description}</div>
-							)}
-							
-						</div>
+				<div className="vp-site">
+					<div className="vp-site-preview">
+						{previewImage ? (
+							<img
+								src={previewImage}
+								alt={__('Your homepage', 'vulopilot')}
+								onError={() => setScreenshotFailed(true)}
+							/>
+						) : (
+							<i className="adminfont-global-community" aria-hidden="true" />
+						)}
 					</div>
-					<AnalyticsComponent
-						variant="small"
-						cols={3}
-						data={[
-							{ icon: 'wordpress blue', number: snapshot.wp_version || NOT_SET, text: __('WordPress', 'vulopilot') },
-							{ icon: 'coding purple', number: snapshot.php_version || NOT_SET, text: __('PHP', 'vulopilot') },
-							{
-								icon: 'module orange',
-								number: `${snapshot.plugins_active} / ${snapshot.plugins_total}`,
-								text: __('Plugins active', 'vulopilot'),
-							},
-						]}
-					/>
+					<div className="vp-site-identity">
+						<strong>{vulopilotAppLocalizer.site_title || brandName}</strong>
+						<a href={siteUrl} target="_blank" rel="noreferrer">
+							{siteUrl.replace(/^https?:\/\//, '')}
+							<i className="adminfont-external" aria-hidden="true" />
+						</a>
+						{vulopilotAppLocalizer.site_description && <p>{vulopilotAppLocalizer.site_description}</p>}
+					</div>
 				</div>
-				<div className="site-overview-groups">
-					<div className="group">
-						{sections.map((group) => (
-							<div key={group.id} className={`site-snapshot-group-card is-${group.id}`}>
-								<CardComponent
-									title={group.title}
-									icon={group.icon}
-								>
-									<ListComponent
-										className="mini-card report without-border site-snapshot-list"
-										items={group.rows.map((row) => ({
-											id: row.key,
-											icon: row.icon,
-											title: row.label,
-											tags: <span className="desc">{row.value}</span>,
-										}))}
-									/>
-								</CardComponent>
-							</div>
 
-						))}
+				<div className="vp-mini-stats is-3">
+					<div className="vp-mini-stat">
+						<strong>{snapshot.wp_version || NOT_SET}</strong>
+						<span>{__('WordPress', 'vulopilot')}</span>
 					</div>
-					<div className="group">
-						{sections2.map((group) => (
-							<div key={group.id} className={`site-snapshot-group-card is-${group.id}`}>
-								<CardComponent
-									title={group.title}
-									icon={group.icon}
-								>
-									<ListComponent
-										className="mini-card report without-border site-snapshot-list"
-										items={group.rows.map((row) => ({
-											id: row.key,
-											icon: row.icon,
-											title: row.label,
-											tags: <span className="desc">{row.value}</span>,
-										}))}
-									/>
-								</CardComponent>
-							</div>
-						))}
+					<div className="vp-mini-stat">
+						<strong>{snapshot.php_version || NOT_SET}</strong>
+						<span>{__('PHP', 'vulopilot')}</span>
 					</div>
+					<a className="vp-mini-stat" href={vulopilotAppLocalizer.admin_url.replace(/admin\.php.*$/, 'plugins.php')}>
+						<strong>{`${snapshot.plugins_active} / ${snapshot.plugins_total}`}</strong>
+						<span>{__('Plugins active', 'vulopilot')}</span>
+					</a>
+				</div>
+
+				<div className="vp-facts">
+					{[...sections, ...sections2].map((group) => (
+						<section key={group.id} className="vp-facts-group">
+							<h4>
+								<i className={`adminfont-${group.icon}`} aria-hidden="true" />
+								{group.link ? (
+									<a href={group.link}>
+										{group.title}
+										<i className="adminfont-arrow-right" aria-hidden="true" />
+									</a>
+								) : (
+									group.title
+								)}
+							</h4>
+							<dl>
+								{group.rows.map((row) => (
+									<div key={row.key}>
+										<dt>{row.label}</dt>
+										<dd>{row.value}</dd>
+									</div>
+								))}
+							</dl>
+						</section>
+					))}
 				</div>
 			</DashboardWidget>
-			<AutomationStatusWidget
-				summary={summary}
-				isLoading={isLoading}
-				onHide={onHide}
-				isCustomizing={isCustomizing}
-				onRefreshSummary={onRefreshSummary}
-			/>
 		</>
 	);
 };

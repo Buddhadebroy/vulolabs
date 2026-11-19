@@ -254,7 +254,7 @@ const BusinessProfileCard = () => {
 					title={__('Business Information', 'vulopilot')}
 					titleIcon="info"
 					desc={__('Overall completeness and accuracy.', 'vulopilot')}
-					isLoading={isLoading}
+					isLoading={isLoading || undefined}
 				>
 					{null === entityScore ? (
 						<ModuleGuardComponent
@@ -334,7 +334,7 @@ const BusinessProfileCard = () => {
 						'Here’s what we found about your business and what needs attention.',
 						'vulopilot'
 					)}
-					isLoading={isLoading}
+					isLoading={isLoading || undefined}
 					action={
 						<ButtonInput
 							buttons={{

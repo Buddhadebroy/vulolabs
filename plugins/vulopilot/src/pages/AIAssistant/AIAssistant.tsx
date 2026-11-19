@@ -251,7 +251,6 @@ const AIAssistant = () => {
 					'Your always-on AI assistant for WordPress. Ask anything, get intelligent answers and take action.',
 					'vulopilot'
 				)}
-				showPremiumLink={false}
 				badges={[
 					vulocloudConnected
 						? {
@@ -353,7 +352,7 @@ const AIAssistant = () => {
 															<div className="guided-flow-other-row">
 																<TextInput
 																	value={otherAnswer}
-																	onChange={(value: string) => setOtherAnswer(value)}
+																	onChange={(value) => setOtherAnswer(value as string)}
 																	placeholder={__('Or type your own answer…', 'vulopilot')}
 																/>
 																<ButtonInput
@@ -415,10 +414,13 @@ const AIAssistant = () => {
 													accept={ATTACHMENT_ACCEPT}
 													openUploader={__('Upload File', 'vulopilot')}
 													wrapperClass="chat-composer-fileinput"
-													imageSrc={attachments.map((attachment) => ({
-														id: attachment.id,
-														url: attachment.url,
-													}))}
+													// zyra's FileInput takes { url } objects as well as URL strings (it turns strings into them).
+													imageSrc={
+														attachments.map((attachment) => ({
+															id: attachment.id,
+															url: attachment.url,
+														})) as unknown as string[]
+													}
 													onChange={handleFileInputChange}
 												/>
 											</div>

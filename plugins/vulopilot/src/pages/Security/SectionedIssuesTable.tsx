@@ -18,6 +18,8 @@ import IssueDetailPanel from '../../components/Issues/IssueDetailPanel';
 import ProLockedCard from '../../components/ProLockedCard';
 import type { FindingsSection } from './SectionedFindingsTab';
 import './ProtectMySite.scss';
+import { columns, tableRows } from '../../services/tableColumns';
+import type { QueryProps } from '@zyra/table';
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } };
 
@@ -381,7 +383,7 @@ const SectionedIssuesTable = ({
 								onRowClick={(row: Record<string, unknown>) => {
 									handleSelectGroup(row as unknown as FindingGroup);
 								}}
-								headers={{
+								headers={columns({
 									issue: {
 										key: 'label',
 										type: 'info',
@@ -432,8 +434,8 @@ const SectionedIssuesTable = ({
 											},
 										],
 									},
-								}}
-								rows={pageRows.map((row) => ({
+								})}
+								rows={tableRows(pageRows.map((row) => ({
 									...row,
 									// Bounded to 50 chars so a long `sample.description` doesn't stretch the Issue column past its own 65% width.
 									descriptionText: truncateDescription(
@@ -459,19 +461,16 @@ const SectionedIssuesTable = ({
 										},
 										{ text: row.severity, color: `badge-${row.severity}` },
 									],
-								}))}
+								})))}
 								ids={pageRows.map((row) => groupKey(row))}
 								totalRows={sortedGroups.length}
 								isLoading={isLoading}
-								onQueryUpdate={(query: {
-									paged?: number | string;
-									searchValue?: string;
-									filter?: Record<string, string>;
-								}) => {
+								onQueryUpdate={(query: QueryProps) => {
 									setPaged(Number(query.paged) || 1);
 									setSearchValue(query.searchValue ?? '');
 									setResourceFilterValue(
-										query.filter?.object_type ?? ''
+										// A single-choice filter: one string.
+										(query.filter?.object_type as string) ?? ''
 									);
 								}}
 								emptyMessage={

@@ -29,6 +29,7 @@ const ReportsOverviewActions = ({
 		<>
 			<div className="reports-overview-actions">
 				<SelectInput
+					type="single-select"
 					name="reports_days_range"
 					value={String(days)}
 					options={DAY_OPTIONS.map((option) => ({

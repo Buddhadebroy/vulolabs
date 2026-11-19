@@ -1,9 +1,8 @@
 /* global vulopilotAppLocalizer */
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { getApiLink, getApiResponse, AnalyticsComponent } from '@zyra/core';
-import { ChartComponent, ModuleGuardComponent, PopupComponent } from '@zyra/components';
-import { ToggleInput } from '@zyra/inputs';
+import { ChartComponent, PopupComponent } from '@zyra/components';
+import { EmptyState, Segmented } from '../components/ui';
 import DashboardWidget from './DashboardWidget';
 import DummyDataNotice from '../components/DummyDataNotice';
 import { BlurredProContent } from '../components/UpgradeToProOverlay';
@@ -11,13 +10,6 @@ import ShowProPopup from '../components/Popup/Popup';
 import { useApiList } from '../services/useApiList';
 import { formatWpDate } from '../services/formatWpDate';
 import { WidgetProps, PeriodDays } from './types';
-
-interface CrawlerAnalyticsResponse {
-	current_total: number;
-	previous_total: number;
-	daily_volume: { date: string; total: number }[];
-}
-
 
 interface HealthSnapshot {
 	snapshot_date: string;
@@ -44,30 +36,13 @@ const DUMMY_HEALTH_TIMELINE = [
 	{ day: __('Day 7', 'vulopilot'), score: 79 },
 ];
 
-/** "VuloPilot activity" - a real 5-tile activity strip. */
+/** "Health trend": the overall score per day (Pro's daily snapshots); a blurred sample with an upgrade prompt on Free. */
 const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
-	summary,
 	isLoading,
 	onHide,
 	isCustomizing,
 }) => {
 	const [healthTimelineDays, setHealthTimelineDays] = useState<PeriodDays>('30');
-	const [crawlerAnalytics, setCrawlerAnalytics] =
-		useState<CrawlerAnalyticsResponse | null>(null);
-
-	useEffect(() => {
-		getApiResponse<CrawlerAnalyticsResponse>(
-			getApiLink(
-				vulopilotAppLocalizer,
-				`crawler-traffic/analytics?days=${healthTimelineDays}`
-			),
-			{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
-		).then((response) => {
-			if (response) {
-				setCrawlerAnalytics(response);
-			}
-		});
-	}, [healthTimelineDays]);
 
 
 	const { data: healthSnapshots } = useApiList<HealthSnapshot>(
@@ -79,25 +54,24 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 	const isHealthTimelineModuleActive = Boolean(vulopilotAppLocalizer.khali_dabba);
 	const [isHealthTimelineProPopupOpen, setIsHealthTimelineProPopupOpen] = useState(false);
 
-	const crawlerCurrent = crawlerAnalytics?.current_total ?? 0;
 
 
 	return (
 		<>
 			<DashboardWidget
-				title={__('Health timeline', 'vulopilot')}
-				desc={__('How your health scores have trended over time.', 'vulopilot')}
+				title={__('Health trend', 'vulopilot')}
+				desc={__('How your overall score has moved over time.', 'vulopilot')}
 				icon="analytics"
 				isLoading={isLoading}
 				onHide={onHide}
 				isCustomizing={isCustomizing}
 				headerAction={
-					<ToggleInput
+					<Segmented
+						size="sm"
 						options={PERIOD_OPTIONS}
 						value={healthTimelineDays}
 						onChange={(value) => setHealthTimelineDays(value as PeriodDays)}
-						modules={[]}
-						
+						label={__('Period', 'vulopilot')}
 					/>
 				}
 			>
@@ -120,10 +94,10 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 						<DummyDataNotice />
 					</>
 				) : 0 === healthSnapshots.length ? (
-					<ModuleGuardComponent
+					<EmptyState
 						icon="analytics"
 						title={__('No trend data yet', 'vulopilot')}
-						desc={__(
+						text={__(
 							'Health timeline builds up once daily snapshots start recording - check back after today.',
 							'vulopilot'
 						)}
@@ -141,27 +115,6 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 						yDomain={[0, 100]}
 					/>
 				)}
-				<AnalyticsComponent
-					variant="small"
-					cols={3}
-					data={[
-						{
-							// icon: 'global-community green',
-							number: crawlerCurrent,
-							text: __('AI crawler visits', 'vulopilot'),
-						},
-						{
-							// icon: 'automation blue',
-							number: summary.automation_status.enabled,
-							text: __('Automations', 'vulopilot'),
-						},
-						{
-							// icon: 'ai purple',
-							number: summary.pending_approvals,
-							text: __('Pending approvals', 'vulopilot'),
-						}
-					]}
-				/>
 			</DashboardWidget>
 			<PopupComponent
 				open={isHealthTimelineProPopupOpen}

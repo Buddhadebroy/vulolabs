@@ -229,7 +229,7 @@ const IssuesSection = ({
 						),
 						nonceHeaders
 					)
-						.then((response: { data: RawFinding[] } | undefined) => response?.data ?? [])
+						.then((response) => response?.data ?? [])
 						.catch(() => [] as RawFinding[]);
 
 					const contentByPostId = new Map(byPostId);
@@ -421,7 +421,7 @@ const IssuesSection = ({
 					nonceHeaders
 				)
 					.then(
-						(response: { readability: { score: number } } | undefined) =>
+						(response) =>
 							[row.id, response?.readability.score] as [number, number | undefined]
 					)
 					.catch(() => [row.id, undefined] as [number, number | undefined])
@@ -629,10 +629,11 @@ const IssuesSection = ({
 			{content?.toolbarFilters ? (
 				<div className="recent-content-toolbar">
 					<TextInput
-						type="search"
+						// zyra passes the type to the <input>; its types leave out "search".
+						type={'search' as 'text'}
 						name="recent-content-search"
 						value={toolbarSearch}
-						onChange={(value: string) => setToolbarSearch(value)}
+						onChange={(value) => setToolbarSearch(value as string)}
 						placeholder={__('Search by title or source page…', 'vulopilot')}
 						size={20}
 						wrapperClass="recent-content-search"
@@ -641,7 +642,7 @@ const IssuesSection = ({
 						name="recent-content-severity-filter"
 						type="single-select"
 						value={toolbarSeverity}
-						onChange={(value: string) =>
+						onChange={(value) =>
 							setToolbarSeverity(value as 'all' | FindingSeverity)
 						}
 						options={toolbarSeverityOptions.map((option) => ({
@@ -654,7 +655,7 @@ const IssuesSection = ({
 						name="recent-content-resource-filter"
 						type="single-select"
 						value={activeTab}
-						onChange={(value: string) => setActiveTab(value)}
+						onChange={(value) => setActiveTab(value as string)}
 						options={content.rowTabs.map((tab) => ({
 							label: tab.label,
 							value: tab.key,

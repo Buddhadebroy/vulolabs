@@ -16,6 +16,7 @@ import {
 	groupKey,
 	issueIconFor,
 } from '../../components/Issues/issuesTypes';
+import { columns, tableRows } from '../../services/tableColumns';
 
 interface GroupsResponse {
 	data: FindingGroup[];
@@ -228,7 +229,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 							onRowClick={(row: Record<string, unknown>) => {
 								selectGroup(row as unknown as FindingGroup);
 							}}
-							headers={{
+							headers={columns({
 								issue: {
 									key: 'label',
 									type: 'info',
@@ -276,8 +277,8 @@ const IssuesList: React.FC<IssuesListProps> = ({
 										},
 									],
 								},
-							}}
-							rows={data.map((row) => ({
+							})}
+							rows={tableRows(data.map((row) => ({
 								...row,
 								// Tries SCANNER_ICONS[scanner_id] first, falls back to CATEGORY_ICONS[category].
 								categoryIcon: issueIconFor(
@@ -295,7 +296,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 									},
 									{ text: row.severity, color: `badge-${row.severity}` },
 								],
-							}))}
+							})))}
 							ids={data.map((row) => groupKey(row))}
 							totalRows={total}
 							isLoading={isLoading}

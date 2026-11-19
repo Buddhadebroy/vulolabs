@@ -262,6 +262,7 @@ const BuiltinAutomationCard = ({
 			<FormGroupWrapperComponent>
 				<FormGroupComponent row label={__('When should this automation run?', 'vulopilot')}>
 					<SelectInput
+						type="single-select"
 						value={config.frequency}
 						size={15}
 						onChange={(value) => handleFrequencyChange(value as string)}
@@ -271,6 +272,7 @@ const BuiltinAutomationCard = ({
 				{'weekly' === config.frequency && (
 					<FormGroupComponent row label={__('Run on', 'vulopilot')}>
 						<SelectInput
+							type="single-select"
 							value={String(config.day_of_week ?? 1)}
 							size={15}
 							onChange={(value) => handleDayChange(value as string)}
@@ -288,7 +290,6 @@ const BuiltinAutomationCard = ({
 			</FormGroupWrapperComponent>
 
 			<ButtonInput
-				possition='left'
 				buttons={[
 					{
 						text: primaryText,

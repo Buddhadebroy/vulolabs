@@ -123,6 +123,7 @@ const SecurityStatusCard = ({
 		return (
 			<SecurityDashboardCard
 				onNavigateToSecurityTab={onNavigateToSecurityTab}
+				onViewSection={onViewSection}
 			/>
 		);
 	}
@@ -155,7 +156,7 @@ const SecurityStatusCard = ({
 					)}
 				</>
 			)}
-			isLoading={isLoading}
+			isLoading={isLoading || undefined}
 			className="vulnerability-hero security-status-hero"
 		>
 			{score !== null && (

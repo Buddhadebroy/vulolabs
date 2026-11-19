@@ -472,7 +472,11 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 
 				showPanelNotice(undefined);
 
-				return runBulkFixInBatches(bulkFixHandler, ids).then((outcome) => {
+				return runBulkFixInBatches(
+					// eslint-disable-next-line no-unused-vars -- a parameter name in a type, not a variable.
+					bulkFixHandler as (batchIds: number[]) => Promise<BatchFixOutcome> | undefined,
+					ids
+				).then((outcome) => {
 					if (activeScannerId.current === group.scanner_id) {
 						showPanelNotice({ ...outcome, label: group.label });
 					}
@@ -712,7 +716,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 									const pageLink = getAffectedItemLink(row);
 
 									return {
-										id: row.id,
+										id: String(row.id),
 										icon: CATEGORY_ICONS[group.category] ?? 'ai orange',
 										title: row.title,
 										desc: sprintf(

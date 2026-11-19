@@ -88,7 +88,7 @@ const BiggestSpeedOpportunityCard = ({
 			title={__('Biggest Speed Opportunity', 'vulopilot')}
 			titleIcon="light"
 			desc={__('The single fix with the biggest real impact on your speed score.', 'vulopilot')}
-			isLoading={isLoading}
+			isLoading={isLoading || undefined}
 		>
 			{!isLoading && !opportunity && (
 				<ModuleGuardComponent

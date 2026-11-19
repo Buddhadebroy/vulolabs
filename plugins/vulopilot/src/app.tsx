@@ -162,9 +162,10 @@ const App = () => {
 					],
 				}}
 				onQueryUpdate={handleQueryUpdate}
-				onResultClick={handleResultClick}
+				// zyra hands back the result object it was given: one of this app's SearchItems.
+				onResultClick={(item) => handleResultClick(item as SearchItem)}
 				free={vulopilotAppLocalizer.version}
-				pro={vulopilotAppLocalizer.pro_data.version}
+				pro={vulopilotAppLocalizer.pro_data.version || undefined}
 				searchSize={7}
 			/>
 			<Route />

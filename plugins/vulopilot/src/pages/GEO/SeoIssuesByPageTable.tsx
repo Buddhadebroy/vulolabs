@@ -14,6 +14,7 @@ import {
 	RawFinding,
 	VisibilityCell,
 } from './seoIssuesShared';
+import { columns, tableRows } from '../../services/tableColumns';
 
 /** One inline sub-row under a page's row. */
 interface FindingRow {
@@ -283,7 +284,7 @@ const SeoIssuesByPageTable = ({
 						setSortBy(query.orderby || null);
 						setSortOrder('asc' === query.order ? 'asc' : 'desc');
 					}}
-					headers={{
+					headers={columns({
 						title: {
 							label: __('Page', 'vulopilot'),
 							width: '65%',
@@ -316,7 +317,6 @@ const SeoIssuesByPageTable = ({
 										<InformationItemComponent
 											title={row.title || __('(no title)', 'vulopilot')}
 											titleLink={row.editLink}
-											icon={row.categoryIcon}
 											badges={[
 												{
 													text: formatStatusLabel(row.status),
@@ -491,15 +491,15 @@ const SeoIssuesByPageTable = ({
 								{
 									type: 'button',
 									// Same "More Details"/"Showing" toggle wording as the other issues tables.
-									label: (row: Record<string, unknown>) =>
+									label: (row) =>
 										(row as unknown as PageRow).id === activePostId
 											? __('Showing', 'vulopilot')
 											: __('More Details', 'vulopilot'),
-									color: (row: Record<string, unknown>) =>
+									color: (row) =>
 										(row as unknown as PageRow).id === activePostId
 											? 'text-green'
 											: 'text-purple',
-									icon: (row: Record<string, unknown>) =>
+									icon: (row) =>
 										(row as unknown as PageRow).id === activePostId
 											? 'eye'
 											: 'pagination-next-arrow',
@@ -513,7 +513,7 @@ const SeoIssuesByPageTable = ({
 								},
 								{
 									type: 'button',
-									label: (row: Record<string, unknown>) =>
+									label: (row) =>
 										deletingId === (row as unknown as PageRow).id
 											? __('Deleting…', 'vulopilot')
 											: __('Delete', 'vulopilot'),
@@ -533,11 +533,11 @@ const SeoIssuesByPageTable = ({
 								},
 							],
 						},
-					}}
-					rows={visibleRows.map((row) => ({
+					})}
+					rows={tableRows(visibleRows.map((row) => ({
 						...row,
 						variation: buildVariationRows(row),
-					}))}
+					})))}
 					ids={visibleRows.map((row) => row.id)}
 					totalRows={visibleRows.length}
 					isLoading={isLoading}

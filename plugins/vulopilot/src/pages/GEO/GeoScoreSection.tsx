@@ -179,7 +179,7 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 						__('Based on %d published pages.', 'vulopilot'),
 						score?.pages_checked ?? 0
 					)}
-					isLoading={isLoading}
+					isLoading={isLoading || undefined}
 				>
 					<div className="overall-score-wrapper">
 						<div className="overall-score-summary">
@@ -328,7 +328,7 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 					title={__('Score Snapshot', 'vulopilot')}
 					desc={__('How your GEO score has trended over the selected period.', 'vulopilot')}
 					titleIcon='tools'
-					isLoading={isLoadingProgress}
+					isLoading={isLoadingProgress || undefined}
 					action={
 						<ToggleInput
 							options={PERIOD_OPTIONS}

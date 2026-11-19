@@ -17,6 +17,7 @@ import type {
 	SchemaCoveragePage,
 	SchemaCoverageSnapshot,
 } from './useSchemaCoverage';
+import { columns, tableRows } from '../../../services/tableColumns';
 
 interface StructuredDataSectionProps {
 	coverage: {
@@ -153,7 +154,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 						'VuloPilot checked how your website describes its pages, products, articles and business to search engines - see what structured information is there and where something is missing or incorrect, a real sample from its own live pages.',
 						'vulopilot'
 					)}
-					isLoading={isLoading}
+					isLoading={isLoading || undefined}
 				>
 					{!isLoading && !snapshot && (
 						<ModuleGuardComponent
@@ -180,7 +181,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 									showMenu={false}
 									hideHeader={true}
 									variant="transparent"
-									headers={{
+									headers={columns({
 										type: {
 											key: 'type',
 											type: 'info',
@@ -223,8 +224,8 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 												},
 											],
 										},
-									}}
-									rows={snapshot.coverage.map((row) => ({
+									})}
+									rows={tableRows(snapshot.coverage.map((row) => ({
 										...row,
 										typeIcon: getTypeIcon(row.type),
 										statusBadges: [
@@ -233,7 +234,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 												color: `badge-${STATUS_SEVERITY_CLASS[getRowStatus(row)]}`,
 											},
 										],
-									}))}
+									})))}
 									ids={snapshot.coverage.map((row) => row.type)}
 									totalRows={snapshot.coverage.length}
 									isLoading={isLoading}

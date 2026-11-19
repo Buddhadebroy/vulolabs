@@ -185,7 +185,7 @@ const MigrationPanel = () => {
 							type="single-select"
 							isClearable={false}
 							value={selectedId}
-							onChange={(value: string) => setSelectedId(value)}
+							onChange={(value) => setSelectedId(value as string)}
 							options={sources.map((source) => ({
 								label: sourceCountLabel(source),
 								value: source.id,

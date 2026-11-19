@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { BadgeComponent, ListComponent } from '@zyra/components';
+import { IconTile, Pill } from '../components/ui';
 import DashboardWidget from './DashboardWidget';
 import { formatWpDate } from '../services/formatWpDate';
 import { WidgetProps } from './types';
@@ -60,39 +60,41 @@ const CrawlerTrafficWidget: React.FC<WidgetProps> = ({
 
 	return (
 		<DashboardWidget
-			title={
-				<>
-					{__('AI crawler traffic', 'vulopilot')}
-					<BadgeComponent
-						color="purple"
-						text={sprintf(
-							/* translators: %d: AI crawler visit count. */
-							__('%d visits', 'vulopilot'),
-							totalVisits
-						)}
-					/>
-				</>
-			}
+			title={__('AI crawler traffic', 'vulopilot')}
 			desc={__('Visits from GPTBot, ClaudeBot, PerplexityBot, and other AI crawlers.', 'vulopilot')}
 			icon="global-community"
 			isLoading={isLoading}
 			onHide={onHide}
 			isCustomizing={isCustomizing}
+			headerAction={
+				<a className="vp-card-link" href="?page=vulopilot#&tab=seo-visibility&subtab=crawler-traffic">
+					{__('Full report', 'vulopilot')}
+					<i className="adminfont-arrow-right" aria-hidden="true" />
+				</a>
+			}
 		>
-			<>
-				<ListComponent
-					className="mini-card report"
-					items={topBots.map((bot) => ({
-						id: bot.bot_name,
-						title: bot.bot_name,
-						tags: (
-							<span className="desc">
-								{formatWpDate(bot.last_seen_at)}
-							</span>
-						),
-					}))}
-				/>
-			</>
+			<div className="vp-crawler-total">
+				<strong>{totalVisits.toLocaleString()}</strong>
+				<span>{__('visits from AI crawlers', 'vulopilot')}</span>
+				{isDummy && <Pill status="off">{__('Sample data', 'vulopilot')}</Pill>}
+			</div>
+			<ul className={`vp-list${isDummy ? ' is-sample' : ''}`}>
+				{topBots.map((bot) => (
+					<li key={bot.bot_name}>
+						<IconTile icon="ai" tone="violet" size="sm" />
+						<div className="vp-list-main">
+							<strong>{bot.bot_name}</strong>
+						</div>
+						<span className="vp-list-meta">
+							{sprintf(
+								/* translators: %s: date the crawler was last seen. */
+								__('Last seen %s', 'vulopilot'),
+								formatWpDate(bot.last_seen_at)
+							)}
+						</span>
+					</li>
+				))}
+			</ul>
 		</DashboardWidget>
 	);
 };

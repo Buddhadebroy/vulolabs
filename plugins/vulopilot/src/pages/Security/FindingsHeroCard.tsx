@@ -117,7 +117,7 @@ const FindingsHeroCard = ({
 
 	return (
 		<CardComponent
-			isLoading={isLoading}
+			isLoading={isLoading || undefined}
 			titleIcon={icon}
 			title={
 				total > 0

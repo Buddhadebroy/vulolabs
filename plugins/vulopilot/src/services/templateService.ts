@@ -13,7 +13,7 @@ type SettingNode = {
 };
 
 const importAll = (
-	inpContext: any
+	inpContext: ReturnType<typeof require.context>
 ): SettingNode[] => {
 	const folderStructure: SettingNode[] = [];
 	const folderPriorityMap: Record<string, number> = {};

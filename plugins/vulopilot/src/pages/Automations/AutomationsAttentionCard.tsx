@@ -86,7 +86,7 @@ const AutomationsAttentionCard = ({ onViewAll, refetchSignal }: AutomationsAtten
 			title={__('Needs your attention', 'vulopilot')}
 			titleIcon="error"
 			desc={__('Resolve these items so your automations can run.', 'vulopilot')}
-			isLoading={isLoading}
+			isLoading={isLoading || undefined}
 		>
 			{!isLoading && 0 === groups.length && (
 				<div className="automation-attention-empty">

@@ -265,15 +265,15 @@ const SecurityPanel = () => {
 		rows.map((row) => ({
 			id: row.id,
 			icon: row.icon,
-			label:
-				row.pro && !hasSecurityMonitoring ? (
-					<>
-						{row.label}
-						<LockTag onOpen={openModulePopup} />
-					</>
-				) : (
-					row.label
-				),
+			// zyra types the label as a string but renders it as a node, so a locked row can carry its Pro tag.
+			label: (row.pro && !hasSecurityMonitoring ? (
+				<>
+					{row.label}
+					<LockTag onOpen={openModulePopup} />
+				</>
+			) : (
+				row.label
+			)) as unknown as string,
 			desc: row.desc,
 			settingDescription: '',
 			disableBtn: true,
@@ -449,6 +449,7 @@ const SecurityPanel = () => {
 							)}
 						>
 							<SelectInput
+								type="single-select"
 								value={String(setting.security_scan_frequency ?? 'daily')}
 								size={15}
 								disabled={!hasSecurityMonitoring}

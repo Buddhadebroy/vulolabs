@@ -103,7 +103,7 @@ const PageAnalysisPanel = ({ postId }: PageAnalysisPanelProps) => {
 			title={__('Page Analysis', 'vulopilot')}
 			titleIcon="search"
 			desc={__('A single page\'s real SEO/GEO signals, checked live.', 'vulopilot')}
-			isLoading={isLoading}
+			isLoading={isLoading || undefined}
 		>
 			{error && (
 				<ModuleGuardComponent

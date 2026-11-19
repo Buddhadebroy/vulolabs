@@ -309,7 +309,7 @@ const AiContentAssistantSidebar = () => {
 						<SelectInput
 							type="single-select"
 							options={pageOptions}
-							value={null}
+							value=""
 							onChange={(value) =>
 								handlePagePicked(String(value ?? ''))
 							}

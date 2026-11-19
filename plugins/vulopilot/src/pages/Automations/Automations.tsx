@@ -205,6 +205,8 @@ const Automations = () => {
 							{
 								label: __('Choose a Template', 'vulopilot'),
 								icon: 'search',
+								// ButtonInput's own default colour, spelled out (the header's buttons require one).
+								color: 'purple-bg',
 								onClick: openTemplatesLibrary,
 							},
 						]

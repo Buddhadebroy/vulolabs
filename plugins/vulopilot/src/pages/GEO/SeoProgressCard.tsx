@@ -80,7 +80,7 @@ const SeoProgressCard = () => {
 			title={__('SEO progress', 'vulopilot')}
 			titleIcon="seo"
 			desc={__('Track your SEO health over time.', 'vulopilot')}
-			isLoading={isLoading}
+			isLoading={isLoading || undefined}
 			action={
 				<ToggleInput
 					options={PERIOD_OPTIONS}

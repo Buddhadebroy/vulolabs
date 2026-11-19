@@ -505,6 +505,7 @@ const GoogleServicesPanel = () => {
 
 				<div className="gsc-select-row">
 					<SelectInput
+						type="single-select"
 						name="ga4_account"
 						placeholder={ __( 'Account', 'vulopilot' ) }
 						value={ selectedAccountId }
@@ -519,6 +520,7 @@ const GoogleServicesPanel = () => {
 						size="14rem"
 					/>
 					<SelectInput
+						type="single-select"
 						name="ga4_property"
 						placeholder={ __( 'Property', 'vulopilot' ) }
 						value={ selectedPropertyId }
@@ -530,6 +532,7 @@ const GoogleServicesPanel = () => {
 						size="14rem"
 					/>
 					<SelectInput
+						type="single-select"
 						name="ga4_data_stream"
 						placeholder={ __( 'Data Stream', 'vulopilot' ) }
 						value={ status.ga4_measurement_id }
