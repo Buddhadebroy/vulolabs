@@ -17,7 +17,7 @@ export interface RowAction {
 	/** `button`: a worded action (Approve, Adjust stock). Anything else is an icon action. */
 	type?: string;
 	hidden?: (row: Row) => boolean;
-	// eslint-disable-next-line no-unused-vars -- a parameter name in a type, not a variable.
+	 
 	onClick: (row: Row) => void;
 }
 
