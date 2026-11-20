@@ -3,7 +3,7 @@
 	"displayName": "VuloMail",
 	"pluginSlug": "vulomail",
 	"description": "VuloMail - WordPress Email & SMS Delivery",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"license": "GPL-2.0-or-later",
 	"author": "VuloLabs",
 	"homepage": "https://vulolabs.com/",
@@ -85,7 +85,7 @@
 		}
 	},
 	"dependencies": {
-		"@multivendorx/zyra": "^1.0.65",
+		"@multivendorx/zyra": "^1.0.67",
 		"@wordpress/element": "wp-6.6",
 		"@wordpress/hooks": "^4.57.0",
 		"@wordpress/i18n": "wp-6.6",

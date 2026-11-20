@@ -42,7 +42,7 @@ class Settings {
 		'sms_triggers'        => array(),
 		// Logging.
 		'log_enabled'         => true,
-		'log_content'         => false,
+		'log_content'         => true,
 		'mask_recipients'     => false,
 		'log_retention_days'  => 30,
 		// Engagement tracking. All three need the log, and all stay off until the site owner opts in.

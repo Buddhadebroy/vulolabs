@@ -245,6 +245,6 @@ class FormRepository {
 	private function title( $title ) {
 		$title = mb_substr( sanitize_text_field( (string) $title ), 0, 200 );
 
-		return '' !== $title ? $title : __( 'Untitled form', 'vuloform' );
+		return ! empty( $title ) ? $title : __( 'Untitled form', 'vuloform' );
 	}
 }

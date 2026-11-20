@@ -104,7 +104,7 @@ class NinjaFormsMigrator extends AbstractMigrator {
 			// get_forms() rows have no get_fields() of their own - fetch it from the full form.
 			$available[] = array(
 				'source_id'        => $form_id,
-				'title'            => '' !== $title ? $title : __( '(untitled form)', 'vuloform' ),
+				'title'            => ! empty( $title ) ? $title : __( '(untitled form)', 'vuloform' ),
 				'status'           => 'publish',
 				'field_count'      => count( Ninja_Forms()->form( $form_id )->get_fields() ),
 				'already_migrated' => null !== self::map_get( $this->get_id(), $form_id ),
@@ -135,7 +135,7 @@ class NinjaFormsMigrator extends AbstractMigrator {
 		}
 
 		$title  = (string) $form->get_setting( 'title' );
-		$title  = '' !== $title ? $title : __( 'Untitled form', 'vuloform' );
+		$title  = ! empty( $title ) ? $title : __( 'Untitled form', 'vuloform' );
 		$fields = array();
 
 		foreach ( $form->get_fields() as $raw_field ) {
@@ -197,7 +197,7 @@ class NinjaFormsMigrator extends AbstractMigrator {
 		$key = (string) $raw->get_setting( 'key' );
 
 		$field = array(
-			'id'          => 'f_nf' . sanitize_key( '' !== $key ? $key : (string) $raw->get_id() ),
+			'id'          => 'f_nf' . sanitize_key( ! empty( $key ) ? $key : (string) $raw->get_id() ),
 			'type'        => $type,
 			'label'       => $label,
 			'description' => (string) $raw->get_setting( 'desc' ),
@@ -213,17 +213,17 @@ class NinjaFormsMigrator extends AbstractMigrator {
 				$option_label = (string) ( is_array( $option ) ? ( $option['label'] ?? '' ) : '' );
 				$option_value = (string) ( is_array( $option ) ? ( $option['value'] ?? '' ) : '' );
 
-				if ( '' !== $option_label ) {
+				if ( ! empty( $option_label ) ) {
 					$field['options'][] = array(
 						'label' => $option_label,
-						'value' => '' !== $option_value ? $option_value : $option_label,
+						'value' => ! empty( $option_value ) ? $option_value : $option_label,
 					);
 				}
 			}
 		}
 
 		if ( 'consent' === $type ) {
-			$field['consent_text'] = '' !== $label ? $label : __( 'I agree', 'vuloform' );
+			$field['consent_text'] = ! empty( $label ) ? $label : __( 'I agree', 'vuloform' );
 		}
 
 		if ( 'html' === $type ) {
@@ -267,7 +267,7 @@ class NinjaFormsMigrator extends AbstractMigrator {
 					'message'      => (string) $action->get_setting( 'success_message' ),
 					'redirect_url' => '',
 				);
-			} elseif ( 'save' !== $action_type && '' !== $action_type ) {
+			} elseif ( 'save' !== $action_type && ! empty( $action_type ) ) {
 				$errors[] = sprintf(
 					/* translators: 1: form title, 2: Ninja Forms action type. */
 					__( '"%1$s": the "%2$s" action is not supported yet and was skipped.', 'vuloform' ),

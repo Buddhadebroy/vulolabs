@@ -56,7 +56,7 @@ class Resend extends AbstractApiMailer {
 		}
 
 		$format = static function ( array $address ) {
-			return '' !== $address['name'] ? sprintf( '%s <%s>', $address['name'], $address['email'] ) : $address['email'];
+			return ! empty( $address['name'] ) ? sprintf( '%s <%s>', $address['name'], $address['email'] ) : $address['email'];
 		};
 
 		$map = static function ( array $addresses ) use ( $format ) {

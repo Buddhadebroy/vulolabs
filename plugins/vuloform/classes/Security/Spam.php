@@ -43,7 +43,7 @@ class Spam {
 		}
 
 		// A bot that fills the honeypot is told it succeeded, so it learns nothing.
-		if ( ! empty( $spam['honeypot'] ) && '' !== trim( (string) ( $post[ self::HONEYPOT ] ?? '' ) ) ) {
+		if ( ! empty( $spam['honeypot'] ) && ! empty( trim( (string) ( $post[ self::HONEYPOT ] ?? '' ) ) ) ) {
 			return self::verdict( 'spam' );
 		}
 

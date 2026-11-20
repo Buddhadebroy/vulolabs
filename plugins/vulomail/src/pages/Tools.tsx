@@ -395,7 +395,7 @@ const TestPanel = ({
  * test sender beside it.
  */
 const Tools = () => {
-	const hash = new URLSearchParams(useLocation().hash);
+	const hash = new URLSearchParams(useLocation().hash.substring(1));
 	const preselected = hash.get('connection') ?? '';
 	const requestedTest = hash.get('test');
 	const initialChannel: Channel | '' =

@@ -59,7 +59,7 @@ class Clickatell extends AbstractGateway {
 			'content' => $body,
 		);
 
-		if ( '' !== $this->config( 'from' ) ) {
+		if ( ! empty( $this->config( 'from' ) ) ) {
 			$payload['from'] = ltrim( $this->config( 'from' ), '+' );
 		}
 

@@ -156,7 +156,7 @@ class Overview extends Controller {
 			return null;
 		}
 
-		return '' !== (string) $form['title'] ? (string) $form['title'] : __( '(no name)', 'vuloform' );
+		return ! empty( $form['title'] ) ? (string) $form['title'] : __( '(no name)', 'vuloform' );
 	}
 
 	/**

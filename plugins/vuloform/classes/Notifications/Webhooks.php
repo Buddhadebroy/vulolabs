@@ -127,7 +127,7 @@ class Webhooks {
 	public function send( array $webhook, array $form, $submission_id, array $values, $created_at ) {
 		$problem = self::url_problem( $webhook['url'] );
 
-		if ( '' !== $problem ) {
+		if ( ! empty( $problem ) ) {
 			return self::event( $webhook, 'failed', $problem );
 		}
 
@@ -161,7 +161,7 @@ class Webhooks {
 			'X-VuloForm-Delivery' => (int) $submission_id . '-' . $webhook['id'],
 		);
 
-		if ( '' !== $webhook['secret'] ) {
+		if ( ! empty( $webhook['secret'] ) ) {
 			$headers['X-VuloForm-Signature'] = 'sha256=' . hash_hmac( 'sha256', $body, $webhook['secret'] );
 		}
 

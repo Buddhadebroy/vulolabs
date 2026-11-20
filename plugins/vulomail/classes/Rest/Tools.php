@@ -206,7 +206,7 @@ class Tools extends Controller {
 				'attempts' => $attempts,
 				'message'  => $success
 					? __( 'Test sent. Check the inbox or phone to confirm it arrived.', 'vulomail' )
-					: ( '' !== (string) $error ? (string) $error : __( 'The test could not be sent.', 'vulomail' ) ),
+					: ( ! empty( $error ) ? (string) $error : __( 'The test could not be sent.', 'vulomail' ) ),
 			)
 		);
 	}

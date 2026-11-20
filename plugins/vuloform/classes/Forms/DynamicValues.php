@@ -33,7 +33,7 @@ class DynamicValues {
 	 * @param array|null $query    Query values to read `{query:...}` tags from; real request when null.
 	 * @return string
 	 */
-	public static function resolve( $template, array $query = null ) {
+	public static function resolve( $template, ?array $query = null ) {
 		$template = (string) $template;
 
 		if ( false === strpos( $template, '{' ) ) {
@@ -57,7 +57,7 @@ class DynamicValues {
 	 * @param array|null $query    Query values to read `{query:...}` tags from; real request when null.
 	 * @return string
 	 */
-	public static function browser_template( $template, array $query = null ) {
+	public static function browser_template( $template, ?array $query = null ) {
 		$template = (string) $template;
 
 		if ( ! preg_match( self::BROWSER_TAGS, $template ) ) {
@@ -88,7 +88,7 @@ class DynamicValues {
 	 * @param array|null $query  Query values for the `query` source; real request when null.
 	 * @return string Empty when there is nothing to give, including for a visitor who is not logged in.
 	 */
-	private static function value( $source, $name, array $query = null ) {
+	private static function value( $source, $name, ?array $query = null ) {
 		switch ( $source ) {
 			case 'query':
 				if ( null !== $query ) {

@@ -109,7 +109,7 @@ class Settings extends Controller {
 	 * @return \WP_Error|null
 	 */
 	private function validate( array $input ) {
-		if ( isset( $input['from_email'] ) && '' !== trim( (string) $input['from_email'] ) && ! is_email( trim( (string) $input['from_email'] ) ) ) {
+		if ( isset( $input['from_email'] ) && ! empty( trim( (string) $input['from_email'] ) ) && ! is_email( trim( (string) $input['from_email'] ) ) ) {
 			return new \WP_Error( 'vulomail_invalid_email', __( 'The sender email is not a valid email address, so it was not saved.', 'vulomail' ), array( 'status' => 400 ) );
 		}
 

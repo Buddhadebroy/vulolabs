@@ -122,7 +122,7 @@ class Settings extends Controller {
 			$after['recaptcha_site_key'] = sanitize_text_field( (string) $input['recaptcha_site_key'] );
 		}
 
-		if ( isset( $input['recaptcha_secret_key'] ) && '' !== trim( (string) $input['recaptcha_secret_key'] ) ) {
+		if ( isset( $input['recaptcha_secret_key'] ) && ! empty( trim( (string) $input['recaptcha_secret_key'] ) ) ) {
 			// A freshly submitted secret is always kept, even if this same save's site key is
 			// still blank - the admin's autosave can land before the site key field is filled in.
 			$after['recaptcha_secret_key'] = sanitize_text_field( (string) $input['recaptcha_secret_key'] );
@@ -161,7 +161,7 @@ class Settings extends Controller {
 	 * @return array
 	 */
 	private static function for_browser( array $settings ) {
-		$settings['recaptcha_secret_set'] = '' !== (string) $settings['recaptcha_secret_key'];
+		$settings['recaptcha_secret_set'] = ! empty( $settings['recaptcha_secret_key'] );
 		$settings['recaptcha_secret_key'] = '';
 
 		return $settings;

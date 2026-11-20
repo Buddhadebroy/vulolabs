@@ -82,7 +82,7 @@ class Dispatcher {
 		$chain = array();
 
 		foreach ( array_unique( array( (string) $this->settings->get( 'email_primary' ), (string) $this->settings->get( 'email_backup' ) ) ) as $id ) {
-			$connection = '' !== $id ? $this->connections->get( $id ) : null;
+			$connection = ! empty( $id ) ? $this->connections->get( $id ) : null;
 
 			if ( $connection && Utill::CHANNEL_EMAIL === $connection['channel'] && $this->connections->is_usable( $connection ) ) {
 				$chain[] = $connection;

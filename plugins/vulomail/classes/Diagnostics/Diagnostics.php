@@ -227,7 +227,7 @@ class Diagnostics {
 	private function check_sender_dns() {
 		$label = __( 'Sender domain DNS', 'vulomail' );
 		$from  = (string) VuloMail()->settings->get( 'from_email' );
-		$from  = '' !== $from ? $from : MessageFactory::default_from_email();
+		$from  = ! empty( $from ) ? $from : MessageFactory::default_from_email();
 		$host  = substr( (string) strrchr( $from, '@' ), 1 );
 
 		// Dev hosts have no public DNS, and PHP's resolver call has no timeout to cut a lookup short.
@@ -305,8 +305,16 @@ class Diagnostics {
 	 * @return bool|null Null when the lookup itself failed.
 	 */
 	private static function has_txt_record( $host, $prefix ) {
+		$previous_options = getenv( 'RES_OPTIONS' );
+
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv -- caps the lookup below; no timeout param exists for it.
+		putenv( 'RES_OPTIONS=timeout:1 attempts:1' );
+
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- dns_get_record() raises a warning on any resolver hiccup.
 		$records = @dns_get_record( $host, DNS_TXT );
+
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv -- restores the prior value.
+		putenv( false === $previous_options ? 'RES_OPTIONS' : "RES_OPTIONS={$previous_options}" );
 
 		if ( false === $records ) {
 			return null;
@@ -335,7 +343,7 @@ class Diagnostics {
 			$file = '';
 		}
 
-		if ( '' !== $file && false === strpos( $file, '/' . WPINC . '/pluggable.php' ) ) {
+		if ( ! empty( $file ) && false === strpos( $file, '/' . WPINC . '/pluggable.php' ) ) {
 			return self::result(
 				'wp_mail',
 				$label,
@@ -448,7 +456,7 @@ class Diagnostics {
 		$found    = null;
 
 		// open_basedir blocks PHP from checking the binary; that says nothing about whether it exists.
-		if ( '' !== $binary && '' === (string) ini_get( 'open_basedir' ) ) {
+		if ( ! empty( $binary ) && '' === (string) ini_get( 'open_basedir' ) ) {
 			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- a path PHP may not stat must not raise a warning.
 			$found = (bool) @is_executable( $binary );
 		}
@@ -490,7 +498,7 @@ class Diagnostics {
 		if ( '' === $path || false === $env['binary_found'] ) {
 			return array(
 				'state'  => 'no_transport',
-				'detail' => '' !== $binary ? $binary : 'sendmail',
+				'detail' => ! empty( $binary ) ? $binary : 'sendmail',
 			);
 		}
 
@@ -520,7 +528,7 @@ class Diagnostics {
 			foreach ( $callbacks as $callback ) {
 				$file = self::callback_file( $callback['function'] );
 
-				if ( '' !== $file && 0 !== strpos( $file, $own ) ) {
+				if ( ! empty( $file ) && 0 !== strpos( $file, $own ) ) {
 					$names[] = self::origin_name( $file );
 				}
 			}
@@ -633,7 +641,7 @@ class Diagnostics {
 		$repair  = __( 'Open Logs to see the full error for each attempt. The usual causes are a wrong password or API key, a sender address the provider has not verified, or a host that blocks the SMTP port. Correct the connection, then send a test email.', 'vulomail' );
 
 		if ( $summary['streak'] > 0 ) {
-			$error = '' !== (string) $latest['error_message'] ? (string) $latest['error_message'] : __( 'No error message was recorded.', 'vulomail' );
+			$error = ! empty( $latest['error_message'] ) ? (string) $latest['error_message'] : __( 'No error message was recorded.', 'vulomail' );
 
 			if ( $summary['streak'] === $summary['total'] && $summary['total'] >= 3 ) {
 				return self::result(

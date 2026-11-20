@@ -89,7 +89,7 @@ class Submissions extends Controller {
 			$value = $submission['data'][ $field['key'] ] ?? '';
 			$entry = array(
 				'key'   => $field['key'],
-				'label' => '' !== $field['label'] ? $field['label'] : $field['key'],
+				'label' => ! empty( $field['label'] ) ? $field['label'] : $field['key'],
 				'type'  => $field['type'],
 				'text'  => Formatter::text( $field, $value ),
 				'files' => array(),
@@ -252,7 +252,7 @@ class Submissions extends Controller {
 
 				foreach ( Formatter::rows( $form, $submission['data'] ) as $row ) {
 					// Two questions of one form with the same label share the column.
-					$answers[ $row['label'] ] = isset( $answers[ $row['label'] ] ) && '' !== $answers[ $row['label'] ] && '' !== $row['text'] ? $answers[ $row['label'] ] . ' | ' . $row['text'] : ( $answers[ $row['label'] ] ?? '' ) . $row['text'];
+					$answers[ $row['label'] ] = isset( $answers[ $row['label'] ] ) && ! empty( $answers[ $row['label'] ] ) && ! empty( $row['text'] ) ? $answers[ $row['label'] ] . ' | ' . $row['text'] : ( $answers[ $row['label'] ] ?? '' ) . $row['text'];
 				}
 
 				foreach ( $labels as $label ) {
@@ -330,7 +330,7 @@ class Submissions extends Controller {
 
 		if ( $form ) {
 			foreach ( Formatter::rows( $form, $submission['data'] ) as $row ) {
-				if ( '' !== $row['text'] && 'hidden' !== $row['type'] && count( $preview ) < 3 ) {
+				if ( ! empty( $row['text'] ) && 'hidden' !== $row['type'] && count( $preview ) < 3 ) {
 					$preview[] = array(
 						'label' => $row['label'],
 						'text'  => mb_substr( $row['text'], 0, 120 ),

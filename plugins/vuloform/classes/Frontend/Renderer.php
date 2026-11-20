@@ -87,8 +87,8 @@ class Renderer {
 			array(
 				'--vf-accent'    => $style['accent_color'],
 				'--vf-text'      => $style['text_color'],
-				'--vf-font-size' => '' !== $style['font_size'] ? $style['font_size'] . 'px' : '',
-				'--vf-radius'    => '' !== $style['radius'] ? $style['radius'] . 'px' : '',
+				'--vf-font-size' => ! empty( $style['font_size'] ) ? $style['font_size'] . 'px' : '',
+				'--vf-radius'    => ! empty( $style['radius'] ) ? $style['radius'] . 'px' : '',
 			)
 		);
 
@@ -122,8 +122,8 @@ class Renderer {
 
 		$html .= sprintf(
 			'<div class="vuloform-message%s" role="alert" aria-live="assertive"%s>%s</div>',
-			'' !== $args['message'] ? ' vuloform-message--error' : '',
-			'' !== $args['message'] ? '' : ' hidden',
+			! empty( $args['message'] ) ? ' vuloform-message--error' : '',
+			! empty( $args['message'] ) ? '' : ' hidden',
 			esc_html( $args['message'] )
 		);
 
@@ -228,7 +228,7 @@ class Renderer {
 				// Address/page-dependent defaults are re-resolved in the browser, not here.
 				$template = DynamicValues::browser_template( $field['default'] ?? '' );
 
-				if ( '' !== $template ) {
+				if ( ! empty( $template ) ) {
 					$dynamic[ $field['key'] ] = $template;
 				}
 			}
@@ -306,7 +306,7 @@ class Renderer {
 				'vuloform-field',
 				'vuloform-field--' . $type,
 				'vuloform-w-' . (int) $field['width'],
-				'' !== $error ? 'vuloform-field--invalid' : '',
+				! empty( $error ) ? 'vuloform-field--invalid' : '',
 				$field['css_class'],
 			)
 		);
@@ -326,8 +326,8 @@ class Renderer {
 
 		$value    = null === $value ? DynamicValues::resolve( $field['default'] ?? '' ) : $value;
 		$required = ! empty( $field['required'] );
-		$describe = trim( ( '' !== $field['description'] ? $id . '-desc ' : '' ) . $id . '-error' );
-		$common   = sprintf( ' aria-describedby="%s"%s%s', esc_attr( $describe ), $required ? ' aria-required="true" required' : '', '' !== $error ? ' aria-invalid="true"' : '' );
+		$describe = trim( ( ! empty( $field['description'] ) ? $id . '-desc ' : '' ) . $id . '-error' );
+		$common   = sprintf( ' aria-describedby="%s"%s%s', esc_attr( $describe ), $required ? ' aria-required="true" required' : '', ! empty( $error ) ? ' aria-invalid="true"' : '' );
 		$star     = $required ? ' <span class="vuloform-required" aria-hidden="true">*</span>' : '';
 		$hide     = ! empty( $field['hide_label'] ) ? ' vuloform-sr-only' : '';
 		$label    = sprintf( '<label class="vuloform-label%s" for="%s">%s%s</label>', $hide, esc_attr( $id ), esc_html( $field['label'] ), $star );
@@ -351,7 +351,7 @@ class Renderer {
 			case 'select':
 				$control = sprintf( '<select class="vuloform-input" id="%s" name="%s"%s>', esc_attr( $id ), esc_attr( $name ), $common );
 				/* translators: Placeholder option of a dropdown field. */
-				$control .= sprintf( '<option value="">%s</option>', esc_html( '' !== $field['placeholder'] ? $field['placeholder'] : __( 'Select…', 'vuloform' ) ) );
+				$control .= sprintf( '<option value="">%s</option>', esc_html( ! empty( $field['placeholder'] ) ? $field['placeholder'] : __( 'Select…', 'vuloform' ) ) );
 
 				foreach ( $field['options'] as $option ) {
 					$control .= sprintf( '<option value="%s"%s>%s</option>', esc_attr( $option['value'] ), selected( (string) $value, $option['value'], false ), esc_html( $option['label'] ) );
@@ -380,7 +380,7 @@ class Renderer {
 				break;
 
 			case 'consent':
-				$text    = '' !== $field['consent_text'] ? wp_kses_post( $field['consent_text'] ) : esc_html( $field['label'] );
+				$text    = ! empty( $field['consent_text'] ) ? wp_kses_post( $field['consent_text'] ) : esc_html( $field['label'] );
 				$control = sprintf(
 					'<label class="vuloform-choice"><input type="checkbox" id="%s" name="%s" value="1"%s%s> <span>%s%s</span></label>',
 					esc_attr( $id ),
@@ -526,7 +526,7 @@ class Renderer {
 
 				if ( 'number' === $type ) {
 					foreach ( array( 'min', 'max', 'step' ) as $attribute ) {
-						$extra .= '' !== $field[ $attribute ] ? sprintf( ' %s="%s"', $attribute, esc_attr( $field[ $attribute ] ) ) : '';
+						$extra .= ! empty( $field[ $attribute ] ) ? sprintf( ' %s="%s"', $attribute, esc_attr( $field[ $attribute ] ) ) : '';
 					}
 				}
 
@@ -632,7 +632,7 @@ class Renderer {
 	 * @return string
 	 */
 	private static function description( array $field, $id ) {
-		return '' !== $field['description'] ? sprintf( '<p class="vuloform-description" id="%s-desc">%s</p>', esc_attr( $id ), esc_html( $field['description'] ) ) : '';
+		return ! empty( $field['description'] ) ? sprintf( '<p class="vuloform-description" id="%s-desc">%s</p>', esc_attr( $id ), esc_html( $field['description'] ) ) : '';
 	}
 
 	/**
@@ -641,6 +641,6 @@ class Renderer {
 	 * @return string
 	 */
 	private static function error_html( $id, $error ) {
-		return sprintf( '<p class="vuloform-error" id="%s-error"%s>%s</p>', esc_attr( $id ), '' !== $error ? '' : ' hidden', esc_html( $error ) );
+		return sprintf( '<p class="vuloform-error" id="%s-error"%s>%s</p>', esc_attr( $id ), ! empty( $error ) ? '' : ' hidden', esc_html( $error ) );
 	}
 }

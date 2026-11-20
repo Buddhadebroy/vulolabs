@@ -272,8 +272,7 @@ class Tracking {
 	 */
 	public function is_trackable( $url ) {
 		$eligible = self::is_http_url( $url )
-			&& '' !== (string) wp_parse_url( $url, PHP_URL_HOST )
-			&& ! preg_match( '/[\s<>]/', $url )
+			&& ! empty( wp_parse_url( $url, PHP_URL_HOST ) ) && ! preg_match( '/[\s<>]/', $url )
 			// Template placeholders another tool will still fill in.
 			&& ! preg_match( '/\{\{|\{%|%%|\*\|/', $url )
 			&& false === strpos( $url, self::OPEN_VAR . '=' )
@@ -381,7 +380,7 @@ class Tracking {
 		// Scanners and link previews often probe with HEAD first; only a real fetch counts.
 		$record = 'GET' === strtoupper( Utill::server_var( 'REQUEST_METHOD' ) );
 
-		if ( '' !== $open ) {
+		if ( ! empty( $open ) ) {
 			if ( $record ) {
 				try {
 					$this->record_open( $open );
@@ -410,7 +409,7 @@ class Tracking {
 		header( 'Referrer-Policy: no-referrer' );
 
 		// The destination is the email's own, verified link, usually on another site.
-		wp_redirect( '' !== $url ? $url : home_url( '/' ), 302, 'VuloMail' ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
+		wp_redirect( ! empty( $url ) ? $url : home_url( '/' ), 302, 'VuloMail' ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
 		exit;
 	}
 

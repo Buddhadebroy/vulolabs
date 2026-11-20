@@ -2,9 +2,9 @@
 Contributors: vulolabs
 Tags: smtp, email logs, sms, woocommerce, email
 Requires at least: 6.7
-Tested up to: 7.1.4
+Tested up to: 7.1.5
 Requires PHP: 8.1
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -233,6 +233,10 @@ Data is kept by default. You can choose Delete everything before deleting the pl
 8. Logging and Privacy Settings.
 
 == Changelog ==
+
+= 1.0.2 - 2026-11-23 =
+* Added  - Compatibility of WordPress 7.1.5.
+* Added  - UI/UX improvements.
 
 = 1.0.1 - 2026-11-10 =
 * Added  - Compatibility of WordPress 7.1.4.

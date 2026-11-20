@@ -230,7 +230,7 @@ class ContactForm7Migrator extends AbstractMigrator {
 			$field['options'] = array();
 
 			foreach ( $values as $value ) {
-				if ( '' !== $value ) {
+				if ( ! empty( $value ) ) {
 					$field['options'][] = array(
 						'label' => $value,
 						'value' => $value,
@@ -251,7 +251,7 @@ class ContactForm7Migrator extends AbstractMigrator {
 		if ( 'consent' === $type ) {
 			// Acceptance tags show their checkbox label as the HTML *between* the opening and
 			// closing `[acceptance]...[/acceptance]` pair, not as a tag attribute.
-			$field['consent_text'] = '' !== $tag['content'] ? wp_strip_all_tags( $tag['content'] ) : $tag['name'];
+			$field['consent_text'] = ! empty( $tag['content'] ) ? wp_strip_all_tags( $tag['content'] ) : $tag['name'];
 		}
 
 		if ( 'number' === $type ) {
@@ -302,7 +302,7 @@ class ContactForm7Migrator extends AbstractMigrator {
 		$messages = (array) get_post_meta( $post_id, self::META_MESSAGES, true );
 		$sent_ok  = (string) ( $messages['mail_sent_ok'] ?? '' );
 
-		if ( '' !== $sent_ok ) {
+		if ( ! empty( $sent_ok ) ) {
 			// CF7 has no redirect-on-submit of its own, only an inline success message.
 			$out['confirmation'] = array(
 				'type'         => 'message',

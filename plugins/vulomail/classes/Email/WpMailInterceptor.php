@@ -300,7 +300,7 @@ class WpMailInterceptor {
 	 */
 	private function build_message( array $atts ) {
 		$message         = $this->factory->from_wp_mail( $atts );
-		$message->source = '' !== $this->next_source ? $this->next_source : self::detect_source();
+		$message->source = ! empty( $this->next_source ) ? $this->next_source : self::detect_source();
 
 		$this->next_source = '';
 

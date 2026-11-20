@@ -74,10 +74,10 @@ abstract class AbstractGateway implements GatewayInterface {
 			return Result::fail( 'network_error', Redactor::scrub( $response->get_error_message(), $secrets ) );
 		}
 
-		$detail = '' !== $detail ? $detail : substr( $response['body'], 0, 300 );
+		$detail = ! empty( $detail ) ? $detail : substr( $response['body'], 0, 300 );
 
 		return Result::fail(
-			'' !== (string) $code ? (string) $code : 'http_' . $response['code'],
+			! empty( $code ) ? (string) $code : 'http_' . $response['code'],
 			Redactor::scrub(
 				sprintf(
 					/* translators: 1: HTTP status code, 2: gateway error message. */

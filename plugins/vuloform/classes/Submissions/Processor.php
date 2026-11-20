@@ -65,7 +65,7 @@ class Processor {
 		 */
 		$refusal = (string) apply_filters( 'vuloform_refuse_submission', '', $form );
 
-		if ( '' !== $refusal ) {
+		if ( ! empty( $refusal ) ) {
 			return self::failure( $refusal );
 		}
 
@@ -225,7 +225,7 @@ class Processor {
 			 */
 			$error = (string) apply_filters( 'vuloform_validate_field', $error, $field, $values[ $key ] ?? null, $values, $form );
 
-			if ( '' !== $error ) {
+			if ( ! empty( $error ) ) {
 				$errors[ $field['id'] ] = $error;
 			}
 		}
@@ -341,7 +341,7 @@ class Processor {
 				return is_string( $value ) ? esc_url_raw( trim( $value ), array( 'http', 'https' ) ) : '';
 
 			case 'consent':
-				return is_string( $value ) && '' !== $value ? '1' : '';
+				return is_string( $value ) && ! empty( $value ) ? '1' : '';
 
 			case 'repeater':
 				$rows  = array();
@@ -416,12 +416,12 @@ class Processor {
 					return __( 'Enter a number.', 'vuloform' );
 				}
 
-				if ( '' !== $field['min'] && (float) $text < (float) $field['min'] ) {
+				if ( ! empty( $field['min'] ) && (float) $text < (float) $field['min'] ) {
 					/* translators: %s: smallest allowed number. */
 					return sprintf( __( 'Enter a number of %s or more.', 'vuloform' ), $field['min'] );
 				}
 
-				if ( '' !== $field['max'] && (float) $text > (float) $field['max'] ) {
+				if ( ! empty( $field['max'] ) && (float) $text > (float) $field['max'] ) {
 					/* translators: %s: largest allowed number. */
 					return sprintf( __( 'Enter a number of %s or less.', 'vuloform' ), $field['max'] );
 				}
@@ -492,7 +492,7 @@ class Processor {
 				$sub_value = is_array( $row ) ? ( $row[ $sub_field['key'] ] ?? '' ) : '';
 				$sub_error = self::validate( $sub_field, $sub_value, $sub_field['required'], $messages );
 
-				if ( '' !== $sub_error ) {
+				if ( ! empty( $sub_error ) ) {
 					/* translators: 1: row number, 2: error message. */
 					return sprintf( __( 'Row %1$d: %2$s', 'vuloform' ), $index + 1, $sub_error );
 				}

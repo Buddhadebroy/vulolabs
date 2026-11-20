@@ -34,6 +34,7 @@ interface LogRow {
 	created_at_display?: string;
 	opened: Engagement;
 	clicked: Engagement;
+	can_resend: boolean;
 	[key: string]: unknown;
 }
 
@@ -594,6 +595,7 @@ const Logs = () => {
 										{
 											label: __('Resend', 'vulomail'),
 											icon: 'send',
+											hidden: (row: LogRow) => !row.can_resend,
 											onClick: (row: LogRow) =>
 												resend(row.id),
 										},
@@ -840,6 +842,21 @@ const Logs = () => {
 										/>
 									)}
 								</header>
+								{detail.has_body && !detail.can_resend && (
+									<NoticeComponent
+										displayPosition="inline-notice"
+										type="info"
+										message={sprintf(
+											/* translators: 1: opening link tag to Settings → Privacy & data, 2: closing link tag. */
+											__(
+												'The recipient is hidden, so this can\'t be resent. Turn off "Hide recipients" under %1$sSettings → Privacy & data%2$s to allow resending new messages.',
+												'vulomail'
+											),
+											`<a href="${settingsUrl('logging')}">`,
+											'</a>'
+										)}
+									/>
+								)}
 								{detail.has_body ? (
 									<div className="vulomail-log-message">
 										{detail.subject && (

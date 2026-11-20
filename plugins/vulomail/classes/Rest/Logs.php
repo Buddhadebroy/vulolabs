@@ -95,7 +95,7 @@ class Logs extends Controller {
 			)
 		);
 
-		$result['data'] = array_map( array( self::class, 'with_engagement' ), Utill::with_display_dates( $result['data'] ) );
+		$result['data'] = array_map( array( $this, 'with_can_resend' ), array_map( array( self::class, 'with_engagement' ), Utill::with_display_dates( $result['data'] ) ) );
 
 		return rest_ensure_response( $result );
 	}
@@ -292,6 +292,21 @@ class Logs extends Controller {
 	 * @return bool
 	 */
 	private function can_resend( array $row ) {
-		return null !== $row['body'] && '' !== $row['recipients'] && false === strpos( $row['recipients'], '•' );
+		$has_body = array_key_exists( 'has_body', $row ) ? (bool) $row['has_body'] : null !== ( $row['body'] ?? null );
+
+		return $has_body && ! empty( $row['recipients'] ) && false === strpos( $row['recipients'], '•' );
+	}
+
+	/**
+	 * Adds `can_resend` to a list row.
+	 *
+	 * @param array $row Log row.
+	 * @return array
+	 */
+	private function with_can_resend( array $row ) {
+		$row['can_resend'] = $this->can_resend( $row );
+		unset( $row['has_body'] );
+
+		return $row;
 	}
 }

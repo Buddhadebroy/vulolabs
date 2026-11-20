@@ -123,7 +123,7 @@ class GravityFormsMigrator extends AbstractMigrator {
 
 			$available[] = array(
 				'source_id'        => (int) ( $form['id'] ?? 0 ),
-				'title'            => '' !== (string) ( $form['title'] ?? '' ) ? (string) $form['title'] : __( '(untitled form)', 'vuloform' ),
+				'title'            => ! empty( ( $form['title'] ?? '' ) ) ? (string) $form['title'] : __( '(untitled form)', 'vuloform' ),
 				'status'           => empty( $form['is_active'] ) ? 'draft' : 'publish',
 				'field_count'      => count( (array) ( $form['fields'] ?? array() ) ),
 				'already_migrated' => null !== self::map_get( $this->get_id(), (int) ( $form['id'] ?? 0 ) ),
@@ -153,7 +153,7 @@ class GravityFormsMigrator extends AbstractMigrator {
 			return 0;
 		}
 
-		$title  = '' !== (string) ( $form['title'] ?? '' ) ? (string) $form['title'] : __( 'Untitled form', 'vuloform' );
+		$title  = ! empty( ( $form['title'] ?? '' ) ) ? (string) $form['title'] : __( 'Untitled form', 'vuloform' );
 		$fields = array();
 
 		foreach ( (array) ( $form['fields'] ?? array() ) as $raw_field ) {
@@ -204,7 +204,7 @@ class GravityFormsMigrator extends AbstractMigrator {
 				/* translators: 1: form title, 2: Gravity Forms field type. */
 				__( '"%1$s": the "%2$s" field type is not supported yet and was skipped.', 'vuloform' ),
 				$title,
-				'' !== $gf_type ? $gf_type : __( '(unknown)', 'vuloform' )
+				! empty( $gf_type ) ? $gf_type : __( '(unknown)', 'vuloform' )
 			);
 
 			return null;
@@ -229,10 +229,10 @@ class GravityFormsMigrator extends AbstractMigrator {
 				$choice_label = (string) ( is_array( $choice ) ? ( $choice['text'] ?? '' ) : '' );
 				$choice_value = (string) ( is_array( $choice ) ? ( $choice['value'] ?? '' ) : '' );
 
-				if ( '' !== $choice_label ) {
+				if ( ! empty( $choice_label ) ) {
 					$field['options'][] = array(
 						'label' => $choice_label,
-						'value' => '' !== $choice_value ? $choice_value : $choice_label,
+						'value' => ! empty( $choice_value ) ? $choice_value : $choice_label,
 					);
 				}
 			}

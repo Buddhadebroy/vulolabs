@@ -168,7 +168,7 @@ class Uploads {
 			foreach ( $value as $record ) {
 				$path = is_array( $record ) && isset( $record['path'] ) ? self::path( $record ) : '';
 
-				if ( '' !== $path ) {
+				if ( ! empty( $path ) ) {
 					wp_delete_file( $path );
 					// The folder goes too once it is empty.
 					// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- rmdir fails harmlessly while other files remain.
