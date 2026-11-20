@@ -114,3 +114,20 @@
 		outline-offset: 2px;
 	}
 }
+
+// ---- The same sample, for a Pro table that is empty because nothing is set up yet (Pro src/components/EmptySample):
+// no Pro tag - the strip names what is missing and its button runs the real next step. ----
+.vp-sample.is-empty-sample {
+	.vp-sample-bar {
+		background: #f8f9fc;
+	}
+
+	.vp-sample-content {
+		opacity: 0.7;
+	}
+}
+
+.vp-sample-tag.is-start {
+	background: #eef0f6;
+	color: var(--ui-text);
+}

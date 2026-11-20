@@ -911,3 +911,22 @@
 		max-width: 100%;
 	}
 }
+
+// zyra tables: the row whose details are open beside the table (`activeRowId`, e.g. the page in Page analysis) is
+// one tinted band with an accent bar, and its action button is filled, so it is clear which row the panel shows.
+// The tint sits on the row, not the cells (zyra's rows are flex boxes, its cells are not equal height); the
+// selectors match zyra's own table rules, which would otherwise win.
+.admin-main-wrapper.admin-main-wrapper .admin-table-wrapper .table-wrapper .admin-table .admin-table-body .admin-row.is-selected {
+	background: #f6f2ff;
+	box-shadow: inset 3px 0 0 var(--ui-accent);
+}
+
+body .admin-main-wrapper .admin-table-wrapper .table-wrapper .admin-table .admin-row.is-selected .admin-column.action .table-action .table-action-buttons .admin-btn {
+	border-color: var(--ui-accent);
+	background: var(--ui-accent);
+	color: #fff;
+
+	i {
+		color: #fff;
+	}
+}

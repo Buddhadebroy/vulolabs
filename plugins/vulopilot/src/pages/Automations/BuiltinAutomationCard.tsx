@@ -69,13 +69,14 @@ export interface BuiltinAutomationCardProps {
 
 const LOOK: Record<
 	BuiltinAutomationCardProps['kind'],
-	{ icon: string; tone: Tone; title: string; desc: string; schedules: { value: string; label: string }[] }
+	{ icon: string; tone: Tone; title: string; desc: string; then: string; schedules: { value: string; label: string }[] }
 > = {
 	scan: {
 		icon: 'search',
 		tone: 'blue',
 		title: __('Website scan', 'vulopilot'),
-		desc: __('Checks your whole site and refreshes every score and issue.', 'vulopilot'),
+		desc: __('Keeps every score and issue on your dashboard up to date.', 'vulopilot'),
+		then: __('Scan the whole site: SEO, speed, security and content', 'vulopilot'),
 		schedules: [
 			{ value: 'daily', label: __('Daily', 'vulopilot') },
 			{ value: 'weekly', label: __('Weekly', 'vulopilot') },
@@ -87,7 +88,8 @@ const LOOK: Record<
 		icon: 'mail',
 		tone: 'violet',
 		title: __('Visibility report', 'vulopilot'),
-		desc: __('Emails you a summary of your visibility, issues and opportunities.', 'vulopilot'),
+		desc: __('A short email on how your site is doing, so you never have to check.', 'vulopilot'),
+		then: __('Email a summary of visibility, issues and opportunities', 'vulopilot'),
 		schedules: [
 			{ value: 'weekly', label: __('Weekly', 'vulopilot') },
 			{ value: 'monthly', label: __('Monthly', 'vulopilot') },
@@ -156,12 +158,66 @@ const BuiltinAutomationCard = ({ row, kind, onChanged }: BuiltinAutomationCardPr
 	};
 
 	const failed = 'failed' === row.last_run_status;
+	const isManual = 'manual' === config.frequency;
 	const nextRun = isOn && row.next_run_at ? when(row.next_run_at) : null;
 	const lastRun = row.last_run_finished_at ? when(row.last_run_finished_at) : null;
-	const enableFirst = 'report' === kind && !isOn;
+	const enableFirst = !isOn && !isManual;
 	const frequency = look.schedules.some((option) => option.value === config.frequency)
 		? config.frequency
 		: look.schedules[0].value;
+
+	// One line for what happens next, one for what happened last.
+	let upcoming: string;
+	if (!isOn) {
+		upcoming = __('Paused. Turn it on to run it on schedule.', 'vulopilot');
+	} else if (isManual) {
+		upcoming = __('Runs only when you start it.', 'vulopilot');
+	} else if (nextRun) {
+		upcoming = sprintf(
+			/* translators: %s: date and time of the next run. */
+			__('Next run: %s', 'vulopilot'),
+			nextRun
+		);
+	} else {
+		upcoming = sprintf(
+			/* translators: %s: schedule, e.g. "Every Monday". */
+			__('Scheduled: %s', 'vulopilot'),
+			scheduleLabel(config)
+		);
+	}
+
+	let previous: string;
+	if (!lastRun) {
+		previous = __('Has not run yet', 'vulopilot');
+	} else if (failed) {
+		previous = sprintf(
+			/* translators: %s: date and time of the last run. */
+			__('Last run failed · %s', 'vulopilot'),
+			lastRun
+		);
+	} else {
+		previous = sprintf(
+			/* translators: %s: date and time of the last run. */
+			__('Last run · %s', 'vulopilot'),
+			lastRun
+		);
+	}
+
+	let buttonText: string;
+	if (enableFirst) {
+		buttonText = __('Turn on', 'vulopilot');
+	} else if (isRunning) {
+		buttonText = __('Running…', 'vulopilot');
+	} else {
+		buttonText = 'scan' === kind ? __('Scan now', 'vulopilot') : __('Send now', 'vulopilot');
+	}
+
+	let buttonIcon = 'send';
+	if (enableFirst) {
+		buttonIcon = 'check';
+	} else if ('scan' === kind) {
+		buttonIcon = 'scan';
+	}
 
 	return (
 		<section className={`vp-card vp-auto${isOn ? '' : ' is-off'}`} id={`builtin-automation-${kind}`}>
@@ -177,31 +233,29 @@ const BuiltinAutomationCard = ({ row, kind, onChanged }: BuiltinAutomationCardPr
 				<Switch checked={isOn} onChange={toggle} label={look.title} />
 			</header>
 
-			<dl className="vp-auto-facts">
-				<div>
-					<dt>{__('Schedule', 'vulopilot')}</dt>
-					<dd>{scheduleLabel(config)}</dd>
-				</div>
-				<div>
-					<dt>{nextRun ? __('Next run', 'vulopilot') : __('Last run', 'vulopilot')}</dt>
-					<dd className={failed && !nextRun ? 'is-bad' : ''}>
-						{nextRun ?? lastRun ?? __('Not yet', 'vulopilot')}
-					</dd>
-				</div>
-				<div>
-					<dt>{'scan' === kind ? __('Covers', 'vulopilot') : __('Sent to', 'vulopilot')}</dt>
-					<dd>
-						{'scan' === kind ? (
-							__('SEO, speed, security, content', 'vulopilot')
-						) : (
-							<a href="?page=vulopilot#&tab=settings&subtab=notifications">{__('Admin email', 'vulopilot')}</a>
+			<ol className="vp-auto-recipe" aria-label={__('How it works', 'vulopilot')}>
+				<li>
+					<span className="vp-auto-step">{__('When', 'vulopilot')}</span>
+					<strong>{scheduleLabel(config)}</strong>
+				</li>
+				<li>
+					<span className="vp-auto-step is-then">{__('Then', 'vulopilot')}</span>
+					<strong>
+						{look.then}
+						{'report' === kind && (
+							<>
+								{' '}
+								<a href="?page=vulopilot#&tab=settings&subtab=notifications">
+									{__('to the admin email', 'vulopilot')}
+								</a>
+							</>
 						)}
-					</dd>
-				</div>
-			</dl>
+					</strong>
+				</li>
+			</ol>
 
 			<div className="vp-auto-schedule">
-				<span className="vp-auto-label">{__('Run', 'vulopilot')}</span>
+				<span className="vp-auto-label">{__('How often', 'vulopilot')}</span>
 				<Segmented
 					size="sm"
 					label={__('How often', 'vulopilot')}
@@ -221,23 +275,21 @@ const BuiltinAutomationCard = ({ row, kind, onChanged }: BuiltinAutomationCardPr
 			</div>
 
 			<footer className="vp-auto-foot">
-				<span className={`vp-auto-status${failed ? ' is-bad' : ''}`}>
-					{failed && <i className="adminfont-error" aria-hidden="true" />}
-					{failed
-						? __('The last run failed. Run it again to retry.', 'vulopilot')
-						: __('Changes save as you make them.', 'vulopilot')}
-				</span>
+				<div className="vp-auto-when">
+					<span className={`vp-auto-next${isOn ? ' is-on' : ''}`}>
+						<i className="vp-auto-dot" aria-hidden="true" />
+						{upcoming}
+					</span>
+					<span className={`vp-auto-last${failed ? ' is-bad' : ''}`}>
+						{failed && <i className="adminfont-error" aria-hidden="true" />}
+						{previous}
+					</span>
+				</div>
 				<ButtonInput
 					buttons={{
-						text: enableFirst
-							? __('Turn on', 'vulopilot')
-							: isRunning
-								? __('Running…', 'vulopilot')
-								: 'scan' === kind
-									? __('Scan now', 'vulopilot')
-									: __('Send now', 'vulopilot'),
-						icon: enableFirst ? 'check' : 'scan' === kind ? 'scan' : 'send',
-						color: 'purple-bg',
+						text: buttonText,
+						icon: buttonIcon,
+						color: enableFirst ? 'purple-bg' : 'purple',
 						disabled: isRunning,
 						onClick: enableFirst ? toggle : runNow,
 					}}

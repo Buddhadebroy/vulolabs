@@ -104,9 +104,9 @@ interface SeoIssuesByPageTableProps {
 	onAnalyze?: (postId: number) => void;
 	/** SeoTab.tsx's own `analyzingPostId` - which row's panel (if any) is currently open. */
 	activePostId?: number | null;
-	/** Called with `true` when this tab's "Pages & Posts" list has nothing to show, `false` otherwise. */
+	/** Called with the ids of the pages the list shows (after its tab, priority and search filters) whenever they change. */
 	// eslint-disable-next-line no-unused-vars
-	onEmptyChange?: (isEmpty: boolean) => void;
+	onVisibleRowsChange?: (ids: number[]) => void;
 	/** Only set by SeoTab.tsx's own SEO usage (`IssuesSection.tsx`'s own `pageScore` prop). */
 	showScoreChange?: boolean;
 	/** Only set by `IssuesSection.tsx`'s own `content` mode. */
@@ -133,7 +133,7 @@ const SeoIssuesByPageTable = ({
 	onExportCsv,
 	onAnalyze,
 	activePostId,
-	onEmptyChange,
+	onVisibleRowsChange,
 	showScoreChange,
 	showContentScore,
 	hideSearch,
@@ -209,11 +209,15 @@ const SeoIssuesByPageTable = ({
 
 	const isEmptyForTab = !isLoading && 0 === visibleRows.length && '' === searchValue.trim();
 
+	// Tells the parent which pages are on screen, so its detail panel can follow the list.
+	const visibleKey = isLoading ? '' : visibleRows.map((row) => row.id).join(',');
+
 	useEffect(() => {
-		onEmptyChange?.(isEmptyForTab);
-		// `onEmptyChange` is a fresh function reference every render from every real call site; re-run only when the actual empty/not-empty verdict changes.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [isEmptyForTab]);
+		if (!isLoading) {
+			onVisibleRowsChange?.(visibleRows.map((row) => row.id));
+		}
+		// `onVisibleRowsChange` is a fresh function every render; re-run only when the shown pages change.
+	}, [visibleKey, isLoading]);
 
 	if (hasError) {
 		return (

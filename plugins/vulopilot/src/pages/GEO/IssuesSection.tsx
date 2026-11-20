@@ -99,7 +99,7 @@ interface IssuesSectionProps {
 	id?: string;
 	/** Only passed by `SeoTab.tsx`'s own SEO usage. */
 	// eslint-disable-next-line no-unused-vars
-	onAnalyze?: (postId: number) => void;
+	onAnalyze?: (postId: number, quiet?: boolean) => void;
 	/** `SeoTab.tsx`'s own `analyzingPostId` - which row's `PageAnalysisPanel` is currently open. */
 	activePostId?: number | null;
 	/** Called when the active tab's "Pages & Posts" list has nothing to show, so the host can close an open page-analysis panel that no longer applies. */
@@ -141,6 +141,9 @@ const IssuesSection = ({
 	const [groups, setGroups] = useState<FindingGroupRow[]>([]);
 	// `content` mode's `rowTabs` always has an 'all' entry, but the default `tabs` array doesn't.
 	const [activeTab, setActiveTab] = useState(content ? 'all' : 'important');
+	/** The ids of the pages the list shows; null until it has loaded. */
+	const [visibleIds, setVisibleIds] = useState<number[] | null>(null);
+	const hasPickedTabRef = useRef(false);
 	const [activePriority, setActivePriority] = useState<Priority>('all');
 	const [isLoading, setIsLoading] = useState(true);
 	const [hasError, setHasError] = useState(false);
@@ -380,15 +383,44 @@ const IssuesSection = ({
 		// `scannerIds` is a fresh array every render from every real call site (inline `.flatMap()`/literal).
 	}, [reloadToken, reloadSignal]);
 
-	// Default-opens the first row's "More Details" panel once real rows load.
+	// The detail panel follows the list: it opens on the first page shown, moves to the first one shown when its page
+	// leaves the list (another tab, priority or search), and closes when the list is empty.
 	useEffect(() => {
-		if (!onAnalyze || hasAutoOpenedRef.current || 0 === rows.length) {
+		if (!onAnalyze || null === visibleIds) {
 			return;
 		}
 
-		hasAutoOpenedRef.current = true;
-		onAnalyze(rows[0].id);
-	}, [rows, onAnalyze]);
+		if (0 === visibleIds.length) {
+			if (activePostId) {
+				onAnalyzeClose?.();
+			}
+			return;
+		}
+
+		if (!hasAutoOpenedRef.current || (activePostId && !visibleIds.includes(activePostId))) {
+			hasAutoOpenedRef.current = true;
+			onAnalyze(visibleIds[0], true);
+		}
+		// Only what is shown, and which page is open, matter here.
+	}, [visibleIds, activePostId]);
+
+	// Opening on an empty "Important" tab helps no one: start on the first area that has issues instead.
+	useEffect(() => {
+		if (content || hasPickedTabRef.current || 0 === groups.length) {
+			return;
+		}
+
+		hasPickedTabRef.current = true;
+
+		if ('important' === activeTab && 0 === sumGroupCounts(groups, importantScannerIds)) {
+			const first = categories.find((category) => sumGroupCounts(groups, category.scannerIds) > 0);
+
+			if (first) {
+				setActiveTab(first.key);
+			}
+		}
+		// Runs once, when the counts first arrive.
+	}, [groups]);
 
 	useEffect(() => {
 		getApiResponse<{ data: FindingGroupRow[] }>(
@@ -701,15 +733,7 @@ const IssuesSection = ({
 				hideSearch={Boolean(content?.toolbarFilters)}
 				onAnalyze={onAnalyze}
 				activePostId={activePostId}
-				onEmptyChange={
-					activePostId
-						? (isEmpty: boolean) => {
-								if (isEmpty) {
-									onAnalyzeClose?.();
-								}
-							}
-						: undefined
-				}
+				onVisibleRowsChange={setVisibleIds}
 				showScoreChange={pageScore}
 				showContentScore={Boolean(content)}
 				onDelete={content?.onDelete}

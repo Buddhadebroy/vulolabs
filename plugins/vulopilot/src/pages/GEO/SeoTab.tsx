@@ -74,9 +74,13 @@ const SeoTab = () => {
 	const [analyzingPostId, setAnalyzingPostId] = useState<number | null>(null);
 
 	/** Same real "scroll the just-opened detail panel into view" fix the other issues tables' own `handleSelectGroup` already establishes. */
-	const handleAnalyze = (postId: number) => {
+	// `quiet`: the list picked the page itself (on load, or after a filter change), so don't scroll to the panel.
+	const handleAnalyze = (postId: number, quiet = false) => {
 		setAnalyzingPostId(postId);
-		scrollToId('seo-page-analysis-panel');
+
+		if (!quiet) {
+			scrollToId('seo-page-analysis-panel');
+		}
 	};
 
 	if (!isSeoModuleActive()) {
