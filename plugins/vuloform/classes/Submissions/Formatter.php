@@ -51,6 +51,9 @@ class Formatter {
 			case 'address':
 				return implode( ', ', array_filter( is_array( $value ) ? $value : array(), 'strlen' ) );
 
+			case 'phone':
+				return is_array( $value ) ? trim( ( empty( $value['country_code'] ) ? '' : $value['country_code'] ) . ' ' . ( empty( $value['phone'] ) ? '' : $value['phone'] ) ) : $value;
+
 			case 'calculation':
 				return '' === (string) $value ? '' : $field['prefix'] . $value;
 		}

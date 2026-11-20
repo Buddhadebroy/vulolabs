@@ -38,7 +38,14 @@
 	flex-wrap: wrap;
 	gap: var(--vf-gap);
 }
+.vuloform-phone{
+	display: flex;
+	gap: 0.625rem;
 
+	.vuloform-phone-code{
+		width: 30%;
+	}
+}
 .vuloform-field {
 	flex: 1 1 100%;
 	min-width: 0;

@@ -7,6 +7,7 @@
 
 namespace VuloForm\Frontend;
 
+use VuloForm\Fields\CountryCodes;
 use VuloForm\Fields\Registry;
 use VuloForm\Forms\DynamicValues;
 use VuloForm\Security\Recaptcha;
@@ -471,10 +472,50 @@ class Renderer {
 			case 'repeater':
 				return $open . self::repeater( $field, $uid, $id, $name, is_array( $value ) ? $value : array(), $error ) . '</div>';
 
+			case 'phone':
+				if ( isset( $field['show_country_code'] ) && ! $field['show_country_code'] ) {
+					$control = sprintf(
+						'<input class="vuloform-input" type="tel" id="%s" name="%s" value="%s" placeholder="%s" autocomplete="tel"%s>',
+						esc_attr( $id ),
+						esc_attr( $name ),
+						esc_attr( is_string( $value ) ? $value : '' ),
+						esc_attr( $field['placeholder'] ),
+						$common
+					);
+					break;
+				}
+
+				$grouped       = true;
+				$country_value = is_array( $value ) && isset( $value['country_code'] ) ? $value['country_code'] : '';
+				$phone_value = is_array( $value ) && isset( $value['phone'] ) ? $value['phone'] : ( is_string( $value ) ? $value : '' );
+
+				$control = sprintf( '<div class="vuloform-phone"><select class="vuloform-input vuloform-phone-code" id="%s-code" name="%s[country_code]" aria-label="%s">', esc_attr( $id ), esc_attr( $name ), esc_attr__( 'Country code', 'vuloform' ) );
+				$control .= sprintf( '<option value="">%s</option>', esc_html__( 'Code', 'vuloform' ) );
+
+				foreach ( CountryCodes::all() as $country ) {
+					$control .= sprintf(
+						'<option value="%1$s"%2$s>%1$s %3$s</option>',
+						esc_attr( $country['dial_code'] ),
+						selected( $country_value, $country['dial_code'], false ),
+						esc_html( $country['name'] )
+					);
+				}
+
+				$control .= '</select>';
+				$control .= sprintf(
+					'<input class="vuloform-input vuloform-phone-number" type="tel" id="%s" name="%s[phone]" value="%s" placeholder="%s" autocomplete="tel"%s>',
+					esc_attr( $id ),
+					esc_attr( $name ),
+					esc_attr( $phone_value ),
+					esc_attr( $field['placeholder'] ),
+					$common
+				);
+				$control .= '</div>';
+				break;
+
 			default:
 				$types = array(
 					'email'    => 'email',
-					'phone'    => 'tel',
 					'number'   => 'number',
 					'url'      => 'url',
 					'date'     => 'date',
@@ -495,7 +536,6 @@ class Renderer {
 
 				$autocomplete = array(
 					'email'    => 'email',
-					'phone'    => 'tel',
 					'url'      => 'url',
 					'password' => 'new-password',
 				);
