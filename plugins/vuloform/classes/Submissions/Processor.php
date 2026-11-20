@@ -390,14 +390,14 @@ class Processor {
 		} elseif ( 'address' === $field['type'] ) {
 			$empty = '' === ( $value['line1'] ?? implode( '', $flat ) );
 		} elseif ( 'phone' === $field['type'] && is_array( $value ) ) {
-			$empty = '' === ( $value['phone'] ?? '' );
+			$empty = empty( $value['phone'] );
 		}
 
 		if ( $empty ) {
 			return $required ? $messages['required'] : '';
 		}
 
-		$text = 'phone' === $field['type'] && is_array( $value ) ? (string) ( $value['phone'] ?? '' ) : ( is_string( $value ) ? $value : '' );
+		$text = is_array( $value ) ? ( empty( $value['phone'] ) ? '' : $value['phone'] ) : ( is_string( $value ) ? $value : '' );
 
 		switch ( $field['type'] ) {
 			case 'email':

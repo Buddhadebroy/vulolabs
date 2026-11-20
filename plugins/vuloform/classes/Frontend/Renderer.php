@@ -473,9 +473,7 @@ class Renderer {
 				return $open . self::repeater( $field, $uid, $id, $name, is_array( $value ) ? $value : array(), $error ) . '</div>';
 
 			case 'phone':
-				// `show_country_code` missing (fields saved before it existed) defaults to on, same as
-				// `@zyra/inputs`' PhoneInput reads `field.show_country_code !== false`.
-				if ( false === ( $field['show_country_code'] ?? true ) ) {
+				if ( isset( $field['show_country_code'] ) && ! $field['show_country_code'] ) {
 					$control = sprintf(
 						'<input class="vuloform-input" type="tel" id="%s" name="%s" value="%s" placeholder="%s" autocomplete="tel"%s>',
 						esc_attr( $id ),
@@ -488,8 +486,8 @@ class Renderer {
 				}
 
 				$grouped       = true;
-				$country_value = is_array( $value ) ? (string) ( $value['country_code'] ?? '' ) : '';
-				$phone_value   = is_array( $value ) ? (string) ( $value['phone'] ?? '' ) : ( is_string( $value ) ? $value : '' );
+				$country_value = is_array( $value ) && isset( $value['country_code'] ) ? $value['country_code'] : '';
+				$phone_value = is_array( $value ) && isset( $value['phone'] ) ? $value['phone'] : ( is_string( $value ) ? $value : '' );
 
 				$control = sprintf( '<div class="vuloform-phone"><select class="vuloform-input vuloform-phone-code" id="%s-code" name="%s[country_code]" aria-label="%s">', esc_attr( $id ), esc_attr( $name ), esc_attr__( 'Country code', 'vuloform' ) );
 				$control .= sprintf( '<option value="">%s</option>', esc_html__( 'Code', 'vuloform' ) );
