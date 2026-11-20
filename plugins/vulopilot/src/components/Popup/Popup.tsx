@@ -7,8 +7,16 @@ import MODULES_CATALOG, { isModuleCatalogEntry } from '../Modules';
 import { useConnectVuloCloud } from '../../services/useConnectVuloCloud';
 import '../Popup/Popup.scss';
 
+/** The feature the upgrade was asked from (a ProSample section), shown first in the Pro popup - as VuloCart does. */
+export interface ProFeature {
+	title: string;
+	description: string;
+	icon?: string;
+}
+
 interface PopupProps {
 	moduleName?: string;
+	feature?: ProFeature;
 	/** A plugin slug, or zyra's dependent-plugin entry ({ plugin: slug, name }) for a field that needs one. */
 	plugin?: string | { plugin: string; name: string; link?: string };
 	vulocloud?: boolean;
@@ -270,6 +278,24 @@ const ShowProPopup: React.FC<PopupProps> = (props) => {
 						'vulopilot'
 					)}
 				</p>
+				{props.feature && (
+					<div className="vp-pro-feature">
+						<span className="vp-pro-icon" aria-hidden="true">
+							<i className={`adminfont-${props.feature.icon ?? 'pro-tag'}`} />
+						</span>
+						<span>
+							<strong>
+								{sprintf(
+									/* translators: %s: feature name, e.g. "Health trend". */
+									__('%s is included', 'vulopilot'),
+									props.feature.title
+								)}
+							</strong>
+							{props.feature.description}
+						</span>
+						<span className="vp-pro-feature-check" aria-hidden="true" />
+					</div>
+				)}
 				<ul className="vp-pro-highlights">
 					{PRO_HIGHLIGHTS.map((item) => (
 						<li key={item}>

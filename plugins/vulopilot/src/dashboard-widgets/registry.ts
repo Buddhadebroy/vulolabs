@@ -1,8 +1,9 @@
 import { __ } from '@wordpress/i18n';
+import { useEffect, useState } from 'react';
 import { applyFilters } from '@wordpress/hooks';
 import CrawlerTrafficWidget from './CrawlerTrafficWidget';
 import SiteSnapshotWidget from './SiteSnapshotWidget';
-import VuloPilotActivityWidget from './VuloPilotActivityWidget';
+import HealthTrendSample from './HealthTrendSample';
 import { WidgetDefinition } from './types';
 
 /**
@@ -17,7 +18,8 @@ const INSIGHT_WIDGETS: WidgetDefinition[] = [
 		desc: __('How your overall score has moved over time.', 'vulopilot'),
 		icon: 'analytics',
 		grid: 7,
-		component: VuloPilotActivityWidget,
+		// A sample of a Pro feature; VuloPilot Pro replaces it with the real card through `vulopilot_dashboard_widgets`.
+		component: HealthTrendSample,
 	},
 	{
 		id: 'crawler-traffic',
@@ -37,7 +39,25 @@ const INSIGHT_WIDGETS: WidgetDefinition[] = [
 	},
 ];
 
-export const DEFAULT_DASHBOARD_WIDGETS: WidgetDefinition[] = applyFilters(
-	'vulopilot_dashboard_widgets',
-	INSIGHT_WIDGETS
-) as WidgetDefinition[];
+/** Free's widgets, as `vulopilot_dashboard_widgets` adds to or replaces them. */
+export const getDashboardWidgets = (): WidgetDefinition[] =>
+	applyFilters('vulopilot_dashboard_widgets', INSIGHT_WIDGETS) as WidgetDefinition[];
+
+/**
+ * The widgets, read again whenever VuloPilot Pro finishes loading. Pro's script runs after this one, so reading the
+ * filter once (at import) missed every widget Pro registers - the same reason useFilterSlot() rechecks.
+ */
+export const useDashboardWidgets = (): WidgetDefinition[] => {
+	const [widgets, setWidgets] = useState<WidgetDefinition[]>(getDashboardWidgets);
+
+	useEffect(() => {
+		const recheck = () => setWidgets(getDashboardWidgets());
+
+		recheck();
+		window.addEventListener('vulopilot_pro_modules_loaded', recheck);
+
+		return () => window.removeEventListener('vulopilot_pro_modules_loaded', recheck);
+	}, []);
+
+	return widgets;
+};

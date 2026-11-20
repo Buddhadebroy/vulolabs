@@ -1,813 +1,400 @@
-@use '../../components/config' as *;
+// ---- Automations, free (pages/Automations): the two built-ins, the alert strip, the Pro samples, the guide link.
+// Cards, KPI tiles, pills, switch and segmented control are ui.scss. Pro's own Automations page brings its styles.
 
-.automation-attention-count {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	min-width: 1.375rem;
-	height: 1.375rem;
-	padding: 0 0.375rem;
-	margin-left: 0.5rem;
-	border-radius: 50%;
-	background: #dc2626;
-	color: $color-white;
-	font-size: 0.75rem;
-	font-weight: 700;
+.vp-automations .vp-row {
+	align-items: stretch;
 }
 
-.automation-attention-empty {
+// ---- A built-in automation ----
+.vp-auto {
+	gap: 0;
+	overflow: hidden;
+	transition: border-color 0.15s;
+
+	&.is-off {
+		background: #fcfcfe;
+	}
+}
+
+.vp-auto-head {
 	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 0.375rem;
-	padding: 0.5rem 0;
-	text-align: center;
+	align-items: flex-start;
+	gap: 0.875rem;
+	padding: 1.25rem 1.5rem 1rem;
 
-	.automation-attention-empty-pill {
-		display: flex;
-		align-items: center;
-		gap: 0.625rem;
-		align-self: stretch;
-		padding: 0.5rem 0.75rem;
-		margin-bottom: 0.75rem;
-		border-radius: 0.5rem;
-		background: color-mix(in srgb, #16a34a 10%, transparent);
-		text-align: left;
-	}
-
-	.automation-attention-celebrate {
-		font-size: 2rem;
-		line-height: 1;
-	}
-
-	small {
-		color: $sub-text-color;
-	}
-
-	i {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		width: 1.75rem;
-		height: 1.75rem;
-		border-radius: 50%;
-		background: color-mix(in srgb, #16a34a 14%, transparent);
-		color: #16a34a;
-		flex-shrink: 0;
-	}
-
-	p {
-		margin: 0;
-		color: $sub-text-color;
-		font-size: 0.8125rem;
+	.vp-switch {
+		margin-top: 0.25rem;
 	}
 }
 
-.automation-attention-list {
-	display: flex;
-	flex-direction: column;
-	gap: 0.75rem;
-}
-
-.automation-attention-row {
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	padding: 0.75rem 0;
-	border-top: $border-light-small;
-
-	&:first-child {
-		border-top: none;
-	}
-
-	> i {
-		color: #dc2626;
-		font-size: 1.125rem;
-		flex-shrink: 0;
-	}
-}
-
-.automation-attention-body {
+.vp-auto-title {
 	flex: 1;
 	min-width: 0;
 
-	p {
-		margin: 0.125rem 0 0;
-		color: $sub-text-color;
-		font-size: 0.8125rem;
-	}
-}
-
-.automation-attention-view-all {
-	display: block;
-	margin-top: 0.75rem;
-	color: $theme-color;
-	font-weight: 600;
-	font-size: 0.8125rem;
-	cursor: pointer;
-
-	&:hover {
-		text-decoration: underline;
-	}
-}
-
-.automation-period-stats-compare {
-	color: $sub-text-color;
-	font-size: 0.75rem;
-	margin: 0.75rem 0 0;
-}
-
-.automation-watch-card {
-	padding: 1.25rem;
-	border: $border-light-small;
-	border-radius: 0.75rem;
-	background: $background-white;
-	margin-bottom: 1rem;
-
-	.automation-watch-header {
-		display: flex;
-		align-items: flex-start;
-		gap: 1rem;
-	}
-}
-
-.automation-watch-icon {
-	position: relative;
-	flex-shrink: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 3rem;
-	height: 3rem;
-	border-radius: 0.75rem;
-	font-size: 1.375rem;
-
-	&.is-good {
-		background: color-mix(in srgb, $theme-color 12%, transparent);
-		color: $theme-color;
-	}
-
-	&.is-idle {
-		background: $border-color;
-		color: $sub-text-color;
-	}
-}
-
-.automation-watch-title-row {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-
-	strong {
-		font-size: 1.0625rem;
-	}
-}
-
-.automation-watch-check {
-	position: absolute;
-	top: -0.25rem;
-	right: -0.25rem;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 1.25rem;
-	height: 1.25rem;
-	border-radius: 50%;
-	background: #16a34a;
-	color: $color-white;
-	font-size: 0.6875rem;
-	border: 2px solid $background-white;
-}
-
-.automation-watch-sub {
-	color: #16a34a;
-	font-weight: 600;
-	font-size: 0.875rem;
-	margin: 0.25rem 0 0;
-}
-
-.automation-watch-desc {
-	color: $sub-text-color;
-	font-size: 0.8125rem;
-	margin: 0.25rem 0 0;
-}
-
-.automation-watch-stats {
-	display: flex;
-	gap: 2.5rem;
-	margin-top: 1.25rem;
-	padding-top: 1.25rem;
-	border-top: $border-light-small;
-	flex-wrap: wrap;
-}
-
-.automation-watch-stat {
-	display: flex;
-	flex-direction: column;
-	gap: 0.125rem;
-
-	strong {
-		font-size: 1.125rem;
-	}
-
-	span {
-		font-size: 0.8125rem;
-		font-weight: 600;
-	}
-
-	small {
-		color: $sub-text-color;
-		font-size: 0.75rem;
-	}
-}
-
-.automation-stats-row {
-	margin-bottom: 1rem;
-}
-
-.analytics-icon {
-	border-radius: 0.625rem;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-
-	&:has(i.is-good) {
-		background: color-mix(in srgb, #16a34a 14%, transparent);
-	}
-
-	&:has(i.is-attention) {
-		background: color-mix(in srgb, #e67a2e 14%, transparent);
-	}
-
-	&:has(i.is-info) {
-		background: color-mix(in srgb, #7c3aed 14%, transparent);
-	}
-
-	&:has(i.is-primary) {
-		background: color-mix(in srgb, #2563eb 14%, transparent);
-	}
-
-	i.is-good {
-		color: #16a34a;
-	}
-
-	i.is-attention {
-		color: #e67a2e;
-	}
-
-	i.is-info {
-		color: #7c3aed;
-	}
-
-	i.is-primary {
-		color: #2563eb;
-	}
-}
-
-.automations-status-actions {
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-}
-
-.admin-badge {
-	&.category-monitoring {
-		color: #2563eb;
-		background: color-mix(in srgb, #2563eb 14%, transparent);
-	}
-
-	&.category-security {
-		color: #dc2626;
-		background: color-mix(in srgb, #dc2626 14%, transparent);
-	}
-
-	&.category-content {
-		color: #7c3aed;
-		background: color-mix(in srgb, #7c3aed 14%, transparent);
-	}
-
-	&.category-commerce {
-		color: #16a34a;
-		background: color-mix(in srgb, #16a34a 14%, transparent);
-	}
-
-	&.category-reporting {
-		color: #ea580c;
-		background: color-mix(in srgb, #ea580c 14%, transparent);
-	}
-
-	&.category-custom {
-		color: $sub-text-color;
-		background: $background-color;
-	}
-}
-
-.vulopilot-pro-automation-form {
-	display: flex;
-	flex-direction: column;
-	gap: 0.75rem;
-
-	input[type='text'],
-	input[type='number'],
-	select {
-		width: 100%;
-		padding: 0.5rem 0.625rem;
-		border: $border-light-small;
-		border-radius: 0.375rem;
-		font-size: 0.8125rem;
-	}
-}
-
-.vulopilot-pro-automation-builder-section {
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-	padding: 0.75rem;
-	border: $border-light-small;
-	border-radius: 0.5rem;
-}
-
-.vulopilot-pro-automation-builder-row {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 0.5rem;
-
-	input,
-	select {
-		flex: 1;
-		min-width: 10rem;
-		padding: 0.375rem 0.5rem;
-		border: $border-light-small;
-		border-radius: 0.375rem;
-		font-size: 0.8125rem;
-	}
-}
-
-.automation-wizard {
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-}
-
-.automation-wizard-name {
-	width: 100%;
-	padding: 0.625rem 0.75rem;
-	border: $border-light-small;
-	border-radius: 0.5rem;
-	font-size: 1rem;
-	font-weight: 600;
-
-	&:disabled {
-		background: $theme-background-color;
-		color: $sub-text-color;
-	}
-}
-
-.automation-wizard-steps {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.375rem;
-	border-bottom: $border-light-small;
-	padding-bottom: 0.75rem;
-}
-
-.automation-wizard-step {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.375rem;
-	padding: 0.375rem 0.75rem;
-	border: none;
-	border-radius: 999px;
-	background: $theme-background-color;
-	color: $sub-text-color;
-	font-size: 0.8125rem;
-	font-weight: 600;
-	cursor: pointer;
-
-	&.is-active {
-		background: color-mix(in srgb, $theme-color 14%, transparent);
-		color: $theme-color;
-	}
-}
-
-.automation-wizard-step-index {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 1.125rem;
-	height: 1.125rem;
-	border-radius: 50%;
-	background: color-mix(in srgb, $sub-text-color 18%, transparent);
-	font-size: 0.6875rem;
-
-	.automation-wizard-step.is-active & {
-		background: $theme-color;
-		color: $color-white;
-	}
-}
-
-.automation-wizard-body {
 	h3 {
-		margin: 0 0 0.25rem;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem;
+		margin: 0;
 		font-size: 1rem;
-	}
-}
-
-.automation-wizard-empty {
-	color: $sub-text-color;
-	font-size: 0.8125rem;
-	margin: 0;
-}
-
-.automation-wizard-summary {
-	display: flex;
-	flex-direction: column;
-	border: $border-light-small;
-	border-radius: 0.5rem;
-	overflow: hidden;
-}
-
-.automation-wizard-summary-row {
-	display: flex;
-	align-items: baseline;
-	gap: 0.625rem;
-	padding: 0.625rem 0.875rem;
-
-	+ .automation-wizard-summary-row {
-		border-top: $border-light-small;
+		font-weight: 700;
+		line-height: 1.4;
+		color: var(--ui-ink);
 	}
 
-	strong {
-		flex-shrink: 0;
-		width: 4rem;
-		font-size: 0.75rem;
-		color: $sub-text-color;
-	}
-
-	span {
-		flex: 1;
-		min-width: 0;
-		font-size: 0.875rem;
-	}
-
-	button {
-		flex-shrink: 0;
-		border: none;
-		background: none;
-		color: $theme-color;
-		font-weight: 600;
+	p {
+		margin: 0.25rem 0 0;
 		font-size: 0.8125rem;
-		cursor: pointer;
+		line-height: 1.5;
+		color: var(--ui-muted);
+	}
+}
 
-		&:hover {
-			text-decoration: underline;
+// Three facts in a row, divided by hairlines.
+.vp-auto-facts {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	margin: 0;
+	border-top: 1px solid var(--ui-line);
+	border-bottom: 1px solid var(--ui-line);
+	background: #fafafd;
+
+	> div {
+		min-width: 0;
+		padding: 0.75rem 1rem;
+
+		+ div {
+			border-left: 1px solid var(--ui-line);
+		}
+
+		&:first-child {
+			padding-left: 1.5rem;
+		}
+	}
+
+	dt {
+		font-size: 0.6875rem;
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		color: var(--ui-muted);
+	}
+
+	dd {
+		margin: 0.1875rem 0 0;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		line-height: 1.4;
+		color: var(--ui-ink);
+
+		&.is-bad {
+			color: var(--ui-bad);
+		}
+
+		a {
+			color: var(--ui-accent);
+			text-decoration: none;
+
+			&:hover {
+				text-decoration: underline;
+			}
+		}
+	}
+
+	@media (width <= 600px) {
+		grid-template-columns: minmax(0, 1fr);
+
+		> div + div {
+			border-top: 1px solid var(--ui-line);
+			border-left: 0;
+		}
+
+		> div:first-child {
+			padding-left: 1rem;
 		}
 	}
 }
 
-.automation-wizard-activate-row,
-.automation-wizard-view-actions,
-.automation-wizard-nav {
+.vp-auto-schedule {
 	display: flex;
-	gap: 0.625rem;
-	justify-content: flex-end;
-}
-
-.automation-wizard-nav {
-	justify-content: space-between;
-}
-
-.automation-wizard-runs-title {
-	margin: 0.5rem 0 0;
-	font-size: 0.875rem;
-}
-
-.automation-generate {
-	display: flex;
-	flex-direction: column;
-	gap: 0.75rem;
-
-	h3 {
-		margin: 0;
-		font-size: 1.0625rem;
-	}
-}
-
-.automation-generate-input {
-	width: 100%;
-	padding: 0.625rem 0.75rem;
-	border: $border-light-small;
-	border-radius: 0.5rem;
-	font-size: 0.875rem;
-	font-family: inherit;
-	resize: vertical;
-}
-
-.automation-templates-list {
-	margin-top: 0.75rem;
-}
-
-.automations-manage-dummy {
-	cursor: pointer;
-	display: flex;
-	flex-direction: column;
-}
-
-.automations-manage-dummy-row {
-	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
-	justify-content: space-between;
-	gap: 0.75rem;
-	padding: 0.75rem 0;
-	border-top: $border-light-small;
-	pointer-events: none;
+	gap: 0.625rem 0.75rem;
+	padding: 1rem 1.5rem;
 
-	&:first-child {
-		border-top: none;
-	}
-
-	.title {
-		font-weight: 600;
-		font-size: 0.875rem;
-	}
-
-	.desc {
-		color: $sub-text-color;
-		font-size: 0.8125rem;
+	.vp-seg {
+		max-width: 100%;
+		overflow-x: auto;
 	}
 }
 
-.automations-manage-dummy-info {
-	min-width: 0;
-}
-
-.automations-activity-dummy {
-	cursor: pointer;
-}
-
-.builtin-automation-cards {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
-	gap: 1rem;
-	margin-bottom: 1rem;
-}
-
-.builtin-automation-fixed-day {
+.vp-auto-label {
 	font-size: 0.8125rem;
-	color: $sub-text-color;
+	font-weight: 600;
+	color: var(--ui-text);
 }
 
-.builtin-automation-card-highlighted {
-	border-radius: $border-radius-small;
-	box-shadow: 0 0 0 0.125rem $theme-color;
-	transition: box-shadow 0.4s ease;
-}
+.vp-auto-foot {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	margin-top: auto;
+	padding: 0.875rem 1.5rem;
+	border-top: 1px solid var(--ui-line);
 
-.builtin-automation-cards {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 1rem;
-
-	@media (max-width: 782px) {
-		grid-template-columns: 1fr;
+	.buttons-wrapper {
+		margin: 0;
 	}
 }
 
-.builtin-automation-tiles {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-	gap: 0.75rem;
-	padding: 0.75rem;
-	margin-bottom: 1rem;
-	border-radius: 0.5rem;
-	background: $theme-background-color;
-}
-
-.builtin-automation-tile {
-	display: flex;
-	align-items: center;
-	gap: 0.625rem;
-}
-
-.builtin-automation-tile-icon {
+.vp-auto-status {
 	display: inline-flex;
 	align-items: center;
-	justify-content: center;
-	width: 2rem;
-	height: 2rem;
-	border-radius: 0.5rem;
-	background: color-mix(in srgb, $theme-color 12%, transparent);
-	color: $theme-color;
-	flex-shrink: 0;
-}
+	gap: 0.375rem;
+	font-size: 0.8125rem;
+	color: var(--ui-muted);
 
-.builtin-automation-tile-label,
-.builtin-automation-tile-sub {
-	font-size: 0.75rem;
-	color: $sub-text-color;
-}
-
-.builtin-automation-tile-value {
-	display: block;
-	font-size: 0.875rem;
-}
-
-.builtin-automation-actions {
-	margin-top: 1rem;
-
-	> div {
-		display: flex;
-		gap: 0.75rem;
-		width: 100%;
-	}
-
-	.admin-btn {
-		flex: 1;
-		justify-content: center;
+	&.is-bad {
+		font-weight: 600;
+		color: var(--ui-bad);
 	}
 }
 
-.automation-status-tiles {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
-	gap: 0.75rem;
-}
-
-.automation-status-tile {
+// ---- What needs the user, above the cards ----
+.vp-auto-alert {
 	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+	padding: 0.875rem 1.125rem;
+	border: 1px solid #f6c9c9;
+	border-radius: var(--ui-radius);
+	background: var(--ui-bad-bg);
+	color: var(--ui-bad);
+
+	ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	li {
+		margin: 0;
+		font-size: 0.8125rem;
+		font-weight: 500;
+		line-height: 1.6;
+		color: var(--ui-ink);
+	}
+}
+
+// ---- Pro samples (inside ProSample) ----
+.vp-auto-sample .vp-card-body {
+	padding-top: 0.75rem;
+}
+
+// Sample custom automations: icon, name, "When … → …", on/off, last run.
+.vp-rules {
+	margin: 0;
+	padding: 1.25rem 0 0;
+	list-style: none;
+
+	li {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin: 0;
+		padding: 0.75rem 0;
+
+		+ li {
+			border-top: 1px solid var(--ui-line);
+		}
+
+		&.is-off {
+			opacity: 0.6;
+		}
+	}
+}
+
+.vp-rule-main {
+	display: flex;
+	flex: 1;
 	flex-direction: column;
 	gap: 0.125rem;
-	padding: 0.875rem;
-	border-radius: 0.5rem;
+	min-width: 0;
 
-	&.is-green { background: color-mix(in srgb, #16a34a 9%, transparent); }
-	&.is-gray { background: color-mix(in srgb, #6b7280 10%, transparent); }
-	&.is-blue { background: color-mix(in srgb, #2563eb 9%, transparent); }
-	&.is-purple { background: color-mix(in srgb, $theme-color 9%, transparent); }
-}
-
-.automation-status-tile-icon {
-	font-size: 1.25rem;
-	margin-bottom: 0.25rem;
-
-	.is-green & { color: #16a34a; }
-	.is-gray & { color: #6b7280; }
-	.is-blue & { color: #2563eb; }
-	.is-purple & { color: $theme-color; }
-}
-
-.automation-status-tile-value {
-	font-size: 1.5rem;
-	line-height: 1.2;
-}
-
-.automation-status-tile-label {
-	font-weight: 600;
-	font-size: 0.8125rem;
-}
-
-.automation-status-tile-sub {
-	color: $sub-text-color;
-	font-size: 0.75rem;
-}
-
-.automation-overview-cards {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 1rem;
-	margin-bottom: 1rem;
-
-	@media (max-width: 64rem) {
-		grid-template-columns: 1fr;
+	strong {
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: var(--ui-ink);
 	}
 }
 
-.automation-overview-link {
-	color: $theme-color;
-	font-weight: 600;
-	cursor: pointer;
-	background: none;
-	border: 0;
-	padding: 0;
+.vp-rule-flow {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.375rem;
+	font-size: 0.75rem;
+	color: var(--ui-muted);
+
+	em {
+		padding: 0 0.375rem;
+		border-radius: 0.25rem;
+		background: var(--ui-sunken);
+		font-size: 0.6875rem;
+		font-style: normal;
+		font-weight: 600;
+		color: var(--ui-text);
+	}
+
+	i {
+		font-size: 0.5625rem;
+		color: var(--ui-faint);
+	}
 }
 
-.automation-agents-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-	gap: 1rem;
+.vp-rule-last {
+	flex: none;
+	width: 4.5rem;
+	font-size: 0.75rem;
+	color: var(--ui-faint);
+	text-align: right;
+
+	@media (width <= 600px) {
+		display: none;
+	}
 }
 
-.automation-agent {
+// Sample agents: a live dot, the task, a progress bar; then what they finished, each with Undo.
+.vp-agents {
 	display: flex;
 	flex-direction: column;
-	gap: 0.625rem;
-	padding: 0.875rem;
-	border: $border-light-small;
-	border-radius: $border-radius-small;
+	gap: 0.875rem;
+	padding-top: 1.25rem;
 }
 
-.automation-agent-name {
-	display: flex;
+.vp-agent {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 6rem;
+	gap: 0.25rem 1rem;
+	align-items: center;
+}
+
+.vp-agent-name {
+	display: inline-flex;
 	align-items: center;
 	gap: 0.5rem;
+	font-size: 0.8125rem;
 	font-weight: 600;
+	color: var(--ui-ink);
 }
 
-.automation-agent-dot {
+.vp-agent-live {
 	width: 0.5rem;
 	height: 0.5rem;
 	border-radius: 50%;
-	background: #6b7280;
-
-	&.is-green { background: #16a34a; }
-	&.is-blue { background: #2563eb; }
+	background: var(--ui-good);
+	box-shadow: 0 0 0 3px var(--ui-good-bg);
 }
 
-.automation-agent-task {
-	color: $sub-text-color;
-	font-size: 0.8125rem;
-	min-height: 2.25rem;
-}
-
-.automation-agent-progress {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
+.vp-agent-task {
+	grid-column: 1;
 	font-size: 0.75rem;
-	font-weight: 600;
+	color: var(--ui-muted);
+}
 
-	.automation-agent-bar {
-		flex: 1;
-		height: 0.375rem;
-		border-radius: 1rem;
-		background: color-mix(in srgb, $theme-color 14%, transparent);
-		overflow: hidden;
+.vp-agent-bar {
+	grid-row: 1 / span 2;
+	grid-column: 2;
+	height: 0.375rem;
+	overflow: hidden;
+	border-radius: 999px;
+	background: #eeeff5;
+
+	i {
+		display: block;
+		height: 100%;
+		border-radius: inherit;
+		background: linear-gradient(90deg, #a78bfa, var(--ui-accent));
+	}
+}
+
+.vp-agent-done {
+	margin: 1rem 0 0;
+	padding: 0.75rem 0 0;
+	border-top: 1px solid var(--ui-line);
+	list-style: none;
+
+	li {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin: 0;
+		padding: 0.3125rem 0;
+		font-size: 0.8125rem;
+		color: var(--ui-text);
+
+		> i {
+			font-size: 0.75rem;
+			color: var(--ui-good);
+		}
 
 		span {
-			display: block;
-			height: 100%;
-			background: $theme-color;
+			flex: 1;
+			min-width: 0;
+		}
+
+		em {
+			font-size: 0.75rem;
+			font-style: normal;
+			color: var(--ui-faint);
+		}
+
+		b {
+			font-size: 0.75rem;
+			font-weight: 600;
+			color: var(--ui-accent);
 		}
 	}
 }
 
-.automation-agent-status {
-	font-size: 0.8125rem;
-	font-weight: 600;
-	color: #6b7280;
-
-	&.is-green { color: #16a34a; }
-	&.is-blue { color: #2563eb; }
-}
-
-.automation-agent-manager {
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-}
-
-.automation-agent-manager-group {
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-}
-
-.automation-agent-manager-head,
-.automation-agent-manager-row {
-	display: flex;
+// ---- The guide, one slim strip ----
+.vp-auto-learn .vp-card-body {
+	flex-flow: row wrap;
 	align-items: center;
-	justify-content: space-between;
-	gap: 0.75rem;
-}
-
-.automation-agent-manager-row {
-	padding: 0.375rem 0;
-	border-top: $border-light-small;
-
-	> span:first-child {
-		flex: 1;
-	}
-}
-
-.automation-ai-activity {
-	margin: 0;
-	padding: 0;
-	list-style: none;
-}
-
-.automation-ai-activity-row {
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	padding: 0.5rem 0;
+	gap: 0.875rem;
+	padding: 1rem 1.5rem;
 
 	> i {
-		color: #16a34a;
+		display: inline-grid;
+		flex: none;
+		place-items: center;
+		width: 2.25rem;
+		height: 2.25rem;
+		border-radius: 0.625rem;
+		background: var(--ui-sunken);
+		font-size: 1rem;
+		color: var(--ui-muted);
 	}
 
-	.automation-ai-activity-title {
-		flex: 1;
-		font-weight: 500;
+	> span {
+		display: flex;
+		flex: 1 1 18rem;
+		flex-direction: column;
+		gap: 0.125rem;
+		font-size: 0.8125rem;
+		color: var(--ui-muted);
+	}
+
+	strong {
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: var(--ui-ink);
+	}
+
+	.vp-card-link {
+		padding-top: 0;
 	}
 }

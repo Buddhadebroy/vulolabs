@@ -1,312 +1,227 @@
 /* global vulopilotAppLocalizer */
-import { ComponentType, useEffect, useRef, useState } from 'react';
-import { __ } from '@wordpress/i18n';
-import {
-	ColumnComponent,
-	ContainerComponent,
-	NavigatorHeaderComponent,
-	PopupComponent,
-} from '@zyra/components';
+import { useEffect, useState } from 'react';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { getApiLink, getApiResponse } from '@zyra/core';
+import { ColumnComponent, ContainerComponent, NavigatorHeaderComponent, PopupComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import ShowProPopup from '../../components/Popup/Popup';
-import { useFilterSlot } from '../../services/useFilterSlot';
-import AutomationsStatusCard from './AutomationsStatusCard';
-import AutomationsResourcesCard from './AutomationsResourcesCard';
-import AutomationsAttentionCard from './AutomationsAttentionCard';
-import BuiltinAutomationCards from './BuiltinAutomationCards';
-import { AutomationsAiActivityDummy, AutomationsOverviewDummy } from './AutomationsProDummies';
-import { AutomationRow, AutomationTemplate, getAutomationTemplateById } from './automationsTypes';
+import { Kpi, KpiGrid, SectionHead, Skeleton } from '../../components/ui';
+import { formatWpTime, isWpToday, formatWpDate } from '../../services/formatWpDate';
+import { DOCS_URL } from '../../services/links';
+import BuiltinAutomationCard from './BuiltinAutomationCard';
+import { AiAgentsSample, CustomAutomationsSample } from './AutomationsProSamples';
+import { REPORT_TRIGGER, SCAN_TRIGGER } from './automationsTypes';
+import type { AutomationRow } from './automationsTypes';
 import './Automations.scss';
 
-interface ManageAutomationsSectionComponentProps {
-	hasWizard: boolean;
-	 
-	// eslint-disable-next-line no-unused-vars
-	onOpenRow: (row: AutomationRow) => void;
-	onRequireProUpsell: () => void;
-	refetchSignal: number;
-}
+const nonce = () => ({ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } });
 
-interface AutomationWizardComponentProps {
-	openSignal?: number;
-	initialName?: string;
-	initialCategory?: string;
-	initialTriggerType?: string;
-	initialActionTypes?: string[];
-	initialNotificationTypes?: string[];
-	initialConditions?: { type: string; config: Record<string, unknown> }[];
-	viewAutomation?: AutomationRow | null;
-	onSaved?: () => void;
-}
+/** "Today 09:00" or "Nov 21". */
+const shortWhen = (iso: string): string => (isWpToday(iso) ? `${__('Today', 'vulopilot')} ${formatWpTime(iso)}` : formatWpDate(iso));
 
-interface AutomationGenerateComponentProps {
-	openSignal?: number;
-	onSaved?: () => void;
-}
+const CUSTOM_AUTOMATIONS = {
+	title: __('Custom automations', 'vulopilot'),
+	description: __('Build your own: pick what starts it, then what it does - alerts, reports or AI fixes.', 'vulopilot'),
+	icon: 'automation',
+};
 
-interface AutomationsOverviewComponentProps {
-	onOpenLibrary: () => void;
-	refetchSignal: number;
-}
-
-interface AutomationsActivityComponentProps {
-	refetchSignal: number;
-}
-
-interface AutomationSlotValue {
-	Wizard: ComponentType<AutomationWizardComponentProps>;
-	Generate: ComponentType<AutomationGenerateComponentProps>;
-	Templates: ComponentType<AutomationGenerateComponentProps>;
-	Manage: ComponentType<ManageAutomationsSectionComponentProps>;
-	Overview?: ComponentType<AutomationsOverviewComponentProps>;
-	Activity?: ComponentType<AutomationsActivityComponentProps>;
-}
-
-/** "Automate Work" - Free gets exactly 2 fixed, schedule-only automations. */
+/**
+ * Automations, free: the two built-in automations (a scheduled scan and a scheduled visibility report), how they are
+ * doing, and samples of what VuloPilot Pro's Workflow Automation adds. With Pro, its own Automations page replaces
+ * this one (Pro registers the `automations` route after free does).
+ */
 const Automations = () => {
-	const slot = useFilterSlot<AutomationSlotValue>('vulopilot_automations_panel');
-	const Wizard = slot?.Wizard;
-	const Generate = slot?.Generate;
-	const Templates = slot?.Templates;
-	const Manage = slot?.Manage;
-	const Overview = slot?.Overview;
-	const Activity = slot?.Activity;
-
-	const [wizardOpenSignal, setWizardOpenSignal] = useState(0);
-	const [generateOpenSignal, setGenerateOpenSignal] = useState(0);
-	const [templatesOpenSignal, setTemplatesOpenSignal] = useState(0);
+	const [rows, setRows] = useState<AutomationRow[]>([]);
+	const [failedRuns, setFailedRuns] = useState(0);
+	const [isLoading, setIsLoading] = useState(true);
 	const [refetchSignal, setRefetchSignal] = useState(0);
-	const [viewingRow, setViewingRow] = useState<AutomationRow | null>(null);
-	const [pendingTemplate, setPendingTemplate] = useState<AutomationTemplate | null>(null);
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
-	// Header button row starts collapsed to "Build with AI" + one common "create" button.
-	const [isCreateMenuExpanded, setIsCreateMenuExpanded] = useState(false);
-
-	const openProPopup = () => setIsProPopupOpen(true);
-
-	const handleSaved = () => setRefetchSignal((n) => n + 1);
-
-	const openCreateWizard = () => {
-		setIsCreateMenuExpanded(false);
-
-		if (!Wizard) {
-			openProPopup();
-			return;
-		}
-
-		setViewingRow(null);
-		setPendingTemplate(null);
-		setWizardOpenSignal((n) => n + 1);
-	};
-
-	const openGenerate = () => {
-		if (!Generate) {
-			openProPopup();
-			return;
-		}
-
-		setGenerateOpenSignal((n) => n + 1);
-	};
-
-	const openTemplatesLibrary = () => {
-		setIsCreateMenuExpanded(false);
-
-		if (!Templates) {
-			openProPopup();
-			return;
-		}
-
-		setTemplatesOpenSignal((n) => n + 1);
-	};
-
-	const openTemplate = (template: AutomationTemplate) => {
-		if (!Wizard) {
-			openProPopup();
-			return;
-		}
-
-		setViewingRow(null);
-		setPendingTemplate(template);
-		setWizardOpenSignal((n) => n + 1);
-	};
-
-	const openRow = (row: AutomationRow) => {
-		if (!Wizard) {
-			openProPopup();
-			return;
-		}
-
-		setPendingTemplate(null);
-		setViewingRow(row);
-		setWizardOpenSignal((n) => n + 1);
-	};
-
-	// AI Copilot's Chat tab deep-links here as `?...#tab=automations&automation_template={id}`.
-	const [initialTemplateId] = useState<string | null>(() =>
-		new URLSearchParams(window.location.hash.substring(1)).get('automation_template')
-	);
-	const [highlightTemplateId, setHighlightTemplateId] = useState<string | null>(null);
-	const firedInitialTemplateRef = useRef(false);
 
 	useEffect(() => {
-		if (firedInitialTemplateRef.current || !initialTemplateId) {
-			return;
-		}
+		let cancelled = false;
 
-		const template = getAutomationTemplateById(initialTemplateId);
+		Promise.all([
+			getApiResponse<{ data?: AutomationRow[] } | AutomationRow[]>(`${getApiLink(vulopilotAppLocalizer, 'automations')}?per_page=100`, nonce()),
+			getApiResponse<{ failed?: number }>(`${getApiLink(vulopilotAppLocalizer, 'automation-dashboard-stats')}?period=month`, nonce()),
+		])
+			.then(([list, stats]) => {
+				if (cancelled) {
+					return;
+				}
 
-		if (!template) {
-			return;
-		}
+				setRows(Array.isArray(list) ? list : (list?.data ?? []));
+				setFailedRuns(stats?.failed ?? 0);
+			})
+			.finally(() => !cancelled && setIsLoading(false));
 
-		if (template.linkOnly) {
-			firedInitialTemplateRef.current = true;
-			setHighlightTemplateId(template.id);
-			return;
-		}
+		return () => {
+			cancelled = true;
+		};
+	}, [refetchSignal]);
 
-		if (!Wizard) {
-			return;
-		}
+	const refetch = () => setRefetchSignal((n) => n + 1);
 
-		firedInitialTemplateRef.current = true;
-		openTemplate(template);
-		// Deliberately re-checks only when Wizard itself resolves or initialTemplateId.
-	}, [Wizard, initialTemplateId]);
+	const scan = rows.find((row) => SCAN_TRIGGER === row.trigger_type);
+	const report = rows.find((row) => REPORT_TRIGGER === row.trigger_type);
+	const builtins = [scan, report].filter((row): row is AutomationRow => Boolean(row));
+	const on = builtins.filter((row) => 'enabled' === row.status);
+	const nameOf = (row: AutomationRow) =>
+		SCAN_TRIGGER === row.trigger_type ? __('Website scan', 'vulopilot') : __('Visibility report', 'vulopilot');
+	// The most recent finished run of either built-in.
+	const latest = [...builtins]
+		.filter((row) => row.last_run_finished_at)
+		.sort((a, b) => String(b.last_run_finished_at).localeCompare(String(a.last_run_finished_at)))[0];
 
-	// "View all issues →" (AutomationAttentionCard) jumps to the automations list.
-	const scrollToTable = () =>
-		document.getElementById('automation-manage')?.scrollIntoView({ behavior: 'smooth' });
+	// What needs the user: a built-in that is on and failed its last run.
+	const attention = on
+		.filter((row) => 'failed' === row.last_run_status)
+		.map((row) =>
+			sprintf(
+				/* translators: %s: automation name. */
+				__('%s failed its last run. Run it again from its card below.', 'vulopilot'),
+				nameOf(row)
+			)
+		);
 
 	return (
 		<>
 			<NavigatorHeaderComponent
 				headerIcon="automation"
 				headerTitle={__('Automations', 'vulopilot')}
-				headerDescription={
-					Wizard
-						? __(
-							'Create workflows that automatically handle repetitive work and keep you informed.',
-							'vulopilot'
-						)
-						: __(
-							'Two ready-made automations keep your site scanned and reported on. Custom and AI-powered automations are available in VuloPilot Pro.',
-							'vulopilot'
-						)
-				}
-				buttons={
-					isCreateMenuExpanded
-						? [
-							{
-								label: __('Create Your Own', 'vulopilot'),
-								icon: 'plus',
-								color: 'border-purple',
-								onClick: openCreateWizard,
-							},
-							{
-								label: __('Choose a Template', 'vulopilot'),
-								icon: 'search',
-								// ButtonInput's own default colour, spelled out (the header's buttons require one).
-								color: 'purple-bg',
-								onClick: openTemplatesLibrary,
-							},
-						]
-						: [							
-							{
-								label: __('Create Automation', 'vulopilot'),
-								icon: 'plus',
-								color: 'border-purple',
-								onClick: () => setIsCreateMenuExpanded(true),
-							},
-							{
-								label: __('Build with AI', 'vulopilot'),
-								icon: 'automation',
-								color: 'orange-bg',
-								onClick: openGenerate,
-							},
-						]
+				headerDescription={__('Work VuloPilot does for you on a schedule, so you do not have to remember it.', 'vulopilot')}
+				headerCustomContent={
+					<ButtonInput
+						buttons={{
+							text: __('Create automation', 'vulopilot'),
+							icon: 'pro-tag',
+							color: 'purple',
+							onClick: () => setIsProPopupOpen(true),
+						}}
+					/>
 				}
 			/>
 
 			<ContainerComponent general>
-					{Overview ? (
-						<Overview
-							onOpenLibrary={openTemplatesLibrary}
-							refetchSignal={refetchSignal}
-						/>
-					) : (
-						<AutomationsOverviewDummy onClick={openProPopup} />
-					)}
+				<ColumnComponent>
+					<div className="vp-page vp-automations">
+						<KpiGrid label={__('Automation summary', 'vulopilot')} cols={3}>
+							<Kpi
+								icon="automation"
+								tone="violet"
+								label={__('Running', 'vulopilot')}
+								value={isLoading ? '–' : `${on.length}/${builtins.length}`}
+								hint={
+									isLoading
+										? ''
+										: sprintf(
+												/* translators: %d: automations switched on. */
+												_n('%d automation is on', '%d automations are on', on.length, 'vulopilot'),
+												on.length
+										  )
+								}
+							/>
+							<Kpi
+								icon="clock"
+								tone="blue"
+								label={__('Last run', 'vulopilot')}
+								value={isLoading ? '–' : latest?.last_run_finished_at ? shortWhen(latest.last_run_finished_at) : __('Not yet', 'vulopilot')}
+								hint={latest ? nameOf(latest) : __('Runs appear here once one finishes', 'vulopilot')}
+							/>
+							<Kpi
+								icon="error"
+								tone={failedRuns > 0 ? 'red' : 'green'}
+								label={__('Failed runs', 'vulopilot')}
+								value={isLoading ? '–' : failedRuns}
+								hint={__('In the last 30 days', 'vulopilot')}
+							/>
+						</KpiGrid>
 
-				{/* The 2 free built-ins (Automatic website scan/Email visibility
-				report) are superseded once Pro's own WorkflowAutomation module
-				gives a real trigger→condition→action builder — showing both
-				would be two separate automation systems on the same page, per
-				direct instruction. */}
-				{!vulopilotAppLocalizer.khali_dabba && (
-					<BuiltinAutomationCards
-						refetchSignal={refetchSignal}
-						onChanged={handleSaved}
-						highlightTemplateId={highlightTemplateId}
-					/>
-				)}
+						{attention.length > 0 && (
+							<div className="vp-auto-alert" role="status">
+								<i className="adminfont-error" aria-hidden="true" />
+								<ul>
+									{attention.map((line) => (
+										<li key={line}>{line}</li>
+									))}
+								</ul>
+							</div>
+						)}
 
-				<ColumnComponent grid={7} fullHeight>
-					<AutomationsStatusCard refetchSignal={refetchSignal} />
+						<SectionHead title={__('Running for you', 'vulopilot')} />
+						{isLoading && 0 === builtins.length ? (
+							<div className="vp-row">
+								<Skeleton size="tall" />
+								<Skeleton size="tall" />
+							</div>
+						) : (
+							<div className="vp-row">
+								{scan && <BuiltinAutomationCard row={scan} kind="scan" onChanged={refetch} />}
+								{report && <BuiltinAutomationCard row={report} kind="report" onChanged={refetch} />}
+							</div>
+						)}
+
+						<SectionHead title={__('Do more with VuloPilot Pro', 'vulopilot')} />
+						<div className="vp-row is-wide-left">
+							<section className="vp-card vp-auto-sample">
+								<header className="vp-card-head">
+									<div className="vp-card-title">
+										<span className="vp-card-icon" aria-hidden="true">
+											<i className="adminfont-automation" />
+										</span>
+										<div>
+											<h3>{__('Your own automations', 'vulopilot')}</h3>
+											<p>{__('When something happens on your site, VuloPilot handles it.', 'vulopilot')}</p>
+										</div>
+									</div>
+								</header>
+								<div className="vp-card-body">
+									<CustomAutomationsSample />
+								</div>
+							</section>
+							<section className="vp-card vp-auto-sample">
+								<header className="vp-card-head">
+									<div className="vp-card-title">
+										<span className="vp-card-icon" aria-hidden="true">
+											<i className="adminfont-ai" />
+										</span>
+										<div>
+											<h3>{__('AI agents', 'vulopilot')}</h3>
+											<p>{__('Hand off ongoing work, review every change.', 'vulopilot')}</p>
+										</div>
+									</div>
+								</header>
+								<div className="vp-card-body">
+									<AiAgentsSample />
+								</div>
+							</section>
+						</div>
+
+						<section className="vp-card vp-auto-learn">
+							<div className="vp-card-body">
+								<i className="adminfont-document" aria-hidden="true" />
+								<span>
+									<strong>{__('New to automations?', 'vulopilot')}</strong>
+									{__('How schedules work, what the report contains, and how to change who receives it.', 'vulopilot')}
+								</span>
+								<a className="vp-card-link" href={DOCS_URL} target="_blank" rel="noopener noreferrer">
+									{__('Read the guide', 'vulopilot')}
+									<i className="adminfont-external" aria-hidden="true" />
+								</a>
+							</div>
+						</section>
+					</div>
 				</ColumnComponent>
-				<ColumnComponent grid={5} fullHeight>
-					<AutomationsAttentionCard onViewAll={scrollToTable} refetchSignal={refetchSignal} />
-				</ColumnComponent>
-
-				<ColumnComponent grid={7} fullHeight>
-					{Activity ? (
-						<Activity refetchSignal={refetchSignal} />
-					) : (
-						<AutomationsAiActivityDummy onClick={openProPopup} />
-					)}
-				</ColumnComponent>
-				<ColumnComponent grid={5} fullHeight>
-					<AutomationsResourcesCard onCreateCustom={openCreateWizard} />
-				</ColumnComponent>
-
-				{Manage && (
-					<ColumnComponent grid={12}>
-						<Manage
-							hasWizard={Boolean(Wizard)}
-							onOpenRow={openRow}
-							onRequireProUpsell={openProPopup}
-							refetchSignal={refetchSignal}
-						/>
-					</ColumnComponent>
-				)}
-				{Wizard && (
-					<Wizard
-						openSignal={wizardOpenSignal}
-						initialName={pendingTemplate?.category ? pendingTemplate.label : undefined}
-						initialCategory={pendingTemplate?.category ?? undefined}
-						initialTriggerType={pendingTemplate?.triggerType ?? undefined}
-						initialActionTypes={pendingTemplate?.actionTypes ?? undefined}
-						viewAutomation={viewingRow}
-						onSaved={handleSaved}
-					/>
-				)}
-
-				{Generate && <Generate openSignal={generateOpenSignal} onSaved={handleSaved} />}
-
-				{Templates && <Templates openSignal={templatesOpenSignal} onSaved={handleSaved} />}
-
-				<PopupComponent
-					open={isProPopupOpen}
-					onClose={() => setIsProPopupOpen(false)}
-					width={31.25}
-					height="auto"
-				>
-					{vulopilotAppLocalizer.khali_dabba ? (
-						<ShowProPopup moduleName="workflow-automation" />
-					) : (
-						<ShowProPopup />
-					)}
-				</PopupComponent>
 			</ContainerComponent>
+
+			<PopupComponent
+				open={isProPopupOpen}
+				onClose={() => setIsProPopupOpen(false)}
+				width={46}
+				height="auto"
+				position="lightbox"
+			>
+				<ShowProPopup feature={CUSTOM_AUTOMATIONS} />
+			</PopupComponent>
 		</>
 	);
 };

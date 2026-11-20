@@ -1,10 +1,9 @@
 /* global vulopilotAppLocalizer */
 import React, { useEffect, useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, scrollToId } from '@zyra/core';
-import { TableCard } from '@zyra/table';
 import { ButtonInput } from '@zyra/inputs';
-import { EmptyState, Segmented } from '../../components/ui';
+import { EmptyState, Segmented, Skeleton } from '../../components/ui';
 import IssueDetailPanel from '../../components/Issues/IssueDetailPanel';
 import {
 	CATEGORY_LABELS,
@@ -15,7 +14,29 @@ import {
 	groupKey,
 	issueIconFor,
 } from '../../components/Issues/issuesTypes';
-import { columns, tableRows } from '../../services/tableColumns';
+
+const PER_PAGE = 8;
+
+const SEVERITY: Record<string, string> = {
+	critical: __('Critical', 'vulopilot'),
+	high: __('High', 'vulopilot'),
+	medium: __('Medium', 'vulopilot'),
+	low: __('Low', 'vulopilot'),
+	info: __('Info', 'vulopilot'),
+};
+
+/** First sentence of a finding's description, capped. */
+const summarize = (text?: string | null): string => {
+	const first = (text ?? '').split(/(?<=[.!?])\s/)[0].trim();
+
+	return first.length > 110 ? `${first.slice(0, 107)}…` : first;
+};
+
+/** `issueIconFor()` returns "glyph colour"; rows use only the glyph, the severity carries the colour. */
+const glyphFor = (group: FindingGroup): string => issueIconFor(group.category, group.scanner_id).split(' ')[0];
+
+/** The details sit beside the list on wide screens and under it on narrow ones. */
+const isStacked = (): boolean => window.matchMedia('(max-width: 1100px)').matches;
 
 type Priority = 'all' | 'high' | 'medium' | 'low';
 
@@ -30,20 +51,25 @@ interface IssuesListProps {
 	/** Presets the matching tab and auto-selects that group once loaded. */
 	initialScannerId?: string;
 	initialCategory?: string;
+	/** Sends a question about the group to the chat above. */
+	// eslint-disable-next-line no-unused-vars -- parameter name in a type signature.
+	onAsk?: (group: FindingGroup) => void;
 }
 
-/** AI Copilot's Issues section: a priority filter, the table of issue groups, and the chosen group's details. */
+/**
+ * AI Copilot's Issues section, in the dashboard's language: one card holding the area tabs, a priority switch and
+ * the issue groups (worst first, as `GET /findings/groups` orders them), beside the chosen group's details.
+ */
 const IssuesList: React.FC<IssuesListProps> = ({
 	initialScannerId,
 	initialCategory,
+	onAsk,
 }) => {
 	const [activeTabId, setActiveTabId] = useState(
 		initialCategory ? findTabIdForCategory(initialCategory) : 'all'
 	);
 	const [activePriority, setActivePriority] = useState<Priority>('all');
-	// Matches TableCard's initial { paged: 1, per_page: 10 } state.
 	const [paged, setPaged] = useState(1);
-	const [perPage, setPerPage] = useState(10);
 
 	const [data, setData] = useState<FindingGroup[]>([]);
 	const [total, setTotal] = useState(0);
@@ -66,7 +92,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 
 		const params = new URLSearchParams();
 		params.set('page', String(paged));
-		params.set('per_page', String(perPage));
+		params.set('per_page', String(PER_PAGE));
 
 		if (activeTab) {
 			params.set('category', activeTab.categories.join(','));
@@ -140,209 +166,141 @@ const IssuesList: React.FC<IssuesListProps> = ({
 		return () => {
 			cancelled = true;
 		};
-	}, [activeTabId, activePriority, paged, perPage, reloadToken]);
+	}, [activeTabId, activePriority, paged, reloadToken]);
 
 	const refetch = () => setReloadToken((n) => n + 1);
 
-	/** Toggles the detail panel open/closed for a group row. */
 	const selectGroup = (group: FindingGroup) => {
-		setSelectedGroup((current) => {
-			if (current && groupKey(group) === groupKey(current)) {
-				return null;
-			}
+		setSelectedGroup(group);
 
+		if (isStacked()) {
 			scrollToId('ai-copilot-issue-detail-panel');
-			return group;
-		});
+		}
 	};
 
-	const handlePriorityChange = (priority: Priority) => {
+	const changeTab = (tabId: string) => {
+		setActiveTabId(tabId);
+		setPaged(1);
+	};
+
+	const changePriority = (priority: Priority) => {
 		setActivePriority(priority);
 		setPaged(1);
 	};
 
-	const tableCategoryCounts = [
+	const tabs = [
 		{
-			value: 'all',
+			id: 'all',
 			label: __('All', 'vulopilot'),
-			count: Object.values(categoryCounts).reduce(
-				(sum, count) => sum + count,
-				0
-			),
+			count: Object.values(categoryCounts).reduce((sum, count) => sum + count, 0),
 		},
 		...CATEGORY_TABS.map((tab) => ({
-			value: tab.id,
+			id: tab.id,
 			label: tab.label,
-			count: tab.categories.reduce(
-				(sum, category) =>
-					sum + (categoryCounts[category] ?? 0),
-				0
-			),
+			count: tab.categories.reduce((sum, category) => sum + (categoryCounts[category] ?? 0), 0),
 		})),
-	];
+	// An area with nothing open is left out, unless it is the one chosen.
+	].filter((tab) => 'all' === tab.id || tab.count > 0 || tab.id === activeTabId);
 
-	let content;
+	const isFiltered = 'all' !== activePriority || 'all' !== activeTabId;
+	const pages = Math.max(1, Math.ceil(total / PER_PAGE));
+	const first = total ? (paged - 1) * PER_PAGE + 1 : 0;
+	const last = Math.min(total, paged * PER_PAGE);
+	const showDetail = !error && (isLoading || data.length > 0);
+
+	let body: React.ReactNode;
 
 	if (error) {
-		content = (
-			<section className="vp-card">
-				<div className="vp-card-body">
-					<EmptyState
-						icon="error"
-						tone="red"
-						title={__('Could not load issues', 'vulopilot')}
-						text={error}
-						action={
-							<ButtonInput
-								buttons={{ text: __('Try again', 'vulopilot'), icon: 'refresh', color: 'purple', onClick: refetch }}
-							/>
-						}
-					/>
-				</div>
-			</section>
+		body = (
+			<div className="vp-steps-body">
+				<EmptyState
+					icon="error"
+					tone="red"
+					title={__('Could not load issues', 'vulopilot')}
+					text={error}
+					action={<ButtonInput buttons={{ text: __('Try again', 'vulopilot'), icon: 'refresh', color: 'purple', onClick: refetch }} />}
+				/>
+			</div>
 		);
-	} else if (!isLoading && 0 === data.length) {
-		const isFiltered = 'all' !== activePriority || 'all' !== activeTabId;
-
-		content = (
-			<section className="vp-card">
-				<div className="vp-card-body">
-					<EmptyState
-						icon="check"
-						tone="green"
-						title={isFiltered ? __('Nothing matches this filter', 'vulopilot') : __("You're all caught up", 'vulopilot')}
-						text={
-							isFiltered
-								? __('No open issues in this view. Other areas may still have some.', 'vulopilot')
-								: __('Issues appear here once a scan finds something worth fixing.', 'vulopilot')
-						}
-						action={
-							isFiltered && (
-								<ButtonInput
-									buttons={{
-										text: __('Show all issues', 'vulopilot'),
-										color: 'purple',
-										onClick: () => {
-											setActiveTabId('all');
-											handlePriorityChange('all');
-										},
-									}}
-								/>
-							)
-						}
-					/>
-				</div>
-			</section>
+	} else if (isLoading && 0 === data.length) {
+		body = (
+			<div className="vp-steps-body">
+				<Skeleton />
+				<Skeleton />
+				<Skeleton />
+				<Skeleton />
+			</div>
+		);
+	} else if (0 === data.length) {
+		body = (
+			<div className="vp-steps-body">
+				<EmptyState
+					icon="check"
+					tone="green"
+					title={isFiltered ? __('Nothing matches this filter', 'vulopilot') : __("You're all caught up", 'vulopilot')}
+					text={
+						isFiltered
+							? __('No open issues in this view. Other areas may still have some.', 'vulopilot')
+							: __('Issues appear here once a scan finds something worth fixing.', 'vulopilot')
+					}
+					action={
+						isFiltered && (
+							<ButtonInput
+								buttons={{
+									text: __('Show all issues', 'vulopilot'),
+									color: 'purple',
+									onClick: () => {
+										changeTab('all');
+										changePriority('all');
+									},
+								}}
+							/>
+						)
+					}
+				/>
+			</div>
 		);
 	} else {
-		content = (
-			<div className="vp-row is-side vp-issues-row">
-				<div className="vp-issues-table">
-				<TableCard
-					showMenu={false}
-					hideHeader={true}
-					categoryCounts={tableCategoryCounts}
-					activeCategory={activeTabId}
-					activeRowId={selectedGroup ? groupKey(selectedGroup) : undefined}
-					// Toggles the detail panel open/closed.
-					onRowClick={(row: Record<string, unknown>) => {
-						selectGroup(row as unknown as FindingGroup);
-					}}
-					headers={columns({
-						issue: {
-							key: 'label',
-							type: 'info',
-							label: __('Issue', 'vulopilot'),
-							width: '60%',
-							iconKey: 'categoryIcon',
-							descriptionKey: 'descriptionText',
-							badgesKey: 'issueBadges',
-						},
-						affected: {
-							label: __('Affected', 'vulopilot'),
-							render: (row: FindingGroup) =>
-								formatAffected(
-									row.count,
-									row.object_type
-								),
-						},
-						action: {
-							label: __('Details', 'vulopilot'),
-							type: 'action',
-							actions: [
-								{
-									type: 'button',
-									label: (row) =>
-										selectedGroup &&
-										groupKey(row as unknown as FindingGroup) ===
-											groupKey(selectedGroup)
-											? __('Showing', 'vulopilot')
-											: __('More Details', 'vulopilot'),
-									color: (row) =>
-										selectedGroup &&
-										groupKey(row as unknown as FindingGroup) ===
-											groupKey(selectedGroup)
-											? 'text-green'
-											: 'text-purple',
-									icon: (row) =>
-										selectedGroup &&
-										groupKey(row as unknown as FindingGroup) ===
-											groupKey(selectedGroup)
-											? 'eye'
-											: 'pagination-next-arrow',
-									onClick: (row) => {
-										selectGroup(row as unknown as FindingGroup);
-									},
-								},
-							],
-						},
-					})}
-					rows={tableRows(data.map((row) => ({
-						...row,
-						// Tries SCANNER_ICONS[scanner_id] first, falls back to CATEGORY_ICONS[category].
-						categoryIcon: issueIconFor(
-							row.category,
-							row.scanner_id
-						),
-						descriptionText:
-							(row.sample?.description?.length ?? 0) > 80
-								? `${row.sample?.description?.slice(0, 80)}...`
-								: row.sample?.description || '',
-						issueBadges: [
-							{
-								text: CATEGORY_LABELS[row.category] ?? row.category,
-								color: `badge-${row.category}`,
-							},
-							{ text: row.severity, color: `badge-${row.severity}` },
-						],
-					})))}
-					ids={data.map((row) => groupKey(row))}
-					totalRows={total}
-					isLoading={isLoading}
-					onQueryUpdate={(query: {
-						paged?: number | string;
-						per_page?: number | string;
-						categoryFilter?: string;
-					}) => {
-						setPaged(Number(query.paged) || 1);
-						setPerPage(Number(query.per_page) || 10);
-						if (
-							query.categoryFilter &&
-							query.categoryFilter !== activeTabId
-						) {
-							setActiveTabId(query.categoryFilter);
-						}
-					}}
-					emptyMessage={__(
-						'AI suggestions appear here once a scan finds something worth fixing.',
-						'vulopilot'
-					)}
-				/>
-				</div>
-				<div id="ai-copilot-issue-detail-panel" className="vp-issues-detail">
-					<IssueDetailPanel group={selectedGroup} onActionComplete={refetch} />
-				</div>
-			</div>
+		body = (
+			<ul className={`vp-issue-list${isLoading ? ' is-loading' : ''}`}>
+				{data.map((group) => {
+					const key = groupKey(group);
+					const isActive = selectedGroup ? key === groupKey(selectedGroup) : false;
+					const detail = summarize(group.sample?.description);
+
+					return (
+						<li key={key}>
+							<button
+								type="button"
+								className={`vp-issue-row is-${group.severity}${isActive ? ' is-active' : ''}`}
+								aria-pressed={isActive}
+								onClick={() => selectGroup(group)}
+							>
+								<span className="vp-issue-mark" aria-hidden="true">
+									<i className={`adminfont-${glyphFor(group)}`} />
+								</span>
+								<span className="vp-issue-main">
+									<span className="vp-issue-meta">
+										<em>{SEVERITY[group.severity] ?? SEVERITY.info}</em>
+										<span aria-hidden="true">·</span>
+										{CATEGORY_LABELS[group.category] ?? group.category}
+										{group.fix_action_id && (
+											<span className="vp-issue-ai">
+												<i className="adminfont-ai" aria-hidden="true" />
+												{__('AI fix', 'vulopilot')}
+											</span>
+										)}
+									</span>
+									<strong>{group.label}</strong>
+									{detail && <span className="vp-issue-desc">{detail}</span>}
+								</span>
+								<span className="vp-issue-count">{formatAffected(group.count, group.object_type)}</span>
+								<i className="adminfont-arrow-right vp-issue-go" aria-hidden="true" />
+							</button>
+						</li>
+					);
+				})}
+			</ul>
 		);
 	}
 
@@ -353,21 +311,89 @@ const IssuesList: React.FC<IssuesListProps> = ({
 					<h2>{__('Issues', 'vulopilot')}</h2>
 					<p>{__('Findings from your latest scans, grouped by check. Pick one to see what to do.', 'vulopilot')}</p>
 				</div>
-				<Segmented
-					label={__('Priority', 'vulopilot')}
-					size="sm"
-					value={activePriority}
-					onChange={(next) => handlePriorityChange(next as Priority)}
-					options={[
-						// No counts here: the server counts findings, while the rows (and the tabs' counts) are groups.
-						{ value: 'all', label: __('All priorities', 'vulopilot') },
-						{ value: 'high', label: __('High', 'vulopilot') },
-						{ value: 'medium', label: __('Medium', 'vulopilot') },
-						{ value: 'low', label: __('Low', 'vulopilot') },
-					]}
-				/>
 			</div>
-			{content}
+
+			<div className={`vp-issues-layout${showDetail ? '' : ' is-single'}`}>
+				<section className="vp-card vp-issue-browser">
+					<header className="vp-issue-toolbar">
+						<div className="vp-tabs" role="group" aria-label={__('Area', 'vulopilot')}>
+							{tabs.map((tab) => (
+								<button
+									key={tab.id}
+									type="button"
+									className={tab.id === activeTabId ? 'is-active' : ''}
+									aria-pressed={tab.id === activeTabId}
+									onClick={() => changeTab(tab.id)}
+								>
+									{tab.label}
+									<b>{tab.count}</b>
+								</button>
+							))}
+						</div>
+						<Segmented
+							label={__('Priority', 'vulopilot')}
+							size="sm"
+							value={activePriority}
+							onChange={(next) => changePriority(next as Priority)}
+							options={[
+								// No counts: the server counts findings, while the rows (and the tabs' counts) are groups.
+								{ value: 'all', label: __('Any priority', 'vulopilot') },
+								{ value: 'high', label: __('High', 'vulopilot') },
+								{ value: 'medium', label: __('Medium', 'vulopilot') },
+								{ value: 'low', label: __('Low', 'vulopilot') },
+							]}
+						/>
+					</header>
+
+					{body}
+
+					{total > PER_PAGE && !error && (
+						<footer className="vp-steps-foot vp-pager">
+							<span>
+								{sprintf(
+									/* translators: 1: first row shown, 2: last row shown, 3: number of issues. */
+									__('%1$d–%2$d of %3$d issues', 'vulopilot'),
+									first,
+									last,
+									total
+								)}
+							</span>
+							<span className="vp-pager-nav">
+								<button
+									type="button"
+									disabled={paged <= 1 || isLoading}
+									onClick={() => setPaged((page) => page - 1)}
+									aria-label={__('Previous page', 'vulopilot')}
+								>
+									<i className="adminfont-arrow-left" aria-hidden="true" />
+								</button>
+								<span>
+									{sprintf(
+										/* translators: 1: current page, 2: number of pages. */
+										__('Page %1$d of %2$d', 'vulopilot'),
+										paged,
+										pages
+									)}
+								</span>
+								<button
+									type="button"
+									disabled={paged >= pages || isLoading}
+									onClick={() => setPaged((page) => page + 1)}
+									aria-label={__('Next page', 'vulopilot')}
+								>
+									<i className="adminfont-arrow-right" aria-hidden="true" />
+								</button>
+							</span>
+						</footer>
+					)}
+				</section>
+
+				{showDetail && (
+					<aside id="ai-copilot-issue-detail-panel" className="vp-issues-detail">
+						<IssueDetailPanel group={selectedGroup} onActionComplete={refetch} onAsk={onAsk} />
+					</aside>
+				)}
+			</div>
 		</section>
 	);
 };

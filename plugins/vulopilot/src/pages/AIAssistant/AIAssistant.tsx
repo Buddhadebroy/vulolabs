@@ -223,6 +223,7 @@ const AIAssistant = () => {
 							key={`${issuesFilter?.scannerId ?? 'all'}-${issuesNavToken}`}
 							initialScannerId={issuesFilter?.scannerId}
 							initialCategory={issuesFilter?.category || undefined}
+							onAsk={handleAskAboutIssue}
 						/>
 					</div>
 				</ColumnComponent>

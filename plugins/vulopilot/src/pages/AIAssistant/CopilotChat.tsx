@@ -66,11 +66,11 @@ const CopilotChat = ({
 	const isLocked = isSending || Boolean(activeFlow);
 	const canSend = !isLocked && '' !== message.trim();
 
-	// Keep the newest message in view.
+	// Keep the newest message in view; the welcome (nothing sent yet) stays at its top.
 	useEffect(() => {
 		const stream = streamRef.current;
 
-		if (stream) {
+		if (stream && !isEmpty) {
 			stream.scrollTo({ top: stream.scrollHeight, behavior: 'smooth' });
 		}
 	}, [turns.length, isSending, guidedTurns.length, activeStep, findings.length]);

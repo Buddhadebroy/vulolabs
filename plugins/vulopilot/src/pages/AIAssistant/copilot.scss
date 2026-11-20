@@ -935,7 +935,7 @@
 	}
 }
 
-// ---- Issues ----
+// ---- Issues: one card of issue rows beside the chosen issue's details ----
 .vp-issues {
 	display: flex;
 	flex-direction: column;
@@ -947,6 +947,36 @@
 		font-size: 0.8125rem;
 		color: var(--ui-muted);
 	}
+}
+
+.vp-issues-layout {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 24rem;
+	gap: 1.25rem;
+	align-items: start;
+
+	&.is-single {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	@media (width <= 1100px) {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.vp-issue-browser {
+	overflow: hidden;
+}
+
+// Area tabs on the left, the priority switch on the right; they stack when the card is narrow.
+.vp-issue-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem 1rem;
+	padding: 1rem 1.5rem;
+	border-bottom: 1px solid var(--ui-line);
 
 	.vp-seg {
 		max-width: 100%;
@@ -954,16 +984,301 @@
 	}
 }
 
-.vp-issues-table,
-.vp-issues-detail {
+.vp-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.375rem;
 	min-width: 0;
+
+	button {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		min-height: 1.875rem;
+		margin: 0;
+		padding: 0 0.75rem;
+		border: 1px solid var(--ui-border);
+		border-radius: 999px;
+		background: #fff;
+		font-size: 0.8125rem;
+		font-weight: 500;
+		color: var(--ui-text);
+		white-space: nowrap;
+		cursor: pointer;
+		transition: border-color 0.15s, background 0.15s, color 0.15s;
+
+		b {
+			font-size: 0.75rem;
+			font-weight: 600;
+			color: var(--ui-faint);
+		}
+
+		&:hover {
+			border-color: #d9dbe5;
+			color: var(--ui-ink);
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--ui-accent);
+			outline-offset: 1px;
+		}
+
+		&.is-active {
+			border-color: var(--ui-ink);
+			background: var(--ui-ink);
+			color: #fff;
+
+			b {
+				color: rgb(255 255 255 / 70%);
+			}
+		}
+	}
 }
 
-// zyra's table and pager are wider than a phone; they scroll inside their column, never the page.
-.vp-issues-table {
-	overflow-x: auto;
+.vp-issue-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	transition: opacity 0.2s;
+
+	&.is-loading {
+		opacity: 0.55;
+		pointer-events: none;
+	}
+
+	li {
+		margin: 0;
+
+		+ li {
+			border-top: 1px solid var(--ui-line);
+		}
+	}
 }
 
+.vp-issue-row {
+	--sev: var(--ui-faint);
+	--sev-bg: #f3f4f8;
+
+	display: flex;
+	align-items: center;
+	gap: 0.875rem;
+	width: 100%;
+	margin: 0;
+	padding: 0.875rem 1.5rem;
+	border: 0;
+	background: #fff;
+	box-shadow: inset 3px 0 0 var(--sev);
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+	transition: background 0.15s;
+
+	&.is-critical {
+		--sev: var(--ui-bad);
+		--sev-bg: var(--ui-bad-bg);
+	}
+
+	&.is-high {
+		--sev: #e59a0b;
+		--sev-bg: var(--ui-warn-bg);
+	}
+
+	&.is-medium {
+		--sev: #3b82f6;
+		--sev-bg: var(--ui-info-bg);
+	}
+
+	&.is-low .vp-issue-meta em,
+	&.is-info .vp-issue-meta em {
+		color: var(--ui-muted);
+	}
+
+	&:hover {
+		background: #fcfbff;
+
+		strong {
+			color: var(--ui-accent);
+		}
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--ui-accent);
+		outline-offset: -2px;
+	}
+
+	// The chosen issue: tinted, and the arrow points at its details.
+	&.is-active {
+		background: #f8f5ff;
+
+		strong {
+			color: var(--ui-accent);
+		}
+
+		.vp-issue-go {
+			color: var(--ui-accent);
+			opacity: 1;
+		}
+	}
+
+	@media (width <= 600px) {
+		flex-wrap: wrap;
+		padding: 0.875rem 1rem;
+
+		.vp-issue-main {
+			flex-basis: calc(100% - 3rem);
+		}
+
+		.vp-issue-count {
+			margin-left: 2.875rem;
+		}
+
+		.vp-issue-go {
+			display: none;
+		}
+	}
+}
+
+.vp-issue-mark {
+	display: inline-grid;
+	flex: none;
+	place-items: center;
+	width: 2rem;
+	height: 2rem;
+	border-radius: 0.5rem;
+	background: var(--sev-bg);
+	color: var(--sev);
+
+	i {
+		font-size: 0.9375rem;
+	}
+}
+
+.vp-issue-main {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 0.1875rem;
+	min-width: 0;
+
+	strong {
+		font-size: 0.875rem;
+		font-weight: 600;
+		line-height: 1.4;
+		color: var(--ui-ink);
+		transition: color 0.15s;
+	}
+}
+
+// Severity in its colour, then the area, as one quiet line above the title.
+.vp-issue-meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.375rem;
+	font-size: 0.75rem;
+	color: var(--ui-muted);
+
+	em {
+		font-size: 0.6875rem;
+		font-style: normal;
+		font-weight: 700;
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+		color: var(--sev);
+	}
+}
+
+.vp-issue-ai {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0 0.5rem;
+	border-radius: 999px;
+	background: var(--ui-accent-soft);
+	font-size: 0.6875rem;
+	font-weight: 600;
+	line-height: 1.6;
+	color: var(--ui-accent);
+
+	i {
+		font-size: 0.6875rem;
+	}
+}
+
+.vp-issue-desc {
+	display: -webkit-box;
+	overflow: hidden;
+	font-size: 0.8125rem;
+	line-height: 1.5;
+	color: var(--ui-muted);
+	-webkit-line-clamp: 1;
+	-webkit-box-orient: vertical;
+}
+
+.vp-issue-count {
+	flex: none;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: var(--ui-text);
+	white-space: nowrap;
+}
+
+.vp-issue-go {
+	flex: none;
+	font-size: 0.625rem;
+	color: var(--ui-faint);
+	opacity: 0.6;
+	transition: color 0.15s, opacity 0.15s;
+}
+
+.vp-pager {
+	flex-wrap: wrap;
+}
+
+.vp-pager-nav {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	button {
+		display: inline-grid;
+		place-items: center;
+		width: 1.875rem;
+		height: 1.875rem;
+		margin: 0;
+		padding: 0;
+		border: 1px solid var(--ui-border);
+		border-radius: 0.5rem;
+		background: #fff;
+		color: var(--ui-text);
+		cursor: pointer;
+		transition: border-color 0.15s, color 0.15s;
+
+		i {
+			font-size: 0.625rem;
+		}
+
+		&:hover:not(:disabled),
+		&:focus-visible {
+			border-color: var(--ui-accent);
+			color: var(--ui-accent);
+		}
+
+		&:disabled {
+			opacity: 0.4;
+			cursor: not-allowed;
+		}
+	}
+}
+
+// ---- The chosen issue's details (IssueDetailPanel, look="card") ----
 .vp-issues-detail {
+	position: sticky;
+	top: 3.5rem;
+	min-width: 0;
 	scroll-margin-top: 3.5rem;
+
+	@media (width <= 1100px) {
+		position: static;
+	}
 }

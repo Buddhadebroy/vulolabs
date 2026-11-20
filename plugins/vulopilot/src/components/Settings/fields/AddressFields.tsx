@@ -56,15 +56,24 @@ const RegionField = ({ field, value, onChange, settings }: FieldProps) => {
 	const regions = country ? REGIONS[country] : undefined;
 
 	// A new country makes the old region meaningless: clear it, but only on a change the user made, never on load.
+	// Deferred past this commit: zyra's auto-save (SettingsForm) flags a change in the parent's effect, which runs
+	// after this child effect in the same commit - a synchronous clear here would be swallowed by the country's save
+	// and never stored. A tick later it is a change of its own and gets its own save.
 	const previous = useRef(country);
 	useEffect(() => {
-		if (previous.current !== country) {
-			previous.current = country;
-
-			if (raw && !(regions ?? []).includes(raw)) {
-				onChange('');
-			}
+		if (previous.current === country) {
+			return undefined;
 		}
+
+		previous.current = country;
+
+		if (!raw || (regions ?? []).includes(raw)) {
+			return undefined;
+		}
+
+		const timer = window.setTimeout(() => onChange(''), 0);
+
+		return () => window.clearTimeout(timer);
 	}, [country]);
 
 	if (!regions) {

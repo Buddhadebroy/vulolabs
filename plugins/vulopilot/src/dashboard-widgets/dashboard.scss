@@ -1159,26 +1159,64 @@
 	}
 }
 
-// ---- Health trend (VuloPilotActivityWidget + ScoreTrendChart) ----
+// ---- Health trend: the score header, the figures and the per-area week chart (AreaShiftChart). Free draws them with
+// sample data inside ProSample; Pro draws them with real data until there are two days of daily history. ----
 .vp-trend-head {
 	display: flex;
 	flex-wrap: wrap;
-	align-items: flex-end;
+	align-items: center;
 	justify-content: space-between;
 	gap: 0.75rem 1.5rem;
 }
 
+// Today's score as a tile tinted by its band, the way the dashboard hero colours its ring.
 .vp-trend-now {
-	display: flex;
+	--now: var(--ui-ink);
+	--now-bg: var(--ui-sunken);
+
+	display: inline-flex;
 	align-items: center;
-	gap: 0.75rem;
+	gap: 0.875rem;
+	padding: 0.625rem 1rem 0.625rem 0.875rem;
+	border-radius: 0.75rem;
+	background: var(--now-bg);
+
+	&:has(.is-green) {
+		--now: var(--ui-good);
+		--now-bg: var(--ui-good-bg);
+	}
+
+	&:has(.is-blue) {
+		--now: var(--ui-info);
+		--now-bg: var(--ui-info-bg);
+	}
+
+	&:has(.is-amber) {
+		--now: var(--ui-warn);
+		--now-bg: var(--ui-warn-bg);
+	}
+
+	&:has(.is-red) {
+		--now: var(--ui-bad);
+		--now-bg: var(--ui-bad-bg);
+	}
 
 	> strong {
-		font-size: 2.25rem;
+		display: inline-flex;
+		align-items: baseline;
+		font-size: 2rem;
 		font-weight: 700;
 		line-height: 1;
 		letter-spacing: -0.03em;
-		color: var(--ui-ink);
+		color: var(--now);
+
+		small {
+			margin-left: 0.125rem;
+			font-size: 0.8125rem;
+			font-weight: 600;
+			letter-spacing: 0;
+			color: var(--ui-muted);
+		}
 	}
 
 	> div {
@@ -1190,207 +1228,74 @@
 
 	span:not(.vp-delta) {
 		font-size: 0.75rem;
-		color: var(--ui-muted);
+		font-weight: 500;
+		color: var(--ui-text);
 	}
 }
 
+// Up / down / steady as soft chips: the count, then the word.
 .vp-trend-stats {
 	display: flex;
-	gap: 1.25rem;
+	flex-wrap: wrap;
+	gap: 0.5rem;
 	margin: 0;
 
 	> div {
-		display: flex;
-		flex-direction: column;
-		gap: 0.125rem;
+		display: inline-flex;
+		flex-direction: row-reverse;
+		align-items: baseline;
+		gap: 0.3125rem;
+		padding: 0.375rem 0.75rem;
+		border-radius: 999px;
+		background: var(--ui-sunken);
 	}
 
 	dt {
-		font-size: 0.6875rem;
-		font-weight: 600;
-		letter-spacing: 0.04em;
+		font-size: 0.75rem;
+		font-weight: 500;
 		color: var(--ui-muted);
-		text-transform: uppercase;
+		text-transform: lowercase;
 	}
 
 	dd {
 		margin: 0;
-		font-size: 1rem;
+		font-size: 0.9375rem;
 		font-weight: 700;
 		color: var(--ui-ink);
 	}
-}
 
-.vp-trend {
-	display: grid;
-	grid-template-columns: 1.75rem minmax(0, 1fr);
-	grid-template-rows: 12.5rem auto;
-	column-gap: 0.5rem;
-	margin-top: 0.5rem;
-}
+	.is-up {
+		background: var(--ui-good-bg);
 
-.vp-trend-y {
-	position: relative;
-
-	span {
-		position: absolute;
-		right: 0;
-		font-size: 0.6875rem;
-		color: var(--ui-faint);
-		transform: translateY(-50%);
-	}
-}
-
-.vp-trend-plot {
-	position: relative;
-	min-width: 0;
-
-	svg {
-		display: block;
-		width: 100%;
-		height: 100%;
-		overflow: visible;
-	}
-}
-
-.vp-trend-grid {
-	stroke: var(--ui-line);
-	stroke-width: 1;
-	vector-effect: non-scaling-stroke;
-}
-
-.vp-trend-band {
-	stroke: #d9cdf5;
-	stroke-width: 1;
-	stroke-dasharray: 4 4;
-	vector-effect: non-scaling-stroke;
-}
-
-.vp-trend-band-label {
-	position: absolute;
-	right: 0;
-	padding: 0 0.25rem;
-	background: #fff;
-	font-size: 0.625rem;
-	font-weight: 600;
-	letter-spacing: 0.04em;
-	color: #9a86c9;
-	text-transform: uppercase;
-	transform: translateY(-50%);
-	pointer-events: none;
-}
-
-.vp-trend-line {
-	fill: none;
-	stroke: var(--ui-accent);
-	stroke-width: 2.5;
-	stroke-linecap: round;
-	stroke-linejoin: round;
-	vector-effect: non-scaling-stroke;
-}
-
-.vp-trend-dot {
-	position: absolute;
-	z-index: 2;
-	width: 0.625rem;
-	height: 0.625rem;
-	border: 2px solid #fff;
-	border-radius: 50%;
-	background: var(--ui-accent);
-	box-shadow: 0 0 0 1px var(--ui-accent);
-	transform: translate(-50%, -50%);
-	pointer-events: none;
-
-	&.is-last {
-		box-shadow: 0 0 0 4px rgb(80 7 170 / 15%);
-	}
-}
-
-.vp-trend-cursor {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	z-index: 1;
-	width: 1px;
-	background: #d9cdf5;
-	pointer-events: none;
-}
-
-.vp-trend-hit {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	z-index: 3;
-}
-
-.vp-trend-tip {
-	position: absolute;
-	top: 0;
-	z-index: 4;
-	display: flex;
-	flex-direction: column;
-	gap: 0.125rem;
-	padding: 0.5rem 0.75rem;
-	border-radius: 0.5rem;
-	background: var(--ui-ink);
-	box-shadow: 0 0.5rem 1.25rem -0.5rem rgb(28 27 51 / 45%);
-	color: #fff;
-	white-space: nowrap;
-	transform: translateX(0.625rem);
-	pointer-events: none;
-
-	&.is-left {
-		transform: translateX(calc(-100% - 0.625rem));
-	}
-
-	strong {
-		font-size: 0.8125rem;
-		font-weight: 600;
-	}
-
-	span {
-		font-size: 0.75rem;
-		opacity: 0.7;
-	}
-}
-
-.vp-trend-x {
-	position: relative;
-	grid-column: 2;
-	height: 1.5rem;
-
-	span {
-		position: absolute;
-		top: 0.5rem;
-		font-size: 0.6875rem;
-		color: var(--ui-faint);
-		white-space: nowrap;
-		transform: translateX(-50%);
-
-		&:first-child {
-			transform: none;
+		dd,
+		dt {
+			color: var(--ui-good);
 		}
 
-		&:last-child {
-			transform: translateX(-100%);
+		dd::before {
+			content: '▲ ';
+			font-size: 0.625rem;
+		}
+	}
+
+	.is-down {
+		background: var(--ui-bad-bg);
+
+		dd,
+		dt {
+			color: var(--ui-bad);
+		}
+
+		dd::before {
+			content: '▼ ';
+			font-size: 0.625rem;
 		}
 	}
 }
 
-// Free: up / down counts take the colour of their direction.
-.vp-trend-stats {
-	.is-up dd {
-		color: var(--ui-good);
-	}
-
-	.is-down dd {
-		color: var(--ui-bad);
-	}
-}
-
-// ---- Free: each area a week ago against today (AreaShiftChart) ----
+// ---- Each area a week ago against today (AreaShiftChart) ----
 .vp-shift {
-	--shift-cols: 8.5rem minmax(0, 1fr) 5.5rem;
+	--shift-cols: 9rem minmax(0, 1fr) 5.75rem;
 
 	display: flex;
 	flex-direction: column;
@@ -1405,6 +1310,10 @@
 
 	li {
 		margin: 0;
+
+		+ li a {
+			border-top: 1px solid var(--ui-line);
+		}
 	}
 
 	a {
@@ -1413,13 +1322,13 @@
 		gap: 1rem;
 		align-items: center;
 		padding: 0.625rem 0.5rem;
-		border-radius: 0.5rem;
 		color: inherit;
 		text-decoration: none;
 		transition: background 0.15s;
 
 		&:hover,
 		&:focus-visible {
+			border-radius: 0.5rem;
 			background: var(--ui-sunken);
 
 			.vp-shift-name {
@@ -1429,7 +1338,7 @@
 	}
 
 	@media (width <= 480px) {
-		--shift-cols: 6.5rem minmax(0, 1fr) 4.75rem;
+		--shift-cols: 6.75rem minmax(0, 1fr) 4.75rem;
 
 		a {
 			gap: 0.625rem;
@@ -1456,6 +1365,7 @@
 		position: absolute;
 		font-size: 0.6875rem;
 		font-style: normal;
+		font-weight: 500;
 		color: var(--ui-faint);
 		transform: translateX(-50%);
 	}
@@ -1464,60 +1374,66 @@
 .vp-shift-name {
 	display: flex;
 	align-items: center;
-	gap: 0.5rem;
+	gap: 0.625rem;
 	min-width: 0;
 	font-size: 0.8125rem;
-	font-weight: 500;
-	color: var(--ui-text);
+	font-weight: 600;
+	color: var(--ui-ink);
 	transition: color 0.15s;
 
 	i {
-		width: 1rem;
+		display: inline-grid;
+		flex: none;
+		place-items: center;
+		width: 1.75rem;
+		height: 1.75rem;
+		border-radius: 0.5rem;
+		background: var(--ui-sunken);
 		font-size: 0.875rem;
 		color: var(--ui-muted);
-		text-align: center;
 	}
 }
 
+// One rounded rail per area; the shared scale's ticks run faintly through it.
 .vp-shift-track {
 	position: relative;
-	height: 1.25rem;
+	height: 1.5rem;
 
-	// The shared scale's gridlines.
-	b {
-		position: absolute;
-		top: 0;
-		bottom: 0;
-		width: 1px;
-		background: var(--ui-line);
-	}
-
-	// The baseline the dots sit on.
 	&::before {
 		content: '';
 		position: absolute;
 		top: 50%;
 		right: 0;
 		left: 0;
-		height: 1px;
-		background: var(--ui-border);
+		height: 0.5rem;
+		border-radius: 999px;
+		background: #f1f2f7;
+		transform: translateY(-50%);
+	}
+
+	b {
+		position: absolute;
+		top: 0.25rem;
+		bottom: 0.25rem;
+		width: 1px;
+		background: #e4e6ee;
 	}
 }
 
 .vp-shift-span {
 	position: absolute;
 	top: 50%;
-	height: 0.25rem;
+	height: 0.5rem;
 	border-radius: 999px;
 	background: #c7cad6;
 	transform: translateY(-50%);
 
 	.is-up & {
-		background: #8fd3aa;
+		background: linear-gradient(90deg, #bfe8cf, #1f9d55);
 	}
 
 	.is-down & {
-		background: #f2a5a7;
+		background: linear-gradient(90deg, #e5484d, #f8c9ca);
 	}
 }
 
@@ -1525,8 +1441,8 @@
 .vp-shift-now {
 	position: absolute;
 	top: 50%;
-	width: 0.75rem;
-	height: 0.75rem;
+	width: 0.875rem;
+	height: 0.875rem;
 	border-radius: 50%;
 	transform: translate(-50%, -50%);
 }
@@ -1538,7 +1454,7 @@
 
 .vp-shift-now {
 	background: var(--ui-text);
-	box-shadow: 0 0 0 3px #fff;
+	box-shadow: 0 0 0 3px #fff, 0 2px 6px rgb(28 27 51 / 25%);
 
 	.is-up & {
 		background: #1f9d55;
@@ -1565,17 +1481,20 @@
 	width: 2.75rem;
 
 	em {
+		padding: 0.125rem 0.5rem;
+		border-radius: 999px;
+		background: var(--ui-sunken);
 		font-size: 0.6875rem;
 		font-style: normal;
-		font-weight: 500;
-		color: var(--ui-faint);
+		font-weight: 600;
+		color: var(--ui-muted);
 	}
 }
 
 .vp-shift-legend {
 	display: flex;
 	gap: 1.25rem;
-	padding: 0.25rem 0.5rem 0;
+	padding: 0.5rem 0.5rem 0;
 	font-size: 0.75rem;
 	color: var(--ui-muted);
 
@@ -1595,47 +1514,14 @@
 	}
 }
 
-// Free: one slim line offering daily history, not a wall over the card.
-.vp-trend-upsell {
+// The free sample inside ProSample: the "Sample data" label sits over the top right, so the stats start below it.
+.vp-week-sample {
 	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 0.75rem 1rem;
-	padding: 0.75rem 1rem;
-	border-radius: 0.625rem;
-	background: linear-gradient(90deg, #f6f1ff, #fbf9ff);
+	flex-direction: column;
+	gap: 1rem;
 
-	> i {
-		display: inline-grid;
-		flex: none;
-		place-items: center;
-		width: 2rem;
-		height: 2rem;
-		border-radius: 0.5rem;
-		background: #fff;
-		font-size: 0.875rem;
-		color: var(--ui-accent);
-	}
-
-	> span {
-		display: flex;
-		flex: 1 1 16rem;
-		flex-direction: column;
-		gap: 0.125rem;
-		font-size: 0.75rem;
-		line-height: 1.45;
-		color: var(--ui-muted);
-	}
-
-	strong {
-		font-size: 0.8125rem;
-		font-weight: 600;
-		color: var(--ui-ink);
-	}
-
-	.vp-step-cta {
-		margin: 0;
-		cursor: pointer;
+	.vp-trend-stats {
+		margin-top: 1.5rem;
 	}
 }
 

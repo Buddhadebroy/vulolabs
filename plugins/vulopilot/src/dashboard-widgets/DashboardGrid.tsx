@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ReactSortable } from 'react-sortablejs';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
-import { DEFAULT_DASHBOARD_WIDGETS } from './registry';
+import { useDashboardWidgets } from './registry';
 import { DashboardSummary, WidgetDefinition, WidgetLayoutEntry } from './types';
 import './DashboardGrid.scss';
 
@@ -27,9 +27,6 @@ interface SortableEntry extends WidgetLayoutEntry {
 const spanOf = (widget: WidgetDefinition): number =>
 	widget.grid ?? ('small' === widget.size ? 6 : 12);
 
-const WIDGETS_BY_ID = new Map(
-	DEFAULT_DASHBOARD_WIDGETS.map((widget) => [widget.id, widget])
-);
 
 /** Drag-and-drop widget grid. */
 const DashboardGrid: React.FC<DashboardGridProps> = ({
@@ -39,6 +36,8 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 	restoreDefaultSignal,
 	onRefreshSummary,
 }) => {
+	const widgets = useDashboardWidgets();
+	const widgetsById = new Map(widgets.map((widget) => [widget.id, widget]));
 	const [layout, setLayout] = useState<WidgetLayoutEntry[]>([]);
 	const [isLayoutLoading, setIsLayoutLoading] = useState(true);
 
@@ -53,7 +52,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 					setLayout(response);
 				} else {
 					setLayout(
-						DEFAULT_DASHBOARD_WIDGETS.map((widget) => ({
+						widgets.map((widget) => ({
 							id: widget.id,
 							enabled: true,
 						}))
@@ -81,7 +80,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 		}
 
 		persistLayout(
-			DEFAULT_DASHBOARD_WIDGETS.map((widget) => ({
+			widgets.map((widget) => ({
 				id: widget.id,
 				enabled: true,
 			}))
@@ -115,7 +114,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 	if (isLoading || isLayoutLoading) {
 		return (
 			<div className="vp-dash-grid">
-				{DEFAULT_DASHBOARD_WIDGETS.slice(0, 4).map((widget) => {
+				{widgets.slice(0, 4).map((widget) => {
 					const Widget = widget.component;
 					return (
 						<div
@@ -138,15 +137,15 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 	}
 
 	const visible: SortableEntry[] = layout
-		.filter((entry) => entry.enabled && WIDGETS_BY_ID.has(entry.id))
+		.filter((entry) => entry.enabled && widgetsById.has(entry.id))
 		.map((entry) => ({ ...entry, key: entry.id }));
 
 	const hidden = layout.filter(
-		(entry) => !entry.enabled && WIDGETS_BY_ID.has(entry.id)
+		(entry) => !entry.enabled && widgetsById.has(entry.id)
 	);
 
 	const renderWidgetCell = (entry: SortableEntry) => {
-		const widget = WIDGETS_BY_ID.get(entry.id);
+		const widget = widgetsById.get(entry.id);
 		if (!widget) {
 			return null;
 		}
@@ -189,7 +188,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 				<div className="vp-hidden-widgets">
 					<span>{__('Hidden widgets', 'vulopilot')}</span>
 					{hidden.map((entry) => {
-						const widget = WIDGETS_BY_ID.get(entry.id);
+						const widget = widgetsById.get(entry.id);
 						if (!widget) {
 							return null;
 						}

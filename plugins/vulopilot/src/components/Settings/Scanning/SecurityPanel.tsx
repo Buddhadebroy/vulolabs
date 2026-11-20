@@ -481,7 +481,7 @@ const SecurityPanel = () => {
 								]}
 							/>
 						</FormGroupComponent>
-						<FormGroupComponent label={__('Security Monitoring', 'vulopilot')}>
+						<FormGroupComponent label={__('Alerts and file watching', 'vulopilot')}>
 							<ExpandablePanelInput
 								name="security_monitoring_cards"
 								methods={buildMethods(MONITORING_ROWS)}

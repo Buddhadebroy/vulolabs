@@ -31,7 +31,9 @@ const Route = () => {
 	}, []);
 
 	const tab = new URLSearchParams(location.hash).get('tab') || 'dashboard';
-	const route = routes.find((r) => r.tab === tab);
+	// The last registration for a tab wins, so VuloPilot Pro (whose script runs after this one) can replace a page
+	// that free shows as a preview - e.g. Automations, where free has only its two built-ins and samples.
+	const route = [...routes].reverse().find((r) => r.tab === tab);
 	const Component = route?.component;
 
 	if (!Component) {
