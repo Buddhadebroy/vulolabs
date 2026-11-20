@@ -1,17 +1,17 @@
 /* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
-import { CardComponent, ChartComponent, ColumnComponent, ListComponent, ModuleGuardComponent, PopupComponent, TypographyComponent } from '@zyra/components';
+import { getApiLink, getApiResponse } from '@zyra/core';
+import { CardComponent, ColumnComponent, ListComponent, ModuleGuardComponent, PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import type { EntitiesResponse } from './KnowledgeGraphSection';
 import { ENTITY_SETTINGS_URL } from './KnowledgeGraphSection';
 import BusinessNameDetailsPanel from './BusinessNameDetailsPanel';
 import ProductDetailsPanel from './ProductDetailsPanel';
-import { ratingColor } from '../seoRating';
 import { useFilterSlot } from '../../../services/useFilterSlot';
 import { KnowledgeGraphDiagram } from './KnowledgeGraphDiagramCard';
 import ShowProPopup from '../../../components/Popup/Popup';
+import { ScoreRing } from '../../../components/ScoreBreakdown/ScoreBreakdown';
 
 const isBrandModuleActive = () =>
 	vulopilotAppLocalizer.active_modules?.includes('brand-visibility') ?? false;
@@ -264,44 +264,7 @@ const BusinessProfileCard = () => {
 						/>
 					) : (
 						<div className="business-score-gauge">
-							<ChartComponent
-								type="ring"
-								height={200}
-								color={
-									COLOR_PALETTE[
-									ratingColor(entityScore) as keyof typeof COLOR_PALETTE
-									]
-								}
-								// Same `TypographyComponent` h1/h4 centerLabel shape every other real score ring in this plugin uses.
-								centerLabel={
-									<>
-										<TypographyComponent
-											variant={'h1'}
-											color={ratingColor(entityScore)}
-										>
-											{entityScore}
-										</TypographyComponent>
-										<TypographyComponent variant={'h4'}>
-											{getRating(entityScore)}
-										</TypographyComponent>
-									</>
-								}
-								data={[
-									{
-										label: __('Score', 'vulopilot'),
-										value: entityScore,
-										// Same real rating color the ring's own label above already uses (`ratingColor()`/`getRating()`).
-										color: COLOR_PALETTE[
-											ratingColor(entityScore) as keyof typeof COLOR_PALETTE
-										],
-									},
-									{
-										label: __('Remaining', 'vulopilot'),
-										value: 100 - entityScore,
-										color: '#e5e7eb',
-									},
-								]}
-							/>
+							<ScoreRing score={entityScore} label={getRating(entityScore)} />
 							<div className="desc">
 								{missingCount > 0
 									? sprintf(

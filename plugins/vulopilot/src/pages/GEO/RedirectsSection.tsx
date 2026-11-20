@@ -1,10 +1,9 @@
 /* global vulopilotAppLocalizer */
 import { useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { COLOR_PALETTE, getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
+import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
 	CardComponent,
-	ChartComponent,
 	ColumnComponent,
 	FormGroupComponent,
 	FormGroupWrapperComponent,
@@ -23,6 +22,7 @@ import ShowProPopup from '../../components/Popup/Popup';
 import './SeoVisibility.scss';
 import type { QueryProps } from '@zyra/table';
 import { columns } from '../../services/tableColumns';
+import { ScoreRing } from '../../components/ScoreBreakdown/ScoreBreakdown';
 
 interface RedirectRow extends TableRow {
 	id: number;
@@ -68,16 +68,6 @@ const getRating = (score: number): string => {
 		return __('Needs Work', 'vulopilot');
 	}
 	return __('At Risk', 'vulopilot');
-};
-
-const ratingColor = (score: number): string => {
-	if (score >= 70) {
-		return 'green';
-	}
-	if (score >= 40) {
-		return 'yellow';
-	}
-	return 'red';
 };
 
 /** `$wpdb`'s own raw row shape. */
@@ -643,43 +633,7 @@ const RedirectsSection = () => {
 				>
 					<div className="overall-score-wrapper">
 						<div className="overall-score-summary">
-								<ChartComponent
-									type="ring"
-									height={200}
-									// Top-level `color` - `type="ring"` only ever paints its stroke from this prop.
-									color={
-										COLOR_PALETTE[
-											ratingColor(activePercent) as keyof typeof COLOR_PALETTE
-										]
-									}
-									centerLabel={
-										<>
-											<TypographyComponent
-												variant={'h1'}
-												color={ratingColor(activePercent)}
-											>
-												{activePercent}
-											</TypographyComponent>
-											<TypographyComponent variant={'h4'}>
-												{getRating(activePercent)}
-											</TypographyComponent>
-										</>
-									}
-									data={[
-										{
-											label: __('Active', 'vulopilot'),
-											value: activePercent,
-											color: COLOR_PALETTE[
-												ratingColor(activePercent) as keyof typeof COLOR_PALETTE
-											],
-										},
-										{
-											label: __('Remaining', 'vulopilot'),
-											value: 100 - activePercent,
-											color: '#e5e7eb',
-										},
-									]}
-								/>
+								<ScoreRing score={activePercent} label={getRating(activePercent)} />
 								<TypographyComponent variant={'h3'} color="text-green">
 									{__('Redirect Health', 'vulopilot')}
 								</TypographyComponent>
