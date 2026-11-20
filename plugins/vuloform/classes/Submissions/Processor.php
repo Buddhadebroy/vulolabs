@@ -320,13 +320,15 @@ class Processor {
 				return $parts;
 
 			case 'phone':
-				if ( false === ( $field['show_country_code'] ?? true ) ) {
-					return is_string( $value ) ? sanitize_text_field( $value ) : '';
+				if ( empty( $field['show_country_code'] ) ) {
+					return sanitize_text_field( $value );
 				}
 
+				$value = is_array( $value ) ? $value : array();
+
 				return array(
-					'country_code' => is_array( $value ) && isset( $value['country_code'] ) && is_scalar( $value['country_code'] ) ? sanitize_text_field( (string) $value['country_code'] ) : '',
-					'phone'        => is_array( $value ) && isset( $value['phone'] ) && is_scalar( $value['phone'] ) ? sanitize_text_field( (string) $value['phone'] ) : '',
+					'country_code' => sanitize_text_field( $value['country_code'] ?? '' ),
+					'phone'        => sanitize_text_field( $value['phone'] ?? '' ),
 				);
 
 			case 'textarea':

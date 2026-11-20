@@ -52,9 +52,7 @@ class Formatter {
 				return implode( ', ', array_filter( is_array( $value ) ? $value : array(), 'strlen' ) );
 
 			case 'phone':
-				return is_array( $value )
-					? trim( ( '' !== ( $value['country_code'] ?? '' ) ? $value['country_code'] . ' ' : '' ) . ( $value['phone'] ?? '' ) )
-					: ( is_scalar( $value ) ? (string) $value : '' );
+				return is_array( $value ) ? trim( ( $value['country_code'] ?? '' ) . ' ' . ( $value['phone'] ?? '' ) ) : $value;
 
 			case 'calculation':
 				return '' === (string) $value ? '' : $field['prefix'] . $value;
