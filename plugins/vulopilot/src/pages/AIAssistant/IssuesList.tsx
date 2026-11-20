@@ -47,7 +47,40 @@ interface GroupsResponse {
 	category_counts: Record<string, number>;
 }
 
+/** One tab of a scoped list: a named set of scanner ids. */
+export interface IssueArea {
+	id: string;
+	label: string;
+	scannerIds: string[];
+}
+
+/** A list that shows groups its page already fetched, with the page's own tabs (e.g. Security's areas). */
+export interface IssuesScope {
+	areas: IssueArea[];
+	groups: FindingGroup[];
+	isLoading: boolean;
+	/** Called after a fix or an ignore, so the page refetches. */
+	onChanged: () => void;
+	/** The chosen area, or `all`. The page owns it, so its other cards can pick an area. */
+	area: string;
+	// eslint-disable-next-line no-unused-vars -- parameter name in a type signature.
+	onAreaChange: (area: string) => void;
+}
+
+/** The same three priorities `GET /findings/groups?priority=` folds the severities into. */
+const PRIORITY_SEVERITIES: Record<Exclude<Priority, 'all'>, string[]> = {
+	high: ['critical', 'high'],
+	medium: ['medium'],
+	low: ['low', 'info'],
+};
+
 interface IssuesListProps {
+	/** The section's DOM id, for scrolling to it. */
+	id?: string;
+	title?: string;
+	description?: string;
+	/** Shows these groups instead of fetching every area's. */
+	scope?: IssuesScope;
 	/** Presets the matching tab and auto-selects that group once loaded. */
 	initialScannerId?: string;
 	initialCategory?: string;
@@ -61,6 +94,10 @@ interface IssuesListProps {
  * the issue groups (worst first, as `GET /findings/groups` orders them), beside the chosen group's details.
  */
 const IssuesList: React.FC<IssuesListProps> = ({
+	id = 'ai-copilot-issues-section',
+	title = __('Issues', 'vulopilot'),
+	description = __('Findings from your latest scans, grouped by check. Pick one to see what to do.', 'vulopilot'),
+	scope,
 	initialScannerId,
 	initialCategory,
 	onAsk,
@@ -86,6 +123,11 @@ const IssuesList: React.FC<IssuesListProps> = ({
 	const activeTab = CATEGORY_TABS.find((tab) => tab.id === activeTabId);
 
 	useEffect(() => {
+		// A scoped list shows the page's groups.
+		if (scope) {
+			return;
+		}
+
 		let cancelled = false;
 		setIsLoading(true);
 		setError(null);
@@ -168,27 +210,60 @@ const IssuesList: React.FC<IssuesListProps> = ({
 		};
 	}, [activeTabId, activePriority, paged, reloadToken]);
 
-	const refetch = () => setReloadToken((n) => n + 1);
+	// The page can pick an area too (Security's hero), so start that area at its first page.
+	useEffect(() => setPaged(1), [scope?.area]);
+
+	const refetch = scope ? scope.onChanged : () => setReloadToken((n) => n + 1);
+	const detailId = `${id}-detail`;
 
 	const selectGroup = (group: FindingGroup) => {
 		setSelectedGroup(group);
 
 		if (isStacked()) {
-			scrollToId('ai-copilot-issue-detail-panel');
+			scrollToId(detailId);
 		}
 	};
 
 	const changeTab = (tabId: string) => {
-		setActiveTabId(tabId);
+		if (scope) {
+			scope.onAreaChange(tabId);
+		} else {
+			setActiveTabId(tabId);
+		}
 		setPaged(1);
 	};
+
+	// A scoped list filters and pages the page's groups here; the server already sorted them worst first.
+	const scopeArea = scope && 'all' !== scope.area ? scope.areas.find((area) => area.id === scope.area) : undefined;
+	const scopedMatches = scope
+		? scope.groups.filter(
+				(group) =>
+					(!scopeArea || scopeArea.scannerIds.includes(group.scanner_id)) &&
+					('all' === activePriority || PRIORITY_SEVERITIES[activePriority].includes(group.severity))
+		  )
+		: [];
+	const rows = scope ? scopedMatches.slice((paged - 1) * PER_PAGE, paged * PER_PAGE) : data;
+	const rowCount = scope ? scopedMatches.length : total;
+	const loading = scope ? scope.isLoading : isLoading;
+	const currentTabId = scope ? scope.area : activeTabId;
+	// A scoped list keeps the chosen group while it is still shown, else picks the first.
+	const shownGroup = scope
+		? (rows.find((group) => selectedGroup && groupKey(group) === groupKey(selectedGroup)) ?? rows[0] ?? null)
+		: selectedGroup;
 
 	const changePriority = (priority: Priority) => {
 		setActivePriority(priority);
 		setPaged(1);
 	};
 
-	const tabs = [
+	const tabs = (scope ? [
+		{ id: 'all', label: __('All', 'vulopilot'), count: scope.groups.length },
+		...scope.areas.map((area) => ({
+			id: area.id,
+			label: area.label,
+			count: scope.groups.filter((group) => area.scannerIds.includes(group.scanner_id)).length,
+		})),
+	] : [
 		{
 			id: 'all',
 			label: __('All', 'vulopilot'),
@@ -200,13 +275,13 @@ const IssuesList: React.FC<IssuesListProps> = ({
 			count: tab.categories.reduce((sum, category) => sum + (categoryCounts[category] ?? 0), 0),
 		})),
 	// An area with nothing open is left out, unless it is the one chosen.
-	].filter((tab) => 'all' === tab.id || tab.count > 0 || tab.id === activeTabId);
+	]).filter((tab) => 'all' === tab.id || tab.count > 0 || tab.id === currentTabId);
 
-	const isFiltered = 'all' !== activePriority || 'all' !== activeTabId;
-	const pages = Math.max(1, Math.ceil(total / PER_PAGE));
-	const first = total ? (paged - 1) * PER_PAGE + 1 : 0;
-	const last = Math.min(total, paged * PER_PAGE);
-	const showDetail = !error && (isLoading || data.length > 0);
+	const isFiltered = 'all' !== activePriority || 'all' !== currentTabId;
+	const pages = Math.max(1, Math.ceil(rowCount / PER_PAGE));
+	const first = rowCount ? (paged - 1) * PER_PAGE + 1 : 0;
+	const last = Math.min(rowCount, paged * PER_PAGE);
+	const showDetail = !error && (loading || rows.length > 0);
 
 	let body: React.ReactNode;
 
@@ -222,7 +297,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 				/>
 			</div>
 		);
-	} else if (isLoading && 0 === data.length) {
+	} else if (loading && 0 === rows.length) {
 		body = (
 			<div className="vp-steps-body">
 				<Skeleton />
@@ -231,7 +306,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 				<Skeleton />
 			</div>
 		);
-	} else if (0 === data.length) {
+	} else if (0 === rows.length) {
 		body = (
 			<div className="vp-steps-body">
 				<EmptyState
@@ -262,10 +337,10 @@ const IssuesList: React.FC<IssuesListProps> = ({
 		);
 	} else {
 		body = (
-			<ul className={`vp-issue-list${isLoading ? ' is-loading' : ''}`}>
-				{data.map((group) => {
+			<ul className={`vp-issue-list${loading ? ' is-loading' : ''}`}>
+				{rows.map((group) => {
 					const key = groupKey(group);
-					const isActive = selectedGroup ? key === groupKey(selectedGroup) : false;
+					const isActive = shownGroup ? key === groupKey(shownGroup) : false;
 					const detail = summarize(group.sample?.description);
 
 					return (
@@ -305,11 +380,11 @@ const IssuesList: React.FC<IssuesListProps> = ({
 	}
 
 	return (
-		<section className="vp-issues" id="ai-copilot-issues-section" aria-label={__('Issues', 'vulopilot')}>
+		<section className="vp-issues" id={id} aria-label={title}>
 			<div className="vp-section-head">
 				<div>
-					<h2>{__('Issues', 'vulopilot')}</h2>
-					<p>{__('Findings from your latest scans, grouped by check. Pick one to see what to do.', 'vulopilot')}</p>
+					<h2>{title}</h2>
+					<p>{description}</p>
 				</div>
 			</div>
 
@@ -321,8 +396,8 @@ const IssuesList: React.FC<IssuesListProps> = ({
 								<button
 									key={tab.id}
 									type="button"
-									className={tab.id === activeTabId ? 'is-active' : ''}
-									aria-pressed={tab.id === activeTabId}
+									className={tab.id === currentTabId ? 'is-active' : ''}
+									aria-pressed={tab.id === currentTabId}
 									onClick={() => changeTab(tab.id)}
 								>
 									{tab.label}
@@ -347,7 +422,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 
 					{body}
 
-					{total > PER_PAGE && !error && (
+					{rowCount > PER_PAGE && !error && (
 						<footer className="vp-steps-foot vp-pager">
 							<span>
 								{sprintf(
@@ -355,13 +430,13 @@ const IssuesList: React.FC<IssuesListProps> = ({
 									__('%1$d–%2$d of %3$d issues', 'vulopilot'),
 									first,
 									last,
-									total
+									rowCount
 								)}
 							</span>
 							<span className="vp-pager-nav">
 								<button
 									type="button"
-									disabled={paged <= 1 || isLoading}
+									disabled={paged <= 1 || loading}
 									onClick={() => setPaged((page) => page - 1)}
 									aria-label={__('Previous page', 'vulopilot')}
 								>
@@ -377,7 +452,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 								</span>
 								<button
 									type="button"
-									disabled={paged >= pages || isLoading}
+									disabled={paged >= pages || loading}
 									onClick={() => setPaged((page) => page + 1)}
 									aria-label={__('Next page', 'vulopilot')}
 								>
@@ -389,8 +464,8 @@ const IssuesList: React.FC<IssuesListProps> = ({
 				</section>
 
 				{showDetail && (
-					<aside id="ai-copilot-issue-detail-panel" className="vp-issues-detail">
-						<IssueDetailPanel group={selectedGroup} onActionComplete={refetch} onAsk={onAsk} />
+					<aside id={detailId} className="vp-issues-detail">
+						<IssueDetailPanel group={shownGroup} onActionComplete={refetch} onAsk={onAsk} />
 					</aside>
 				)}
 			</div>

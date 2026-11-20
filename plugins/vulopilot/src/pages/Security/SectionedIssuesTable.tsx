@@ -16,6 +16,7 @@ import { CATEGORY_LABELS, formatAffected, groupKey, issueIconFor } from '../../c
 import IssuesSummaryCards, { Priority } from '../../components/Issues/IssuesSummaryCards';
 import IssueDetailPanel from '../../components/Issues/IssueDetailPanel';
 import ProLockedCard from '../../components/ProLockedCard';
+import { Card, EmptyState } from '../../components/ui';
 import type { FindingsSection } from './SectionedFindingsTab';
 import './ProtectMySite.scss';
 import { columns, tableRows } from '../../services/tableColumns';
@@ -499,6 +500,38 @@ const SectionedIssuesTable = ({
 			)}
 		</>
 	);
+
+	// Nothing open anywhere and no section waiting on Pro: one "all clear" card, not a row of "(0)" tabs, three
+	// zero-count priority tiles and an empty table.
+	const isAllClear =
+		!isLoading &&
+		0 === groups.filter((group) => allScannerIds.includes(group.scanner_id)).length &&
+		!sections.some((section) => section.locked && section.proModule);
+
+	if (isAllClear) {
+		return (
+			<ContainerComponent id={id}>
+				<ColumnComponent>
+					<Card
+						title={__('Issues', 'vulopilot')}
+						icon="error"
+						desc={__('Findings from your most recent scans, grouped by check.', 'vulopilot')}
+					>
+						<EmptyState
+							compact
+							icon="check"
+							tone="green"
+							title={__('No open issues', 'vulopilot')}
+							text={__(
+								'Every check passed on the last scan. Anything a new scan finds will be listed here, most important first.',
+								'vulopilot'
+							)}
+						/>
+					</Card>
+				</ColumnComponent>
+			</ContainerComponent>
+		);
+	}
 
 	return (
 		<ContainerComponent id={id}>

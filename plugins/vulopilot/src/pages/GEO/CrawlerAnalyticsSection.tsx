@@ -1,6 +1,6 @@
 /* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { COLOR_PALETTE, getApiLink, getApiResponse } from '@zyra/core';
 import {
 	AnalyticsComponent,
@@ -71,21 +71,24 @@ const ChangeBadge = ({ current, previous }: { current: number; previous: number 
 };
 
 /** Real "Robots.txt is accessible" / "XML sitemap is accessible" / "No critical AI-bot blocks" checklist. */
-const CHECKLIST_ITEMS: { key: string; scannerIds: string[]; label: string }[] = [
+const CHECKLIST_ITEMS: { key: string; scannerIds: string[]; label: string; goodText: string }[] = [
 	{
 		key: 'robots',
 		scannerIds: ['robots-txt'],
-		label: __('Robots.txt is not reachable', 'vulopilot'),
+		label: __('robots.txt', 'vulopilot'),
+		goodText: __('Reachable and readable by crawlers', 'vulopilot'),
 	},
 	{
 		key: 'sitemap',
 		scannerIds: ['sitemap', 'sitemap-validation'],
-		label: __('No XML sitemap found', 'vulopilot'),
+		label: __('XML sitemap', 'vulopilot'),
+		goodText: __('Found and valid', 'vulopilot'),
 	},
 	{
 		key: 'ai-blocks',
 		scannerIds: ['ai-crawler-blocked-pages'],
-		label: __('No critical AI-bot blocks', 'vulopilot'),
+		label: __('AI crawler access', 'vulopilot'),
+		goodText: __('No important AI bots are blocked', 'vulopilot'),
 	},
 ];
 
@@ -267,11 +270,13 @@ const CrawlerAnalyticsSection = ({
 														? 'check green'
 														: 'error yellow',
 											title: item.label,
-											desc: sprintf(
-												/* translators: %d: real number of open findings. */
-												__('%d issues', 'vulopilot'),
-												openCount(item.scannerIds)
-											),
+											desc: item.isGood
+												? item.goodText
+												: sprintf(
+														/* translators: %d: real number of open findings. */
+														_n('%d issue', '%d issues', openCount(item.scannerIds), 'vulopilot'),
+														openCount(item.scannerIds)
+													),
 											tags: (
 												<BadgeComponent
 													color={
@@ -335,11 +340,8 @@ const CrawlerAnalyticsSection = ({
 						<div className="dashboard-trend-chart">
 							<ResponsiveContainer width="100%" height="100%">
 								<AreaChart
-									// `date` is a plain calendar day.
-									data={analytics.daily_volume.map((day) => ({
-										...day,
-										date: formatWpDate(`${day.date} 12:00:00`),
-									}))}
+									// `date` stays the raw calendar day (YYYY-MM-DD); the axis and tooltip format it once.
+									data={analytics.daily_volume}
 								>
 									<CartesianGrid strokeDasharray="3 3" />
 									<XAxis dataKey="date" tickFormatter={formatWpDay} />

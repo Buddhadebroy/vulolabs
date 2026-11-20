@@ -225,13 +225,7 @@ const BuiltinAutomationCard = ({ row, kind, onChanged }: BuiltinAutomationCardPr
 					{failed && <i className="adminfont-error" aria-hidden="true" />}
 					{failed
 						? __('The last run failed. Run it again to retry.', 'vulopilot')
-						: lastRun
-							? sprintf(
-									/* translators: %s: when it last ran. */
-									__('Last ran %s', 'vulopilot'),
-									lastRun
-							  )
-							: __('Has not run yet.', 'vulopilot')}
+						: __('Changes save as you make them.', 'vulopilot')}
 				</span>
 				<ButtonInput
 					buttons={{
@@ -242,7 +236,7 @@ const BuiltinAutomationCard = ({ row, kind, onChanged }: BuiltinAutomationCardPr
 								: 'scan' === kind
 									? __('Scan now', 'vulopilot')
 									: __('Send now', 'vulopilot'),
-						icon: enableFirst ? 'check' : 'play-arrow',
+						icon: enableFirst ? 'check' : 'scan' === kind ? 'scan' : 'send',
 						color: 'purple-bg',
 						disabled: isRunning,
 						onClick: enableFirst ? toggle : runNow,

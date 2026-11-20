@@ -1,0 +1,154 @@
+// ---- Security, free (pages/Security). The hero, ring, feed and trend header are the dashboard's
+// (dashboard-widgets/dashboard.scss); the issue list is AI Copilot's (AIAssistant/copilot.scss). ----
+
+// The hero's areas: icon, name, state. A clear area is not a link.
+.vp-sec-areas button {
+	display: grid;
+	grid-template-columns: 1.25rem minmax(0, 1fr) auto;
+	gap: 0.75rem;
+	align-items: center;
+	width: 100%;
+	padding: 0.5625rem 0.625rem;
+	border: 0;
+	border-radius: 0.5rem;
+	background: none;
+	font: inherit;
+	text-align: left;
+	color: inherit;
+	cursor: pointer;
+	transition: background 0.15s;
+
+	> i {
+		font-size: 0.875rem;
+		color: var(--ui-muted);
+	}
+
+	&:hover:not(:disabled),
+	&:focus-visible {
+		background: var(--ui-sunken);
+
+		.vp-area-name {
+			color: var(--ui-accent);
+		}
+	}
+
+	&:disabled {
+		cursor: default;
+	}
+}
+
+.vp-sec-area-state {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3125rem;
+	padding: 0.1875rem 0.625rem;
+	border-radius: 999px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	white-space: nowrap;
+
+	i {
+		font-size: 0.625rem;
+	}
+
+	.is-good & {
+		background: var(--ui-good-bg);
+		color: var(--ui-good);
+	}
+
+	.is-bad & {
+		background: var(--ui-bad-bg);
+		color: var(--ui-bad);
+	}
+
+	.is-warn & {
+		background: var(--ui-warn-bg);
+		color: var(--ui-warn);
+	}
+
+	.is-info & {
+		background: var(--ui-info-bg);
+		color: var(--ui-info);
+	}
+}
+
+// ---- Score over time ----
+.vp-sec-trend .vp-card-body {
+	gap: 1rem;
+}
+
+.vp-sec-period {
+	padding: 0.25rem 0;
+}
+
+// ---- Incident reports sample (Pro) ----
+.vp-incidents {
+	margin: 0;
+	padding: 0.5rem 0 0;
+	list-style: none;
+
+	li {
+		display: grid;
+		grid-template-columns: 5rem minmax(0, 1fr) 9rem 7rem;
+		gap: 1rem;
+		align-items: center;
+		margin: 0;
+		padding: 0.75rem 0;
+
+		+ li {
+			border-top: 1px solid var(--ui-line);
+		}
+
+		@media (width <= 760px) {
+			grid-template-columns: 5rem minmax(0, 1fr);
+
+			.vp-incident-by,
+			.vp-incident-when {
+				display: none;
+			}
+		}
+	}
+
+	strong {
+		overflow: hidden;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		color: var(--ui-ink);
+	}
+}
+
+.vp-incident-sev {
+	justify-self: start;
+	padding: 0.125rem 0.5rem;
+	border-radius: 999px;
+	font-size: 0.6875rem;
+	font-weight: 600;
+
+	&.is-critical,
+	&.is-high {
+		background: var(--ui-bad-bg);
+		color: var(--ui-bad);
+	}
+
+	&.is-medium {
+		background: var(--ui-warn-bg);
+		color: var(--ui-warn);
+	}
+
+	&.is-low {
+		background: var(--ui-info-bg);
+		color: var(--ui-info);
+	}
+}
+
+.vp-incident-by,
+.vp-incident-when {
+	font-size: 0.75rem;
+	color: var(--ui-muted);
+}
+
+.vp-incident-when {
+	text-align: right;
+}

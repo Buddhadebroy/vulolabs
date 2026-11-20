@@ -6,7 +6,7 @@ import { ColumnComponent, ContainerComponent, NavigatorHeaderComponent, PopupCom
 import { ButtonInput } from '@zyra/inputs';
 import ShowProPopup from '../../components/Popup/Popup';
 import { Kpi, KpiGrid, SectionHead, Skeleton } from '../../components/ui';
-import { formatWpTime, isWpToday, formatWpDate } from '../../services/formatWpDate';
+import { formatWpTime, isWpToday } from '../../services/formatWpDate';
 import { DOCS_URL } from '../../services/links';
 import BuiltinAutomationCard from './BuiltinAutomationCard';
 import { AiAgentsSample, CustomAutomationsSample } from './AutomationsProSamples';
@@ -16,8 +16,20 @@ import './Automations.scss';
 
 const nonce = () => ({ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } });
 
-/** "Today 09:00" or "Nov 21". */
-const shortWhen = (iso: string): string => (isWpToday(iso) ? `${__('Today', 'vulopilot')} ${formatWpTime(iso)}` : formatWpDate(iso));
+/** "Today", "Yesterday" or "Nov 19" - short enough for a headline figure; the time goes in the hint. */
+const shortDay = (iso: string): string => {
+	if (isWpToday(iso)) {
+		return __('Today', 'vulopilot');
+	}
+
+	const day = new Date(iso.replace(' ', 'T'));
+	const yesterday = new Date();
+	yesterday.setDate(yesterday.getDate() - 1);
+
+	return day.toDateString() === yesterday.toDateString()
+		? __('Yesterday', 'vulopilot')
+		: day.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+};
 
 const CUSTOM_AUTOMATIONS = {
 	title: __('Custom automations', 'vulopilot'),
@@ -124,11 +136,15 @@ const Automations = () => {
 								icon="clock"
 								tone="blue"
 								label={__('Last run', 'vulopilot')}
-								value={isLoading ? '–' : latest?.last_run_finished_at ? shortWhen(latest.last_run_finished_at) : __('Not yet', 'vulopilot')}
-								hint={latest ? nameOf(latest) : __('Runs appear here once one finishes', 'vulopilot')}
+								value={isLoading ? '–' : latest?.last_run_finished_at ? shortDay(latest.last_run_finished_at) : __('Not yet', 'vulopilot')}
+								hint={
+									latest?.last_run_finished_at
+										? `${nameOf(latest)} · ${formatWpTime(latest.last_run_finished_at)}`
+										: __('Runs appear here once one finishes', 'vulopilot')
+								}
 							/>
 							<Kpi
-								icon="error"
+								icon={failedRuns > 0 ? 'error' : 'check'}
 								tone={failedRuns > 0 ? 'red' : 'green'}
 								label={__('Failed runs', 'vulopilot')}
 								value={isLoading ? '–' : failedRuns}

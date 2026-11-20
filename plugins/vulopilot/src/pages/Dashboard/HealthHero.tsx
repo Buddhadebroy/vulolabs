@@ -1,7 +1,7 @@
 import React from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { ButtonInput } from '@zyra/inputs';
-import { Delta, Skeleton, scoreTone } from '../../components/ui';
+import { Delta, ScoreRing, Skeleton, scoreTone } from '../../components/ui';
 import { getAreaScores, getRating, getRatingSummary } from './scoring';
 import type { DashboardSummary } from '../../dashboard-widgets/types';
 
@@ -10,33 +10,6 @@ export interface HeroAction {
 	icon: string;
 	onClick: () => void;
 }
-
-/** The score as a ring: one track, one arc in the score's colour. */
-const ScoreRing = ({ score }: { score: number }) => {
-	const radius = 52;
-	const length = 2 * Math.PI * radius;
-	const clamped = Math.max(0, Math.min(100, score));
-
-	return (
-		<div className={`vp-ring is-${scoreTone(score)}`}>
-			<svg viewBox="0 0 120 120" aria-hidden="true">
-				<circle cx="60" cy="60" r={radius} className="vp-ring-track" />
-				<circle
-					cx="60"
-					cy="60"
-					r={radius}
-					className="vp-ring-arc"
-					strokeDasharray={length}
-					strokeDashoffset={length * (1 - clamped / 100)}
-				/>
-			</svg>
-			<span className="vp-ring-label">
-				<strong>{score}</strong>
-				<span>{__('of 100', 'vulopilot')}</span>
-			</span>
-		</div>
-	);
-};
 
 /**
  * The dashboard's opening answer to "how is my site doing, and what should I do about it?": the score with its

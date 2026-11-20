@@ -2026,3 +2026,138 @@
 		color: var(--ui-ink);
 	}
 }
+
+// ---- Soft colour: pastel accents so the page reads at a glance without turning loud ----
+.admin-main-wrapper.admin-main-wrapper .vp-dashboard {
+	--vp-soft-violet: #f4f1fe;
+	--vp-soft-blue: #eff5ff;
+	--vp-soft-green: #edfbf3;
+	--vp-soft-amber: #fff7eb;
+	--vp-soft-rose: #fff1f3;
+
+	// Hero: a light wash from violet into blue behind the score.
+	.vp-hero {
+		background:
+			radial-gradient(circle at 0% 0%, var(--vp-soft-violet), transparent 45%),
+			radial-gradient(circle at 100% 100%, var(--vp-soft-blue), transparent 50%),
+			#fff;
+	}
+
+	.vp-hero-areas {
+		background: rgb(255 255 255 / 60%);
+	}
+
+	// Each area its own hue: icon in a tinted tile, bar in the same family.
+	.vp-hero-areas li {
+		--vp-area: #7c5cff;
+		--vp-area-soft: var(--vp-soft-violet);
+
+		&:nth-child(2) {
+			--vp-area: #12a26b;
+			--vp-area-soft: var(--vp-soft-green);
+		}
+
+		&:nth-child(3) {
+			--vp-area: #3b82f6;
+			--vp-area-soft: var(--vp-soft-blue);
+		}
+
+		&:nth-child(4) {
+			--vp-area: #e8963a;
+			--vp-area-soft: var(--vp-soft-amber);
+		}
+
+		&:nth-child(5) {
+			--vp-area: #e5658b;
+			--vp-area-soft: var(--vp-soft-rose);
+		}
+
+		a > i {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 1.625rem;
+			height: 1.625rem;
+			border-radius: 0.375rem;
+			background: var(--vp-area-soft);
+			color: var(--vp-area);
+		}
+
+		.vp-area-bar {
+			background: var(--vp-area-soft);
+
+			i {
+				background: linear-gradient(90deg, color-mix(in srgb, var(--vp-area) 55%, #fff), var(--vp-area));
+			}
+		}
+	}
+
+	// Next steps: a faint wash by priority behind each row, the label in its colour.
+	.vp-step {
+		&.is-critical {
+			background: linear-gradient(90deg, var(--vp-soft-rose), #fff 40%);
+		}
+
+		&.is-high {
+			background: linear-gradient(90deg, var(--vp-soft-amber), #fff 40%);
+		}
+
+		&.is-medium {
+			background: linear-gradient(90deg, var(--vp-soft-blue), #fff 40%);
+		}
+
+		&.is-approval {
+			background: linear-gradient(90deg, var(--vp-soft-violet), #fff 40%);
+		}
+	}
+
+	// Side cards and widget headers: their icon tiles pick up a pastel instead of grey.
+	.vp-rail-card:nth-child(1) .vp-card-icon,
+	.vp-autopilot .vp-card-icon {
+		background: var(--vp-soft-green);
+		color: #12a26b;
+	}
+
+	.vp-feed .vp-card-icon,
+	.vp-rail-card:nth-child(2) .vp-card-icon {
+		background: var(--vp-soft-blue);
+		color: #3b82f6;
+	}
+
+	.vp-profile .vp-card-icon {
+		background: var(--vp-soft-violet);
+		color: #7c5cff;
+	}
+
+	.vp-feed-dot {
+		background: var(--vp-soft-blue);
+		color: #3b82f6;
+	}
+
+	.vp-rail-upsell {
+		background: linear-gradient(135deg, var(--vp-soft-violet), var(--vp-soft-blue));
+	}
+
+	// Site profile signals: each tile a soft tint of its own.
+	.vp-signals > * {
+		&:nth-child(1) {
+			background: var(--vp-soft-violet);
+		}
+
+		&:nth-child(2) {
+			background: var(--vp-soft-blue);
+		}
+
+		&:nth-child(3) {
+			background: var(--vp-soft-green);
+		}
+
+		&:nth-child(4) {
+			background: var(--vp-soft-amber);
+		}
+	}
+
+	.vp-profile-shot {
+		background: linear-gradient(135deg, var(--vp-soft-violet), var(--vp-soft-blue));
+	}
+}

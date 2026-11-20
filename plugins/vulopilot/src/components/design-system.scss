@@ -1743,3 +1743,9 @@ body .admin-table-wrapper.admin-table-wrapper .table-action {
 		background: #f5fcf7;
 	}
 }
+
+// zyra breaks list titles anywhere ("Brand Visibility S / core"); they wrap between words like any other text.
+.admin-main-wrapper.admin-main-wrapper .item-list.mini-card .item .details-wrapper .details .item-title {
+	word-break: normal;
+	overflow-wrap: break-word;
+}

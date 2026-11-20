@@ -307,8 +307,8 @@ const BusinessProfileCard = () => {
 									? sprintf(
 										/* translators: %d is how many of the 7 real profile fields below have no real data yet. */
 										_n(
-											'Your business information is mostly complete, but %d important detail is missing.',
-											'Your business information is mostly complete, but %d important details are missing.',
+											'AI engines can read what is there. Add the %d missing detail on the right to complete your profile.',
+											'AI engines can read what is there. Add the %d missing details on the right to complete your profile.',
 											missingCount,
 											'vulopilot'
 										),

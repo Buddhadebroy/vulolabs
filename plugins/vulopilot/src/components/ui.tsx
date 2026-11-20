@@ -254,3 +254,30 @@ export const scoreTone = (score: number): Tone => {
 
 	return score >= 50 ? 'amber' : 'red';
 };
+
+/** The score as a ring: one track, one arc in the score's colour. */
+export const ScoreRing = ({ score }: { score: number }) => {
+	const radius = 52;
+	const length = 2 * Math.PI * radius;
+	const clamped = Math.max(0, Math.min(100, score));
+
+	return (
+		<div className={`vp-ring is-${scoreTone(score)}`}>
+			<svg viewBox="0 0 120 120" aria-hidden="true">
+				<circle cx="60" cy="60" r={radius} className="vp-ring-track" />
+				<circle
+					cx="60"
+					cy="60"
+					r={radius}
+					className="vp-ring-arc"
+					strokeDasharray={length}
+					strokeDashoffset={length * (1 - clamped / 100)}
+				/>
+			</svg>
+			<span className="vp-ring-label">
+				<strong>{score}</strong>
+				<span>{__('of 100', 'vulopilot')}</span>
+			</span>
+		</div>
+	);
+};
