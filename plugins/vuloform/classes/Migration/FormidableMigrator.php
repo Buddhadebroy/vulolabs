@@ -214,7 +214,7 @@ class FormidableMigrator extends AbstractMigrator {
 				$option_label = (string) ( is_array( $option ) ? ( $option['label'] ?? '' ) : $option );
 				$option_value = (string) ( is_array( $option ) ? ( $option['value'] ?? $option_label ) : $option_label );
 
-				if ( '' !== $option_label ) {
+				if ( ! empty( $option_label ) ) {
 					$field['options'][] = array(
 						'label' => $option_label,
 						'value' => $option_value,

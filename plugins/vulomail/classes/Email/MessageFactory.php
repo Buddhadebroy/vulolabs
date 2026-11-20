@@ -124,7 +124,7 @@ class MessageFactory {
 	public function resolve_from_email( $from_email ) {
 		$configured = (string) $this->settings->get( 'from_email' );
 
-		if ( '' !== $configured && ( $this->settings->get( 'force_from_email' ) || self::default_from_email() === $from_email || ! is_email( $from_email ) ) ) {
+		if ( ! empty( $configured ) && ( $this->settings->get( 'force_from_email' ) || self::default_from_email() === $from_email || ! is_email( $from_email ) ) ) {
 			return $configured;
 		}
 
@@ -140,7 +140,7 @@ class MessageFactory {
 	public function resolve_from_name( $from_name ) {
 		$configured = (string) $this->settings->get( 'from_name' );
 
-		if ( '' !== $configured && ( $this->settings->get( 'force_from_name' ) || 'WordPress' === $from_name ) ) {
+		if ( ! empty( $configured ) && ( $this->settings->get( 'force_from_name' ) || 'WordPress' === $from_name ) ) {
 			return $configured;
 		}
 
@@ -159,7 +159,7 @@ class MessageFactory {
 			$host = substr( $host, 4 );
 		}
 
-		return 'wordpress@' . ( '' !== $host ? $host : 'localhost' );
+		return 'wordpress@' . ( ! empty( $host ) ? $host : 'localhost' );
 	}
 
 	/**
@@ -260,7 +260,7 @@ class MessageFactory {
 				continue;
 			}
 
-			$name = is_string( $name ) && '' !== trim( $name ) ? sanitize_file_name( $name ) : basename( $path );
+			$name = is_string( $name ) && ! empty( trim( $name ) ) ? sanitize_file_name( $name ) : basename( $path );
 
 			// Two attachments with one name: keep both.
 			$unique = $name;

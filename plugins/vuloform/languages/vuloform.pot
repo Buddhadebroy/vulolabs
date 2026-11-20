@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-18T08:09:45+00:00\n"
+"POT-Creation-Date: 2026-11-20T08:12:04+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vuloform\n"
@@ -40,17 +40,22 @@ msgid "https://vulolabs.com/"
 msgstr ""
 
 #: classes/Admin.php:38
-#: classes/Admin.php:92
+#: assets/js/index.js:1
+msgid "Dashboard"
+msgstr ""
+
+#: classes/Admin.php:39
+#: classes/Admin.php:93
 #: assets/js/index.js:1
 msgid "Forms"
 msgstr ""
 
-#: classes/Admin.php:39
+#: classes/Admin.php:40
 #: assets/js/index.js:1
 msgid "Submissions"
 msgstr ""
 
-#: classes/Admin.php:40
+#: classes/Admin.php:41
 #: assets/js/index.js:1
 msgid "Settings"
 msgstr ""
@@ -114,6 +119,7 @@ msgid "Consent"
 msgstr ""
 
 #: classes/Fields/Registry.php:106
+#: assets/js/index.js:1
 msgid "Date"
 msgstr ""
 
@@ -308,6 +314,7 @@ msgstr ""
 #: classes/Forms/Templates.php:53
 #: classes/Forms/Templates.php:660
 #: classes/Forms/Templates.php:714
+#: assets/js/index.js:1
 msgid "Message"
 msgstr ""
 
@@ -398,6 +405,7 @@ msgstr ""
 
 #: classes/Forms/Templates.php:113
 #: classes/Forms/Templates.php:1920
+#: assets/js/index.js:1
 msgid "Company"
 msgstr ""
 
@@ -706,6 +714,7 @@ msgid "I agree to the terms and conditions."
 msgstr ""
 
 #: classes/Forms/Templates.php:243
+#: assets/js/index.js:1
 msgid "Job application"
 msgstr ""
 
@@ -812,6 +821,7 @@ msgid "Details"
 msgstr ""
 
 #: classes/Forms/Templates.php:339
+#: assets/js/index.js:1
 msgid "Request a quote"
 msgstr ""
 
@@ -3624,26 +3634,26 @@ msgstr ""
 msgid "That item no longer exists."
 msgstr ""
 
-#: classes/Rest/Forms.php:107
+#: classes/Rest/Forms.php:128
 #: assets/js/index.js:1
 msgid "All"
 msgstr ""
 
-#: classes/Rest/Forms.php:153
+#: classes/Rest/Forms.php:174
 msgid "The form could not be created."
 msgstr ""
 
-#: classes/Rest/Forms.php:288
+#: classes/Rest/Forms.php:309
 msgid "This form is needed by a plugin and cannot be deleted."
 msgstr ""
 
 #. translators: %s: template name.
-#: classes/Rest/Forms.php:307
+#: classes/Rest/Forms.php:328
 #, php-format
 msgid "A \"%s\" form already exists. There can be only one."
 msgstr ""
 
-#: classes/Rest/Forms.php:380
+#: classes/Rest/Forms.php:401
 msgid "Please enable JavaScript to use this form."
 msgstr ""
 
@@ -3658,6 +3668,11 @@ msgstr ""
 
 #: classes/Rest/Migration.php:90
 msgid "That plugin is already inactive."
+msgstr ""
+
+#: classes/Rest/Overview.php:159
+#: assets/js/index.js:1
+msgid "(no name)"
 msgstr ""
 
 #: classes/Rest/Settings.php:95
@@ -3690,7 +3705,6 @@ msgid "Submitted"
 msgstr ""
 
 #: classes/Rest/Submissions.php:225
-#: assets/js/index.js:1
 msgid "Status"
 msgstr ""
 
@@ -3854,34 +3868,6 @@ msgid "The selected form is no longer published."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Data"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "What happens to your forms, submissions and uploaded files when VuloForm is deleted."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "When VuloForm is deleted"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Keep data"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Reinstalling picks up where you left off."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Delete everything"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Removes forms, submissions and uploaded files."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Privacy"
 msgstr ""
 
@@ -4033,37 +4019,224 @@ msgstr ""
 msgid "Strict (0.7)"
 msgstr ""
 
-#. translators: %d: page number.
-#. translators: %s: field label.
-#. translators: %d: number of choices.
-#. translators: %s: field label, such as Quantity.
-#. translators: 1: parts shown, 2: parts available.
-#. translators: %d: number of fields in one row.
-#. translators: %s: name of a notification or webhook.
-#. translators: 1: a rule such as: Subject is "Sales". 2: "a message" or "another page".
-#. translators: 1: a rule such as: Subject is "Sales". 2: number of further rules.
-#. translators: %s: the site's admin email address.
-#. translators: 1: email address, 2: phone number.
-#. translators: %s: phone number or placeholder.
-#. translators: 1: number of exceptions. 2: the most a form can have.
-#. translators: %d: number of the exception.
-#. translators: %s: name of the exception, such as: Exception 1.
-#. translators: %s: web address.
-#. translators: %d: number of problems.
+#: assets/js/index.js:1
+msgid "Uninstall"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What happens to your forms, submissions and uploaded files when VuloForm is deleted."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Your forms and submissions"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "When VuloForm is deleted"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Keep data"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Reinstalling picks up where you left off."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delete everything"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Removes forms, submissions and uploaded files."
+msgstr ""
+
 #: assets/js/index.js:1
 msgid "Something went wrong. Please try again."
 msgstr ""
 
-#. translators: %d: number of forms migrated.
+#: assets/js/index.js:1
+msgid "A preview with sample data. Your own records show here once there are some."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Good morning"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Good afternoon"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Good evening"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "7 days"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "30 days"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "90 days"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Submissions per day"
+msgstr ""
+
+#. translators: %d: number of submissions that day.
+#. translators: %d: number of submissions.
 #: assets/js/index.js:1
 #, js-format
-msgid "%d form migrated."
-msgid_plural "%d forms migrated."
+msgid "%d submission"
+msgid_plural "%d submissions"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of spam submissions that day.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d spam"
+msgid_plural "%d spam"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of submissions.
+#: assets/js/index.js:1
+#, js-format
+msgid "A notification failed for %d submission"
+msgid_plural "Notifications failed for %d submissions"
 msgstr[0] ""
 msgstr[1] ""
 
 #: assets/js/index.js:1
-msgid "Every form on your site. Build one, publish it, and add it to a page."
+msgid "See why"
+msgstr ""
+
+#. translators: %d: number of unread submissions.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d new submission to read"
+msgid_plural "%d new submissions to read"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+msgid "People are waiting to hear back from you."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Read"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Spam protection is off"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Bots can fill in your forms freely. Turn on the hidden spam trap."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Turn on"
+msgstr ""
+
+#. translators: %s: comma-separated plugin names.
+#. translators: %s: comma-separated list of detected plugin names.
+#: assets/js/index.js:1
+#, js-format
+msgid "Bring your %s forms into VuloForm"
+msgstr ""
+
+#. translators: %d: number of forms.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d form found. Migrating copies it; the other plugin is left untouched."
+msgid_plural "%d forms found. Migrating copies them; the other plugin is left untouched."
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+msgid "Migrate"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Make sure form emails arrive"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "VuloMail sends them through your own email service, and logs every one."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Get VuloMail"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add reCAPTCHA for stronger spam protection"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Stops the bots the hidden spam trap misses, on the forms you choose."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Set up"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Start from a template"
+msgstr ""
+
+#. translators: %d: number of form templates.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d ready-made forms: contact, quote, booking, feedback and more."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Browse"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Create a form"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Publish it"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add it to a page"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Here is how your forms are doing."
+msgstr ""
+
+#. translators: %d: number of things that need attention.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d thing needs you. Here is how your forms are doing."
+msgid_plural "%d things need you. Here is how your forms are doing."
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+msgid "Nothing is waiting on you. Here is how your forms are doing."
+msgstr ""
+
+#. translators: 1: time-of-day greeting, 2: current user's display name.
+#: assets/js/index.js:1
+#, js-format
+msgid "%1$s, %2$s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "there"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4071,55 +4244,175 @@ msgid "New form"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Could not load your forms"
+msgid "Could not load the dashboard"
 msgstr ""
 
-#. translators: %s: comma-separated list of detected plugin names.
+#. translators: %s: length of the period, such as "30 days".
 #: assets/js/index.js:1
 #, js-format
-msgid "Forms found in %s."
+msgid "vs previous %s"
 msgstr ""
 
-#. translators: %d: number of forms found.
+#: assets/js/index.js:1
+msgid "Get your first submission"
+msgstr ""
+
+#. translators: %d: number of steps left.
 #: assets/js/index.js:1
 #, js-format
-msgid "%d form can be migrated into VuloForm."
-msgid_plural "%d forms can be migrated into VuloForm."
+msgid "%d step left before people can reach you."
+msgid_plural "%d steps left before people can reach you."
 msgstr[0] ""
 msgstr[1] ""
 
 #: assets/js/index.js:1
-msgid "Migrating…"
+msgid "(done)"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Migrate"
+msgid "Needs you"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Migration successful."
+msgid "Most urgent first. Clear these and nobody is left waiting."
 msgstr ""
 
-#. translators: %s: comma-separated list of source plugin names.
+#: assets/js/index.js:1
+msgid "You're all caught up"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Nothing to answer yet. Finish the steps above to start getting submissions."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Every submission is read and every notification went out."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Get more from VuloForm"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What would make the biggest difference next."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Activity"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Date range"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Key figures"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Unread"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Waiting for you to open them"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "All read"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Spam blocked"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Live forms"
+msgstr ""
+
+#. translators: %d: number of forms in total.
 #: assets/js/index.js:1
 #, js-format
-msgid "Your forms from %s now live in VuloForm too. You can deactivate it."
+msgid "Of %d form"
+msgid_plural "Of %d forms"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: date, 2: number of submissions.
+#: assets/js/index.js:1
+#, js-format
+msgid "Busiest day %1$s, with %2$d submissions."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Deactivating…"
+msgid "Submissions per day. Spam shows as a red line."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Deactivate it"
+msgid "Top forms"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Plugin deactivated."
+msgid "No submissions in this period"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Search forms…"
+msgid "Your busiest forms show here once people fill them in."
+msgstr ""
+
+#. translators: %d: number of selected rows.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d selected"
+msgid_plural "%d selected"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+msgid "Select all"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Clear selection"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Bulk actions"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Export CSV"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Filter"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Clear filters"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Contact us"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Today, 9:12 am"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Yesterday, 3:40 pm"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Event booking"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Nov 14, 10:05 am"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Nov 9, 6:30 pm"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4130,18 +4423,40 @@ msgstr ""
 msgid "Draft"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "No submissions"
-msgstr ""
-
-#. translators: %s: date and time.
+#. translators: 1: form number, used in the shortcode and the block, 2: date and time.
 #: assets/js/index.js:1
 #, js-format
-msgid "Edited %s"
+msgid "#%1$d · Edited %2$s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "None yet"
+msgstr ""
+
+#. translators: %d: number of unread submissions.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d new"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Shortcode"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Shortcode copied."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not copy. Select the shortcode and copy it yourself."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Copy shortcode"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Copy"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4165,25 +4480,57 @@ msgid "Delete"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No forms match your search."
+msgid "Every form on your site. Build one, publish it, and add it to a page."
 msgstr ""
 
-#. translators: %s: comma-separated list of detected plugin names.
 #: assets/js/index.js:1
-#, js-format
-msgid "Bring your %s forms into VuloForm"
+msgid "Could not load your forms"
 msgstr ""
 
 #. translators: 1: number of forms found, 2: comma-separated list of detected plugin names.
 #: assets/js/index.js:1
 #, js-format
-msgid "%1$d form found in %2$s. Migrate copies it to VuloForm - %2$s stays untouched."
-msgid_plural "%1$d forms found in %2$s. Migrate copies them to VuloForm - %2$s stays untouched."
+msgid "%1$d form found in %2$s. Migrating copies it; %2$s stays untouched."
+msgid_plural "%1$d forms found in %2$s. Migrating copies them; %2$s stays untouched."
 msgstr[0] ""
 msgstr[1] ""
 
 #: assets/js/index.js:1
+msgid "Migrating…"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Migrate now"
+msgstr ""
+
+#. translators: %d: number of forms migrated.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d form migrated."
+msgid_plural "%d forms migrated."
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+msgid "Migration successful"
+msgstr ""
+
+#. translators: %s: comma-separated list of source plugin names.
+#: assets/js/index.js:1
+#, js-format
+msgid "Your forms from %s now live in VuloForm too. You can deactivate it."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Deactivating…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Deactivate it"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Plugin deactivated."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4191,7 +4538,45 @@ msgid "Create your first form"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Start from a template such as a contact form, or from a blank form."
+msgid "Start from a template such as a contact form, or from a blank form. Your forms show up here, like this."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A preview with sample data. Your own forms show here once you create one."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Search forms…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Drafts"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Publish"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Move to drafts"
+msgstr ""
+
+#. translators: 1: forms published, 2: forms selected.
+#: assets/js/index.js:1
+#, js-format
+msgid "%1$d of %2$d forms published. A form with problems stays a draft until they are fixed."
+msgstr ""
+
+#. translators: %d: number of forms.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d form moved to drafts."
+msgid_plural "%d forms moved to drafts."
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+msgid "No forms match."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4222,6 +4607,12 @@ msgstr ""
 msgid "Delete this form?"
 msgstr ""
 
+#. translators: %d: number of forms.
+#: assets/js/index.js:1
+#, js-format
+msgid "Delete %d forms?"
+msgstr ""
+
 #. translators: 1: form title, 2: number of submissions.
 #: assets/js/index.js:1
 #, js-format
@@ -4231,15 +4622,67 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: assets/js/index.js:1
-msgid "Keep form"
+msgid "The selected forms and all their submissions, including uploaded files, will be permanently deleted."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Delete form"
+msgid "Cancel"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Form deleted."
+msgid "Deleting…"
+msgstr ""
+
+#. translators: %d: number of deleted forms.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d form deleted."
+msgid_plural "%d forms deleted."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of forms that were kept.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d form is in use by another plugin and was kept."
+msgid_plural "%d forms are in use by another plugin and were kept."
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+msgid "Today, 9:41 am"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Do you deliver on weekends?"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Today, 8:02 am"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Budget"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Yesterday, 4:15 pm"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Guests"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Dec 12"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Yesterday, 11:30 am"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Nov 17, 3:55 am"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4278,73 +4721,13 @@ msgstr ""
 msgid "The download failed."
 msgstr ""
 
+#. translators: %d: number of submissions.
 #: assets/js/index.js:1
-msgid "What people have sent through your forms. Only administrators can see this."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Export CSV"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "There is nothing to export."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "New"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Not opened yet"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Read"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Already opened"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Spam"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Caught by spam protection"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not load submissions"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No forms yet"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Create and publish a form, and what people send will appear here."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Go to forms"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Search submissions…"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Date range"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Inbox (no spam)"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Reset filters"
-msgstr ""
+#, js-format
+msgid "%d submission updated."
+msgid_plural "%d submissions updated."
+msgstr[0] ""
+msgstr[1] ""
 
 #: assets/js/index.js:1
 msgid "Submission"
@@ -4359,11 +4742,89 @@ msgid "Received"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Spam"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "New"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "View"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Nothing here yet."
+msgid "Mark as read"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Mark as new"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Not spam"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Mark as spam"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What people have sent through your forms. Only administrators can see this."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "There is nothing to export."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load submissions"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No forms yet"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No submissions yet"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Publish a form to start collecting"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Create a form and add it to a page. What people send you shows up here, like this."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add a published form to a page with its block or shortcode. What people send shows up here, like this."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Your forms are drafts, so nobody can fill them in yet. Publish one and add it to a page."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Go to forms"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A preview with sample data. Real submissions show here as they arrive."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Search submissions…"
+msgstr ""
+
+#. translators: 1: form title, 2: number of submissions.
+#: assets/js/index.js:1
+#, js-format
+msgid "%1$s (%2$d)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No submissions match. Try another tab, filter or search."
 msgstr ""
 
 #. translators: %d: submission number.
@@ -4380,37 +4841,25 @@ msgstr ""
 msgid "IP address"
 msgstr ""
 
+#. translators: %d: number of submissions.
 #: assets/js/index.js:1
-msgid "Not spam"
-msgstr ""
+#, js-format
+msgid "Delete %d submission?"
+msgid_plural "Delete %d submissions?"
+msgstr[0] ""
+msgstr[1] ""
 
 #: assets/js/index.js:1
-msgid "Mark as spam"
+msgid "Any files uploaded with them are deleted too. This cannot be undone."
 msgstr ""
 
+#. translators: %d: number of deleted submissions.
 #: assets/js/index.js:1
-msgid "Mark as new"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Delete this submission?"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "The submission and any files uploaded with it will be permanently deleted."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Keep"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Delete submission"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Submission deleted."
-msgstr ""
+#, js-format
+msgid "%d submission deleted."
+msgid_plural "%d submissions deleted."
+msgstr[0] ""
+msgstr[1] ""
 
 #: assets/js/index.js:1
 msgid "Could not load settings"
@@ -4426,6 +4875,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Loading…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What needs you, and how your forms are doing."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4445,11 +4898,11 @@ msgid "Search…"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Tabs"
+msgid "Everything"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "(no name)"
+msgid "Tabs"
 msgstr ""
 
 #: assets/js/index.js:1

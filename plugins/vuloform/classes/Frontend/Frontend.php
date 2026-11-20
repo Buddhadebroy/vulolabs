@@ -141,7 +141,7 @@ class Frontend {
 		$result = VuloForm()->processor->handle( $form, $post, $_FILES );
 		// phpcs:enable
 
-		if ( $result['success'] && '' !== $result['redirect'] ) {
+		if ( $result['success'] && ! empty( $result['redirect'] ) ) {
 			// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- the destination is the URL the site owner configured for this form.
 			wp_redirect( $result['redirect'] );
 			exit;

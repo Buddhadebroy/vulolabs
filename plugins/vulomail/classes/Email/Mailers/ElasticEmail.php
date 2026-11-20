@@ -58,7 +58,7 @@ class ElasticEmail extends AbstractApiMailer {
 		$map = static function ( array $addresses ) {
 			return array_map(
 				static function ( $address ) {
-					return '' !== $address['name'] ? sprintf( '%s <%s>', $address['name'], $address['email'] ) : $address['email'];
+					return ! empty( $address['name'] ) ? sprintf( '%s <%s>', $address['name'], $address['email'] ) : $address['email'];
 				},
 				$addresses
 			);
@@ -66,7 +66,7 @@ class ElasticEmail extends AbstractApiMailer {
 
 		$content = array(
 			'Subject' => $message->subject,
-			'From'    => '' !== $message->from_name ? sprintf( '%s <%s>', $message->from_name, $message->from_email ) : $message->from_email,
+			'From'    => ! empty( $message->from_name ) ? sprintf( '%s <%s>', $message->from_name, $message->from_email ) : $message->from_email,
 			'Body'    => array(
 				array(
 					'ContentType' => $message->is_html() ? 'HTML' : 'PlainText',

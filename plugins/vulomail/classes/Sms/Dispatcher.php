@@ -72,7 +72,7 @@ class Dispatcher {
 	 * @param Logger               $logger      Delivery log.
 	 * @param Tracking|null        $tracking    Click tracking.
 	 */
-	public function __construct( Settings $settings, ConnectionRepository $connections, ProviderRegistry $providers, Logger $logger, Tracking $tracking = null ) {
+	public function __construct( Settings $settings, ConnectionRepository $connections, ProviderRegistry $providers, Logger $logger, ?Tracking $tracking = null ) {
 		$this->settings    = $settings;
 		$this->connections = $connections;
 		$this->providers   = $providers;
@@ -89,7 +89,7 @@ class Dispatcher {
 		$chain = array();
 
 		foreach ( array_unique( array( (string) $this->settings->get( 'sms_primary' ), (string) $this->settings->get( 'sms_backup' ) ) ) as $id ) {
-			$connection = '' !== $id ? $this->connections->get( $id ) : null;
+			$connection = ! empty( $id ) ? $this->connections->get( $id ) : null;
 
 			if ( $connection && Utill::CHANNEL_SMS === $connection['channel'] && $this->connections->is_usable( $connection ) ) {
 				$chain[] = $connection;
@@ -171,7 +171,7 @@ class Dispatcher {
 			}
 		}
 
-		$final->log_id = $this->logger->sms( '' !== $number ? $number : (string) $to, $body, $final, false, $source );
+		$final->log_id = $this->logger->sms( ! empty( $number ) ? $number : (string) $to, $body, $final, false, $source );
 
 		/**
 		 * Fires when an SMS could not be sent.

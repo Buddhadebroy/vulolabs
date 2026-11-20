@@ -126,7 +126,7 @@ class Overview extends Controller {
 					'sms'   => $previous[ Utill::CHANNEL_SMS ],
 				),
 				'series'          => array_values( $series ),
-				'sender_set'      => '' !== (string) VuloMail()->settings->get( 'from_email' ),
+				'sender_set'      => ! empty( VuloMail()->settings->get( 'from_email' ) ),
 				'logging'         => (bool) VuloMail()->settings->get( 'log_enabled' ),
 				'sms_alerts'      => $this->sms_alerts(),
 			)

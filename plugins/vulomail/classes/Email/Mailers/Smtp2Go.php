@@ -56,7 +56,7 @@ class Smtp2Go extends AbstractApiMailer {
 		}
 
 		$format = static function ( array $address ) {
-			return '' !== $address['name'] ? sprintf( '%s <%s>', $address['name'], $address['email'] ) : $address['email'];
+			return ! empty( $address['name'] ) ? sprintf( '%s <%s>', $address['name'], $address['email'] ) : $address['email'];
 		};
 
 		$payload = array(

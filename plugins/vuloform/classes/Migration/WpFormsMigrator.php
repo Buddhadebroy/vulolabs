@@ -206,7 +206,7 @@ class WpFormsMigrator extends AbstractMigrator {
 			foreach ( (array) ( $raw['choices'] ?? array() ) as $choice ) {
 				$label = (string) ( $choice['label'] ?? '' );
 
-				if ( '' !== $label ) {
+				if ( ! empty( $label ) ) {
 					$field['options'][] = array(
 						'label' => $label,
 						'value' => $label,

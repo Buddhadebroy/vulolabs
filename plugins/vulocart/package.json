@@ -96,7 +96,7 @@
 		}
 	},
 	"dependencies": {
-		"@multivendorx/zyra": "^1.0.65",
+		"@multivendorx/zyra": "^1.0.67",
 		"@vulocart/sdk": "workspace:*",
 		"@wordpress/element": "wp-6.6",
 		"@wordpress/hooks": "^4.57.0",

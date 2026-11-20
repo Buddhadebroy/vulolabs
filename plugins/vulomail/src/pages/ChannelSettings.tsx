@@ -471,7 +471,7 @@ const ChannelSettings = ({
 		);
 	}
 
-	// The one thing to do next, when the channel is on but not sending through a connection.
+	// The one thing to do next. Hidden with no usable connections - the card below has its own Add button.
 	let cta: {
 		text: string;
 		icon: string;
@@ -479,16 +479,7 @@ const ChannelSettings = ({
 		onClick: () => void;
 	} | null = null;
 
-	if (enabled && !primaryWorks && 0 === usableCount) {
-		cta = {
-			text: isEmail
-				? __('Add connection', 'vulomail')
-				: __('Add gateway', 'vulomail'),
-			icon: 'plus',
-			color: 'purple-bg',
-			onClick: () => setEditing({}),
-		};
-	} else if (enabled && !primaryWorks) {
+	if (enabled && !primaryWorks && usableCount > 0) {
 		cta = {
 			text: __('Choose primary', 'vulomail'),
 			icon: 'arrow-down',

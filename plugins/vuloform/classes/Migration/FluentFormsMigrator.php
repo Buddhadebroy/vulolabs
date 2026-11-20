@@ -108,7 +108,7 @@ class FluentFormsMigrator extends AbstractMigrator {
 
 			$available[] = array(
 				'source_id'        => (int) $form->id,
-				'title'            => '' !== (string) ( $form->title ?? '' ) ? (string) $form->title : __( '(untitled form)', 'vuloform' ),
+				'title'            => ! empty( ( $form->title ?? '' ) ) ? (string) $form->title : __( '(untitled form)', 'vuloform' ),
 				'status'           => 'draft' === ( $form->status ?? '' ) ? 'draft' : 'publish',
 				'field_count'      => count( $fields ),
 				'already_migrated' => null !== self::map_get( $this->get_id(), (int) $form->id ),
@@ -138,7 +138,7 @@ class FluentFormsMigrator extends AbstractMigrator {
 			return 0;
 		}
 
-		$title      = '' !== (string) ( $form->title ?? '' ) ? (string) $form->title : __( 'Untitled form', 'vuloform' );
+		$title      = ! empty( ( $form->title ?? '' ) ) ? (string) $form->title : __( 'Untitled form', 'vuloform' );
 		$raw_fields = $this->decode_fields( (string) ( $form->form_fields ?? '' ) );
 		$fields     = array();
 
@@ -206,7 +206,7 @@ class FluentFormsMigrator extends AbstractMigrator {
 				/* translators: 1: form title, 2: Fluent Forms field type. */
 				__( '"%1$s": the "%2$s" field type is not supported yet and was skipped.', 'vuloform' ),
 				$title,
-				'' !== $element ? $element : __( '(unknown)', 'vuloform' )
+				! empty( $element ) ? $element : __( '(unknown)', 'vuloform' )
 			);
 
 			return null;
@@ -238,10 +238,10 @@ class FluentFormsMigrator extends AbstractMigrator {
 					$option_label = (string) ( is_array( $option ) ? ( $option['label'] ?? '' ) : '' );
 					$option_value = (string) ( is_array( $option ) ? ( $option['value'] ?? '' ) : '' );
 
-					if ( '' !== $option_label ) {
+					if ( ! empty( $option_label ) ) {
 						$field['options'][] = array(
 							'label' => $option_label,
-							'value' => '' !== $option_value ? $option_value : $option_label,
+							'value' => ! empty( $option_value ) ? $option_value : $option_label,
 						);
 					}
 				}
@@ -249,7 +249,7 @@ class FluentFormsMigrator extends AbstractMigrator {
 				foreach ( (array) ( $raw['options'] ?? array() ) as $value => $option_label ) {
 					$option_label = (string) $option_label;
 
-					if ( '' !== $option_label ) {
+					if ( ! empty( $option_label ) ) {
 						$field['options'][] = array(
 							'label' => $option_label,
 							'value' => (string) $value,
@@ -260,7 +260,7 @@ class FluentFormsMigrator extends AbstractMigrator {
 		}
 
 		if ( 'consent' === $type ) {
-			$field['consent_text'] = '' !== $label ? $label : __( 'I agree', 'vuloform' );
+			$field['consent_text'] = ! empty( $label ) ? $label : __( 'I agree', 'vuloform' );
 		}
 
 		if ( 'html' === $type ) {

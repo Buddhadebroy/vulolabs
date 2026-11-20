@@ -40,7 +40,7 @@ class Forms extends Controller {
 	 * @return \WP_REST_Response
 	 */
 	public function get_items( $request ) {
-		$result = VuloForm()->forms->query(
+		$result    = VuloForm()->forms->query(
 			array(
 				'search'   => sanitize_text_field( (string) $request->get_param( 'search' ) ),
 				'status'   => sanitize_key( (string) $request->get_param( 'status' ) ),
@@ -74,7 +74,7 @@ class Forms extends Controller {
 			$result['data'][ $index ]['updated_at_display'] = Utill::format_datetime( $row['updated_at'] );
 		}
 
-		$result['categories'] = $this->categories();
+		$result['categories']    = $this->categories();
 		$result['status_counts'] = $this->status_counts();
 
 		return rest_ensure_response( $result );
@@ -153,7 +153,7 @@ class Forms extends Controller {
 
 		if ( isset( $templates[ $template ] ) ) {
 			$schema = $templates[ $template ]['schema'];
-			$title  = '' !== $title ? $title : $templates[ $template ]['title'];
+			$title  = ! empty( $title ) ? $title : $templates[ $template ]['title'];
 		} elseif ( isset( $input['schema'] ) && is_array( $input['schema'] ) ) {
 			// An import. Schema::sanitize() rebuilds it, so a hand-edited file can't smuggle anything in.
 			$schema = $input['schema'];

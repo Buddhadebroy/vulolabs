@@ -87,7 +87,7 @@ class Postmark extends AbstractApiMailer {
 			$payload['ReplyTo'] = Message::format_list( $message->reply_to );
 		}
 
-		if ( '' !== $this->config( 'message_stream' ) ) {
+		if ( ! empty( $this->config( 'message_stream' ) ) ) {
 			$payload['MessageStream'] = $this->config( 'message_stream' );
 		}
 

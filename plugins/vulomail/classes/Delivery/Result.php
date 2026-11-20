@@ -105,7 +105,7 @@ class Result {
 	 * @return \WP_Error
 	 */
 	public function to_wp_error() {
-		return new \WP_Error( '' !== $this->error_code ? $this->error_code : 'vulomail_send_failed', $this->error_message );
+		return new \WP_Error( ! empty( $this->error_code ) ? $this->error_code : 'vulomail_send_failed', $this->error_message );
 	}
 
 	/**

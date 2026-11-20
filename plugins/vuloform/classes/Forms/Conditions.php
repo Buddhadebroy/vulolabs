@@ -110,7 +110,7 @@ class Conditions {
 				return ! in_array( $expected, array_map( 'strtolower', $actual ), true );
 
 			case 'contains':
-				return '' !== $expected && false !== strpos( $joined, $expected );
+				return ! empty( $expected ) && false !== strpos( $joined, $expected );
 
 			case 'not_contains':
 				return '' === $expected || false === strpos( $joined, $expected );
@@ -119,7 +119,7 @@ class Conditions {
 				return '' === trim( $joined );
 
 			case 'not_empty':
-				return '' !== trim( $joined );
+				return ! empty( trim( $joined ) );
 
 			case 'gt':
 				return is_numeric( $joined ) && is_numeric( $expected ) && (float) $joined > (float) $expected;
@@ -147,7 +147,7 @@ class Conditions {
 		$flat = array();
 
 		foreach ( $value as $item ) {
-			if ( is_scalar( $item ) && '' !== trim( (string) $item ) ) {
+			if ( is_scalar( $item ) && ! empty( trim( (string) $item ) ) ) {
 				$flat[] = trim( (string) $item );
 			}
 		}

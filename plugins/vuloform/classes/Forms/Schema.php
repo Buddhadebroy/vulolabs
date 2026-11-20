@@ -314,8 +314,8 @@ class Schema {
 
 		// The key names the value in submissions, emails and webhooks.
 		$key = sanitize_key( str_replace( array( ' ', '-' ), '_', (string) ( $raw['key'] ?? '' ) ) );
-		$key = '' !== $key ? $key : sanitize_key( str_replace( array( ' ', '-' ), '_', $label ) );
-		$key = '' !== $key ? substr( $key, 0, 40 ) : $type;
+		$key = ! empty( $key ) ? $key : sanitize_key( str_replace( array( ' ', '-' ), '_', $label ) );
+		$key = ! empty( $key ) ? substr( $key, 0, 40 ) : $type;
 		$try = $key;
 		$n   = 2;
 
@@ -349,10 +349,10 @@ class Schema {
 				$option_label = sanitize_text_field( (string) ( is_array( $option ) ? ( $option['label'] ?? '' ) : $option ) );
 				$option_value = sanitize_text_field( (string) ( is_array( $option ) ? ( $option['value'] ?? '' ) : $option ) );
 
-				if ( '' !== $option_label || '' !== $option_value ) {
+				if ( ! empty( $option_label ) || ! empty( $option_value ) ) {
 					$field['options'][] = array(
-						'label' => '' !== $option_label ? $option_label : $option_value,
-						'value' => '' !== $option_value ? $option_value : $option_label,
+						'label' => ! empty( $option_label ) ? $option_label : $option_value,
+						'value' => ! empty( $option_value ) ? $option_value : $option_label,
 					);
 				}
 			}
@@ -544,7 +544,7 @@ class Schema {
 			$operator = (string) ( $rule['operator'] ?? 'is' );
 			$target   = sanitize_key( (string) ( $rule['field'] ?? '' ) );
 
-			if ( '' !== $target ) {
+			if ( ! empty( $target ) ) {
 				$rules[] = array(
 					'field'    => $target,
 					'operator' => in_array( $operator, Conditions::OPERATORS, true ) ? $operator : 'is',
@@ -638,15 +638,15 @@ class Schema {
 			$channel = in_array( $item['channel'] ?? 'email', array( 'email', 'sms', 'both' ), true ) ? $item['channel'] : 'email';
 
 			$settings['notifications'][] = array(
-				'id'       => self::item_id( $item['id'] ?? '' ),
-				'name'     => sanitize_text_field( (string) ( $item['name'] ?? '' ) ),
-				'enabled'  => ! empty( $item['enabled'] ),
-				'channel'  => $channel,
+				'id'          => self::item_id( $item['id'] ?? '' ),
+				'name'        => sanitize_text_field( (string) ( $item['name'] ?? '' ) ),
+				'enabled'     => ! empty( $item['enabled'] ),
+				'channel'     => $channel,
 				// Addresses or numbers, or `{field_key}` placeholders that resolve to one.
-				'to'       => sanitize_text_field( (string) ( $item['to'] ?? '' ) ),
-				'subject'  => sanitize_text_field( (string) ( $item['subject'] ?? '' ) ),
-				'message'  => sanitize_textarea_field( (string) ( $item['message'] ?? '' ) ),
-				'reply_to' => isset( $known[ sanitize_key( (string) ( $item['reply_to'] ?? '' ) ) ] ) ? sanitize_key( (string) $item['reply_to'] ) : '',
+				'to'          => sanitize_text_field( (string) ( $item['to'] ?? '' ) ),
+				'subject'     => sanitize_text_field( (string) ( $item['subject'] ?? '' ) ),
+				'message'     => sanitize_textarea_field( (string) ( $item['message'] ?? '' ) ),
+				'reply_to'    => isset( $known[ sanitize_key( (string) ( $item['reply_to'] ?? '' ) ) ] ) ? sanitize_key( (string) $item['reply_to'] ) : '',
 				// Used when the channel is `both`: `to` and `message` are then the email's, and
 				// these are the text message's.
 				'sms_to'      => sanitize_text_field( (string) ( $item['sms_to'] ?? '' ) ),
@@ -681,14 +681,14 @@ class Schema {
 			}
 
 			$settings['webhooks'][] = array(
-				'id'      => self::item_id( $item['id'] ?? '' ),
-				'name'    => sanitize_text_field( (string) ( $item['name'] ?? '' ) ),
-				'enabled' => ! empty( $item['enabled'] ),
+				'id'         => self::item_id( $item['id'] ?? '' ),
+				'name'       => sanitize_text_field( (string) ( $item['name'] ?? '' ) ),
+				'enabled'    => ! empty( $item['enabled'] ),
 				// Only https is kept; the destination is checked again when the webhook is sent.
-				'url'     => esc_url_raw( (string) ( $item['url'] ?? '' ), array( 'https' ) ),
-				'secret'  => preg_replace( '/[\r\n]+/', '', sanitize_text_field( (string) ( $item['secret'] ?? '' ) ) ),
+				'url'        => esc_url_raw( (string) ( $item['url'] ?? '' ), array( 'https' ) ),
+				'secret'     => preg_replace( '/[\r\n]+/', '', sanitize_text_field( (string) ( $item['secret'] ?? '' ) ) ),
 				// Empty means every field.
-				'fields'  => array_values( array_unique( $fields ) ),
+				'fields'     => array_values( array_unique( $fields ) ),
 				// Sent only for submissions these rules match; always, when there are none.
 				'conditions' => self::sanitize_when( $item['conditions'] ?? array(), $known ),
 			);
@@ -740,7 +740,7 @@ class Schema {
 	private static function text_or( $value, $fallback ) {
 		$value = sanitize_text_field( (string) $value );
 
-		return '' !== $value ? $value : $fallback;
+		return ! empty( $value ) ? $value : $fallback;
 	}
 
 	/**
@@ -750,6 +750,6 @@ class Schema {
 	private static function item_id( $value ) {
 		$id = preg_replace( '/[^a-z0-9_]/', '', strtolower( (string) $value ) );
 
-		return '' !== $id ? $id : 'i_' . strtolower( wp_generate_password( 8, false ) );
+		return ! empty( $id ) ? $id : 'i_' . strtolower( wp_generate_password( 8, false ) );
 	}
 }

@@ -190,6 +190,6 @@ class FrontendScripts {
 
 		$js_format = trim( $js_format );
 
-		return '' !== $js_format ? $js_format : 'YYYY-MM-DD';
+		return ! empty( $js_format ) ? $js_format : 'YYYY-MM-DD';
 	}
 }

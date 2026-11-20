@@ -121,10 +121,10 @@ class Notifier {
 		$recipients = array_slice( array_values( array_unique( $recipients ) ), 0, self::MAX_RECIPIENTS );
 
 		// A subject is a header: it must stay on one line.
-		$subject = trim( preg_replace( '/[\r\n]+/', ' ', Formatter::fill( '' !== $notification['subject'] ? $notification['subject'] : __( 'New submission: {form_title}', 'vuloform' ), $form, $values ) ) );
-		$message = self::html_message( Formatter::fill( '' !== $notification['message'] ? $notification['message'] : '{all_fields}', $form, $values, true ) );
+		$subject = trim( preg_replace( '/[\r\n]+/', ' ', Formatter::fill( ! empty( $notification['subject'] ) ? $notification['subject'] : __( 'New submission: {form_title}', 'vuloform' ), $form, $values ) ) );
+		$message = self::html_message( Formatter::fill( ! empty( $notification['message'] ) ? $notification['message'] : '{all_fields}', $form, $values, true ) );
 		$headers = array( 'Content-Type: text/html; charset=UTF-8' );
-		$reply   = '' !== $notification['reply_to'] ? (string) ( $values[ $notification['reply_to'] ] ?? '' ) : '';
+		$reply   = ! empty( $notification['reply_to'] ) ? (string) ( $values[ $notification['reply_to'] ] ?? '' ) : '';
 
 		if ( is_string( $reply ) && is_email( $reply ) ) {
 			$headers[] = 'Reply-To: ' . $reply;
@@ -179,7 +179,7 @@ class Notifier {
 			return self::event( $notification, 'skipped', __( 'SMS needs VuloMail with an SMS connection.', 'vuloform' ) );
 		}
 
-		$message = Formatter::fill( '' !== $notification['message'] ? $notification['message'] : __( 'New submission: {form_title}', 'vuloform' ), $form, $values );
+		$message = Formatter::fill( ! empty( $notification['message'] ) ? $notification['message'] : __( 'New submission: {form_title}', 'vuloform' ), $form, $values );
 		$failed  = '';
 		$sent    = 0;
 
@@ -196,7 +196,7 @@ class Notifier {
 		}
 
 		if ( 0 === $sent ) {
-			return self::event( $notification, '' !== $failed ? 'failed' : 'skipped', '' !== $failed ? $failed : __( 'No phone number to send to.', 'vuloform' ) );
+			return self::event( $notification, ! empty( $failed ) ? 'failed' : 'skipped', ! empty( $failed ) ? $failed : __( 'No phone number to send to.', 'vuloform' ) );
 		}
 
 		return self::event( $notification, 'handed_off', __( 'Handed to VuloMail.', 'vuloform' ) );

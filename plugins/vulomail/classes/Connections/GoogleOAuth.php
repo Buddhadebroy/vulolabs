@@ -81,7 +81,7 @@ class GoogleOAuth {
 	 * @return bool
 	 */
 	public static function one_click_available() {
-		return '' !== self::connect_url();
+		return ! empty( self::connect_url() );
 	}
 
 	/**
@@ -192,10 +192,10 @@ class GoogleOAuth {
 	 */
 	public function complete( $state, $code, $error = '' ) {
 		$state   = preg_match( Utill::TOKEN_PATTERN, (string) $state ) ? (string) $state : '';
-		$pending = '' !== $state ? get_transient( self::STATE_PREFIX . $state ) : false;
+		$pending = ! empty( $state ) ? get_transient( self::STATE_PREFIX . $state ) : false;
 
 		// Single use, whatever the outcome.
-		if ( '' !== $state ) {
+		if ( ! empty( $state ) ) {
 			delete_transient( self::STATE_PREFIX . $state );
 		}
 
@@ -203,7 +203,7 @@ class GoogleOAuth {
 			return self::outcome( false, __( 'That sign-in link has expired. Open the Gmail connection and click "Sign in with Google" again.', 'vulomail' ) );
 		}
 
-		if ( '' !== (string) $error || '' === (string) $code ) {
+		if ( ! empty( $error ) || '' === (string) $code ) {
 			return self::outcome(
 				false,
 				'access_denied' === $error
@@ -264,9 +264,8 @@ class GoogleOAuth {
 
 		return self::outcome(
 			true,
-			'' !== $email
-				/* translators: %s: Gmail address. */
-				? sprintf( __( 'Connected to Google as %s.', 'vulomail' ), $email )
+			/* translators: %s: Gmail address. */
+			! empty( $email ) ? sprintf( __( 'Connected to Google as %s.', 'vulomail' ), $email )
 				: __( 'Connected to Google.', 'vulomail' )
 		);
 	}
@@ -287,10 +286,10 @@ class GoogleOAuth {
 
 		$cached = get_transient( self::cache_key( $refresh ) );
 
-		if ( is_string( $cached ) && '' !== $cached ) {
+		if ( is_string( $cached ) && ! empty( $cached ) ) {
 			$token = ( new Secrets() )->decrypt( $cached );
 
-			if ( '' !== $token ) {
+			if ( ! empty( $token ) ) {
 				return $token;
 			}
 		}
@@ -322,7 +321,7 @@ class GoogleOAuth {
 	public static function forget_token( array $config ) {
 		$refresh = trim( (string) ( $config['refresh_token'] ?? '' ) );
 
-		if ( '' !== $refresh ) {
+		if ( ! empty( $refresh ) ) {
 			delete_transient( self::cache_key( $refresh ) );
 		}
 	}

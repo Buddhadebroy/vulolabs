@@ -141,10 +141,10 @@ class LogRepository {
 			$wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE {$where_sql}", array_merge( array( $this->table() ), $params ) )
 		);
 
-		// The body is left out of list responses: it can be large, and is fetched per row on demand.
+		// The body is left out of list responses; has_body flags whether one exists, for Resend.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT id, channel, status, provider, used_fallback, recipients, subject, attachments, source, error_code, error_message, track_opens, track_clicks, open_count, click_count, created_at FROM %i WHERE {$where_sql} ORDER BY {$orderby} {$order}, id DESC LIMIT %d OFFSET %d",
+				"SELECT id, channel, status, provider, used_fallback, recipients, subject, attachments, source, error_code, error_message, track_opens, track_clicks, open_count, click_count, created_at, (body IS NOT NULL) AS has_body FROM %i WHERE {$where_sql} ORDER BY {$orderby} {$order}, id DESC LIMIT %d OFFSET %d",
 				array_merge( array( $this->table() ), $params, array( $per_page, $offset ) )
 			),
 			ARRAY_A

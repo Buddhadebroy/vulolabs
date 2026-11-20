@@ -38,7 +38,7 @@ class Formatter {
 				$chosen = array();
 
 				foreach ( is_array( $value ) ? $value : array( $value ) as $item ) {
-					if ( '' !== (string) $item ) {
+					if ( ! empty( $item ) ) {
 						$chosen[] = isset( $labels[ $item ] ) ? $labels[ $item ] : (string) $item;
 					}
 				}
@@ -72,7 +72,7 @@ class Formatter {
 			if ( Registry::is_input( $field['type'] ) ) {
 				$rows[] = array(
 					'key'   => $field['key'],
-					'label' => '' !== $field['label'] ? $field['label'] : $field['key'],
+					'label' => ! empty( $field['label'] ) ? $field['label'] : $field['key'],
 					'type'  => $field['type'],
 					'text'  => self::text( $field, $values[ $field['key'] ] ?? '' ),
 				);
@@ -102,13 +102,13 @@ class Formatter {
 		foreach ( $rows as $row ) {
 			$replace[ '{' . $row['key'] . '}' ] = $row['text'];
 
-			if ( '' !== $row['text'] && 'hidden' !== $row['type'] ) {
+			if ( ! empty( $row['text'] ) && 'hidden' !== $row['type'] ) {
 				$all[] = array( $row['label'], $row['text'] );
 			}
 		}
 
 		if ( $as_html ) {
-			$replace = array_map( 'esc_html', $replace );
+			$replace                 = array_map( 'esc_html', $replace );
 			$replace['{all_fields}'] = self::all_fields_html( $all );
 		} else {
 			$replace['{all_fields}'] = implode(

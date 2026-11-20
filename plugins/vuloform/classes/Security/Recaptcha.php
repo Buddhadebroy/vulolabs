@@ -42,7 +42,7 @@ class Recaptcha {
 	public static function is_configured() {
 		$settings = Utill::settings();
 
-		return '' !== (string) $settings['recaptcha_site_key'] && '' !== (string) $settings['recaptcha_secret_key'];
+		return ! empty( $settings['recaptcha_site_key'] ) && ! empty( $settings['recaptcha_secret_key'] );
 	}
 
 	/**

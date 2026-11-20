@@ -175,7 +175,7 @@ class Connections extends Controller {
 		foreach ( array( 'email', 'sms' ) as $channel ) {
 			$backup = (string) VuloMail()->settings->get( $channel . '_backup' );
 
-			if ( isset( $cleared[ $channel . '_primary' ] ) && ! isset( $cleared[ $channel . '_backup' ] ) && '' !== $backup ) {
+			if ( isset( $cleared[ $channel . '_primary' ] ) && ! isset( $cleared[ $channel . '_backup' ] ) && ! empty( $backup ) ) {
 				$cleared[ $channel . '_primary' ] = $backup;
 				$cleared[ $channel . '_backup' ]  = '';
 			}

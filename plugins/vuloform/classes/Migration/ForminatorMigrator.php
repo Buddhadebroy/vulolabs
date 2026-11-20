@@ -220,10 +220,10 @@ class ForminatorMigrator extends AbstractMigrator {
 				$option_label = (string) ( is_array( $option ) ? ( $option['label'] ?? '' ) : '' );
 				$option_value = (string) ( is_array( $option ) ? ( $option['value'] ?? '' ) : '' );
 
-				if ( '' !== $option_label ) {
+				if ( ! empty( $option_label ) ) {
 					$field['options'][] = array(
 						'label' => $option_label,
-						'value' => '' !== $option_value ? $option_value : $option_label,
+						'value' => ! empty( $option_value ) ? $option_value : $option_label,
 					);
 				}
 			}
@@ -289,7 +289,7 @@ class ForminatorMigrator extends AbstractMigrator {
 		$behaviour = (string) ( $behaviors['submission-behaviour'] ?? $settings['submission-behaviour'] ?? '' );
 		$redirect  = (string) ( $behaviors['redirect-url'] ?? $settings['redirect-url'] ?? '' );
 
-		if ( '' !== $message || '' !== $redirect ) {
+		if ( ! empty( $message ) || ! empty( $redirect ) ) {
 			$out['confirmation'] = array(
 				'type'         => 'behaviour-redirect' === $behaviour ? 'redirect' : 'message',
 				'message'      => $message,

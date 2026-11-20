@@ -265,13 +265,13 @@ class Triggers {
 			return;
 		}
 
-		$to = '' !== (string) $to ? (string) $to : (string) $this->settings->get( 'sms_admin_phone' );
+		$to = ! empty( $to ) ? (string) $to : (string) $this->settings->get( 'sms_admin_phone' );
 
 		if ( '' === $to ) {
 			return;
 		}
 
-		$template = '' !== trim( (string) ( $saved[ $id ]['template'] ?? '' ) ) ? $saved[ $id ]['template'] : $definitions[ $id ]['template'];
+		$template = ! empty( trim( (string) ( $saved[ $id ]['template'] ?? '' ) ) ) ? $saved[ $id ]['template'] : $definitions[ $id ]['template'];
 		$values   = array_merge( array( 'site_name' => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ) ), $values );
 		$replace  = array();
 
@@ -335,7 +335,7 @@ class Triggers {
 			'',
 			array(
 				'username' => (string) $user_login,
-				'user_ip'  => '' !== $ip ? $ip : __( 'an unknown address', 'vulomail' ),
+				'user_ip'  => ! empty( $ip ) ? $ip : __( 'an unknown address', 'vulomail' ),
 			)
 		);
 	}
@@ -459,7 +459,7 @@ class Triggers {
 
 		$own = self::CUSTOMER_STATUS_TRIGGERS[ $to ] ?? '';
 
-		$this->fire( '' !== $own && $this->is_enabled( $own ) ? $own : 'wc_order_status_changed', $phone, $values );
+		$this->fire( ! empty( $own ) && $this->is_enabled( $own ) ? $own : 'wc_order_status_changed', $phone, $values );
 	}
 
 	/**

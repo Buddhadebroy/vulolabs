@@ -157,9 +157,9 @@ class ConnectionRepository {
 	public function save( array $input ) {
 		$all      = $this->all();
 		$id       = sanitize_key( (string) ( $input['id'] ?? '' ) );
-		$existing = '' !== $id && isset( $all[ $id ] ) ? $all[ $id ] : null;
+		$existing = ! empty( $id ) && isset( $all[ $id ] ) ? $all[ $id ] : null;
 
-		if ( '' !== $id && ! $existing ) {
+		if ( ! empty( $id ) && ! $existing ) {
 			return new \WP_Error( 'vulomail_connection_not_found', __( 'That connection no longer exists.', 'vulomail' ), array( 'status' => 404 ) );
 		}
 
@@ -208,7 +208,7 @@ class ConnectionRepository {
 			'id'       => $existing ? $id : $this->new_id( $all ),
 			'channel'  => $channel,
 			'provider' => $provider,
-			'label'    => '' !== $label ? $label : $definition['label'],
+			'label'    => ! empty( $label ) ? $label : $definition['label'],
 			'enabled'  => array_key_exists( 'enabled', $input ) ? ! empty( $input['enabled'] ) : ( $existing ? ! empty( $existing['enabled'] ) : true ),
 			'settings' => $settings,
 		);
