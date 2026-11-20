@@ -196,7 +196,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 											render: (row: SchemaCoverageRow) =>
 												sprintf(
 													/* translators: %d is how many of the real sampled pages carried this schema type. */
-													__('%d pages', 'vulopilot'),
+													_n('%d page', '%d pages', row.found_on, 'vulopilot'),
 													row.found_on
 												),
 										},

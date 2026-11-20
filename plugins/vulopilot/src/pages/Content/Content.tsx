@@ -1,18 +1,18 @@
 import { __ } from '@wordpress/i18n';
 import { ColumnComponent, ContainerComponent, NavigatorHeaderComponent } from '@zyra/components';
 import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
+import InsufficientCreditsNotice from '../../components/AiCredits/InsufficientCreditsNotice';
 import ContentStatsCard from './ContentStatsCard';
 import ContentAssistant from './ContentAssistant';
-import ContentToolsGrid from './ContentToolsGrid';
+import { MoreToolsCard, QuickStartCard } from './ContentToolsGrid';
 import RecentContentCard from './RecentContentCard';
 import '../../dashboard-widgets/dashboard.scss';
 import '../AIAssistant/copilot.scss';
 import './CreateContent.scss';
 
 /**
- * Content: what VuloPilot wrote for you and what the content audit found, the writing assistant, the AI writing
- * tools (free's own, plus VuloPilot Pro's when its Content Optimization module is on), and every page's content
- * health.
+ * Content: the writing assistant beside what VuloPilot wrote for you and free's quick-start tools; then the rest of
+ * the AI tools (VuloPilot Pro's Content Optimization, or a sample of it); then every page's content health.
  */
 const Content = () => (
 	<>
@@ -27,9 +27,15 @@ const Content = () => (
 		<ContainerComponent general>
 			<ColumnComponent>
 				<div className="vp-page vp-content">
-					<ContentStatsCard />
-					<ContentAssistant />
-					<ContentToolsGrid />
+					<InsufficientCreditsNotice />
+					<div className="vp-row is-side vp-content-top">
+						<ContentAssistant />
+						<aside className="vp-rail">
+							<ContentStatsCard />
+							<QuickStartCard />
+						</aside>
+					</div>
+					<MoreToolsCard />
 				</div>
 			</ColumnComponent>
 			<ColumnComponent>

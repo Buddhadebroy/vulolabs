@@ -7,7 +7,7 @@ import { ButtonInput } from '@zyra/inputs';
 import ContentToolPopup from './ContentToolPopup';
 import ProSample from '../../components/ProSample/ProSample';
 import ShowProPopup, { VuloCloudInlineNotice } from '../../components/Popup/Popup';
-import { IconTile, SectionHead } from '../../components/ui';
+import { IconTile } from '../../components/ui';
 import type { Tone } from '../../components/ui';
 import { useFilterSlot, useIsRouteRegistered } from '../../services/useFilterSlot';
 import { useAiCredits } from '../../services/useAiCredits';
@@ -89,17 +89,17 @@ const FREE_TOOLS: ContentTool[] = [
 ];
 
 /** Pictures of Pro's tools for free's sample - names and icons only, nothing runs. */
-const SAMPLE_PRO_TOOLS: { icon: string; tone: Tone; title: string; desc: string }[] = [
-	{ icon: 'web-page-website', tone: 'blue', title: __('Landing Pages', 'vulopilot'), desc: __('Pages that convert', 'vulopilot') },
-	{ icon: 'cart', tone: 'amber', title: __('Product Descriptions', 'vulopilot'), desc: __('Copy that sells', 'vulopilot') },
-	{ icon: 'question', tone: 'red', title: __('FAQ Generator', 'vulopilot'), desc: __('Answers buyers look for', 'vulopilot') },
-	{ icon: 'shortcode', tone: 'violet', title: __('Schema Generator', 'vulopilot'), desc: __('Rich results markup', 'vulopilot') },
-	{ icon: 'image', tone: 'green', title: __('Image Alt Text', 'vulopilot'), desc: __('Every image described', 'vulopilot') },
-	{ icon: 'price', tone: 'amber', title: __('Meta Generator', 'vulopilot'), desc: __('Titles that get clicks', 'vulopilot') },
-	{ icon: 'bar-chart', tone: 'green', title: __('Content Optimizer', 'vulopilot'), desc: __('Better SEO and reading', 'vulopilot') },
-	{ icon: 'refresh', tone: 'blue', title: __('Content Refresh', 'vulopilot'), desc: __('Old posts made current', 'vulopilot') },
-	{ icon: 'search', tone: 'violet', title: __('Keyword Research', 'vulopilot'), desc: __('Topics worth writing', 'vulopilot') },
-	{ icon: 'calendar', tone: 'blue', title: __('Content Planner', 'vulopilot'), desc: __('Plan and schedule', 'vulopilot') },
+const SAMPLE_PRO_TOOLS: { icon: string; tone: Tone; title: string }[] = [
+	{ icon: 'web-page-website', tone: 'blue', title: __('Landing Pages', 'vulopilot') },
+	{ icon: 'cart', tone: 'amber', title: __('Product Descriptions', 'vulopilot') },
+	{ icon: 'question', tone: 'red', title: __('FAQ Generator', 'vulopilot') },
+	{ icon: 'shortcode', tone: 'violet', title: __('Schema Generator', 'vulopilot') },
+	{ icon: 'image', tone: 'green', title: __('Image Alt Text', 'vulopilot') },
+	{ icon: 'price', tone: 'amber', title: __('Meta Generator', 'vulopilot') },
+	{ icon: 'bar-chart', tone: 'green', title: __('Content Optimizer', 'vulopilot') },
+	{ icon: 'refresh', tone: 'blue', title: __('Content Refresh', 'vulopilot') },
+	{ icon: 'search', tone: 'violet', title: __('Keyword Research', 'vulopilot') },
+	{ icon: 'calendar', tone: 'blue', title: __('Content Planner', 'vulopilot') },
 ];
 
 const TONE: Record<string, Tone> = {
@@ -114,16 +114,12 @@ const TONE: Record<string, Tone> = {
 	red: 'red',
 };
 
-/** A tool: a button, or a plain tile inside a sample. */
-const ToolTile = ({ icon, tone, title, desc, onClick }: { icon: string; tone: Tone; title: string; desc: string; onClick?: () => void }) => {
+/** One of Pro's tools as a small tile: a button, or a plain tile inside the sample. */
+const ToolTile = ({ icon, tone, title, onClick }: { icon: string; tone: Tone; title: string; onClick?: () => void }) => {
 	const inner = (
 		<>
-			<IconTile icon={icon} tone={tone} />
-			<span className="vp-wtool-text">
-				<strong>{title}</strong>
-				<span>{desc}</span>
-			</span>
-			<i className="adminfont-arrow-right vp-wtool-go" aria-hidden="true" />
+			<IconTile icon={icon} tone={tone} size="sm" />
+			<strong>{title}</strong>
 		</>
 	);
 
@@ -136,20 +132,11 @@ const ToolTile = ({ icon, tone, title, desc, onClick }: { icon: string; tone: To
 	);
 };
 
-/**
- * "Write and improve": free's four AI tools, then Pro's. With VuloPilot Pro's Content Optimization module, its tools
- * (and the Content planner page) join the grid; without Pro, a sample of them opens the Pro popup. Free carries no
- * code for Pro's tools.
- */
-const ContentToolsGrid = () => {
+/** Asks for an AI connection first, then opens the tool's form. */
+const useToolOpener = () => {
 	const [activeTool, setActiveTool] = useState<ContentTool | null>(null);
 	const [isConnectOpen, setIsConnectOpen] = useState(false);
-	const [isModuleOffOpen, setIsModuleOffOpen] = useState(false);
-	const proSlot = useFilterSlot<ProToolsSlot>('vulopilot_content_tools_pro');
-	const hasPlanner = useIsRouteRegistered('content-planner');
-	const isModuleOn = useContentToolsEnabled();
 	const { status: creditsStatus } = useAiCredits();
-	const proTools = isModuleOn && proSlot ? proSlot.tools : [];
 
 	const open = (tool: ContentTool) => {
 		if (creditsStatus && !creditsStatus.connected) {
@@ -160,27 +147,73 @@ const ContentToolsGrid = () => {
 		setActiveTool(tool);
 	};
 
-	let proPart;
+	const connectPopup = (
+		<PopupComponent open={isConnectOpen} onClose={() => setIsConnectOpen(false)} width={22} height="auto" position="lightbox">
+			<ShowProPopup vulocloud />
+		</PopupComponent>
+	);
+
+	return { activeTool, setActiveTool, open, connectPopup, creditsStatus };
+};
+
+/** The rail's "Quick start": free's four AI tools, each opening its form (ContentToolPopup). */
+export const QuickStartCard = () => {
+	const { activeTool, setActiveTool, open, connectPopup } = useToolOpener();
+
+	return (
+		<section className="vp-card vp-rail-card" id="content-tools-grid">
+			<header className="vp-rail-head">
+				<div>
+					<h3>{__('Quick start', 'vulopilot')}</h3>
+					<p>{__('Free AI tools that work on your site.', 'vulopilot')}</p>
+				</div>
+			</header>
+			<ul className="vp-quick">
+				{FREE_TOOLS.map((tool) => (
+					<li key={tool.id}>
+						<button type="button" onClick={() => open(tool)}>
+							<IconTile icon={tool.icon} tone={TONE[tool.color] ?? 'neutral'} size="sm" />
+							<span className="vp-quick-text">
+								<strong>{tool.title}</strong>
+								<span>{tool.desc}</span>
+							</span>
+							<i className="adminfont-arrow-right" aria-hidden="true" />
+						</button>
+					</li>
+				))}
+			</ul>
+			<ContentToolPopup tool={activeTool} onClose={() => setActiveTool(null)} />
+			{connectPopup}
+		</section>
+	);
+};
+
+/**
+ * "More AI tools": VuloPilot Pro's Content Optimization tools (and its Content planner page) when the module is on;
+ * a "turn it on" line when licensed but off; a sample that opens the Pro popup without Pro. Free carries no code for
+ * Pro's tools - only their names and icons for the sample.
+ */
+export const MoreToolsCard = () => {
+	const { activeTool, setActiveTool, open, connectPopup, creditsStatus } = useToolOpener();
+	const [isModuleOffOpen, setIsModuleOffOpen] = useState(false);
+	const proSlot = useFilterSlot<ProToolsSlot>('vulopilot_content_tools_pro');
+	const hasPlanner = useIsRouteRegistered('content-planner');
+	const isModuleOn = useContentToolsEnabled();
+	const proTools = isModuleOn && proSlot ? proSlot.tools : [];
+
+	let body;
 
 	if (proTools.length > 0) {
-		proPart = (
+		body = (
 			<div className="vp-wtools">
 				{proTools.map((tool) => (
-					<ToolTile
-						key={tool.id}
-						icon={tool.icon}
-						tone={TONE[tool.color] ?? 'neutral'}
-						title={tool.title}
-						desc={tool.desc}
-						onClick={() => open(tool)}
-					/>
+					<ToolTile key={tool.id} icon={tool.icon} tone={TONE[tool.color] ?? 'neutral'} title={tool.title} onClick={() => open(tool)} />
 				))}
 				{hasPlanner && (
 					<ToolTile
 						icon="calendar"
 						tone="blue"
 						title={__('Content Planner', 'vulopilot')}
-						desc={__('Plan and schedule what to publish.', 'vulopilot')}
 						onClick={() => {
 							window.location.hash = '#&tab=content-planner';
 						}}
@@ -190,39 +223,32 @@ const ContentToolsGrid = () => {
 		);
 	} else if (vulopilotAppLocalizer.khali_dabba) {
 		// Licensed, but the module that holds these tools is off.
-		proPart = (
-			<div className="vp-card vp-wtools-off">
-				<IconTile icon="module" tone="violet" />
+		body = (
+			<div className="vp-wtools-off">
 				<span>
-					<strong>{__('More writing tools are ready to turn on', 'vulopilot')}</strong>
 					{sprintf(
 						/* translators: %d: number of tools. */
-						__('Content Optimization adds %d tools, from landing pages to keyword research.', 'vulopilot'),
+						__('Turn on Content Optimization to add %d tools, from landing pages to keyword research.', 'vulopilot'),
 						SAMPLE_PRO_TOOLS.length
 					)}
 				</span>
-				<ButtonInput
-					buttons={{ text: __('Turn on', 'vulopilot'), color: 'purple-bg', onClick: () => setIsModuleOffOpen(true) }}
-				/>
+				<ButtonInput buttons={{ text: __('Turn on', 'vulopilot'), color: 'purple-bg', onClick: () => setIsModuleOffOpen(true) }} />
 			</div>
 		);
 	} else {
-		proPart = (
+		body = (
 			<ProSample
 				feature={{
 					title: __('Pro writing tools', 'vulopilot'),
-					description: __(
-						'Landing pages, product descriptions, FAQs, schema, alt text, keyword research and a content planner.',
-						'vulopilot'
-					),
+					description: __('Landing pages, product descriptions, FAQs, schema, alt text, keyword research and a content planner.', 'vulopilot'),
 					icon: 'edit',
 				}}
-				text={__('Ten more AI tools, from landing pages to a content planner.', 'vulopilot')}
+				text={__('Landing pages, product copy, FAQs, schema, alt text, keyword research and a planner.', 'vulopilot')}
 				cta={__('Unlock all tools', 'vulopilot')}
 			>
 				<div className="vp-wtools">
 					{SAMPLE_PRO_TOOLS.map((tool) => (
-						<ToolTile key={tool.title} {...tool} />
+						<ToolTile key={tool.title} icon={tool.icon} tone={tool.tone} title={tool.title} />
 					))}
 				</div>
 			</ProSample>
@@ -230,41 +256,32 @@ const ContentToolsGrid = () => {
 	}
 
 	return (
-		<section className="vp-content-tools" id="content-tools-grid" aria-label={__('Content tools', 'vulopilot')}>
-			<SectionHead title={__('Write and improve', 'vulopilot')} />
-			<div className="vp-wtools">
-				{FREE_TOOLS.map((tool) => (
-					<ToolTile
-						key={tool.id}
-						icon={tool.icon}
-						tone={TONE[tool.color] ?? 'neutral'}
-						title={tool.title}
-						desc={tool.desc}
-						onClick={() => open(tool)}
-					/>
-				))}
-			</div>
-			{proPart}
+		<section className="vp-card vp-more-tools">
+			<header className="vp-card-head">
+				<div className="vp-card-title">
+					<span className="vp-card-icon" aria-hidden="true">
+						<i className="adminfont-tools" />
+					</span>
+					<div>
+						<h3>{__('More AI tools', 'vulopilot')}</h3>
+						<p>{__('Create pages and product copy, and improve what is already published.', 'vulopilot')}</p>
+					</div>
+				</div>
+			</header>
+			<div className="vp-card-body">{body}</div>
 
-			{activeTool?.pro && proSlot ? (
+			{activeTool && proSlot && (
 				<proSlot.Popup
 					tool={activeTool}
 					onClose={() => setActiveTool(null)}
 					VuloCloudInlineNotice={VuloCloudInlineNotice}
 					creditsStatus={creditsStatus}
 				/>
-			) : (
-				<ContentToolPopup tool={activeTool} onClose={() => setActiveTool(null)} />
 			)}
-
-			<PopupComponent open={isConnectOpen} onClose={() => setIsConnectOpen(false)} width={22} height="auto" position="lightbox">
-				<ShowProPopup vulocloud />
-			</PopupComponent>
+			{connectPopup}
 			<PopupComponent open={isModuleOffOpen} onClose={() => setIsModuleOffOpen(false)} width={31.25} height="auto" position="lightbox">
 				<ShowProPopup moduleName="content-optimization" />
 			</PopupComponent>
 		</section>
 	);
 };
-
-export default ContentToolsGrid;

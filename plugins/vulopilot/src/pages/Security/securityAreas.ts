@@ -1,11 +1,11 @@
 import { __ } from '@wordpress/i18n';
-import type { IssueArea } from '../../pages/AIAssistant/IssuesList';
+import type { HeroArea } from '../../components/AreaHero';
 
 /**
  * The Security page's areas: what the hero rates and what the issue list's tabs filter by. Each is a set of real
  * scanner ids (the security scanners' `get_id()`).
  */
-export const SECURITY_AREAS: (IssueArea & { icon: string })[] = [
+export const SECURITY_AREAS: HeroArea[] = [
 	{
 		id: 'login-accounts',
 		label: __('Logins & accounts', 'vulopilot'),

@@ -815,3 +815,99 @@
 	outline-offset: 2px;
 }
 
+// ---- A rail list of one-click actions: icon tile, name and one line, an arrow (Content quick start, Performance
+// quick fixes) ----
+.vp-quick {
+	margin: 0 -0.5rem;
+	padding: 0;
+	list-style: none;
+
+	li {
+		margin: 0;
+	}
+
+	button {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		width: 100%;
+		margin: 0;
+		padding: 0.5rem;
+		border: 0;
+		border-radius: 0.625rem;
+		background: none;
+		font: inherit;
+		text-align: left;
+		color: inherit;
+		cursor: pointer;
+		transition: background 0.15s;
+
+		.vp-quick-text {
+			display: flex;
+			flex: 1;
+			flex-direction: column;
+			min-width: 0;
+		}
+
+		strong {
+			font-size: 0.8125rem;
+			font-weight: 600;
+			color: var(--ui-ink);
+		}
+
+		.vp-quick-text span {
+			font-size: 0.75rem;
+			color: var(--ui-muted);
+		}
+
+		> i {
+			font-size: 0.6875rem;
+			color: var(--ui-faint);
+			transition: color 0.15s, transform 0.15s;
+		}
+
+		&:hover,
+		&:focus-visible {
+			background: var(--ui-sunken);
+
+			strong,
+			> i {
+				color: var(--ui-accent);
+			}
+
+			> i {
+				transform: translateX(2px);
+			}
+		}
+
+		&:disabled {
+			cursor: default;
+			opacity: 0.7;
+		}
+	}
+}
+
+.vp-spin {
+	display: inline-block;
+	animation: vp-spin 1s linear infinite;
+
+	@media (prefers-reduced-motion: reduce) {
+		animation: none;
+	}
+}
+
+@keyframes vp-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+// zyra's tabbed page header (NavigatorComponent): on a phone its right side (scan button, "Last scan") wraps
+// instead of pushing the page wider than the screen.
+@media (width <= 600px) {
+	.admin-main-wrapper .right-section {
+		flex-wrap: wrap;
+		min-width: 0;
+		max-width: 100%;
+	}
+}

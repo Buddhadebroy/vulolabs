@@ -260,7 +260,7 @@ const CrawlerAnalyticsSection = ({
 									</div>
 									<div className="overall-score-summary">
 									<ListComponent
-										className="mini-card report hover seo-health-score-category-list"
+										className="mini-card report hover seo-health-score-category-list crawl-check-list"
 										items={checklist.map((item) => ({
 											id: item.key,
 											icon:

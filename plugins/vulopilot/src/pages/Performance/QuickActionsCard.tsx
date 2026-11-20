@@ -2,95 +2,80 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
-import {
-	CardComponent,
-	ListComponent,
-	NoticeManager,
-	NoticeReceiverComponent,
-} from '@zyra/components';
-import './Performance.scss';
+import { NoticeManager } from '@zyra/components';
+import { IconTile } from '../../components/ui';
+import type { Tone } from '../../components/ui';
 
 interface QuickAction {
 	id: string;
 	icon: string;
+	tone: Tone;
 	label: string;
+	desc: string;
 }
 
-interface ActionResult {
-	success: boolean;
-	message: string;
-}
-
+/** Each runs `POST /performance-actions/{id}` (classes/Performance/Rest/PerformanceActions.php). */
 const QUICK_ACTIONS: QuickAction[] = [
-	{ id: 'clear-caches', icon: 'refresh-bold', label: __('Clear All Caches', 'vulopilot') },
-	{ id: 'minify-css-js', icon: 'coding', label: __('Minify CSS & JS', 'vulopilot') },
-	{ id: 'optimize-images', icon: 'image', label: __('Optimize Images', 'vulopilot') },
-	{ id: 'database-cleanup', icon: 'database', label: __('Database Cleanup', 'vulopilot') },
-	{ id: 'image-cleanup', icon: 'delete', label: __('Image Cleanup', 'vulopilot') },
-	{ id: 'lazy-loading', icon: 'eye', label: __('Enable Lazy Loading', 'vulopilot') },
-	{ id: 'preload-resources', icon: 'cloud-upload', label: __('Preload Critical Resources', 'vulopilot') },
-	{ id: 'browser-caching', icon: 'global-community', label: __('Enable Browser Caching', 'vulopilot') },
+	{ id: 'clear-caches', icon: 'refresh-bold', tone: 'blue', label: __('Clear all caches', 'vulopilot'), desc: __('Page, object and plugin caches', 'vulopilot') },
+	{ id: 'minify-css-js', icon: 'coding', tone: 'violet', label: __('Minify CSS & JS', 'vulopilot'), desc: __('Through your optimization plugin', 'vulopilot') },
+	{ id: 'optimize-images', icon: 'image', tone: 'green', label: __('Optimize images', 'vulopilot'), desc: __('Shrink large uploads', 'vulopilot') },
+	{ id: 'database-cleanup', icon: 'database', tone: 'amber', label: __('Clean the database', 'vulopilot'), desc: __('Old revisions and expired data', 'vulopilot') },
+	{ id: 'image-cleanup', icon: 'delete', tone: 'red', label: __('Remove unused images', 'vulopilot'), desc: __('Media nothing links to', 'vulopilot') },
+	{ id: 'lazy-loading', icon: 'eye', tone: 'blue', label: __('Lazy-load images', 'vulopilot'), desc: __('Load images as visitors scroll', 'vulopilot') },
+	{ id: 'preload-resources', icon: 'cloud-upload', tone: 'violet', label: __('Preload key files', 'vulopilot'), desc: __('Fonts and styles load first', 'vulopilot') },
+	{ id: 'browser-caching', icon: 'global-community', tone: 'green', label: __('Browser caching', 'vulopilot'), desc: __('Returning visitors load less', 'vulopilot') },
 ];
 
+/** "Quick fixes" in the rail: common speed fixes that run in one click, each reporting what it did. */
 const QuickActionsCard = () => {
-	const [runningActionId, setRunningActionId] = useState<string | null>(null);
+	const [runningId, setRunningId] = useState<string | null>(null);
 
-	const runAction = (action: QuickAction) => {
-		if (runningActionId) {
+	const run = (action: QuickAction) => {
+		if (runningId) {
 			return;
 		}
 
-		setRunningActionId(action.id);
+		setRunningId(action.id);
 
-		sendApiResponse<ActionResult>(
+		sendApiResponse<{ success: boolean; message: string }>(
 			vulopilotAppLocalizer,
 			getApiLink(vulopilotAppLocalizer, `performance-actions/${action.id}`),
 			{}
 		)
-			.then((response) => {
-				NoticeManager.add(
-					{
-						uniqueKey: `speed-quick-action-${action.id}`,
-						type: response && response.success ? 'success' : 'info',
-						position: 'notice',
-						message: response
-							? response.message
-							: __(
-									'Could not run this action - please try again.',
-									'vulopilot'
-								),
-					},
-					5000
-				);
-			})
-			.finally(() => setRunningActionId(null));
+			.then((response) =>
+				NoticeManager.add({
+					uniqueKey: `speed-quick-action-${action.id}`,
+					type: response?.success ? 'success' : 'info',
+					position: 'float',
+					message: response?.message ?? __('Could not run this fix - please try again.', 'vulopilot'),
+				})
+			)
+			.finally(() => setRunningId(null));
 	};
 
 	return (
-		<CardComponent
-			id="performance-quick-actions-card"
-			title={__('Quick Actions', 'vulopilot')}
-			titleIcon="ai"
-			desc={__('Common performance fixes you can run in one click.', 'vulopilot')}
-		>
-			<ListComponent
-				className="mini-card report without-border"
-				border
-				items={QUICK_ACTIONS.map((action) => ({
-					id: action.id,
-					icon: action.icon,
-					title: action.label,
-					tags:
-						runningActionId === action.id ? (
-							<i className="adminfont-refresh performance-quick-action-spinner" />
-						) : (
-							<i className="adminfont-arrow-right" />
-						),
-					action: () => runAction(action),
-				}))}
-			/>
-			<NoticeReceiverComponent position="notice" />
-		</CardComponent>
+		<section className="vp-card vp-rail-card" id="performance-quick-actions-card">
+			<header className="vp-rail-head">
+				<div>
+					<h3>{__('Quick fixes', 'vulopilot')}</h3>
+					<p>{__('Common speed fixes, one click each.', 'vulopilot')}</p>
+				</div>
+			</header>
+			<ul className="vp-quick">
+				{QUICK_ACTIONS.map((action) => (
+					<li key={action.id}>
+						<button type="button" onClick={() => run(action)} disabled={Boolean(runningId)} aria-busy={runningId === action.id}>
+							<IconTile icon={action.icon} tone={action.tone} size="sm" />
+							<span className="vp-quick-text">
+								<strong>{action.label}</strong>
+								<span>{runningId === action.id ? __('Running…', 'vulopilot') : action.desc}</span>
+							</span>
+							<i className={`adminfont-${runningId === action.id ? 'refresh vp-spin' : 'arrow-right'}`} aria-hidden="true" />
+						</button>
+					</li>
+				))}
+			</ul>
+		</section>
 	);
 };
 

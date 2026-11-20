@@ -6,7 +6,6 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { NoticeManager, PopupComponent } from '@zyra/components';
 import { SelectInput } from '@zyra/inputs';
-import InsufficientCreditsNotice from '../../components/AiCredits/InsufficientCreditsNotice';
 import { ChatMessage, CopilotTurnBubble } from '../../components/ChatComposerCard';
 import ShowProPopup from '../../components/Popup/Popup';
 import { IconTile } from '../../components/ui';
@@ -218,127 +217,123 @@ const ContentAssistant = () => {
 	};
 
 	return (
-		<>
-			<InsufficientCreditsNotice />
-			<section className="vp-card vp-chat vp-writer" aria-label={__('Writing assistant', 'vulopilot')}>
-				<header className="vp-chat-head">
-					<div className="vp-card-title">
-						<span className="vp-card-icon" aria-hidden="true">
-							<i className="adminfont-edit" />
-						</span>
-						<div>
-							<h3>{__('Writing assistant', 'vulopilot')}</h3>
-							<p>{__('Drafts posts, product copy, FAQs and meta titles in your site’s voice.', 'vulopilot')}</p>
+		<section className="vp-card vp-chat vp-writer" aria-label={__('Writing assistant', 'vulopilot')}>
+			<header className="vp-chat-head">
+				<div className="vp-card-title">
+					<span className="vp-card-icon" aria-hidden="true">
+						<i className="adminfont-edit" />
+					</span>
+					<div>
+						<h3>{__('Writing assistant', 'vulopilot')}</h3>
+						<p>{__('Drafts posts, product copy, FAQs and meta titles in your site’s voice.', 'vulopilot')}</p>
+					</div>
+				</div>
+				{(turns.length > 0 || isSending) && (
+					<button type="button" className="vp-widget-tool" onClick={startOver}>
+						<i className="adminfont-plus" aria-hidden="true" />
+						{__('New chat', 'vulopilot')}
+					</button>
+				)}
+			</header>
+
+			<div className="vp-chat-stream" ref={streamRef} aria-live="polite">
+				{isEmpty ? (
+					<div className="vp-chat-welcome">
+						<IconTile icon="edit" tone="violet" size="lg" />
+						<h4>
+							{sprintf(
+								/* translators: %s: the user's display name. */
+								__('What shall we write today, %s?', 'vulopilot'),
+								vulopilotAppLocalizer.current_user_display_name
+							)}
+						</h4>
+						<p>{__('Pick a starting point, or describe what you need.', 'vulopilot')}</p>
+						<div className="vp-prompts">
+							{PROMPT_CHIPS.map((chip) => (
+								<button key={chip.id} type="button" onClick={() => pickChip(chip)}>
+									<i className={`adminfont-${chip.icon}`} aria-hidden="true" />
+									<span>{chip.title}</span>
+								</button>
+							))}
 						</div>
 					</div>
-					{(turns.length > 0 || isSending) && (
-						<button type="button" className="vp-widget-tool" onClick={startOver}>
-							<i className="adminfont-plus" aria-hidden="true" />
-							{__('New chat', 'vulopilot')}
-						</button>
-					)}
-				</header>
-
-				<div className="vp-chat-stream" ref={streamRef} aria-live="polite">
-					{isEmpty ? (
-						<div className="vp-chat-welcome">
-							<IconTile icon="edit" tone="violet" size="lg" />
-							<h4>
-								{sprintf(
-									/* translators: %s: the user's display name. */
-									__('What shall we write today, %s?', 'vulopilot'),
-									vulopilotAppLocalizer.current_user_display_name
-								)}
-							</h4>
-							<p>{__('Pick a starting point, or describe what you need.', 'vulopilot')}</p>
-							<div className="vp-prompts">
-								{PROMPT_CHIPS.map((chip) => (
-									<button key={chip.id} type="button" onClick={() => pickChip(chip)}>
-										<i className={`adminfont-${chip.icon}`} aria-hidden="true" />
-										<span>{chip.title}</span>
-									</button>
-								))}
-							</div>
-						</div>
-					) : (
-						<div className="vp-chat-turns">
-							{turns.map((turn, index) => (
-								<CopilotTurnBubble key={index} turn={turn} aiAvatarIcon="edit" />
-							))}
-							{isSending && (
-								<ChatMessage sender="ai" avatarIcon="edit">
-									<span className="vp-chat-thinking">
-										<span className="vp-dots" aria-hidden="true">
-											<i />
-											<i />
-											<i />
-										</span>
-										{__('Writing…', 'vulopilot')}
+				) : (
+					<div className="vp-chat-turns">
+						{turns.map((turn, index) => (
+							<CopilotTurnBubble key={index} turn={turn} aiAvatarIcon="edit" />
+						))}
+						{isSending && (
+							<ChatMessage sender="ai" avatarIcon="edit">
+								<span className="vp-chat-thinking">
+									<span className="vp-dots" aria-hidden="true">
+										<i />
+										<i />
+										<i />
 									</span>
-								</ChatMessage>
-							)}
-						</div>
-					)}
-				</div>
+									{__('Writing…', 'vulopilot')}
+								</span>
+							</ChatMessage>
+						)}
+					</div>
+				)}
+			</div>
 
-				<footer className="vp-composer">
-					{'meta-title' === pendingChip?.id ? (
-						<div className="vp-writer-pick">
-							<SelectInput
-								type="single-select"
-								options={pageOptions}
-								value=""
-								onChange={(value) => {
-									const picked = pageOptions.find((option) => option.value === String(value ?? ''));
+			<footer className="vp-composer">
+				{'meta-title' === pendingChip?.id ? (
+					<div className="vp-writer-pick">
+						<SelectInput
+							type="single-select"
+							options={pageOptions}
+							value=""
+							onChange={(value) => {
+								const picked = pageOptions.find((option) => option.value === String(value ?? ''));
 
-									if (picked) {
-										submit(picked.label);
-									}
-								}}
-								placeholder={isLoadingPages ? __('Loading pages…', 'vulopilot') : __('Search for a page…', 'vulopilot')}
-								disabled={isSending || isLoadingPages}
-							/>
-							<button type="button" className="vp-chat-cancel" onClick={startOver}>
-								{__('Cancel', 'vulopilot')}
+								if (picked) {
+									submit(picked.label);
+								}
+							}}
+							placeholder={isLoadingPages ? __('Loading pages…', 'vulopilot') : __('Search for a page…', 'vulopilot')}
+							disabled={isSending || isLoadingPages}
+						/>
+						<button type="button" className="vp-chat-cancel" onClick={startOver}>
+							{__('Cancel', 'vulopilot')}
+						</button>
+					</div>
+				) : (
+					<div className={`vp-composer-box${isSending ? ' is-locked' : ''}`}>
+						<textarea
+							ref={inputRef}
+							rows={1}
+							value={message}
+							disabled={isSending}
+							onChange={(event) => setMessage(event.target.value)}
+							onKeyDown={handleKeyDown}
+							placeholder={pendingChip ? __('Type your answer…', 'vulopilot') : __('Describe what you want to write…', 'vulopilot')}
+							aria-label={__('Message the writing assistant', 'vulopilot')}
+						/>
+						<div className="vp-composer-bar">
+							<a className="vp-composer-tool" href="#&tab=reports&subtab=history">
+								<i className="adminfont-recent" aria-hidden="true" />
+								{__('History', 'vulopilot')}
+							</a>
+							<span className="vp-composer-hint">{__('Enter to send · Shift+Enter for a new line', 'vulopilot')}</span>
+							<button
+								type="button"
+								className="vp-composer-send"
+								disabled={isSending || '' === message.trim()}
+								onClick={() => submit(message.trim())}
+								aria-label={__('Send', 'vulopilot')}
+							>
+								<i className="adminfont-send" aria-hidden="true" />
 							</button>
 						</div>
-					) : (
-						<div className={`vp-composer-box${isSending ? ' is-locked' : ''}`}>
-							<textarea
-								ref={inputRef}
-								rows={1}
-								value={message}
-								disabled={isSending}
-								onChange={(event) => setMessage(event.target.value)}
-								onKeyDown={handleKeyDown}
-								placeholder={pendingChip ? __('Type your answer…', 'vulopilot') : __('Describe what you want to write…', 'vulopilot')}
-								aria-label={__('Message the writing assistant', 'vulopilot')}
-							/>
-							<div className="vp-composer-bar">
-								<a className="vp-composer-tool" href="#&tab=reports&subtab=history">
-									<i className="adminfont-recent" aria-hidden="true" />
-									{__('History', 'vulopilot')}
-								</a>
-								<span className="vp-composer-hint">{__('Enter to send · Shift+Enter for a new line', 'vulopilot')}</span>
-								<button
-									type="button"
-									className="vp-composer-send"
-									disabled={isSending || '' === message.trim()}
-									onClick={() => submit(message.trim())}
-									aria-label={__('Send', 'vulopilot')}
-								>
-									<i className="adminfont-send" aria-hidden="true" />
-								</button>
-							</div>
-						</div>
-					)}
-				</footer>
-			</section>
-
+					</div>
+				)}
+			</footer>
 			<PopupComponent open={isConnectOpen} onClose={() => setIsConnectOpen(false)} width={22} height="auto" position="lightbox">
 				<ShowProPopup vulocloud />
 			</PopupComponent>
-		</>
+		</section>
 	);
 };
 

@@ -1,8 +1,8 @@
 /* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse } from '@zyra/core';
-import { Kpi, KpiGrid, Segmented } from '../../components/ui';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { getApiLink, getApiResponse, scrollToId } from '@zyra/core';
+import { Delta, Segmented } from '../../components/ui';
 
 interface StatMetric {
 	current: number;
@@ -62,44 +62,60 @@ const ContentStatsCard = () => {
 		).then((response) => setIssues((response?.data ?? []).reduce((sum, group) => sum + group.count, 0)));
 	}, []);
 
-	const periodHint = sprintf(
-		/* translators: %s: number of days. */
-		__('vs the previous %s days', 'vulopilot'),
-		period
-	);
-
 	return (
-		<div className="vp-content-stats">
-			<div className="vp-section-head">
-				<h2>{__('Your content', 'vulopilot')}</h2>
+		<section className="vp-card vp-rail-card vp-cstats-card" aria-label={__('Your content', 'vulopilot')}>
+			<header className="vp-rail-head">
+				<div>
+					<h3>{__('Your content', 'vulopilot')}</h3>
+					<p>
+						{sprintf(
+							/* translators: %s: number of days. */
+							__('Made with VuloPilot, last %s days', 'vulopilot'),
+							period
+						)}
+					</p>
+				</div>
 				<Segmented size="sm" label={__('Period', 'vulopilot')} value={period} onChange={setPeriod} options={PERIODS} />
-			</div>
-			<KpiGrid label={__('Content figures', 'vulopilot')} cols={3}>
-				<Kpi
-					icon="document"
-					tone="violet"
-					label={__('Created with AI', 'vulopilot')}
-					value={stats ? stats.content_created.current.toLocaleString() : '–'}
-					change={stats?.content_created.change_percent ?? null}
-					hint={periodHint}
-				/>
-				<Kpi
-					icon="edit"
-					tone="blue"
-					label={__('Words written', 'vulopilot')}
-					value={stats ? short(stats.words_generated.current) : '–'}
-					change={stats?.words_generated.change_percent ?? null}
-					hint={periodHint}
-				/>
-				<Kpi
-					icon={issues ? 'error' : 'check'}
-					tone={issues ? 'amber' : 'green'}
-					label={__('Content issues', 'vulopilot')}
-					value={null === issues ? '–' : issues}
-					hint={issues ? __('Thin, hard to read or poorly structured pages', 'vulopilot') : __('Nothing open from the last audit', 'vulopilot')}
-				/>
-			</KpiGrid>
-		</div>
+			</header>
+
+			<dl className="vp-cstats">
+				<div>
+					<dt>{__('Pieces created', 'vulopilot')}</dt>
+					<dd>
+						{stats ? stats.content_created.current.toLocaleString() : '–'}
+						<Delta change={stats?.content_created.change_percent ?? null} />
+					</dd>
+				</div>
+				<div>
+					<dt>{__('Words written', 'vulopilot')}</dt>
+					<dd>
+						{stats ? short(stats.words_generated.current) : '–'}
+						<Delta change={stats?.words_generated.change_percent ?? null} />
+					</dd>
+				</div>
+			</dl>
+
+			<button
+				type="button"
+				className={`vp-cstats-issues${issues ? ' is-open' : ''}`}
+				disabled={!issues}
+				onClick={() => scrollToId('content-audit-section')}
+			>
+				<i className={`adminfont-${issues ? 'error' : 'check'}`} aria-hidden="true" />
+				<span>
+					{null === issues
+						? __('Checking your pages…', 'vulopilot')
+						: issues
+						? sprintf(
+								/* translators: %d: number of open content issues. */
+								_n('%d content issue to fix', '%d content issues to fix', issues, 'vulopilot'),
+								issues
+						  )
+						: __('No content issues open', 'vulopilot')}
+				</span>
+				{Boolean(issues) && <i className="adminfont-arrow-down" aria-hidden="true" />}
+			</button>
+		</section>
 	);
 };
 
