@@ -280,3 +280,23 @@
 		color: #b54708;
 	}
 }
+
+// A pass/fail check in place of a score.
+.vp-check-pill {
+	padding: 0.125rem 0.625rem;
+	border-radius: 1rem;
+	background: #f4f5f9;
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: #6b7280;
+
+	&.is-good {
+		background: #ecfdf3;
+		color: #067647;
+	}
+
+	&.is-bad {
+		background: #fef3f2;
+		color: #b42318;
+	}
+}

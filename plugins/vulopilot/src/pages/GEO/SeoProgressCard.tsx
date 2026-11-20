@@ -2,9 +2,9 @@
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { AnalyticsComponent, CardComponent, ChartComponent, ModuleGuardComponent } from '@zyra/components';
+import { AnalyticsComponent, CardComponent, ModuleGuardComponent } from '@zyra/components';
 import { ToggleInput } from '@zyra/inputs';
-import { formatWpDate } from '../../services/formatWpDate';
+import ScoreTrendArea, { TrendHead } from '../../components/ScoreTrendArea/ScoreTrendArea';
 import { nonceHeaders } from './seoIssuesShared';
 import './WhatShouldIFixFirst.scss';
 import type { PeriodDays } from './types';
@@ -105,20 +105,8 @@ const SeoProgressCard = () => {
 			{data && (
 				<div className="seo-progress-layout">
 					<div className="seo-progress-chart">
-						<div className="seo-progress-chart-title typography-body-xs">
-							{__('SEO Score Over Time', 'vulopilot')}
-						</div>
-						<ChartComponent
-							type="dynamic-line"
-							data={data.trend.map((point: TrendPoint) => ({
-								...point,
-								date: formatWpDate(point.date),
-							}))}
-							dataKey="score"
-							xKey="date"
-							height={220}
-							yDomain={[0, 100]}
-						/>
+						<TrendHead points={data.trend} days={Number(period)} />
+						<ScoreTrendArea points={data.trend} height={230} label={__('SEO', 'vulopilot')} />
 					</div>
 
 					<AnalyticsComponent
