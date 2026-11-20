@@ -38,12 +38,65 @@ type SettingsTab = RendererProps['settings'] & {
 	groupBySections?: boolean;
 };
 
+/**
+ * The save state, floating at the top right: settings save as you change them, and the header's own status is out
+ * of sight once you scroll. Shown only while that header status is scrolled away, so the two never show together. Shows "Saving…", then "All changes saved" for a few seconds, or the error.
+ */
+const SaveToast = ({ status, changeTick }: { status: SaveStatus; changeTick: number }) => {
+	const [visible, setVisible] = useState(false);
+
+	useEffect(() => {
+		if ('idle' === status) {
+			return undefined;
+		}
+
+		// The header shows the same status while it is in view; float a copy only once it has scrolled away.
+		const headerStatus = document.querySelector('.vulopilot-settings .save-status, .admin-settings [class*="save-status"]');
+		const headerInView = headerStatus
+			? headerStatus.getBoundingClientRect().bottom > 32
+			: window.scrollY < 120;
+
+		setVisible(!headerInView);
+
+		if ('saved' !== status) {
+			return undefined;
+		}
+
+		const timer = setTimeout(() => setVisible(false), 2500);
+		return () => clearTimeout(timer);
+		// Every change shows it again, even when the status was already "saved" and stays so.
+	}, [status, changeTick]);
+
+	let icon = 'check';
+	let text = __('All changes saved', 'vulopilot');
+	if ('saving' === status) {
+		icon = 'refresh';
+		text = __('Saving…', 'vulopilot');
+	} else if ('error' === status) {
+		icon = 'error';
+		text = __('Could not save your changes. Please try again.', 'vulopilot');
+	}
+
+	return (
+		<div
+			className={`vp-save-toast is-${status}${visible && 'idle' !== status ? ' is-visible' : ''}`}
+			role="status"
+			aria-live="polite"
+		>
+			<i className={`adminfont-${icon}`} aria-hidden="true" />
+			{text}
+		</div>
+	);
+};
+
 /** Settings page built on zyra's settings framework. */
 
 const Settings = () => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
+	// Bumped on every setting change, so the save toast reappears for each one.
+	const [changeTick, setChangeTick] = useState(0);
 	const settingsRef = useRef<Record<string, unknown>>({});
 	// Remounts the navigator (via `key`) when a filter adds tabs after this page first rendered.
 	const [proTabsTick, setProTabsTick] = useState(0);
@@ -108,6 +161,7 @@ const Settings = () => {
 			}
 
 			updateSetting(key, value);
+			setChangeTick((tick) => tick + 1);
 		};
 
 		// Was a synchronous `setSetting()` call made straight in the render body.
@@ -288,6 +342,7 @@ const Settings = () => {
 				menuIcon
 				saveStatus={saveStatus}
 			/>
+			<SaveToast status={saveStatus} changeTick={changeTick} />
 		</SettingProvider>
 	);
 };

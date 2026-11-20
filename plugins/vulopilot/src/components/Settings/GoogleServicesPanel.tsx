@@ -12,6 +12,7 @@ import CardHeader from '../CardHeader';
 import ShowProPopup from '../Popup/Popup';
 import { useSetting } from '../../contexts/SettingContext';
 import { formatWpDate } from '../../services/formatWpDate';
+import FieldError from '../FieldError/FieldError';
 import {
 	useGoogleServicesConnection,
 	GoogleServicesStatus,
@@ -392,7 +393,7 @@ const GoogleServicesPanel = () => {
 								</li>
 							) ) }
 						</ul>
-						{ connectError && <div className="desc gsc-connect-error">{ connectError }</div> }
+						{ connectError && <FieldError variant="block">{ connectError }</FieldError> }
 					</CardHeader>
 				) }
 			</>

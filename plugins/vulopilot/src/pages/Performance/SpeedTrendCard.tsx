@@ -137,7 +137,7 @@ const SpeedTrendCard = () => {
 					data={snapshots.map((snapshot) => ({ ...snapshot, snapshot_date: formatWpDate(snapshot.snapshot_date) }))}
 					dataKey="performance_score"
 					xKey="snapshot_date"
-					height={200}
+					height={170}
 					yDomain={[0, 100]}
 				/>
 			</>
@@ -157,7 +157,7 @@ const SpeedTrendCard = () => {
 			)}
 			action={<Segmented size="sm" label={__('Period', 'vulopilot')} value={period} onChange={setPeriod} options={PERIODS} />}
 		>
-			{chart}
+			<div className="vp-speed-chart">{chart}</div>
 			<dl className="vp-speed-figures">
 				{figures.map((figure) => (
 					<div key={figure.label}>

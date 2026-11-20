@@ -11,8 +11,8 @@ import IssuesList from '../AIAssistant/IssuesList';
 import PluginOverlapCard from '../Security/PluginOverlapCard';
 import SpeedTrendCard from './SpeedTrendCard';
 import QuickActionsCard from './QuickActionsCard';
-import BiggestSpeedOpportunityCard from './BiggestSpeedOpportunityCard';
 import ServerSetupCard from './ServerSetupCard';
+import { useEfficiencyChecks } from '../Security/efficiencyChecks';
 import '../AIAssistant/copilot.scss';
 import './Performance.scss';
 
@@ -40,8 +40,9 @@ interface OverviewTabProps {
 }
 
 /**
- * Performance overview: the speed score with every area, speed over time beside quick fixes and the biggest
- * opportunity, the server's caching setup, then the open speed issues by area (AI Copilot's issue list).
+ * Performance overview, in the order a site owner asks: how fast is it (score and areas); how the server is set up
+ * and whether it is getting better, beside what to do (every fix, the ones this site needs first); then what exactly
+ * is wrong (issues by area).
  */
 const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 	const [summary, setSummary] = useState<DashboardSummary | null>(null);
@@ -49,6 +50,7 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [refetchSignal, setRefetchSignal] = useState(0);
 	const [area, setArea] = useState('all');
+	const { data: efficiency, isLoading: isLoadingEfficiency } = useEfficiencyChecks();
 
 	useEffect(() => {
 		let cancelled = false;
@@ -127,6 +129,9 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 		<>
 			<strong>{urgent}</strong> {__('critical or high', 'vulopilot')}
 		</>,
+		<button type="button" className="vp-link-btn" onClick={onNavigateToSlowPages}>
+			{__('Check page by page', 'vulopilot')} →
+		</button>,
 	];
 
 	if (hasPsi) {
@@ -169,14 +174,16 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 						reviewLabel={__('See what to fix', 'vulopilot')}
 					/>
 
-					<div className="vp-row is-side">
-						<SpeedTrendCard />
-						<aside className="vp-rail">
-							<BiggestSpeedOpportunityCard groups={groups} onViewSlowPages={onNavigateToSlowPages} onViewIssues={() => review('all')} />
-							<QuickActionsCard />
-						</aside>
+					{/* 2. How the server is set up and whether speed is improving, beside what to do about it. */}
+					<div className="vp-row vp-perf-split">
+						<div className="vp-rail">
+							<ServerSetupCard data={efficiency} isLoading={isLoadingEfficiency} />
+							<SpeedTrendCard />
+						</div>
+						<QuickActionsCard groups={groups} efficiency={efficiency} />
 					</div>
 
+					{/* 3. What exactly is wrong. */}
 					<IssuesList
 						id={ISSUES_ID}
 						title={__('Speed issues', 'vulopilot')}
@@ -191,7 +198,6 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 						}}
 					/>
 
-					<ServerSetupCard />
 					<PluginOverlapCard category="caching" />
 				</div>
 			</ColumnComponent>

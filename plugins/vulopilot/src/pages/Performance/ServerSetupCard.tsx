@@ -1,7 +1,7 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Card, IconTile, Skeleton } from '../../components/ui';
 import type { Tone } from '../../components/ui';
-import { useEfficiencyChecks } from '../Security/efficiencyChecks';
+import type { EfficiencyChecksResponse } from '../Security/efficiencyChecks';
 
 const TONE: Record<string, Tone> = { good: 'green', attention: 'amber', not_applicable: 'neutral' };
 
@@ -9,8 +9,7 @@ const TONE: Record<string, Tone> = { good: 'green', attention: 'amber', not_appl
  * "Server setup": whether pages, files, database queries and PHP are cached (`GET /efficiency-checks`), each with
  * what it means and the details behind it.
  */
-const ServerSetupCard = () => {
-	const { data, isLoading } = useEfficiencyChecks();
+const ServerSetupCard = ({ data, isLoading }: { data: EfficiencyChecksResponse | null; isLoading: boolean }) => {
 	const checks = data?.sections.flatMap((section) => section.checks) ?? [];
 	const attention = data?.summary.need_attention ?? 0;
 
