@@ -473,7 +473,46 @@ class Renderer {
 				return $open . self::repeater( $field, $uid, $id, $name, is_array( $value ) ? $value : array(), $error ) . '</div>';
 
 			case 'phone':
-				$control = self::phone_control( $field, $id, $name, $value, $common, $grouped );
+				// `show_country_code` missing (fields saved before it existed) defaults to on, same as
+				// `@zyra/inputs`' PhoneInput reads `field.show_country_code !== false`.
+				if ( false === ( $field['show_country_code'] ?? true ) ) {
+					$control = sprintf(
+						'<input class="vuloform-input" type="tel" id="%s" name="%s" value="%s" placeholder="%s" autocomplete="tel"%s>',
+						esc_attr( $id ),
+						esc_attr( $name ),
+						esc_attr( is_string( $value ) ? $value : '' ),
+						esc_attr( $field['placeholder'] ),
+						$common
+					);
+					break;
+				}
+
+				$grouped       = true;
+				$country_value = is_array( $value ) ? (string) ( $value['country_code'] ?? '' ) : '';
+				$phone_value   = is_array( $value ) ? (string) ( $value['phone'] ?? '' ) : ( is_string( $value ) ? $value : '' );
+
+				$control = sprintf( '<div class="vuloform-phone"><select class="vuloform-input vuloform-phone-code" id="%s-code" name="%s[country_code]" aria-label="%s">', esc_attr( $id ), esc_attr( $name ), esc_attr__( 'Country code', 'vuloform' ) );
+				$control .= sprintf( '<option value="">%s</option>', esc_html__( 'Code', 'vuloform' ) );
+
+				foreach ( CountryCodes::all() as $country ) {
+					$control .= sprintf(
+						'<option value="%1$s"%2$s>%1$s %3$s</option>',
+						esc_attr( $country['dial_code'] ),
+						selected( $country_value, $country['dial_code'], false ),
+						esc_html( $country['name'] )
+					);
+				}
+
+				$control .= '</select>';
+				$control .= sprintf(
+					'<input class="vuloform-input vuloform-phone-number" type="tel" id="%s" name="%s[phone]" value="%s" placeholder="%s" autocomplete="tel"%s>',
+					esc_attr( $id ),
+					esc_attr( $name ),
+					esc_attr( $phone_value ),
+					esc_attr( $field['placeholder'] ),
+					$common
+				);
+				$control .= '</div>';
 				break;
 
 			default:
@@ -524,115 +563,6 @@ class Renderer {
 		}
 
 		return $open . $label . $control . self::description( $field, $id ) . $error_html . '</div>';
-	}
-
-	/**
-	 * Builds a phone field's control.
-	 *
-	 * Two shapes: a plain tel input when the country code is turned off (legacy fields without the
-	 * flag also land here), or a dial-code select paired with a tel input. `$grouped` is set by
-	 * reference so the caller knows to wrap the result in a fieldset/legend.
-	 *
-	 * @param array  $field   Field definition.
-	 * @param string $id      Element id.
-	 * @param string $name    Submitted name.
-	 * @param mixed  $value   Raw value: string (legacy) or array with `country_code` and `phone`.
-	 * @param string $common  Common attributes string.
-	 * @param bool   $grouped Set to true when a country-code select is rendered.
-	 * @return string
-	 */
-	private static function phone_control( array $field, $id, $name, $value, $common, &$grouped ) {
-		// `show_country_code` missing (fields saved before it existed) defaults to on, same as
-		// `@zyra/inputs`' PhoneInput reads `field.show_country_code !== false`.
-		if ( false === ( $field['show_country_code'] ?? true ) ) {
-			return self::phone_input( $id, $name, self::phone_string_value( $value ), $field['placeholder'], $common );
-		}
-
-		$grouped                       = true;
-		list( $country_value, $number ) = self::phone_values( $value );
-
-		return '<div class="vuloform-phone">'
-			. self::phone_country_select( $id, $name, $country_value )
-			. self::phone_input( $id, $name . '[phone]', $number, $field['placeholder'], $common )
-			. '</div>';
-	}
-
-	/**
-	 * Normalises a stored phone value into [ country_code, phone ].
-	 *
-	 * @param mixed $value String (legacy) or array with `country_code` and `phone`.
-	 * @return array{0: string, 1: string}
-	 */
-	private static function phone_values( $value ) {
-		if ( is_array( $value ) ) {
-			return array(
-				(string) ( $value['country_code'] ?? '' ),
-				(string) ( $value['phone'] ?? '' ),
-			);
-		}
-
-		return array( '', is_string( $value ) ? $value : '' );
-	}
-
-	/**
-	 * Legacy phone value (a single string, no country code).
-	 *
-	 * @param mixed $value Raw value.
-	 * @return string
-	 */
-	private static function phone_string_value( $value ) {
-		return is_string( $value ) ? $value : '';
-	}
-
-	/**
-	 * Country dial-code select.
-	 *
-	 * @param string $id            Field id.
-	 * @param string $name          Field name (the `[country_code]` suffix is appended here).
-	 * @param string $country_value Selected dial code, '' for none.
-	 * @return string
-	 */
-	private static function phone_country_select( $id, $name, $country_value ) {
-		$options = sprintf( '<option value="">%s</option>', esc_html__( 'Code', 'vuloform' ) );
-
-		foreach ( CountryCodes::all() as $country ) {
-			$options .= sprintf(
-				'<option value="%1$s"%2$s>%3$s %1$s %4$s</option>',
-				esc_attr( $country['dial_code'] ),
-				selected( $country_value, $country['dial_code'], false ),
-				esc_html( $country['flag'] ?? '' ),
-				esc_html( $country['name'] )
-			);
-		}
-
-		return sprintf(
-			'<select class="vuloform-input vuloform-phone-code" id="%s-code" name="%s[country_code]" aria-label="%s">%s</select>',
-			esc_attr( $id ),
-			esc_attr( $name ),
-			esc_attr__( 'Country code', 'vuloform' ),
-			$options
-		);
-	}
-
-	/**
-	 * The tel input used by both phone shapes.
-	 *
-	 * @param string $id          Element id.
-	 * @param string $name        Submitted name.
-	 * @param string $value       Value.
-	 * @param string $placeholder Placeholder text.
-	 * @param string $common      Common attributes string.
-	 * @return string
-	 */
-	private static function phone_input( $id, $name, $value, $placeholder, $common ) {
-		return sprintf(
-			'<input class="vuloform-input vuloform-phone-number" type="tel" id="%s" name="%s" value="%s" placeholder="%s" autocomplete="tel"%s>',
-			esc_attr( $id ),
-			esc_attr( $name ),
-			esc_attr( $value ),
-			esc_attr( $placeholder ),
-			$common
-		);
 	}
 
 	/**
