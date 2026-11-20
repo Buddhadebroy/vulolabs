@@ -319,6 +319,16 @@ class Processor {
 
 				return $parts;
 
+			case 'phone':
+				if ( false === ( $field['show_country_code'] ?? true ) ) {
+					return is_string( $value ) ? sanitize_text_field( $value ) : '';
+				}
+
+				return array(
+					'country_code' => is_array( $value ) && isset( $value['country_code'] ) && is_scalar( $value['country_code'] ) ? sanitize_text_field( (string) $value['country_code'] ) : '',
+					'phone'        => is_array( $value ) && isset( $value['phone'] ) && is_scalar( $value['phone'] ) ? sanitize_text_field( (string) $value['phone'] ) : '',
+				);
+
 			case 'textarea':
 				return is_string( $value ) ? sanitize_textarea_field( $value ) : '';
 
@@ -377,13 +387,15 @@ class Processor {
 			$empty = '' === ( $value['first'] ?? ( $value['last'] ?? '' ) );
 		} elseif ( 'address' === $field['type'] ) {
 			$empty = '' === ( $value['line1'] ?? implode( '', $flat ) );
+		} elseif ( 'phone' === $field['type'] && is_array( $value ) ) {
+			$empty = '' === ( $value['phone'] ?? '' );
 		}
 
 		if ( $empty ) {
 			return $required ? $messages['required'] : '';
 		}
 
-		$text = is_string( $value ) ? $value : '';
+		$text = 'phone' === $field['type'] && is_array( $value ) ? (string) ( $value['phone'] ?? '' ) : ( is_string( $value ) ? $value : '' );
 
 		switch ( $field['type'] ) {
 			case 'email':
