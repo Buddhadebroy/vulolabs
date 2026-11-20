@@ -1,6 +1,6 @@
 /* global vulopilotAppLocalizer */
 import { useEffect, useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import type { PeriodDays } from './types';
 import {
@@ -39,16 +39,6 @@ const getRating = (score: number): string => {
 		return __('Needs Work', 'vulopilot');
 	}
 	return __('At Risk', 'vulopilot');
-};
-
-const ratingClass = (score: number): string => {
-	if (score >= 70) {
-		return 'green';
-	}
-	if (score >= 40) {
-		return 'blue';
-	}
-	return 'red';
 };
 
 /** Dynamic caption under the ring's own "Overall Score" label. */
@@ -226,11 +216,6 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 	}, []);
 
 	const areas = score?.areas;
-
-	const trendUplift =
-		progress && progress.trend.length > 1
-			? progress.trend[progress.trend.length - 1].score - progress.trend[0].score
-			: null;
 
 	return (
 		<ContainerComponent>
