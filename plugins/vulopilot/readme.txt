@@ -11,7 +11,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 **AI SEO, Site Health, Performance, Accessibility, WooCommerce & AI Visibility monitoring for WordPress.**
 
-## Description ##
+== Description ==
 
 VuloPilot is an AI SEO, security, and website optimization plugin that brings technical audits, performance monitoring, Core Web Vitals, accessibility, and site health into one dashboard, serving as your WordPress operating system.
 
@@ -23,7 +23,7 @@ VuloPilot is an AI SEO, security, and website optimization plugin that brings te
 * **Create content with AI:** Generate content to support your website’s publishing and optimization work.
 * **Stay informed about your website:** Track website activity and review findings through reports.
 
-### What VuloPilot is ###
+= What VuloPilot is =
 
 VuloPilot is a WordPress operating system that helps you understand your website’s condition, find what needs attention, and take action to optimize your website.
 
@@ -38,7 +38,7 @@ It helps answer questions such as:
 
 Run a scan, review the findings, and work through the recommended actions. Scan again after making changes to review the results.
 
-### And it doesn't stop at Google ###
+= And it doesn't stop at Google =
 
 People also use AI assistants such as ChatGPT, Claude, Gemini, and Perplexity to find information.
 
@@ -46,7 +46,7 @@ VuloPilot checks whether your content clearly explains your business, answers re
 
 These checks help you improve your readiness for AI search. A readiness score does not confirm or guarantee that an AI assistant will mention your website.
 
-### Why choose VuloPilot? ###
+= Why choose VuloPilot? =
 
 * **One dashboard:** Review website health, SEO, performance, accessibility, WooCommerce, and AI readiness together.
 * **Specific findings:** Identify problems such as missing titles, broken links, large images, and outdated plugins.
@@ -54,7 +54,7 @@ These checks help you improve your readiness for AI search. A readiness score do
 * **Optional AI assistance:** Connect your own provider for content and suggestion tools.
 * **Support for ongoing work:** Use Pro features for scheduled scans, notifications, automation, and supported fixes.
 
-### Specifically, here's what it brings together ###
+= Specifically, here's what it brings together =
 
 * **SEO tools:** Review titles, descriptions, schema, sitemaps, and on-page search signals.
 * **Website audits:** Find technical issues and maintenance concerns.
@@ -360,7 +360,7 @@ Pro supports website owners who want help with ongoing optimization, as well as 
 
 **Install VuloPilot, run your first scan, and see what needs attention on your WordPress website.**
 
-## Installation ##
+== Installation ==
 
 1. Upload the plugin to the `/wp-content/plugins/` directory.
 2. Activate it through the WordPress Plugins screen.
@@ -370,85 +370,85 @@ Pro supports website owners who want help with ongoing optimization, as well as 
 6. Optionally connect an AI provider to enable available AI tools.
 7. For Pro brand visibility features, connect an eligible Ahrefs account.
 
-## Frequently Asked Questions ##
+== Frequently Asked Questions ==
 
-### Does VuloPilot replace my SEO plugin? ###
+= Does VuloPilot replace my SEO plugin? =
 
 VuloPilot includes SEO checks and tools. Whether it can replace your existing plugin depends on the features and settings your website uses.
 
 If you already have an SEO plugin, review overlapping features before enabling tools that manage the same output, such as titles, schema, or sitemaps.
 
-### Can it improve Google rankings? ###
+= Can it improve Google rankings? =
 
 VuloPilot helps you identify issues affecting your website’s search signals, including missing titles, weak descriptions, broken links, and content concerns.
 
 Addressing these findings can support your SEO work, but VuloPilot cannot guarantee rankings.
 
-### Does VuloPilot require AI to work? ###
+= Does VuloPilot require AI to work? =
 
 No. Core website scans, scores, and reports work without connecting an AI provider.
 
 Connect a provider only when you want to use the available AI content and suggestion tools.
 
-### Does it support AI search optimization? ###
+= Does it support AI search optimization? =
 
 Yes. VuloPilot reviews how clearly your content explains its topics, answers questions, and provides supporting information.
 
 These checks help identify opportunities to improve AI search readiness. They do not guarantee mentions in AI-generated answers.
 
-### Which AI providers are supported? ###
+= Which AI providers are supported? =
 
 OpenAI, Anthropic Claude, Google Gemini, OpenRouter, Ollama, and Groq.
 
-### Can I use my own API key? ###
+= Can I use my own API key? =
 
 Yes. You can connect a supported provider using your own credentials.
 
 The provider’s usage limits and charges may apply separately from VuloPilot.
 
-### What is the difference between AI visibility and brand visibility? ###
+= What is the difference between AI visibility and brand visibility? =
 
 AI readiness checks evaluate content and structure on your own website.
 
 Brand visibility uses external data to report mentions and related brand signals across the sources covered by your connected provider.
 
-### Does brand visibility require Ahrefs? ###
+= Does brand visibility require Ahrefs? =
 
 Yes. This feature requires VuloPilot Pro and an eligible Ahrefs connection.
 
 Without that connection, external brand visibility data is unavailable.
 
-### Does AI crawler traffic monitoring track my visitors? ###
+= Does AI crawler traffic monitoring track my visitors? =
 
 The feature focuses on requests from recognized AI crawler user agents rather than human visitor analytics.
 
 Crawler activity does not confirm that your content was used in an AI answer.
 
-### Does VuloPilot work with WooCommerce? ###
+= Does VuloPilot work with WooCommerce? =
 
 Yes. VuloPilot includes checks for product SEO, images, attributes, descriptions, schema, and inventory-related issues.
 
 Pro adds further AI capabilities for product content.
 
-### Can agencies use VuloPilot on multiple websites? ###
+= Can agencies use VuloPilot on multiple websites? =
 
 Yes. Agencies can install VuloPilot separately on client websites and review each website from its own WordPress dashboard.
 
 Pro features such as scheduled scans and email notifications help with recurring monitoring.
 
-### Does it monitor Core Web Vitals? ###
+= Does it monitor Core Web Vitals? =
 
 VuloPilot includes Core Web Vitals-related performance findings covering loading speed, layout stability, and responsiveness.
 
 Review these alongside findings about slow pages, large images, and other potential bottlenecks.
 
-### Does VuloPilot automatically modify my website? ###
+= Does VuloPilot automatically modify my website? =
 
 By default, scans provide findings and recommendations.
 
 Supported one-click fixes require approval. If you enable Pro automation, review the actions and conditions configured for each workflow.
 
-## Screenshots ##
+== Screenshots ==
 
 1. Website health dashboard.
 2. AI visibility and AEO/GEO dashboard.
@@ -462,9 +462,9 @@ Supported one-click fixes require approval. If you enable Pro automation, review
 10. Reports and analytics dashboard.
 11. Website activity timeline.
 
-## Changelog ##
+== Changelog ==
 
-### 1.0.1 ###
+= 1.0.1 - 2026-11-23 =
 
 * Added - UI/UX improvements.
 * Added - SEO details and settings for all pages.
@@ -483,7 +483,7 @@ Supported one-click fixes require approval. If you enable Pro automation, review
 * Fixed - FAQ and Table of Contents styles missing in the block editor.
 * Fixed - Ignore option not working under bulk actions.
 
-### 1.0.0 ###
+= 1.0.0 - 2026-10-10 =
 
 * Initial release.
 * Website health dashboard.
@@ -501,12 +501,7 @@ Supported one-click fixes require approval. If you enable Pro automation, review
 * Health score trends.
 * Dashboard with website health scores and detailed findings.
 
-## Upgrade Notice ##
+== Upgrade Notice ==
 
-### 1.0.1 ###
-
-Fixes the 404 Log, Broken Links and Broken Images tables, updates the FAQ block styles and the XML sitemap page, and adds bulk dismiss and sorting to the 404 Log.
-
-### 1.0.0 ###
-
-Start checking your WordPress website’s SEO, performance, accessibility, site health, and AI search readiness from one dashboard.
+= 1.0.0 =
+Initial release.
