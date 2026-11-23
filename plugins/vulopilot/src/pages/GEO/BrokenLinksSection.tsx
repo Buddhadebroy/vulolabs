@@ -49,6 +49,13 @@ const getBrokenLinkFixHandler = () =>
 /** This tab's two data sources. */
 const BROKEN_SCANNER_IDS = ['broken-links', 'broken-images'];
 
+/** zyra's own InformationItemComponent badges only style a fixed class list - no `badge-ignored`/`badge-snoozed` exist, so map to the closest one it does. */
+const STATUS_BADGE_CLASS: Record<Exclude<BrokenLinkFinding['status'], 'open'>, string> = {
+	resolved: 'badge-resolved',
+	ignored: 'badge-inactive',
+	snoozed: 'badge-pending',
+};
+
 /** A row from `GET /findings`. */
 interface BrokenLinkFinding extends Finding {
 	meta?: string;
@@ -115,7 +122,7 @@ const getFindingMeta = (
 const getLinkText = (finding: BrokenLinkFinding): string => {
 	const { text } = getFindingMeta(finding);
 
-	if (undefined === text) {
+	if (text === undefined) {
 		return __('-', 'vulopilot');
 	}
 
@@ -312,7 +319,12 @@ const fetchAllBrokenFindings = async (): Promise<BrokenLinkFinding[]> => {
 	return all;
 };
 
-/** Collapses duplicate findings for the same URL/page/scanner/status to the newest one. */
+/**
+ * Collapses duplicate findings for the same URL/page/scanner to the newest one, regardless of its
+ * status. Findings are fetched newest-id-first, so keying this on status too (as before) let an
+ * older, still-`open` duplicate of a link re-surface the moment the current one's status changed -
+ * e.g. right after bulk-ignoring it - making "Ignore Issue" look like it had done nothing.
+ */
 const dedupeBrokenFindings = (
 	findings: BrokenLinkFinding[]
 ): BrokenLinkFinding[] => {
@@ -323,7 +335,6 @@ const dedupeBrokenFindings = (
 			finding.scanner_id,
 			finding.object_ref,
 			getBrokenUrl(finding),
-			finding.status,
 		].join('::');
 
 		if (seen.has(key)) {
@@ -681,6 +692,11 @@ const BrokenLinksSection = () => {
 								text: formatWpDate(row.last_seen_at || row.created_at),
 								className: 'badge-info',
 							},
+							// Open is the common case and already implied by the row being listed - only
+							// call out a status a bulk/row action just changed, e.g. "Ignore Issue" above.
+							...('open' === row.status
+								? []
+								: [{ text: row.status, className: STATUS_BADGE_CLASS[row.status] }]),
 						]}
 						descriptions={[
 							{

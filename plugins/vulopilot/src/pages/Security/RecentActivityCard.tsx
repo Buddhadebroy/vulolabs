@@ -45,7 +45,7 @@ const RecentActivityCard = () => {
 		per_page: 6,
 	});
 	const historyUrl = (id?: number) =>
-		`${vulopilotAppLocalizer.admin_url}#&tab=reports&subtab=history${undefined === id ? '' : `&vulopilot_history_id=${id}`}`;
+		`${vulopilotAppLocalizer.admin_url}#&tab=reports&subtab=history${id === undefined ? '' : `&vulopilot_history_id=${id}`}`;
 
 	return (
 		<section className="vp-card vp-rail-card" id="security-recent-activity-card">

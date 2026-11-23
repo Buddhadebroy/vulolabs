@@ -8,9 +8,9 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-20T07:22:47+00:00\n"
+"POT-Creation-Date: 2026-11-23T09:20:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.11.0\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
 
 #. Plugin Name of the plugin
@@ -174,7 +174,7 @@ msgstr ""
 
 #: classes/Accessibility/AccessibilityScanner.php:37
 #: classes/Admin.php:130
-#: modules/AiCopilot/Rest/Copilot.php:525
+#: modules/AiCopilot/Rest/Copilot.php:530
 #: assets/js/index.js:1
 #: assets/js/index.js:30
 msgid "Accessibility"
@@ -182,6 +182,7 @@ msgstr ""
 
 #. translators: %s is the post/page title.
 #: classes/Accessibility/AccessibilityScanner.php:78
+#, php-format
 msgid "Content contains its own <h1>: %s"
 msgstr ""
 
@@ -195,6 +196,7 @@ msgstr ""
 
 #. translators: 1: number of elements missing a role attribute, 2: the post/page title.
 #: classes/Accessibility/AriaAttributesScanner.php:74
+#, php-format
 msgid "%1$d interactive element(s) missing a role attribute: %2$s"
 msgstr ""
 
@@ -208,6 +210,7 @@ msgstr ""
 
 #. translators: 1: number of unlabeled form fields, 2: the post/page title.
 #: classes/Accessibility/FormLabelsScanner.php:74
+#, php-format
 msgid "%1$d unlabeled form field(s): %2$s"
 msgstr ""
 
@@ -221,6 +224,7 @@ msgstr ""
 
 #. translators: 1: number of elements with a positive tabindex, 2: the post/page title.
 #: classes/Accessibility/KeyboardAccessibilityScanner.php:74
+#, php-format
 msgid "%1$d element(s) with a positive tabindex: %2$s"
 msgstr ""
 
@@ -238,6 +242,7 @@ msgstr ""
 
 #. translators: %s is the finding's own title, e.g. "Image missing alt text: photo.jpg".
 #: classes/Accessibility/MissingAltTextRule.php:113
+#, php-format
 msgid "AI can draft alt text for this image based on what it shows: %s"
 msgstr ""
 
@@ -247,6 +252,7 @@ msgstr ""
 
 #. translators: 1: number of ambiguous links, 2: the post/page title.
 #: classes/Accessibility/WcagScanner.php:95
+#, php-format
 msgid "%1$d link(s) with generic, out-of-context text: %2$s"
 msgstr ""
 
@@ -280,7 +286,7 @@ msgstr ""
 
 #: classes/Admin.php:119
 #: classes/Performance/PerformanceScanner.php:33
-#: modules/AiCopilot/Rest/Copilot.php:523
+#: modules/AiCopilot/Rest/Copilot.php:528
 #: assets/js/index.js:1
 #: assets/js/index.js:12
 #: assets/js/index.js:30
@@ -296,7 +302,7 @@ msgid "Site Health"
 msgstr ""
 
 #: classes/Admin.php:136
-#: modules/AiCopilot/Rest/Copilot.php:524
+#: modules/AiCopilot/Rest/Copilot.php:529
 #: assets/js/index.js:1
 #: assets/js/index.js:9
 #: assets/js/index.js:12
@@ -351,6 +357,7 @@ msgstr ""
 #. translators: %s: underlying error message.
 #: classes/AiAssistant/AiCreditsConnection.php:122
 #: classes/AiAssistant/AiCreditsConnection.php:385
+#, php-format
 msgid "Could not reach VuloCloud: %s"
 msgstr ""
 
@@ -360,6 +367,7 @@ msgstr ""
 
 #. translators: %d: HTTP status code.
 #: classes/AiAssistant/AiCreditsConnection.php:229
+#, php-format
 msgid "Connect broker returned a non-JSON response (HTTP %d)."
 msgstr ""
 
@@ -403,6 +411,7 @@ msgstr ""
 
 #. translators: %d: HTTP status code.
 #: classes/AiAssistant/AiCreditsConnection.php:534
+#, php-format
 msgid "VuloCloud returned a non-JSON response (HTTP %d)."
 msgstr ""
 
@@ -416,6 +425,7 @@ msgstr ""
 
 #. translators: %d is the maximum allowed prompt length in characters.
 #: classes/AiAssistant/AiRequestSender.php:199
+#, php-format
 msgid "This request is too long to send to the AI service (limit: %d characters)."
 msgstr ""
 
@@ -425,6 +435,7 @@ msgstr ""
 
 #. translators: %d: requests-per-minute limit.
 #: classes/AiAssistant/AiRequestSender.php:261
+#, php-format
 msgid "AI rate limit reached (%d requests/minute)."
 msgstr ""
 
@@ -447,6 +458,7 @@ msgstr ""
 
 #. translators: %d is the finding's own row id.
 #: classes/Automations/Actions/SnoozeFindingAction.php:91
+#, php-format
 msgid "Finding #%d snoozed."
 msgstr ""
 
@@ -523,6 +535,7 @@ msgstr ""
 
 #. translators: %s is the finding's own title.
 #: classes/Content/FaqOpportunityRule.php:114
+#, php-format
 msgid "Question-phrased headings are more likely to be lifted directly into an AI answer engine's response: %s"
 msgstr ""
 
@@ -536,6 +549,7 @@ msgstr ""
 
 #. translators: %s is the finding's own title.
 #: classes/Content/MissingSummaryBlockRule.php:114
+#, php-format
 msgid "A short upfront summary makes this content easier for AI answer engines to extract a direct answer from: %s"
 msgstr ""
 
@@ -545,6 +559,7 @@ msgstr ""
 
 #. translators: %s is the post/page title.
 #: classes/Content/NotFoundScanner.php:92
+#, php-format
 msgid "Published content returns a 404: %s"
 msgstr ""
 
@@ -562,6 +577,7 @@ msgstr ""
 
 #. translators: %d is the number of redirect hops.
 #: classes/Content/RedirectAnalysisScanner.php:100
+#, php-format
 msgid "Homepage redirects through %d hops before resolving"
 msgstr ""
 
@@ -579,14 +595,15 @@ msgid "Message cannot be empty."
 msgstr ""
 
 #. translators: %s is the exception's own real message, e.g. "No AI connection is configured."
-#: classes/Content/Rest/ContentAssistant.php:156
+#: classes/Content/Rest/ContentAssistant.php:157
 #: modules/AiCopilot/ContentCreationOrchestrator.php:61
-#: modules/AiCopilot/Rest/Copilot.php:376
+#: modules/AiCopilot/Rest/Copilot.php:381
+#, php-format
 msgid "%s Connect this site to VuloCloud in Settings → Connections."
 msgstr ""
 
-#: classes/Content/Rest/ContentAssistant.php:167
-#: modules/AiCopilot/Rest/Copilot.php:387
+#: classes/Content/Rest/ContentAssistant.php:168
+#: modules/AiCopilot/Rest/Copilot.php:392
 msgid "Sorry, I didn't quite catch that - could you rephrase?"
 msgstr ""
 
@@ -635,6 +652,7 @@ msgstr ""
 
 #. translators: 1: deleted page/post title, 2: its old URL path, 3: Redirects tab URL.
 #: classes/Content/TrashedPostRedirector.php:95
+#, php-format
 msgid "<strong>%1$s</strong> has been deleted. VuloPilot doesn't redirect it automatically - if %2$s is still linked to elsewhere or indexed by search engines, you can <a href=\"%3$s\">add a redirect for it</a>."
 msgstr ""
 
@@ -677,6 +695,7 @@ msgstr ""
 
 #. translators: %d: Yoast's own readability score, 0-100.
 #: classes/Migration/YoastSeoMigrator.php:284
+#, php-format
 msgid "Readability score from Yoast: %d/100."
 msgstr ""
 
@@ -742,6 +761,7 @@ msgstr ""
 
 #. translators: %d is the number of un-minified stylesheets found.
 #: classes/Performance/CssOptimizationScanner.php:63
+#, php-format
 msgid "%d un-minified stylesheet found"
 msgid_plural "%d un-minified stylesheets found"
 msgstr[0] ""
@@ -801,6 +821,7 @@ msgstr ""
 
 #. translators: 1: number of unused images, 2: formatted total file size, e.g. "3.2 MB".
 #: classes/Performance/ImageCleanupScanner.php:63
+#, php-format
 msgid "%1$d unused images found (%2$s)"
 msgstr ""
 
@@ -830,6 +851,7 @@ msgstr ""
 
 #. translators: %d is the number of un-minified scripts found.
 #: classes/Performance/JavaScriptOptimizationScanner.php:63
+#, php-format
 msgid "%d un-minified script found"
 msgid_plural "%d un-minified scripts found"
 msgstr[0] ""
@@ -861,6 +883,7 @@ msgstr ""
 
 #. translators: 1: image filename, 2: formatted file size, e.g. "1.4 MB".
 #: classes/Performance/LargeImagesScanner.php:85
+#, php-format
 msgid "Large image: %1$s (%2$s)"
 msgstr ""
 
@@ -961,6 +984,7 @@ msgstr ""
 
 #. translators: %s is a formatted byte size, e.g. "1.4 MB".
 #: classes/Performance/PerformanceScanner.php:60
+#, php-format
 msgid "Autoloaded options are %s"
 msgstr ""
 
@@ -1182,6 +1206,7 @@ msgstr ""
 
 #. translators: %s is a comma-separated list of cache plugin names that were also flushed.
 #: classes/Performance/Rest/PerformanceActions.php:121
+#, php-format
 msgid "WordPress object cache flushed, plus: %s."
 msgstr ""
 
@@ -1191,6 +1216,7 @@ msgstr ""
 
 #. translators: %s is a comma-separated list of plugin names that regenerated minified assets.
 #: classes/Performance/Rest/PerformanceActions.php:156
+#, php-format
 msgid "Regenerated minified assets via: %s."
 msgstr ""
 
@@ -1200,11 +1226,13 @@ msgstr ""
 
 #. translators: 1: number of images optimized, 2: formatted byte size saved, e.g. "1.4 MB".
 #: classes/Performance/Rest/PerformanceActions.php:219
+#, php-format
 msgid "Optimized %1$d image(s), saved %2$s."
 msgstr ""
 
 #. translators: 1: number of expired transients deleted, 2: number of old post revisions deleted.
 #: classes/Performance/Rest/PerformanceActions.php:277
+#, php-format
 msgid "Deleted %1$d expired transients and %2$d old post revisions."
 msgstr ""
 
@@ -1214,11 +1242,13 @@ msgstr ""
 
 #. translators: 1: number of images deleted, 2: formatted bytes freed, 3: number of remaining unused images not yet processed.
 #: classes/Performance/Rest/PerformanceActions.php:320
+#, php-format
 msgid "Deleted %1$d unused image(s), freed %2$s. %3$d more found - run again to continue."
 msgstr ""
 
 #. translators: 1: number of images deleted, 2: formatted bytes freed.
 #: classes/Performance/Rest/PerformanceActions.php:327
+#, php-format
 msgid "Deleted %1$d unused image(s), freed %2$s."
 msgstr ""
 
@@ -1253,6 +1283,7 @@ msgstr ""
 
 #. translators: %s is the response time in seconds, e.g. "3.42".
 #: classes/Performance/SlowPageScanner.php:71
+#, php-format
 msgid "Homepage took %ss to respond"
 msgstr ""
 
@@ -1302,16 +1333,19 @@ msgstr ""
 
 #. translators: 1: extension name, 2: extension version, 3: minimum required VuloPilot version, 4: installed VuloPilot version.
 #: classes/Sdk/ExtensionManager.php:114
+#, php-format
 msgid "VuloPilot: \"%1$s\" (v%2$s) requires VuloPilot %3$s or newer - you have %4$s. This extension was not loaded."
 msgstr ""
 
 #. translators: 1: extension name, 2: minimum required VuloPilot version.
 #: classes/Sdk/ExtensionManager.php:140
+#, php-format
 msgid "Extension \"%1$s\" was not loaded - it requires VuloPilot %2$s or newer."
 msgstr ""
 
 #. translators: 1: extension name, 2: exception message.
 #: classes/Sdk/ExtensionManager.php:161
+#, php-format
 msgid "Extension \"%1$s\" failed to register: %2$s"
 msgstr ""
 
@@ -1349,6 +1383,7 @@ msgstr ""
 
 #. translators: %s is the missing core file's path.
 #: classes/Security/CoreFileIntegrityScanner.php:73
+#, php-format
 msgid "Core file is missing: %s"
 msgstr ""
 
@@ -1358,6 +1393,7 @@ msgstr ""
 
 #. translators: %s is the modified core file's path.
 #: classes/Security/CoreFileIntegrityScanner.php:90
+#, php-format
 msgid "Core file has been modified: %s"
 msgstr ""
 
@@ -1388,16 +1424,19 @@ msgstr ""
 
 #. translators: 1: number of requests, 2: IP address.
 #: classes/Security/FirewallScanner.php:87
+#, php-format
 msgid "%1$d malicious requests from IP %2$s in the last 7 days"
 msgstr ""
 
 #. translators: %d is the number of matched requests.
 #: classes/Security/FirewallScanner.php:103
+#, php-format
 msgid "%d malicious requests logged in the last 7 days"
 msgstr ""
 
 #. translators: %d is how many minutes until this IP can try again.
 #: classes/Security/LoginProtectionGuard.php:69
+#, php-format
 msgid "<strong>Error:</strong> Too many failed login attempts. Please try again in %d minutes."
 msgstr ""
 
@@ -1407,11 +1446,13 @@ msgstr ""
 
 #. translators: 1: IP address, 2: number of failed attempts.
 #: classes/Security/LoginProtectionScanner.php:69
+#, php-format
 msgid "IP %1$s was blocked after %2$d failed login attempts"
 msgstr ""
 
 #. translators: %d is how many days this report covers.
 #: classes/Security/LoginProtectionScanner.php:77
+#, php-format
 msgid "Real login attempts logged by Login Protection in the last %d days. If this wasn't you, no action is needed - the attempts were already blocked."
 msgstr ""
 
@@ -1421,6 +1462,7 @@ msgstr ""
 
 #. translators: %s is the relative file path.
 #: classes/Security/MalwareScanner.php:90
+#, php-format
 msgid "PHP file found inside the uploads directory: %s"
 msgstr ""
 
@@ -1430,11 +1472,13 @@ msgstr ""
 
 #. translators: %s is the relative file path.
 #: classes/Security/MalwareScanner.php:110
+#, php-format
 msgid "Suspicious code pattern found in theme file: %s"
 msgstr ""
 
 #. translators: %s is the matched backdoor/webshell signature.
 #: classes/Security/MalwareScanner.php:117
+#, php-format
 msgid "This file contains a pattern commonly used by malware/webshells (\"%s\"). Review it immediately - if you did not add this code yourself, your site may be compromised."
 msgstr ""
 
@@ -1452,6 +1496,7 @@ msgstr ""
 
 #. translators: %s is the date the certificate expired.
 #: classes/Security/SslMonitoringScanner.php:137
+#, php-format
 msgid "SSL certificate expired on %s"
 msgstr ""
 
@@ -1461,11 +1506,13 @@ msgstr ""
 
 #. translators: %s is the date the certificate expires.
 #: classes/Security/SslMonitoringScanner.php:158
+#, php-format
 msgid "SSL certificate expires soon: %s"
 msgstr ""
 
 #. translators: %d is the number of days remaining.
 #: classes/Security/SslMonitoringScanner.php:165
+#, php-format
 msgid "This certificate expires in %d day(s). Renew it before then to avoid a browser security warning."
 msgstr ""
 
@@ -1475,6 +1522,7 @@ msgstr ""
 
 #. translators: %s is the WordPress username.
 #: classes/Security/WeakPasswordScanner.php:80
+#, php-format
 msgid "Administrator \"%s\" is using a common, easily guessed password"
 msgstr ""
 
@@ -1488,11 +1536,13 @@ msgstr ""
 
 #. translators: 1: schema.org type (FAQPage/HowTo), 2: post/page title.
 #: classes/SeoVisibility/AeoSchemaScanner.php:142
+#, php-format
 msgid "Missing %1$s schema: %2$s"
 msgstr ""
 
 #. translators: %s is the schema.org type (FAQPage/HowTo).
 #: classes/SeoVisibility/AeoSchemaScanner.php:150
+#, php-format
 msgid "This content is already shaped like %s content (matching headings/list structure) but has no matching schema.org markup, so AI answer engines can't confidently recognize it as one."
 msgstr ""
 
@@ -1573,6 +1623,7 @@ msgstr ""
 
 #. translators: %d: HTTP status code.
 #: classes/SeoVisibility/IndexNowClient.php:125
+#, php-format
 msgid "Unexpected response (%d)."
 msgstr ""
 
@@ -1586,6 +1637,7 @@ msgstr ""
 
 #. translators: %s is the finding's own title.
 #: classes/SeoVisibility/MissingFeaturedImageRule.php:107
+#, php-format
 msgid "A featured image improves how this page previews when shared or displayed in some search formats: %s"
 msgstr ""
 
@@ -1600,6 +1652,7 @@ msgstr ""
 
 #. translators: %s is the finding's own title.
 #: classes/SeoVisibility/MissingMetaDescriptionRule.php:114
+#, php-format
 msgid "A good description improves click-through from search results: %s"
 msgstr ""
 
@@ -1637,11 +1690,13 @@ msgstr ""
 
 #. translators: %d: current word count.
 #: classes/SeoVisibility/OnPageAnalyzer.php:162
+#, php-format
 msgid "Content is %d words - good depth for search results."
 msgstr ""
 
 #. translators: 1: current word count, 2: percentage of full credit this depth earns, 3: word count the next tier up starts at.
 #: classes/SeoVisibility/OnPageAnalyzer.php:167
+#, php-format
 msgid "Content is %1$d words - only %2$d%% of full content-depth credit. Aim for %3$d+ words."
 msgstr ""
 
@@ -1731,6 +1786,7 @@ msgstr ""
 
 #. translators: %s: current keyword density, as a percentage.
 #: classes/SeoVisibility/OnPageAnalyzer.php:402
+#, php-format
 msgid "Focus keyword density is %s%% - this reads as keyword stuffing. Aim for roughly 1-1.5%%."
 msgstr ""
 
@@ -1781,11 +1837,13 @@ msgstr ""
 #. translators: %d: real HTTP status code.
 #: classes/SeoVisibility/PageTechnicalChecks.php:125
 #: classes/SeoVisibility/PageTechnicalChecks.php:140
+#, php-format
 msgid "The page responded with HTTP %d."
 msgstr ""
 
 #. translators: %d: real HTTP status code.
 #: classes/SeoVisibility/PageTechnicalChecks.php:133
+#, php-format
 msgid "The page redirects (HTTP %d) - verify the final destination is the intended one."
 msgstr ""
 
@@ -1815,6 +1873,7 @@ msgstr ""
 
 #. translators: %s: comma-separated real schema.org @type values found on the page.
 #: classes/SeoVisibility/PageTechnicalChecks.php:227
+#, php-format
 msgid "Valid structured data found: %s."
 msgstr ""
 
@@ -1824,6 +1883,7 @@ msgstr ""
 
 #. translators: %d: real number of broken links found on this page.
 #: classes/SeoVisibility/PageTechnicalChecks.php:278
+#, php-format
 msgid "%d broken link found on this page."
 msgid_plural "%d broken links found on this page."
 msgstr[0] ""
@@ -1839,6 +1899,7 @@ msgstr ""
 
 #. translators: %s: real post type name.
 #: classes/SeoVisibility/PageTechnicalChecks.php:317
+#, php-format
 msgid "The \"%s\" post type is not included in the XML sitemap settings."
 msgstr ""
 
@@ -1890,6 +1951,7 @@ msgstr ""
 
 #. translators: 1: schema.org field name, e.g. "offers", 2: schema.org @type, e.g. "Product".
 #: classes/SeoVisibility/SchemaPageInspector.php:101
+#, php-format
 msgid "%1$s information missing from this page’s %2$s schema."
 msgstr ""
 
@@ -1936,11 +1998,13 @@ msgstr ""
 
 #. translators: %d: real character count.
 #: classes/SeoVisibility/SeoScoreEngine.php:340
+#, php-format
 msgid "Title length (%d chars) is concise."
 msgstr ""
 
 #. translators: %d: real character count.
 #: classes/SeoVisibility/SeoScoreEngine.php:342
+#, php-format
 msgid "Title is %d characters - aim for roughly 50-60."
 msgstr ""
 
@@ -1966,11 +2030,13 @@ msgstr ""
 
 #. translators: %d: real character count.
 #: classes/SeoVisibility/SeoScoreEngine.php:388
+#, php-format
 msgid "Description length (%d chars) is appropriate."
 msgstr ""
 
 #. translators: %d: real character count.
 #: classes/SeoVisibility/SeoScoreEngine.php:390
+#, php-format
 msgid "Description is %d characters - aim for roughly 120-160."
 msgstr ""
 
@@ -2008,6 +2074,7 @@ msgstr ""
 
 #. translators: %s: comma-separated list of real issues found.
 #: classes/SeoVisibility/SeoScoreEngine.php:454
+#, php-format
 msgid "Slug issues: %s."
 msgstr ""
 
@@ -2041,6 +2108,7 @@ msgstr ""
 
 #. translators: %s: comma-separated list of where the keyword was actually found.
 #: classes/SeoVisibility/SeoScoreEngine.php:508
+#, php-format
 msgid "Focus keyword found in: %s."
 msgstr ""
 
@@ -2082,6 +2150,7 @@ msgstr ""
 
 #. translators: 1: real word count, 2: configured target word count.
 #: classes/SeoVisibility/SeoScoreEngine.php:637
+#, php-format
 msgid "Content is %1$d words (target: %2$d+)."
 msgstr ""
 
@@ -2091,11 +2160,13 @@ msgstr ""
 
 #. translators: %d: real max paragraph length, in words.
 #: classes/SeoVisibility/SeoScoreEngine.php:673
+#, php-format
 msgid "No paragraph exceeds %d words."
 msgstr ""
 
 #. translators: 1: real count of overlong paragraphs, 2: real max paragraph length, in words.
 #: classes/SeoVisibility/SeoScoreEngine.php:687
+#, php-format
 msgid "%1$d paragraph exceeds %2$d words."
 msgid_plural "%1$d paragraphs exceed %2$d words."
 msgstr[0] ""
@@ -2107,6 +2178,7 @@ msgstr ""
 
 #. translators: %d: real word count below the configured recommendation threshold.
 #: classes/SeoVisibility/SeoScoreEngine.php:706
+#, php-format
 msgid "Article is %d words - too short to need a table of contents."
 msgstr ""
 
@@ -2116,6 +2188,7 @@ msgstr ""
 
 #. translators: %d: real word count above the configured recommendation threshold.
 #: classes/SeoVisibility/SeoScoreEngine.php:736
+#, php-format
 msgid "No table of contents detected on this %d-word article."
 msgstr ""
 
@@ -2137,6 +2210,7 @@ msgstr ""
 
 #. translators: %s: real keyword density percentage.
 #: classes/SeoVisibility/SeoScoreEngine.php:798
+#, php-format
 msgid "Keyword density is %s%% - on the high side."
 msgstr ""
 
@@ -2146,6 +2220,7 @@ msgstr ""
 
 #. translators: %s: real keyword density percentage.
 #: classes/SeoVisibility/SeoScoreEngine.php:814
+#, php-format
 msgid "Keyword density is %s%% - natural."
 msgstr ""
 
@@ -2171,6 +2246,7 @@ msgstr ""
 
 #. translators: %s: real keyword density percentage.
 #: classes/SeoVisibility/SeoScoreEngine.php:929
+#, php-format
 msgid "Keyword density is %s%% - this reads as manipulative repetition."
 msgstr ""
 
@@ -2188,6 +2264,7 @@ msgstr ""
 
 #. translators: %d: real number of other published posts/pages targeting the same focus keyword.
 #: classes/SeoVisibility/SeoScoreEngine.php:1004
+#, php-format
 msgid "%d other published page also targets this focus keyword."
 msgid_plural "%d other published pages also target this focus keyword."
 msgstr[0] ""
@@ -2199,6 +2276,7 @@ msgstr ""
 
 #. translators: %d: real number of internal links found.
 #: classes/SeoVisibility/SeoScoreEngine.php:1029
+#, php-format
 msgid "%d internal link found."
 msgid_plural "%d internal links found."
 msgstr[0] ""
@@ -2215,6 +2293,7 @@ msgstr ""
 
 #. translators: %d: real number of external links found.
 #: classes/SeoVisibility/SeoScoreEngine.php:1048
+#, php-format
 msgid "%d external link found."
 msgid_plural "%d external links found."
 msgstr[0] ""
@@ -2252,6 +2331,7 @@ msgstr ""
 
 #. translators: %d: real count of images with no alt attribute at all.
 #: classes/SeoVisibility/SeoScoreEngine.php:1157
+#, php-format
 msgid "%d image has no alt attribute."
 msgid_plural "%d images have no alt attribute."
 msgstr[0] ""
@@ -2267,11 +2347,13 @@ msgstr ""
 
 #. translators: %d: real number of local images checked.
 #: classes/SeoVisibility/SeoScoreEngine.php:1226
+#, php-format
 msgid "Checked %d local image(s); none are unusually large."
 msgstr ""
 
 #. translators: 1: real count of oversized images, 2: the size threshold in KB.
 #: classes/SeoVisibility/SeoScoreEngine.php:1244
+#, php-format
 msgid "%1$d image is over %2$dKB."
 msgid_plural "%1$d images are over %2$dKB."
 msgstr[0] ""
@@ -2299,6 +2381,7 @@ msgstr ""
 
 #. translators: 1: real canonical URL character count, 2: the configured guideline length.
 #: classes/SeoVisibility/SeoScoreEngine.php:1364
+#, php-format
 msgid "Canonical URL is %1$d characters (guideline: %2$d or fewer)."
 msgstr ""
 
@@ -2316,6 +2399,7 @@ msgstr ""
 
 #. translators: %s is the finding's own title.
 #: classes/SeoVisibility/SeoTitleRewriteRule.php:107
+#, php-format
 msgid "A search-optimized title improves click-through from search results: %s"
 msgstr ""
 
@@ -2330,11 +2414,13 @@ msgstr ""
 
 #. translators: %s: real count of child sitemaps in this index.
 #: classes/SeoVisibility/SitemapStylesheet.php:162
+#, php-format
 msgid "This XML Sitemap Index file contains %s sitemaps."
 msgstr ""
 
 #. translators: %s: real count of URLs in this sitemap.
 #: classes/SeoVisibility/SitemapStylesheet.php:167
+#, php-format
 msgid "Number of URLs in this XML Sitemap: %s."
 msgstr ""
 
@@ -2368,6 +2454,7 @@ msgstr ""
 
 #: classes/SeoVisibility/SitemapStylesheet.php:202
 #: assets/js/index.js:1
+#: assets/js/index.js:5
 msgid "Priority"
 msgstr ""
 
@@ -2381,6 +2468,7 @@ msgstr ""
 
 #. translators: %d is how many minutes this post/page takes to read.
 #: classes/SeoVisibility/SocialMetaTagsManager.php:279
+#, php-format
 msgid "%d minute"
 msgid_plural "%d minutes"
 msgstr[0] ""
@@ -2429,6 +2517,7 @@ msgstr ""
 
 #. translators: %d: HTTP status code.
 #: classes/Settings/GoogleOAuthBrokerClient.php:107
+#, php-format
 msgid "Google connect broker returned a non-JSON response (HTTP %d)."
 msgstr ""
 
@@ -2442,6 +2531,7 @@ msgstr ""
 
 #. translators: %s: the Google connect service's own explanation.
 #: classes/Settings/Rest/GoogleServices.php:221
+#, php-format
 msgid "Google connect service: %s"
 msgstr ""
 
@@ -2507,6 +2597,7 @@ msgstr ""
 
 #. translators: %s is the site name.
 #: classes/Settings/Rest/Settings.php:318
+#, php-format
 msgid "[%s] VuloPilot test email"
 msgstr ""
 
@@ -2516,6 +2607,7 @@ msgstr ""
 
 #. translators: %s is the recipient email address.
 #: classes/Settings/Rest/Settings.php:337
+#, php-format
 msgid "Test email sent to %s."
 msgstr ""
 
@@ -2534,6 +2626,7 @@ msgstr ""
 
 #. translators: %s is the site name.
 #: classes/Settings/Rest/Settings.php:415
+#, php-format
 msgid "[%s] Your test report is ready"
 msgstr ""
 
@@ -2543,6 +2636,7 @@ msgstr ""
 
 #. translators: %s is the recipient email address.
 #: classes/Settings/Rest/Settings.php:433
+#, php-format
 msgid "Test report generated and emailed to %s."
 msgstr ""
 
@@ -2588,6 +2682,7 @@ msgstr ""
 
 #. translators: %s is the real error message the failed backup recorded.
 #: classes/SiteHealth/BackupHealthScanner.php:75
+#, php-format
 msgid "Real error from the last backup run: %s"
 msgstr ""
 
@@ -2609,6 +2704,7 @@ msgstr ""
 
 #. translators: %s is the real date/time of the last successful backup.
 #: classes/SiteHealth/BackupHealthScanner.php:116
+#, php-format
 msgid "The last successful backup completed on %s - longer ago than your configured schedule allows for. Check the Backups tab."
 msgstr ""
 
@@ -2631,11 +2727,13 @@ msgstr ""
 
 #. translators: %s is the real database error that stopped the restore.
 #: classes/SiteHealth/BackupManager.php:546
+#, php-format
 msgid "Restore stopped partway through the database import: %s"
 msgstr ""
 
 #. translators: 1: backup id, 2: real date/time the backup was created.
 #: classes/SiteHealth/BackupManager.php:587
+#, php-format
 msgid "Restored the site from backup #%1$d (created %2$s)"
 msgstr ""
 
@@ -2663,6 +2761,7 @@ msgstr ""
 
 #. translators: %s is the finding's own title, e.g. "WordPress core update available (6.9)".
 #: classes/SiteHealth/CoreUpdateAvailableRule.php:99
+#, php-format
 msgid "Running an outdated core version increases security risk: %s"
 msgstr ""
 
@@ -2672,11 +2771,13 @@ msgstr ""
 
 #. translators: %s is the cron hook name.
 #: classes/SiteHealth/CronScanner.php:65
+#, php-format
 msgid "Overdue scheduled event: %s"
 msgstr ""
 
 #. translators: %s is a human-readable time difference, e.g. "2 hours".
 #: classes/SiteHealth/CronScanner.php:72
+#, php-format
 msgid "This event was due %s ago and has not run - WP-Cron may not be firing."
 msgstr ""
 
@@ -2686,6 +2787,7 @@ msgstr ""
 
 #. translators: 1: number of expired transients, 2: number of excess post revisions.
 #: classes/SiteHealth/DatabaseCleanupScanner.php:62
+#, php-format
 msgid "%1$d expired transients and %2$d excess post revisions"
 msgstr ""
 
@@ -2716,6 +2818,7 @@ msgstr ""
 
 #. translators: %s is the number of post revisions, formatted with thousands separators.
 #: classes/SiteHealth/DatabaseScanner.php:60
+#, php-format
 msgid "%s post revisions stored in the database"
 msgstr ""
 
@@ -2733,6 +2836,7 @@ msgstr ""
 
 #. translators: %s is the finding's own title, e.g. "Inactive plugin installed: Hello Dolly".
 #: classes/SiteHealth/DormantPluginRule.php:99
+#, php-format
 msgid "Inactive plugins still carry known vulnerabilities and disk footprint: %s"
 msgstr ""
 
@@ -2742,6 +2846,7 @@ msgstr ""
 
 #. translators: %d is the number of active plugins.
 #: classes/SiteHealth/HeavyPluginsScanner.php:58
+#, php-format
 msgid "%d active plugins"
 msgstr ""
 
@@ -2771,6 +2876,7 @@ msgstr ""
 
 #. translators: 1: PHP error level (Warning, Notice, etc.), 2: the error message.
 #: classes/SiteHealth/PhpWarningScanner.php:74
+#, php-format
 msgid "PHP %1$s: %2$s"
 msgstr ""
 
@@ -2784,6 +2890,7 @@ msgstr ""
 
 #. translators: %s is the plugin name.
 #: classes/SiteHealth/PluginsScanner.php:60
+#, php-format
 msgid "Inactive plugin installed: %s"
 msgstr ""
 
@@ -2818,11 +2925,13 @@ msgstr ""
 
 #. translators: %s is the underlying connection error message.
 #: classes/SiteHealth/SiteAvailabilityScanner.php:66
+#, php-format
 msgid "A request to the homepage failed: %s"
 msgstr ""
 
 #. translators: %d is the HTTP status code the homepage returned.
 #: classes/SiteHealth/SiteAvailabilityScanner.php:83
+#, php-format
 msgid "Website is returning server errors (HTTP %d)"
 msgstr ""
 
@@ -2832,6 +2941,7 @@ msgstr ""
 
 #. translators: %d is the HTTP status code the homepage returned.
 #: classes/SiteHealth/SiteAvailabilityScanner.php:104
+#, php-format
 msgid "Website homepage returned an unexpected status (HTTP %d)"
 msgstr ""
 
@@ -2845,6 +2955,7 @@ msgstr ""
 
 #. translators: %s is the theme name.
 #: classes/SiteHealth/ThemesScanner.php:60
+#, php-format
 msgid "Inactive theme installed: %s"
 msgstr ""
 
@@ -2859,6 +2970,7 @@ msgstr ""
 
 #. translators: %s is the available WordPress core version.
 #: classes/SiteHealth/UpdatesScanner.php:55
+#, php-format
 msgid "WordPress core update available (%s)"
 msgstr ""
 
@@ -2868,21 +2980,25 @@ msgstr ""
 
 #. translators: %s is the plugin name.
 #: classes/SiteHealth/UpdatesScanner.php:72
+#, php-format
 msgid "Plugin update available: %s"
 msgstr ""
 
 #. translators: %s is the plugin name.
 #: classes/SiteHealth/UpdatesScanner.php:79
+#, php-format
 msgid "A newer version of %s is available. Keeping plugins up to date closes known security holes and fixes bugs."
 msgstr ""
 
 #. translators: %s is the theme name.
 #: classes/SiteHealth/UpdatesScanner.php:92
+#, php-format
 msgid "Theme update available: %s"
 msgstr ""
 
 #. translators: %s is the theme name.
 #: classes/SiteHealth/UpdatesScanner.php:99
+#, php-format
 msgid "A newer version of %s is available. Keeping themes up to date closes known security holes and fixes bugs."
 msgstr ""
 
@@ -2892,6 +3008,7 @@ msgstr ""
 
 #. translators: %d is how many installed plugins are currently deactivated.
 #: classes/SiteHealth/WordPressHealthScanner.php:103
+#, php-format
 msgid "%d inactive plugin installed"
 msgid_plural "%d inactive plugins installed"
 msgstr[0] ""
@@ -2899,6 +3016,7 @@ msgstr[1] ""
 
 #. translators: %s is a comma-separated list of inactive plugin names.
 #: classes/SiteHealth/WordPressHealthScanner.php:115
+#, php-format
 msgid "Deactivated plugins are still real files on disk and still a real attack surface if one has a known vulnerability, even while not running. Review and remove what you no longer use: %s."
 msgstr ""
 
@@ -2932,16 +3050,19 @@ msgstr ""
 
 #. translators: %s: scan name.
 #: classes/Utill/ScanPersistenceListener.php:226
+#, php-format
 msgid "%s: scan failed"
 msgstr ""
 
 #. translators: %s: scan name.
 #: classes/Utill/ScanPersistenceListener.php:231
+#, php-format
 msgid "%s: no issues found"
 msgstr ""
 
 #. translators: 1: scan name, 2: number of issues found.
 #: classes/Utill/ScanPersistenceListener.php:235
+#, php-format
 msgid "%1$s: %2$d issue found"
 msgid_plural "%1$s: %2$d issues found"
 msgstr[0] ""
@@ -2949,11 +3070,13 @@ msgstr[1] ""
 
 #. translators: %d is the number of critical findings.
 #: classes/Utill/ScanPersistenceListener.php:281
+#, php-format
 msgid "VuloPilot found %d critical issue(s)."
 msgstr ""
 
 #. translators: 1: site name, 2: number of critical findings.
 #: classes/Utill/ScanPersistenceListener.php:309
+#, php-format
 msgid "[%1$s] VuloPilot found %2$d critical issue(s)"
 msgstr ""
 
@@ -2963,6 +3086,7 @@ msgstr ""
 
 #. translators: %s is the finding's own title.
 #: classes/Utill/UnresolvedCriticalFindingRule.php:85
+#, php-format
 msgid "Critical: %s"
 msgstr ""
 
@@ -3040,6 +3164,7 @@ msgstr ""
 
 #. translators: %s is the post/page title being audited.
 #: modules/AiCopilot/Actions/AuditContentAction.php:149
+#, php-format
 msgid "AI content audit for: %s"
 msgstr ""
 
@@ -3097,6 +3222,7 @@ msgstr ""
 
 #. translators: %s is the generated post title.
 #: modules/AiCopilot/Actions/GenerateBlogAction.php:135
+#, php-format
 msgid "Create a new draft post: %s"
 msgstr ""
 
@@ -3138,6 +3264,7 @@ msgstr ""
 
 #. translators: %s is the post/page title.
 #: modules/AiCopilot/Actions/WriteMetaDescriptionAction.php:123
+#, php-format
 msgid "Set meta description for %s"
 msgstr ""
 
@@ -3155,6 +3282,7 @@ msgstr ""
 
 #. translators: %s is the post/page title being written for.
 #: modules/AiCopilot/Actions/WritePostContentAction.php:119
+#, php-format
 msgid "Write content for: %s"
 msgstr ""
 
@@ -3163,25 +3291,49 @@ msgid "Okay, I won't create that blog post."
 msgstr ""
 
 #. translators: %d: minimum number of characters.
-#: modules/AiCopilot/BlogIntake.php:182
+#: modules/AiCopilot/BlogIntake.php:183
+#, php-format
 msgid "Please give a topic of at least %d characters."
 msgstr ""
 
 #. translators: 1: minimum word count, 2: maximum word count.
-#: modules/AiCopilot/BlogIntake.php:193
+#: modules/AiCopilot/BlogIntake.php:194
+#, php-format
 msgid "Please give a number between %1$d and %2$d, or say \"skip\"."
 msgstr ""
 
-#: modules/AiCopilot/BlogIntake.php:223
+#: modules/AiCopilot/BlogIntake.php:224
 msgid "Sure! What should the blog post be about?"
 msgstr ""
 
-#: modules/AiCopilot/BlogIntake.php:225
+#: modules/AiCopilot/BlogIntake.php:226
 msgid "How many words would you like? (You can say \"skip\".)"
 msgstr ""
 
-#: modules/AiCopilot/BlogIntake.php:227
+#: modules/AiCopilot/BlogIntake.php:228
 msgid "What tone would you prefer? For example: Professional, Friendly, Informative, or Casual. (You can say \"skip\".)"
+msgstr ""
+
+#: modules/AiCopilot/BlogIntake.php:242
+#: modules/AiCopilot/BlogIntake.php:244
+#: assets/js/index.js:9
+msgid "Skip"
+msgstr ""
+
+#: modules/AiCopilot/BlogIntake.php:244
+msgid "Professional"
+msgstr ""
+
+#: modules/AiCopilot/BlogIntake.php:244
+msgid "Friendly"
+msgstr ""
+
+#: modules/AiCopilot/BlogIntake.php:244
+msgid "Informative"
+msgstr ""
+
+#: modules/AiCopilot/BlogIntake.php:244
+msgid "Casual"
 msgstr ""
 
 #: modules/AiCopilot/ContentCreationOrchestrator.php:79
@@ -3190,6 +3342,7 @@ msgstr ""
 
 #. translators: %s is a content type, e.g. "blog post".
 #: modules/AiCopilot/ContentCreationOrchestrator.php:90
+#, php-format
 msgid "Your %s has been created successfully:"
 msgstr ""
 
@@ -3205,21 +3358,23 @@ msgstr ""
 msgid "Enable the AI Copilot module to use Chat with VuloPilot."
 msgstr ""
 
-#: modules/AiCopilot/Rest/Copilot.php:317
+#: modules/AiCopilot/Rest/Copilot.php:322
 msgid "Conversation not found."
 msgstr ""
 
 #. translators: 1: e.g. "blog post", 2: the requested topic/title.
-#: modules/AiCopilot/Rest/Copilot.php:338
+#: modules/AiCopilot/Rest/Copilot.php:343
+#, php-format
 msgid "I can create a %1$s about \"%2$s\" for you - turn on \"Auto-applies (with approval)\" and ask again to have me create it."
 msgstr ""
 
 #. translators: %s is e.g. "blog post".
-#: modules/AiCopilot/Rest/Copilot.php:346
+#: modules/AiCopilot/Rest/Copilot.php:351
+#, php-format
 msgid "I can create a %s for you - turn on \"Auto-applies (with approval)\" and ask again to have me create it."
 msgstr ""
 
-#: modules/AiCopilot/Rest/Copilot.php:522
+#: modules/AiCopilot/Rest/Copilot.php:527
 #: modules/TechnicalSeo/Scanners/SeoScanner.php:45
 #: assets/js/index.js:1
 #: assets/js/index.js:9
@@ -3227,11 +3382,11 @@ msgstr ""
 msgid "SEO"
 msgstr ""
 
-#: modules/AiCopilot/Rest/Copilot.php:526
+#: modules/AiCopilot/Rest/Copilot.php:531
 msgid "GEO/AI-search"
 msgstr ""
 
-#: modules/AiCopilot/Rest/Copilot.php:530
+#: modules/AiCopilot/Rest/Copilot.php:535
 #: assets/js/index.js:1
 msgid "WooCommerce"
 msgstr ""
@@ -3258,6 +3413,7 @@ msgstr ""
 
 #. translators: %s is a comma-separated list of what the About page is missing.
 #: modules/BrandVisibility/Scanners/AboutPageAnalysisScanner.php:88
+#, php-format
 msgid "About page is missing %s"
 msgstr ""
 
@@ -3272,6 +3428,7 @@ msgstr ""
 
 #. translators: %s is the post/page title.
 #: modules/BrandVisibility/Scanners/AuthorSchemaScanner.php:80
+#, php-format
 msgid "No author schema found: %s"
 msgstr ""
 
@@ -3325,6 +3482,7 @@ msgstr ""
 
 #. translators: 1: post/page title, 2: Flesch Reading Ease score (0-100).
 #: modules/ContentOptimization/Scanners/ReadabilityScanner.php:102
+#, php-format
 msgid "Difficult to read (score %2$d/100): %1$s"
 msgstr ""
 
@@ -3371,11 +3529,13 @@ msgstr ""
 
 #. translators: 1: previous score, 2: new score, 3: post title.
 #: modules/GeoAnalysis/GeoAnalyzer.php:129
+#, php-format
 msgid "The GEO score for \"%3$s\" fell from %1$d to %2$d."
 msgstr ""
 
 #. translators: 1: site name, 2: post title.
 #: modules/GeoAnalysis/GeoAnalyzer.php:157
+#, php-format
 msgid "[%1$s] GEO score dropped for \"%2$s\""
 msgstr ""
 
@@ -3385,11 +3545,13 @@ msgstr ""
 
 #. translators: %s is the missing/invalid score dimension.
 #: modules/GeoAnalysis/GeoAnalyzer.php:394
+#, php-format
 msgid "The AI response is missing a valid \"%s\" score."
 msgstr ""
 
 #. translators: 1: real number of pages not updated since the "stale after" window, 2: real total published pages checked.
 #: modules/GeoAnalysis/Rest/Geo.php:284
+#, php-format
 msgid "%1$d of %2$d pages haven’t been updated in a while"
 msgid_plural "%1$d of %2$d pages haven’t been updated in a while"
 msgstr[0] ""
@@ -3401,6 +3563,7 @@ msgstr ""
 
 #. translators: %s is the post/page title.
 #: modules/GeoAnalysis/Scanners/GeoAuthorInfoScanner.php:79
+#, php-format
 msgid "No author bio available: %s"
 msgstr ""
 
@@ -3414,6 +3577,7 @@ msgstr ""
 
 #. translators: %s is the post/page title.
 #: modules/GeoAnalysis/Scanners/GeoChunkingScanner.php:80
+#, php-format
 msgid "Contains an overly long paragraph: %s"
 msgstr ""
 
@@ -3427,6 +3591,7 @@ msgstr ""
 
 #. translators: %s is the post/page title.
 #: modules/GeoAnalysis/Scanners/GeoCitationOpportunityScanner.php:96
+#, php-format
 msgid "Statistic mentioned with no source link: %s"
 msgstr ""
 
@@ -3440,6 +3605,7 @@ msgstr ""
 
 #. translators: %s is the post/page title.
 #: modules/GeoAnalysis/Scanners/GeoEeatSignalsScanner.php:80
+#, php-format
 msgid "No EEAT signals found: %s"
 msgstr ""
 
@@ -3453,11 +3619,13 @@ msgstr ""
 
 #. translators: %s is the post/page title.
 #: modules/GeoAnalysis/Scanners/GeoEntityNamingConsistencyScanner.php:85
+#, php-format
 msgid "Brand name written inconsistently: %s"
 msgstr ""
 
 #. translators: %s is a comma-separated list of the different spellings found.
 #: modules/GeoAnalysis/Scanners/GeoEntityNamingConsistencyScanner.php:92
+#, php-format
 msgid "This content refers to the site as multiple different spellings/casings (%s). AI answer engines resolve entities more reliably when a brand name is written the exact same way throughout."
 msgstr ""
 
@@ -3467,6 +3635,7 @@ msgstr ""
 
 #. translators: %s is the post/page title.
 #: modules/GeoAnalysis/Scanners/GeoFaqOpportunityScanner.php:84
+#, php-format
 msgid "No FAQ-style questions found: %s"
 msgstr ""
 
@@ -3480,6 +3649,7 @@ msgstr ""
 
 #. translators: %s is the post/page title.
 #: modules/GeoAnalysis/Scanners/GeoSemanticStructureScanner.php:84
+#, php-format
 msgid "Heading levels skip a level: %s"
 msgstr ""
 
@@ -3493,6 +3663,7 @@ msgstr ""
 
 #. translators: %s is the post/page title.
 #: modules/GeoAnalysis/Scanners/GeoSummaryBlockScanner.php:94
+#, php-format
 msgid "No upfront summary found: %s"
 msgstr ""
 
@@ -3515,6 +3686,7 @@ msgstr ""
 
 #. translators: %s is a comma-separated list of missing page types.
 #: modules/GeoAnalysis/Scanners/GeoTrustSignalsScanner.php:73
+#, php-format
 msgid "Site is missing %s"
 msgstr ""
 
@@ -3546,11 +3718,13 @@ msgstr ""
 #. translators: 1: real business name, 2: real service or product name.
 #: modules/KnowledgeGraph/EntityExtractor.php:284
 #: modules/KnowledgeGraph/EntityExtractor.php:293
+#, php-format
 msgid "%1$s offers %2$s"
 msgstr ""
 
 #. translators: 1: real business name, 2: real published category name.
 #: modules/KnowledgeGraph/EntityExtractor.php:307
+#, php-format
 msgid "%1$s publishes content about %2$s"
 msgstr ""
 
@@ -3614,6 +3788,7 @@ msgstr ""
 
 #. translators: %d: real current character count.
 #: modules/TechnicalSeo/Rest/Seo.php:641
+#, php-format
 msgid "Too short (%d characters)"
 msgstr ""
 
@@ -3647,6 +3822,7 @@ msgstr ""
 
 #. translators: 1: real word count, 2: real minimum recommended word count.
 #: modules/TechnicalSeo/Rest/Seo.php:698
+#, php-format
 msgid "Thin content (%1$d words, recommended %2$d+)"
 msgstr ""
 
@@ -3667,6 +3843,7 @@ msgstr ""
 
 #. translators: %d: real number of images missing alt text on this page.
 #: modules/TechnicalSeo/Rest/Seo.php:739
+#, php-format
 msgid "%d image missing alt text"
 msgid_plural "%d images missing alt text"
 msgstr[0] ""
@@ -3697,6 +3874,7 @@ msgstr ""
 
 #. translators: %d: real number of broken links found on this page by the Broken Links scanner.
 #: modules/TechnicalSeo/Rest/Seo.php:796
+#, php-format
 msgid "%d broken internal link found"
 msgid_plural "%d broken internal links found"
 msgstr[0] ""
@@ -3777,6 +3955,7 @@ msgstr ""
 
 #. translators: %s: real comma-separated list of missing Open Graph properties.
 #: modules/TechnicalSeo/Rest/Seo.php:926
+#, php-format
 msgid "Open Graph tags missing: %s"
 msgstr ""
 
@@ -3786,11 +3965,13 @@ msgstr ""
 
 #. translators: 1: bot display name, 2: post/page title.
 #: modules/TechnicalSeo/Scanners/AiCrawlerBlockedPagesScanner.php:103
+#, php-format
 msgid "%1$s is blocked from crawling: %2$s"
 msgstr ""
 
 #. translators: %s is the bot display name.
 #: modules/TechnicalSeo/Scanners/AiCrawlerBlockedPagesScanner.php:111
+#, php-format
 msgid "robots.txt disallows this page for %s specifically, so it won't be read for AI answers even though the rest of the site may be reachable."
 msgstr ""
 
@@ -3801,17 +3982,20 @@ msgstr ""
 
 #. translators: %s is the broken image URL.
 #: modules/TechnicalSeo/Scanners/BrokenImagesScanner.php:101
+#, php-format
 msgid "Broken image: %s"
 msgstr ""
 
 #. translators: %s is an HTTP status or error description.
 #: modules/TechnicalSeo/Scanners/BrokenImagesScanner.php:108
 #: modules/TechnicalSeo/Scanners/BrokenLinksScanner.php:108
+#, php-format
 msgid "Request failed with: %s"
 msgstr ""
 
 #. translators: %s is the broken URL.
 #: modules/TechnicalSeo/Scanners/BrokenLinksScanner.php:101
+#, php-format
 msgid "Broken link: %s"
 msgstr ""
 
@@ -3821,6 +4005,7 @@ msgstr ""
 
 #. translators: %s is the URL missing a canonical tag.
 #: modules/TechnicalSeo/Scanners/CanonicalUrlScanner.php:69
+#, php-format
 msgid "No canonical URL tag found: %s"
 msgstr ""
 
@@ -3834,6 +4019,7 @@ msgstr ""
 
 #. translators: 1: the duplicated title, 2: number of posts sharing it.
 #: modules/TechnicalSeo/Scanners/DuplicateContentScanner.php:94
+#, php-format
 msgid "Duplicate title used by %2$d posts: %1$s"
 msgstr ""
 
@@ -3847,6 +4033,7 @@ msgstr ""
 
 #. translators: %s is the post/page title.
 #: modules/TechnicalSeo/Scanners/HeadingStructureScanner.php:90
+#, php-format
 msgid "No subheadings found in long content: %s"
 msgstr ""
 
@@ -3856,6 +4043,7 @@ msgstr ""
 
 #. translators: %s is the image filename.
 #: modules/TechnicalSeo/Scanners/ImagesScanner.php:83
+#, php-format
 msgid "Image missing alt text: %s"
 msgstr ""
 
@@ -3871,6 +4059,7 @@ msgstr ""
 
 #. translators: %s is the post/page title.
 #: modules/TechnicalSeo/Scanners/InternalLinkingScanner.php:78
+#, php-format
 msgid "No internal links found in content: %s"
 msgstr ""
 
@@ -3884,6 +4073,7 @@ msgstr ""
 
 #. translators: %s is the post/page title.
 #: modules/TechnicalSeo/Scanners/MetaDescriptionScanner.php:84
+#, php-format
 msgid "No meta description set: %s"
 msgstr ""
 
@@ -3897,6 +4087,7 @@ msgstr ""
 
 #. translators: %s is a comma-separated list of missing Open Graph properties.
 #: modules/TechnicalSeo/Scanners/OpenGraphScanner.php:83
+#, php-format
 msgid "Missing Open Graph tags on the homepage: %s"
 msgstr ""
 
@@ -3910,6 +4101,7 @@ msgstr ""
 
 #. translators: %s is the post/page title.
 #: modules/TechnicalSeo/Scanners/OrphanPageScanner.php:89
+#, php-format
 msgid "No internal links point to this page: %s"
 msgstr ""
 
@@ -3958,6 +4150,7 @@ msgstr ""
 
 #. translators: %s is the post/page title.
 #: modules/TechnicalSeo/Scanners/SeoImagesScanner.php:84
+#, php-format
 msgid "No featured image set: %s"
 msgstr ""
 
@@ -3967,16 +4160,19 @@ msgstr ""
 
 #. translators: %s is the post/page title.
 #: modules/TechnicalSeo/Scanners/SeoScanner.php:92
+#, php-format
 msgid "Title is too short for search results: %s"
 msgstr ""
 
 #. translators: %s is the post/page title.
 #: modules/TechnicalSeo/Scanners/SeoScanner.php:97
+#, php-format
 msgid "Title may be truncated in search results: %s"
 msgstr ""
 
 #. translators: 1: minimum recommended title length, 2: maximum recommended title length.
 #: modules/TechnicalSeo/Scanners/SeoScanner.php:104
+#, php-format
 msgid "Search engines display roughly %1$d–%2$d characters of a title before truncating."
 msgstr ""
 
@@ -3990,6 +4186,7 @@ msgstr ""
 
 #. translators: %d is which structured-data block on the page (1-indexed) is invalid.
 #: modules/TechnicalSeo/Scanners/StructuredDataValidationScanner.php:84
+#, php-format
 msgid "Invalid structured data (JSON-LD) block #%d on the homepage"
 msgstr ""
 
@@ -4003,11 +4200,13 @@ msgstr ""
 
 #. translators: 1: post/page title, 2: word count.
 #: modules/TechnicalSeo/Scanners/ThinContentScanner.php:85
+#, php-format
 msgid "Thin content (%2$d words): %1$s"
 msgstr ""
 
 #. translators: %d is the recommended minimum word count.
 #: modules/TechnicalSeo/Scanners/ThinContentScanner.php:93
+#, php-format
 msgid "Search engines generally rank substantive content higher. Consider expanding this to at least %d words."
 msgstr ""
 
@@ -4941,6 +5140,7 @@ msgstr ""
 
 #. translators: %s: Plugin name.
 #: assets/js/index.js:1
+#, js-format
 msgid "%s is needed for this"
 msgstr ""
 
@@ -4950,6 +5150,7 @@ msgstr ""
 
 #. translators: %s: name of the required plugin.
 #: assets/js/index.js:1
+#, js-format
 msgid "Install and activate \"%s\", then come back. VuloPilot picks it up straight away."
 msgstr ""
 
@@ -4975,6 +5176,7 @@ msgstr ""
 
 #. translators: %s: module display name.
 #: assets/js/index.js:1
+#, js-format
 msgid "Turn on %s"
 msgstr ""
 
@@ -4984,6 +5186,7 @@ msgstr ""
 
 #. translators: %s: Module name.
 #: assets/js/index.js:1
+#, js-format
 msgid "This feature is part of the %s module, which is switched off. Turn it on in Modules to use it."
 msgstr ""
 
@@ -5002,6 +5205,7 @@ msgstr ""
 
 #. translators: %s: feature name, e.g. "Health trend".
 #: assets/js/index.js:1
+#, js-format
 msgid "%s is included"
 msgstr ""
 
@@ -5011,6 +5215,7 @@ msgstr ""
 
 #. translators: %d: number of Pro features.
 #: assets/js/index.js:1
+#, js-format
 msgid "%d features"
 msgstr ""
 
@@ -5306,6 +5511,21 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "One per line: a name, then | and the address."
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:5
+msgid "Services"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid ""
+"Web design\n"
+"SEO consulting"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "One per line. No dedicated page needed - use Service pages below for those."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5784,6 +6004,7 @@ msgstr ""
 #. translators: 1: plugin name, 2: number of items found.
 #: assets/js/index.js:1
 #: assets/js/index.js:30
+#, js-format
 msgid "%1$s (%2$d item(s) found)"
 msgstr ""
 
@@ -5813,6 +6034,7 @@ msgstr ""
 
 #. translators: %d: number of posts with SEO data.
 #: assets/js/index.js:1
+#, js-format
 msgid "%d item(s) ready to import"
 msgstr ""
 
@@ -5836,6 +6058,7 @@ msgstr ""
 #. translators: %s: source plugin name.
 #: assets/js/index.js:1
 #: assets/js/index.js:30
+#, js-format
 msgid "Importing from %s…"
 msgstr ""
 
@@ -5845,11 +6068,13 @@ msgstr ""
 
 #. translators: 1: number of posts migrated, 2: number of posts skipped.
 #: assets/js/index.js:1
+#, js-format
 msgid "%1$d imported, %2$d skipped."
 msgstr ""
 
 #. translators: 1: number of posts migrated, 2: source plugin name.
 #: assets/js/index.js:1
+#, js-format
 msgid "Imported %1$d post(s) from %2$s."
 msgstr ""
 
@@ -5874,6 +6099,7 @@ msgstr ""
 
 #. translators: %d: real threshold percent.
 #: assets/js/index.js:1
+#, js-format
 msgid "%d%% or more"
 msgstr ""
 
@@ -6621,6 +6847,7 @@ msgstr ""
 
 #. translators: %s: the real content type being edited, e.g. "Homepage".
 #: assets/js/index.js:1
+#, js-format
 msgid "%s Format"
 msgstr ""
 
@@ -6630,6 +6857,7 @@ msgstr ""
 
 #. translators: %s: a real template variable's own short label, e.g. "Post title".
 #: assets/js/index.js:1
+#, js-format
 msgid "+ %s"
 msgstr ""
 
@@ -6759,11 +6987,13 @@ msgstr ""
 
 #. translators: 1: date, 2: number of problems.
 #: assets/js/index.js:1
+#, js-format
 msgid "Last checked %1$s: %2$d problem types found."
 msgstr ""
 
 #. translators: %s: date.
 #: assets/js/index.js:1
+#, js-format
 msgid "Last checked %s: no problems found."
 msgstr ""
 
@@ -7553,6 +7783,7 @@ msgstr ""
 
 #. translators: %s is a formatted date/time.
 #: assets/js/index.js:1
+#, js-format
 msgid "Verified on %s. Method: HTML Tag."
 msgstr ""
 
@@ -7657,7 +7888,7 @@ msgid "GTM-XXXXXXX"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "A Container ID looks like GTM-XXXXXXX. This value was not saved."
+msgid "Use the format GTM-XXXXXXX, for example GTM-AB12CD3. This ID has not been saved."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7954,11 +8185,13 @@ msgstr ""
 
 #. translators: %s: real lifetime-earned credit count.
 #: assets/js/index.js:1
+#, js-format
 msgid "%s earned"
 msgstr ""
 
 #. translators: %s: real lifetime-used credit count.
 #: assets/js/index.js:1
+#, js-format
 msgid "%s used"
 msgstr ""
 
@@ -8000,6 +8233,7 @@ msgstr ""
 
 #. translators: %s: remaining AI credit balance, e.g. "76.550".
 #: assets/js/index.js:1
+#, js-format
 msgid "%s credits"
 msgstr ""
 
@@ -8013,6 +8247,7 @@ msgstr ""
 
 #. translators: %s: remaining AI credits, e.g. "0.000".
 #: assets/js/index.js:1
+#, js-format
 msgid "You have %s AI Credits remaining. Nothing was charged for this request."
 msgstr ""
 
@@ -8053,6 +8288,7 @@ msgstr ""
 
 #. translators: 1: formatted date, 2: formatted time.
 #: assets/js/index.js:1
+#, js-format
 msgid "Last scan: %1$s • %2$s"
 msgstr ""
 
@@ -8182,6 +8418,7 @@ msgstr[1] ""
 #. translators: %s: formatted date/time this URL was last requested.
 #: assets/js/index.js:1
 #: assets/js/index.js:5
+#, js-format
 msgid "Last seen %s"
 msgstr ""
 
@@ -8195,6 +8432,7 @@ msgstr ""
 
 #. translators: %d: number of crawler visits to a page.
 #: assets/js/index.js:1
+#, js-format
 msgid "%d visit"
 msgid_plural "%d visits"
 msgstr[0] ""
@@ -8272,11 +8510,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 #: assets/js/index.js:5
-msgid "Services"
-msgstr ""
-
-#: assets/js/index.js:1
-#: assets/js/index.js:5
 msgid "People"
 msgstr ""
 
@@ -8334,16 +8567,19 @@ msgstr ""
 
 #. translators: %s: WordPress version.
 #: assets/js/index.js:1
+#, js-format
 msgid "WordPress %s"
 msgstr ""
 
 #. translators: %s: PHP version.
 #: assets/js/index.js:1
+#, js-format
 msgid "PHP %s"
 msgstr ""
 
 #. translators: 1: active plugins, 2: installed plugins.
 #: assets/js/index.js:1
+#, js-format
 msgid "%1$d of %2$d plugins active"
 msgstr ""
 
@@ -8353,6 +8589,7 @@ msgstr ""
 
 #. translators: %d: GEO score out of 100.
 #: assets/js/index.js:1
+#, js-format
 msgid "GEO score %d/100"
 msgstr ""
 
@@ -8378,6 +8615,7 @@ msgstr ""
 #. translators: 1: details found, 2: details checked.
 #: assets/js/index.js:1
 #: assets/js/index.js:5
+#, js-format
 msgid "%1$d of %2$d details found"
 msgstr ""
 
@@ -8430,6 +8668,7 @@ msgstr ""
 
 #. translators: 1: area name such as "Health", 2: points lost.
 #: assets/js/index.js:1
+#, js-format
 msgid "%1$s dropped %2$d point this week."
 msgid_plural "%1$s dropped %2$d points this week."
 msgstr[0] ""
@@ -8441,6 +8680,7 @@ msgstr ""
 
 #. translators: 1: area name such as "Performance", 2: points gained.
 #: assets/js/index.js:1
+#, js-format
 msgid "%1$s improved %2$d point this week."
 msgid_plural "%1$s improved %2$d points this week."
 msgstr[0] ""
@@ -8453,6 +8693,7 @@ msgstr ""
 
 #. translators: %s: rating such as "Excellent".
 #: assets/js/index.js:1
+#, js-format
 msgid "Site health · %s"
 msgstr ""
 
@@ -8496,18 +8737,15 @@ msgid "Critical"
 msgstr ""
 
 #: assets/js/index.js:1
-#: assets/js/index.js:5
 #: assets/js/index.js:9
 msgid "High priority"
 msgstr ""
 
 #: assets/js/index.js:1
-#: assets/js/index.js:5
 msgid "Medium priority"
 msgstr ""
 
 #: assets/js/index.js:1
-#: assets/js/index.js:5
 msgid "Low priority"
 msgstr ""
 
@@ -8535,6 +8773,7 @@ msgstr ""
 
 #. translators: %d: number of open issues.
 #: assets/js/index.js:1
+#, js-format
 msgid "Most urgent first. %d open issue across your site."
 msgid_plural "Most urgent first. %d open issues across your site."
 msgstr[0] ""
@@ -8583,6 +8822,7 @@ msgstr ""
 
 #. translators: %s: date the AI asked for approval.
 #: assets/js/index.js:1
+#, js-format
 msgid "AI change waiting for your OK · asked %s"
 msgstr ""
 
@@ -8606,6 +8846,7 @@ msgstr ""
 
 #. translators: %d: number of further steps not shown.
 #: assets/js/index.js:1
+#, js-format
 msgid "%d more step"
 msgid_plural "%d more steps"
 msgstr[0] ""
@@ -8633,6 +8874,7 @@ msgstr ""
 
 #. translators: 1: automations switched on, 2: automations in total.
 #: assets/js/index.js:1
+#, js-format
 msgid "%1$d of %2$d running in the background."
 msgid_plural "%1$d of %2$d running in the background."
 msgstr[0] ""
@@ -8721,6 +8963,7 @@ msgstr ""
 
 #. translators: 1: number of issues, 2: worst severity, e.g. "critical".
 #: assets/js/index.js:1
+#, js-format
 msgid "%1$d issue · %2$s"
 msgid_plural "%1$d issues · %2$s"
 msgstr[0] ""
@@ -8733,6 +8976,7 @@ msgstr ""
 #. translators: 1: what is scored, e.g. "Security", 2: rating such as "Excellent".
 #. translators: 1: real hit count label, 2: real last-accessed date or "Never".
 #: assets/js/index.js:1
+#, js-format
 msgid "%1$s · %2$s"
 msgstr ""
 
@@ -8794,6 +9038,7 @@ msgstr ""
 
 #. translators: %s: section name, e.g. "Affected accounts".
 #: assets/js/index.js:1
+#, js-format
 msgid "%s - unlock with VuloPilot Pro"
 msgstr ""
 
@@ -8854,6 +9099,7 @@ msgstr ""
 
 #. translators: %s: the section above, e.g. "Example finding".
 #: assets/js/index.js:1
+#, js-format
 msgid "This is the only one - its details are under \"%s\" above."
 msgstr ""
 
@@ -8861,6 +9107,7 @@ msgstr ""
 #. translators: 1: page path or "Site-wide", 2: formatted date
 #: assets/js/index.js:1
 #: assets/js/index.js:5
+#, js-format
 msgid "%1$s · Detected %2$s"
 msgstr ""
 
@@ -8872,6 +9119,7 @@ msgstr ""
 
 #. translators: %d: how many further open findings exist beyond the list shown above
 #: assets/js/index.js:1
+#, js-format
 msgid "+%d more not listed. Resolve all and Ignore all below cover every one."
 msgstr ""
 
@@ -8941,11 +9189,13 @@ msgstr ""
 
 #. translators: %s: the affected item's kind, e.g. "account".
 #: assets/js/index.js:1
+#, js-format
 msgid "See exactly which %s it is, the fix, and fix it with AI in one click."
 msgstr ""
 
 #. translators: %s: affected items, e.g. "2 pages".
 #: assets/js/index.js:1
+#, js-format
 msgid "See all %s, the exact fix, and fix them with AI in one click."
 msgstr ""
 
@@ -8972,11 +9222,13 @@ msgstr ""
 
 #. translators: %d is how many findings were fixed.
 #: assets/js/index.js:1
+#, js-format
 msgid "Fixed %d findings."
 msgstr ""
 
 #. translators: 1: number fixed, 2: how many had no automatic fix available at all.
 #: assets/js/index.js:1
+#, js-format
 msgid "Fixed %1$d findings - no automatic fix exists yet for the other %2$d."
 msgstr ""
 
@@ -8986,6 +9238,7 @@ msgstr ""
 
 #. translators: 1: number fixed, 2: total findings attempted.
 #: assets/js/index.js:1
+#, js-format
 msgid "Fixed %1$d of %2$d findings - some had no fix available or failed."
 msgstr ""
 
@@ -9061,11 +9314,13 @@ msgid "Area"
 msgstr ""
 
 #: assets/js/index.js:1
+#: assets/js/index.js:5
 msgid "Any priority"
 msgstr ""
 
 #. translators: 1: first row shown, 2: last row shown, 3: number of issues.
 #: assets/js/index.js:1
+#, js-format
 msgid "%1$d–%2$d of %3$d issues"
 msgstr ""
 
@@ -9075,6 +9330,7 @@ msgstr ""
 
 #. translators: 1: current page, 2: number of pages.
 #: assets/js/index.js:1
+#, js-format
 msgid "Page %1$d of %2$d"
 msgstr ""
 
@@ -9088,6 +9344,7 @@ msgstr ""
 
 #. translators: %s is the name of the overlapping VuloPilot feature, e.g. "SEO Copilot".
 #: assets/js/index.js:1
+#, js-format
 msgid "VuloPilot feature: %s"
 msgstr ""
 
@@ -9118,6 +9375,7 @@ msgstr ""
 
 #. translators: 1: visits measured so far, 2: visits needed.
 #: assets/js/index.js:1
+#, js-format
 msgid "Measuring visits (%1$d/%2$d)"
 msgstr ""
 
@@ -9171,6 +9429,7 @@ msgstr ""
 
 #. translators: %d: number of days.
 #: assets/js/index.js:1
+#, js-format
 msgid "Your speed score, and what real visitors experienced, over the last %d days."
 msgstr ""
 
@@ -9182,43 +9441,11 @@ msgid "Period"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Clear all caches"
+msgid "Turn on once"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Page, object and plugin caches"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Minify CSS & JS"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Through your optimization plugin"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Optimize images"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Shrink large uploads"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Clean the database"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Old revisions and expired data"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Remove unused images"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Media nothing links to"
+msgid "Settings that stay on and speed up every page."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9226,7 +9453,11 @@ msgid "Lazy-load images"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Load images as visitors scroll"
+msgid "Images below the fold load only when visitors scroll to them."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Returning visitors reuse styles, scripts and images instead of downloading them again."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9234,52 +9465,178 @@ msgid "Preload key files"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Fonts and styles load first"
+msgid "Your logo and main stylesheet start loading first, so pages appear sooner."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Returning visitors load less"
+msgid "Run any time"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Quick fixes"
+msgid "Safe and instant - nothing is removed."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Common speed fixes, one click each."
+msgid "Clear all caches"
 msgstr ""
+
+#: assets/js/index.js:1
+msgid "Visitors see your latest changes. Use it after editing your theme or plugins."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Minify CSS & JS"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Rebuilds smaller style and script files through your optimization plugin."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Minify"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Clean-ups"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "These change files or delete data, so they ask first. A recent backup is a good idea."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Optimize images"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Shrinks oversized uploads so pages download less."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Optimize"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "This resizes and recompresses your oversized image files in place."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Clean the database"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Removes expired temporary data and old post revisions."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Clean up"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "This permanently deletes expired transients and old post revisions."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Remove unused images"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Deletes media that no post, page or setting uses, to free up space."
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/post-editor.js:1
+msgid "Remove"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "This permanently deletes images nothing on your site links to. It cannot be undone without a backup."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Big impact"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Some impact"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Housekeeping"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Stays on"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Instant"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Asks first"
+msgstr ""
+
+#. translators: 1: check name, 2: number of issues.
+#: assets/js/index.js:1
+#, js-format
+msgid "%1$s found %2$d issue"
+msgid_plural "%1$s found %2$d issues"
+msgstr[0] ""
+msgstr[1] ""
 
 #: assets/js/index.js:1
 msgid "Could not run this fix - please try again."
 msgstr ""
 
 #: assets/js/index.js:1
-#: assets/js/index.js:9
-msgid "Running…"
-msgstr ""
-
-#. translators: %d: number of pages.
-#: assets/js/index.js:1
-msgid "Slows down %d page"
-msgid_plural "Slows down %d pages"
-msgstr[0] ""
-msgstr[1] ""
-
-#. translators: %s: what it affects, e.g. "1 endpoint".
-#: assets/js/index.js:1
-msgid "Affects %s"
+msgid "Working…"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Biggest opportunity"
+msgid "Run again"
+msgstr ""
+
+#. translators: %s: what the last scan found, e.g. "CSS Optimization found 1 issue".
+#: assets/js/index.js:1
+#, js-format
+msgid "Why: %s"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "See slow pages"
+msgid "What to do next"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "See the fix"
+msgid "Every one-click speed fix, the ones your site needs first."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Recommended for your site"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Your last scan found an issue each of these fixes solves."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Your last scan found nothing these fixes are needed for. Every tool is still here below."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "More speed tools"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Speed tools"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "“Stays on” settings work on every page, “Instant” ones are safe to run any time, “Asks first” ones change files."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Make a backup first"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9288,6 +9645,7 @@ msgstr ""
 
 #. translators: %d: number of checks that need attention.
 #: assets/js/index.js:1
+#, js-format
 msgid "%d setting could make every page faster."
 msgid_plural "%d settings could make every page faster."
 msgstr[0] ""
@@ -9319,6 +9677,7 @@ msgstr ""
 
 #. translators: %d: points.
 #: assets/js/index.js:1
+#, js-format
 msgid "Mobile is %d points slower than desktop - most visitors are on mobile."
 msgstr ""
 
@@ -9349,6 +9708,10 @@ msgid "critical or high"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Check page by page"
+msgstr ""
+
+#: assets/js/index.js:1
 #: assets/js/index.js:9
 msgid "Mobile"
 msgstr ""
@@ -9373,6 +9736,7 @@ msgstr ""
 
 #. translators: %d: number of open speed issues.
 #: assets/js/index.js:1
+#, js-format
 msgid "%d thing is slowing your site down."
 msgid_plural "%d things are slowing your site down."
 msgstr[0] ""
@@ -9380,6 +9744,7 @@ msgstr[1] ""
 
 #. translators: %d: number of small open speed issues.
 #: assets/js/index.js:1
+#, js-format
 msgid "Fast already - %d small fix could make it faster."
 msgid_plural "Fast already - %d small fixes could make it faster."
 msgstr[0] ""
@@ -9520,11 +9885,13 @@ msgstr ""
 
 #. translators: %d: real PageSpeed score threshold below which a page counts as "slow" (PageSpeedRepository::SCORE_NEEDS_IMPROVEMENT).
 #: assets/js/index.js:1
+#, js-format
 msgid "Pages with a performance score below %d"
 msgstr ""
 
 #. translators: %d: real total scanned page count.
 #: assets/js/index.js:1
+#, js-format
 msgid "of %d pages"
 msgstr ""
 
@@ -9538,6 +9905,7 @@ msgstr ""
 
 #. translators: %s: real load time in seconds.
 #: assets/js/index.js:1
+#, js-format
 msgid "%s s"
 msgstr ""
 
@@ -9547,6 +9915,7 @@ msgstr ""
 
 #. translators: %d: real PageSpeed score threshold at/above which a page counts as "good" (PageSpeedRepository::SCORE_GOOD).
 #: assets/js/index.js:1
+#, js-format
 msgid "Pages with a performance score of %d or higher"
 msgstr ""
 
@@ -9613,6 +9982,7 @@ msgstr ""
 
 #. translators: %s: real load time in seconds.
 #: assets/js/index.js:1
+#, js-format
 msgid "Load Time: %s s"
 msgstr ""
 
@@ -9691,6 +10061,7 @@ msgstr ""
 #. translators: %d: number of pages with this problem.
 #: assets/js/index.js:1
 #: assets/js/index.js:20
+#, js-format
 msgid "%d page affected"
 msgid_plural "%d pages affected"
 msgstr[0] ""
@@ -9794,6 +10165,7 @@ msgstr ""
 
 #. translators: %d: number of days the chart covers.
 #: assets/js/index.js:1
+#, js-format
 msgid "in %d days"
 msgstr ""
 
@@ -9803,11 +10175,13 @@ msgstr ""
 
 #. translators: 1: what the score is, e.g. "Visibility", 2: the score out of 100.
 #: assets/js/index.js:1
+#, js-format
 msgid "%1$s %2$d"
 msgstr ""
 
 #. translators: %d: score out of 100.
 #: assets/js/index.js:1
+#, js-format
 msgid "Score %d out of 100"
 msgstr ""
 
@@ -10084,6 +10458,7 @@ msgstr ""
 
 #. translators: %s: e.g. "SEO", "AEO", "GEO" - issuesColumnLabel with " Issues" stripped off.
 #: assets/js/index.js:1
+#, js-format
 msgid "No open %s issues on any page or post right now - nice work."
 msgstr ""
 
@@ -10099,11 +10474,13 @@ msgstr ""
 
 #. translators: 1: first 2 real scanner labels that flagged this page, comma-joined; 2: how many more real ones beyond those.
 #: assets/js/index.js:1
+#, js-format
 msgid "%1$s +%2$d"
 msgstr ""
 
 #. translators: 1: real total number of open findings on this page; 2: real scanner labels (capped, "+N" suffixed) that flagged them.
 #: assets/js/index.js:1
+#, js-format
 msgid "%1$d issue: %2$s"
 msgid_plural "%1$d issues: %2$s"
 msgstr[0] ""
@@ -10127,6 +10504,7 @@ msgstr ""
 
 #. translators: %s: the search text typed into the "Search pages…" box above.
 #: assets/js/index.js:1
+#, js-format
 msgid "No pages or posts match \"%s\"."
 msgstr ""
 
@@ -10169,6 +10547,7 @@ msgstr ""
 
 #. translators: %s: this site's own Settings → General → Date Format, e.g. "10/09/2026".
 #: assets/js/index.js:1
+#, js-format
 msgid "Last scanned %s"
 msgstr ""
 
@@ -10255,11 +10634,13 @@ msgstr ""
 
 #. translators: %d: real number of published pages/posts every GEO scanner scans.
 #: assets/js/index.js:1
+#, js-format
 msgid "Based on %d published pages."
 msgstr ""
 
 #. translators: %d: number of published pages every GEO check scans.
 #: assets/js/index.js:1
+#, js-format
 msgid "How ready your %d published pages are to be understood and quoted by AI."
 msgstr ""
 
@@ -10271,6 +10652,7 @@ msgstr ""
 #: assets/js/index.js:5
 #: assets/js/index.js:9
 #: assets/js/index.js:20
+#, js-format
 msgid "%d issue"
 msgid_plural "%d issues"
 msgstr[0] ""
@@ -10361,6 +10743,7 @@ msgstr ""
 
 #. translators: %s is the real module's own display name.
 #: assets/js/index.js:1
+#, js-format
 msgid "%s module is turned off"
 msgstr ""
 
@@ -10387,6 +10770,7 @@ msgstr ""
 
 #. translators: %d: percent of tested questions the AI service already recognized this site for.
 #: assets/js/index.js:1
+#, js-format
 msgid "questions your AI service already recognized this site for (%d%%)."
 msgstr ""
 
@@ -10596,6 +10980,7 @@ msgstr ""
 
 #. translators: %d: real total number of distinct crawlers seen.
 #: assets/js/index.js:1
+#, js-format
 msgid "View all (%d total) ›"
 msgstr ""
 
@@ -10996,6 +11381,7 @@ msgstr ""
 
 #: assets/js/index.js:1
 #: assets/js/index.js:5
+#: assets/js/index.js:12
 msgid "Saving…"
 msgstr ""
 
@@ -11034,6 +11420,7 @@ msgstr ""
 
 #. translators: %d: real number of hits.
 #: assets/js/index.js:1
+#, js-format
 msgid "%d Hit"
 msgid_plural "%d Hits"
 msgstr[0] ""
@@ -11110,6 +11497,7 @@ msgstr ""
 
 #. translators: %d: number of redirects that failed to update.
 #: assets/js/index.js:5
+#, js-format
 msgid "%d redirect(s) could not be updated."
 msgstr ""
 
@@ -11191,11 +11579,13 @@ msgstr ""
 
 #. translators: %d: number of selected redirects.
 #: assets/js/index.js:5
+#, js-format
 msgid "Delete %d selected redirect(s)? This cannot be undone."
 msgstr ""
 
 #. translators: %d: number of redirects that failed to delete.
 #: assets/js/index.js:5
+#, js-format
 msgid "%d redirect(s) could not be deleted."
 msgstr ""
 
@@ -11257,6 +11647,7 @@ msgstr ""
 
 #. translators: %d: real number of hits.
 #: assets/js/index.js:5
+#, js-format
 msgid "%d hit"
 msgid_plural "%d hits"
 msgstr[0] ""
@@ -11288,6 +11679,7 @@ msgstr ""
 
 #. translators: %d: number of selected log entries.
 #: assets/js/index.js:5
+#, js-format
 msgid "Dismiss %d selected entry? This cannot be undone."
 msgid_plural "Dismiss %d selected entries? This cannot be undone."
 msgstr[0] ""
@@ -11295,6 +11687,7 @@ msgstr[1] ""
 
 #. translators: %d: number of log entries that failed to dismiss.
 #: assets/js/index.js:5
+#, js-format
 msgid "%d entry could not be dismissed."
 msgid_plural "%d entries could not be dismissed."
 msgstr[0] ""
@@ -11358,11 +11751,13 @@ msgstr ""
 
 #. translators: %s: page path or title this finding was detected on.
 #: assets/js/index.js:5
+#, js-format
 msgid "Page: %s"
 msgstr ""
 
 #. translators: %s: formatted date the finding was first detected.
 #: assets/js/index.js:5
+#, js-format
 msgid "Detected: %s"
 msgstr ""
 
@@ -11521,6 +11916,7 @@ msgstr ""
 
 #. translators: %d: real number of URLs this sitemap lists.
 #: assets/js/index.js:5
+#, js-format
 msgid "%d URL"
 msgid_plural "%d URLs"
 msgstr[0] ""
@@ -11556,6 +11952,7 @@ msgstr ""
 
 #. translators: %d: number of blocked URLs.
 #: assets/js/index.js:5
+#, js-format
 msgid "%d URL(s) currently blocked"
 msgstr ""
 
@@ -11597,18 +11994,6 @@ msgstr ""
 
 #: assets/js/index.js:5
 msgid "How strong your brand is based on reputation and credibility."
-msgstr ""
-
-#: assets/js/index.js:5
-msgid "View issues"
-msgstr ""
-
-#: assets/js/index.js:5
-msgid "Filter by priority"
-msgstr ""
-
-#: assets/js/index.js:5
-msgid "Click a priority level to view matching issues"
 msgstr ""
 
 #: assets/js/index.js:5
@@ -11909,6 +12294,7 @@ msgstr ""
 
 #. translators: %s: the real business name VuloPilot resolved.
 #: assets/js/index.js:5
+#, js-format
 msgid "VuloPilot identified \"%s\" as your business name from multiple sources across your website."
 msgstr ""
 
@@ -11918,11 +12304,13 @@ msgstr ""
 
 #. translators: %d: how many real sources were checked.
 #: assets/js/index.js:5
+#, js-format
 msgid "%d sources checked"
 msgstr ""
 
 #. translators: %s: the real value found at this source.
 #: assets/js/index.js:5
+#, js-format
 msgid "Found: %s"
 msgstr ""
 
@@ -11944,6 +12332,7 @@ msgstr ""
 
 #. translators: %d: how many real sources agree on the same business name.
 #: assets/js/index.js:5
+#, js-format
 msgid "%d sources use the same business name."
 msgstr ""
 
@@ -11989,6 +12378,7 @@ msgstr ""
 
 #. translators: %d: real number of detected products.
 #: assets/js/index.js:5
+#, js-format
 msgid "%d product"
 msgid_plural "%d products"
 msgstr[0] ""
@@ -12004,6 +12394,7 @@ msgstr ""
 
 #. translators: %d is a real category count.
 #: assets/js/index.js:5
+#, js-format
 msgid "%d Category"
 msgid_plural "%d Categories"
 msgstr[0] ""
@@ -12019,6 +12410,7 @@ msgstr ""
 
 #. translators: %d is a real count of published-post authors.
 #: assets/js/index.js:5
+#, js-format
 msgid "%d People"
 msgstr ""
 
@@ -12028,6 +12420,7 @@ msgstr ""
 
 #. translators: %d is a real published-WooCommerce-product count.
 #: assets/js/index.js:5
+#, js-format
 msgid "%d Product"
 msgid_plural "%d Products"
 msgstr[0] ""
@@ -12043,6 +12436,7 @@ msgstr ""
 
 #. translators: %d is a real, owner-curated location count.
 #: assets/js/index.js:5
+#, js-format
 msgid "%d Location"
 msgid_plural "%d Locations"
 msgstr[0] ""
@@ -12058,6 +12452,7 @@ msgstr ""
 
 #. translators: %d: real number of detected services.
 #: assets/js/index.js:5
+#, js-format
 msgid "%d service"
 msgid_plural "%d services"
 msgstr[0] ""
@@ -12065,6 +12460,7 @@ msgstr[1] ""
 
 #. translators: %d: real number of detected locations.
 #: assets/js/index.js:5
+#, js-format
 msgid "%d location"
 msgid_plural "%d locations"
 msgstr[0] ""
@@ -12072,6 +12468,7 @@ msgstr[1] ""
 
 #. translators: %d: real number of detected people.
 #: assets/js/index.js:5
+#, js-format
 msgid "%d person"
 msgid_plural "%d people"
 msgstr[0] ""
@@ -12079,6 +12476,7 @@ msgstr[1] ""
 
 #. translators: %d: real number of detected categories.
 #: assets/js/index.js:5
+#, js-format
 msgid "%d category"
 msgid_plural "%d categories"
 msgstr[0] ""
@@ -12153,6 +12551,7 @@ msgstr ""
 
 #. translators: %s: High or Medium.
 #: assets/js/index.js:5
+#, js-format
 msgid "%s confidence"
 msgstr ""
 
@@ -12220,6 +12619,7 @@ msgstr ""
 #. translators: %d is how many of the real sampled pages carried this schema type.
 #. translators: %d: number of pages.
 #: assets/js/index.js:5
+#, js-format
 msgid "%d page"
 msgid_plural "%d pages"
 msgstr[0] ""
@@ -12227,11 +12627,13 @@ msgstr[1] ""
 
 #. translators: 1: how many of the real sampled pages carried this schema type, 2: how many of those had a real problem.
 #: assets/js/index.js:5
+#, js-format
 msgid "Found on %1$s · %2$s"
 msgstr ""
 
 #. translators: %d: number of problems.
 #: assets/js/index.js:5
+#, js-format
 msgid "%d problem"
 msgid_plural "%d problems"
 msgstr[0] ""
@@ -12239,6 +12641,7 @@ msgstr[1] ""
 
 #. translators: %s is a real schema.org @type, e.g. "Product".
 #: assets/js/index.js:5
+#, js-format
 msgid "Pages with %s schema"
 msgstr ""
 
@@ -12256,16 +12659,19 @@ msgstr ""
 
 #. translators: %d: real total number of pages.
 #: assets/js/index.js:7
+#, js-format
 msgid "All (%d)"
 msgstr ""
 
 #. translators: %d: real number of pages with schema.
 #: assets/js/index.js:9
+#, js-format
 msgid "With schema (%d)"
 msgstr ""
 
 #. translators: %d: real number of pages missing schema.
 #: assets/js/index.js:9
+#, js-format
 msgid "Need attention (%d)"
 msgstr ""
 
@@ -12303,6 +12709,7 @@ msgstr ""
 
 #. translators: %d is how many real problems were found in this page's structured data.
 #: assets/js/index.js:9
+#, js-format
 msgid "Problems found (%d)"
 msgstr ""
 
@@ -12316,6 +12723,7 @@ msgstr ""
 
 #. translators: %d is how many real duplicate/conflicting schema blocks were found on this page.
 #: assets/js/index.js:9
+#, js-format
 msgid "Conflicts detected (%d)"
 msgstr ""
 
@@ -12325,6 +12733,7 @@ msgstr ""
 
 #. translators: 1: schema.org @type, e.g. "Product", 2: number of JSON-LD blocks on this page sharing that type.
 #: assets/js/index.js:9
+#, js-format
 msgid "%1$d separate \"%2$s\" blocks were found on this page - search engines may only use one."
 msgstr ""
 
@@ -12338,11 +12747,13 @@ msgstr ""
 
 #. translators: 1: star rating out of 5, 2: number of ratings.
 #: assets/js/index.js:9
+#, js-format
 msgid "Rating: %1$s (%2$d)"
 msgstr ""
 
 #. translators: %s is either the real detected availability value, or a "not found" note.
 #: assets/js/index.js:9
+#, js-format
 msgid "Availability: %s"
 msgstr ""
 
@@ -12428,6 +12839,7 @@ msgstr ""
 
 #. translators: %d: total number of checks.
 #: assets/js/index.js:9
+#, js-format
 msgid "of %d checks passed"
 msgstr ""
 
@@ -12445,6 +12857,7 @@ msgstr ""
 
 #. translators: 1: date, 2: time.
 #: assets/js/index.js:9
+#, js-format
 msgid "Checked live · %1$s, %2$s"
 msgstr ""
 
@@ -12458,6 +12871,7 @@ msgstr ""
 
 #. translators: %d: number of checks to fix.
 #: assets/js/index.js:9
+#, js-format
 msgid "Fix %d check with AI"
 msgid_plural "Fix %d checks with AI"
 msgstr[0] ""
@@ -12549,6 +12963,7 @@ msgstr ""
 
 #. translators: %d is the number of open WooCommerce findings.
 #: assets/js/index.js:9
+#, js-format
 msgid "I found %d open finding in your store. I can help you understand it, or optimize a batch with AI."
 msgid_plural "I found %d open findings in your store. I can help you understand them, or optimize a batch with AI."
 msgstr[0] ""
@@ -12836,6 +13251,7 @@ msgstr ""
 
 #. translators: %s: weekday, e.g. "Monday".
 #: assets/js/index.js:9
+#, js-format
 msgid "Every %s"
 msgstr ""
 
@@ -12858,6 +13274,7 @@ msgstr ""
 #: assets/js/index.js:9
 #: assets/js/index.js:12
 #: assets/js/index.js:30
+#, js-format
 msgid "%1$s, %2$s"
 msgstr ""
 
@@ -12900,11 +13317,13 @@ msgstr ""
 
 #. translators: %s: date and time of the next run.
 #: assets/js/index.js:9
+#, js-format
 msgid "Next run: %s"
 msgstr ""
 
 #. translators: %s: schedule, e.g. "Every Monday".
 #: assets/js/index.js:9
+#, js-format
 msgid "Scheduled: %s"
 msgstr ""
 
@@ -12914,17 +13333,23 @@ msgstr ""
 
 #. translators: %s: date and time of the last run.
 #: assets/js/index.js:9
+#, js-format
 msgid "Last run failed · %s"
 msgstr ""
 
 #. translators: %s: date and time of the last run.
 #. translators: %s: automation name.
 #: assets/js/index.js:9
+#, js-format
 msgid "Last run · %s"
 msgstr ""
 
 #: assets/js/index.js:9
 msgid "Has not run yet"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Running…"
 msgstr ""
 
 #: assets/js/index.js:9
@@ -12973,6 +13398,7 @@ msgstr ""
 
 #. translators: 1: automations switched on, 2: all automations.
 #: assets/js/index.js:9
+#, js-format
 msgid "%1$d of %2$d on"
 msgstr ""
 
@@ -12986,6 +13412,7 @@ msgstr ""
 
 #. translators: %d: failed runs.
 #: assets/js/index.js:9
+#, js-format
 msgid "%d failed"
 msgstr ""
 
@@ -12999,6 +13426,7 @@ msgstr ""
 
 #. translators: %s: automation name.
 #: assets/js/index.js:9
+#, js-format
 msgid "%s failed its last run. Run it again from its card below."
 msgstr ""
 
@@ -13424,6 +13852,7 @@ msgstr ""
 
 #. translators: %s: content type, e.g. "blog post"
 #: assets/js/index.js:9
+#, js-format
 msgid "Created a %s"
 msgstr ""
 
@@ -13550,11 +13979,13 @@ msgstr ""
 
 #. translators: %d: milliseconds
 #: assets/js/index.js:9
+#, js-format
 msgid "%dms"
 msgstr ""
 
 #. translators: %s: seconds, one decimal place
 #: assets/js/index.js:9
+#, js-format
 msgid "%ss"
 msgstr ""
 
@@ -13564,6 +13995,7 @@ msgstr ""
 
 #. translators: %d: number of pages/posts scanned
 #: assets/js/index.js:9
+#, js-format
 msgid "Pages & posts scanned (%d)"
 msgstr ""
 
@@ -13657,11 +14089,13 @@ msgstr ""
 
 #. translators: %s: the new value.
 #: assets/js/index.js:9
+#, js-format
 msgid "Now: %s"
 msgstr ""
 
 #. translators: %d: number of checks in the scan.
 #: assets/js/index.js:9
+#, js-format
 msgid "Scan · %d check"
 msgid_plural "Scan · %d checks"
 msgstr[0] ""
@@ -13669,11 +14103,13 @@ msgstr[1] ""
 
 #. translators: 1: issues found, 2: checks that found them.
 #: assets/js/index.js:9
+#, js-format
 msgid "%1$d issues found by %2$d checks"
 msgstr ""
 
 #. translators: %d: more checks.
 #: assets/js/index.js:9
+#, js-format
 msgid "+%d more"
 msgstr ""
 
@@ -13687,6 +14123,7 @@ msgstr ""
 
 #. translators: %d: number of checks that found nothing.
 #: assets/js/index.js:9
+#, js-format
 msgid "Show %d clear check"
 msgid_plural "Show %d clear checks"
 msgstr[0] ""
@@ -13734,6 +14171,7 @@ msgstr ""
 
 #. translators: %d is the number of days.
 #: assets/js/index.js:9
+#, js-format
 msgid "Last %d days"
 msgstr ""
 
@@ -14303,10 +14741,6 @@ msgid "Add product information"
 msgstr ""
 
 #: assets/js/index.js:9
-msgid "Skip"
-msgstr ""
-
-#: assets/js/index.js:9
 #: assets/js/index.js:12
 msgid "Find security issues"
 msgstr ""
@@ -14557,6 +14991,7 @@ msgstr ""
 
 #. translators: %s: issue name.
 #: assets/js/index.js:9
+#, js-format
 msgid "Ask AI about %s"
 msgstr ""
 
@@ -14566,6 +15001,7 @@ msgstr ""
 
 #. translators: %d: number of open issues.
 #: assets/js/index.js:9
+#, js-format
 msgid "See %d open issue"
 msgid_plural "See all %d open issues"
 msgstr[0] ""
@@ -14573,14 +15009,17 @@ msgstr[1] ""
 
 #. translators: %d: minutes.
 #: assets/js/index.js:11
+#, js-format
 msgid "%dm ago"
 msgstr ""
 
 #: assets/js/index.js:11
+#, js-format
 msgid "%dh ago"
 msgstr ""
 
 #: assets/js/index.js:11
+#, js-format
 msgid "%dd ago"
 msgstr ""
 
@@ -14602,6 +15041,7 @@ msgstr ""
 
 #. translators: %s: conversation title.
 #: assets/js/index.js:12
+#, js-format
 msgid "Preview \"%s\""
 msgstr ""
 
@@ -14654,6 +15094,14 @@ msgid "Improve with AI"
 msgstr ""
 
 #: assets/js/index.js:12
+msgid "All changes saved"
+msgstr ""
+
+#: assets/js/index.js:12
+msgid "Could not save your changes. Please try again."
+msgstr ""
+
+#: assets/js/index.js:12
 msgid "Logins & accounts"
 msgstr ""
 
@@ -14683,6 +15131,7 @@ msgstr ""
 
 #. translators: %d: number of critical or high issues.
 #: assets/js/index.js:12
+#, js-format
 msgid "%d needs your attention first."
 msgid_plural "%d need your attention first."
 msgstr[0] ""
@@ -14698,6 +15147,7 @@ msgstr ""
 
 #. translators: %d: number of open security issues.
 #: assets/js/index.js:12
+#, js-format
 msgid "%d security issue is open."
 msgid_plural "%d security issues are open."
 msgstr[0] ""
@@ -14741,6 +15191,7 @@ msgstr ""
 
 #. translators: %d: number of days.
 #: assets/js/index.js:12
+#, js-format
 msgid "Day by day, over the last %d days."
 msgstr ""
 
@@ -14758,6 +15209,7 @@ msgstr ""
 
 #. translators: %d: number of findings.
 #: assets/js/index.js:12
+#, js-format
 msgid "Found %d issue"
 msgid_plural "Found %d issues"
 msgstr[0] ""
@@ -14865,6 +15317,7 @@ msgstr ""
 
 #. translators: %s: how often, e.g. "every day".
 #: assets/js/index.js:12
+#, js-format
 msgid "On · %s"
 msgstr ""
 
@@ -14914,6 +15367,7 @@ msgstr ""
 
 #. translators: %d: number of open site health issues.
 #: assets/js/index.js:12
+#, js-format
 msgid "%d health issue is open."
 msgid_plural "%d health issues are open."
 msgstr[0] ""
@@ -15008,21 +15462,25 @@ msgstr ""
 
 #. translators: %s: real remote storage provider name.
 #: assets/js/index.js:14
+#, js-format
 msgid "Uploading to %s…"
 msgstr ""
 
 #. translators: %s: real remote storage provider name.
 #: assets/js/index.js:16
+#, js-format
 msgid "Uploaded to %s"
 msgstr ""
 
 #. translators: %s: real remote storage provider name.
 #: assets/js/index.js:18
+#, js-format
 msgid "%s upload failed"
 msgstr ""
 
 #. translators: %s: real remote storage provider name.
 #: assets/js/index.js:20
+#, js-format
 msgid "%s not configured"
 msgstr ""
 
@@ -15032,16 +15490,19 @@ msgstr ""
 
 #. translators: %s: real HH:MM:SS duration this backup took to finish.
 #: assets/js/index.js:20
+#, js-format
 msgid "Finished in %s"
 msgstr ""
 
 #. translators: %s: real HH:MM:SS duration until this backup failed.
 #: assets/js/index.js:20
+#, js-format
 msgid "Failed after %s"
 msgstr ""
 
 #. translators: %s: real HH:MM:SS elapsed so far.
 #: assets/js/index.js:20
+#, js-format
 msgid "Elapsed: %s"
 msgstr ""
 
@@ -15067,6 +15528,7 @@ msgstr ""
 
 #. translators: %s is the literal confirmation phrase the admin must type.
 #: assets/js/index.js:20
+#, js-format
 msgid "Type %s to confirm."
 msgstr ""
 
@@ -15192,6 +15654,7 @@ msgstr ""
 
 #. translators: 1: checks with no open issues, 2: all checks.
 #: assets/js/index.js:20
+#, js-format
 msgid "%1$d of %2$d clear"
 msgstr ""
 
@@ -15217,11 +15680,13 @@ msgstr ""
 
 #. translators: %d: accessibility score out of 100.
 #: assets/js/index.js:20
+#, js-format
 msgid "Accessibility score %d out of 100"
 msgstr ""
 
 #. translators: %d: number of open accessibility issues.
 #: assets/js/index.js:20
+#, js-format
 msgid "%d open issue may stop some visitors using your site. Start with the most important."
 msgid_plural "%d open issues may stop some visitors using your site. Start with the most important."
 msgstr[0] ""
@@ -15365,6 +15830,7 @@ msgstr ""
 
 #. translators: %s: number of days.
 #: assets/js/index.js:20
+#, js-format
 msgid "Made with VuloPilot, last %s days"
 msgstr ""
 
@@ -15382,6 +15848,7 @@ msgstr ""
 
 #. translators: %d: number of open content issues.
 #: assets/js/index.js:20
+#, js-format
 msgid "%d content issue to fix"
 msgid_plural "%d content issues to fix"
 msgstr[0] ""
@@ -15401,6 +15868,7 @@ msgstr ""
 
 #. translators: %s: topic the user typed.
 #: assets/js/index.js:22
+#, js-format
 msgid "Write a blog about %s"
 msgstr ""
 
@@ -15414,6 +15882,7 @@ msgstr ""
 
 #. translators: %s: product details the user typed.
 #: assets/js/index.js:24
+#, js-format
 msgid "Create a product description for %s"
 msgstr ""
 
@@ -15427,6 +15896,7 @@ msgstr ""
 
 #. translators: %s: topic the FAQs should cover.
 #: assets/js/index.js:26
+#, js-format
 msgid "Generate FAQs for %s"
 msgstr ""
 
@@ -15440,6 +15910,7 @@ msgstr ""
 
 #. translators: %s: page the meta title is for.
 #: assets/js/index.js:28
+#, js-format
 msgid "Create meta title for %s"
 msgstr ""
 
@@ -15453,6 +15924,7 @@ msgstr ""
 
 #. translators: %s: product or service.
 #: assets/js/index.js:30
+#, js-format
 msgid "Write a call-to-action for %s"
 msgstr ""
 
@@ -15470,6 +15942,7 @@ msgstr ""
 
 #. translators: %s: the user's display name.
 #: assets/js/index.js:30
+#, js-format
 msgid "What shall we write today, %s?"
 msgstr ""
 
@@ -15647,6 +16120,7 @@ msgstr ""
 
 #. translators: %d: number of tools.
 #: assets/js/index.js:30
+#, js-format
 msgid "Turn on Content Optimization to add %d tools, from landing pages to keyword research."
 msgstr ""
 
@@ -15712,6 +16186,7 @@ msgstr ""
 
 #. translators: %d: real 0-100 score.
 #: assets/js/index.js:30
+#, js-format
 msgid "%d/100"
 msgstr ""
 
@@ -15757,6 +16232,7 @@ msgstr ""
 
 #. translators: %d: number of AI changes waiting for approval.
 #: assets/js/index.js:30
+#, js-format
 msgid "Review %d approval"
 msgid_plural "Review %d approvals"
 msgstr[0] ""
@@ -15764,6 +16240,7 @@ msgstr[1] ""
 
 #. translators: %d: number of critical issues.
 #: assets/js/index.js:30
+#, js-format
 msgid "Fix %d critical issue"
 msgid_plural "Fix %d critical issues"
 msgstr[0] ""
@@ -15779,6 +16256,7 @@ msgstr ""
 
 #. translators: %d: number of critical issues.
 #: assets/js/index.js:30
+#, js-format
 msgid "%d critical issue"
 msgid_plural "%d critical issues"
 msgstr[0] ""
@@ -15786,6 +16264,7 @@ msgstr[1] ""
 
 #. translators: %d: number of approvals.
 #: assets/js/index.js:30
+#, js-format
 msgid "%d approval"
 msgid_plural "%d approvals"
 msgstr[0] ""
@@ -15793,6 +16272,7 @@ msgstr[1] ""
 
 #. translators: %s: what needs the user, e.g. "1 critical issue and 2 approvals".
 #: assets/js/index.js:30
+#, js-format
 msgid "%s needs you today."
 msgid_plural "%s need you today."
 msgstr[0] ""
@@ -15852,6 +16332,7 @@ msgstr ""
 
 #. translators: 1: number of items migrated, 2: number skipped.
 #: assets/js/index.js:30
+#, js-format
 msgid "%1$d item(s) imported, %2$d skipped."
 msgstr ""
 
@@ -15933,11 +16414,13 @@ msgstr ""
 
 #. translators: %s: what the final step should produce, e.g. "a prioritised homepage improvement plan".
 #: assets/js/index.js:30
+#, js-format
 msgid "Please put together %s."
 msgstr ""
 
 #. translators: 1: issue name such as "Weak Password Detection", 2: how far it reaches, e.g. "2 pages".
 #: assets/js/index.js:30
+#, js-format
 msgid "How do I fix \"%1$s\" on my site? It affects %2$s."
 msgstr ""
 
@@ -16147,6 +16630,7 @@ msgstr ""
 
 #. translators: %d: number of failing checks.
 #: assets/js/post-editor.js:1
+#, js-format
 msgid "%d Error"
 msgid_plural "%d Errors"
 msgstr[0] ""
@@ -16154,6 +16638,7 @@ msgstr[1] ""
 
 #. translators: %d: number of checks that could be improved.
 #: assets/js/post-editor.js:1
+#, js-format
 msgid "%d Warning"
 msgid_plural "%d Warnings"
 msgstr[0] ""
@@ -16228,10 +16713,6 @@ msgid "Choose Image"
 msgstr ""
 
 #: assets/js/post-editor.js:1
-msgid "Remove"
-msgstr ""
-
-#: assets/js/post-editor.js:1
 msgid "Leave empty to use the featured image."
 msgstr ""
 
@@ -16301,11 +16782,13 @@ msgstr ""
 
 #. translators: %d: real total AI-bot visit count to this page over the last 90 days.
 #: assets/js/post-editor.js:1
+#, js-format
 msgid "%d AI bot visit(s) to this page in the last 90 days."
 msgstr ""
 
 #. translators: %d: real percentage of those visits that hit a 404.
 #: assets/js/post-editor.js:1
+#, js-format
 msgid "%d%% of those visits resulted in a 404 - the URL AI crawlers are requesting may not match this page's current permalink."
 msgstr ""
 
@@ -16314,6 +16797,7 @@ msgid "By bot"
 msgstr ""
 
 #: assets/js/post-editor.js:1
+#, js-format
 msgid "visit(s), last seen %s"
 msgstr ""
 
@@ -16359,11 +16843,13 @@ msgstr ""
 
 #. translators: 1: current score out of 100, 2: number of fixable issues.
 #: assets/js/post-editor.js:1
+#, js-format
 msgid "Your SEO score is %1$d/100 - you can reach 100 by fixing these %2$d issue(s):"
 msgstr ""
 
 #. translators: 1: score before auto-fix, 2: score after auto-fix.
 #: assets/js/post-editor.js:1
+#, js-format
 msgid "Auto-fix ran: score went from %1$d to %2$d."
 msgstr ""
 

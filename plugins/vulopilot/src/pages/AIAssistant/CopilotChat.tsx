@@ -96,6 +96,15 @@ const CopilotChat = ({
 		setIsAttachOpen(false);
 	};
 
+	/** A tap on one of `turn.options`' own quick replies - answers exactly as if it had been typed. */
+	const handleQuickReply = (option: string) => {
+		if (isLocked) {
+			return;
+		}
+
+		send(option, [], [], autoApply);
+	};
+
 	const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
 		// Enter sends, Shift+Enter breaks the line; never mid-composition (IME input).
 		if ('Enter' === event.key && !event.shiftKey && !event.nativeEvent.isComposing) {
@@ -268,6 +277,10 @@ const CopilotChat = ({
 									undoingRunId={undoingRunId}
 									onUndo={onUndo}
 									aiAvatarIcon="ai"
+									quickReplies={
+										!isSending && index === turns.length - 1 ? turn.options : undefined
+									}
+									onQuickReply={handleQuickReply}
 								/>
 							))}
 							{isSending && (

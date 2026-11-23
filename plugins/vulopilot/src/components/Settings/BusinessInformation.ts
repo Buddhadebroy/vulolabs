@@ -129,6 +129,14 @@ export default {
 			settingDescription: __('One per line: a name, then | and the address.', 'vulopilot'),
 		},
 		{
+			key: 'entity_services',
+			type: 'textarea',
+			label: __('Services', 'vulopilot'),
+			rowNumber: 3,
+			placeholder: __('Web design\nSEO consulting', 'vulopilot'),
+			settingDescription: __('One per line. No dedicated page needed - use Service pages below for those.', 'vulopilot'),
+		},
+		{
 			key: 'entity_service_pages',
 			type: 'textarea',
 			label: __('Service pages', 'vulopilot'),

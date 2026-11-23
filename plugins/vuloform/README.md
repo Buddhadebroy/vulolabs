@@ -2,9 +2,9 @@
 **Contributors:** [vulolabs](https://profiles.wordpress.org/vulolabs/)  
 **Tags:** contact form, form builder, multi-step form, conditional logic, webhooks  
 **Requires at least:** 6.7  
-**Tested up to:** 7.1.4  
+**Tested up to:** 7.1.5  
 **Requires PHP:** 8.1  
-**Stable tag:** 1.0.1  
+**Stable tag:** 1.0.2  
 **License:** GPLv2 or later  
 **License URI:** https://www.gnu.org/licenses/gpl-2.0.html  
 
@@ -340,6 +340,10 @@ https://github.com/vulolabs/vulolabs/tree/main/plugins/vuloform
 10. Website Activity Timeline.
 
 ## Changelog ##
+
+### 1.0.2 - 2026-11-23 ###
+* Added  - Compatibility of WordPress 7.1.5.
+* Added  - UI/UX improvements.
 
 ### 1.0.1 - 2026-11-10 ###
 * Added  - Compatibility of WordPress 7.1.4.

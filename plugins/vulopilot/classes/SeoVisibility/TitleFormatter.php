@@ -94,7 +94,10 @@ class TitleFormatter {
 
 		$content = '';
 
-		if ( in_array( $context_key, array( 'post', 'page' ), true ) ) {
+		// A real per-post excerpt (the metabox's own Meta Description field) always wins, even when this
+		// singular post/page is also the site's static front page - same precedence maybe_filter_title()
+		// above already gives its own per-post "SEO Title" override regardless of front-page status.
+		if ( is_singular() ) {
 			$excerpt = trim( wp_strip_all_tags( get_the_excerpt() ) );
 
 			if ( '' !== $excerpt ) {

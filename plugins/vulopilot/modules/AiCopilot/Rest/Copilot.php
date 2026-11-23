@@ -140,8 +140,12 @@ class Copilot extends \WP_REST_Controller {
 		$conversation_id_param = $request->get_param( 'conversation_id' );
 		$conversation_id       = $conversation_id_param ? absint( $conversation_id_param ) : null;
 
+		// A guided flow's own already-composed instruction (useGuidedCopilotFlow.ts) skips this - its "write"/"blog"
+		// wording would otherwise match BlogIntake's own request sniff and restart its fixed questions from scratch.
+		$skip_intake = rest_sanitize_boolean( $request->get_param( 'skip_intake' ) );
+
 		// A blog request is collected by fixed questions, with no AI, until every field is known.
-		$decision = ( new BlogIntake( 'copilot' ) )->handle( $message );
+		$decision = $skip_intake ? null : ( new BlogIntake( 'copilot' ) )->handle( $message );
 
 		if ( null === $decision ) {
 			$answer = $this->ask(
@@ -220,6 +224,7 @@ class Copilot extends \WP_REST_Controller {
 				'link'            => null,
 				'run_id'          => null,
 				'conversation_id' => $conversation_id,
+				'options'         => $decision['options'] ?? null,
 			)
 		);
 	}

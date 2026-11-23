@@ -239,17 +239,6 @@ const SectionedIssuesTable = ({
 		return true;
 	});
 
-	const countByPriority = (priority: Exclude<Priority, 'all'>): number =>
-		searchFilteredGroups
-			.filter((group) => PRIORITY_SEVERITIES[priority].includes(group.severity))
-			.reduce((total, group) => total + group.count, 0);
-
-	const priorityCounts = {
-		high: countByPriority('high'),
-		medium: countByPriority('medium'),
-		low: countByPriority('low'),
-	};
-
 	const priorityFilteredGroups =
 		'all' === activePriority
 			? searchFilteredGroups
@@ -339,8 +328,6 @@ const SectionedIssuesTable = ({
 				) : (
 					<>
 						<IssuesSummaryCards
-							priorityCounts={priorityCounts}
-							isLoading={isLoading}
 							activePriority={activePriority}
 							onSelectPriority={handlePriorityChange}
 						/>

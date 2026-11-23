@@ -50,7 +50,7 @@ class Module {
 		$old_value = is_array( $old_value ) ? $old_value : array();
 		$new_value = is_array( $new_value ) ? $new_value : array();
 
-		foreach ( array( 'entity_business_type', 'entity_service_pages', 'entity_business_locations' ) as $key ) {
+		foreach ( array( 'entity_business_type', 'entity_services', 'entity_service_pages', 'entity_business_locations' ) as $key ) {
 			if ( ( $old_value[ $key ] ?? '' ) !== ( $new_value[ $key ] ?? '' ) ) {
 				$this->clear_cache();
 

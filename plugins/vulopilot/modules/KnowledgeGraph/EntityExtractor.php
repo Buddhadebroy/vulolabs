@@ -539,12 +539,38 @@ class EntityExtractor {
 	}
 
 	/**
-	 * Owner-curated, newline-separated page URLs/ids.
+	 * Owner-curated services: plain names from `entity_services`, plus any `entity_service_pages`
+	 * resolve to a real published page. A site with no dedicated service pages can still list its
+	 * services, so `entity_services` isn't just a fallback.
 	 *
 	 * @return array
 	 */
 	private function extract_services(): array {
-		return $this->extract_pages_from_setting( 'entity_service_pages', 'service' );
+		return array_merge( $this->get_manual_services(), $this->extract_pages_from_setting( 'entity_service_pages', 'service' ) );
+	}
+
+	/**
+	 * @return array Plain-text `entity_services` lines, one per real service name.
+	 */
+	private function get_manual_services(): array {
+		$settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
+		$lines    = array_filter( array_map( 'trim', preg_split( '/[\r\n]+/', (string) ( $settings['entity_services'] ?? '' ) ) ) );
+
+		$entities = array();
+
+		foreach ( $lines as $index => $name ) {
+			$entities[] = array(
+				'id'                 => 'service:manual:' . $index,
+				'type'               => 'service',
+				'name'               => $name,
+				'url'                => null,
+				'source_object_type' => 'setting',
+				'source_object_ref'  => '',
+				'meta'               => array(),
+			);
+		}
+
+		return $entities;
 	}
 
 	/**

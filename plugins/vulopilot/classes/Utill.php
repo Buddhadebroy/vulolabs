@@ -356,6 +356,8 @@ class Utill {
 		'crawler_alert_last_test_sent'          => '',
 		// Scanning > Entity Extraction.
 		'entity_business_type'                  => '',
+		// Newline-separated plain service names - no dedicated page required.
+		'entity_services'                       => '',
 		// Newline-separated page URLs/ids.
 		'entity_service_pages'                  => '',
 		// Newline-separated `Name | Address` lines - same reasoning as 'entity_service_pages' above.

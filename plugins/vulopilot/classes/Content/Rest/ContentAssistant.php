@@ -124,6 +124,7 @@ class ContentAssistant extends \WP_REST_Controller {
 				'content' => $decision['message'],
 				'link'    => null,
 				'run_id'  => null,
+				'options' => $decision['options'] ?? null,
 			)
 		);
 	}

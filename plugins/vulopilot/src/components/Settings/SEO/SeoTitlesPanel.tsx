@@ -258,7 +258,7 @@ const SeoTitlesPanel = () => {
 	const hydratedRef = useRef(false);
 
 	useEffect(() => {
-		if (hydratedRef.current || undefined === setting.title_format_home) {
+		if (hydratedRef.current || setting.title_format_home === undefined) {
 			return;
 		}
 

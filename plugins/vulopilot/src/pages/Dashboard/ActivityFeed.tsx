@@ -16,7 +16,7 @@ const LOOK: Record<HistoryRow['category'], { icon: string; label: string }> = {
 const ActivityFeed: React.FC = () => {
 	const { data, isLoading } = useApiList<HistoryRow>('history', { per_page: 5 });
 	const historyUrl = (id?: HistoryRow['id']) =>
-		`${vulopilotAppLocalizer.admin_url}#&tab=reports&subtab=history${undefined === id ? '' : `&vulopilot_history_id=${id}`}`;
+		`${vulopilotAppLocalizer.admin_url}#&tab=reports&subtab=history${id === undefined ? '' : `&vulopilot_history_id=${id}`}`;
 
 	return (
 		<section className="vp-card vp-rail-card">

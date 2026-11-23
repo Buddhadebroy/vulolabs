@@ -11,7 +11,10 @@ import type { ActionItem, TableHeaderConfig, TableRow } from '@zyra/table';
 /* eslint-disable no-unused-vars -- parameter names in type signatures, not variables. */
 
 /** A row action whose callbacks receive the list's own row type. */
-export type RowAction<Row> = Omit<ActionItem, 'label' | 'icon' | 'onClick' | 'color' | 'hidden'> & {
+export type RowAction<Row> = Omit<
+	ActionItem,
+	'label' | 'icon' | 'onClick' | 'color' | 'hidden'
+> & {
 	label?: string | ((row: Row) => string);
 	icon?: ReactNode | ((row: Row) => string);
 	onClick: (row: Row) => void;
@@ -28,7 +31,10 @@ export type Column<Row> = Omit<TableHeaderConfig, 'render' | 'actions'> & {
 
 /* eslint-enable no-unused-vars */
 
-export const columns = <Row>(headers: Record<string, Column<Row>>): Record<string, TableHeaderConfig> =>
-	headers as unknown as Record<string, TableHeaderConfig>;
+export const columns = <Row>(
+	headers: Record<string, Column<Row>>
+): Record<string, TableHeaderConfig> =>
+	headers as Record<string, TableHeaderConfig>;
 
-export const tableRows = <Row extends object>(rows: Row[]): TableRow[] => rows as unknown as TableRow[];
+export const tableRows = <Row extends object>(rows: Row[]): TableRow[] =>
+	rows as TableRow[];
