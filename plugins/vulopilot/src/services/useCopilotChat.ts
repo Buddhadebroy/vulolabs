@@ -22,6 +22,8 @@ export interface CopilotChatTurn {
 	undone?: boolean;
 	/** The real files this turn was sent with - user turns only. */
 	attachments?: CopilotAttachment[];
+	/** BlogIntake.php's own quick-reply choices for this question - assistant turns only. */
+	options?: string[] | null;
 }
 
 /** A user-picked "Add context" item. */
@@ -55,6 +57,8 @@ interface CopilotChatResponse {
 	run_id: number | null;
 	/** The real `vulopilot_ai_conversations.id` this turn was just saved under (Copilot.php's own persist_conversation()). */
 	conversation_id: number;
+	/** BlogIntake.php's own quick-reply choices for this question, when this turn is one. */
+	options?: string[] | null;
 }
 
 /** One turn as `GET /copilot/conversations/{id}` returns it. */
@@ -101,7 +105,9 @@ export const useCopilotChat = ( noticeKey: string ) => {
 		message: string,
 		contextRefs: CopilotContextRef[] = [],
 		attachments: CopilotAttachment[] = [],
-		autoApply: boolean = true
+		autoApply: boolean = true,
+		/** A guided flow's own already-composed instruction - skip BlogIntake.php's "is this a blog request?" sniff, which would otherwise match this message's own "write"/"blog" wording and restart its fixed questions from scratch. */
+		skipIntake: boolean = false
 	) => {
 		const trimmed = message.trim();
 
@@ -135,6 +141,7 @@ export const useCopilotChat = ( noticeKey: string ) => {
 					history,
 					conversation_id: conversationId,
 					auto_apply: autoApply,
+					skip_intake: skipIntake,
 					context_refs: contextRefs.map( ( ref ) =>
 						'finding_group' === ref.type
 							? { type: ref.type, scanner_id: ref.scannerId }
@@ -158,6 +165,7 @@ export const useCopilotChat = ( noticeKey: string ) => {
 						content: response.data.content,
 						link: response.data.link,
 						runId: response.data.run_id,
+						options: response.data.options,
 					},
 				] );
 				setConversationId( response.data.conversation_id );

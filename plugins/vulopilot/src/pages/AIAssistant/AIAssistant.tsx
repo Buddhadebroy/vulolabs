@@ -72,7 +72,7 @@ const AIAssistant = () => {
 
 	const chat = useCopilotChat('vulopilot-copilot-chat-error');
 	// Starter prompts walk their fixed question tree first, then send the composed question.
-	const guided = useGuidedCopilotFlow((message) => chat.send(message, [], [], autoApply));
+	const guided = useGuidedCopilotFlow((message) => chat.send(message, [], [], autoApply, true));
 
 	const wasSending = useRef(false);
 

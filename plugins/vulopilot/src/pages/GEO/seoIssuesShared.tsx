@@ -218,7 +218,7 @@ const ratingClass = (score: number): string => {
 
 /** Shared with what used to be `GeoPageAnalysisTable.tsx`'s own local copy. */
 export const VisibilityCell = ({ score }: { score: number | null | undefined }) => {
-	if (null === score || undefined === score) {
+	if (score == null) {
 		return <span className="geo-page-visibility-empty">-</span>;
 	}
 

@@ -405,8 +405,7 @@ const SeoIssuesByPageTable = ({
 													className="seo-issues-row-expand-trigger"
 													onClick={toggleRowExpansion}
 												>
-													{null === row.visibilityScore ||
-													undefined === row.visibilityScore ? (
+													{row.visibilityScore == null ? (
 														<VisibilityCell
 															score={row.visibilityScore}
 														/>
@@ -432,7 +431,7 @@ const SeoIssuesByPageTable = ({
 										label: __('SEO Score', 'vulopilot'),
 										render: (row: TableRow) =>
 											isFindingRow(row) ||
-											undefined === row.seoScore ? null : (
+											row.seoScore === undefined ? null : (
 												<span
 													className="seo-issues-row-expand-trigger"
 													onClick={toggleRowExpansion}
@@ -452,7 +451,7 @@ const SeoIssuesByPageTable = ({
 										label: __('Change', 'vulopilot'),
 										render: (row: TableRow) =>
 											isFindingRow(row) ||
-											undefined === row.seoScoreChange ? null : (
+											row.seoScoreChange === undefined ? null : (
 												<span
 													className="seo-issues-row-expand-trigger"
 													onClick={toggleRowExpansion}
@@ -470,7 +469,7 @@ const SeoIssuesByPageTable = ({
 										label: __('Score', 'vulopilot'),
 										render: (row: TableRow) =>
 											isFindingRow(row) ||
-											undefined === row.contentQualityScore ? null : (
+											row.contentQualityScore === undefined ? null : (
 												<span
 													className="seo-issues-row-expand-trigger"
 													onClick={toggleRowExpansion}

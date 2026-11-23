@@ -97,6 +97,7 @@ class BlogIntake {
 		return array(
 			'status'  => 'question',
 			'message' => ( '' !== $hint ? $hint . ' ' : '' ) . $this->question( $next ),
+			'options' => $this->options( $next ),
 		);
 	}
 
@@ -225,6 +226,24 @@ class BlogIntake {
 				return __( 'How many words would you like? (You can say "skip".)', 'vulopilot' );
 			default:
 				return __( 'What tone would you prefer? For example: Professional, Friendly, Informative, or Casual. (You can say "skip".)', 'vulopilot' );
+		}
+	}
+
+	/**
+	 * Quick-reply choices for a field's own question, so the chat answers with a tap instead of typing.
+	 * Empty for 'topic', which has no fixed set of real answers.
+	 *
+	 * @param string $field Field being asked for.
+	 * @return string[]
+	 */
+	private function options( string $field ): array {
+		switch ( $field ) {
+			case 'word_count':
+				return array( '300', '500', '1000', '1500', '2000', __( 'Skip', 'vulopilot' ) );
+			case 'tone':
+				return array( __( 'Professional', 'vulopilot' ), __( 'Friendly', 'vulopilot' ), __( 'Informative', 'vulopilot' ), __( 'Casual', 'vulopilot' ), __( 'Skip', 'vulopilot' ) );
+			default:
+				return array();
 		}
 	}
 

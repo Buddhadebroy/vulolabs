@@ -20,6 +20,8 @@ interface ChatTurn {
 	role: 'user' | 'assistant';
 	content: string;
 	link?: { url: string; label: string } | null;
+	/** BlogIntake.php's own quick-reply choices for this question. */
+	options?: string[] | null;
 }
 
 interface PromptChip {
@@ -144,13 +146,21 @@ const ContentAssistant = () => {
 		setIsSending(true);
 
 		axios
-			.post<{ content: string; link: ChatTurn['link'] }>(
+			.post<{ content: string; link: ChatTurn['link']; options?: string[] | null }>(
 				getApiLink(vulopilotAppLocalizer, 'content-assistant/chat'),
 				{ message: text, history },
 				{ headers: { 'X-WP-Nonce': vulopilotAppLocalizer.nonce } }
 			)
 			.then((response) =>
-				setTurns((current) => [...current, { role: 'assistant', content: response.data.content, link: response.data.link }])
+				setTurns((current) => [
+					...current,
+					{
+						role: 'assistant',
+						content: response.data.content,
+						link: response.data.link,
+						options: response.data.options,
+					},
+				])
 			)
 			.catch((error) => {
 				const reason = (error?.response?.data as { message?: string } | undefined)?.message;
@@ -260,7 +270,13 @@ const ContentAssistant = () => {
 				) : (
 					<div className="vp-chat-turns">
 						{turns.map((turn, index) => (
-							<CopilotTurnBubble key={index} turn={turn} aiAvatarIcon="edit" />
+							<CopilotTurnBubble
+								key={index}
+								turn={turn}
+								aiAvatarIcon="edit"
+								quickReplies={!isSending && index === turns.length - 1 ? turn.options : undefined}
+								onQuickReply={submit}
+							/>
 						))}
 						{isSending && (
 							<ChatMessage sender="ai" avatarIcon="edit">

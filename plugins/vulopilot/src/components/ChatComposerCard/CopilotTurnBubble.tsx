@@ -16,6 +16,11 @@ export interface CopilotTurnBubbleProps {
 	onUndo?: (runId: number) => void;
 	/** The assistant's avatar glyph; ChatMessage's default ('person') when unset. */
 	aiAvatarIcon?: string;
+	/** `turn.options`' own quick replies, shown only while this is still the latest turn. */
+	quickReplies?: string[] | null;
+
+	// eslint-disable-next-line no-unused-vars
+	onQuickReply?: (option: string) => void;
 }
 
 /** The standard `CopilotChatTurn` bubble. */
@@ -24,6 +29,8 @@ const CopilotTurnBubble: React.FC<CopilotTurnBubbleProps> = ({
 	undoingRunId = null,
 	onUndo,
 	aiAvatarIcon,
+	quickReplies,
+	onQuickReply,
 }) => (
 	<ChatMessage
 		sender={'user' === turn.role ? 'user' : 'ai'}
@@ -52,6 +59,15 @@ const CopilotTurnBubble: React.FC<CopilotTurnBubbleProps> = ({
 			</div>
 		)}
 		<ChatMarkdown text={turn.content} />
+		{quickReplies && quickReplies.length > 0 && onQuickReply && (
+			<div className="vp-chat-choices">
+				{quickReplies.map((option) => (
+					<button key={option} type="button" onClick={() => onQuickReply(option)}>
+						{option}
+					</button>
+				))}
+			</div>
+		)}
 		{turn.link && (
 			<div className="copilot-created-link">
 				<a

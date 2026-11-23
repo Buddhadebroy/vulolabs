@@ -1,14 +1,14 @@
 # Copyright (c) 2026 VuloLabs Inc. All Rights Reserved.
 msgid ""
 msgstr ""
-"Project-Id-Version: VuloForm 1.0.1\n"
+"Project-Id-Version: VuloForm 1.0.2\n"
 "Report-Msgid-Bugs-To: https://vulolabs.com/contact/\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-20T08:12:04+00:00\n"
+"POT-Creation-Date: 2026-11-23T06:46:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vuloform\n"
@@ -58,6 +58,970 @@ msgstr ""
 #: classes/Admin.php:41
 #: assets/js/index.js:1
 msgid "Settings"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:19
+msgid "Afghanistan"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:20
+msgid "Albania"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:21
+msgid "Algeria"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:22
+msgid "AmericanSamoa"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:23
+msgid "Andorra"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:24
+msgid "Angola"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:25
+msgid "Anguilla"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:26
+msgid "Antarctica"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:27
+msgid "Antigua and Barbuda"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:28
+msgid "Argentina"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:29
+msgid "Armenia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:30
+msgid "Aruba"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:31
+msgid "Australia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:32
+msgid "Austria"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:33
+msgid "Azerbaijan"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:34
+msgid "Bahamas"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:35
+msgid "Bahrain"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:36
+msgid "Bangladesh"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:37
+msgid "Barbados"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:38
+msgid "Belarus"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:39
+msgid "Belgium"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:40
+msgid "Belize"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:41
+msgid "Benin"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:42
+msgid "Bermuda"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:43
+msgid "Bhutan"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:44
+msgid "Bolivia, Plurinational State of"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:45
+msgid "Bosnia and Herzegovina"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:46
+msgid "Botswana"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:47
+msgid "Brazil"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:48
+msgid "British Indian Ocean Territory"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:49
+msgid "Brunei Darussalam"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:50
+msgid "Bulgaria"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:51
+msgid "Burkina Faso"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:52
+msgid "Burundi"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:53
+msgid "Cambodia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:54
+msgid "Cameroon"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:55
+msgid "Canada"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:56
+msgid "Cape Verde"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:57
+msgid "Cayman Islands"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:58
+msgid "Central African Republic"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:59
+msgid "Chad"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:60
+msgid "Chile"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:61
+msgid "China"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:62
+msgid "Christmas Island"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:63
+msgid "Cocos (Keeling) Islands"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:64
+msgid "Colombia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:65
+msgid "Comoros"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:66
+msgid "Congo"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:67
+msgid "Congo, The Democratic Republic of the Congo"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:68
+msgid "Cook Islands"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:69
+msgid "Costa Rica"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:70
+msgid "Cote d'Ivoire"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:71
+msgid "Croatia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:72
+msgid "Cuba"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:73
+msgid "Cyprus"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:74
+msgid "Czech Republic"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:75
+msgid "Denmark"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:76
+msgid "Djibouti"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:77
+msgid "Dominica"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:78
+msgid "Dominican Republic"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:79
+msgid "Ecuador"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:80
+msgid "Egypt"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:81
+msgid "El Salvador"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:82
+msgid "Equatorial Guinea"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:83
+msgid "Eritrea"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:84
+msgid "Estonia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:85
+msgid "Ethiopia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:86
+msgid "Falkland Islands (Malvinas)"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:87
+msgid "Faroe Islands"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:88
+msgid "Fiji"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:89
+msgid "Finland"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:90
+msgid "France"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:91
+msgid "French Guiana"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:92
+msgid "French Polynesia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:93
+msgid "Gabon"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:94
+msgid "Gambia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:95
+msgid "Georgia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:96
+msgid "Germany"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:97
+msgid "Ghana"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:98
+msgid "Gibraltar"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:99
+msgid "Greece"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:100
+msgid "Greenland"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:101
+msgid "Grenada"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:102
+msgid "Guadeloupe"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:103
+msgid "Guam"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:104
+msgid "Guatemala"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:105
+msgid "Guernsey"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:106
+msgid "Guinea"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:107
+msgid "Guinea-Bissau"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:108
+msgid "Guyana"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:109
+msgid "Haiti"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:110
+msgid "Holy See (Vatican City State)"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:111
+msgid "Honduras"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:112
+msgid "Hong Kong"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:113
+msgid "Hungary"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:114
+msgid "Iceland"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:115
+msgid "India"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:116
+msgid "Indonesia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:117
+msgid "Iran, Islamic Republic of Persian Gulf"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:118
+msgid "Iraq"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:119
+msgid "Ireland"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:120
+msgid "Isle of Man"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:121
+msgid "Israel"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:122
+msgid "Italy"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:123
+msgid "Jamaica"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:124
+msgid "Japan"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:125
+msgid "Jersey"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:126
+msgid "Jordan"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:127
+msgid "Kazakhstan"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:128
+msgid "Kenya"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:129
+msgid "Kiribati"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:130
+msgid "Korea, Democratic People's Republic of Korea"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:131
+msgid "Korea, Republic of South Korea"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:132
+msgid "Kuwait"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:133
+msgid "Kyrgyzstan"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:134
+msgid "Laos"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:135
+msgid "Latvia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:136
+msgid "Lebanon"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:137
+msgid "Lesotho"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:138
+msgid "Liberia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:139
+msgid "Libyan Arab Jamahiriya"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:140
+msgid "Liechtenstein"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:141
+msgid "Lithuania"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:142
+msgid "Luxembourg"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:143
+msgid "Macao"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:144
+msgid "Macedonia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:145
+msgid "Madagascar"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:146
+msgid "Malawi"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:147
+msgid "Malaysia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:148
+msgid "Maldives"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:149
+msgid "Mali"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:150
+msgid "Malta"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:151
+msgid "Marshall Islands"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:152
+msgid "Martinique"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:153
+msgid "Mauritania"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:154
+msgid "Mauritius"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:155
+msgid "Mayotte"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:156
+msgid "Mexico"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:157
+msgid "Micronesia, Federated States of Micronesia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:158
+msgid "Moldova"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:159
+msgid "Monaco"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:160
+msgid "Mongolia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:161
+msgid "Montenegro"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:162
+msgid "Montserrat"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:163
+msgid "Morocco"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:164
+msgid "Mozambique"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:165
+msgid "Myanmar"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:166
+msgid "Namibia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:167
+msgid "Nauru"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:168
+msgid "Nepal"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:169
+msgid "Netherlands"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:170
+msgid "Netherlands Antilles"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:171
+msgid "New Caledonia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:172
+msgid "New Zealand"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:173
+msgid "Nicaragua"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:174
+msgid "Niger"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:175
+msgid "Nigeria"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:176
+msgid "Niue"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:177
+msgid "Norfolk Island"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:178
+msgid "Northern Mariana Islands"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:179
+msgid "Norway"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:180
+msgid "Oman"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:181
+msgid "Pakistan"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:182
+msgid "Palau"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:183
+msgid "Palestinian Territory, Occupied"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:184
+msgid "Panama"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:185
+msgid "Papua New Guinea"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:186
+msgid "Paraguay"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:187
+msgid "Peru"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:188
+msgid "Philippines"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:189
+msgid "Pitcairn"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:190
+msgid "Poland"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:191
+msgid "Portugal"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:192
+msgid "Puerto Rico"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:193
+msgid "Qatar"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:194
+msgid "Romania"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:195
+msgid "Russia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:196
+msgid "Rwanda"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:197
+msgid "Reunion"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:198
+msgid "Saint Barthelemy"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:199
+msgid "Saint Helena, Ascension and Tristan Da Cunha"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:200
+msgid "Saint Kitts and Nevis"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:201
+msgid "Saint Lucia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:202
+msgid "Saint Martin"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:203
+msgid "Saint Pierre and Miquelon"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:204
+msgid "Saint Vincent and the Grenadines"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:205
+msgid "Samoa"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:206
+msgid "San Marino"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:207
+msgid "Sao Tome and Principe"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:208
+msgid "Saudi Arabia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:209
+msgid "Senegal"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:210
+msgid "Serbia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:211
+msgid "Seychelles"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:212
+msgid "Sierra Leone"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:213
+msgid "Singapore"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:214
+msgid "Slovakia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:215
+msgid "Slovenia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:216
+msgid "Solomon Islands"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:217
+msgid "Somalia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:218
+msgid "South Africa"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:219
+msgid "South Sudan"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:220
+msgid "South Georgia and the South Sandwich Islands"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:221
+msgid "Spain"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:222
+msgid "Sri Lanka"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:223
+msgid "Sudan"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:224
+msgid "Suriname"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:225
+msgid "Svalbard and Jan Mayen"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:226
+msgid "Swaziland"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:227
+msgid "Sweden"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:228
+msgid "Switzerland"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:229
+msgid "Syrian Arab Republic"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:230
+msgid "Taiwan"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:231
+msgid "Tajikistan"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:232
+msgid "Tanzania, United Republic of Tanzania"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:233
+msgid "Thailand"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:234
+msgid "Timor-Leste"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:235
+msgid "Togo"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:236
+msgid "Tokelau"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:237
+msgid "Tonga"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:238
+msgid "Trinidad and Tobago"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:239
+msgid "Tunisia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:240
+msgid "Turkey"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:241
+msgid "Turkmenistan"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:242
+msgid "Turks and Caicos Islands"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:243
+msgid "Tuvalu"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:244
+msgid "Uganda"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:245
+msgid "Ukraine"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:246
+msgid "United Arab Emirates"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:247
+msgid "United Kingdom"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:248
+msgid "United States"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:249
+msgid "Uruguay"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:250
+msgid "Uzbekistan"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:251
+msgid "Vanuatu"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:252
+msgid "Venezuela, Bolivarian Republic of Venezuela"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:253
+msgid "Vietnam"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:254
+msgid "Virgin Islands, British"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:255
+msgid "Virgin Islands, U.S."
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:256
+msgid "Wallis and Futuna"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:257
+msgid "Yemen"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:258
+msgid "Zambia"
+msgstr ""
+
+#: classes/Fields/CountryCodes.php:259
+msgid "Zimbabwe"
 msgstr ""
 
 #: classes/Fields/Registry.php:29
@@ -3294,80 +4258,88 @@ msgstr ""
 msgid "This form no longer exists."
 msgstr ""
 
-#: classes/Frontend/Renderer.php:63
+#: classes/Frontend/Renderer.php:64
 msgid "This form is a draft. Publish it in VuloForm to show it here."
 msgstr ""
 
-#: classes/Frontend/Renderer.php:153
+#: classes/Frontend/Renderer.php:154
 msgid "Leave this field empty"
 msgstr ""
 
-#: classes/Frontend/Renderer.php:163
+#: classes/Frontend/Renderer.php:164
 msgid "This form is protected by Google reCAPTCHA, which needs JavaScript. Please switch JavaScript on to send it."
 msgstr ""
 
-#: classes/Frontend/Renderer.php:250
-#: classes/Submissions/Processor.php:390
+#: classes/Frontend/Renderer.php:251
+#: classes/Submissions/Processor.php:404
 msgid "Enter a valid email address."
 msgstr ""
 
-#: classes/Frontend/Renderer.php:251
-#: classes/Submissions/Processor.php:393
+#: classes/Frontend/Renderer.php:252
+#: classes/Submissions/Processor.php:407
 msgid "Enter a valid web address, starting with https://."
 msgstr ""
 
-#: classes/Frontend/Renderer.php:252
-#: classes/Submissions/Processor.php:402
+#: classes/Frontend/Renderer.php:253
+#: classes/Submissions/Processor.php:416
 msgid "Enter a number."
 msgstr ""
 
-#: classes/Frontend/Renderer.php:253
+#: classes/Frontend/Renderer.php:254
 msgid "That file is too large or not an allowed type."
 msgstr ""
 
-#: classes/Frontend/Renderer.php:254
+#: classes/Frontend/Renderer.php:255
 msgid "Clear"
 msgstr ""
 
-#: classes/Frontend/Renderer.php:255
+#: classes/Frontend/Renderer.php:256
 msgid "Something went wrong. Please check your connection and try again."
 msgstr ""
 
-#: classes/Frontend/Renderer.php:256
+#: classes/Frontend/Renderer.php:257
 msgid "Sending…"
 msgstr ""
 
-#: classes/Frontend/Renderer.php:257
+#: classes/Frontend/Renderer.php:258
 msgid "This is a preview. Nothing was sent."
 msgstr ""
 
 #. translators: 1: current step, 2: number of steps.
-#: classes/Frontend/Renderer.php:259
-#: classes/Frontend/Renderer.php:273
+#: classes/Frontend/Renderer.php:260
+#: classes/Frontend/Renderer.php:274
 #, php-format
 msgid "Step %1$s of %2$s"
 msgstr ""
 
 #. translators: Placeholder option of a dropdown field.
-#: classes/Frontend/Renderer.php:353
+#: classes/Frontend/Renderer.php:354
 msgid "Select…"
 msgstr ""
 
 #. translators: 1: comma-separated file extensions, 2: size in megabytes.
-#: classes/Frontend/Renderer.php:446
+#: classes/Frontend/Renderer.php:447
 #, php-format
 msgid "Allowed: %1$s. Up to %2$d MB."
 msgstr ""
 
-#: classes/Frontend/Renderer.php:467
+#: classes/Frontend/Renderer.php:468
 msgid "Draw your signature, or upload a PNG image of it."
 msgstr ""
 
-#: classes/Frontend/Renderer.php:554
+#: classes/Frontend/Renderer.php:492
+msgid "Country code"
+msgstr ""
+
+#: classes/Frontend/Renderer.php:493
+msgid "Code"
+msgstr ""
+
+#: classes/Frontend/Renderer.php:594
 msgid "Add row"
 msgstr ""
 
-#: classes/Frontend/Renderer.php:583
+#: classes/Frontend/Renderer.php:623
 msgid "Remove"
 msgstr ""
 
@@ -3773,32 +4745,32 @@ msgstr ""
 msgid "Your message could not be saved. Please try again later."
 msgstr ""
 
-#: classes/Submissions/Processor.php:398
+#: classes/Submissions/Processor.php:412
 msgid "Enter a valid phone number."
 msgstr ""
 
 #. translators: %s: smallest allowed number.
-#: classes/Submissions/Processor.php:407
+#: classes/Submissions/Processor.php:421
 #, php-format
 msgid "Enter a number of %s or more."
 msgstr ""
 
 #. translators: %s: largest allowed number.
-#: classes/Submissions/Processor.php:412
+#: classes/Submissions/Processor.php:426
 #, php-format
 msgid "Enter a number of %s or less."
 msgstr ""
 
-#: classes/Submissions/Processor.php:420
+#: classes/Submissions/Processor.php:434
 msgid "Enter a valid date."
 msgstr ""
 
-#: classes/Submissions/Processor.php:423
+#: classes/Submissions/Processor.php:437
 msgid "Enter a valid time."
 msgstr ""
 
 #. translators: %d: number of characters.
-#: classes/Submissions/Processor.php:440
+#: classes/Submissions/Processor.php:454
 #, php-format
 msgid "Enter at least %d character."
 msgid_plural "Enter at least %d characters."
@@ -3806,7 +4778,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of characters.
-#: classes/Submissions/Processor.php:445
+#: classes/Submissions/Processor.php:459
 #, php-format
 msgid "Enter no more than %d character."
 msgid_plural "Enter no more than %d characters."
@@ -3814,7 +4786,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: smallest allowed number of rows.
-#: classes/Submissions/Processor.php:473
+#: classes/Submissions/Processor.php:487
 #, php-format
 msgid "Add at least %d row."
 msgid_plural "Add at least %d rows."
@@ -3822,7 +4794,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: row number, 2: error message.
-#: classes/Submissions/Processor.php:483
+#: classes/Submissions/Processor.php:497
 #, php-format
 msgid "Row %1$d: %2$s"
 msgstr ""
