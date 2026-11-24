@@ -11,6 +11,12 @@
         }
     ],
     "minimum-stability": "dev",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../packages/php/vulo-shared"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "VuloForm\\": "classes/"
@@ -20,7 +26,8 @@
         ]
     },
     "require": {
-        "php": ">=7.4"
+        "php": ">=7.4",
+        "vulolabs/shared": "*"
     },
     "config": {
         "platform": {

@@ -9,25 +9,32 @@ namespace VuloMail\Rest;
 
 use VuloMail\Email\WpMailInterceptor;
 use VuloMail\Utill;
+use VuloShared\Rest\Controller as SharedController;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Shared permission check: every route is admin-only. Core's REST cookie auth already verifies the `wp_rest` nonce, so a logged-in admin's browser can't be tricked into calling these routes cross-site.
+ * VuloMail-specific addition over the shared permission-check base: `with_causes()`, used by
+ * delivery-log/diagnostics endpoints to annotate which failed attempt is worth surfacing advice for.
  */
-abstract class Controller extends \WP_REST_Controller {
+abstract class Controller extends SharedController {
 
 	/**
-	 * Checks that the current user may manage VuloMail.
+	 * The capability required to manage VuloMail.
 	 *
-	 * @return bool|\WP_Error
+	 * @return string
 	 */
-	public function check_permission() {
-		if ( ! current_user_can( Utill::CAPABILITY ) ) {
-			return new \WP_Error( 'rest_forbidden', __( 'You are not allowed to manage VuloMail.', 'vulomail' ), array( 'status' => rest_authorization_required_code() ) );
-		}
+	protected function capability() {
+		return Utill::CAPABILITY;
+	}
 
-		return true;
+	/**
+	 * The "not allowed" error message for VuloMail's own text domain.
+	 *
+	 * @return string
+	 */
+	protected function forbidden_message() {
+		return __( 'You are not allowed to manage VuloMail.', 'vulomail' );
 	}
 
 	/**
