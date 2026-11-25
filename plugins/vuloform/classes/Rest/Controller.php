@@ -8,32 +8,29 @@
 namespace VuloForm\Rest;
 
 use VuloForm\Utill;
-use VuloShared\Rest\Controller as SharedController;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloForm-specific additions over the shared permission-check base: a `route()` helper for
- * registering routes, and a shared `not_found()` error.
+ * Base REST controller for VuloForm's own routes: the shared permission check (capability +
+ * translated forbidden message), a `route()` helper for registering routes, and a shared
+ * `not_found()` error.
  */
-abstract class Controller extends SharedController {
+abstract class Controller extends \WP_REST_Controller {
 
 	/**
-	 * The capability required to manage VuloForm.
+	 * Checks that the current user may manage VuloForm. Core's REST cookie authentication
+	 * verifies the `wp_rest` nonce before this runs, so a logged-in admin's browser can't be
+	 * tricked into calling these routes cross-site.
 	 *
-	 * @return string
+	 * @return bool|\WP_Error
 	 */
-	protected function capability() {
-		return Utill::CAPABILITY;
-	}
+	public function check_permission() {
+		if ( ! current_user_can( Utill::CAPABILITY ) ) {
+			return new \WP_Error( 'rest_forbidden', __( 'You are not allowed to manage VuloForm.', 'vuloform' ), array( 'status' => rest_authorization_required_code() ) );
+		}
 
-	/**
-	 * The "not allowed" error message for VuloForm's own text domain.
-	 *
-	 * @return string
-	 */
-	protected function forbidden_message() {
-		return __( 'You are not allowed to manage VuloForm.', 'vuloform' );
+		return true;
 	}
 
 	/**

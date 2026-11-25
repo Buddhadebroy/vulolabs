@@ -111,6 +111,23 @@ if ( ! function_exists( 'vulomail_send_sms' ) ) {
 	}
 }
 
+if ( ! function_exists( 'vulomail_get_template_edit_url' ) ) {
+	/**
+	 * The admin URL to edit a registered email template in VuloMail's own Email Customizer. Keeps
+	 * knowledge of VuloMail's admin page/tab/query-arg structure in one place rather than each
+	 * consumer (CatalogX, ...) hardcoding `admin.php?page=vulomail#&tab=email-templates&template=`
+	 * itself.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param string $name `plugin/name` registered via `vulomail_register_email_template()`.
+	 * @return string
+	 */
+	function vulomail_get_template_edit_url( $name ) {
+		return admin_url( 'admin.php?page=vulomail#&tab=email-templates&template=' . $name );
+	}
+}
+
 if ( ! function_exists( 'vulomail_register_email_template' ) ) {
 	function vulomail_register_email_template( $name, array $args = array() ) {
 		return \VuloMail\Templates\Registry::register( $name, $args );
